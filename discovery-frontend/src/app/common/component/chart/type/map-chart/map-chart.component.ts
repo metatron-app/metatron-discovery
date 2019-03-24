@@ -266,7 +266,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     let scope = this;
     $(this.area.nativeElement).on({
       mouseleave: function () {
-        if (scope.tooltipLayer) scope.tooltipLayer.setPosition(undefined);
+        if (!_.isUndefined(scope.tooltipLayer) && scope.tooltipLayer.length > 0) {
+          scope.tooltipLayer.setPosition(undefined);
+        }
       }
     });
 
@@ -1957,7 +1959,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         && feature.getProperties()['layerNum'] == -5)) {
       // Disable tooltip
       this.tooltipInfo.enable = false;
-      this.tooltipLayer.setPosition(undefined);
+      if (!_.isUndefined(this.tooltipLayer) && this.tooltipLayer.length > 0) {
+        this.tooltipLayer.setPosition(undefined);
+      }
       // remove z-index for tooltip
       if (!this.isPage) $(document).find('.ddp-ui-dash-contents').removeClass('ddp-tooltip');
       else $(document).find('.ddp-view-chart-contents').removeClass('ddp-tooltip');
@@ -2118,9 +2122,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
               }
             });
           }
-          console.log('####', sizeOfToolTipHeight.length);
           if (sizeOfToolTipHeight.length > 0) {
-            yOffset = yOffset - (23 * sizeOfToolTipHeight.length);
+            // height 계산
+            yOffset = yOffset - (25 * (sizeOfToolTipHeight.length/1.2));
           }
           let offset = [-92, yOffset];
           this.tooltipLayer.setOffset(offset);
