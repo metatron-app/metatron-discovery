@@ -3125,8 +3125,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         valueRange = _.cloneDeep(this.data[this.getUiMapOption().layerNum]['valueRange'][alias]);
 
         if (valueRange) {
-          (_.isUndefined(layer.color.minValue) || layer.color.minValue > valueRange.minValue ? layer.color.minValue = valueRange.minValue : layer.color.minValue);
-          (_.isUndefined(layer.color.maxValue) || layer.color.maxValue < valueRange.maxValue ? layer.color.maxValue = valueRange.maxValue : layer.color.maxValue);
+          // layer type 이 변경될 경우 변경, 아닐경우 최대 최소 값으로 변경
+          if( this.drawByType == EventType.MAP_CHANGE_OPTION ){
+            layer.color.minValue = valueRange.minValue;
+            layer.color.maxValue = valueRange.maxValue;
+          } else {
+            (_.isUndefined(layer.color.minValue) || layer.color.minValue > valueRange.minValue ? layer.color.minValue = valueRange.minValue : layer.color.minValue);
+            (_.isUndefined(layer.color.maxValue) || layer.color.maxValue < valueRange.maxValue ? layer.color.maxValue = valueRange.maxValue : layer.color.maxValue);
+          }
         }
       }
 
