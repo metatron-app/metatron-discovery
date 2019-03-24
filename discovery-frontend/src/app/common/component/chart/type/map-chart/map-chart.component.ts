@@ -450,7 +450,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.createMapOverLayEvent();
 
     // Chart resize
-    this.olmap.updateSize();
+    if( this.drawByType != null || !_.isEmpty(this.drawByType) )
+      this.olmap.updateSize();
     ////////////////////////////////////////////////////////
     // Apply
     ////////////////////////////////////////////////////////
@@ -731,6 +732,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       layers: [layer],
       target: this.$area[0]
     });
+    this.olmap.un('moveend');
+    this.olmap.on('moveend', this.zoomFunction);
 
     for (let i = 0; i < document.getElementsByClassName('ol-attribution').length; i++) {
       let element = document.getElementsByClassName('ol-attribution')[i] as HTMLElement;
@@ -1914,7 +1917,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     }
     this.olmap.un('pointermove', this.tooltipFunction);
     this.olmap.on('pointermove', this.tooltipFunction);
-    this.olmap.on('moveend', this.zoomFunction);
     // this.olmap.on('click', this.zoomFunction);
     // this.olmap.on('pointermove', function(event) {
     //
@@ -3311,7 +3313,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.createLegend(this.getUiMapOption().layerNum);
 
     // Chart resize
-    this.olmap.updateSize();
+    // this.olmap.updateSize();
 
     this.loadingHide();
     // 완료
