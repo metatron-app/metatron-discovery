@@ -441,24 +441,10 @@ export class ConnectionComponent extends AbstractComponent {
    * @return {string}
    */
   public getImplementorImageIcon(connection: JdbcDialect): string {
-    if (connection.scope === Scope.EMBEDDED) {
-      switch (connection.implementor) {
-        case ImplementorType.MYSQL:
-          return '../../../../assets/images/img_db/ic_db_mysql.png';
-        case ImplementorType.HIVE:
-          return '../../../../assets/images/img_db/ic_db_hive.png';
-        case ImplementorType.DRUID:
-          return '../../../../assets/images/img_db/ic_db_druid.png';
-        case ImplementorType.POSTGRESQL:
-          return '../../../../assets/images/img_db/ic_db_post.png';
-        case ImplementorType.PRESTO:
-          return '../../../../assets/images/img_db/ic_db_presto.png';
-        default:
-          return '../../../../assets/images/img_db/ic_DB.png';
-      }
-    } else {
-      return connection.iconResource1 || '../../../../assets/images/img_db/ic_DB.png';
-    }
+    return this.getConnImplementorImgUrl(
+      connection.implementor,
+      connection.scope === Scope.EMBEDDED ? '../../../../assets/images/img_db/ic_DB.png' : connection.iconResource1
+    );
   }
 
   /**

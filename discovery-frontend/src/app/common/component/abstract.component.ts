@@ -36,6 +36,7 @@ import {StompService, StompState} from '@stomp/ng2-stompjs';
 import {Observable} from 'rxjs';
 import {filter, map} from 'rxjs/operators';
 import {isUndefined} from "util";
+import {ImplementorType} from "../../domain/dataconnection/dataconnection";
 
 export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanComponentDeactivate {
 
@@ -159,8 +160,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   /**
    * unload 전 실행
    */
-  public execBeforeUnload() {
-  }
+  public execBeforeUnload() {}
 
   /**
    * deactive 체크
@@ -619,6 +619,68 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
     return (group && '__UNKNOWN_GROUP' !== group.name) ? group.name : '';
   } // function - getGroupName
 
+  /**
+   * 커넥션 타입 이미지 URL 반환 ( Color )
+   * @param {ImplementorType} impType
+   * @param {string} imgResource
+   * @return {string}
+   */
+  public getConnImplementorImgUrl(impType:ImplementorType, imgResource?:string ):string {
+    let connImgUrl = '';
+    switch (impType) {
+      case ImplementorType.MYSQL:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_mysql.png';
+        break;
+      case ImplementorType.HIVE:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_hive.png';
+        break;
+      case ImplementorType.DRUID:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_druid.png';
+        break;
+      case ImplementorType.POSTGRESQL:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_post.png';
+        break;
+      case ImplementorType.PRESTO:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_presto.png';
+        break;
+      default:
+        connImgUrl = imgResource ? imgResource : location.origin + '/assets/images/img_db/ic_DB.png';
+        break;
+    }
+    return connImgUrl;
+  } // function - getConnImplementorImgUrl
+
+  /**
+   * 커넥션 타입 이미지 URL 반환 ( Gray )
+   * @param {ImplementorType} impType
+   * @param {string} imgResource
+   * @return {string}
+   */
+  public getConnImplementorGrayImgUrl(impType:ImplementorType, imgResource?:string ):string {
+    let connImgUrl = '';
+    switch (impType) {
+      case ImplementorType.MYSQL:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_mysql.png';
+        break;
+      case ImplementorType.HIVE:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_hive.png';
+        break;
+      case ImplementorType.DRUID:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_druid.png';
+        break;
+      case ImplementorType.POSTGRESQL:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_post.png';
+        break;
+      case ImplementorType.PRESTO:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_presto.png';
+        break;
+      default:
+        connImgUrl = imgResource ? imgResource : location.origin + '/assets/images/img_db/ic_DB.png';
+        break;
+    }
+    return connImgUrl;
+  } // function - getConnImplementorGrayImgUrl
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -778,7 +840,6 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
       });
     }, 500);
   } // function - sendViewActivityStream
-
 
   /**
    * Send Link Activity Stream

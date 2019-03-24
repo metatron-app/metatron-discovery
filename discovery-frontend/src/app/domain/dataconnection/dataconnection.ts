@@ -17,6 +17,7 @@ import { AbstractHistoryEntity } from '../common/abstract-history-entity';
 export class Dataconnection extends AbstractHistoryEntity {
   public id: string;
   public name: string;
+  public connectionInformation:JdbcDialect;
   public description: string;
   public type: string;
   public hostname: string;
@@ -28,7 +29,7 @@ export class Dataconnection extends AbstractHistoryEntity {
   public sid:string;
   public url: string;
   public connectUrl: string;
-  public implementor: ConnectionType;
+  public implementor: ImplementorType;
   public newDataConnection: string;
   public database: string;
   public connectionDatabase: string;
@@ -74,25 +75,6 @@ export interface InputSpec {
   catalog: InputMandatory,
   username: InputMandatory,
   password: InputMandatory
-}
-
-//TODO 데이터소스의 ConnectionType 과 이름이 겹치므로 추후 ImplementorType으로 변경 필요
-export enum ConnectionType {
-  H2 = <any>'H2',
-  MYSQL = <any>'MYSQL',
-  ORACLE = <any>'ORACLE',
-  TIBERO = <any>'TIBERO',
-  HIVE = <any>'HIVE',
-  HAWQ = <any>'HAWQ',
-  POSTGRESQL = <any>'POSTGRESQL',
-  MSSQL = <any>'MSSQL',
-  PRESTO = <any>'PRESTO',
-  PHOENIX = <any>'PHOENIX',
-  NVACCEL = <any>'NVACCEL',
-  STAGE = <any>'STAGE',
-  DRUID = <any>'DRUID',
-  FILE = <any>'FILE',
-  NONE = <any>'NONE'
 }
 
 export enum ImplementorType {

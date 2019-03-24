@@ -47,7 +47,7 @@ import {CommonUtil} from '../../util/common.util';
 import {DataDownloadComponent, PreviewResult} from '../data-download/data.download.component';
 import {MetadataColumn} from '../../../domain/meta-data-management/metadata-column';
 import {DashboardUtil} from '../../../dashboard/util/dashboard.util';
-import {ConnectionType, Dataconnection} from '../../../domain/dataconnection/dataconnection';
+import {ImplementorType, Dataconnection} from '../../../domain/dataconnection/dataconnection';
 import {PeriodData} from "../../value/period.data.value";
 import {TimeRangeFilter} from "../../../domain/workbook/configurations/filter/time-range-filter";
 import {Filter} from "../../../domain/workbook/configurations/filter/filter";
@@ -495,7 +495,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     const params = source.ingestion && connection
       ? this._getConnectionParams(source.ingestion, connection)
       : {};
-    this.connectionService.getTableDetailWitoutId(params, connection.implementor === ConnectionType.HIVE)
+    this.connectionService.getTableDetailWitoutId(params, connection.implementor === ImplementorType.HIVE)
       .then((data) => {
         this.gridData = data['data'];
         this.updateGrid(this.gridData, this.columns);

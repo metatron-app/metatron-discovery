@@ -14,7 +14,7 @@
 
 import { Component, ElementRef, Injector, OnInit, ViewChild } from '@angular/core';
 import { AbstractComponent } from '../../common/component/abstract.component';
-import { ConnectionType, Dataconnection } from '../../domain/dataconnection/dataconnection';
+import { ImplementorType, Dataconnection } from '../../domain/dataconnection/dataconnection';
 import { DataconnectionService } from '../../dataconnection/service/dataconnection.service';
 import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
 import { Modal } from '../../common/domain/modal';
@@ -265,27 +265,27 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
    * @param {ConnectionType} implementor
    * @returns {string}
    */
-  public getConnectionImplementorLabel(implementor: ConnectionType): string {
+  public getConnectionImplementorLabel(implementor: ImplementorType): string {
     switch (implementor) {
-      case ConnectionType.MYSQL:
+      case ImplementorType.MYSQL:
         return 'MySQL';
-      case ConnectionType.ORACLE:
+      case ImplementorType.ORACLE:
         return 'Oracle';
-      case ConnectionType.TIBERO:
+      case ImplementorType.TIBERO:
         return 'Tibero';
-      case ConnectionType.HIVE:
+      case ImplementorType.HIVE:
         return 'Hive';
-      case ConnectionType.POSTGRESQL:
+      case ImplementorType.POSTGRESQL:
         return 'PostgreSQL';
-      case ConnectionType.PRESTO:
+      case ImplementorType.PRESTO:
         return 'Presto';
-      case ConnectionType.MSSQL:
+      case ImplementorType.MSSQL:
         return 'MsSQL';
-      case ConnectionType.DRUID:
+      case ImplementorType.DRUID:
         return 'Druid';
-      case ConnectionType.STAGE:
+      case ImplementorType.STAGE:
         return 'StagingDB';
-      case ConnectionType.FILE:
+      case ImplementorType.FILE:
         return 'File';
       default:
         return implementor.toString();

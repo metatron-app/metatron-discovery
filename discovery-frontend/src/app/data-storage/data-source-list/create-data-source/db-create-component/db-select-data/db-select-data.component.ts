@@ -21,7 +21,7 @@ import {QueryDataResult} from "../../../../service/data-source-create.service";
 import {DataconnectionService} from "../../../../../dataconnection/service/dataconnection.service";
 import {ConnectionParam, DataConnectionCreateService} from "../../../../service/data-connection-create.service";
 import {StringUtil} from "../../../../../common/util/string.util";
-import {AuthenticationType, ConnectionType} from "../../../../../domain/dataconnection/dataconnection";
+import {AuthenticationType, ImplementorType} from "../../../../../domain/dataconnection/dataconnection";
 import {header, SlickGridHeader} from "../../../../../common/component/grid/grid.header";
 import {GridOption} from "../../../../../common/component/grid/grid.option";
 import {Alert} from "../../../../../common/util/alert.util";
@@ -265,7 +265,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent {
    * @return {string}
    */
   public getUnSelectedDatabaseMessage(): string {
-    return this._sourceData.connectionData.selectedDbType.value === ConnectionType.MYSQL ? this.translateService.instant('msg.storage.ui.dsource.create.choose-db') : this.translateService.instant('msg.storage.ui.dsource.create.choose-schema');
+    return this._sourceData.connectionData.selectedDbType.value === ImplementorType.MYSQL ? this.translateService.instant('msg.storage.ui.dsource.create.choose-db') : this.translateService.instant('msg.storage.ui.dsource.create.choose-schema');
   }
 
   /**
@@ -273,7 +273,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent {
    * @return {string}
    */
   public getDatabaseSearchPlaceHolderMessage(): string {
-    return this._sourceData.connectionData.selectedDbType.value === ConnectionType.MYSQL ? this.translateService.instant('msg.storage.ui.dsource.create.search-db') : this.translateService.instant('msg.storage.ui.dsource.create.search-schema');
+    return this._sourceData.connectionData.selectedDbType.value === ImplementorType.MYSQL ? this.translateService.instant('msg.storage.ui.dsource.create.search-db') : this.translateService.instant('msg.storage.ui.dsource.create.search-schema');
   }
 
   /**

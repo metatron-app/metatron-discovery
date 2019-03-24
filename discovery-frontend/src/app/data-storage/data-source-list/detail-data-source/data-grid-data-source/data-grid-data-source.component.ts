@@ -24,7 +24,7 @@ import {GridOption} from '../../../../common/component/grid/grid.option';
 import {DataconnectionService} from '../../../../dataconnection/service/dataconnection.service';
 import {Metadata} from '../../../../domain/meta-data-management/metadata';
 import {isUndefined} from 'util';
-import {ConnectionType, Dataconnection} from '../../../../domain/dataconnection/dataconnection';
+import {ImplementorType, Dataconnection} from '../../../../domain/dataconnection/dataconnection';
 import {TimezoneService} from "../../../service/timezone.service";
 import {StringUtil} from "../../../../common/util/string.util";
 
@@ -431,7 +431,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
     const params = source.ingestion && connection
       ? this._getConnectionParams(source.ingestion, connection)
       : {};
-    this.connectionService.getTableDetailWitoutId(params, connection.implementor === ConnectionType.HIVE ? true : false)
+    this.connectionService.getTableDetailWitoutId(params, connection.implementor === ImplementorType.HIVE ? true : false)
       .then((data) => {
         // grid data
         this._gridData = data['data'];
