@@ -847,9 +847,6 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
     aggregations.clear();
     postAggregations.clear();
 
-    aggregations.add(new CountAggregation("count"));
-    outputColumns.add("count");
-
     if (!"count".equals(aggregation.getColumn())) {
       MeasureField measureField = new MeasureField(aggregation.getColumn(),
                                                    aggregation.getColumn().startsWith("user_defined.") ? "user_defined" : null,
@@ -857,6 +854,18 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
       addAggregationFunction(measureField);
       outputColumns.add(measureField.getAlias());
     }
+
+
+    // FixMe: so many duplicated code! T.T
+    long cntAggregation = aggregations.stream()
+                                      .filter(aggr -> "count".equals(aggr.getName()))
+                                      .count();
+
+    if (cntAggregation == 0) {
+      aggregations.add(new CountAggregation("count"));
+    }
+
+    outputColumns.add("count");
 
     return this;
   }
