@@ -1940,9 +1940,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     let feature = this.olmap.forEachFeatureAtPixel(event.pixel, (feature) => {
       return feature;
     });
-    // let feature = event.map.forEachFeatureAtPixel(event.pixel, (feature) => {
+    // let featureByEvent = event.map.forEachFeatureAtPixel(event.pixel, (feature) => {
     //   return feature;
     // });
+    // console.log(featureByEvent);
     // console.log(this.olmap.getFeaturesAtPixel(event.pixel));
     // console.log(this.olmap.hasFeatureAtPixel(event.pixel));
 
@@ -2041,10 +2042,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           let aggregationKeys: any[] = [];
           // layer 에 올라간 field 값 조회
           let layerItems = [];
+          let itemIndex = 0;
+          let customField = {};
           if (!_.isUndefined(this.getUiMapOption().analysis) && !_.isUndefined(this.getUiMapOption().analysis['use']) && this.getUiMapOption().analysis['use'] === true) {
             // 공간연산 실행 시
-            layerItems = _.cloneDeep(!_.isUndefined(this.shelf.layers[this.getUiMapOption().layerNum].fields) && this.shelf.layers[this.getUiMapOption().layerNum].fields.length > 0
-              ? this.shelf.layers[this.getUiMapOption().layerNum].fields : []);
+            layerItems = _.cloneDeep(
+              !_.isUndefined(this.shelf.layers[this.getUiMapOption().layerNum].fields) && this.shelf.layers[this.getUiMapOption().layerNum].fields.length > 0
+              ? this.shelf.layers[this.getUiMapOption().layerNum].fields : []
+            );
           } else {
             this.shelf.layers[toolTipLayerNum].fields.forEach((field) => {
               layerItems.push(field);

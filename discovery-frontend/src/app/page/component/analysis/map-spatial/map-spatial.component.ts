@@ -556,7 +556,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
    */
   private doEnableAnalysisBtn() {
     if(!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] == true) {
-      setTimeout(() => this.changeAnalysis.emit('removeAnalysisLayerEvent'), 800);
+      setTimeout(() => this.changeAnalysis.emit('removeAnalysisLayerEvent'), 1000);
 
     }
   }
