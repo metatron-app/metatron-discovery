@@ -452,7 +452,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   }
 
   set uiOption(uiOption: UIOption) {
-
     this.widgetConfiguration.chart = uiOption;
   }
 
