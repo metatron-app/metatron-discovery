@@ -3714,6 +3714,7 @@
   "msg.page.chart.map.tooltip.search.no.column": "No column",
   "msg.page.chart.map.spatial.mainlayer": "Main Layer",
   "msg.page.chart.map.spatial.comparelayer": "Compare Layer",
+  "msg.page.chart.map.spatial.comparelayer.area": "Compare Layer",
   "msg.page.chart.map.spatial.analysis": "Spatial Analysis",
   "msg.page.chart.map.spatial.analysis.result": "Result Spatial Analysis =",
   "msg.page.chart.map.spatial.step": "Choropleth",
