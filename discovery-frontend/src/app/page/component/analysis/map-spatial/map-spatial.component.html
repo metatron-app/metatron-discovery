@@ -146,7 +146,7 @@
           ></component-select>
           <!-- //SELECTBOX -->
         </div>
-        <div class="ddp-divide2" *ngIf="fieldList['measureList'].length > 1 && (this.fieldList['measureList'][this.colorByIndex]['alias'] != 'count' && this.fieldList['measureList'][this.colorByIndex]['alias'] != undefined)">
+        <div class="ddp-divide2" *ngIf="fieldList['measureList'].length > 1 && (fieldList['measureList'][colorByIndex]['field'] != undefined)">
           <div class="ddp-list-label">Aggregate by</div>
 
           <!-- 클릭시 ddp-selected 추가 -->

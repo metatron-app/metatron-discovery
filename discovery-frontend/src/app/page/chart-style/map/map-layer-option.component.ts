@@ -1347,15 +1347,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
         let uiOption = this.uiOption;
         let analysisCountAlias : string;
+        let isUndefinedAggregationType : boolean = false;
         if( !_.isUndefined(uiOption['analysis']) && !_.isUndefined(uiOption['analysis']['use']) && uiOption['analysis']['use'] ) {
           if( uiOption['analysis']['operation']['choropleth'] ) {
             analysisCountAlias = uiOption['analysis']['operation']['aggregation']['column'];
+            (_.isUndefined(uiOption['analysis']['operation']['aggregation']['type']) ? isUndefinedAggregationType = true : isUndefinedAggregationType = false );
           }
         }
 
         shelve.map((item) => {
           if( !_.isUndefined(analysisCountAlias) && _.eq(item.type, typeList[0]) && _.eq(item.type, ShelveFieldType.MEASURE) ){
-            if( item.name == 'count' || analysisCountAlias == item.name ){
+            if( (!_.isUndefined(item['isCustomField']) && item['isCustomField'] ) || ( !isUndefinedAggregationType && analysisCountAlias == item.name) ){
               item['alias'] = ChartUtil.getAlias(item);
               resultList.push(item);
             }
