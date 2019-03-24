@@ -499,7 +499,7 @@ export class ColorOptionConverter {
     let alias = ChartUtil.getFieldAlias(uiOption.layers[layerIndex].color.column, layers, uiOption.layers[layerIndex].color.aggregationType);
 
     if( !_.isUndefined(uiOption['analysis']) && !_.isUndefined(uiOption['analysis']['use']) && uiOption['analysis']['use'] ) {
-      if( !_.isUndefined(uiOption['analysis']['operation']['aggregation']) && !_.isUndefined(uiOption['analysis']['operation']['aggregation']['column'])
+      if( uiOption['analysis']['operation']['choropleth']
         && uiOption['analysis']['operation']['aggregation']['column'] == 'count') {
         alias = uiOption['analysis']['operation']['aggregation']['column'];
       }
@@ -559,7 +559,8 @@ export class ColorOptionConverter {
         let min = 0 == index ? null : formatValue(maxValue - addValue);
 
         // if value if lower than minValue, set it as minValue
-        if (min < data.valueRange.minValue && min < 0) min = _.cloneDeep(formatMinValue);
+        // if (min < data.valueRange.minValue && min < 0) min = _.cloneDeep(formatMinValue);
+        if (min < minValue && min < 0) min = _.cloneDeep(formatMinValue);
 
         rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, min, formatValue(maxValue), min, formatValue(maxValue), shape));
 
