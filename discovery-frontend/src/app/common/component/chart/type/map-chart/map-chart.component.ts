@@ -2120,7 +2120,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           }
           console.log('####', sizeOfToolTipHeight.length);
           if (sizeOfToolTipHeight.length > 0) {
-            yOffset = yOffset - (20 * sizeOfToolTipHeight.length);
+            yOffset = yOffset - (23 * sizeOfToolTipHeight.length);
           }
           let offset = [-92, yOffset];
           this.tooltipLayer.setOffset(offset);
