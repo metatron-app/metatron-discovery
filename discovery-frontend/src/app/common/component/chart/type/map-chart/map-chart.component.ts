@@ -3126,7 +3126,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
         if (valueRange) {
           // layer type 이 변경될 경우 변경, 아닐경우 최대 최소 값으로 변경
-          if( this.drawByType == EventType.MAP_CHANGE_OPTION ){
+          if( this.drawByType == EventType.MAP_CHANGE_OPTION || this.drawByType == EventType.CHANGE_PIVOT ){
             layer.color.minValue = valueRange.minValue;
             layer.color.maxValue = valueRange.maxValue;
           } else {
