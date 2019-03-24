@@ -816,13 +816,6 @@ export class MapPagePivotComponent extends PagePivotComponent {
       fields: _.cloneDeep(this.shelf.layers[this.uiOption.analysis.layerNum].fields)
     };
 
-    if( !this.uiOption['analysis']['operation']['choropleth'] ) {
-      let tempLayer = layers.fields.filter((item) => {
-        return item.field.logicalType.toString().indexOf('GEO') != -1;
-      });
-      layers.fields = _.cloneDeep(tempLayer);
-    }
-
     // add empty layer
     this.shelf.layers.push(layers);
 
