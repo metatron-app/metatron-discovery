@@ -3313,7 +3313,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.createLegend(this.getUiMapOption().layerNum);
 
     // Chart resize
-    // this.olmap.updateSize();
+    if( this.drawByType != null || !_.isEmpty(this.drawByType) )
+      this.olmap.updateSize();
 
     this.loadingHide();
     // 완료
