@@ -2560,7 +2560,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       let isMeasure: boolean = false;
       _.each(shelf, (field) => {
         // analysis aggregation이 count 일 경우
-        if (isAnalysisUse && field.alias == 'count') {
+        if (isAnalysisUse && !_.isUndefined(field['isCustomField']) && field.alias == 'count') {
           isNone = false;
           isDimension = false;
           isMeasure = true;
