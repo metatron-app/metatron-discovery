@@ -740,11 +740,20 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   public getDataSourceName(): string {
     let strName: string = '';
-    if (this.widget && this.widget.configuration.dataSource) {
-      const widgetDataSource: Datasource
-        = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widget.configuration.dataSource);
-      (widgetDataSource) && (strName = widgetDataSource.name);
-    }
+    if (this.widget ) {
+      const widgetConf:PageWidgetConfiguration = this.widget.configuration;
+      if( ChartType.MAP === widgetConf.chart.type && widgetConf.shelf.layers ) {
+        strName = widgetConf.shelf.layers.reduce((acc, currVal) => {
+          const dsInfo:Datasource = this.widget.dashBoard.dataSources.find( item => item.engineName === currVal.ref );
+          acc = ( '' === acc ) ? acc + dsInfo.name : acc + ',' + dsInfo.name;
+          return acc;
+        }, '' );
+      } else if( widgetConf.dataSource ) {
+        const widgetDataSource: Datasource
+          = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, widgetConf.dataSource);
+        (widgetDataSource) && (strName = widgetDataSource.name);
+      } // enf if - widgetConf.dataSource
+    } // end if - widget
     return strName;
   } // function - getDataSourceName
 
@@ -1345,8 +1354,17 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
     const uiCloneQuery = _.cloneDeep(query);
 
-    if ('default' === this.widgetConfiguration.dataSource.type) {
-      // General or Single Layer Map Chart
+    if (ChartType.MAP === this.widgetConfiguration.chart.type) {
+      if( this.widgetConfiguration.shelf.layers.some( layer => {
+        return isNullOrUndefined(this.widget.dashBoard.dataSources.find( item => item.engineName === layer.ref ));
+      }) ) {
+        this.isMissingDataSource = true;
+        this._showError({code: 'GB0000', details: this.translateService.instant('msg.board.error.missing-datasource')});
+        this.updateComplete();
+        return;
+      }
+    } else {
+      // General Chart
 
       // 필터 설정
       const widgetDataSource: Datasource = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widgetConfiguration.dataSource);
@@ -1370,10 +1388,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         uiCloneQuery.filters = externalFilters.concat(uiCloneQuery.filters);
       }
 
-    } else {
-
     }
-
 
     this.isShowNoData = false;
     this._hideError();

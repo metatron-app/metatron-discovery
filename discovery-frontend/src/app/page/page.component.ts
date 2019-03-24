@@ -651,7 +651,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     (this.widget) || (this.widget = _.cloneDeep(this.originalWidget));
 
     if (ChartType.MAP === this.widget.configuration.chart.type) {
-      this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, this.widget.configuration.dataSource.engineName);
+      // this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, this.widget.configuration.dataSource.engineName);
+      this.boardFilters = this.widget.dashBoard.configuration.filters;
       this.dataSource = dataSource;
 
       ( isBBoxChange ) && ( this._setDefaultAreaForBBox( dataSource ) );
@@ -4259,7 +4260,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     });
 
     // 보드 필터 설정
-    this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, this.widget.configuration.dataSource.engineName);
+    if (ChartType.MAP === this.widget.configuration.chart.type) {
+      this.boardFilters = this.widget.dashBoard.configuration.filters;
+    } else {
+      this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, this.widget.configuration.dataSource.engineName);
+    }
 
     // 해당 필터에 차트 위젯 아이디 설정
     targetFilter.ui.widgetId = this.isNewWidget() ? 'NEW' : this.widget.id;
