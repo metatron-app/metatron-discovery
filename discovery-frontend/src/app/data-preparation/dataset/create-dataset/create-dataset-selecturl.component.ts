@@ -113,8 +113,6 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
 
     if (this._isInit){
 
-      this.isValidCheck = false;
-
       let datasetFile = new PrDatasetFile();
 
       datasetFile.storedUri = '';
@@ -123,9 +121,8 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
 
     } else {
 
-      this.isValidCheck = true;
       this.storedUri = this.datasetFiles[0].storedUri;
-
+      this.isValidCheck = true;
       this._updateGrid(this.datasetFiles[0].sheetInfo[0].data, this.datasetFiles[0].sheetInfo[0].fields);
       this.currDelimiter = ( this.datasetFiles[0].fileFormat === FileFormat.CSV ? this.datasetFiles[0].delimiter : '');
       this.currCoumnCount = ( this.datasetFiles[0].sheetInfo ? this.datasetFiles[0].sheetInfo[0].columnCount : 0 );
@@ -175,21 +172,25 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
    */
   public next() {
 
-    // empty file url
-    if (this.storedUri.trim() === '') {
-      this.errorNum = 0;
+    // 이미 validation 했고 실패한 상태
+    if (!isNullOrUndefined(this.errorNum)) {
       return;
     }
 
-    if (this.errorNum) {
+    // File url can't be empty
+    if (this.storedUri.trim() === '' || isNullOrUndefined(this.storedUri)) {
+      this.errorNum = 0;
+      this.isValidCheck = false;
       return;
     }
+
 
     if (!this.isValidCheck) {
       this.errorNum = 0;
       return;
     }
 
+    // Find selected sheets
     this.datasetFiles.forEach((dsFile)=>{
       if(dsFile.sheetInfo && dsFile.fileFormat === FileFormat.EXCEL){
         dsFile.selectedSheets = [];
@@ -198,6 +199,14 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
         });
       }
     });
+
+    // Excel일 경우 Sheet가 하나 이상 선택되어있어야 한다
+    if (this.isEXCEL) {
+      if (this.datasetFiles[0].selectedSheets.length === 0) {
+        return;
+      }
+    }
+
 
     this.typeEmitter.emit('URL');
     this.popupService.notiPopup({
@@ -217,6 +226,7 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
     if(this.storedUri.length < 1){
       console.log('length error');
       this.errorNum = 0;
+      this.isValidCheck = false;
       return;
     }
 
@@ -548,6 +558,7 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
         // no result from server
         if( option && option === 'draw') this.clearGrid = true;
         this.errorNum = 1;
+        this.isValidCheck = false;
 
       }
       this.loadingHide();
@@ -555,16 +566,21 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
     }).catch((error) => {
 
       this.errorNum = 1;
+      this.isValidCheck = false;
+      this.datasetFiles[0] = new PrDatasetFile();
+      this.clearGrid = true;
+      this.isEXCEL = false;
+      this.gridComponent.destroy();
 
       // TODO : When error use toast ?
-      console.info(error);
-      this.datasetFiles[idx].error = error;
-
-      if(this._isInit && idx === 0){
-        this.previewErrorMessge = this.datasetFiles[0].error.details;
-      }
-
-      if( option && option === 'draw') this.clearGrid = true;
+      // console.info(error);
+      // this.datasetFiles[idx].error = error;
+      //
+      // if(this._isInit && idx === 0){
+      //   this.previewErrorMessge = this.datasetFiles[0].error.details;
+      // }
+      //
+      // if( option && option === 'draw') this.clearGrid = true;
       this.loadingHide();
 
     });
