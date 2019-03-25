@@ -142,9 +142,10 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     if (!_.isUndefined(changes) && !_.isUndefined(changes['uiOption'])
       && !_.isUndefined(changes['uiOption']['currentValue']['analysis'])
       && !_.isUndefined(changes['uiOption']['currentValue']['analysis']['use'])
-      && changes['uiOption']['currentValue']['analysis']['use'] == true) {
+      && changes['uiOption']['currentValue']['analysis']['use'] == true
+      && this.baseList.layers.length > 0) {
       return;
-    } else if (!_.isUndefined(changes) && !_.isUndefined(changes['uiOption'])) {
+    } else if (!_.isUndefined(changes) && !_.isUndefined(changes['uiOption']) && this.baseList.layers.length <= 0) {
       this.uiOption = (<UIMapOption>changes['uiOption'].currentValue);
       this.mapSpatialChanges(this.uiOption, this.shelf);
     }
