@@ -71,7 +71,7 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
   public currSheetIndex : number = 0;
   public currDSIndex: number = 0;
   public currDetail : any;
-  public currCoumnCount: number;
+  public currColumnCount: number;
 
   public previewErrorMessge : string;
 
@@ -125,8 +125,9 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
       this.isValidCheck = true;
       this._updateGrid(this.datasetFiles[0].sheetInfo[0].data, this.datasetFiles[0].sheetInfo[0].fields);
       this.currDelimiter = ( this.datasetFiles[0].fileFormat === FileFormat.CSV ? this.datasetFiles[0].delimiter : '');
-      this.currCoumnCount = ( this.datasetFiles[0].sheetInfo ? this.datasetFiles[0].sheetInfo[0].columnCount : 0 );
+      this.currColumnCount = ( this.datasetFiles[0].sheetInfo ? this.datasetFiles[0].sheetInfo[0].columnCount : 0 );
       this._setFileFormat(this.datasetFiles[0].fileFormat);
+      this._setDetailInfomation(0,0);
 
     }
   }
@@ -173,7 +174,7 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
   public next() {
 
     // 이미 validation 했고 실패한 상태
-    if (!isNullOrUndefined(this.errorNum)) {
+    if (!isNullOrUndefined(this.errorNum) || this.isColumnCountRequired || this.isDelimiterRequired) {
       return;
     }
 
@@ -328,8 +329,19 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
       }
 
     } else {
-      this.errorNum = null;
+
+      // Column count input
+      if ('colCnt' === type) {
+        this.isColumnCountRequired = true;
+      }
+
+      // File url input
+      if ('url' === type) {
+        this.errorNum = null;
+      }
+
       this.isValidCheck = false;
+
     }
 
   }
@@ -338,16 +350,17 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
    * When columnCount is changed(CSV, EXCEL)
    */
   public changeColumnCount(){
-    this.isColumnCountRequired = ( (isNullOrUndefined(this.currCoumnCount) || 1 > this.currCoumnCount) && this.datasetFiles[this.currDSIndex].fileFormat != FileFormat.JSON);
+    this.isColumnCountRequired = ( (isNullOrUndefined(this.currColumnCount) || 1 > this.currColumnCount) && this.datasetFiles[this.currDSIndex].fileFormat != FileFormat.JSON);
 
-    if (isNullOrUndefined(this.currCoumnCount) || 1 > this.currCoumnCount || this.datasetFiles[this.currDSIndex].fileFormat === FileFormat.JSON) {
+    if (isNullOrUndefined(this.currColumnCount) || 1 > this.currColumnCount || this.datasetFiles[this.currDSIndex].fileFormat === FileFormat.JSON) {
       return;
     }
 
-    if( this.datasetFiles[this.currDSIndex].sheetInfo && this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount !=  this.currCoumnCount ) {
-      this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount = this.currCoumnCount;
+    if( this.datasetFiles[this.currDSIndex].sheetInfo && this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount !=  this.currColumnCount ) {
+      this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount = this.currColumnCount;
       this.loadingShow();
-      this._getGridInformation(this.currDSIndex, this._getParamForGrid(this.datasetFiles[this.currDSIndex], this.currCoumnCount),'draw');
+      this._getGridInformation(this.currDSIndex, this._getParamForGrid(this.datasetFiles[this.currDSIndex], this.currColumnCount),'draw');
+      this.isValidCheck = true;
     }
   }
 
@@ -435,7 +448,7 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
 
       this.currDelimiter = this.datasetFiles[dsIdx].delimiter;
 
-      this.currCoumnCount = ( this.datasetFiles[dsIdx].sheetInfo ? this.datasetFiles[dsIdx].sheetInfo[0].columnCount : 0 );
+      this.currColumnCount = ( this.datasetFiles[dsIdx].sheetInfo ? this.datasetFiles[dsIdx].sheetInfo[0].columnCount : 0 );
 
       if(!this.datasetFiles[dsIdx].sheetInfo){
         this.clearGrid = true;
@@ -471,7 +484,7 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
     this.currDelimiter = '';
 
     this.isColumnCountRequired = false;
-    this.currCoumnCount = ( this.datasetFiles[dsIdx].sheetInfo ? this.datasetFiles[dsIdx].sheetInfo[sheetIdx].columnCount : 0 );
+    this.currColumnCount = ( this.datasetFiles[dsIdx].sheetInfo ? this.datasetFiles[dsIdx].sheetInfo[sheetIdx].columnCount : 0 );
 
     this.currDSIndex = dsIdx;
     this._setFileFormat(this.datasetFiles[dsIdx].fileFormat);
@@ -692,7 +705,7 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
       });
 
       // set current column count
-      if( idx === this.currDSIndex ) this.currCoumnCount = (this.datasetFiles[this.currDSIndex].sheetInfo? this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount: null);
+      if( idx === this.currDSIndex ) this.currColumnCount = (this.datasetFiles[this.currDSIndex].sheetInfo? this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount: null);
 
       this.datasetFiles[idx].selected = true;
       this.isNext = true;
