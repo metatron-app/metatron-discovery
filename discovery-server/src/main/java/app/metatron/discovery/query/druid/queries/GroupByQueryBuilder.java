@@ -844,6 +844,7 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
     //    outputColumns.remove(GEOMETRY_COLUMN_NAME);
 
     outputColumns.clear();
+    dimensions.clear();
     aggregations.clear();
     postAggregations.clear();
 
