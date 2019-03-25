@@ -127,7 +127,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
         this.gridData.data = this.gridData.data.splice(0,50);
         this.typeDesc = result.gridResponse.colDescs;
         this._setColumns(this.gridData.fields);
-        this.currentIdx = result.transformRules.length + 1;
+        this.currentIdx = result.transformRules.length-1;
 
         // open popup
         this.isPopupOpen = true;
@@ -135,7 +135,6 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
         // Grid component is undefined;
         this.safelyDetectChanges();
         this._updateGrid(this.gridData.fields, this.gridData.data);
-
 
 
       })
@@ -321,12 +320,6 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
       }
     });
 
-
-    // close popup
-    this.isPopupOpen = false;
-    this.subTitle = '';
-    this.indexForName = 1;
-
     let param = null;
 
     if (originals.length > 0) {
@@ -342,6 +335,11 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
       }
 
     }
+
+    // close popup
+    this.isPopupOpen = false;
+    this.subTitle = '';
+    this.indexForName = 1;
 
     // If nothing is changed, returns null
     this.renameMultiColumns.emit(param);
