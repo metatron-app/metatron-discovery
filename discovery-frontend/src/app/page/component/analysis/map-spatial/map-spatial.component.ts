@@ -469,10 +469,16 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       }
     };
 
+    // compare layer index 를 찾기 위함 (layer 가 두개일 경우만 가능)
+    let findCompareIndex = this.baseIndex == 0 ? 1 : 0;
     // buffer 설정
     if (bufferDataValue > 0 && this.isBufferOn == true) {
       mapUIOption.analysis['operation']['buffer'] = bufferDataValue;
+    } else if(this.uiOption.layers[findCompareIndex].type.toString().toLowerCase().indexOf('polygon') != -1 && this.isBufferOn == false) {
+      // polygon 일 경우 min/max 값이 서버에서 전달이 명확하지 않아 아래와 같이 설정
+      mapUIOption.analysis['operation']['buffer'] = 0;
     } else {
+      // 이 외 타입일 경우 buffer 를 1 로 설정
       mapUIOption.analysis['operation']['buffer'] = 1;
     }
 
