@@ -35,6 +35,7 @@ import {isNullOrUndefined} from 'util';
 import {AuthenticationType, Dataconnection, ImplementorType} from '../../../../domain/dataconnection/dataconnection';
 import {TimezoneService} from "../../../service/timezone.service";
 import {DataSourceCreateService, TypeFilterObject} from "../../../service/data-source-create.service";
+import {StringUtil} from "../../../../common/util/string.util";
 
 @Component({
   selector: 'data-grid-datasource',
