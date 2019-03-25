@@ -35,6 +35,13 @@ export class DataSourceCreateService {
     this._granularityService = injector.get(GranularityService);
   }
 
+  public getConnectionTypeList(): {label: string, value: ConnectionType}[] {
+    return [
+      { label : this._translateService.instant('msg.storage.ui.list.ingested.data'), value : ConnectionType.ENGINE },
+      { label : this._translateService.instant('msg.storage.ui.list.linked.data'), value : ConnectionType.LINK }
+    ];
+  }
+
   /**
    * Get convert sheets
    * @param {object} sheets

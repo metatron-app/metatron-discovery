@@ -40,14 +40,10 @@ import app.metatron.discovery.TestUtils;
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.core.oauth.OAuthRequest;
 import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
-import app.metatron.discovery.domain.datasource.connection.jdbc.H2Connection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.MySQLConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.OracleConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.PhoenixConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.PostgresqlConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.PrestoConnection;
+import app.metatron.discovery.domain.dataconnection.ConnectionRequest;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
+import app.metatron.discovery.extension.dataconnection.jdbc.JdbcConnectInformation;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
@@ -84,13 +80,13 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void createConnection() throws JsonProcessingException {
 
-    H2Connection connection = new H2Connection();
+    DataConnection connection = new DataConnection();
+    connection.setImplementor("H2");
     connection.setName("connection name");
     connection.setHostname("localhost");
     connection.setDatabase("polaris-datasources");
     connection.setUsername("sa");
     connection.setPassword("sa");
-    connection.setPath("./h2db");
 
     String reqBody = GlobalObjectMapper.writeValueAsString(connection);
 
@@ -115,13 +111,13 @@ import static org.hamcrest.Matchers.hasSize;
   @Test
   @OAuthRequest(username = "polaris", value = {"PERM_ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void createConnectionAndCreateDataSource() throws JsonProcessingException {
-    H2Connection h2Conn = new H2Connection();
+    DataConnection h2Conn = new DataConnection();
+    h2Conn.setImplementor("H2");
     h2Conn.setName("H2Connection");
     h2Conn.setHostname("localhost");
     h2Conn.setPort(3306);
     h2Conn.setUsername("sa");
     h2Conn.setPassword("sa");
-    h2Conn.setPath("/abc/bad");
 
     String reqBody = GlobalObjectMapper.writeValueAsString(h2Conn);
 
@@ -184,13 +180,13 @@ import static org.hamcrest.Matchers.hasSize;
 
     TestUtils.printTestTitle("1. Create Connection!");
 
-    H2Connection h2Conn = new H2Connection();
+    DataConnection h2Conn = new DataConnection();
+    h2Conn.setImplementor("H2");
     h2Conn.setName("H2Connection");
     h2Conn.setHostname("localhost");
     h2Conn.setPort(3306);
     h2Conn.setUsername("sa");
     h2Conn.setPassword("sa");
-    h2Conn.setPath("/abc/bad");
 
     String reqBody = GlobalObjectMapper.writeValueAsString(h2Conn);
 
@@ -274,7 +270,8 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void checkConnection() throws JsonProcessingException {
 
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection();
+    connection.setImplementor("MYSQL");
     connection.setHostname("255.255.255.0");
     connection.setPort(3306);
     connection.setUsername("sa");
@@ -302,7 +299,8 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void checkMysqlConnection() throws JsonProcessingException {
 
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection();
+    connection.setImplementor("MYSQL");
     connection.setHostname("localhost");
     connection.setPort(3306);
     connection.setDatabase("sample");
@@ -332,11 +330,12 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void checkConnectionWithUserInfo() throws JsonProcessingException {
 
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection();
+    connection.setImplementor("MYSQL");
     connection.setHostname("localhost");
     connection.setPort(3306);
     connection.setDatabase("sample");
-    connection.setAuthenticationType(DataConnection.AuthenticationType.USERINFO);
+    connection.setAuthenticationType(JdbcConnectInformation.AuthenticationType.USERINFO);
 
     ConnectionRequest request = new ConnectionRequest();
     request.setConnection(connection);
@@ -360,7 +359,8 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void showMysqlDataBases() throws JsonProcessingException {
 
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection();
+    connection.setImplementor("MYSQL");
     connection.setHostname("localhost");
 //    connection.setPort(3306);
     connection.setDatabase("polaris_datasources");
@@ -389,7 +389,8 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void showMysqlSchemas() throws JsonProcessingException {
 
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection();
+    connection.setImplementor("MYSQL");
     connection.setHostname("localhost");
 //    connection.setPort(3306);
     connection.setDatabase("polaris_datasources");
@@ -418,7 +419,8 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void showMysqlTables() throws JsonProcessingException {
 
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection();
+    connection.setImplementor("MYSQL");
     connection.setHostname("localhost");
     connection.setPort(3306);
     connection.setUsername("root");
@@ -449,7 +451,7 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void showMysqlTablesByConnection() throws JsonProcessingException {
 
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection("MYSQL");
     connection.setName("test");
     connection.setHostname("localhost");
     connection.setPort(3306);
@@ -494,7 +496,7 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void showMysqlDatabaseByConnection() throws JsonProcessingException {
 
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection("MYSQL");
     connection.setName("test");
     connection.setHostname("localhost");
     connection.setPort(3306);
@@ -539,7 +541,7 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void showOracleDatabaseByConnection() throws JsonProcessingException {
 
-    OracleConnection connection = new OracleConnection();
+    DataConnection connection = new DataConnection("ORACLE");
     connection.setName("test");
     connection.setHostname("ora11.cof5lvzznx9y.ap-northeast-2.rds.amazonaws.com");
     connection.setPort(1521);
@@ -584,7 +586,7 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void showOracleTablesByConnection() throws JsonProcessingException {
 
-    OracleConnection connection = new OracleConnection();
+    DataConnection connection = new DataConnection("ORACLE");
     connection.setName("test");
     connection.setHostname("ora11.cof5lvzznx9y.ap-northeast-2.rds.amazonaws.com");
     connection.setPort(1521);
@@ -629,7 +631,7 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void showMysqlTableData() throws JsonProcessingException {
 
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection("MYSQL");
     connection.setHostname("localhost");
     connection.setPort(3306);
     connection.setUsername("polaris");
@@ -662,7 +664,7 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void showPrestoTable() throws JsonProcessingException {
 
-    PrestoConnection connection = new PrestoConnection();
+    DataConnection connection = new DataConnection("PRESTO");
     connection.setHostname("localhost");
     connection.setPort(8080);
     connection.setCatalog("hive");
@@ -691,7 +693,7 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void showPrestoSchema() throws JsonProcessingException {
 
-    PrestoConnection connection = new PrestoConnection();
+    DataConnection connection = new DataConnection("PRESTO");
     connection.setHostname("localhost");
     connection.setPort(8080);
     connection.setCatalog("hive");
@@ -721,7 +723,7 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void queryMysqlBySelectTableCase() throws JsonProcessingException {
 
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection("MYSQL");
     connection.setHostname("localhost");
     connection.setPort(3306);
 //    connection.setDatabase("polaris_datasources");
@@ -753,7 +755,7 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void queryPrestoBySelectTableCase() throws JsonProcessingException {
 
-    PrestoConnection connection = new PrestoConnection();
+    DataConnection connection = new DataConnection("PRESTO");
     connection.setHostname("jnn-g07-02");
     connection.setPort(18080);
     connection.setCatalog("hive");
@@ -785,7 +787,7 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void showPhoenixSchemas() throws JsonProcessingException {
 
-    PhoenixConnection connection = new PhoenixConnection();
+    DataConnection connection = new DataConnection("PHOENIX");
     connection.setHostname("localhost");
     connection.setPort(2181);
     connection.setDatabase("hbase");
@@ -814,7 +816,7 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void showPhoenixTables() throws JsonProcessingException {
 
-    PhoenixConnection connection = new PhoenixConnection();
+    DataConnection connection = new DataConnection("PHOENIX");
     connection.setHostname("localhost");
     connection.setPort(2181);
     connection.setDatabase("hbase");
@@ -843,7 +845,7 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void checkConnectionForPostgresql() throws JsonProcessingException {
 
-    PostgresqlConnection connection = new PostgresqlConnection();
+    DataConnection connection = new DataConnection("POSTGRESQL");
     connection.setHostname("localhost");
     connection.setPort(5432);
     connection.setDatabase("etl");
@@ -872,7 +874,7 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void showSchemaForPostgresql() throws JsonProcessingException {
 
-    PostgresqlConnection connection = new PostgresqlConnection();
+    DataConnection connection = new DataConnection("POSTGRESQL");
     connection.setHostname("localhost");
     connection.setPort(5432);
     connection.setDatabase("etl");
@@ -901,7 +903,7 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void showTablesForPostgresql() throws JsonProcessingException {
 
-    PostgresqlConnection connection = new PostgresqlConnection();
+    DataConnection connection = new DataConnection("POSTGRESQL");
     connection.setHostname("localhost");
     connection.setPort(5432);
     connection.setDatabase("etl");
@@ -931,7 +933,7 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void queryBySelectTableForPostgresql() throws JsonProcessingException {
 
-    PostgresqlConnection connection = new PostgresqlConnection();
+    DataConnection connection = new DataConnection("POSTGRESQL");
     connection.setHostname("localhost");
     connection.setPort(5432);
     connection.setDatabase("etl");
@@ -963,7 +965,7 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void checkConnectionForHive() throws JsonProcessingException {
 
-    HiveConnection connection = new HiveConnection();
+    DataConnection connection = new DataConnection("HIVE");
     connection.setHostname("localhost");
     connection.setPort(10000);
     connection.setUsername("hive");
@@ -993,7 +995,7 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void showSchemasForHive() throws JsonProcessingException {
 
-    HiveConnection connection = new HiveConnection();
+    DataConnection connection = new DataConnection("HIVE");
     connection.setHostname("localhost");
     connection.setPort(10000);
     connection.setUsername("hive");
@@ -1022,7 +1024,7 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void showTablesForHive() throws JsonProcessingException {
 
-    HiveConnection connection = new HiveConnection();
+    DataConnection connection = new DataConnection("HIVE");
     connection.setHostname("localhost");
     connection.setPort(10000);
     connection.setUsername("hive");
@@ -1051,7 +1053,7 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void queryHiveBySelectTableCase1() throws JsonProcessingException {
 
-    HiveConnection connection = new HiveConnection();
+    DataConnection connection = new DataConnection("HIVE");
     connection.setHostname("localhost");
     connection.setPort(10000);
     connection.setUsername("hive");
@@ -1505,13 +1507,13 @@ import static org.hamcrest.Matchers.hasSize;
   @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void createWorkbenchConnection() throws JsonProcessingException {
-    HiveConnection connection = new HiveConnection();
+    DataConnection connection = new DataConnection("HIVE");
     connection.setName("Hive-For-Workbench");
     connection.setHostname("localhost");
     connection.setPort(10000);
     connection.setUsername("hive");
     connection.setPassword("hive");
-    connection.setAuthenticationType(DataConnection.AuthenticationType.MANUAL);
+    connection.setAuthenticationType(JdbcConnectInformation.AuthenticationType.MANUAL);
 
     String reqBody = GlobalObjectMapper.writeValueAsString(connection);
 
@@ -2269,7 +2271,7 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"PERM_ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void tableInformationForQuery(){
 
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection("MYSQL");
     connection.setHostname("localhost");
     connection.setPort(3306);
     connection.setUsername("polaris");

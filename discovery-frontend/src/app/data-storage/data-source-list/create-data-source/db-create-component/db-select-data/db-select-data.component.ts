@@ -21,7 +21,7 @@ import {QueryDataResult} from "../../../../service/data-source-create.service";
 import {DataconnectionService} from "../../../../../dataconnection/service/dataconnection.service";
 import {ConnectionParam, DataConnectionCreateService} from "../../../../service/data-connection-create.service";
 import {StringUtil} from "../../../../../common/util/string.util";
-import {AuthenticationType, ConnectionType} from "../../../../../domain/dataconnection/dataconnection";
+import {AuthenticationType, ImplementorType} from "../../../../../domain/dataconnection/dataconnection";
 import {header, SlickGridHeader} from "../../../../../common/component/grid/grid.header";
 import {GridOption} from "../../../../../common/component/grid/grid.option";
 import {Alert} from "../../../../../common/util/alert.util";
@@ -265,7 +265,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent {
    * @return {string}
    */
   public getUnSelectedDatabaseMessage(): string {
-    return this._sourceData.connectionData.selectedDbType.value === ConnectionType.MYSQL ? this.translateService.instant('msg.storage.ui.dsource.create.choose-db') : this.translateService.instant('msg.storage.ui.dsource.create.choose-schema');
+    return this._sourceData.connectionData.selectedDbType.value === ImplementorType.MYSQL ? this.translateService.instant('msg.storage.ui.dsource.create.choose-db') : this.translateService.instant('msg.storage.ui.dsource.create.choose-schema');
   }
 
   /**
@@ -273,7 +273,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent {
    * @return {string}
    */
   public getDatabaseSearchPlaceHolderMessage(): string {
-    return this._sourceData.connectionData.selectedDbType.value === ConnectionType.MYSQL ? this.translateService.instant('msg.storage.ui.dsource.create.search-db') : this.translateService.instant('msg.storage.ui.dsource.create.search-schema');
+    return this._sourceData.connectionData.selectedDbType.value === ImplementorType.MYSQL ? this.translateService.instant('msg.storage.ui.dsource.create.search-db') : this.translateService.instant('msg.storage.ui.dsource.create.search-schema');
   }
 
   /**
@@ -325,6 +325,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent {
       connection.hostname = this._sourceData.connectionData.hostname;
       connection.port = this._sourceData.connectionData.port;
     }
+    // TODO #1573 추후 extensions 스펙에 맞게 변경 필요
     // database
     if (this.connectionCreateService.isRequiredDatabase(this._sourceData.connectionData.selectedDbType.value)) {
       connection.database = this._sourceData.connectionData.database;
@@ -436,7 +437,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent {
       // name
       item.name = this._sliceTableName(item.name);
       // alias
-      item.alias = this._sliceTableName(item.alias);
+      item.alias = ( item.alias ) ? this._sliceTableName(item.alias) : item.name;
       return item;
     });
   }

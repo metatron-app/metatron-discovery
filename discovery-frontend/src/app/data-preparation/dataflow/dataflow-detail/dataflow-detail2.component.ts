@@ -205,7 +205,7 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
   }
 
   public openSnapshotPopup() {
-    this.createSnapshotPopup.init({id : this.selectedDataSet.dsId , name : this.selectedDataSet.dsName, fields : this.selectedDataSet.gridData.fields});
+    this.createSnapshotPopup.init({id : this.selectedDataSet.dsId , name : this.selectedDataSet.dsName});
   }
 
 

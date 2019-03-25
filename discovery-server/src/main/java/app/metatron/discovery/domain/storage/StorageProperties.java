@@ -18,6 +18,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.dialect.HiveDialect;
 
 @Component
 @ConfigurationProperties(prefix = "polaris.storage")
@@ -150,6 +156,24 @@ public class StorageProperties {
 
     public void setMetastorePassword(String metastorePassword) {
       this.metastorePassword = metastorePassword;
+    }
+
+    public DataConnection getJdbcDataConnection(){
+      DataConnection stageJdbcConnection = new DataConnection("STAGE");
+      stageJdbcConnection.setUrl(this.getUrl());
+      stageJdbcConnection.setHostname(this.getHostname());
+      stageJdbcConnection.setPort(this.getPort());
+      stageJdbcConnection.setUsername(this.getUsername());
+      stageJdbcConnection.setPassword(this.getPassword());
+
+      Map<String, String> propMap = new HashMap<>();
+      propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_HOST, this.getMetastoreHost());
+      propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_PORT, this.getMetastorePort());
+      propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_SCHEMA, this.getMetastoreSchema());
+      propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_USERNAME, this.getMetastoreUserName());
+      propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_PASSWORD, this.getMetastorePassword());
+      stageJdbcConnection.setProperties(GlobalObjectMapper.writeValueAsString(propMap));
+      return stageJdbcConnection;
     }
   }
 

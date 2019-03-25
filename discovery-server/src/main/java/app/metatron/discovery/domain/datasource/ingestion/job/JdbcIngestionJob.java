@@ -28,7 +28,6 @@
 
 package app.metatron.discovery.domain.datasource.ingestion.job;
 
-import app.metatron.discovery.domain.datasource.connection.jdbc.*;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
@@ -39,15 +38,18 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.List;
 
+import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
 import app.metatron.discovery.domain.datasource.DataSourceSummary;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionOption;
 import app.metatron.discovery.domain.datasource.ingestion.file.CsvFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
+import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionErrorCodes;
+import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionException;
 import app.metatron.discovery.spec.druid.ingestion.BatchIndex;
 import app.metatron.discovery.spec.druid.ingestion.Index;
 import app.metatron.discovery.spec.druid.ingestion.IngestionSpec;
@@ -90,11 +92,11 @@ public class JdbcIngestionJob extends AbstractIngestionJob implements IngestionJ
     // Select 문을 가지고 CSV 파일로 변환
     List<String> csvFiles = null;
 
-    if (connection instanceof MySQLConnection
-        || connection instanceof HiveConnection
-        || connection instanceof PrestoConnection) {
+    if (connection.getImplementor().equals("MYSQL")
+        || connection.getImplementor().equals("HIVE")
+        || connection.getImplementor().equals("PRESTO")) {
       if (ingestionInfo.getDatabase() != null && ingestionInfo.getDataType() == JdbcIngestionInfo.DataType.QUERY) {
-        ((JdbcDataConnection)connection).setDatabase(ingestionInfo.getDatabase());
+        connection.setDatabase(ingestionInfo.getDatabase());
       }
     }
 
@@ -105,7 +107,7 @@ public class JdbcIngestionJob extends AbstractIngestionJob implements IngestionJ
         DataSourceSummary summary = dataSource.getSummary();
 
         csvFiles = jdbcConnectionService.selectIncrementalQueryToCsv(
-            (JdbcDataConnection) connection,
+            connection,
             ingestionInfo,
             dataSource.getEngineName(),
             summary == null ? null : summary.getIngestionMaxTime(),
@@ -113,7 +115,7 @@ public class JdbcIngestionJob extends AbstractIngestionJob implements IngestionJ
         );
       } else {
         csvFiles = jdbcConnectionService.selectQueryToCsv(
-            (JdbcDataConnection) connection,
+            connection,
             ingestionInfo,
             dataSource.getEngineName(),
             dataSource.getFields()

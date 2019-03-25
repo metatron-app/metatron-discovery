@@ -45,15 +45,14 @@ import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.common.fileloader.FileLoaderFactory;
 import app.metatron.discovery.common.fileloader.FileLoaderProperties;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
 import app.metatron.discovery.domain.datasource.DataSourceRepository;
 import app.metatron.discovery.domain.datasource.DataSourceTemporary;
 import app.metatron.discovery.domain.datasource.DataSourceTemporaryRepository;
 import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
@@ -226,7 +225,7 @@ public class EngineLoadService {
       sendTopic(sendTopicUri, new ProgressResponse(5, "PROGRESS_GET_DATA_FROM_LINK_DATASOURCE"));
       try {
         tempResultFile = jdbcConnectionService
-                .selectQueryToCsv((JdbcDataConnection) connection,
+                .selectQueryToCsv(connection,
                         (LinkIngestionInfo) info,
                         engineProperties.getQuery().getLocalBaseDir(),
                         engineName,

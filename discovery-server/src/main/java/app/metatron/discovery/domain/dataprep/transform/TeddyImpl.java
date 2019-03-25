@@ -14,13 +14,14 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
 import app.metatron.discovery.domain.dataprep.PrepProperties;
 import app.metatron.discovery.domain.dataprep.PrepUtil;
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.dataprep.jdbc.PrepJdbcService;
 import app.metatron.discovery.domain.dataprep.json.PrepJsonUtil;
 import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
@@ -31,15 +32,14 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcTypeNotSuppor
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformExecutionFailedException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformTimeoutException;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
 import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection;
+import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
 import com.facebook.presto.jdbc.internal.guava.collect.Maps;
 import com.facebook.presto.jdbc.internal.joda.time.DateTime;
 import com.facebook.presto.jdbc.internal.joda.time.format.DateTimeFormat;
 import com.facebook.presto.jdbc.internal.joda.time.format.DateTimeFormatter;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -50,7 +50,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import javax.sql.DataSource;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
@@ -292,21 +291,22 @@ public class TeddyImpl {
 
   public DataFrame loadStageDBDataset(String dsId, String sql, String dsName) throws PrepException {
 
-    HiveConnection hiveConnection = new HiveConnection();
+    DataConnection hiveConnection = new DataConnection();
     StageDBConnection stageDB = storageProperties.getStagedb();
-
     hiveConnection.setHostname(stageDB.getHostname());
     hiveConnection.setPort(    stageDB.getPort());
     hiveConnection.setUsername(stageDB.getUsername());
     hiveConnection.setPassword(stageDB.getPassword());
     hiveConnection.setUrl(     stageDB.getUrl());
+    hiveConnection.setImplementor("HIVE");
 
-    PrepJdbcService jdbcConnectionService = new PrepJdbcService();
-    DataSource dataSource = jdbcConnectionService.getDataSource(hiveConnection, true);
+    JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(hiveConnection);
+    Connection conn;
     Statement stmt;
 
     try {
-      stmt = dataSource.getConnection().createStatement();
+      conn = jdbcDataAccessor.getConnection();
+      stmt = conn.createStatement();
     } catch (SQLException e) {
       e.printStackTrace();
       throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, e);
@@ -327,21 +327,15 @@ public class TeddyImpl {
     return createStage0(dsId, df);
   }
 
-  public DataFrame loadJdbcDataset(String dsId, DataConnection dataConnection, String dbName, String sql,
+  public DataFrame loadJdbcDataset(String dsId, DataConnection jdbcDataConnection, String dbName, String sql,
                                    String dsName) throws PrepException {
-    PrepJdbcService jdbcConnectionService = new PrepJdbcService();
-    JdbcDataConnection jdbcDataConnection;
-    if( dataConnection instanceof JdbcDataConnection ) {
-      jdbcDataConnection = (JdbcDataConnection) dataConnection;
-    } else {
-      jdbcDataConnection = jdbcConnectionService.makeJdbcDataConnection(dataConnection);
-    }
-    jdbcDataConnection.setDatabase(dbName);
-    DataSource dataSource = jdbcConnectionService.getDataSource(jdbcDataConnection, true);
+    JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(jdbcDataConnection);
+    Connection conn;
     Statement stmt = null;
 
     try {
-      stmt = dataSource.getConnection().createStatement();
+      conn = jdbcDataAccessor.getConnection();
+      stmt = conn.createStatement();
     } catch (SQLException e) {
       e.printStackTrace();
     }

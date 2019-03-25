@@ -28,21 +28,8 @@
 
 package app.metatron.discovery.domain.datasource.ingestion.job;
 
-import app.metatron.discovery.domain.datasource.DataSource;
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.HiveTableInformation;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
-import app.metatron.discovery.domain.datasource.ingestion.HiveIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionOption;
-import app.metatron.discovery.domain.datasource.ingestion.file.OrcFileFormat;
-import app.metatron.discovery.domain.storage.StorageProperties;
-import app.metatron.discovery.spec.druid.ingestion.HadoopIndex;
-import app.metatron.discovery.spec.druid.ingestion.Index;
-import app.metatron.discovery.spec.druid.ingestion.IngestionSpec;
-import app.metatron.discovery.spec.druid.ingestion.IngestionSpecBuilder;
 import com.google.common.collect.Lists;
+
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -50,6 +37,24 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
+
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
+import app.metatron.discovery.domain.dataconnection.accessor.HiveDataAccessor;
+import app.metatron.discovery.domain.datasource.DataSource;
+import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.connection.jdbc.HiveTableInformation;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
+import app.metatron.discovery.domain.datasource.ingestion.HiveIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionOption;
+import app.metatron.discovery.domain.datasource.ingestion.file.OrcFileFormat;
+import app.metatron.discovery.domain.storage.StorageProperties;
+import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
+import app.metatron.discovery.spec.druid.ingestion.HadoopIndex;
+import app.metatron.discovery.spec.druid.ingestion.Index;
+import app.metatron.discovery.spec.druid.ingestion.IngestionSpec;
+import app.metatron.discovery.spec.druid.ingestion.IngestionSpecBuilder;
 
 public class HiveIngestionJob extends AbstractIngestionJob implements IngestionJob {
 
@@ -133,7 +138,8 @@ public class HiveIngestionJob extends AbstractIngestionJob implements IngestionJ
   }
 
   private String makeOrcTypeSchema(StorageProperties.StageDBConnection hiveProperties, String source) {
-    HiveConnection connection = new HiveConnection();
+    DataConnection connection = new DataConnection();
+    connection.setImplementor("HIVE");
     connection.setUrl(hiveProperties.getUrl());
     connection.setHostname(hiveProperties.getHostname());
     connection.setPort(hiveProperties.getPort());
@@ -143,8 +149,13 @@ public class HiveIngestionJob extends AbstractIngestionJob implements IngestionJ
     String[] splited = StringUtils.split(source, ".");
     String schema = splited.length == 1 ? "default" : splited[0];
 
-    HiveTableInformation hiveTableInformation = jdbcConnectionService.showHiveTableDescription(connection, schema,
-                                                                                               splited[1], false);
+    JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(connection);
+    HiveTableInformation hiveTableInformation
+        = ((HiveDataAccessor) jdbcDataAccessor).showHiveTableDescription(connection,
+                                                                         null,
+                                                                         schema,
+                                                                         splited[1],
+                                                                         false);
 
     List<String> columnPairs = Lists.newArrayList();
     for (Field field : hiveTableInformation.getFields()) {

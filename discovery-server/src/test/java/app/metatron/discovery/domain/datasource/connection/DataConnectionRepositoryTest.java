@@ -20,8 +20,8 @@ import org.springframework.test.annotation.Rollback;
 import javax.inject.Inject;
 
 import app.metatron.discovery.AbstractIntegrationTest;
-import app.metatron.discovery.domain.datasource.connection.file.LocalFileConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.H2Connection;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionRepository;
 
 public class DataConnectionRepositoryTest extends AbstractIntegrationTest {
   @Inject
@@ -30,57 +30,40 @@ public class DataConnectionRepositoryTest extends AbstractIntegrationTest {
   @Test
   @Rollback(false)
   public void crudTest() {
-    H2Connection h2Conn = new H2Connection();
+    DataConnection h2Conn = new DataConnection();
+    h2Conn.setImplementor("H2");
     h2Conn.setName("H2Connection");
     h2Conn.setHostname("localhost");
     h2Conn.setPort(3306);
     h2Conn.setUsername("sa");
     h2Conn.setPassword("sa");
-    h2Conn.setPath("/abc/bad");
 
     dataConnectionRepository.saveAndFlush(h2Conn);
 
     DataConnection dataConnection = dataConnectionRepository.findOne(h2Conn.getId());
     System.out.println("--------: " + dataConnection);
-    System.out.println(dataConnection instanceof H2Connection);
-
-  }
-
-  @Test
-  @Rollback(false)
-  public void fileTest() {
-    LocalFileConnection connection = new LocalFileConnection();
-    connection.setName("export.xlsx");
-    connection.setPath("a8107d8d-880d-4e72-8eac-98d1cc469826.xlsx");
-    connection.setDescription("0,Y");
-
-    dataConnectionRepository.saveAndFlush(connection);
-
-    DataConnection dataConnection = dataConnectionRepository.findOne(connection.getId());
-    System.out.println("--------: " + dataConnection);
-    System.out.println(dataConnection instanceof LocalFileConnection);
 
   }
 
   @Test
   public void listWorkbenchConnection(){
-    H2Connection h2Conn = new H2Connection();
+    DataConnection h2Conn = new DataConnection();
+    h2Conn.setImplementor("H2");
     h2Conn.setName("H2Connection-Workbench");
     h2Conn.setHostname("localhost");
     h2Conn.setPort(3306);
     h2Conn.setUsername("sa");
     h2Conn.setPassword("sa");
-    h2Conn.setPath("/abc/bad");
     dataConnectionRepository.saveAndFlush(h2Conn);
 
 
-    h2Conn = new H2Connection();
+    h2Conn = new DataConnection();
+    h2Conn.setImplementor("H2");
     h2Conn.setName("H2Connection-Default");
     h2Conn.setHostname("localhost");
     h2Conn.setPort(3306);
     h2Conn.setUsername("sa");
     h2Conn.setPassword("sa");
-    h2Conn.setPath("/abc/bad");
     dataConnectionRepository.saveAndFlush(h2Conn);
 
 //    Page<DataConnection> connections = dataConnectionRepository.findDataConnectionByScope(DataConnection.Scope.DEFAULT);

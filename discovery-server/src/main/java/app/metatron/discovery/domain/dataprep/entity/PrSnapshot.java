@@ -14,28 +14,44 @@
 
 package app.metatron.discovery.domain.dataprep.entity;
 
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.common.bridge.JodaTimeSplitBridge;
-import app.metatron.discovery.domain.AbstractHistoryEntity;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
-import org.hibernate.search.annotations.*;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.SortableField;
+import org.hibernate.search.annotations.Store;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.*;
-import javax.validation.constraints.Size;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.Table;
+import javax.validation.constraints.Size;
+
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.bridge.JodaTimeSplitBridge;
+import app.metatron.discovery.domain.AbstractHistoryEntity;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
 
 @Entity
 @Table(name = "pr_snapshot")

@@ -23,12 +23,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.sql.DataSource;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.connector.SimpleJdbcConnector;
+import app.metatron.discovery.domain.dataconnection.dialect.HiveDialect;
+import app.metatron.discovery.extension.dataconnection.jdbc.connector.JdbcConnector;
 
 /**
  * Created by kyungtaak on 2016. 6. 16..
@@ -39,11 +43,11 @@ public class JdbcCSVWriterTest {
 
   @Test
   public void selectQueryToCsv() throws IOException{
-    HiveConnection connection = new HiveConnection();
-    connection.setHostname("localhost");
-    connection.setUsername("hive");
-    connection.setPassword("hive");
-    connection.setPort(10000);
+    DataConnection dataConnection = new DataConnection("HIVE");
+    dataConnection.setHostname("localhost");
+    dataConnection.setUsername("hive");
+    dataConnection.setPassword("hive");
+    dataConnection.setPort(10000);
 
     String query = "select * from default.sales_test1";
     String csvFilePath;
@@ -67,8 +71,9 @@ public class JdbcCSVWriterTest {
     testMap.put("fetchSize", 5000);
     testCase.add(testMap);
 
+    JdbcConnector jdbcConnector = new SimpleJdbcConnector();
     for(HashMap<String, Object> testCaseMap : testCase){
-      DataSource dataSource = jdbcConnectionService.getDataSource(connection, true);
+      Connection connection = jdbcConnector.getConnection(dataConnection, new HiveDialect(), dataConnection.getDatabase(), true);
 
       Calendar from = Calendar.getInstance();
       Writer writer = (Writer) testCaseMap.get("writer");
@@ -76,7 +81,6 @@ public class JdbcCSVWriterTest {
       String csvFilePath1 = (String) testCaseMap.get("csvFilePath");
       JdbcCSVWriter jdbcCSVWriter = new JdbcCSVWriter(writer, CsvPreference.STANDARD_PREFERENCE);
       jdbcCSVWriter.setConnection(connection);
-      jdbcCSVWriter.setDataSource(dataSource);
       jdbcCSVWriter.setQuery(query);
       jdbcCSVWriter.setFetchSize(fetchSize);
       jdbcCSVWriter.setFileName(csvFilePath1);
