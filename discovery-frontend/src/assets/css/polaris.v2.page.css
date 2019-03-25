@@ -7199,7 +7199,7 @@ table.ddp-table-form tbody tr.ddp-disabled:nth-child(odd) td:last-of-type {borde
 .ddp-box-schema .ddp-wrap-fright {float:right; width:592px; height:425px;}
 .ddp-box-schema .ddp-box-viewtable {height:100%; box-sizing:border-box;}
 .ddp-box-schema .ddp-box-setting {position:relative; width:100%; height:100%; border:1px solid #b7b9c2; box-sizing:border-box;}
-.ddp-box-schema .ddp-box-setting .ddp-data-top-title {padding:13px 16px; background-color:#f6f6f7; color:#4c515a; font-size:16px; font-weight:bold;}
+.ddp-box-schema .ddp-box-setting .ddp-data-top-title {padding:13px 16px; background-color:#f6f6f7; color:#4c515a; font-size:16px; font-weight:bold; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 
 .ddp-box-schema .ddp-box-setting .ddp-data-delete {position:absolute; top:56px; left:0; right:0; bottom:0; box-sizing:border-box; background-color:#fff; z-index:3;}
 .ddp-box-schema .ddp-box-setting .ddp-data-delete span.ddp-txt {position:absolute; top:50%; left:0; right:0; margin-top:-13px; color:#b7b9c2; font-size:14px; text-align:center; box-sizing:border-box;}
@@ -7223,6 +7223,8 @@ ul.ddp-list-value li.ddp-total {color:#b7b9c2;}
 .ddp-wrap-value-setting .ddp-ui-title {position:relative; padding:19px 0 20px 16px; color:#4a515c; font-size:13px; font-weight:bold; border-bottom:1px solid #e9e9ec;}
 .ddp-wrap-value-setting .ddp-ui-title .ddp-btn-delete {display:inline-block; position:absolute; top:23px; right:13px; width:11px; height:12px; background:url(../images/icon_edit2.png) no-repeat; background-position:-24px -21px;}
 .ddp-wrap-value-setting .ddp-ui-title .ddp-btn-delete:hover {background-position-x:left ;}
+.ddp-wrap-value-setting .ddp-ui-title .ddp-btn-delete.ddp-fright {position:relative; top:1px; right:0; margin:0 13px 0 5px;}
+.ddp-wrap-value-setting .ddp-ui-title .ddp-data-name {display:block; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
 .ddp-box-popupcontents3.ddp-configure {width:860px;}
 .ddp-box-popupcontents3.ddp-configure .ddp-wrap-value-setting {margin:0;}
 .ddp-box-popupcontents3.ddp-configure .ddp-box-schema .ddp-box-setting {border-left:none;}
