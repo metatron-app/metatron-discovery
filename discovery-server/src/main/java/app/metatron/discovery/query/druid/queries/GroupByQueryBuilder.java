@@ -72,6 +72,7 @@ import app.metatron.discovery.domain.datasource.data.result.SearchResultFormat;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.Sort;
 import app.metatron.discovery.domain.workbook.configurations.analysis.Analysis;
+import app.metatron.discovery.domain.workbook.configurations.analysis.GeoSpatialOperation;
 import app.metatron.discovery.domain.workbook.configurations.analysis.PredictionAnalysis;
 import app.metatron.discovery.domain.workbook.configurations.datasource.MappingDataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
@@ -100,13 +101,14 @@ import app.metatron.discovery.query.druid.PostAggregation;
 import app.metatron.discovery.query.druid.PostProcessor;
 import app.metatron.discovery.query.druid.Query;
 import app.metatron.discovery.query.druid.aggregations.CountAggregation;
+import app.metatron.discovery.query.druid.aggregations.RelayAggregation;
 import app.metatron.discovery.query.druid.dimensions.DefaultDimension;
 import app.metatron.discovery.query.druid.dimensions.ExtractionDimension;
-import app.metatron.discovery.query.druid.dimensions.LookupDimension;
 import app.metatron.discovery.query.druid.extractionfns.ExpressionFunction;
 import app.metatron.discovery.query.druid.filters.AndFilter;
 import app.metatron.discovery.query.druid.funtions.CaseFunc;
 import app.metatron.discovery.query.druid.funtions.CastFunc;
+import app.metatron.discovery.query.druid.funtions.LookupMapFunc;
 import app.metatron.discovery.query.druid.funtions.RunningSumFunc;
 import app.metatron.discovery.query.druid.funtions.TimeFormatFunc;
 import app.metatron.discovery.query.druid.granularities.SimpleGranularity;
@@ -118,7 +120,6 @@ import app.metatron.discovery.query.druid.havings.LessThanOrEqual;
 import app.metatron.discovery.query.druid.limits.DefaultLimit;
 import app.metatron.discovery.query.druid.limits.OrderByColumn;
 import app.metatron.discovery.query.druid.limits.PivotWindowingSpec;
-import app.metatron.discovery.query.druid.lookup.MapLookupExtractor;
 import app.metatron.discovery.query.druid.model.HoltWintersPostProcessor;
 import app.metatron.discovery.query.druid.postaggregations.ExprPostAggregator;
 import app.metatron.discovery.query.druid.postaggregations.MathPostAggregator;
@@ -166,6 +167,8 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
 
   private Having having;
 
+  private RelayAggregation.Relaytype relayType;
+
   private List<String> percentPartitionExprs = Lists.newArrayList(
       "#_ = " + new RunningSumFunc("_").toExpression(),
       "concat(_, '" + ChartResultFormat.POSTFIX_PERCENTAGE + "') = "
@@ -190,6 +193,10 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
    */
   public GroupByQueryBuilder layer(MapViewLayer layer) {
     enableMapLayer(layer);
+    if (layer.getView() instanceof LayerView.AbbreviatedView) {
+      LayerView.AbbreviatedView abbrView = (LayerView.AbbreviatedView) layer.getView();
+      relayType = abbrView.getRelayType() == null ? RelayAggregation.Relaytype.FIRST : abbrView.getRelayType();
+    }
     return this;
   }
 
@@ -218,7 +225,8 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
 
         // for virtual column
         if (UserDefinedField.REF_NAME.equals(refName) && virtualColumns.containsKey(fieldName)) {
-          dimensions.add(new DefaultDimension(fieldName, aliasName));
+          //dimensions.add(new DefaultDimension(fieldName, aliasName));
+          addDimension(new DefaultDimension(fieldName, aliasName));
           unUsedVirtualColumnName.remove(fieldName);
           continue;
         }
@@ -233,22 +241,26 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
         DimensionField dimensionField = (DimensionField) field;
         FieldFormat format = dimensionField.getFormat();
 
-        // ValueAlias 처리, 기존 format 이나 Type 별 처리는 무시됨
+        // processing value alias, ignore format or type.
         if (MapUtils.isNotEmpty(dimensionField.getValuePair())) {
-          dimensions.add(new LookupDimension(engineColumnName,
-                                             aliasName,
-                                             new MapLookupExtractor(dimensionField.getValuePair())));
+          String lookupColumn = engineColumnName + ".lookup.vc";
+          LookupMapFunc lookupMapFunc = new LookupMapFunc(engineColumnName, dimensionField.getValuePair(), false, null);
+          virtualColumns.put(lookupColumn, new ExprVirtualColumn(lookupMapFunc.toExpression(), lookupColumn));
+
+          addDimension(new DefaultDimension(lookupColumn, aliasName));
+
           continue;
         }
 
         switch (datasourceField.getLogicalType()) {
           case STRING:
             if (format != null && format instanceof DefaultFormat) {
+              // FixMe : replace expression
               dimensions.add(new ExtractionDimension(engineColumnName,
                                                      aliasName,
                                                      new ExpressionFunction(((DefaultFormat) format).getFormat(), engineColumnName)));
             } else {
-              dimensions.add(new DefaultDimension(engineColumnName, aliasName));
+              addDimension(new DefaultDimension(engineColumnName, aliasName));
             }
             break;
 
@@ -268,7 +280,7 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
             ExprVirtualColumn exprVirtualColumn = new ExprVirtualColumn(timeFormatFunc.toExpression(), innerFieldName);
 
             virtualColumns.put(aliasName, exprVirtualColumn);
-            dimensions.add(new DefaultDimension(innerFieldName, aliasName));
+            addDimension(new DefaultDimension(innerFieldName, aliasName));
 
             // for sorting time format
             sortFormatMap.put(aliasName, timeFormat.getFormat());
@@ -305,19 +317,28 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
               dimensions.add(new DefaultDimension(VC_COLUMN_GEO_COORD));
               postAggregations.add(new ExprPostAggregator(hashLayerView.toWktExpression(VC_COLUMN_GEO_COORD, geoColumnName)));
             }
+
+            // set geometry
+            geometry = datasourceField;
             break;
           default:
-            dimensions.add(new DefaultDimension(engineColumnName, aliasName, datasourceField.getLogicalType()));
+            addDimension(new DefaultDimension(engineColumnName, aliasName, datasourceField.getLogicalType()));
         }
       } else if (field instanceof MeasureField) {
 
-        if (UserDefinedField.REF_NAME.equals(refName) && virtualColumns.containsKey(fieldName)) {
-          addUserDefinedAggregationFunction((MeasureField) field);
+        MeasureField measureField = (MeasureField) field;
 
-          virtualColumns.remove(fieldName);
-          unUsedVirtualColumnName.remove(fieldName);
+        if (measureField.getAggregationType() == MeasureField.AggregationType.NONE && relayType != null) {
+          aggregations.add(new RelayAggregation(engineColumnName, aliasName, "double", relayType.name()));
         } else {
-          addAggregationFunction((MeasureField) field);
+          if (UserDefinedField.REF_NAME.equals(refName) && virtualColumns.containsKey(fieldName)) {
+            addUserDefinedAggregationFunction(measureField);
+
+            virtualColumns.remove(fieldName);
+            unUsedVirtualColumnName.remove(fieldName);
+          } else {
+            addAggregationFunction(measureField);
+          }
         }
 
         minMaxFields.add(aliasName);
@@ -348,7 +369,7 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
         ExprVirtualColumn exprVirtualColumn = new ExprVirtualColumn(timeFormatFunc.toExpression(), innerFieldName);
 
         virtualColumns.put(aliasName, exprVirtualColumn);
-        dimensions.add(new DefaultDimension(innerFieldName, aliasName));
+        addDimension(new DefaultDimension(innerFieldName, aliasName));
 
         // for sorting time format
         sortFormatMap.put(aliasName, timeFormat.getFormat());
@@ -374,6 +395,12 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
     }
     aggregations = depdupeAggregations;
 
+    if (CollectionUtils.isEmpty(aggregations)) {
+      aggregations.add(new CountAggregation("count"));
+      minMaxFields.add("count");
+      outputColumns.add("count");
+    }
+
     List<PostAggregation> depdupePostAggregations = new ArrayList<PostAggregation>();
     setNames.clear();
     for (PostAggregation curPostAggregation : postAggregations) {
@@ -388,6 +415,20 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
     granularity = new SimpleGranularity("all");
 
     return this;
+  }
+
+  public void addDimension(Dimension dimension) {
+
+    if (disableDimension) {
+      outputColumns.remove(dimension.getOutputName());
+      return;
+    }
+
+    if (relayType == null) {
+      dimensions.add(dimension);
+    } else {
+      aggregations.add(new RelayAggregation(dimension.getDimension(), dimension.getOutputName(), "string", relayType.name()));
+    }
   }
 
   /**
@@ -419,6 +460,14 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
   }
 
   public GroupByQueryBuilder count(String name) {
+    long count = aggregations.stream()
+                             .filter(aggregation -> aggregation.getName().equals(name))
+                             .count();
+
+    if (count > 0) {
+      return this;
+    }
+
     this.aggregations.add(new CountAggregation(name));
     this.outputColumns.add(name);
     return this;
@@ -785,6 +834,42 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
     return this;
   }
 
+  public GroupByQueryBuilder enableChropoleth(GeoSpatialOperation.ChoroplethAggregation aggregation) {
+
+    //    List<String> dimName = dimensions.stream()
+    //                                     .map(dimension -> dimension.getOutputName())
+    //                                     .collect(Collectors.toList());
+    //
+    //    outputColumns.removeAll(dimName);
+    //    outputColumns.remove(GEOMETRY_COLUMN_NAME);
+
+    outputColumns.clear();
+    aggregations.clear();
+    postAggregations.clear();
+
+    if (!"count".equals(aggregation.getColumn())) {
+      MeasureField measureField = new MeasureField(aggregation.getColumn(),
+                                                   aggregation.getColumn().startsWith("user_defined.") ? "user_defined" : null,
+                                                   aggregation.getType());
+      addAggregationFunction(measureField);
+      outputColumns.add(measureField.getAlias());
+    }
+
+
+    // FixMe: so many duplicated code! T.T
+    long cntAggregation = aggregations.stream()
+                                      .filter(aggr -> "count".equals(aggr.getName()))
+                                      .count();
+
+    if (cntAggregation == 0) {
+      aggregations.add(new CountAggregation("count"));
+    }
+
+    outputColumns.add("count");
+
+    return this;
+  }
+
   @Override
   public GroupByQuery build() {
 
@@ -801,6 +886,8 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
     groupByQuery.setOutputColumns(outputColumns);
 
     groupByQuery.setGroupingSets(groupingSet);
+
+    groupByQuery.setGeometry(geometry);
 
     if (CollectionUtils.isEmpty(filter.getFields())) {
       groupByQuery.setFilter(null);

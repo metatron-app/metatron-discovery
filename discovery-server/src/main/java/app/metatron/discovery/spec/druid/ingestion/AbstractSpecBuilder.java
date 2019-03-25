@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.spec.druid.ingestion;
 
+import app.metatron.discovery.query.druid.ShapeFormat;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -155,15 +156,19 @@ public class AbstractSpecBuilder {
 
   private void makeSecondaryIndexing(String name, DataType originalType, GeoFormat geoFormat) {
     String originalSrsName = geoFormat.notDefaultSrsName();
-    if (geoFormat instanceof GeoPointFormat || (originalType == DataType.STRUCT)) {
-      secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.LatLonStrategy("coord", "lat", "lon", originalSrsName)));
+    if (geoFormat instanceof GeoPointFormat) {
+      if (originalType == DataType.STRUCT) {
+        secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.LatLonStrategy("coord", "lat", "lon", originalSrsName)));
+      } else {
+        secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.LatLonShapeStrategy("coord", ShapeFormat.WKT, originalSrsName)));
+      }
     } else {
-      secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.ShapeStrategy("shape", "WKT", geoFormat.getMaxLevels())));
+      secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.ShapeStrategy("shape", ShapeFormat.WKT, geoFormat.getMaxLevels(), originalSrsName)));
     }
   }
 
   private void addGeoFieldToMatric(String name, DataType originalType, GeoFormat geoFormat) {
-    if (geoFormat instanceof GeoPointFormat || (originalType == DataType.STRUCT)) {
+    if (geoFormat instanceof GeoPointFormat && originalType == DataType.STRUCT) {
       dataSchema.addMetrics(new RelayAggregation(name, "struct(lat:double,lon:double)"));
     } else {
       dataSchema.addMetrics(new RelayAggregation(name, "string"));
@@ -216,7 +221,8 @@ public class AbstractSpecBuilder {
       }
 
       switch (dimensionfield.getType()) {
-        case STRING: case TIMESTAMP:
+        case TIMESTAMP:
+        case STRING:
           dimenstionSchemas.add(dimensionfield.getName());
           break;
         case INTEGER:

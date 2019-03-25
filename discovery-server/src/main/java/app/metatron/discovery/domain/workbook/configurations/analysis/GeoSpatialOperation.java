@@ -22,44 +22,68 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.io.Serializable;
 
+import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
+
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type")
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = GeoSpatialOperation.DistanceWithin.class, name = "dwithin"),
-    @JsonSubTypes.Type(value = GeoSpatialOperation.Intersect.class, name = "intersects")
+    @JsonSubTypes.Type(value = GeoSpatialOperation.Within.class, name = "within"),
+    @JsonSubTypes.Type(value = GeoSpatialOperation.Intersects.class, name = "intersects")
 })
 public interface GeoSpatialOperation extends Serializable {
 
-  class DistanceWithin implements GeoSpatialOperation {
+  Integer getBuffer();
 
-    Integer distance;
+  boolean isChoropleth();
 
-    public DistanceWithin() {
+  ChoroplethAggregation getAggregation();
+
+  class Intersects extends AbstractGeoSpatialOperation implements GeoSpatialOperation {
+
+    public Intersects() {
     }
 
     @JsonCreator
-    public DistanceWithin(@JsonProperty("distance") Integer distance) {
-      this.distance = distance;
-    }
-
-    public Integer getDistance() {
-      return distance;
+    public Intersects(@JsonProperty("buffer") Integer buffer,
+                      @JsonProperty("choropleth") Boolean choropleth,
+                      @JsonProperty("aggregation") ChoroplethAggregation aggregation) {
+      super(buffer, choropleth, aggregation);
     }
   }
 
-  class Intersect implements GeoSpatialOperation {
+  class Within extends AbstractGeoSpatialOperation implements GeoSpatialOperation {
 
-    String aggrColumn;
-
-    public Intersect() {
+    public Within() {
     }
 
     @JsonCreator
-    public Intersect(@JsonProperty("aggrColumn") String aggrColumn) {
-      this.aggrColumn = aggrColumn;
-    }
-
-    public String getAggrColumn() {
-      return aggrColumn;
+    public Within(@JsonProperty("buffer") Integer buffer,
+                  @JsonProperty("choropleth") Boolean choropleth,
+                  @JsonProperty("aggregation") ChoroplethAggregation aggregation) {
+      super(buffer, choropleth, aggregation);
     }
   }
+
+  class ChoroplethAggregation implements Serializable {
+
+    MeasureField.AggregationType type;
+
+    String column;
+
+    public ChoroplethAggregation() {
+    }
+
+    public ChoroplethAggregation(MeasureField.AggregationType type, String column) {
+      this.type = type;
+      this.column = column;
+    }
+
+    public MeasureField.AggregationType getType() {
+      return type;
+    }
+
+    public String getColumn() {
+      return column;
+    }
+  }
+
 }

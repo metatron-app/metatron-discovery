@@ -480,7 +480,9 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
           }
         } else {
           // 전체 목록 추가
+          this.filter.candidateValues = [];
           result.forEach(item => {
+            this.filter.candidateValues.push( item.field );
             this._candidateList.push(this._objToCandidate(item, this.field));
           });
         }

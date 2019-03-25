@@ -45,15 +45,17 @@ public class ShapeBufferFunc {
     StringBuilder sb = new StringBuilder();
     sb.append(FUNC_NAME).append("(");
     sb.append(shapeExpr).append(",");
-    sb.append(distance).append(",");
-    sb.append("endCapStyle=").append(endCapStyle.value());
+    sb.append(distance);
+    if (endCapStyle == null) {
+      sb.append(",").append("endCapStyle=").append(endCapStyle.value());
+    }
     sb.append(")");
     return sb.toString();
   }
 
   public enum EndCapStyle {
 
-    ROUND(1), FLAT(2);
+    ROUND(2), FLAT(1);
 
     Integer style;
 

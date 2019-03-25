@@ -14,16 +14,6 @@
 
 package app.metatron.discovery.config;
 
-import app.metatron.discovery.common.scheduling.AutowiringSpringBeanJobFactory;
-import app.metatron.discovery.domain.scheduling.common.TemporaryCSVFileCleanJob;
-import app.metatron.discovery.domain.scheduling.engine.DataSourceCheckJob;
-import app.metatron.discovery.domain.scheduling.engine.DataSourceIngestionCheckJob;
-import app.metatron.discovery.domain.scheduling.engine.DataSourceSizeCheckJob;
-import app.metatron.discovery.domain.scheduling.engine.TemporaryCleanJob;
-import app.metatron.discovery.domain.scheduling.ingestion.IncrementalIngestionJob;
-import app.metatron.discovery.domain.scheduling.mdm.CalculatePopularityJob;
-import app.metatron.discovery.domain.scheduling.notebook.KillNotebookKernelJob;
-import app.metatron.discovery.domain.scheduling.workbench.TimeoutConnectionCloseJob;
 import org.quartz.spi.JobFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -37,6 +27,17 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
+
+import app.metatron.discovery.common.scheduling.AutowiringSpringBeanJobFactory;
+import app.metatron.discovery.domain.scheduling.common.TemporaryCSVFileCleanJob;
+import app.metatron.discovery.domain.scheduling.engine.DataSourceCheckJob;
+import app.metatron.discovery.domain.scheduling.engine.DataSourceIngestionCheckJob;
+import app.metatron.discovery.domain.scheduling.engine.DataSourceSizeCheckJob;
+import app.metatron.discovery.domain.scheduling.engine.TemporaryCleanJob;
+import app.metatron.discovery.domain.scheduling.ingestion.IncrementalIngestionJob;
+import app.metatron.discovery.domain.scheduling.mdm.CalculatePopularityJob;
+import app.metatron.discovery.domain.scheduling.notebook.KillNotebookKernelJob;
+import app.metatron.discovery.domain.scheduling.workbench.TimeoutConnectionCloseJob;
 
 /**
  * Created by kyungtaak on 2016. 6. 21..
@@ -130,7 +131,7 @@ public class SchedulingConfig {
     triggerFactory.setStartDelay(10000);
     triggerFactory.setName("check-datasource-trigger");
     triggerFactory.setGroup(JOB_GROUP_CHECK);
-    triggerFactory.setCronExpression("0 0/5 * 1/1 * ? *");
+    triggerFactory.setCronExpression("0 0/30 * 1/1 * ? *");
     return triggerFactory;
   }
 

@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { UIOption } from '../../common/component/chart/option/ui-option';
+import {AbstractComponent} from '../../common/component/abstract.component';
+import {ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {UIOption} from '../../common/component/chart/option/ui-option';
 import * as _ from 'lodash';
-import { ChartType } from '../../common/component/chart/option/define/common';
+import {ChartType} from '../../common/component/chart/option/define/common';
 
 
 const possibleChartObj: any = {
@@ -153,7 +153,7 @@ export class BaseOptionComponent extends AbstractComponent implements OnInit, On
     // drawChartParam이 빈값이 아닐때 (서버가 재호출되어야 하는경우)
     if (drawChartParam) {
       this.setDrawChartParam.emit(drawChartParam);
-    // drawChartParam이 빈값이 아닐때 (서버가 재호출되지 않아도 되는경우, uiOption만 변경)
+      // drawChartParam이 빈값이 아닐때 (서버가 재호출되지 않아도 되는경우, uiOption만 변경)
     } else {
       this.uiOptionChange.emit(this.uiOption);
     }

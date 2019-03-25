@@ -30,6 +30,12 @@ export interface UILayers {
   ////////////////////////
   ///// UI Spec
   ////////////////////////
+
+  // heatMap radius
+  heatMapRadius? : number;
+
+  // tile radius
+  tileRadius? : number;
 }
 
 /**
@@ -65,6 +71,10 @@ interface SymbolColor {
   // color by measure custom color setting
   ranges?: ColorRange[];
 
+  // min max range
+  minValue?: number;
+  maxValue?: number;
+
   // Column Aggregation type (measure)
   aggregationType?: string;
 
@@ -73,4 +83,17 @@ interface SymbolColor {
 
   // custom color on / off
   settingUseFl: boolean;
+
+  // type schema, transparency
+  symbolSchema? : string;
+  symbolTransparency? : number;
+
+  heatMapSchema? : string;
+  heatMapTransparency? : number;
+
+  tileSchema? : string;
+  tranTransparency? : number;
+
+  polygonSchema? : string;
+
 }

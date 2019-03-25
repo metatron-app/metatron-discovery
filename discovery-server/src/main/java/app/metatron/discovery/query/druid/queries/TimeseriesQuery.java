@@ -14,51 +14,60 @@
 
 package app.metatron.discovery.query.druid.queries;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import javax.validation.constraints.NotNull;
-
+import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
 import app.metatron.discovery.query.druid.Aggregation;
 import app.metatron.discovery.query.druid.Filter;
 import app.metatron.discovery.query.druid.Granularity;
 import app.metatron.discovery.query.druid.PostAggregation;
 import app.metatron.discovery.query.druid.Query;
-import app.metatron.discovery.query.druid.datasource.TableDataSource;
 import app.metatron.discovery.query.druid.serializers.GranularitySerializer;
-
-import static com.fasterxml.jackson.annotation.JsonInclude.Include;
+import app.metatron.discovery.query.druid.virtualcolumns.VirtualColumn;
 
 @JsonTypeName("timeseries")
 public class TimeseriesQuery extends Query {
-  @NotNull
-  Granularity granularity;
 
-  @NotNull
-  List<String> intervals;
+  private boolean descending;
 
-  @JsonInclude(Include.NON_NULL)
-  Filter filter;
+  private List<String> intervals;
 
-  @NotNull
-  List<Aggregation> aggregations;
+  private Granularity granularity;
 
-  @JsonInclude(Include.NON_NULL)
-  List<PostAggregation> postAggregations;
+  private List<VirtualColumn> virtualColumns;
+
+  private Filter filter;
+
+  private List<Aggregation> aggregations;
+
+  private List<PostAggregation> postAggregations;
+
+  private Set<String> outputColumns;
+
+  private Map<String, Object> context;
 
   public TimeseriesQuery() {
   }
 
-  public TimeseriesQuery(String dataSource, Granularity granularity, List<String> intervals, Filter filter, List<Aggregation> aggregations, List<PostAggregation> postAggregations) {
-    super(new TableDataSource(dataSource));
-    this.granularity = granularity;
+  public boolean isDescending() {
+    return descending;
+  }
+
+  public void setDescending(boolean descending) {
+    this.descending = descending;
+  }
+
+  public List<String> getIntervals() {
+    return intervals;
+  }
+
+  public void setIntervals(List<String> intervals) {
     this.intervals = intervals;
-    this.filter = filter;
-    this.aggregations = aggregations;
-    this.postAggregations = postAggregations;
   }
 
   @JsonSerialize(using = GranularitySerializer.class, typing= JsonSerialize.Typing.DYNAMIC)
@@ -70,12 +79,12 @@ public class TimeseriesQuery extends Query {
     this.granularity = granularity;
   }
 
-  public List<String> getIntervals() {
-    return intervals;
+  public List<VirtualColumn> getVirtualColumns() {
+    return virtualColumns;
   }
 
-  public void setIntervals(List<String> interval) {
-    this.intervals = intervals;
+  public void setVirtualColumns(List<VirtualColumn> virtualColumns) {
+    this.virtualColumns = virtualColumns;
   }
 
   public Filter getFilter() {
@@ -100,5 +109,25 @@ public class TimeseriesQuery extends Query {
 
   public void setPostAggregations(List<PostAggregation> postAggregations) {
     this.postAggregations = postAggregations;
+  }
+
+  public Set<String> getOutputColumns() {
+    return outputColumns;
+  }
+
+  public void setOutputColumns(Set<String> outputColumns) {
+    this.outputColumns = outputColumns;
+  }
+
+  public Map<String, Object> getContext() {
+    return context;
+  }
+
+  public void setContext(Map<String, Object> context) {
+    this.context = context;
+  }
+
+  public static TimeseriesQueryBuilder builder(DataSource dataSource) {
+    return new TimeseriesQueryBuilder(dataSource);
   }
 }
