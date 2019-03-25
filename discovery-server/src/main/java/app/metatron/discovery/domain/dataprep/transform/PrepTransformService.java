@@ -14,40 +14,13 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
-import com.google.common.collect.Maps;
-
-import com.facebook.presto.jdbc.internal.guava.collect.Lists;
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import org.hibernate.Hibernate;
-import org.hibernate.proxy.HibernateProxy;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.StandardEnvironment;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
-import javax.annotation.PostConstruct;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_HOSTNAME;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PASSWORD;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PORT;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_URL;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_USERNAME;
+import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.IMPORTED;
+import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.WRANGLED;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
@@ -85,19 +58,65 @@ import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
-import app.metatron.discovery.prep.parser.preparation.rule.*;
+import app.metatron.discovery.prep.parser.preparation.rule.Aggregate;
+import app.metatron.discovery.prep.parser.preparation.rule.CountPattern;
+import app.metatron.discovery.prep.parser.preparation.rule.Delete;
+import app.metatron.discovery.prep.parser.preparation.rule.Derive;
+import app.metatron.discovery.prep.parser.preparation.rule.Drop;
+import app.metatron.discovery.prep.parser.preparation.rule.Extract;
+import app.metatron.discovery.prep.parser.preparation.rule.Flatten;
+import app.metatron.discovery.prep.parser.preparation.rule.Header;
+import app.metatron.discovery.prep.parser.preparation.rule.Join;
+import app.metatron.discovery.prep.parser.preparation.rule.Keep;
+import app.metatron.discovery.prep.parser.preparation.rule.Merge;
+import app.metatron.discovery.prep.parser.preparation.rule.Move;
+import app.metatron.discovery.prep.parser.preparation.rule.Nest;
+import app.metatron.discovery.prep.parser.preparation.rule.Pivot;
+import app.metatron.discovery.prep.parser.preparation.rule.Rename;
+import app.metatron.discovery.prep.parser.preparation.rule.Replace;
+import app.metatron.discovery.prep.parser.preparation.rule.Rule;
+import app.metatron.discovery.prep.parser.preparation.rule.Set;
+import app.metatron.discovery.prep.parser.preparation.rule.SetFormat;
+import app.metatron.discovery.prep.parser.preparation.rule.SetType;
+import app.metatron.discovery.prep.parser.preparation.rule.Sort;
+import app.metatron.discovery.prep.parser.preparation.rule.Split;
+import app.metatron.discovery.prep.parser.preparation.rule.Unnest;
+import app.metatron.discovery.prep.parser.preparation.rule.Unpivot;
+import app.metatron.discovery.prep.parser.preparation.rule.Window;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
-
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_HOSTNAME;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PASSWORD;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PORT;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_URL;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_USERNAME;
-import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.IMPORTED;
-import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.WRANGLED;
+import com.facebook.presto.jdbc.internal.guava.collect.Lists;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.Maps;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import javax.annotation.PostConstruct;
+import org.hibernate.Hibernate;
+import org.hibernate.proxy.HibernateProxy;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.StandardEnvironment;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PrepTransformService {
@@ -886,6 +905,7 @@ public class PrepTransformService {
           case UPLOAD:
             datasetInfo.put("storedUri", upstreamDataset.getStoredUri());
             datasetInfo.put("delimiter", upstreamDataset.getDelimiter());
+            datasetInfo.put("manualColumnCount", upstreamDataset.getManualColumnCount());
             break;
 
           case DATABASE:
@@ -1206,6 +1226,7 @@ public class PrepTransformService {
     String newDsName = getNewDsName(importedDataset, dataflow, dfId, cloningDsName);
     wrangledDataset.setDsName(newDsName);
     wrangledDataset.setDsType(WRANGLED);
+    wrangledDataset.setManualColumnCount(importedDataset.getManualColumnCount());
     wrangledDataset.setCreatorDfId(dfId);
     wrangledDataset.setCreatorDfName(dataflow.getDfName());
     wrangledDataset.setCreatedTime(DateTime.now());
@@ -1267,7 +1288,8 @@ public class PrepTransformService {
         if (importedDataset.getFileFormat() == PrDataset.FILE_FORMAT.CSV ||
             importedDataset.getFileFormat() == PrDataset.FILE_FORMAT.EXCEL ||
             importedDataset.getFileFormat() == PrDataset.FILE_FORMAT.JSON) {
-          gridResponse = teddyImpl.loadFileDataset(wrangledDsId, storedUri, importedDataset.getDelimiter(), wrangledDataset.getDsName());
+          Integer columnCount = importedDataset.getManualColumnCount();
+          gridResponse = teddyImpl.loadFileDataset(wrangledDsId, storedUri, importedDataset.getDelimiter(), columnCount, wrangledDataset.getDsName());
         } else {
           throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG,
                   "invalid flie type: createWrangledDataset\nimportedDataset: " + importedDataset.toString());
