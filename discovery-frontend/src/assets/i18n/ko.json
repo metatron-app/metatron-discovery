@@ -2179,6 +2179,7 @@
   "msg.storage.ph.search.snapshot": "스냅샷 검색",
   "msg.storage.ph.source.desc": "데이터소스 설명을 입력해주세요.",
   "msg.storage.ui.none.source.desc": "설명이 없습니다",
+  "msg.storage.ui.file.name": "파일 이름",
 
   "msg.storage.ui.timezone.country.zimbabwe": "짐바브웨",
   "msg.storage.ui.timezone.country.zambia": "잠비아",

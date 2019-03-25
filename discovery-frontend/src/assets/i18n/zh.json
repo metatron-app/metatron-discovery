@@ -2031,6 +2031,7 @@
   "msg.storage.ui.geo.coordinate": "坐标系",
   "msg.storage.ui.config.extension.no.data": "Extension类型不支持预览",
   "msg.storage.ui.config.no.data": "无数据",
+  "msg.storage.ui.file.name": "File name",
 
   "msg.log.th.status": "状态",
   "msg.log.ui.search.description": "请按job名或应用程序ID进行搜索",
