@@ -902,6 +902,7 @@ public class PrepTransformService {
           case UPLOAD:
             datasetInfo.put("storedUri", upstreamDataset.getStoredUri());
             datasetInfo.put("delimiter", upstreamDataset.getDelimiter());
+            datasetInfo.put("manualColumnCount", upstreamDataset.getManualColumnCount());
             break;
 
           case DATABASE:
@@ -1222,6 +1223,7 @@ public class PrepTransformService {
     String newDsName = getNewDsName(importedDataset, dataflow, dfId, cloningDsName);
     wrangledDataset.setDsName(newDsName);
     wrangledDataset.setDsType(WRANGLED);
+    wrangledDataset.setManualColumnCount(importedDataset.getManualColumnCount());
     wrangledDataset.setCreatorDfId(dfId);
     wrangledDataset.setCreatorDfName(dataflow.getDfName());
     wrangledDataset.setCreatedTime(DateTime.now());
@@ -1283,7 +1285,8 @@ public class PrepTransformService {
         if (importedDataset.getFileFormat() == PrDataset.FILE_FORMAT.CSV ||
             importedDataset.getFileFormat() == PrDataset.FILE_FORMAT.EXCEL ||
             importedDataset.getFileFormat() == PrDataset.FILE_FORMAT.JSON) {
-          gridResponse = teddyImpl.loadFileDataset(wrangledDsId, storedUri, importedDataset.getDelimiter(), wrangledDataset.getDsName());
+          Integer columnCount = importedDataset.getManualColumnCount();
+          gridResponse = teddyImpl.loadFileDataset(wrangledDsId, storedUri, importedDataset.getDelimiter(), columnCount, wrangledDataset.getDsName());
         } else {
           throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG,
                   "invalid flie type: createWrangledDataset\nimportedDataset: " + importedDataset.toString());

@@ -15,6 +15,7 @@
 
 import { Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild } from '@angular/core';
 import {
+  ConnectionType,
   DatasourceInfo,
   Field,
   FieldFormat,
@@ -116,6 +117,10 @@ export class SchemaConfigComponent extends AbstractComponent {
     if (this.getCheckedFieldList().length !== 0) {
       this._actionBarComponent.init(this.getCheckedFieldList(), this.selectedTimestampField, this.selectedTimestampType, this.selectedAction);
     }
+  }
+
+  public getConnectionType(): ConnectionType {
+    return this._sourceData.connType;
   }
 
   /**

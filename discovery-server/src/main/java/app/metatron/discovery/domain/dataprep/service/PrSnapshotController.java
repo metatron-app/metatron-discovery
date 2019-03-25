@@ -209,10 +209,10 @@ public class PrSnapshotController {
                     // We generated JSON snapshots to have ".json" at the end of the URI.
                     Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
                     if (storedUri.endsWith(".json")) {
-                        PrepJsonParseResult result = PrepJsonUtil.parseJson(snapshot.getStoredUri(), 10000, hadoopConf);
+                        PrepJsonParseResult result = PrepJsonUtil.parseJson(snapshot.getStoredUri(), 10000, null, hadoopConf);
                         gridResponse.setByGridWithJson(result);
                     } else {
-                        PrepCsvParseResult result = PrepCsvUtil.parse(snapshot.getStoredUri(), ",", 10000, hadoopConf, true);
+                        PrepCsvParseResult result = PrepCsvUtil.parse(snapshot.getStoredUri(), ",", 10000, null, hadoopConf, true);
                         gridResponse.setByGrid(result);
                     }
 
