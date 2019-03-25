@@ -44,6 +44,7 @@ import app.metatron.discovery.query.druid.AbstractQueryBuilder;
 import app.metatron.discovery.query.druid.filters.AndFilter;
 import app.metatron.discovery.query.druid.funtions.LookupMapFunc;
 import app.metatron.discovery.query.druid.funtions.ShapeBufferFunc;
+import app.metatron.discovery.query.druid.funtions.ShapeFromLatLonFunc;
 import app.metatron.discovery.query.druid.funtions.ShapeFromWktFunc;
 import app.metatron.discovery.query.druid.funtions.ShapeToWktFunc;
 import app.metatron.discovery.query.druid.funtions.TimeFormatFunc;
@@ -141,15 +142,13 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
           String geoColumnName = geoJsonFormat ? GEOMETRY_COLUMN_NAME : aliasName;
 
           if (datasourceField.getLogicalType() == LogicalType.GEO_POINT) {
-            String lat = engineColumnName + "." + LogicalType.GEO_POINT.getGeoPointKeys().get(0);
-            String lon = engineColumnName + "." + LogicalType.GEO_POINT.getGeoPointKeys().get(1);
-            String concatExpr = "concat('POINT (', \"" + lon + "\", ' ', \"" + lat + "\",')')";
-            virtualColumns.put(VC_COLUMN_GEO_COORD, new ExprVirtualColumn(concatExpr, VC_COLUMN_GEO_COORD));
-
+            virtualColumns.put(VC_COLUMN_GEO_COORD, concatPointExprColumn(engineColumnName, VC_COLUMN_GEO_COORD));
             columns.add(VC_COLUMN_GEO_COORD);
+
             fieldMapper.put(VC_COLUMN_GEO_COORD, geoColumnName);
           } else {
             columns.add(engineColumnName);
+
             fieldMapper.put(engineColumnName, geoColumnName);
           }
 
@@ -232,23 +231,36 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
         geometry = metaFieldMap.get(fieldName);
       } else {
         columns.add(engineColumnName);
+        fieldMapper.put(engineColumnName, field.getAlias());
       }
     }
 
-    if (operation instanceof GeoSpatialOperation.DistanceWithin) {
+    if (operation.getBuffer() > 0) {
 
-      GeoSpatialOperation.DistanceWithin dWithin = (GeoSpatialOperation.DistanceWithin) operation;
+      if (geometry.getLogicalType().isShape()) {
+        String fromWktName = "__shapeFromWKT";
+        virtualColumns.put(fromWktName, new ExprVirtualColumn(new ShapeFromWktFunc(geometry.getName()).toExpression(), fromWktName));
 
-      String fromWktName = "__shapeFromWKT";
-      virtualColumns.put(fromWktName, new ExprVirtualColumn(new ShapeFromWktFunc(geometry.getName()).toExpression(), fromWktName));
+        ShapeBufferFunc bufferFunc = new ShapeBufferFunc(fromWktName, operation.getBuffer(), ShapeBufferFunc.EndCapStyle.FLAT);
+        virtualColumns.put(GEOMETRY_BOUNDARY_COLUMN_NAME, new ExprVirtualColumn(new ShapeToWktFunc(bufferFunc.toExpression()).toExpression(), GEOMETRY_BOUNDARY_COLUMN_NAME));
+      } else {
+        String fromLatLonName = "__shapeFromLatLon";
+        virtualColumns.put(fromLatLonName, new ExprVirtualColumn(new ShapeFromLatLonFunc(geometry.getName()).toExpression(), fromLatLonName));
 
-      ShapeBufferFunc bufferFunc = new ShapeBufferFunc(fromWktName, dWithin.getDistance(), ShapeBufferFunc.EndCapStyle.FLAT);
-      virtualColumns.put(GEOMETRY_BOUNDARY_COLUMN_NAME, new ExprVirtualColumn(new ShapeToWktFunc(bufferFunc.toExpression()).toExpression(), GEOMETRY_BOUNDARY_COLUMN_NAME));
+        ShapeBufferFunc bufferFunc = new ShapeBufferFunc(fromLatLonName, operation.getBuffer(), null);
+        virtualColumns.put(GEOMETRY_BOUNDARY_COLUMN_NAME, new ExprVirtualColumn(new ShapeToWktFunc(bufferFunc.toExpression()).toExpression(), GEOMETRY_BOUNDARY_COLUMN_NAME));
+      }
 
-      columns.add(GEOMETRY_BOUNDARY_COLUMN_NAME);
     } else {
-      throw new IllegalArgumentException("Not support operation");
+      if (geometry.getLogicalType().isShape()) {
+        virtualColumns.put(GEOMETRY_BOUNDARY_COLUMN_NAME, new ExprVirtualColumn(geometry.getName(), GEOMETRY_BOUNDARY_COLUMN_NAME));
+      } else {
+        virtualColumns.put(GEOMETRY_BOUNDARY_COLUMN_NAME, concatPointExprColumn(geometry.getName(), GEOMETRY_BOUNDARY_COLUMN_NAME));
+      }
     }
+
+    columns.add(GEOMETRY_BOUNDARY_COLUMN_NAME);
+    fieldMapper.put(GEOMETRY_BOUNDARY_COLUMN_NAME, GEOMETRY_COLUMN_NAME);
 
     return this;
   }

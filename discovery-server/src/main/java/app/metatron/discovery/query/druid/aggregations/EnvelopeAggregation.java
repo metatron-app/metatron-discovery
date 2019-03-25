@@ -18,30 +18,19 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import app.metatron.discovery.query.druid.Aggregation;
 
-@JsonTypeName("relay")
-public class RelayAggregation implements Aggregation {
+@JsonTypeName("envelope")
+public class EnvelopeAggregation implements Aggregation {
 
   String name;
 
-  String typeName;
+  String fieldName;
 
-  String columnName;
-
-  String relayType;
-
-  public RelayAggregation() {
+  public EnvelopeAggregation() {
   }
 
-  public RelayAggregation(String name, String typeName) {
+  public EnvelopeAggregation(String name, String fieldName) {
     this.name = name;
-    this.typeName = typeName;
-  }
-
-  public RelayAggregation(String name, String columnName, String typeName, String relayType) {
-    this.name = name;
-    this.columnName = columnName;
-    this.typeName = typeName;
-    this.relayType = relayType;
+    this.fieldName = fieldName;
   }
 
   public String getName() {
@@ -52,23 +41,19 @@ public class RelayAggregation implements Aggregation {
     this.name = name;
   }
 
-  public String getTypeName() {
-    return typeName;
+  public String getFieldName() {
+    return fieldName;
   }
 
-  public void setTypeName(String typeName) {
-    this.typeName = typeName;
+  public void setFieldName(String fieldName) {
+    this.fieldName = fieldName;
   }
 
-  public String getColumnName() {
-    return columnName;
-  }
-
-  public String getRelayType() {
-    return relayType;
-  }
-
-  public enum Relaytype {
-    FIRST, LAST;
+  @Override
+  public String toString() {
+    return "EnvelopeAggregation{" +
+        "name='" + name + '\'' +
+        ", fieldName='" + fieldName + '\'' +
+        '}';
   }
 }

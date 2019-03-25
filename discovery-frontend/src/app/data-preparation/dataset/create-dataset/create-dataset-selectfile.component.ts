@@ -228,6 +228,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
             file.succeeded_chunks = 0;
             file.failed_chunks = 0;
             file.progressPercent = 0;
+            file.storage_type = ('LOCAL' === this.fileLocation? 'Local': this.fileLocation);
 
             let tmp = PreparationCommonUtil.getFileNameAndExtension(file.name);
 
@@ -457,6 +458,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
             file.succeeded_chunks = 0;
             file.failed_chunks = 0;
             file.progressPercent = 0;
+            file.storage_type = ('LOCAL' === this.fileLocation? 'Local': this.fileLocation);
 
             let tmp = PreparationCommonUtil.getFileNameAndExtension(file.name);
 
@@ -532,7 +534,6 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
           this.upFiles[idx].isUploading = file.isUploading;
           this.upFiles[idx].isUploaded = file.isUploaded;
           this.upFiles[idx].storedUri = file.storedUri;
-
           this.changeDetect.detectChanges();
         },
 

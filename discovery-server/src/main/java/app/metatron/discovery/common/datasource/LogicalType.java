@@ -59,6 +59,20 @@ public enum LogicalType {
     return false;
   }
 
+  public boolean isShape() {
+    if (this == GEO_LINE || this == GEO_POLYGON) {
+      return true;
+    }
+    return false;
+  }
+
+  public boolean isPoint() {
+    if (this == GEO_POINT) {
+      return true;
+    }
+    return false;
+  }
+
   public String toEngineMetricType() {
     switch (this) {
       case STRING:
