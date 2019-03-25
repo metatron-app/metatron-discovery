@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.query.druid.queries;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -23,6 +24,7 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
+import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
 import app.metatron.discovery.query.druid.Aggregation;
 import app.metatron.discovery.query.druid.Dimension;
@@ -64,6 +66,9 @@ public class GroupByQuery extends Query {
   Set<String> outputColumns;
 
   Map<String, Object> context;
+
+  @JsonIgnore
+  private Field geometry;
 
   public GroupByQuery() {
     super();
@@ -164,6 +169,14 @@ public class GroupByQuery extends Query {
 
   public void setOutputColumns(Set<String> outputColumns) {
     this.outputColumns = outputColumns;
+  }
+
+  public Field getGeometry() {
+    return geometry;
+  }
+
+  public void setGeometry(Field geometry) {
+    this.geometry = geometry;
   }
 
   public static GroupByQueryBuilder builder(DataSource dataSource) {

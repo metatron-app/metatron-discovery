@@ -71,8 +71,6 @@ import app.metatron.discovery.domain.workbook.configurations.filter.TimeFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.TimeListFilter;
 import app.metatron.discovery.domain.workbook.configurations.format.CustomDateTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
-import app.metatron.discovery.domain.workbook.configurations.format.GeoBoundaryFormat;
-import app.metatron.discovery.domain.workbook.configurations.format.GeoJoinFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.LayerView;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.MapViewLayer;
@@ -266,11 +264,6 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
             dimensions.add(new DefaultDimension(dummyDimName));
             postAggregations.add(new ExprPostAggregator(hashLayerView.toWktExpression(dummyDimName, geoName)));
 
-          } else if (fieldFormat instanceof GeoBoundaryFormat) {
-            GeoBoundaryFormat boundaryFormat = (GeoBoundaryFormat) fieldFormat;
-            boundary = boundaryFormat.toBoundary();
-            boundaryJoin = boundaryFormat.toBoundaryJoin(projectionMapper, geoCnt++, dimensionCnt++);
-
           } else {
             for (String geoPointKey : LogicalType.GEO_POINT.getGeoPointKeys()) {
               String propName = originalName + "." + geoPointKey;
@@ -279,9 +272,6 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
             //dimensions.add(new DefaultDimension(field.getColunm(), field.getAlias()));
           }
         } else if (datasourceField.getLogicalType() == LogicalType.GEO_POLYGON) {
-          if (fieldFormat instanceof GeoJoinFormat) {
-            continue;  // ignore
-          }
           propertyNames.add(new PropertyName(originalName));
 
         } else if (datasourceField.getLogicalType() == LogicalType.GEO_LINE) {

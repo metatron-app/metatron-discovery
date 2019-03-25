@@ -19,6 +19,7 @@ import com.google.common.collect.Maps;
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.client.ResourceAccessException;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -44,6 +46,7 @@ import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
 import app.metatron.discovery.domain.datasource.DataSourceService;
 import app.metatron.discovery.domain.datasource.DataSourceSummary;
+import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
 import app.metatron.discovery.domain.datasource.ingestion.HdfsIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.HiveIngestionInfo;
@@ -207,7 +210,17 @@ public class IngestionJobRunner {
         throw new DataSourceIngestionException(INGESTION_ENGINE_REGISTRATION_ERROR, "An error occurred while registering the data source");
       }
 
+      // FIXME: fix deprecated code with DataSourceCheckJob
       DataSourceSummary summary = new DataSourceSummary(segmentMetaData);
+      summary.updateSummary(segmentMetaData);
+
+      if (BooleanUtils.isTrue(dataSource.getIncludeGeo())) {
+        List<Field> geoFields = dataSource.getGeoFields();
+
+        Map<String, Object> result = queryService.geoBoundary(dataSource.getEngineName(), geoFields);
+        summary.updateGeoCorner(result);
+      }
+
       results.put("summary", summary);
       results.put("history", history);
 

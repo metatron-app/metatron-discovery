@@ -11,7 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild } from '@angular/core';
+import {
+  AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, Injector, Input, Output,
+  ViewChild
+} from '@angular/core';
 import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
 import {
   MapBy,
@@ -48,12 +51,13 @@ import { FormatOptionConverter } from '../../../common/component/chart/option/co
 import { ColorOptionConverter } from '../../../common/component/chart/option/converter/color-option-converter';
 import { OptionGenerator } from '../../../common/component/chart/option/util/option-generator';
 import UI = OptionGenerator.UI;
+import {MapChartComponent} from "../../../common/component/chart/type/map-chart/map-chart.component";
 
 @Component({
   selector: 'map-layer-option',
   templateUrl: './map-layer-option.component.html'
 })
-export class MapLayerOptionComponent extends BaseOptionComponent {
+export class MapLayerOptionComponent extends BaseOptionComponent implements AfterViewChecked {
 
   // current layer index (0-1)
   public index: number = 0;
@@ -62,6 +66,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   public data: Object[];
 
   public rnbMenu: string;
+
+  public ngAfterViewChecked() {
+    this.changeDetect.detectChanges();
+  }
 
   @Input('rnbMenu')
   public set setRnbMenu( rnbMenu: string ) {
@@ -148,10 +156,15 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   public minValue: string;
   public maxValue: string;
 
+  // 공간연산
+  @ViewChild(MapChartComponent)
+  public mapChartCompnent: MapChartComponent;
+
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
 
     super(elementRef, injector);
+
   }
 
   /**
@@ -176,23 +189,51 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     // deep copy layer type
     let cloneLayerType = _.cloneDeep(this.uiOption.layers[layerIndex].type);
 
-    // change layer type
-    this.uiOption.layers[layerIndex].type = layerType;
-
     let dimensionList = this.fieldList[layerIndex].dimensionList;
     let measureList = this.fieldList[layerIndex].measureList;
+
+    let layer : UILayers = this.uiOption.layers[layerIndex];
+
+    // 기존 레이어 타입 설정 셋팅
+    const preLayerType : MapLayerType = cloneLayerType;
+    let cloneLayer = _.cloneDeep( layer );
+    if (MapLayerType.HEATMAP === preLayerType) {
+      layer.heatMapRadius = cloneLayer.heatMapRadius;
+      layer.color.heatMapSchema = cloneLayer.color.schema;
+      layer.color.heatMapTransparency = cloneLayer.color.transparency;
+    } else if (MapLayerType.SYMBOL === preLayerType) {
+      layer.color.symbolSchema = cloneLayer.color.schema;
+      layer.color.symbolTransparency = cloneLayer.color.transparency;
+    } else if (MapLayerType.TILE === preLayerType) {
+      layer.tileRadius = cloneLayer.tileRadius;
+      layer.color.tileSchema = cloneLayer.color.schema;
+      layer.color.tranTransparency = cloneLayer.color.transparency;
+    } else if (MapLayerType.POLYGON === preLayerType) {
+      layer.color.polygonSchema = cloneLayer.color.schema;
+      layer.color.tranTransparency = cloneLayer.color.transparency;
+    }
+
+    // change layer type
+    this.uiOption.layers[layerIndex].type = layerType;
 
     // init color, legend
     this.initOptionSymbolLayer(layerIndex);
 
     // change color type by layer type
     if (MapLayerType.HEATMAP === layerType) {
-      this.uiOption.layers[layerIndex].color.by = MapBy.MEASURE;
-      this.uiOption.layers[layerIndex].color.schema = 'HC1';
-      if( isNullOrUndefined(this.uiOption.layers[layerIndex]['blur']) ) {
-        this.uiOption.layers[layerIndex]['blur'] = 20;
+
+      layer = this.setColorByShelf(false, layerIndex);
+      if( isNullOrUndefined(layer.color.heatMapTransparency) ) {
+        layer.color.heatMapTransparency = 10;
       }
-      this.uiOption.layers[layerIndex]['radius'] = 20;
+      layer.color.transparency = layer.color.heatMapTransparency;
+      if( isNullOrUndefined(layer['blur']) ) {
+        layer['blur'] = 20;
+      }
+      if( isNullOrUndefined(layer.heatMapRadius) ) {
+        layer.heatMapRadius = 20;
+      }
+      layer['radius'] = layer.heatMapRadius;
 
       measureList = this.fieldList[layerIndex]['measureList'];
 
@@ -201,7 +242,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
         // this.uiOption.legend.showName = false;
         this.uiOption.legend.auto = false;
       } else {
-        this.uiOption.layers[layerIndex].color.column = measureList[0]['name'];
+        layer.color.column = measureList[0]['name'];
       }
 
       // remove measure aggregation type in shelf
@@ -209,10 +250,13 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     } else if (MapLayerType.SYMBOL === layerType) {
       // set color by shelf
-      this.uiOption.layers[layerIndex] = this.setColorByShelf(false, layerIndex);
+      layer = this.setColorByShelf(false, layerIndex);
+      if( isNullOrUndefined(layer.color.symbolTransparency) ) {
+        layer.color.symbolTransparency = 10;
+      }
+      layer.color.transparency = layer.color.symbolTransparency;
 
       // add color by dimension list
-      // if (dimensionList.length > 0 && -1 === _.findIndex(this.colorByList, {'value' : MapBy.DIMENSION})) {
       if (dimensionList.length > 0 && -1 === _.findIndex(this.colorByList, ( item ) => { return item.value === MapBy.DIMENSION; })) {
         this.colorByList.splice(1, 0, {name : this.translateService.instant('msg.page.li.color.dimension'), value : MapBy.DIMENSION});
       }
@@ -222,8 +266,15 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     } else if (MapLayerType.TILE === layerType) {
       // set color by shelf
-      this.uiOption.layers[layerIndex] = this.setColorByShelf(true, layerIndex);
-      this.uiOption.layers[layerIndex]['radius'] = 20;
+      layer = this.setColorByShelf(true, layerIndex);
+      if( isNullOrUndefined(layer.color.tranTransparency) ) {
+        layer.color.tranTransparency = 10;
+      }
+      layer.color.transparency = layer.color.tranTransparency;
+      if( isNullOrUndefined(layer.tileRadius) ) {
+        layer.tileRadius = 20;
+      }
+      layer['radius'] = layer.tileRadius;
 
       // remove color by dimension list
       _.remove(this.colorByList, ( item ) => { return item.value === MapBy.DIMENSION; });
@@ -262,7 +313,21 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    * @param {number} index
    */
   public changeTransparency(obj: any, slider: any, index: number) {
-    this.uiOption.layers[index].color.transparency = slider.from;
+
+    const layer = this.uiOption.layers[index];
+    if (MapLayerType.HEATMAP === layer.type) {
+      layer.color.heatMapTransparency = slider.from;
+      layer.color.transparency = layer.color.heatMapTransparency;
+    } else if (MapLayerType.SYMBOL === layer.type) {
+      layer.color.symbolTransparency = slider.from;
+      layer.color.transparency = layer.color.symbolTransparency;
+    } else if (MapLayerType.TILE === layer.type) {
+      layer.color.tranTransparency = slider.from;
+      layer.color.transparency = layer.color.tranTransparency;
+    } else if (MapLayerType.POLYGON === layer.type) {
+      layer.color.tranTransparency = slider.from;
+      layer.color.transparency = layer.color.tranTransparency;
+    }
     this.applyLayers();
   }
 
@@ -279,7 +344,20 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       $event.target.value = this.uiOption.layers[index].color.transparency;
       return;
     } else {
-      this.uiOption.layers[index].color.transparency = inputValue;
+      const layer = this.uiOption.layers[index];
+      if (MapLayerType.HEATMAP === layer.type) {
+        layer.color.heatMapTransparency = inputValue;
+        layer.color.transparency = layer.color.heatMapTransparency;
+      } else if (MapLayerType.SYMBOL === layer.type) {
+        layer.color.symbolTransparency = inputValue;
+        layer.color.transparency = layer.color.symbolTransparency;
+      } else if (MapLayerType.TILE === layer.type) {
+        layer.color.tranTransparency = inputValue;
+        layer.color.transparency = layer.color.tranTransparency;
+      } else if (MapLayerType.POLYGON === layer.type) {
+        layer.color.tranTransparency = inputValue;
+        layer.color.transparency = layer.color.tranTransparency;
+      }
       this.applyLayers();
     }
   }
@@ -408,7 +486,18 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
       // not heatmap => set ranges
       if (MapLayerType.HEATMAP !== this.uiOption.layers[layerIndex].type && MapBy.MEASURE === this.uiOption.layers[layerIndex].color.by) {
-        this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
+
+        // 공간연산 사용 여부
+        if(!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] == true ) {
+          // 비교 레이어 영역 설정 여부
+          if(!_.isUndefined(this.uiOption.analysis['includeCompareLayer']) && this.uiOption.analysis['includeCompareLayer'] == true) {
+            this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[(this.uiOption.analysis['layerNum']+1)], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
+          } else {
+            this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[this.uiOption.analysis['layerNum']], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
+          }
+        } else {
+          this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
+        }
       }
 
     } else if (MapBy.NONE === data['value']) {
@@ -435,9 +524,23 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       this.uiOption.layers[layerIndex].color.granularity = null;
       // init ranges
       const colorList = <any>_.cloneDeep(ChartColorList[this.uiOption.layers[layerIndex].color['schema']]);
-      this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
-    // granularity
+
+      // 공간연산 사용 여부
+      if(!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] == true ) {
+        // 비교 레이어 영역 설정 여부
+        if(!_.isUndefined(this.uiOption.analysis['includeCompareLayer']) && this.uiOption.analysis['includeCompareLayer'] == true) {
+          // map chart 일 경우 aggregation type 변경시 min/max 재설정 필요
+          this.uiOption['layers'][this.uiOption['layerNum']]['isColorOptionChanged'] = true;
+          this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[(this.uiOption.analysis['layerNum']+1)], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
+        } else {
+          this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[this.uiOption.analysis['layerNum']], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
+        }
+      } else {
+        this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
+      }
+
     } else {
+      // granularity
       if (data.format) this.uiOption.layers[layerIndex].color.granularity = data.format.unit.toString();
       this.uiOption.layers[layerIndex].color.aggregationType = null;
     }
@@ -546,6 +649,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   public changeByNoneColor(colorCode: string, layerIndex : number) {
 
+    let layerType = this.uiOption.layers[layerIndex].type;
+    if (MapLayerType.HEATMAP === layerType) {
+      this.uiOption.layers[layerIndex].color['heatMapSchema'] = colorCode;
+    } else if (MapLayerType.SYMBOL === layerType) {
+      this.uiOption.layers[layerIndex].color['symbolSchema'] = colorCode;
+    } else if (MapLayerType.TILE === layerType) {
+      this.uiOption.layers[layerIndex].color['tileSchema'] = colorCode;
+    } else if (MapLayerType.POLYGON === layerType) {
+      this.uiOption.layers[layerIndex].color['polygonSchema'] = colorCode;
+    }
+
     this.uiOption.layers[layerIndex].color.schema = colorCode;
 
     this.applyLayers();
@@ -579,7 +693,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    * @param slider
    */
   public changeRadius(obj: any, slider: any, index: number) {
-    (<UIHeatmapLayer>this.uiOption.layers[index]).radius = slider.from;
+    let heatMapLayer = (<UIHeatmapLayer>this.uiOption.layers[index]);
+    heatMapLayer.heatMapRadius = slider.from;
+    heatMapLayer.radius = heatMapLayer.heatMapRadius;
     this.applyLayers();
   }
   public changeRadiusText($event: any, index: number) {
@@ -588,7 +704,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       $event.target.value = this.uiOption.layers[index]['radius'];
       return;
     } else {
-      (<UIHeatmapLayer>this.uiOption.layers[index]).radius = inputValue;
+      let heatMapLayer = (<UIHeatmapLayer>this.uiOption.layers[index]);
+      heatMapLayer.heatMapRadius = inputValue;
+      heatMapLayer.radius = heatMapLayer.heatMapRadius;
       this.applyLayers();
     }
   }
@@ -599,8 +717,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    * @param slider
    */
   public changeHexagonRadius(obj: any, slider: any, layerIndex : number) {
-
-    (<UITileLayer>this.uiOption.layers[layerIndex]).radius = slider.from;
+    let tileLayer = (<UITileLayer>this.uiOption.layers[layerIndex]);
+    tileLayer.tileRadius = slider.from;
+    tileLayer.radius = tileLayer.tileRadius;
+    (<UIMapOption>this.uiOption).layers[layerIndex]['changeTileRadius'] = true;
     this.applyLayers({});
   }
 
@@ -617,8 +737,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       return;
     } else {
       // when they are not same
-      if ((<UITileLayer>this.uiOption.layers[layerIndex]).radius !== inputValue) {
-        (<UITileLayer>this.uiOption.layers[layerIndex]).radius = inputValue;
+      let tileLayer = (<UITileLayer>this.uiOption.layers[layerIndex]);
+      if (tileLayer.radius !== inputValue) {
+        tileLayer.tileRadius = inputValue;
+        tileLayer.radius = tileLayer.tileRadius;
+        (<UIMapOption>this.uiOption).layers[layerIndex]['changeTileRadius'] = true;
         this.applyLayers({});
       }
     }
@@ -651,13 +774,35 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   public changeColor(data: any, layerIndex : number) {
 
+    let layerType = this.uiOption.layers[layerIndex].type;
+    if (MapLayerType.HEATMAP === layerType) {
+      this.uiOption.layers[layerIndex].color['heatMapSchema'] = data.colorNum;
+    } else if (MapLayerType.SYMBOL === layerType) {
+      this.uiOption.layers[layerIndex].color['symbolSchema'] = data.colorNum;
+    } else if (MapLayerType.TILE === layerType) {
+      this.uiOption.layers[layerIndex].color['tileSchema'] = data.colorNum;
+    } else if (MapLayerType.POLYGON === layerType) {
+      this.uiOption.layers[layerIndex].color['polygonSchema'] = data.colorNum;
+    }
     this.uiOption.layers[layerIndex].color.schema = data.colorNum;
 
     const colorList = <any>_.cloneDeep(ChartColorList[this.uiOption.layers[layerIndex].color['schema']]);
 
     // not heatmap => set ranges
     if (MapLayerType.HEATMAP !== this.uiOption.layers[layerIndex].type && MapBy.MEASURE === this.uiOption.layers[layerIndex].color.by) {
-      this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
+
+      // 공간연산 사용 여부
+      if(!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] == true ) {
+        // 비교 레이어 영역 설정 여부
+        if(!_.isUndefined(this.uiOption.analysis['includeCompareLayer']) && this.uiOption.analysis['includeCompareLayer'] == true) {
+          this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[(this.uiOption.analysis['layerNum']+1)], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
+        } else {
+          this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[this.uiOption.analysis['layerNum']], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
+        }
+      } else {
+        this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
+      }
+
     // heatmap => init ranges
     } else {
       this.uiOption.layers[layerIndex].color.ranges = undefined;
@@ -674,7 +819,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   public findColorIndex(colorList: Object[], layerIndex : number) {
     if (this.colorTemplate) {
       let obj = _.find(colorList, {colorNum : this.uiOption.layers[layerIndex].color.schema});
-      if (obj) return obj['index'];
+      if (obj) {
+        // this.changeDetect.detectChanges();
+        return obj['index'];
+      }
       return 1;
     }
     return 1;
@@ -793,7 +941,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     // custom user color is show, set ranges
     const ranges = this.uiOption.layers[layerIndex].color.settingUseFl ? colorOption.ranges : [];
 
-    this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], <any>ChartColorList[colorOption.schema], layerIndex, this.shelf.layers[layerIndex].fields, ranges);
+    // 공간연산 사용 여부
+    if(!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] == true ) {
+      // 비교 레이어 영역 설정 여부
+      if(!_.isUndefined(this.uiOption.analysis['includeCompareLayer']) && this.uiOption.analysis['includeCompareLayer'] == true) {
+        this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[(this.uiOption.analysis['layerNum']+1)], <any>ChartColorList[colorOption.schema], layerIndex, this.shelf.layers[layerIndex].fields, ranges);
+      } else {
+        this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[this.uiOption.analysis['layerNum']], <any>ChartColorList[colorOption.schema], layerIndex, this.shelf.layers[layerIndex].fields, ranges);
+      }
+    } else {
+      this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], <any>ChartColorList[colorOption.schema], layerIndex, this.shelf.layers[layerIndex].fields, ranges);
+    }
 
     this.applyLayers();
   }
@@ -1065,8 +1223,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       colorList[index] = item.color;
     });
 
-    // set color ranges
-    this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex].fields, rangeList);
+    // 공간연산 사용 여부
+    if(!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] == true ) {
+      // 비교 레이어 영역 설정 여부
+      if(!_.isUndefined(this.uiOption.analysis['includeCompareLayer']) && this.uiOption.analysis['includeCompareLayer'] == true) {
+        this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[(this.uiOption.analysis['layerNum']+1)], colorList, layerIndex, this.shelf.layers[layerIndex].fields, rangeList);
+      } else {
+        this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[this.uiOption.analysis['layerNum']], colorList, layerIndex, this.shelf.layers[layerIndex].fields, rangeList);
+      }
+    } else {
+      this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex].fields, rangeList);
+    }
 
     this.applyLayers();
   }
@@ -1177,10 +1344,28 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
       const getShelveReturnField = ((shelve: any, typeList: ShelveFieldType[]): AbstractField[] => {
         const resultList: AbstractField[] = [];
+
+        let uiOption = this.uiOption;
+        let analysisCountAlias : string;
+        let isUndefinedAggregationType : boolean = false;
+        if( !_.isUndefined(uiOption['analysis']) && !_.isUndefined(uiOption['analysis']['use']) && uiOption['analysis']['use'] ) {
+          if( uiOption['analysis']['operation']['choropleth'] ) {
+            analysisCountAlias = uiOption['analysis']['operation']['aggregation']['column'];
+            (_.isUndefined(uiOption['analysis']['operation']['aggregation']['type']) ? isUndefinedAggregationType = true : isUndefinedAggregationType = false );
+          }
+        }
+
         shelve.map((item) => {
-          if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO'))) ) {
-            item['alias'] = ChartUtil.getAlias(item);
-            resultList.push(item);
+          if( !_.isUndefined(analysisCountAlias) && _.eq(item.type, typeList[0]) && _.eq(item.type, ShelveFieldType.MEASURE) ){
+            if( (!_.isUndefined(item['isCustomField']) && item['isCustomField'] ) || ( !isUndefinedAggregationType && analysisCountAlias == item.name) ){
+              item['alias'] = ChartUtil.getAlias(item);
+              resultList.push(item);
+            }
+          } else {
+            if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO'))) ) {
+              item['alias'] = ChartUtil.getAlias(item);
+              resultList.push(item);
+            }
           }
         });
         return resultList;
@@ -1269,6 +1454,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     const isDimension = preference['isDimension'];
 
     let layer: UILayers = this.uiOption.layers[layerIndex];
+    let layerType = layer.type;
 
     let dimensionList = this.fieldList[layerIndex].dimensionList;
     let measureList = this.fieldList[layerIndex].measureList;
@@ -1278,7 +1464,21 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     ///////////////////////////
     if( isNone ) {
       layer.color.by = MapBy.NONE;
-      layer.color.schema = _.eq(layer.type, MapLayerType.HEATMAP) ? 'HC1' : '#6344ad';
+      if( layerType == MapLayerType.HEATMAP ){
+        (_.isUndefined(layer.color.heatMapSchema) || layer.color.heatMapSchema.indexOf('HC') == -1 ? layer.color.heatMapSchema = 'HC1' : layer.color.heatMapSchema);
+        layer.color.schema = layer.color.heatMapSchema;
+      } else if (layerType == MapLayerType.SYMBOL) {
+        (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema.indexOf('#') == -1 ? layer.color.symbolSchema = '#6344ad' : layer.color.symbolSchema);
+        layer.color.schema = layer.color.symbolSchema;
+      } else if (layerType == MapLayerType.TILE) {
+        (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('#') == -1 ? layer.color.tileSchema = '#6344ad' : layer.color.tileSchema);
+        layer.color.schema = layer.color.tileSchema;
+      } else if (layerType == MapLayerType.POLYGON) {
+        (_.isUndefined(layer.color.polygonSchema) || layer.color.polygonSchema.indexOf('#') == -1 ? layer.color.polygonSchema = '#6344ad' : layer.color.polygonSchema);
+        layer.color.schema = layer.color.polygonSchema;
+      } else {
+        layer.color.schema = '#6344ad';
+      }
       layer.color.column = null;
       layer.color.aggregationType = null;
     }
@@ -1288,7 +1488,21 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     // remove not isDimension => exceptional case select dimension and remove dimension
     else if( isMeasure ) {
       layer.color.by = MapBy.MEASURE;
-      layer.color.schema = _.eq(layer.type, MapLayerType.HEATMAP) ? 'HC1' : 'VC1';
+      if( layerType == MapLayerType.HEATMAP ){
+        (_.isUndefined(layer.color.heatMapSchema) || layer.color.heatMapSchema.indexOf('HC') == -1 ? layer.color.heatMapSchema = 'HC1' : layer.color.heatMapSchema);
+        layer.color.schema = layer.color.heatMapSchema;
+      } else if (layerType == MapLayerType.SYMBOL) {
+        (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema.indexOf('VC') == -1 ? layer.color.symbolSchema = 'VC1' : layer.color.symbolSchema);
+        layer.color.schema = layer.color.symbolSchema;
+      } else if (layerType == MapLayerType.TILE) {
+        (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('VC') == -1 ? layer.color.tileSchema = 'VC1' : layer.color.tileSchema);
+        layer.color.schema = layer.color.tileSchema;
+      } else if (layerType == MapLayerType.POLYGON) {
+        (_.isUndefined(layer.color.polygonSchema) || layer.color.polygonSchema.indexOf('VC') == -1 ? layer.color.polygonSchema = 'VC1' : layer.color.polygonSchema);
+        layer.color.schema = layer.color.polygonSchema;
+      } else {
+        layer.color.schema = 'VC1';
+      }
       layer.color.column = measureList[0]['name'];
       if (aggregationFl) layer.color.aggregationType = measureList[0]['aggregationType'];
       else layer.color.aggregationType = null;
@@ -1297,15 +1511,26 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     // Color by Dimension
     ///////////////////////////
     // hexagon && isDimension => init as none
-    else if ( MapLayerType.TILE === layer.type && isDimension ) {
+    else if ( MapLayerType.TILE === layerType && isDimension ) {
       layer.color.by = MapBy.NONE;
-      layer.color.schema = '#6344ad';
+      (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('#') == -1 ? layer.color.tileSchema = '#6344ad' : layer.color.tileSchema);
+      layer.color.schema = layer.color.tileSchema;
       layer.color.column = null;
       layer.color.aggregationType = null;
-    }
-    else if( isDimension ) {
+    } else if( isDimension ) {
       layer.color.by = MapBy.DIMENSION;
-      layer.color.schema = 'SC1';
+      if (layerType == MapLayerType.SYMBOL) {
+        (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema.indexOf('SC') == -1 ? layer.color.symbolSchema = 'SC1' : layer.color.symbolSchema);
+        layer.color.schema = layer.color.symbolSchema;
+      } else if (layerType == MapLayerType.TILE) {
+        (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('SC') == -1 ? layer.color.tileSchema = 'SC1' : layer.color.tileSchema);
+        layer.color.schema = layer.color.tileSchema;
+      } else if (layerType == MapLayerType.POLYGON) {
+        (_.isUndefined(layer.color.polygonSchema) || layer.color.polygonSchema.indexOf('SC') == -1 ? layer.color.polygonSchema = 'SC1' : layer.color.polygonSchema);
+        layer.color.schema = layer.color.polygonSchema;
+      } else {
+        layer.color.schema = 'SC1';
+      }
       layer.color.column = dimensionList[0]['name'];
       layer.color.aggregationType = null;
       if (dimensionList[0]['format']) layer.color.granularity = dimensionList[0]['format']['unit'].toString();
@@ -1399,6 +1624,14 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   private getLayerIndex() {
     ( this.rnbMenu.indexOf('1') != -1 ? this.index = 0 : this.index = (Number(this.rnbMenu.split('mapLayer')[1]) -1));
+  }
+
+  /**
+   * 공간연산 / 비교 레이어 영역
+   */
+  public analysisVisibilityBtn() {
+    this.uiOption['analysis']['includeCompareLayer'] = !this.uiOption['analysis']['includeCompareLayer'];
+    this.applyLayers({type : EventType.MAP_CHANGE_OPTION});
   }
 
 }

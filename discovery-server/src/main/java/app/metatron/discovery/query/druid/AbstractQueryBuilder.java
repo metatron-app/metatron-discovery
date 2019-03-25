@@ -78,10 +78,12 @@ import app.metatron.discovery.domain.workbook.configurations.field.Field;
 import app.metatron.discovery.domain.workbook.configurations.field.MapField;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
+import app.metatron.discovery.domain.workbook.configurations.filter.BoundFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.*;
 import app.metatron.discovery.domain.workbook.configurations.format.ContinuousTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.UnixTimeFormat;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.LayerView;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.MapViewLayer;
 import app.metatron.discovery.query.druid.aggregations.AreaAggregation;
 import app.metatron.discovery.query.druid.aggregations.CountAggregation;
@@ -95,15 +97,7 @@ import app.metatron.discovery.query.druid.aggregations.VarianceAggregation;
 import app.metatron.discovery.query.druid.datasource.QueryDataSource;
 import app.metatron.discovery.query.druid.datasource.TableDataSource;
 import app.metatron.discovery.query.druid.extractionfns.LookupFunction;
-import app.metatron.discovery.query.druid.filters.AndFilter;
-import app.metatron.discovery.query.druid.filters.ExprFilter;
-import app.metatron.discovery.query.druid.filters.InFilter;
-import app.metatron.discovery.query.druid.filters.LucenePointFilter;
-import app.metatron.discovery.query.druid.filters.LuceneSpatialFilter;
-import app.metatron.discovery.query.druid.filters.MathFilter;
-import app.metatron.discovery.query.druid.filters.OrFilter;
-import app.metatron.discovery.query.druid.filters.RegExpFilter;
-import app.metatron.discovery.query.druid.filters.SelectorFilter;
+import app.metatron.discovery.query.druid.filters.*;
 import app.metatron.discovery.query.druid.funtions.CastFunc;
 import app.metatron.discovery.query.druid.funtions.DateTimeMillisFunc;
 import app.metatron.discovery.query.druid.funtions.InFunc;
@@ -249,6 +243,11 @@ public abstract class AbstractQueryBuilder {
   protected boolean geoJsonFormat;
 
   /**
+   * case of disabling dimension
+   */
+  protected boolean disableDimension;
+
+  /**
    * 엔진에 질의할 때 필요한 추가 정보
    */
   protected Map<String, Object> context = Maps.newHashMap();
@@ -384,6 +383,8 @@ public abstract class AbstractQueryBuilder {
   protected void enableMapLayer(MapViewLayer mapViewLayer) {
     this.mapViewLayer = mapViewLayer;
     this.geoJsonFormat = true;
+    this.disableDimension = (mapViewLayer.getView() != null)
+        && (mapViewLayer.getView() instanceof LayerView.ClusteringLayerView);
 
     if (dataSource instanceof MultiDataSource) {
       MultiDataSource multiDataSource = (MultiDataSource) dataSource;
@@ -632,27 +633,47 @@ public abstract class AbstractQueryBuilder {
         InFunc inFunc = new InFunc(timeFormatFunc.toExpression(), timestampFilter.getSelectedTimestamps());
 
         filter.addField(new ExprFilter(inFunc.toExpression()));
-      } else if (reqFilter instanceof SpatialBboxFilter) {
-        SpatialBboxFilter reqBboxFilter = (SpatialBboxFilter) reqFilter;
+      } else if (reqFilter instanceof SpatialFilter) {
+
         app.metatron.discovery.domain.datasource.Field datasourceField = this.metaFieldMap.get(fieldName);
         if (!datasourceField.getLogicalType().isGeoType()) {
           return;
         }
 
-        Filter spatialFilter = null;
-        if (datasourceField.getLogicalType() == LogicalType.GEO_POINT) {
-          spatialFilter = new LucenePointFilter(reqBboxFilter);
-        } else {
-          spatialFilter = new LuceneSpatialFilter(reqBboxFilter);
-        }
-
-        filter.addField(spatialFilter);
+        addSpatialFilter(filter, (SpatialFilter) reqFilter, datasourceField);
 
       } else if (reqFilter instanceof TimeFilter) {
         addTimeFilter(filter, (TimeFilter) reqFilter, intervals);
       }
     }
 
+  }
+
+  public void addSpatialFilter(AndFilter filter, SpatialFilter reqFilter, app.metatron.discovery.domain.datasource.Field datasourceField) {
+
+    Filter spatialFilter = null;
+
+    if (reqFilter instanceof SpatialBboxFilter) {
+      SpatialBboxFilter reqBboxFilter = (SpatialBboxFilter) reqFilter;
+
+      if (datasourceField.getLogicalType().isPoint()) {
+        spatialFilter = new LucenePointFilter(reqBboxFilter);
+      } else {
+        spatialFilter = new LuceneSpatialFilter(reqBboxFilter);
+      }
+    } else if (reqFilter instanceof SpatialPointFilter) {
+      spatialFilter = new LucenePointFilter((SpatialPointFilter) reqFilter, datasourceField.getLogicalType().isPoint());
+    } else if (reqFilter instanceof SpatialShapeFilter) {
+      if (datasourceField.getLogicalType().isPoint()) {
+        spatialFilter = new LuceneLonLatPolygonFilter((SpatialShapeFilter) reqFilter, datasourceField.getLogicalType().isPoint());
+      } else {
+        spatialFilter = new LuceneSpatialFilter((SpatialShapeFilter) reqFilter, datasourceField.getLogicalType().isPoint());
+      }
+    } else {
+      throw new IllegalArgumentException("Not support spatial filter");
+    }
+
+    filter.addField(spatialFilter);
   }
 
   public void addTimeFilter(AndFilter filter, TimeFilter timeFilter, List<String> intervals) {
@@ -846,8 +867,17 @@ public abstract class AbstractQueryBuilder {
       return "";
     }
 
+    // remove prefix, if default datasource get ref value in field or filter
+    String checkName = name;
+    if (dataSource instanceof DefaultDataSource) {
+      String dataSourceStartWith = mainMetaDataSource.getEngineName() + FIELD_NAMESPACE_SEP;
+      if (name.startsWith(dataSourceStartWith)) {
+        checkName = StringUtils.removeStart(name, dataSourceStartWith);
+      }
+    }
+
     // to escape column name for regular expression
-    String escapedName = PolarisUtils.escapeSpecialRegexChars(name);
+    String escapedName = PolarisUtils.escapeSpecialRegexChars(checkName);
     Pattern pattern = Pattern.compile(String.format(PATTERN_FIELD_NAME_STRING, escapedName));
 
     List<String> validColumn = validColumnNames.parallelStream()
@@ -866,7 +896,7 @@ public abstract class AbstractQueryBuilder {
    *
    * @param name valid field name.
    */
-  public String engineColumnName(final String name) {
+  protected String engineColumnName(final String name) {
 
     // If it doesn't need a name.. ex ExpressionFilter
     if (StringUtils.isEmpty(name)) {
@@ -879,6 +909,14 @@ public abstract class AbstractQueryBuilder {
     }
 
     return name;
+  }
+
+  protected ExprVirtualColumn concatPointExprColumn(String engineColumnName, String outputName) {
+    String lat = engineColumnName + "." + LogicalType.GEO_POINT.getGeoPointKeys().get(0);
+    String lon = engineColumnName + "." + LogicalType.GEO_POINT.getGeoPointKeys().get(1);
+    String concatExpr = "concat('POINT (', \"" + lon + "\", ' ', \"" + lat + "\",')')";
+
+    return new ExprVirtualColumn(concatExpr, outputName);
   }
 
   protected void addContext(String key, Object value) {

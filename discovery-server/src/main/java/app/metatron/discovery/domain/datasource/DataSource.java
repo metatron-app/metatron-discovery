@@ -282,7 +282,7 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
    */
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "ss_id",
-      foreignKey = @javax.persistence.ForeignKey(name="none", value = ConstraintMode.NO_CONSTRAINT))
+      foreignKey = @javax.persistence.ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
   @NotFound(action = NotFoundAction.IGNORE)
   PrSnapshot snapshot;
 
@@ -461,6 +461,14 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
                                    .count();
 
     return timeFieldCnt > 0;
+  }
+
+  @JsonIgnore
+  public List<Field> getGeoFields() {
+    return getFields().stream()
+                      .filter(field -> field.isGeoType())
+                      .collect(Collectors.toList());
+
   }
 
   /**
@@ -669,7 +677,7 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
       return true;
     } else if (info instanceof RealtimeIngestionInfo && srcType == REALTIME) {
       return true;
-    //SrcType SNAPSHOT supports 3 ingestion types
+      //SrcType SNAPSHOT supports 3 ingestion types
     } else if (info instanceof HiveIngestionInfo && srcType == SNAPSHOT) {
       return true;
     } else if (info instanceof LocalFileIngestionInfo && srcType == SNAPSHOT) {
@@ -1159,7 +1167,7 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
     }
 
     public static GranularityType fromPeriod(Period period) {
-      int [] vals = period.getValues();
+      int[] vals = period.getValues();
       int index = -1;
       for (int i = 0; i < vals.length; i++) {
         if (vals[i] != 0) {
@@ -1214,12 +1222,10 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
       throw new MetatronException("Granularity is not supported : " + period);
     }
 
-    public static GranularityType fromInterval(Interval interval)
-    {
+    public static GranularityType fromInterval(Interval interval) {
       try {
         return fromPeriod(new Period(interval.getStart(), interval.getEnd()));
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
         return null;
       }
     }

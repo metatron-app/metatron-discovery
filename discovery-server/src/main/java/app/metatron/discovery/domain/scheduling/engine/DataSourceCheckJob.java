@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceRepository;
 import app.metatron.discovery.domain.datasource.DataSourceSummary;
+import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryRepository;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.DruidEngineRepository;
@@ -157,8 +158,14 @@ public class DataSourceCheckJob extends QuartzJobBean {
       summary = new DataSourceSummary();
       dataSource.setSummary(summary);
     }
-
     summary.updateSummary(segmentMetaData);
+
+    if (BooleanUtils.isTrue(dataSource.getIncludeGeo())) {
+      List<Field> geoFields = dataSource.getGeoFields();
+
+      Map<String, Object> result = queryService.geoBoundary(dataSource.getEngineName(), geoFields);
+      summary.updateGeoCorner(result);
+    }
 
     dataSourceRepository.save(dataSource);
   }

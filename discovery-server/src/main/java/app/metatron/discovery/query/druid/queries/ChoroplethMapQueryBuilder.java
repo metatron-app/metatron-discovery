@@ -24,12 +24,11 @@ import app.metatron.discovery.common.CommonLocalVariable;
 import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.workbook.configurations.analysis.GeoSpatialOperation;
-import app.metatron.discovery.query.druid.Query;
 import app.metatron.discovery.query.druid.SpatialOperations;
 
-public class GeoBoundaryFilterQueryBuilder {
+public class ChoroplethMapQueryBuilder {
 
-  Query query;
+  GroupByQuery query;
 
   String pointColumn;
 
@@ -41,26 +40,33 @@ public class GeoBoundaryFilterQueryBuilder {
 
   SpatialOperations operation;
 
+  Map<String, String> boundaryJoin = Maps.newLinkedHashMap();
+
   Map<String, Object> context = Maps.newLinkedHashMap();
 
   String queryId;
 
-  public GeoBoundaryFilterQueryBuilder() {
+  public ChoroplethMapQueryBuilder() {
     queryId = CommonLocalVariable.getQueryId();
   }
 
-  public GeoBoundaryFilterQueryBuilder query(Query query) {
+  public ChoroplethMapQueryBuilder query(GroupByQuery query) {
     this.query = query;
     return this;
   }
 
-  public GeoBoundaryFilterQueryBuilder boundary(SelectStreamQuery query, String boundaryColumn) {
+  public ChoroplethMapQueryBuilder boundary(SelectStreamQuery query, String boundaryColumn) {
     this.boundary = query;
     this.boundaryColumn = boundaryColumn;
+
+    for (String column : boundary.getColumns()) {
+      this.boundaryJoin.put(column, column);
+    }
+
     return this;
   }
 
-  public GeoBoundaryFilterQueryBuilder context(String key, Object value) {
+  public ChoroplethMapQueryBuilder context(String key, Object value) {
     if (context == null) {
       context = Maps.newLinkedHashMap();
     }
@@ -70,7 +76,7 @@ public class GeoBoundaryFilterQueryBuilder {
     return this;
   }
 
-  public GeoBoundaryFilterQueryBuilder geometry(Field geometry) {
+  public ChoroplethMapQueryBuilder geometry(Field geometry) {
     if (geometry.getLogicalType() == LogicalType.GEO_POINT) {
       this.pointColumn = geometry.getName() + ".coord";
     } else {
@@ -80,17 +86,17 @@ public class GeoBoundaryFilterQueryBuilder {
     return this;
   }
 
-  public GeoBoundaryFilterQueryBuilder point(String pointColumn) {
+  public ChoroplethMapQueryBuilder point(String pointColumn) {
     this.pointColumn = pointColumn + ".coord";
     return this;
   }
 
-  public GeoBoundaryFilterQueryBuilder shape(String shapeColumn) {
+  public ChoroplethMapQueryBuilder shape(String shapeColumn) {
     this.shapeColumn = shapeColumn;
     return this;
   }
 
-  public GeoBoundaryFilterQueryBuilder operation(GeoSpatialOperation geoSpatialOperation) {
+  public ChoroplethMapQueryBuilder operation(GeoSpatialOperation geoSpatialOperation) {
 
     if (geoSpatialOperation instanceof GeoSpatialOperation.Within) {
       if (StringUtils.isNotEmpty(pointColumn)) {
@@ -110,23 +116,22 @@ public class GeoBoundaryFilterQueryBuilder {
     return this;
   }
 
-  public GeoBoundaryFilterQuery build() {
+  public ChoroplethMapQuery build() {
 
     if (StringUtils.isNotEmpty(queryId)) {
       context.put("queryId", queryId);
     }
 
-    GeoBoundaryFilterQuery geoBoundaryQuery = new GeoBoundaryFilterQuery(
+    ChoroplethMapQuery choroplethMapQuery = new ChoroplethMapQuery(
         query,
         pointColumn,
-        shapeColumn,
         boundary,
         boundaryColumn,
-        operation,
+        boundaryJoin,
         context
     );
 
-    return geoBoundaryQuery;
+    return choroplethMapQuery;
   }
 
 

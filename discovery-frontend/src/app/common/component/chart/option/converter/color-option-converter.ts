@@ -498,18 +498,39 @@ export class ColorOptionConverter {
 
     let alias = ChartUtil.getFieldAlias(uiOption.layers[layerIndex].color.column, layers, uiOption.layers[layerIndex].color.aggregationType);
 
-    // symbol 타입 , cluster 사용일 경우
-    if( uiOption.layers[layerIndex].type == MapLayerType.SYMBOL && uiOption.layers[layerIndex]['clustering'] ){
-      alias = 'count';
+    if( !_.isUndefined(uiOption['analysis']) && !_.isUndefined(uiOption['analysis']['use']) && uiOption['analysis']['use'] ) {
+      if( uiOption['analysis']['operation']['choropleth']
+        && uiOption['analysis']['operation']['aggregation']['column'] == 'count') {
+        alias = uiOption['analysis']['operation']['aggregation']['column'];
+      }
+    } else {
+      // symbol 타입 , cluster 사용일 경우
+      if( uiOption.layers[layerIndex].type == MapLayerType.SYMBOL && uiOption.layers[layerIndex]['clustering'] ){
+        alias = 'count';
+      }
     }
 
-    // less than 0, set minValue
-    const minValue = _.cloneDeep(data.valueRange[alias].minValue);
+    let minValue = 0;
+    let maxValue = 0;
+    if( !_.isUndefined( data.valueRange[alias] ) ){
+      // less than 0, set minValue
+      minValue = _.cloneDeep(data.valueRange[alias].minValue);
+      maxValue = _.cloneDeep(data.valueRange[alias].maxValue);
+    }
+
+    // map 챠트에서 aggregation 타입이 변경 될 경우 min / max 값을 변경해야함
+    if(!_.isUndefined(uiOption.layers[uiOption.layerNum]['isColorOptionChanged']) && uiOption.layers[uiOption.layerNum]['isColorOptionChanged']) {
+      delete uiOption.layers[uiOption.layerNum]['isColorOptionChanged'];
+      uiOption.layers[layerIndex].color.minValue = minValue;
+      uiOption.layers[layerIndex].color.maxValue = maxValue;
+    } else {
+      // uiOption.minValue = minValue;
+      ( _.isUndefined(uiOption.layers[layerIndex].color.minValue) || uiOption.layers[layerIndex].color.minValue > minValue ? uiOption.layers[layerIndex].color.minValue = minValue : minValue = uiOption.layers[layerIndex].color.minValue);
+      ( _.isUndefined(uiOption.layers[layerIndex].color.maxValue) || uiOption.layers[layerIndex].color.maxValue < maxValue ? uiOption.layers[layerIndex].color.maxValue = maxValue : maxValue = uiOption.layers[layerIndex].color.maxValue);
+    }
 
     // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
-    const addValue = (data.valueRange[alias].maxValue - minValue) / (colorListLength + 1);
-
-    let maxValue = _.cloneDeep(data.valueRange[alias].maxValue);
+    const addValue = (maxValue - minValue) / (colorListLength + 1);
 
     let shape;
 
@@ -519,9 +540,9 @@ export class ColorOptionConverter {
     });
 
     // decimal min value
-    let formatMinValue = formatValue(data.valueRange[alias].minValue);
+    let formatMinValue = formatValue(minValue);
     // decimal max value
-    let formatMaxValue = formatValue(data.valueRange[alias].maxValue);
+    let formatMaxValue = formatValue(maxValue);
 
     // set ranges
     for (let index = colorListLength; index >= 0; index--) {
@@ -538,7 +559,8 @@ export class ColorOptionConverter {
         let min = 0 == index ? null : formatValue(maxValue - addValue);
 
         // if value if lower than minValue, set it as minValue
-        if (min < data.valueRange.minValue && min < 0) min = _.cloneDeep(formatMinValue);
+        // if (min < data.valueRange.minValue && min < 0) min = _.cloneDeep(formatMinValue);
+        if (min < minValue && min < 0) min = _.cloneDeep(formatMinValue);
 
         rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, min, formatValue(maxValue), min, formatValue(maxValue), shape));
 

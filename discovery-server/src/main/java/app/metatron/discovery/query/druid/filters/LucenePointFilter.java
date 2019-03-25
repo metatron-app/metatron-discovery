@@ -17,6 +17,7 @@ package app.metatron.discovery.query.druid.filters;
 import com.google.common.base.Preconditions;
 
 import app.metatron.discovery.domain.workbook.configurations.filter.SpatialBboxFilter;
+import app.metatron.discovery.domain.workbook.configurations.filter.SpatialPointFilter;
 import app.metatron.discovery.query.druid.Filter;
 
 public class LucenePointFilter implements Filter {
@@ -55,6 +56,16 @@ public class LucenePointFilter implements Filter {
     this.latitudes = filter.findLatitudes();
     this.longitudes = filter.findLongitudes();
     this.radiusMeters = 0.0f;
+  }
+
+  public LucenePointFilter(SpatialPointFilter filter, boolean isPoint) {
+    this.field = filter.getField();
+    if (isPoint) this.field += ".coord";
+
+    this.query = PointQueryType.DISTANCE;
+    this.latitudes = new double[]{filter.getLatitude().doubleValue()};
+    this.longitudes = new double[]{filter.getLongitude().doubleValue()};
+    this.radiusMeters = filter.getRadiusMeters();
   }
 
   public String getField() {

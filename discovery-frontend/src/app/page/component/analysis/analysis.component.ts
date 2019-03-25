@@ -35,6 +35,7 @@ import {EventType} from '../../../common/component/chart/option/define/common';
 import {AnalysisPredictionService} from './service/analysis.prediction.service';
 import {fromEvent} from "rxjs";
 import {MapSpatialComponent} from "./map-spatial/map-spatial.component";
+import {Shelf} from "../../../domain/workbook/configurations/shelf/shelf";
 
 @Component({
   selector: 'analysis-component',
@@ -64,7 +65,7 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
   @ViewChild(TrendLineComponent)
   private trendLineComponent: TrendLineComponent;
 
-  @ViewChild(MapSpatialComponent)
+  @ViewChild('MapSpatialComponent')
   private mapSpatialComponent: MapSpatialComponent;
 
   // ---------------------------------------
@@ -94,6 +95,8 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  public whatKindOfChart: string = '';
+
   public dataSubLayerKey: string = '';
 
   // ---------------------------------------
@@ -115,6 +118,9 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
   @Input('uiOption')
   public uiOption: UIOption;
 
+  @Input('shelf')
+  public shelf: Shelf;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -135,6 +141,9 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
       if (changes['dataLayerKey'].currentValue !== 'analysis') {
         this.dataSubLayerKey = '';
       }
+    }
+    if (!_.isUndefined(changes['selectChart'])) {
+      this.selectChart = changes['selectChart']['currentValue'];
     }
   }
 
