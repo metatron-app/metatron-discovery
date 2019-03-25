@@ -18,7 +18,8 @@ import {
   Injector,
   OnDestroy,
   OnInit,
-  Output, QueryList,
+  Output,
+  QueryList,
   ViewChild,
   ViewChildren
 } from "@angular/core";
@@ -29,6 +30,9 @@ import {GridOption} from "../../../../../common/component/grid/grid.option";
 import {ScrollLoadingGridComponent} from "./edit-rule-grid/scroll-loading-grid.component";
 import {ScrollLoadingGridModel} from "./edit-rule-grid/scroll-loading-grid.model";
 import {isNullOrUndefined} from "util";
+import * as Aromanize from 'aromanize';
+import {DatasetService} from "../../../../dataset/service/dataset.service";
+
 declare const moment: any;
 
 @Component({
@@ -73,11 +77,16 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
 
   private _savedViewPort: { top: number, left: number };
 
+  public subTitle: string = '';
+
+  public indexForName: number = 1;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   constructor(protected element: ElementRef,
-              protected injector: Injector) {
+              protected injector: Injector,
+              protected datasetService: DatasetService) {
     super(element, injector);
   }
 
@@ -103,44 +112,122 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
     gridData : {data: any, fields: any},
     dsName : string,
     typeDesc: any,
-    editInfo? : {ruleCurIdx : number, cols: string[], to : string[]}}) {
-
-    // open popup
-    this.isPopupOpen = true;
-
-    // set grid info, columns
-    this.gridData = dsInfo.gridData;
-
-    // Only show 50 rows
-    this.gridData.data = this.gridData.data.splice(0,50);
+    editInfo? : {ruleCurIdx : number, cols: string[], to : string[]},
+    isFromSnapshot?:boolean,
+    dsId?: string}) {
 
     this.datasetName = dsInfo.dsName;
 
-    this.typeDesc = dsInfo.typeDesc;
-
-    // Set column information (right side)
-    if (dsInfo.editInfo) {
-      this._setColumns(this.gridData.fields, dsInfo.editInfo.cols, dsInfo.editInfo.to);
-    } else {
-      this._setColumns(this.gridData.fields);
-    }
-
-    // Edit
-    if (dsInfo.editInfo) {
-      this.op = 'UPDATE';
-      this.currentIdx = dsInfo.editInfo.ruleCurIdx;
-    }
-
-    // Add
-    if (!dsInfo.editInfo) {
+    if (dsInfo.isFromSnapshot) {
+      this.subTitle = 'for hive-type snapshot';
       this.op = 'APPEND';
-    }
 
-    // Grid component is undefined;
-    this.safelyDetectChanges();
-    this._updateGrid(this.gridData.fields, this.gridData.data);
+      this._getGridData(dsInfo.dsId).then((result) => {
+        this.gridData = this._getGridDataFromGridResponse(result.gridResponse);
+        this.gridData.data = this.gridData.data.splice(0,50);
+        this.typeDesc = result.gridResponse.colDescs;
+        this._setColumns(this.gridData.fields);
+        this.currentIdx = result.transformRules.length + 1;
+
+        // open popup
+        this.isPopupOpen = true;
+
+        // Grid component is undefined;
+        this.safelyDetectChanges();
+        this._updateGrid(this.gridData.fields, this.gridData.data);
+
+
+
+      })
+
+    } else {
+
+      // open popup
+      this.isPopupOpen = true;
+
+      // set grid info, columns
+      this.gridData = dsInfo.gridData;
+
+      // Only show 50 rows
+      this.gridData.data = this.gridData.data.splice(0, 50);
+
+      this.typeDesc = dsInfo.typeDesc;
+
+      // Set column information (right side)
+      if (dsInfo.editInfo) {
+        this._setColumns(this.gridData.fields, dsInfo.editInfo.cols, dsInfo.editInfo.to);
+        this.op = 'UPDATE';
+        this.currentIdx = dsInfo.editInfo.ruleCurIdx;
+      } else {
+        this._setColumns(this.gridData.fields);
+        this.op = 'APPEND';
+      }
+
+      // Grid component is undefined;
+      this.safelyDetectChanges();
+      this._updateGrid(this.gridData.fields, this.gridData.data);
+
+
+
+
+    }
 
   }
+
+
+  /**
+   * Fetch grid data of dataset
+   * @param dsId
+   * @private
+   */
+  private _getGridData(dsId: string) {
+
+    return new Promise<any>((resolve, reject) => {
+
+      this.datasetService.getDatasetDetail(dsId).then((result) => {
+        resolve(result);
+      })
+
+    });
+
+  }
+
+  /**
+   * Change grid data to grid response
+   * @param gridResponse 매트릭스 정보
+   * @returns 그리드 데이터
+   */
+  private _getGridDataFromGridResponse(gridResponse: any) {
+    let colCnt = gridResponse.colCnt;
+    let colNames = gridResponse.colNames;
+    let colTypes = gridResponse.colDescs;
+
+    const gridData = {
+      data: [],
+      fields: []
+    };
+
+    for ( let idx = 0; idx < colCnt; idx++ ) {
+      gridData.fields.push({
+        name: colNames[idx],
+        type: colTypes[idx].type,
+        seq: idx
+      });
+    }
+
+    gridResponse.rows.forEach((row) => {
+      const obj = {};
+      for ( let idx = 0;idx < colCnt; idx++ ) {
+        obj[ colNames[idx] ] = row.objCols[idx];
+      }
+      gridData.data.push(obj);
+    });
+
+    return gridData;
+  } // function - getGridDataFromGridResponse
+
+
+
 
 
   /**
@@ -149,6 +236,8 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
   public close() {
     this.isPopupOpen = false;
     this.errorEsg = null;
+    this.subTitle = '';
+    this.indexForName = 1;
 
     if (this.op === 'UPDATE') {
       this.renameMultiColumns.emit(null);
@@ -235,13 +324,27 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
 
     // close popup
     this.isPopupOpen = false;
+    this.subTitle = '';
+    this.indexForName = 1;
+
+    let param = null;
+
+    if (originals.length > 0) {
+
+      param = {
+        op: this.op,
+        ruleString: `rename col: ${originalsWithBackTick.toString()} to: ${renamedWithQuote.toString()}`,
+        uiRuleString: {name: 'rename', col:originals, to: renamed, isBuilder: true}
+      };
+
+      if (this.subTitle !== '') {
+        param.ruleIdx = this.currentIdx;
+      }
+
+    }
 
     // If nothing is changed, returns null
-    this.renameMultiColumns.emit(originals.length > 0 ? {
-      op: this.op,
-      ruleString: `rename col: ${originalsWithBackTick.toString()} to: ${renamedWithQuote.toString()}`,
-      uiRuleString: {name: 'rename', col:originals, to: renamed, isBuilder: true}
-    } : null );
+    this.renameMultiColumns.emit(param);
 
   }
 
@@ -408,15 +511,82 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
           isEditing: false
         });
       } else {
-        this.columns.push({
-          original : item.name,
-          renamedAs: item.name,
-          isError: false,
-          isEditing: false
-        });
+        if (this.subTitle !== '') { // Came from snapshot popup
+          this.columns.push({
+            original : item.name,
+            renamedAs: this._replaceWhiteSpace(this._aromanizeKorean(item.name),'_').toLowerCase(),
+            isError: false,
+            isEditing: false
+          });
+        } else {
+          this.columns.push({
+            original : item.name,
+            renamedAs: item.name,
+            isError: false,
+            isEditing: false
+          });
+        }
+      }
+    });
+
+
+    // Except korean, english, numbers and _ change to default name
+    if (!cols && this.subTitle !== '') {
+      this._changeToDefaultName();
+    }
+  }
+
+
+  /**
+   * Replace white space into '_'
+   * @param name
+   * @param replaceVal
+   * @private
+   */
+  private _replaceWhiteSpace(name: string, replaceVal: string = '_') {
+    return name.replace(/ /gi, replaceVal)
+  }
+
+
+  /**
+   * Returns appropriate name for each column name
+   * @private
+   */
+  private _changeToDefaultName(): void {
+
+    const validCheckReg = /[a-zA-Z0-9_가-힣]/;
+    const koCheckReg = /[ㄱ-ㅎㅏ-ㅣ]+/g;
+
+    this.columns.forEach((item, index) => {
+
+      // if name is 안녕ㅎㅎㅎ -> ㅎㅎㅎ is not changed
+      let koMatched = item.renamedAs.match(koCheckReg);
+
+      // Check if has any character other than alphabet, number, korean and _
+      let otherMatched = validCheckReg.test(item.renamedAs);
+
+      const renamedAs = this.columns.map((item) => item.renamedAs);
+
+      if (!isNullOrUndefined(koMatched) || !otherMatched) {
+        while(-1 !== renamedAs.indexOf('column' + this.indexForName)) {
+          this.indexForName+=1;
+        }
+        this.columns[index].renamedAs = 'column' + this.indexForName;
       }
     })
+
   }
+
+
+  /**
+   * Change korean to english 안녕 --> annyeong
+   * @param name
+   * @private
+   */
+  private _aromanizeKorean(name: string): string {
+    return Aromanize.romanize(name);
+  }
+
 
   /**
    * Update grid

@@ -18,7 +18,7 @@ import com.google.common.collect.Lists;
 
 import java.util.List;
 
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
 
 /**
@@ -35,7 +35,7 @@ public class JdbcFirehose implements Firehose {
   public JdbcFirehose() {
   }
 
-  public JdbcFirehose(JdbcIngestionInfo ingestion, JdbcDataConnection dataConnection, String... columns) {
+  public JdbcFirehose(JdbcIngestionInfo ingestion, DataConnection dataConnection, String... columns) {
     this.table = ingestion.getQuery();
     this.connectorConfig = new ConnectorConfig(dataConnection);
     this.columns = Lists.newArrayList(columns);

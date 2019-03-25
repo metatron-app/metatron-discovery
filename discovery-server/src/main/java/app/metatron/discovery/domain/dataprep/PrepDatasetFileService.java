@@ -415,7 +415,7 @@ public class PrepDatasetFileService {
             DataFrame df = new DataFrame(sheet.getSheetName());
             df.setByGrid(getGridFromExcel(sheet, limitRows, columnCount), null);
 
-            if (autoTyping) {
+            if (autoTyping && 0<df.rows.size()) {
                 df = teddyImpl.applyAutoTyping(df);
             }
 
@@ -435,7 +435,7 @@ public class PrepDatasetFileService {
         DataFrame df = new DataFrame("df_for_preview");
         df.setByGridWithJson(PrepJsonUtil.parseJson(storedUri, limitRows, columnCount, hdfsService.getConf()));
 
-        if (autoTyping) {
+        if (autoTyping && 0<df.rows.size()) {
             df = teddyImpl.applyAutoTyping(df);
         }
 
@@ -452,7 +452,7 @@ public class PrepDatasetFileService {
         DataFrame df = new DataFrame("df_for_preview");
         df.setByGrid(PrepCsvUtil.parse(storedUri, delimiterCol, limitRows, columnCount, hdfsService.getConf()));
 
-        if (autoTyping) {
+        if (autoTyping && 0<df.rows.size()) {
             df = teddyImpl.applyAutoTyping(df);
         }
 

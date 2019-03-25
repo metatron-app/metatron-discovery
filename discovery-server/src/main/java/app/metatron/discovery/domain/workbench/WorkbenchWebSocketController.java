@@ -14,9 +14,6 @@
 
 package app.metatron.discovery.domain.workbench;
 
-import app.metatron.discovery.common.exception.MetatronException;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
-import app.metatron.discovery.util.WebSocketUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +26,10 @@ import org.springframework.stereotype.Controller;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+
+import app.metatron.discovery.common.exception.MetatronException;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceManager;
+import app.metatron.discovery.util.WebSocketUtils;
 
 @Controller
 public class WorkbenchWebSocketController {
@@ -43,7 +44,7 @@ public class WorkbenchWebSocketController {
   public SimpMessageSendingOperations messagingTemplate;
 
   @Autowired
-  public WorkbenchService workbenchService;
+  WorkbenchDataSourceManager workbenchDataSourceManager;
 
   /**
    * Workspace 화면 진입시 호출
@@ -68,7 +69,7 @@ public class WorkbenchWebSocketController {
     message.put("command", WorkbenchWebSocketCommand.CONNECT);
     message.put("connected", true);
     try{
-      workbenchService.createSingleDataSource(dataConnectionId, sessionId, username, password);
+      workbenchDataSourceManager.getWorkbenchDataSource(dataConnectionId, sessionId, username, password);
     } catch (MetatronException e){
       message.put("connected", false);
       message.put("message", e.getMessage());
@@ -91,7 +92,7 @@ public class WorkbenchWebSocketController {
             workbenchId, accessor.getUser().getName(), accessor.getSessionId());
 
     String sessionId = accessor.getSessionId();
-    WorkbenchDataSourceUtils.destroyDataSource(sessionId);
+    workbenchDataSourceManager.destroyDataSource(sessionId);
 
     Map<String, Object> message = new HashMap<>();
     message.put("command", WorkbenchWebSocketCommand.DISCONNECT);

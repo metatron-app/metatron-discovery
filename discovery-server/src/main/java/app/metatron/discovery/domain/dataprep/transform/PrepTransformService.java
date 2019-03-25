@@ -23,6 +23,9 @@ import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.IM
 import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.WRANGLED;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
+import app.metatron.discovery.domain.dataconnection.DataConnectionRepository;
 import app.metatron.discovery.domain.dataprep.PrepDatasetFileService;
 import app.metatron.discovery.domain.dataprep.PrepHdfsService;
 import app.metatron.discovery.domain.dataprep.PrepPreviewLineService;
@@ -51,8 +54,6 @@ import app.metatron.discovery.domain.dataprep.teddy.TeddyExecutor;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotSerializeIntoJsonException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
 import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
@@ -145,7 +146,8 @@ public class PrepTransformService {
   @Autowired PrepDatasetFileService datasetFileService;
   @Autowired
   PrSnapshotRepository snapshotRepository;
-  @Autowired DataConnectionRepository connectionRepository;
+  @Autowired
+  DataConnectionRepository connectionRepository;
   @Autowired PrepHdfsService hdfsService;
   @Autowired
   PrSnapshotService snapshotService;
@@ -911,8 +913,9 @@ public class PrepTransformService {
             String dcId = upstreamDataset.getDcId();
             datasetInfo.put("dcId", dcId);
             DataConnection dataConnection = this.connectionRepository.getOne(dcId);
+
             datasetInfo.put("implementor", dataConnection.getImplementor() );
-            datasetInfo.put("connectUri", dataConnection.getConnectUrl() );
+            datasetInfo.put("connectUri", DataConnectionHelper.getConnectionUrl(dataConnection) );
             datasetInfo.put("username", dataConnection.getUsername() );
             datasetInfo.put("password", dataConnection.getPassword() );
             break;

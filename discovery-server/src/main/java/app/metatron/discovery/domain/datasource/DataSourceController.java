@@ -74,7 +74,7 @@ import app.metatron.discovery.common.exception.BadRequestException;
 import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.CollectionPatch;
-import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
+import app.metatron.discovery.domain.dataconnection.DataConnectionRepository;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
 import app.metatron.discovery.domain.datasource.data.DataSourceValidator;
 import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
@@ -439,6 +439,10 @@ public class DataSourceController {
       request.setResultFormat(resultFormat);
     }
     request.setDataSource(defaultDataSource);
+
+    if(CollectionUtils.isEmpty(request.getProjections())) {
+      request.setProjections(new ArrayList<>());
+    }
 
     // 데이터 Limit 처리 최대 백만건까지 확인 가능함
     if (request.getLimits() == null) {

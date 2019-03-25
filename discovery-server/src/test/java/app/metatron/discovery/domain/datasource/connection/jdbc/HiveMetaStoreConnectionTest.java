@@ -22,10 +22,12 @@ import org.apache.thrift.TException;
 import org.junit.Test;
 import org.springframework.data.domain.PageRequest;
 
-import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+
 
 /**
  * Created by kyungtaak on 2016. 6. 16..
@@ -35,35 +37,19 @@ public class HiveMetaStoreConnectionTest {
   private JdbcConnectionService jdbcConnectionService = new JdbcConnectionService();
 
   @Test
-  public void initialTest() throws Exception{
-    HiveConnection connection = new HiveConnection();
-    connection.setHostname("localhost");
-    connection.setUsername("hive");
-    connection.setPassword("hive");
-    connection.setPort(10000);
-
-    DataSource dataSource = jdbcConnectionService.getDataSource(connection, true);
-    HiveMetaStoreJdbcClient metaStoreJdbcClient = new HiveMetaStoreJdbcClient(dataSource);
-  }
-
-  @Test
   public void showTableViaJDBC() {
-    HiveConnection connection = new HiveConnection();
-    connection.setHostname("localhost");
-    connection.setUsername("hive");
-    connection.setPassword("hive");
-    connection.setPort(10000);
-
-    DataSource dataSource = jdbcConnectionService.getDataSource(connection, true);
-
-    HiveMetaStoreJdbcClient metaStoreJdbcClient = new HiveMetaStoreJdbcClient(dataSource);
+    String metastoreURL = "jdbc:mysql://localhost:3306/metastore2";
+    String metastoreDriver = "com.mysql.jdbc.Driver";
+    String metastoreUser = "hiveuser";
+    String metastorePassword = "password";
+    HiveMetaStoreJdbcClient metaStoreJdbcClient = new HiveMetaStoreJdbcClient(metastoreURL, metastoreUser, metastorePassword, metastoreDriver);
 
     String dbName = "col_test";
     String tableNamePattern = "";
     String columnNamePattern = "";
     PageRequest pageRequest = new PageRequest(0, 20);
 
-    List<Map<String, Object>> tables = metaStoreJdbcClient.getTable(dbName, tableNamePattern, columnNamePattern, pageRequest);
+    List<Map<String, Object>> tables = metaStoreJdbcClient.getTable(dbName, tableNamePattern, columnNamePattern, pageRequest.getPageSize(), pageRequest.getPageNumber());
 
     System.out.println("size = " + tables.size());
     System.out.println(tables);
@@ -71,15 +57,11 @@ public class HiveMetaStoreConnectionTest {
 
   @Test
   public void searchTableViaJDBC() {
-    HiveConnection connection = new HiveConnection();
-    connection.setHostname("localhost");
-    connection.setUsername("hive");
-    connection.setPassword("hive");
-    connection.setPort(10000);
-
-    DataSource dataSource = jdbcConnectionService.getDataSource(connection, true);
-
-    HiveMetaStoreJdbcClient metaStoreJdbcClient = new HiveMetaStoreJdbcClient(dataSource);
+    String metastoreURL = "jdbc:mysql://localhost:3306/metastore2";
+    String metastoreDriver = "com.mysql.jdbc.Driver";
+    String metastoreUser = "hiveuser";
+    String metastorePassword = "password";
+    HiveMetaStoreJdbcClient metaStoreJdbcClient = new HiveMetaStoreJdbcClient(metastoreURL, metastoreUser, metastorePassword, metastoreDriver);
 
     String dbName = "default";
     String tableNamePattern = "";
@@ -87,7 +69,7 @@ public class HiveMetaStoreConnectionTest {
     PageRequest pageRequest = new PageRequest(0, 20);
 
     long tableCount = metaStoreJdbcClient.getTableCount(dbName, tableNamePattern, columnNamePattern);
-    List<Map<String, Object>> tables = metaStoreJdbcClient.getTable(dbName, tableNamePattern, columnNamePattern, pageRequest);
+    List<Map<String, Object>> tables = metaStoreJdbcClient.getTable(dbName, tableNamePattern, columnNamePattern, pageRequest.getPageSize(), pageRequest.getPageNumber());
 
     System.out.println("tableCount = " + tableCount);
     System.out.println("size = " + tables.size());
@@ -96,15 +78,11 @@ public class HiveMetaStoreConnectionTest {
 
   @Test
   public void getColumnViaJDBC() {
-    HiveConnection connection = new HiveConnection();
-    connection.setHostname("localhost");
-    connection.setUsername("hive");
-    connection.setPassword("hive");
-    connection.setPort(10000);
-
-    DataSource dataSource = jdbcConnectionService.getDataSource(connection, true);
-
-    HiveMetaStoreJdbcClient metaStoreJdbcClient = new HiveMetaStoreJdbcClient(dataSource);
+    String metastoreURL = "jdbc:mysql://localhost:3306/metastore2";
+    String metastoreDriver = "com.mysql.jdbc.Driver";
+    String metastoreUser = "hiveuser";
+    String metastorePassword = "password";
+    HiveMetaStoreJdbcClient metaStoreJdbcClient = new HiveMetaStoreJdbcClient(metastoreURL, metastoreUser, metastorePassword, metastoreDriver);
 
     String dbName = "col_test";
     String tableName = "abvzpuzf2574";
@@ -118,91 +96,91 @@ public class HiveMetaStoreConnectionTest {
 
   @Test
   public void hiveMetaStoreClientTest() throws MetaException{
-    HiveConnection connection = new HiveConnection();
-    connection.setHostname("localhost");
-    connection.setUsername("hive");
-    connection.setPassword("hive");
-    connection.setPort(10000);
+    DataConnection dataConnection = new DataConnection("HIVE");
+    dataConnection.setHostname("localhost");
+    dataConnection.setUsername("hive");
+    dataConnection.setPassword("hive");
+    dataConnection.setPort(10000);
 
-    HiveMetaStoreClient hiveMetaStoreClient = getHiveMetaStoreClient(connection.getHostname(), "9083");
+    HiveMetaStoreClient hiveMetaStoreClient = getHiveMetaStoreClient(dataConnection.getHostname(), "9083");
     List<String> dbs = hiveMetaStoreClient.getAllDatabases();
     System.out.println(dbs);
   }
 
   @Test
   public void getDatabaseViaThrift() throws MetaException{
-    HiveConnection connection = new HiveConnection();
-    connection.setHostname("localhost");
-    connection.setUsername("hive");
-    connection.setPassword("hive");
-    connection.setPort(10000);
+    DataConnection dataConnection = new DataConnection("HIVE");
+    dataConnection.setHostname("localhost");
+    dataConnection.setUsername("hive");
+    dataConnection.setPassword("hive");
+    dataConnection.setPort(10000);
 
     String dbNamePattern = "*";
 
-    HiveMetaStoreClient hiveMetaStoreClient = getHiveMetaStoreClient(connection.getHostname(), "9083");
+    HiveMetaStoreClient hiveMetaStoreClient = getHiveMetaStoreClient(dataConnection.getHostname(), "9083");
     List<String> dbs = hiveMetaStoreClient.getDatabases(dbNamePattern);
     System.out.println(dbs);
   }
 
   @Test
   public void getTableViaThrift() throws MetaException{
-    HiveConnection connection = new HiveConnection();
-    connection.setHostname("localhost");
-    connection.setUsername("hive");
-    connection.setPassword("hive");
-    connection.setPort(10000);
+    DataConnection dataConnection = new DataConnection("HIVE");
+    dataConnection.setHostname("localhost");
+    dataConnection.setUsername("hive");
+    dataConnection.setPassword("hive");
+    dataConnection.setPort(10000);
 
     String dbName = "col_test";
     String tableNamePattern = "*a*";
-    HiveMetaStoreClient hiveMetaStoreClient = getHiveMetaStoreClient(connection.getHostname(), "9083");
+    HiveMetaStoreClient hiveMetaStoreClient = getHiveMetaStoreClient(dataConnection.getHostname(), "9083");
     List<String> tables = hiveMetaStoreClient.getTables(dbName, tableNamePattern);
     System.out.println(tables);
   }
 
   @Test
   public void getSchemaViaThrift() throws TException{
-    HiveConnection connection = new HiveConnection();
-    connection.setHostname("localhost");
-    connection.setUsername("hive");
-    connection.setPassword("hive");
-    connection.setPort(10000);
+    DataConnection dataConnection = new DataConnection("HIVE");
+    dataConnection.setHostname("localhost");
+    dataConnection.setUsername("hive");
+    dataConnection.setPassword("hive");
+    dataConnection.setPort(10000);
 
     String dbName = "col_test";
     String tableName = "aacglmae1138";
 
-    HiveMetaStoreClient hiveMetaStoreClient = getHiveMetaStoreClient(connection.getHostname(), "9083");
+    HiveMetaStoreClient hiveMetaStoreClient = getHiveMetaStoreClient(dataConnection.getHostname(), "9083");
     List<FieldSchema> schemas = hiveMetaStoreClient.getSchema(dbName, tableName);
     System.out.println(schemas);
   }
 
   @Test
   public void getFieldViaThrift() throws TException{
-    HiveConnection connection = new HiveConnection();
-    connection.setHostname("localhost");
-    connection.setUsername("hive");
-    connection.setPassword("hive");
-    connection.setPort(10000);
+    DataConnection dataConnection = new DataConnection("HIVE");
+    dataConnection.setHostname("localhost");
+    dataConnection.setUsername("hive");
+    dataConnection.setPassword("hive");
+    dataConnection.setPort(10000);
 
     String dbName = "col_test";
     String tableName = "aacglmae1138";
 
-    HiveMetaStoreClient hiveMetaStoreClient = getHiveMetaStoreClient(connection.getHostname(), "9083");
+    HiveMetaStoreClient hiveMetaStoreClient = getHiveMetaStoreClient(dataConnection.getHostname(), "9083");
     List<FieldSchema> schemas = hiveMetaStoreClient.getFields(dbName, tableName);
     System.out.println(schemas);
   }
 
   @Test
   public void getPartitionsViaThrift() throws TException{
-    HiveConnection connection = new HiveConnection();
-    connection.setHostname("localhost");
-    connection.setUsername("hive");
-    connection.setPassword("hive");
-    connection.setPort(10000);
+    DataConnection dataConnection = new DataConnection("HIVE");
+    dataConnection.setHostname("localhost");
+    dataConnection.setUsername("hive");
+    dataConnection.setPassword("hive");
+    dataConnection.setPort(10000);
 
     String dbName = "col_test";
     String tableName = "aacglmae1138";
     short sf = 123;
-    HiveMetaStoreClient hiveMetaStoreClient = getHiveMetaStoreClient(connection.getHostname(), "9083");
+    HiveMetaStoreClient hiveMetaStoreClient = getHiveMetaStoreClient(dataConnection.getHostname(), "9083");
     List<String> schemas = hiveMetaStoreClient.listPartitionNames(dbName, tableName, sf);
     System.out.println(schemas);
   }

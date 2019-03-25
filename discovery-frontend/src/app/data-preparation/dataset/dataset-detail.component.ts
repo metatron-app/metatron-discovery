@@ -567,7 +567,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
    * Create snapshot (only wrangled)
    */
   public createSnapshot() {
-    this.createSnapshotPopup.init({id : this.dataset.dsId , name : this.dataset.dsName, fields : this.fields});
+    this.createSnapshotPopup.init({id : this.dataset.dsId , name : this.dataset.dsName});
   }
 
 

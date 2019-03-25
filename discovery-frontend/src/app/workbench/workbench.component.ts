@@ -43,8 +43,7 @@ import {DatasourceService} from '../datasource/service/datasource.service';
 import {PageWidget} from '../domain/dashboard/widget/page-widget';
 import {Dashboard, BoardDataSource, BoardConfiguration} from '../domain/dashboard/dashboard';
 import {
-  ConnectionType, Datasource, Field, FieldRole, IngestionRuleType,
-  LogicalType
+  ConnectionType, Datasource, Field, IngestionRuleType
 } from '../domain/datasource/datasource';
 import {Workbook} from '../domain/workbook/workbook';
 import {DataconnectionService} from '../dataconnection/service/dataconnection.service';
@@ -58,7 +57,7 @@ import {CodemirrorComponent} from './component/editor-workbench/codemirror.compo
 import {SaveAsHiveTableComponent} from "./component/save-as-hive-table/save-as-hive-table.component";
 import {DetailWorkbenchDatabase} from "./component/detail-workbench/detail-workbench-database/detail-workbench-database";
 import {Message} from '@stomp/stompjs';
-import {ConnectionType as DataConnectionType} from "../domain/dataconnection/dataconnection";
+import {Dataconnection} from "../domain/dataconnection/dataconnection";
 
 declare let moment: any;
 declare let Split;
@@ -347,7 +346,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public saveAsLayer: boolean = false;
   public supportSaveAsHiveTable: boolean = false;
 
-  public connTargetType:string = '';    // 커넥션 대상 타입
+  public connTargetImgUrl: string = '';
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -815,8 +814,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     currentEditorResultTabs = this._getCurrentEditorResultTabs();
     if (currentEditorResultTabs.length > 0) {
-      let targetIdx:number = removeIdx - 1;
-      ( 0 > targetIdx ) && ( targetIdx = 0 );
+      let targetIdx: number = removeIdx - 1;
+      (0 > targetIdx) && (targetIdx = 0);
       let showTabInfo: ResultTab = currentEditorResultTabs[targetIdx];
       this.changeResultTabHandler(showTabInfo.id);
     }
@@ -2196,11 +2195,13 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * @param {Function} callback
    */
   private createWebSocket(callback?: Function): void {
+    const dataConn: Dataconnection = this.workbenchTemp.dataConnection;
     this.workbench = this.workbenchTemp;
     // connection database 정보
-    this.workbench.dataConnection.connectionDatabase = this.workbenchTemp.dataConnection.database;
+    this.workbench.dataConnection.connectionDatabase = dataConn.database;
     this.websocketId = CommonConstant.websocketId;
-    this.connTargetType = this._getConnectionTargetType();
+    this.connTargetImgUrl
+      = this.getConnImplementorImgUrl(dataConn.connectionInformation.implementor, dataConn.connectionInformation.iconResource1);
     try {
       console.info('this.websocketId', this.websocketId);
       const headers: any = {
@@ -2261,7 +2262,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
         if (data['connected'] === true) {
           this.databaseParam = {
-            dataconnection: this.workbenchTemp.dataConnection,
+            dataconnection: dataConn,
             workbenchId: this.workbenchId,
             webSocketId: CommonConstant.websocketId
           };
@@ -2280,7 +2281,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       };
       CommonConstant.stomp.publish(
         {
-          destination: '/message/workbench/' + this.workbenchId + '/dataconnections/' + this.workbenchTemp.dataConnection.id + '/connect',
+          destination: '/message/workbench/' + this.workbenchId + '/dataconnections/' + dataConn.id + '/connect',
           headers: headers,
           body: JSON.stringify(params)
         }
@@ -2816,7 +2817,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     this.loadingShow();
     this.datasourceService.createDatasourceTemporary(param).then((createInfo) => {
-      this.datasourceService.getDatasourceDetail( createInfo.id ).then( ( tempDsInfo ) => {
+      this.datasourceService.getDatasourceDetail(createInfo.id).then((tempDsInfo) => {
         this.setPageWidget(tempDsInfo);
         setTimeout(() => this.loadingHide(), 500);
       });
@@ -2862,7 +2863,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       dashboard.workBook = workbook;
 
       // 대시보드 필드 정보 설정
-      let fields = tempDsInfo.fields.filter( item => '__ctime' !== item.name );
+      let fields = tempDsInfo.fields.filter(item => '__ctime' !== item.name);
 
       // const currentDateTimeField: Field = new Field();
       // currentDateTimeField.name = CommonConstant.COL_NAME_CURRENT_DATETIME;
@@ -3161,36 +3162,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     const visibleTab: ResultTab = this._getCurrentResultTab();
     return visibleTab && runningTab && runningTab.id === visibleTab.id;
   } // function - _isEqualRunningVisibleTab
-
-  /**
-   * get connection target type
-   * @returns {string}
-   */
-  private _getConnectionTargetType():string {
-    let strType: string = '';
-    if( this.workbench.dataConnection.implementor ) {
-      switch (this.workbench.dataConnection.implementor) {
-        case DataConnectionType.HIVE :
-          strType = 'HIVE';
-          break;
-        case DataConnectionType.MYSQL :
-          strType = 'MYSQL';
-          break;
-        case DataConnectionType.POSTGRESQL :
-          strType = 'POSTGRESQL';
-          break;
-        case DataConnectionType.PRESTO :
-          strType = 'PRESTO';
-          break;
-        case DataConnectionType.DRUID :
-          strType = 'DRUID';
-          break;
-        default :
-          strType = 'CUSTOM';
-      }
-    }
-    return strType;
-  } // function - _getConnectionTargetType
 
   /**
    * tableParam 사용자 정보 체크

@@ -260,7 +260,7 @@
 .ddp-edit-setting .ddp-edit-sub .ddp-ui-message {margin-top:6px;}
 .ddp-edit-setting .ddp-edit-sub .ddp-ui-message .ddp-data-ok,
 .ddp-edit-setting .ddp-edit-sub .ddp-ui-message .ddp-data-error {margin-left:12px;}
-
+.ddp-ui-dbconnect .ddp-edit-setting.ddp-type:first-of-type {padding:0; margin:0; border-top:none;}
 .ddp-edit-setting.ddp-type {margin-top:30px; padding-top:30px; border-top:1px dotted #ccc; }
 .ddp-edit-setting .ddp-fold-link {display:inline-block; padding-bottom:20px; color:#4c515a; font-size:13px; text-decoration:underline;}
 .ddp-edit-setting .ddp-fold-link:after {display:inline-block; width:7px; height:4px; margin-left:10px; background:url(../../../images/icon_select.png) no-repeat; background-position:-16px top; vertical-align:middle; content:'';}

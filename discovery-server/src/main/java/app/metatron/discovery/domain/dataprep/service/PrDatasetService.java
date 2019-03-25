@@ -14,19 +14,11 @@
 
 package app.metatron.discovery.domain.dataprep.service;
 
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.domain.dataprep.*;
-import app.metatron.discovery.domain.dataprep.entity.PrDataset;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -44,6 +36,21 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionRepository;
+import app.metatron.discovery.domain.dataprep.PrepDatasetDatabaseService;
+import app.metatron.discovery.domain.dataprep.PrepDatasetFileService;
+import app.metatron.discovery.domain.dataprep.PrepDatasetStagingDbService;
+import app.metatron.discovery.domain.dataprep.PrepHdfsService;
+import app.metatron.discovery.domain.dataprep.PrepPreviewLineService;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 
 
 @Service
@@ -258,15 +265,15 @@ public class PrDatasetService {
             realOne = (DataConnection) ((HibernateProxy) lazyOne).getHibernateLazyInitializer().getImplementation();
         }
         if( realOne == null ) {
-            return lazyOne;
+            return (DataConnection) lazyOne;
         }
-        return realOne;
+        return (DataConnection) realOne;
     }
 
     public void setConnectionInfo(PrDataset dataset) throws PrepException {
         String dcId = dataset.getDcId();
         if(null!=dcId) {
-            DataConnection dataConnection = findRealDataConnection( this.dataConnectionRepository.getOne(dcId) );
+            DataConnection dataConnection = findRealDataConnection(this.dataConnectionRepository.getOne(dcId) );
 
             dataset.setDcName(dataConnection.getName());
             dataset.setDcDesc(dataConnection.getDescription());

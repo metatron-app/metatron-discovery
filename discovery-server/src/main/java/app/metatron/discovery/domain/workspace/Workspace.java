@@ -14,7 +14,6 @@
 
 package app.metatron.discovery.domain.workspace;
 
-import app.metatron.discovery.domain.user.User;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -50,10 +49,11 @@ import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.domain.AbstractHistoryEntity;
 import app.metatron.discovery.domain.MetatronDomain;
 import app.metatron.discovery.domain.context.ContextEntity;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.datasource.DataSource;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.notebook.Notebook;
 import app.metatron.discovery.domain.notebook.NotebookConnector;
+import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.user.UserProfile;
 import app.metatron.discovery.domain.user.role.Role;
 import app.metatron.discovery.domain.user.role.RoleSet;
