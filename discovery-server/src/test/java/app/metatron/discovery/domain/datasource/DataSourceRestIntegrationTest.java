@@ -69,7 +69,7 @@ import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.core.oauth.OAuthRequest;
 import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
-import app.metatron.discovery.domain.datasource.connection.jdbc.MySQLConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
 import app.metatron.discovery.domain.datasource.ingestion.BatchPeriod;
 import app.metatron.discovery.domain.datasource.ingestion.HdfsIngestionInfo;
@@ -1209,7 +1209,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     dataSource.setFields(fields);
 
     // Add Connection Info
-    MySQLConnection dataConnection = new MySQLConnection();
+    DataConnection dataConnection = new DataConnection("MYSQL");
     dataConnection.setHostname("localhost");
     dataConnection.setPort(3306);
     dataConnection.setUsername("polaris");
@@ -2991,7 +2991,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     batchJdbcInfo.setMaxLimit(100);
 
     // Add Connection Info
-    MySQLConnection dataConnection = new MySQLConnection();
+    DataConnection dataConnection = new DataConnection("MYSQL");
     dataConnection.setHostname("localhost");
     dataConnection.setPort(3306);
     dataConnection.setUsername("polaris");
@@ -3147,7 +3147,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     dataSource.setSrcType(JDBC);
 
     // Add Connection Info
-    MySQLConnection dataConnection = new MySQLConnection();
+    DataConnection dataConnection = new DataConnection("MYSQL");
     dataConnection.setHostname("localhost");
     dataConnection.setPort(3306);
     dataConnection.setUsername("polaris");
@@ -3229,7 +3229,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     dataSource.setSrcType(JDBC);
 
     // Add Connection Info
-    MySQLConnection dataConnection = new MySQLConnection();
+    DataConnection dataConnection = new DataConnection("MYSQL");
     dataConnection.setHostname("localhost");
     dataConnection.setPort(3306);
     dataConnection.setUsername("polaris");

@@ -19,14 +19,16 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.sql.DataSource;
-
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
+import app.metatron.discovery.domain.dataconnection.dialect.HiveDialect;
+import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 
 /**
  * Created by kyungtaak on 2016. 6. 16..
@@ -39,7 +41,7 @@ public class PrestoConnectionTest {
 
   @Test
   public void checkPrestoConnection() {
-    PrestoConnection connection = new PrestoConnection();
+    DataConnection connection = new DataConnection("PRESTO");
     connection.setHostname("localhost");
     //    connection.setDatabase("polaris_datasources");
     connection.setUsername("polaris");
@@ -52,32 +54,31 @@ public class PrestoConnectionTest {
 
   @Test
   public void showPrestoDatabases() {
-    PrestoConnection connection = new PrestoConnection();
+    DataConnection connection = new DataConnection("PRESTO");
     connection.setHostname("localhost");
     connection.setPort(8080);
     connection.setCatalog("hive");
     connection.setUsername("hive");
     connection.setPassword("hive");
-
-    System.out.println(jdbcConnectionService.findDatabases(connection, pageable));
+    System.out.println(jdbcConnectionService.getDatabases(connection, null, pageable));
   }
 
   @Test
   public void showPrestoTables() {
-    PrestoConnection connection = new PrestoConnection();
+    DataConnection connection = new DataConnection("PRESTO");
     connection.setHostname("localhost");
     connection.setCatalog("hive");
     connection.setUsername("polaris");
     connection.setPassword("polaris");
     connection.setPort(8080);
 
-    System.out.println(jdbcConnectionService.findTablesInDatabase(connection, "default", pageable));
+    System.out.println(jdbcConnectionService.getTableNames(connection, "default", pageable));
 
   }
 
   @Test
   public void searchPrestoTables() {
-    PrestoConnection connection = new PrestoConnection();
+    DataConnection connection = new DataConnection("PRESTO");
     connection.setHostname("localhost");
     connection.setCatalog("hive");
     connection.setUsername("hive");
@@ -88,7 +89,7 @@ public class PrestoConnectionTest {
     String searchKeyword = "";
     String schema = "default";
 
-    Map<String, Object> tableMap = jdbcConnectionService.searchTables(connection, schema, searchKeyword, pageRequest);
+    Map<String, Object> tableMap = jdbcConnectionService.getTables(connection, schema, searchKeyword, pageRequest);
 
     List<Map<String, Object>> tableList = (List) tableMap.get("tables");
     Map<String, Object> pageInfo = (Map) tableMap.get("page");
@@ -102,7 +103,7 @@ public class PrestoConnectionTest {
 
   @Test
   public void searchPrestoSchemas() {
-    PrestoConnection connection = new PrestoConnection();
+    DataConnection connection = new DataConnection("PRESTO");
     connection.setHostname("localhost");
     connection.setCatalog("hive");
     connection.setUsername("hive");
@@ -112,13 +113,13 @@ public class PrestoConnectionTest {
     PageRequest pageRequest = new PageRequest(0, 20);
     String searchKeyword = "";
 
-    Map<String, Object> databaseList = jdbcConnectionService.searchSchemas(connection, searchKeyword, pageRequest);
+    Map<String, Object> databaseList = jdbcConnectionService.getDatabases(connection, searchKeyword, pageRequest);
     System.out.println(databaseList);
   }
 
   @Test
   public void showTableColumnPresto() {
-    PrestoConnection connection = new PrestoConnection();
+    DataConnection connection = new DataConnection("PRESTO");
     connection.setHostname("localhost");
     connection.setCatalog("hive");
     connection.setUsername("hive");
@@ -130,7 +131,7 @@ public class PrestoConnectionTest {
     String tableName = "aabldvcf283";
     String columnNamePattern = "";
 
-    Map<String, Object> columnMaps = jdbcConnectionService.searchTableColumns(connection, schemaName, tableName, columnNamePattern, pageRequest);
+    Map<String, Object> columnMaps = jdbcConnectionService.getTableColumns(connection, schemaName, tableName, columnNamePattern, pageRequest);
     List<Map> columnList = (List) columnMaps.get("columns");
     Map<String, Object> pageInfo = (Map) columnMaps.get("page");
     System.out.println("pageInfo = " + pageInfo);
@@ -141,7 +142,7 @@ public class PrestoConnectionTest {
 
   @Test
   public void showTableInfoPresto() {
-    PrestoConnection connection = new PrestoConnection();
+    DataConnection connection = new DataConnection("PRESTO");
     connection.setHostname("localhost");
     connection.setCatalog("hive");
     connection.setUsername("hive");
@@ -159,84 +160,58 @@ public class PrestoConnectionTest {
 
   @Test
   public void changeDatabase() {
-    PrestoConnection connection = new PrestoConnection();
+    DataConnection connection = new DataConnection("PRESTO");
     connection.setHostname("localhost");
     connection.setCatalog("hive");
     connection.setUsername("hive");
     connection.setPassword("hive");
     connection.setPort(8080);
+
+    JdbcDialect dialect = DataConnectionHelper.lookupDialect(connection);
 
     String webSocketId = "test1";
     String database1 = "default";
     String database2 = "test1";
 
-    DataSource dataSource = WorkbenchDataSourceUtils.createDataSourceInfo(connection, webSocketId, true).
-            getSingleConnectionDataSource();
-
-    JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-
-    jdbcConnectionService.changeDatabase(connection, dataSource, database1);
-    List<Map<String, Object>> tables1 = jdbcTemplate.queryForList(connection.getShowTableQuery(null));
-
-    jdbcConnectionService.changeDatabase(connection, dataSource, database2);
-
-    List<Map<String, Object>> tables2 = jdbcTemplate.queryForList(connection.getShowTableQuery(null));
-
-    System.out.println(tables1);
-    System.out.println(tables2);
+//    DataSource dataSource = WorkbenchDataSourceManager.createDataSourceInfo(connection, webSocketId, true).
+//            getSingleConnectionDataSource();
+//
+//    JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+//
+//    jdbcConnectionService.changeDatabase(connection, database1, dataSource);
+//    List<Map<String, Object>> tables1 = jdbcTemplate.queryForList(dialect.getTableQuery(connection, null, null, null, null, null, null));
+//
+//    jdbcConnectionService.changeDatabase(connection, database2, dataSource);
+//
+//    List<Map<String, Object>> tables2 = jdbcTemplate.queryForList(dialect.getTableQuery(connection, null, null, null, null, null, null));
+//
+//    System.out.println(tables1);
+//    System.out.println(tables2);
 
   }
 
   @Test
   public void searchTableWithMetastoreInfo() {
-    PrestoConnection connection = new PrestoConnection();
+    DataConnection connection = new DataConnection("PRESTO");
     connection.setHostname("localhost");
     connection.setCatalog("hive");
     connection.setUsername("hive");
     connection.setPassword("hive");
     connection.setPort(8080);
-    connection.setMetastoreHost("localhost");
-    connection.setMetastorePort("3306");
-    connection.setMetastoreSchema("hivemeta");
-    connection.setMetastoreUserName("hiveuser");
-    connection.setMetastorePassword("hive1234");
+
+    Map<String, String> propMap = new HashMap<>();
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_HOST, "localhost");
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_PORT, "3306");
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_SCHEMA, "hivemeta");
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_USERNAME, "hiveuser");
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_PASSWORD, "hive1234");
+    connection.setProperties(GlobalObjectMapper.writeValueAsString(propMap));
 
     PageRequest pageRequest = new PageRequest(0, 20);
     String searchKeyword = "";
     String schema = "default";
 
-    Map<String, Object> tableMap = jdbcConnectionService.searchTables(connection, schema, searchKeyword, pageRequest);
-
-    List<Map<String, Object>> tableList = (List) tableMap.get("tables");
-    Map<String, Object> pageInfo = (Map) tableMap.get("page");
-    System.out.println("pageInfo = " + pageInfo);
-    for(Map<String, Object> tableMapObj : tableList){
-      System.out.println(tableMapObj);
-      String tableName = (String) tableMapObj.get("name");
-      Assert.assertTrue(StringUtils.containsIgnoreCase(tableName, searchKeyword));
-    }
-
-  }
-
-  @Test
-  public void searchTableWithMetastoreInfo2() {
-    PrestoConnection connection = new PrestoConnection();
-    connection.setHostname("localhost");
-    connection.setCatalog("hive");
-    connection.setUsername("hive");
-    connection.setPassword("hive");
-    connection.setPort(8080);
-    connection.setMetastoreHost("localhost");
-    connection.setMetastorePort("3306");
-    connection.setMetastoreSchema("metastore");
-    connection.setMetastoreUserName("hiveuser");
-    connection.setMetastorePassword("password");
-
-    PageRequest pageRequest = new PageRequest(0, 20);
-    String searchKeyword = "";
-    String schema = "default";
-
-    Map<String, Object> tableMap = jdbcConnectionService.searchTables(connection, schema, searchKeyword, pageRequest);
+    Map<String, Object> tableMap = jdbcConnectionService.getTables(connection, schema, searchKeyword, pageRequest);
 
     List<Map<String, Object>> tableList = (List) tableMap.get("tables");
     Map<String, Object> pageInfo = (Map) tableMap.get("page");

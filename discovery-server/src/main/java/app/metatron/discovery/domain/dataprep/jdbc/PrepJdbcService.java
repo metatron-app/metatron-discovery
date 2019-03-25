@@ -14,25 +14,15 @@
 
 package app.metatron.discovery.domain.dataprep.jdbc;
 
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.*;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
 
 public class PrepJdbcService extends JdbcConnectionService {
     public PrepJdbcService() { super();}
 
-    public JdbcDataConnection makeJdbcDataConnection(DataConnection dataConnection) {
-        JdbcDataConnection jdbcDataConnection = null;
-        String implementor = dataConnection.getImplementor();
-        switch(implementor) {
-            case "ORACLE": jdbcDataConnection = new OracleConnection(); break;
-            case "MYSQL": jdbcDataConnection = new MySQLConnection(); break;
-            case "POSTGRESQL": jdbcDataConnection = new PostgresqlConnection(); break;
-            case "HIVE": jdbcDataConnection = new HiveConnection(); break;
-            case "PRESTO": jdbcDataConnection = new PrestoConnection(); break;
-            case "TIBERO": jdbcDataConnection = new TiberoConnection(); break;
-            case "DRUID": jdbcDataConnection = new DruidConnection(); break;
-        }
-
+    public DataConnection makeJdbcDataConnection(DataConnection dataConnection) {
+        DataConnection jdbcDataConnection = new DataConnection();
+        jdbcDataConnection.setImplementor(dataConnection.getImplementor());
         jdbcDataConnection.setUrl(dataConnection.getUrl());
         jdbcDataConnection.setOptions(dataConnection.getOptions());
         jdbcDataConnection.setDatabase(dataConnection.getDatabase());
@@ -40,7 +30,6 @@ public class PrepJdbcService extends JdbcConnectionService {
         jdbcDataConnection.setUsername(dataConnection.getUsername());
         jdbcDataConnection.setPassword(dataConnection.getPassword());
         jdbcDataConnection.setPort(dataConnection.getPort());
-
         return jdbcDataConnection;
     }
 }

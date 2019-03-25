@@ -14,13 +14,14 @@
 
 package app.metatron.discovery.domain.dataprep.exceptions;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
 import app.metatron.discovery.common.exception.ErrorCodes;
 import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.UnknownError;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnectionException;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionException;
 
 @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Preparation Error")
 public class PrepException extends MetatronException {

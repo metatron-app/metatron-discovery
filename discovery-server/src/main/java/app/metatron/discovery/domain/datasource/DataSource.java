@@ -80,8 +80,8 @@ import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.domain.AbstractHistoryEntity;
 import app.metatron.discovery.domain.MetatronDomain;
 import app.metatron.discovery.domain.context.ContextEntity;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.ingestion.HdfsIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.HiveIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
@@ -630,7 +630,7 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
     }
 
     if (!checkMatchedSrcTypeAndIngetsionInfo(ingestionInfo)) {
-      throw new IllegalArgumentException("Invalid ingestion infomation : srcType not match");
+      throw new IllegalArgumentException("Invalid ingestion information : srcType not match");
     }
 
     return (T) ingestionInfo;
@@ -641,8 +641,9 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
 
     JdbcIngestionInfo jdbcInfo = this.getIngestionInfoByType();
 
-    DataConnection jdbcConnection = Preconditions.checkNotNull(this.getConnection() == null ?
-                                                                   jdbcInfo.getConnection() : this.getConnection(),
+    DataConnection jdbcConnection = Preconditions.checkNotNull(this.getConnection() == null
+                                                                   ? jdbcInfo.getConnection()
+                                                                   : this.getConnection(),
                                                                "Required connection info.");
 
     if (jdbcConnection.getAuthenticationType() == DataConnection.AuthenticationType.USERINFO) {

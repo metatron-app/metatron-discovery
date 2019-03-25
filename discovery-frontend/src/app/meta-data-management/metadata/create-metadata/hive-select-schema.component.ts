@@ -21,6 +21,7 @@ import {GridOption} from '../../../common/component/grid/grid.option';
 import {GridComponent} from '../../../common/component/grid/grid.component';
 import * as pixelWidth from 'string-pixel-width';
 import {Field} from '../../../domain/datasource/datasource';
+import {StringUtil} from "../../../common/util/string.util";
 
 /**
  * Creating metadata with Hive - schema step
@@ -407,6 +408,7 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
       },
       type: 'TABLE',
     };
+    // TODO #1573 추후 extensions 스펙에 맞게 변경 필요
     // if security type is not USERINFO, add username and password in connection
     if (connectionData.selectedSecurityType.value !== 'USERINFO') {
       params.connection['username'] = connectionData['username'];

@@ -404,6 +404,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
     if (!this.isEnableUrl()) {
       connection['hostname'] = this.getConnectionData.hostname;
       connection['port'] = this.getConnectionData.port;
+      // TODO #1573 추후 extensions 스펙에 맞게 변경 필요
       // catalog 가 있다면
       this.isRequiredCatalog() && (connection['catalog'] = this.getConnectionData.catalog);
       // sid 가 있다면

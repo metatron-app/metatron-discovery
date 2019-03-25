@@ -19,58 +19,73 @@ import au.com.bytecode.opencsv.CSVReader;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.supercsv.prefs.CsvPreference;
 
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
-import javax.sql.DataSource;
-
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
+import app.metatron.discovery.AbstractIntegrationTest;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
+import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 
 /**
  * Created by kyungtaak on 2016. 7. 2..
  */
-public class MySQLConnectionTest {
+public class MySQLConnectionTest extends AbstractIntegrationTest {
 
-  private JdbcConnectionService jdbcConnectionService = new JdbcConnectionService();
+  @Autowired
+  JdbcConnectionService jdbcConnectionService;
 
   private Pageable pageable = new PageRequest(0, 100);
 
   @Test
   public void showMySQLDatabases() {
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection("MYSQL");
     connection.setHostname("localhost");
     connection.setPort(3306);
     //connection.setDatabase("polaris_datasources");
     connection.setUsername("polaris");
     connection.setPassword("polaris");
 
-    System.out.println(jdbcConnectionService.findDatabases(connection, pageable));
+    System.out.println(jdbcConnectionService.getDatabases(connection, null, pageable));
+  }
+
+  @Test
+  public void showTiberoDatabases() {
+    DataConnection connection = new DataConnection("TIBERO");
+    connection.setHostname("localhost");
+    connection.setPort(3306);
+    //connection.setDatabase("polaris_datasources");
+    connection.setUsername("polaris");
+    connection.setPassword("polaris");
+
+    System.out.println(jdbcConnectionService.getDatabases(connection, null, pageable));
   }
 
   @Test
   public void showMySQLTables() {
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection("MYSQL");
     connection.setHostname("localhost");
     //connection.setDatabase("polaris");
     connection.setUsername("polaris");
     connection.setPassword("polaris");
     connection.setPort(3306);
 
-    System.out.println(new JdbcConnectionService().findDatabases(connection, null));
+    System.out.println(new JdbcConnectionService().getDatabases(connection, null, null));
 
   }
 
   @Test
   public void searchMysqlDatabases() {
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection("MYSQL");
     connection.setHostname("localhost");
     //connection.setDatabase("sample");
     connection.setUsername("polaris");
@@ -80,13 +95,13 @@ public class MySQLConnectionTest {
     PageRequest pageRequest = new PageRequest(0, 20);
     String searchKeyword = "ME";
 
-    Map<String, Object> databaseList = jdbcConnectionService.searchDatabases(connection, searchKeyword, pageRequest);
+    Map<String, Object> databaseList = jdbcConnectionService.getDatabases(connection, searchKeyword, pageRequest);
     System.out.println(databaseList);
   }
 
   @Test
   public void searchMysqlTables() {
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection("MYSQL");
     connection.setHostname("localhost");
 //    connection.setDatabase("sample");
     connection.setUsername("polaris");
@@ -97,7 +112,7 @@ public class MySQLConnectionTest {
     String searchKeyword = "";
     String schema = "metatron";
 
-    Map<String, Object> tableMap = jdbcConnectionService.searchTables(connection, schema, searchKeyword, pageRequest);
+    Map<String, Object> tableMap = jdbcConnectionService.getTables(connection, schema, searchKeyword, pageRequest);
 
     List<Map<String, Object>> tableList = (List) tableMap.get("tables");
     Map<String, Object> pageInfo = (Map) tableMap.get("page");
@@ -111,7 +126,7 @@ public class MySQLConnectionTest {
 
   @Test
   public void showTableInfoMySQL() {
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection("MYSQL");
     connection.setHostname("localhost");
     //connection.setDatabase("sample");
     connection.setUsername("polaris");
@@ -129,7 +144,7 @@ public class MySQLConnectionTest {
 
   @Test
   public void showTableColumnMySQL() {
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection("MYSQL");
     connection.setHostname("localhost");
     connection.setUsername("polaris");
     connection.setPassword("polaris");
@@ -144,9 +159,17 @@ public class MySQLConnectionTest {
     columnNamePattern = "";
     PageRequest pageRequest = new PageRequest(0, 20);
 
-    Map<String, Object> columnMaps = jdbcConnectionService.searchTableColumns(connection, schemaName, tableName, columnNamePattern, pageRequest);
+    Map<String, Object> columnMaps = jdbcConnectionService.getTableColumns(connection, schemaName, tableName, columnNamePattern, pageRequest);
     List<Map> columnList = (List) columnMaps.get("columns");
     Map<String, Object> pageInfo = (Map) columnMaps.get("page");
+    System.out.println("pageInfo = " + pageInfo);
+    for(Map<String, Object> columnMap : columnList){
+      System.out.println(columnMap);
+    }
+
+    columnMaps = jdbcConnectionService.getTableColumns(connection, null, tableName, columnNamePattern, pageRequest);
+    columnList = (List) columnMaps.get("columns");
+    pageInfo = (Map) columnMaps.get("page");
     System.out.println("pageInfo = " + pageInfo);
     for(Map<String, Object> columnMap : columnList){
       System.out.println(columnMap);
@@ -156,21 +179,20 @@ public class MySQLConnectionTest {
 
   @Test
   public void createCSVMySQL() throws IOException{
-    MySQLConnection connection = new MySQLConnection();
-    connection.setHostname("localhost");
-    //connection.setDatabase("sample");
-    connection.setUsername("polaris");
-    connection.setPassword("polaris");
-//    connection.setPort(3306);
+    DataConnection dataConnection = new DataConnection("MYSQL");
+    dataConnection.setHostname("localhost");
+    //dataConnection.setDatabase("sample");
+    dataConnection.setUsername("polaris");
+    dataConnection.setPassword("polaris");
+    dataConnection.setPort(3306);
 
     String query = "select * from sales limit 5";
     String csvFilePath = "/tmp/temp_csv001.csv";
 
-    DataSource dataSource = jdbcConnectionService.getDataSource(connection, true);
+    Connection connection = DataConnectionHelper.getAccessor(dataConnection).getConnection();
 
     JdbcCSVWriter jdbcCSVWriter = new JdbcCSVWriter(new FileWriter(csvFilePath), CsvPreference.STANDARD_PREFERENCE);
     jdbcCSVWriter.setConnection(connection);
-    jdbcCSVWriter.setDataSource(dataSource);
     jdbcCSVWriter.setQuery(query);
     jdbcCSVWriter.setFileName(csvFilePath);
     jdbcCSVWriter.write();
@@ -187,49 +209,45 @@ public class MySQLConnectionTest {
 
   @Test
   public void changeDatabase() {
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection("MYSQL");
     connection.setHostname("localhost");
     connection.setUsername("polaris");
     connection.setPassword("polaris");
     connection.setPort(3306);
+
+    JdbcDialect dialect = DataConnectionHelper.lookupDialect(connection);
 
     String webSocketId = "test1";
     String database1 = "metatron";
     String database2 = "sample";
 
-    DataSource dataSource = WorkbenchDataSourceUtils.createDataSourceInfo(connection, webSocketId, true).
-            getSingleConnectionDataSource();
-
-    JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-
-    jdbcConnectionService.changeDatabase(connection, dataSource, database1);
-
-    List<Map<String, Object>> tables1 = jdbcTemplate.queryForList(connection.getShowTableQuery(null));
-
-    jdbcConnectionService.changeDatabase(connection, dataSource, database2);
-
-    List<Map<String, Object>> tables2 = jdbcTemplate.queryForList(connection.getShowTableQuery(null));
-
-    System.out.println(tables1);
-    System.out.println(tables2);
+//    DataSource dataSource = WorkbenchDataSourceManager.createDataSourceInfo(connection, webSocketId, true).
+//            getSingleConnectionDataSource();
+//
+//    JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+//
+//    jdbcConnectionService.changeDatabase(connection, database1, dataSource);
+//
+//    List<Map<String, Object>> tables1 = jdbcTemplate.queryForList(dialect.getTableNameQuery(connection, null, null));
+//
+//    jdbcConnectionService.changeDatabase(connection, database2, dataSource);
+//
+//    List<Map<String, Object>> tables2 = jdbcTemplate.queryForList(dialect.getTableNameQuery(connection, null, null));
+//
+//    System.out.println(tables1);
+//    System.out.println(tables2);
 
   }
 
   @Test
   public void check() {
-    MySQLConnection connection = new MySQLConnection();
-    connection.setHostname("localhost");
-    connection.setUsername("polaris");
-    connection.setPassword("polaris");
-    connection.setPort(3306);
-
-    System.out.println(jdbcConnectionService.checkConnection(connection));
+    System.out.println(jdbcConnectionService.checkConnection(getMySQLConnection()));
 
   }
 
   @Test
   public void checkTimeout() {
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection("MYSQL");
     connection.setHostname("255.255.255.0");
     connection.setUsername("polaris");
     connection.setPassword("polaris");
@@ -237,5 +255,15 @@ public class MySQLConnectionTest {
 
     System.out.println(jdbcConnectionService.checkConnection(connection));
 
+  }
+
+  public DataConnection getMySQLConnection(){
+    DataConnection connection = new DataConnection();
+    connection.setHostname("localhost");
+    connection.setUsername("polaris");
+    connection.setPassword("polaris");
+    connection.setPort(3306);
+    connection.setImplementor("MYSQL");
+    return connection;
   }
 }

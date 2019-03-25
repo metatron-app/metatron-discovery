@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.spec.druid.ingestion;
 
+import app.metatron.discovery.query.druid.ShapeFormat;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -47,7 +48,6 @@ import app.metatron.discovery.domain.datasource.ingestion.rule.ValidationRule;
 import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.GeoFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.GeoPointFormat;
-import app.metatron.discovery.query.druid.ShapeFormat;
 import app.metatron.discovery.query.druid.aggregations.CountAggregation;
 import app.metatron.discovery.query.druid.aggregations.RelayAggregation;
 import app.metatron.discovery.spec.druid.ingestion.granularity.UniformGranularitySpec;

@@ -615,7 +615,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
    */
   public onEditRulesBtnClicked() {
     this.gridComponent.destroy();
-    this.datasetEventHandler.emit('update-rules');
+    this.router.navigate([`/management/datapreparation/dataflow/${this.dataflow.dfId}/rule/${this.selectedDataSet.dsId}`]);
   }
 
   /**

@@ -20,7 +20,7 @@ import org.mockito.internal.util.collections.Sets;
 
 import java.util.UUID;
 
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.workspace.Workspace;
 
 /**

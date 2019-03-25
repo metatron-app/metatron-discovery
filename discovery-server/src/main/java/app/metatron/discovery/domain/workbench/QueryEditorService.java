@@ -14,52 +14,62 @@
 
 package app.metatron.discovery.domain.workbench;
 
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.audit.Audit;
-import app.metatron.discovery.domain.audit.AuditRepository;
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
-import app.metatron.discovery.util.AuthUtils;
-import app.metatron.discovery.util.WebSocketUtils;
-import net.sf.jsqlparser.JSQLParserException;
-import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.util.TablesNamesFinder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hive.jdbc.HiveStatement;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import org.supercsv.cellprocessor.Optional;
-import org.supercsv.cellprocessor.*;
+import org.supercsv.cellprocessor.ParseBigDecimal;
+import org.supercsv.cellprocessor.ParseBool;
+import org.supercsv.cellprocessor.ParseDouble;
+import org.supercsv.cellprocessor.ParseInt;
+import org.supercsv.cellprocessor.ParseLong;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvMapReader;
 import org.supercsv.io.ICsvMapReader;
 import org.supercsv.prefs.CsvPreference;
 
-import javax.persistence.EntityManager;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import javax.persistence.EntityManager;
+
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.audit.Audit;
+import app.metatron.discovery.domain.audit.AuditRepository;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
+import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceManager;
+import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
+import app.metatron.discovery.util.AuthUtils;
+import app.metatron.discovery.util.WebSocketUtils;
 
 import static app.metatron.discovery.domain.workbench.WorkbenchErrorCodes.CSV_FILE_NOT_FOUND;
 
@@ -86,20 +96,23 @@ public class QueryEditorService {
   @Autowired
   EntityManager entityManager;
 
+  @Autowired
+  WorkbenchDataSourceManager workbenchDataSourceManager;
+
   public QueryStatus getQueryStatus(String webSocketId) {
-    WorkbenchDataSource dataSourceInfo = WorkbenchDataSourceUtils.findDataSourceInfo(webSocketId);
+    WorkbenchDataSource dataSourceInfo = workbenchDataSourceManager.findDataSourceInfo(webSocketId);
     return dataSourceInfo == null ? null : dataSourceInfo.getQueryStatus();
   }
 
   public List<QueryResult> getQueryResult(
-          QueryEditor queryEditor, JdbcDataConnection jdbcDataConnection,
+          QueryEditor queryEditor, DataConnection jdbcDataConnection,
           Workbench workbench, String query, String webSocketId) {
 
     return getQueryResult(queryEditor, jdbcDataConnection, workbench, query, webSocketId, null);
   }
 
   public List<QueryResult> getQueryResult(
-          QueryEditor queryEditor, JdbcDataConnection jdbcDataConnection,
+          QueryEditor queryEditor, DataConnection jdbcDataConnection,
           Workbench workbench, String query, String webSocketId, String databaseName) {
     List<QueryResult> queryResults = new ArrayList<>();
 
@@ -108,18 +121,17 @@ public class QueryEditorService {
 
     //2. 순차적 Query 실행
     //DataSource
-    WorkbenchDataSource dataSourceInfo = WorkbenchDataSourceUtils.findDataSourceInfo(webSocketId);
+    WorkbenchDataSource dataSourceInfo = workbenchDataSourceManager.findDataSourceInfo(webSocketId);
     if(dataSourceInfo == null){
       throw new ResourceNotFoundException("WorkbenchDataSource(webSocketId = " + webSocketId + ")");
     }
     dataSourceInfo.setQueryList(queryList);
 
+    JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(jdbcDataConnection);
+
     int queryIndex = 0;
     while(!queryList.isEmpty()){
       String substitutedQuery = queryList.remove(0);
-
-      boolean saveToTempTable = jdbcDataConnection instanceof HiveConnection;
-      saveToTempTable = false;
 
       //Query History 선저장
       QueryHistory queryHistory = new QueryHistory();
@@ -138,7 +150,7 @@ public class QueryEditorService {
       audit.setDataConnectionHostName(jdbcDataConnection.getHostname());
       audit.setDataConnectionPort(jdbcDataConnection.getPort());
       audit.setDataConnectionDatabase(databaseName);
-      audit.setDataConnectionConnectUrl(jdbcDataConnection.getConnectUrl());
+      audit.setDataConnectionConnectUrl(jdbcDataAccessor.getDialect().getConnectUrl(jdbcDataConnection));
       audit.setDataConnectionImplementor(jdbcDataConnection.getImplementor());
       audit.setJobName(substitutedQuery);
       audit.setQuery(substitutedQuery);
@@ -155,7 +167,7 @@ public class QueryEditorService {
       entityManager.clear();
 
       QueryResult queryResult = executeQuery(dataSourceInfo, substitutedQuery, workbench.getId(), webSocketId, jdbcDataConnection,
-              queryHistoryId, auditId, saveToTempTable, queryIndex, queryEditor.getId());
+              queryHistoryId, auditId, queryIndex, queryEditor.getId());
       queryResults.add(queryResult);
 
       //increase query index
@@ -254,8 +266,8 @@ public class QueryEditorService {
   }
 
   private QueryResult executeQuery(WorkbenchDataSource dataSourceInfo, String query, String workbenchId, String webSocketId,
-                                   JdbcDataConnection jdbcDataConnection, long queryHistoryId, String auditId,
-                                   Boolean saveToTempTable, int queryIndex, String queryEditorId){
+                                   DataConnection jdbcDataConnection, long queryHistoryId, String auditId,
+                                   int queryIndex, String queryEditorId){
 
     ResultSet resultSet = null;
     QueryResult queryResult = null;
@@ -273,9 +285,6 @@ public class QueryEditorService {
       return queryResult;
     }
 
-    //DataSource
-    SingleConnectionDataSource singleConnectionDataSource = dataSourceInfo.getSingleConnectionDataSource();
-
     //시작시간
     DateTime startDateTime = DateTime.now();
     Integer maxResultSize = workbenchProperties.getMaxResultSize();
@@ -284,7 +293,7 @@ public class QueryEditorService {
     try {
       sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.GET_CONNECTION, queryIndex,
               queryEditorId, workbenchId, webSocketId);
-      connection = singleConnectionDataSource.getConnection();
+      connection = dataSourceInfo.getPrimaryConnection();
 
       sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.CREATE_STATEMENT, queryIndex,
               queryEditorId, workbenchId, webSocketId);
@@ -299,59 +308,46 @@ public class QueryEditorService {
 
       stmt.setMaxRows(maxResultSize);
 
-      if(saveToTempTable && isSelectQuery(query) && !isTempTable(query)){
-        String tempTableName = createTempTable(stmt, query, webSocketId);
 
-        String selectQuery = "SELECT * FROM " + tempTableName;
+      LOGGER.debug("jdbcDataConnection : {}", jdbcDataConnection.getClass().getName());
+      sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.EXECUTE_QUERY, queryIndex,
+              queryEditorId, workbenchId, webSocketId);
+      if(stmt instanceof HiveStatement){
+        //send set audit query id
+        setAuditId(connection, auditId);
 
-        if(stmt.execute(selectQuery)){
+        //Set Logging level for progress log
+//          setHiveLoggingLevel(connection, "VERBOSE");
+
+        //Set InPlaceProgress false (generate progress log without logging level verbose)
+        setHiveInPlaceLog(connection, false);
+
+        //create hive query log print thread
+        logThread = new Thread(
+                new HiveQueryLogThread((HiveStatement) stmt, workbenchId, webSocketId, queryIndex, queryEditorId,
+                        1000L, messagingTemplate)
+        );
+
+        logThread.start();
+        boolean hasResult = ((HiveStatement) stmt).execute(query);
+        logThread.interrupt();
+
+        if(hasResult){
+          sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.GET_RESULTSET, queryIndex,
+                  queryEditorId, workbenchId, webSocketId);
           resultSet = stmt.getResultSet();
-          queryResult = getQueryResult(resultSet, query, tempTableName, defaultResultSize, queryEditorId, queryIndex);
+          queryResult = getQueryResult(resultSet, query, null, defaultResultSize, queryEditorId, queryIndex);
         } else {
           queryResult = createMessageResult("OK", query, QueryResult.QueryResultStatus.SUCCESS);
         }
       } else {
-
-        LOGGER.debug("jdbcDataConnection : {}", jdbcDataConnection.getClass().getName());
-        sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.EXECUTE_QUERY, queryIndex,
-                queryEditorId, workbenchId, webSocketId);
-        if(stmt instanceof HiveStatement){
-          //send set audit query id
-          setAuditId(connection, auditId);
-
-          //Set Logging level for progress log
-//          setHiveLoggingLevel(connection, "VERBOSE");
-
-          //Set InPlaceProgress false (generate progress log without logging level verbose)
-          setHiveInPlaceLog(connection, false);
-
-          //create hive query log print thread
-          logThread = new Thread(
-                  new HiveQueryLogThread((HiveStatement) stmt, workbenchId, webSocketId, queryIndex, queryEditorId,
-                          1000L, messagingTemplate)
-          );
-
-          logThread.start();
-          boolean hasResult = ((HiveStatement) stmt).execute(query);
-          logThread.interrupt();
-
-          if(hasResult){
-            sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.GET_RESULTSET, queryIndex,
-                    queryEditorId, workbenchId, webSocketId);
-            resultSet = stmt.getResultSet();
-            queryResult = getQueryResult(resultSet, query, null, defaultResultSize, queryEditorId, queryIndex);
-          } else {
-            queryResult = createMessageResult("OK", query, QueryResult.QueryResultStatus.SUCCESS);
-          }
+        if(stmt.execute(query)){
+          sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.GET_RESULTSET, queryIndex,
+                  queryEditorId, workbenchId, webSocketId);
+          resultSet = stmt.getResultSet();
+          queryResult = getQueryResult(resultSet, query, null, defaultResultSize, queryEditorId, queryIndex);
         } else {
-          if(stmt.execute(query)){
-            sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.GET_RESULTSET, queryIndex,
-                    queryEditorId, workbenchId, webSocketId);
-            resultSet = stmt.getResultSet();
-            queryResult = getQueryResult(resultSet, query, null, defaultResultSize, queryEditorId, queryIndex);
-          } else {
-            queryResult = createMessageResult("OK", query, QueryResult.QueryResultStatus.SUCCESS);
-          }
+          queryResult = createMessageResult("OK", query, QueryResult.QueryResultStatus.SUCCESS);
         }
       }
     } catch(SQLException e){
@@ -455,11 +451,11 @@ public class QueryEditorService {
     return queryResult;
   }
 
-  public void cancelQuery(JdbcDataConnection jdbcDataConnection, String webSocketId){
+  public void cancelQuery(DataConnection jdbcDataConnection, String webSocketId){
     WorkbenchDataSource dataSourceInfo = null;
     Statement stmt = null;
     try{
-      dataSourceInfo = WorkbenchDataSourceUtils.findDataSourceInfo(webSocketId);
+      dataSourceInfo = workbenchDataSourceManager.findDataSourceInfo(webSocketId);
       if(dataSourceInfo != null){
         //pending query list remove all
         while(dataSourceInfo.getQueryList() != null && !dataSourceInfo.getQueryList().isEmpty()){
@@ -498,85 +494,6 @@ public class QueryEditorService {
     } finally {
       JdbcUtils.closeStatement(stmt);
     }
-  }
-  
-  private Map<String, Object> getColumnInfo(String columnNameFromMetaData, JdbcDataConnection jdbcDataConnection){
-    Map<String, Object> columnInfo = new LinkedHashMap<>();
-
-    //Field, DisplayName 기본값은 동일
-    String field = getFieldFromColumnName(columnNameFromMetaData);
-    String displayName = columnNameFromMetaData;
-
-    //Hive의 경우는 displayName과 field 동일하게 사용함
-    if(jdbcDataConnection instanceof HiveConnection){
-      displayName = field;
-    }
-
-    columnInfo.put("field", field);
-    columnInfo.put("displayName", displayName);
-
-    return columnInfo;
-  }
-
-  private String getFieldFromColumnName(String columnNameFromMetaData){
-    String field = columnNameFromMetaData;
-    //columnNameFromMetaData .이 포함될 경우 . 이후의 텍스트를 field 로 사용함
-    int stIndex = columnNameFromMetaData.lastIndexOf(".");
-    if(stIndex > 0){
-      int edIndex = columnNameFromMetaData.length();
-      field = columnNameFromMetaData.substring(stIndex+1, edIndex);
-    }
-    return field;
-  }
-
-  private String createTempTable(Statement stmt, String query, String tableSuffix) throws SQLException{
-    //temp_polaris
-    String schema = WorkbenchProperties.TEMP_SCHEMA_PREFIX + AuthUtils.getAuthUserName();
-
-    //wb_webSocketId_1503450
-    String tempTableName = WorkbenchProperties.TEMP_TABLE_PREFIX
-            + (StringUtils.isNotEmpty(tableSuffix) ? tableSuffix + "_" : "")
-            + DateTime.now().toDate().getTime();
-
-    String createSchemaQuery = "CREATE SCHEMA IF NOT EXISTS "
-            + schema + " LOCATION '"
-            + workbenchProperties.getTempHdfsPath() + "'";
-    stmt.execute(createSchemaQuery);
-
-    String dropQuery = "DROP TABLE IF EXISTS " + schema + "." + tempTableName;
-    stmt.execute(dropQuery);
-
-    String createQuery = "CREATE TEMPORARY TABLE " + schema + "." + tempTableName + " AS " + query;
-    stmt.execute(createQuery);
-
-    return schema + '.' + tempTableName;
-  }
-
-  private boolean isSelectQuery(String query) {
-    try{
-      net.sf.jsqlparser.statement.Statement parsedStmt = CCJSqlParserUtil.parse(query);
-      return parsedStmt instanceof Select;
-    } catch(JSQLParserException e){
-
-    }
-    return false;
-  }
-
-  private boolean isTempTable(String query) {
-    try{
-      net.sf.jsqlparser.statement.Statement parsedStmt = CCJSqlParserUtil.parse(query);
-      Select selectStatement = (Select) parsedStmt;
-      TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
-      List<String> tableList = tablesNamesFinder.getTableList(selectStatement);
-      for(String tableName : tableList){
-        if(StringUtils.containsIgnoreCase(tableName, WorkbenchProperties.TEMP_TABLE_PREFIX)){
-          return true;
-        }
-      }
-    } catch(JSQLParserException e){
-
-    }
-    return false;
   }
 
   private void setAuditId(Connection connection, String auditId){
