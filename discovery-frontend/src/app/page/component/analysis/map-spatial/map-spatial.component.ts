@@ -99,7 +99,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
 
   // dimension, measure List
   public fieldList: any = {
-    measureList: [{name: 'Count', alias: 'count'}],
+    measureList: [],
     dimensionList: []
   };
   public colorByIndex: number = 0;
@@ -432,7 +432,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
         distance: unitInputData,
         unit: unitData,
         aggregation: {
-          column: this.fieldList['measureList'][this.colorByIndex]['alias'],
+          column: this.colorByIndex == 0 ? this.fieldList['measureList'][this.colorByIndex]['alias'] : this.fieldList['measureList'][this.colorByIndex]['name'],
           type: this.aggregateTypes[this.aggregateTypesIndex]['value']
         }
       }
@@ -463,7 +463,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       operation: {
         type: spatialDataValue,
         aggregation: {
-          column: this.fieldList['measureList'][this.colorByIndex]['alias'],
+          column: this.colorByIndex == 0 ? this.fieldList['measureList'][this.colorByIndex]['alias'] : this.fieldList['measureList'][this.colorByIndex]['name'],
           type: this.aggregateTypes[this.aggregateTypesIndex]['value']
         }
       }
