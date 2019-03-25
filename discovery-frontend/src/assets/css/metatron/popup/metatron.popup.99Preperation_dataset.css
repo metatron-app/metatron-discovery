@@ -193,12 +193,20 @@
 .ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-grid-option .ddp-data-name {position:relative; padding:14px 0 14px 43px; color:#4c515a; font-size:13px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 .ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-grid-option .ddp-data-name [class*="ddp-icon-flow-"] {position:absolute; top:50%; left:15px; margin-top:-10px;}
 .ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-grid {position:absolute; top:45px; left:0; right:0; bottom:43px; }
-.ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-column-option {position:absolute; bottom:0; left:0; right:0; padding:5px 0 5px 14px; border-top:1px solid #d7d8dd; background-color:#f6f6f7;}
-.ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-column-option  .ddp-wrap-edit3.ddp-type .ddp-label-type {font-size:13px;}
+.ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-column-option {position:absolute; bottom:0; left:0; right:0; padding:14px 0 3px 14px; border-top:1px solid #d7d8dd; background-color:#f6f6f7;}
+.ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-column-option .ddp-fold-link {display:inline-block; margin-bottom:9px;color:#4c515a; font-size:13px; text-decoration:underline;}
+.ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-column-option .ddp-fold-link:after {display:inline-block; width:7px; height:4px; margin-left:10px; background:url(../../../images/icon_select.png) no-repeat; background-position:-16px top; vertical-align:middle; content:'';}
+.ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-column-option .ddp-wrap-fold.ddp-selected .ddp-fold-link:after {transform:rotate(180deg)}
+.ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-column-option .ddp-fold-det {display:none;}
+.ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-column-option .ddp-wrap-fold.ddp-selected .ddp-fold-det {display:block;}
+
+.ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-column-option .ddp-wrap-edit3 {display:inline-block; float:left; width:auto;}
+.ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-column-option .ddp-wrap-edit3 + .ddp-wrap-edit3 {margin-left:19px;}
+.ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-column-option  .ddp-wrap-edit3.ddp-type .ddp-label-type {font-size:13px; width:auto;}
 .ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-column-option  .ddp-wrap-edit3.ddp-type .ddp-txt-error {margin-left:5px;}
 .popup-prep-create-complete table.ddp-table-sheet tr td [class*="ddp-icon-flow-"] {margin-right:5px;}
 
-
+.ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-column-option .ddp-wrap-edit3 .ddp-ui-edit-option .ddp-input-apply {width:169px;}
 
 
 

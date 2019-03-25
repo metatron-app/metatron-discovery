@@ -107,7 +107,7 @@ public class PrepCsvUtil {
    *
    *  Sorry for so many try-catches. Sacrificed readability for end-users' usability.
    */
-  public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Configuration conf, boolean header, boolean onlyCount) {
+  public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Integer columnCount, Configuration conf, boolean header, boolean onlyCount) {
     PrepCsvParseResult result = new PrepCsvParseResult();
     Reader reader;
     URI uri;
@@ -207,9 +207,13 @@ public class PrepCsvUtil {
       }
 
       int colCnt = csvRow.size();
-      result.maxColCnt = Math.max(result.maxColCnt, colCnt);
+      colCnt = Math.max(result.maxColCnt, colCnt);
+      if(columnCount!=null) {
+        colCnt = columnCount;
+      }
+      result.maxColCnt = colCnt;
 
-      if (header) {
+      if (header && colCnt<=csvRow.size()) {
         result.colNames = new ArrayList();
         for (int i = 0; i < colCnt; i++) {
           result.colNames.add(csvRow.get(i));
@@ -218,14 +222,18 @@ public class PrepCsvUtil {
         continue;
       }
 
-      String[] row = new String[colCnt];
-      for (int i = 0; i < colCnt; i++) {
-        row[i] = csvRow.get(i);
-      }
-
       if (onlyCount) {
         result.totalRows++;
         continue;
+      }
+
+      String[] row = new String[colCnt];
+      for (int i = 0; i < colCnt; i++) {
+        if(i<csvRow.size()) {
+          row[i] = csvRow.get(i);
+        } else {
+          row[i] = null;
+        }
       }
 
       result.grid.add(row);
@@ -239,16 +247,24 @@ public class PrepCsvUtil {
   }
 
   public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Configuration conf) {
-    return parse(strUri, strDelim, limitRows, conf, false, false);
+    return parse(strUri, strDelim, limitRows, null, conf, false, false);
   }
 
   public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Configuration conf, boolean header) {
-    return parse(strUri, strDelim, limitRows, conf, header, false);
+    return parse(strUri, strDelim, limitRows, null, conf, header, false);
+  }
+
+  public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Integer columnCount, Configuration conf) {
+    return parse(strUri, strDelim, limitRows, columnCount, conf, false, false);
+  }
+
+  public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Integer columnCount, Configuration conf, boolean header) {
+    return parse(strUri, strDelim, limitRows, columnCount, conf, header, false);
   }
 
   public static Map<String,Long> countCsv(String strUri, String strDelim, int limitRows, Configuration conf) {
     Map<String, Long> mapTotal = new HashMap();
-    PrepCsvParseResult result = parse(strUri, strDelim, limitRows, conf, false, true);
+    PrepCsvParseResult result = parse(strUri, strDelim, limitRows, null, conf, false, true);
     mapTotal.put("totalRows", result.totalRows);
     mapTotal.put("totalBytes", result.totalBytes);
     return mapTotal;

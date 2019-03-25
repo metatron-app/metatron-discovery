@@ -187,7 +187,9 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
         this.datasetFiles[this.dsfileInformations[index].datasetFileIndex].dsName = name;
         this.datasetFiles[this.dsfileInformations[index].datasetFileIndex].dsDesc = this.descriptions[index];
         this.datasetFiles[this.dsfileInformations[index].datasetFileIndex].sheetName = this.dsfileInformations[index].sheetName;
-
+        if (this.datasetFiles[this.dsfileInformations[index].datasetFileIndex].fileFormat != FileFormat.JSON) {
+          this.datasetFiles[this.dsfileInformations[index].datasetFileIndex].manualColumnCount = this.dsfileInformations[index].manualColumnCount;
+        }
         return this._getFileParams(this.datasetFiles[this.dsfileInformations[index].datasetFileIndex]);
       });
 
@@ -444,7 +446,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
                 this.descriptions.push('');
                 this.nameErrors.push('');
                 this.descriptionErrors.push('');
-                this.dsfileInformations.push({datasetFileIndex : index, fileName: dsFile.filenameBeforeUpload, fileFormat: dsFile.fileFormat.toString(), sheetName:sheet.sheetName});
+                this.dsfileInformations.push({datasetFileIndex : index, fileName: dsFile.filenameBeforeUpload, fileFormat: dsFile.fileFormat.toString(), sheetName:sheet.sheetName, manualColumnCount:sheet.columnCount});
               }
             })
           } else {
@@ -454,7 +456,11 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
               this.descriptions.push('');
               this.nameErrors.push('');
               this.descriptionErrors.push('');
-              this.dsfileInformations.push({datasetFileIndex : index, fileName: dsFile.filenameBeforeUpload, fileFormat: dsFile.fileFormat.toString(), sheetName:''});
+              if (dsFile.fileFormat === FileFormat.JSON ){
+                this.dsfileInformations.push({datasetFileIndex : index, fileName: dsFile.filenameBeforeUpload, fileFormat: dsFile.fileFormat.toString(), sheetName:''});
+              } else {
+                this.dsfileInformations.push({datasetFileIndex : index, fileName: dsFile.filenameBeforeUpload, fileFormat: dsFile.fileFormat.toString(), sheetName:'', manualColumnCount:dsFile.sheetInfo[0].columnCount});
+              }
             }
           }
         }
@@ -636,6 +642,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     params.storageType = file.storageType;
     params.sheetName = file.sheetName;
     params.storedUri = file.storedUri;
+    params.manualColumnCount = file.manualColumnCount;
 
     const filenameBeforeUpload = file.filenameBeforeUpload.toLowerCase();
     if( filenameBeforeUpload.endsWith("xls") || filenameBeforeUpload.endsWith("xlsx") ) {
