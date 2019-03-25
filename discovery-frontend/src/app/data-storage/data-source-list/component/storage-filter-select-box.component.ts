@@ -14,6 +14,9 @@ export class StorageFilterSelectBoxComponent extends AbstractComponent {
   private _changedFilter: EventEmitter<any> = new EventEmitter();
 
   @Input()
+  public readonly isEnableIcon: boolean;
+
+  @Input()
   public filterList: any;
 
   @Input()

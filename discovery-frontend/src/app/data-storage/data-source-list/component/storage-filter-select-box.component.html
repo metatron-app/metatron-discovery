@@ -1,10 +1,21 @@
-<div class="ddp-type-selectbox" [class.ddp-selected]="isListShow" (click)="isListShow = !isListShow">
+<div class="ddp-type-selectbox" [class.ddp-selected]="isListShow" (click)="isListShow = !isListShow" >
   <span class="ddp-txt-selectbox">{{selectedFilter.label}}</span>
-  <ul class="ddp-list-selectbox ddp-selectdown">
+  <ul class="ddp-list-selectbox ddp-selectdown" *ngIf="!isEnableIcon">
     <li *ngFor="let filter of filterList">
       <a href="javascript:" (click)="onChangedFilter(filter)">
         {{filter.label}}
       </a>
     </li>
   </ul>
+  <div class="ddp-wrap-popup2 ddp-types" *ngIf="isEnableIcon">
+    <ul class="ddp-list-popup">
+      <li [class.ddp-selected]="selectedFilter.value === filter.value" *ngFor="let filter of filterList">
+        <a href="javascript:" (click)="onChangedFilter(filter)">
+          <em class="{{filter.icon}}"></em>
+          {{filter.label}}
+          <em class="ddp-icon-check" *ngIf="selectedFilter.value === filter.value"></em>
+        </a>
+      </li>
+    </ul>
+  </div>
 </div>
