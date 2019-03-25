@@ -224,4 +224,5 @@ export class SheetInfo {
   totalRows? : number;
   valid: boolean;
   sheetName?: string;
+  columnCount? : number;
 }

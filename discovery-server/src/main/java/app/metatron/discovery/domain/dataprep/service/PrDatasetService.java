@@ -135,6 +135,7 @@ public class PrDatasetService {
 
         String csvStrUri = null;
         if(dataset.getFileFormat() == PrDataset.FILE_FORMAT.EXCEL) {
+            Integer columnCount = dataset.getManualColumnCount();
             csvStrUri = this.datasetFilePreviewService.moveExcelToCsv(storedUri, sheetName, delimiter);
         }
         if(csvStrUri!=null) {
