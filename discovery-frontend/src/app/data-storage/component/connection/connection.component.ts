@@ -23,7 +23,7 @@ import {
   JdbcDialect,
   Scope
 } from "../../../domain/dataconnection/dataconnection";
-import {DataConnectionCreateService} from "../../service/data-connection-create.service";
+import {ConnectionParam, DataConnectionCreateService} from "../../service/data-connection-create.service";
 import {StringUtil} from "../../../common/util/string.util";
 import {DataconnectionService} from "../../../dataconnection/service/dataconnection.service";
 import {StorageService} from "../../service/storage.service";
@@ -36,6 +36,16 @@ export class ConnectionComponent extends AbstractComponent {
 
   @Input()
   public readonly isDisableChangeConnectionType: boolean;
+  @Input()
+  public readonly isDisableChangeConnectionInfo: boolean;
+  @Input()
+  public readonly isDisableProperties: boolean;
+
+  @Input()
+  public readonly isHideConnectionLabel: boolean;
+
+  @Input()
+  public readonly isShowDialogGuide: boolean;
 
   public readonly connectionTypeList: JdbcDialect[] = StorageService.connectionTypeList;
   public selectedConnectionType: JdbcDialect;
@@ -48,7 +58,6 @@ export class ConnectionComponent extends AbstractComponent {
   public readonly createdName: EventEmitter<string> = new EventEmitter();
 
   public readonly authenticationTypeList = this.connectionCreateService.authenticationTypeList;
-
   public selectedAuthenticationType;
 
   // enum
@@ -92,12 +101,15 @@ export class ConnectionComponent extends AbstractComponent {
    * @param {Dataconnection} connection
    */
   public init(connection?: Dataconnection): void {
+    this._connectionInputInitialize();
+    this.inputErrorInitialize();
+    this.connectionValidInitialize();
     if (isNullOrUndefined(connection)) {
       this.properties = [];
       this.selectedAuthenticationType = this.authenticationTypeList[0];
       this.selectedConnectionType = this.connectionTypeList[0];
     } else {
-      this.connectionInputInitialize(connection);
+      this.setConnectionInput(connection);
     }
     this.isShow = true;
   }
@@ -117,48 +129,22 @@ export class ConnectionComponent extends AbstractComponent {
   }
 
   /**
-   * Initial connection input
+   * Set connection input
    * @param {Dataconnection} connection
    */
-  public connectionInputInitialize(connection: Dataconnection): void {
-    if (StringUtil.isNotEmpty(connection.port)) {
-      this.port = Number.parseInt(connection.port);
-    }
-    if (StringUtil.isNotEmpty(connection.hostname)) {
-      this.hostname = connection.hostname;
-    }
-    if (StringUtil.isNotEmpty(connection.catalog)) {
-      this.catalog = connection.catalog;
-    }
-    if (StringUtil.isNotEmpty(connection.database)) {
-      this.database = connection.database;
-    }
-    if (StringUtil.isNotEmpty(connection.sid)) {
-      this.sid = connection.sid;
-    }
-    if (StringUtil.isNotEmpty(connection.url)) {
-      this.url = connection.url;
-      this.isUsedUrl = true;
-    } else {
-      this.isUsedUrl = false;
-    }
-    if (StringUtil.isNotEmpty(connection.username)) {
-      this.username = connection.username;
-    }
-    if (StringUtil.isNotEmpty(connection.password)) {
-      this.password = connection.password;
-    }
-    if (StringUtil.isNotEmpty(connection.authenticationType)) {
-      this.selectedAuthenticationType = this.authenticationTypeList.find(authenticationType => authenticationType.value === connection.authenticationType);
-    } else {
-      this.selectedAuthenticationType = this.authenticationTypeList[0];
-    }
-    if (connection.implementor) {
-      this.selectedConnectionType = this.connectionTypeList.find(type => type.implementor.toString() === connection.implementor.toString());
-    } else {
-      this.selectedConnectionType = this.connectionTypeList[0];
-    }
-    this.setConvertedProperties(connection.properties);
+  public setConnectionInput(connection: Dataconnection): void {
+    this.hostname = StringUtil.isNotEmpty(connection.hostname) ?connection.hostname : undefined;
+    this.port = StringUtil.isNotEmpty(connection.port) ? Number.parseInt(connection.port) : undefined;
+    this.catalog = StringUtil.isNotEmpty(connection.catalog) ?connection.hostname : undefined;
+    this.database = StringUtil.isNotEmpty(connection.database) ?connection.database : undefined;
+    this.sid = StringUtil.isNotEmpty(connection.sid) ?connection.sid : undefined;
+    this.url = StringUtil.isNotEmpty(connection.url) ?connection.url : undefined;
+    this.username = StringUtil.isNotEmpty(connection.username) ? connection.username : undefined;
+    this.password = StringUtil.isNotEmpty(connection.password) ? connection.password : undefined;
+    this.selectedAuthenticationType = this.authenticationTypeList.find(authenticationType => authenticationType.value === connection.authenticationType) || this.authenticationTypeList[0];
+    this.selectedConnectionType = connection.implementor ? this.connectionTypeList.find(type => type.implementor.toString() === connection.implementor.toString()) : this.connectionTypeList[0];
+    this.properties = connection.properties ? this.getConvertedProperties(connection.properties) : [];
+    this.isUsedUrl = StringUtil.isNotEmpty(connection.url);
   }
 
   /**
@@ -374,57 +360,6 @@ export class ConnectionComponent extends AbstractComponent {
   }
 
   /**
-   * Set converted properties
-   * @param properties
-   */
-  public setConvertedProperties(properties) {
-    this.properties = properties
-      ? Object.keys(properties).reduce((acc, key) => {
-        acc.push({key: key, value: properties[key], keyError: false, valueError: false});
-          return acc;
-        }, [])
-      : [];
-  }
-
-  /**
-   * Get connection params
-   * @return {{implementor: ImplementorType}}
-   */
-  public getConnectionParams() {
-    let connectionParam = {
-      implementor: this.selectedConnectionType.implementor
-    };
-    // not use URL
-    if (!this.isUsedUrl) {
-      // HOST
-      connectionParam['hostname'] = this.hostname;
-      connectionParam['port'] = this.port;
-      if (!this.isDisableSid()) {
-        connectionParam['sid'] = this.sid;
-      } else if (!this.isDisableDatabase()) {
-        connectionParam['database'] = this.database;
-      } else if (!this.isDisableCatalog()) {
-        connectionParam['catalog'] = this.catalog
-      }
-    } else {  // use URL
-      connectionParam['url'] = this.url;
-    }
-    // check enable authentication
-    if (!this.isDisableAuthenticationType()) {
-      connectionParam['authenticationType'] = this.selectedAuthenticationType.value;
-      // check username
-      if (!this.isDisableUsername() && this.selectedAuthenticationType.value !== AuthenticationType.USERINFO) {
-        connectionParam['username'] = this.username;
-      }
-      // check password
-      if (!this.isDisablePassword() && this.selectedAuthenticationType.value !== AuthenticationType.USERINFO) {
-        connectionParam['password'] = this.password;
-      }
-    }
-    return connectionParam;
-  }
-
-  /**
    * Get properties (key-value object)
    * @return {{}}
    */
@@ -433,6 +368,60 @@ export class ConnectionComponent extends AbstractComponent {
       acc[property.key.trim()] = property.value.trim();
       return acc;
     }, {});
+  }
+
+  /**
+   * Get converted properties
+   * @param properties
+   * @return {any[]}
+   */
+  public getConvertedProperties(properties) {
+    return Object.keys(properties).reduce((acc, key) => {
+      acc.push({key: key, value: properties[key], keyError: false, valueError: false});
+      return acc;
+    }, []);
+  }
+
+  /**
+   * Get connection params
+   * @return {ConnectionParam}
+   */
+  public getConnectionParams(isIncludeProperties?: boolean) {
+    let connectionParam: ConnectionParam = {
+      implementor: this.selectedConnectionType.implementor
+    };
+    // not use URL
+    if (!this.isUsedUrl) {
+      // HOST
+      connectionParam.hostname = this.hostname;
+      connectionParam.port = this.port;
+      if (!this.isDisableSid()) {
+        connectionParam.sid = this.sid;
+      } else if (!this.isDisableDatabase()) {
+        connectionParam.database = this.database;
+      } else if (!this.isDisableCatalog()) {
+        connectionParam.catalog = this.catalog
+      }
+    } else {  // use URL
+      connectionParam.url = this.url;
+    }
+    // check enable authentication
+    if (!this.isDisableAuthenticationType()) {
+      connectionParam.authenticationType = this.selectedAuthenticationType.value;
+      // check username
+      if (!this.isDisableUsername() && this.selectedAuthenticationType.value !== AuthenticationType.USERINFO) {
+        connectionParam.username = this.username;
+      }
+      // check password
+      if (!this.isDisablePassword() && this.selectedAuthenticationType.value !== AuthenticationType.USERINFO) {
+        connectionParam.password = this.password;
+      }
+    }
+    // if is exist properties and include properties
+    if (isIncludeProperties && this.isExistProperties()) {
+      connectionParam.properties = this.getProperties();
+    }
+    return connectionParam;
   }
 
   /**
@@ -469,6 +458,8 @@ export class ConnectionComponent extends AbstractComponent {
   public onChangeConnectionType(connectionType: JdbcDialect): void {
     if (!this.isDisableChangeConnectionType && connectionType.implementor !== this.selectedConnectionType.implementor) {
       this.selectedConnectionType = connectionType;
+      // init input form
+      this._connectionInputInitialize();
       // input error initial
       this.inputErrorInitialize();
       this.connectionValidInitialize();
@@ -479,10 +470,12 @@ export class ConnectionComponent extends AbstractComponent {
    * Change use URL
    */
   public onChangeUseUrl(): void {
-    this.isUsedUrl = !this.isUsedUrl;
-    // input error initial
-    this.inputErrorInitialize();
-    this.connectionValidInitialize();
+    if (!this.isDisableChangeConnectionInfo) {
+      this.isUsedUrl = !this.isUsedUrl;
+      // input error initial
+      this.inputErrorInitialize();
+      this.connectionValidInitialize();
+    }
   }
 
   /**
@@ -490,11 +483,28 @@ export class ConnectionComponent extends AbstractComponent {
    * @param authenticationType
    */
   public onChangeAuthenticationType(authenticationType): void {
-    if (this.selectedAuthenticationType.value !== authenticationType.value) {
+    if (!this.isDisableChangeConnectionInfo && this.selectedAuthenticationType.value !== authenticationType.value) {
       this.selectedAuthenticationType = authenticationType;
       // input error initial
       this.inputErrorInitialize();
       this.connectionValidInitialize();
     }
+  }
+
+  /**
+   * Initail connection input
+   * @private
+   */
+  private _connectionInputInitialize(): void {
+    this.selectedAuthenticationType = this.authenticationTypeList[0];
+    this.hostname = undefined;
+    this.port = undefined;
+    this.url = undefined;
+    this.database = undefined;
+    this.sid = undefined;
+    this.catalog = undefined;
+    this.username = undefined;
+    this.password = undefined;
+    this.isUsedUrl = undefined;
   }
 }

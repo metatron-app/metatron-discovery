@@ -57,7 +57,7 @@ import {CodemirrorComponent} from './component/editor-workbench/codemirror.compo
 import {SaveAsHiveTableComponent} from "./component/save-as-hive-table/save-as-hive-table.component";
 import {DetailWorkbenchDatabase} from "./component/detail-workbench/detail-workbench-database/detail-workbench-database";
 import {Message} from '@stomp/stompjs';
-import {Dataconnection} from "../domain/dataconnection/dataconnection";
+import {AuthenticationType, Dataconnection} from "../domain/dataconnection/dataconnection";
 
 declare let moment: any;
 declare let Split;
@@ -2662,31 +2662,32 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.connectionService.getDataconnectionDetail(this.workbench.dataConnection.id)
       .then((connection) => {
         const selectedSecurityType = [
-          {label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL'},
-          {label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO'},
-          {label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG'}
+          {label: this.translateService.instant('msg.storage.li.connect.always'), value: AuthenticationType.MANUAL},
+          {label: this.translateService.instant('msg.storage.li.connect.account'), value: AuthenticationType.USERINFO},
+          {label: this.translateService.instant('msg.storage.li.connect.id'), value: AuthenticationType.DIALOG}
         ].find(type => type.value === this.workbench.dataConnection.authenticationType) || {
           label: this.translateService.instant('msg.storage.li.connect.always'),
           value: 'MANUAL'
         };
         this.mainViewShow = false;
         this.mode = 'db-configure-schema';
+        // TODO
         this.setDatasource = {
           connectionData: {
-            connectionId: this.workbench.dataConnection.id,
-            hostname: this.workbench.dataConnection.hostname,
-            port: this.workbench.dataConnection.port,
-            url: this.workbench.dataConnection.url,
-            username: selectedSecurityType.value === 'DIALOG' ? this.webSocketLoginId : connection.username,
-            password: selectedSecurityType.value === 'DIALOG' ? this.webSocketLoginPw : connection.password,
-            selectedDbType: this.getEnabledConnectionTypes(true)
-              .find(type => type.value === this.workbench.dataConnection.implementor.toString()),
-            selectedSecurityType: selectedSecurityType,
+            selectedConnectionPreset: {id: this.workbench.dataConnection.id},
             selectedIngestionType: {
               label: this.translateService.instant('msg.storage.ui.list.ingested.data'),
               value: ConnectionType.ENGINE
             },
-            isUsedConnectionPreset: true
+            connection: {
+              hostname: this.workbench.dataConnection.hostname,
+              port: this.workbench.dataConnection.port,
+              url: this.workbench.dataConnection.url,
+              username: selectedSecurityType.value === AuthenticationType.DIALOG ? this.webSocketLoginId : connection.username,
+              password: selectedSecurityType.value === AuthenticationType.DIALOG ? this.webSocketLoginPw : connection.password,
+              authenticationType: selectedSecurityType.value,
+              implementor: this.getEnabledConnectionTypes(true).find(type => type.value === this.workbench.dataConnection.implementor.toString()).value
+            }
           },
           databaseData: {
             selectedTab: 'QUERY',
