@@ -114,7 +114,7 @@
 
 
 
-<ng-container *ngIf="type==='FILE' && names.length > 1">
+<ng-container *ngIf="(type==='FILE' || type === 'URL') && names.length > 1">
 
   <div class="ddp-type-contents ddp-resize2 ddp-type2 popup-prep-create-complete popup-prep-create">
     <!-- 닫기 버튼 -->

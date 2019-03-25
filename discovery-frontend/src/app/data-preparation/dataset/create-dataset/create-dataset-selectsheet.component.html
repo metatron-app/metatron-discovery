@@ -33,10 +33,6 @@
         <div class="ddp-list-create-file">
           <ul class="ddp-list-file-name" >
 
-            <li class="">
-
-            </li>
-
             <ng-container *ngFor="let file of datasetFiles; let i = index">
               <li [ngClass]="{'ddp-selected':currDSIndex===i && file.fileFormat.toString() !='EXCEL'}"  >
 
@@ -109,8 +105,7 @@
               </div>
 
               <div class="ddp-data-name">
-                <!--<em [ngClass]="{'EXCEL':'ddp-icon-flow-xls','JSON':'ddp-icon-flow-json','CSV':'ddp-icon-flow-csv'}[currDetail.fileFormat]"></em>-->
-                <em class="ddp-icon-flow-svg">
+                <em class="ddp-icon-files">
                   <svg-icon-component [name]="currDetail.fileFormat" [isBlackAndWhite]="true"></svg-icon-component>
                 </em>
                 {{currDetail.detailName}}

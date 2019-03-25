@@ -17,6 +17,7 @@
 <app-create-dataset-selectsheet *ngIf="step=='select-sheet'" [datasetFiles]="datasetFiles" (close)="init();" (typeEmitter)="setCreateType($event);"></app-create-dataset-selectsheet>
 <app-create-dataset-db-select *ngIf="step=='create-db-select'" [datasetJdbc]="datasetJdbc" (close)="init();"></app-create-dataset-db-select>
 <app-create-dataset-db-query *ngIf="step=='create-db-query'" [datasetJdbc]="datasetJdbc" (close)="init();" (typeEmitter)="setCreateType($event);"></app-create-dataset-db-query>
+<app-create-dataset-selecturl *ngIf="step=='select-url'" [datasetFiles]="datasetFiles" (close)="init();" (typeEmitter)="setCreateType($event);"></app-create-dataset-selecturl>
 <app-create-dataset-staging-selectdata *ngIf="step=='create-dataset-staging-selectdata'" [datasetHive]="datasetHive" (close)="init()" (typeEmitter)="setCreateType($event);"></app-create-dataset-staging-selectdata>
 <app-create-dataset-name *ngIf="step=='create-dataset-name'"
                          [datasetFiles]="datasetFiles"

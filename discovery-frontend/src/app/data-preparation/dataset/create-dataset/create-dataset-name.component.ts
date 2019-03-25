@@ -180,7 +180,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
     }
 
-    if (this.type === 'FILE') {
+    if (this.type === 'FILE' || 'URL' === this.type) {
 
       // List of parameters used to make multiple dataSets
       const params = this.names.map((name:string,index:number) => {
@@ -293,6 +293,11 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
         name: 'create-db-query',
         data: null
       });
+    } else if (this.type === 'URL') {
+      this.popupService.notiPopup({
+        name: 'select-url',
+        data : null
+      })
     }
   }
 
@@ -434,7 +439,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
    */
   private _setDefaultDatasetName(type : string) : void {
 
-    if ('FILE' === type) {
+    if ('FILE' === type || 'URL' === type) {
 
       this.datasetFiles.forEach((dsFile, index)=>{
         if(dsFile.sheetInfo){
@@ -499,7 +504,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
    */
   private _setDatasetInfo() {
 
-    if ('FILE' === this.type) {
+    if ('FILE' === this.type || 'URL' === this.type) {
 
       if (this.names.length === 1) {
         this.datasetInfo.push({name : this.translateService.instant('msg.dp.ui.list.file'), value : this.datasetFiles[0].fileName});
