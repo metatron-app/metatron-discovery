@@ -14,16 +14,10 @@
 
 package app.metatron.discovery.domain.workbench;
 
-import app.metatron.discovery.AbstractRestIntegrationTest;
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.core.oauth.OAuthRequest;
-import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
-import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
-import app.metatron.discovery.domain.workspace.folder.Folder;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hive.jdbc.HiveDriver;
 import org.apache.http.HttpStatus;
@@ -49,6 +43,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import app.metatron.discovery.AbstractRestIntegrationTest;
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.core.oauth.OAuthRequest;
+import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.dialect.HiveDialect;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceManager;
+import app.metatron.discovery.domain.workspace.folder.Folder;
+
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -62,6 +65,9 @@ public class WorkbenchRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Autowired
   WorkbenchProperties workbenchProperties;
+
+  @Autowired
+  WorkbenchDataSourceManager workbenchDataSourceManager;
 
   @Before
   public void setUp() {
@@ -498,7 +504,7 @@ public class WorkbenchRestIntegrationTest extends AbstractRestIntegrationTest {
 
     final String loginUserId = "polaris";
 
-    HiveConnection hiveConnection = new HiveConnection();
+    DataConnection hiveConnection = new DataConnection("HIVE");
     hiveConnection.setUsername("read_only");
     hiveConnection.setPassword("1111");
     hiveConnection.setHostname("localhost");
@@ -509,7 +515,7 @@ public class WorkbenchRestIntegrationTest extends AbstractRestIntegrationTest {
         "  \"metatron.hive.admin.password\": \"1111\"," +
         "  \"metatron.personal.database.prefix\": \"private\"" +
         "}");
-    WorkbenchDataSourceUtils.createDataSourceInfo(hiveConnection, webSocketId, hiveConnection.getUsername(), hiveConnection.getPassword(), false);
+    workbenchDataSourceManager.createDataSourceInfo(hiveConnection, webSocketId);
 
     cleanUpHivePersonalDatabaseTestFixture(hiveConnection, loginUserId);
 
@@ -535,19 +541,19 @@ public class WorkbenchRestIntegrationTest extends AbstractRestIntegrationTest {
         .statusCode(HttpStatus.SC_NO_CONTENT);
   }
 
-  private void cleanUpHivePersonalDatabaseTestFixture(HiveConnection hiveConnection, String loginUserId) {
+  private void cleanUpHivePersonalDatabaseTestFixture(DataConnection hiveConnection, String loginUserId) {
     final String URL = String.format("jdbc:hive2://%s:%s", hiveConnection.getHostname(), hiveConnection.getPort());
 
     Connection conn = null;
     try{
       Class.forName(HiveDriver.class.getName());
       conn = DriverManager.getConnection(URL,
-          hiveConnection.getPropertiesMap().get(HiveConnection.PROPERTY_KEY_ADMIN_NAME),
-          hiveConnection.getPropertiesMap().get(HiveConnection.PROPERTY_KEY_ADMIN_PASSWORD));
+          hiveConnection.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_ADMIN_NAME),
+          hiveConnection.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_ADMIN_PASSWORD));
 
       StringBuffer script = new StringBuffer();
       script.append(String.format("DROP DATABASE IF EXISTS %s_%s CASCADE;",
-          hiveConnection.getPropertiesMap().get(HiveConnection.PROPERTY_KEY_PERSONAL_DATABASE_PREFIX),
+          hiveConnection.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_PERSONAL_DATABASE_PREFIX),
           loginUserId));
 
       ScriptUtils.executeSqlScript(conn, new InputStreamResource(new ByteArrayInputStream(script.toString().getBytes())));

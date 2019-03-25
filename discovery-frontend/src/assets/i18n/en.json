@@ -938,6 +938,7 @@
   "mgs.dp.ui.continue.new.rule": "Continue to edit rules with this dataset in a new dataflow",
 
   "msg.dp.alert.unsupported.number.format": "Unsupported number format.",
+  "msg.dp.alert.hive.column.error" : "There are column names that are not eligible to be stored in Hive. Would you like to view and change the column name?",
 
   "msg.dp.ui.no.snapshot.history" : "No snapshot create history",
   "msg.dp.ui.snapshot.cancel.confirm" : "Sure to cancel snapshot creation?",

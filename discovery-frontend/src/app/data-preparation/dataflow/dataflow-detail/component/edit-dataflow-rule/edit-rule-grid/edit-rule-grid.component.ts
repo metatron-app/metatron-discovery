@@ -1977,6 +1977,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         .ExplicitInitialization(true)
         .NullCellStyleActivate(true)
         .EnableMultiSelectionWithCtrlAndShift(true)
+        .CellExternalCopyManagerActivate(true)
         .build(),
       ruleIdx,
       totalRowCnt

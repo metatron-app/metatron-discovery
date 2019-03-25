@@ -26,10 +26,10 @@ import java.util.Map;
 import app.metatron.discovery.AbstractIntegrationTest;
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceTemporary;
 import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.connection.jdbc.MySQLConnection;
 import app.metatron.discovery.domain.datasource.ingestion.file.CsvFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
@@ -61,7 +61,8 @@ public class EngineLoadServiceTest extends AbstractIntegrationTest {
     dataSource.setSrcType(JDBC);
 
     // Add Connection Info
-    MySQLConnection dataConnection = new MySQLConnection();
+
+    DataConnection dataConnection = new DataConnection("MYSQL");
     dataConnection.setHostname("localhost");
     dataConnection.setPort(3306);
     dataConnection.setUsername("polaris");

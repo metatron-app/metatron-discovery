@@ -143,10 +143,12 @@ export class DataconnectionService extends AbstractService {
       connInfo.username = dataconnection.username;
       connInfo.password = dataconnection.password;
     }
+    // TODO #1573 추후 extensions 스펙에 맞게 변경 필요
     connInfo.authenticationType = dataconnection.authenticationType;
     connInfo.hostname = dataconnection.hostname;
     connInfo.port = dataconnection.port;
     connInfo.database = dataconnection.connectionDatabase;
+    connInfo.sid = dataconnection.sid;
     connInfo.catalog = dataconnection.catalog;
     connInfo.url = dataconnection.url;
 

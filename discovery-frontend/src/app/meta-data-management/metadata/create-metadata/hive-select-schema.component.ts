@@ -408,6 +408,7 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
       },
       type: 'TABLE',
     };
+    // TODO #1573 추후 extensions 스펙에 맞게 변경 필요
     // if security type is not USERINFO, add username and password in connection
     if (connectionData.selectedSecurityType.value !== 'USERINFO') {
       params.connection['username'] = connectionData['username'];

@@ -14,24 +14,10 @@
 
 package app.metatron.discovery.domain.dataprep;
 
-import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
-import app.metatron.discovery.domain.dataprep.entity.PrDataset;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.json.PrepJsonUtil;
-import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
-import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.StageDataConnection;
-import app.metatron.discovery.domain.storage.StorageProperties;
-import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+
 import org.apache.hive.jdbc.HiveConnection;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -40,12 +26,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.ServletOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,6 +45,25 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.servlet.ServletOutputStream;
+
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
+import app.metatron.discovery.domain.dataconnection.DataConnectionRepository;
+import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.json.PrepJsonUtil;
+import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
+import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
+import app.metatron.discovery.domain.storage.StorageProperties;
+import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection;
+import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
 
 import static app.metatron.discovery.domain.dataprep.entity.PrDataset.RS_TYPE.QUERY;
 
@@ -155,8 +164,8 @@ public class PrepDatasetStagingDbService {
         List<String> response;
 
         try {
-            JdbcDataConnection jdbcDataConnection = queryRequest.getConnection();
-            Map<String, Object> mapSchemas = connectionService.searchSchemas(jdbcDataConnection,"",null);
+            DataConnection jdbcDataConnection = queryRequest.getConnection();
+            Map<String, Object> mapSchemas = connectionService.getDatabases(jdbcDataConnection, "", null);
 
             if(mapSchemas!=null) {
                 Object databases = mapSchemas.get("databases");
@@ -185,12 +194,11 @@ public class PrepDatasetStagingDbService {
         List<String> response = Lists.newArrayList();
 
         try {
-            JdbcDataConnection jdbcDataConnection = queryRequest.getConnection();
-            List<Map<String, String>> listTableInfos = connectionService.showTables(jdbcDataConnection,queryRequest.getSchema());
-
-            if(listTableInfos!=null) {
-                for(Map<String,String> tableInfo : listTableInfos) {
-                    String tblName = tableInfo.get("name");
+            DataConnection jdbcDataConnection = queryRequest.getConnection();
+            Map<String, Object> tableInfoMaps = connectionService.getTableNames(jdbcDataConnection, queryRequest.getSchema(), null);
+            List<String> listTableNames = (List<String>) tableInfoMaps.get("tables");
+            if(listTableNames!=null) {
+                for(String tblName : listTableNames) {
                     if(tblName!=null && 0<tblName.length()) {
                         response.add(tblName);
                     }
@@ -223,16 +231,17 @@ public class PrepDatasetStagingDbService {
             List<Field> fields = Lists.newArrayList();
             List<Map<String, String>> headers = Lists.newArrayList();
 
-            StageDataConnection stageDataConnection = new StageDataConnection();
             StageDBConnection stageDB = storageProperties.getStagedb();
+            DataConnection stageDataConnection = new DataConnection();
             stageDataConnection.setHostname(    stageDB.getHostname());
             stageDataConnection.setPort(        stageDB.getPort());
             stageDataConnection.setUsername(    stageDB.getUsername());
             stageDataConnection.setPassword(    stageDB.getPassword());
             stageDataConnection.setUrl(         stageDB.getUrl());
             stageDataConnection.setDatabase(dbName);
+            stageDataConnection.setImplementor("STAGE");
 
-            String connectUrl = stageDataConnection.getConnectUrl();
+            String connectUrl = DataConnectionHelper.getConnectionUrl(stageDataConnection);
             String username = stageDataConnection.getUsername();
             String password = stageDataConnection.getPassword();
             String customUrl = stageDataConnection.getUrl();
@@ -277,7 +286,7 @@ public class PrepDatasetStagingDbService {
                         columnName = columnName.substring(columnName.lastIndexOf(".")+1);
                     }
                     Field field = new Field(columnName, null, Field.FieldRole.DIMENSION, Long.valueOf(i + 1));
-                    field.setColumnType(stageDataConnection,typeName);
+                    field.setColumnType(DataConnectionHelper.lookupDialect(stageDataConnection), typeName);
                     fields.add(field);
                 }
 
@@ -327,16 +336,17 @@ public class PrepDatasetStagingDbService {
                 dbName = "default";
             }
 
-            StageDataConnection stageDataConnection = new StageDataConnection();
             StageDBConnection stageDB = storageProperties.getStagedb();
+            DataConnection stageDataConnection = new DataConnection();
             stageDataConnection.setHostname(    stageDB.getHostname());
             stageDataConnection.setPort(        stageDB.getPort());
             stageDataConnection.setUsername(    stageDB.getUsername());
             stageDataConnection.setPassword(    stageDB.getPassword());
             stageDataConnection.setUrl(         stageDB.getUrl());
             stageDataConnection.setDatabase(dbName);
+            stageDataConnection.setImplementor("STAGE");
 
-            String connectUrl = stageDataConnection.getConnectUrl();
+            String connectUrl = DataConnectionHelper.getConnectionUrl(stageDataConnection);
             String username = stageDataConnection.getUsername();
             String password = stageDataConnection.getPassword();
             String customUrl = stageDataConnection.getUrl();
@@ -443,16 +453,17 @@ public class PrepDatasetStagingDbService {
                 sql = "SELECT * FROM " + tblName + " LIMIT " + size;
             }
 
-            StageDataConnection stageDataConnection = new StageDataConnection();
             StageDBConnection stageDB = storageProperties.getStagedb();
+            DataConnection stageDataConnection = new DataConnection();
             stageDataConnection.setHostname(    stageDB.getHostname());
             stageDataConnection.setPort(        stageDB.getPort());
             stageDataConnection.setUsername(    stageDB.getUsername());
             stageDataConnection.setPassword(    stageDB.getPassword());
             stageDataConnection.setUrl(         stageDB.getUrl());
             stageDataConnection.setDatabase(dbName);
+            stageDataConnection.setImplementor("STAGE");
 
-            String connectUrl = stageDataConnection.getConnectUrl();
+            String connectUrl = DataConnectionHelper.getConnectionUrl(stageDataConnection);
             String username = stageDataConnection.getUsername();
             String password = stageDataConnection.getPassword();
             String customUrl = stageDataConnection.getUrl();
@@ -568,15 +579,16 @@ public class PrepDatasetStagingDbService {
 
     public void writeSnapshot(ServletOutputStream outputStream, String dbName, String sql, String fileType) throws PrepException {
         try {
-            StageDataConnection stageDataConnection = new StageDataConnection();
             StageDBConnection stageDB = storageProperties.getStagedb();
+            DataConnection stageDataConnection = new DataConnection();
             stageDataConnection.setHostname(    stageDB.getHostname());
             stageDataConnection.setPort(        stageDB.getPort());
             stageDataConnection.setUsername(    stageDB.getUsername());
             stageDataConnection.setPassword(    stageDB.getPassword());
             stageDataConnection.setUrl(         stageDB.getUrl());
+            stageDataConnection.setImplementor("STAGE");
 
-            String connectUrl = stageDataConnection.getConnectUrl();
+            String connectUrl = DataConnectionHelper.getConnectionUrl(stageDataConnection);
             String username = stageDataConnection.getUsername();
             String password = stageDataConnection.getPassword();
             String customUrl = stageDataConnection.getUrl();
@@ -611,34 +623,17 @@ public class PrepDatasetStagingDbService {
 
     public void dropHiveSnapshotTable(String sql) throws PrepException {
         try {
-            StageDataConnection stageDataConnection = new StageDataConnection();
             StageDBConnection stageDB = storageProperties.getStagedb();
+            DataConnection stageDataConnection = new DataConnection();
             stageDataConnection.setHostname(    stageDB.getHostname());
             stageDataConnection.setPort(        stageDB.getPort());
             stageDataConnection.setUsername(    stageDB.getUsername());
             stageDataConnection.setPassword(    stageDB.getPassword());
             stageDataConnection.setUrl(         stageDB.getUrl());
+            stageDataConnection.setImplementor("STAGE");
 
-            String connectUrl = stageDataConnection.getConnectUrl();
-            String username = stageDataConnection.getUsername();
-            String password = stageDataConnection.getPassword();
-            String customUrl = stageDataConnection.getUrl();
-
-            Connection connection;
-            if (customUrl != null) {
-                connection = DriverManager.getConnection(customUrl);
-            } else {
-                connection = DriverManager.getConnection(connectUrl, username, password);
-            }
-            if (connection != null && connection instanceof HiveConnection) {
-                HiveConnection conn = (HiveConnection) connection;
-                Statement statement = conn.createStatement();
-
-                statement.execute(sql);
-
-                JdbcUtils.closeStatement(statement);
-                JdbcUtils.closeConnection(conn);
-            }
+            JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(stageDataConnection);
+            jdbcDataAccessor.executeUpdate(jdbcDataAccessor.getConnection(), sql);
         } catch (Exception e) {
             LOGGER.error("Failed to drop hive table: {}", e.getMessage());
             throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);

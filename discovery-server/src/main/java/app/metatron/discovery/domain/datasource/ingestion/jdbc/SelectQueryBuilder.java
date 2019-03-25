@@ -20,14 +20,10 @@ import java.util.List;
 import java.util.StringJoiner;
 
 import app.metatron.discovery.common.datasource.LogicalType;
+import app.metatron.discovery.domain.dataconnection.dialect.HiveDialect;
 import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.MssqlConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.OracleConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.PrestoConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.StageDataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.TiberoConnection;
+import app.metatron.discovery.extension.dataconnection.jdbc.JdbcConnectInformation;
+import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 
 import static app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo.DataType.TABLE;
 
@@ -38,7 +34,8 @@ public class SelectQueryBuilder {
 
   public static final String TEMP_TABLE_NAME = "TTB";
 
-  private JdbcDataConnection jdbcDataConnection;
+  private JdbcConnectInformation connectInformation;
+  private JdbcDialect jdbcDialect;
 
   private String projection;
 
@@ -50,8 +47,9 @@ public class SelectQueryBuilder {
 
   private String incremental;
 
-  public SelectQueryBuilder(JdbcDataConnection jdbcDataConnection) {
-    this.jdbcDataConnection = jdbcDataConnection;
+  public SelectQueryBuilder(JdbcConnectInformation connectInformation, JdbcDialect jdbcDialect) {
+    this.connectInformation = connectInformation;
+    this.jdbcDialect = jdbcDialect;
   }
 
   public SelectQueryBuilder incremental(Field field, String lastIncremetalTime) {
@@ -63,7 +61,7 @@ public class SelectQueryBuilder {
       // Text 일경우 구현이 괭장히 어려움
     }
     if (field.getLogicalType() == LogicalType.TIMESTAMP) {
-      if (jdbcDataConnection instanceof HiveConnection) {
+      if (jdbcDialect instanceof HiveDialect) {
         builder.append("unix_timestamp(").append(field.getName()).append(", '").append(field.getTimeFormat()).append("')");
       } else {
         builder.append(field.getName()).append(" ");
@@ -73,7 +71,7 @@ public class SelectQueryBuilder {
     }
 
     builder.append(">= ");
-    builder.append(jdbcDataConnection.getCharToDateStmt(lastIncremetalTime, JdbcDataConnection.DEFAULT_FORMAT));
+    builder.append(jdbcDialect.getCharToDateStmt(connectInformation, lastIncremetalTime, JdbcDialect.DEFAULT_FORMAT));
     builder.append(" ");
 
     incremental = builder.toString();
@@ -115,11 +113,13 @@ public class SelectQueryBuilder {
 
     // 기존 컬럼외 추가로 지정한 TIME
     if ("current_datetime".equals(field.getName()) && field.getRole() == Field.FieldRole.TIMESTAMP) {
-      return jdbcDataConnection.getCurrentTimeStamp();
+      return jdbcDialect.getCurrentTimeStamp(connectInformation);
     }
 
-    return jdbcDataConnection.getQuotatedFieldName(
-        StringUtils.isEmpty(field.getOriginalName()) ? field.getName() : field.getOriginalName());
+    return jdbcDialect.getQuotedFieldName(connectInformation,
+                                          StringUtils.isEmpty(field.getOriginalName())
+                                                ? field.getName()
+                                                : field.getOriginalName());
 
   }
 
@@ -128,7 +128,10 @@ public class SelectQueryBuilder {
     if (ingestionInfo.getDataType() == TABLE) {
       StringBuilder selectAllQuery = new StringBuilder();
       selectAllQuery.append("SELECT * FROM ");
-      selectAllQuery.append(jdbcDataConnection.getTableName(ingestionInfo.getDatabase(), ingestionInfo.getQuery()));
+      selectAllQuery.append(jdbcDialect.getTableName(ingestionInfo.getConnection(),
+                                                     ingestionInfo.getConnection().getCatalog(),
+                                                     ingestionInfo.getDatabase(),
+                                                     ingestionInfo.getQuery()));
       this.query = selectAllQuery.toString();
     } else {
       this.query = ingestionInfo.getQuery();
@@ -143,7 +146,7 @@ public class SelectQueryBuilder {
     if (dataType == JdbcIngestionInfo.DataType.TABLE) {
       StringBuilder selectAllQuery = new StringBuilder();
       selectAllQuery.append("SELECT * FROM ");
-      selectAllQuery.append(jdbcDataConnection.getTableName(schema, value));
+      selectAllQuery.append(jdbcDialect.getTableName(connectInformation, connectInformation.getCatalog(), schema, value));
       this.query = selectAllQuery.toString();
     } else {
       this.query = value;
@@ -156,7 +159,8 @@ public class SelectQueryBuilder {
 
     StringBuilder limitClause = new StringBuilder();
 
-    if (jdbcDataConnection instanceof OracleConnection || jdbcDataConnection instanceof TiberoConnection) {
+    if (connectInformation.getImplementor().equals("ORACLE")
+        || connectInformation.getImplementor().equals("TIBERO")) {
       if (StringUtils.isEmpty(incremental)) {
         limitClause.append("WHERE ");
       } else {
@@ -164,11 +168,12 @@ public class SelectQueryBuilder {
       }
       limitClause.append("ROWNUM >= ").append(initial)
                  .append(" AND ROWNUM <= ").append(initial + limit);
-    } else if (jdbcDataConnection instanceof PrestoConnection
-        || jdbcDataConnection instanceof StageDataConnection
-        || jdbcDataConnection instanceof HiveConnection) {  // limit 만 지원하는 Connection 타입
+
+    } else if (connectInformation.getImplementor().equals("PRESTO")
+        || connectInformation.getImplementor().equals("STAGE")
+        || connectInformation.getImplementor().equals("HIVE")) {  // limit 만 지원하는 Connection 타입
       limitClause.append("LIMIT ").append(limit);
-    } else if (jdbcDataConnection instanceof MssqlConnection) {
+    } else if (connectInformation.getImplementor().equals("MSSQL")) {
       limitClause.append("TOP " + limit);
     } else {
       limitClause.append("LIMIT ").append(limit).append(" OFFSET ").append(initial);
@@ -183,13 +188,14 @@ public class SelectQueryBuilder {
 
     StringBuilder selectQuery = new StringBuilder();
     selectQuery.append("SELECT ");
-    if (StringUtils.isNotEmpty(limit) && jdbcDataConnection instanceof MssqlConnection) {
+    if (StringUtils.isNotEmpty(limit) && connectInformation.getImplementor().equals("MSSQL")) {
       selectQuery.append(limit + " ");
     }
     selectQuery.append(projection);
     selectQuery.append(" FROM ( ");
     selectQuery.append(query);
-    if (this.jdbcDataConnection instanceof OracleConnection || this.jdbcDataConnection instanceof TiberoConnection) {
+    if (connectInformation.getImplementor().equals("ORACLE")
+        || connectInformation.getImplementor().equals("TIBERO")) {
       selectQuery.append(" ) ");
     } else {
       selectQuery.append(" ) AS ").append(TEMP_TABLE_NAME).append(" ");
@@ -199,7 +205,7 @@ public class SelectQueryBuilder {
       selectQuery.append(incremental).append(" ");
     }
 
-    if (StringUtils.isNotEmpty(limit) && !(jdbcDataConnection instanceof MssqlConnection)) {
+    if (StringUtils.isNotEmpty(limit) && !connectInformation.getImplementor().equals("MSSQL")) {
       selectQuery.append(limit);
     }
 

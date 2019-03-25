@@ -14,46 +14,33 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_CORES;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_LIMIT_ROWS;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_TIMEOUT;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_HOSTNAME;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PASSWORD;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PORT;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_URL;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_USERNAME;
-
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
-import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
-import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
-import app.metatron.discovery.domain.dataprep.entity.PrSnapshot.HIVE_FILE_COMPRESSION;
-import app.metatron.discovery.domain.dataprep.entity.PrSnapshot.HIVE_FILE_FORMAT;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.dataprep.jdbc.PrepJdbcService;
-import app.metatron.discovery.domain.dataprep.json.PrepJsonParseResult;
-import app.metatron.discovery.domain.dataprep.json.PrepJsonUtil;
-import app.metatron.discovery.domain.dataprep.service.PrSnapshotService;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcQueryFailedException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcTypeNotSupportedException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-import app.metatron.discovery.domain.datasource.connection.jdbc.DruidConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.MySQLConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.OracleConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.PostgresqlConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.PrestoConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.TiberoConnection;
-import app.metatron.discovery.prep.parser.exceptions.RuleException;
-import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
-import app.metatron.discovery.prep.parser.preparation.rule.Rule;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -78,29 +65,40 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import javax.sql.DataSource;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
+
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
+import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
+import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
+import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
+import app.metatron.discovery.domain.dataprep.entity.PrSnapshot.HIVE_FILE_COMPRESSION;
+import app.metatron.discovery.domain.dataprep.entity.PrSnapshot.HIVE_FILE_FORMAT;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.json.PrepJsonParseResult;
+import app.metatron.discovery.domain.dataprep.json.PrepJsonUtil;
+import app.metatron.discovery.domain.dataprep.service.PrSnapshotService;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcQueryFailedException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcTypeNotSupportedException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
+import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
+import app.metatron.discovery.prep.parser.exceptions.RuleException;
+import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
+import app.metatron.discovery.prep.parser.preparation.rule.Rule;
+
+import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_CORES;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_LIMIT_ROWS;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_TIMEOUT;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_HOSTNAME;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PASSWORD;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PORT;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_URL;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_USERNAME;
 
 @Service
 public class TeddyExecutor {
@@ -882,55 +880,51 @@ public class TeddyExecutor {
 
     private Statement getJdbcStatement(String implementor, String connectUri, String username, String password) throws SQLException, ClassNotFoundException {
 
-    JdbcDataConnection jdbcDataConnection = null;
-    switch(implementor) {
-      case "ORACLE": jdbcDataConnection = new OracleConnection(); break;
-      case "MYSQL": jdbcDataConnection = new MySQLConnection(); break;
-      case "POSTGRESQL": jdbcDataConnection = new PostgresqlConnection(); break;
-      case "HIVE": jdbcDataConnection = new HiveConnection(); break;
-      case "PRESTO": jdbcDataConnection = new PrestoConnection(); break;
-      case "TIBERO": jdbcDataConnection = new TiberoConnection(); break;
-      case "DRUID": jdbcDataConnection = new DruidConnection(); break;
-    }
-    jdbcDataConnection.setUsername(username);
-    jdbcDataConnection.setPassword(password);
+      DataConnection jdbcDataConnection = new DataConnection();
+      jdbcDataConnection.setImplementor(implementor);
+      jdbcDataConnection.setUsername(username);
+      jdbcDataConnection.setPassword(password);
+      jdbcDataConnection.setUrl(connectUri);
 
-    try {
-      if (jdbcDataConnection.getDriverClass() != null) {
-        Class.forName(jdbcDataConnection.getDriverClass());
+      JdbcDialect dialect = DataConnectionHelper.lookupDialect(jdbcDataConnection);
+      String driverClass = dialect.getDriverClass(jdbcDataConnection);
+      try {
+        if (driverClass != null) {
+          Class.forName(driverClass);
+        }
+        Connection conn = DriverManager.getConnection(connectUri, jdbcDataConnection.getUsername(), jdbcDataConnection.getPassword());
+        return conn.createStatement();
+      } catch (ClassNotFoundException e) {
+        LOGGER.error(String.format("getJdbcStatement(): ClassNotFoundException occurred: driver-class-name=%s", driverClass), e);
+        throw e;
+      } catch (SQLException e) {
+        LOGGER.error(String.format("getJdbcStatement(): SQLException occurred: connStr=%s username=%s password=%s",
+                                   connectUri, jdbcDataConnection.getUsername(), jdbcDataConnection.getPassword()), e);
+        throw e;
       }
-      Connection conn = DriverManager.getConnection(connectUri, jdbcDataConnection.getUsername(), jdbcDataConnection.getPassword());
-      return conn.createStatement();
-    } catch (ClassNotFoundException e) {
-      LOGGER.error(String.format("getJdbcStatement(): ClassNotFoundException occurred: driver-class-name=%s", jdbcDataConnection.getDriverClass()), e);
-      throw e;
-    } catch (SQLException e) {
-      LOGGER.error(String.format("getJdbcStatement(): SQLException occurred: connStr=%s username=%s password=%s",
-              connectUri, jdbcDataConnection.getUsername(), jdbcDataConnection.getPassword()), e);
-      throw e;
     }
-  }
 
     private Statement getHiveStatement() throws SQLException, ClassNotFoundException {
-        HiveConnection hiveConn = new HiveConnection();
-        hiveConn.setHostname(hiveHostname);
-        hiveConn.setPort(Integer.valueOf(hivePort));
-        hiveConn.setUsername(hiveUsername);
-        hiveConn.setPassword(hivePassword);
-        hiveConn.setUrl(hiveCustomUrl);
+      DataConnection hiveConn = new DataConnection();
+      hiveConn.setImplementor("HIVE");
+      hiveConn.setHostname(hiveHostname);
+      hiveConn.setPort(Integer.valueOf(hivePort));
+      hiveConn.setUsername(hiveUsername);
+      hiveConn.setPassword(hivePassword);
+      hiveConn.setUrl(hiveCustomUrl);
 
-        PrepJdbcService jdbcConnectionService = new PrepJdbcService();
-        DataSource dataSource = jdbcConnectionService.getDataSource(hiveConn, true);
-        Statement stmt;
-
-        try {
-            stmt = dataSource.getConnection().createStatement();
-        } catch (SQLException e) {
-            LOGGER.error(String.format("getHiveStatement(): SQLException occurred: connStr=%s username=%s password=%s",
-                    hiveConn.getConnectUrl(), hiveConn.getUsername(), hiveConn.getPassword()), e);
-            throw e;
-        }
-        return stmt;
+      JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(hiveConn);
+      Statement stmt;
+      Connection conn;
+      try {
+          conn = jdbcDataAccessor.getConnection();
+          stmt = conn.createStatement();
+      } catch (SQLException e) {
+          LOGGER.error(String.format("getHiveStatement(): SQLException occurred: connStr=%s username=%s password=%s",
+                                     jdbcDataAccessor.getDialect().getConnectUrl(hiveConn), hiveConn.getUsername(), hiveConn.getPassword()), e);
+          throw e;
+      }
+      return stmt;
     }
 
     public void loadJdbcTable(String dsId, String sql, String implementor, String connectUri, String username, String password ) throws JdbcTypeNotSupportedException, JdbcQueryFailedException, SQLException, ClassNotFoundException {

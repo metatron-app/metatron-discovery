@@ -351,7 +351,68 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   }
 
   /**
-   * Get connection params
+   * Get query data
+   * @param {Datasource} source
+   * @private
+   */
+  private _getQueryData(source: Datasource): void {
+      // 로딩 show
+      this.loadingShow();
+      // params
+      const params = new QueryParam();
+      params.limits.limit = ( this.rowNum < 1 || 0 === this.rowNum) ? 100 : this.rowNum;
+      // 데이터소스인 경우
+      const dsInfo = _.cloneDeep(source);
+      params.dataSource.name = dsInfo.engineName;
+      params.dataSource.engineName = dsInfo.engineName;
+      params.dataSource.connType = dsInfo.connType.toString();
+      params.dataSource.type = 'default';
+      // 조회
+      this.datasourceService.getDatasourceQuery(params)
+        .then((data) => {
+          if (data && 0 < data.length) {
+            // grid data
+            this._gridData = data;
+            // grid update
+            this._updateGrid(this._gridData, this.fields);
+          }
+          // 로딩 hide
+          this.loadingHide();
+        })
+        .catch(error => this.commonExceptionHandler(error));
+  }
+
+  /**
+   * Get query data for linked type
+   * @param {Datasource} source
+   * @param {boolean} extractColumnName
+   * @private
+   */
+  private _getQueryDataInLinked(source: Datasource): void {
+    // 로딩 show
+    this.loadingShow();
+    // 프리셋을 생성한 연결형 : source.connection 사용
+    // 커넥션 정보로 생성한 연결형 : source.ingestion.connection 사용
+    const connection: Dataconnection = source.connection || source.ingestion.connection;
+    const params = source.ingestion && connection
+      ? this._getConnectionParams(source.ingestion, connection)
+      : {};
+    this.connectionService.getTableDetailWitoutId(params, connection.implementor === ImplementorType.HIVE ? true : false)
+      .then((data) => {
+        // grid data
+        this._gridData = data['data'];
+        // set fields
+        this.fields = data['fields'];
+        // grid update
+        this._updateGrid(this._gridData, this.fields);
+        // 로딩 hide
+        this.loadingHide();
+      })
+      .catch(error => this.commonExceptionHandler(error));
+  }
+
+  /**
+   * 커넥션 파라메터
    * @param {any} ingestion
    * @param {Dataconnection} connection
    * @returns {{connection: {hostname; port; username; password; implementor}; database: any; type: any; query: any}}
@@ -369,6 +430,19 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
       type: ingestion.dataType,
       query: ingestion.query
     };
+    // TODO #1573 추후 extensions 스펙에 맞게 변경 필요
+    // if exist sid
+    if (StringUtil.isNotEmpty(connection.sid)) {
+      params.connection['sid'] = connection.sid;
+    }
+    // if exist database
+    if (StringUtil.isNotEmpty(connection.database)) {
+      params.connection['database'] = connection.database;
+    }
+    // if exist catalog
+    if (StringUtil.isNotEmpty(connection.catalog)) {
+      params.connection['catalog'] = connection.catalog;
+    }
     // if security type is not USERINFO, add password and username
     if (connection.authenticationType !== AuthenticationType.USERINFO) {
       params['connection']['username'] = connection.authenticationType === AuthenticationType.DIALOG ? ingestion.connectionUsername : connection.username;

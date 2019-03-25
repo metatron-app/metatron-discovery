@@ -13,45 +13,57 @@
  */
 
 import {Injectable, Injector} from "@angular/core";
-import {AuthenticationType, ConnectionType} from "../../domain/dataconnection/dataconnection";
+import {AuthenticationType, ImplementorType} from "../../domain/dataconnection/dataconnection";
+import {TranslateService} from "@ngx-translate/core";
 
 @Injectable()
 export class DataConnectionCreateService {
 
+  private _translateService: TranslateService;
+
+  public authenticationTypeList: {label: string, value: AuthenticationType}[];
+
   constructor(injector: Injector) {
+    this._translateService = injector.get(TranslateService);
+    // set authentication type list
+    this.authenticationTypeList = [
+      { label: this._translateService.instant('msg.storage.li.connect.always'), value: AuthenticationType.MANUAL },
+      { label: this._translateService.instant('msg.storage.li.connect.account'), value: AuthenticationType.USERINFO },
+      { label: this._translateService.instant('msg.storage.li.connect.id'), value: AuthenticationType.DIALOG }
+    ];
   }
 
   /**
    * Is required database
-   * @param {ConnectionType} implementor
+   * @param {ImplementorType} implementor
    * @return {boolean}
    */
-  public isRequiredDatabase(implementor: ConnectionType): boolean {
-    return implementor === ConnectionType.POSTGRESQL;
+  public isRequiredDatabase(implementor: ImplementorType): boolean {
+    return implementor === ImplementorType.POSTGRESQL;
   }
 
   /**
    * Is required SID
-   * @param {ConnectionType} implementor
+   * @param {ImplementorType} implementor
    * @return {boolean}
    */
-  public isRequiredSid(implementor: ConnectionType): boolean {
-    return implementor === ConnectionType.TIBERO || implementor === ConnectionType.ORACLE;
+  public isRequiredSid(implementor: ImplementorType): boolean {
+    return implementor === ImplementorType.TIBERO || implementor === ImplementorType.ORACLE;
   }
 
   /**
    * Is required catalog
-   * @param {ConnectionType} implementor
+   * @param {ImplementorType} implementor
    * @return {boolean}
    */
-  public isRequiredCatalog(implementor: ConnectionType): boolean {
-    return implementor === ConnectionType.PRESTO;
+  public isRequiredCatalog(implementor: ImplementorType): boolean {
+    return implementor === ImplementorType.PRESTO;
   }
 }
 
 export interface ConnectionParam {
-  implementor: ConnectionType;
-  authenticationType: AuthenticationType;
+  implementor?: ImplementorType;
+  authenticationType?: AuthenticationType;
   username?: string;
   password?: string;
   url?: string;

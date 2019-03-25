@@ -16,7 +16,7 @@
  * Created by LDL on 2017. 6. 29..
  */
 import { AbstractHistoryEntity } from '../common/abstract-history-entity';
-import {ConnectionType} from '../dataconnection/dataconnection';
+import {ImplementorType} from '../dataconnection/dataconnection';
 /**
  * Created by LDL on 2017. 6. 16..
  */
@@ -43,7 +43,7 @@ export class Book extends AbstractHistoryEntity{
 export class contents {
   public dataSource: number;
   public dashboard: number;
-  public connType: ConnectionType;
+  public connType: ImplementorType;
   public connName: string;
 }
 

@@ -19,14 +19,11 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
 import java.util.Map;
 
-import javax.sql.DataSource;
-
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
 
 /**
  * Created by kyungtaak on 2016. 6. 16..
@@ -39,19 +36,19 @@ public class PostgresqlConnectionTest {
 
   @Test
   public void showPostgresSchemas() {
-    PostgresqlConnection connection = new PostgresqlConnection();
+    DataConnection connection = new DataConnection("POSTGRESQL");
     connection.setHostname("localhost");
     connection.setPort(5432);
     connection.setUsername("postgres");
     connection.setPassword("postgres");
 
-    System.out.println(jdbcConnectionService.findDatabases(connection, pageable));
+    System.out.println(jdbcConnectionService.getDatabases(connection, null, pageable));
 
   }
 
   @Test
   public void searchPostgresSchemas() {
-    PostgresqlConnection connection = new PostgresqlConnection();
+    DataConnection connection = new DataConnection("POSTGRESQL");
     connection.setHostname("localhost");
     connection.setPort(5432);
     connection.setUsername("metatron");
@@ -60,13 +57,13 @@ public class PostgresqlConnectionTest {
     PageRequest pageRequest = new PageRequest(0, 20);
     String searchKeyword = "";
 
-    Map<String, Object> databaseList = jdbcConnectionService.searchSchemas(connection, searchKeyword, pageRequest);
+    Map<String, Object> databaseList = jdbcConnectionService.getDatabases(connection, searchKeyword, pageRequest);
     System.out.println(databaseList);
   }
 
   @Test
   public void searchPostgresTables() {
-    PostgresqlConnection connection = new PostgresqlConnection();
+    DataConnection connection = new DataConnection("POSTGRESQL");
     connection.setHostname("localhost");
     connection.setPort(5432);
     connection.setUsername("metatron");
@@ -76,7 +73,7 @@ public class PostgresqlConnectionTest {
     String searchKeyword = "";
     String schema = "metatron";
 
-    Map<String, Object> tableMap = jdbcConnectionService.searchTables(connection, schema, searchKeyword, pageRequest);
+    Map<String, Object> tableMap = jdbcConnectionService.getTables(connection, schema, searchKeyword, pageRequest);
 
     List<Map<String, Object>> tableList = (List) tableMap.get("tables");
     Map<String, Object> pageInfo = (Map) tableMap.get("page");
@@ -90,7 +87,7 @@ public class PostgresqlConnectionTest {
 
   @Test
   public void showTableColumnPostgresql() {
-    PostgresqlConnection connection = new PostgresqlConnection();
+    DataConnection connection = new DataConnection("POSTGRESQL");
     connection.setHostname("localhost");
     connection.setPort(5432);
     connection.setUsername("metatron");
@@ -101,7 +98,7 @@ public class PostgresqlConnectionTest {
     String tableName = "sales";
     String columnNamePattern = "";
 
-    Map<String, Object> columnMaps = jdbcConnectionService.searchTableColumns(connection, schemaName, tableName, columnNamePattern, pageRequest);
+    Map<String, Object> columnMaps = jdbcConnectionService.getTableColumns(connection, schemaName, tableName, columnNamePattern, pageRequest);
     List<Map> columnList = (List) columnMaps.get("columns");
     Map<String, Object> pageInfo = (Map) columnMaps.get("page");
     System.out.println("pageInfo = " + pageInfo);
@@ -112,7 +109,7 @@ public class PostgresqlConnectionTest {
 
   @Test
   public void showTableInfoPostgresql() {
-    PostgresqlConnection connection = new PostgresqlConnection();
+    DataConnection connection = new DataConnection("POSTGRESQL");
     connection.setHostname("localhost");
     connection.setPort(5432);
     connection.setUsername("metatron");
@@ -129,7 +126,7 @@ public class PostgresqlConnectionTest {
 
   @Test
   public void changeDatabase() {
-    PostgresqlConnection connection = new PostgresqlConnection();
+    DataConnection connection = new DataConnection("POSTGRESQL");
     connection.setHostname("localhost");
     connection.setPort(5432);
     connection.setUsername("metatron");
@@ -139,21 +136,21 @@ public class PostgresqlConnectionTest {
     String database1 = "metatron";
     String database2 = "test_schema";
 
-    DataSource dataSource = WorkbenchDataSourceUtils.createDataSourceInfo(connection, webSocketId, true).
-            getSingleConnectionDataSource();
-
-    JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-
-    jdbcConnectionService.changeDatabase(connection, dataSource, database1);
-
-    List<Map<String, Object>> tables1 = jdbcTemplate.queryForList("select * from sales");
-
-    jdbcConnectionService.changeDatabase(connection, dataSource, database2);
-
-    List<Map<String, Object>> tables2 = jdbcTemplate.queryForList("select * from test_tb1");
-
-    System.out.println(tables1);
-    System.out.println(tables2);
+//    DataSource dataSource = WorkbenchDataSourceManager.createDataSourceInfo(connection, webSocketId, true).
+//            getSingleConnectionDataSource();
+//
+//    JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+//
+//    jdbcConnectionService.changeDatabase(connection, database1, dataSource);
+//
+//    List<Map<String, Object>> tables1 = jdbcTemplate.queryForList("select * from sales");
+//
+//    jdbcConnectionService.changeDatabase(connection, database2, dataSource);
+//
+//    List<Map<String, Object>> tables2 = jdbcTemplate.queryForList("select * from test_tb1");
+//
+//    System.out.println(tables1);
+//    System.out.println(tables2);
 
   }
 

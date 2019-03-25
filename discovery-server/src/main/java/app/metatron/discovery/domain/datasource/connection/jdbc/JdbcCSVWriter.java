@@ -22,12 +22,18 @@ import org.supercsv.io.CsvResultSetWriter;
 import org.supercsv.io.ICsvResultSetWriter;
 import org.supercsv.prefs.CsvPreference;
 
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.Writer;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
+
+import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionErrorCodes;
+import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionException;
 
 public class JdbcCSVWriter extends CsvResultSetWriter implements ICsvResultSetWriter {
 
@@ -37,28 +43,19 @@ public class JdbcCSVWriter extends CsvResultSetWriter implements ICsvResultSetWr
 
   private static final Logger LOGGER = LoggerFactory.getLogger(JdbcCSVWriter.class);
 
-  private JdbcDataConnection connection;
-  private DataSource dataSource;
+  private Connection connection;
   private String query;
   private String fileName;
   private boolean withHeader = true;
   private int fetchSize = 0;
   private int maxRow = 0;
 
-  public JdbcDataConnection getConnection() {
+  public Connection getConnection() {
     return connection;
   }
 
-  public void setConnection(JdbcDataConnection connection) {
+  public void setConnection(Connection connection) {
     this.connection = connection;
-  }
-
-  public DataSource getDataSource() {
-    return dataSource;
-  }
-
-  public void setDataSource(DataSource dataSource) {
-    this.dataSource = dataSource;
   }
 
   public String getQuery() {
@@ -172,10 +169,8 @@ public class JdbcCSVWriter extends CsvResultSetWriter implements ICsvResultSetWr
 
     Statement stmt = null;
     ResultSet rs = null;
-    Connection connection = null;
 
     try {
-      connection = dataSource.getConnection();
       stmt = connection.createStatement();
 
       if (fetchSize == 0) {
@@ -201,7 +196,7 @@ public class JdbcCSVWriter extends CsvResultSetWriter implements ICsvResultSetWr
     } catch (SQLException e) {
       LOGGER.error("Fail to query for select :  {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
-              "Fail to query : " + e.getMessage());
+                                            "Fail to query : " + e.getMessage());
     } catch (IOException e) {
       LOGGER.error("Fail to write csv file by result of query :  {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.CSV_IO_ERROR_CODE,

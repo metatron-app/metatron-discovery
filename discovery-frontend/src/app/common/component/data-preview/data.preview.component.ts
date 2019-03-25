@@ -49,12 +49,13 @@ import {CommonUtil} from '../../util/common.util';
 import {DataDownloadComponent, PreviewResult} from '../data-download/data.download.component';
 import {MetadataColumn} from '../../../domain/meta-data-management/metadata-column';
 import {DashboardUtil} from '../../../dashboard/util/dashboard.util';
-import {Dataconnection, ImplementorType} from '../../../domain/dataconnection/dataconnection';
+import {ImplementorType, Dataconnection} from '../../../domain/dataconnection/dataconnection';
 import {PeriodData} from "../../value/period.data.value";
 import {TimeRangeFilter} from "../../../domain/workbook/configurations/filter/time-range-filter";
 import {Filter} from "../../../domain/workbook/configurations/filter/filter";
 import {DIRECTION, Sort} from "../../../domain/workbook/configurations/sort";
 import {TimezoneService} from "../../../data-storage/service/timezone.service";
+import {StringUtil} from "../../util/string.util";
 
 declare let echarts: any;
 
@@ -575,6 +576,19 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       type: ingestion.dataType,
       query: ingestion.query
     };
+    // TODO #1573 추후 extensions 스펙에 맞게 변경 필요
+    // if exist sid
+    if (StringUtil.isNotEmpty(connection.sid)) {
+      params.connection['sid'] = connection.sid;
+    }
+    // if exist database
+    if (StringUtil.isNotEmpty(connection.database)) {
+      params.connection['database'] = connection.database;
+    }
+    // if exist catalog
+    if (StringUtil.isNotEmpty(connection.catalog)) {
+      params.connection['catalog'] = connection.catalog;
+    }
     // if security type is not USERINFO, add password and username
     if (connection.authenticationType !== 'USERINFO') {
       params['connection']['username'] = connection.authenticationType === 'DIALOG' ? ingestion.connectionUsername : connection.username;

@@ -74,7 +74,7 @@ public class WorkbenchProjections extends BaseProjections{
 
     WorkspaceProjections.HeaderViewProjection getWorkspace();
 
-    @Value("#{target.dataConnection.getDataConnectionProjection(@projectionFactory, T(app.metatron.discovery.domain.datasource.connection.DataConnectionProjections$defaultProjection))}")
+    @Value("#{target.dataConnection.getDataConnectionProjection(@projectionFactory, T(app.metatron.discovery.domain.dataconnection.DataConnectionProjections$defaultProjection))}")
     Object getDataConnection();
     //DataConnectionProjections.defaultProjection getDataConnection();
 

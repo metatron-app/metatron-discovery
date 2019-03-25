@@ -1,0 +1,200 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<ng-container  *ngIf="isShow">
+  <!-- preset box -->
+  <!-- //preset box -->
+  <!-- implementor list -->
+  <div class="ddp-wrap-edit2">
+    <label class="ddp-label-type ddp-bold">{{'msg.storage.ui.db.connection' | translate}}</label>
+    <!-- edit option -->
+    <div class="ddp-ui-edit-option ddp-type ddp-white-space">
+      <ul class="ddp-list-dbtype">
+        <li *ngFor="let connection of connectionTypeList"
+            [class.ddp-selected]="connection.implementor === selectedConnectionType.implementor" [class.ddp-disabled]="isDisableChangeConnectionType">
+          <a href="javascript:" class="ddp-label-dbtype" (click)="onChangeConnectionType(connection)">
+            <em class="ddp-img-icon">
+              <img src="{{getImplementorImageIcon(connection)}}">
+            </em>
+            <span class="ddp-txt-db">{{connection.name}}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <!-- //edit option -->
+  </div>
+  <!-- //implementor list -->
+  <!-- Server -->
+  <div class="ddp-wrap-edit2 ">
+    <div class="ddp-box-sub">
+      <div class="ddp-clear ddp-db-url">
+        <!-- URL -->
+        <div class="ddp-wrap-edit2 ddp-col-12" *ngIf="isUsedUrl" [class.ddp-error]="isUrlError">
+          <label class="ddp-label-type">{{'msg.storage.ui.conn.url' | translate}}</label>
+          <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.ui.conn.url.ph' | translate}}"
+                 [ngModel]="url" (ngModelChange)="url = $event; isUrlError = undefined; connectionValidInitialize()">
+          <!-- error -->
+          <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
+          <!-- error -->
+        </div>
+        <!-- //URL -->
+        <ng-container *ngIf="!isUsedUrl">
+          <!-- HOST -->
+          <div class="ddp-wrap-edit2 ddp-col-4" [class.ddp-error]="isHostnameError">
+            <label class="ddp-label-type">{{'msg.comm.th.host' | translate}}</label>
+            <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.th.host' | translate}}"
+                   [ngModel]="hostname" (ngModelChange)="hostname = $event; isHostnameError = undefined; connectionValidInitialize()">
+            <!-- error -->
+            <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
+            <!-- error -->
+          </div>
+          <!-- //HOST -->
+          <!-- PORT -->
+          <div class="ddp-wrap-edit2 ddp-col-2" [class.ddp-error]="isPortError">
+            <label class="ddp-label-type">{{'msg.comm.th.port' | translate}}</label>
+            <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.th.port' | translate}}" maxlength="5" input-mask="number"
+                   [ngModel]="port" (ngModelChange)="port = $event; isPortError = undefined; connectionValidInitialize()">
+            <!-- error -->
+            <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
+            <!-- error -->
+          </div>
+          <!-- //PORT -->
+          <!-- SID -->
+          <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isSidError" *ngIf="!isDisableSid()">
+            <!--(ngModelChange)="sid = $event; initConnectionPresetData()">-->
+            <label class="ddp-label-type">{{'msg.storage.th.sid' | translate}}</label>
+            <input type="text"  class="ddp-input-type" placeholder="{{'msg.storage.ui.conn.sid.ph' | translate}}"
+                   [ngModel]="sid" (ngModelChange)="sid = $event; isSidError = undefined; connectionValidInitialize()">
+            <!-- error -->
+            <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
+            <!-- error -->
+          </div>
+          <!-- //SID -->
+          <!-- DATABASE -->
+          <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isDatabaseError" *ngIf="!isDisableDatabase()">
+            <label class="ddp-label-type">{{'msg.storage.th.db_name' | translate}}</label>
+            <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.th.db_name.ph' | translate}}"
+                   [ngModel]="database" (ngModelChange)="database = $event; isDatabaseError = undefined; connectionValidInitialize()">
+            <!-- error -->
+            <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
+            <!-- error -->
+          </div>
+          <!-- //DATABASE -->
+          <!-- Catalog -->
+          <div class="ddp-wrap-edit2 ddp-col-6"  [class.ddp-error]="isCatalogError" *ngIf="!isDisableCatalog()">
+            <label class="ddp-label-type">{{'msg.storage.th.catalog' | translate}}</label>
+            <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.ui.conn.catalog.ph' | translate}}"
+                   [ngModel]="catalog" (ngModelChange)="catalog = $event; isCatalogError = undefined; connectionValidInitialize()">
+            <!-- error -->
+            <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
+            <!-- error -->
+          </div>
+          <!-- //Catalog -->
+        </ng-container>
+        <!-- check -->
+        <div class="ddp-check ddp-col-12">
+          <label class="ddp-label-checkbox" (click)="onChangeUseUrl(); $event.defaultPrevented;">
+            <input type="checkbox" [checked]="isUsedUrl" tabindex="-1">
+            <i class="ddp-icon-checkbox"></i>
+            <span class="ddp-txt-checkbox">{{'msg.storage.ui.conn.url.only' | translate}}</span>
+          </label>
+        </div>
+        <!-- //check -->
+      </div>
+      <!-- //URL (disable) -->
+      <!-- only not used in USERINFO -->
+      <div class="ddp-clear" *ngIf="selectedAuthenticationType.value !== AUTHENTICATION_TYPE.USERINFO">
+        <!-- username -->
+        <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isUsernameError" *ngIf="!isDisableUsername()">
+          <label class="ddp-label-type">{{'msg.storage.th.user_name' | translate}} <span class="ddp-sub" *ngIf="selectedAuthenticationType.value === AUTHENTICATION_TYPE.DIALOG">{{'msg.storage.ui.for.test' | translate}}</span></label>
+          <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.th.user_name.ph' | translate}}"
+                 [ngModel]="username" (ngModelChange)="username = $event; isUsernameError = undefined; connectionValidInitialize()">
+          <!-- error -->
+          <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
+          <!-- error -->
+        </div>
+        <!-- //username -->
+        <!-- Password -->
+        <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isPasswordError" *ngIf="!isDisablePassword()">
+          <label class="ddp-label-type">{{'msg.storage.th.pwd' | translate}} <span class="ddp-sub" *ngIf="selectedAuthenticationType.value === AUTHENTICATION_TYPE.DIALOG">{{'msg.storage.ui.for.test' | translate}}</span></label>
+          <input type="password" class="ddp-input-type" placeholder="{{'msg.storage.th.pwd.ph' | translate}}"
+                 [ngModel]="password" (ngModelChange)="password = $event; isPasswordError = undefined; connectionValidInitialize()">
+          <!-- error -->
+          <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
+          <!-- error -->
+        </div>
+        <!-- //Password -->
+      </div>
+      <!-- //only not used in USERINFO -->
+      <!-- Security -->
+      <div class="ddp-wrap-edit2 ">
+        <ng-container *ngIf="!isDisableAuthenticationType()">
+          <label class="ddp-label-type" >{{'msg.storage.ui.security' | translate}}</label>
+          <ul class="ddp-list-checktype">
+            <li *ngFor="let type of authenticationTypeList">
+              <label class="ddp-label-radio" (change)="onChangeAuthenticationType(type)">
+                <input type="radio" [checked]="type.value === selectedAuthenticationType.value">
+                <i class="ddp-icon-radio"></i>
+                <span class="ddp-txt-radio">{{type.label}}</span>
+              </label>
+            </li>
+          </ul>
+        </ng-container>
+        <div class="ddp-ui-buttons ddp-inline">
+          <a href="javascript:" class="ddp-btn-pop ddp-bg-gray"
+             (click)="checkConnection()">{{'msg.storage.btn.test' | translate}}</a>
+          <div class="ddp-ui-message ddp-ui-info ">
+            <span class="ddp-data-error2" *ngIf="isConnectionCheckRequire && !isValidConnection">{{'msg.storage.ui.required' | translate}}</span>
+            <span class="ddp-data-error" *ngIf="isValidConnection === false"><em class="ddp-icon-error"></em>{{'msg.storage.ui.invalid.conn' | translate}}</span>
+            <span class="ddp-data-ok" *ngIf="isValidConnection"><em class="ddp-icon-ok"></em>{{'msg.storage.ui.valid.conn' | translate}}</span>
+          </div>
+        </div>
+        <!-- advanced settings -->
+        <div class="ddp-ui-folding ddp-type" [class.ddp-selected]="isShowAdvancedSettings">
+          <div class="ddp-fold-label" (click)="isShowAdvancedSettings = !isShowAdvancedSettings">
+            {{'msg.dp.btn.advanced.settings' | translate}}
+            <em class="ddp-icon-view"></em>
+          </div>
+          <div class="ddp-ui-sub-folding">
+            <div class="ddp-wrap-edit2 ">
+              <div class="ddp-label-type ddp-info-inline">{{'msg.storage.ui.custom.property' | translate}}</div>
+              <div class="ddp-box-code">
+                <!-- clear -->
+                <div class="ddp-clear ddp-list-code" *ngFor="let property of properties; let i = index">
+                  <div class="ddp-col-5">
+                    <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{'msg.storage.ph.custom.property.key' | translate}}"
+                           [(ngModel)]="property.key" (ngModelChange)="property.keyError = false" (focusout)="propertyKeyValidation(property)">
+                    <span class="ddp-data-error" *ngIf="property.keyError"> {{property.keyValidMessage}}</span>
+                  </div>
+                  <div class="ddp-col-7">
+                    <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{'msg.storage.ph.custom.property.value' | translate}}"
+                           [(ngModel)]="property.value" (ngModelChange)="property.valueError = false">
+                    <span class="ddp-data-error" *ngIf="property.valueError"> {{property.valueValidMessage}}</span>
+                  </div>
+                  <a href="javascript:" class="ddp-icon-del" (click)="onClickRemoveProperty(i)"></a>
+                </div>
+                <!-- //clear -->
+                <a href="javascript:" class="ddp-btn-add" (click)="onClickAddProperty()"><em class="ddp-icon-plus"></em> {{'msg.comm.btn.add' | translate}}</a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- //advanced settings -->
+      </div>
+      <!-- //Security -->
+    </div>
+  </div>
+  <!-- //Server -->
+</ng-container>
