@@ -95,6 +95,7 @@ export enum ImplementorType {
   NONE = <any>'NONE'
 }
 
+
 export enum InputMandatory {
   MANDATORY = 'MANDATORY',
   OPTIONAL = 'OPTIONAL',
@@ -105,7 +106,6 @@ export enum Scope {
   EMBEDDED = 'EMBEDDED',
   EXTENSION = 'EXTENSION'
 }
-
 
 export enum AuthenticationType {
   USERINFO = <any>'USERINFO',

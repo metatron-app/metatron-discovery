@@ -458,7 +458,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
    */
   private _getDatasourceDetail(datasourceId: string, mode: string = 'information'): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.datasourceService.getDatasourceDetail(datasourceId)
+      this.datasourceService.getDatasourceDetail(datasourceId, true)
         .then((datasource) => {
           // set datasource
           this.datasource = datasource;
