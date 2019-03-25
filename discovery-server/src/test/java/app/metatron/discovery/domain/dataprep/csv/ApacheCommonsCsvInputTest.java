@@ -80,7 +80,7 @@ public class ApacheCommonsCsvInputTest {
   @Test
   public void test_multi_line_unmatched() {
     String strUri = buildStrUrlFromResourceDir("csv/multi_line_with_bs_escape.csv");
-    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null, true, false);
+    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null, null, true, false);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -95,7 +95,7 @@ public class ApacheCommonsCsvInputTest {
     boolean error = false;
 
     try {
-      PrepCsvUtil.parse(strUri, ",", 10000, null, true, false);
+      PrepCsvUtil.parse(strUri, ",", 10000, null, null, true, false);
     } catch (NoSuchElementException e) {
       error = true;
     }
