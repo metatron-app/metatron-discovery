@@ -21,6 +21,7 @@ import {GridComponent} from '../../../common/component/grid/grid.component';
 import {DataconnectionService} from '../../../dataconnection/service/dataconnection.service';
 import {GridOption} from '../../../common/component/grid/grid.option';
 import {header, SlickGridHeader} from '../../../common/component/grid/grid.header';
+import {isNullOrUndefined} from "util";
 
 @Component({
   selector: 'app-staging-select-schema',
@@ -425,7 +426,9 @@ export class StagingSelectSchemaComponent extends AbstractPopupComponent impleme
       // name
       item.name = this._sliceTableName(item.name);
       // if exist alias, convert alias
-      item.alias && (item.alias = this._sliceTableName(item.alias));
+      if (!isNullOrUndefined(item.alias)) {
+        item.alias = this._sliceTableName(item.alias);
+      }
       return item;
     });
   }
