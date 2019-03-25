@@ -52,6 +52,7 @@ import {DatasourceService} from "../../../datasource/service/datasource.service"
 import {TimezoneService} from "../../service/timezone.service";
 import {DataSnapshotService} from "../../../data-preparation/data-snapshot/service/data-snapshot.service";
 import {DataconnectionService} from "../../../dataconnection/service/dataconnection.service";
+import {DataflowModelService} from "../../../data-preparation/dataflow/service/dataflow.model.service";
 
 @NgModule({
   imports: [
@@ -157,7 +158,8 @@ import {DataconnectionService} from "../../../dataconnection/service/dataconnect
     DataconnectionService,
     GranularityService,
     TimezoneService,
-    DataSnapshotService
+    DataSnapshotService,
+    DataflowModelService
   ]
 })
 export class DataSourceCreateModule {

@@ -17,15 +17,23 @@ package app.metatron.discovery.domain.datasource.connection.jdbc;
 import com.google.common.collect.Lists;
 
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import app.metatron.discovery.AbstractIntegrationTest;
+import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.datasource.LogicalType;
+import app.metatron.discovery.domain.dataconnection.ConnectionRequest;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
+import app.metatron.discovery.domain.dataconnection.accessor.HiveDataAccessorUsingMetastore;
+import app.metatron.discovery.domain.dataconnection.dialect.HiveDialect;
 import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.connection.ConnectionRequest;
 import app.metatron.discovery.domain.datasource.data.CandidateQueryRequest;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
@@ -42,57 +50,57 @@ import static app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngest
 /**
  * Created by kyungtaak on 2016. 6. 16..
  */
-public class JdbcConnectionServiceTest {
+public class JdbcConnectionServiceTest extends AbstractIntegrationTest {
 
-  private JdbcConnectionService jdbcConnectionService = new JdbcConnectionService();
+  @Autowired
+  JdbcConnectionService jdbcConnectionService;
 
   @Test
   public void checkConnection() {
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection("MYSQL");
     connection.setHostname("localhost");
     connection.setDatabase("polaris_datasources");
     connection.setUsername("polaris");
     connection.setPassword("polaris");
     connection.setPort(3306);
 
-    System.out.println(new JdbcConnectionService().checkConnection(connection));
+    System.out.println(jdbcConnectionService.checkConnection(connection));
 
   }
 
   @Test
   public void checkIrisConnection() {
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection("MYSQL");
     connection.setHostname("90.90.200.67");
     connection.setDatabase("??");
     connection.setUsername("??");
     connection.setPassword("??");
     connection.setPort(5050);
 
-    System.out.println(new JdbcConnectionService().checkConnection(connection));
+    System.out.println(jdbcConnectionService.checkConnection(connection));
 
   }
 
   @Test
   public void selectQueryByTableCase() {
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection("MYSQL");
     connection.setHostname("localhost");
     connection.setDatabase("sample");
     connection.setUsername("polaris");
     connection.setPassword("polaris");
     connection.setPort(3306);
 
-    System.out.println(new JdbcConnectionService().selectQueryForIngestion(connection, null,
+    System.out.println(jdbcConnectionService.selectQueryForIngestion(connection, null,
             TABLE, "sales", 10, true));
   }
 
   @Test
   public void selectQueryToCsv() {
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection("MYSQL");
     connection.setHostname("localhost");
     connection.setUsername("polaris");
     connection.setPassword("polaris");
     connection.setPort(3306);
-    connection.setImplementor("MYSQL");
 
     JdbcIngestionInfo ingestionInfo = new LinkIngestionInfo();
     ingestionInfo.setConnection(connection);
@@ -112,23 +120,22 @@ public class JdbcConnectionServiceTest {
     field.setLogicalName("category");
     fieldList.add(field);
 
-    System.out.println(new JdbcConnectionService().selectQueryToCsv(connection, ingestionInfo, dataSourceName, fieldList, 120));
+    System.out.println(jdbcConnectionService.selectQueryToCsv(connection, ingestionInfo, dataSourceName, fieldList, 120));
   }
 
   @Test
   public void selectQueryFilterToCsv() {
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection("MYSQL");
     connection.setHostname("localhost");
     connection.setUsername("polaris");
     connection.setPassword("polaris");
     connection.setPort(3306);
-    connection.setDatabase("sample");
-    connection.setImplementor("MYSQL");
 
     JdbcIngestionInfo ingestionInfo = new LinkIngestionInfo();
     ingestionInfo.setConnection(connection);
     ingestionInfo.setDataType(TABLE);
     ingestionInfo.setQuery("sales");
+    ingestionInfo.setDatabase("sample");
     String dataSourceName = "temp_sample_csv001";
 
     List<Field> fieldList = Lists.newArrayList();
@@ -159,13 +166,13 @@ public class JdbcConnectionServiceTest {
     InclusionFilter inclusionFilter = new InclusionFilter("City", valueList);
     filterList.add(inclusionFilter);
 
-    System.out.println(new JdbcConnectionService().selectQueryToCsv(connection, ingestionInfo, null, dataSourceName,
+    System.out.println(jdbcConnectionService.selectQueryToCsv(connection, ingestionInfo, null, dataSourceName,
             fieldList, filterList, 120));
   }
 
   @Test
   public void selectCandidateQueryMysql() {
-    MySQLConnection connection = new MySQLConnection();
+    DataConnection connection = new DataConnection("MYSQL");
     connection.setHostname("localhost");
     connection.setDatabase("sample");
     connection.setUsername("polaris");
@@ -204,18 +211,17 @@ public class JdbcConnectionServiceTest {
     queryRequest.setTargetField(timestampField);
     queryRequest.setDataSource(dataSource);
 
-    System.out.println(new JdbcConnectionService().selectCandidateQuery(queryRequest));
+    System.out.println(jdbcConnectionService.selectCandidateQuery(queryRequest));
   }
 
   @Test
   public void selectCandidateTableTimestampHive() {
-    HiveConnection connection = new HiveConnection();
+    DataConnection connection = new DataConnection("HIVE");
     connection.setHostname("localhost");
     connection.setDatabase("default");
     connection.setUsername("sohncw");
     connection.setPassword("hive");
     connection.setPort(10000);
-    connection.setImplementor("HIVE");
 
     LinkIngestionInfo ingestionInfo = new LinkIngestionInfo();
     ingestionInfo.setDataType(TABLE);
@@ -248,18 +254,17 @@ public class JdbcConnectionServiceTest {
     queryRequest.setTargetField(timestampField);
     queryRequest.setDataSource(dataSource);
 
-    System.out.println(new JdbcConnectionService().selectCandidateQuery(queryRequest));
+    System.out.println(jdbcConnectionService.selectCandidateQuery(queryRequest));
   }
 
   @Test
   public void selectCandidateTableDimensionHive() {
-    HiveConnection connection = new HiveConnection();
+    DataConnection connection = new DataConnection("HIVE");
     connection.setHostname("localhost");
     connection.setDatabase("default");
     connection.setUsername("sohncw");
     connection.setPassword("hive");
     connection.setPort(10000);
-    connection.setImplementor("HIVE");
 
     LinkIngestionInfo ingestionInfo = new LinkIngestionInfo();
     ingestionInfo.setDataType(TABLE);
@@ -292,18 +297,17 @@ public class JdbcConnectionServiceTest {
 //    queryRequest.setTargetField(timestampField);
     queryRequest.setDataSource(dataSource);
 
-    System.out.println(new JdbcConnectionService().selectCandidateQuery(queryRequest));
+    System.out.println(jdbcConnectionService.selectCandidateQuery(queryRequest));
   }
 
   @Test
   public void selectCandidateQueryTimestampHive() {
-    HiveConnection connection = new HiveConnection();
+    DataConnection connection = new DataConnection("HIVE");
     connection.setHostname("localhost");
     connection.setDatabase("default");
-    connection.setUsername("sohncw");
+    connection.setUsername("hive");
     connection.setPassword("hive");
     connection.setPort(10000);
-    connection.setImplementor("HIVE");
 
     LinkIngestionInfo ingestionInfo = new LinkIngestionInfo();
     ingestionInfo.setDataType(JdbcIngestionInfo.DataType.QUERY);
@@ -336,18 +340,17 @@ public class JdbcConnectionServiceTest {
     queryRequest.setTargetField(timestampField);
     queryRequest.setDataSource(dataSource);
 
-    System.out.println(new JdbcConnectionService().selectCandidateQuery(queryRequest));
+    System.out.println(jdbcConnectionService.selectCandidateQuery(queryRequest));
   }
 
   @Test
   public void selectCandidateQueryDimensionHive() {
-    HiveConnection connection = new HiveConnection();
+    DataConnection connection = new DataConnection("HIVE");
     connection.setHostname("localhost");
     connection.setDatabase("default");
-    connection.setUsername("sohncw");
+    connection.setUsername("hive");
     connection.setPassword("hive");
     connection.setPort(10000);
-    connection.setImplementor("HIVE");
 
     LinkIngestionInfo ingestionInfo = new LinkIngestionInfo();
     ingestionInfo.setDataType(JdbcIngestionInfo.DataType.QUERY);
@@ -380,7 +383,7 @@ public class JdbcConnectionServiceTest {
 //    queryRequest.setTargetField(timestampField);
     queryRequest.setDataSource(dataSource);
 
-    System.out.println(new JdbcConnectionService().selectCandidateQuery(queryRequest));
+    System.out.println(jdbcConnectionService.selectCandidateQuery(queryRequest));
   }
 
   @Test
@@ -394,12 +397,15 @@ public class JdbcConnectionServiceTest {
     List partList = new ArrayList();
     partList.add(part);
 
-    HiveConnection hiveConnection = new HiveConnection();
-    hiveConnection.setMetastoreHost("localhost");
-    hiveConnection.setMetastorePort("3306");
-    hiveConnection.setMetastoreSchema("metastore2");
-    hiveConnection.setMetastoreUserName("hiveuser");
-    hiveConnection.setMetastorePassword("password");
+    DataConnection connection = new DataConnection("HIVE");
+
+    Map<String, String> propMap = new HashMap<>();
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_HOST, "localhost");
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_PORT, "3306");
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_SCHEMA, "metastore2");
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_USERNAME, "hiveuser");
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_PASSWORD, "password");
+    connection.setProperties(GlobalObjectMapper.writeValueAsString(propMap));
 
     ConnectionRequest checkRequest = new ConnectionRequest();
     checkRequest.setDatabase(dbName);
@@ -407,7 +413,8 @@ public class JdbcConnectionServiceTest {
     checkRequest.setQuery(tableName);
     checkRequest.setPartitions(partList);
 
-    List<Map<String, Object>> partitionInfo = (new JdbcConnectionService()).validatePartition(hiveConnection, checkRequest);
+    HiveDataAccessorUsingMetastore jdbcAccessor = (HiveDataAccessorUsingMetastore) DataConnectionHelper.getAccessor(connection);
+    List<Map<String, Object>> partitionInfo = jdbcAccessor.validatePartition(checkRequest.getDatabase(), checkRequest.getQuery(), checkRequest.getPartitions());
     for(Map<String, Object> partMap : partitionInfo){
       System.out.println(partMap.get("PART_NAME") + ", " + partMap.get("NUM_ROWS"));
     }
@@ -424,12 +431,14 @@ public class JdbcConnectionServiceTest {
     List partList = new ArrayList();
     partList.add(part);
 
-    HiveConnection hiveConnection = new HiveConnection();
-    hiveConnection.setMetastoreHost("localhost");
-    hiveConnection.setMetastorePort("3306");
-    hiveConnection.setMetastoreSchema("metastore2");
-    hiveConnection.setMetastoreUserName("hiveuser");
-    hiveConnection.setMetastorePassword("password");
+    DataConnection connection = new DataConnection("HIVE");
+    Map<String, String> propMap = new HashMap<>();
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_HOST, "localhost");
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_PORT, "3306");
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_SCHEMA, "metastore2");
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_USERNAME, "hiveuser");
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_PASSWORD, "password");
+    connection.setProperties(GlobalObjectMapper.writeValueAsString(propMap));
 
     ConnectionRequest checkRequest = new ConnectionRequest();
     checkRequest.setDatabase(dbName);
@@ -437,7 +446,8 @@ public class JdbcConnectionServiceTest {
     checkRequest.setQuery(tableName);
     checkRequest.setPartitions(partList);
 
-    List<Map<String, Object>> partitionInfo = (new JdbcConnectionService()).validatePartition(hiveConnection, checkRequest);
+    HiveDataAccessorUsingMetastore jdbcAccessor = (HiveDataAccessorUsingMetastore) DataConnectionHelper.getAccessor(connection);
+    List<Map<String, Object>> partitionInfo = jdbcAccessor.validatePartition(checkRequest.getDatabase(), checkRequest.getQuery(), checkRequest.getPartitions());
     for(Map<String, Object> partMap : partitionInfo){
       System.out.println(partMap.get("PART_NAME") + ", " + partMap.get("NUM_ROWS"));
     }

@@ -16,6 +16,7 @@ package app.metatron.discovery.common.websocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
@@ -24,7 +25,7 @@ import org.springframework.messaging.support.MessageHeaderAccessor;
 
 import java.util.List;
 
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceManager;
 
 import static org.springframework.messaging.simp.stomp.StompCommand.CONNECT;
 import static org.springframework.messaging.simp.stomp.StompCommand.DISCONNECT;
@@ -36,6 +37,9 @@ import static org.springframework.messaging.simp.stomp.StompCommand.UNSUBSCRIBE;
 public class BizChannelInterceptorAdapter extends ChannelInterceptorAdapter {
 
   private static Logger LOGGER = LoggerFactory.getLogger(BizChannelInterceptorAdapter.class);
+
+  @Autowired
+  WorkbenchDataSourceManager workbenchDataSourceManager;
 
   public BizChannelInterceptorAdapter() {
   }
@@ -69,7 +73,7 @@ public class BizChannelInterceptorAdapter extends ChannelInterceptorAdapter {
       // Session Id 및 채널명을 통해 관련 된 워크 벤치 커넥션 해제
       LOGGER.debug("Do Action for disconnection!!!");
       // Session Id 를 통해 관련된 워크벤치 해제
-      WorkbenchDataSourceUtils.destroyDataSource(accessor.getSessionId());
+      workbenchDataSourceManager.destroyDataSource(accessor.getSessionId());
     }
   }
 

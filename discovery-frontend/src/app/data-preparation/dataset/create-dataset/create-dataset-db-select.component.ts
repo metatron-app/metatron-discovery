@@ -16,7 +16,7 @@ import { Component, ElementRef, Injector, OnInit, Input } from '@angular/core';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
 import { PrDatasetJdbc, DsType, ImportType, QueryInfo, TableInfo } from '../../../domain/data-preparation/pr-dataset';
-import { ConnectionType, Dataconnection } from '../../../domain/dataconnection/dataconnection';
+import { ImplementorType, Dataconnection } from '../../../domain/dataconnection/dataconnection';
 import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
 import { ConnectionRequest } from '../../../domain/dataconnection/connectionrequest';
 import { isNullOrUndefined, isUndefined } from 'util';
@@ -487,33 +487,33 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
   }
 
   // protected -> private
-  private getImplementor(param: string): ConnectionType {
+  private getImplementor(param: string): ImplementorType {
     if (param === 'H2') {
-      return ConnectionType.H2;
+      return ImplementorType.H2;
     } else if (param === 'MYSQL') {
-      return ConnectionType.MYSQL;
+      return ImplementorType.MYSQL;
     } else if (param === 'ORACLE') {
-      return ConnectionType.ORACLE;
+      return ImplementorType.ORACLE;
     } else if (param === 'TIBERO') {
-      return ConnectionType.TIBERO;
+      return ImplementorType.TIBERO;
     } else if (param === 'HIVE') {
-      return ConnectionType.HIVE;
+      return ImplementorType.HIVE;
     } else if (param === 'HAWQ') {
-      return ConnectionType.HAWQ;
+      return ImplementorType.HAWQ;
     } else if (param === 'POSTGRESQL') {
-      return ConnectionType.POSTGRESQL;
+      return ImplementorType.POSTGRESQL;
     } else if (param === 'MSSQL') {
-      return ConnectionType.MSSQL;
+      return ImplementorType.MSSQL;
     } else if (param === 'PRESTO') {
-      return ConnectionType.PRESTO;
+      return ImplementorType.PRESTO;
     } else if (param === 'PHOENIX') {
-      return ConnectionType.PHOENIX;
+      return ImplementorType.PHOENIX;
     } else if (param === 'NVACCEL') {
-      return ConnectionType.NVACCEL;
+      return ImplementorType.NVACCEL;
     } else if (param === 'STAGE') {
-      return ConnectionType.STAGE;
+      return ImplementorType.STAGE;
     } else if (param === 'FILE') {
-      return ConnectionType.FILE;
+      return ImplementorType.FILE;
     }
   }
 

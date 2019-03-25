@@ -24,8 +24,9 @@ import {GridOption} from '../../../../common/component/grid/grid.option';
 import {DataconnectionService} from '../../../../dataconnection/service/dataconnection.service';
 import {Metadata} from '../../../../domain/meta-data-management/metadata';
 import {isUndefined} from 'util';
-import {ConnectionType, Dataconnection} from '../../../../domain/dataconnection/dataconnection';
+import {ImplementorType, Dataconnection} from '../../../../domain/dataconnection/dataconnection';
 import {TimezoneService} from "../../../service/timezone.service";
+import {StringUtil} from "../../../../common/util/string.util";
 
 enum FieldRoleType {
   ALL = <any>'ALL',
@@ -430,7 +431,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
     const params = source.ingestion && connection
       ? this._getConnectionParams(source.ingestion, connection)
       : {};
-    this.connectionService.getTableDetailWitoutId(params, connection.implementor === ConnectionType.HIVE ? true : false)
+    this.connectionService.getTableDetailWitoutId(params, connection.implementor === ImplementorType.HIVE ? true : false)
       .then((data) => {
         // grid data
         this._gridData = data['data'];
@@ -463,6 +464,19 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
       type: ingestion.dataType,
       query: ingestion.query
     };
+    // TODO #1573 추후 extensions 스펙에 맞게 변경 필요
+    // if exist sid
+    if (StringUtil.isNotEmpty(connection.sid)) {
+      params.connection['sid'] = connection.sid;
+    }
+    // if exist database
+    if (StringUtil.isNotEmpty(connection.database)) {
+      params.connection['database'] = connection.database;
+    }
+    // if exist catalog
+    if (StringUtil.isNotEmpty(connection.catalog)) {
+      params.connection['catalog'] = connection.catalog;
+    }
     // if security type is not USERINFO, add password and username
     if (connection.authenticationType !== 'USERINFO') {
       params['connection']['username'] = connection.authenticationType === 'DIALOG' ? ingestion.connectionUsername : connection.username;

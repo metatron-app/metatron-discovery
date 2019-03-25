@@ -549,6 +549,7 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
     if (!this.isEnableUrl) {
       params['hostname'] = this.hostname.trim();
       params['port'] = this.port;
+      // TODO #1573 추후 extensions 스펙에 맞게 변경 필요
       // if enable catalog, add catalog
       this.isRequiredCatalog() && (params['catalog'] = this.catalog);
       // if enable SID, add SID

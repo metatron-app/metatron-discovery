@@ -29,6 +29,9 @@ public class ExtensionProperties {
     LNB, CONNECTION
   }
 
+  List<String> pluginEnable;
+  List<String> pluginDisable;
+
   List<Lnb> lnb;
 
   public ExtensionProperties() {
@@ -40,6 +43,22 @@ public class ExtensionProperties {
 
   public void setLnb(List<Lnb> lnb) {
     this.lnb = lnb;
+  }
+
+  public List<String> getPluginEnable() {
+    return pluginEnable;
+  }
+
+  public void setPluginEnable(List<String> pluginEnable) {
+    this.pluginEnable = pluginEnable;
+  }
+
+  public List<String> getPluginDisable() {
+    return pluginDisable;
+  }
+
+  public void setPluginDisable(List<String> pluginDisable) {
+    this.pluginDisable = pluginDisable;
   }
 
   public static class Lnb implements Serializable {

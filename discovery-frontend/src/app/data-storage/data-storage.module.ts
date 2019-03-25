@@ -19,9 +19,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { DataConnectionComponent } from './data-connection/data-connection.component';
 import { DataSourceListComponent } from './data-source-list/data-source-list.component';
 import { CreateDataSourceComponent } from './data-source-list/create-data-source/create-data-source.component';
-import { HandlerDataConnectionComponent } from './data-connection/handler-data-connection/handler-data-connection.component';
-import { CreateConnectionComponent } from './data-connection/handler-data-connection/create-data-connection/create-connection.component';
-import { UpdateConnectionComponent } from './data-connection/handler-data-connection/update-data-connection/update-connection.component';
+import { CreateConnectionComponent } from './data-connection/create-connection.component';
+import { UpdateConnectionComponent } from './data-connection/update-connection.component';
 import { BatchHistoryComponent } from './data-source-list/detail-data-source/information-dats-source/component/batch-history/batch-history.component';
 import { QueryDetailComponent } from './data-source-list/detail-data-source/information-dats-source/component/query-detail/query-detail.component';
 import { SetWorkspacePublishedComponent } from './component/set-workspace-published/set-workspace-published.component';
@@ -43,6 +42,7 @@ import { CriterionTimeRadioboxComponent } from './component/criterion/criterion-
 import {DataConnectionCreateService} from "./service/data-connection-create.service";
 import {DataSourceCreateModule} from "./data-source-list/create-data-source/data-source-create.module";
 import {StorageFilterSelectBoxComponent} from "./data-source-list/component/storage-filter-select-box.component";
+import {ConnectionComponent} from "./component/connection/connection.component";
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -79,17 +79,16 @@ const storageRoutes: Routes = [
 
     // data connection
     DataConnectionComponent,
-    HandlerDataConnectionComponent,
-    // data connection - create
     CreateConnectionComponent,
-    // data connection - update
     UpdateConnectionComponent,
     // criterion filter creator box
     CriterionFilterBoxComponent,
     // criterion checkbox
     CriterionCheckboxComponent,
     // criterion time radiobox
-    CriterionTimeRadioboxComponent
+    CriterionTimeRadioboxComponent,
+    // db connection component
+    ConnectionComponent,
   ],
   exports: [
     // 워크벤치에서 사용하기 위해

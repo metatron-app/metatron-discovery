@@ -14,20 +14,6 @@
 
 package app.metatron.discovery.domain.workbench;
 
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.audit.Audit;
-import app.metatron.discovery.domain.audit.AuditRepository;
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcCSVWriter;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.SelectQueryBuilder;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
-import app.metatron.discovery.util.HibernateUtils;
-import app.metatron.discovery.util.HttpUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -37,23 +23,42 @@ import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.supercsv.prefs.CsvPreference;
 
-import javax.persistence.EntityManager;
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.persistence.EntityManager;
+import javax.servlet.http.HttpServletResponse;
+
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.audit.Audit;
+import app.metatron.discovery.domain.audit.AuditRepository;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionRepository;
+import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcCSVWriter;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceManager;
+import app.metatron.discovery.util.HibernateUtils;
+import app.metatron.discovery.util.HttpUtils;
 
 @RepositoryRestController
 public class QueryEditorController {
 
   private static Logger LOGGER = LoggerFactory.getLogger(QueryEditorController.class);
-
-  @Autowired
-  WorkbenchService workbenchService;
 
   @Autowired
   QueryEditorService queryEditorService;
@@ -75,6 +80,9 @@ public class QueryEditorController {
 
   @Autowired
   EntityManager entityManager;
+
+  @Autowired
+  WorkbenchDataSourceManager workbenchDataSourceManager;
 
   @RequestMapping(path = "/queryeditors/{id}/query/run", method = RequestMethod.POST)
   @ResponseBody
@@ -117,17 +125,9 @@ public class QueryEditorController {
       throw new ResourceNotFoundException("DataConnection");
     }
 
-    JdbcDataConnection jdbcDataConnection = null;
-    if(dataConnection instanceof JdbcDataConnection){
-      jdbcDataConnection = (JdbcDataConnection) dataConnection;
-    } else {
-      throw new ResourceNotFoundException("JdbcDataConnection");
-    }
-
-    //@ TODO 임시 테스트코드
-    WorkbenchDataSource dataSourceInfo = WorkbenchDataSourceUtils.findDataSourceInfo(webSocketId);
+    WorkbenchDataSource dataSourceInfo = workbenchDataSourceManager.findDataSourceInfo(webSocketId);
     if(dataSourceInfo == null){
-      workbenchService.createSingleDataSource(jdbcDataConnection, webSocketId);
+      throw new WorkbenchException(WorkbenchErrorCodes.DATASOURCE_NOT_EXISTED, "DataSource for webSocket(" + webSocketId + ") is not existed.");
     }
 
     //2. 현재 실행중인 쿼리 상태 확인
@@ -138,7 +138,7 @@ public class QueryEditorController {
     }
 
     //3. 쿼리 실행 서비스 호출
-    List<QueryResult> queryResults = queryEditorService.getQueryResult(queryEditor, jdbcDataConnection, workbench,
+    List<QueryResult> queryResults = queryEditorService.getQueryResult(queryEditor, dataConnection, workbench,
             query, webSocketId, database);
 
 
@@ -243,14 +243,7 @@ public class QueryEditorController {
       throw new ResourceNotFoundException("DataConnection");
     }
 
-    JdbcDataConnection jdbcDataConnection = null;
-    if(dataConnection instanceof JdbcDataConnection){
-      jdbcDataConnection = (JdbcDataConnection) dataConnection;
-    } else {
-      throw new ResourceNotFoundException("JdbcDataConnection");
-    }
-
-    queryEditorService.cancelQuery(jdbcDataConnection, webSocketId);
+    queryEditorService.cancelQuery(dataConnection, webSocketId);
 
     return ResponseEntity.ok().build();
   }
@@ -292,7 +285,6 @@ public class QueryEditorController {
                                  HttpServletResponse response) throws IOException {
     String query = (String) requestParam.get("query");
     String webSocketId = (String) requestParam.get("webSocketId");
-    String tempTable = (String) requestParam.get("tempTable");
     String connectionId = (String) requestParam.get("connectionId");
     String fileName = (String) requestParam.get("fileName");
 
@@ -312,7 +304,7 @@ public class QueryEditorController {
     String csvPath = workbenchProperties.getTempCSVPath();
     String csvFilePath = csvPath + File.separator + fileName + "_" + Calendar.getInstance().getTime().getTime() + ".csv";
 
-    createCSVFile(query, webSocketId, tempTable, connectionId, fileName, csvFilePath);
+    createCSVFile(query, webSocketId, connectionId, fileName, csvFilePath);
     HttpUtils.downloadCSVFile(response, fileName, csvFilePath, "text/csv");
   }
 
@@ -324,7 +316,6 @@ public class QueryEditorController {
                              HttpServletResponse response) throws IOException {
     String query = (String) requestBody.get("query");
     String webSocketId = (String) requestBody.get("webSocketId");
-    String tempTable = (String) requestBody.get("tempTable");
     String connectionId = (String) requestBody.get("connectionId");
     String fileName = (String) requestBody.get("fileName");
 
@@ -335,11 +326,11 @@ public class QueryEditorController {
     String csvPath = workbenchProperties.getTempCSVPath();
     String csvFilePath = csvPath + File.separator + fileName + "_" + Calendar.getInstance().getTime().getTime() + ".csv";
 
-    createCSVFile(query, webSocketId, tempTable, connectionId, fileName, csvFilePath);
+    createCSVFile(query, webSocketId, connectionId, fileName, csvFilePath);
     HttpUtils.downloadCSVFile(response, fileName, csvFilePath, "text/csv; charset=utf-8");
   }
 
-  private void createCSVFile(String query, String webSocketId, String tempTable,
+  private void createCSVFile(String query, String webSocketId,
                         String connectionId, String fileName, String csvFilePath) throws IOException{
     //Hibernate Proxy Initialize
     DataConnection dataConnection = dataConnectionRepository.findOne(connectionId);
@@ -347,35 +338,18 @@ public class QueryEditorController {
       throw new ResourceNotFoundException("DataConnection(" + connectionId + ")");
     }
 
-    JdbcDataConnection jdbcDataConnection;
-    if(dataConnection instanceof JdbcDataConnection){
-      jdbcDataConnection = (JdbcDataConnection) dataConnection;
-    } else {
-      throw new ResourceNotFoundException("JdbcDataConnection");
-    }
-
-    if(StringUtils.isNotEmpty(tempTable)){
-      query = new SelectQueryBuilder(jdbcDataConnection)
-              .allProjection()
-              .query(null, null, tempTable)
-              .build();
-    }
-
-    //@ TODO 임시 테스트코드
-    WorkbenchDataSource dataSourceInfo = WorkbenchDataSourceUtils.findDataSourceInfo(webSocketId);
+    WorkbenchDataSource dataSourceInfo = workbenchDataSourceManager.findDataSourceInfo(webSocketId);
     if(dataSourceInfo == null){
-      workbenchService.createSingleDataSource(jdbcDataConnection, webSocketId);
-      dataSourceInfo = WorkbenchDataSourceUtils.findDataSourceInfo(webSocketId);
+      throw new WorkbenchException(WorkbenchErrorCodes.DATASOURCE_NOT_EXISTED, "DataSource for webSocket(" + webSocketId + ") is not existed.");
     }
 
     dataSourceInfo.setQueryStatus(QueryStatus.RUNNING);
     try{
       JdbcCSVWriter jdbcCSVWriter = new JdbcCSVWriter(new FileWriter(csvFilePath), CsvPreference.STANDARD_PREFERENCE);
-      jdbcCSVWriter.setConnection(jdbcDataConnection);
+      jdbcCSVWriter.setConnection(dataSourceInfo.getPrimaryConnection());
       jdbcCSVWriter.setFetchSize(5000);
       jdbcCSVWriter.setMaxRow(1000000);
 //      jdbcCSVWriter.setDataSourceInfo(dataSourceInfo);
-      jdbcCSVWriter.setDataSource(dataSourceInfo.getSingleConnectionDataSource());
       jdbcCSVWriter.setQuery(query);
       jdbcCSVWriter.setFileName(csvFilePath);
       jdbcCSVWriter.write();

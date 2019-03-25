@@ -12,27 +12,24 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Page } from '../../../../domain/common/page';
-import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
-import { Alert } from '../../../../common/util/alert.util';
-import { QueryEditor, Workbench } from '../../../../domain/workbench/workbench';
-import { GridComponent } from '../../../../common/component/grid/grid.component';
-import { header, SlickGridHeader } from '../../../../common/component/grid/grid.header';
-import { GridOption } from '../../../../common/component/grid/grid.option';
-import { CommonConstant } from '../../../../common/constant/common.constant';
-import { WorkbenchService } from '../../../service/workbench.service';
-import { ActivatedRoute } from '@angular/router';
-import {
-  ConnectionType as DataConnectionType,
-  Dataconnection
-} from '../../../../domain/dataconnection/dataconnection';
-import { MetadataService } from '../../../../meta-data-management/metadata/service/metadata.service';
-import * as _ from 'lodash';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Page} from '../../../../domain/common/page';
+import {DataconnectionService} from '../../../../dataconnection/service/dataconnection.service';
+import {Alert} from '../../../../common/util/alert.util';
+import {QueryEditor, Workbench} from '../../../../domain/workbench/workbench';
+import {GridComponent} from '../../../../common/component/grid/grid.component';
+import {header, SlickGridHeader} from '../../../../common/component/grid/grid.header';
+import {GridOption} from '../../../../common/component/grid/grid.option';
+import {CommonConstant} from '../../../../common/constant/common.constant';
+import {WorkbenchService} from '../../../service/workbench.service';
+import {ActivatedRoute} from '@angular/router';
+import {Dataconnection} from '../../../../domain/dataconnection/dataconnection';
+import {MetadataService} from '../../../../meta-data-management/metadata/service/metadata.service';
 import {isNullOrUndefined, isUndefined} from 'util';
-import { AbstractWorkbenchComponent } from '../../abstract-workbench.component';
-import { StringUtil } from '../../../../common/util/string.util';
+import {AbstractWorkbenchComponent} from '../../abstract-workbench.component';
+import {StringUtil} from '../../../../common/util/string.util';
 import {CommonUtil} from "../../../../common/util/common.util";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'detail-workbench-schema-browser',
@@ -44,8 +41,8 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  @ViewChild( 'inputSearch' )
-  private _inputSearch:ElementRef;
+  @ViewChild('inputSearch')
+  private _inputSearch: ElementRef;
 
   // 테이블 그리드
   @ViewChild('schemaMain')
@@ -138,11 +135,12 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
   public databaseListShowFl: boolean = false;
 
   // tab list, no data
-  public isColumListNoData : boolean = false;
-  public isMetadataListNoData : boolean = false;
-  public isDataListNoData : boolean = false;
+  public isColumListNoData: boolean = false;
+  public isMetadataListNoData: boolean = false;
+  public isDataListNoData: boolean = false;
 
-  public connTargetType: string = '';
+  public connTargetImgUrl: string = '';
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -210,7 +208,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     this.schemaTableDataList = [];
     this.schemaTableDataDataList = [];
     // 권한 정보가 없을 경우
-    if( isNullOrUndefined(this.dataConnection.authenticationType)  ){
+    if (isNullOrUndefined(this.dataConnection.authenticationType)) {
       this.dataConnection.authenticationType = 'MANUAL';
     }
 
@@ -241,10 +239,10 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     // 세션에 저장
     sessionStorage.setItem('METATRON_SCHEMA_BROWSER_DATA' + this.workbenchId, JSON.stringify(param));
     const popupX = (window.screen.width / 2) - (1200 / 2);
-    const popupY= (window.screen.height /2) - (900 / 2);
+    const popupY = (window.screen.height / 2) - (900 / 2);
     const popUrl = `workbench/${this.workbenchId}/schemabrowser`;
     // 윈도우 오픈
-    window.open(popUrl, '', 'status=no, height=700, width=1200, left='+ popupX + ', top='+ popupY + ', screenX='+ popupX + ', screenY= '+ popupY);
+    window.open(popUrl, '', 'status=no, height=700, width=1200, left=' + popupX + ', top=' + popupY + ', screenX=' + popupX + ', screenY= ' + popupY);
     // 세선에서 제거
     sessionStorage.removeItem('METATRON_SCHEMA_BROWSER_DATA' + this.workbenchId);
   }
@@ -338,7 +336,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
    * 데이터베이스 변경 이벤트
    * @param {string} database
    */
-  public onChangeDatabase(database:string): void {
+  public onChangeDatabase(database: string): void {
     // close show list
     this.databaseListShowFl = false;
     // 선택한 데이터베이스
@@ -356,7 +354,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
    * @param {KeyboardEvent} event
    */
   public onSearchDatabase(event: KeyboardEvent): void {
-    ( 13 === event.keyCode ) && this._searchDatabase();
+    (13 === event.keyCode) && this._searchDatabase();
   }
 
   /**
@@ -459,16 +457,16 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
   /**
    * open or cloe data connection info layer
    */
-  public connectionInfoShow(event:MouseEvent) {
+  public connectionInfoShow(event: MouseEvent) {
 
     this.connectionInfoShowFl = !this.connectionInfoShowFl;
     this.safelyDetectChanges();
 
-    const target = $( event.target );
-    let infoLeft : number = target.offset().left;
-    let infoTop : number = target.offset().top;
+    const target = $(event.target);
+    let infoLeft: number = target.offset().left;
+    let infoTop: number = target.offset().top;
     const element = document.getElementById(`connectionInfo`);
-    $(element).css({'left':infoLeft-30, 'top': infoTop+17});
+    $(element).css({'left': infoLeft - 30, 'top': infoTop + 17});
 
   } // function - dataConnectionInfoShow
 
@@ -571,7 +569,10 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
    */
   private _getDatabaseList(searchFl: boolean = false): void {
     // 커넥션 대상 타입 조회
-    this.connTargetType = this._getConnectionTargetType();
+    this.connTargetImgUrl = this.getConnImplementorImgUrl(
+      this.dataConnection.connectionInformation.implementor,
+      this.dataConnection.connectionInformation.iconResource2
+    );
     // 호출 횟수 증가
     this._getDatabaseListReconnectCount++;
     // 로딩 show
@@ -611,7 +612,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
    * @param {string} tableName
    * @private
    */
-  private _getSearchTablesForServer( dataConnection, databaseName: string, page:Page,  tableName: string = ''): void {
+  private _getSearchTablesForServer(dataConnection, databaseName: string, page: Page, tableName: string = ''): void {
     // 호출 횟수 증가
     this._getTableListReconnectCount++;
 
@@ -654,7 +655,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
    * @param {string} columnNamePattern
    * @private
    */
-  private _getColumnListForServer(connectionId: string, databaseName: string,  tableName: string,  webSocketId: string, page:Page, columnNamePattern: string = ''): void {
+  private _getColumnListForServer(connectionId: string, databaseName: string, tableName: string, webSocketId: string, page: Page, columnNamePattern: string = ''): void {
     // 호출 횟수 증가
     this._getColumnListReconnectCount++;
     // no data 초기화
@@ -684,7 +685,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
         if (!isUndefined(error.details) && error.code === 'JDC0005' && this._getColumnListReconnectCount <= 5) {
           this.webSocketCheck(() => {
             this._websocketId = WorkbenchService.websocketId;
-            this._getColumnListForServer(connectionId, databaseName,  tableName, this._websocketId, page, columnNamePattern);
+            this._getColumnListForServer(connectionId, databaseName, tableName, this._websocketId, page, columnNamePattern);
           });
         } else {
           this.commonExceptionHandler(error);
@@ -701,7 +702,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
    * @param {Page} page
    * @private
    */
-  private _getMetaDataForServer(connectionId: string, databaseName: string,  tableName: string, webSocketId: string, page:Page): void {
+  private _getMetaDataForServer(connectionId: string, databaseName: string, tableName: string, webSocketId: string, page: Page): void {
     // 호출 횟수 증가
     this._getMetaDataReconnectCount++;
     // no data 초기화
@@ -729,22 +730,22 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
 
         // 타이틀 부분 추가하여 데이터 가공
         let tempLabel = '';
-        let tempArr : any[] = [];
+        let tempArr: any[] = [];
 
         // result Data 생성
         for (const key in resultData) {
 
           let tempData = {
-            'label' : '',
-            'data' : tempArr
+            'label': '',
+            'data': tempArr
           };
 
-          if( resultData[key]['itemKey'].startsWith('#') ){
+          if (resultData[key]['itemKey'].startsWith('#')) {
 
-            if( key != '0' ){
+            if (key != '0') {
               tempData.label = tempLabel.split('#')[1];
               tempData.data = tempArr;
-              this.schemaTableMetadataList.push( tempData );
+              this.schemaTableMetadataList.push(tempData);
 
               tempLabel = '';
               tempArr = [];
@@ -754,20 +755,20 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
             tempLabel = resultData[key]['itemKey'];
           } else {
             // data
-            tempArr.push( resultData[key] );
+            tempArr.push(resultData[key]);
           }
 
           // 마지막 데이터일 경우
-          if( resultData.length-1 == Number( key ) ){
+          if (resultData.length - 1 == Number(key)) {
             tempData.label = tempLabel.split('#')[1];
             tempData.data = tempArr;
-            this.schemaTableMetadataList.push( tempData );
+            this.schemaTableMetadataList.push(tempData);
           }
 
         }
 
         // 데이터가 없을 경우
-        if( this.schemaTableMetadataList.length == 0 ) {
+        if (this.schemaTableMetadataList.length == 0) {
           this.isMetadataListNoData = true;
         }
 
@@ -776,7 +777,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
         if (!isUndefined(error.details) && error.code === 'JDC0005' && this._getMetaDataReconnectCount <= 5) {
           this.webSocketCheck(() => {
             this._websocketId = WorkbenchService.websocketId;
-            this._getMetaDataForServer(connectionId, databaseName,  tableName, this._websocketId, page);
+            this._getMetaDataForServer(connectionId, databaseName, tableName, this._websocketId, page);
           });
         } else {
           this.commonExceptionHandler(error);
@@ -929,8 +930,10 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
       .then((result) => {
         // result가 존재한다면 테이블리스트 merge
         if (result.length > 0) {
-          this.schemaTableList = this.schemaTableList.map( (item) => {
-            return _.merge(item, _.find(result.map((column) => {return {table: column.table, metadataName: column.name}}), {'table': item}));
+          this.schemaTableList = this.schemaTableList.map((item) => {
+            return _.merge(item, _.find(result.map((column) => {
+              return {table: column.table, metadataName: column.name}
+            }), {'table': item}));
           });
         }
         // 테이블 리스트 그리드 그리기
@@ -950,8 +953,8 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
 
     // table array 생성
     let tableNameArr: string[] = [];
-    if( tableName != '' ){
-      tableNameArr.push( tableName );
+    if (tableName != '') {
+      tableNameArr.push(tableName);
     }
 
     this._metaDataService.getMetadataByConnection(this.dataConnection.id, this.selectedDatabaseName, tableNameArr)
@@ -1002,7 +1005,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
       enableMetaData && (row['LogicalName'] = data[idx]['name']);
       // Type
       // column size가 없을 경우 확인
-      if( isUndefined( data[idx]['columnSize'] ) ){
+      if (isUndefined(data[idx]['columnSize'])) {
         row['type'] = data[idx]['columnType'];
       } else {
         row['type'] = data[idx]['columnType'] + '(' + data[idx]['columnSize'] + ')';
@@ -1050,7 +1053,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     }
 
     // 테이블 테이터가 있을경우 첫번째 column 탭 호출
-    if( this.schemaTableList.length > 0 ){
+    if (this.schemaTableList.length > 0) {
       // 컬럼 선택 및 리스트 조회
       this.selectedSchemaTable = this.schemaTableList[0];
       this.schemaSelectedTab = 'column';
@@ -1117,7 +1120,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
    * @returns {header}
    * @private
    */
-  private _createSlickGridHeader(field:string, name: string, width: number, iconType?: string): header {
+  private _createSlickGridHeader(field: string, name: string, width: number, iconType?: string): header {
     return iconType
       ? new SlickGridHeader()
         .Id(field)
@@ -1240,35 +1243,5 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     }
     return params;
   }
-
-  /**
-   * get connection target type
-   * @returns {string}
-   */
-  private _getConnectionTargetType():string {
-    let strType: string = '';
-    if( this.dataConnection.implementor ) {
-      switch (this.dataConnection.implementor) {
-        case DataConnectionType.HIVE :
-          strType = 'HIVE';
-          break;
-        case DataConnectionType.MYSQL :
-          strType = 'MYSQL';
-          break;
-        case DataConnectionType.POSTGRESQL :
-          strType = 'POSTGRESQL';
-          break;
-        case DataConnectionType.PRESTO :
-          strType = 'PRESTO';
-          break;
-        case DataConnectionType.DRUID :
-          strType = 'DRUID';
-          break;
-        default :
-          strType = 'CUSTOM';
-      }
-    }
-    return strType;
-  } // function - _getConnectionTargetType
 
 }
