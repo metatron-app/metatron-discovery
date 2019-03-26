@@ -41,6 +41,7 @@ import app.metatron.discovery.domain.user.role.RoleDirectoryRepository;
 import app.metatron.discovery.domain.workspace.Workspace;
 import app.metatron.discovery.domain.workspace.WorkspaceRepository;
 import app.metatron.discovery.domain.workspace.WorkspaceService;
+import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 import app.metatron.discovery.util.AuthUtils;
 
 /**
@@ -72,6 +73,9 @@ public class DataConnectionFilterService {
 
   @Autowired
   DataConnectionProperties dataConnectionProperties;
+
+  @Autowired
+  List<JdbcDialect> jdbcDialects;
 
   public List<ListCriterion> getListCriterion(){
 
@@ -118,11 +122,9 @@ public class DataConnectionFilterService {
 
     switch(criterionKey){
       case IMPLEMENTOR:
-        criterion.addFilter(new ListFilter(criterionKey, "implementor", "MYSQL", "MySQL"));
-        criterion.addFilter(new ListFilter(criterionKey, "implementor", "POSTGRESQL", "PostgreSQL"));
-        criterion.addFilter(new ListFilter(criterionKey, "implementor", "HIVE", "Hive"));
-        criterion.addFilter(new ListFilter(criterionKey, "implementor", "PRESTO", "Presto"));
-        criterion.addFilter(new ListFilter(criterionKey, "implementor", "DRUID", "Druid"));
+        for(JdbcDialect jdbcDialect : jdbcDialects){
+          criterion.addFilter(new ListFilter(criterionKey, "implementor", jdbcDialect.getImplementor(), jdbcDialect.getName()));
+        }
         break;
       case AUTH_TYPE:
         criterion.addFilter(new ListFilter(criterionKey, "authenticationType", DataConnection.AuthenticationType.MANUAL.toString(), "msg.storage.li.connect.always"));
