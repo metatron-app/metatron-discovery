@@ -903,6 +903,7 @@ public class PrepTransformService {
         datasetInfo.put("importType", upstreamDataset.getImportType().name());
         switch (upstreamDataset.getImportType()) {
           case UPLOAD:
+          case URI:
             datasetInfo.put("storedUri", upstreamDataset.getStoredUri());
             datasetInfo.put("delimiter", upstreamDataset.getDelimiter());
             datasetInfo.put("manualColumnCount", upstreamDataset.getManualColumnCount());
@@ -924,7 +925,6 @@ public class PrepTransformService {
             datasetInfo.put("sourceQuery", upstreamDataset.getQueryStmt());
             break;
 
-          case URI:
           case DRUID:
             assert false : upstreamDataset.getImportType();
         }
@@ -1282,6 +1282,7 @@ public class PrepTransformService {
 
     switch (importedDataset.getImportType()) {
       case UPLOAD:
+      case URI:
         String storedUri = importedDataset.getStoredUri();
         LOGGER.debug(wrangledDsId + " storedUri=[" + storedUri + "]");
 

@@ -14,57 +14,15 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import com.google.common.collect.Maps;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_CORES;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_LIMIT_ROWS;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_TIMEOUT;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_HOSTNAME;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PASSWORD;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PORT;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_URL;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_USERNAME;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
@@ -89,16 +47,54 @@ import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
-
-import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_CORES;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_LIMIT_ROWS;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_TIMEOUT;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_HOSTNAME;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PASSWORD;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PORT;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_URL;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_USERNAME;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Maps;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 public class TeddyExecutor {
@@ -563,6 +559,7 @@ public class TeddyExecutor {
         String importType = (String) datasetInfo.get("importType");
         switch (importType) {
             case "UPLOAD":
+            case "URI":
                 String storedUri = (String) datasetInfo.get("storedUri");
                 Integer columnCount = (Integer) datasetInfo.get("manualColumnCount");
                 String extensionType = FilenameUtils.getExtension(storedUri).toLowerCase();

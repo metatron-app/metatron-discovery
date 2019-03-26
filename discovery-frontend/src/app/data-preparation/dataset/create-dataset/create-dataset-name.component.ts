@@ -669,7 +669,13 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     params.dsName = file.dsName;
     params.dsDesc = file.dsDesc;
     params.dsType = 'IMPORTED';
-    params.importType = 'UPLOAD';
+    if (this.type === 'FILE') {
+      params.importType = 'UPLOAD';
+    } else if(this.type === 'URL') {
+      params.importType = 'URI';
+    } else {
+      params.importType = 'UPLOAD';
+    }
     params.filenameBeforeUpload = file.filenameBeforeUpload;
     params.storageType = file.storageType;
     params.sheetName = file.sheetName;

@@ -136,7 +136,14 @@ public class PrDatasetService {
         String csvStrUri = null;
         if(dataset.getFileFormat() == PrDataset.FILE_FORMAT.EXCEL) {
             Integer columnCount = dataset.getManualColumnCount();
-            csvStrUri = this.datasetFilePreviewService.moveExcelToCsv(storedUri, sheetName, delimiter);
+
+            PrDataset.IMPORT_TYPE importType = dataset.getImportType();
+            if(importType == PrDataset.IMPORT_TYPE.UPLOAD) {
+                csvStrUri = this.datasetFilePreviewService.moveExcelToCsv(storedUri, sheetName, delimiter);
+            } else {
+                csvStrUri = this.datasetFilePreviewService.getPathLocalBase(dataset.getDsId() + ".csv");
+                csvStrUri = this.datasetFilePreviewService.moveExcelToCsv(csvStrUri, storedUri, sheetName, delimiter);
+            }
         }
         if(csvStrUri!=null) {
             dataset.setStoredUri(csvStrUri);
