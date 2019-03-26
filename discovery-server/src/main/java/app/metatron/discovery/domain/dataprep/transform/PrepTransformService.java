@@ -27,7 +27,6 @@ import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
 import app.metatron.discovery.domain.dataconnection.DataConnectionRepository;
 import app.metatron.discovery.domain.dataprep.PrepDatasetFileService;
-import app.metatron.discovery.domain.dataprep.PrepHdfsService;
 import app.metatron.discovery.domain.dataprep.PrepPreviewLineService;
 import app.metatron.discovery.domain.dataprep.PrepProperties;
 import app.metatron.discovery.domain.dataprep.PrepSnapshotRequestPost;
@@ -36,6 +35,7 @@ import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
 import app.metatron.discovery.domain.dataprep.entity.PrTransformRule;
+import app.metatron.discovery.domain.dataprep.etl.TeddyExecutor;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
@@ -48,9 +48,7 @@ import app.metatron.discovery.domain.dataprep.rule.ExprFunctionCategory;
 import app.metatron.discovery.domain.dataprep.service.PrSnapshotService;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrameService;
-import app.metatron.discovery.domain.dataprep.teddy.Histogram;
 import app.metatron.discovery.domain.dataprep.teddy.Row;
-import app.metatron.discovery.domain.dataprep.teddy.TeddyExecutor;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotSerializeIntoJsonException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
@@ -148,7 +146,6 @@ public class PrepTransformService {
   PrSnapshotRepository snapshotRepository;
   @Autowired
   DataConnectionRepository connectionRepository;
-  @Autowired PrepHdfsService hdfsService;
   @Autowired
   PrSnapshotService snapshotService;
   @Autowired DataFrameService dataFrameService;
@@ -948,7 +945,7 @@ public class PrepTransformService {
     // put upstreamDatasetInfos
     datasetInfo.put("upstreamDatasetInfos", upstreamDatasetInfos);
 
-    LOGGER.info("runTransformer(): datasetInfo: " + GlobalObjectMapper.getDefaultMapper().writeValueAsString(datasetInfo));
+    LOGGER.info("buildDatasetInfoRecursive(): " + GlobalObjectMapper.getDefaultMapper().writeValueAsString(datasetInfo));
     return datasetInfo;
   }
 

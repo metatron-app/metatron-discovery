@@ -49,13 +49,14 @@ import {CommonUtil} from '../../util/common.util';
 import {DataDownloadComponent, PreviewResult} from '../data-download/data.download.component';
 import {MetadataColumn} from '../../../domain/meta-data-management/metadata-column';
 import {DashboardUtil} from '../../../dashboard/util/dashboard.util';
-import {ImplementorType, Dataconnection} from '../../../domain/dataconnection/dataconnection';
+import {ImplementorType, Dataconnection, AuthenticationType} from '../../../domain/dataconnection/dataconnection';
 import {PeriodData} from "../../value/period.data.value";
 import {TimeRangeFilter} from "../../../domain/workbook/configurations/filter/time-range-filter";
 import {Filter} from "../../../domain/workbook/configurations/filter/filter";
 import {DIRECTION, Sort} from "../../../domain/workbook/configurations/sort";
 import {TimezoneService} from "../../../data-storage/service/timezone.service";
 import {StringUtil} from "../../util/string.util";
+import {StorageService} from "../../../data-storage/service/storage.service";
 
 declare let echarts: any;
 
@@ -188,6 +189,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   constructor(private datasourceService: DatasourceService,
               private connectionService: DataconnectionService,
               private timezoneService: TimezoneService,
+              private storageService: StorageService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
@@ -564,41 +566,36 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    * @return {{connection: {hostname: any,port: any,username: any,password: any,implementor: any},database: any,type: any, query: any}}
    * @private
    */
-  private _getConnectionParams(ingestion: any, connection: any) {
+  private _getConnectionParams(ingestion: any, connection: Dataconnection) {
+    const connectionType = this.storageService.findConnectionType(connection.implementor);
     const params = {
       connection: {
-        hostname: connection.hostname,
-        port: connection.port,
         implementor: connection.implementor,
-        authenticationType: connection.authenticationType || 'MANUAL'
+        authenticationType: connection.authenticationType || AuthenticationType.MANUAL
       },
       database: ingestion.database,
       type: ingestion.dataType,
       query: ingestion.query
     };
-    // TODO #1573 추후 extensions 스펙에 맞게 변경 필요
-    // if exist sid
-    if (StringUtil.isNotEmpty(connection.sid)) {
-      params.connection['sid'] = connection.sid;
-    }
-    // if exist database
-    if (StringUtil.isNotEmpty(connection.database)) {
-      params.connection['database'] = connection.database;
-    }
-    // if exist catalog
-    if (StringUtil.isNotEmpty(connection.catalog)) {
-      params.connection['catalog'] = connection.catalog;
+    // if not used URL
+    if (StringUtil.isEmpty(connection.url)) {
+      params.connection['hostname'] = connection.hostname;
+      params.connection['port'] = connection.port;
+      if (this.storageService.isRequireCatalog(connectionType)) {
+        params.connection['catalog'] = connection.catalog;
+      } else if (this.storageService.isRequireDatabase(connectionType)) {
+        params.connection['database'] = connection.database;
+      } else if (this.storageService.isRequireSid(connectionType)) {
+        params.connection['sid'] = connection.sid;
+      }
+    } else {  // if used URL
+      params.connection['url'] = connection.url;
     }
     // if security type is not USERINFO, add password and username
-    if (connection.authenticationType !== 'USERINFO') {
-      params['connection']['username'] = connection.authenticationType === 'DIALOG' ? ingestion.connectionUsername : connection.username;
-      params['connection']['password'] = connection.authenticationType === 'DIALOG' ? ingestion.connectionPassword : connection.password;
+    if (connection.authenticationType !== AuthenticationType.USERINFO) {
+      params.connection['username'] = connection.authenticationType === AuthenticationType.DIALOG ? ingestion.connectionUsername : connection.username;
+      params.connection['password'] = connection.authenticationType === AuthenticationType.DIALOG ? ingestion.connectionPassword : connection.password;
     }
-    // 데이터 베이스가 있는경우
-    if (ingestion.connection && ingestion.connection.hasOwnProperty('database')) {
-      params['connection']['database'] = ingestion.connection.database;
-    }
-
     return params;
   }
 

@@ -166,18 +166,10 @@ export class CreateConnectionComponent extends AbstractComponent {
    * @private
    */
   public _getCreateConnectionParams() {
-    let result = this._connectionComponent.getConnectionParams();
+    let result = this._connectionComponent.getConnectionParams(true);
     result['type'] = 'JDBC';
     result['name'] = this.connectionName.trim();
     result['published'] = this.published;
-    // if disable authentication
-    if (this._connectionComponent.isDisableAuthenticationType()) {
-      result['authenticationType'] = AuthenticationType.MANUAL;
-    }
-    // if exist properties
-    if (this._connectionComponent.isExistProperties()) {
-      result['properties'] = this._connectionComponent.getProperties();
-    }
     // workspace list
     if (!this.published) {
       result['workspaces'] = this.addWorkspaces.reduce((acc, workspace) => {

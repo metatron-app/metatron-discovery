@@ -12,18 +12,21 @@
  * limitations under the License.
  */
 
-import {ChangeDetectorRef, Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
-import {PopupService} from '../../../common/service/popup.service';
-import {CommonConstant} from '../../../common/constant/common.constant';
-import {CookieConstant} from '../../../common/constant/cookie.constant';
-import {FileFormat, PrDatasetFile, StorageType} from '../../../domain/data-preparation/pr-dataset';
-import {isUndefined} from 'util';
-import {DatasetService} from "../service/dataset.service";
+import {
+  ChangeDetectorRef, Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild
+} from '@angular/core';
+import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
+import { PopupService } from '../../../common/service/popup.service';
+import { CommonConstant } from '../../../common/constant/common.constant';
+import { CookieConstant } from '../../../common/constant/cookie.constant';
+import { PrDatasetFile,StorageType,FileFormat } from '../../../domain/data-preparation/pr-dataset';
+import { isUndefined } from 'util';
+import { DatasetService } from "../service/dataset.service";
+
 import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';
 import {Modal} from '../../../common/domain/modal';
 import {PreparationCommonUtil} from "../../util/preparation-common.util";
-import * as _ from 'lodash';
+import {Alert} from "../../../common/util/alert.util";
 
 declare let plupload: any;
 
@@ -96,8 +99,6 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   public unsupportedFileView : boolean = false;
   public isNext : boolean = false;
 
-  public preparationUtil = PreparationCommonUtil;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -131,7 +132,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
         this.uploadNegoParams.storage_types.forEach((storage_type)=>{
           // FIXME: The storage type is currently LOCAL.
           //if( storage_type === 'LOCAL' )
-          this.fileLocations.push( { 'value': storage_type, 'label': storage_type } );
+            this.fileLocations.push( { 'value': storage_type, 'label': storage_type } );
         })
       } else {
         this.fileLocations.push( { 'value': 'LOCAL', 'label': 'LOCAL' } );
@@ -300,6 +301,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
           this.upFiles[idx].isUploading = file.isUploading;
           this.upFiles[idx].isUploaded = file.isUploaded;
           this.upFiles[idx].storedUri = file.storedUri;
+
           this.changeDetect.detectChanges();
         },
 
@@ -370,6 +372,12 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
               break;
             case -200:
               console.log('HTTP_ERROR', err);
+
+              if (err.response) {
+                const res = JSON.parse(err.response);
+                Alert.error(this.translateService.instant(res.message));
+              }
+
               break;
             case -300:
               console.log('IO_ERROR', err);
@@ -684,7 +692,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   /**
    * Disable Drag and Drop in File list area
    */
-  public disableEvent(event:any){
+  public disableEvent(event:Event){
     event.preventDefault();
     event.stopImmediatePropagation();
     event.stopPropagation();
@@ -706,12 +714,8 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
         datasetFile.filenameBeforeUpload = this.upFiles[i].name;
         datasetFile.storedUri = this.upFiles[i].storedUri;
         datasetFile.storageType = this._getStorageType(this.fileLocation);
-
-        const fileFormat = PreparationCommonUtil.getFileFormat(this.upFiles[i].fileExtension);
-        datasetFile.fileFormat = !_.isNil(fileFormat) ? fileFormat : FileFormat.CSV;
-
-        datasetFile.delimiter = FileFormat.CSV || datasetFile.fileFormat === FileFormat.EXCEL ? ',' : null;
-
+        datasetFile.fileFormat = this._getFileformat(this.upFiles[i].fileExtension);
+        if( datasetFile.fileFormat === FileFormat.CSV || datasetFile.fileFormat === FileFormat.EXCEL ) datasetFile.delimiter = ',';
         datasetFile.fileName = this.upFiles[i].fileName;
         datasetFile.fileExtension = this.upFiles[i].fileExtension;
 
@@ -845,5 +849,15 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
     return StorageType.LOCAL;
   }
 
+  private _getFileformat(fileExtension) {
+    let fileType : string = fileExtension.toUpperCase();
+    if (fileType === 'CSV' || fileType === 'TXT'){
+      return FileFormat.CSV;
+    } else if (fileType === 'XLSX' || fileType === 'XLS'){
+      return FileFormat.EXCEL
+    } else if (fileType === 'JSON'){
+      return FileFormat.JSON
+    }
+  }
 }
 

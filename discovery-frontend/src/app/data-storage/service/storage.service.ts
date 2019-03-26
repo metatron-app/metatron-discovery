@@ -14,7 +14,8 @@
 
 import {AbstractService} from '../../common/service/abstract.service';
 import {Injectable, Injector} from '@angular/core';
-import {JdbcDialect} from "../../domain/dataconnection/dataconnection";
+import {ImplementorType, InputMandatory, JdbcDialect} from "../../domain/dataconnection/dataconnection";
+import * as _ from 'lodash';
 
 @Injectable()
 export class StorageService extends AbstractService {
@@ -43,6 +44,10 @@ export class StorageService extends AbstractService {
     });
   }
 
+  /**
+   * Set connection type list
+   * @return {Promise<any>}
+   */
   public setConnectionTypeList() {
     return new Promise((resolve, reject) => {
       this.get(this.API_URL + 'extensions/connection').then(result => {
@@ -53,5 +58,49 @@ export class StorageService extends AbstractService {
         reject(error);
       })
     })
+  }
+
+  /**
+   * Get connection type list
+   * @return {JdbcDialect[]}
+   */
+  public getConnectionTypeList(): JdbcDialect[] {
+    return _.cloneDeep(StorageService.connectionTypeList);
+  }
+
+  /**
+   * Find connection type
+   * @param {ImplementorType} implementorType
+   * @return {JdbcDialect}
+   */
+  public findConnectionType(implementorType: ImplementorType): JdbcDialect {
+    return _.cloneDeep(StorageService.connectionTypeList.find(type => type.implementor === implementorType));
+  }
+
+  /**
+   * Is require SID
+   * @param {JdbcDialect} connectionType
+   * @return {boolean}
+   */
+  public isRequireSid(connectionType: JdbcDialect): boolean {
+    return connectionType.inputSpec.sid === InputMandatory.MANDATORY;
+  }
+
+  /**
+   * Is require database
+   * @param {JdbcDialect} connectionType
+   * @return {boolean}
+   */
+  public isRequireDatabase(connectionType: JdbcDialect): boolean {
+    return connectionType.inputSpec.database === InputMandatory.MANDATORY;
+  }
+
+  /**
+   * Is require catalog
+   * @param {JdbcDialect} connectionType
+   * @return {boolean}
+   */
+  public isRequireCatalog(connectionType: JdbcDialect): boolean {
+    return connectionType.inputSpec.catalog === InputMandatory.MANDATORY;
   }
 }

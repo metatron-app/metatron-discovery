@@ -152,7 +152,7 @@ public class DataFrameService {
     return newDf;
   }
 
-  @Async("threadPoolTaskExecutor")
+  @Async("prepThreadPoolTaskExecutor")
   public Future<List<Row>> gatherAsync(DataFrame prevDf, DataFrame newDf, List<Object> preparedArgs,
                                        int offset, int length, int limit) throws TeddyException, InterruptedException {
     return new AsyncResult<>(newDf.gather(prevDf, preparedArgs, offset, length, limit));

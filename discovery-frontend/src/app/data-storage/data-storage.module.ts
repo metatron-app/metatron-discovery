@@ -42,7 +42,7 @@ import { CriterionTimeRadioboxComponent } from './component/criterion/criterion-
 import {DataConnectionCreateService} from "./service/data-connection-create.service";
 import {DataSourceCreateModule} from "./data-source-list/create-data-source/data-source-create.module";
 import {StorageFilterSelectBoxComponent} from "./data-source-list/component/storage-filter-select-box.component";
-import {ConnectionComponent} from "./component/connection/connection.component";
+import {DataStorageShareModule} from "./data-storage-share.module";
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -57,6 +57,7 @@ const storageRoutes: Routes = [
     DndModule,
     DataPreviewModule,
     DataSourceCreateModule,
+    DataStorageShareModule,
     RouterModule.forChild(storageRoutes)
   ],
   declarations: [
@@ -87,8 +88,6 @@ const storageRoutes: Routes = [
     CriterionCheckboxComponent,
     // criterion time radiobox
     CriterionTimeRadioboxComponent,
-    // db connection component
-    ConnectionComponent,
   ],
   exports: [
     // 워크벤치에서 사용하기 위해

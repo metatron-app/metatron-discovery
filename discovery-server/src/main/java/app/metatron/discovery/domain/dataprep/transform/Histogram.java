@@ -12,18 +12,32 @@
  * limitations under the License.
  */
 
-package app.metatron.discovery.domain.dataprep.teddy;
+package app.metatron.discovery.domain.dataprep.transform;
 
+import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule.DAY;
+import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule.HOUR;
+import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule.MILLIS;
+import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule.MINUTE;
+import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule.MONTH;
+import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule.NOT_USED;
+import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule.SECOND;
+import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule.YEAR;
+
+import app.metatron.discovery.domain.dataprep.PrepUtil;
+import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.dataprep.teddy.Row;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.Serializable;
-import java.util.*;
-
-import static app.metatron.discovery.domain.dataprep.teddy.Histogram.Granule.*;
 
 // 각 column마다 1개씩
 public class Histogram implements Serializable {
@@ -809,11 +823,11 @@ public class Histogram implements Serializable {
   //   2.1. 만약 sort된 결과를 저장하면, 빠르게 재계산 할 수 있음
 
   public static Histogram createHist(String colName, ColumnType colType, List<Row> rows, int colno, Integer colWidth) {
-    int colNameLen = Util.getLengthUTF8(colName);
+    int colNameLen = PrepUtil.getLengthUTF8(colName);
     int maxColDataLen = 0;
     for (int rowno = 0; rowno < rows.size(); rowno++) {
       Object obj = rows.get(rowno).get(colno);
-      int len = obj == null ? 0 : Util.getLengthUTF8(obj.toString());
+      int len = obj == null ? 0 : PrepUtil.getLengthUTF8(obj.toString());
       maxColDataLen = Math.max(maxColDataLen, len);
     }
     if (colWidth == null) {
@@ -879,12 +893,12 @@ public class Histogram implements Serializable {
 
     incr = getIncr(min, max, barCnt);
 
-    double border = min - Util.round(min % incr);  // rounding이 매우 중요.
-    if (border == Util.round(min - incr)) {
+    double border = min - PrepUtil.round(min % incr);  // rounding이 매우 중요.
+    if (border == PrepUtil.round(min - incr)) {
       border = min;
     }
     for (label = min < border ? border - incr : border; label <= max; label += incr) {   // min이 음수인 경우 min이 mod보다 작음
-      labels.add(Util.round(label));
+      labels.add(PrepUtil.round(label));
     }
     labels.add(label);
 

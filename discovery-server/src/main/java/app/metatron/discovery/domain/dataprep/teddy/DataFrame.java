@@ -16,6 +16,7 @@ package app.metatron.discovery.domain.dataprep.teddy;
 
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
 import app.metatron.discovery.domain.dataprep.json.PrepJsonParseResult;
+import app.metatron.discovery.domain.dataprep.transform.Histogram;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
@@ -493,14 +494,14 @@ public class DataFrame implements Serializable, Transformable {
         }
       }
     }
-    Util.showSep(widths);
-    Util.showColNames(widths, colNames);
-    Util.showColTypes(widths, colDescs);
-    Util.showSep(widths);
+    TeddyUtil.showSep(widths);
+    TeddyUtil.showColNames(widths, colNames);
+    TeddyUtil.showColTypes(widths, colDescs);
+    TeddyUtil.showSep(widths);
     for (int rowno = 0; rowno < limit; rowno++) {
-      Util.showRow(widths, rows.get(rowno));
+      TeddyUtil.showRow(widths, rows.get(rowno));
     }
-    Util.showSep(widths);
+    TeddyUtil.showSep(widths);
   }
 
   public void dropColumn(String targetColName) throws TeddyException{

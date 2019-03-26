@@ -17,7 +17,6 @@ package app.metatron.discovery.domain.dataprep.service;
 import app.metatron.discovery.domain.dataprep.PrepDatasetDatabaseService;
 import app.metatron.discovery.domain.dataprep.PrepDatasetFileService;
 import app.metatron.discovery.domain.dataprep.PrepDatasetStagingDbService;
-import app.metatron.discovery.domain.dataprep.PrepHdfsService;
 import app.metatron.discovery.domain.dataprep.PrepPreviewLineService;
 import app.metatron.discovery.domain.dataprep.PrepProperties;
 import app.metatron.discovery.domain.dataprep.PrepQueryRequest;
@@ -30,7 +29,6 @@ import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
-import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
 import app.metatron.discovery.domain.dataprep.repository.PrUploadFileRepository;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformService;
@@ -86,16 +84,10 @@ public class PrDatasetController {
     private PrepDatasetStagingDbService datasetStagingDbService;
 
     @Autowired
-    private PrepHdfsService hdfsService;
-
-    @Autowired
     private PrDatasetService datasetService;
 
     @Autowired
     private PrDatasetRepository datasetRepository;
-
-    @Autowired
-    private PrSnapshotRepository snapshotRepository;
 
     @Autowired
     private PrUploadFileRepository uploadFileRepository;

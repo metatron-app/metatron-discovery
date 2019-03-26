@@ -21,7 +21,7 @@ import {QueryDataResult} from "../../../../service/data-source-create.service";
 import {DataconnectionService} from "../../../../../dataconnection/service/dataconnection.service";
 import {ConnectionParam, DataConnectionCreateService} from "../../../../service/data-connection-create.service";
 import {StringUtil} from "../../../../../common/util/string.util";
-import {AuthenticationType, ImplementorType} from "../../../../../domain/dataconnection/dataconnection";
+import {ImplementorType} from "../../../../../domain/dataconnection/dataconnection";
 import {header, SlickGridHeader} from "../../../../../common/component/grid/grid.header";
 import {GridOption} from "../../../../../common/component/grid/grid.option";
 import {Alert} from "../../../../../common/util/alert.util";
@@ -266,7 +266,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent {
    * @return {string}
    */
   public getUnSelectedDatabaseMessage(): string {
-    return this._sourceData.connectionData.selectedDbType.value === ImplementorType.MYSQL ? this.translateService.instant('msg.storage.ui.dsource.create.choose-db') : this.translateService.instant('msg.storage.ui.dsource.create.choose-schema');
+    return this._sourceData.connectionData.connection.implementor === ImplementorType.MYSQL ? this.translateService.instant('msg.storage.ui.dsource.create.choose-db') : this.translateService.instant('msg.storage.ui.dsource.create.choose-schema');
   }
 
   /**
@@ -274,7 +274,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent {
    * @return {string}
    */
   public getDatabaseSearchPlaceHolderMessage(): string {
-    return this._sourceData.connectionData.selectedDbType.value === ImplementorType.MYSQL ? this.translateService.instant('msg.storage.ui.dsource.create.search-db') : this.translateService.instant('msg.storage.ui.dsource.create.search-schema');
+    return this._sourceData.connectionData.connection.implementor === ImplementorType.MYSQL ? this.translateService.instant('msg.storage.ui.dsource.create.search-db') : this.translateService.instant('msg.storage.ui.dsource.create.search-schema');
   }
 
   /**
@@ -310,40 +310,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent {
    * @private
    */
   private _getDatabaseParams(): {connection: ConnectionParam} {
-    const connection: ConnectionParam = {
-      implementor: this._sourceData.connectionData.selectedDbType.value,
-      authenticationType: this._sourceData.connectionData.selectedSecurityType.value
-    };
-    // if security type is not USERINFO, add username and password in connection
-    if (this._sourceData.connectionData.selectedSecurityType.value !== AuthenticationType.USERINFO) {
-      connection.username = this._sourceData.connectionData.username;
-      connection.password = this._sourceData.connectionData.password;
-    }
-    // URL 타입이라면
-    if (this._sourceData.connectionData.isEnableUrl) {
-      connection.url = this._sourceData.connectionData.url;
-    } else { // DEFAULT 타입이라면
-      connection.hostname = this._sourceData.connectionData.hostname;
-      connection.port = this._sourceData.connectionData.port;
-    }
-    // TODO #1573 추후 extensions 스펙에 맞게 변경 필요
-    // database
-    if (this.connectionCreateService.isRequiredDatabase(this._sourceData.connectionData.selectedDbType.value)) {
-      connection.database = this._sourceData.connectionData.database;
-    }
-    // sid
-    if (this.connectionCreateService.isRequiredSid(this._sourceData.connectionData.selectedDbType.value)) {
-      connection.sid = this._sourceData.connectionData.sid;
-    }
-    // catalog
-    if (this.connectionCreateService.isRequiredCatalog(this._sourceData.connectionData.selectedDbType.value)) {
-      connection.catalog = this._sourceData.connectionData.catalog;
-    }
-    // if exist properties
-    if (this._sourceData.connectionData.isUsedConnectionPreset && this._sourceData.connectionData.properties) {
-      connection.properties = this._sourceData.connectionData.properties;
-    }
-    return {connection: connection};
+    return {connection: _.cloneDeep(this._sourceData.connectionData.connection)};
   }
 
   /**
@@ -365,7 +332,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent {
    * @return {{connection: ConnectionParam; database?: string; type?: Tab; query?: string}}
    * @private
    */
-  private _getResultParmas(databaseName: string, tableOrQueryText: string): {connection: ConnectionParam, database?:string, type?: Tab, query?: string} {
+  private _getResultParams(databaseName: string, tableOrQueryText: string): {connection: ConnectionParam, database?:string, type?: Tab, query?: string} {
     const result: {connection: ConnectionParam, database?:string, type?: Tab, query?: string} = this._getTableParams(databaseName);
     result.type = this.selectedTab;
     result.query = tableOrQueryText;
@@ -508,10 +475,10 @@ export class DbSelectDataComponent extends AbstractPopupComponent {
     // loading show
     this.loadingShow();
     // 테이블 상세 조회
-    this.connectionService.getTableDetailWitoutId(this._getResultParmas(databaseName, tableOrQueryText), false)
+    this.connectionService.getTableDetailWitoutId(this._getResultParams(databaseName, tableOrQueryText), false)
       .then((result: QueryDataResult) => {
         // METATRON-1144: 테이블조회시만 테이블 name을 제거하도록 변경
-        if (this._sourceData.connectionData.selectedDbType.value === 'HIVE') {
+        if (this._sourceData.connectionData.connection.implementor === ImplementorType.HIVE) {
           result.data = this._getReplacedDataList(result.data);
           result.fields = this._getReplacedFieldList(result.fields);
         }
@@ -673,6 +640,6 @@ export class DbSelectDataComponent extends AbstractPopupComponent {
 }
 
 enum Tab {
-  TABLE = <any>'TABLE',
-  QUERY = <any>'QUERY'
+  TABLE = 'TABLE',
+  QUERY = 'QUERY'
 }
