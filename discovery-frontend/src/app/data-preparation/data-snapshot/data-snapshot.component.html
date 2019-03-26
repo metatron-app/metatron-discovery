@@ -113,7 +113,6 @@
         <col width="25%">
         <col width="10%">
         <col width="10%">
-        <col width="10%">
         <col width="15%">
       </colgroup>
       <thead>
@@ -127,9 +126,6 @@
         </th>
         <th>
           {{'msg.comm.menu.manage.prep.flow' | translate}} | {{'msg.comm.menu.manage.prep.set' | translate}}
-        </th>
-        <th>
-          {{'msg.dp.th.ss-type' | translate}}
         </th>
         <th>
           {{'msg.dp.th.status' | translate}}
@@ -165,14 +161,6 @@
             </div>
 
           </td>
-          <td *ngIf="'FILE' === prepCommonUtil.getSnapshotType(item.ssType); else notFile">
-            {{prepCommonUtil.getSnapshotType(item.ssType)}} ({{getSvgName(item)}})
-          </td>
-          <ng-template #notFile>
-            <td>
-              {{prepCommonUtil.getSnapshotType(item.ssType)}}
-            </td>
-          </ng-template>
           <td>
             <em class="ddp-icon-status-success" *ngIf="item.displayStatus === 'SUCCESS'"></em>
             <em class="ddp-icon-status-error" *ngIf="item.displayStatus === 'FAIL'"></em>
@@ -182,7 +170,6 @@
             <span *ngIf="getElapsedDay() > 0">{{getElapsedDay(item) + '일'}}</span>
             {{getElapsedTime(item)}}
           </td>
-
           <td class="ddp-data-last">
             <div class="ddp-txt-long" title="{{item.launchTime | mdate:'YYYY-MM-DD HH:mm'}} by {{item.createdBy.fullName}}">
               {{item.launchTime | mdate:'YYYY-MM-DD HH:mm'}} <em class="ddp-icon-by">{{'msg.dp.ui.by' | translate}}</em>{{item.createdBy.fullName}}
