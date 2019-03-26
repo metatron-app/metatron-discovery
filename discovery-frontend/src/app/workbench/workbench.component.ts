@@ -58,7 +58,6 @@ import {SaveAsHiveTableComponent} from "./component/save-as-hive-table/save-as-h
 import {DetailWorkbenchDatabase} from "./component/detail-workbench/detail-workbench-database/detail-workbench-database";
 import {Message} from '@stomp/stompjs';
 import {AuthenticationType, Dataconnection, InputMandatory, InputSpec} from "../domain/dataconnection/dataconnection";
-import {StorageService} from "../data-storage/service/storage.service";
 
 declare let moment: any;
 declare let Split;

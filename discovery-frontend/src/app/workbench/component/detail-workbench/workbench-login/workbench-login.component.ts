@@ -13,6 +13,7 @@
  */
 
 import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import {Location} from '@angular/common';
 import { AbstractComponent } from '../../../../common/component/abstract.component';
 import { Workbench } from '../../../../domain/workbench/workbench';
 import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
@@ -68,7 +69,8 @@ export class WorkbenchLoginComponent extends AbstractComponent implements OnInit
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(protected  connectionService: DataconnectionService,
+  constructor(private _location: Location,
+              protected  connectionService: DataconnectionService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -104,7 +106,7 @@ export class WorkbenchLoginComponent extends AbstractComponent implements OnInit
 
   // 강제 닫기를 누를 경우
   protected close() {
-    this.router.navigate(['/workspace']);
+    this._location.back();
   }
 
   // 커넥션 체크

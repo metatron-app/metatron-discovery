@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div *ngIf="targetFilter" class="ddp-dateinfo-view" [class.ddp-inline]="'WIDGET' === mode" style="top:15px;">
+<div *ngIf="targetFilter" class="ddp-dateinfo-view" [class.ddp-inline]="'WIDGET' === mode" >
   <div class="ddp-filter-calen">
     <div *ngFor="let item of timeRangeList;let idx = index;" class="ddp-filter-calen-in">
       <!-- wrap dateinfo -->
