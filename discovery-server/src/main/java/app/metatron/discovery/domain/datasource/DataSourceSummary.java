@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import org.apache.commons.collections.MapUtils;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
@@ -47,10 +48,9 @@ import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
 public class DataSourceSummary implements MetatronDomain<Long> {
 
   @Column(name = "id")
-
-  @Id
   @GeneratedValue(strategy= GenerationType.AUTO, generator="native")
   @GenericGenerator(name = "native", strategy = "native")
+  @Id
   Long id;
 
   @Column(name = "smy_min_time")
@@ -64,6 +64,18 @@ public class DataSourceSummary implements MetatronDomain<Long> {
   @Column(name = "smy_last_access_time")
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
   DateTime lastAccessTime;
+
+  /**
+   * Upper corner (latitue longitude)
+   */
+  @Column(name = "smy_geo_upper_corner")
+  String geoUpperCorner;
+
+  /**
+   * Lower corner (latitue longitude)
+   */
+  @Column(name = "smy_geo_lower_corner")
+  String geoLowerCorner;
 
   @Column(name = "smy_data_size")
   Long size;
@@ -101,6 +113,15 @@ public class DataSourceSummary implements MetatronDomain<Long> {
 
   }
 
+  public void updateGeoCorner(Map<String, Object> corner) {
+    if (MapUtils.isEmpty(corner)) {
+      return;
+    }
+
+    this.geoUpperCorner = (String) corner.get("__upperCorner");
+    this.geoLowerCorner = (String) corner.get("__lowerCorner");
+  }
+
   @JsonIgnore
   public Map<String, SegmentMetaDataResponse.ColumnInfo> getColumnInfo() {
     return GlobalObjectMapper.readValue(this.columns, Map.class);
@@ -136,6 +157,22 @@ public class DataSourceSummary implements MetatronDomain<Long> {
 
   public void setLastAccessTime(DateTime lastAccessTime) {
     this.lastAccessTime = lastAccessTime;
+  }
+
+  public String getGeoUpperCorner() {
+    return geoUpperCorner;
+  }
+
+  public void setGeoUpperCorner(String geoUpperCorner) {
+    this.geoUpperCorner = geoUpperCorner;
+  }
+
+  public String getGeoLowerCorner() {
+    return geoLowerCorner;
+  }
+
+  public void setGeoLowerCorner(String geoLowerCorner) {
+    this.geoLowerCorner = geoLowerCorner;
   }
 
   public Long getSize() {

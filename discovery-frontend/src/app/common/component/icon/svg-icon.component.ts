@@ -106,6 +106,10 @@ export class SvgIconComponent extends AbstractComponent implements OnInit, OnDes
     if (this.name === 'JSON') {
       return this.isBlackAndWhite ? 'icon-file-json-b' : 'icon-file-json';
     }
+
+    if (this.name === 'EXCEL') {
+      return this.isBlackAndWhite ? 'icon-file-xls-b' : 'icon-file-xls';
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -371,7 +371,7 @@ public class PrDataflowController {
 
                     if (autoCreate) {
                         for (String newId : newIds) {
-                            PrepTransformResponse response = this.transformService.create(newId, dataflow.getDfId(), true);
+                            PrepTransformResponse response = this.transformService.create(newId, dataflow.getDfId(), null);
                         }
                     }
                 }

@@ -14,7 +14,7 @@
 
 import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
 import {Pivot} from '../../../domain/workbook/configurations/pivot';
-import {FieldRole, Field, FieldPivot, LogicalType} from '../../../domain/datasource/datasource';
+import {Field, FieldPivot, FieldRole, LogicalType} from '../../../domain/datasource/datasource';
 import {
   ChartType,
   EventType,
@@ -86,6 +86,9 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
   @Output('changeLayer')
   public changeLayerEvent: EventEmitter<any> = new EventEmitter();
+
+  @Output('removeAnalysisLayer')
+  public removeAnalysisLayerEvent: EventEmitter<any> = new EventEmitter();
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -243,8 +246,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
         // 타입필드로 설정
         const timeField = new TimestampField();
         field = timeField;
-      }
-      else if (targetField.role === FieldRole.DIMENSION) {
+      } else if (targetField.role === FieldRole.DIMENSION) {
         field = new DimensionField();
       } else if (targetField.role === FieldRole.MEASURE) {
 
@@ -371,14 +373,14 @@ export class MapPagePivotComponent extends PagePivotComponent {
     if (pivotField.currentPivot !== fieldPivot) {
 
       // 다른 선반으로 이동 시, 데이터 소스가 다를 경우 제거
-      if( shelf.length > 0 ) {
-        let targetDsId : string = '';
+      if (shelf.length > 0) {
+        let targetDsId: string = '';
         shelf.forEach((item) => {
-          if ( item.field.logicalType == LogicalType.GEO_POINT || item.field.logicalType == LogicalType.GEO_LINE || item.field.logicalType == LogicalType.GEO_POLYGON ) {
+          if (item.field.logicalType == LogicalType.GEO_POINT || item.field.logicalType == LogicalType.GEO_LINE || item.field.logicalType == LogicalType.GEO_POLYGON) {
             targetDsId = item.field.dsId;
           }
         });
-        shelf = _.remove(shelf, function(item) {
+        shelf = _.remove(shelf, function (item) {
           return item['field']['dsId'] != targetDsId;
         });
       }
@@ -468,7 +470,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
       // set layer alias
       this.shelf.layers[this.uiOption.layerNum].fields = this.shelf.layers[this.uiOption.layerNum].fields.map(this.checkAlias);
 
-      // layer 생성 (page.component에서 uiOption을 default로 생성하기 때문에 추가 layer 생성하기 위해서 0번째를 복사)
+      // layer 생성 (page.component에서 uiOption 전체를 생성함, layer만 추가 하기, 추가 layer 생성하기 위해서 0번째를 복사)
       let addUiOptionLayer = OptionGenerator.initUiOption(this.uiOption)['layers'][0];
 
       // layer name setting
@@ -486,7 +488,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
    */
   public removeLayer(index: number): void {
 
-    if (this.shelf.layers.length <= 1) {
+    if (this.shelf.layers.length <= 1 || (!_.isUndefined(this.uiOption['analysis']) && this.uiOption.analysis['use'] == true)) {
       return;
     }
 
@@ -794,7 +796,8 @@ export class MapPagePivotComponent extends PagePivotComponent {
    * @param index
    */
   public selectedLayer(index: number) {
-    if (this.uiOption.layerNum != index) {
+    if (this.uiOption.layerNum != index
+      && (_.isUndefined(this.uiOption.analysis) || (!_.isUndefined(this.uiOption.analysis) && this.uiOption['analysis']['use'] == false))) {
       this.uiOption.layerNum = index;
       // this.selectLayerEvent.emit(index);
     }
@@ -804,54 +807,67 @@ export class MapPagePivotComponent extends PagePivotComponent {
    * 공간연산 버튼 클릭시
    */
   public spatialAnalysisBtnClicked(value) {
-    // 공간연산 정보
+
     this.uiOption = value;
 
-    // // 공간연산 layer 추가
-    // let layers = {
-    //   name: '',
-    //   ref: '',
-    //   // view : {
-    //   //   "type": "hash",
-    //   //   "method": "h3",
-    //   //   "precision": 5
-    //   // },
-    //   fields: []
-    // };
-    //
-    // // add empty layer
-    // this.shelf.layers.push(layers);
-    //
-    // // set current layer number
-    // this.uiOption.layerNum = this.shelf.layers.length - 1;
-    //
-    // // set layer alias
-    // this.shelf.layers[this.uiOption.layerNum].fields = this.shelf.layers[this.uiOption.layerNum].fields.map(this.checkAlias);
-    //
-    // // layer 생성 (page.component에서 uiOption 전체를 생성함 layer만 추가 하기 추가 layer 생성하기 위해서 0번째를 복사)
-    // let addUiOptionLayer = OptionGenerator.initUiOption(this.uiOption)['layers'][0];
-    //
-    // // layer name setting
-    // addUiOptionLayer.name = 'SpatialLayer'
-    //
-    // this.uiOption.layers.push(addUiOptionLayer);
-    //
-    // // emit
-    // this.changeLayerEvent.emit(this.shelf);
+    let layers = {
+      name: 'SpatialAnalysisLayer',
+      ref: '',
+      fields: _.cloneDeep(this.shelf.layers[this.uiOption.analysis.layerNum].fields)
+    };
+
+    // add empty layer
+    this.shelf.layers.push(layers);
+
+    // layer 생성 (page.component에서 uiOption 전체를 생성함, layer만 추가 하기, 추가 layer 생성하기 위해서 0번째를 복사)
+    let addUiOptionLayer = OptionGenerator.initUiOption(this.uiOption)['layers'][0];
+    // layer name setting
+    addUiOptionLayer.name = 'SpatialAnalysisLayer';
+
+    this.uiOption.layers.push(addUiOptionLayer);
+    // 0 ~ 1 은 multi-layer, 그래서 공간연산 layer 값은 2
+    this.uiOption.layerNum = this.uiOption.layers.length - 1;
+
+    // 공간연산에서 choropleth 를 활성화 하고 default 값인 count를 지정할 경우 count에 대한 정보를 강제 입력
+    if(this.uiOption['analysis']['operation']['choropleth'] == true ) {
+      let field = {
+        alias: 'count',
+        type: 'measure',
+        subRole: 'measure',
+        name: 'count',
+        isCustomField: true
+      };
+
+      let uiOption = this.uiOption;
+      this.shelf.layers.forEach( (layer) => {
+        if(layer.name === 'SpatialAnalysisLayer') {
+          layer.fields.push(_.cloneDeep(field));
+          layer.fields.forEach( (field) => {
+            if( uiOption['analysis']['operation']['aggregation']['column'] == field.name ){
+              field.aggregationType = uiOption['analysis']['operation']['aggregation']['type'];
+            }
+          });
+        }
+      });
+    }
   }
 
   /**
    * delete analysis 옵션
    */
-  public stopAnalysisBtn() {
+  public removeAnalysis() {
     // Map Chart spatial analysis delete
     if (!_.isUndefined(this.uiOption.analysis) && this.uiOption['analysis']['use'] == true) {
+      this.shelf.layers.pop();
+      this.uiOption.layers.pop();
+      this.uiOption.layerNum = this.uiOption.layers.length - 1;
+      this.uiOption['analysis']['use'] = false;
       delete this.uiOption.analysis.operation;
       delete this.uiOption.analysis.mainLayer;
       delete this.uiOption.analysis.compareLayer;
       delete this.uiOption.analysis.type;
-      this.uiOption['analysis']['use'] = false;
-      this.uiOption.layerNum = this.uiOption.layers.length - 1;
+      // emit
+      this.removeAnalysisLayerEvent.emit();
     }
   }
 }

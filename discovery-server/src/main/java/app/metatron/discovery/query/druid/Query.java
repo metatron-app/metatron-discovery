@@ -40,7 +40,8 @@ import app.metatron.discovery.query.druid.queries.*;
     @JsonSubTypes.Type(value = PartitionRegexQuery.class, name = "partitioned"),
     @JsonSubTypes.Type(value = UnionAllQuery.class, name = "unionAll"),
     @JsonSubTypes.Type(value = SketchQuery.class, name = "sketch"),
-    @JsonSubTypes.Type(value = GeoBoundaryFilterQuery.class, name = "geo.boundary")
+    @JsonSubTypes.Type(value = GeoBoundaryFilterQuery.class, name = "geo.boundary"),
+    @JsonSubTypes.Type(value = ChoroplethMapQuery.class, name = "choropleth")
 })
 public abstract class Query {
 

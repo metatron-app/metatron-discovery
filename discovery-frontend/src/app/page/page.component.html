@@ -43,7 +43,7 @@
                       [enableInfo]="true"
                       [dataSources]="dataSourceList"
                       [initialValue]="dataSource"
-                      (selectOption)="selectDataSource($event)"
+                      (selectOption)="selectDataSource($event, true)"
                       (showInfo)="onDataDetailPopup()"></dashboard-datasource-combo>
                   </div>
                   <!-- // name -->
@@ -693,6 +693,7 @@
                                 (changeForecastNoti)="changeForecast();"
                                 (changeConfidenceNoti)="changeConfidence();"
                                 [uiOption]="uiOption"
+                                [shelf]="shelf"
                                 (changeAnalysisNoti)="changeDraw($event);">
             </analysis-component>
             <!-- //down menu -->
@@ -805,7 +806,8 @@
             (changeFormat)="onChangePivotFormat($event)"
             (customField)="openCustomFieldPopup($event)"
             (showPopup)="onShowPopup($event)"
-            (changeLayer)="onChangeLayer(shelf)">
+            (changeLayer)="onChangeLayer(shelf)"
+            (removeAnalysisLayer)="removeAnalysisLayer()">
             <!--(selectLayer)="onSelectLayer($event)">-->
           </map-page-pivot>
           <!-- //선반 -->
@@ -1437,7 +1439,8 @@
                                 [isPage]="true"
                                 *ngIf="selectChart == 'line'"
                                 [uiOption]="uiOption"
-                                (uiOptionUpdated)="updateUIOption($event); analysisComponent.changeOption();"
+                                (uiOptionUpdated)="updateUIOption($event);
+                                analysisComponent.changeOption();"
                                 (noData)="onNoData()"
                                 (chartSelectInfo)="chartSelectInfo($event)"
                                 (drawFinished)="lineChartDrawComplete($event);"
@@ -1602,17 +1605,15 @@
                     </gauge-chart>
                     <map-chart #chart
                                [isPage]="true"
-                               [needToRemoveMapLayer]="isChartShow"
                                *ngIf="selectChart == 'map'"
-                               [uiOption]="uiOption"
                                (uiOptionUpdated)="updateUIOption($event)"
                                (noData)="onNoData()"
                                (chartSelectInfo)="chartSelectInfo($event)"
+                               [needToRemoveMapLayer]="isChartShow"
+                               [uiOption]="uiOption"
                                (changeDraw)="changeDraw($event)"
                                [resizeDelay]="500">
                     </map-chart>
-
-
                   </div>
                   <!-- //page -->
 
@@ -1686,28 +1687,39 @@
           </page-filter-panel>
           <calrow-option #calculateOption
                          *ngIf="isChartShow && possibleChartCheck('calculatedRow', selectChart) && 'calculatedRow' === rnbMenu"
-                         [(uiOption)]="uiOption"></calrow-option>
+                         [(uiOption)]="uiOption">
+          </calrow-option>
           <!-- MapView -->
           <map-common-option #mapCommonOption *ngIf="isChartShow && 'mapCommon' === rnbMenu"
-                             [(uiOption)]="uiOption"></map-common-option>
-
+                             [(uiOption)]="uiOption">
+          </map-common-option>
           <map-layer-option #mapLayerOption
-                            *ngIf="isChartShow && ('mapLayer1' === rnbMenu || 'mapLayer2' === rnbMenu) && !setDisableMapLayer()"
+                            *ngIf="isChartShow && ('mapLayer1' === rnbMenu || 'mapLayer2' === rnbMenu || 'mapLayer3' === rnbMenu) && !setDisableMapLayer()"
                             [(uiOption)]="uiOption"
+                            [(shelf)]="shelf"
                             [rnbMenu]="rnbMenu"
                             (drawChartParam)="onSetDrawChartParam($event)"
-                            [(shelf)]="shelf"
                             [data]="resultData?.data"
-                            (setZIndex)="onSetZIndex($event)"></map-layer-option>
-          <map-legend-option #mapLegendOption *ngIf="isChartShow && 'mapLegend' === rnbMenu" [(uiOption)]="uiOption"
-                             (drawChartParam)="onSetDrawChartParam($event)"></map-legend-option>
-          <map-format-option #mapFormatOption *ngIf="isChartShow && 'mapFormat' === rnbMenu"
+                            (setZIndex)="onSetZIndex($event)">
+          </map-layer-option>
+          <map-legend-option #mapLegendOption
+                             *ngIf="isChartShow && 'mapLegend' === rnbMenu"
+                             [(uiOption)]="uiOption"
+                             (drawChartParam)="onSetDrawChartParam($event)">
+          </map-legend-option>
+          <map-format-option #mapFormatOption
+                             *ngIf="isChartShow && 'mapFormat' === rnbMenu"
                              (changeCommon)="onFormatCommonChange($event)" (changeEach)="onFormatEachChange($event)"
                              (drawChartParam)="onSetDrawChartParam($event)"
-                             [(shelf)]="shelf" [(uiOption)]="uiOption">
+                             [(shelf)]="shelf"
+                             [(uiOption)]="uiOption">
           </map-format-option>
-          <map-tooltip-option #mapTooltipOption *ngIf="isChartShow && 'mapTooltip' === rnbMenu" [(uiOption)]="uiOption"
-                              [shelf]="shelf" (drawChartParam)="onSetDrawChartParam($event)"></map-tooltip-option>
+          <map-tooltip-option #mapTooltipOption
+                              *ngIf="isChartShow && 'mapTooltip' === rnbMenu"
+                              [(uiOption)]="uiOption"
+                              [shelf]="shelf"
+                              (drawChartParam)="onSetDrawChartParam($event)">
+          </map-tooltip-option>
           <!-- //MapView -->
         </div>
 
@@ -1716,8 +1728,8 @@
       <!-- side menu -->
       <div class="ddp-wrap-chart-menu">
 
-        <a href="javascript:" (click)="toggleRnb('filter')" [class.ddp-selected]="rnbMenu=='filter'"><em
-          class="ddp-icon-menu-filter"></em></a>
+        <a href="javascript:" (click)="toggleRnb('filter')" [class.ddp-selected]="rnbMenu=='filter'">
+          <em class="ddp-icon-menu-filter"></em></a>
         <span class="ddp-ui-menu-layout" (mouseover)="drawChartTooltip($event)">
             <!-- 공통패널 -->
             <a *ngIf="possibleChartCheck('common', selectChart)" href="javascript:"
@@ -1895,30 +1907,35 @@
           <!-- //맵뷰: 공통 설정 -->
           <!-- 맵뷰: 레이어 설정 -->
             <div *ngIf="selectChart == 'map'">
-              <a *ngFor="let item of shelf.layers; let index = index" href="javascript:"
-                 (click)="toggleMapLayer('mapLayer'+(index+1), index)"
-                 [ngClass]="{'ddp-disabled': !isChartShow || setDisableShelf(index) || 'map' == selectChart && uiOption['analysis'] != null && uiOption['analysis']['use'] == true}"
-                 [class.ddp-selected]="isChartShow && rnbMenu=='mapLayer'+(index+1) && !setDisableShelf(index)">
-                <em *ngIf="index == 0" class="ddp-icon-menu-mapview1"></em>
-                <em *ngIf="index == 1" class="ddp-icon-menu-mapview2"></em>
-                <!-- 툴팁 -->
-                <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
+              <div *ngFor="let item of shelf.layers; let index = index;">
+                <!--<a *ngIf="index<uiOption['layers']['length']-1" -->
+                <a *ngIf="uiOption['analysis'] == null || uiOption['analysis']['use'] == null || uiOption['analysis']['use'] == false || (uiOption['analysis']['use'] && index != shelf.layers.length-1)"
+                   (click)="toggleMapLayer('mapLayer'+(index+1), index)"
+                   [ngClass]="{'ddp-disabled': !isChartShow || setDisableShelf(index) || 'map' == selectChart && uiOption['analysis'] != null && uiOption['analysis']['use'] == true}"
+                   [class.ddp-selected]="isChartShow && rnbMenu=='mapLayer'+(index+1) && !setDisableShelf(index)"
+                   href="javascript:">
+                  <em *ngIf="index == 0" class="ddp-icon-menu-mapview1"></em>
+                  <em *ngIf="index == 1" class="ddp-icon-menu-mapview2"></em>
+                  <!-- 툴팁 -->
+                  <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
+                      <em class="ddp-icon-view-right"></em>
+                    {{'msg.page.first.draw.chart' | translate}}
+                  </div>
+                  <!-- //툴팁 -->
+                </a>
+                <!-- 공간연산 option -->
+                <a *ngIf="uiOption['analysis'] != null && uiOption['analysis']['use'] == true && index == shelf.layers.length-1"
+                   (click)="toggleMapLayer('mapLayer'+(index+1), index)">
+                  <em class="ddp-icon-menu-analysis"></em>
+                  <!-- 툴팁 -->
+                  <div class="ddp-ui-tooltip-info">
                     <em class="ddp-icon-view-right"></em>
-                  {{'msg.page.first.draw.chart' | translate}}
-                </div>
-                <!-- //툴팁 -->
-              </a>
-              <!-- 공간연산 option -->
-              <a *ngIf="'map' == selectChart && uiOption['analysis'] != null && uiOption['analysis']['use'] == true">
-                <em class="ddp-icon-menu-analysis"></em>
-                <!-- 툴팁 -->
-                <div class="ddp-ui-tooltip-info">
-                  <em class="ddp-icon-view-right"></em>
-                  Analysis
-                </div>
-                <!-- //툴팁 -->
-              </a>
-              <!-- // 공간연산 option-->
+                    Analysis
+                  </div>
+                  <!-- //툴팁 -->
+                </a>
+                <!-- // 공간연산 option-->
+              </div>
             </div>
           <!-- //맵뷰: 레이어 설정 -->
           <!-- 맵뷰: 범례 설정 -->

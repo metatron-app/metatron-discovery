@@ -47,6 +47,7 @@ import app.metatron.discovery.domain.datasource.ingestion.rule.ValidationRule;
 import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.GeoFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.GeoPointFormat;
+import app.metatron.discovery.query.druid.ShapeFormat;
 import app.metatron.discovery.query.druid.aggregations.CountAggregation;
 import app.metatron.discovery.query.druid.aggregations.RelayAggregation;
 import app.metatron.discovery.spec.druid.ingestion.granularity.UniformGranularitySpec;
@@ -155,15 +156,19 @@ public class AbstractSpecBuilder {
 
   private void makeSecondaryIndexing(String name, DataType originalType, GeoFormat geoFormat) {
     String originalSrsName = geoFormat.notDefaultSrsName();
-    if (geoFormat instanceof GeoPointFormat || (originalType == DataType.STRUCT)) {
-      secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.LatLonStrategy("coord", "lat", "lon", originalSrsName)));
+    if (geoFormat instanceof GeoPointFormat) {
+      if (originalType == DataType.STRUCT) {
+        secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.LatLonStrategy("coord", "lat", "lon", originalSrsName)));
+      } else {
+        secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.LatLonShapeStrategy("coord", ShapeFormat.WKT, originalSrsName)));
+      }
     } else {
-      secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.ShapeStrategy("shape", "WKT", geoFormat.getMaxLevels())));
+      secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.ShapeStrategy("shape", ShapeFormat.WKT, geoFormat.getMaxLevels(), originalSrsName)));
     }
   }
 
   private void addGeoFieldToMatric(String name, DataType originalType, GeoFormat geoFormat) {
-    if (geoFormat instanceof GeoPointFormat || (originalType == DataType.STRUCT)) {
+    if (geoFormat instanceof GeoPointFormat && originalType == DataType.STRUCT) {
       dataSchema.addMetrics(new RelayAggregation(name, "struct(lat:double,lon:double)"));
     } else {
       dataSchema.addMetrics(new RelayAggregation(name, "string"));
@@ -216,7 +221,9 @@ public class AbstractSpecBuilder {
       }
 
       switch (dimensionfield.getType()) {
-        case STRING: case TIMESTAMP:
+        case TIMESTAMP:
+        case STRING:
+        case TEXT:
           dimenstionSchemas.add(dimensionfield.getName());
           break;
         case INTEGER:

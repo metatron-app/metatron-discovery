@@ -14,8 +14,9 @@
 <div class="ddp-box-down">
   <div class="ddp-wrap-divide">
 
+    <!--base layer select box-->
     <div class="ddp-divide2">
-      <div class="ddp-list-label">기준 레이어</div>
+      <div class="ddp-list-label">{{'msg.page.chart.map.spatial.mainlayer' | translate}}</div>
       <!-- select box -->
       <component-select [array]="baseList.layers"
                         [(defaultIndex)]="baseIndex"
@@ -23,8 +24,11 @@
       </component-select>
       <!-- //select box -->
     </div>
+    <!-- // base layer select box-->
+
+    <!--compare layer select box-->
     <div class="ddp-divide2">
-      <div class="ddp-list-label">비교 레이어</div>
+      <div class="ddp-list-label">{{'msg.page.chart.map.spatial.comparelayer' | translate}}</div>
       <!-- select box -->
       <component-select [array]="compareList.layers"
                         [(defaultIndex)]="compareIndex"
@@ -32,18 +36,57 @@
       </component-select>
       <!-- //select box -->
     </div>
+    <!-- // compare layer select box-->
+
+    <!--analysis type select box-->
     <div class="ddp-divide2">
-      <div class="ddp-list-label">공간 연산</div>
+      <div class="ddp-list-label">{{'msg.page.chart.map.spatial.analysis' | translate}}</div>
       <!-- select box -->
       <component-select [array]="calSpatialList"
                         [(defaultIndex)]="calSpatialIndex"
+                        [viewKey]="'name'"
                         (onSelected)="onSelectSpatial($event)">
       </component-select>
       <!-- //select box -->
     </div>
+    <!-- // analysis type select box-->
 
+    <!--buffer select box-->
+    <!--<div class="ddp-divide2" *ngIf="calSpatialList[calSpatialIndex].value != 'symmetricdiff' && calSpatialList[calSpatialIndex].value != 'dwithin'">-->
+      <!--<component-select [array]="bufferList"-->
+                        <!--[(defaultIndex)]="bufferIndex"-->
+                        <!--[usePlaceholder]="true"-->
+                        <!--[unselectedMessage]="'Buffer'"-->
+                        <!--(onSelected)="onSelectBuffer($event)">-->
+      <!--</component-select>-->
+    <!--</div>-->
+    <div class="ddp-wrap-slider-down" *ngIf="calSpatialList[calSpatialIndex].value != 'symmetricdiff' && calSpatialList[calSpatialIndex].value != 'dwithin'" [ngClass]="{'ddp-selected':isBufferOn}">
+      <div class="ddp-wrap-option-slider">
+        <span class="ddp-label-slider type-label">Buffer</span>
+        <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+          <input (click)="bufferBtn();" type="checkbox" value="None" id="check3" name="check">
+          <label for="check2"><span class="ddp-slide"></span></label>
+        </div>
+      </div>
+      <div class="ddp-list-part-sub">
+        <div class="ddp-divide2 ddp-form ddp-clear">
+          <div class="ddp-col-6">
+            <input type="text" class="ddp-input-typebasic ddp-txt-right" (keyup)="bufferInputChange()" [(ngModel)]="bufferInput">
+          </div>
+          <div class="ddp-col-6">
+            <component-select [array]="bufferList"
+                              [(defaultIndex)]="bufferIndex"
+                              [viewKey]="'name'"
+                              (onSelected)="onSelectBuffer($event)">
+            </component-select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- // buffer select box-->
 
-    <div class="ddp-divide2 ddp-form ddp-clear">
+    <!--Unit select box-->
+    <div class="ddp-divide2 ddp-form ddp-clear" *ngIf="calSpatialList[calSpatialIndex].value == 'dwithin'">
       <div class="ddp-col-6">
         <input type="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="unitInput">
       </div>
@@ -51,13 +94,78 @@
         <!-- select box -->
         <component-select [array]="unitList"
                           [(defaultIndex)]="unitIndex"
+                          [viewKey]="'name'"
                           (onSelected)="onSelectUnit($event)">
         </component-select>
         <!-- //select box -->
       </div>
     </div>
-    <div class="ddp-form-buttons ddp-clear" (click)="analysisBtn()">
-      <a href="javascript:" class="ddp-btn-blue">Analysis</a>
+    <!-- // Unit select box-->
+
+    <!-- 단계구분도 보기 on/off (on 일때 ddp-selected 추가) -->
+    <div class="ddp-wrap-slider-down" *ngIf="calSpatialList[calSpatialIndex].value != 'symmetricdiff'" [ngClass]="{'ddp-selected':isChoroplethOn}">
+      <div class="ddp-wrap-option-slider">
+        <span class="ddp-label-slider type-label">{{'msg.page.chart.map.spatial.step' | translate}}</span>
+        <!-- Slide THREE -->
+        <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+          <input (click)="choroplethBtn();" type="checkbox" value="None" id="check2" name="check">
+          <label for="check2"><span class="ddp-slide"></span></label>
+        </div>
+        <!-- //Slide THREE -->
+      </div>
+      <div class="ddp-list-part-sub">
+        <div class="ddp-divide2">
+          <div class="ddp-list-label">Color by</div>
+          <!-- 클릭시 ddp-selected 추가 -->
+          <!--<div class="ddp-type-selectbox ">-->
+            <!--<span class="ddp-txt-selectbox"> <span class="ddp-type-txt"><em *ngIf="fieldList['measureList'].length != 0" class="ddp-icon-measure-sharp"></em></span>{{selectAggregateType['name']}}</span>-->
+            <!--<div class="ddp-wrap-popup2 ddp-types">-->
+              <!--<ul class="ddp-list-popup">-->
+                <!--<li *ngFor="let item of fieldList['measureList']" class=""-->
+                    <!--(click)="selectAggregate($event)">-->
+                  <!--<a href="javascript:">-->
+                    <!--<em class="ddp-icon-measure-sharp"></em>-->
+                    <!--{{item.alias}}-->
+                  <!--</a>-->
+                <!--</li>-->
+                <!--<li *ngIf="fieldList['measureList'].length == 0" class="">-->
+                  <!--<a href="javascript:">-->
+                    <!--<em class="ddp-icon-measure-sharp"></em>-->
+                    <!--{{'msg.comm.ui.no.rslt' | translate}}-->
+                  <!--</a>-->
+                <!--</li>-->
+              <!--</ul>-->
+            <!--</div>-->
+          <!--</div>-->
+          <!-- SELECTBOX -->
+          <component-select
+              [array]="fieldList['measureList']"
+            [defaultIndex]="colorByIndex"
+            [viewKey]="'name'"
+            (onSelected)="selectColor($event)"
+          ></component-select>
+          <!-- //SELECTBOX -->
+        </div>
+        <div class="ddp-divide2" *ngIf="fieldList['measureList'].length > 1 && (fieldList['measureList'][colorByIndex]['field'] != undefined)">
+          <div class="ddp-list-label">Aggregate by</div>
+
+          <!-- 클릭시 ddp-selected 추가 -->
+          <component-select
+            [array]="aggregateTypes"
+            [defaultIndex]="aggregateTypesIndex"
+            [viewKey]="'name'"
+            (onSelected)="selectAggregate($event)"
+          ></component-select>
+        </div>
+
+      </div>
     </div>
+    <!-- // 단계구분도 보기 on/off (on 일때 ddp-selected 추가) -->
+
+    <!--AnalysisBtn-->
+    <div class="ddp-form-buttons ddp-clear" (click)="spatialAnalysisBtn()">
+      <a href="javascript:" class="ddp-btn-blue" [ngClass]="{'ddp-disabled' : uiOption['analysis'] != null && uiOption['analysis']['use'] != null && uiOption['analysis']['use'] == true}">Analysis</a>
+    </div>
+    <!-- // AnalysisBtn-->
   </div>
 </div>

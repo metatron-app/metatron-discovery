@@ -231,6 +231,9 @@ public class PrDataset extends AbstractHistoryEntity {
     @Column(name = "delimiter")
     private String delimiter;
 
+    @Column(name = "manual_column_count")
+    private Integer manualColumnCount;
+
     @Lob
     @Column(name = "custom")
     private String custom;
@@ -561,6 +564,14 @@ public class PrDataset extends AbstractHistoryEntity {
 
     public void setDelimiter(String delimiter) {
         this.delimiter = delimiter;
+    }
+
+    public Integer getManualColumnCount() {
+        return manualColumnCount;
+    }
+
+    public void setManualColumnCount(Integer manualColumnCount) {
+        this.manualColumnCount = manualColumnCount;
     }
 
     public String getCustom() {

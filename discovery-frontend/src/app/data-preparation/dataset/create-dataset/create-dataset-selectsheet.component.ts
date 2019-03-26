@@ -55,6 +55,10 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   public datasetFiles: any;
 
   public isCSV: boolean = false;
+  public isEXCEL: boolean = false;
+  public isJSON: boolean = false;
+
+  public settingFoldFlag: boolean = false;
 
   // grid hide
   public clearGrid : boolean = false;
@@ -62,10 +66,15 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   public isNext: boolean = false;
 
   public isDelimiterRequired : boolean = false;
+  public isColumnCountRequired : boolean = false;
+
   public currDelimiter : string = '';
   public currSheetIndex : number = 0;
   public currDSIndex: number = 0;
   public currDetail : any;
+  public currCoumnCount: number;
+
+  public previewErrorMessge : string;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -89,10 +98,14 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     this.currDSIndex = 0;
     this.currSheetIndex = 0;
     this.currDetail = {fileFormat: null, detailName: null, columns: null, rows: null};
+    this.previewErrorMessge = '';
 
     // Check init by selected count
     this._checkNextBtn();
     this._isInit = !this.isNext;
+
+    this._setFileFormat(this.datasetFiles[this.currDSIndex].fileFormat);
+    this.settingFoldFlag = false;
 
     if(this._isInit){
       this.datasetFiles.forEach((dsFile, index) => {
@@ -102,7 +115,6 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
         this.datasetFiles[index].selected = false;
 
         if(index === 0) {
-          this.isCSV = (  this.datasetFiles[index].fileFormat === FileFormat.CSV);
           this.currDelimiter = ( this.datasetFiles[index].fileFormat === FileFormat.CSV ? ',' : '');
         }
         let option: string = ( index === 0 ? 'draw' : '');
@@ -110,21 +122,24 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
         this._getGridInformation(index, this._getParamForGrid(dsFile), option);
       });
     } else {
-      this.isCSV = (this.datasetFiles[this.currDSIndex].fileFormat == FileFormat.CSV);
 
       if(this.datasetFiles[this.currDSIndex].sheetInfo){
         this._updateGrid(this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].data, this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].fields);
       } else {
         this.clearGrid = true;
       }
+      this.currDelimiter = ( this.datasetFiles[this.currDSIndex].fileFormat === FileFormat.CSV ? this.datasetFiles[this.currDSIndex].delimiter : '');
+      this.currCoumnCount = ( this.datasetFiles[this.currDSIndex].sheetInfo ? this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount : 0 );
+
+      this.previewErrorMessge = (this.datasetFiles[this.currDSIndex].error? this.datasetFiles[this.currDSIndex].error.details : '');
       this._setDetailInfomation(this.currDSIndex, this.currSheetIndex);
       this._checkNextBtn();
     }
-
   }
 
   public ngOnDestroy() {
     super.ngOnDestroy();
+
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -135,6 +150,11 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    */
   public close() {
     super.close();
+
+    // Check if came from dataflow
+    if (this.datasetService.dataflowId) {
+      this.datasetService.dataflowId = undefined;
+    }
 
     this.popupService.notiPopup({
       name: 'close-create',
@@ -177,8 +197,13 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
   }
 
+  public settingFold(){
+    this.settingFoldFlag = !this.settingFoldFlag;
+    return this.settingFoldFlag;
+  }
+
   /**
-   * When delimiter is changed
+   * When delimiter is changed(only CSV)
    */
   public changeDelimiter() {
     this.isDelimiterRequired = ('' === this.currDelimiter && this.datasetFiles[this.currDSIndex].fileFormat === FileFormat.CSV);
@@ -191,6 +216,23 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       this.datasetFiles[this.currDSIndex].delimiter =  this.currDelimiter;
       this.loadingShow();
       this._getGridInformation(this.currDSIndex, this._getParamForGrid(this.datasetFiles[this.currDSIndex]),'draw');
+    }
+  }
+
+  /**
+   * When columnCount is changed(CSV, EXCEL)
+   */
+  public changeColumnCount(){
+    this.isColumnCountRequired = ( (isNullOrUndefined(this.currCoumnCount) || 1 > this.currCoumnCount) && this.datasetFiles[this.currDSIndex].fileFormat != FileFormat.JSON);
+
+    if (isNullOrUndefined(this.currCoumnCount) || 1 > this.currCoumnCount || this.datasetFiles[this.currDSIndex].fileFormat === FileFormat.JSON) {
+      return;
+    }
+
+    if( this.datasetFiles[this.currDSIndex].sheetInfo && this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount !=  this.currCoumnCount ) {
+      this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount = this.currCoumnCount;
+      this.loadingShow();
+      this._getGridInformation(this.currDSIndex, this._getParamForGrid(this.datasetFiles[this.currDSIndex], this.currCoumnCount),'draw');
     }
   }
 
@@ -252,18 +294,22 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     event.stopPropagation();
     event.preventDefault();
 
-    this.isDelimiterRequired = false;
-    this.currDelimiter = '';
+    this.previewErrorMessge = (this.datasetFiles[dsIdx].error? this.datasetFiles[dsIdx].error.details : '');
 
-    this.isCSV = (this.datasetFiles[dsIdx].fileFormat === FileFormat.CSV);
+    this.isDelimiterRequired = false;
+    this.isColumnCountRequired = false;
 
     if (this.datasetFiles[dsIdx].fileFormat != FileFormat.EXCEL){
+      this._setFileFormat(this.datasetFiles[dsIdx].fileFormat);
+
       this.currDSIndex = dsIdx;
       this.currSheetIndex = 0;
 
       this._setDetailInfomation(dsIdx, 0);
 
       this.currDelimiter = this.datasetFiles[dsIdx].delimiter;
+
+      this.currCoumnCount = ( this.datasetFiles[dsIdx].sheetInfo ? this.datasetFiles[dsIdx].sheetInfo[0].columnCount : 0 );
 
       if(!this.datasetFiles[dsIdx].sheetInfo){
         this.clearGrid = true;
@@ -297,8 +343,12 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
     this.isDelimiterRequired = false;
     this.currDelimiter = '';
+
+    this.isColumnCountRequired = false;
+    this.currCoumnCount = ( this.datasetFiles[dsIdx].sheetInfo ? this.datasetFiles[dsIdx].sheetInfo[sheetIdx].columnCount : 0 );
+
     this.currDSIndex = dsIdx;
-    this.isCSV = false;
+    this._setFileFormat(this.datasetFiles[dsIdx].fileFormat);
     this.currSheetIndex = sheetIdx;
 
     if(!this.datasetFiles[dsIdx].sheetInfo){
@@ -323,21 +373,28 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  private _setFileFormat(fileFormat : FileFormat){
+    this.isCSV = (fileFormat === FileFormat.CSV);
+    this.isJSON = (fileFormat === FileFormat.JSON);
+    this.isEXCEL = (fileFormat === FileFormat.EXCEL);
+  }
+
   /**
    * Returns parameter required for grid fetching API
    * @returns result {fileKey: string, delimiter: string}
    * @private
    */
-  private _getParamForGrid(datasetFile : PrDatasetFile) {
+  private _getParamForGrid(datasetFile : PrDatasetFile, manualColumnCount?:number) {
     const result = {
       storedUri : datasetFile.storedUri,
     };
     if (datasetFile.fileFormat === FileFormat.CSV) result['delimiter'] = datasetFile.delimiter;
+    if (manualColumnCount && manualColumnCount > 0) result['manualColumnCount'] = manualColumnCount;
 
     return result;
   }
 
-  private _getGridInformation(idx: number, param : any, option?: string) {
+  private _getGridInformation(idx: number, param : any, option: string ) {
     this.loadingShow();
 
     this.datasetService.getFileGridInfo(param).then((result) => {
@@ -373,6 +430,11 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       // TODO : When error use toast ?
       console.info(error);
       this.datasetFiles[idx].error = error;
+
+      if(this._isInit && idx === 0){
+        this.previewErrorMessge = this.datasetFiles[0].error.details;
+      }
+
       if( option && option === 'draw') this.clearGrid = true;
       this.loadingHide();
 
@@ -468,11 +530,12 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
         const gridData = this._getGridDataFromGridResponse(item);
 
         let info : SheetInfo = {
-          selected : this._isInit,
+          selected : true,
           data : gridData.data,
           fields : gridData.fields,
           totalRows : 0,
           valid : true,
+          columnCount : gridData.fields.length
         };
 
         if (sheetNames) info.sheetName = sheetNames[index];
@@ -483,8 +546,11 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
       });
 
-      this.datasetFiles[idx].selected = this._isInit;
-      this.isNext = this._isInit;
+      // set current column count
+      if( idx === this.currDSIndex ) this.currCoumnCount = (this.datasetFiles[this.currDSIndex].sheetInfo? this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount: null);
+
+      this.datasetFiles[idx].selected = true;
+      this.isNext = true;
     }
   }
 

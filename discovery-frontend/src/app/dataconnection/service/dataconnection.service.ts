@@ -197,8 +197,8 @@ export class DataconnectionService extends AbstractService {
   }
 
   // 테이블 상세조회
-  public getTableDetailWitoutId(param: any, extractColumnName: boolean = false): Promise<any>  {
-    return this.post(this.API_URL + 'connections/query/data?extractColumnName=' + extractColumnName, param);
+  public getTableDetailWitoutId(param: any, extractColumnName: boolean, limit: number = 50): Promise<any>  {
+    return this.post(this.API_URL + `connections/query/data?extractColumnName=${extractColumnName}&limit=${limit}`, param);
   }
 
   // 테이블 상세조회
