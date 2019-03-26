@@ -384,28 +384,14 @@
             <!-- //only snapshot type (STAGING_DB) -->
             <!-- only file type -->
             <ng-container *ngIf="isFileType()">
-              <!-- //edit -->
-              <!-- edit -->
-              <!--<div class="ddp-wrap-edit3 ddp-type">-->
-              <!--<label class="ddp-label-type">File name-->
-              <!--</label>-->
-              <!--&lt;!&ndash; edit option &ndash;&gt;-->
-              <!--<div class="ddp-ui-edit-option">-->
-              <!--파일이름-->
-              <!--</div>-->
-              <!--&lt;!&ndash; //edit option &ndash;&gt;-->
-              <!--</div>-->
-              <!--&lt;!&ndash; //edit &ndash;&gt;-->
-              <!--&lt;!&ndash; edit &ndash;&gt;-->
-              <!--<div class="ddp-wrap-edit3 ddp-type" *ngIf="getFormat.type === 'excel'">-->
-              <!--<label class="ddp-label-type">Sheet-->
-              <!--</label>-->
-              <!--&lt;!&ndash; edit option &ndash;&gt;-->
-              <!--<div class="ddp-ui-edit-option">-->
-              <!--시트이름-->
-              <!--</div>-->
-              <!--&lt;!&ndash; //edit option &ndash;&gt;-->
-              <!--</div>-->
+              <div class="ddp-wrap-edit3 ddp-type">
+                <label class="ddp-label-type">{{'msg.storage.ui.file.name' | translate}}</label>
+                 <!-- edit option -->
+                <div class="ddp-ui-edit-option">
+                {{datasource.ingestion.uploadFileName}}
+                </div>
+                <!-- //edit option -->
+              </div>
               <!-- //edit -->
             </ng-container>
             <!-- //only file type -->
