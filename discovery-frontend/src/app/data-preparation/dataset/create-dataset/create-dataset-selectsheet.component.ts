@@ -371,9 +371,62 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     }
   }
 
+  public keydownEvent(event: any, type: string) {
+    // 13 is enter key
+    if (event.keyCode === 13 ) {
+
+      // Stop event bubbling
+      event.stopPropagation();
+      event.preventDefault();
+
+      // Column count input
+      if ('colCnt' === type) {
+        this.changeColumnCount();
+      }
+
+      // File delimiter
+      if ('delimiter' === type) {
+        this.changeDelimiter();
+      }
+
+    } else {
+
+
+      // 단어가 지워지거나 추가된다면
+      if (this._isKeyPressedWithChar(event.keyCode)) {
+
+        // Column count input
+        if ('colCnt' === type) {
+          this.isColumnCountRequired = true;
+        }
+
+        // Column count input
+        if ('delimiter' === type) {
+          this.isDelimiterRequired = true;
+        }
+
+        this.isNext = false;
+
+      }
+
+    }
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Returns true if something is typed on the keyboard
+   * Returns false if shift, tab etc is pressed
+   * 즉 직접 단어 자체가 지워지거나 입력된다면 true 를 반환한다.
+   * @param keyCode
+   */
+  private _isKeyPressedWithChar(keyCode: number): boolean {
+    const exceptionList: number[] = [9,13,16,17,18,19,20,27,33,34,35,36,37,38,39,40,45,46,91,92,219,220,93,144,145];
+    return exceptionList.indexOf(keyCode) === -1
+  }
+
+
   private _setFileFormat(fileFormat : FileFormat){
     this.isCSV = (fileFormat === FileFormat.CSV);
     this.isJSON = (fileFormat === FileFormat.JSON);

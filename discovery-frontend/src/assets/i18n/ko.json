@@ -1336,6 +1336,13 @@
   "msg.dp.alert.num.fail.dataset" : "{{value}}개의 데이터셋 생성이 실패하였습니다",
   "msg.dp.ss.check.error" : "에러 항목을 확인해 주세요.",
   "msg.dp.ss.name.required" : "스냅샷 이름이 필요합니다",
+  "msg.dp.ui.validate.url" : "데이터를 미리 보려면 URL의 유효성을 확인하십시오.",
+  "msg.dp.ui.url.ph" : "URL을 입력해 주세요",
+  "msg.dp.ui.url.dataset.title" : "URL 타입 데이터셋 생성",
+  "msg.dp.btn.validation.test" : "유효성 체크",
+  "msg.dp.ui.invalid.url" : "잘못된 URL입니다. URL을 확인하세요",
+  "msg.dp.th.col.cnt" : "컬럼 수",
+  "msg.dp.th.col.cnt.ph" : "컬럼 수를 입력하세요",
 
   "msg.board.create.add-ds" : "데이터소스 추가",
   "msg.board.create.add-ds.desc" : "시각화 할 데이터소스를 추가하고 관계를 설정해 주세요",

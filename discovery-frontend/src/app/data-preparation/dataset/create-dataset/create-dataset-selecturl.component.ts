@@ -301,6 +301,7 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
       this.datasetFiles[this.currDSIndex].delimiter =  this.currDelimiter;
       this.loadingShow();
       this._getGridInformation(this.currDSIndex, this._getParamForGrid(this.datasetFiles[this.currDSIndex]),'draw');
+      this.isColumnCountRequired = false;
     }
   }
 
@@ -328,23 +329,39 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
         this.checkValidation();
       }
 
+      // File delimiter
+      if ('delimiter' === type) {
+        this.changeDelimiter();
+      }
+
     } else {
 
-      // Column count input
-      if ('colCnt' === type) {
-        this.isColumnCountRequired = true;
-      }
 
-      // File url input
-      if ('url' === type) {
-        this.errorNum = null;
-      }
+      // 단어가 지워지거나 추가된다면
+      if (this._isKeyPressedWithChar(event.keyCode)) {
 
-      this.isValidCheck = false;
+        // Column count input
+        if ('colCnt' === type) {
+          this.isColumnCountRequired = true;
+        }
+
+        // Column count input
+        if ('delimiter' === type) {
+          this.isDelimiterRequired = true;
+        }
+
+        // File url input
+        if ('url' === type) {
+          this.errorNum = null;
+        }
+
+        this.isValidCheck = false;
+      }
 
     }
 
   }
+
 
   /**
    * When columnCount is changed(CSV, EXCEL)
@@ -576,7 +593,7 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
       }
       this.loadingHide();
 
-    }).catch((error) => {
+    }).catch(() => {
 
       this.errorNum = 1;
       this.isValidCheck = false;
@@ -584,16 +601,6 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
       this.clearGrid = true;
       this.isEXCEL = false;
       this.gridComponent.destroy();
-
-      // TODO : When error use toast ?
-      // console.info(error);
-      // this.datasetFiles[idx].error = error;
-      //
-      // if(this._isInit && idx === 0){
-      //   this.previewErrorMessge = this.datasetFiles[0].error.details;
-      // }
-      //
-      // if( option && option === 'draw') this.clearGrid = true;
       this.loadingHide();
 
     });
@@ -786,6 +793,18 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
     if(event.keyCode === 13 ) {
       this.next();
     }
+  }
+
+
+  /**
+   * Returns true if something is typed on the keyboard
+   * Returns false if shift, tab etc is pressed
+   * 즉 직접 단어 자체가 지워지거나 입력된다면 true 를 반환한다.
+   * @param keyCode
+   */
+  private _isKeyPressedWithChar(keyCode: number): boolean {
+    const exceptionList: number[] = [9,13,16,17,18,19,20,27,33,34,35,36,37,38,39,40,45,46,91,92,219,220,93,144,145];
+    return exceptionList.indexOf(keyCode) === -1
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
