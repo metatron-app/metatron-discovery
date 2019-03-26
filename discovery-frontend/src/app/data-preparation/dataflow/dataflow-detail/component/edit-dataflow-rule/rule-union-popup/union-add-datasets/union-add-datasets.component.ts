@@ -180,7 +180,10 @@ export class UnionAddDatasetsComponent extends AbstractPopupComponent implements
     this.isCheckAll = !this.isCheckAll;
 
     this.datasets = this.datasets.map((obj) => {
-      obj.selected = this.isCheckAll;
+
+      if (!obj.origin) { // origin은 unselect 하지 않음
+        obj.selected = this.isCheckAll;
+      }
       return obj;
     });
 
@@ -199,6 +202,11 @@ export class UnionAddDatasetsComponent extends AbstractPopupComponent implements
    * @param item
    */
   public checkEventHandler(item) {
+
+    if (item.origin) { // cant check origin
+      return;
+    }
+
     item.selected = !item.selected;
 
     if (item.selected) {

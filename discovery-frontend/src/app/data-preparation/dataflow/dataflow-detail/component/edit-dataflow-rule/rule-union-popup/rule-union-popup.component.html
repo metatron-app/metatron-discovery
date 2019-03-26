@@ -82,13 +82,12 @@
                 <tr>
                   <th>
                     <div class="ddp-wrap-top">
-                      <span class="ddp-data-name">{{masterDataset.dsName}}</span>
                       <div class="ddp-ui-value">
                         <div class="ddp-data-value">
                           <strong>{{masterDataset.gridData.fields.length}}</strong>/{{masterDataset.gridData.fields.length}}
                         </div>
-
                       </div>
+                      <span class="ddp-data-name" title="{{masterDataset.dsName}}">{{masterDataset.dsName}}</span>
                     </div>
                   </th>
                 </tr>
@@ -112,13 +111,13 @@
                 <tr>
                   <th *ngFor="let dsItem of unionDatasets" >
                     <div class="ddp-wrap-top">
-                      <span class="ddp-data-name">{{dsItem.dsName}}</span>
                       <div class="ddp-ui-value">
                         <div class="ddp-data-value">
                           <strong>{{dsItem.validCount}}</strong>/{{dsItem.gridData ? dsItem.gridData.fields.length : ''}}
                         </div>
                         <em class="ddp-icon-control-cut" (click)="deleteDataset(dsItem)"></em>
                       </div>
+                      <span class="ddp-data-name" title="{{dsItem.dsName}}">{{dsItem.dsName}}</span>
                     </div>
                   </th>
                 </tr>
