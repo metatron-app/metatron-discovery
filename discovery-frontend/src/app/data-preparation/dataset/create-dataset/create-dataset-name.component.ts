@@ -425,6 +425,28 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   }
 
 
+  /**
+   * Return appropriate title for each dataset type
+   */
+  public get getTypeName() {
+
+    let result = 'Staging DB';
+
+    if (this.type === 'DB') {
+      result = 'Database';
+    }
+
+    if (this.type === 'FILE') {
+      result = 'File';
+    }
+
+    if (this.type === 'URL') {
+      result = this.type;
+    }
+
+    return result;
+
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -507,7 +529,12 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     if ('FILE' === this.type || 'URL' === this.type) {
 
       if (this.names.length === 1) {
-        this.datasetInfo.push({name : this.translateService.instant('msg.dp.ui.list.file'), value : this.datasetFiles[0].fileName});
+
+        if ('FILE' === this.type) {
+          this.datasetInfo.push({name : this.translateService.instant('msg.dp.ui.list.file'), value : this.datasetFiles[0].fileName});
+        } else {
+          this.datasetInfo.push({name : 'URL', value : this.datasetFiles[0].storedUri});
+        }
 
         if ('XLSX' === this.datasetFiles[0].fileExtension.toUpperCase() || 'XLS' === this.datasetFiles[0].fileExtension.toUpperCase()) {
           this.datasetInfo.push({
