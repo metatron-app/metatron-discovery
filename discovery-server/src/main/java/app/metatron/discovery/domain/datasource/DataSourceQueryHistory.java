@@ -150,7 +150,7 @@ public class DataSourceQueryHistory extends AbstractHistoryEntity implements Met
   @Column(name = "query_engine_elapsed_time")
   Long engineElapsedTime;
 
-  @Column(name = "query_from_uri")
+  @Column(name = "query_from_uri", length = 65535, columnDefinition = "TEXT")
   String fromUri;
 
   @Column(name = "query_from_dashboard_id")
