@@ -195,6 +195,31 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
         this.compareIndex = 0;
 
         this.setMeasureList();
+
+        // 기존 데이터 체크
+        if( !_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] ){
+          let operation = this.uiOption.analysis.operation;
+          this.isBufferOn = (operation.buffer == 0 ? false : true);
+          (this.isBufferOn ? this.bufferInput = String(operation.buffer) : this.bufferInput);
+          this.isChoroplethOn = operation.choropleth;
+          if( this.isChoroplethOn ){
+            let measureList = this.fieldList.measureList;
+            for (let index = 0; index < measureList.length; index++) {
+              if( measureList[index].name == operation.aggregation.column ) {
+                this.colorByIndex = index;
+                break;
+              }
+            }
+          }
+          if( !_.isUndefined(operation.aggregation.type) ){
+            for (let index = 0; index < this.aggregateTypes.length; index++) {
+              if( this.aggregateTypes[index].name == operation.aggregation.type ) {
+                this.aggregateTypesIndex = index;
+                break;
+              }
+            }
+          }
+        }
       }
     }
   }
