@@ -18,6 +18,7 @@ import { Dataconnection } from '../dataconnection/dataconnection';
 import { MetadataColumn } from '../meta-data-management/metadata-column';
 import { CodeTable } from '../meta-data-management/code-table';
 import {
+  CreateConnectionData,
   CreateSnapShotData,
   CreateSourceCompleteData,
   CreateSourceConfigureData
@@ -262,7 +263,7 @@ export class DatasourceInfo {
   public fieldData: any;
 
   // 1step 커넥션 정보
-  public connectionData: any;
+  public connectionData: CreateConnectionData;
 
   // 2step 데이터베이스 정보
   public databaseData: any;

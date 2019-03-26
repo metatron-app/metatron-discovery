@@ -123,7 +123,7 @@ export class WorkbenchLoginComponent extends AbstractComponent implements OnInit
     this.dataconnection.implementor = this.workbench.dataConnection.implementor;
 
     ( !StringUtil.isEmpty(this.workbench.dataConnection.hostname) ) && (this.dataconnection.hostname = this.workbench.dataConnection.hostname);
-    ( !StringUtil.isEmpty(this.workbench.dataConnection.port) ) && (this.dataconnection.port = this.workbench.dataConnection.port);
+    ( this.workbench.dataConnection.port ) && (this.dataconnection.port = this.workbench.dataConnection.port);
     ( !StringUtil.isEmpty(this.workbench.dataConnection.url) ) && (this.dataconnection.url = this.workbench.dataConnection.url);
     ( !StringUtil.isEmpty(this.workbench.dataConnection.sid) ) && (this.dataconnection.url = this.workbench.dataConnection.sid);
     // add authenticationType in connection

@@ -18,7 +18,6 @@ import {isNullOrUndefined} from "util";
 import {
   AuthenticationType,
   Dataconnection,
-  ImplementorType,
   InputMandatory,
   JdbcDialect,
   Scope
@@ -33,6 +32,9 @@ import {StorageService} from "../../service/storage.service";
   templateUrl: './connection.component.html',
 })
 export class ConnectionComponent extends AbstractComponent {
+
+  // TODO
+  private _validConnectionList;
 
   @Input()
   public readonly isDisableChangeConnectionType: boolean;
@@ -132,9 +134,9 @@ export class ConnectionComponent extends AbstractComponent {
    * Set connection input
    * @param {Dataconnection} connection
    */
-  public setConnectionInput(connection: Dataconnection): void {
+  public setConnectionInput(connection: Dataconnection | ConnectionParam): void {
     this.hostname = StringUtil.isNotEmpty(connection.hostname) ?connection.hostname : undefined;
-    this.port = StringUtil.isNotEmpty(connection.port) ? Number.parseInt(connection.port) : undefined;
+    this.port = connection.port || undefined;
     this.catalog = StringUtil.isNotEmpty(connection.catalog) ?connection.hostname : undefined;
     this.database = StringUtil.isNotEmpty(connection.database) ?connection.database : undefined;
     this.sid = StringUtil.isNotEmpty(connection.sid) ?connection.sid : undefined;
@@ -416,6 +418,8 @@ export class ConnectionComponent extends AbstractComponent {
       if (!this.isDisablePassword() && this.selectedAuthenticationType.value !== AuthenticationType.USERINFO) {
         connectionParam.password = this.password;
       }
+    } else { // if disable authentication, set default type
+      connectionParam.authenticationType = this.authenticationTypeList[0].value;
     }
     // if is exist properties and include properties
     if (isIncludeProperties && this.isExistProperties()) {
