@@ -2031,6 +2031,7 @@
   "msg.storage.ui.geo.coordinate": "坐标系",
   "msg.storage.ui.config.extension.no.data": "Extension类型不支持预览",
   "msg.storage.ui.config.no.data": "无数据",
+  "msg.storage.ui.file.name": "File name",
 
   "msg.storage.ui.linked.source.preview.include.geo": "Linked data does not support preview for Geo type.",
   "msg.storage.ui.linked.source.preview": " This data grid is source data, not ingested data. This may differ from the temporarily ingested data value when creating a dashboard.",
