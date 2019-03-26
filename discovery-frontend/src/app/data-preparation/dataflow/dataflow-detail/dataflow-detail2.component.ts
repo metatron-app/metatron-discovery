@@ -26,12 +26,12 @@ import {DsType, ImportType, PrDataset, Rule} from "../../../domain/data-preparat
 import {DataflowService} from "../service/dataflow.service";
 import {DataflowModelService} from "../service/dataflow.model.service";
 import {ActivatedRoute} from "@angular/router";
-import {Observable} from "rxjs";
 import {StringUtil} from "../../../common/util/string.util";
 import {Alert} from "../../../common/util/alert.util";
 import {PreparationAlert} from "../../util/preparation-alert.util";
 import {Modal} from "../../../common/domain/modal";
 import {DatasetInfoPopupComponent} from "./component/dataset-info-popup/dataset-info-popup.component";
+import {PreparationCommonUtil} from "../../util/preparation-common.util";
 
 declare let echarts: any;
 
@@ -430,7 +430,17 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
    * */
   public datasetEventHandler(data?: string) {
     if (data) {
-      this.step = data;
+      if (data === 'resize') {
+        // Check whether to put scroll bar
+        const resize = $('.sys-dataflow-right-panel').width() !== null && $('.sys-dataflow-right-panel').width() / $('.ddp-wrap-flow2').width() > 0.5;
+        if(resize) {
+          $('.ddp-box-chart').css('overflow-x', 'auto');
+        }else{
+          $('.ddp-box-chart').css('overflow-x', 'hidden');
+        }
+      } else {
+        this.step = data;
+      }
     } else {
       this.createWrangledDataset();
     }
@@ -613,20 +623,15 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
       const lWrangled: number = (wrangled * itemMinSize) + Math.floor(imported * itemMinSize/2);
       if(lImported > minHeightSize || lWrangled > minHeightSize) {if(lImported>lWrangled) {fixHeight = lImported;}else{fixHeight = lWrangled;}}
     }
-    let isRight: boolean = false;
-    if($('.sys-dataflow-right-panel').width() !== null) {isRight = true;}
     const minWidthSize: number = $('.ddp-wrap-flow2').width()- hScrollbarWith;
-    if(isRight) {
-      $('.ddp-box-chart').css('overflow-x', 'auto');
-    }else{
-      $('.ddp-box-chart').css('overflow-x', 'hidden');
-    }
+    $('.ddp-box-chart').css('overflow-x', 'hidden');
     $('#chartCanvas').css('height', fixHeight+'px').css('width', minWidthSize+'px').css('overflow', 'hidden');
     if($('#chartCanvas').children()!=null && $('#chartCanvas').children()!=undefined){
       $('#chartCanvas').children().css('height', fixHeight+'px').css('width', minWidthSize+'px');}
     if($('#chartCanvas').children().children()!=null && $('#chartCanvas').children().children()!=undefined) {
       $('#chartCanvas').children().children().css('height', fixHeight+'px').css('width', minWidthSize+'px');}
-
+    $('#chartCanvas div:last-child').css('height', '');
+    $('#chartCanvas div:last-child').css('width', '');
     if (resizeCall == true && this.chart != null) {this.chart.resize();}
   }
 
@@ -964,6 +969,11 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
     this.chartOptions.yAxis.max = this.rootCount > 5 ? 5 + (this.rootCount - 5) : 5;
     this.chartOptions.series[0].nodes = this.chartNodes;
     this.chartOptions.series[0].links = this.chartLinks;
+    this.chartOptions.tooltip = {
+      formatter: (param) => {
+        return param.dataType === 'node' ? param.data.dsName : '';
+      }
+    };
     this.chart.setOption(this.chartOptions);
     this.chartClickEventListener(this.chart);
     this.cloneFlag = false;
@@ -1240,21 +1250,21 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
     this.symbolInfo = {
       IMPORTED: {
         UPLOAD: {
-          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.png',
+          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.svg',
         },
         DATABASE: {
-          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.png',
+          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.svg',
         },
         STAGING_DB: {
-          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.png'
+          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.svg'
         }
       },
       WRANGLED: {
-        DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_wrangled.png',
+        DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_dataset_wrangled.svg',
       },
       SELECTED: {
-        IMPORTED: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db_focus.png',
-        WRANGLED: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_dataset_focus.png'
+        IMPORTED: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db_focus.svg',
+        WRANGLED: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_dataset_wrangled_focus.svg'
       }
     };
 
@@ -1263,11 +1273,7 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
       position: 'bottom',
       textStyle: { color: '#000000', fontWeight: 'bold' },
       formatter(params) {
-        if (params.data.dsName.length > 20) {
-          return params.data.dsName.slice(0,20) + ' ...'
-        } else {
-          return params.data.dsName;
-        }
+        return PreparationCommonUtil.parseChartName(params.data.dsName);
       }
     };
     this.label = {
@@ -1304,7 +1310,7 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
           layout: 'none',
           coordinateSystem: 'cartesian2d',
           focusNodeAdjacency: false,
-          symbolSize: 40,
+          symbolSize: 55,
           hoverAnimation: true,
           roam: false,
           edgeSymbol: ['none', 'arrow'],

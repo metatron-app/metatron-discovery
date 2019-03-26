@@ -472,4 +472,45 @@ export class PreparationCommonUtil {
     return rows;
   }
 
+  /**
+   * Return a modified icon title
+   * @param data
+   * @param length(Optional): set number of words appeared per line
+   * @param steps(Optional): set number of lines appeared per icon
+   * @returns any
+   */
+  public static parseChartName(data : any, length?: any, steps?: any) {
+
+    if (data !== null && data !== undefined) {
+      length = length ? length : 20; // default value of 20, appearing twenty words per line
+      steps = steps ? steps : 2; // default value of 2, appearing two lines per icon
+
+      if (data.length < length) {
+        return data;
+      } else { // parse tooltip
+        let temp = '';
+        let index = 0;
+
+        for (let i = 0; i < steps; i = i + 1) {
+          if (index > data.length) {
+            temp = temp + data.substring(index);
+            break;
+          }
+          temp = temp + data.substring(index, index + length);
+
+          if (i + 1 === steps) {
+            const isFinalLine = (index + length) < data.length;
+            temp = isFinalLine ? temp.substring(0, index + length - 3) + ' ...' : temp;
+            break;
+          }
+
+          temp = temp + '\n';
+          index = index + length;
+        }
+        return temp;
+      }
+    } else {
+      return '';
+    }
+  }
 }
