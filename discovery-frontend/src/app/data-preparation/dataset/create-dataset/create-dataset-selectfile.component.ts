@@ -13,23 +13,20 @@
  */
 
 import {
-  ChangeDetectorRef, Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
-  ViewChild
+  ChangeDetectorRef, Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
 import { CommonConstant } from '../../../common/constant/common.constant';
 import { CookieConstant } from '../../../common/constant/cookie.constant';
-//import { DatasetFile } from '../../../domain/data-preparation/dataset';
 import { PrDatasetFile,StorageType,FileFormat } from '../../../domain/data-preparation/pr-dataset';
-import { Alert } from '../../../common/util/alert.util';
 import { isUndefined } from 'util';
 import { DatasetService } from "../service/dataset.service";
-//import {ConfirmModalComponent} from "../../../common/component/modal/confirm/confirm.component";
 
 import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';
 import {Modal} from '../../../common/domain/modal';
 import {PreparationCommonUtil} from "../../util/preparation-common.util";
+import {Alert} from "../../../common/util/alert.util";
 
 declare let plupload: any;
 
@@ -375,6 +372,12 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
               break;
             case -200:
               console.log('HTTP_ERROR', err);
+
+              if (err.response) {
+                const res = JSON.parse(err.response);
+                Alert.error(this.translateService.instant(res.message));
+              }
+
               break;
             case -300:
               console.log('IO_ERROR', err);

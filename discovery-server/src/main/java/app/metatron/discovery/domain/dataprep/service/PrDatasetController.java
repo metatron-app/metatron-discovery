@@ -75,16 +75,10 @@ public class PrDatasetController {
     private PrepDatasetStagingDbService datasetStagingDbService;
 
     @Autowired
-    private PrepHdfsService hdfsService;
-
-    @Autowired
     private PrDatasetService datasetService;
 
     @Autowired
     private PrDatasetRepository datasetRepository;
-
-    @Autowired
-    private PrSnapshotRepository snapshotRepository;
 
     @Autowired
     private PrUploadFileRepository uploadFileRepository;

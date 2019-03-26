@@ -15,7 +15,8 @@
 package app.metatron.discovery.domain.dataprep.service;
 
 import app.metatron.discovery.domain.dataprep.PrepDatasetStagingDbService;
-import app.metatron.discovery.domain.dataprep.PrepHdfsService;
+import app.metatron.discovery.domain.dataprep.PrepProperties;
+import app.metatron.discovery.domain.dataprep.PrepUtil;
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
@@ -30,6 +31,12 @@ import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import com.google.common.collect.Maps;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,13 +47,12 @@ import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.hateoas.Resource;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @RequestMapping(value = "/preparationsnapshots")
 @RepositoryRestController
@@ -70,7 +76,7 @@ public class PrSnapshotController {
     private PrSnapshotService snapshotService;
 
     @Autowired
-    private PrepHdfsService hdfsService;
+    private PrepProperties prepProperties;
 
     @Autowired(required = false)
     private PrepDatasetStagingDbService datasetStagingDbPreviewService;
@@ -201,11 +207,12 @@ public class PrSnapshotController {
                     }
 
                     // We generated JSON snapshots to have ".json" at the end of the URI.
+                    Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
                     if (storedUri.endsWith(".json")) {
-                        PrepJsonParseResult result = PrepJsonUtil.parseJson(snapshot.getStoredUri(), 10000, null, this.hdfsService.getConf());
+                        PrepJsonParseResult result = PrepJsonUtil.parseJson(snapshot.getStoredUri(), 10000, null, hadoopConf);
                         gridResponse.setByGridWithJson(result);
                     } else {
-                        PrepCsvParseResult result = PrepCsvUtil.parse(snapshot.getStoredUri(), ",", 10000, null, this.hdfsService.getConf(), true);
+                        PrepCsvParseResult result = PrepCsvUtil.parse(snapshot.getStoredUri(), ",", 10000, null, hadoopConf, true);
                         gridResponse.setByGrid(result);
                     }
 
