@@ -16,8 +16,8 @@ package app.metatron.discovery.domain.dataprep.service;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.PrepDatasetStagingDbService;
-import app.metatron.discovery.domain.dataprep.PrepHdfsService;
 import app.metatron.discovery.domain.dataprep.PrepProperties;
+import app.metatron.discovery.domain.dataprep.PrepUtil;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
@@ -26,6 +26,16 @@ import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
 import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -41,17 +51,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-
 @Service
 public class PrSnapshotService {
     private static Logger LOGGER = LoggerFactory.getLogger(PrSnapshotService.class);
@@ -66,7 +65,7 @@ public class PrSnapshotService {
     private PrepDatasetStagingDbService datasetStagingDbService;
 
     @Autowired
-    PrepHdfsService hdfsService;
+    PrepProperties prepProperties;
 
     public String makeSnapshotName(String dsName, DateTime launchTime) {
         String ssName;
@@ -152,7 +151,7 @@ public class PrSnapshotService {
                             fis.close();
                             break;
                         case "hdfs":
-                            Configuration conf = this.hdfsService.getConf();
+                            Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
                             FileSystem fs = FileSystem.get(conf);
                             Path path = new Path(new URI(storedUri));
 
@@ -233,7 +232,7 @@ public class PrSnapshotService {
                               file.delete();
                               break;
                           case "hdfs":
-                              Configuration conf = this.hdfsService.getConf();
+                              Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
                               if (storedUri == null) {
                                   LOGGER.info("deleteSnapshot(): the file does not exists");
                                   break;

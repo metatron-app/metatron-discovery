@@ -723,6 +723,9 @@
   "msg.dp.alert.failed.to.calculate.rowno" : "Error occured while calculating the row count of the dataset",
   "msg.dp.alert.file.format.wrong" : "Unsupported file format or crashed file.",
   "msg.dp.alert.hadoop.not.configured" : "Hadoop not configured",
+  "msg.dp.alert.hadoop.core.site.not.found" : "Hadoop core-site.xml not found",
+  "msg.dp.alert.hadoop.hdfs.site.not.found" : "Hadoop hdfs-site.xml not found",
+  "msg.dp.alert.hadoop.hdfs.failed.to.connect" : "Failed to connect Hadoop HDFS server",
   "msg.dp.alert.staging.base.dir.not.configured" : "Staging base directory not configured",
   "msg.dp.alert.hive.not.configured" : "Hive not configured",
   "msg.dp.alert.external.jar.not.configured" : "External jar for whole transformation not configured",
@@ -2182,6 +2185,7 @@
   "msg.storage.ph.search.snapshot": "Search snapshot",
   "msg.storage.ph.source.desc": "Please insert datasource description",
   "msg.storage.ui.none.source.desc": "No description",
+  "msg.storage.ui.file.name": "File name",
   "msg.storage.ui.linked.source.preview.include.geo": "Linked data does not support preview for Geo type.",
   "msg.storage.ui.linked.source.preview": "This data grid is source data, not ingested data. This may differ from the temporarily ingested data value when creating a dashboard.",
 
@@ -2483,7 +2487,7 @@
   "msg.storage.ui.timezone.continent.universal": "Universal",
   "msg.storage.ui.timezone.continent.WET": "WET",
   "msg.storage.ui.timezone.continent.W-SU": "W-SU",
-  "msg.storage.ui.timezone.continent.zulu": "줄루",
+  "msg.storage.ui.timezone.continent.zulu": "Zulu",
 
   "msg.storage.ui.timezone.city.abidjan": "Abidjan",
   "msg.storage.ui.timezone.city.accra": "Accra",

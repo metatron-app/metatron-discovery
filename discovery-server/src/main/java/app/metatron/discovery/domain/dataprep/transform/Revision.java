@@ -12,8 +12,9 @@
  * limitations under the License.
  */
 
-package app.metatron.discovery.domain.dataprep.teddy;
+package app.metatron.discovery.domain.dataprep.transform;
 
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
