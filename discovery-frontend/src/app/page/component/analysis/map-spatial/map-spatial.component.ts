@@ -171,7 +171,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       let isChanged = false;
       let shelfIndex = 0;
       this.shelf.layers.forEach(layer => {
-        if (!_.isUndefined(layer.fields) && layer.fields.length > 0) {
+        if (!_.isUndefined(layer.fields) && layer.fields.length > 0 && shelfIndex < 2) {
           layer.fields.forEach(field => {
             if (!_.isUndefined(field) && !_.isUndefined(field.field) && !_.isUndefined(field.field.logicalType)
               && (field.field.logicalType === LogicalType.GEO_POINT || field.field.logicalType === LogicalType.GEO_POLYGON || field.field.logicalType === LogicalType.GEO_LINE)) {
@@ -424,7 +424,9 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     mapUIOption.analysis = {
       use: true,
       type: 'geo',
-      layerNum: this.baseIndex,
+      // data를 위한 layer
+      layerNum: 0,
+      selectedLayerNum: this.baseIndex,
       mainLayer: baseData,
       compareLayer: compareData,
       operation: {
@@ -457,7 +459,9 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     mapUIOption.analysis = {
       use: true,
       type: 'geo',
-      layerNum: this.baseIndex,
+      // data를 위한 layer
+      layerNum: 0,
+      selectedLayerNum: this.baseIndex,
       mainLayer: baseData,
       compareLayer: compareData,
       operation: {

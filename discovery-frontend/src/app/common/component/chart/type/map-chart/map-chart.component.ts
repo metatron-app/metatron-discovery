@@ -1072,7 +1072,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       }
 
       // Polygon type
-      if (_.eq(layerType, MapLayerType.POLYGON)) {
+      if (_.eq(layerType, MapLayerType.POLYGON) || _.eq(layerType, MapLayerType.MULTIPOLYGON)) {
         let polygonLayer: UIPolygonLayer = <UIPolygonLayer>styleLayer;
         outlineType = polygonLayer.outline ? polygonLayer.outline.thickness : null;
         outlineColor = polygonLayer.outline ? polygonLayer.outline.color : null;
@@ -1254,7 +1254,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             lineDash: lineDash
           })
         });
-      } else if (_.eq(layerType, MapLayerType.POLYGON)) {
+      } else if (_.eq(layerType, MapLayerType.POLYGON) || _.eq(layerType, MapLayerType.MULTIPOLYGON)) {
         style = new ol.style.Style({
           stroke: new ol.style.Stroke({
             color: outlineColor,
@@ -3358,7 +3358,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         pointFeature.set('isClustering', this.getUiMapOption().layers[this.getUiMapOption().layerNum]['clustering']);
         features[i] = pointFeature;
         source.addFeature(features[i]);
-      } else if (data.features[i].geometry.type.toString().toLowerCase().indexOf('polygon') != -1) {
+      } else if (data.features[i].geometry.type.toString().toLowerCase().indexOf('polygon') != -1 || data.features[i].geometry.type.toString().toLowerCase().indexOf('multipolygon') != -1) {
         // polygon
         let polygonFeature = (new ol.format.GeoJSON()).readFeature(data.features[i]);
         polygonFeature.set('layerNum', this.getUiMapOption().layerNum);
@@ -3414,7 +3414,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           this.olmap.removeLayer(symbolLayer);
         }
       }
-    } else if (_.eq(layer.type, MapLayerType.LINE) || _.eq(layer.type, MapLayerType.POLYGON)) {
+    } else if (_.eq(layer.type, MapLayerType.LINE) || _.eq(layer.type, MapLayerType.POLYGON) || _.eq(layer.type, MapLayerType.MULTIPOLYGON)) {
       ////////////////////////////////////////////////////////
       // Line, Polygon layer
       ////////////////////////////////////////////////////////
