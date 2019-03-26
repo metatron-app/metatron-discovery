@@ -1250,21 +1250,21 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
     this.symbolInfo = {
       IMPORTED: {
         UPLOAD: {
-          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.svg',
+          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/svg/icon_db.svg',
         },
         DATABASE: {
-          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.svg',
+          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/svg/icon_db.svg',
         },
         STAGING_DB: {
-          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.svg'
+          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/svg/icon_db.svg'
         }
       },
       WRANGLED: {
-        DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_dataset_wrangled.svg',
+        DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/svg/icon_dataset_wrangled_.svg',
       },
       SELECTED: {
-        IMPORTED: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db_focus.svg',
-        WRANGLED: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_dataset_wrangled_focus.svg'
+        IMPORTED: 'image://' + window.location.origin + '/assets/images/datapreparation/svg/icon_db_focus.svg',
+        WRANGLED: 'image://' + window.location.origin + '/assets/images/datapreparation/svg/icon_dataset_wrangled_focus.svg'
       }
     };
 
