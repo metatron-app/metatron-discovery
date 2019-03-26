@@ -5733,9 +5733,9 @@ ul.ddp-list-detail li .ddp-wrap-detailinfo .ddp-data-history .ddp-data-success {
 table.ddp-table-union {display:inline-block; width:auto; margin-left:-3px; white-space:nowrap; vertical-align: top;}
 table.ddp-table-union tr th {position:relative; padding:0 5px 5px 12px; text-align:left;}
 table.ddp-table-union tr th:first-of-type {padding-left:23px;}
-table.ddp-table-union tr th .ddp-wrap-top {padding:0 77px 0 0; width:234px; font-size:0px; box-sizing:border-box;}
-table.ddp-table-union tr th .ddp-data-name {display:inline-block; width:100%; font-size:13px; color:#4b515b; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
-table.ddp-table-union tr th .ddp-ui-value {position:absolute; top:0; right:0;}
+table.ddp-table-union tr th .ddp-wrap-top {padding:0 0 0 0; width:234px; font-size:0px; box-sizing:border-box;}
+table.ddp-table-union tr th .ddp-data-name {display:block; font-size:13px; color:#4b515b; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
+table.ddp-table-union tr th .ddp-ui-value {float:right; margin-left:5px;}
 table.ddp-table-union tr th .ddp-ui-value .ddp-data-value {float:left; position:relative; top:2px; color:#b7b9c2; font-size:12px;}
 table.ddp-table-union tr th .ddp-ui-value .ddp-data-value strong {color:#666eb2; font-weight:normal;}
 table.ddp-table-union tr th .ddp-ui-value em.ddp-icon-control-cut {position:relative; top:-1px; float:Left; margin-left:10px;}
