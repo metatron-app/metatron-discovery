@@ -57,7 +57,8 @@ import {CodemirrorComponent} from './component/editor-workbench/codemirror.compo
 import {SaveAsHiveTableComponent} from "./component/save-as-hive-table/save-as-hive-table.component";
 import {DetailWorkbenchDatabase} from "./component/detail-workbench/detail-workbench-database/detail-workbench-database";
 import {Message} from '@stomp/stompjs';
-import {AuthenticationType, Dataconnection} from "../domain/dataconnection/dataconnection";
+import {AuthenticationType, Dataconnection, InputMandatory, InputSpec} from "../domain/dataconnection/dataconnection";
+import {StorageService} from "../data-storage/service/storage.service";
 
 declare let moment: any;
 declare let Split;
@@ -2680,13 +2681,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
               value: ConnectionType.ENGINE
             },
             connection: {
-              hostname: this.workbench.dataConnection.hostname,
-              port: this.workbench.dataConnection.port,
-              url: this.workbench.dataConnection.url,
-              username: selectedSecurityType.value === AuthenticationType.DIALOG ? this.webSocketLoginId : connection.username,
-              password: selectedSecurityType.value === AuthenticationType.DIALOG ? this.webSocketLoginPw : connection.password,
               authenticationType: selectedSecurityType.value,
-              implementor: this.getEnabledConnectionTypes(true).find(type => type.value === this.workbench.dataConnection.implementor.toString()).value
+              implementor: this.workbench.dataConnection.implementor
             }
           },
           databaseData: {
@@ -2702,6 +2698,35 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           fieldList: currentResultTab.result.fields,
           fieldData: currentResultTab.result.data
         };
+
+        if( StringUtil.isNotEmpty(this.workbench.dataConnection.hostname) ) {
+          this.setDatasource.connectionData.connection.hostname = this.workbench.dataConnection.hostname;
+        }
+        if( 0 < this.workbench.dataConnection.port ) {
+          this.setDatasource.connectionData.connection.port = this.workbench.dataConnection.port;
+        }
+        if( StringUtil.isNotEmpty(this.workbench.dataConnection.url) ) {
+          this.setDatasource.connectionData.connection.url = this.workbench.dataConnection.url;
+        }
+
+        const inputSpec:InputSpec = this.workbench.dataConnection.connectionInformation.inputSpec;
+        if( InputMandatory.NONE !== inputSpec.catalog && StringUtil.isNotEmpty(this.workbench.dataConnection.catalog) ) {
+          this.setDatasource.connectionData.connection.catalog = this.workbench.dataConnection.catalog;
+        }
+        if( InputMandatory.NONE !== inputSpec.sid && StringUtil.isNotEmpty(this.workbench.dataConnection.sid) ) {
+          this.setDatasource.connectionData.connection.sid = this.workbench.dataConnection.sid;
+        }
+        if( InputMandatory.NONE !== inputSpec.database && StringUtil.isNotEmpty(this.workbench.dataConnection.database) ) {
+          this.setDatasource.connectionData.connection.database = this.workbench.dataConnection.database;
+        }
+        if( InputMandatory.NONE !== inputSpec.username ) {
+          this.setDatasource.connectionData.connection.username
+            = selectedSecurityType.value === AuthenticationType.DIALOG ? this.webSocketLoginId : connection.username;
+        }
+        if( InputMandatory.NONE !== inputSpec.password ) {
+          this.setDatasource.connectionData.connection.password
+            = selectedSecurityType.value === AuthenticationType.DIALOG ? this.webSocketLoginPw : connection.password;
+        }
 
         // 로딩 hide
         this.loadingHide();
