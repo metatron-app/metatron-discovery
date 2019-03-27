@@ -586,6 +586,7 @@ public class TeddyExecutor {
         String importType = (String) datasetInfo.get("importType");
         switch (importType) {
             case "UPLOAD":
+            case "URI":
                 String storedUri = (String) datasetInfo.get("storedUri");
                 Integer columnCount = (Integer) datasetInfo.get("manualColumnCount");
                 String extensionType = FilenameUtils.getExtension(storedUri).toLowerCase();

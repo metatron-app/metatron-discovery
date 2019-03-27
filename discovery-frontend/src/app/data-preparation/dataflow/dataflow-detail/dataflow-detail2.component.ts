@@ -1242,6 +1242,9 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
         UPLOAD: {
           DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.png',
         },
+        URI: {
+          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.png',
+        },
         DATABASE: {
           DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.png',
         },

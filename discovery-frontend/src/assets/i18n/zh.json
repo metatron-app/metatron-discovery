@@ -1250,6 +1250,13 @@
   "msg.dp.ui.max.length.error" : "You can enter up to 150 characters",
   "msg.dp.alert.hive.column.error" : "There are column names that are not eligible to be stored in Hive. Would you like to view and change the column name?",
   "mgs.dp.ui.continue.new.rule": "Continue to edit rules with this dataset in a new dataflow",
+  "msg.dp.ui.validate.url" : "Please validate the URL to preview data",
+  "msg.dp.ui.url.ph" : "Please enter URL",
+  "msg.dp.ui.url.dataset.title" : "Create URL type dataset",
+  "msg.dp.btn.load.data" : "Load data",
+  "msg.dp.ui.invalid.url" : "Invalid URL. Please check URL",
+  "msg.dp.th.col.cnt" : "Column count",
+  "msg.dp.th.col.cnt.ph" : "Enter column count",
 
   "msg.board.create.add-ds": "添加数据源",
   "msg.board.create.add-ds.desc": "请添加视觉化数据源并设置关系",
