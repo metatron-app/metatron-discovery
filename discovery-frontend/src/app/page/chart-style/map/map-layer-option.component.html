@@ -227,8 +227,9 @@
                                              [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}"
                                              type="text" class="ddp-input-typebasic ddp-txt-right"
                                              [(ngModel)]="item['gt']"
-                                             (keyup.enter)="changeRangeMinInput(item, rangeIndex, layerIndex)"
-                                             (focusout)="showMinInputColorRange(item, false, minInput)">
+                                             (mouseenter)="item['minInputShow'] = true;"
+                                             (mouseleave)="item['minInputShow'] = false;"
+                                             (keyup.enter)="changeRangeMinInput(item, rangeIndex, layerIndex)">
                                       <!-- tooltip -->
                                       <div class="ddp-ui-tooltip-info">
                                         <em class="ddp-icon-view-down"></em>
@@ -252,8 +253,9 @@
                                              [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}"
                                              type="text" class="ddp-input-typebasic ddp-txt-right"
                                              [(ngModel)]="item['lte']"
-                                             (keyup.enter)="changeRangeMaxInput(item, rangeIndex, layerIndex)"
-                                             (focusout)="showMaxInputColorRange(item, false, maxInput)">
+                                             (mouseenter)="item['maxInputShow'] = true;"
+                                             (mouseleave)="item['maxInputShow'] = false;"
+                                             (keyup.enter)="changeRangeMaxInput(item, rangeIndex, layerIndex)">
                                       <!-- tooltip -->
                                       <div class="ddp-ui-tooltip-info">
                                         <em class="ddp-icon-view-down"></em>

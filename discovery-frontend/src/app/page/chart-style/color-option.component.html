@@ -231,8 +231,7 @@
                   <div class="ddp-input-range">
                     <!-- 말줄임 -->
                     <!-- 클릭시 is-selected 추가 -->
-                    <div *ngIf="null !== item.fixMin && undefined !== item.fixMin"
-                         class="ddp-ng-ellipsis" [ngClass]="{'ddp-selected' : item['minInputShow']}">
+                    <div class="ddp-ng-ellipsis" [ngClass]="{'ddp-selected' : item['minInputShow']}">
                       <span class="ddp-data-ellipsis ddp-txt-right" [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}"
                             (click)="showMinInputColorRange(item, true, minInput, index)"> {{item.gt}}</span>
                       <input #minInput type="text" class="ddp-input-typebasic ddp-txt-right"

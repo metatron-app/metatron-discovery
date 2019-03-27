@@ -606,6 +606,8 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
    */
   public addNewRange(index: number) {
 
+    this.removeInputRangeStatus();
+
     // 색상 범위리스트
     const rangeList = (<UIChartColorByValue>this.uiOption.color).ranges;
 
@@ -1251,16 +1253,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     event.stopPropagation();
 
     // hide other range preview
-    _.each(this.rangesViewList, (rangeVal) => {
-      if (rangeVal['minInputShow']) delete rangeVal['minInputShow'];
-      if (rangeVal['maxInputShow']) delete rangeVal['maxInputShow'];
-    });
-    if(!_.isUndefined(this.uiOption.color['ranges']) && this.uiOption.color['ranges'].length > 0) {
-      _.each(this.uiOption.color['ranges'], (uiRangeVal) => {
-        if (uiRangeVal['minInputShow']) delete uiRangeVal['minInputShow'];
-        if (uiRangeVal['maxInputShow']) delete uiRangeVal['maxInputShow'];
-      });
-    }
+    this.removeInputRangeStatus();
 
     item['minInputShow'] = inputShow;
 
@@ -1280,16 +1273,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     event.stopPropagation();
 
     // hide other range preview
-    _.each(this.rangesViewList, (rangeVal) => {
-      if (rangeVal['minInputShow']) delete rangeVal['minInputShow'];
-      if (rangeVal['maxInputShow']) delete rangeVal['maxInputShow'];
-    });
-    if(!_.isUndefined(this.uiOption.color['ranges']) && this.uiOption.color['ranges'].length > 0) {
-      _.each(this.uiOption.color['ranges'], (uiRangeVal) => {
-        if (uiRangeVal['minInputShow']) delete uiRangeVal['minInputShow'];
-        if (uiRangeVal['maxInputShow']) delete uiRangeVal['maxInputShow'];
-      });
-    }
+    this.removeInputRangeStatus();
 
     item['maxInputShow'] = inputShow;
 
@@ -1495,6 +1479,20 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     }
     const isValueNumber: boolean = regex.test(value);
     return isValueNumber;
+  }
+
+  private removeInputRangeStatus() {
+    // hide other range preview
+    _.each(this.rangesViewList, (rangeVal) => {
+      if (rangeVal['minInputShow']) delete rangeVal['minInputShow'];
+      if (rangeVal['maxInputShow']) delete rangeVal['maxInputShow'];
+    });
+    if(!_.isUndefined(this.uiOption.color['ranges']) && this.uiOption.color['ranges'].length > 0) {
+      _.each(this.uiOption.color['ranges'], (uiRangeVal) => {
+        if (uiRangeVal['minInputShow']) delete uiRangeVal['minInputShow'];
+        if (uiRangeVal['maxInputShow']) delete uiRangeVal['maxInputShow'];
+      });
+    }
   }
 
 }
