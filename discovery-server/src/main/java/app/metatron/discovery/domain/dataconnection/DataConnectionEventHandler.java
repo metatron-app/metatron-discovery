@@ -14,8 +14,6 @@
 
 package app.metatron.discovery.domain.dataconnection;
 
-import app.metatron.discovery.domain.activities.ActivityStream;
-import app.metatron.discovery.domain.activities.ActivityStreamRepository;
 import app.metatron.discovery.domain.activities.ActivityStreamService;
 import app.metatron.discovery.domain.activities.spec.ActivityGenerator;
 import app.metatron.discovery.domain.activities.spec.ActivityObject;
@@ -32,8 +30,6 @@ import org.springframework.data.rest.core.annotation.HandleBeforeLinkDelete;
 import org.springframework.data.rest.core.annotation.HandleBeforeLinkSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.security.access.prepost.PreAuthorize;
-
-import app.metatron.discovery.domain.workspace.Workspace;
 
 import java.util.Set;
 
