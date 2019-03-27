@@ -26,15 +26,43 @@
           <!-- edit option -->
           <div class="ddp-ui-edit-option">
             <div class="ddp-wrap-label">
-              <label class="ddp-label-radio" (click)="selectedType = 'HTML'; $event.preventDefault()">
-                <input type="radio" name="returnType" [checked]="selectedType === 'HTML'" *ngIf="kernel === 'SPARK'" disabled>
-                <input type="radio" name="returnType" [checked]="selectedType === 'HTML'" *ngIf="kernel !== 'SPARK'">
+              <label class="ddp-label-radio"  *ngIf="kernel === 'SPARK'">
+                <input type="radio" name="returnType" [checked]="selectedType === 'HTML'" disabled>
                 <i class="ddp-icon-radio"></i>
                 <span class="ddp-txt-radio">{{'msg.nbook.ui.html' | translate}}</span>
               </label>
-              <label class="ddp-label-radio" (click)="selectedType = 'JSON'; $event.preventDefault()">
+              <label class="ddp-label-radio"  *ngIf="kernel !== 'SPARK'">
+                <input type="radio" name="returnType" [checked]="selectedType === 'HTML'">
+                <i class="ddp-icon-radio"></i>
+                <span class="ddp-txt-radio">{{'msg.nbook.ui.html' | translate}}</span>
+              </label>
+              <label class="ddp-label-radio"  *ngIf="kernel === 'SPARK'">
                 <input type="radio" [checked]="selectedType === 'JSON'" *ngIf="kernel === 'SPARK'" disabled>
-                <input type="radio" [checked]="selectedType === 'JSON'" *ngIf="kernel !== 'SPARK'">
+                <i class="ddp-icon-radio" ></i>
+                <span class="ddp-txt-radio">{{'msg.nbook.ui.json' | translate}}</span>
+                <!-- info -->
+                <div class="ddp-wrap-hover-info ddp-type">
+                  <em class="ddp-icon-info3"></em>
+                  <!-- popup -->
+                  <div class="ddp-box-layout4">
+                    <div class="ddp-data-title">
+                      {{'msg.nbook.ui.json.return_type' | translate}}
+                    </div>
+                    <div class="ddp-data-det">
+                      {{'msg.nbook.ui.json.return_type.expl' | translate}}
+                      <div class="ddp-txt-tip">
+                        {{'msg.nbook.ui.json.eg' | translate}}<br>
+                        {{'msg.nbook.ui.json.return_type.eg' | translate}}
+
+                      </div>
+                    </div>
+                  </div>
+                  <!-- //popup -->
+                </div>
+                <!-- //info -->
+              </label>
+              <label class="ddp-label-radio" (click)="selectedType = 'JSON'; $event.preventDefault()" *ngIf="kernel !== 'SPARK'" >
+                <input type="radio" [checked]="selectedType === 'JSON'">
                 <i class="ddp-icon-radio" ></i>
                 <span class="ddp-txt-radio">{{'msg.nbook.ui.json' | translate}}</span>
                 <!-- info -->
