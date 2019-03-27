@@ -1004,7 +1004,7 @@
         <!-- divide -->
         <div class="ddp-divide2">
           <div class="ddp-list-label">{{'msg.page.common.pie.max.category' | translate}}</div>
-          <input type="number" (keyup.enter)="changeMaximumCategores(uiOption['maxCategory'])" (focusout)="changeMaximumCategores(uiOption['maxCategory'])" [(ngModel)]="uiOption['maxCategory']" input-mask="number" class="ddp-input-typebasic"
+          <input type="number" (keyup.enter)="changeMaximumCategores(uiOption['maxCategory'])" (focusout)="changeMaximumCategores(uiOption['maxCategory'])" [(ngModel)]="uiOption['maxCategory']" class="ddp-input-typebasic"
                  placeholder="{{'msg.page.common.pie.max.category.placeholder' | translate}}">
         </div>
         <!-- //divide -->
@@ -1029,7 +1029,7 @@
                 <div class="ddp-input-number" [ngClass]="{'ddp-disabled' : !uiOption.limitCheck}">
                   <input (keyup.enter)="onLimitChange(uiOption.limit)" (focusout)="onLimitChange(uiOption.limit)" [readonly]="!uiOption.limitCheck" [(ngModel)]="uiOption.limit"
                          placeholder="{{limitPlaceHolder}}"
-                         type="number" input-mask="number">
+                         type="number">
                   <div class="ddp-input-number-nav">
                     <div (click)="onLimitChange(uiOption.limit - 1)" class="ddp-input-number-button ddp-input-number-down"></div>
                     <div (click)="onLimitChange(uiOption.limit + 1)" class="ddp-input-number-button ddp-input-number-up"></div>
