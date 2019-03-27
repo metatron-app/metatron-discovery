@@ -61,9 +61,9 @@
 
           <!-- description -->
           <!-- 클릭시 ddp-selected 추가 -->
-          <div class="ddp-box-navidet" [ngClass]="{'ddp-selected': isDatasetDescEditMode}">
+          <div class="ddp-box-navidet" [title]="datasetDesc" [ngClass]="{'ddp-selected': isDatasetDescEditMode}">
             <div class="ddp-wrap-navidet" (click)="!isDatasetDescEditMode? onDatasetDescEdit($event) : $event.stopPropagation();">
-              <span class="ddp-data-navidet" *ngIf="datasetDesc; else dsDescEmpty" title="{{datasetDesc}}">{{datasetDesc || 'msg.comm.ui.create.desc' | translate}}
+              <span class="ddp-data-navidet" *ngIf="datasetDesc; else dsDescEmpty" >{{datasetDesc || 'msg.comm.ui.create.desc' | translate}}
                 <em class="ddp-icon-edit2"></em>
               </span>
               <ng-template #dsDescEmpty>

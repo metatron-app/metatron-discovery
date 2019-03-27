@@ -56,7 +56,7 @@
 
         <!-- description -->
         <!-- 클릭시 ddp-selected 추가 -->
-        <div class="ddp-box-navidet" [class.ddp-selected]="isDataflowDescEditMode">
+        <div class="ddp-box-navidet" [title]="dataflowDesc" [class.ddp-selected]="isDataflowDescEditMode">
           <div class="ddp-wrap-navidet" (click)="!isDataflowDescEditMode ? onDataflowDescEdit($event):$event.stopPropagation();" >
             <span class="ddp-data-navidet">{{dataflowDesc || 'msg.comm.ui.create.desc' | translate}}
               <em class="ddp-icon-edit2"></em>
