@@ -25,6 +25,7 @@ import { GridOption } from '../../../common/component/grid/grid.option';
 import { StringUtil } from '../../../common/util/string.util';
 import * as $ from "jquery";
 import { isNullOrUndefined } from "util";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-create-dataset-db-query',
@@ -216,11 +217,6 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
   public close() {
 
-    // Check if came from dataflow
-    if (this.datasetService.dataflowId) {
-      this.datasetService.dataflowId = undefined;
-    }
-
     super.close();
     this.popupService.notiPopup({
       name: 'close-create',
@@ -284,7 +280,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
       type : RsType.TABLE
     };
 
-    this.connectionService.getTableDetailWitoutId(params).then((result) => {
+    this.connectionService.getTableDetailWitoutId(params, false).then((result) => {
 
       this.loadingHide();
       if (result.fields.length > 0 ) {
@@ -446,7 +442,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     this.queryErrorMsg = '';
 
     // Get grid info using query
-    this.connectionService.getTableDetailWitoutId(param)
+    this.connectionService.getTableDetailWitoutId(param, false)
       .then((result) => {
 
         this.loadingHide();
@@ -695,16 +691,28 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
     if (!this.datasetJdbc.dataconnection.connection) {
       this.datasetJdbc.dcId = this.datasetJdbc.dataconnection.id;
+
+      const connectionInfo = _.clone(this.datasetJdbc.dataconnection);
+
       this.datasetJdbc.dataconnection = {connection : {
-        hostname: this.datasetJdbc.dataconnection.hostname,
-        implementor: this.datasetJdbc.dataconnection.implementor,
-        password: this.datasetJdbc.dataconnection.password,
-        port: this.datasetJdbc.dataconnection.port,
-        url: this.datasetJdbc.dataconnection.url,
-        username: this.datasetJdbc.dataconnection.username,
-        authenticationType: this.datasetJdbc.dataconnection.authenticationType
-      }
+          hostname: connectionInfo.hostname,
+          implementor: connectionInfo.implementor,
+          password: connectionInfo.password,
+          port: connectionInfo.port,
+          url: connectionInfo.url,
+          username: connectionInfo.username,
+          authenticationType: connectionInfo.authenticationType
+        }
       };
+
+      if (this.datasetJdbc.dataconnection.connection.implementor === 'POSTGRESQL' && !connectionInfo.url) {
+        this.datasetJdbc.dataconnection.connection.database = connectionInfo.database;
+      }
+
+      if (this.datasetJdbc.dataconnection.connection.implementor === 'PRESTO' && !connectionInfo.url) {
+        this.datasetJdbc.dataconnection.connection.catalog = connectionInfo.catalog;
+      }
+
     }
 
 

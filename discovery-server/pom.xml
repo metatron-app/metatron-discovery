@@ -141,6 +141,12 @@
         </dependency>
 
         <dependency>
+            <groupId>app.metatron.discovery</groupId>
+            <artifactId>discovery-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <version>${spring.boot.version}</version>
@@ -1069,6 +1075,24 @@
             <artifactId>spring-security-saml2-core</artifactId>
             <version>1.0.3.RELEASE </version>
             <scope>compile</scope>
+        </dependency>
+
+        <!-- PF4J -->
+        <dependency>
+            <groupId>org.pf4j</groupId>
+            <artifactId>pf4j-spring</artifactId>
+            <version>${pf4j.spring.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.pf4j</groupId>
+                    <artifactId>pf4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.pf4j</groupId>
+            <artifactId>pf4j</artifactId>
+            <version>${pf4j.version}</version>
         </dependency>
 
     </dependencies>

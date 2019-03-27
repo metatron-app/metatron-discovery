@@ -52,15 +52,19 @@ import {DatasourceService} from "../../../datasource/service/datasource.service"
 import {TimezoneService} from "../../service/timezone.service";
 import {DataSnapshotService} from "../../../data-preparation/data-snapshot/service/data-snapshot.service";
 import {DataconnectionService} from "../../../dataconnection/service/dataconnection.service";
-import {StorageFilterSelectBoxComponent} from "../component/storage-filter-select-box.component";
-import {DatasourceMetadataSharedModule} from "../../../shared/datasource-metadata/datasource-metadata-shared.module";
+import {SchemaConfigDataPreviewComponent} from "../../component/schema-config/schema-config-data-preview.component";
+import {DataflowModelService} from "../../../data-preparation/dataflow/service/dataflow.model.service";
+import {DataStorageCommonModule} from "../../data-storage-common.module";
+import {DataStorageShareModule} from "../../data-storage-share.module";
+
 
 @NgModule({
   imports: [
     CommonModule,
     WorkbenchEditorModule,
-    DatasourceMetadataSharedModule,
     FileModule,
+    DataStorageCommonModule,
+    DataStorageShareModule,
   ],
   declarations: [
     TimeComponent,
@@ -72,6 +76,7 @@ import {DatasourceMetadataSharedModule} from "../../../shared/datasource-metadat
     SchemaConfigDetailComponent,
     // schema config action bar component
     SchemaConfigActionBarComponent,
+    SchemaConfigDataPreviewComponent,
     // data source - create
     CreateDataSourceComponent,
     SelectTypeComponent,
@@ -160,7 +165,8 @@ import {DatasourceMetadataSharedModule} from "../../../shared/datasource-metadat
     DataconnectionService,
     GranularityService,
     TimezoneService,
-    DataSnapshotService
+    DataSnapshotService,
+    DataflowModelService
   ]
 })
 export class DataSourceCreateModule {

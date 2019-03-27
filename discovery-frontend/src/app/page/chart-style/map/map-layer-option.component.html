@@ -26,7 +26,7 @@
 
           <div class="ddp-wrap-divide">
             <!-- divide -->
-            <div class="ddp-divide2 ">
+            <div *ngIf="uiOption['analysis'] == null || uiOption['analysis']['use'] == false" class="ddp-divide2">
               <div class="ddp-list-label">{{'msg.page.layer.map.name' | translate}}</div>
               <input type="text" class="ddp-input-typebasic" placeholder=""
                      [(ngModel)]="uiOption.layers[layerIndex].name"
@@ -37,7 +37,7 @@
             <div class="ddp-type-map-chart">
               <!-- TODO layer type divide -->
               <div
-                *ngIf="'line' !== uiOption.layers[layerIndex].type.toString() && 'polygon' !== uiOption.layers[layerIndex].type.toString()"
+                *ngIf="(uiOption['analysis'] == null || uiOption['analysis']['use'] == false) && 'line' !== uiOption.layers[layerIndex].type.toString() && 'polygon' !== uiOption.layers[layerIndex].type.toString()"
                 class="ddp-divide2 ">
                 <div class="ddp-list-label">{{'msg.page.layer.map.type' | translate}}</div>
                 <div class="ddp-wrap-tab-type2">
@@ -99,8 +99,8 @@
                               [array]="colorByList"
                               [defaultIndex]="findIndex(colorByList, 'value', uiOption.layers[layerIndex].color.by)"
                               [viewKey]="'name'"
-                              (onSelected)="changeColorBy($event, layerIndex)"
-                            ></component-select>
+                              (onSelected)="changeColorBy($event, layerIndex)">
+                            </component-select>
                             <!-- //SELECTBOX -->
                           </div>
                           <!-- color by dimension column -->
@@ -112,8 +112,8 @@
                               [array]="fieldList[layerIndex].dimensionList"
                               [defaultIndex]="findIndex(fieldList[layerIndex].dimensionList, 'name', uiOption.layers[layerIndex].color.column)"
                               [viewKey]="'alias'"
-                              (onSelected)="changeColorColumn($event, layerIndex)"
-                            ></component-select>
+                              (onSelected)="changeColorColumn($event, layerIndex)">
+                            </component-select>
                             <!-- //SELECTBOX -->
                           </div>
                           <!-- //color by dimension column -->
@@ -126,8 +126,8 @@
                               [array]="fieldList[layerIndex].measureList"
                               [defaultIndex]="findIndex(fieldList[layerIndex].measureList, 'name', uiOption.layers[layerIndex].color.column, 'aggregationType', uiOption.layers[layerIndex].color.aggregationType)"
                               [viewKey]="'alias'"
-                              (onSelected)="changeColorColumn($event, layerIndex)"
-                            ></component-select>
+                              (onSelected)="changeColorColumn($event, layerIndex)">
+                            </component-select>
                             <!-- //SELECTBOX -->
                           </div>
                           <!-- //color by measure column -->
@@ -465,7 +465,7 @@
                   <!-- //symbol, polygon : outline -->
 
                   <!-- symbol : cluster -->
-                  <div class="ddp-wrap-divide" *ngIf="'symbol' === uiOption.layers[layerIndex].type.toString()">
+                  <div class="ddp-wrap-divide" *ngIf="(uiOption['analysis'] == null || uiOption['analysis']['use'] == false) && 'symbol' === uiOption.layers[layerIndex].type.toString()">
                     <!-- divide -->
                     <div class="ddp-divide2 ">
                       <div class="ddp-wrap-option-slider">
@@ -717,6 +717,24 @@
                     <!-- //line : line type -->
                   </div>
                   <!-- //line : stroke, line type -->
+
+                  <!-- 공간연산 visible (비교 레이어 영역 ) -->
+                  <div *ngIf="uiOption['analysis'] != null && uiOption['analysis']['use'] == true" class="ddp-wrap-divide">
+                    <!-- divide -->
+                    <div class="ddp-divide2 ">
+                      <div class="ddp-wrap-option-slider">
+                        <span class="ddp-label-slider">{{'msg.page.chart.map.spatial.comparelayer.area' | translate}}</span>
+                        <!-- Slide THREE -->
+                        <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+                          <input type="checkbox" name="check" [ngModel]="uiOption['analysis']['includeCompareLayer']" (click)="analysisVisibilityBtn()">
+                          <label><span class="ddp-slide"></span></label>
+                        </div>
+                        <!-- //Slide THREE -->
+                      </div>
+                    </div>
+                  </div>
+                  <!-- // 공간연산 visible (비교 레이어 영역 ) -->
+
                 </div>
               </div>
               <!-- //레이어 유형 contents -->

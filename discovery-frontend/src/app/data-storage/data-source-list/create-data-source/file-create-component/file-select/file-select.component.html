@@ -115,12 +115,12 @@
                        *ngIf="selectedFileDetailData.fields">
                     <strong class="ddp-cursor"
                             (click)="typeShowFl = !typeShowFl"
-                            (clickOutside)="typeShowFl = false">{{getLogicalTypes().length}}</strong>
+                            (clickOutside)="typeShowFl = false">{{typeList.length}}</strong>
                     {{'msg.storage.ui.dsource.create.file.types' | translate}}
                     <!-- 팝업 -->
                     <div class="ddp-wrap-popup2 ddp-types" *ngIf="typeShowFl">
                       <ul class="ddp-list-popup">
-                        <li *ngFor="let type of getLogicalTypes()">
+                        <li *ngFor="let type of typeList">
                           <a href="javascript:">
                             <em class="{{getFieldTypeIconClass(type.label)}}"></em>
                             {{type.value}} {{'msg.storage.th.row' | translate}}
@@ -152,39 +152,44 @@
         <!-- //wrap sheet -->
       </div>
       <div class="ddp-wrap-edit-form">
-        <div class="ddp-wrap-edit3 ddp-type" *ngIf="isCsvFile()">
-          <label class="ddp-label-type">{{'msg.storage.ui.dsource.create.file.column.delimiter' | translate}}</label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option">
-            <!-- apply -->
-            <div class="ddp-input-apply">
-              <input type="text" class="ddp-input-txt"
-                     [(ngModel)]="delimiter"
-                     (keypress)="onChangeDelimiter($event)"
-                     placeholder="{{'msg.storage.ph.dsource.create.file.column.delimiter' | translate}}">
-              <em class="ddp-icon-apply" (click)="onChangeDelimiter()"></em>
+        <ng-container *ngIf="isCsvFile()">
+          <div class="ddp-wrap-edit3 ddp-type"  [class.ddp-error]="isValidDelimiter === false">
+            <label class="ddp-label-type">{{'msg.storage.ui.dsource.create.file.column.delimiter' | translate}}</label>
+            <!-- edit option -->
+            <div class="ddp-ui-edit-option">
+              <!-- apply -->
+              <div class="ddp-input-apply">
+                <input type="text" class="ddp-input-txt"
+                       [(ngModel)]="delimiter"
+                       (ngModelChange)="isValidDelimiter = undefined; isValidFile = undefined"
+                       (keypress)="onChangeDelimiter($event)"
+                       placeholder="{{'msg.storage.ph.dsource.create.file.column.delimiter' | translate}}">
+                <em class="ddp-icon-apply" (click)="onChangeDelimiter()"></em>
+              </div>
+              <!-- //apply -->
+              <span class="ddp-ui-error" *ngIf="isValidDelimiter === false">{{'msg.storage.ui.schema.valid.desc' | translate}}</span>
             </div>
-            <!-- //apply -->
-            <!--<span class="ddp-ui-error">{{'msg.common.ui.required' | translate}}</span>-->
+            <!-- //edit option -->
           </div>
-          <!-- //edit option -->
-        </div>
-        <div class="ddp-wrap-edit3 ddp-type" *ngIf="isCsvFile()">
-          <label class="ddp-label-type">{{'msg.storage.ui.dsource.create.file.line.separator' | translate}}</label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option">
-            <!-- apply -->
-            <div class="ddp-input-apply">
-              <input type="text" class="ddp-input-txt"
-                     [(ngModel)]="separator"
-                     (keypress)="onChangeSeparator($event)"
-                     placeholder="{{'msg.storage.ph.dsource.create.file.line.separator' | translate}}">
-              <em class="ddp-icon-apply" (click)="onChangeSeparator()"></em>
+          <div class="ddp-wrap-edit3 ddp-type"[class.ddp-error]="isValidSeparator === false">
+            <label class="ddp-label-type">{{'msg.storage.ui.dsource.create.file.line.separator' | translate}}</label>
+            <!-- edit option -->
+            <div class="ddp-ui-edit-option">
+              <!-- apply -->
+              <div class="ddp-input-apply">
+                <input type="text" class="ddp-input-txt"
+                       [(ngModel)]="separator"
+                       (ngModelChange)="isValidSeparator = undefined; isValidFile = undefined"
+                       (keypress)="onChangeSeparator($event)"
+                       placeholder="{{'msg.storage.ph.dsource.create.file.line.separator' | translate}}">
+                <em class="ddp-icon-apply" (click)="onChangeSeparator()"></em>
+              </div>
+              <!-- //apply -->
+              <span class="ddp-ui-error" *ngIf="isValidSeparator === false">{{'msg.storage.ui.schema.valid.desc' | translate}}</span>
             </div>
-            <!-- //apply -->
+            <!-- //edit option -->
           </div>
-          <!-- //edit option -->
-        </div>
+        </ng-container>
         <!-- 헤드컬럼 설정 -->
         <div class="ddp-wrap-edit3 ddp-type">
           <label class="ddp-label-checkbox" (click)="onChangeIsFirstHeaderRowFlag(); $event.preventDefault()">
@@ -213,7 +218,7 @@
   <div class="ddp-ui-buttons">
     <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
     <!-- disabled 시 ddp-disabled 추가 -->
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [class.ddp-disabled]="!isEnableNext()" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
   </div>
   <!-- //buttons -->
 

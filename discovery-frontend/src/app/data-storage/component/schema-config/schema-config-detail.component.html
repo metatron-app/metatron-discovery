@@ -16,7 +16,7 @@
   <!-- setting -->
   <div class="ddp-box-setting">
     <div class="ddp-data-top-title">
-      {{selectedField.name}}
+      <span class="ddp-data-name" title="{{selectedField.name}}">{{selectedField.name}}</span>
     </div>
     <!-- is removed field -->
     <div class="ddp-data-delete" *ngIf="isRemovedField(selectedField)">
@@ -26,31 +26,7 @@
     <!-- is not removed field -->
     <div class="ddp-wrap-set-contents" *ngIf="!isRemovedField(selectedField)">
       <!-- value -->
-      <div class="ddp-wrap-value-det">
-        <div class="ddp-top-set">
-          <div class="ddp-data-name">
-            {{'msg.storage.ui.data' | translate}}
-          </div>
-          <!-- 선택시 ddp-selected 추가 -->
-          <div class="ddp-view-option ddp-fright ddp-selected">
-            <span>{{selectedFieldDataList.length}}</span>
-            {{'msg.storage.ui.row' | translate}}
-          </div>
-        </div>
-        <!-- list value -->
-        <ul class="ddp-list-value">
-          <li class="ddp-data-none" *ngIf="selectedFieldDataList.length === 0">
-            {{(isDerivedField(selectedField) && selectedField.derivationRule.type === 'user_defined' ? 'msg.storage.ui.config.extension.no.data' : 'msg.storage.ui.config.no.data') | translate}}
-          </li>
-          <li *ngFor="let data of selectedFieldDataList">
-            {{data}}
-          </li>
-          <li class="ddp-data-none" *ngIf="selectedFieldDataList.length !== 0">
-            {{'msg.storage.ui.schema.column.rows.desc' | translate}}
-          </li>
-        </ul>
-        <!-- //list value -->
-      </div>
+      <schema-config-data-preview [connType]="connType"></schema-config-data-preview>
       <!-- //value -->
 
       <!-- setting -->

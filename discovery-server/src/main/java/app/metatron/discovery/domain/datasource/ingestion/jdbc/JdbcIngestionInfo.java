@@ -17,7 +17,7 @@ package app.metatron.discovery.domain.datasource.ingestion.jdbc;
 import java.util.List;
 import java.util.Map;
 
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
 
@@ -29,7 +29,7 @@ public abstract class JdbcIngestionInfo implements IngestionInfo {
   /**
    * 내부에서 관리되고 있지 않은 JDBC 연결일 경우 적재 정보내 명시하여 관리
    */
-  JdbcDataConnection connection;
+  DataConnection connection;
 
   /**
    * JBDC 데이터베이스(스키마) 정보
@@ -90,11 +90,11 @@ public abstract class JdbcIngestionInfo implements IngestionInfo {
   public JdbcIngestionInfo() {
   }
 
-  public JdbcDataConnection getConnection() {
+  public DataConnection getConnection() {
     return connection;
   }
 
-  public void setConnection(JdbcDataConnection connection) {
+  public void setConnection(DataConnection connection) {
     this.connection = connection;
   }
 

@@ -28,7 +28,6 @@
 
 package app.metatron.discovery.domain.datasource;
 
-import app.metatron.discovery.domain.mdm.MetadataService;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
@@ -67,8 +66,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
 import app.metatron.discovery.domain.context.ContextService;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionRepository;
 import app.metatron.discovery.domain.datasource.ingestion.HiveIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryRepository;
@@ -81,6 +80,7 @@ import app.metatron.discovery.domain.datasource.ingestion.job.IngestionJobRunner
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.EngineIngestionService;
 import app.metatron.discovery.domain.geo.GeoService;
+import app.metatron.discovery.domain.mdm.MetadataService;
 import app.metatron.discovery.domain.workspace.Workspace;
 import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.PolarisUtils;
@@ -154,19 +154,19 @@ public class DataSourceEventHandler {
 
     IngestionInfo ingestionInfo = dataSource.getIngestionInfo();
     if (ingestionInfo instanceof JdbcIngestionInfo) {
-      DataConnection jdbcConnection = Preconditions.checkNotNull(dataSource.getConnection() == null ?
-                                                                     ((JdbcIngestionInfo) ingestionInfo).getConnection() : dataSource.getConnection());
-
+      DataConnection dataConnection = Preconditions.checkNotNull(dataSource.getConnection() == null ?
+                                                                     ((JdbcIngestionInfo) ingestionInfo).getConnection()
+                                                                     : dataSource.getConnection());
       //Batch Ingestion not allow Dialog type connection
       if (ingestionInfo instanceof BatchIngestionInfo) {
         Preconditions.checkArgument(
-            jdbcConnection.getAuthenticationType() != DataConnection.AuthenticationType.DIALOG,
+            dataConnection.getAuthenticationType() != DataConnection.AuthenticationType.DIALOG,
             "BatchIngestion not allowed DIALOG Authentication.");
       }
 
       //Dialog Authentication require connectionUsername, connectionPassword
       if (ingestionInfo instanceof JdbcIngestionInfo
-          && jdbcConnection.getAuthenticationType() == DataConnection.AuthenticationType.DIALOG) {
+          && dataConnection.getAuthenticationType() == DataConnection.AuthenticationType.DIALOG) {
 
         Preconditions.checkNotNull(((JdbcIngestionInfo) ingestionInfo).getConnectionUsername(),
                                    "Dialog Authentication require connectionUsername.");

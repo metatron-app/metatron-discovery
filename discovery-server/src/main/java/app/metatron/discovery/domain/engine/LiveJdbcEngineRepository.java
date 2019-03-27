@@ -41,11 +41,13 @@ import java.util.UUID;
 import javax.sql.DataSource;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
 import app.metatron.discovery.domain.datasource.data.QueryTimeExcetpion;
 import app.metatron.discovery.domain.datasource.data.forward.CsvResultForward;
 import app.metatron.discovery.domain.datasource.data.forward.JsonResultForward;
 import app.metatron.discovery.domain.datasource.data.forward.ResultForward;
+import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 import app.metatron.discovery.util.CustomCsvResultSetWriter;
 
 /**
@@ -56,7 +58,7 @@ public class LiveJdbcEngineRepository {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(LiveJdbcEngineRepository.class);
 
-  public Optional<JsonNode> query(JdbcDataConnection connection, String queryStr, ResultForward resultForward) {
+  public Optional<JsonNode> query(DataConnection connection, String queryStr, ResultForward resultForward) {
 
     Preconditions.checkNotNull(queryStr, "Query string required.");
 
@@ -135,12 +137,14 @@ public class LiveJdbcEngineRepository {
 
   }
 
-  private DataSource getDataSource(JdbcDataConnection connection) {
+  private DataSource getDataSource(DataConnection connection) {
+
+    JdbcDialect dialect = DataConnectionHelper.lookupDialect(connection);
 
     DriverManagerDataSource driverManagerDataSource =
-        new DriverManagerDataSource(connection.getConnectUrl(), connection.getUsername(), connection.getPassword());
-    if (connection.getDriverClass() != null) {
-      driverManagerDataSource.setDriverClassName(connection.getDriverClass());
+        new DriverManagerDataSource(dialect.getConnectUrl(connection), connection.getUsername(), connection.getPassword());
+    if (dialect.getDriverClass(connection) != null) {
+      driverManagerDataSource.setDriverClassName(dialect.getDriverClass(connection));
     }
 //    DataSource dataSource = DataSourceBuilder.create()
 //            .url(connection.getConnectUrl())
@@ -149,7 +153,7 @@ public class LiveJdbcEngineRepository {
 //            .password(connection.getPassword())
 //            .build();
 
-    LOGGER.debug("Created datasource : {}", connection.getConnectUrl());
+    LOGGER.debug("Created datasource : {}", dialect.getConnectUrl(connection));
 
     return driverManagerDataSource;
   }

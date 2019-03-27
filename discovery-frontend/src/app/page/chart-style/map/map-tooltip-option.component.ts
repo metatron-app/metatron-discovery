@@ -12,17 +12,15 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, Input } from '@angular/core';
-import { Pivot } from '../../../domain/workbook/configurations/pivot';
-import { ShelfType, UIChartDataLabelDisplayType } from '../../../common/component/chart/option/define/common';
+import {Component, ElementRef, Injector, Input} from '@angular/core';
+import {UIChartDataLabelDisplayType} from '../../../common/component/chart/option/define/common';
 import * as _ from 'lodash';
-import { FormatOptionConverter } from '../../../common/component/chart/option/converter/format-option-converter';
-import { ChartUtil } from '../../../common/component/chart/option/util/chart-util';
-import { Field } from '../../../domain/workbook/configurations/field/field';
-import { TooltipOptionComponent } from '../tooltip-option.component';
-import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
-import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
-import { TooltipOptionConverter } from '../../../common/component/chart/option/converter/tooltip-option-converter';
+import {ChartUtil} from '../../../common/component/chart/option/util/chart-util';
+import {Field} from '../../../domain/workbook/configurations/field/field';
+import {TooltipOptionComponent} from '../tooltip-option.component';
+import {UIMapOption} from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
+import {Shelf} from '../../../domain/workbook/configurations/shelf/shelf';
+import {TooltipOptionConverter} from '../../../common/component/chart/option/converter/tooltip-option-converter';
 
 @Component({
   selector: 'map-tooltip-option',
@@ -50,7 +48,7 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
   @Input('uiOption')
   public set setUiOption(uiOption: UIMapOption) {
 
-    if( !uiOption.toolTip ) {
+    if (!uiOption.toolTip) {
       uiOption.toolTip = {};
     }
 
@@ -58,14 +56,26 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
     this.uiOption = uiOption;
   }
 
-  public shelf : Shelf;
+  public shelf: Shelf;
 
   @Input('shelf')
   public set setShelf(shelf: Shelf) {
 
     if (!shelf || !shelf.layers || !shelf.layers[this.uiOption.layerNum]) return;
 
-    const layerItems = _.cloneDeep(shelf.layers[this.uiOption.layerNum].fields);
+    let layerItems = [];
+    // 공간연산 사용 여부
+    if(!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) &&  this.uiOption.analysis['use'] === true) {
+      layerItems = _.cloneDeep(shelf.layers[this.uiOption.layerNum].fields);
+    } else {
+      for(let layerIndex = 0; this.uiOption.layers.length > layerIndex; layerIndex++) {
+        if (shelf && !_.isUndefined(shelf.layers[layerIndex])) {
+          shelf.layers[layerIndex].fields.forEach( (field) => {
+            layerItems.push(field);
+          });
+        }
+      }
+    }
 
     // set alias
     for (const item of layerItems) {
@@ -90,7 +100,7 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
       if (-1 !== this.uiOption.toolTip.displayColumns.indexOf(alias)) {
 
         this.selectedLayerItems.push(field);
-      // unselected list
+        // unselected list
       } else {
         this.unselectedLayerItems.push(field);
       }
@@ -109,7 +119,7 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
     let field: Field;
     columns.forEach((alias) => {
 
-      field = <any> _.find(this.selectedLayerItems, (field) => {
+      field = <any>_.find(this.selectedLayerItems, (field) => {
         return _.eq(alias, ChartUtil.getAggregationAlias(field));
       });
 
@@ -148,21 +158,21 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
   public toggleDisplayType(displayType: string, typeIndex: number): void {
 
     // initialize
-    if( !this.uiOption.toolTip.displayTypes ) {
+    if (!this.uiOption.toolTip.displayTypes) {
       this.uiOption.toolTip.displayTypes = [];
     }
 
     // if they are checked, remove them
     let isFind = false;
     _.each(this.uiOption.toolTip.displayTypes, (type, index) => {
-      if( _.eq(type, displayType) ) {
+      if (_.eq(type, displayType)) {
         isFind = true;
         this.uiOption.toolTip.displayTypes[index] = null;
       }
     });
 
     // if they are not checked, add them
-    if( !isFind ) {
+    if (!isFind) {
       this.uiOption.toolTip.displayTypes[typeIndex] = UIChartDataLabelDisplayType[displayType];
     }
 

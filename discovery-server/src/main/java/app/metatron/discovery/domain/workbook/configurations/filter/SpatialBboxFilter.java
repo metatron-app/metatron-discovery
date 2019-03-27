@@ -6,11 +6,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.apache.commons.lang3.StringUtils;
 
+import app.metatron.discovery.query.druid.SpatialOperations;
+import app.metatron.discovery.util.EnumUtils;
+
 public class SpatialBboxFilter extends SpatialFilter {
 
   String lowerCorner;
 
   String upperCorner;
+
+  SpatialOperations operation;
 
   @JsonIgnore
   String[] uppers;
@@ -23,7 +28,8 @@ public class SpatialBboxFilter extends SpatialFilter {
                            @JsonProperty("field") String field,
                            @JsonProperty("ref") String ref,
                            @JsonProperty("lowerCorner") String lowerCorner,
-                           @JsonProperty("upperCorner") String upperCorner) {
+                           @JsonProperty("upperCorner") String upperCorner,
+                           @JsonProperty("operation") String operation) {
     super(dataSource, field, ref);
 
     uppers = StringUtils.split(upperCorner, " ");
@@ -38,6 +44,11 @@ public class SpatialBboxFilter extends SpatialFilter {
       this.lowerCorner = lowerCorner;
     } else {
       throw new IllegalArgumentException("Invalid lowerCorner format : " + upperCorner);
+    }
+
+    this.operation = EnumUtils.getUpperCaseEnum(SpatialOperations.class, operation, SpatialOperations.INTERSECTS);
+    if (!this.operation.isFilterOperation()) {
+      throw new IllegalArgumentException("Invalid bbox filter operation : " + operation);
     }
   }
 
@@ -55,6 +66,10 @@ public class SpatialBboxFilter extends SpatialFilter {
 
   public String getUpperCorner() {
     return upperCorner;
+  }
+
+  public SpatialOperations getOperation() {
+    return operation;
   }
 
   @Override

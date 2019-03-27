@@ -16,6 +16,7 @@ package app.metatron.discovery.domain.workbook;
 
 import com.querydsl.core.BooleanBuilder;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -51,6 +52,8 @@ import app.metatron.discovery.domain.workbook.widget.QWidget;
 import app.metatron.discovery.domain.workbook.widget.Widget;
 import app.metatron.discovery.domain.workbook.widget.WidgetRepository;
 import app.metatron.discovery.util.AuthUtils;
+
+import java.util.ArrayList;
 
 import static app.metatron.discovery.config.ApiResourceConfig.REDIRECT_PATH_URL;
 
@@ -160,6 +163,10 @@ public class DashBoardController {
       ObjectResultFormat resultFormat = new ObjectResultFormat();
       resultFormat.setRequest(request);
       request.setResultFormat(resultFormat);
+    }
+
+    if(CollectionUtils.isEmpty(request.getProjections())) {
+      request.setProjections(new ArrayList<>());
     }
 
     // 데이터 Limit 처리 최대 백만건까지 확인 가능함

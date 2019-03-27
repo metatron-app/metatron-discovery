@@ -14,9 +14,20 @@
  */
 
 import {AbstractComponent} from '../../../common/component/abstract.component';
-import {Component, ElementRef, EventEmitter, Injector, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+  ViewChild
+} from '@angular/core';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
 import {
+  ConnectionType,
   Field,
   FieldFormat,
   FieldFormatType,
@@ -28,6 +39,7 @@ import {
 } from '../../../domain/datasource/datasource';
 import {StringUtil} from '../../../common/util/string.util';
 import {TimeZoneObject, TimezoneService} from "../../service/timezone.service";
+import {SchemaConfigDataPreviewComponent} from "./schema-config-data-preview.component";
 import {isNullOrUndefined} from "util";
 import {FieldConfigService} from "../../service/field-config.service";
 
@@ -179,6 +191,12 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
   // timezone list show flag
   public isShowTimezoneList: boolean;
 
+  @Input()
+  public readonly connType: ConnectionType;
+
+  @ViewChild(SchemaConfigDataPreviewComponent)
+  private _previewComponent: SchemaConfigDataPreviewComponent;
+
   // 생성자
   constructor(private _datasourceService: DatasourceService,
               private _timezoneService: TimezoneService,
@@ -205,6 +223,9 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
       if (!this.selectedField.ingestionRule) {
         this.selectedField.ingestionRule = new IngestionRule();
       }
+      // TODO ingestion setting 하면서 개편
+      this.safelyDetectChanges();
+      this._previewComponent.init(this.selectedField, this.selectedFieldDataList);
     }
   }
 

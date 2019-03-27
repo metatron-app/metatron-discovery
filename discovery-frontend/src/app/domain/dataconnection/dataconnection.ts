@@ -14,20 +14,22 @@
 
 import { AbstractHistoryEntity } from '../common/abstract-history-entity';
 
+// app.metatron.discovery.domain.dataconnection
 export class Dataconnection extends AbstractHistoryEntity {
   public id: string;
   public name: string;
+  public connectionInformation:JdbcDialect;
   public description: string;
   public type: string;
   public hostname: string;
-  public port: string;
+  public port: number;
   public options: string;
   public username: string;
   public password: string;
   public sid:string;
   public url: string;
   public connectUrl: string;
-  public implementor: ConnectionType | ImplementorType;
+  public implementor: ImplementorType;
   public newDataConnection: string;
   public database: string;
   public connectionDatabase: string;
@@ -52,23 +54,27 @@ export class Dataconnection extends AbstractHistoryEntity {
   public num:number;
 }
 
-//TODO 데이터소스의 ConnectionType 과 이름이 겹치므로 추후 ImplementorType으로 변경 필요
-export enum ConnectionType {
-  H2 = <any>'H2',
-  MYSQL = <any>'MYSQL',
-  ORACLE = <any>'ORACLE',
-  TIBERO = <any>'TIBERO',
-  HIVE = <any>'HIVE',
-  HAWQ = <any>'HAWQ',
-  POSTGRESQL = <any>'POSTGRESQL',
-  MSSQL = <any>'MSSQL',
-  PRESTO = <any>'PRESTO',
-  PHOENIX = <any>'PHOENIX',
-  NVACCEL = <any>'NVACCEL',
-  STAGE = <any>'STAGE',
-  DRUID = <any>'DRUID',
-  FILE = <any>'FILE',
-  NONE = <any>'NONE'
+// app.metatron.discovery.extension.dataconnection.jdbc.dialect
+export interface JdbcDialect {
+  scope: Scope;
+  name: string;
+  implementor: ImplementorType;
+  inputSpec: InputSpec;
+  iconResource1: string;
+  iconResource2: string;
+  iconResource3: string;
+  iconResource4: string;
+}
+
+export interface InputSpec {
+  implementor: InputMandatory,
+  authenticationType: InputMandatory,
+  options: InputMandatory,
+  database: InputMandatory,
+  sid: InputMandatory,
+  catalog: InputMandatory,
+  username: InputMandatory,
+  password: InputMandatory
 }
 
 export enum ImplementorType {
@@ -87,6 +93,18 @@ export enum ImplementorType {
   DRUID = <any>'DRUID',
   FILE = <any>'FILE',
   NONE = <any>'NONE'
+}
+
+
+export enum InputMandatory {
+  MANDATORY = 'MANDATORY',
+  OPTIONAL = 'OPTIONAL',
+  NONE = 'NONE'
+}
+
+export enum Scope {
+  EMBEDDED = 'EMBEDDED',
+  EXTENSION = 'EXTENSION'
 }
 
 export enum AuthenticationType {

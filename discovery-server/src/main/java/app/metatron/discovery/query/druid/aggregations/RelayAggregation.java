@@ -25,12 +25,23 @@ public class RelayAggregation implements Aggregation {
 
   String typeName;
 
+  String columnName;
+
+  String relayType;
+
   public RelayAggregation() {
   }
 
   public RelayAggregation(String name, String typeName) {
     this.name = name;
     this.typeName = typeName;
+  }
+
+  public RelayAggregation(String name, String columnName, String typeName, String relayType) {
+    this.name = name;
+    this.columnName = columnName;
+    this.typeName = typeName;
+    this.relayType = relayType;
   }
 
   public String getName() {
@@ -47,5 +58,17 @@ public class RelayAggregation implements Aggregation {
 
   public void setTypeName(String typeName) {
     this.typeName = typeName;
+  }
+
+  public String getColumnName() {
+    return columnName;
+  }
+
+  public String getRelayType() {
+    return relayType;
+  }
+
+  public enum Relaytype {
+    FIRST, LAST;
   }
 }

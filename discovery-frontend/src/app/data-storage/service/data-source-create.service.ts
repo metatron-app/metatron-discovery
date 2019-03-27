@@ -19,6 +19,7 @@ import {GranularityObject, GranularityService} from "./granularity.service";
 import {HiveFileFormat, PrDataSnapshot, SsType} from "../../domain/data-preparation/pr-snapshot";
 import * as _ from "lodash";
 import {CommonConstant} from "../../common/constant/common.constant";
+import {ConnectionParam} from "./data-connection-create.service";
 
 @Injectable()
 export class DataSourceCreateService {
@@ -33,6 +34,13 @@ export class DataSourceCreateService {
   constructor(injector: Injector) {
     this._translateService = injector.get(TranslateService);
     this._granularityService = injector.get(GranularityService);
+  }
+
+  public getConnectionTypeList(): {label: string, value: ConnectionType}[] {
+    return [
+      { label : this._translateService.instant('msg.storage.ui.list.ingested.data'), value : ConnectionType.ENGINE },
+      { label : this._translateService.instant('msg.storage.ui.list.linked.data'), value : ConnectionType.LINK }
+    ];
   }
 
   /**
@@ -294,9 +302,13 @@ export class DataSourceCreateService {
       ingestion: this.getIngestionParams(sourceInfo)
     };
     // if snapshot type
-    sourceInfo.type === SourceType.SNAPSHOT && (result.snapshot = `/api/preparationsnapshots/${sourceInfo.snapshotData.selectedSnapshot.ssId}`);
+    if (sourceInfo.type === SourceType.SNAPSHOT) {
+      result.snapshot = `/api/preparationsnapshots/${sourceInfo.snapshotData.selectedSnapshot.ssId}`;
+    }
     // if db type, is enable connection preset
-    sourceInfo.type === SourceType.JDBC && sourceInfo.connectionData.isUsedConnectionPreset && (result.connection = `/api/connections/${sourceInfo.connectionData.selectedConnectionPreset.id}`);
+    if (sourceInfo.type === SourceType.JDBC && !sourceInfo.connectionData.selectedConnectionPreset.default) {
+      result.connection = `/api/connections/${sourceInfo.connectionData.selectedConnectionPreset.id}`;
+    }
     return result;
   }
 
@@ -625,6 +637,14 @@ export interface CreateSourceIngestionParams {
   partitions?: any[];
   paths?: string[];
   format?: {type: string, delimiter?: string, lineSeparator?: string, sheetIndex?: number};
+}
+
+export interface CreateConnectionData {
+  connectionPresetList;
+  selectedConnectionPreset;
+  selectedIngestionType;
+  pageResult?: PageResult;
+  connection: ConnectionParam;
 }
 
 // create data source stagingDB select step data

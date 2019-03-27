@@ -15,6 +15,9 @@
 package app.metatron.discovery.domain.dataprep;
 
 
+import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_HADOOP_HDFS_FAILED_TO_CONNECT;
+
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
@@ -27,7 +30,6 @@ import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrameService;
-import app.metatron.discovery.domain.dataprep.teddy.Util;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.transform.TeddyImpl;
 import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
@@ -40,9 +42,40 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.monitorjbl.xlsx.StreamingReader;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.net.ConnectException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -58,20 +91,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
-
 @Service
 public class PrepDatasetFileService {
     private static Logger LOGGER = LoggerFactory.getLogger(PrepDatasetFileService.class);
@@ -84,9 +103,6 @@ public class PrepDatasetFileService {
 
     @Autowired
     StorageProperties storageProperties;
-
-    @Autowired
-    PrepHdfsService hdfsService;
 
     @Autowired
     TeddyImpl teddyImpl;
@@ -119,14 +135,17 @@ public class PrepDatasetFileService {
                 switch (extensionType) {
                     case "xlsx":
                     case "xls":
-                        // Excel files are treated as CSV
-                        break;
+                        assert false : "Excel files are treated as CSV";
+                        throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
+                            PrepMessageKey.MSG_DP_ALERT_UNKOWN_ERROR, "Excel files should have converted as CSV");
                     case "json":
-                        result = PrepJsonUtil.countJson(storedUri, limitRows, hdfsService.getConf());
+                        Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
+                        result = PrepJsonUtil.countJson(storedUri, limitRows, conf);
                         break;
                     default:
+                        conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
                         String delimiterCol = dataset.getDelimiter();
-                        result = PrepCsvUtil.countCsv(storedUri, delimiterCol, limitRows, hdfsService.getConf());
+                        result = PrepCsvUtil.countCsv(storedUri, delimiterCol, limitRows, conf);
                 }
 
                 if(result != null) {
@@ -270,7 +289,7 @@ public class PrepDatasetFileService {
         }
     }
 
-    private List<String[]> getGridFromExcel(Sheet sheet, int limitRows) {
+    private List<String[]> getGridFromExcel(Sheet sheet, int limitRows, Integer columnCount) {
         List<String[]> grid = Lists.newArrayList();
 
         for (Row r : sheet) {
@@ -283,7 +302,14 @@ public class PrepDatasetFileService {
             }
             if(limitRows<=r.getRowNum()) { break; }
 
-            for (Cell c : r) {
+            int lastColCnt = r.getLastCellNum();
+            if(columnCount!=null) {
+                lastColCnt = columnCount;
+            }
+            //for (Cell c : r) {
+            for (int columnIndex=0;columnIndex<lastColCnt;columnIndex++) {
+                Cell c = r.getCell(columnIndex);
+
                 if(c==null) {
                     row.add(null);
                     continue;
@@ -311,7 +337,7 @@ public class PrepDatasetFileService {
         return grid;
     }
 
-    private Map<String, Object> getResponseMapFromExcel(String storedUri, String extensionType, int limitRows, boolean autoTyping) throws IOException, TeddyException {
+    private Map<String, Object> getResponseMapFromExcel(String storedUri, String extensionType, int limitRows, Integer columnCount, boolean autoTyping) throws IOException, TeddyException {
         Map<String, Object> responseMap = Maps.newHashMap();
         List<String> sheetNames = Lists.newArrayList();
         List<DataFrame> gridResponses = Lists.newArrayList();
@@ -328,10 +354,7 @@ public class PrepDatasetFileService {
         InputStream is = null;
         switch (uri.getScheme()) {
             case "hdfs":
-                Configuration conf = this.hdfsService.getConf();
-                if (conf == null) {
-                    throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
-                }
+                Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
                 Path path = new Path(uri);
 
                 FileSystem hdfsFs;
@@ -387,9 +410,9 @@ public class PrepDatasetFileService {
 
         for (Sheet sheet : workbook) {
             DataFrame df = new DataFrame(sheet.getSheetName());
-            df.setByGrid(getGridFromExcel(sheet, limitRows), null);
+            df.setByGrid(getGridFromExcel(sheet, limitRows, columnCount), null);
 
-            if (autoTyping) {
+            if (autoTyping && 0<df.rows.size()) {
                 df = teddyImpl.applyAutoTyping(df);
             }
 
@@ -402,14 +425,15 @@ public class PrepDatasetFileService {
         return responseMap;
     }
 
-    private Map<String, Object> getResponseMapFromJson(String storedUri, int limitRows, boolean autoTyping) throws TeddyException {
+    private Map<String, Object> getResponseMapFromJson(String storedUri, int limitRows, Integer columnCount, boolean autoTyping) throws TeddyException {
         Map<String, Object> responseMap = Maps.newHashMap();
         List<DataFrame> gridResponses = Lists.newArrayList();
+        Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
 
         DataFrame df = new DataFrame("df_for_preview");
-        df.setByGridWithJson(PrepJsonUtil.parseJson(storedUri, limitRows, hdfsService.getConf()));
+        df.setByGridWithJson(PrepJsonUtil.parseJson(storedUri, limitRows, columnCount, hadoopConf));
 
-        if (autoTyping) {
+        if (autoTyping && 0<df.rows.size()) {
             df = teddyImpl.applyAutoTyping(df);
         }
 
@@ -419,14 +443,15 @@ public class PrepDatasetFileService {
         return responseMap;
     }
 
-    private Map<String, Object> getResponseMapFromCsv(String storedUri, int limitRows, String delimiterCol, boolean autoTyping) throws TeddyException {
+    private Map<String, Object> getResponseMapFromCsv(String storedUri, int limitRows, String delimiterCol, Integer columnCount, boolean autoTyping) throws TeddyException {
         Map<String, Object> responseMap = Maps.newHashMap();
         List<DataFrame> gridResponses = Lists.newArrayList();
+        Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
 
         DataFrame df = new DataFrame("df_for_preview");
-        df.setByGrid(PrepCsvUtil.parse(storedUri, delimiterCol, limitRows, hdfsService.getConf()));
+        df.setByGrid(PrepCsvUtil.parse(storedUri, delimiterCol, limitRows, columnCount, hadoopConf));
 
-        if (autoTyping) {
+        if (autoTyping && 0<df.rows.size()) {
             df = teddyImpl.applyAutoTyping(df);
         }
 
@@ -466,23 +491,23 @@ public class PrepDatasetFileService {
      *     sheetName    (Excel only)
      *   totalBytes     FIXME: is this needed?
      */
-    public Map<String, Object> fileCheckSheet3(String storedUri, String size, String delimiterCol, boolean autoTyping) {
+    public Map<String, Object> fileCheckSheet3(String storedUri, Integer size, String delimiterCol, Integer columnCount, boolean autoTyping) {
 
         Map<String, Object> responseMap;
         String extensionType = FilenameUtils.getExtension(storedUri);
-        int limitRows = Integer.parseInt(size);
+        int limitRows = size;
 
         try {
             switch (extensionType) {
                 case "xlsx":
                 case "xls":
-                    responseMap = getResponseMapFromExcel(storedUri, extensionType, limitRows, autoTyping);
+                    responseMap = getResponseMapFromExcel(storedUri, extensionType, limitRows, columnCount, autoTyping);
                     break;
                 case "json":
-                    responseMap = getResponseMapFromJson(storedUri, limitRows, autoTyping);
+                    responseMap = getResponseMapFromJson(storedUri, limitRows, columnCount, autoTyping);
                     break;
                 default:
-                    responseMap = getResponseMapFromCsv(storedUri, limitRows, delimiterCol, autoTyping);
+                    responseMap = getResponseMapFromCsv(storedUri, limitRows, delimiterCol, columnCount, autoTyping);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -515,6 +540,7 @@ public class PrepDatasetFileService {
                 autoTyping = false;
             }
 
+            Integer columnCount = dataset.getManualColumnCount();
             Map<String, Object> responseMap = null;
             switch (extensionType) {
                 case "xlsx":
@@ -522,11 +548,11 @@ public class PrepDatasetFileService {
                     // Excel files are treated as CSV
                     break;
                 case "json":
-                    responseMap = getResponseMapFromJson(storedUri, limitRows, autoTyping);
+                    responseMap = getResponseMapFromJson(storedUri, limitRows, columnCount, autoTyping);
                     break;
                 default:
                     String delimiterCol = dataset.getDelimiter();
-                    responseMap = getResponseMapFromCsv(storedUri, limitRows, delimiterCol, autoTyping);
+                    responseMap = getResponseMapFromCsv(storedUri, limitRows, delimiterCol, columnCount, autoTyping);
             }
 
             if(responseMap != null) {
@@ -546,192 +572,6 @@ public class PrepDatasetFileService {
             LOGGER.error("Failed to read file : {}", e.getMessage());
             throw e;
         }
-
-        return dataFrame;
-    }
-
-    public DataFrame getPreviewLinesFromFileForDataFrame_bak(PrDataset dataset, String sheetindex, String size) throws IOException, TeddyException {
-        DataFrame dataFrame = new DataFrame();
-        String strUri = null;
-
-        try {
-            if(dataset==null) {
-                throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET);
-            }
-
-            assert dataset.getImportType() == PrDataset.IMPORT_TYPE.UPLOAD || dataset.getImportType() == PrDataset.IMPORT_TYPE.URI;
-
-            long totalBytes = 0L;
-            InputStreamReader inputStreamReader = null;
-            String storedUri = dataset.getStoredUri();
-
-            URI uri = new URI(storedUri);
-
-            if(uri.getScheme().equalsIgnoreCase("file")) {
-                assert storedUri != null;
-
-                File theFile = new File(uri);
-                if(false==theFile.exists()) {
-                    throw new IllegalArgumentException("Invalid filekey.");
-                }
-                totalBytes = theFile.length();
-                inputStreamReader = new InputStreamReader(new FileInputStream(theFile));
-            } else if(uri.getScheme().equals("hdfs")) {
-                Configuration conf = this.hdfsService.getConf();
-                FileSystem fs = FileSystem.get(conf);
-                Path thePath = new Path(uri);
-
-                assert fs.exists(thePath);
-//                if( false==fs.exists(thePath) ) {
-//                    strUri = prepProperties.getStagingBaseDir() + "/uploads/" + fileKey;
-//                    thePath = new Path(new URI(strUri));
-//                    if( false==fs.exists(thePath) ) {
-//                        throw new IllegalArgumentException("Invalid filekey.");
-//                    }
-//                    // TODO: amend the dataset entity with the new path
-//                }
-                ContentSummary cSummary = fs.getContentSummary(thePath);
-                totalBytes = cSummary.getLength();
-                inputStreamReader = new InputStreamReader(fs.open(thePath));
-            } else {
-                assert false : uri.getScheme();
-            }
-
-            String extensionType = FilenameUtils.getExtension(storedUri);
-            int findSheetIndex = Integer.parseInt(sheetindex);
-            int limitSize = Integer.parseInt(size);
-            int dataFrameRows = 0;
-            long totalRows = 0;
-
-            if(null==inputStreamReader) {
-                throw new IllegalArgumentException("failed to open file stream: ["+storedUri+"]");
-            } else {
-
-                List<Map<String, String>> resultSet = Lists.newArrayList();
-
-                if("json".equals(extensionType)) {
-                    // 현재 FILE이면 무조건 csv로 치환됨
-                } else if ("xlsx".equals(extensionType) || "xls".equals(extensionType)) {
-                    // 현재 FILE이면 무조건 csv로 치환됨
-                } else if ("csv".equals(extensionType)
-                        || true // 기타 확장자는 모두 csv로 간주
-                        ) {
-                    BufferedReader br = null;
-                    String line;
-                    String[] csv_fields = null;
-                    Boolean hasFields;
-                    int maxColLength=0;
-                    String delimiterCol = dataset.getDelimiter();
-                    try {
-                        //br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
-                        br = new BufferedReader(inputStreamReader);
-
-                        /*
-                        // hasFields 사용안함
-                        hasFields=true;
-                        line = br.readLine();
-                        csv_fields = Util.csvLineSplitter(line, delimiterCol, "\"");
-                        for(String str : csv_fields) {
-                            if(!getTypeFormString(str).equals(ColumnType.STRING)) {
-                                hasFields = false;
-                                break;
-                            }
-                        }
-
-                        if(hasFields) {
-                            //1번 라인의 type검사. String이 아닌 컬럼이 1개라도 있어야 0번 라인은 header로 인정.
-                            hasFields =false;
-                            line = br.readLine();
-                            String[] csv_fields2 = Util.csvLineSplitter(line, delimiterCol, "\"");
-                            for(String str : csv_fields2) {
-                                if(!getTypeFormString(str).equals(ColumnType.STRING)) {
-                                    hasFields = true;
-                                    break;
-                                }
-                            }
-
-                            if(hasFields) {
-                                //포인터를 1번 라인에 맞춰줌.
-                                br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
-                                br.readLine();
-                                maxColLength = csv_fields.length;
-                            } else {
-                                br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
-                            }
-                        } else {
-                            br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
-                        }
-                        */
-
-                        while ((line = br.readLine()) != null) {
-                            if(limitSize <= totalRows) {
-                                totalRows++;
-                                continue;
-                            }
-                            String[] cols = Util.csvLineSplitter(line, delimiterCol, "\"");
-
-                            //if(!hasFields && maxColLength<cols.length) {
-                            if(maxColLength<cols.length) {
-                                maxColLength = cols.length;
-                                csv_fields = new String[cols.length];
-                                for(int i=0; i<cols.length; i++){
-                                    csv_fields[i]=prefixColumnName+String.valueOf(i+1);
-                                }
-                            }
-
-                            Map<String,String> result = Maps.newTreeMap();
-                            for(int colIdx=0;colIdx<cols.length;colIdx++) {
-                                result.put(csv_fields[colIdx],cols[colIdx]);
-                            }
-                            resultSet.add(result);
-
-                            totalRows++;
-                            dataFrameRows++;
-                        }
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally {
-                        if (br != null) {
-                            try {
-                                br.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-
-                    for(int colIdx=0;colIdx<maxColLength;colIdx++) {
-                        String columnName = csv_fields[colIdx];
-                        dataFrame.addColumn(columnName, getTypeFormString(resultSet.get(0).get(columnName)));
-                    }
-
-                    for(int i=0;i<dataFrameRows;i++) {
-                        app.metatron.discovery.domain.dataprep.teddy.Row row = new app.metatron.discovery.domain.dataprep.teddy.Row();
-                        for(int j=0;j<maxColLength;j++) {
-                            String columnName = csv_fields[j];
-                            String value = resultSet.get(i).get(columnName);
-                            row.add(columnName, value);
-                        }
-                        dataFrame.rows.add(row);
-                    }
-                }
-
-                dataset.setTotalBytes(totalBytes);
-                dataset.setTotalLines(totalRows);
-            }
-        } catch (URISyntaxException e1) {
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, strUri);
-        } catch (Exception e) {
-            LOGGER.error("Failed to read file : {}", e.getMessage());
-            throw e;
-        }
-
-        // This is the only point where the auto typing is applied for I.DS preview.
-        // BTW, there are 2 more points where auto typing is applied. They're for upload previews.
-        // Auto typing for W.DS does not use this function.
-        dataFrame = teddyImpl.applyAutoTyping(dataFrame);
 
         return dataFrame;
     }
@@ -838,28 +678,29 @@ public class PrepDatasetFileService {
         String localUri = uploadFile.getLocalUri();
 
         try {
-
             URI uri = new URI(localUri);
             File inFile = new File(uri);
             InputStream in = new BufferedInputStream(new FileInputStream(inFile));
 
-            Configuration conf = this.hdfsService.getConf();
+            Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
             FileSystem fs = FileSystem.get(conf);
             Path outPath = new Path(storedUri);
             OutputStream out = fs.create(outPath);
 
             IOUtils.copyBytes(in, out, 8192, true);
-
         } catch (URISyntaxException e) {
             LOGGER.error("copyLocalToStaging: URISyntaxException", e);
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
         } catch (FileNotFoundException e) {
             LOGGER.error("copyLocalToStaging: FileNotFoundException", e);
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
+        } catch (ConnectException e) {
+            LOGGER.error("copyLocalToStaging: IOException", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
+                MSG_DP_ALERT_HADOOP_HDFS_FAILED_TO_CONNECT, e.getMessage());
         } catch (IOException e) {
             LOGGER.error("copyLocalToStaging: IOException", e);
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
-        } finally {
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
         }
     }
 
@@ -1137,7 +978,7 @@ public class PrepDatasetFileService {
 
         switch(uri.getScheme()) {
             case "hdfs":
-                Configuration conf = hdfsService.getConf();
+                Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
                 if (conf == null) {
                     throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
                 }
@@ -1197,7 +1038,7 @@ public class PrepDatasetFileService {
 
         switch(uri.getScheme()) {
             case "hdfs":
-                Configuration conf = hdfsService.getConf();
+                Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
                 if (conf == null) {
                     throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
                 }

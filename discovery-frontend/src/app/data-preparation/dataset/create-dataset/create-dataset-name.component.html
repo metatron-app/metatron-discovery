@@ -11,7 +11,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<ng-container *ngIf="type!='FILE'">
+<ng-container *ngIf="names.length === 1">
   <div class="ddp-type-contents ddp-resize2 ddp-type2" [ngClass]="{'popup-prep-create-complete':isMultiSheet}">
     <!-- 닫기 버튼 -->
     <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
@@ -78,6 +78,15 @@
           <span class="ddp-ui-error">{{descriptionErrors[0]}}</span>
         </div>
         <!-- //edit -->
+
+        <div class="ddp-wrap-edit3">
+          <label class="ddp-label-checkbox">
+            <input type="checkbox" [(ngModel)]="isChecked" [checked]="isChecked" disabled="disabled" *ngIf="!isFromDatasetList">
+            <input type="checkbox" [(ngModel)]="isChecked" [checked]="isChecked" *ngIf="isFromDatasetList">
+            <i class="ddp-icon-checkbox"></i>
+            <span class="ddp-txt-checkbox">{{'mgs.dp.ui.continue.new.rule' | translate}}</span>
+          </label>
+        </div>
       </div>
 
     </div>
@@ -105,7 +114,7 @@
 
 
 
-<ng-container *ngIf="type==='FILE'">
+<ng-container *ngIf="type==='FILE' && names.length > 1">
 
   <div class="ddp-type-contents ddp-resize2 ddp-type2 popup-prep-create-complete popup-prep-create">
     <!-- 닫기 버튼 -->
@@ -186,7 +195,8 @@
       <!-- disabled 시 ddp-disabled 추가 -->
       <a href="javascript:"
          class="ddp-btn-type-popup ddp-bg-black"
-         (click)="complete()">
+         (click)="complete()"
+         [ngClass]="{'ddp-disabled': isBtnDisabled() }">
         {{'msg.comm.btn.done2' | translate}}
       </a>
     </div>

@@ -43,6 +43,13 @@
             </includes>
             <outputDirectory>conf</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>./plugins</directory>
+            <includes>
+                <include>*.zip</include>
+            </includes>
+            <outputDirectory>plugins</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <dependencySets>

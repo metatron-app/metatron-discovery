@@ -75,16 +75,10 @@ public class PrDatasetController {
     private PrepDatasetStagingDbService datasetStagingDbService;
 
     @Autowired
-    private PrepHdfsService hdfsService;
-
-    @Autowired
     private PrDatasetService datasetService;
 
     @Autowired
     private PrDatasetRepository datasetRepository;
-
-    @Autowired
-    private PrSnapshotRepository snapshotRepository;
 
     @Autowired
     private PrUploadFileRepository uploadFileRepository;
@@ -482,13 +476,13 @@ public class PrDatasetController {
     public @ResponseBody ResponseEntity<?> fileCheckSheet(@PathVariable(value = "fileKey") String fileKey,
                                                           @RequestParam(value = "sheetname", required = false) String sheetname,
                                                           @RequestParam(value = "sheetindex", required = false, defaultValue = "0") String sheetindex,
-                                                          @RequestParam(value = "resultSize", required = false, defaultValue = "250") String size,
+                                                          @RequestParam(value = "resultSize", required = false, defaultValue = "250") Integer size,
                                                           @RequestParam(value = "delimiterRow", required = false, defaultValue = "\n") String delimiterRow,
                                                           @RequestParam(value = "delimiterCol", required = false, defaultValue = ",") String delimiterCol,
                                                           @RequestParam(value = "hasFields", required = false, defaultValue = "N") String hasFieldsFlag) {
         Map<String, Object> response;
         try {
-            response = this.datasetFileService.fileCheckSheet3( fileKey, size, delimiterCol, false );
+            response = this.datasetFileService.fileCheckSheet3( fileKey, size, delimiterCol, null, false );
         } catch (Exception e) {
             LOGGER.error("fileCheckSheet(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
@@ -499,13 +493,14 @@ public class PrDatasetController {
     @RequestMapping(value = "/file_grid", method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<?> fileGrid(
                                                           @RequestParam(value = "storedUri", required = false) String storedUri,
-                                                          @RequestParam(value = "resultSize", required = false, defaultValue = "250") String size,
+                                                          @RequestParam(value = "resultSize", required = false, defaultValue = "250") Integer size,
                                                           @RequestParam(value = "delimiterRow", required = false, defaultValue = "\n") String delimiterRow,
                                                           @RequestParam(value = "delimiterCol", required = false, defaultValue = ",") String delimiterCol,
+                                                          @RequestParam(value = "manualColumnCount", required = false) Integer manualColumnCount,
                                                           @RequestParam(value = "autoTyping", required = false, defaultValue = "true") String autoTyping) {
         Map<String, Object> response;
         try {
-            response = this.datasetFileService.fileCheckSheet3( storedUri, size, delimiterCol, Boolean.parseBoolean(autoTyping) );
+            response = this.datasetFileService.fileCheckSheet3( storedUri, size, delimiterCol, manualColumnCount, Boolean.parseBoolean(autoTyping) );
         } catch (Exception e) {
             LOGGER.error("fileCheckSheet(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);

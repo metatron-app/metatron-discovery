@@ -14,18 +14,18 @@
 
 package app.metatron.discovery.domain.dataprep;
 
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
 
 public class PrepQueryRequest {
-    JdbcDataConnection connection;
+    DataConnection connection;
     String schema;
     boolean connectivityCheck;
 
-    public JdbcDataConnection getConnection() {
+    public DataConnection getConnection() {
         return connection;
     }
 
-    public void setConnection(JdbcDataConnection connection) {
+    public void setConnection(DataConnection connection) {
         this.connection = connection;
     }
 

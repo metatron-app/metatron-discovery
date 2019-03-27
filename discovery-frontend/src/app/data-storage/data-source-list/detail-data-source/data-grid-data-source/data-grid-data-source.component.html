@@ -14,6 +14,26 @@
 
 <!-- tab contents -->
 <div class="ddp-ui-tab-contents">
+  <!-- guide message -->
+  <div class="ddp-box-message" *ngIf="datasource.connType === CONN_TYPE.LINK">
+    <!-- if only linked source -->
+    <div class="ddp-box-synch type-info">
+      <div class="ddp-txt-synch">
+        <em class="ddp-icon-info"></em>
+        {{'msg.storage.ui.linked.source.preview' | translate}}
+      </div>
+    </div>
+    <!-- //if only linked source -->
+    <!-- if linked source include geo type-->
+    <div class="ddp-box-synch type-info" *ngIf="derivedFieldList.length > 0">
+      <div class="ddp-txt-synch">
+        <em class="ddp-icon-info"></em>
+        {{'msg.storage.ui.linked.source.preview.include.geo' | translate}}
+      </div>
+    </div>
+    <!-- //if linked source include geo type-->
+  </div>
+  <!-- //guide message -->
   <!-- datagrid -->
   <div class="ddp-datagrid">
     <!-- option -->
@@ -35,26 +55,12 @@
         <!-- edit option -->
         <div class="ddp-ui-edit-option ddp-inline">
           <div class="ddp-ui-option-in">
-            <label class="ddp-label-radio">
+            <label class="ddp-label-radio" *ngFor="let type of roleTypeFilterList">
               <input type="radio"
-                     (change)="onChangeRoleType(fieldRoleType.ALL)"
-                     [checked]="selectedFieldRole === fieldRoleType.ALL">
+                     (change)="onChangeRoleType(type)"
+                     [checked]="selectedRoleTypeFilter.value === type.value">
               <i class="ddp-icon-radio"></i>
-              <span class="ddp-txt-radio">{{'msg.comm.ui.list.all' | translate}}</span>
-            </label>
-            <label class="ddp-label-radio">
-              <input type="radio"
-                     (change)="onChangeRoleType(fieldRoleType.DIMENSION)"
-                     [checked]="selectedFieldRole === fieldRoleType.DIMENSION">
-              <i class="ddp-icon-radio"></i>
-              <span class="ddp-txt-radio">{{'msg.comm.name.dim' | translate}}</span>
-            </label>
-            <label class="ddp-label-radio">
-              <input type="radio"
-                     (change)="onChangeRoleType(fieldRoleType.MEASURE)"
-                     [checked]="selectedFieldRole === fieldRoleType.MEASURE">
-              <i class="ddp-icon-radio"></i>
-              <span class="ddp-txt-radio">{{'msg.comm.name.mea' | translate}}</span>
+              <span class="ddp-txt-radio">{{type.label}}</span>
             </label>
           </div>
         </div>
@@ -66,26 +72,14 @@
       <div class="ddp-wrap-edit">
         <label class="ddp-label-type">{{'msg.storage.ui.type' | translate}}</label>
         <!-- edit option -->
-        <div class="ddp-ui-edit-option"
-             (click)="isShowLogicalTypesFl = !isShowLogicalTypesFl"
-             (clickOutside)="isShowLogicalTypesFl = false">
+        <div class="ddp-ui-edit-option">
           <!-- selectbox -->
           <!-- 선택시 : ddp-selected 추가 -->
-          <div class="ddp-type-selectbox" [ngClass]="{'ddp-selected' : isShowLogicalTypesFl}">
-            <span class="ddp-txt-selectbox">{{selectedLogicalType.label}}</span>
-            <div class="ddp-wrap-popup2 ddp-types">
-              <ul class="ddp-list-popup">
-                <li [ngClass]="{'ddp-selected' : selectedLogicalType.value === type.value}"
-                    (click)="onChangeLogicalType($event,type)" *ngFor="let type of logicalTypes">
-                  <a href="javascript:">
-                    <em class="{{getFieldTypeIconClass(type.value)}}"></em>
-                    {{type.label}}
-                    <em class="ddp-icon-check" *ngIf="selectedLogicalType.value === type.value"></em>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
+          <storage-filter-select-box
+            [filterList]="logicalTypeFilterList"
+            [selectedFilter]="selectedLogicalTypeFilter"
+            [isEnableIcon]="true"
+            (changedFilter)="onChangeLogicalType($event)"></storage-filter-select-box>
           <!-- //selectbox -->
         </div>
         <!-- //edit option -->
@@ -110,7 +104,7 @@
     </div>
     <!-- //option -->
     <!-- fix grid -->
-    <div class="ddp-fix-grid" [class.meta-grid]="isExistTimestamp" [class.meta-grid-type]="isExistMetaData()"
+    <div class="ddp-fix-grid" [class.meta-grid]="isExistTimestamp" [class.meta-grid-type]="metaData" [class.ddp-msg-info1]="datasource.connType === CONN_TYPE.LINK && derivedFieldList.length === 0" [class.ddp-msg-info2]="datasource.connType === CONN_TYPE.LINK && derivedFieldList.length > 0"
          #main grid-component
          (onHeaderRowCellRendered)="extendGridHeader($event)">
     </div>

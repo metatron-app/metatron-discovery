@@ -18,86 +18,72 @@ import {header} from "../../common/component/grid/grid.header";
 
 export class PrDataset extends AbstractHistoryEntity {
 
-    public dsId: string = '';
-    public serializedPreview: any; // JSON string for preview
-    public dsName: string;
-    public dsDesc: string;
-    public dataflows: PrDataflow[];
-    public dsType: DsType;
-    public importType: ImportType;
-    public storageType: StorageType;
-    public storedUri: string;
-    public filenameBeforeUpload: string;
-    public totalLines: number;
-    public totalBytes: number;
-    public rsType: RsType;
-    public dbName: string;
-    public tblName: string;
-    public queryStmt: string;
-    public transformRules: any; // need to make a transformRule class
-    public creatorDfId: string;
-    public ruleCurIdx: number;
-    public sheetName: string;
-    public fileFormat: FileFormat;
-    public delimiter: string;
-    public refDfCount: number;
-    public custom: any; // JSON string으로 조회되나 UI에서 사용 시 JSON형태로 파싱해서 사용하여 any로 선언
+  public dsId: string = '';
+  public dsName: string;
+  public dsDesc: string;
+  public dataflows: PrDataflow[];
+  public dsType: DsType;
+  public importType: ImportType;
+  public storageType: StorageType;
+  public storedUri: string;
+  public filenameBeforeUpload: string;
+  public totalLines: number;
+  public totalBytes: number;
+  public rsType: RsType;
+  public dbName: string;
+  public tblName: string;
+  public queryStmt: string;
+  public transformRules: any; // need to make a transformRule class
+  public creatorDfId: string;
+  public ruleCurIdx: number;
+  public sheetName: string;
+  public fileFormat: FileFormat;
+  public delimiter: string;
+  public refDfCount: number;
+  public custom: any; // JSON string으로 조회되나 UI에서 사용 시 JSON형태로 파싱해서 사용하여 any로 선언
 
-    public creatorDfName: string;
-    public ruleCnt: string;
-    public redoable: boolean;
-    public undoable: boolean;
+  public creatorDfName: string;
+  public redoable: boolean;
+  public undoable: boolean;
 
-    // ruleStringInfos , martixResponse 추가됨
-    public ruleStringInfos: any;
-    public matrixResponse: any;
-    public gridResponse: any;
+  public gridResponse: any;
 
-    // UI에서만 사용
-    public selected: boolean;
-    public isHover : boolean;
-    public ticked: boolean;
-    public data: string;
-    public gridData: any;
-    public origin: boolean;
-    public rules: any[];
-    public isCurrentDataflow: boolean;
-    public nameCnt:number;
-    public current:boolean;
-    public validCount: number = 0;
-    public upstreamDsIds:string[];
-    public histogram : any;
-    public colTypes : any;
-    public colDescs : any;
+  // UI에서만 사용
+  public selected?: boolean;
+  public isHover? : boolean;
+  public data?: string;
+  public gridData?: any;
+  public origin?: boolean;
+  public rules?: any[];
+  public isCurrentDataflow?: boolean;
+  public nameCnt?:number;
+  public current?:boolean;
+  public validCount?: number = 0;
+  public upstreamDsIds?:string[];
+  public histogram?: any;
+  public colTypes?: any;
+  public colDescs?: any;
+  public rootDataset?: PrDataset;
 
-    // Join ui 에서 사용
-    public selectedJoinType: string;
-    public rightJoinKey: string;
-    public leftJoinKey: string;
-    public joinRuleList: any[];
-    public leftSelectCol: any[];
-    public rightSelectCol: any[];
-    public joinButtonText: string;
-    public ruleNo: string;
+  // Join ui 에서 사용
+  public selectedJoinType: string;
+  public rightJoinKey: string;
+  public leftJoinKey: string;
+  public joinRuleList: any[];
+  public leftSelectCol: any[];
+  public rightSelectCol: any[];
+  public joinButtonText: string;
+  public ruleNo: string;
 
-    // add api modify
-    //public connectionInfo: any;
+  // add api modify
+  //public connectionInfo: any;
 
-    // connection Info
-    public dcId: string;
-    public dcImplementor: string;
-    public dcName: string;
-    public dcDesc: string;
-    public dcType: string;
-    public dcHostname: string;
-    public dcPort: number;
-    public dcOptions: string;
-    public dcUsername: string;
-    public dcPassword: string;
-    public dcUrl: string;
-    public dcConnectUrl: string;
-    public dcAuthenticationType: string;
-    public dcPublished: boolean;
+  // connection Info
+  public dcId: string;
+  public dcType: string;
+  public dcHostname: string;
+  public dcPort: number;
+  public dcUrl: string;
 }
 
 export class Datasets {
@@ -238,4 +224,5 @@ export class SheetInfo {
   totalRows? : number;
   valid: boolean;
   sheetName?: string;
+  columnCount? : number;
 }

@@ -44,7 +44,7 @@ import {EventBroadcaster} from '../common/event/event.broadcaster';
 import {PageResult} from '../domain/common/page';
 import {ChangeOwnerWorkspaceComponent} from './component/management/change-owner-workspace.component';
 import {WorkspacePermissionSchemaSetComponent} from './component/permission/workspace-permission-schema-set.component';
-import {ConnectionType} from '../domain/dataconnection/dataconnection';
+import {ImplementorType} from '../domain/dataconnection/dataconnection';
 import * as _ from 'lodash';
 
 @Component({
@@ -214,7 +214,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   // 노트북 서버 설정 여부
   public isSetNotebookServer: boolean = false;
 
-  public readonly CONNECTION_TYPE = ConnectionType;
+  public readonly CONNECTION_TYPE = ImplementorType;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -818,7 +818,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   } // function - loadWorkspace
 
   public getConnType(book: Book) {
-    return _.get(book, 'contents.connType', ConnectionType.NONE);
+    return _.get(book, 'contents.connType', ImplementorType.NONE);
   }
 
   public getConnName(book: Book) {

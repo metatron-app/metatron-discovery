@@ -2,6 +2,7 @@ package app.metatron.discovery.domain.dataprep.json;
 
 import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
 
+import app.metatron.discovery.domain.dataprep.PrepUtil;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
@@ -49,7 +50,7 @@ public class PrepJsonUtil {
    *
    *  Sorry for so many try-catches. Sacrificed readability for end-users' usability.
    */
-  public static PrepJsonParseResult parseJson(String strUri, int limitRows, Configuration conf, boolean onlyCount) {
+  public static PrepJsonParseResult parseJson(String strUri, int limitRows, Integer columnCount, Configuration conf, boolean onlyCount) {
     PrepJsonParseResult result = new PrepJsonParseResult();
     BufferedReader reader;
     URI uri;
@@ -143,9 +144,14 @@ public class PrepJsonUtil {
         for(String jsonKey : jsonRow.keySet()) {
           if( result.colNames.contains(jsonKey) == false ) {
             result.colNames.add(jsonKey);
-            result.maxColCnt++;
           }
         }
+
+        int colCnt = result.colNames.size();
+        if(columnCount!=null) {
+          colCnt = columnCount;
+        }
+        result.maxColCnt = colCnt;
 
         String[] row = new String[result.maxColCnt];
         for(int i=0; i<result.maxColCnt; i++ ) {
@@ -165,8 +171,8 @@ public class PrepJsonUtil {
     return result;
   }
 
-  public static PrepJsonParseResult parseJson(String strUri, int limitRows, Configuration conf) {
-    return parseJson(strUri, limitRows, conf, false);
+  public static PrepJsonParseResult parseJson(String strUri, int limitRows, Integer columnCount, Configuration conf) {
+    return parseJson(strUri, limitRows, columnCount, conf, false);
   }
 
   /**
@@ -180,7 +186,7 @@ public class PrepJsonUtil {
    */
   public static Map<String, Long> countJson(String strUri, int limitRows, Configuration conf) {
     Map<String, Long> mapTotal = new HashMap();
-    PrepJsonParseResult result = parseJson(strUri, limitRows, conf, true);
+    PrepJsonParseResult result = parseJson(strUri, limitRows, null, conf, true);
     mapTotal.put("totalRows", result.totalRows);
     mapTotal.put("totalBytes", result.totalBytes);
     return mapTotal;

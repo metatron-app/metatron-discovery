@@ -90,7 +90,6 @@ public class PrTransformRule {
     }
 
     public String getJsonRuleString() {
-        assert jsonRuleString != null;      // if you called prepareTransformRules, it must not be null!
         return jsonRuleString;
     }
 

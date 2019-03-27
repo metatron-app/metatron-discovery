@@ -1016,7 +1016,7 @@ export class DashboardUtil {
     if( ChartUtil.isUsingLimitOption(type) && data.info ) {
       limitInfo.maxCnt = data.info.totalCategory;
       if( ChartType.PIE === type || ChartType.LABEL === type || ChartType.WORDCLOUD === type ) {
-        if( data.columns ) {
+        if( data.columns && 0 < data.columns.length ) {
           limitInfo.currentCnt = data.columns[0].value.length;
         }
       } if( ChartType.GRID === type || ChartType.HEATMAP === type ) {

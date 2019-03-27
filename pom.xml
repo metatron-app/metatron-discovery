@@ -25,8 +25,10 @@
     <modules>
         <module>discovery-frontend</module>
         <module>discovery-server</module>
-        <module>discovery-distribution</module>
         <module>discovery-prep-parser</module>
+        <module>discovery-common</module>
+        <!--<module>discovery-extensions</module>-->
+        <module>discovery-distribution</module>
     </modules>
 
     <properties>
@@ -92,6 +94,11 @@
 
         <!-- Metatron Build Version -->
         <metatron.app.version>${project.version}</metatron.app.version>
+
+        <!-- pf4j -->
+        <pf4j.version>2.5.0</pf4j.version>
+        <pf4j.spring.version>0.5.0</pf4j.spring.version>
+
     </properties>
     <build>
         <plugins>
@@ -772,7 +779,7 @@
         <repository>
             <id>jboss-maven2-release-repository</id>
             <name>Jboss Maven release repository</name>
-            <url>	https://repository.jboss.org/nexus/content/repositories/releases/</url>
+            <url>https://repository.jboss.org/nexus/content/repositories/releases/</url>
         </repository>
 
         <repository>

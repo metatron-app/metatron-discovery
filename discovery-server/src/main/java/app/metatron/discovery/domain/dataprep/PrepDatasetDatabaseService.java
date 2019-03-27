@@ -14,16 +14,8 @@
 
 package app.metatron.discovery.domain.dataprep;
 
-import app.metatron.discovery.domain.dataprep.entity.PrDataset;
-import app.metatron.discovery.domain.dataprep.jdbc.PrepJdbcService;
-import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
-import app.metatron.discovery.domain.dataprep.service.PrDatasetService;
-import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
 import com.google.common.collect.Sets;
+
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +24,12 @@ import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -41,6 +37,18 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
+import app.metatron.discovery.domain.dataconnection.DataConnectionRepository;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.jdbc.PrepJdbcService;
+import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
+import app.metatron.discovery.domain.dataprep.service.PrDatasetService;
+import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
+import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 
 @Service
 public class PrepDatasetDatabaseService {
@@ -128,11 +136,23 @@ public class PrepDatasetDatabaseService {
             int limitSize = Integer.parseInt(size);
 
             String dcId = dataset.getDcId();
-            DataConnection connection = this.datasetService.findRealDataConnection(this.connectionRepository.findOne(dcId));
+            DataConnection connection = this.datasetService.findRealDataConnection(
+                this.connectionRepository.findOne(dcId));
 
-            String connectUrl = connection.getConnectUrl();
-            String username = connection.getUsername();
-            String password = connection.getPassword();
+            PrepJdbcService jdbcConnectionService = new PrepJdbcService();
+            DataConnection jdbcDataConnection;
+            if( connection instanceof DataConnection ) {
+                jdbcDataConnection = connection;
+            } else {
+                jdbcDataConnection = jdbcConnectionService.makeJdbcDataConnection(connection);
+            }
+
+            JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(jdbcDataConnection);
+            JdbcDialect dialect = jdbcDataAccessor.getDialect();
+
+            String connectUrl = dialect.getConnectUrl(jdbcDataConnection);
+            String username = jdbcDataConnection.getUsername();
+            String password = jdbcDataConnection.getPassword();
             String queryStmt = dataset.getQueryStmt();
             String tblName = dataset.getTblName();
             String dbName = dataset.getDbName();
@@ -155,19 +175,12 @@ public class PrepDatasetDatabaseService {
                 sql = "SELECT * FROM " + tblName + " LIMIT " + size;
             }
 
-            PrepJdbcService jdbcConnectionService = new PrepJdbcService();
-            JdbcDataConnection jdbcDataConnection;
-            if( connection instanceof JdbcDataConnection ) {
-                jdbcDataConnection = (JdbcDataConnection) connection;
-            } else {
-                jdbcDataConnection = jdbcConnectionService.makeJdbcDataConnection(connection);
-            }
-            jdbcDataConnection.setDatabase(dbName);
-            DataSource dataSource = jdbcConnectionService.getDataSource(jdbcDataConnection, true);
+            Connection conn = null;
             Statement stmt = null;
 
             try {
-                stmt = dataSource.getConnection().createStatement();
+                conn = jdbcDataAccessor.getConnection(dbName, true);
+                stmt = conn.createStatement();
             } catch (SQLException e) {
                 e.printStackTrace();
             }

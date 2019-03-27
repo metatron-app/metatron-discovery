@@ -38,6 +38,7 @@ import {Filter} from "../../../../shared/datasource-metadata/domain/filter";
 import {Type} from "../../../../shared/datasource-metadata/domain/type";
 import {isNullOrUndefined} from "util";
 import Role = Type.Role;
+import {StorageService} from "../../../service/storage.service";
 
 @Component({
   selector: 'edit-config-schema',
@@ -92,6 +93,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
               private datasourceCreateService: DataSourceCreateService,
               private fieldConfigService: FieldConfigService,
               private connectionService: DataconnectionService,
+              private storageService: StorageService,
               public constant: ConstantService,
               protected element: ElementRef,
               protected injector: Injector) {
@@ -403,10 +405,9 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    * @private
    */
   private _getConnectionParams(ingestion: any, connection: Dataconnection) {
+    const connectionType = this.storageService.findConnectionType(connection.implementor);
     const params = {
       connection: {
-        hostname: connection.hostname,
-        port: connection.port,
         implementor: connection.implementor,
         authenticationType: connection.authenticationType || AuthenticationType.MANUAL
       },
@@ -414,17 +415,25 @@ export class EditConfigSchemaComponent extends AbstractComponent {
       type: ingestion.dataType,
       query: ingestion.query
     };
+    // if not used URL
+    if (StringUtil.isEmpty(connection.url)) {
+      params.connection['hostname'] = connection.hostname;
+      params.connection['port'] = connection.port;
+      if (this.storageService.isRequireCatalog(connectionType)) {
+        params.connection['catalog'] = connection.catalog;
+      } else if (this.storageService.isRequireDatabase(connectionType)) {
+        params.connection['database'] = connection.database;
+      } else if (this.storageService.isRequireSid(connectionType)) {
+        params.connection['sid'] = connection.sid;
+      }
+    } else {  // if used URL
+      params.connection['url'] = connection.url;
+    }
     // if security type is not USERINFO, add password and username
     if (connection.authenticationType !== AuthenticationType.USERINFO) {
-      params['connection']['username'] = connection.authenticationType === AuthenticationType.DIALOG ? ingestion.connectionUsername : connection.username;
-      params['connection']['password'] = connection.authenticationType === AuthenticationType.DIALOG ? ingestion.connectionPassword : connection.password;
+      params.connection['username'] = connection.authenticationType === AuthenticationType.DIALOG ? ingestion.connectionUsername : connection.username;
+      params.connection['password'] = connection.authenticationType === AuthenticationType.DIALOG ? ingestion.connectionPassword : connection.password;
     }
-
-    // 데이터 베이스가 있는경우
-    if (ingestion.connection && ingestion.connection.hasOwnProperty('database')) {
-      params['connection']['database'] = ingestion.connection.database;
-    }
-
     return params;
   }
 

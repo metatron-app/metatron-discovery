@@ -711,6 +711,9 @@
   "msg.dp.alert.failed.to.calculate.rowno": "RowNo计算中发生错误",
   "msg.dp.alert.file.format.wrong": "无法导入的格式或已损坏的文件",
   "msg.dp.alert.hadoop.not.configured": "未设置Hadoop",
+  "msg.dp.alert.hadoop.core.site.not.found" : "找不到core-site.xml",
+  "msg.dp.alert.hadoop.hdfs.site.not.found" : "找不到hdfs-site.xml",
+  "msg.dp.alert.hadoop.hdfs.failed.to.connect" : "无法连接Hadoop HDFS服务器",
   "msg.dp.alert.staging.base.dir.not.configured": "未设置Staging base directory",
   "msg.dp.alert.hive.not.configured": "未设置Hive",
   "msg.dp.alert.external.jar.not.configured": "未设置传送处理的external jar文件",
@@ -1245,6 +1248,8 @@
   "msg.dp.ss.check.error" : "Please check the error item.",
   "msg.dp.ss.name.required" : "Snapshot name required",
   "msg.dp.ui.max.length.error" : "You can enter up to 150 characters",
+  "msg.dp.alert.hive.column.error" : "There are column names that are not eligible to be stored in Hive. Would you like to view and change the column name?",
+  "mgs.dp.ui.continue.new.rule": "Continue to edit rules with this dataset in a new dataflow",
 
   "msg.board.create.add-ds": "添加数据源",
   "msg.board.create.add-ds.desc": "请添加视觉化数据源并设置关系",
@@ -2091,6 +2096,9 @@
   "msg.storage.ui.none.source.desc": "No description",
   "msg.storage.ui.valid.geo.format.error": "It must be in WKT format.",
   "msg.storage.ui.valid.geo.format.no.data" : "Can not set GEO type because there is no data value",
+  "msg.storage.ui.file.name": "File name",
+  "msg.storage.ui.linked.source.preview.include.geo": "Linked data does not support preview for Geo type.",
+  "msg.storage.ui.linked.source.preview": " This data grid is source data, not ingested data. This may differ from the temporarily ingested data value when creating a dashboard.",
 
   "msg.log.th.status": "状态",
   "msg.log.ui.search.description": "请按job名或应用程序ID进行搜索",

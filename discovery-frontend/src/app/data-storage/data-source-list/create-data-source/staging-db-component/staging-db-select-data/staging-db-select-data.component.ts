@@ -25,6 +25,7 @@ import { GridComponent } from '../../../../../common/component/grid/grid.compone
 import { DataconnectionService } from '../../../../../dataconnection/service/dataconnection.service';
 import * as _ from 'lodash';
 import * as pixelWidth from 'string-pixel-width';
+import {isNullOrUndefined} from "util";
 
 @Component({
   selector: 'staging-db-select',
@@ -451,7 +452,9 @@ export class StagingDbSelectDataComponent extends AbstractPopupComponent impleme
       // name
       item.name = this._sliceTableName(item.name);
       // if exist alias, convert alias
-      item.alias && (item.alias = this._sliceTableName(item.alias));
+      if (!isNullOrUndefined(item.alias)) {
+        item.alias = this._sliceTableName(item.alias);
+      }
       return item;
     });
   }
