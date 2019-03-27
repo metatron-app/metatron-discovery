@@ -90,8 +90,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
     // set min / max by decimal format
     if (this.uiOption.valueFormat && undefined !== this.uiOption.valueFormat.decimal) {
-      this.minValue = FormatOptionConverter.getDecimalValue(this.uiOption.minValue, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
-      this.maxValue = FormatOptionConverter.getDecimalValue(this.uiOption.maxValue, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
+      this.minValue = FormatOptionConverter.getDecimalValue(this.uiOption.layers[this.index].color.minValue, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
+      this.maxValue = FormatOptionConverter.getDecimalValue(this.uiOption.layers[this.index].color.maxValue, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
     }
   }
 
@@ -976,8 +976,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     range = this.parseStrFloat(range);
 
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = _.cloneDeep(this.uiOption.minValue);
-    const uiMaxValue = _.cloneDeep(this.uiOption.maxValue);
+    const uiMinValue = _.cloneDeep(this.uiOption.layers[layerIndex].color.minValue);
+    const uiMaxValue = _.cloneDeep(this.uiOption.layers[layerIndex].color.maxValue);
 
     // 입력가능 최소 / 최대범위 구하기
     let minValue = rangeList[index + 1] ? rangeList[index + 1].gt ? rangeList[index + 1].gt : uiMinValue :
@@ -1054,7 +1054,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    */
   public addNewRange(index: number, layerIndex : number) {
 
-    const optionMinValue = _.cloneDeep(this.uiOption.minValue);
+    const optionMinValue = _.cloneDeep(this.uiOption.layers[layerIndex].color.minValue);
 
     // 색상 범위리스트
     const rangeList = this.uiOption.layers[layerIndex].color.ranges;
@@ -1159,7 +1159,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     range = this.parseStrFloat(range);
 
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = _.cloneDeep(this.uiOption.minValue);
+    const uiMinValue = _.cloneDeep(this.uiOption.layers[layerIndex].color.minValue);
 
     // 하위 fixMin값
     const lowerfixMin = rangeList[index + 1] ?(rangeList[index + 1].fixMin) ? rangeList[index + 1].fixMin : rangeList[index + 1].fixMax : null;
