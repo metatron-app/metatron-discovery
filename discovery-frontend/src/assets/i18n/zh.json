@@ -1253,7 +1253,7 @@
   "msg.dp.ui.validate.url" : "Please validate the URL to preview data",
   "msg.dp.ui.url.ph" : "Please enter URL",
   "msg.dp.ui.url.dataset.title" : "Create URL type dataset",
-  "msg.dp.btn.validation.test" : "Validation check",
+  "msg.dp.btn.load.data" : "Load data",
   "msg.dp.ui.invalid.url" : "Invalid URL. Please check URL",
   "msg.dp.th.col.cnt" : "Column count",
   "msg.dp.th.col.cnt.ph" : "Enter column count",

@@ -33,7 +33,7 @@
             <input type="text" class="ddp-input-typebasic" placeholder="{{'msg.dp.ui.url.ph' | translate }} (e.g. file://location/of/file.csv, hdfs://location/of/file.xls)"
                    (keydown)="keydownEvent($event, 'url')"
                    [(ngModel)]="storedUri">
-            <a href="javascript:" class="ddp-btn-pop ddp-bg-gray " (click)="checkValidation()">{{'msg.dp.btn.validation.test' | translate}}</a>
+            <a href="javascript:" class="ddp-btn-pop ddp-bg-gray " (click)="checkValidation()">{{'msg.dp.btn.load.data' | translate}}</a>
           </div>
           <div class="ddp-ui-message ddp-ui-info ">
             <span [ngClass]="{'ddp-data-error2': errorNum === 0, 'ddp-data-error': errorNum === 1 }" *ngIf="errorNum === 0 ||errorNum === 1">

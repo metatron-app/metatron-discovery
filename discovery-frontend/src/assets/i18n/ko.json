@@ -1342,7 +1342,7 @@
   "msg.dp.ui.validate.url" : "데이터를 미리 보려면 URL의 유효성을 확인하십시오.",
   "msg.dp.ui.url.ph" : "URL을 입력해 주세요",
   "msg.dp.ui.url.dataset.title" : "URL 타입 데이터셋 생성",
-  "msg.dp.btn.validation.test" : "유효성 체크",
+  "msg.dp.btn.load.data" : "데이터로드",
   "msg.dp.ui.invalid.url" : "잘못된 URL입니다. URL을 확인하세요",
   "msg.dp.th.col.cnt" : "컬럼 수",
   "msg.dp.th.col.cnt.ph" : "컬럼 수를 입력하세요",
