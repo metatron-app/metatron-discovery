@@ -12,7 +12,7 @@
 * limitations under the License.
 */
 
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
+import {AbstractHistoryEntity, UserDetail} from '../common/abstract-history-entity';
 import { PrDataflow } from './pr-dataflow';
 import {header} from "../../common/component/grid/grid.header";
 
@@ -161,6 +161,7 @@ export class PrDatasetJdbc extends PrDataset {
   public tableInfo? : TableInfo;
 
   public dataconnection: any;
+  public connectionList?: Connection[];
 }
 
 export class Rule {
@@ -225,4 +226,25 @@ export class SheetInfo {
   valid: boolean;
   sheetName?: string;
   columnCount? : number;
+}
+
+
+export class Connection {
+  authentication : string;
+  connectionInformation : any;
+  createdBy: UserDetail;
+  createdTime: Date;
+  database:string;
+  hostname: string;
+  id: string;
+  implementor:string;
+  linkedWorkspaces: number;
+  modifiedTime: UserDetail;
+  name: string;
+  password: string;
+  port: number;
+  published: boolean;
+  supportSaveAsHiveTable: boolean;
+  type: string;
+  username: string;
 }

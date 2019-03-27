@@ -690,7 +690,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     this.loadingShow();
 
     if (!this.datasetJdbc.dataconnection.connection) {
-      this.datasetJdbc.dcId = this.datasetJdbc.dataconnection.id;
+      // this.datasetJdbc.dcId = this.datasetJdbc.dataconnection.id;
 
       const connectionInfo = _.clone(this.datasetJdbc.dataconnection);
 
