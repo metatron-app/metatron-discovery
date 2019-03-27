@@ -233,11 +233,11 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
     // 상세정보 화면 초기화
     this.selectedDatasetId = '';
 
-    // 선택된 checkbox  항목 초기화
-    this.selectedDatasets = [];
+    // // 선택된 checkbox  항목 초기화
+    // this.selectedDatasets = [];
 
     // 선택된 radio 항목 초기화
-    this.swappingDatasetId = '';
+    // this.swappingDatasetId = '';
     // this.firstLoadCompleted = false;
 
     // 데이터소스 리스트 조회
@@ -286,6 +286,9 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
 
     this.loadingShow();
 
+    console.info('selectedDatasets --> ', this.selectedDatasets);
+    const selectedDsId = this.selectedDatasets.map((item) => item.dsId);
+
     this.dataflowService.getDatasets(this.searchText, this.page, 'listing', this.searchType, '')
       .then((data) => {
 
@@ -307,10 +310,8 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
           const dslist = this.originalDatasetList.map((ds) => {return ds.dsId;});
           // 데이터플로우에 이미 추가된 데이터셋이라면 selected, origin 을 true 로 준다.
           this.datasets.forEach((item) => {
-            if (dslist.indexOf(item.dsId) > -1) {
-              // item.selected = true;
-              item.origin = true;
-            }
+            item.origin = dslist.indexOf(item.dsId) > -1;
+            item.selected = selectedDsId.indexOf(item.dsId) > -1;
           });
 
           this.isCheckAllDisabled = this.datasets.every((item) => {
@@ -328,14 +329,8 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
         if (this.layoutType == 'SWAP') {
           // 데이터 플로우에 이미 추가된 데이터셋이라면 selected, origin 을 true 로 준다.
           this.datasets.forEach((item) => {
-            if (item.dsId === this.selectedDatasetId ) {
-              // 데이터플로우에서 선택된 데이터셋이면 origin = true, selected = true;
-              item.selected = true;
-              item.origin = true;
-            } else{
-              item.selected = false;
-              item.origin = false;
-            }
+            item.selected = item.dsId === this.selectedDatasetId;
+            item.origin = item.dsId === this.selectedDatasetId;
           });
 
           // SWAP (radio button) mode : radio button 이 check 되지 않은 상태에서 부모화면에서 선택한 데이터셋이 load 된 경우, 이 항목의 radio button 을 check 한다
@@ -402,13 +397,13 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
   public changeOrder(column: string) {
 
     // 선택된 radio 항목 초기화
-    this.swappingDatasetId = '';
+    // this.swappingDatasetId = '';
     // this.firstLoadCompleted = false;
 
     // 상세화면 초기화(close)
     this.selectedDatasetId = '';
     // checkbox 선택 항목 초기화
-    this.selectedDatasets = [];
+    // this.selectedDatasets = [];
 
 
     // page sort 초기화
