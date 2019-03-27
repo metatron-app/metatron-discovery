@@ -79,7 +79,7 @@
                 <tr *ngFor="let item of dataflows" (click)="selectDataflow(item)" [ngClass]="{'ddp-selected': selectedDataflowId === item.dfId}">
 
                   <td>
-                    <div class=" ddp-txt-long" *ngIf="!item.dfDesc; else yesDfDesc">
+                    <div class=" ddp-txt-long" title="{{item.dfName}}" *ngIf="!item.dfDesc; else yesDfDesc">
                       {{item.dfName}}
                     </div>
                     <ng-template #yesDfDesc>
