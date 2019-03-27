@@ -183,8 +183,7 @@
             </td>
             <td>
               <div class="ddp-input-form">
-                <input type="text" class="ddp-txt-input"
-                       (ngModelChange)="setReplaceFlag(column)" [(ngModel)]="column.logicalName">
+                <input type="text" class="ddp-txt-input" [(ngModel)]="column.logicalName">
                 <em class="ddp-bg-select"></em>
               </div>
             </td>
@@ -233,7 +232,6 @@
               <div class="ddp-input-form" *ngIf="column.logicalType === LOGICAL_TYPE.TIMESTAMP && column.format">
                 <input type="text" class="ddp-txt-input"
                        [readOnly]="column.role === FIELD_ROLE.TIMESTAMP"
-                       (ngModelChange)="setReplaceFlag(column)"
                        [(ngModel)]="column.format.format">
                 <em class="ddp-bg-select"></em>
               </div>
@@ -243,7 +241,6 @@
             <td>
               <div class="ddp-input-form">
                 <input type="text" class="ddp-txt-input"
-                       (ngModelChange)="setReplaceFlag(column)"
                        [(ngModel)]="column.description">
                 <em class="ddp-bg-select"></em>
               </div>

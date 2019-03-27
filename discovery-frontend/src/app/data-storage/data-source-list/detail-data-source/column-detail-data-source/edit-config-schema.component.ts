@@ -194,15 +194,6 @@ export class EditConfigSchemaComponent extends AbstractComponent {
   }
 
   /**
-   * filed 의 변경이벤트 발생
-   * @param {Field} field
-   */
-  public setReplaceFlag(field: Field): void {
-    // 변경이벤트 체크
-    field['replaceFl'] = true;
-  }
-
-  /**
    * Is show information icon
    * @param {Field} field
    * @return {boolean}
@@ -295,7 +286,6 @@ export class EditConfigSchemaComponent extends AbstractComponent {
   public onChangeLogicalType(targetField: Field, typeToChange): void {
     // if different type
     if (targetField.logicalType !== typeToChange.value) {
-      this.setReplaceFlag(targetField);
       // prev logical type
       const prevLogicalType: LogicalType = targetField.logicalType;
       // change logical type
@@ -364,37 +354,49 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    * @private
    */
   private _getUpdateFieldParams(): Field[] {
-    return this.fieldList.reduce((acc, field) => {
-      if (field['replaceFl']) {
-        field['op'] = 'replace';
-        delete field['replaceFl'];
-        delete field['isShowTypeList'];
-        // if is TIMESTAMP logical type
-        if (!isNullOrUndefined(field.format)) {
-          // remove format valid
-          delete field.format.isValidFormat;
-          delete field.format.formatValidMessage;
-          // if logical type
-          if (field.logicalType === LogicalType.TIMESTAMP) {
-            // DATE_TIME
-            if (field.format.type === FieldFormatType.DATE_TIME) {
-              // remove format unit
-              delete field.format.unit;
-            } else if (field.format.type === FieldFormatType.UNIX_TIME) { // UNIX_TIME
-              // remove format
-              delete field.format.format;
-              // remove timezone
-              delete field.format.timeZone;
-              delete field.format.locale;
-            }
-          } else if (field.logicalType === LogicalType.GEO_POINT || field.logicalType  === LogicalType.GEO_POLYGON || field.logicalType === LogicalType.GEO_LINE) {
-
+    const result = [];
+    // original fields list loop
+    this._originFieldList.forEach((originField) => {
+      // find field in fieldList
+      const targetField = this.fieldList.find(field => field.name === originField.name);
+      // if not exist target field (removed field)
+      if (isNullOrUndefined(targetField)) {
+        // TODO removed field 설정후 result.push
+      } else { // if exist target field
+        const tempField = _.cloneDeep(targetField);
+        delete tempField['isShowTypeList'];
+        // if changed logical name
+        if (originField.logicalName !== targetField.logicalName) {
+          tempField['op'] = 'replace';
+          tempField.logicalName = targetField.logicalName;
+        }
+        // if changed description
+        if (originField.description !== targetField.description) {
+          tempField['op'] = 'replace';
+          tempField.description = targetField.description;
+        }
+        // if changed logical type
+        if (originField.logicalType !== targetField.logicalType) {
+          tempField['op'] = 'replace';
+          tempField.logicalType = targetField.logicalType;
+          // if is TIMESTAMP, not GEO in originField
+          if (originField.logicalType === LogicalType.TIMESTAMP) {
+            tempField.format = null;
           }
         }
-        acc.push(field);
+        // if changed format TODO 1540
+
+        // push result
+        tempField['op'] && result.push(tempField);
       }
-      return acc;
-    }, []);
+    });
+    // TODO check created field
+    // this.fieldList.forEach((field) => {
+    //   if (isNullOrUndefined(this._originFieldList.find(originField => originField.name === field.name))) {
+    //     // TODO created field 설정후 result.push
+    //   }
+    // });
+    return result;
   }
 
   /**
