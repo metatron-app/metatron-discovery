@@ -182,13 +182,54 @@ public class PrepDatasetFileService {
 
     private String prefixColumnName = "column";
 
+    private void mkdirsIfNotExist(String dirUri) {
+        boolean result = false;
+
+        URI uri = null;
+        try {
+            uri = new URI(dirUri);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, dirUri);
+        }
+
+        switch (uri.getScheme()) {
+            case "hdfs":
+                Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
+                if (conf == null) {
+                    throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
+                }
+                Path path = new Path(uri);
+
+                FileSystem hdfsFs = null;
+                try {
+                    hdfsFs = FileSystem.get(conf);
+                    if (!hdfsFs.exists(path)) {
+                        result = hdfsFs.mkdirs(path);
+                    }
+                    hdfsFs.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, dirUri);
+                }
+                break;
+
+            case "file":
+                File file = new File(uri);
+                if(!file.exists()){
+                    file.mkdirs();
+                }
+                break;
+
+            default:
+                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, dirUri);
+        }
+    }
+
     private String getPathS3Base(String filename) {
         if(null==fileDatasetUploadS3Path) {
             fileDatasetUploadS3Path = prepProperties.getS3BaseDir(true) + File.separator + PrepProperties.dirUpload;
-            File tempPath = new File(fileDatasetUploadS3Path);
-            if(!tempPath.exists()){
-                tempPath.mkdirs();
-            }
+            mkdirsIfNotExist(fileDatasetUploadS3Path);
         }
 
         String pathStr = fileDatasetUploadS3Path + File.separator + filename;
@@ -198,11 +239,8 @@ public class PrepDatasetFileService {
     private String getPathStagingBase(String filename) {
         if(null==fileDatasetUploadStagingPath) {
             fileDatasetUploadStagingPath = prepProperties.getStagingBaseDir(true) + File.separator + PrepProperties.dirUpload;
-            File tempPath = new File(fileDatasetUploadStagingPath);
-            if(!tempPath.exists()){
-                tempPath.mkdirs();
-            }
         }
+        mkdirsIfNotExist(fileDatasetUploadStagingPath);
 
         String pathStr = fileDatasetUploadStagingPath + File.separator + filename;
         return pathStr;
@@ -214,10 +252,13 @@ public class PrepDatasetFileService {
             if(fileDatasetUploadLocalPath.startsWith("file://")==false) {
                 fileDatasetUploadLocalPath = "file://" + fileDatasetUploadLocalPath;
             }
+            mkdirsIfNotExist(fileDatasetUploadLocalPath);
+            /*
             File tempPath = new File(fileDatasetUploadLocalPath);
             if(!tempPath.exists()){
                 tempPath.mkdirs();
             }
+            */
         }
 
         String pathStr = fileDatasetUploadLocalPath + File.separator + filename;
