@@ -605,24 +605,9 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
    */
   private dataflowChartAreaResize(resizeCall?:boolean): void {
     if(resizeCall == undefined) resizeCall = false;
-    // const itemMinSize: number = 64;
-    const itemMinSize: number = 70;
     const hScrollbarWith: number = 30;
-    const topMargin: number = 50;
-    let minHeightSize: number = 600;
-    if($('.ddp-wrap-flow2')!=null && $('.ddp-wrap-flow2')!=undefined){
-      minHeightSize = $('.ddp-wrap-flow2').height()- topMargin;
-    }
+    let minHeightSize: number = this.dataflow.datasets.length < 6 ? 600 : this.dataflow.datasets.length * 100;
     let fixHeight: number = minHeightSize;
-    if(this.dataflow!=null && this.dataflow.hasOwnProperty('wrangledDsCount') && this.dataflow.hasOwnProperty('importedDsCount')){
-      let imported: number = this.dataflow.importedDsCount;
-      let wrangled: number = this.dataflow.wrangledDsCount;
-      if(imported == undefined) imported = 0;
-      if(wrangled == undefined) wrangled = 0;
-      const lImported: number = (imported * itemMinSize) + Math.floor(wrangled * itemMinSize/2);
-      const lWrangled: number = (wrangled * itemMinSize) + Math.floor(imported * itemMinSize/2);
-      if(lImported > minHeightSize || lWrangled > minHeightSize) {if(lImported>lWrangled) {fixHeight = lImported;}else{fixHeight = lWrangled;}}
-    }
     const minWidthSize: number = $('.ddp-wrap-flow2').width()- hScrollbarWith;
     $('.ddp-box-chart').css('overflow-x', 'hidden');
     $('#chartCanvas').css('height', fixHeight+'px').css('width', minWidthSize+'px').css('overflow', 'hidden');
@@ -651,10 +636,6 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
 
         this.setDataflowName(this.dataflow.dfName);
         this.setDataflowDesc(this.dataflow.dfDesc);
-
-        // canvas height resize
-        this.dataflowChartAreaResize();
-        // canvas height resize
 
         this.dataSetList = [];
         if (this.dataflow.datasets) { // if dataflow has datasets
@@ -971,13 +952,13 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
     this.chartOptions.series[0].links = this.chartLinks;
     this.chartOptions.tooltip = {
       formatter: (param) => {
-        return param.dataType === 'node' ? param.data.dsName : '';
+        return param.dataType === 'node' ? PreparationCommonUtil.parseTooltip(param.data.dsName) : '';
       }
     };
     this.chart.setOption(this.chartOptions);
     this.chartClickEventListener(this.chart);
     this.cloneFlag = false;
-    this.chart.resize();
+    this.dataflowChartAreaResize(true);
 
     let $chart = this;
 
@@ -1283,7 +1264,7 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
 
     this.chartOptions = {
       backgroundColor: '#ffffff',
-      tooltip: { show: false },
+      tooltip: { show: true },
       xAxis: {
         type: 'value',
         max: null,

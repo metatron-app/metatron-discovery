@@ -487,7 +487,7 @@ export class PreparationCommonUtil {
 
       if (data.length < length) {
         return data;
-      } else { // parse tooltip
+      } else { // parse icon name
         let temp = '';
         let index = 0;
 
@@ -505,6 +505,39 @@ export class PreparationCommonUtil {
           }
 
           temp = temp + '\n';
+          index = index + length;
+        }
+        return temp;
+      }
+    } else {
+      return '';
+    }
+  }
+
+  /**
+   * Return a modified tooltip info
+   * @param data
+   * @param length(Optional): set maximum number of words each line
+   * @returns any
+   */
+  public static parseTooltip(data : any, length?: any) {
+
+    if (data !== null && data !== undefined) {
+      length = length ? length : 20; // default at 20, twenty words each line
+      const steps = Math.ceil(data.length / length);
+      if (data.length < length) {
+        return data;
+      } else { // parse tooltip info
+        let temp = '';
+        let index = 0;
+
+        for (let i = 0; i < steps; i = i + 1) {
+          if (index > data.length || i + 1 === steps) {
+            temp = temp + data.substring(index);
+            break;
+          }
+          temp = temp + data.substring(index, index + length);
+          temp = temp + '</br>';
           index = index + length;
         }
         return temp;
