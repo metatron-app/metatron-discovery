@@ -2201,7 +2201,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.workbench.dataConnection.connectionDatabase = dataConn.database;
     this.websocketId = CommonConstant.websocketId;
     this.connTargetImgUrl
-      = this.getConnImplementorImgUrl(dataConn.connectionInformation.implementor, dataConn.connectionInformation.iconResource1);
+      = this.getConnImplementorGrayImgUrl(dataConn.connectionInformation.implementor, dataConn.connectionInformation.iconResource1);
     try {
       console.info('this.websocketId', this.websocketId);
       const headers: any = {
