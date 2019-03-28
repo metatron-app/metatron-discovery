@@ -327,6 +327,11 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
    * 전체 체크 인지 확인
    */
   public isAllChecked(): boolean {
+
+    if (this.isCheckAllDisabled()) {
+      return;
+    }
+
     const listWithNoOrigin = this.datasets.filter((item) => {
       return !item.origin
     });
@@ -348,7 +353,7 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
    * 전체 체크 박스가 비활성화 인지 확인
    */
   public isCheckAllDisabled(): boolean {
-    return false;
+    return this.datasets.length === 0;
   }
 
 
