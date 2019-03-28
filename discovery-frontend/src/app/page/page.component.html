@@ -44,7 +44,7 @@
                       [dataSources]="dataSourceList"
                       [initialValue]="dataSource"
                       (selectOption)="selectDataSource($event, true)"
-                      (showInfo)="onDataDetailPopup()"></dashboard-datasource-combo>
+                      (showInfo)="onDataPreviewPopup()"></dashboard-datasource-combo>
                   </div>
                   <!-- // name -->
                   <div class="ddp-ui-drop-option">
@@ -2008,6 +2008,7 @@
   <data-preview *ngIf="isShowDataDetail"
                 [field]="selectedField"
                 [singleTab]="isColumnDetail"
+                [initial]="dataSource"
                 [source]="widget.dashBoard" (close)="isShowDataDetail = false"></data-preview>
 </div>
 

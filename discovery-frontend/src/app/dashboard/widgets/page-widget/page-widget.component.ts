@@ -745,7 +745,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       if( ChartType.MAP === widgetConf.chart.type && widgetConf.shelf.layers ) {
         strName = widgetConf.shelf.layers.reduce((acc, currVal) => {
           const dsInfo:Datasource = this.widget.dashBoard.dataSources.find( item => item.engineName === currVal.ref );
-          acc = ( '' === acc ) ? acc + dsInfo.name : acc + ',' + dsInfo.name;
+          if( dsInfo ) {
+            acc = ( '' === acc ) ? acc + dsInfo.name : acc + ',' + dsInfo.name;
+          }
           return acc;
         }, '' );
       } else if( widgetConf.dataSource ) {

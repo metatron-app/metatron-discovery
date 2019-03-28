@@ -91,8 +91,10 @@
               <li *ngFor="let item of upFiles" [ngClass]="{'ddp-disabled' : item.isCanceled}" >
                 <!-- name -->
                 <div class="ddp-file-name">
-                  <!--<em class="ddp-icon-flow-file"></em>-->
-                  <em [ngClass]="{'xls':'ddp-icon-flow-xls','xlsx':'ddp-icon-flow-xls','json':'ddp-icon-flow-json','csv':'ddp-icon-flow-csv','txt':'ddp-icon-flow-csv'}[item.fileExtension]"></em>
+                  <em class="ddp-icon-flow-svg">
+                    <svg-icon-component [name]="preparationUtil.getFileFormat(item.fileExtension)" [isBlackAndWhite]="true"></svg-icon-component>
+                  </em>
+
                   <div class="ddp-data-filename">
                     <span class="ddp-txt-subname">{{item.fileExtension}}</span>
                     <span class="ddp-txt-filename">{{item.fileName}}.</span>
@@ -134,7 +136,7 @@
 
             <!-- import file -->
             <div class="ddp-import-file" [ngClass]="{'ddp-disabled':!isNext}" #drop_container2 >
-              <div class="ddp-txt-file-info" style="display:;">
+              <div class="ddp-txt-file-info">
                 <div class="ddp-link-file">
                   <input type="file" #pickfiles2 />
                   Import

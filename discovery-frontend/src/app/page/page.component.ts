@@ -620,8 +620,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @param dataSource
    * @private
    */
-  private _setDefaultAreaForBBox(dataSource:Datasource) {
-    if( (isNullOrUndefined(this.widgetConfiguration.chart['lowerCorner']) || !this.isChartShow ) && dataSource.summary ) {
+  private _setDefaultAreaForBBox(dataSource: Datasource) {
+    if ((isNullOrUndefined(this.widgetConfiguration.chart['lowerCorner']) || !this.isChartShow) && dataSource.summary) {
       this.widgetConfiguration.chart['lowerCorner'] = dataSource.summary['geoLowerCorner'];
       this.widgetConfiguration.chart['upperCorner'] = dataSource.summary['geoUpperCorner'];
     }
@@ -632,7 +632,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @param dataSource
    * @private
    */
-  private _setDataSourceCurrentLayer(dataSource:Datasource) {
+  private _setDataSourceCurrentLayer(dataSource: Datasource) {
     if (this.widgetConfiguration.shelf) {
       const currentLayer: ShelfLayers = this.widgetConfiguration.shelf.layers[(<UIMapOption>this.uiOption).layerNum];
       if (0 === currentLayer.fields.length) {
@@ -646,7 +646,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @param {Datasource} dataSource
    * @param {boolean} isBBoxChange
    */
-  public selectDataSource(dataSource: Datasource, isBBoxChange : boolean) {
+  public selectDataSource(dataSource: Datasource, isBBoxChange: boolean) {
 
     (this.widget) || (this.widget = _.cloneDeep(this.originalWidget));
 
@@ -655,7 +655,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.boardFilters = this.widget.dashBoard.configuration.filters;
       this.dataSource = dataSource;
 
-      ( isBBoxChange ) && ( this._setDefaultAreaForBBox( dataSource ) );
+      (isBBoxChange) && (this._setDefaultAreaForBBox(dataSource));
 
       // 데이터 필드 설정 (data panel의 pivot 설정)
       this.setDatasourceFields(true);
@@ -664,7 +664,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.widget.configuration.dataSource = this.widget.dashBoard.configuration.dataSource;
 
       // Shelf 내 타겟 데이터소스 설정
-      this._setDataSourceCurrentLayer( dataSource );
+      this._setDataSourceCurrentLayer(dataSource);
 
       // find geo type from dimension list
       this.geoType = this.getMapGeoType();
@@ -967,11 +967,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   /**
    * 데이터 디테일 팝업 호출
    */
-  public onDataDetailPopup(): void {
+  public onDataPreviewPopup(): void {
     this.selectedField = null;
     this.isColumnDetail = false;
     this.isShowDataDetail = true;
-  }
+  } // function - onDataPreviewPopup
 
   /**
    * map chart - toggle map layer
@@ -1018,7 +1018,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (this.getPivotComp()) this.getPivotComp().onShelveAnimation(this.$element.find('.ddp-wrap-default'));
 
     // 차트 리사이즈
-    if(this.selectChart != 'map' || this.rnbMenu == '') this.chartResize();
+    if (this.selectChart != 'map' || this.rnbMenu == '') this.chartResize();
   }
 
   public isShowChartInfo(chartType: string) {
@@ -1873,7 +1873,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    */
   public toggleFilter(field: Field, $event?: MouseEvent) {
 
-    ( $event ) && ( $event.stopPropagation() );
+    ($event) && ($event.stopPropagation());
 
     // 사용자 정의 측정값 필터는 사용할 수 없다고 해서 막음
     if (this.isCustomMeasureField(field)) {
@@ -2389,7 +2389,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (_.eq(this.selectChart, ChartType.MAP)) {
 
       // 선반에 아이템이 존재한 상태에서 데이터소스가 변경되고, 새로 아이템을 추가할 경우에 맞추기 위해서...
-      this._setDataSourceCurrentLayer( this.dataSource );
+      this._setDataSourceCurrentLayer(this.dataSource);
 
       let layerNum = (<UIMapOption>this.uiOption).layerNum;
       let currentMapLayer = this.shelf.layers[layerNum].fields;
@@ -3333,7 +3333,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     } else if (!_.isUndefined(value)) {
       this.mapPivot.spatialAnalysisBtnClicked(value);
       // 현재 화면이 벗어나면 짤리므로
-      this.drawChart({type : EventType.MAP_SPATIAL_ANALYSIS});
+      this.drawChart({type: EventType.MAP_SPATIAL_ANALYSIS});
     } else {
       this.drawChart();
     }
@@ -3680,9 +3680,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
      * @param {Field[]} allPivot
      * @returns {number}
      */
-    function getGeoType(logicalType: string, allPivot: AbstractField[], uiOption : UIOption): number {
+    function getGeoType(logicalType: string, allPivot: AbstractField[], uiOption: UIOption): number {
 
-      if( !_.isUndefined(uiOption['analysis']) && !_.isUndefined(uiOption['analysis']['use']) && uiOption['analysis']['use'] ) {
+      if (!_.isUndefined(uiOption['analysis']) && !_.isUndefined(uiOption['analysis']['use']) && uiOption['analysis']['use']) {
         return allPivot.length;
       }
 
@@ -3973,6 +3973,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     this.datasourceService.searchQuery(cloneQuery).then(
       (data) => {
+
         const resultData = {
           data: data,
           config: uiCloneQuery,
@@ -4030,9 +4031,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
               this.chart.resultData = resultData;
             }, 300);
           }
-        } else if(this.selectChart == 'map') {
+        } else if (this.selectChart == 'map') {
           // map chart 일 경우 aggregation type 변경시 min/max 재설정 필요
-          if(!_.isUndefined(params) && !_.isUndefined(params.type) && params.type == EventType.AGGREGATION) {
+          if (!_.isUndefined(params) && !_.isUndefined(params.type) && params.type == EventType.AGGREGATION) {
             this.uiOption['layers'][this.uiOption['layerNum']]['isColorOptionChanged'] = true;
           }
           setTimeout(() => {

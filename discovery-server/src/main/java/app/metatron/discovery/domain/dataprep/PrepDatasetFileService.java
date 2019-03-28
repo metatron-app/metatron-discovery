@@ -515,6 +515,31 @@ public class PrepDatasetFileService {
 //        return df;
 //    }
 
+    public void checkStoredUri(String storedUri) {
+
+        URI uri = null;
+        try {
+            uri = new URI(storedUri);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, storedUri);
+        }
+
+        switch (uri.getScheme()) {
+            case "hdfs":
+                uri.getPath();
+                break;
+
+            case "file":
+                uri.getPath(); // should check for security reasons
+                break;
+
+            default:
+                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, storedUri);
+        }
+
+    }
+
     /*
      * Response contains:
      *   success    FIXME: do not use   -> 200 or 500
@@ -532,7 +557,7 @@ public class PrepDatasetFileService {
      *     sheetName    (Excel only)
      *   totalBytes     FIXME: is this needed?
      */
-    public Map<String, Object> fileCheckSheet3(String storedUri, Integer size, String delimiterCol, Integer columnCount, boolean autoTyping) {
+    public Map<String, Object> makeFileGrid(String storedUri, Integer size, String delimiterCol, Integer columnCount, boolean autoTyping) {
 
         Map<String, Object> responseMap;
         String extensionType = FilenameUtils.getExtension(storedUri);
@@ -834,10 +859,15 @@ public class PrepDatasetFileService {
 
     public String moveExcelToCsv(String excelStrUri, String sheetName, String delimiter) {
         String csvStrUri = null;
-        try {
-            int idx = excelStrUri.lastIndexOf(".");
-            csvStrUri = excelStrUri.substring(0, idx) + ".csv";
 
+        int idx = excelStrUri.lastIndexOf(".");
+        csvStrUri = excelStrUri.substring(0, idx) + ".csv";
+
+        return moveExcelToCsv(csvStrUri, excelStrUri, sheetName, delimiter);
+    }
+
+    public String moveExcelToCsv(String csvStrUri, String excelStrUri, String sheetName, String delimiter) {
+        try {
             URI excelUri = new URI(excelStrUri);
             String extensionType = FilenameUtils.getExtension(excelStrUri);
 

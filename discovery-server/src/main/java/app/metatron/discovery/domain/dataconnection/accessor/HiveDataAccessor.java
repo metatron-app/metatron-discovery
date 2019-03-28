@@ -187,6 +187,12 @@ public class HiveDataAccessor extends AbstractJdbcDataAccessor {
           isColumnInfo = false;
         }
 
+        //ColumnName이 # col_name 이거나 3가지 값 모두 empty일 경우는 의미없는 Row
+        if (columnName.equals("# col_name")
+            || (StringUtils.isEmpty(columnName) && StringUtils.isEmpty(descType) && StringUtils.isEmpty(descValue))) {
+          continue;
+        }
+
         //아직 Column List 이면 Continue
         if (isColumnInfo) {
           Field field = new Field();

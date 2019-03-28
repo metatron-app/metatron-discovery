@@ -99,7 +99,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
 
   // dimension, measure List
   public fieldList: any = {
-    measureList: [{name: 'Count', alias: 'count'}],
+    measureList: [],
     dimensionList: []
   };
   public colorByIndex: number = 0;
@@ -142,9 +142,10 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     if (!_.isUndefined(changes) && !_.isUndefined(changes['uiOption'])
       && !_.isUndefined(changes['uiOption']['currentValue']['analysis'])
       && !_.isUndefined(changes['uiOption']['currentValue']['analysis']['use'])
-      && changes['uiOption']['currentValue']['analysis']['use'] == true) {
+      && changes['uiOption']['currentValue']['analysis']['use'] == true
+      && this.baseList.layers.length > 0) {
       return;
-    } else if (!_.isUndefined(changes) && !_.isUndefined(changes['uiOption'])) {
+    } else if (!_.isUndefined(changes) && !_.isUndefined(changes['uiOption']) && this.baseList.layers.length <= 0) {
       this.uiOption = (<UIMapOption>changes['uiOption'].currentValue);
       this.mapSpatialChanges(this.uiOption, this.shelf);
     }
@@ -170,7 +171,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       let isChanged = false;
       let shelfIndex = 0;
       this.shelf.layers.forEach(layer => {
-        if (!_.isUndefined(layer.fields) && layer.fields.length > 0) {
+        if (!_.isUndefined(layer.fields) && layer.fields.length > 0 && shelfIndex < 2) {
           layer.fields.forEach(field => {
             if (!_.isUndefined(field) && !_.isUndefined(field.field) && !_.isUndefined(field.field.logicalType)
               && (field.field.logicalType === LogicalType.GEO_POINT || field.field.logicalType === LogicalType.GEO_POLYGON || field.field.logicalType === LogicalType.GEO_LINE)) {
@@ -194,6 +195,31 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
         this.compareIndex = 0;
 
         this.setMeasureList();
+
+        // 기존 데이터 체크
+        if( !_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] ){
+          let operation = this.uiOption.analysis.operation;
+          this.isBufferOn = (operation.buffer == 0 ? false : true);
+          (this.isBufferOn ? this.bufferInput = String(operation.buffer) : this.bufferInput);
+          this.isChoroplethOn = operation.choropleth;
+          if( this.isChoroplethOn ){
+            let measureList = this.fieldList.measureList;
+            for (let index = 0; index < measureList.length; index++) {
+              if( measureList[index].name == operation.aggregation.column ) {
+                this.colorByIndex = index;
+                break;
+              }
+            }
+          }
+          if( !_.isUndefined(operation.aggregation.type) ){
+            for (let index = 0; index < this.aggregateTypes.length; index++) {
+              if( this.aggregateTypes[index].name == operation.aggregation.type ) {
+                this.aggregateTypesIndex = index;
+                break;
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -423,7 +449,9 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     mapUIOption.analysis = {
       use: true,
       type: 'geo',
-      layerNum: this.baseIndex,
+      // data를 위한 layer
+      layerNum: 0,
+      selectedLayerNum: this.baseIndex,
       mainLayer: baseData,
       compareLayer: compareData,
       operation: {
@@ -431,7 +459,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
         distance: unitInputData,
         unit: unitData,
         aggregation: {
-          column: this.fieldList['measureList'][this.colorByIndex]['alias'],
+          column: this.colorByIndex == 0 ? this.fieldList['measureList'][this.colorByIndex]['alias'] : this.fieldList['measureList'][this.colorByIndex]['name'],
           type: this.aggregateTypes[this.aggregateTypesIndex]['value']
         }
       }
@@ -456,22 +484,30 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     mapUIOption.analysis = {
       use: true,
       type: 'geo',
-      layerNum: this.baseIndex,
+      // data를 위한 layer
+      layerNum: 0,
+      selectedLayerNum: this.baseIndex,
       mainLayer: baseData,
       compareLayer: compareData,
       operation: {
         type: spatialDataValue,
         aggregation: {
-          column: this.fieldList['measureList'][this.colorByIndex]['alias'],
+          column: this.colorByIndex == 0 ? this.fieldList['measureList'][this.colorByIndex]['alias'] : this.fieldList['measureList'][this.colorByIndex]['name'],
           type: this.aggregateTypes[this.aggregateTypesIndex]['value']
         }
       }
     };
 
+    // compare layer index 를 찾기 위함 (layer 가 두개일 경우만 가능)
+    let findCompareIndex = this.baseIndex == 0 ? 1 : 0;
     // buffer 설정
     if (bufferDataValue > 0 && this.isBufferOn == true) {
       mapUIOption.analysis['operation']['buffer'] = bufferDataValue;
+    } else if(this.uiOption.layers[findCompareIndex].type.toString().toLowerCase().indexOf('polygon') != -1 && this.isBufferOn == false) {
+      // polygon 일 경우 min/max 값이 서버에서 전달이 명확하지 않아 아래와 같이 설정
+      mapUIOption.analysis['operation']['buffer'] = 0;
     } else {
+      // 이 외 타입일 경우 buffer 를 1 로 설정
       mapUIOption.analysis['operation']['buffer'] = 1;
     }
 
