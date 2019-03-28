@@ -746,7 +746,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         strName = widgetConf.shelf.layers.reduce((acc, currVal) => {
           const dsInfo:Datasource = this.widget.dashBoard.dataSources.find( item => item.engineName === currVal.ref );
           if( dsInfo ) {
-            acc = ('' === acc) ? acc + dsInfo.name : acc + ',' + dsInfo.name;
+            acc = ( '' === acc ) ? acc + dsInfo.name : acc + ',' + dsInfo.name;
           }
           return acc;
         }, '' );

@@ -58,7 +58,6 @@ import {SaveAsHiveTableComponent} from "./component/save-as-hive-table/save-as-h
 import {DetailWorkbenchDatabase} from "./component/detail-workbench/detail-workbench-database/detail-workbench-database";
 import {Message} from '@stomp/stompjs';
 import {AuthenticationType, Dataconnection, InputMandatory, InputSpec} from "../domain/dataconnection/dataconnection";
-import {StorageService} from "../data-storage/service/storage.service";
 
 declare let moment: any;
 declare let Split;
@@ -2202,7 +2201,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.workbench.dataConnection.connectionDatabase = dataConn.database;
     this.websocketId = CommonConstant.websocketId;
     this.connTargetImgUrl
-      = this.getConnImplementorImgUrl(dataConn.connectionInformation.implementor, dataConn.connectionInformation.iconResource1);
+      = this.getConnImplementorGrayImgUrl(dataConn.connectionInformation.implementor, dataConn.connectionInformation.iconResource1);
     try {
       console.info('this.websocketId', this.websocketId);
       const headers: any = {
