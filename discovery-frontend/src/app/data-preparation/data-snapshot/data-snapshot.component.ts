@@ -106,30 +106,40 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
       // {label: 'DRUID', value : SsType.DRUID}
     ];
 
+    // Add staging db option in snapshot type filter is staging is enabled
     if (StorageService.isEnableStageDB) {
       this.snapshotTypes.push({label: 'Staging DB', value : SsType.STAGING_DB});
     }
 
+    // Paging reset
+    this.resetPaging();
 
-    // 뷰
-    this.initViewPage();
+    // default paging
+    this.page.sort = 'createdTime,desc';
+
+    // Get snapshot list
+    this.getIntervalSnapshot();
   }
 
   public ngOnDestroy() {
+
+    this._removeExistingInterval();
     super.ngOnDestroy();
 
-    clearInterval(this.interval);
-    this.interval = null;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
+  /**
+   * Get elapsed day
+   * @param item
+   */
   public getElapsedDay(item) {
     if( true===isUndefined(item) || true===isUndefined(item.elapsedTime) ) { return 0; }
     return item.elapsedTime.days;
   }
+
 
   /**
    * Returns formatted elapsed time
@@ -150,6 +160,7 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
     return `${this.prepCommonUtil.padLeft(item.elapsedTime.hours)}:${this.prepCommonUtil.padLeft(item.elapsedTime.minutes)}:${this.prepCommonUtil.padLeft(item.elapsedTime.seconds)}.${this.prepCommonUtil.padLeft(item.elapsedTime.milliseconds)}`;
   }
 
+
   /** Fetch snapshot list */
   public getDatasnapshots() {
     this.loadingShow();
@@ -165,16 +176,13 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
         this.datasnapshots = [];
 
         let statusNum = 0;
-        //data['_embedded'].preparationsnapshots.forEach((obj : DataSnapshot) => {
         data['_embedded'].preparationsnapshots.forEach((obj : PrDataSnapshot) => {
-          //if ( ['SUCCEEDED'].indexOf(obj.status) >= 0){
           if ( [Status.SUCCEEDED].indexOf(obj.status) >= 0){
             obj.displayStatus = 'SUCCESS';
             statusNum+=1;
-          //} else if ( ['INITIALIZING','RUNNING','WRITING','TABLE_CREATING','CANCELING'].indexOf(obj.status) >= 0) {
           } else if ( [Status.INITIALIZING,Status.RUNNING,Status.WRITING,Status.TABLE_CREATING,Status.CANCELING].indexOf(obj.status) >= 0) {
             obj.displayStatus = 'PREPARING';
-          } else  { //'FAILED','CANCELED','NOT_AVAILABLE'
+          } else  {
             obj.displayStatus = 'FAIL';
             statusNum+=1;
           }
@@ -183,44 +191,61 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
         this.datasnapshots = data['_embedded'].preparationsnapshots;
 
         if (this.datasnapshots.length === 0 || statusNum === this.datasnapshots.length) {
-          clearInterval(this.interval);
-          this.interval = null;
+          this._removeExistingInterval();
         }
-        // this.page.page += 1;
       })
       .catch((error) => {
         this.loadingHide();
         let prep_error = this.dataprepExceptionHandler(error);
         PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
 
-        clearInterval(this.interval);
-        this.interval = null;
+        this._removeExistingInterval();
       });
   }
 
-  /** 데이터 스냅샷 검색 */
-  public searchDataSnapshot(event : KeyboardEvent) {
-    clearInterval(this.interval);
-    this.resetPaging();
 
-    if (13 === event.keyCode) {
-      this.page.page = 0;
-      this.initViewPage();
-    } else if(27 === event.keyCode) {
-      this.searchText = '';
-      this.page.page = 0;
-      this.initViewPage();
+  /**
+   * 검색 input 에서 keydown event
+   * @param event
+   */
+  public onSearchInputKeyPress(event : any) {
+
+    // interval 삭제
+    this._removeExistingInterval();
+
+    // ESC or ENTER
+    if (27 === event.keyCode || 13 === event.keyCode) {
+
+      // 페이지는 처음부터
+      this.resetPaging();
+
+      // esc 는 검색어 초기화
+      if(27 === event.keyCode) {
+        this.searchText = '';
+      }
+
+      // 스냅샷 목록 불러오기
+      this.getIntervalSnapshot();
     }
+
   }
+
 
   /** 데이터스냅샷 삭제
    * @param event  이벤트
    * @param dataset 선택한 데이터셋
    * */
   public confirmDelete(event, dataset) {
+
+    // stop event bubbling
     event.stopPropagation();
 
-    clearInterval(this.interval);
+
+    // remove interval
+    this._removeExistingInterval();
+
+
+    // delete modal
     const modal = new Modal();
     modal.name = this.translateService.instant('msg.dp.alert.ss.del.title');
     modal.description = dataset.finishTime ? this.translateService.instant('msg.dp.alert.ss.del.description') : 'Snapshot is preparing. Are you sure you want to stop this process and delete it?';
@@ -230,14 +255,14 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
 
   }
 
+
   /** 데이터스냅샷 삭제 */
   public deleteDataSnapshot() {
 
     this.dataSnapshotService.deleteDataSnapshot(this.selectedDeletessId).then(() => {
       Alert.success(this.translateService.instant('msg.dp.alert.del.success'));
 
-      // this.resetPaging();
-      // this.initViewPage();
+      // 스냅샷을 지우고 화면이 refresh 되는게 싫다고 하셔서 리스트에서 지워진 아이템만 지움 (confirmed by jooho)
       let idx = this.datasnapshots.findIndex((result) => {
         return result.ssId === this.selectedDeletessId;
       });
@@ -253,18 +278,19 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
 
   /** 스냅샷 상세 */
   public snapshotDetail(item) {
-    clearInterval(this.interval);
-    this.interval = null;
+    this._removeExistingInterval();
 
     this.safelyDetectChanges();
     this.dataSnapshotDetailComponent.init(item.ssId);
   }
 
+
   /** 정렬 */
   public changeOrder(column: string) {
-    clearInterval(this.interval);
 
-    this.page.page = 0;
+    this._removeExistingInterval();
+
+    this.resetPaging();
 
     // 초기화
     this.selectedContentSort.sort = this.selectedContentSort.key !== column ? 'default' : this.selectedContentSort.sort;
@@ -286,41 +312,41 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
     this.page.sort = column + ',' + this.selectedContentSort.sort;
 
     // 데이터스냅샷 리스트 조회
-    this.pageSize = 20;
-    this.pageNum = 1;
-    this.interval =  setInterval(() => this.getDatasnapshots(), 3000);
-    this.getDatasnapshots();
+    // this.pageSize = 20;
+    // this.pageNum = 1;
+
+    this.getIntervalSnapshot();
 
   }
+
 
   /** close snapshot detail */
   public closeDetail(){
     this.step = 'close-detail';
     this.resetPaging();
-    this.initViewPage();
-
+    this.getIntervalSnapshot();
   }
+
 
   /** get snapshot list according to status */
   public changeStatus(status) {
-    clearInterval(this.interval);
-    this.interval = null;
+    this._removeExistingInterval();
 
     this.resetPaging();
     this.searchStatus = status;
-    this.pageResult.totalElements = 0;
-    this.datasnapshots = [];
-    this.initViewPage();
+    this.getIntervalSnapshot();
   }
+
 
   /**
    * Reset paging
    */
   public resetPaging() {
+    this.pageResult.totalElements = 0;
+    this.page.page = 0;
     this.pageNum = 1;
     this.pageSize = 20;
     this.page.size = 20;
-
   }
 
 
@@ -332,25 +358,9 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
 
     this.ssType = data.value;
 
-    clearInterval(this.interval);
-    this.interval = null;
+    this._removeExistingInterval();
 
-    this.resetPaging();
-    this.pageResult.totalElements = 0;
-    this.datasnapshots = [];
-    this.initViewPage();
-
-  }
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  /** View 초기화 */
-  private initViewPage() {
-
-    // Default 정렬
-    this.page.sort = 'createdTime,desc';
-    this.interval =  setInterval(() => this.getDatasnapshots(), 3000);
-    this.getDatasnapshots();
+    this.getIntervalSnapshot();
 
   }
 
@@ -359,13 +369,13 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
    * Get more data
    */
   public morePages() {
-    clearInterval(this.interval);
-    this.interval = null;
+    this._removeExistingInterval();
 
     this.pageNum += 1;
     this.page.size = this.pageNum * this.pageSize;
-    this.initViewPage();
+    this.getIntervalSnapshot();
   }
+
 
   /**
    * Returns name for svg component
@@ -383,6 +393,29 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
     }
 
     return csv;
+  }
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Private Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Snapshot list interval 로 불러오기
+   */
+  private getIntervalSnapshot() {
+
+    // Default 정렬
+    this.interval =  setInterval(() => this.getDatasnapshots(), 3000);
+    this.getDatasnapshots();
+
+  }
+
+
+  /**
+   * Removes existing interval
+   * @private
+   */
+  private _removeExistingInterval() {
+    clearInterval(this.interval);
+    this.interval = null;
   }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
