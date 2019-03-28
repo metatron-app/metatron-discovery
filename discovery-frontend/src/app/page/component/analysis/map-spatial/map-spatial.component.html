@@ -64,7 +64,7 @@
       <div class="ddp-wrap-option-slider">
         <span class="ddp-label-slider type-label">Buffer</span>
         <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-          <input (click)="bufferBtn();" type="checkbox" value="None" id="check3" name="check">
+          <input (click)="bufferBtn();" type="checkbox" value="None" id="check3" name="check" [checked]="isBufferOn">
           <label for="check2"><span class="ddp-slide"></span></label>
         </div>
       </div>
@@ -108,7 +108,7 @@
         <span class="ddp-label-slider type-label">{{'msg.page.chart.map.spatial.step' | translate}}</span>
         <!-- Slide THREE -->
         <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-          <input (click)="choroplethBtn();" type="checkbox" value="None" id="check2" name="check">
+          <input (click)="choroplethBtn();" type="checkbox" value="None" id="check2" name="check" [checked]="isChoroplethOn">
           <label for="check2"><span class="ddp-slide"></span></label>
         </div>
         <!-- //Slide THREE -->

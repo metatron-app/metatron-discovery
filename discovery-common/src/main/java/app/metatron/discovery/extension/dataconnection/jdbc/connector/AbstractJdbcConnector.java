@@ -52,8 +52,12 @@ public abstract class AbstractJdbcConnector implements JdbcConnector{
     if(properties == null){
       properties = new Properties();
     }
-    properties.setProperty("user", username);
-    properties.setProperty("password", password);
+    if(StringUtils.isNotEmpty(username)){
+      properties.setProperty("user", username);
+    }
+    if(StringUtils.isNotEmpty(password)){
+      properties.setProperty("password", password);
+    }
 
     String connectionUrl = getConnectionUrl(connectionInfo, dialect, database, includeDatabase);
 
