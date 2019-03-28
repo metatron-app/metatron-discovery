@@ -149,9 +149,9 @@ export class GranularityService {
     // if invalid interval format
     if (!this._isValidInterval(startInterval, granularity) || !this._isValidInterval(endInterval, granularity)) {
       result.intervalValidMessage = this._translateService.instant('msg.storage.ui.intervals.invalid.format', {format: this._getDateTimeGuideFormat(granularity)});
-    } else if (!this._isValidIntervalPeriod(startInterval, endInterval, granularity)) { // if difference first, end value
+    } else if (this._getGranularityUnit(startInterval, endInterval, granularity) <= 0) { // if difference first, end value
       result.intervalValidMessage = this._translateService.instant('msg.storage.ui.intervals.invalid.period');
-    } else if (!this._isValidGranularityUnit(startInterval, endInterval, granularity)) { // units number exceed 10000
+    } else if (this._getGranularityUnit(startInterval, endInterval, granularity) > 10000) { // units number exceed 10000
       result.intervalValidMessage = this._translateService.instant('msg.storage.ui.intervals.invalid.unit');
       result.granularityUnit = this._getGranularityUnit(startInterval, endInterval, granularity);
     } else {  // success
@@ -170,30 +170,6 @@ export class GranularityService {
    */
   private _isValidInterval(dateTime: string, granularity: GranularityObject): boolean {
     return this._getDateTimeRegexp(granularity).test(dateTime);
-  }
-
-  /**
-   * Is valid interval period
-   * @param {string} startInterval
-   * @param {string} endInterval
-   * @param {GranularityObject} granularity
-   * @return {boolean}
-   * @private
-   */
-  private _isValidIntervalPeriod(startInterval: string, endInterval: string, granularity: GranularityObject): boolean {
-    return this._getGranularityUnit(startInterval, endInterval, granularity) > 0
-  }
-
-  /**
-   * Is valid granularity unit
-   * @param {string} startInterval
-   * @param {string} endInterval
-   * @param {GranularityObject} granularity
-   * @returns {boolean}
-   * @private
-   */
-  private _isValidGranularityUnit(startInterval: string, endInterval: string, granularity: GranularityObject): boolean {
-    return this._getGranularityUnit(startInterval, endInterval, granularity) <= 10000;
   }
 
   /**
@@ -306,7 +282,7 @@ export class GranularityService {
    * @private
    */
   private _getGranularityUnit(startDateTime: string, endDateTime: string, granularity: GranularityObject): number {
-    return moment(endDateTime).diff(moment(startDateTime), granularity.value);
+    return moment(endDateTime).diff(moment(startDateTime), granularity.value) + 1;
   }
 
   /**
@@ -424,13 +400,13 @@ export class GranularityService {
 }
 
 export enum Granularity {
-  NONE = <any>'NONE',
-  SECOND = <any>'SECOND',
-  MINUTE = <any>'MINUTE',
-  HOUR = <any>'HOUR',
-  DAY = <any>'DAY',
-  MONTH = <any>'MONTH',
-  YEAR = <any>'YEAR'
+  NONE = 'NONE',
+  SECOND ='SECOND',
+  MINUTE = 'MINUTE',
+  HOUR = 'HOUR',
+  DAY = 'DAY',
+  MONTH = 'MONTH',
+  YEAR = 'YEAR'
 }
 
 export interface GranularityObject {
