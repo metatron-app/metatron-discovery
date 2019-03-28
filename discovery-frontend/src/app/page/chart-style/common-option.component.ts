@@ -180,6 +180,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
       // 본문의 폰트 색상 설정
       this.contentFontColorPickerEle = this.initColorPicker(this.contentFontColorPickerEle, this.contentFontcolorPicker, (<UIGridChart>this.uiOption).contentStyle.fontColor);
     }
+
   }
 
   // Pivot 정보
@@ -389,7 +390,15 @@ export class CommonOptionComponent extends BaseOptionComponent {
           //this.kpiIconTarget = this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0];
           this.iconTargetListComp.selected(this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0]);
         }
-        if (!isTextAll) {
+        if( isTextAll ) {
+          if( option.annotations && 0 < option.annotations.length && option.annotations[0].show ) {
+            this.kpiText = option.annotations[0].description;
+          }
+          else {
+            this.kpiText = "";
+          }
+          this.kpiTextTemp = this.kpiText;
+        } else {
           //this.kpiTextTarget = this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0];
           this.textTargetListComp.selected(this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0]);
 

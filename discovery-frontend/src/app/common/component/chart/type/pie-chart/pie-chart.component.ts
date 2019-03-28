@@ -252,8 +252,8 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
 
         if (!series.labelLine) series.labelLine = {};
         // set labelLine
-        series.labelLine.length = 0;
-        series.labelLine.length2 = 5;
+        series.labelLine.length = 10;
+        series.labelLine.length2 = 15;
 
         // remove text align
         if (series.label.normal.rich) delete series.label.normal.rich.align;

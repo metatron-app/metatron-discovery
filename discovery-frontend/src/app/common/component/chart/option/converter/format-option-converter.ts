@@ -241,8 +241,11 @@ export class FormatOptionConverter {
       }
     }
 
+    const customSymbolVal = customSymbol ? customSymbol.value : '';
+    // const customSymbolVal = customSymbol ? _.trim(customSymbol.value) : '';
+
     // 통화
-    if ((!customSymbol || _.trim(customSymbol.value).length == 0) && format.type == String(UIFormatType.CURRENCY)) {
+    if (0 === customSymbolVal.length && format.type == String(UIFormatType.CURRENCY)) {
       switch (format.sign) {
         case String(UIFormatCurrencyType.KRW) :
           value = '₩ ' + value;
@@ -267,7 +270,7 @@ export class FormatOptionConverter {
     }
 
     // 퍼센트
-    else if ((!customSymbol || _.trim(customSymbol.value).length == 0) && format.type == String(UIFormatType.PERCENT)) {
+    else if (0 === customSymbolVal.length && format.type == String(UIFormatType.PERCENT)) {
       value = value + '%';
     }
 
@@ -277,12 +280,9 @@ export class FormatOptionConverter {
     }
 
     // 사용자 기호 , value값이 빈값이 아닐때
-    if( customSymbol && _.trim(customSymbol.value).length > 0) {
-
-      const symbolValue = _.trim(customSymbol.value);
-
+    if( customSymbolVal.length > 0) {
       // front / back에 따라서 customsymbol 설정
-      value = UIFormatSymbolPosition.BEFORE == customSymbol.pos ? symbolValue + value : value + symbolValue;
+      value = UIFormatSymbolPosition.BEFORE == customSymbol.pos ? customSymbolVal + value : value + customSymbolVal;
     }
 
     return value;

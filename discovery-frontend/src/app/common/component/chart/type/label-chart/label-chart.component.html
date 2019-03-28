@@ -182,7 +182,7 @@
               <ng-container *ngIf="!item.emphasized">
                 <!-- 지표 -->
                 <span [style.color]="uiOption?.positiveNegativeColor?.positiveColor ? item.isPositive ? uiOption?.positiveNegativeColor?.positiveColor : uiOption?.positiveNegativeColor?.negativeColor : null"
-                      class="ddp-data-result">{{item.value}}</span>
+                      class="ddp-data-result" style="white-space:pre;">{{item.value}}</span>
                 <!-- //지표 -->
 
                 <!-- 목표값 -->
@@ -203,7 +203,7 @@
                 <span class="ddp-data-value">({{item.emphasizedMessage}} : {{item.targetOriginalValue}})</span>
                 <!-- //목표값 -->
                 <!-- 지표 -->
-                <span class="ddp-data-result2">{{item.value}}</span>
+                <span class="ddp-data-result2" style="white-space:pre;">{{item.value}}</span>
                 <!-- //지표 -->
               </ng-container>
               <!-- //보조지표 강조 -->
@@ -391,7 +391,7 @@
                 <!-- 보조지표 강조 -->
                 <ng-container *ngIf="item.emphasized">
                   <!-- 지표 -->
-                  <span class="ddp-data-result3">{{item.value}}</span>
+                  <span class="ddp-data-result3" style="white-space:pre;">{{item.value}}</span>
                   <!-- //지표 -->
                 </ng-container>
                 <!-- //보조지표 강조 -->
@@ -402,7 +402,7 @@
               <ng-container *ngIf="!item.emphasized">
                 <!-- 지표 -->
                 <span [style.color]="uiOption?.positiveNegativeColor?.positiveColor ? item.isPositive ? uiOption?.positiveNegativeColor?.positiveColor : uiOption?.positiveNegativeColor?.negativeColor : null"
-                      class="ddp-data-result">{{item.value}}</span>
+                      class="ddp-data-result" style="white-space:pre;">{{item.value}}</span>
                 <!-- //지표 -->
               </ng-container>
               <!-- //보조지표 강조안함 -->
@@ -416,7 +416,7 @@
                 <span class="ddp-data-value">({{item.emphasizedMessage}} : {{item.targetOriginalValue}})</span>
                 <!-- //목표값 -->
                 <!-- 지표 -->
-                <span class="ddp-data-result2">{{item.value}}</span>
+                <span class="ddp-data-result2" style="white-space:pre;">{{item.value}}</span>
                 <!-- //지표 -->
               </ng-container>
 
