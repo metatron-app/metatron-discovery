@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-selectbox"
+<div class="ddp-type-selectbox ddp-flow"
      [class.ddp-disabled]="isDisabledOptions"
      [class.ddp-type-search-select]="isSearchOptions"
      [class.ddp-selected]="isShowOptions"
@@ -31,7 +31,7 @@
   <!-- //search -->
   <span class="ddp-txt-selectbox">{{getSelectedItem}}</span>
   <ul class="ddp-list-selectbox"
-      [ngClass]="{'ddp-selectdown': isUpSelect == false, 'ddp-pass' : isOptionToLeft, 'ddp-pass2' : !isOptionToLeft }"
+      [ngClass]="{'ddp-selectdown': isUpSelect == false}"
       infinite-scroll
       [scrollWindow]="false"
       [infiniteScrollDistance]="5"

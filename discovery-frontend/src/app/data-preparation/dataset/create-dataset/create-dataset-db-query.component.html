@@ -202,7 +202,7 @@
           <div class="ddp-ui-empty" *ngIf="clearGrid">
             {{'msg.dp.ui.no.preview' | translate}}
           </div>
-          <div *ngIf="databaseList.length > 0" grid-component style="width:100%; height:100%;" ></div>
+          <div [hidden]="clearGrid" grid-component style="width:100%; height:100%;" ></div>
         </div>
 
         <!-- //그리드 영역 -->

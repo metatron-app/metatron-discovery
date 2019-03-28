@@ -818,15 +818,17 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
    */
   private _drawGrid(headers: header[], rows : any[]) {
     // 그리드가 영역을 잡지 못해서 setTimeout으로 처리
-    setTimeout(() => {
-      this.gridComponent.create(headers, rows, new GridOption()
-        .SyncColumnCellResize(true)
-        .MultiColumnSort(true)
-        .RowHeight(32)
-        .NullCellStyleActivate(true)
-        .build()
-      )},400);
-    this.clickable = true;
+    if (this.gridComponent) {
+      setTimeout(() => {
+        this.gridComponent.create(headers, rows, new GridOption()
+          .SyncColumnCellResize(true)
+          .MultiColumnSort(true)
+          .RowHeight(32)
+          .NullCellStyleActivate(true)
+          .build()
+        )},400);
+      this.clickable = true;
+    }
   }
 
 

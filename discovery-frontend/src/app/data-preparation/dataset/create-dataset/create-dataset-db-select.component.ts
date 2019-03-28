@@ -18,12 +18,13 @@ import { PopupService } from '../../../common/service/popup.service';
 import {
   PrDatasetJdbc,
   DsType,
-  ImportType,
-  Connection
+  ImportType, QueryInfo, TableInfo,
 } from '../../../domain/data-preparation/pr-dataset';
 import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
 import { isNullOrUndefined } from 'util';
 import {ConnectionComponent} from "../../../data-storage/component/connection/connection.component";
+import {PageResult} from "../../../domain/common/page";
+import {Dataconnection} from "../../../domain/dataconnection/dataconnection";
 
 @Component({
   selector: 'app-create-dataset-db-select',
@@ -48,7 +49,8 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
   @Input()
   public datasetJdbc: PrDatasetJdbc;
 
-  public connectionList: Connection[];
+  public connectionList: Connection[] = [];
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -68,14 +70,17 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
 
     super.ngOnInit();
 
-    if (isNullOrUndefined(this.datasetJdbc.connectionList)) {
+    this.pageResult.number = 0;
+    this.pageResult.size = 20;
 
+    // 처음
+    if (isNullOrUndefined(this.datasetJdbc.connectionList)) {
       this.datasetJdbc.dsType = DsType.IMPORTED;
       this.datasetJdbc.importType = ImportType.DATABASE;
       this._getConnections();
-
     } else {
-      console.info('this.datasetJdbc --> ' , this.datasetJdbc);
+
+      // 이미 커넥션 리스트가 있음
       this.connectionList = this.datasetJdbc.connectionList;
       this._connectionComponent.init(this.datasetJdbc.dataconnection.connection);
       this._connectionComponent.isValidConnection = true;
@@ -125,18 +130,33 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
 
 
   /**
-   * On select connection
+   * Initialise _connection component
    * @param connection
    */
   public selectConnection(connection) {
-
     if (!isNullOrUndefined(connection)) {
-      this.datasetJdbc.dcId = connection.id;
       this._connectionComponent.init(connection);
     } else {
       this._connectionComponent.init();
     }
 
+  }
+
+
+  /**
+   * Get connection detail information
+   */
+  public getConnectionDetail() {
+
+    this.loadingShow();
+    //  get connection data in preset
+    this.connectionService.getDataconnectionDetail(this.datasetJdbc.dcId)
+      .then((connection: Dataconnection) => {
+        // loading hide
+        this.loadingHide();
+        this.selectConnection(connection);
+      })
+      .catch(error => this.commonExceptionHandler(error));
   }
 
 
@@ -161,6 +181,41 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
       })
       : 0;
   }
+
+
+  /**
+   * When it's scrolled
+   * @param number
+   */
+  public onScrollPage(number) {
+    // if remain next page
+    if (this._isMorePage()) {
+      // save pageResult
+      this.pageResult.number = number;
+      // get more preset list
+      this._getConnections();
+    }
+  }
+
+
+  /**
+   * When a connection is selected from list
+   * @param event
+   */
+  public onConnectionSelected(event) {
+
+    // only fetch data when it's different
+    if (this.datasetJdbc.dcId !== event.id) {
+      this.datasetJdbc.dcId = event.id;
+      this.getConnectionDetail();
+
+      // refresh existing data
+      this.datasetJdbc.sqlInfo = new QueryInfo();
+      this.datasetJdbc.tableInfo = new TableInfo();
+      this.datasetJdbc.rsType = undefined;
+    }
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -169,47 +224,80 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
+   * Get parameter for connection list
+   * @param {PageResult} pageResult
+   * @returns {Object}
+   * @private
+   */
+  private _getConnectionPresetListParams(pageResult: PageResult): object {
+    return {
+      authenticationType:'MANUAL',
+      size: pageResult.size,
+      page: pageResult.number,
+      type: 'jdbc'
+    };
+  }
+
+
+
+  /**
    * Fetch dataset connections
    */
   private _getConnections() {
 
-    const connParam = {projection:'default'};
+    this.loadingShow();
 
-
-    // 먼저 초기화 하는게 맞을까
-    this.connectionList = [];
-    this.connectionService.getDataconnections(connParam)
+    this.connectionService.getAllDataconnections(this._getConnectionPresetListParams(this.pageResult), 'forSimpleListView')
       .then((data) => {
 
         // 리스트가 있다면
-        if (data.hasOwnProperty('_embedded') && data['_embedded'].hasOwnProperty('connections')) {
+        if (data.hasOwnProperty('_embedded')) {
 
-          // FIXME : only MANUAL type can be used to make dataset (No server side API)
-          this.connectionList = data['_embedded']['connections'].filter((item) => {
-            return item.authenticationType === 'MANUAL'
-          });
+          // 리스트 추가
+          this.connectionList = this.connectionList.concat(data['_embedded'].connections);
 
-          // Manual type 인 커넥션 리스트만 체크
           if (this.connectionList.length !== 0 ) {
-            this.selectConnection(this.connectionList[0]);
+
+            // 첫번째 커넥션 등록
+            this.datasetJdbc.dcId = this.connectionList[0].id;
+            this.getConnectionDetail();
           } else {
+
+            this.loadingHide();
             // 커넥션 리스트가 0개 라면
             this.selectConnection(null);
           }
 
         } else {
+          this.loadingHide();
           // no connections
           this.connectionList = [];
           this.selectConnection(null)
         }
+
+        this.pageResult = data['page'];
+
       })
       .catch((err) => {
+        this.loadingHide();
         console.info('getConnections err)', err.toString());
       });
   }
 
 
+  /**
+   * Check if there's more pages to load
+   * @private
+   */
+  private _isMorePage(): boolean {
+    return (this.pageResult.number < this.pageResult.totalPages - 1);
+  }
 
+}
 
-
+class Connection {
+  id: string;
+  implementor: string;
+  name: string;
+  type: string;
 }
