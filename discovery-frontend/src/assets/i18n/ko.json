@@ -103,6 +103,7 @@
   "msg.comm.th.role" : "역할",
   "msg.comm.btn.add": "추가",
   "msg.comm.search.usr" : "사용자 이름으로 찾기",
+  "msg.comm.search.usr_and_full" : "사용자 이름으로 찾기",
   "msg.comm.search.grp" : "그룹 이름으로 찾기",
   "msg.comm.ui.num.lists" : "데이터가 <strong>{{count}}</strong> 개 있습니다",
   "msg.comm.th.no" : "No.",

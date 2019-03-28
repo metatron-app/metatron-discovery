@@ -103,6 +103,7 @@
   "msg.comm.th.role": "Role",
   "msg.comm.btn.add": "Add",
   "msg.comm.search.usr": "Search by User name",
+  "msg.comm.search.usr_and_full" : "Search by full name or username",
   "msg.comm.search.grp": "Search by Group name",
   "msg.comm.ui.num.lists" : "There are <strong>{{count}}</strong> entries.",
   "msg.comm.th.no": "No.",
