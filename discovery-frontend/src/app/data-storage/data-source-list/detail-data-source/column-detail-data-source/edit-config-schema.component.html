@@ -212,9 +212,9 @@
                 <!-- //popup -->
               </div>
               <!-- //select -->
-              <div class="ddp-ui-info" *ngIf="isShowInformationIcon(column)">
-                <em [class.ddp-icon-error2]="isInvalidInformationIcon(column)"></em>
-                <!-- format layer -->
+              <!--<div class="ddp-ui-info" *ngIf="isShowInformationIcon(column)">-->
+                <!--<em [class.ddp-icon-error2]="isInvalidInformationIcon(column)"></em>-->
+                <!--&lt;!&ndash; format layer &ndash;&gt;-->
                 <!--<datetime-valid-popup *ngIf="column.isShowTimestampValidPopup"-->
                                       <!--[format]="column?.format"-->
                                       <!--[defaultFormat]="defaultFormatObj[column.name]"-->
@@ -223,8 +223,8 @@
                                       <!--(changedFieldFormat)="column.format = $event"-->
                                       <!--(changedDefaultFormat)="defaultFormatObj[column.name] = $event"-->
                                       <!--(closed)="column.isShowTimestampValidPopup = undefined; setIsExistErrorInFieldListFlag()"></datetime-valid-popup>-->
-                <!-- //format layer -->
-              </div>
+                <!--&lt;!&ndash; //format layer &ndash;&gt;-->
+              <!--</div>-->
 
             </td>
             <!-- format -->

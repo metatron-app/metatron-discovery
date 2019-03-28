@@ -37,8 +37,8 @@ import {ConstantService} from "../../../../shared/datasource-metadata/service/co
 import {Filter} from "../../../../shared/datasource-metadata/domain/filter";
 import {Type} from "../../../../shared/datasource-metadata/domain/type";
 import {isNullOrUndefined} from "util";
-import Role = Type.Role;
 import {StorageService} from "../../../service/storage.service";
+import Role = Type.Role;
 
 @Component({
   selector: 'edit-config-schema',
@@ -136,8 +136,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    * Set exist error in field list flag
    */
   public setIsExistErrorInFieldListFlag(): void {
-    this.isExistErrorInFieldList = this.fieldList.some(field => !field.derived &&
-      ((field.logicalType === LogicalType.GEO_POINT || field.logicalType === LogicalType.GEO_LINE || field.logicalType === LogicalType.GEO_POLYGON) && (field.format && !field.format.isValidFormat)));
+    // this.isExistErrorInFieldList = this.fieldList.some(field => field.logicalType === LogicalType.TIMESTAMP && !field.format.isValidFormat);
   }
 
   /**
@@ -202,7 +201,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
     // TODO if not TIMESTAMP field
     // is field logicalType TIMESTAMP OR invalid GEO types
     // return field.role !== FieldRole.TIMESTAMP && (field.format && !field.format.isValidFormat && (field.logicalType === LogicalType.GEO_POINT || field.logicalType === LogicalType.GEO_LINE || field.logicalType === LogicalType.GEO_POLYGON));
-    return false;
+    return field.role !== FieldRole.TIMESTAMP && field.logicalType === LogicalType.TIMESTAMP;
   }
 
   /**
@@ -318,6 +317,10 @@ export class EditConfigSchemaComponent extends AbstractComponent {
           });
       } else if (typeToChange.value === LogicalType.TIMESTAMP && isNullOrUndefined(targetField.format)) {  // 변경될 타입이 TIMESTAMP 타입이라면
         targetField.format = new FieldFormat();
+        // TODO 타임스탬프 1540 진행시 제거
+        targetField.format.formatInitialize();
+        delete targetField.format.unit;
+        // targetField.isShowTimestampValidPopup = true;
       }
     }
   }
@@ -366,26 +369,36 @@ export class EditConfigSchemaComponent extends AbstractComponent {
         const tempField = _.cloneDeep(targetField);
         delete tempField['isShowTypeList'];
         // if changed logical name
-        if (originField.logicalName !== targetField.logicalName) {
+        if (originField.logicalName !== tempField.logicalName) {
           tempField['op'] = 'replace';
-          tempField.logicalName = targetField.logicalName;
+          tempField.logicalName = tempField.logicalName;
         }
         // if changed description
-        if (originField.description !== targetField.description) {
+        if (originField.description !== tempField.description) {
           tempField['op'] = 'replace';
-          tempField.description = targetField.description;
+          tempField.description = tempField.description;
         }
         // if changed logical type
-        if (originField.logicalType !== targetField.logicalType) {
+        if (originField.logicalType !== tempField.logicalType) {
           tempField['op'] = 'replace';
-          tempField.logicalType = targetField.logicalType;
+          tempField.logicalType = tempField.logicalType;
           // if is TIMESTAMP, not GEO in originField
           if (originField.logicalType === LogicalType.TIMESTAMP) {
             tempField.format = null;
           }
         }
-        // if changed format TODO 1540
-
+        // if changed field format TODO 1540
+        if (tempField.logicalType === LogicalType.TIMESTAMP && tempField.format) {
+          delete tempField.format.isValidFormat;
+          delete tempField.format.formatValidMessage;
+          // if changed format
+          if (tempField.format.format !== tempField.format.format) {
+            tempField['op'] = 'replace';
+            if (StringUtil.isEmpty(tempField.format.format)) {
+              tempField.format.format = null;
+            }
+          }
+        }
         // push result
         tempField['op'] && result.push(tempField);
       }

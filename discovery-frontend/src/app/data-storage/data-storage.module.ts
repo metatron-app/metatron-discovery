@@ -44,6 +44,7 @@ import {FieldConfigService} from "./service/field-config.service";
 import {DatasourceMetadataSharedModule} from "../shared/datasource-metadata/datasource-metadata-shared.module";
 import {DataStorageCommonModule} from "./data-storage-common.module";
 import {DataStorageShareModule} from "./data-storage-share.module";
+import {ConstantService} from "../shared/datasource-metadata/service/constant.service";
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -95,6 +96,7 @@ const storageRoutes: Routes = [
     MetadataService,
     DataConnectionCreateService,
     FieldConfigService,
+    ConstantService,
   ]
 })
 export class DataStorageModule {

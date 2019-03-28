@@ -20,6 +20,7 @@ import {TranslateService} from "@ngx-translate/core";
 import {isNullOrUndefined} from "util";
 import {Type} from '../../shared/datasource-metadata/domain/type';
 import {MetadataColumn} from "../../domain/meta-data-management/metadata-column";
+import {StringUtil} from "../../common/util/string.util";
 
 @Injectable()
 export class FieldConfigService extends AbstractService {
@@ -44,6 +45,30 @@ export class FieldConfigService extends AbstractService {
       !isNullOrUndefined(data[targetField.name]) && acc.push(data[targetField.name]);
       return acc;
     }, []);
+  }
+
+  public changeTimeFormatType(fieldFormat: FieldFormat, targetType: FieldFormatType, format?: string): void {
+    // if format type is DATE_TIME
+    if (fieldFormat.type === FieldFormatType.DATE_TIME) {
+      delete fieldFormat.format;
+      delete fieldFormat.timeZone;
+      delete fieldFormat.locale;
+    } else if (fieldFormat.type === FieldFormatType.UNIX_TIME) { // if format type is UNIX_TIME
+      delete fieldFormat.unit;
+    }
+    // target type
+    if (targetType === FieldFormatType.DATE_TIME) {
+      if (format) {
+        fieldFormat.format = format;
+        fieldFormat.isValidFormat = true;
+      } else {
+
+      }
+    } else if (targetType === FieldFormatType.UNIX_TIME) {
+      fieldFormat.unitInitialize();
+      fieldFormat.isValidFormat = true;
+    }
+    fieldFormat.type = targetType;
   }
 
   /**
@@ -96,44 +121,79 @@ export class FieldConfigService extends AbstractService {
   }
 
   /**
-   * Check enable geo type and set validation result
-   * @param {Field} targetField
-   * @param {string[]} fieldDataList
+   *
+   * @param {FieldFormat} fieldFormat
+   * @param {string[]} dateList
+   * @param {boolean} isInitValid
    * @return {Promise<any>}
    */
-  // public checkEnableGeoTypeAndSetValidationResult(targetField: Field, fieldDataList: string[]): Promise<any> {
-  //   return new Promise<any>((resolve, reject) => {
-  //     // if not exist field data list
-  //     if (fieldDataList.length < 1) {
-  //       // set type valid FALSE
-  //       targetField.isValidType = false;
-  //       // set type valid message
-  //       targetField.typeValidMessage = this._translateSvc.instant('msg.storage.ui.schema.column.no.data');
-  //       resolve(targetField);
-  //     } else {
-  //       const wktKeyword = this._getKeywordWKT(targetField);
-  //       const params = {
-  //         geoType: targetField.logicalType,
-  //         values: fieldDataList.slice(0, 19).map(data => `${wktKeyword} (${data.replace(/,/, ' ')})`)
-  //       };
-  //       // api result
-  //       this.post(this.API_URL + 'datasources/validation/wkt', params)
-  //         .then((result: {valid: boolean, suggestType: LogicalType, message: string}) => {
-  //           // is enable GEO type
-  //           if (result.valid) {
-  //             targetField.isValidType = true;
-  //           } else {  // is disable GEO type
-  //             targetField.isValidType = false;
-  //           }
-  //           resolve(targetField);
-  //         })
-  //         .catch((error) => {
-  //           targetField.isValidType = false;
-  //           reject(error);
-  //         });
-  //     }
-  //   });
-  // }
+  public checkEnableDateTimeFormatAndSetValidationResultInField(fieldFormat: FieldFormat, dateList: string[], isInitValid?: boolean) {
+    return new Promise((resolve, reject) => {
+      // if not exist fieldFormat data list
+      if (dateList.length < 1) {
+        // set time fieldFormat valid FALSE
+        fieldFormat.isValidFormat = false;
+        // set time fieldFormat valid message
+        fieldFormat.formatValidMessage = this._translateSvc.instant('msg.storage.ui.schema.column.no.data');
+        resolve(fieldFormat);
+      } else {  // if exist fieldFormat data list
+        const params: {samples: string[], format?: string} = {
+          samples: dateList.slice(0,19)
+        };
+        // if not init valid, set fieldFormat in params
+        if(!isInitValid) {
+          // if empty fieldFormat
+          if (StringUtil.isEmpty(fieldFormat.format)) {
+            // set time fieldFormat valid FALSE
+            fieldFormat.isValidFormat = false;
+            // set time fieldFormat valid message
+            fieldFormat.formatValidMessage = this._translateSvc.instant('msg.common.ui.required');
+            resolve(fieldFormat);
+          } else {  // if not empty fieldFormat
+            // set fieldFormat in params
+            (params.format = fieldFormat.format);
+          }
+        }
+        this.post(this.API_URL + 'datasources/validation/datetime', params)
+          .then((result: {valid?: boolean, pattern?: string}) =>{
+            // if valid or exist pattern
+            if (result.valid || result.pattern) {
+              // set time fieldFormat valid TRUE
+              fieldFormat.isValidFormat = true;
+              // if exist pattern, set time fieldFormat in fieldFormat
+              (result.pattern) && (fieldFormat.format = result.pattern);
+              // if enable timezone, set browser timezone at fieldFormat
+              if (this._timezoneSvc.isEnableTimezoneInDateFormat(fieldFormat)) {
+                !fieldFormat.timeZone && (fieldFormat.timeZone = this._timezoneSvc.browserTimezone.momentName);
+                fieldFormat.locale = this._timezoneSvc.browserLocale;
+              } else { // if not enable timezone
+                fieldFormat.timeZone = TimezoneService.DISABLE_TIMEZONE_KEY;
+              }
+            } else { // invalid
+              // set time fieldFormat valid FALSE
+              fieldFormat.isValidFormat = false;
+              // set time fieldFormat valid message
+              fieldFormat.formatValidMessage = this._translateSvc.instant('msg.storage.ui.schema.valid.required.match.data');
+            }
+            // if valid fieldFormat, set enable time fieldFormat
+            (result.valid) && (fieldFormat.isValidFormat = true);
+            resolve(fieldFormat);
+          })
+          .catch((error) => {
+            // if init valid, set default time fieldFormat in fieldFormat
+            if (isInitValid)  {
+              fieldFormat.formatInitialize();
+            }
+            // set time fieldFormat valid FALSE
+            fieldFormat.isValidFormat = false;
+            // set time fieldFormat valid message
+            fieldFormat.formatValidMessage = this._translateSvc.instant('msg.storage.ui.schema.valid.required.match.data');
+            reject(fieldFormat);
+          });
+
+      }
+    });
+  }
 
   /**
    * Convert type

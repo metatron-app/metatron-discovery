@@ -8,13 +8,15 @@ import {DataStorageCommonModule} from "../../data-storage/data-storage-common.mo
 @NgModule({
   imports: [
     CommonModule,
+    DataStorageCommonModule
   ],
   declarations: [
+    // DatetimeValidPopupComponent,
   ],
   exports: [
+    // DatetimeValidPopupComponent
   ],
   providers: [
-    ConstantService,
     TimezoneService,
     FieldConfigService,
   ],

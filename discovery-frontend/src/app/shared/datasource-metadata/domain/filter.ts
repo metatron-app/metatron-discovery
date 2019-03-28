@@ -1,4 +1,4 @@
-import {Type} from "./type";
+import {Type} from './type';
 
 export namespace Filter {
   export class Logical {
