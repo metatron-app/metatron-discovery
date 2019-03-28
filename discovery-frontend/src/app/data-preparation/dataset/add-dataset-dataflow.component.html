@@ -14,7 +14,7 @@
 
     <div class="ddp-ui-popup-contents">
       <div class="ddp-data-dataset">
-        <span class="ddp-txt-label">Dataset:</span> {{datasetName}}
+        <span class="ddp-txt-label">{{'msg.comm.menu.manage.prep.set' | translate}}:</span> {{datasetName}}
       </div>
       <div class="ddp-ui-dataset-new">
 
@@ -45,8 +45,8 @@
                 </colgroup>
                 <thead>
                 <tr>
-                  <th (click)="changeOrder('dfName')">
-                    Name
+                  <th class="ddp-cursor" (click)="changeOrder('dfName')">
+                    {{'msg.comm.ui.name' | translate}}
                     <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'dfName' || selectedContentSort.sort === 'default'"></em>
                     <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'dfName' && selectedContentSort.sort === 'asc'"></em>
                     <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'dfName' && selectedContentSort.sort === 'desc'"></em>
@@ -54,7 +54,7 @@
                   <th>
                     {{'msg.comm.menu.manage.prep.set' | translate}}
                   </th>
-                  <th (click)="changeOrder('modifiedTime')">
+                  <th class="ddp-cursor" (click)="changeOrder('modifiedTime')">
                     {{'msg.comm.ui.list.last' | translate}}
                     <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'modifiedTime' || selectedContentSort.sort === 'default'"></em>
                     <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'asc'"></em>
@@ -79,11 +79,15 @@
                 <tr *ngFor="let item of dataflows" (click)="selectDataflow(item)" [ngClass]="{'ddp-selected': selectedDataflowId === item.dfId}">
 
                   <td>
-                    <div class=" ddp-txt-long">
+                    <div class=" ddp-txt-long" title="{{item.dfName}}" *ngIf="!item.dfDesc; else yesDfDesc">
                       {{item.dfName}}
-                      <span class="ddp-txt-colortype" *ngIf="item.dfDesc" title="{{item.dfDesc}}">- {{item.dfDesc}}</span>
-                      <em class="ddp-icon-global"></em>
                     </div>
+                    <ng-template #yesDfDesc>
+                      <div class=" ddp-txt-long" title="{{item.dfName}} - {{item.dfDesc}}">
+                        {{item.dfName}}
+                        <span class="ddp-txt-colortype">- {{item.dfDesc}}</span>
+                      </div>
+                    </ng-template>
                   </td>
                   <td>
                     <div class="ddp-wrap-detaildata">

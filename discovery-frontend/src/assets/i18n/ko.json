@@ -1333,7 +1333,7 @@
   "msg.dp.alert.no.backtick.colname": "컬럼 이름에 back quote를 사용할 수 없습니다.",
   "msg.dp.alert.duplicate.colname" : "이미 사용중입니다",
   "msg.dp.alert.empty.column" : "컬럼 이름을 입력하세요",
-  "msg.dp.ui.list.my.file": "파일",
+  "msg.dp.ui.list.my.file": "My file",
   "msg.dp.th.sheet.name" : "시트 이름",
   "msg.dp.alert.dataset.fail.to.create" : "데이터셋 생성 실패",
   "msg.dp.alert.num.fail.dataset" : "{{value}}개의 데이터셋 생성이 실패하였습니다",
