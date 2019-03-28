@@ -232,6 +232,14 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
   }
 
   /**
+   * Is excel file
+   * @return {boolean}
+   */
+  public isExcelFile(): boolean {
+    return this.fileResult.hasOwnProperty('sheets');
+  }
+
+  /**
    * Is enable next
    * @return {boolean}
    */
@@ -447,13 +455,13 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
   private _isChangeData(): boolean {
     if (this.sourceData.fileData) {
       // 파일 key 가 변경된 경우
-      // 파일 시트가 변경된 경우
       // 파일 헤더 생성여부가 변경된경우
-      // 파일의 구분자가 변경된 경우
+      // 파일 시트가 변경된 경우 (excel)
+      // 파일의 구분자가 변경된 경우 (csv)
       if ((this.sourceData.fileData.fileResult.fileKey !== this.fileResult.fileKey)
-        || (!this.isCsvFile() && (this.sourceData.fileData.fileResult.selectedSheet !== this.fileResult.selectedSheet))
         || this.sourceData.fileData.isFirstHeaderRow !== this.isFirstHeaderRow
-        || this.sourceData.fileData.separator !== this.separator || this.sourceData.fileData.delimiter !== this.delimiter) {
+        || (this.isExcelFile() && (this.sourceData.fileData.fileResult.selectedSheet.sheetName !== this.fileResult.selectedSheet.sheetName))
+        || (!this.isExcelFile() && (this.sourceData.fileData.separator !== this.separator || this.sourceData.fileData.delimiter !== this.delimiter))) {
         return true;
       }
     }
