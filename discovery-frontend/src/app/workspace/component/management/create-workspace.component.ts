@@ -241,6 +241,7 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
       this.selectedRoleSetDetail = new RoleSet();
     } else {
       this.selectedRoleSetDetail = null;
+      this.selectRoleSet( this.roleSetList[0], false );
     }
   } // function - changeRoleSetType
 
@@ -299,6 +300,7 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
       this.permissionService.getRolesets(params).then(result => {
         if (result && result['_embedded']) {
           this.roleSetList = result['_embedded']['roleSets'];
+          this.selectRoleSet( this.roleSetList[0], false );
         }
         resolve();
         this.loadingHide();

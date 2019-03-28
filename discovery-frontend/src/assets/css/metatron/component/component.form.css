@@ -184,6 +184,13 @@
 .ddp-table-detail.ddp-setting .ddp-wrap-edit3 label.ddp-label-type {width:195px;}
 .ddp-box-detail.ddp-label-size .ddp-wrap-edit3 label.ddp-label-type {width:150px;}
 
+.ddp-wrap-edit4 .ddp-label-type {padding-bottom:8px;font-size:13px; color:#4b515b}
+.ddp-wrap-edit4 .ddp-form-edit.type-file {white-space:nowrap;}
+.ddp-wrap-edit4 .ddp-form-edit.type-file input {display:inline-block; float:left; width:460px; margin-right:4px;}
+.ddp-wrap-edit4 .ddp-form-edit.type-file .ddp-btn-pop {float:left;}
+.ddp-wrap-edit4 .ddp-form-edit.type-file .ddp-form-file {disiplay:inline-block;}
+.ddp-wrap-edit4 .ddp-form-edit.type-file .ddp-ui-message {display:inline-block; margin-left:10px;  white-space:nowrap; vertical-align: middle;}
+.ddp-wrap-edit4 .ddp-form-edit.type-file .ddp-ui-message [class*="ddp-data-"] {display:block; position:relative; top:6px; padding-top:0;}
 /**************************************************************
     popup edit
 **************************************************************/
@@ -460,3 +467,17 @@ table.ddp-table-form.ddp-inherit .ddp-box-layout4 .ddp-table-code tr td {border:
 .ddp-wrap-range .ddp-data-range input { width:100%; text-align:center;}
 
 
+/**************************************************************
+    column option
+**************************************************************/
+.ddp-wrap-column-option {position:absolute; bottom:0; left:0; right:0; padding:14px 0 3px 14px; border-top:1px solid #d7d8dd; background-color:#f6f6f7;}
+.ddp-wrap-column-option .ddp-fold-link {display:inline-block; margin-bottom:9px;color:#4c515a; font-size:13px; text-decoration:underline;}
+.ddp-wrap-column-option .ddp-fold-link:after {display:inline-block; width:7px; height:4px; margin-left:10px; background:url(../../../images/icon_select.png) no-repeat; background-position:-16px top; vertical-align:middle; content:'';}
+.ddp-wrap-column-option .ddp-wrap-fold.ddp-selected .ddp-fold-link:after {transform:rotate(180deg)}
+.ddp-wrap-column-option .ddp-fold-det {display:none;}
+.ddp-wrap-column-option .ddp-wrap-fold.ddp-selected .ddp-fold-det {display:block;}
+
+.ddp-wrap-column-option .ddp-wrap-edit3 {display:inline-block; float:left; width:auto;}
+.ddp-wrap-column-option .ddp-wrap-edit3 + .ddp-wrap-edit3 {margin-left:19px;}
+.ddp-wrap-column-option  .ddp-wrap-edit3.ddp-type .ddp-label-type {font-size:13px; width:auto;}
+.ddp-wrap-column-option  .ddp-wrap-edit3.ddp-type .ddp-txt-error {margin-left:5px;}

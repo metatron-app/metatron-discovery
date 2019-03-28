@@ -321,6 +321,12 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
             // set geometry
             geometry = datasourceField;
             break;
+          case GEO_LINE:
+          case GEO_POLYGON:
+            addDimension(new DefaultDimension(engineColumnName, aliasName, datasourceField.getLogicalType()));
+            // set geometry
+            geometry = datasourceField;
+            break;
           default:
             addDimension(new DefaultDimension(engineColumnName, aliasName, datasourceField.getLogicalType()));
         }
@@ -844,6 +850,7 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
     //    outputColumns.remove(GEOMETRY_COLUMN_NAME);
 
     outputColumns.clear();
+    dimensions.clear();
     aggregations.clear();
     postAggregations.clear();
 

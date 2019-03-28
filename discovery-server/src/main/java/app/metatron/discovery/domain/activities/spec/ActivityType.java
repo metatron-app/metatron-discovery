@@ -34,6 +34,10 @@ public enum ActivityType {
   DELETE,
   @JsonProperty("Link")
   LINK,
+  @JsonProperty("Accept")
+  ACCEPT,
+  @JsonProperty("Block")
+  BLOCK,
   @JsonProperty("None")
-  NONE,
+  NONE
 }
