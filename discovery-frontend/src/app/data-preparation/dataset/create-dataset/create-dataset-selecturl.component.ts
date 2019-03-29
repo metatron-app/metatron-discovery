@@ -247,7 +247,6 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
     // this.storedUri = 'hdfs://localhost:9000/user/hive/dataprep/uploads/b5192e9e-c67c-49a6-90ef-148860a0a2ea.csv';
 
     this.currDetail = {fileFormat: null, detailName: null, columns: null, rows: null};
-    //this.datasetFiles[0].error = [];
     delete this.datasetFiles[0].error;
     this.datasetFiles[0].fileName = this.storedUri.slice(this.storedUri.lastIndexOf('/')+1, this.storedUri.lastIndexOf('.'));
     this.datasetFiles[0].fileExtension = (this.storedUri.lastIndexOf('.')> 0? this.storedUri.slice(this.storedUri.lastIndexOf('.')+1, this.storedUri.length) : '');
@@ -257,11 +256,7 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
 
 
     // File format
-    if (!isNullOrUndefined(PreparationCommonUtil.getFileFormat(this.datasetFiles[0].fileExtension))) {
-      this.datasetFiles[0].fileFormat = PreparationCommonUtil.getFileFormat(this.datasetFiles[0].fileExtension);
-    } else {
-      this.datasetFiles[0].fileFormat = FileFormat.CSV;
-    }
+    this.datasetFiles[0].fileFormat = PreparationCommonUtil.getFileFormat(this.datasetFiles[0].fileExtension);
 
     this.datasetFiles[0].delimiter = ',';
 
@@ -291,17 +286,21 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
    * When delimiter is changed(only CSV)
    */
   public changeDelimiter() {
-    this.isDelimiterRequired = ('' === this.currDelimiter && this.datasetFiles[this.currDSIndex].fileFormat === FileFormat.CSV);
+    this.isDelimiterRequired = ('' === this.currDelimiter && this.isCSV);
 
     // No change in grid when delimiter is empty
-    if (isNullOrUndefined(this.currDelimiter) || '' === this.currDelimiter || this.datasetFiles[this.currDSIndex].fileFormat != FileFormat.CSV) {
+    if ('' === this.currDelimiter.trim() || isNullOrUndefined(this.currDelimiter) || !this.isCSV) {
       return;
     }
-    if( this.datasetFiles[this.currDSIndex].delimiter !=  this.currDelimiter ){
+
+    // 현재 딜리미터와 입력된 딜리미터가 다르다면 새로운 딜리미터가 적용된 그리드를 불러온다
+    if( this.datasetFiles[this.currDSIndex].delimiter !==  this.currDelimiter ){
+
       this.datasetFiles[this.currDSIndex].delimiter =  this.currDelimiter;
       this.loadingShow();
       this._getGridInformation(this.currDSIndex, this._getParamForGrid(this.datasetFiles[this.currDSIndex]),'draw');
       this.isColumnCountRequired = false;
+
     }
   }
 
@@ -445,7 +444,7 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
    * @param dsIdx
    */
   public selectFile(event: any, dsIdx: number){
-    
+
     // stop event bubbling
     event.stopPropagation();
     event.preventDefault();
@@ -484,7 +483,7 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
       }
     }
   }
-  
+
 
   /**
    * Select sheet and show grid
@@ -531,7 +530,7 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   private _setFileFormat(fileFormat? : FileFormat){
     if (fileFormat && fileFormat.toString().length>0){
-      this.isCSV = (fileFormat === FileFormat.CSV);
+      this.isCSV = (fileFormat === FileFormat.CSV) || (fileFormat === FileFormat.TXT);
       this.isJSON = (fileFormat === FileFormat.JSON);
       this.isEXCEL = (fileFormat === FileFormat.EXCEL);
     } else {
@@ -550,7 +549,7 @@ export class CreateDatasetSelecturlComponent extends AbstractPopupComponent impl
     const result = {
       storedUri : datasetFile.storedUri,
     };
-    if (datasetFile.fileFormat === FileFormat.CSV) result['delimiter'] = datasetFile.delimiter;
+    if (this.isCSV) result['delimiter'] = datasetFile.delimiter;
     if (manualColumnCount && manualColumnCount > 0) result['manualColumnCount'] = manualColumnCount;
 
     return result;

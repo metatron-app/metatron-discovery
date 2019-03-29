@@ -341,7 +341,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     event.stopPropagation();
     event.preventDefault();
 
-    this.previewErrorMessge = '';
+    this.previewErrorMsg = '';
     this.isDelimiterRequired = false;
     this.currDelimiter = '';
 

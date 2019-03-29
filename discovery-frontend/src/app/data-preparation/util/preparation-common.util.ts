@@ -400,14 +400,21 @@ export class PreparationCommonUtil {
    */
   public static getFileFormat(fileExtension: string) : FileFormat{
     let fileType : string = fileExtension.toUpperCase();
-    if (fileType === 'CSV' || fileType === 'TXT'){
-      return FileFormat.CSV;
-    } else if (fileType === 'XLSX' || fileType === 'XLS'){
-      return FileFormat.EXCEL
-    } else if (fileType === 'JSON'){
-      return FileFormat.JSON
+
+    const formats = [
+      {extension:'CSV', fileFormat:FileFormat.CSV},
+      {extension:'TXT', fileFormat:FileFormat.TXT},
+      {extension:'JSON', fileFormat:FileFormat.JSON},
+      {extension:'XLSX', fileFormat:FileFormat.EXCEL},
+      {extension:'XLS', fileFormat:FileFormat.EXCEL},
+    ];
+
+    const idx = _.findIndex(formats, {extension: fileType});
+
+    if (idx !== -1) {
+      return formats[idx].fileFormat
     } else {
-      return null;
+      return formats[0].fileFormat
     }
   }
 

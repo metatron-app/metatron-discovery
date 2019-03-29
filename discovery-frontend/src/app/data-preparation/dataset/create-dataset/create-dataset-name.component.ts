@@ -28,6 +28,7 @@ import { concatMap } from 'rxjs/operators';
 import { from} from "rxjs/observable/from";
 import {DataflowService} from "../../dataflow/service/dataflow.service";
 import {PrDataflow} from "../../../domain/data-preparation/pr-dataflow";
+import {PreparationCommonUtil} from "../../util/preparation-common.util";
 declare let moment;
 
 @Component({
@@ -489,7 +490,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
             })
           } else {
             if(dsFile.selected){
-              let name = `${dsFile.fileName}.${dsFile.fileFormat.toString().toLowerCase()}`;
+              let name = `${dsFile.fileName}.${dsFile.fileExtension}`;
               this.names.push(name.slice(0,150));
               this.descriptions.push('');
               this.nameErrors.push('');
