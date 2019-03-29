@@ -568,7 +568,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
         icon: 'ddp-icon-type-polygon'
       },
       {
-        label: this.translateService.instant('ddp-icon-type-line'),
+        label: this.translateService.instant('msg.storage.ui.list.geo.line'),
         value: LogicalType.GEO_LINE,
         icon: 'ddp-icon-type-line'
       },
