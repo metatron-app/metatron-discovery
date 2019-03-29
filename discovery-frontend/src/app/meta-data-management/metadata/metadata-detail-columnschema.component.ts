@@ -27,6 +27,7 @@ import {ColumnDictionaryService} from '../column-dictionary/service/column-dicti
 import {Alert} from '../../common/util/alert.util';
 import {CommonConstant} from '../../common/constant/common.constant';
 import {MetadataSourceType} from '../../domain/meta-data-management/metadata';
+import {Type} from '../../shared/datasource-metadata/domain/type';
 
 class Order {
   key: string = 'physicalName';
@@ -110,6 +111,8 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
 
   @Input()
   public isNameEdit: boolean;
+
+  public readonly ROLE = Type.Role;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -516,7 +519,10 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   private _hideCurrentTime(result) {
-    this.columnList = result.filter((item) => !(item.physicalName === CommonConstant.COL_NAME_CURRENT_DATETIME && item.physicalType === 'TIMESTAMP'));
+    this.columnList = result.filter((item) => {
+      return !(item.physicalName === CommonConstant.COL_NAME_CURRENT_DATETIME && item.physicalType === 'TIMESTAMP')
+        && item.role !== this.ROLE.TIMESTAMP;
+    });
   }
 
   /**

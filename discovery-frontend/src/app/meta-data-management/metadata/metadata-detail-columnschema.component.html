@@ -36,6 +36,7 @@
     <!-- header -->
     <table class="ddp-table-form ddp-table-type2 ddp-table-details ddp-type-input">
       <colgroup>
+        <col *ngIf="isSourceTypeDatasource() && isMetadataSourceTypeIsEngine()" width="100px">
         <col width="160px">
         <col width="180px">
         <col width="180px">
@@ -47,6 +48,11 @@
       </colgroup>
       <thead>
       <tr>
+        <th class="ddp-cursor" *ngIf="isSourceTypeDatasource() && isMetadataSourceTypeIsEngine()">
+          <div class="ddp-th-long">
+            <span class="ddp-th-txt" title="Role">{{ 'msg.comm.th.role' | translate }}</span>
+          </div>
+        </th>
         <th class="ddp-cursor" (click)="onClickSort('popularity')">
           <div class="ddp-th-long">
             <div class="ddp-th-icons">
@@ -152,6 +158,13 @@
       </thead>
       <tbody>
       <tr *ngFor="let column of columnList; let i = index">
+        <td *ngIf="isSourceTypeDatasource() && isMetadataSourceTypeIsEngine()" class="ddp-disabled">
+          <span class="ddp-box-tag-value"
+                [class.ddp-measure]="column.role === ROLE.MEASURE"
+                [class.ddp-dimension]="column.role === ROLE.DIMENSION">
+            {{ column.role === ROLE.MEASURE ? ('msg.comm.name.mea' | translate) : ('msg.comm.name.dim' | translate) }}
+          </span>
+        </td>
         <!-- 인기도 -->
         <td class="">
           <div class="ddp-bar">
