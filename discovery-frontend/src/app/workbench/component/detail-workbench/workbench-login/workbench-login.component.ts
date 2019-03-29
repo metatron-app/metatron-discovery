@@ -13,6 +13,7 @@
  */
 
 import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import {Location} from '@angular/common';
 import { AbstractComponent } from '../../../../common/component/abstract.component';
 import { Workbench } from '../../../../domain/workbench/workbench';
 import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
@@ -68,7 +69,8 @@ export class WorkbenchLoginComponent extends AbstractComponent implements OnInit
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(protected  connectionService: DataconnectionService,
+  constructor(private _location: Location,
+              protected  connectionService: DataconnectionService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -104,7 +106,7 @@ export class WorkbenchLoginComponent extends AbstractComponent implements OnInit
 
   // 강제 닫기를 누를 경우
   protected close() {
-    this.router.navigate(['/workspace']);
+    this._location.back();
   }
 
   // 커넥션 체크
@@ -123,9 +125,9 @@ export class WorkbenchLoginComponent extends AbstractComponent implements OnInit
     this.dataconnection.implementor = this.workbench.dataConnection.implementor;
 
     ( !StringUtil.isEmpty(this.workbench.dataConnection.hostname) ) && (this.dataconnection.hostname = this.workbench.dataConnection.hostname);
-    ( !StringUtil.isEmpty(this.workbench.dataConnection.port) ) && (this.dataconnection.port = this.workbench.dataConnection.port);
+    ( this.workbench.dataConnection.port ) && (this.dataconnection.port = this.workbench.dataConnection.port);
     ( !StringUtil.isEmpty(this.workbench.dataConnection.url) ) && (this.dataconnection.url = this.workbench.dataConnection.url);
-    ( !StringUtil.isEmpty(this.workbench.dataConnection.sid) ) && (this.dataconnection.url = this.workbench.dataConnection.sid);
+    ( !StringUtil.isEmpty(this.workbench.dataConnection.sid) ) && (this.dataconnection.sid = this.workbench.dataConnection.sid);
     // add authenticationType in connection
     this.dataconnection.authenticationType = this.workbench.dataConnection.authenticationType || 'MANUAL';
     // if authenticationType is not USERINFO, add username and password in connection

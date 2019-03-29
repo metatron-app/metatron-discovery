@@ -14,15 +14,25 @@
 
 package app.metatron.discovery.domain.dataprep.service;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionRepository;
+import app.metatron.discovery.domain.dataprep.PrepDatasetDatabaseService;
+import app.metatron.discovery.domain.dataprep.PrepDatasetFileService;
+import app.metatron.discovery.domain.dataprep.PrepDatasetStagingDbService;
+import app.metatron.discovery.domain.dataprep.PrepPreviewLineService;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+import com.google.common.collect.Lists;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
 import org.slf4j.Logger;
@@ -31,28 +41,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.domain.dataconnection.DataConnection;
-import app.metatron.discovery.domain.dataconnection.DataConnectionRepository;
-import app.metatron.discovery.domain.dataprep.PrepDatasetDatabaseService;
-import app.metatron.discovery.domain.dataprep.PrepDatasetFileService;
-import app.metatron.discovery.domain.dataprep.PrepDatasetStagingDbService;
-import app.metatron.discovery.domain.dataprep.PrepHdfsService;
-import app.metatron.discovery.domain.dataprep.PrepPreviewLineService;
-import app.metatron.discovery.domain.dataprep.entity.PrDataset;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-
-
 @Service
 @Transactional
 public class PrDatasetService {
@@ -60,9 +48,6 @@ public class PrDatasetService {
 
     @Autowired
     PrepPreviewLineService previewLineService;
-
-    @Autowired
-    private PrepHdfsService hdfsService;
 
     @Autowired
     private PrepDatasetFileService datasetFilePreviewService;
@@ -136,126 +121,20 @@ public class PrDatasetService {
         String csvStrUri = null;
         if(dataset.getFileFormat() == PrDataset.FILE_FORMAT.EXCEL) {
             Integer columnCount = dataset.getManualColumnCount();
-            csvStrUri = this.datasetFilePreviewService.moveExcelToCsv(storedUri, sheetName, delimiter);
+
+            PrDataset.IMPORT_TYPE importType = dataset.getImportType();
+            if(importType == PrDataset.IMPORT_TYPE.UPLOAD) {
+                csvStrUri = this.datasetFilePreviewService.moveExcelToCsv(storedUri, sheetName, delimiter);
+            } else {
+                csvStrUri = this.datasetFilePreviewService.getPathLocalBase(dataset.getDsId() + ".csv");
+                csvStrUri = this.datasetFilePreviewService.moveExcelToCsv(csvStrUri, storedUri, sheetName, delimiter);
+            }
         }
         if(csvStrUri!=null) {
             dataset.setStoredUri(csvStrUri);
         }
 
         return;
-    }
-
-    public void uploadFileToStorage(PrDataset dataset, String storageType) throws Exception {
-        String storedUri = dataset.getStoredUri();
-
-        if (storedUri == null) {
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_KEY_MISSING,
-                    String.format("storedUri=%s", storedUri));
-        }
-
-        if(storageType.equalsIgnoreCase(PrDataset.STORAGE_TYPE.HDFS.name())) {
-            uploadFileToHdfs(dataset);
-        } else if(storageType.equalsIgnoreCase(PrDataset.STORAGE_TYPE.FTP.name())) {
-            // Will be implemented in the future
-        } else if(storageType.equalsIgnoreCase(PrDataset.STORAGE_TYPE.S3.name())) {
-            // Will be implemented in the future
-        } else if(storageType.equalsIgnoreCase(PrDataset.STORAGE_TYPE.BLOB.name())) {
-            // Will be implemented in the future
-        } else {
-            // nothing to do. PrDataset.STORAGE_TYPE.LOCAL
-        }
-
-        return;
-    }
-
-    public void uploadFileToHdfs(PrDataset dataset) throws Exception {
-        String storedUri = dataset.getStoredUri();
-
-        Map<String, Object> check = this.hdfsService.checkHdfs();
-        if(check.get("stagingBaseDir")!=null) {
-            Configuration conf = this.hdfsService.getConf();
-            FileSystem fs = FileSystem.get(conf);
-
-            String uploadPath = this.hdfsService.getUploadPath();
-            if (null != uploadPath) {
-                String fileName = FilenameUtils.getName(storedUri);
-                String hdfsStoredUri = uploadPath + File.separator + fileName;
-
-                Path pathLocalFile = new Path(storedUri);
-                Path pathHdfsFile = new Path(hdfsStoredUri);
-
-                Path pathStagingBase = pathHdfsFile.getParent();
-                if( false==fs.exists(pathStagingBase) ) {
-                    fs.mkdirs(pathStagingBase);
-                }
-
-                fs.copyFromLocalFile(true, true, pathLocalFile, pathHdfsFile);
-
-                dataset.setStoredUri(hdfsStoredUri);
-            } else {
-                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_NOT_CONFIGURED, "dataprep.stagingBaseDir");
-            }
-        } else {
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_NOT_CONFIGURED, "dataprep.hadoopConfDir");
-        }
-
-        return;
-    }
-
-    public Map<String,Object> getConnectionInfo(String dcId) {
-        Map<String,Object> connectionInfo = null;
-        if(null!=dcId) {
-            DataConnection dataConnection = findRealDataConnection( this.dataConnectionRepository.getOne(dcId) );
-
-            // hibernate lazy problem
-            /*
-            DataConnection lazyDataConnection = this.dataConnectionRepository.getOne(dcId);
-            Hibernate.initialize(lazyDataConnection);
-            if (lazyDataConnection instanceof HibernateProxy) {
-                dataConnection = (DataConnection) ((HibernateProxy) lazyDataConnection).getHibernateLazyInitializer().getImplementation();
-            }
-            if( dataConnection == null ) {
-                dataConnection = lazyDataConnection;
-            }
-            */
-
-            if(null!=dataConnection) {
-                connectionInfo = Maps.newHashMap();
-
-                connectionInfo.put("implementor", dataConnection.getImplementor());
-                connectionInfo.put("name", dataConnection.getName());
-                connectionInfo.put("description", dataConnection.getDescription());
-                connectionInfo.put("url", dataConnection.getUrl());
-                connectionInfo.put("database", dataConnection.getDatabase());
-                connectionInfo.put("hostname", dataConnection.getHostname());
-                connectionInfo.put("username", dataConnection.getUsername());
-                connectionInfo.put("port", dataConnection.getPort());
-            }
-        }
-        return connectionInfo;
-    }
-
-    public void afterCreate(PrDataset dataset, String storageType) throws PrepException {
-        try {
-
-            // excel to csv
-            // below the file format is always csv
-            if(dataset.getImportType() == PrDataset.IMPORT_TYPE.UPLOAD || dataset.getImportType() == PrDataset.IMPORT_TYPE.URI) {
-                this.changeFileFormatToCsv(dataset);
-            }
-
-            // upload file to storage
-            if(dataset.getImportType() == PrDataset.IMPORT_TYPE.UPLOAD) {
-                this.uploadFileToStorage(dataset, storageType);
-            }
-
-            this.savePreview(dataset);
-
-        } catch (Exception e) {
-            LOGGER.error("afterCreate(): caught an exception: ", e);
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_DATASET_FAILED_AFTERCREATE, e.getMessage());
-        }
-
     }
 
     public DataConnection findRealDataConnection(DataConnection lazyOne) {

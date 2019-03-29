@@ -14,7 +14,13 @@
 
 package app.metatron.discovery.domain.dataprep.service;
 
-import app.metatron.discovery.domain.dataprep.*;
+import app.metatron.discovery.domain.dataprep.PrepDatasetDatabaseService;
+import app.metatron.discovery.domain.dataprep.PrepDatasetFileService;
+import app.metatron.discovery.domain.dataprep.PrepDatasetStagingDbService;
+import app.metatron.discovery.domain.dataprep.PrepPreviewLineService;
+import app.metatron.discovery.domain.dataprep.PrepProperties;
+import app.metatron.discovery.domain.dataprep.PrepQueryRequest;
+import app.metatron.discovery.domain.dataprep.PrepUpstream;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.entity.PrDatasetProjections;
@@ -23,13 +29,17 @@ import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
-import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
 import app.metatron.discovery.domain.dataprep.repository.PrUploadFileRepository;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformService;
 import app.metatron.discovery.domain.storage.StorageProperties;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.http.HttpStatus;
 import org.joda.time.DateTime;
@@ -43,15 +53,14 @@ import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.hateoas.Resource;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @RequestMapping(value = "/preparationdatasets")
 @RepositoryRestController
@@ -75,16 +84,10 @@ public class PrDatasetController {
     private PrepDatasetStagingDbService datasetStagingDbService;
 
     @Autowired
-    private PrepHdfsService hdfsService;
-
-    @Autowired
     private PrDatasetService datasetService;
 
     @Autowired
     private PrDatasetRepository datasetRepository;
-
-    @Autowired
-    private PrSnapshotRepository snapshotRepository;
 
     @Autowired
     private PrUploadFileRepository uploadFileRepository;
@@ -157,7 +160,6 @@ public class PrDatasetController {
     @ResponseBody
     public ResponseEntity<?> getDataset(
             @PathVariable("dsId") String dsId,
-            //@RequestParam(value="projection", required=false, defaultValue="default") String projection,
             @RequestParam(value="preview", required=false, defaultValue="false") Boolean preview,
             PersistentEntityResourceAssembler persistentEntityResourceAssembler
     ) {
@@ -166,17 +168,10 @@ public class PrDatasetController {
         try {
             dataset = this.datasetRepository.findOne(dsId);
             if(dataset!=null) {
-                //if(true == projection.equalsIgnoreCase("detail")) {
                 if(true == preview) {
                     DataFrame dataFrame = this.previewLineService.getPreviewLines(dsId);
                     dataset.setGridResponse(dataFrame);
                 }
-
-                /*
-                Map<String,Object> connectionInfo = this.datasetService.getConnectionInfo(dataset.getDcId());
-                dataset.setConnectionInfo(connectionInfo);
-                */
-
             } else {
                 throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET, dsId);
             }
@@ -429,73 +424,6 @@ public class PrDatasetController {
         return ResponseEntity.ok(response);
     }
 
-    @RequestMapping(value = "/reload_preview/{dsId}", method = RequestMethod.GET)
-    public @ResponseBody ResponseEntity<?> previewFileCheckSheet(@PathVariable(value = "dsId") String dsId,
-            @RequestParam(value = "sheetindex", required = false, defaultValue = "0") String sheetindex,
-            @RequestParam(value = "resultSize", required = false, defaultValue = "2000") String size ) {
-        Map<String, Object> response = null;
-        /*
-        try {
-            PrDataset dataset = this.datasetRepository.findOne(dsId);
-            if(null==dataset) {
-                LOGGER.error("previewFileCheckSheet(): no dataset : "+ dsId);
-                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET);
-            }
-            if(dataset.getDsType() != PrDataset.DS_TYPE.IMPORTED) {
-                LOGGER.error("previewFileCheckSheet(): not imported type : "+ dsId);
-                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NOT_IMPORTED_DATASET);
-            }
-            if(dataset.getImport()==PrDataset.IMPORT_TYPE.FILE) {
-                String filekey = dataset.getFilekey();
-                if (null != filekey) {
-                    DataFrame dataFrame = this.datasetFileService.getPreviewLinesFromFileForDataFrame(dataset, filekey, sheetindex, size);
-                    if (null != dataFrame) {
-                        int previewSize = this.previewLineService.putPreviewLines(dsId, dataFrame);
-                        response = Maps.newHashMap();
-                        response.put("gridResponse", dataFrame);
-                    }
-                }
-            } else if(dataset.getImport()==PrDataset.IMPORT_TYPE.HIVE) {
-                DataFrame dataFrame = this.datasetSparkHiveService.getPreviewLinesFromStagedbForDataFrame(dataset,size);
-                if (null != dataFrame) {
-                    int previewSize = this.previewLineService.putPreviewLines(dsId, dataFrame);
-                    response = Maps.newHashMap();
-                    response.put("gridResponse", dataFrame);
-                }
-            } else if(dataset.getImport()==PrDataset.IMPORT_TYPE.DB) {
-                DataFrame dataFrame = this.datasetJdbcService.getPreviewLinesFromJdbcForDataFrame(dataset,size);
-                if (null != dataFrame) {
-                    int previewSize = this.previewLineService.putPreviewLines(dsId, dataFrame);
-                    response = Maps.newHashMap();
-                    response.put("gridResponse", dataFrame);
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.error("previewFileCheckSheet(): caught an exception: ", e);
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
-        }
-        */
-        return ResponseEntity.ok(response);
-    }
-
-    @RequestMapping(value = "/file/{fileKey:.+}", method = RequestMethod.GET)
-    public @ResponseBody ResponseEntity<?> fileCheckSheet(@PathVariable(value = "fileKey") String fileKey,
-                                                          @RequestParam(value = "sheetname", required = false) String sheetname,
-                                                          @RequestParam(value = "sheetindex", required = false, defaultValue = "0") String sheetindex,
-                                                          @RequestParam(value = "resultSize", required = false, defaultValue = "250") Integer size,
-                                                          @RequestParam(value = "delimiterRow", required = false, defaultValue = "\n") String delimiterRow,
-                                                          @RequestParam(value = "delimiterCol", required = false, defaultValue = ",") String delimiterCol,
-                                                          @RequestParam(value = "hasFields", required = false, defaultValue = "N") String hasFieldsFlag) {
-        Map<String, Object> response;
-        try {
-            response = this.datasetFileService.fileCheckSheet3( fileKey, size, delimiterCol, null, false );
-        } catch (Exception e) {
-            LOGGER.error("fileCheckSheet(): caught an exception: ", e);
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
-        }
-        return ResponseEntity.ok(response);
-    }
-
     @RequestMapping(value = "/file_grid", method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<?> fileGrid(
                                                           @RequestParam(value = "storedUri", required = false) String storedUri,
@@ -506,61 +434,10 @@ public class PrDatasetController {
                                                           @RequestParam(value = "autoTyping", required = false, defaultValue = "true") String autoTyping) {
         Map<String, Object> response;
         try {
-            response = this.datasetFileService.fileCheckSheet3( storedUri, size, delimiterCol, manualColumnCount, Boolean.parseBoolean(autoTyping) );
+            this.datasetFileService.checkStoredUri(storedUri);
+            response = this.datasetFileService.makeFileGrid( storedUri, size, delimiterCol, manualColumnCount, Boolean.parseBoolean(autoTyping) );
         } catch (Exception e) {
             LOGGER.error("fileCheckSheet(): caught an exception: ", e);
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
-        }
-        return ResponseEntity.ok(response);
-    }
-
-    /*
-    @RequestMapping(value = "/upload", method = RequestMethod.POST, produces = "application/json")
-    public @ResponseBody ResponseEntity<?> uploadExcelfile(@RequestParam("file") MultipartFile file) {
-        Map<String, Object> response = null;
-        try {
-          response = this.datasetFileService.uploadFile2(file);
-        } catch (Exception e) {
-            LOGGER.error("uploadExcelfile(): caught an exception: ", e);
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
-        }
-        return ResponseEntity.status(HttpStatus.SC_CREATED).body(response);
-    }
-
-    @RequestMapping(value = "/upload_async", method = RequestMethod.POST, produces = "application/json")
-    public @ResponseBody ResponseEntity<?> upload_async(@RequestParam("file") MultipartFile file) {
-        Map<String, Object> response = null;
-        try {
-            response = this.datasetFileService.uploadFile(file);
-        } catch (Exception e) {
-            LOGGER.error("upload_async(): caught an exception: ", e);
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
-        }
-        return ResponseEntity.status(HttpStatus.SC_CREATED).body(response);
-    }
-
-    @RequestMapping(value = "/upload_async_poll", method = RequestMethod.POST, produces = "application/json")
-    public @ResponseBody ResponseEntity<?> upload_async_poll(@RequestBody String storedUri) {
-        Map<String, Object> response = null;
-        try {
-            response = this.datasetFileService.pollUploadFile(storedUri);
-        } catch (Exception e) {
-            LOGGER.error("upload_async_poll(): caught an exception: ", e);
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
-        }
-        return ResponseEntity.status(HttpStatus.SC_CREATED).body(response);
-    }
-    */
-
-    @RequestMapping(value = "/check_hdfs", method = RequestMethod.GET, produces = "application/json")
-    public @ResponseBody ResponseEntity<?> checkHdfs() {
-        Map<String, Object> response = new HashMap();
-        try {
-            if (prepProperties.isHDFSConfigured()) {
-                response.put("stagingBaseDir", prepProperties.getStagingBaseDir(true));
-            }
-        } catch (Exception e) {
-            LOGGER.error("uploadExcelfile(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
         }
         return ResponseEntity.ok(response);
@@ -669,20 +546,6 @@ public class PrDatasetController {
         }
 
         return ResponseEntity.status(HttpStatus.SC_CREATED).body(response);
-    }
-
-    @RequestMapping(value = "/ready_to_preview/{dsId}", method = RequestMethod.GET, produces = "application/json")
-    public @ResponseBody ResponseEntity<?> ready_to_preview(
-            @PathVariable("dsId") String dsId
-    ) {
-        Map<String, Object> response = null;
-        try {
-            response = this.previewLineService.ready_to_preview(dsId);
-        } catch (Exception e) {
-            LOGGER.error("ready_to_preview(): caught an exception: ", e);
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
-        }
-        return ResponseEntity.status(HttpStatus.SC_OK).body(response);
     }
 
     @RequestMapping(value="/{dsId}/download",method = RequestMethod.GET)

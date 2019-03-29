@@ -15,7 +15,6 @@
 package app.metatron.discovery.domain.dataprep.transform;
 
 import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
-import app.metatron.discovery.domain.dataprep.teddy.Histogram;
 import app.metatron.discovery.domain.dataprep.teddy.Row;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -26,7 +25,7 @@ import java.util.concurrent.Future;
 
 @Service
 public class PrepHistogramService {
-  @Async("threadPoolTaskExecutor")
+  @Async("prepThreadPoolTaskExecutor")
   public Future<Histogram> updateHistWithColWidth(String colName, ColumnType colType, List<Row> rows, int colno, int colWidth) {
     return new AsyncResult<>(Histogram.createHist(colName, colType, rows, colno, colWidth));
   }

@@ -111,12 +111,12 @@
           {{'msg.page.chart.map.spatial.analysis.result' | translate}}
           <span class="ddp-tag-layer">{{'msg.page.chart.map.spatial.mainlayer' | translate}}</span>
           <span class="ddp-txt-data">
-          <em [ngClass]="{'ddp-icon-layer1' : uiOption.analysis['layerNum'] == 0, 'ddp-icon-layer2' : uiOption.analysis['layerNum'] == 1}"></em>
+          <em [ngClass]="{'ddp-icon-layer1' : uiOption.analysis['selectedLayerNum'] == 0, 'ddp-icon-layer2' : uiOption.analysis['selectedLayerNum'] == 1}"></em>
             {{uiOption.analysis['mainLayer']}}
         </span>
           <span class="ddp-tag-layer2">{{'msg.page.chart.map.spatial.comparelayer' | translate}}</span>
           <span class="ddp-txt-data">
-          <em [ngClass]="{'ddp-icon-layer2' : uiOption.analysis['layerNum'] == 0, 'ddp-icon-layer1' : uiOption.analysis['layerNum'] == 1}"></em>
+          <em [ngClass]="{'ddp-icon-layer2' : uiOption.analysis['selectedLayerNum'] == 0, 'ddp-icon-layer1' : uiOption.analysis['selectedLayerNum'] == 1}"></em>
             {{uiOption.analysis['compareLayer']}}
         </span>
           <span class="ddp-tag-analysis">{{uiOption.analysis['operation']['type']}}</span>

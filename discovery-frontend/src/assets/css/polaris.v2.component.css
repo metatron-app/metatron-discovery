@@ -521,11 +521,11 @@ ul.ddp-list-typebasic.ddp-view li.ddp-selected a .ddp-icon-plus {display:block;}
 .ddp-cursor {cursor: pointer;}
 .ddp-mgb20 {margin-bottom:20px !important;}
 .ddp-mgl10 {margin-left:10px !important;}
-.ddp-index { position: fixed; left: 0; right: 0;  bottom: 0; top: 0; z-index: 9999;}
+.ddp-index {position: fixed; left: 0; right: 0;  bottom: 0; top: 0; z-index: 9999;}
 .ddp-show {display:block !important;}
 .ddp-none {display:none !important;}
 .ddp-border-none {border:none !important;}
-
+.ddp-txt-ellipsis {white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 .ddp-null {color:#b8bac2 !important;font-style:italic !important;}
 .ddp-null * {color:#b8bac2 !important; font-style:italic !important;;}
 .ddp-empty {background:blue !important; opacity:0.2 !important;}

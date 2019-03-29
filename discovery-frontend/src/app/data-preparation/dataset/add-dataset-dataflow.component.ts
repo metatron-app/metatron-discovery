@@ -179,8 +179,8 @@ export class AddDatasetDataflowComponent extends AbstractComponent implements On
   public getDataflowLength() {
 
     let result : number = 0;
-    if (this.dataflows) {
-      result = this.dataflows.length;
+    if (this.pageResult) {
+      result = this.pageResult.totalElements;
     }
     return result;
   }

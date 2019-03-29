@@ -14,6 +14,7 @@
 
 import { AbstractHistoryEntity } from '../common/abstract-history-entity';
 
+// app.metatron.discovery.domain.dataconnection
 export class Dataconnection extends AbstractHistoryEntity {
   public id: string;
   public name: string;
@@ -21,8 +22,7 @@ export class Dataconnection extends AbstractHistoryEntity {
   public description: string;
   public type: string;
   public hostname: string;
-  // TODO 추후 number로 변경 필요
-  public port: string;
+  public port: number;
   public options: string;
   public username: string;
   public password: string;

@@ -12,10 +12,14 @@
  * limitations under the License.
  */
 
-package app.metatron.discovery.domain.dataprep.teddy;
+package app.metatron.discovery.domain.dataprep.etl;
 
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot.HIVE_FILE_COMPRESSION;
+import app.metatron.discovery.domain.dataprep.teddy.ColumnDescription;
+import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.dataprep.teddy.Row;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +37,6 @@ import org.apache.hadoop.hive.ql.exec.vector.VectorizedRowBatch;
 import org.apache.orc.CompressionKind;
 import org.apache.orc.OrcFile;
 import org.apache.orc.TypeDescription;
-import org.apache.orc.TypeDescription.Category;
 import org.apache.orc.Writer;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;

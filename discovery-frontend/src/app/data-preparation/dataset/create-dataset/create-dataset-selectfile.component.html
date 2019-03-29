@@ -92,8 +92,9 @@
                 <!-- name -->
                 <div class="ddp-file-name">
                   <em class="ddp-icon-flow-svg">
-                    <svg-icon-component [name]="commonUtil.getFileFormatWithExtension(item.fileExtension)" [isBlackAndWhite]="true"></svg-icon-component>
+                    <svg-icon-component [name]="preparationUtil.getFileFormat(item.fileExtension)" [isBlackAndWhite]="true"></svg-icon-component>
                   </em>
+
                   <div class="ddp-data-filename">
                     <span class="ddp-txt-subname">{{item.fileExtension}}</span>
                     <span class="ddp-txt-filename">{{item.fileName}}.</span>
@@ -135,7 +136,7 @@
 
             <!-- import file -->
             <div class="ddp-import-file" [ngClass]="{'ddp-disabled':!isNext}" #drop_container2 >
-              <div class="ddp-txt-file-info" style="display:;">
+              <div class="ddp-txt-file-info">
                 <div class="ddp-link-file">
                   <input type="file" #pickfiles2 />
                   Import

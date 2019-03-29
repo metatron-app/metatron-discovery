@@ -18,7 +18,6 @@ import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.service.PrDatasetService;
 import app.metatron.discovery.domain.dataprep.teddy.ColumnDescription;
@@ -30,19 +29,18 @@ import app.metatron.discovery.domain.dataprep.transform.PrepTransformResponse;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class PrepPreviewLineService {
@@ -184,45 +182,6 @@ public class PrepPreviewLineService {
         }
 
         return dataFrame;
-    }
-
-    public Map<String,Object> ready_to_preview(String dsId) {
-        Map<String,Object> response = Maps.newHashMap();
-
-        boolean remake = false;
-        DataFrame dataFrame = null;
-        try {
-            dataFrame = this.getPreviewLines(dsId);
-        } catch(PrepException e) {
-            if( e.getMessageKey().equals(PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND)
-                || e.getMessageKey().equals(PrepMessageKey.MSG_DP_ALERT_PREVIEWLINES_CRASHED) ) {
-                remake = true;
-            } else {
-                LOGGER.debug(e.getMessage());
-                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
-            }
-        } catch(Exception e) {
-            LOGGER.debug(e.getMessage());
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
-        }
-
-        try {
-            if (true == remake) {
-                dataFrame = this.remakePreviewLines(dsId);
-                if (null != dataFrame) {
-                    int size = this.putPreviewLines(dsId, dataFrame);
-                } else {
-                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_PREVIEWLINES_CRASHED, "remake preview==(null)");
-                }
-            }
-        } catch(Exception e) {
-            LOGGER.debug(e.getMessage());
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
-        }
-
-        response.put("gridResponse", dataFrame);
-
-        return response;
     }
 
     public DataFrame remakePreviewLines(String dsId) throws IOException, SQLException, TeddyException {

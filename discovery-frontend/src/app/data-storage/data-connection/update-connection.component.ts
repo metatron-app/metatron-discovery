@@ -319,7 +319,7 @@ export class UpdateConnectionComponent extends AbstractComponent {
         params.hostname = this._connectionComponent.hostname.trim();
       }
       // 입력한 port가 다른경우
-      if (this._connectionComponent.port.toString() !== this.originConnectionData.port) {
+      if (this._connectionComponent.port !== this.originConnectionData.port) {
         params.port = this._connectionComponent.port;
       }
       // 기존에 URL이 있었다면

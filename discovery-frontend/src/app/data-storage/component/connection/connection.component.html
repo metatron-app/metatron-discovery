@@ -17,7 +17,7 @@
   <!-- //preset box -->
   <!-- implementor list -->
   <div class="ddp-wrap-edit2">
-    <label class="ddp-label-type ddp-bold">{{'msg.storage.ui.db.connection' | translate}}</label>
+    <label class="ddp-label-type ddp-bold" *ngIf="!isHideConnectionLabel">{{'msg.storage.ui.db.connection' | translate}}</label>
     <!-- edit option -->
     <div class="ddp-ui-edit-option ddp-type ddp-white-space">
       <ul class="ddp-list-dbtype">
@@ -42,7 +42,7 @@
         <!-- URL -->
         <div class="ddp-wrap-edit2 ddp-col-12" *ngIf="isUsedUrl" [class.ddp-error]="isUrlError">
           <label class="ddp-label-type">{{'msg.storage.ui.conn.url' | translate}}</label>
-          <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.ui.conn.url.ph' | translate}}"
+          <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.ui.conn.url.ph' | translate}}" [readOnly]="isDisableChangeConnectionInfo"
                  [ngModel]="url" (ngModelChange)="url = $event; isUrlError = undefined; connectionValidInitialize()">
           <!-- error -->
           <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
@@ -53,7 +53,7 @@
           <!-- HOST -->
           <div class="ddp-wrap-edit2 ddp-col-4" [class.ddp-error]="isHostnameError">
             <label class="ddp-label-type">{{'msg.comm.th.host' | translate}}</label>
-            <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.th.host' | translate}}"
+            <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.th.host' | translate}}" [readOnly]="isDisableChangeConnectionInfo"
                    [ngModel]="hostname" (ngModelChange)="hostname = $event; isHostnameError = undefined; connectionValidInitialize()">
             <!-- error -->
             <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
@@ -63,7 +63,7 @@
           <!-- PORT -->
           <div class="ddp-wrap-edit2 ddp-col-2" [class.ddp-error]="isPortError">
             <label class="ddp-label-type">{{'msg.comm.th.port' | translate}}</label>
-            <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.th.port' | translate}}" maxlength="5" input-mask="number"
+            <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.th.port' | translate}}" maxlength="5" input-mask="number" [readOnly]="isDisableChangeConnectionInfo"
                    [ngModel]="port" (ngModelChange)="port = $event; isPortError = undefined; connectionValidInitialize()">
             <!-- error -->
             <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
@@ -74,7 +74,7 @@
           <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isSidError" *ngIf="!isDisableSid()">
             <!--(ngModelChange)="sid = $event; initConnectionPresetData()">-->
             <label class="ddp-label-type">{{'msg.storage.th.sid' | translate}}</label>
-            <input type="text"  class="ddp-input-type" placeholder="{{'msg.storage.ui.conn.sid.ph' | translate}}"
+            <input type="text"  class="ddp-input-type" placeholder="{{'msg.storage.ui.conn.sid.ph' | translate}}" [readOnly]="isDisableChangeConnectionInfo"
                    [ngModel]="sid" (ngModelChange)="sid = $event; isSidError = undefined; connectionValidInitialize()">
             <!-- error -->
             <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
@@ -84,7 +84,7 @@
           <!-- DATABASE -->
           <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isDatabaseError" *ngIf="!isDisableDatabase()">
             <label class="ddp-label-type">{{'msg.storage.th.db_name' | translate}}</label>
-            <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.th.db_name.ph' | translate}}"
+            <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.th.db_name.ph' | translate}}" [readOnly]="isDisableChangeConnectionInfo"
                    [ngModel]="database" (ngModelChange)="database = $event; isDatabaseError = undefined; connectionValidInitialize()">
             <!-- error -->
             <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
@@ -94,7 +94,7 @@
           <!-- Catalog -->
           <div class="ddp-wrap-edit2 ddp-col-6"  [class.ddp-error]="isCatalogError" *ngIf="!isDisableCatalog()">
             <label class="ddp-label-type">{{'msg.storage.th.catalog' | translate}}</label>
-            <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.ui.conn.catalog.ph' | translate}}"
+            <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.ui.conn.catalog.ph' | translate}}" [readOnly]="isDisableChangeConnectionInfo"
                    [ngModel]="catalog" (ngModelChange)="catalog = $event; isCatalogError = undefined; connectionValidInitialize()">
             <!-- error -->
             <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
@@ -105,7 +105,7 @@
         <!-- check -->
         <div class="ddp-check ddp-col-12">
           <label class="ddp-label-checkbox" (click)="onChangeUseUrl(); $event.defaultPrevented;">
-            <input type="checkbox" [checked]="isUsedUrl" tabindex="-1">
+            <input type="checkbox" [checked]="isUsedUrl" tabindex="-1" [disabled]="isDisableChangeConnectionInfo">
             <i class="ddp-icon-checkbox"></i>
             <span class="ddp-txt-checkbox">{{'msg.storage.ui.conn.url.only' | translate}}</span>
           </label>
@@ -118,7 +118,7 @@
         <!-- username -->
         <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isUsernameError" *ngIf="!isDisableUsername()">
           <label class="ddp-label-type">{{'msg.storage.th.user_name' | translate}} <span class="ddp-sub" *ngIf="selectedAuthenticationType.value === AUTHENTICATION_TYPE.DIALOG">{{'msg.storage.ui.for.test' | translate}}</span></label>
-          <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.th.user_name.ph' | translate}}"
+          <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.th.user_name.ph' | translate}}" [readOnly]="selectedAuthenticationType.value !== AUTHENTICATION_TYPE.DIALOG && isDisableChangeConnectionInfo"
                  [ngModel]="username" (ngModelChange)="username = $event; isUsernameError = undefined; connectionValidInitialize()">
           <!-- error -->
           <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
@@ -128,7 +128,7 @@
         <!-- Password -->
         <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isPasswordError" *ngIf="!isDisablePassword()">
           <label class="ddp-label-type">{{'msg.storage.th.pwd' | translate}} <span class="ddp-sub" *ngIf="selectedAuthenticationType.value === AUTHENTICATION_TYPE.DIALOG">{{'msg.storage.ui.for.test' | translate}}</span></label>
-          <input type="password" class="ddp-input-type" placeholder="{{'msg.storage.th.pwd.ph' | translate}}"
+          <input type="password" class="ddp-input-type" placeholder="{{'msg.storage.th.pwd.ph' | translate}}" [readOnly]="selectedAuthenticationType.value !== AUTHENTICATION_TYPE.DIALOG && isDisableChangeConnectionInfo"
                  [ngModel]="password" (ngModelChange)="password = $event; isPasswordError = undefined; connectionValidInitialize()">
           <!-- error -->
           <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
@@ -144,10 +144,11 @@
           <ul class="ddp-list-checktype">
             <li *ngFor="let type of authenticationTypeList">
               <label class="ddp-label-radio" (change)="onChangeAuthenticationType(type)">
-                <input type="radio" [checked]="type.value === selectedAuthenticationType.value">
+                <input type="radio" [checked]="type.value === selectedAuthenticationType.value" [disabled]="isDisableChangeConnectionInfo && type.value !== selectedAuthenticationType.value">
                 <i class="ddp-icon-radio"></i>
                 <span class="ddp-txt-radio">{{type.label}}</span>
               </label>
+              <span class="ddp-txt-det" *ngIf="isShowDialogGuide && type.value === AUTHENTICATION_TYPE.DIALOG">{{'msg.storage.ui.conn.dialog.desc' | translate}}</span>
             </li>
           </ul>
         </ng-container>
@@ -161,7 +162,7 @@
           </div>
         </div>
         <!-- advanced settings -->
-        <div class="ddp-ui-folding ddp-type" [class.ddp-selected]="isShowAdvancedSettings">
+        <div class="ddp-ui-folding ddp-type" [class.ddp-selected]="isShowAdvancedSettings" *ngIf="!isDisableProperties">
           <div class="ddp-fold-label" (click)="isShowAdvancedSettings = !isShowAdvancedSettings">
             {{'msg.dp.btn.advanced.settings' | translate}}
             <em class="ddp-icon-view"></em>

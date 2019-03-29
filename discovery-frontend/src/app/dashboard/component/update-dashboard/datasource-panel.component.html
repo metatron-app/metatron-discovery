@@ -166,6 +166,7 @@
               [field]="selectedField"
               [singleTab]="isColumnDetail"
               [source]="dashboard"
+              [initial]="dataSource"
               (close)="isShowDataPreview = false"></data-preview>
 <app-custom-field *ngIf="isShowCustomFiled"
                   [fields]="dsFields"

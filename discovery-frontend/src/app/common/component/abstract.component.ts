@@ -660,22 +660,22 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
     let connImgUrl = '';
     switch (impType) {
       case ImplementorType.MYSQL:
-        connImgUrl = location.origin + '/assets/images/img_db/ic_db_mysql.png';
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_mysql_w.png';
         break;
       case ImplementorType.HIVE:
-        connImgUrl = location.origin + '/assets/images/img_db/ic_db_hive.png';
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_hive_w.png';
         break;
       case ImplementorType.DRUID:
-        connImgUrl = location.origin + '/assets/images/img_db/ic_db_druid.png';
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_druid_w.png';
         break;
       case ImplementorType.POSTGRESQL:
-        connImgUrl = location.origin + '/assets/images/img_db/ic_db_post.png';
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_post_w.png';
         break;
       case ImplementorType.PRESTO:
-        connImgUrl = location.origin + '/assets/images/img_db/ic_db_presto.png';
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_presto_w.png';
         break;
       default:
-        connImgUrl = imgResource ? imgResource : location.origin + '/assets/images/img_db/ic_DB.png';
+        connImgUrl = imgResource ? imgResource : location.origin + '/assets/images/img_db/ic_db_w.png';
         break;
     }
     return connImgUrl;

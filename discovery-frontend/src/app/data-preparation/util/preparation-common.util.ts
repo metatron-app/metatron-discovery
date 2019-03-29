@@ -393,6 +393,24 @@ export class PreparationCommonUtil {
 
   }
 
+
+  /**
+   * Returns file format (csv, excel, json)
+   * @param fileExtension
+   */
+  public static getFileFormat(fileExtension: string) : FileFormat{
+    let fileType : string = fileExtension.toUpperCase();
+    if (fileType === 'CSV' || fileType === 'TXT'){
+      return FileFormat.CSV;
+    } else if (fileType === 'XLSX' || fileType === 'XLS'){
+      return FileFormat.EXCEL
+    } else if (fileType === 'JSON'){
+      return FileFormat.JSON
+    } else {
+      return null;
+    }
+  }
+
   /**
    * Returns icon class
    * @param type

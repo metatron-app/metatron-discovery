@@ -12,24 +12,20 @@
  * limitations under the License.
  */
 
-import {
-  ChangeDetectorRef, Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
-  ViewChild
-} from '@angular/core';
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import { PopupService } from '../../../common/service/popup.service';
-import { CommonConstant } from '../../../common/constant/common.constant';
-import { CookieConstant } from '../../../common/constant/cookie.constant';
-import { PrDatasetFile,StorageType,FileFormat } from '../../../domain/data-preparation/pr-dataset';
-import { isUndefined } from 'util';
-import { DatasetService } from "../service/dataset.service";
+import {ChangeDetectorRef, Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
+import {PopupService} from '../../../common/service/popup.service';
+import {CommonConstant} from '../../../common/constant/common.constant';
+import {CookieConstant} from '../../../common/constant/cookie.constant';
+import {FileFormat, PrDatasetFile, StorageType} from '../../../domain/data-preparation/pr-dataset';
+import {isUndefined} from 'util';
+import {DatasetService} from "../service/dataset.service";
 import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';
 import {Modal} from '../../../common/domain/modal';
 import {PreparationCommonUtil} from "../../util/preparation-common.util";
+import * as _ from 'lodash';
 
 declare let plupload: any;
-
-import * as _ from 'lodash';
 
 export class UploadNegotitationParameters {
   public limit_size:number = 0;
@@ -100,7 +96,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   public unsupportedFileView : boolean = false;
   public isNext : boolean = false;
 
-  public commonUtil = PreparationCommonUtil;
+  public preparationUtil = PreparationCommonUtil;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -304,7 +300,6 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
           this.upFiles[idx].isUploading = file.isUploading;
           this.upFiles[idx].isUploaded = file.isUploaded;
           this.upFiles[idx].storedUri = file.storedUri;
-
           this.changeDetect.detectChanges();
         },
 
@@ -689,7 +684,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   /**
    * Disable Drag and Drop in File list area
    */
-  public disableEvent(event:Event){
+  public disableEvent(event:any){
     event.preventDefault();
     event.stopImmediatePropagation();
     event.stopPropagation();

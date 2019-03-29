@@ -87,7 +87,7 @@ public class PrepProperties {
 
   public String getHadoopConfDir(boolean mandatory) {
     if (mandatory && hadoopConfDir == null) {
-      throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_NOT_CONFIGURED, "Hive not configured");
+      throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_NOT_CONFIGURED, "Hadoop not configured");
     }
     return hadoopConfDir;
   }
