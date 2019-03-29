@@ -119,6 +119,7 @@ export enum FileFormat {
   CSV = <any>'CSV',
   EXCEL = <any>'EXCEL',
   JSON = <any>'JSON',
+  TXT= <any>'TXT'
 }
 
 export enum RsType {

@@ -12,9 +12,10 @@
  * limitations under the License.
  */
 
-import { ImportType } from '../../domain/data-preparation/pr-dataset';
+import {FileFormat, ImportType} from '../../domain/data-preparation/pr-dataset';
 import { SsType } from '../../domain/data-preparation/pr-snapshot';
 import {isNullOrUndefined} from "util";
+import * as _ from "lodash";
 
 declare const moment: any;
 
@@ -544,6 +545,34 @@ export class PreparationCommonUtil {
       }
     } else {
       return '';
+    }
+  }
+
+
+  /**
+   * Returns appropriate file format for each extension
+   * Extensions : CSV, TXT, JSON, XLSX, XLS
+   * @param fileExtension {string}
+   * @returns {FileFormat}
+   * @private
+   */
+  public static getFileFormatWithExtension(fileExtension: string) {
+    let fileType : string = fileExtension.toUpperCase();
+
+    const formats = [
+      {extension:'CSV', fileFormat:FileFormat.CSV},
+      {extension:'TXT', fileFormat:FileFormat.TXT},
+      {extension:'JSON', fileFormat:FileFormat.JSON},
+      {extension:'XLSX', fileFormat:FileFormat.EXCEL},
+      {extension:'XLS', fileFormat:FileFormat.EXCEL},
+    ];
+
+    const idx = _.findIndex(formats, {extension: fileType});
+
+    if (idx !== -1) {
+      return formats[idx].fileFormat
+    } else {
+      return formats[0].fileFormat
     }
   }
 }

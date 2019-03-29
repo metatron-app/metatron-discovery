@@ -15,14 +15,13 @@
 import {Component, ElementRef, EventEmitter, HostListener, Injector, Input, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
-import {PrDatasetFile, SheetInfo, StorageType, FileFormat} from '../../../domain/data-preparation/pr-dataset';
-import { Alert } from '../../../common/util/alert.util';
+import {PrDatasetFile, SheetInfo, FileFormat} from '../../../domain/data-preparation/pr-dataset';
 import { DatasetService } from '../service/dataset.service';
 import { GridComponent } from '../../../common/component/grid/grid.component';
 import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
 import { GridOption } from '../../../common/component/grid/grid.option';
 
-import { isNull, isNullOrUndefined, isUndefined } from 'util';
+import { isNull, isNullOrUndefined } from 'util';
 import * as pixelWidth from 'string-pixel-width';
 import {PreparationCommonUtil} from "../../util/preparation-common.util";
 import {CommonUtil} from "../../../common/util/common.util";
@@ -74,8 +73,9 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   public currDetail : any;
   public currCoumnCount: number;
 
-  public previewErrorMessge : string;
+  public previewErrorMsg : string;
 
+  public fileFormat = FileFormat;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -98,7 +98,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     this.currDSIndex = 0;
     this.currSheetIndex = 0;
     this.currDetail = {fileFormat: null, detailName: null, columns: null, rows: null};
-    this.previewErrorMessge = '';
+    this.previewErrorMsg = '';
 
     // Check init by selected count
     this._checkNextBtn();
@@ -131,7 +131,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       this.currDelimiter = ( this.datasetFiles[this.currDSIndex].fileFormat === FileFormat.CSV ? this.datasetFiles[this.currDSIndex].delimiter : '');
       this.currCoumnCount = ( this.datasetFiles[this.currDSIndex].sheetInfo ? this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount : 0 );
 
-      this.previewErrorMessge = (this.datasetFiles[this.currDSIndex].error? this.datasetFiles[this.currDSIndex].error.details : '');
+      this.previewErrorMsg = (this.datasetFiles[this.currDSIndex].error? this.datasetFiles[this.currDSIndex].error.details : '');
       this._setDetailInfomation(this.currDSIndex, this.currSheetIndex);
       this._checkNextBtn();
     }
@@ -294,7 +294,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     event.stopPropagation();
     event.preventDefault();
 
-    this.previewErrorMessge = (this.datasetFiles[dsIdx].error? this.datasetFiles[dsIdx].error.details : '');
+    this.previewErrorMsg = (this.datasetFiles[dsIdx].error? this.datasetFiles[dsIdx].error.details : '');
 
     this.isDelimiterRequired = false;
     this.isColumnCountRequired = false;
@@ -374,7 +374,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   private _setFileFormat(fileFormat : FileFormat){
-    this.isCSV = (fileFormat === FileFormat.CSV);
+    this.isCSV = (fileFormat === FileFormat.CSV) || fileFormat === FileFormat.TXT;
     this.isJSON = (fileFormat === FileFormat.JSON);
     this.isEXCEL = (fileFormat === FileFormat.EXCEL);
   }
@@ -432,7 +432,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       this.datasetFiles[idx].error = error;
 
       if(this._isInit && idx === 0){
-        this.previewErrorMessge = this.datasetFiles[0].error.details;
+        this.previewErrorMsg = this.datasetFiles[0].error.details;
       }
 
       if( option && option === 'draw') this.clearGrid = true;

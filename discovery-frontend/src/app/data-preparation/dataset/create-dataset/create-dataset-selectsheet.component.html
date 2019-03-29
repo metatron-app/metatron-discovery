@@ -19,8 +19,8 @@
   <!-- //닫기 버튼 -->
   <div class="ddp-icon-name">
     <div class="ddp-ui-name2 ddp-type3">
-      Create a file type dataset
-      <span class="ddp-txt-info ddp-type">Please select data</span>
+      {{'msg.dp.ui.ds.create.title' | translate : {type : 'file'} }}
+      <span class="ddp-txt-info ddp-type">{{'msg.dp.create.staging.sub.title' | translate}}</span>
       <em class="ddp-bg-order-line3-type2"></em>
     </div>
   </div>
@@ -38,9 +38,9 @@
             </li>
 
             <ng-container *ngFor="let file of datasetFiles; let i = index">
-              <li [ngClass]="{'ddp-selected':currDSIndex===i && file.fileFormat.toString() !='EXCEL'}"  >
+              <li [ngClass]="{'ddp-selected':currDSIndex===i && file.fileFormat !== fileFormat.EXCEL}"  >
 
-                <ng-container *ngIf="file.fileFormat.toString()==='CSV' || file.fileFormat.toString()==='JSON'">
+                <ng-container *ngIf="file.fileFormat === fileFormat.CSV || file.fileFormat === fileFormat.JSON || file.fileFormat === fileFormat.TXT">
                   <!-- checkbox -->
                   <div class="ddp-wrap-checkbox" (click)="selectFile($event,i)">
                     <label class="ddp-label-checkbox" (click)="checkGroup($event, i)">
@@ -55,7 +55,7 @@
                   <!-- //checkbox -->
                 </ng-container>
 
-                <ng-container *ngIf="file.fileFormat.toString()==='EXCEL'">
+                <ng-container *ngIf="file.fileFormat === fileFormat.EXCEL">
                   <!-- checkbox -->
                   <div class="ddp-wrap-checkbox" (click)="selectFile($event,i)">
                     <label class="ddp-label-checkbox" (click)="checkGroup($event, i)">
@@ -102,9 +102,6 @@
               <div class="ddp-data-total">
                   <span class="ddp-txt-data">
                     <span class="ddp-txt-num" *ngIf="(currDetail.columns)">{{currDetail.columns}}</span> Columns
-                  </span>
-                <span class="ddp-txt-data">
-                    <span class="ddp-txt-num" *ngIf="(currDetail.rows)">{{currDetail.rows}}</span> Rows
                   </span>
               </div>
 
@@ -177,10 +174,10 @@
       <!-- //create file -->
 
       <!-- warning -->
-      <div class="ddp-box-synch type-error" [ngStyle]="{'display': previewErrorMessge != ''?'':'none'}">
+      <div class="ddp-box-synch type-error" [ngStyle]="{'display': previewErrorMsg != ''?'':'none'}">
         <div class="ddp-txt-synch">
           <em class="ddp-icon-info"></em>
-          {{previewErrorMessge}}
+          {{previewErrorMsg}}
         </div>
       </div>
       <!-- //warning 에러항목을 확인하세요-->
@@ -190,9 +187,9 @@
   <!-- //contents in  -->
   <!-- buttons -->
   <div class="ddp-ui-buttons">
-    <a href="javscript:" class="ddp-btn-type-popup" (click)="prev()">Previous</a>
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
     <!-- disabled 시 ddp-disabled 추가 -->
-    <a href="javscript:" class="ddp-btn-type-popup ddp-bg-black " [ngClass]="{'ddp-disabled': !isNext}" (click)="next()">Next</a>
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black " [ngClass]="{'ddp-disabled': !isNext}" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
   </div>
   <!-- //buttons -->
 

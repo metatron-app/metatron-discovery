@@ -20,7 +20,7 @@ import {
 } from '../../../domain/data-preparation/pr-dataset';
 import {PopupService} from '../../../common/service/popup.service';
 import {DatasetService} from '../service/dataset.service';
-import {isUndefined} from 'util';
+import {isNullOrUndefined, isUndefined} from 'util';
 import {StringUtil} from '../../../common/util/string.util';
 import {Alert} from '../../../common/util/alert.util';
 import * as _ from 'lodash';
@@ -252,27 +252,38 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     let today = moment();
     const df = new PrDataflow();
     this.loadingShow();
-    df.datasets = [this.results[0].link];
-    df.dfName = `${this.results[0].dsName}_${today.format('MM')}${today.format('DD')}_${today.format('HH')}${today.format('mm')}`  ;
 
-    // 1. create dataflow with dataset
-    this.dataflowService.createDataflow(df).then((result1) => {
-      this.loadingHide();
-      if (result1) {
+    // 데이터셋이 생성이 됐다면 데이터플로우 생성을 한다.
+    if (this.results[0] && !isNullOrUndefined(this.results[0].link)) {
+      df.datasets = [this.results[0].link];
+      df.dfName = `${this.results[0].dsName}_${today.format('MM')}${today.format('DD')}_${today.format('HH')}${today.format('mm')}`  ;
 
-        // 2. Find wrangled dataset
-        // 3. Move to dataFlow main grid (navigate)
-        this.router.navigate([`/management/datapreparation/dataflow/${result1['dfId']}/rule/${result1.datasets[1].dsId}`]);
-      } else {
+      // 1. create dataflow with dataset
+      this.dataflowService.createDataflow(df).then((result1) => {
+        this.loadingHide();
+        if (result1) {
+
+          // 2. Find wrangled dataset
+          // 3. Move to dataFlow main grid (navigate)
+          this.router.navigate([`/management/datapreparation/dataflow/${result1['dfId']}/rule/${result1.datasets[1].dsId}`]);
+        } else {
+
+          // If error move to dataset list
+          this.loadingHide();
+          this.close();
+        }
+
+      }).catch(() => {
+
+        // If error move to dataset list
+        this.loadingHide();
         this.close();
-      }
-
-    }).catch(() => {
-
-      // If error move to d
+      });
+    } else {
+      // If error move to dataset list
       this.loadingHide();
       this.close();
-    });
+    }
   }
 
   /** go to previous step */
@@ -441,7 +452,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
           if(dsFile.fileFormat === FileFormat.EXCEL){
             dsFile.sheetInfo.forEach((sheet)=>{
               if (sheet.selected){
-                let name = `${dsFile.fileName} - ${sheet.sheetName} (${dsFile.fileFormat.toString()})`;
+                let name = `${dsFile.fileName} - ${sheet.sheetName}`;
                 this.names.push(name.slice(0,150));
                 this.descriptions.push('');
                 this.nameErrors.push('');
@@ -451,7 +462,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
             })
           } else {
             if(dsFile.selected){
-              let name = `${dsFile.fileName} (${dsFile.fileFormat.toString()})`;
+              let name = `${dsFile.fileName}.${dsFile.fileFormat.toString().toLowerCase()}`;
               this.names.push(name.slice(0,150));
               this.descriptions.push('');
               this.nameErrors.push('');
@@ -472,7 +483,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
       // When table
       if (this.datasetJdbc.rsType === RsType.TABLE) {
-        this.names[0] = this.datasetJdbc.tableInfo.tableName +' ('+this.datasetJdbc.dataconnection.connection.implementor+')';
+        this.names[0] = `${this.datasetJdbc.tableInfo.tableName}_${this.datasetJdbc.dataconnection.connection.implementor}`;
       }
 
       // When query
@@ -482,7 +493,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
       // When table
       if (this.datasetHive.rsType === RsType.TABLE) {
-        this.names[0] = `${this.datasetHive.tableInfo.tableName} (STAGING)`;
+        this.names[0] = `${this.datasetHive.tableInfo.tableName}_STAGING`;
       }
 
       // When query

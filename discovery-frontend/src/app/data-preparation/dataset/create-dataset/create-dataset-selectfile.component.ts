@@ -20,18 +20,16 @@ import { AbstractPopupComponent } from '../../../common/component/abstract-popup
 import { PopupService } from '../../../common/service/popup.service';
 import { CommonConstant } from '../../../common/constant/common.constant';
 import { CookieConstant } from '../../../common/constant/cookie.constant';
-//import { DatasetFile } from '../../../domain/data-preparation/dataset';
 import { PrDatasetFile,StorageType,FileFormat } from '../../../domain/data-preparation/pr-dataset';
-import { Alert } from '../../../common/util/alert.util';
 import { isUndefined } from 'util';
 import { DatasetService } from "../service/dataset.service";
-//import {ConfirmModalComponent} from "../../../common/component/modal/confirm/confirm.component";
-
 import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';
 import {Modal} from '../../../common/domain/modal';
 import {PreparationCommonUtil} from "../../util/preparation-common.util";
 
 declare let plupload: any;
+
+import * as _ from 'lodash';
 
 export class UploadNegotitationParameters {
   public limit_size:number = 0;
@@ -101,6 +99,8 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   public unsupportedFileCount : number = 0;
   public unsupportedFileView : boolean = false;
   public isNext : boolean = false;
+
+  public commonUtil = PreparationCommonUtil;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -711,8 +711,14 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
         datasetFile.filenameBeforeUpload = this.upFiles[i].name;
         datasetFile.storedUri = this.upFiles[i].storedUri;
         datasetFile.storageType = this._getStorageType(this.fileLocation);
-        datasetFile.fileFormat = this._getFileformat(this.upFiles[i].fileExtension);
-        if( datasetFile.fileFormat === FileFormat.CSV || datasetFile.fileFormat === FileFormat.EXCEL ) datasetFile.delimiter = ',';
+        datasetFile.fileFormat = this._getFileFormat(this.upFiles[i].fileExtension);
+
+        // Delimiter is , when fileFormat is csv or excel or txt
+        const formatWithCommaDel = ['CSV','EXCEL', 'TXT'];
+        if(-1 !== formatWithCommaDel.indexOf(datasetFile.fileFormat.toString())) {
+          datasetFile.delimiter = ',';
+        }
+
         datasetFile.fileName = this.upFiles[i].fileName;
         datasetFile.fileExtension = this.upFiles[i].fileExtension;
 
@@ -846,14 +852,31 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
     return StorageType.LOCAL;
   }
 
-  private _getFileformat(fileExtension) {
+
+  /**
+   * Returns appropriate file format for each extension
+   * Extensions : CSV, TXT, JSON, XLSX, XLS
+   * @param fileExtension
+   * @returns {FileFormat}
+   * @private
+   */
+  private _getFileFormat(fileExtension) {
     let fileType : string = fileExtension.toUpperCase();
-    if (fileType === 'CSV' || fileType === 'TXT'){
-      return FileFormat.CSV;
-    } else if (fileType === 'XLSX' || fileType === 'XLS'){
-      return FileFormat.EXCEL
-    } else if (fileType === 'JSON'){
-      return FileFormat.JSON
+
+    const formats = [
+      {extension:'CSV', fileFormat:FileFormat.CSV},
+      {extension:'TXT', fileFormat:FileFormat.TXT},
+      {extension:'JSON', fileFormat:FileFormat.JSON},
+      {extension:'XLSX', fileFormat:FileFormat.EXCEL},
+      {extension:'XLS', fileFormat:FileFormat.EXCEL},
+    ];
+
+    const idx = _.findIndex(formats, {extension: fileType});
+
+    if (idx !== -1) {
+      return formats[idx].fileFormat
+    } else {
+      return formats[0].fileFormat
     }
   }
 }
