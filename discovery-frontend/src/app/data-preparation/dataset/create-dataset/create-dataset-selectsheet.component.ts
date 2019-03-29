@@ -70,10 +70,10 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   public currDelimiter : string = '';
   public currSheetIndex : number = 0;
   public currDSIndex: number = 0;
-  public currDetail : any;
+  public currDetail : {fileFormat: FileFormat, detailName: string, columns: number} ;
   public currColumnCount: number;
 
-  public previewErrorMsg : string;
+  public previewErrorMsg : string = '';
 
   public fileFormat = FileFormat;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -95,19 +95,17 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
     super.ngOnInit();
 
-    this.currDSIndex = 0;
-    this.currSheetIndex = 0;
-    this.currDetail = {fileFormat: null, detailName: null, columns: null, rows: null};
-    this.previewErrorMsg = '';
+    this.currDetail = {fileFormat: null, detailName: null, columns: null};
 
     // Check init by selected count
     this._checkNextBtn();
     this._isInit = !this.isNext;
 
+    // isCSV, isJSON, isJSON 여부 체크
     this._setFileFormat(this.datasetFiles[this.currDSIndex].fileFormat);
-    this.settingFoldFlag = false;
 
-    if(this._isInit){
+    // 처음인지 ?
+    if (this._isInit) {
       this.datasetFiles.forEach((dsFile, index) => {
         this.datasetFiles[index].sheetIndex = null;
         this.datasetFiles[index].sheetName = '';
@@ -115,24 +113,36 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
         this.datasetFiles[index].selected = false;
 
         if(index === 0) {
-          this.currDelimiter = ( this.datasetFiles[index].fileFormat === FileFormat.CSV ? ',' : '');
+          this.currDelimiter = (this.isCSV ? ',' : '');
         }
-        let option: string = ( index === 0 ? 'draw' : '');
 
-        this._getGridInformation(index, this._getParamForGrid(dsFile), option);
+        // FIXME : UI에서 각자 따로 오는 response를 어떻게 처리할지
+        this._getGridInformation(index, this._getParamForGrid(dsFile), index === 0 ? 'draw' : '');
       });
-    } else {
 
-      if(this.datasetFiles[this.currDSIndex].sheetInfo){
+    } else { // 뒤로가기해서 다시 돌아왔을떄
+
+      // 뒤로가기해서 다시 돌아왔을떄 현재 인덱스 정보로 그리드 그림
+      if (this.datasetFiles[this.currDSIndex].sheetInfo) {
         this._updateGrid(this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].data, this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].fields);
       } else {
         this.clearGrid = true;
       }
-      this.currDelimiter = ( this.datasetFiles[this.currDSIndex].fileFormat === FileFormat.CSV ? this.datasetFiles[this.currDSIndex].delimiter : '');
+
+
+      // JSON이 아닌경우 delimiter 설정
+      this.currDelimiter = !this.isJSON ? this.datasetFiles[this.currDSIndex].delimiter : '';
+
+      // 컬럼 카운트 설정
       this.currColumnCount = ( this.datasetFiles[this.currDSIndex].sheetInfo ? this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount : 0 );
 
-      this.previewErrorMsg = (this.datasetFiles[this.currDSIndex].error? this.datasetFiles[this.currDSIndex].error.details : '');
-      this._setDetailInfomation(this.currDSIndex, this.currSheetIndex);
+      // Error message 있으면 보여준다.
+      this.previewErrorMsg = (this.datasetFiles[this.currDSIndex].error? this.translateService.instant(this.datasetFiles[this.currDSIndex].error.message) : '');
+
+      // 상세 정보 설정
+      this._setDetailInformation(this.currDSIndex, this.currSheetIndex);
+
+      // 다음 버튼 활성화 여부 확인
       this._checkNextBtn();
     }
   }
@@ -162,6 +172,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     });
   }
 
+
   /**
    * Previous step
    */
@@ -172,6 +183,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       data: null
     });
   }
+
 
   /**
    * Move to next step
@@ -197,27 +209,35 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
   }
 
+
+  /**
+   * Advanced setting toggle
+   * @returns {boolean}
+   */
   public settingFold(){
     this.settingFoldFlag = !this.settingFoldFlag;
     return this.settingFoldFlag;
   }
 
+
   /**
    * When delimiter is changed(only CSV)
    */
   public changeDelimiter() {
-    this.isDelimiterRequired = ('' === this.currDelimiter && this.datasetFiles[this.currDSIndex].fileFormat === FileFormat.CSV);
+    this.isDelimiterRequired = ('' === this.currDelimiter && this.isCSV);
 
     // No change in grid when delimiter is empty
-    if (isNullOrUndefined(this.currDelimiter) || '' === this.currDelimiter || this.datasetFiles[this.currDSIndex].fileFormat != FileFormat.CSV) {
+    if ('' === this.currDelimiter.trim() || isNullOrUndefined(this.currDelimiter) || this.isJSON || this.isEXCEL) {
       return;
     }
-    if( this.datasetFiles[this.currDSIndex].delimiter !=  this.currDelimiter ){
+
+    if( this.datasetFiles[this.currDSIndex].delimiter !==  this.currDelimiter ){
       this.datasetFiles[this.currDSIndex].delimiter =  this.currDelimiter;
       this.loadingShow();
       this._getGridInformation(this.currDSIndex, this._getParamForGrid(this.datasetFiles[this.currDSIndex]),'draw');
     }
   }
+
 
   /**
    * When columnCount is changed(CSV, EXCEL)
@@ -236,16 +256,22 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     }
   }
 
+
+  /**
+   * Returns grid style
+   * @returns {{top: string}}
+   */
   public getGridStyle() {
     return {'top':'45px'};
   }
 
+
   /**
    * When Datafile Checked
    * @param event
-   * @param dataFileIndex
+   * @param DsIdx
    */
-  public checkGroup(evnet: Event, DsIdx: number){
+  public checkGroup(event: Event, DsIdx: number){
     //stop event bubbling
     event.stopPropagation();
     event.preventDefault();
@@ -260,11 +286,13 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     this.datasetFiles[DsIdx].selected = !this.datasetFiles[DsIdx].selected;
     this._checkNextBtn();
   }
+
+
   /**
    * When Sheet Checked
    * @param event
-   * @param dataFileIndex
-   * @param sheetIndex
+   * @param DsIdx
+   * @param sheetIdx
    */
   public checkSheet(event:Event, DsIdx: number, sheetIdx: number){
     //stop event bubbling
@@ -286,8 +314,11 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     this.safelyDetectChanges();
   }
 
+
   /**
    * Select datasetFile and show grid
+   * @param {Event} event
+   * @param {number} dsIdx
    */
   public selectFile(event: Event, dsIdx: number){
     // stop event bubbling
@@ -305,7 +336,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       this.currDSIndex = dsIdx;
       this.currSheetIndex = 0;
 
-      this._setDetailInfomation(dsIdx, 0);
+      this._setDetailInformation(dsIdx, 0);
 
       this.currDelimiter = this.datasetFiles[dsIdx].delimiter;
 
@@ -329,12 +360,13 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     }
   }
 
+
   /**
    * Select sheet and show grid
    * @param event
-   * @param datasetFileIndex
+   * @param dsIdx
    * @param sheetName
-   * @param sheetIndex
+   * @param sheetIdx
    */
   public selectSheet(event: Event, dsIdx: number,sheetName: string, sheetIdx: number) {
     // stop event bubbling
@@ -357,7 +389,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       return;
     }
 
-    this._setDetailInfomation(dsIdx, sheetIdx);
+    this._setDetailInformation(dsIdx, sheetIdx);
 
     this.currSheetIndex = sheetIdx;
     this.datasetFiles[dsIdx].sheetIndex = sheetIdx;
@@ -371,7 +403,13 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     }
   }
 
-  public keydownEvent(event: any, type: string) {
+
+  /**
+   * keyDownEvent event on input
+   * @param event
+   * @param {string} type
+   */
+  public keyDownEvent(event: any, type: string) {
     // 13 is enter key
     if (event.keyCode === 13 ) {
 
@@ -412,6 +450,8 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     }
   }
 
+
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -427,11 +467,17 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   }
 
 
+  /**
+   * TXT, CSV --> isCSV, JSON --> isJSON, EXCEL --> isEXCEL
+   * @param {FileFormat} fileFormat
+   * @private
+   */
   private _setFileFormat(fileFormat : FileFormat){
     this.isCSV = (fileFormat === FileFormat.CSV) || fileFormat === FileFormat.TXT;
     this.isJSON = (fileFormat === FileFormat.JSON);
     this.isEXCEL = (fileFormat === FileFormat.EXCEL);
   }
+
 
   /**
    * Returns parameter required for grid fetching API
@@ -442,12 +488,19 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     const result = {
       storedUri : datasetFile.storedUri,
     };
-    if (datasetFile.fileFormat === FileFormat.CSV) result['delimiter'] = datasetFile.delimiter;
+    if (datasetFile.fileFormat === FileFormat.CSV || datasetFile.fileFormat === FileFormat.TXT) result['delimiter'] = datasetFile.delimiter;
     if (manualColumnCount && manualColumnCount > 0) result['manualColumnCount'] = manualColumnCount;
 
     return result;
   }
 
+  /**
+   * Fetch grid information from server
+   * @param {number} idx
+   * @param param
+   * @param {string} option
+   * @private
+   */
   private _getGridInformation(idx: number, param : any, option: string ) {
     this.loadingShow();
 
@@ -477,6 +530,10 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
         if( option && option === 'draw') this.clearGrid = true;
 
       }
+
+      // 다음 버튼 활성화 여부 확인
+      this._checkNextBtn();
+
       this.loadingHide();
 
     }).catch((error) => {
@@ -495,6 +552,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     });
   }
 
+
   /**
    * Grid update
    * @param data
@@ -512,6 +570,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     }
   }
 
+
   /**
    * Draw grid
    * @param {any[]} headers
@@ -527,6 +586,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     );
     this.loadingHide();
   }
+
 
   /**
    * Returns header information for grid
@@ -572,9 +632,12 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     );
   }
 
+
   /**
    * Set sheet information - name, grid etc
+   * @param idx
    * @param gridInfo
+   * @param sheetNames
    * @private
    */
   private _setSheetInformation(idx: number, gridInfo: any, sheetNames: string[]) {
@@ -596,7 +659,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
         this.datasetFiles[idx].sheetInfo.push(info);
 
-        if ( this.currDSIndex === 0 ) this._setDetailInfomation(0, 0);
+        if ( this.currDSIndex === 0 ) this._setDetailInformation(0, 0);
 
       });
 
@@ -607,6 +670,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       this.isNext = true;
     }
   }
+
 
   /**
    * API 조회 결과를 바탕으로 그리드 데이터 구조를 얻는다.
@@ -641,11 +705,12 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     return gridData;
   } // function - _getGridDataFromGridResponse
 
+
   /**
    * Detail Information of Selected Sheet
    * @private
    */
-  private _setDetailInfomation(dsIdx:number, sheetIdx?:number){
+  private _setDetailInformation(dsIdx:number, sheetIdx?:number){
 
     if (this.datasetFiles[dsIdx].fileFormat === FileFormat.EXCEL) {
       this.currDetail.detailName = this.datasetFiles[dsIdx].fileName;
@@ -655,8 +720,8 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     }
     this.currDetail.fileFormat = this.datasetFiles[dsIdx].fileFormat;
     this.currDetail.columns = ( (this.datasetFiles[dsIdx].sheetInfo)?this.datasetFiles[dsIdx].sheetInfo[sheetIdx].fields.length : null );
-    this.currDetail.rows = ( (this.datasetFiles[dsIdx].sheetInfo)?this.datasetFiles[dsIdx].sheetInfo[sheetIdx].totalRows : null );
   }
+
 
   /**
    * Check Next Button
@@ -672,6 +737,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     });
     this.isNext = (selectedCount > 0);
   }
+
 
   /**
    * Go to next stage with enter key
