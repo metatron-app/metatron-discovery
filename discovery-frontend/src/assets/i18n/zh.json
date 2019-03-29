@@ -389,6 +389,7 @@
   "msg.space.th.allowance": "仅查看公开数据",
   "msg.space.th.server": "服务器",
   "msg.space.create.notebook.title": "请选择数据类型",
+  "msg.space.ui.list.search.placeholder" : "請搜索服務器名稱",
 
   "msg.alert.retrieve.fail": "查询失败",
   "msg.alert.del.success": "~已删除",

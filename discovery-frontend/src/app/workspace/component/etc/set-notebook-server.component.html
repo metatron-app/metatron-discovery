@@ -55,7 +55,7 @@
             <!-- 검색 -->
             <div class="ddp-form-search" *ngIf="selectedTab === 'jupyter'">
               <em class="ddp-icon-search"></em>
-              <input type="text" placeholder="Search by sever name"
+              <input type="text" placeholder="{{'msg.space.ui.list.search.placeholder' | translate}}"
                      [(ngModel)]="searchJupyter"
                      (keyup.enter)="searchEvent('jupyter')" (keyup.esc)="searchJupyter=''; searchEvent('jupyter')">
               <em class="ddp-btn-search-close" *ngIf="searchJupyter !== ''"
@@ -63,7 +63,7 @@
             </div>
             <div class="ddp-form-search" *ngIf="selectedTab === 'zeppelin'">
               <em class="ddp-icon-search"></em>
-              <input type="text" placeholder="Search by sever name"
+              <input type="text" placeholder="{{'msg.space.ui.list.search.placeholder' | translate}}"
                      [(ngModel)]="searchZeppelin"
                      (keyup.enter)="searchEvent('zeppelin')" (keyup.esc)="searchZeppelin=''; searchEvent('zeppelin')">
               <em class="ddp-btn-search-close"  *ngIf="searchZeppelin !== ''"
