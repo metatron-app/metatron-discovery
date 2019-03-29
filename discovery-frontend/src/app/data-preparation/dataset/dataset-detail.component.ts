@@ -496,7 +496,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     } else if (dataset.importType === 'STAGING_DB' || dataset.importType === 'DATABASE') {
 
       this.datasetInformationList = [
-        { name : this.translateService.instant('msg.comm.th.type') , value : dataset.importType === 'STAGING_DB' ? 'STAGING_DB' : 'DB' }];
+        { name : this.translateService.instant('msg.comm.th.type') , value : dataset.importType === 'STAGING_DB' ? 'STAGING_DB' : `DB(${PreparationCommonUtil.getNameForSvgWithDataset(dataset)})` }];
 
       if (!isNullOrUndefined(this.getDatabase)) {
         this.datasetInformationList.push({ name : `${this.translateService.instant('msg.dp.th.database')}`, value : `${this.getDatabase}` });

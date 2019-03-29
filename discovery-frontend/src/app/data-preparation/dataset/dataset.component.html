@@ -115,12 +115,8 @@
         <td>
           <span class="ddp-data-source" *ngIf="item.dsType.toString() === 'IMPORTED'">
             <span>
-              <!--
-              <em [ngClass]="{HIVE:'ddp-icon-dbdata2', DB:'ddp-icon-db-s', 'FILE':'ddp-icon-file'}[item.importType.toString()]" ></em>
-              -->
-              <!-- FIXME: need to append classes URI,DRUID -->
-              <em [ngClass]="{ STAGING_DB:'ddp-icon-dbdata2', DATABASE:'ddp-icon-db-s', UPLOAD:'ddp-icon-file', URI:'', DRUID:'' }[item.importType]" ></em>
-              {{prepCommonUtil.getImportType(item.importType)}}
+              <svg-icon-component [name]="prepCommonUtil.getNameForSvgWithDataset(item)" [isBlackAndWhite]="true"></svg-icon-component>
+               {{prepCommonUtil.getImportType(item.importType)}}
               </span>
             </span>
           <span class="ddp-data-source" *ngIf="item.dsType.toString() === 'WRANGLED'">

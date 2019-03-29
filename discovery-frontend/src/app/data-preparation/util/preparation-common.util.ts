@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {FileFormat, ImportType} from '../../domain/data-preparation/pr-dataset';
+import {FileFormat, ImportType, PrDataset} from '../../domain/data-preparation/pr-dataset';
 import { SsType } from '../../domain/data-preparation/pr-snapshot';
 import {isNullOrUndefined} from "util";
 import * as _ from "lodash";
@@ -599,5 +599,28 @@ export class PreparationCommonUtil {
     } else {
       return formats[0].fileFormat
     }
+  }
+
+
+  /**
+   * Find name to get svg icon, Also used in dataset detail to show type
+   * HIVE, MYSQL, POSTGRESQL, PRESTO, TIBERO, ORACLE
+   * EXCEL, CSV, JSON, TXT
+   * @param {PrDataset} ds
+   * @returns {string}
+   */
+  public static getNameForSvgWithDataset(ds: PrDataset) {
+
+    let name = '';
+    if (ds.importType === ImportType.UPLOAD || ds.importType === ImportType.URI) {
+      name = ds.fileFormat.toString();
+    } else if (ds.importType === ImportType.DATABASE) {
+      name = ds['dcImplementor'];
+    } else if (ds.importType === ImportType.STAGING_DB) {
+      return 'HIVE'
+    } else if (ds.importType === ImportType.DRUID) {
+      name = 'DRUID'
+    }
+    return name;
   }
 }
