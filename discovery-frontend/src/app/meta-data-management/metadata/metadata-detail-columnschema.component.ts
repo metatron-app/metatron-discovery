@@ -278,6 +278,11 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
    * @param {number} index
    */
   public onShowLogicalTypeList(column: MetadataColumn, index: number): void {
+
+    if (!this.isLogicalTypesLayerActivation(column)) {
+      return;
+    }
+
     // 컬럼 사전이 정해져있지 않을때
     if (!this.isSelectedDictionary(column)) {
       // show flag
@@ -456,6 +461,10 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
       }
     }
     this.columnList = _.orderBy(this.columnList, this.selectedContentSort.key, 'asc' === this.selectedContentSort.sort ? 'asc' : 'desc');
+  }
+
+  public isLogicalTypesLayerActivation(column: MetadataColumn) {
+    return column.type !== LogicalType.GEO_LINE && column.type !== LogicalType.GEO_POINT && column.type !== LogicalType.GEO_LINE;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

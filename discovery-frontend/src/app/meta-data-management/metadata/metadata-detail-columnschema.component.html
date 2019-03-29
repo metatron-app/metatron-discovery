@@ -211,7 +211,7 @@
                 <span class="ddp-link-text ddp-txt-icon">
                   <em class="{{getFieldTypeIconClass(column.type)}}"></em>
                   {{getSelectedLogicalTypeLabel(column)}}
-                  <span class="ddp-wrap-icons"></span>
+                  <span class="ddp-wrap-icons" *ngIf="isLogicalTypesLayerActivation(column)"></span>
                 </span>
             <div class="ddp-wrap-popup2 ddp-types ddp-scroll-none ddp-pop-fix" #logicalTypeList>
               <ul class="ddp-list-popup">
