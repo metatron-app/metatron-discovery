@@ -415,8 +415,8 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
           // set default format
           result['format'] = {
             format: 'yyyy-MM-dd HH:mm:ss',
-            timeZone: this._timezoneService.browserTimezone.momentName,
-            locale: this._timezoneService.browserLocal,
+            timeZone: this._timezoneService.getBrowserTimezone().momentName,
+            locale: this._timezoneService.browserLocale,
             type: FieldFormatType.DATE_TIME
           };
         }

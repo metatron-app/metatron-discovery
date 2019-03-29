@@ -575,8 +575,8 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
                   field.isValidTimeFormat = true;
                   // if enable timezone, set browser timezone at field
                   if (this._timezoneService.isEnableTimezoneInDateFormat(field.format)) {
-                    !field.format.timeZone && (field.format.timeZone = this._timezoneService.browserTimezone.momentName);
-                    field.format.locale = this._timezoneService.browserLocal;
+                    !field.format.timeZone && (field.format.timeZone = this._timezoneService.getBrowserTimezone().momentName);
+                    field.format.locale = this._timezoneService.browserLocale;
                   } else { // if not enable timezone
                     field.format.timeZone = TimezoneService.DISABLE_TIMEZONE_KEY;
                   }
@@ -754,8 +754,8 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
           field.isValidTimeFormat = true;
           // if enable timezone, set browser timezone at field
           if (this._timezoneService.isEnableTimezoneInDateFormat(field.format)) {
-            !field.format.timeZone && (field.format.timeZone = this._timezoneService.browserTimezone.momentName);
-            field.format.locale = this._timezoneService.browserLocal;
+            !field.format.timeZone && (field.format.timeZone = this._timezoneService.getBrowserTimezone().momentName);
+            field.format.locale = this._timezoneService.browserLocale;
           } else { // if not enable timezone
             field.format.timeZone = TimezoneService.DISABLE_TIMEZONE_KEY;
           }
