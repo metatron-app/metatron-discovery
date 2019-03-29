@@ -24,6 +24,7 @@ import {DeleteModalComponent} from '../../../common/component/modal/delete/delet
 import {Modal} from '../../../common/domain/modal';
 import {PreparationCommonUtil} from "../../util/preparation-common.util";
 import * as _ from 'lodash';
+import {Alert} from "../../../common/util/alert.util";
 
 declare let plupload: any;
 
@@ -370,6 +371,10 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
               break;
             case -200:
               console.log('HTTP_ERROR', err);
+              if (err.response) {
+                const res = JSON.parse(err.response);
+                Alert.error(this.translateService.instant(res.message));
+              }
               break;
             case -300:
               console.log('IO_ERROR', err);
@@ -599,6 +604,10 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
               break;
             case -200:
               console.log('HTTP_ERROR', err);
+              if (err.response) {
+                const res = JSON.parse(err.response);
+                Alert.error(this.translateService.instant(res.message));
+              }
               break;
             case -300:
               console.log('IO_ERROR', err);

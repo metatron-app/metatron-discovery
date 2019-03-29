@@ -486,7 +486,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       this.datasetFiles[idx].error = error;
 
       if(this._isInit && idx === 0){
-        this.previewErrorMsg = this.datasetFiles[0].error.details;
+        this.previewErrorMsg = this.translateService.instant(this.datasetFiles[0].error.message);
       }
 
       if( option && option === 'draw') this.clearGrid = true;
