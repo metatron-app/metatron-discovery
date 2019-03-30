@@ -25,6 +25,7 @@ import { PopupService } from '../../common/service/popup.service';
 import { SubscribeArg } from '../../common/domain/subscribe-arg';
 import { Subscription } from 'rxjs/Subscription';
 import {isNullOrUndefined} from "util";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'long-update-popup',
@@ -38,12 +39,20 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
   @ViewChild('inputSearch')
   private _inputSearch: ElementRef;
 
-  public swappingDatasetId : string;
-
   private popupSubscription: Subscription;
 
   private firstLoadCompleted: boolean = false;
 
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Public - ViewChild
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @ViewChild(RadioSelectDatasetComponent)
+  public radioSelectDatasetComponent : RadioSelectDatasetComponent;
+
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Public - Output Variables
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @Output()
   public closeEvent = new EventEmitter();
 
@@ -54,6 +63,9 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
   public addEvent = new EventEmitter();
 
 
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Public - Input Variables
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @Input()
   public dataflowId : string; // 현재 데이터플로우 아이디
 
@@ -63,51 +75,33 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
   @Input()
   public popType : string = '';
 
-  public title : string;
-  public layoutType: string ='ADD'; // 새로운 데이터셋 추가 ADD, 기존 데이터셋 치환 SWAP
-
   @Input()
-  //public originalDatasetList: Dataset[] = []; // 현재 데이터플로우에 추가되어 있는 모든 데이터셋 정보
   public originalDatasetList: PrDataset[] = []; // 현재 데이터플로우에 추가되어 있는 모든 데이터셋 정보
-
 
   @Input()
   public selectedDatasetId : string; // 미리보기를 위해 화면에 선택된 데이터셋
-  public originalDatasetId : string;
-  public datasets: PrDataset[] = []; // 화면에 보여지는 데이터셋 리스트 imported 만 빼서 저장하자
 
-
-  // public clonedOriginalDatasetList : any [] = []; // 현재 데이터플로우에 추가되어있는 imported datasets
-  public isCheckAllDisabled : boolean = false;
-  public selectedDatasets : PrDataset[]; // 선택된 데이터셋 리스트
-
-
-  @ViewChild(RadioSelectDatasetComponent)
-  public radioSelectDatasetComponent : RadioSelectDatasetComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public originalDatasetId : string; // 이미 데이터플로우에 추가된 데이터셋
+  public datasets: PrDataset[] = []; // 화면에 보여지는 리스트
+
+  public swappingDatasetId : string;
+  public title : string;
+  public layoutType: string ='ADD'; // 새로운 데이터셋 추가 ADD, 기존 데이터셋 치환 SWAP
+
+  public selectedDatasets : PrDataset[]; // 선택된 데이터셋 리스트
+
   // 정렬
   public selectedContentSort: Order = new Order();
-  public isCheckAll: boolean = false;
   public searchText: string = '';
   public searchType: string = 'IMPORTED';
   public isShow : boolean = false;
 
   // popup status
   public step: string;
-
-  get countSelected() {
-
-    return this.datasets.filter((obj) => {
-      return obj.selected
-    }).length ;
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public - Input Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -160,7 +154,8 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
     } else if(this.popType == 'wrangled') {
       this.title = this.translateService.instant('msg.dp.ui.change.input.dataset');
     }
-    this.init();
+
+    this._initViewPage();
   }
 
   // Destroy
@@ -180,14 +175,6 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
     this.datasets = [];
     this.page.page = 0;
   } // function - close
-
-
-  /**
-   * 화면 초기화
-   */
-  public init() {
-    this._initViewPage();
-  } // function - init
 
   /**
    * 다음 단계로 이동
@@ -232,13 +219,6 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
 
     // 상세정보 화면 초기화
     this.selectedDatasetId = '';
-
-    // 선택된 checkbox  항목 초기화
-    this.selectedDatasets = [];
-
-    // 선택된 radio 항목 초기화
-    this.swappingDatasetId = '';
-    // this.firstLoadCompleted = false;
 
     // 데이터소스 리스트 조회
     this.getDatasets();
@@ -304,38 +284,20 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
 
         if(this.layoutType == 'ADD') {
 
-          const dslist = this.originalDatasetList.map((ds) => {return ds.dsId;});
           // 데이터플로우에 이미 추가된 데이터셋이라면 selected, origin 을 true 로 준다.
           this.datasets.forEach((item) => {
-            if (dslist.indexOf(item.dsId) > -1) {
-              // item.selected = true;
-              item.origin = true;
-            }
+            item.origin = _.findIndex(this.originalDatasetList, {dsId: item.dsId}) > -1;
+            const idx = _.findIndex(this.selectedDatasets, {dsId: item.dsId});
+            item.selected = idx > -1;
           });
 
-          this.isCheckAllDisabled = this.datasets.every((item) => {
-            return item.origin
-          });
-
-          if (0 !== this.datasets.length) {  // 데이터셋이 하나라도 있을때
-            const allTicked = this.datasets.filter((data) => {
-              return data.selected;
-            }).length;
-            this.datasets.length === allTicked ? this.isCheckAll = true : this.isCheckAll = false;
-          }
         }
 
         if (this.layoutType == 'SWAP') {
           // 데이터 플로우에 이미 추가된 데이터셋이라면 selected, origin 을 true 로 준다.
           this.datasets.forEach((item) => {
-            if (item.dsId === this.selectedDatasetId ) {
-              // 데이터플로우에서 선택된 데이터셋이면 origin = true, selected = true;
-              item.selected = true;
-              item.origin = true;
-            } else{
-              item.selected = false;
-              item.origin = false;
-            }
+            item.selected = item.dsId === this.selectedDatasetId;
+            item.origin = item.dsId === this.selectedDatasetId;
           });
 
           // SWAP (radio button) mode : radio button 이 check 되지 않은 상태에서 부모화면에서 선택한 데이터셋이 load 된 경우, 이 항목의 radio button 을 check 한다
@@ -359,40 +321,52 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
       PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
     });
   } // function - getDatasets
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   /**
-   * Init
-   * @private
+   * 전체 체크 인지 확인
    */
-  private _initViewPage() {
-    // 검색어 초기화
-    this.searchText  = '';
+  public isAllChecked(): boolean {
 
-    // 선택된 checkbox  항목 초기화
-    this.selectedDatasets = [];
+    if (this.isCheckAllDisabled()) {
+      return;
+    }
 
-    // radio all check false
-    this.isCheckAll = false;
+    const listWithNoOrigin = this.datasets.filter((item) => {
+      return !item.origin
+    });
+    if (listWithNoOrigin.length !== 0) {
+      for (let index = 0; index < listWithNoOrigin.length; index++) {
+        if (_.findIndex(this.selectedDatasets, {dsId: listWithNoOrigin[index].dsId}) === -1) {
+          return false;
+        }
+      }
+      return true;
+    } else {
+      // 조회된 멤버 목록이 없다면 false
+      return false;
+    }
+  }
 
-    // 정렬
-    this.selectedContentSort = new Order();
-    this.selectedContentSort.key = 'modifiedTime';
-    this.selectedContentSort.sort = 'desc';
 
-    // page 설정
-    this.page.page = 0;
-    this.page.size = 15;
-    this.page.sort = this.selectedContentSort.key + ',' + this.selectedContentSort.sort;
+  /**
+   * 전체 체크 박스가 비활성화 인지 확인
+   */
+  public isCheckAllDisabled(): boolean {
+    return this.datasets.length === 0;
+  }
 
-    this.getDatasets();
-  } // function - initViewPage
 
+  /**
+   * 더보기 버튼 클릭
+   */
+  public getMoreList() {
+    // 더 보여줄 데이터가 있다면
+    if (this.page.page < this.pageResult.totalPages) {
+      // 데이터셋 조회
+      this.getDatasets();
+    }
+  }
 
 
   /**
@@ -401,15 +375,8 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
    */
   public changeOrder(column: string) {
 
-    // 선택된 radio 항목 초기화
-    this.swappingDatasetId = '';
-    // this.firstLoadCompleted = false;
-
     // 상세화면 초기화(close)
     this.selectedDatasetId = '';
-    // checkbox 선택 항목 초기화
-    this.selectedDatasets = [];
-
 
     // page sort 초기화
     this.selectedContentSort.sort = this.selectedContentSort.key !== column ? 'default' : this.selectedContentSort.sort;
@@ -438,8 +405,9 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
 
     this.getDatasets();
 
-    // this.sortEvent.emit(this.page);
   } // function - changeOrder
+
+
 
   /**
    * 데이터 셋 선택
@@ -456,6 +424,7 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
     }
   } // function - selectDataset
 
+
   /**
    *  라디오 버튼 선택
    */
@@ -464,75 +433,120 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
     this.swappingDatasetId = item.dsId;
   } // function - check
 
+
+
   /**
    * 체크박스 전체 선택
    */
   public checkAll() {
 
-    const currentCheck: boolean = this.isCheckAll;
-    this.isCheckAll = !currentCheck;
+    this.isAllChecked() ? this._deleteAllItems() : this._addAllItems();
 
-    this.datasets = this.datasets.map((obj) => {
-      if(obj.origin == true) {
-        obj.selected = false; //  obj.selected = true or false
-      }else{
-        obj.selected = this.isCheckAll; //  obj.selected = true or false
-      }
-      return obj;
-    });
+  }
 
-    this.selectedDatasets = [];
-    if(this.datasets !== null && this.datasets !== undefined) {
-      for(let i: number =0; i < this.datasets.length; i = i + 1) {
-        if(this.datasets[i].hasOwnProperty('selected') && this.datasets[i]['selected'] == true) {
-          this.selectedDatasets.push(this.datasets[i]);
-        }
-      }
-    }
-  } // function - checkAll
 
   /**
    * 체크박스 선택
    */
-  public check(event,item) {
+  public check(ds: PrDataset) {
+
+    // 중복 체크 방지
     event.stopImmediatePropagation();
 
-    if (item.origin) {
+    // Original dataset cannot be checked
+    if (ds.origin) {
       return;
     }
 
-    item.selected = !item.selected;
-    this.selectedDatasets = [];
-    let originDatasetsCount: number = 0;
-
-    if(this.datasets !== null && this.datasets !== undefined) {
-      for(let i: number =0; i < this.datasets.length; i = i + 1) {
-        if(this.datasets[i].hasOwnProperty('origin') && this.datasets[i]['origin'] == true) {
-          originDatasetsCount ++;
-        }else if(this.datasets[i].hasOwnProperty('selected') && this.datasets[i]['selected'] == true) {
-          this.selectedDatasets.push(this.datasets[i]);
-        }
-      }
-    }
-
-    const num = this.datasets.filter((data) => {
-      return data.selected;
-    }).length;
-
-    this.datasets.length === (num + originDatasetsCount) ? this.isCheckAll = true : this.isCheckAll = false;
+    ds.selected = !ds.selected;
+    -1 === _.findIndex(this.selectedDatasets, {dsId: ds.dsId}) ?
+      this._addSelectedItem(ds) : this._deleteSelectedItem(ds);
 
   } // function - check
 
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Private Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-   * 더보기 버튼 클릭
+   * Init
+   * @private
    */
-  public getMoreList() {
-    // 더 보여줄 데이터가 있다면
-    if (this.page.page < this.pageResult.totalPages) {
-      // 데이터셋 조회
-      this.getDatasets();
+  private _initViewPage() {
+
+    // 검색어 초기화
+    this.searchText  = '';
+
+    // 선택된 checkbox 항목 초기화
+    this.selectedDatasets = [];
+
+    // 정렬
+    this.selectedContentSort = new Order();
+    this.selectedContentSort.key = 'modifiedTime';
+    this.selectedContentSort.sort = 'desc';
+
+    // page 설정
+    this.page.page = 0;
+    this.page.size = 15;
+    this.page.sort = this.selectedContentSort.key + ',' + this.selectedContentSort.sort;
+
+    this.getDatasets();
+  } // function - initViewPage
+
+
+
+  /**
+   * Add selected item
+   * @param ds
+   * @private
+   */
+  private _addSelectedItem(ds: PrDataset) {
+    this.selectedDatasets.push(ds);
+  }
+
+
+  /**
+   * Delete selected item
+   * @param ds
+   * @private
+   */
+  private _deleteSelectedItem(ds: PrDataset) {
+    const index = _.findIndex(this.selectedDatasets, {dsId: ds.dsId});
+    if (-1 !== index) {
+      this.selectedDatasets.splice(index,1);
     }
-  } // function - getMoreList
+  }
+
+
+  /**
+   * 모든 아이템 선택 해제
+   * @private
+   */
+  private _deleteAllItems(){
+    this.datasets.forEach((item) => {
+      if (!item.origin && item.selected) {
+        item.selected = false;
+        this._deleteSelectedItem(item);
+      }
+    })
+  }
+
+
+  /**
+   * 모든 아이템 선택
+   * @private
+   */
+  private _addAllItems() {
+    this.datasets.forEach((item) => {
+      if (!item.origin) {
+        item.selected = true;
+        if (-1 === _.findIndex(this.selectedDatasets, {dsId: item.dsId})) {
+          this._addSelectedItem(item);
+        }
+      }
+    })
+
+  }
 
 
 }

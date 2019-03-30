@@ -180,7 +180,9 @@ export class UnionAddDatasetsComponent extends AbstractPopupComponent implements
     this.isCheckAll = !this.isCheckAll;
 
     this.datasets = this.datasets.map((obj) => {
-      obj.selected = this.isCheckAll;
+      if (!obj.origin) { // origin은 unselect 하지 않음
+        obj.selected = this.isCheckAll;
+      }
       return obj;
     });
 
@@ -199,6 +201,11 @@ export class UnionAddDatasetsComponent extends AbstractPopupComponent implements
    * @param item
    */
   public checkEventHandler(item) {
+
+    if (item.origin) { // cant check origin
+      return;
+    }
+
     item.selected = !item.selected;
 
     if (item.selected) {
@@ -389,13 +396,8 @@ export class UnionAddDatasetsComponent extends AbstractPopupComponent implements
 
           if (ds.dataflows.length !== 0) {
             if (ds.dataflows[0].dfId === this.dfId) {
-              if (this.originalDsIds.indexOf(ds.dsId) > -1) {
-                ds.selected = true;
-                ds.origin = true;
-              } else {
-                ds.selected = false;
-                ds.origin = false;
-              }
+              ds.selected = this.originalDsIds.indexOf(ds.dsId) > -1;
+              ds.origin = this.originalDsIds.indexOf(ds.dsId) > -1;
               return ds;
             }
           }
