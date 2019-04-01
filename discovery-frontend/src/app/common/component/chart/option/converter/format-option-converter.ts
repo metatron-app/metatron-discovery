@@ -743,8 +743,13 @@ export class FormatOptionConverter {
 
           let splitData = _.split(uiData.name, CHART_STRING_DELIMITER);
           let name = -1 !== uiData.name.indexOf(CHART_STRING_DELIMITER) ? splitData[splitData.length - 1] : uiData.name;
+
+          // categoryPercent 일 경우 format type 을 number 로 변경 후 호출
+          let formatType = _.cloneDeep(format.type);
+          format.type = 'number';
           let categoryValue = FormatOptionConverter.getTooltipValue(name, pivot.aggregations, format, value);
           categoryValue += '%';
+          format.type = formatType;
 
           result.push(categoryValue);
         }
