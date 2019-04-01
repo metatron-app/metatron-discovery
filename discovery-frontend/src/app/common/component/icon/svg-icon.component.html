@@ -2672,3 +2672,24 @@
                                                 c0,0.2-0.1,0.3-0.3,0.3H5.3C5.1,21,5,20.9,5,20.7V19h14V20.7z M20,12h-2v5h-1v-5h-2v-1h5V12z"></path>
   </g>
 </svg>
+
+
+<svg *ngIf="name === 'WRANGLED'"
+     [attr.class]="getCss()">
+  <defs>
+    <path id="a" d="M0 0h19v19H0z"></path>
+    <path id="c" d="M0 20h20V0H0z"></path>
+  </defs>
+  <g fill="none" fill-rule="evenodd" transform="translate(4)">
+    <g transform="translate(0 1)">
+      <mask id="b" fill="#fff">
+        <use xlink:href="#a"></use>
+      </mask>
+      <path fill="#4A515C" d="M14.5 0a4.5 4.5 0 1 0 .001 9 4.5 4.5 0 0 0 0-9zM6 18h4V9H6v9zm-5 0h4V9H1v9zm14 0h-4V9h.344a5.512 5.512 0 0 1-1.086-.999H5.502 5.5 1v-4h8.025c.031-.345.096-.678.187-1H.5a.5.5 0 0 0-.5.5v15a.5.5 0 0 0 .5.5h15a.5.5 0 0 0 .5-.5V9.787a5.502 5.502 0 0 1-1 .187V18z" mask="url(#b)"></path>
+    </g>
+    <mask id="d" fill="#fff">
+      <use xlink:href="#c"></use>
+    </mask>
+    <path fill="#FFF" d="M13 8h1V4h-1zM14 7h2V6h-2zM15 6h1V4h-1zM14 5h1V4h-1zM16 8h1V7h-1z" mask="url(#d)"></path>
+  </g>
+</svg>

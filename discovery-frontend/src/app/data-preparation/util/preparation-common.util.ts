@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import {FileFormat, ImportType, PrDataset} from '../../domain/data-preparation/pr-dataset';
-import { SsType } from '../../domain/data-preparation/pr-snapshot';
+import {DsType, FileFormat, ImportType, PrDataset} from '../../domain/data-preparation/pr-dataset';
+import {SsType} from '../../domain/data-preparation/pr-snapshot';
 import {isNullOrUndefined} from "util";
 import * as _ from "lodash";
 
@@ -620,6 +620,8 @@ export class PreparationCommonUtil {
       return 'HIVE'
     } else if (ds.importType === ImportType.DRUID) {
       name = 'DRUID'
+    } else if (ds.dsType == DsType.WRANGLED) {
+      name = 'WRANGLED';
     }
     return name;
   }

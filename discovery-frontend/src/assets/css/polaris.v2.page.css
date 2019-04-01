@@ -5055,9 +5055,9 @@ ul.ddp-list-rule2 li.ddp-disabled2 .ddp-wrap-line-add {display:block;}
 .ddp-box-flowdetail .ddp-box-in {position:absolute; top:0; left:0; right:0; bottom:35px; overflow-y:auto;}
 .ddp-box-flowdetail a.ddp-btn-popup-close {position:absolute; top:19px; right:15px; z-index:1;}
 
-.ddp-box-flowdetail .ddp-data-filename {position:relative; height:42px; padding:0 40px 0 45px; margin-top:20px; box-sizing:border-box;}
+.ddp-box-flowdetail .ddp-data-filename {position:relative; padding:0 40px 0 40px; margin-top:13px; box-sizing:border-box;}
 
-.ddp-box-flowdetail .ddp-data-filename [class*="ddp-icon-flow"] {position:absolute; top:0; left:19px; margin-right:10px;}
+.ddp-box-flowdetail .ddp-data-filename .ddp-icon-file-svg {position:absolute; top:3px; left:10px; margin-right:10px;}
 .ddp-box-flowdetail .ddp-data-filename .ddp-ui-textarea {display:none; background-color:#fff; z-index:1; height:35px;}
 .ddp-box-flowdetail .ddp-data-filename .ddp-ui-input .ddp-btn-check {display:inline-block; position:absolute; top:2px; bottom:2px; right:2px; width:24px; height:inherit; border-radius:3px; background-color:#d0d1d8; cursor: pointer;}
 .ddp-box-flowdetail .ddp-data-filename .ddp-ui-input .ddp-btn-check:hover {background-color:#9ca2cc;}
@@ -8887,6 +8887,9 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 .icon-file-xlsx {display:inline-block; width:24px; height:24px;}
 .icon-file-xlsx .st0{fill:#3F7651;}
 .icon-file-xlsx .st1{fill:#3F7651;fill-opacity:0;}
+
+.icon-file-dataset,
+.icon-file-dataset-another {display:inline-block; width:24px; height:24px;}
 
 .icon-file-b {display:inline-block; width:24px; height:24px;}
 .icon-file-b .st0{fill:#6E727B;}

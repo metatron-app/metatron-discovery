@@ -39,11 +39,14 @@
 
             <tbody>
 
-            <tr *ngFor="let ds of datasetInfo">
+            <tr *ngFor="let ds of datasetInfo;let index=index">
               <th>
                 {{ds.name}}
               </th>
               <td>
+                <em class="ddp-icon-svg" *ngIf="ds.svg">
+                  <svg-icon-component [name]="ds.svg" [isBlackAndWhite]="false"></svg-icon-component>
+                </em>
                 {{ds.value}}
               </td>
             </tr>
@@ -59,7 +62,7 @@
           <label class="ddp-label-type">{{'msg.comm.ui.name' | translate}}</label>
           <input type="text" #nameElement
                  class="ddp-input-type"
-                 placeholder="{{clonedNames[0]}}"
+                 placeholder="{{clonedNames[0] === '' ? ('msg.comm.ui.create.name' | translate ) : clonedNames[0]}}"
                  (keydown)="keyDownEvent($event, 0)"
                  [(ngModel)]="names[0]" maxlength="150"
                  (keyup)="keyupEvent($event)">
@@ -147,12 +150,15 @@
             <tbody>
             <tr *ngFor="let name of dsfileInformations; let index = index">
               <td title="{{dsfileInformations[index].fileName}}">
+                <em class="ddp-icon-svg" *ngIf="dsfileInformations[index].svg">
+                  <svg-icon-component [name]="dsfileInformations[index].svg" [isBlackAndWhite]="false"></svg-icon-component>
+                </em>
                 {{dsfileInformations[index].fileName}}
               </td>
               <td>
                 <div class="ddp-sheet-form">
                   <input class="ddp-input-typebasic"
-                         placeholder="{{clonedNames[index]}}"
+                         placeholder="{{clonedNames[index] === '' ? ('msg.comm.ui.create.name' | translate ) : clonedNames[index]}}"
                          (keyup)="keyupEvent($event)"
                          [(ngModel)]="names[index]" maxlength="150"
                          (keydown)="keyDownEvent($event, index)">

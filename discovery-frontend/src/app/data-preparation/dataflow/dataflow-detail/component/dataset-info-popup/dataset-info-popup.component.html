@@ -17,7 +17,9 @@
   <div class="ddp-data-filename"
        [class.ddp-selected]="isDatasetNameEdit"
        (clickOutside)="isDatasetNameEdit ? setDatasetName(): null;">
-    <em class="{{ prepCommonUtil.getIconClass(selectedDataSet.dsType === DsType.WRANGLED ? 'dataset' : 'hive') }}"></em>
+    <em class="ddp-icon-file-svg">
+      <svg-icon-component [name]="prepCommonUtil.getNameForSvgWithDataset(selectedDataSet)" [isBlackAndWhite]="false"></svg-icon-component>
+    </em>
     <div class="ddp-ui-input">
       <input type="text" #dsName maxlength="150"
              placeholder="{{'msg.comm.ui.create.name' | translate}}"
