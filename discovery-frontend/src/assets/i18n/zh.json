@@ -101,7 +101,8 @@
   "msg.comm.th.grp.name": "群组名",
   "msg.comm.th.role": "作用",
   "msg.comm.btn.add": "添加",
-  "msg.comm.search.usr": "使用用户名查找",
+  "msg.comm.search.usr": "使用户名查找",
+  "msg.comm.search.usr_and_full" : "按全名或用户名搜索",
   "msg.comm.search.grp": "使用群组名查找",
   "msg.comm.ui.num.lists": "有<strong>{{count}}</strong>个数据",
   "msg.comm.th.no": "No.",
@@ -389,6 +390,7 @@
   "msg.space.th.allowance": "仅查看公开数据",
   "msg.space.th.server": "服务器",
   "msg.space.create.notebook.title": "请选择数据类型",
+  "msg.space.ui.list.search.placeholder" : "請搜索服務器名稱",
 
   "msg.alert.retrieve.fail": "查询失败",
   "msg.alert.del.success": "~已删除",

@@ -75,6 +75,8 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
   // 노드간 링크 리스트
   private chartLinks: any[] = [];
 
+  private readonly SVG_LOCATION: string = 'image://' + window.location.origin + '/assets/images/datapreparation/svg/icon_';
+
   // Change Detect
   public changeDetect: ChangeDetectorRef;
 
@@ -90,10 +92,6 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  public canNavigationBack: boolean;
-  public locationSubscription: any;
-
   @Input()
   public dataflow: PrDataflow;
 
@@ -181,11 +179,29 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
 
     // navigation back check
     this.step = '';
-    this.canNavigationBack = true;
 
-    // 초기화
-    this.init();
+    this._initialiseValues();
+    this._initialiseChartValues();
 
+    // Get param from url
+    this.activatedRoute.params.subscribe((params) => {
+
+      if (!_.isNil(params['id'])) {
+        this.dfId = params['id'];
+      }
+
+      if (!this.dfModelService.isSelectedDsIdAndDsTypeEmpty()) {
+        this.selectedDataSet.dsId = this.dfModelService.getSelectedDsId();
+        this.selectedDataSet.dsType = this.dfModelService.getSelectedDsType();
+
+        this.dfModelService.emptyDsIdAndDsType();
+
+        this.getDataflow(true);
+      } else {
+        this.getDataflow();
+      }
+
+    });
 
   } // function - ngOnInit
 
@@ -803,9 +819,10 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
    */
   public datasetPopupAddEvent(data): void {
 
-    if (data == undefined || data == null || data.length === 0 ) {
-      return
+    if (isNullOrUndefined(data) || data.length === 0 ) {
+      return;
     }
+
     this.loadingShow();
     this.dataSetList.forEach((ds) => {
       data.push(ds.dsId);
@@ -1008,6 +1025,11 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
 
   } // function - createNodeTree
 
+  private _getDatasetType(dataset) {
+
+
+  }
+
   /**
    * 차트 노드 생성
    * @param dataset
@@ -1016,28 +1038,15 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
    * @param {Dataset} rootNode
    * @returns {{dsId: (string | any); dsName: (string | any); name: (string | any); dsType; importType: any; detailType: any; flowName: any; upstream: any; children: Array; value: any[]; symbol: any; originSymbol: any; label: any}}
    */
-  //private createNode(dataset: Dataset, depth: number, position: number, rootNode?: any) {
   private createNode(dataset: PrDataset, depth: number, position: number, rootNode?: any) {
-    let importType: ImportType = null;
+    let importType: ImportType = dataset.importType;
     let detailType = null;
     let flowName = null;
 
-    // if (DsType.IMPORTED === dataset.dsType) {
-    //   importType = dataset.importType;
-    //   detailType = isUndefined(dataset.custom) ? 'DEFAULT' : JSON.parse(dataset.custom);
-    //   if (ImportType.DB === importType || ImportType.HIVE === importType) {
-    //     detailType = detailType.connType || 'DEFAULT';
-    //   } else if (ImportType.FILE === importType) {
-    //     detailType = detailType.fileType || 'DEFAULT';
-    //   }
-    // } else {
-    //   detailType = _.eq(dataset.creatorDfId, this.dataflow.dfId) ? 'CURR' : 'DIFF';
-    //   flowName = dataset.creatorDfId;
-    // }
-
     flowName = dataset.creatorDfId;
-    importType = dataset.importType;
     detailType = 'DEFAULT';
+
+    this.symbolInfo[importType]
 
     const nodeSymbol = DsType.IMPORTED === dataset.dsType ? this.symbolInfo[dataset.dsType][importType][detailType] : this.symbolInfo[dataset.dsType][detailType];
 
@@ -1193,6 +1202,10 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
     });
   } // function - chartClickEventListener
 
+  /**
+   * Initialise values
+   * @private
+   */
   private _initialiseValues() {
 
     this.commandList = [
@@ -1227,28 +1240,73 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
   }
 
 
+  /**
+   * Initialise chart values and options
+   * @private
+   */
   private _initialiseChartValues() {
     this.symbolInfo = {
       IMPORTED: {
         UPLOAD: {
-          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/svg/icon_db.svg',
+          CSV : {
+            DEFAULT: this.SVG_LOCATION + 'file_csv.svg',
+            SELECTED: this.SVG_LOCATION + 'file_csv_focus.svg',
+          },
+          EXCEL : {
+            DEFAULT: this.SVG_LOCATION + 'file_xls.svg',
+            SELECTED: this.SVG_LOCATION + 'file_xls_focus.svg',
+          },
+          JSON : {
+            DEFAULT: this.SVG_LOCATION + 'file_json.svg',
+            SELECTED: this.SVG_LOCATION + 'file_json_focus.svg',
+          },
+          TXT : {
+            DEFAULT: this.SVG_LOCATION + 'file_txt.svg',
+            SELECTED: this.SVG_LOCATION + 'file_txt_focus.svg',
+          }
         },
         URI: {
           DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.png',
         },
         DATABASE: {
-          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/svg/icon_db.svg',
+          MYSQL: {
+            DEFAULT: this.SVG_LOCATION + 'db_mysql.svg',
+            SELECTED: this.SVG_LOCATION + 'db_mysql_focus.svg',
+          },
+          HIVE: {
+            DEFAULT: this.SVG_LOCATION + 'db_hive.svg',
+            SELECTED: this.SVG_LOCATION + 'db_hive_focus.svg',
+          },
+          PRESTO: {
+            DEFAULT: this.SVG_LOCATION + 'db_presto.svg',
+            SELECTED: this.SVG_LOCATION + 'db_presto_focus.svg',
+          },
+          DRUID: {
+            DEFAULT: this.SVG_LOCATION + 'db_druid.svg',
+            SELECTED: this.SVG_LOCATION + 'db_druid_focus.svg',
+          },
+          POSTGRESQL: {
+            DEFAULT: this.SVG_LOCATION + 'db_post.svg',
+            SELECTED: this.SVG_LOCATION + 'db_post_focus.svg',
+          },
+          ORACLE: {
+            DEFAULT: this.SVG_LOCATION + 'db_oracle.svg',
+            SELECTED: this.SVG_LOCATION + 'db_oracle_focus.svg',
+          },
+          TIBERO: {
+            DEFAULT: this.SVG_LOCATION + 'db_tibero.svg',
+            SELECTED: this.SVG_LOCATION + 'db_tibero_focus.svg',
+          },
+
         },
         STAGING_DB: {
-          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/svg/icon_db.svg'
+          DEFAULT: this.SVG_LOCATION + 'db_hive.svg',
+          SELECTED: this.SVG_LOCATION + 'db_hive_focus.svg'
         }
       },
       WRANGLED: {
-        DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/svg/icon_dataset_wrangled_.svg',
-      },
-      SELECTED: {
-        IMPORTED: 'image://' + window.location.origin + '/assets/images/datapreparation/svg/icon_db_focus.svg',
-        WRANGLED: 'image://' + window.location.origin + '/assets/images/datapreparation/svg/icon_dataset_wrangled_focus.svg'
+        DEFAULT: this.SVG_LOCATION + 'dataset_wrangled_.svg',
+        SELECTED: this.SVG_LOCATION + 'dataset_wrangled_focus.svg',
       }
     };
 
