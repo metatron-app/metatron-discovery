@@ -80,7 +80,7 @@
 
   <!-- buttons -->
   <div class="ddp-ui-buttons">
-    <a (click)="closeComp();" href="javascript:" class="ddp-btn-type-popup">{{'msg.comm.btn.previous' | translate}}</a>
+    <a (click)="isShow = false;" href="javascript:" class="ddp-btn-type-popup">{{'msg.comm.btn.previous' | translate}}</a>
     <a (click)="complete();"
        [class.ddp-disabled]="isInvalidName || isInvalidDesc || !dashboard.name || '' === dashboard.name"
        href="javascript:" class="ddp-btn-type-popup ddp-bg-black" >{{'msg.comm.btn.done' | translate}}</a>

@@ -392,9 +392,9 @@
         <!-- // name -->
 
         <!-- description -->
-        <div class="ddp-box-navidet" [ngClass]="{'ddp-selected' : isDashboardDescEditMode}" >
+        <div class="ddp-box-navidet" [title]="selectedDashboard.description" [ngClass]="{'ddp-selected' : isDashboardDescEditMode}" >
           <div class="ddp-wrap-navidet" (click)="onChangeModeDesc($event)">
-            <span class="ddp-data-navidet">{{selectedDashboard.description || 'msg.board.ui.description.ph' | translate }}<em class="ddp-icon-edit2"></em></span>
+            <span class="ddp-data-navidet" >{{selectedDashboard.description || 'msg.board.ui.description.ph' | translate }}<em class="ddp-icon-edit2"></em></span>
           </div>
           <div class="ddp-wrap-input">
             <component-input
