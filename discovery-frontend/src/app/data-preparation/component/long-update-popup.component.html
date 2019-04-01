@@ -49,7 +49,7 @@
                     <colgroup>
                       <col width="51px">
                       <col width="*">
-                      <col width="120px">
+                      <col width="150px">
                       <col width="180px">
                     </colgroup>
                     <thead>
@@ -88,7 +88,7 @@
                     <colgroup>
                       <col width="51px">
                       <col width="*">
-                      <col width="120px">
+                      <col width="150px">
                       <col width="180px">
                     </colgroup>
 
@@ -113,17 +113,8 @@
                       </td>
 
                       <td *ngIf="item.dsType !== null && item.dsType.toString() === 'IMPORTED'">
-                        <span class="ddp-data-source" *ngIf="item.importType !== null && item.importType.toString() === 'UPLOAD'">
-                          <em class="ddp-icon-file"></em>
-                          File
-                        </span>
-                        <span class="ddp-data-source" *ngIf="item.importType !== null && item.importType.toString() === 'DATABASE'">
-                          <em class="ddp-icon-db-s"></em>
-                          Database
-                        </span>
-                        <span class="ddp-data-source" *ngIf="item.importType !== null && item.importType.toString() === 'STAGING_DB'">
-                          <em class="ddp-icon-staging"></em>
-                          Staging DB
+                        <span class="ddp-data-source" *ngIf="item.dsType.toString() === 'IMPORTED'">
+                          {{prepCommonUtil.getDatasetType(item.importType, item.importType === ImportType.DATABASE ? item['dcImplementor'] : item.storedUri)}}
                         </span>
                       </td>
 
@@ -252,7 +243,7 @@
 
 
 
-        </div> 
+        </div>
         <!-- 설명 -->
         <app-dataset-summary *ngIf="selectedDatasetId != null && selectedDatasetId !=''" (close)="onCloseSummary()" [datasetId]="selectedDatasetId"></app-dataset-summary>
         <!-- //설명 -->

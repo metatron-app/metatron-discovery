@@ -16,7 +16,7 @@ import {
   Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChild
 } from '@angular/core';
 import {AbstractComponent} from "../../common/component/abstract.component";
-import {PrDataset} from "../../domain/data-preparation/pr-dataset";
+import {ImportType, PrDataset} from "../../domain/data-preparation/pr-dataset";
 import {DataflowService} from "../dataflow/service/dataflow.service";
 import {DatasetService} from "../dataset/service/dataset.service";
 import {PreparationAlert} from "../util/preparation-alert.util";
@@ -26,6 +26,7 @@ import { SubscribeArg } from '../../common/domain/subscribe-arg';
 import { Subscription } from 'rxjs/Subscription';
 import {isNullOrUndefined} from "util";
 import * as _ from 'lodash';
+import {PreparationCommonUtil} from "../util/preparation-common.util";
 
 @Component({
   selector: 'long-update-popup',
@@ -103,6 +104,8 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
   // popup status
   public step: string;
 
+  public prepCommonUtil = PreparationCommonUtil;
+  public ImportType = ImportType;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

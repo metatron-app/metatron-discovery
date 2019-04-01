@@ -114,12 +114,10 @@
         </td>
         <td>
           <span class="ddp-data-source" *ngIf="item.dsType.toString() === 'IMPORTED'">
-            <span>
               <em class="ddp-icon-svg">
                 <svg-icon-component [name]="prepCommonUtil.getNameForSvgWithDataset(item)" [isBlackAndWhite]="false"></svg-icon-component>
               </em>
               {{prepCommonUtil.getDatasetType(item.importType, item.importType === ImportType.DATABASE ? item['dcImplementor'] : item.storedUri)}}
-              </span>
             </span>
           <span class="ddp-data-source" *ngIf="item.dsType.toString() === 'WRANGLED'">
             <em class="ddp-icon-flow"></em>{{item.creatorDfName}}
