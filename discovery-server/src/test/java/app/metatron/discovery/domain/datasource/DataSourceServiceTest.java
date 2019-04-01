@@ -19,13 +19,20 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 
 import app.metatron.discovery.AbstractIntegrationTest;
 import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
 import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
 import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.IntervalFilter;
+import app.metatron.discovery.query.druid.Granularity;
+import app.metatron.discovery.query.druid.granularities.SimpleGranularity;
+
+import static org.junit.Assert.assertTrue;
 
 public class DataSourceServiceTest extends AbstractIntegrationTest {
 
@@ -94,6 +101,21 @@ public class DataSourceServiceTest extends AbstractIntegrationTest {
     System.out.println(dataSourceService.getMatchedTemporaries(dataSourceId, combineFilters));
 
 
+  }
+
+  @Test
+  public void getEmptyGranularityTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+    DataSourceService dsService = new DataSourceService();
+
+    SegmentMetaDataResponse segmentMetaData = new SegmentMetaDataResponse();
+    segmentMetaData.setQueryGranularity(new SimpleGranularity(null));
+
+    Method isEmptyGranularity = dsService.getClass().getDeclaredMethod("isEmptyGranularity", Granularity.class);
+    isEmptyGranularity.setAccessible(true);
+
+    boolean result = (Boolean) isEmptyGranularity.invoke(dsService, segmentMetaData.getQueryGranularity());
+    assertTrue(result);
   }
 
 }
