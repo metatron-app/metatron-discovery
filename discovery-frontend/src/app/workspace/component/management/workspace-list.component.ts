@@ -87,12 +87,12 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
 
   // 정렬
   public sort = [
-    { name: this.translateService.instant('msg.comm.ui.list.name.asc'), value: 'name,asc', selected: false },
-    { name: this.translateService.instant('msg.comm.ui.list.name.desc'), value: 'name,desc', selected: true }
+    { name: this.translateService.instant('msg.comm.ui.list.name.asc'), value: 'name,asc', selected: true },
+    { name: this.translateService.instant('msg.comm.ui.list.name.desc'), value: 'name,desc', selected: false }
   ];
 
   // 정렬 선택 값
-  public sortText = this.sort[1];
+  public sortText = this.sort[0];
 
   // 검색어
   public searchText = '';
@@ -447,7 +447,7 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
     // 공유 워크스페이스 리스트
     this.sharedWorkspace = [];
     // 정렬 선택 값
-    this.sortText = this.sort[1];
+    this.sortText = this.sort[0];
     // 검색어
     this.searchText = '';
     // 정렬 플래그

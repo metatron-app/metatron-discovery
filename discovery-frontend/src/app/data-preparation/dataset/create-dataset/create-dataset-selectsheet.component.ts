@@ -72,7 +72,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   public currSheetIndex : number = 0;
   public currDSIndex: number = 0;
   public currDetail : any;
-  public currCoumnCount: number;
+  public currColumnCount: number;
 
   public previewErrorMessge : string;
 
@@ -129,7 +129,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
         this.clearGrid = true;
       }
       this.currDelimiter = ( this.datasetFiles[this.currDSIndex].fileFormat === FileFormat.CSV ? this.datasetFiles[this.currDSIndex].delimiter : '');
-      this.currCoumnCount = ( this.datasetFiles[this.currDSIndex].sheetInfo ? this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount : 0 );
+      this.currColumnCount = ( this.datasetFiles[this.currDSIndex].sheetInfo ? this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount : 0 );
 
       this.previewErrorMessge = (this.datasetFiles[this.currDSIndex].error? this.datasetFiles[this.currDSIndex].error.details : '');
       this._setDetailInfomation(this.currDSIndex, this.currSheetIndex);
@@ -223,16 +223,16 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    * When columnCount is changed(CSV, EXCEL)
    */
   public changeColumnCount(){
-    this.isColumnCountRequired = ( (isNullOrUndefined(this.currCoumnCount) || 1 > this.currCoumnCount) && this.datasetFiles[this.currDSIndex].fileFormat != FileFormat.JSON);
+    this.isColumnCountRequired = ( (isNullOrUndefined(this.currColumnCount) || 1 > this.currColumnCount) && this.datasetFiles[this.currDSIndex].fileFormat != FileFormat.JSON);
 
-    if (isNullOrUndefined(this.currCoumnCount) || 1 > this.currCoumnCount || this.datasetFiles[this.currDSIndex].fileFormat === FileFormat.JSON) {
+    if (isNullOrUndefined(this.currColumnCount) || 1 > this.currColumnCount || this.datasetFiles[this.currDSIndex].fileFormat === FileFormat.JSON) {
       return;
     }
 
-    if( this.datasetFiles[this.currDSIndex].sheetInfo && this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount !=  this.currCoumnCount ) {
-      this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount = this.currCoumnCount;
+    if( this.datasetFiles[this.currDSIndex].sheetInfo && this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount !=  this.currColumnCount ) {
+      this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount = this.currColumnCount;
       this.loadingShow();
-      this._getGridInformation(this.currDSIndex, this._getParamForGrid(this.datasetFiles[this.currDSIndex], this.currCoumnCount),'draw');
+      this._getGridInformation(this.currDSIndex, this._getParamForGrid(this.datasetFiles[this.currDSIndex], this.currColumnCount),'draw');
     }
   }
 
@@ -309,7 +309,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
       this.currDelimiter = this.datasetFiles[dsIdx].delimiter;
 
-      this.currCoumnCount = ( this.datasetFiles[dsIdx].sheetInfo ? this.datasetFiles[dsIdx].sheetInfo[0].columnCount : 0 );
+      this.currColumnCount = ( this.datasetFiles[dsIdx].sheetInfo ? this.datasetFiles[dsIdx].sheetInfo[0].columnCount : 0 );
 
       if(!this.datasetFiles[dsIdx].sheetInfo){
         this.clearGrid = true;
@@ -341,11 +341,12 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     event.stopPropagation();
     event.preventDefault();
 
+    this.previewErrorMessge = '';
     this.isDelimiterRequired = false;
     this.currDelimiter = '';
 
     this.isColumnCountRequired = false;
-    this.currCoumnCount = ( this.datasetFiles[dsIdx].sheetInfo ? this.datasetFiles[dsIdx].sheetInfo[sheetIdx].columnCount : 0 );
+    this.currColumnCount = ( this.datasetFiles[dsIdx].sheetInfo ? this.datasetFiles[dsIdx].sheetInfo[sheetIdx].columnCount : 0 );
 
     this.currDSIndex = dsIdx;
     this._setFileFormat(this.datasetFiles[dsIdx].fileFormat);
@@ -370,9 +371,62 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     }
   }
 
+  public keydownEvent(event: any, type: string) {
+    // 13 is enter key
+    if (event.keyCode === 13 ) {
+
+      // Stop event bubbling
+      event.stopPropagation();
+      event.preventDefault();
+
+      // Column count input
+      if ('colCnt' === type) {
+        this.changeColumnCount();
+      }
+
+      // File delimiter
+      if ('delimiter' === type) {
+        this.changeDelimiter();
+      }
+
+    } else {
+
+
+      // 단어가 지워지거나 추가된다면
+      if (this._isKeyPressedWithChar(event.keyCode)) {
+
+        // Column count input
+        if ('colCnt' === type) {
+          this.isColumnCountRequired = true;
+        }
+
+        // Column count input
+        if ('delimiter' === type) {
+          this.isDelimiterRequired = true;
+        }
+
+        this.isNext = false;
+
+      }
+
+    }
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Returns true if something is typed on the keyboard
+   * Returns false if shift, tab etc is pressed
+   * 즉 직접 단어 자체가 지워지거나 입력된다면 true 를 반환한다.
+   * @param keyCode
+   */
+  private _isKeyPressedWithChar(keyCode: number): boolean {
+    const exceptionList: number[] = [9,13,16,17,18,19,20,27,33,34,35,36,37,38,39,40,45,46,91,92,219,220,93,144,145];
+    return exceptionList.indexOf(keyCode) === -1
+  }
+
+
   private _setFileFormat(fileFormat : FileFormat){
     this.isCSV = (fileFormat === FileFormat.CSV);
     this.isJSON = (fileFormat === FileFormat.JSON);
@@ -547,7 +601,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       });
 
       // set current column count
-      if( idx === this.currDSIndex ) this.currCoumnCount = (this.datasetFiles[this.currDSIndex].sheetInfo? this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount: null);
+      if( idx === this.currDSIndex ) this.currColumnCount = (this.datasetFiles[this.currDSIndex].sheetInfo? this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount: null);
 
       this.datasetFiles[idx].selected = true;
       this.isNext = true;

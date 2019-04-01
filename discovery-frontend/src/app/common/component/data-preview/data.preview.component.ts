@@ -115,9 +115,13 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   // 필드 디테일 single data
   @Input()
   public singleTab: boolean = false;
+
   // sigle 일때 넘겨받은 필드
   @Input()
   public field: any;
+
+  @Input()
+  public initial:Datasource;
 
   public isDashboard: boolean = false;    // 입력 소스가 대시보드인지 여부
 
@@ -233,7 +237,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
         }
       });
     });
-    this.selectDataSource(this.datasources[0]);
+
+    this.selectDataSource( ( this.initial ) ? this.datasources.find( item => item.id === this.initial.id ) : this.datasources[0] );
 
   } // function - ngOnInit
 

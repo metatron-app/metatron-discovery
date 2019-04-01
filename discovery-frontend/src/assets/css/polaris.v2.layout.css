@@ -305,7 +305,7 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
 /***********************************************************************************************************
     LNB
 ************************************************************************************************************/
-.ddp-layout-lnb {position:fixed; left:0; top:-1px; width:288px;}
+.ddp-layout-lnb {position:fixed; left:0; top:-1px; width:288px; border-right:2px solid #4c515a; box-sizing:border-box;}
 .ddp-layout-lnb a.ddp-btn-lnbmenu {display:inline-block; position:absolute; top:0; left:0; width:49px; height:55px;}
 .ddp-layout-lnb a.ddp-btn-lnbmenu:before {display:inline-block; content:''; position:absolute; top:50%; left:23px; margin:-6px 0 0 0; width:16px; height:12px; background:url(../images/btn_lnbmenu.png) no-repeat;}
 .ddp-layout-lnb .ddp-h1-logo {position:absolute;top:21px; left:52px;}
@@ -735,7 +735,7 @@ ul.ddp-list-folder-nav li a:hover {background-color:#e7e7ea}
 .ddp-ui-naviarea .ddp-wrap-naviname span.ddp-data-naviname .ddp-icon-edit2 {display:none;}
 .ddp-ui-naviarea .ddp-wrap-naviname:hover span.ddp-data-naviname .ddp-icon-edit2 {display:block; position:absolute; top:50%; right:4px; margin-top:-6px; background-position:-11px top;}
 .ddp-ui-naviarea .ddp-wrap-naviname:hover span.ddp-data-naviname.ddp-readonly .ddp-icon-edit2 {display:none;}
-.ddp-ui-naviarea .ddp-box-navidet {float:left; position:relative; top:5px; max-width:39%; box-sizing:border-box;}
+.ddp-ui-naviarea .ddp-box-navidet {float:left; position:relative; top:5px; max-width:50%; box-sizing:border-box;}
 .ddp-ui-naviarea .ddp-wrap-navidet {display:inline-block;position:relative;float:left;max-width:100%; white-space: nowrap;box-sizing:border-box;overflow:hidden;}
 .ddp-ui-naviarea .ddp-wrap-navidet span.ddp-data-navidet {display:inline-block;float:left;width:100%;padding:5px;color:#90969f;font-size:12px;cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;word-wrap:normal;box-sizing:border-box; font-family:sans-serif; letter-spacing:0.4px;}
 

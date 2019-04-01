@@ -61,9 +61,9 @@
 
           <!-- description -->
           <!-- 클릭시 ddp-selected 추가 -->
-          <div class="ddp-box-navidet" [ngClass]="{'ddp-selected': isDatasetDescEditMode}">
+          <div class="ddp-box-navidet" [title]="datasetDesc" [ngClass]="{'ddp-selected': isDatasetDescEditMode}">
             <div class="ddp-wrap-navidet" (click)="!isDatasetDescEditMode? onDatasetDescEdit($event) : $event.stopPropagation();">
-              <span class="ddp-data-navidet" *ngIf="datasetDesc; else dsDescEmpty" title="{{datasetDesc}}">{{datasetDesc || 'msg.comm.ui.create.desc' | translate}}
+              <span class="ddp-data-navidet" *ngIf="datasetDesc; else dsDescEmpty" >{{datasetDesc || 'msg.comm.ui.create.desc' | translate}}
                 <em class="ddp-icon-edit2"></em>
               </span>
               <ng-template #dsDescEmpty>
@@ -199,9 +199,15 @@
             </div>
             <!-- //data -->
             <!-- 플로우 설명 이름 -->
-            <div class="ddp-wrap-detailname">
-              <span class="ddp-data-detailname">{{item.dfName}}</span> <span class="ddp-data-summary" *ngIf="item.dfDesc">- {{item.dfDesc}}</span>
+            <div class="ddp-wrap-detailname" *ngIf="!item.dfDesc; else yesDfDesc" title="{{item.dfName}}">
+              <span class="ddp-data-detailname">{{item.dfName}}</span>
             </div>
+            <ng-template #yesDfDesc>
+              <div class="ddp-wrap-detailname" title="{{item.dfName}} - {{item.dfDesc}}">
+                <span class="ddp-data-detailname">{{item.dfName}}</span>
+                <span class="ddp-data-summary">- {{item.dfDesc}}</span>
+              </div>
+            </ng-template>
             <!-- //플로우 설명 이름 -->
           </li>
         </ul>

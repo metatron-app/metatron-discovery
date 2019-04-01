@@ -180,7 +180,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
     }
 
-    if (this.type === 'FILE') {
+    if (this.type === 'FILE' || 'URL' === this.type) {
 
       // List of parameters used to make multiple dataSets
       const params = this.names.map((name:string,index:number) => {
@@ -293,6 +293,11 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
         name: 'create-db-query',
         data: null
       });
+    } else if (this.type === 'URL') {
+      this.popupService.notiPopup({
+        name: 'select-url',
+        data : null
+      })
     }
   }
 
@@ -420,6 +425,28 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   }
 
 
+  /**
+   * Return appropriate title for each dataset type
+   */
+  public get getTypeName() {
+
+    let result = 'Staging DB';
+
+    if (this.type === 'DB') {
+      result = 'Database';
+    }
+
+    if (this.type === 'FILE') {
+      result = 'File';
+    }
+
+    if (this.type === 'URL') {
+      result = this.type;
+    }
+
+    return result;
+
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -434,7 +461,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
    */
   private _setDefaultDatasetName(type : string) : void {
 
-    if ('FILE' === type) {
+    if ('FILE' === type || 'URL' === type) {
 
       this.datasetFiles.forEach((dsFile, index)=>{
         if(dsFile.sheetInfo){
@@ -473,19 +500,18 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       // When table
       if (this.datasetJdbc.rsType === RsType.TABLE) {
         this.names[0] = this.datasetJdbc.tableInfo.tableName +' ('+this.datasetJdbc.dataconnection.connection.implementor+')';
+      } else {
+        this.names[0] = '';
       }
-
-      // When query
-
 
     } else if ('STAGING' === type) {
 
       // When table
       if (this.datasetHive.rsType === RsType.TABLE) {
         this.names[0] = `${this.datasetHive.tableInfo.tableName} (STAGING)`;
+      } else {
+        this.names[0] = '';
       }
-
-      // When query
 
     }
 
@@ -499,10 +525,15 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
    */
   private _setDatasetInfo() {
 
-    if ('FILE' === this.type) {
+    if ('FILE' === this.type || 'URL' === this.type) {
 
       if (this.names.length === 1) {
-        this.datasetInfo.push({name : this.translateService.instant('msg.dp.ui.list.file'), value : this.datasetFiles[0].fileName});
+
+        if ('FILE' === this.type) {
+          this.datasetInfo.push({name : this.translateService.instant('msg.dp.ui.list.file'), value : this.datasetFiles[0].fileName});
+        } else {
+          this.datasetInfo.push({name : 'URL', value : this.datasetFiles[0].storedUri});
+        }
 
         if ('XLSX' === this.datasetFiles[0].fileExtension.toUpperCase() || 'XLS' === this.datasetFiles[0].fileExtension.toUpperCase()) {
           this.datasetInfo.push({
@@ -637,7 +668,13 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     params.dsName = file.dsName;
     params.dsDesc = file.dsDesc;
     params.dsType = 'IMPORTED';
-    params.importType = 'UPLOAD';
+    if (this.type === 'FILE') {
+      params.importType = 'UPLOAD';
+    } else if(this.type === 'URL') {
+      params.importType = 'URI';
+    } else {
+      params.importType = 'UPLOAD';
+    }
     params.filenameBeforeUpload = file.filenameBeforeUpload;
     params.storageType = file.storageType;
     params.sheetName = file.sheetName;

@@ -39,7 +39,7 @@
           {{'msg.dp.ui.no.preview' | translate}}
         </div>
       </div>
-      <div *ngIf="!clearGrid" class="ddp-box-preview" grid-component></div>
+      <div [hidden]="clearGrid" class="ddp-box-preview" grid-component></div>
     </div>
   </div>
 </div>

@@ -18,7 +18,7 @@
     <!-- //닫기 버튼 -->
     <div class="ddp-icon-name">
       <div class="ddp-ui-name2 ddp-type3">
-        {{'msg.dp.ui.ds.create.title' | translate : {type : type === 'FILE' ? 'File' : type  === 'DB' ? 'DB': 'Staging DB'} }}
+        {{'msg.dp.ui.ds.create.title' | translate : {type : getTypeName} }}
         <span class="ddp-txt-info ddp-type">{{'msg.dp.ui.create-staging-db.sub.title' | translate}}</span>
         <em class="ddp-bg-order-line3-type3" *ngIf="type === 'DB'"></em>
         <em class="ddp-bg-order-line2-type2" *ngIf="type !== 'DB'"></em>
@@ -114,7 +114,7 @@
 
 
 
-<ng-container *ngIf="type==='FILE' && names.length > 1">
+<ng-container *ngIf="(type==='FILE' || type === 'URL') && names.length > 1">
 
   <div class="ddp-type-contents ddp-resize2 ddp-type2 popup-prep-create-complete popup-prep-create">
     <!-- 닫기 버튼 -->
@@ -122,9 +122,10 @@
     <!-- 닫기 버튼 -->
     <div class="ddp-icon-name">
       <div class="ddp-ui-name2 ddp-type3">
-        {{'msg.dp.ui.ds.create.title' | translate : {type : type === 'FILE' ? 'File' : type  === 'DB' ? 'DB': 'Staging DB'} }}
+        {{'msg.dp.ui.ds.create.title' | translate : {type : getTypeName} }}
         <span class="ddp-txt-info ddp-type">{{'msg.dp.ui.create-staging-db.sub.title' | translate}}</span>
-        <em class="ddp-bg-order-line3-type3"></em>
+        <em class="ddp-bg-order-line3-type3" *ngIf="type !== 'URL'"></em>
+        <em class="ddp-bg-order-line2-type2" *ngIf="type === 'URL'"></em>
       </div>
     </div>
     <div class="ddp-type-contents-in ddp-sheet-resize">

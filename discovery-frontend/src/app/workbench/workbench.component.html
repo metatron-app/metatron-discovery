@@ -75,7 +75,7 @@
 
       <!-- description -->
       <!-- 클릭시 ddp-selected 추가 -->
-      <div class="ddp-box-navidet" [class.ddp-selected]="isWorkbenchDescEditMode">
+      <div class="ddp-box-navidet" [title]="workbenchDesc"[class.ddp-selected]="isWorkbenchDescEditMode">
         <div class="ddp-wrap-navidet"
              (click)="!isWorkbenchDescEditMode ? onWorkbenchDescEdit($event):$event.stopPropagation();">
         <span class="ddp-data-navidet">{{workbenchDesc || 'msg.comm.ui.create.desc' | translate }}

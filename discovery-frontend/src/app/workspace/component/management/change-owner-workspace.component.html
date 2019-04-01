@@ -33,7 +33,7 @@
           <div class="ddp-form-search">
             <em class="ddp-icon-search"></em>
             <input #inputSearch type="text"
-                   placeholder="{{'msg.comm.search.usr' | translate }}"
+                   placeholder="{{'msg.comm.search.usr_and_full' | translate }}"
                    [ngModel]="searchText"
                    (keypress)="searchDataPressKey($event)"
                    (keyup.esc)="resetSearchText(false)"
@@ -49,7 +49,7 @@
                 <input name="checkNewOwner" type="radio"
                        [checked]="userInfo['checked']" >
                 <i class="ddp-icon-radio"></i>
-                <span class="ddp-txt-radio">{{userInfo.member.fullName}}</span>
+                <span class="ddp-txt-radio">{{userInfo.member.fullName + '(' + userInfo.member.username + ')' }}</span>
               </label>
             </li>
           </ul>
