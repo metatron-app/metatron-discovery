@@ -259,7 +259,7 @@
                   <span class="ddp-txt-selectbox">{{getSelectedTimezoneLabel(selectedField.format)}}</span>
                   <div class="ddp-wrap-popup2">
                     <ul class="ddp-list-popup ddp-focus-hover">
-                      <li *ngIf="filteredTimezoneList.length === 0">
+                      <li *ngIf="filteredTimezoneList && filteredTimezoneList.length === 0">
                         <span class="ddp-noresult">{{'msg.comm.ui.no.rslt' | translate}}</span>
                       </li>
                       <li [class.ddp-selected]="item.momentName === selectedField.format.timeZone" *ngFor="let item of filteredTimezoneList" (click)="onChangeTimezoneInField(selectedField, item)">
