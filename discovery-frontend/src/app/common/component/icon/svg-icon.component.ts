@@ -62,6 +62,7 @@ export class SvgIconComponent extends AbstractComponent implements OnInit, OnDes
     {name: 'EXCEL', class: {a: 'icon-file-xls', b: 'icon-file-xls'}},
     {name: 'JSON', class: {a: 'icon-file-json-b', b: 'icon-file-json-b'}},
     {name: 'WRANGLED', class:{a:'icon-file-dataset', b: 'icon-file-dataset'}},
+    {name: 'DRUID', class:{a:'icon-db-druid', b: 'icon-db-druid'}},
     {name: 'icon-db-custom', class: {a: 'icon-db-custom', b: 'icon-db-custom'}},
     {name: 'icon-db-druid', class: {a: 'icon-db-druid', b: 'icon-db-druid'}},
     {name: 'icon-db-hive', class: {a: 'icon-db-hive', b: 'icon-db-hive'}},
