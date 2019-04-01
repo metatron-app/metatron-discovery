@@ -206,8 +206,6 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
   }
 
   ngOnInit() {
-    // set searched timezone list
-    this._setSearchedTimezoneList(this.searchTimezoneKeyword);
   }
 
   /**
@@ -225,6 +223,10 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
       // TODO ingestion setting 하면서 개편
       this.safelyDetectChanges();
       this._previewComponent.init(this.selectedField, this.selectedFieldDataList);
+      // search keyword initial
+      this.searchTimezoneKeyword = undefined;
+      // set searched timezone list
+      this._setSearchedTimezoneList(this.searchTimezoneKeyword);
     }
   }
 
