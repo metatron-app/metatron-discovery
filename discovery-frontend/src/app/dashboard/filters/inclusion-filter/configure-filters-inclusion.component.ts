@@ -609,12 +609,16 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
       let pagedList: Candidate[] = _.cloneDeep(this._candidateList);
 
       if (this.targetFilter && this.targetFilter.showSelectedItem) {
-        pagedList = pagedList.filter(item => -1 < this.selectedValues.findIndex(val => val.name === item.name));
+        pagedList = pagedList.filter(item => {
+          return -1 < this.selectedValues.findIndex(val => val.name === item.name);
+        });
       }
 
       // 검색 적용
       if ('' !== this.searchText) {
-        pagedList = pagedList.filter(item => -1 < item.name.toLowerCase().indexOf(this.searchText.toLowerCase()));
+        pagedList = pagedList.filter(item => {
+          return ( item.name ) ? -1 < item.name.toLowerCase().indexOf(this.searchText.toLowerCase()) : false;
+        });
       }
 
       // 표시 여부 적용
