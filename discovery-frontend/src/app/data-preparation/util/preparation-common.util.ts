@@ -363,11 +363,11 @@ export class PreparationCommonUtil {
     } else if (importType === ImportType.URI) {
       result = 'URI';
     } else if (importType === ImportType.STAGING_DB) {
-      result = 'Staging DB';
+      result = 'STAGING_DB';
     } else if (importType === ImportType.DATABASE) {
-      result = 'Database';
+      result = 'DB';
     } else if (importType === ImportType.DRUID) {
-      result = 'Druid';
+      result = 'DRUID';
     }
     return result
   } // user friendly import type name
@@ -622,5 +622,27 @@ export class PreparationCommonUtil {
       name = 'DRUID'
     }
     return name;
+  }
+
+
+  /**
+   * import type ==> UPLOAD, URI, DATABASE, STAGING_DB
+   * storeUriOrDcImplementor
+   *  storeURI ==> UPLOAD URI 경우 storeURI를 이용해서 file extension을 찾는다
+   *  dcImplementor ==> DB 일 경우 dbtype ! mysql, postgre etc
+   * @param importType
+   * @param storeUriOrDcImplementor
+   */
+  public static getDatasetType(importType: ImportType, storeUriOrDcImplementor: string) {
+
+    let result:any = '';
+    const iType: string = this.getImportType(importType);
+
+    if ('FILE' === iType || 'URI' === iType) {
+      result = `(${this.getFileFormatWithExtension(storeUriOrDcImplementor)})`
+    } else if ('DB' === iType) {
+      result = `(${storeUriOrDcImplementor})`;
+    }
+    return `${iType}${result}`
   }
 }

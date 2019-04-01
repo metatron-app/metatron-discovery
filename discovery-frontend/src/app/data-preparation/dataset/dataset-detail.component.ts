@@ -475,9 +475,13 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     }  else if (dataset.importType === ImportType.UPLOAD || dataset.importType === ImportType.URI) {
       let filepath : string = dataset.importType === ImportType.UPLOAD? dataset.filenameBeforeUpload : dataset.storedUri;
 
-      this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : `${this.prepCommonUtil.getImportType(dataset.importType)} (${this._getFileType(dataset.importType, filepath)})`},
-        //{name : this.translateService.instant('msg.dp.th.file'), value : `${filepath}` },
-        {name : this.translateService.instant('msg.dp.th.file'), value : `${filepath}` },
+      this.datasetInformationList = [
+        { name : this.translateService.instant('msg.comm.th.type') ,
+          value : PreparationCommonUtil.getDatasetType(dataset.importType, dataset.storedUri)
+        },
+        {name : this.translateService.instant('msg.dp.th.file'),
+          value : `${filepath}`
+        },
       ];
 
       // EXCEL
@@ -496,7 +500,8 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     } else if (dataset.importType === 'STAGING_DB' || dataset.importType === 'DATABASE') {
 
       this.datasetInformationList = [
-        { name : this.translateService.instant('msg.comm.th.type') , value : dataset.importType === 'STAGING_DB' ? 'STAGING_DB' : `DB(${PreparationCommonUtil.getNameForSvgWithDataset(dataset)})` }];
+        { name : this.translateService.instant('msg.comm.th.type') ,
+          value : PreparationCommonUtil.getDatasetType(dataset.importType, dataset['dcImplementor']) }];
 
       if (!isNullOrUndefined(this.getDatabase)) {
         this.datasetInformationList.push({ name : `${this.translateService.instant('msg.dp.th.database')}`, value : `${this.getDatabase}` });
