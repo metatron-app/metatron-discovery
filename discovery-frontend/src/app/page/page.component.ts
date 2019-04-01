@@ -3974,8 +3974,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     this.datasourceService.searchQuery(cloneQuery).then(
       (data) => {
 
-        console.info("data =========>>> ", data);
-
         const resultData = {
           data: data,
           config: uiCloneQuery,

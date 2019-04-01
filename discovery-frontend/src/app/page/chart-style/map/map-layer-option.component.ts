@@ -90,8 +90,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
     // set min / max by decimal format
     if (this.uiOption.valueFormat && undefined !== this.uiOption.valueFormat.decimal) {
-      this.minValue = FormatOptionConverter.getDecimalValue(this.uiOption.minValue, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
-      this.maxValue = FormatOptionConverter.getDecimalValue(this.uiOption.maxValue, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
+      this.minValue = FormatOptionConverter.getDecimalValue(this.uiOption.layers[this.index].color.minValue, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
+      this.maxValue = FormatOptionConverter.getDecimalValue(this.uiOption.layers[this.index].color.maxValue, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
     }
   }
 
@@ -966,7 +966,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     // 색상 범위리스트
     let rangeList = this.uiOption.layers[layerIndex].color.ranges;
 
-    if (!range.gt || isNaN(FormatOptionConverter.getNumberValue(range.gt))) {
+    if (!range.gt || isNaN(FormatOptionConverter.getNumberValue(range.gt)) || this.isNumberRegex(range.gt) == false) {
       // set original value
       range.gt = _.cloneDeep(FormatOptionConverter.getDecimalValue(rangeList[index].fixMin, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep));
       return;
@@ -976,8 +976,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     range = this.parseStrFloat(range);
 
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = _.cloneDeep(this.uiOption.minValue);
-    const uiMaxValue = _.cloneDeep(this.uiOption.maxValue);
+    const uiMinValue = _.cloneDeep(this.uiOption.layers[layerIndex].color.minValue);
+    const uiMaxValue = _.cloneDeep(this.uiOption.layers[layerIndex].color.maxValue);
 
     // 입력가능 최소 / 최대범위 구하기
     let minValue = rangeList[index + 1] ? rangeList[index + 1].gt ? rangeList[index + 1].gt : uiMinValue :
@@ -1012,6 +1012,76 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
     // set changed range in list
     rangeList[index] = range;
+    this.uiOption.layers[layerIndex].color.ranges = rangeList;
+
+    this.applyLayers();
+  }
+
+
+  /**
+   * TOOD range max 입력값 수정시
+   * @param range
+   * @param index
+   */
+  public changeRangeMaxInput(range: any, index: number, layerIndex : number): void {
+
+    // 색상 범위리스트
+    let rangeList = this.uiOption.layers[layerIndex].color.ranges;
+
+    if (!range.lte || isNaN(FormatOptionConverter.getNumberValue(range.lte)) || this.isNumberRegex(range.lte) == false) {
+
+      // set original value
+      range.lte = _.cloneDeep(FormatOptionConverter.getDecimalValue(rangeList[index].fixMax, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep));
+      return;
+    }
+
+    // parse string to value
+    range = this.parseStrFloat(range);
+
+    // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
+    const uiMinValue = _.cloneDeep(this.uiOption.layers[layerIndex].color.minValue);
+
+    // 하위 fixMin값
+    const lowerfixMin = rangeList[index + 1] ?(rangeList[index + 1].fixMin) ? rangeList[index + 1].fixMin : rangeList[index + 1].fixMax : null;
+
+    // 최소값인경우
+    if (!rangeList[index + 1]) {
+
+      // 사용가능범위인경우
+      if (uiMinValue < range.lte && rangeList[index - 1].fixMin > range.lte) {
+
+        range.fixMax = range.lte;
+        rangeList[index-1].gt = range.lte;
+      } else {
+        // 기존값으로 리턴
+        range.lte = range.fixMax;
+      }
+    }
+    // 최대값이 입력가능범위를 벗어나는경우
+    else if (range.fixMax < range.lte || (lowerfixMin > range.lte)) {
+
+      // 기존값으로 리턴
+      range.lte = range.fixMax;
+    } else {
+      range.fixMax = range.lte;
+    }
+
+    // 상위의 최대값에 같은값 입력
+    if (rangeList[index - 1]) {
+      rangeList[index - 1].fixMin = range.lte;
+      rangeList[index - 1].gt = range.lte;
+    }
+
+    // 최소값이 현재 최대값보다 큰경우 최소값과 하위 최대값 변경
+    if (null != range.fixMin && rangeList[index + 1] && range.fixMin > range.fixMax) {
+      range.gt = range.fixMax;
+      rangeList[index + 1].lte = range.fixMax;
+      rangeList[index + 1].fixMax = range.fixMax;
+    }
+
+    // set changed range in list
+    rangeList[index] = range;
+    this.uiOption.layers[layerIndex].color.ranges = rangeList;
 
     this.applyLayers();
   }
@@ -1054,7 +1124,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    */
   public addNewRange(index: number, layerIndex : number) {
 
-    const optionMinValue = _.cloneDeep(this.uiOption.minValue);
+    this.removeInputRangeShowStatus();
+
+    const optionMinValue = _.cloneDeep(this.uiOption.layers[layerIndex].color.minValue);
 
     // 색상 범위리스트
     const rangeList = this.uiOption.layers[layerIndex].color.ranges;
@@ -1139,75 +1211,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   }
 
   /**
-   * TOOD range max 입력값 수정시
-   * @param range
-   * @param index
-   */
-  public changeRangeMaxInput(range: any, index: number, layerIndex : number): void {
-
-    // 색상 범위리스트
-    let rangeList = this.uiOption.layers[layerIndex].color.ranges;
-
-    if (!range.lte || isNaN(FormatOptionConverter.getNumberValue(range.lte))) {
-
-      // set original value
-      range.lte = _.cloneDeep(FormatOptionConverter.getDecimalValue(rangeList[index].fixMax, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep));
-      return;
-    }
-
-    // parse string to value
-    range = this.parseStrFloat(range);
-
-    // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = _.cloneDeep(this.uiOption.minValue);
-
-    // 하위 fixMin값
-    const lowerfixMin = rangeList[index + 1] ?(rangeList[index + 1].fixMin) ? rangeList[index + 1].fixMin : rangeList[index + 1].fixMax : null;
-
-    // 최소값인경우
-    if (!rangeList[index + 1]) {
-
-      // 사용가능범위인경우
-      if (uiMinValue < range.lte && rangeList[index - 1].fixMin > range.lte) {
-
-        range.fixMax = range.lte;
-        rangeList[index-1].gt = range.lte;
-      } else {
-        // 기존값으로 리턴
-        range.lte = range.fixMax;
-      }
-    }
-    // 최대값이 입력가능범위를 벗어나는경우
-    else if (range.fixMax < range.lte || (lowerfixMin > range.lte)) {
-
-      // 기존값으로 리턴
-      range.lte = range.fixMax;
-    } else {
-      range.fixMax = range.lte;
-    }
-
-    // 상위의 최대값에 같은값 입력
-    if (rangeList[index - 1]) {
-
-      rangeList[index - 1].fixMin = range.lte;
-      rangeList[index - 1].gt = range.lte;
-    }
-
-    // 최소값이 현재 최대값보다 큰경우 최소값과 하위 최대값 변경
-    if (null != range.fixMin && rangeList[index + 1] && range.fixMin > range.fixMax) {
-
-      range.gt = range.fixMax;
-      rangeList[index + 1].lte = range.fixMax;
-      rangeList[index + 1].fixMax = range.fixMax;
-    }
-
-    // set changed range in list
-    rangeList[index] = range;
-
-    this.applyLayers();
-  }
-
-  /**
    * equalize custom color range
    */
   public equalColorRange(layerIndex : number): void {
@@ -1258,10 +1261,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     event.stopPropagation();
 
     // hide other range preview
-    _.each(this.rangesViewList, (item) => {
-      if (item['minInputShow']) delete item['minInputShow'];
-      if (item['maxInputShow']) delete item['maxInputShow'];
-    });
+    this.removeInputRangeShowStatus();
 
     item.minInputShow = inputShow;
 
@@ -1281,10 +1281,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     event.stopPropagation();
 
     // hide other range preview
-    _.each(this.rangesViewList, (item) => {
-      if (item['minInputShow']) delete item['minInputShow'];
-      if (item['maxInputShow']) delete item['maxInputShow'];
-    });
+    this.removeInputRangeShowStatus();
 
     item.maxInputShow = inputShow;
 
@@ -1632,6 +1629,35 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   public analysisVisibilityBtn() {
     this.uiOption['analysis']['includeCompareLayer'] = !this.uiOption['analysis']['includeCompareLayer'];
     this.applyLayers({type : EventType.MAP_CHANGE_OPTION});
+  }
+
+  /**
+   * number validation regex
+   * @param value
+   */
+  private isNumberRegex(value: any): boolean {
+    // 숫자 정규식 (범위는 : -000.000 ~ 000.000)
+    const regex: RegExp = /^(?!-0?(\.0+)?$)-?(0|[1-9]\d*)?(\.\d+)?(?<=\d)$/;
+    // comma 빼기
+    if( value.indexOf(',') != -1) {
+      value = value.replace(/,/g, '');
+    }
+    const isValueNumber: boolean = regex.test(value);
+    return isValueNumber;
+  }
+
+  private removeInputRangeShowStatus() {
+    // hide other range preview
+    _.each(this.rangesViewList, (item) => {
+      if (item['minInputShow']) delete item['minInputShow'];
+      if (item['maxInputShow']) delete item['maxInputShow'];
+    });
+    if(!_.isUndefined(this.uiOption.layers[this.index].color.ranges) && this.uiOption.layers[this.index].color.ranges.length > 0) {
+      this.uiOption.layers[this.index].color.ranges.forEach( (uiItem) => {
+        if (uiItem['minInputShow']) delete uiItem['minInputShow'];
+        if (uiItem['maxInputShow']) delete uiItem['maxInputShow'];
+      });
+    }
   }
 
 }

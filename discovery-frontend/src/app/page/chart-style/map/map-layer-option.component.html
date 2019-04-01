@@ -225,10 +225,11 @@
                                             (click)="showMinInputColorRange(item, true, minInput, rangeIndex)"> {{item['gt']}}</span>
                                       <input #minInput
                                              [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}"
-                                             type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right"
+                                             type="text" class="ddp-input-typebasic ddp-txt-right"
                                              [(ngModel)]="item['gt']"
-                                             (keyup.enter)="changeRangeMinInput(item, rangeIndex, layerIndex)"
-                                             (focusout)="showMinInputColorRange(item, false, minInput)">
+                                             (mouseenter)="item['minInputShow'] = true;"
+                                             (mouseleave)="item['minInputShow'] = false;"
+                                             (keyup.enter)="changeRangeMinInput(item, rangeIndex, layerIndex)">
                                       <!-- tooltip -->
                                       <div class="ddp-ui-tooltip-info">
                                         <em class="ddp-icon-view-down"></em>
@@ -250,10 +251,11 @@
                                             (click)="showMaxInputColorRange(item, true, maxInput, rangeIndex)">{{item['lte']}}</span>
                                       <input #maxInput
                                              [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}"
-                                             type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right"
+                                             type="text" class="ddp-input-typebasic ddp-txt-right"
                                              [(ngModel)]="item['lte']"
-                                             (keyup.enter)="changeRangeMaxInput(item, rangeIndex, layerIndex)"
-                                             (focusout)="showMaxInputColorRange(item, false, maxInput)">
+                                             (mouseenter)="item['maxInputShow'] = true;"
+                                             (mouseleave)="item['maxInputShow'] = false;"
+                                             (keyup.enter)="changeRangeMaxInput(item, rangeIndex, layerIndex)">
                                       <!-- tooltip -->
                                       <div class="ddp-ui-tooltip-info">
                                         <em class="ddp-icon-view-down"></em>
@@ -306,7 +308,7 @@
                             <div class="ddp-box-option-input ddp-type ddp-inline">
                               <span class="ddp-txt-input">%</span>
                               <span class="ddp-txt-input"></span>
-                              <input type="number" input-mask="number"
+                              <input type="number"
                                      [ngModel]="uiOption.layers[layerIndex].color.transparency"
                                      (keyup.enter)="changeTransparencyText($event, layerIndex);">
                             </div>
@@ -504,7 +506,7 @@
                               </div>
                               <div class="ddp-box-option-input ddp-type ddp-inline">
                                 <span class="ddp-txt-input">%</span>
-                                <input type="number" input-mask="number"
+                                <input type="number"
                                        [ngModel]="uiOption.layers[layerIndex]['coverage']"
                                        (keyup.enter)="changeClusteringText($event, layerIndex);">
                               </div>
@@ -555,7 +557,7 @@
                         <div class="ddp-box-option-input ddp-type ddp-inline">
                           <span class="ddp-txt-input">%</span>
                           <span class="ddp-txt-input"></span>
-                          <input type="number" input-mask="number" [ngModel]="uiOption.layers[layerIndex]['blur']"
+                          <input type="number" [ngModel]="uiOption.layers[layerIndex]['blur']"
                                  (keyup.enter)="changeBlurText($event,layerIndex)">
                         </div>
                       </div>
@@ -580,7 +582,7 @@
                         <div class="ddp-box-option-input ddp-type ddp-inline">
                           <!--<span class="ddp-txt-input">%</span>-->
                           <span class="ddp-txt-input"></span>
-                          <input type="number" input-mask="number" [ngModel]="uiOption.layers[layerIndex]['radius']"
+                          <input type="number" [ngModel]="uiOption.layers[layerIndex]['radius']"
                                  (keyup.enter)="changeRadiusText($event,layerIndex)">
                         </div>
                       </div>
@@ -610,7 +612,7 @@
                         <div class="ddp-box-option-input ddp-type ddp-inline">
                           <!--<span class="ddp-txt-input">%</span>-->
                           <span class="ddp-txt-input"></span>
-                          <input type="number" input-mask="number" [ngModel]="uiOption.layers[layerIndex]['radius']"
+                          <input type="number" [ngModel]="uiOption.layers[layerIndex]['radius']"
                                  (keyup.enter)="changeHexagonRadiusText($event, layerIndex)">
                         </div>
                       </div>
@@ -680,7 +682,7 @@
                                   (pt)</span>
                               </div>
                               <div class="ddp-col-4">
-                                <input type="number" input-mask="number" class="ddp-input-typebasic ddp-txt-right"
+                                <input type="number" class="ddp-input-typebasic ddp-txt-right"
                                        [ngModel]="uiOption.layers[layerIndex].thickness.maxValue"
                                        (keyup.enter)="changeThickMaxValue($event, layerIndex)">
                               </div>
