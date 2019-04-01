@@ -1091,7 +1091,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    */
   public showDataZoom(show: boolean): void {
     const chartZooms = _.cloneDeep(this.uiOption.chartZooms);
-    chartZooms.map((zoom) => {
+    chartZooms.forEach((zoom) => {
       zoom.auto = show;
     });
 
