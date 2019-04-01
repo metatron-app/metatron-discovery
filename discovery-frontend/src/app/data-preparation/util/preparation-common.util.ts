@@ -603,7 +603,7 @@ export class PreparationCommonUtil {
 
 
   /**
-   * Find name to get svg icon, Also used in dataset detail to show type
+   * Find name to get svg icon
    * HIVE, MYSQL, POSTGRESQL, PRESTO, TIBERO, ORACLE
    * EXCEL, CSV, JSON, TXT
    * @param {PrDataset} ds
@@ -613,8 +613,8 @@ export class PreparationCommonUtil {
 
     let name = '';
     if (ds.importType === ImportType.UPLOAD || ds.importType === ImportType.URI) {
-      name = ds.fileFormat.toString();
-    } else if (ds.importType === ImportType.DATABASE) {
+      name = this.getFileFormatWithExtension(this.getFileNameAndExtension(ds.filenameBeforeUpload)[1]).toString();
+    }  else if (ds.importType === ImportType.DATABASE) {
       name = ds['dcImplementor'];
     } else if (ds.importType === ImportType.STAGING_DB) {
       return 'HIVE'
@@ -626,22 +626,23 @@ export class PreparationCommonUtil {
 
 
   /**
-   * import type ==> UPLOAD, URI, DATABASE, STAGING_DB
-   * storeUriOrDcImplementor
-   *  storeURI ==> UPLOAD URI 경우 storeURI를 이용해서 file extension을 찾는다
-   *  dcImplementor ==> DB 일 경우 dbtype ! mysql, postgre etc
-   * @param importType
-   * @param storeUriOrDcImplementor
+   * There are different ways to show type of dataset
+   * Database ==> DB(MYSQL) etc
+   * STAGING  ==> STAGING_DB
+   * FILE     ==> FILE(EXCEL)
+   * URI      ==> URI(EXCEL)
+   * @param dataset
    */
-  public static getDatasetType(importType: ImportType, storeUriOrDcImplementor: string) {
+  public static getDatasetType(dataset: PrDataset) {
 
     let result:any = '';
-    const iType: string = this.getImportType(importType);
+    const iType: string = this.getImportType(dataset.importType);
 
     if ('FILE' === iType || 'URI' === iType) {
-      result = `(${this.getFileFormatWithExtension(storeUriOrDcImplementor)})`
+      const ext = this.getFileNameAndExtension(dataset.filenameBeforeUpload)[1];
+      result = `(${this.getFileFormatWithExtension(ext)})`
     } else if ('DB' === iType) {
-      result = `(${storeUriOrDcImplementor})`;
+      result = `(${dataset['dcImplementor']})`;
     }
     return `${iType}${result}`
   }

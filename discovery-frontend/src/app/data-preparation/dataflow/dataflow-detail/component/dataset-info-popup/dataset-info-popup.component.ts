@@ -15,30 +15,38 @@
 import * as $ from "jquery";
 import * as pixelWidth from 'string-pixel-width';
 import {isNull, isNullOrUndefined, isUndefined} from 'util';
-declare let Split;
 import * as _ from 'lodash';
 
 import {
   ChangeDetectorRef,
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
   ViewChild
 } from '@angular/core';
-import { AbstractComponent } from '../../../../../common/component/abstract.component';
-import { PrDataset, DsType, ImportType, RsType, Rule } from '../../../../../domain/data-preparation/pr-dataset';
-import { DeleteModalComponent } from '../../../../../common/component/modal/delete/delete.component';
-import { PrDataflow } from '../../../../../domain/data-preparation/pr-dataflow';
-import { Alert } from '../../../../../common/util/alert.util';
-import { Modal } from '../../../../../common/domain/modal';
-import { PreparationAlert } from '../../../../util/preparation-alert.util';
-import { DataflowService } from '../../../service/dataflow.service';
-import { Field } from '../../../../../domain/workbook/configurations/field/field';
-import { header, SlickGridHeader } from '../../../../../common/component/grid/grid.header';
-import { GridComponent } from '../../../../../common/component/grid/grid.component';
-import { GridOption } from 'app/common/component/grid/grid.option';
-import { DatasetService } from '../../../../dataset/service/dataset.service';
-import { StringUtil } from '../../../../../common/util/string.util';
-import { PreparationCommonUtil } from "../../../../util/preparation-common.util";
+import {AbstractComponent} from '../../../../../common/component/abstract.component';
+import {DsType, ImportType, PrDataset, RsType, Rule} from '../../../../../domain/data-preparation/pr-dataset';
+import {DeleteModalComponent} from '../../../../../common/component/modal/delete/delete.component';
+import {PrDataflow} from '../../../../../domain/data-preparation/pr-dataflow';
+import {Alert} from '../../../../../common/util/alert.util';
+import {Modal} from '../../../../../common/domain/modal';
+import {PreparationAlert} from '../../../../util/preparation-alert.util';
+import {DataflowService} from '../../../service/dataflow.service';
+import {Field} from '../../../../../domain/workbook/configurations/field/field';
+import {header, SlickGridHeader} from '../../../../../common/component/grid/grid.header';
+import {GridComponent} from '../../../../../common/component/grid/grid.component';
+import {GridOption} from 'app/common/component/grid/grid.option';
+import {DatasetService} from '../../../../dataset/service/dataset.service';
+import {StringUtil} from '../../../../../common/util/string.util';
+import {PreparationCommonUtil} from "../../../../util/preparation-common.util";
 import {DataflowModelService} from "../../../service/dataflow.model.service";
+
+declare let Split;
 
 @Component({
   selector: 'app-dataset-info-popup',
@@ -196,9 +204,9 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   public ngAfterViewInit() {
     setTimeout( () => {
       this._split = Split(['.sys-dataflow-left-panel', '.sys-dataflow-right-panel'], { sizes: [80, 20], minSize: [300,300], onDragEnd : (() => {
-        this.gridComponent.resize();
-        this.datasetEventHandler.emit('resize');
-      }) });
+          this.gridComponent.resize();
+          this.datasetEventHandler.emit('resize');
+        }) });
     }, 500 );
   } // function -  ngAfterViewInit
 
@@ -378,8 +386,8 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
    * @param {PrDataset} selectedDatset
    */
   public getDatasetInfo(selectedDatset : PrDataset) {
+    this.loadingShow();
     this.dataflowService.getDataset(selectedDatset.dsId).then((dataset: any) => {
-      this.loadingHide();
 
       this.selectedDataSet = $.extend(selectedDatset, dataset);
 
@@ -406,10 +414,13 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
         }
 
         this.getDatasetInformationList(this.selectedDataSet);
+        this.loadingHide();
 
       },0);
 
     }).catch((error) => {
+
+      this.loadingHide();
       this.clearGrid = true;
       this.clearExistingInterval();
       let prep_error = this.dataprepExceptionHandler(error);
@@ -590,7 +601,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     };
     this.loadingShow();
     this.datasetService.updateDataset(newDataset)
-      //.then((dataset: Dataset) => {
+    //.then((dataset: Dataset) => {
       .then((dataset: PrDataset) => {
         this.isDatasetNameEdit = false;
         this.isDatasetDescEdit = false;
@@ -651,29 +662,6 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
 
   /**
-   * Returns type
-   * @param {ImportType} type
-   * @param {string} fileName
-   * @returns {string}
-   */
-  public getDatasetType(type: ImportType, fileName : string) : string {
-
-    let result = '';
-    if (type === ImportType.UPLOAD) {
-      let extension = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(fileName)[1];
-      if(extension.toUpperCase() === 'XLSX' || extension.toUpperCase() === 'XLS') {
-        result =  'EXCEL'
-      } else if (extension.toUpperCase() === 'CSV' || extension.toUpperCase() === 'TXT' ) {
-        result =  'CSV'
-      } else {
-        result = extension.toUpperCase()
-      }
-    }
-    return result;
-  }
-
-
-  /**
    * Set dataset information according to dataset type
    * @param dataset
    */
@@ -690,14 +678,23 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
       // FILE
     }  else if (dataset.importType === ImportType.UPLOAD || dataset.importType === ImportType.URI) {
-      let filepath : string = dataset.importType === ImportType.UPLOAD? dataset.filenameBeforeUpload : dataset.storedUri;
 
-      this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : `${this.prepCommonUtil.getImportType(dataset.importType)} (${this.getDatasetType(dataset.importType, filepath)})`},
-        {name : this.translateService.instant('msg.dp.th.file'), value : `${filepath}` },
+      // FIXME : use filenameBeforeUpload or storedUri ?
+      let filepath : string = dataset.filenameBeforeUpload;
+
+      this.datasetInformationList = [
+        {
+          name: this.translateService.instant('msg.comm.th.type'),
+          value: PreparationCommonUtil.getDatasetType(dataset)
+        },
+        {
+          name : this.translateService.instant('msg.dp.th.file'),
+          value : `${filepath}`
+        },
       ];
 
       // EXCEL
-      if (this.getDatasetType(dataset.importType, filepath) === 'EXCEL') {
+      if (PreparationCommonUtil.getFileNameAndExtension(dataset.filenameBeforeUpload)[1].toUpperCase() === 'EXCEL') {
         this.datasetInformationList.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.getSheetName() })
       }
 
@@ -708,14 +705,16 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       this.datasetInformationList.push(
         {name : this.translateService.instant('msg.dp.th.summary'), value :this.getRows},
         {name : '', value : this.getCols()}
-        )
+      )
 
 
       // STAGING OR DB
     } else if (dataset.importType === 'STAGING_DB' || dataset.importType === 'DATABASE') {
 
       this.datasetInformationList = [
-        { name : this.translateService.instant('msg.comm.th.type') , value : dataset.importType === 'STAGING_DB' ? 'STAGING_DB' : 'DB' }];
+        {
+          name: this.translateService.instant('msg.comm.th.type'),
+          value: PreparationCommonUtil.getDatasetType(dataset) }];
 
       if (!isNullOrUndefined(this.getDatabase)) {
         this.datasetInformationList.push({ name : `${this.translateService.instant('msg.dp.th.database')}`, value : `${this.getDatabase}` });
@@ -887,8 +886,6 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
         .build()
       );
     }
-
-    this.loadingHide();
   }
 
 

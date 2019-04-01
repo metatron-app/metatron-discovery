@@ -75,8 +75,6 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
   // 노드간 링크 리스트
   private chartLinks: any[] = [];
 
-  private readonly SVG_LOCATION: string = 'image://' + window.location.origin + '/assets/images/datapreparation/svg/icon_';
-
   // Change Detect
   public changeDetect: ChangeDetectorRef;
 
@@ -154,8 +152,6 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(
     private dfService: DataflowService,
     private dfModelService : DataflowModelService,
@@ -319,33 +315,6 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
 
   }
 
-  // 팝업끼리 관리하는 모델들 초기화
-  public init() {
-
-    this._initialiseValues();
-    this._initialiseChartValues();
-
-    // Get param from url
-    this.activatedRoute.params.subscribe((params) => {
-
-      if (!_.isNil(params['id'])) {
-        this.dfId = params['id'];
-      }
-
-      if (!this.dfModelService.isSelectedDsIdAndDsTypeEmpty()) {
-        this.selectedDataSet.dsId = this.dfModelService.getSelectedDsId();
-        this.selectedDataSet.dsType = this.dfModelService.getSelectedDsType();
-
-        this.dfModelService.emptyDsIdAndDsType();
-
-        this.getDataflow(true);
-      } else {
-        this.getDataflow();
-      }
-
-    });
-  }
-
   /**
    * 데이터플로로우 이름, 설명 편집 
    */
@@ -507,58 +476,6 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
     }
   }
 
-  /**
-   * 데이터셋 타입 아이콘
-   * @param datasetType
-   */
-  public getIconClass(datasetType): string {
-    let result = '';
-    switch (datasetType.toLowerCase()) {
-      case 'dataset':
-        result = 'ddp-icon-flow-dataset';
-        break;
-      case 'wrangled':
-        result = 'ddp-icon-flow-wrangled';
-        break;
-      case 'db':
-        result = 'ddp-icon-flow-db';
-        break;
-      case 'mysql':
-        result = 'ddp-icon-flow-mysql';
-        break;
-      case 'post':
-        result = 'ddp-icon-flow-post';
-        break;
-      case 'hive':
-        result = 'ddp-icon-flow-db';
-        break;
-      case 'presto':
-        result = 'ddp-icon-flow-presto';
-        break;
-      case 'phoenix':
-        result = 'ddp-icon-flow-phoenix';
-        break;
-      case 'tibero':
-        result = 'ddp-icon-flow-tibero';
-        break;
-      case 'file':
-        result = 'ddp-icon-flow-file';
-        break;
-      case 'xls':
-        result = 'ddp-icon-flow-xls';
-        break;
-      case 'xlsx':
-        result = 'ddp-icon-flow-xlsx';
-        break;
-      case 'csv':
-        result = 'ddp-icon-flow-csv';
-        break;
-      default:
-        Alert.error(this.translateService.instant('msg.common.ui.no.icon.type'));
-        break;
-    }
-    return result;
-  }
 
   /**
    * chart에서 icon에 selected/unselected표시
@@ -573,7 +490,7 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
         temp = temp.series[0].nodes.filter((node) => {
           if (_.eq(node.dsId, dataset.dsId)) {
             if (init) {
-              node.symbol = this.symbolInfo.SELECTED[dataset.dsType];
+              node.symbol = this.symbolInfo[node.type]['SELECTED'];
               this.chart.setOption(temp);
             } else {
               node.detailType = dataset.dsType;
@@ -592,7 +509,7 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
           if (!isUndefined(temp1)) {
             temp1 = temp1.series[0].nodes.filter((node) => {
               if (_.eq(node.dsId, dataset.dsId)) {
-                node.symbol = this.symbolInfo.SELECTED[dataset.dsType];
+                node.symbol = this.symbolInfo[node.type]['SELECTED'];
                 tempChart.setOption(temp1);
               }
             });
@@ -682,7 +599,6 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
             this.changeChartClickStatus(this.selectedDataSet, true);
             (this.datasetInfoPopup) && (this.datasetInfoPopup.setDataset(this.selectedDataSet));
           }
-
           this.loadingHide();
 
         }).catch((error) => {
@@ -691,6 +607,7 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
         });
 
       } else {
+        this.loadingHide();
         Alert.warning(this.translateService.instant('msg.dp.alert.no.flow.info'));
       }
 
@@ -1025,10 +942,6 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
 
   } // function - createNodeTree
 
-  private _getDatasetType(dataset) {
-
-
-  }
 
   /**
    * 차트 노드 생성
@@ -1039,21 +952,20 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
    * @returns {{dsId: (string | any); dsName: (string | any); name: (string | any); dsType; importType: any; detailType: any; flowName: any; upstream: any; children: Array; value: any[]; symbol: any; originSymbol: any; label: any}}
    */
   private createNode(dataset: PrDataset, depth: number, position: number, rootNode?: any) {
-    let importType: ImportType = dataset.importType;
-    let detailType = null;
-    let flowName = null;
 
-    flowName = dataset.creatorDfId;
-    detailType = 'DEFAULT';
-
-    this.symbolInfo[importType]
-
-    const nodeSymbol = DsType.IMPORTED === dataset.dsType ? this.symbolInfo[dataset.dsType][importType][detailType] : this.symbolInfo[dataset.dsType][detailType];
-
+    let importType: ImportType = dataset.importType|| null;
+    let detailType: string = 'DEFAULT';
+    let flowName: string = dataset.creatorDfId;
+    let name = PreparationCommonUtil.getNameForSvgWithDataset(dataset);
+    if (name === '') {
+      name = 'WRANGLED';
+    }
+    let nodeSymbol = this.symbolInfo[name][detailType];
     const node = {
       dsId: dataset.dsId,
       dsName: dataset.dsName,
       name: dataset.dsId,
+      type: name,
       dsType: dataset.dsType,
       importType: importType != null ? importType : undefined,
       detailType: detailType != null ? detailType : undefined,
@@ -1181,8 +1093,8 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
         clearSelectedNodeEffect();
       } else {
         option.series[params.seriesIndex].nodes.map((node, idx) => {
-          if (_.eq(idx, params.dataIndex) && params.data.detailType) {
-            node.symbol = symbolInfo.SELECTED[params.data.dsType];
+          if (_.eq(idx, params.dataIndex) && params.data.type) {
+            node.symbol = symbolInfo[params.data.type]['SELECTED'];
           } else {
             node.symbol = _.cloneDeep(node.originSymbol);
           }
@@ -1245,69 +1157,63 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
    * @private
    */
   private _initialiseChartValues() {
-    this.symbolInfo = {
-      IMPORTED: {
-        UPLOAD: {
-          CSV : {
-            DEFAULT: this.SVG_LOCATION + 'file_csv.svg',
-            SELECTED: this.SVG_LOCATION + 'file_csv_focus.svg',
-          },
-          EXCEL : {
-            DEFAULT: this.SVG_LOCATION + 'file_xls.svg',
-            SELECTED: this.SVG_LOCATION + 'file_xls_focus.svg',
-          },
-          JSON : {
-            DEFAULT: this.SVG_LOCATION + 'file_json.svg',
-            SELECTED: this.SVG_LOCATION + 'file_json_focus.svg',
-          },
-          TXT : {
-            DEFAULT: this.SVG_LOCATION + 'file_txt.svg',
-            SELECTED: this.SVG_LOCATION + 'file_txt_focus.svg',
-          }
-        },
-        URI: {
-          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.png',
-        },
-        DATABASE: {
-          MYSQL: {
-            DEFAULT: this.SVG_LOCATION + 'db_mysql.svg',
-            SELECTED: this.SVG_LOCATION + 'db_mysql_focus.svg',
-          },
-          HIVE: {
-            DEFAULT: this.SVG_LOCATION + 'db_hive.svg',
-            SELECTED: this.SVG_LOCATION + 'db_hive_focus.svg',
-          },
-          PRESTO: {
-            DEFAULT: this.SVG_LOCATION + 'db_presto.svg',
-            SELECTED: this.SVG_LOCATION + 'db_presto_focus.svg',
-          },
-          DRUID: {
-            DEFAULT: this.SVG_LOCATION + 'db_druid.svg',
-            SELECTED: this.SVG_LOCATION + 'db_druid_focus.svg',
-          },
-          POSTGRESQL: {
-            DEFAULT: this.SVG_LOCATION + 'db_post.svg',
-            SELECTED: this.SVG_LOCATION + 'db_post_focus.svg',
-          },
-          ORACLE: {
-            DEFAULT: this.SVG_LOCATION + 'db_oracle.svg',
-            SELECTED: this.SVG_LOCATION + 'db_oracle_focus.svg',
-          },
-          TIBERO: {
-            DEFAULT: this.SVG_LOCATION + 'db_tibero.svg',
-            SELECTED: this.SVG_LOCATION + 'db_tibero_focus.svg',
-          },
 
+    const SVG_LOCATION: string = 'image://' + window.location.origin + '/assets/images/datapreparation/svg/icon_';
+
+    this.symbolInfo = {
+        CSV : {
+          DEFAULT: SVG_LOCATION + 'file_csv.svg',
+          SELECTED: SVG_LOCATION + 'file_csv_focus.svg',
+        },
+        EXCEL : {
+          DEFAULT: SVG_LOCATION + 'file_xls.svg',
+          SELECTED: SVG_LOCATION + 'file_xls_focus.svg',
+        },
+        JSON : {
+          DEFAULT: SVG_LOCATION + 'file_json.svg',
+          SELECTED: SVG_LOCATION + 'file_json_focus.svg',
+        },
+        TXT : {
+          DEFAULT: SVG_LOCATION + 'file_txt.svg',
+          SELECTED: SVG_LOCATION + 'file_txt_focus.svg',
+        },
+        MYSQL: {
+          DEFAULT: SVG_LOCATION + 'db_mysql.svg',
+          SELECTED: SVG_LOCATION + 'db_mysql_focus.svg',
+        },
+        HIVE: {
+          DEFAULT: SVG_LOCATION + 'db_hive.svg',
+          SELECTED: SVG_LOCATION + 'db_hive_focus.svg',
+        },
+        PRESTO: {
+          DEFAULT: SVG_LOCATION + 'db_presto.svg',
+          SELECTED: SVG_LOCATION + 'db_presto_focus.svg',
+        },
+        DRUID: {
+          DEFAULT: SVG_LOCATION + 'db_druid.svg',
+          SELECTED: SVG_LOCATION + 'db_druid_focus.svg',
+        },
+        POSTGRESQL: {
+          DEFAULT: SVG_LOCATION + 'db_post.svg',
+          SELECTED: SVG_LOCATION + 'db_post_focus.svg',
+        },
+        ORACLE: {
+          DEFAULT: SVG_LOCATION + 'db_oracle.svg',
+          SELECTED: SVG_LOCATION + 'db_oracle_focus.svg',
+        },
+        TIBERO: {
+          DEFAULT: SVG_LOCATION + 'db_tibero.svg',
+          SELECTED: SVG_LOCATION + 'db_tibero_focus.svg',
         },
         STAGING_DB: {
-          DEFAULT: this.SVG_LOCATION + 'db_hive.svg',
-          SELECTED: this.SVG_LOCATION + 'db_hive_focus.svg'
+          DEFAULT: SVG_LOCATION + 'db_hive.svg',
+          SELECTED: SVG_LOCATION + 'db_hive_focus.svg'
+        },
+        WRANGLED: {
+          DEFAULT: SVG_LOCATION + 'dataset_wrangled_.svg',
+          SELECTED: SVG_LOCATION + 'dataset_wrangled_focus.svg',
         }
-      },
-      WRANGLED: {
-        DEFAULT: this.SVG_LOCATION + 'dataset_wrangled_.svg',
-        SELECTED: this.SVG_LOCATION + 'dataset_wrangled_focus.svg',
-      }
+
     };
 
     const labelOption = {

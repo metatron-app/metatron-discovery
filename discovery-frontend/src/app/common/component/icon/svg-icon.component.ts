@@ -54,7 +54,7 @@ export class SvgIconComponent extends AbstractComponent implements OnInit, OnDes
     {name: 'MYSQL', class: {a: 'icon-db-mysql-b', b: 'icon-db-mysql'}},
     {name: 'PRESTO', class: {a: 'icon-db-presto-b', b: 'icon-db-presto'}},
     {name: 'TIBERO', class: {a: 'icon-db-tibero-b', b: 'icon-db-tibero'}},
-    {name: 'POSTGRE', class: {a: 'icon-db-post-b', b: 'icon-db-post'}},
+    {name: 'POSTGRESQL', class: {a: 'icon-db-post-b', b: 'icon-db-post'}},
     {name: 'ORACLE', class: {a: 'icon-db-oracle-b', b: 'icon-db-oracle'}},
     {name: 'PHOENIX', class: {a: 'icon-db-phoenix-b', b: 'icon-db-phoenix'}},
     {name: 'CSV', class: {a: 'icon-file-csv-b', b: 'icon-file-csv-b'}},
