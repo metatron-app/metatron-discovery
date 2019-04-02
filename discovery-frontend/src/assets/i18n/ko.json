@@ -2195,6 +2195,7 @@
   "msg.storage.ui.file.name": "파일 이름",
   "msg.storage.ui.linked.source.preview.include.geo": "연결형 데이터는 Geo타입에 대한 데이터 미리보기를 지원하지 않습니다.",
   "msg.storage.ui.linked.source.preview": "엔진에 적재된 데이터가 아닌 원본 데이터 입니다. 대시보드 생성할 때, 임시 적재되는 데이터 값이 이 데이터 값과 다를 수 있습니다.",
+  "msg.storage.ph.search.timezone": "타임존 검색",
 
   "msg.storage.ui.timezone.country.zimbabwe": "짐바브웨",
   "msg.storage.ui.timezone.country.zambia": "잠비아",

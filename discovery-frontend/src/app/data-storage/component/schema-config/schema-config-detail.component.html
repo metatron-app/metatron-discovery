@@ -255,10 +255,10 @@
                 -->
                 <div class="ddp-type-selectbox ddp-type-search-select ddp-result" [class.ddp-selected]="isShowTimezoneList" (click)="onChangeTimezoneSelectBoxShowFlag($event)" (clickOutside)="isShowTimezoneList = false">
                   <!-- 선택시 자동 input display:block; -->
-                  <input type="text" class="ddp-input-selectbox" [ngModel]="searchTimezoneKeyword" (ngModelChange)="onChangeSearchTimezoneKeyword($event)">
+                  <input type="text" class="ddp-input-selectbox" placeholder="{{'msg.storage.ph.search.timezone' | translate}}" [ngModel]="searchTimezoneKeyword" (ngModelChange)="onChangeSearchTimezoneKeyword($event)">
                   <span class="ddp-txt-selectbox">{{getSelectedTimezoneLabel(selectedField.format)}}</span>
                   <div class="ddp-wrap-popup2">
-                    <ul class="ddp-list-popup">
+                    <ul class="ddp-list-popup ddp-focus-hover">
                       <li *ngIf="filteredTimezoneList && filteredTimezoneList.length === 0">
                         <span class="ddp-noresult">{{'msg.comm.ui.no.rslt' | translate}}</span>
                       </li>

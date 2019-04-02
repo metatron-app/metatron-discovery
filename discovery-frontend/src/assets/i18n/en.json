@@ -2197,6 +2197,7 @@
   "msg.storage.ui.file.name": "File name",
   "msg.storage.ui.linked.source.preview.include.geo": "Linked data does not support preview for Geo type.",
   "msg.storage.ui.linked.source.preview": "This data grid is source data, not ingested data. This may differ from the temporarily ingested data value when creating a dashboard.",
+  "msg.storage.ph.search.timezone": "Search Time zone",
 
   "msg.storage.ui.timezone.country.zimbabwe": "Zimbabwe",
   "msg.storage.ui.timezone.country.zambia": "Zambia",

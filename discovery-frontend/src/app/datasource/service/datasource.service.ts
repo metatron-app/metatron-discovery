@@ -370,8 +370,8 @@ export class DatasourceService extends AbstractService {
                   delete field.format['timeZone'];
                   delete field.format['locale'];
                 } else {
-                  field.format['timeZone'] = this._timezoneSvc.browserTimezone.momentName;
-                  field.format['locale'] = this._timezoneSvc.browserLocal;
+                  field.format['timeZone'] = this._timezoneSvc.getBrowserTimezone().momentName;
+                  field.format['locale'] = this._timezoneSvc.browserLocale;
                 }
               }
             });
@@ -396,8 +396,8 @@ export class DatasourceService extends AbstractService {
                 delete column.format['timeZone'];
                 delete column.format['locale'];
               } else {
-                column.format.timeZone = this._timezoneSvc.browserTimezone.momentName;
-                column.format.locale = this._timezoneSvc.browserLocal;
+                column.format.timeZone = this._timezoneSvc.getBrowserTimezone().momentName;
+                column.format.locale = this._timezoneSvc.browserLocale;
               }
             }
           });
@@ -412,8 +412,8 @@ export class DatasourceService extends AbstractService {
                 delete row.format['timeZone'];
                 delete row.format['locale'];
               } else {
-                row.format.timeZone = this._timezoneSvc.browserTimezone.momentName;
-                row.format.locale = this._timezoneSvc.browserLocal;
+                row.format.timeZone = this._timezoneSvc.getBrowserTimezone().momentName;
+                row.format.locale = this._timezoneSvc.browserLocale;
               }
             }
           });
