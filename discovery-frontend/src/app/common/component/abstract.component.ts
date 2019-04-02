@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, ChangeDetectorRef, ElementRef, HostListener, Injector, OnDestroy, OnInit} from '@angular/core';
 import * as $ from 'jquery';
+import {AfterViewInit, ChangeDetectorRef, ElementRef, HostListener, Injector, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {Loading} from '../util/loading.util';
 import {TranslateService} from '@ngx-translate/core';
@@ -37,6 +37,8 @@ import {Observable} from 'rxjs';
 import {filter, map} from 'rxjs/operators';
 import {isUndefined} from "util";
 import {ImplementorType} from "../../domain/dataconnection/dataconnection";
+
+declare let moment;
 
 export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanComponentDeactivate {
 
@@ -247,6 +249,18 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   public isPermissionManager() {
     return CommonUtil.isValidPermission(SYSTEM_PERMISSION.MANAGE_WORKSPACE);
   } // function - isPermissionManager
+
+  /**
+   * moment 재정의
+   * @param date
+   */
+  public customMoment( date:(Date|string) ) {
+    if (date.constructor === String) {
+      return moment((<string>date).replace('.000Z', ''));
+    } else {
+      return moment(date);
+    }
+  } // function - customMoment
 
   // noinspection JSMethodCanBeStatic
   /**
@@ -629,7 +643,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
     let connImgUrl = '';
     switch (impType) {
       case ImplementorType.MYSQL:
-        connImgUrl = location.origin + '/assets/images/img_db/ic_db_mysql.png';
+        connImgUrl = location.origin + '/assets/images/img_db/ic-db-mysql.png';
         break;
       case ImplementorType.HIVE:
         connImgUrl = location.origin + '/assets/images/img_db/ic_db_hive.png';
@@ -660,7 +674,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
     let connImgUrl = '';
     switch (impType) {
       case ImplementorType.MYSQL:
-        connImgUrl = location.origin + '/assets/images/img_db/ic_db_mysql_w.png';
+        connImgUrl = location.origin + '/assets/images/img_db/ic-db-mysql-w.png';
         break;
       case ImplementorType.HIVE:
         connImgUrl = location.origin + '/assets/images/img_db/ic_db_hive_w.png';
