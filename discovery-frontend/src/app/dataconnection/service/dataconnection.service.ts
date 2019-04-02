@@ -295,12 +295,13 @@ export class DataconnectionService extends AbstractService {
   }
 
   /**
-   * Get detail data in stagingDB
+   * Get detail data in StagingDB
+   *
    * @param params
    * @param {boolean} extractColumnName
    */
-  public getTableDataForHive(params: any, extractColumnName: boolean = false): Promise<any> {
-    return this.post(this.API_URL + 'connections/query/hive/data?extractColumnName=' + extractColumnName, params);
+  public getTableDataForHive(params, extractColumnName: boolean = false) {
+    return this.post(`${this.API_URL}connections/query/hive/data?extractColumnName=${extractColumnName}`, params);
   }
 
   /**

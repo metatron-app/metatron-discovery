@@ -40,6 +40,8 @@ import {
 import {StringUtil} from '../../../common/util/string.util';
 import {TimeZoneObject, TimezoneService} from "../../service/timezone.service";
 import {SchemaConfigDataPreviewComponent} from "./schema-config-data-preview.component";
+import {isNullOrUndefined} from "util";
+import {FieldConfigService} from "../../service/field-config.service";
 
 declare let moment: any;
 
@@ -165,8 +167,6 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
   public geoCoordinateList: any[] = [
     'EPSG:4326', 'EPSG:4301'
   ];
-  // GEO coordinate list show / hide flag
-  public geoCoordinateListShowFlag: boolean = false;
 
   // unit list
   public formatUnitList: any[] = [
@@ -200,6 +200,7 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
   // 생성자
   constructor(private _datasourceService: DatasourceService,
               private _timezoneService: TimezoneService,
+              private fieldConfigService: FieldConfigService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -282,7 +283,7 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
         // params
         const params = {
           format: field.format.type === FieldFormatType.UNIX_TIME ? 'time_unix' : field.format.format,
-          samples: field.ingestionRule.value
+          samples: [field.ingestionRule.value]
         };
         // if format type is UNIX, add format unit
         if (field.format.type === FieldFormatType.UNIX_TIME) {
@@ -466,6 +467,24 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
   }
 
   /**
+   * Is GEO type field
+   * @param {Field} field
+   * @return {boolean}
+   */
+  public isGeoTypeField(field: Field): boolean {
+    return field.logicalType === LogicalType.GEO_POINT || field.logicalType === LogicalType.GEO_LINE || field.logicalType === LogicalType.GEO_POLYGON;
+  }
+
+  /**
+   * Is GEO format error
+   * @param {Field} field
+   * @return {boolean}
+   */
+  public isGeoFormatError(field: Field): boolean {
+    return field.format && !field.format.isValidFormat;
+  }
+
+  /**
    * Is unix type field
    * @param {Field} field
    * @return {boolean}
@@ -543,10 +562,24 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
       const fieldLogicalType: LogicalType = field.logicalType;
       // change logical type
       field.logicalType = type.value;
-      // if field logical type change to GEO, not exist originalSrsName
-      if (type.value.indexOf('GEO_') !== -1 && !field.format || (field.format && !field.format.originalSrsName)) {
-        // set default
-        field.format = {type: type.value.toLowerCase(), originalSrsName: 'EPSG:4326'};
+      // if field logical type change to GEO
+      if (type.value === LogicalType.GEO_POINT || type.value === LogicalType.GEO_POLYGON || type.value === LogicalType.GEO_LINE) {
+        // if not exist format in field
+        if (isNullOrUndefined(field.format)) {
+          field.format = new FieldFormat();
+        }
+        // loading show
+        this.loadingShow();
+        // valid WKT
+        this.fieldConfigService.checkEnableGeoTypeAndSetValidationResult(field.format, this.selectedFieldDataList, type.value)
+          .then((result) => {
+            // loading hide
+            this.loadingHide();
+          })
+          .catch((error) => {
+            // loading hide
+            this.loadingHide();
+          });
       } else if (fieldLogicalType.toString().indexOf('GEO_') !== -1 && type.value.indexOf('GEO_') === -1) { // if field logical type is GEO
         // remove format
         delete field.format;
@@ -765,13 +798,13 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
           // set time format valid FALSE
           field.isValidTimeFormat = false;
           // set time format valid message
-          field.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.column.format.null');
+          field.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.required.match.data');
         }})
       .catch((error) => {
         // set time format valid FALSE
         field.isValidTimeFormat = false;
         // set time format valid message
-        field.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.column.format.null');
+        field.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.required.match.data');
       });
   }
 

@@ -50,6 +50,10 @@ public class MetadataSourceProjections extends BaseProjections {
     @Value("#{@metaSourceService.getSourcesBySourceId(target.type, target.sourceId)}")
     Object getSource();
 
+    String getSchema();
+
+    String getTable();
+
     @Value("#{@cachedUserService.findUserProfile(target.createdBy)}")
     UserProfile getCreatedBy();
 

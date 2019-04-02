@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild } from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
 import {
   ConnectionType,
   DatasourceInfo,
@@ -23,16 +23,18 @@ import {
   IngestionRuleType,
   LogicalType
 } from '../../../domain/datasource/datasource';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { DatasourceService } from '../../../datasource/service/datasource.service';
-import { StringUtil } from '../../../common/util/string.util';
-import { AddColumnComponent } from '../../data-source-list/component/add-column.component';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {StringUtil} from '../../../common/util/string.util';
+import {AddColumnComponent} from '../../data-source-list/component/add-column.component';
 import * as _ from 'lodash';
-import { Alert } from '../../../common/util/alert.util';
-import { SchemaConfigActionBarComponent } from './schema-config-action-bar.component';
-import { SchemaConfigDetailComponent } from './schema-config-detail.component';
-import { TimezoneService } from "../../service/timezone.service";
+import {Alert} from '../../../common/util/alert.util';
+import {SchemaConfigActionBarComponent} from './schema-config-action-bar.component';
+import {SchemaConfigDetailComponent} from './schema-config-detail.component';
+import {TimezoneService} from "../../service/timezone.service";
 import {DataSourceCreateService} from "../../service/data-source-create.service";
+import {FieldConfigService} from "../../service/field-config.service";
+import {isNullOrUndefined} from "util";
 
 @Component({
   selector: 'schema-config-component',
@@ -100,6 +102,7 @@ export class SchemaConfigComponent extends AbstractComponent {
   constructor(private datasourceCreateService: DataSourceCreateService,
               private datasourceService: DatasourceService,
               private timezoneService: TimezoneService,
+              private fieldConfigService: FieldConfigService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -374,6 +377,26 @@ export class SchemaConfigComponent extends AbstractComponent {
     fieldList.length !== 0 && this._initTimeFormatInTimestampFieldList(fieldList);
   }
 
+  public onChangedLogicalTypeToGeo(fieldList: Field[]): void {
+    console.log(fieldList);
+    if (fieldList.length !== 0) {
+      this.loadingShow();
+      const q = [];
+      fieldList.forEach((field) => {
+        // if not exist format in field
+        if (isNullOrUndefined(field.format)) {
+          field.format = new FieldFormat();
+        }
+        const fieldDataList: string[] = this._getFieldDataList(field);
+        q.push(
+          this.fieldConfigService.checkEnableGeoTypeAndSetValidationResult(field.format, fieldDataList, this.fieldConfigService.convertType(field.logicalType))
+            .then(() => {})
+            .catch(() => {}));
+      });
+      Promise.all(q).then(() => this.loadingHide()).catch(() => this.loadingHide());
+    }
+  }
+
   /**
    * Revival field click event
    * @param {Field} field
@@ -452,7 +475,11 @@ export class SchemaConfigComponent extends AbstractComponent {
     // is not removed field, is time format error or ingestion value error
     return !field.unloaded &&
       ((field.logicalType === LogicalType.TIMESTAMP && (field.format && field.format.type === FieldFormatType.DATE_TIME) && field.isValidTimeFormat === false)
-        || (field.ingestionRule && field.ingestionRule.type === IngestionRuleType.REPLACE && field.isValidReplaceValue === false));
+        || (field.ingestionRule && field.ingestionRule.type === IngestionRuleType.REPLACE && field.isValidReplaceValue === false) || this.isGeoFormatError(field));
+  }
+
+  public isGeoFormatError(field: Field): boolean {
+    return (field.logicalType === LogicalType.GEO_LINE || field.logicalType === LogicalType.GEO_POINT || field.logicalType === LogicalType.GEO_POLYGON)&& field.format && !field.format.isValidFormat;
   }
 
   /**
@@ -564,6 +591,9 @@ export class SchemaConfigComponent extends AbstractComponent {
       if (field.ingestionRule && field.ingestionRule.type === IngestionRuleType.REPLACE && !field.isValidReplaceValue) {
         field.isValidReplaceValue = false;
         field.replaceValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
+        acc = true;
+      }
+      if (this.isGeoFormatError(field)) {
         acc = true;
       }
       return acc;

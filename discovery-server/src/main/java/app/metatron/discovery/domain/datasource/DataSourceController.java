@@ -27,6 +27,13 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.MultiLineString;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.io.WKTReader;
 import org.quartz.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +65,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -69,6 +77,7 @@ import app.metatron.discovery.common.MetatronProperties;
 import app.metatron.discovery.common.criteria.ListCriterion;
 import app.metatron.discovery.common.criteria.ListFilter;
 import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.common.entity.SearchParamValidator;
 import app.metatron.discovery.common.exception.BadRequestException;
 import app.metatron.discovery.common.exception.MetatronException;
@@ -820,6 +829,73 @@ public class DataSourceController {
     }
 
     return ResponseEntity.ok(new CronValidationResponse(true, afterTimes));
+  }
+
+  /**
+   * Cron 표현식의 유효성을 체크합니다
+   */
+  @RequestMapping(value = "/datasources/validation/wkt", method = RequestMethod.POST)
+  public ResponseEntity<?> checkWktType(@RequestBody WktCheckRequest wktCheckRequest) {
+
+    LogicalType type = wktCheckRequest.getGeoType();
+
+    WKTReader wktReader = new WKTReader();
+    Geometry geometry = null;
+
+    boolean valid = true;
+    String message = null;
+    LogicalType suggestType = null;
+    for (String value : wktCheckRequest.getValues()) {
+      try {
+        geometry = wktReader.read(value);
+
+        LogicalType parsedType = findGeoType(geometry).orElseThrow(
+                () -> new RuntimeException("ERROR_NOT_SUPPORT_WKT_TYPE")
+        );
+
+        if (type != parsedType) {
+          suggestType = parsedType;
+          throw new RuntimeException("ERROR_NOT_MATCHED_WKT_TYPE");
+        }
+
+      } catch (org.locationtech.jts.io.ParseException e) {
+        LOGGER.debug("WKT Parse error ({}), Invalid WKT String : {}", e.getMessage(), value);
+        valid = false;
+        message = "ERROR_PARSE_WKT";
+        break;
+      } catch (Exception ex) {
+        LOGGER.debug("WKT validation error ({}), Invalid WKT String : {}", ex.getMessage(), value);
+        valid = false;
+        message = ex.getMessage();
+        break;
+      }
+    }
+
+    Map<String, Object> resultResponse = Maps.newLinkedHashMap();
+    resultResponse.put("valid", valid);
+    resultResponse.put("suggestType", suggestType);
+    resultResponse.put("message", message);
+
+    return ResponseEntity.ok(resultResponse);
+  }
+
+  private Optional<LogicalType> findGeoType(Geometry geometry) {
+
+    Class<? extends Geometry> c = geometry.getClass();
+    LogicalType logicalType = null;
+    if (c.equals(Point.class)) {
+      logicalType = LogicalType.GEO_POINT;
+    } else if (c.equals(LineString.class)) {
+      logicalType = LogicalType.GEO_LINE;
+    } else if (c.equals(Polygon.class)) {
+      logicalType = LogicalType.GEO_POLYGON;
+    } else if (c.equals(MultiLineString.class)) {
+      logicalType = LogicalType.GEO_LINE;
+    } else if (c.equals(MultiPolygon.class)) {
+      logicalType = LogicalType.GEO_POLYGON;
+    }
+
+    return Optional.ofNullable(logicalType);
   }
 
   @RequestMapping(value = "/datasources/duration/{duration}", method = RequestMethod.GET, produces = "application/json")

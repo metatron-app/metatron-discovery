@@ -54,14 +54,17 @@ import {DataSnapshotService} from "../../../data-preparation/data-snapshot/servi
 import {DataconnectionService} from "../../../dataconnection/service/dataconnection.service";
 import {SchemaConfigDataPreviewComponent} from "../../component/schema-config/schema-config-data-preview.component";
 import {DataflowModelService} from "../../../data-preparation/dataflow/service/dataflow.model.service";
+import {DataStorageCommonModule} from "../../data-storage-common.module";
 import {DataStorageShareModule} from "../../data-storage-share.module";
+
 
 @NgModule({
   imports: [
     CommonModule,
     WorkbenchEditorModule,
     FileModule,
-    DataStorageShareModule
+    DataStorageCommonModule,
+    DataStorageShareModule,
   ],
   declarations: [
     TimeComponent,

@@ -126,8 +126,10 @@ export class Field {
   // Physical data type on engine
   type: string;
   // logical type
+  // TODO type.Logical 변경 필요
   logicalType: LogicalType;
   // 필드 타입
+  // TODO type.Role 변경 필요
   role: FieldRole;
   // Partition 대상 필드 인지 여부
   partitioned: boolean;
@@ -175,11 +177,17 @@ export class Field {
   segGranularity?: GranularityType;  // segGranularity
 
   // [UI] for Create Datasource
+  isValidType?: boolean;
   isValidTimeFormat?: boolean;
   isValidReplaceValue?: boolean;
+  typeValidMessage?: string;
   replaceValidMessage?: string;
   timeFormatValidMessage?: string;
   checked?: boolean;
+
+  // [UI] valid layer popup
+  isShowTypeList?: boolean;
+  isShowTimestampValidPopup?: boolean;
 
   // [UI] for Alias
   dsId?:string;                   // 데이터소스 아이디
@@ -450,21 +458,49 @@ export class FieldFormat {
   format: string;
   // default FieldFormatType.DATE_TIME
   type: FieldFormatType;
-  // default FieldFormatUnit.MILLISECOND
   unit: FieldFormatUnit;
   // timezone (default browser) TODO 추후 서비스 로직에서 default 설정
   timeZone: string;
   locale: string;
-  constructor() {
+  // GEO format
+  originalSrsName?: string;
+  ////////////////////////////////////////////////////////////////////////////
+  // Value to be used only on View
+  ////////////////////////////////////////////////////////////////////////////
+  isValidTimeFormat?: boolean;
+  timeFormatValidMessage?: string;
+  // TODO 아래로 통일
+  isValidFormat?: boolean;
+  formatValidMessage?: string;
+
+  formatInitialize() {
+    this.format = 'yyyy-MM-dd';
+  }
+
+  geoCoordinateInitialize() {
+    this.originalSrsName = 'EPSG:4326';
+  }
+
+  unitInitialize() {
     this.unit = FieldFormatUnit.MILLISECOND;
+  }
+
+  constructor() {
     this.type = FieldFormatType.DATE_TIME;
+    // TODO 타임스탬프 개선시 제거
+    this.unit = FieldFormatUnit.MILLISECOND;
   }
 }
 
 export enum FieldFormatType {
+  // TIMESTAMP
   DATE_TIME = <any>'time_format',
   UNIX_TIME = <any>'time_unix',
   TEMPORARY_TIME = <any>'time_temporary',
+  // GEO type
+  GEO_POINT = <any>'geo_point',
+  GEO_LINE = <any>'geo_line',
+  GEO_POLYGON = <any>'geo_polygon',
 }
 
 export enum FieldFormatUnit {
