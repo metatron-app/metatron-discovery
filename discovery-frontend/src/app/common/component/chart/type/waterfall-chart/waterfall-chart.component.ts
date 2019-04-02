@@ -546,7 +546,7 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
         result.push(seriesValue);
       }
     }
-    return result.join('\n');
+    return result.join('<br/>');
   }
 
 }

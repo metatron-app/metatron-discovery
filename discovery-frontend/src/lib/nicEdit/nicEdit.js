@@ -1261,7 +1261,8 @@ var nicLinkButton = nicEditorAdvancedButton.extend({
     this.removePane();
 
     if(!this.ln) {
-      var tmp = 'javascript:nicTemp();';
+      var tmp = this.inputs['title'].value;
+      ( undefined === tmp || '' === tmp ) && ( tmp = 'new_link' ) ;
       this.ne.nicCommand("createlink",tmp);
       this.ln = this.findElm('A','href',tmp);
     }
