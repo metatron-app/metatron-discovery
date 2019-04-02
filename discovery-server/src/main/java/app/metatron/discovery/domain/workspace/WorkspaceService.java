@@ -14,30 +14,15 @@
 
 package app.metatron.discovery.domain.workspace;
 
-import app.metatron.discovery.common.MatrixResponse;
-import app.metatron.discovery.common.exception.BadRequestException;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.CollectionPatch;
-import app.metatron.discovery.domain.activities.ActivityStreamService;
-import app.metatron.discovery.domain.datasource.DataSourceRepository;
-import app.metatron.discovery.domain.datasource.QDataSource;
-import app.metatron.discovery.domain.user.CachedUserService;
-import app.metatron.discovery.domain.user.DirectoryProfile;
-import app.metatron.discovery.domain.user.User;
-import app.metatron.discovery.domain.user.group.Group;
-import app.metatron.discovery.domain.user.group.GroupRepository;
-import app.metatron.discovery.domain.user.group.GroupService;
-import app.metatron.discovery.domain.user.role.*;
-import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
-import app.metatron.discovery.util.AuthUtils;
-import app.metatron.discovery.util.EnumUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -54,6 +39,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import app.metatron.discovery.common.MatrixResponse;
+import app.metatron.discovery.common.exception.BadRequestException;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.CollectionPatch;
+import app.metatron.discovery.domain.activities.ActivityStreamService;
+import app.metatron.discovery.domain.datasource.DataSourceRepository;
+import app.metatron.discovery.domain.datasource.QDataSource;
+import app.metatron.discovery.domain.user.CachedUserService;
+import app.metatron.discovery.domain.user.DirectoryProfile;
+import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.user.group.Group;
+import app.metatron.discovery.domain.user.group.GroupRepository;
+import app.metatron.discovery.domain.user.group.GroupService;
+import app.metatron.discovery.domain.user.role.Role;
+import app.metatron.discovery.domain.user.role.RoleRepository;
+import app.metatron.discovery.domain.user.role.RoleService;
+import app.metatron.discovery.domain.user.role.RoleSet;
+import app.metatron.discovery.domain.user.role.RoleSetRepository;
+import app.metatron.discovery.domain.user.role.RoleSetService;
+import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
+import app.metatron.discovery.util.AuthUtils;
+import app.metatron.discovery.util.EnumUtils;
 
 import static app.metatron.discovery.domain.workspace.Workspace.PublicType.SHARED;
 
@@ -325,7 +333,7 @@ public class WorkspaceService {
                                          .collect(Collectors.toList());
     joinedIds.add(currentUser);
 
-    List<String> roleNames = workspaceMemberRepository.findRoleNameByMemberIds(joinedIds);
+    List<String> roleNames = workspaceMemberRepository.findRoleNameByMemberIdsAndWorkspaceId(joinedIds, workspace.getId());
 
     // 멤버가 아닌 경우 빈값 노출
     if (CollectionUtils.isEmpty(roleNames)) {
