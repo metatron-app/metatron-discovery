@@ -45,6 +45,7 @@ public class CsvProcessor {
   File targetFile;
 
   private static int MAX_HEADER_NAME = 50;
+  private static int MAX_CSV_COLUMNS = 2048;
 
   Integer csvMaxCharsPerColumn;
 
@@ -77,6 +78,7 @@ public class CsvProcessor {
     if(csvMaxCharsPerColumn != null && csvMaxCharsPerColumn > 0){
       settings.setMaxCharsPerColumn(csvMaxCharsPerColumn);
     }
+    settings.setMaxColumns(MAX_CSV_COLUMNS);
 
     RowListProcessor rowProcessor = new RowListProcessor();
     settings.setProcessor(rowProcessor);
