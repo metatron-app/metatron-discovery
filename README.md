@@ -35,7 +35,7 @@ Screenshots
 <kbd><img title="Metatron-chart" src="https://user-images.githubusercontent.com/6300003/44201180-98bb4e80-a183-11e8-81da-54dd59d14330.png"></kbd><br />
 
 ### Analyze with Geospatial Data
-<kbd><img title="Metatron-map" src="https://user-images.githubusercontent.com/6300003/53152149-35115280-35f8-11e9-9911-7b99277aeab9.png"></kbd><br />
+<kbd><img title="Metatron-map" src="https://user-images.githubusercontent.com/8841220/55393660-a25dbf00-5578-11e9-99f3-4bfbcb256cd3.png"></kbd><br />
 
 ### Use Datasources
 <kbd><img title="Use-datasource" src="https://user-images.githubusercontent.com/6300003/44200744-51808e00-a182-11e8-8fc6-d30d56b4ab26.png"></kbd><br />
