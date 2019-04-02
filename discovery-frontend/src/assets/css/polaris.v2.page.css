@@ -6673,7 +6673,8 @@ em.ddp-icon-navimenu {margin:-8px 0 0 -8px; width:16px; height:16px; background-
 .ddp-ui-var-plus .ddp-data-error {color:#e70000; font-size:12px; font-style:italic;}
 .ddp-ui-var-plus .ddp-data-error:before {display:inline-block; width:13px; height:13px; background:url(../images/icon_info.png) no-repeat; vertical-align:middle; background-position:-28px top; content:'';}
 
-.ddp-ui-var-plus .ddp-ui-addview .ddp-box-buttons {padding:2px 0 0 46px;}
+.ddp-ui-var-plus .ddp-ui-addview .ddp-box-buttons {padding:2px 0 0 46px; overflow:hidden;}
+.ddp-ui-var-plus .ddp-ui-addview .ddp-box-buttons .ddp-btn-pop {float:left; margin:0 2px;}
 .ddp-ui-var-plus .ddp-list-form-plus {color:#b7b9c2; font-size:13px;}
 .ddp-ui-var-plus .ddp-list-form-plus .ddp-input-typebasic.ddp-readonly {border-color:transparent; background:none; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 .ddp-ui-var-plus .ddp-list-form-plus .ddp-input-typebasic.ddp-readonly.ddp-value {color:#90969f;}
@@ -6690,7 +6691,7 @@ em.ddp-icon-navimenu {margin:-8px 0 0 -8px; width:16px; height:16px; background-
 .ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list .ddp-box-typebasic .ddp-form-calen {float:left; width:100%;}
 .ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list input {cursor:text !important;}
 .ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list input[type="text"].ddp-readonly {cursor:pointer !important;}
-.ddp-ui-var-plus .ddp-list-form-plus .ddp-link-buttons {clear:both; padding:6px 0 3px 0;text-align:right;}
+.ddp-ui-var-plus .ddp-list-form-plus .ddp-link-buttons {float:right; clear:both; padding:6px 0 3px 0;text-align:right;}
 
 .ddp-ui-var-plus .ddp-list-blank {float:left; width:100%; margin-top:15px;position:relative; color:#b7b9c2; font-size:13px; letter-spacing:-1px;}
 

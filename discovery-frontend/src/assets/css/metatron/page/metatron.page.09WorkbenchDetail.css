@@ -151,7 +151,7 @@ html.ddp-width-auto body {min-width:auto;}
 .page-workbench .ddp-ui-rnb-contents .ddp-ui-title span.ddp-data-num {margin-left:3px}
 .page-workbench .ddp-ui-rnb-contents .ddp-ui-var-plus .ddp-ui-addview .ddp-box-addview {margin-bottom:2px;}
 .page-workbench .ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list.ddp-edit {background-color:#e7e7ea;}
-.ddp-ui-var-plus .ddp-list-form-plus .ddp-link-buttons .ddp-btn-pop {min-width:inherit; padding:6px 12px;}
+.ddp-ui-var-plus .ddp-list-form-plus .ddp-link-buttons .ddp-btn-pop {float:left; min-width:inherit; padding:6px 12px; margin-left:4px;}
 
 
 

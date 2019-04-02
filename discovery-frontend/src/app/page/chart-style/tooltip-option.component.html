@@ -53,7 +53,7 @@
           <div *ngIf="possibleChartCheck('tooltipSeriesName', uiOption.type)" class="ddp-part-check-b">
             <label class="ddp-label-checkbox ">
               <input type="checkbox" [ngModel]="!checkSeriesDisable() && uiOption.toolTip?.displayTypes && uiOption?.toolTip?.displayTypes.indexOf('SERIES_NAME') != -1"
-                     [disabled]="checkSeriesDisable()"
+                     [disabled]="checkSeriesDisable() || checkSeriesNameDisable()"
                      (click)="toggleDisplayType('SERIES_NAME', 3)">
               <i class="ddp-icon-checkbox"></i>
               <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.series.name' | translate}}</span>

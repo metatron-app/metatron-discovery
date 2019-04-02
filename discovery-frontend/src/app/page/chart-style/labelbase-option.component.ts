@@ -119,6 +119,27 @@ export class LabelBaseOptionComponent extends BaseOptionComponent implements OnI
   }
 
   /**
+   * set series name datalabel disable series name
+   * @returns {boolean}
+   */
+  public checkSeriesNameDisable(): boolean {
+
+    let seriesNameDisable: boolean = false;
+
+    switch (this.uiOption.type) {
+      // when heatmap chart disable series name
+      case ChartType.HEATMAP:
+        if (this.pivot.rows.length < 1) {
+          seriesNameDisable = true;
+        }
+        break;
+    }
+
+    return seriesNameDisable;
+
+  }
+
+  /**
    * categoryname disable 처리 여부
    * @returns {boolean}
    */
