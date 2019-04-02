@@ -26,11 +26,11 @@ public class WorkspaceMemberRepositoryImpl extends QueryDslRepositorySupport imp
     super(WorkspaceMember.class);
   }
 
-  public List<String> findRoleNameByMemberIds(List<String> memberId) {
+  public List<String> findRoleNameByMemberIdsAndWorkspaceId(List<String> memberId, String workspaceId) {
     QWorkspaceMember qMember = QWorkspaceMember.workspaceMember;
 
     JPQLQuery query = from(qMember).select(qMember.role).distinct()
-                                   .where(qMember.memberId.in(memberId));
+                                   .where(qMember.memberId.in(memberId).and(qMember.workspace.id.eq(workspaceId)));
 
     return query.fetch();
   }

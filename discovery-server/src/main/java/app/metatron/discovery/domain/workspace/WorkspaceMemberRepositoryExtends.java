@@ -18,7 +18,7 @@ import java.util.List;
 
 public interface WorkspaceMemberRepositoryExtends {
 
-  List<String> findRoleNameByMemberIds(List<String> memberId);
+  List<String> findRoleNameByMemberIdsAndWorkspaceId(List<String> memberId, String workspaceId);
 
   List<WorkspaceMember> findByWorkspaceIdAndMemberIds(String workspaceId, List<String> memberId);
 }
