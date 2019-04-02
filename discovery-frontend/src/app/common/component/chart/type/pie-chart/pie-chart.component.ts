@@ -252,8 +252,8 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
 
         if (!series.labelLine) series.labelLine = {};
         // set labelLine
-        series.labelLine.length = 0;
-        series.labelLine.length2 = 5;
+        series.labelLine.length = 10;
+        series.labelLine.length2 = 15;
 
         // remove text align
         if (series.label.normal.rich) delete series.label.normal.rich.align;
@@ -310,7 +310,7 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
       if(  -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT) ){
         let value = params.data.percentage;
         value = (Math.floor(Number(value) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal)).toFixed(format.decimal);
-        result.push(value +'%');
+        result.push( '(' + value +'%' + ')' );
         isUiData = true;
       }
 
@@ -320,7 +320,8 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
       if( isUiData ) {
         for( let num: number = 0 ; num < result.length ; num++ ) {
           if( num > 0 ) {
-            label += "\n";
+            // label += "\n";
+            label += " ";
           }
           if(series.label && series.label.normal && series.label.normal.rich) {
             label += '{align|'+ result[num] +'}';
@@ -329,6 +330,7 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
             label += result[num];
           }
         }
+
         return label;
 
         // 선택된 display label이 없는경우 빈값 리턴

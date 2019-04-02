@@ -62,6 +62,8 @@ export class InputComponent implements OnInit, OnDestroy {
 
   @Input() public immediately: boolean = false; // 즉시 값 적용 여부
 
+  @Input() public isTrim:boolean = true;        // 공백 제거 여부
+
   @Input() public showClear: boolean = true;    // Clear 버튼 표시 여부 ( 현재는 search 에서만 표시 )
 
   @Input() public inputClass: string = ''; // Input Element 클래스
@@ -203,7 +205,7 @@ export class InputComponent implements OnInit, OnDestroy {
    */
   protected setValue() {
     let inputValue = this._inputElm.nativeElement.value;
-    inputValue = inputValue ? inputValue.trim() : '';
+    inputValue = inputValue ? ( ( this.isTrim ) ? inputValue.trim() : inputValue ) : '';
     if (inputValue !== this.value) {
       if ('string' === this.valueType || ('number' === this.valueType && /^[0-9]*$/gi.test(inputValue))) {
         this.value = inputValue;
