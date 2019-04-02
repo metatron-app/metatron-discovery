@@ -437,7 +437,7 @@ public class DataSourceService {
 
         //my public workspace
         List<Workspace> publicWorkspaces
-            = workspaceService.getPublicWorkspaces(false, false, false, null);
+            = workspaceService.getPublicWorkspaces(false, null, false, null);
         for (Workspace workspace : publicWorkspaces) {
           criterion.addFilter(new ListFilter(criterionKey, "workspace",
                                              workspace.getId(), workspace.getName()));
