@@ -60,7 +60,7 @@
 
         <!-- description -->
         <!-- 클릭시 ddp-selected 추가 -->
-        <div class="ddp-box-navidet" [ngClass]="{'ddp-selected': isNotebookDescEditMode}" >
+        <div class="ddp-box-navidet" [title]="notebookDesc" [ngClass]="{'ddp-selected': isNotebookDescEditMode}" >
           <div class="ddp-wrap-navidet" (click)="onNotebookDescEdit($event)">
           <span class="ddp-data-navidet">{{notebookDesc||'msg.nbook.alert.input.description'|translate}}
             <em class="ddp-icon-edit2"></em>

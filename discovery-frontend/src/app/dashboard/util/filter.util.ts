@@ -467,6 +467,9 @@ export class FilterUtil {
    * @returns {string}
    */
   public static getDateTimeFormat(date: (Date | string), timeUnit: TimeUnit, isStart: boolean = true): string {
+    if( date.constructor === String ) {
+      date = (<string>date).replace( '.000Z', '' );
+    }
     switch (timeUnit) {
       case TimeUnit.SECOND:
         return moment(date).format('YYYY-MM-DD HH:mm:ss');

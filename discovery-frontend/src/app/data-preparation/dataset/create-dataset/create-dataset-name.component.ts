@@ -500,19 +500,18 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       // When table
       if (this.datasetJdbc.rsType === RsType.TABLE) {
         this.names[0] = this.datasetJdbc.tableInfo.tableName +' ('+this.datasetJdbc.dataconnection.connection.implementor+')';
+      } else {
+        this.names[0] = '';
       }
-
-      // When query
-
 
     } else if ('STAGING' === type) {
 
       // When table
       if (this.datasetHive.rsType === RsType.TABLE) {
         this.names[0] = `${this.datasetHive.tableInfo.tableName} (STAGING)`;
+      } else {
+        this.names[0] = '';
       }
-
-      // When query
 
     }
 

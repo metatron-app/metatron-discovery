@@ -106,7 +106,7 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
       if (currFilter && (
         !prevFilter || prevFilter.field !== currFilter.field ||
         0 < _.difference(prevFilter.intervals, currFilter.intervals).length)) {
-        this.setData(filterChanges.currentValue, true);
+        this.setData(filterChanges.currentValue, !filterChanges.firstChange);
       }
     }
   } // function - ngOnChanges

@@ -340,12 +340,16 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
       let pagedList: Candidate[] = _.cloneDeep(this._candidateList);
 
       if (this.filter.showSelectedItem) {
-        pagedList = pagedList.filter(item => -1 < this.filter.valueList.findIndex(val => val === item.name));
+        pagedList = pagedList.filter(item => {
+          return -1 < this.filter.valueList.findIndex(val => val === item.name);
+        });
       }
 
       // 검색 적용
       if ('' !== this.searchText) {
-        pagedList = pagedList.filter(item => -1 < item.name.toLowerCase().indexOf(this.searchText.toLowerCase()));
+        pagedList = pagedList.filter(item => {
+          return ( item.name ) ? -1 < item.name.toLowerCase().indexOf(this.searchText.toLowerCase()) : false;
+        });
       }
 
       // 총사이즈

@@ -830,7 +830,7 @@
         <!-- wrap divide -->
         <div class="ddp-wrap-divide ">
           <!--  divide -->
-          <div [ngClass]="{'ddp-wrap-disabled ddp-disabled' : !uiOption?.icons[0]?.show }" class="ddp-divide2">
+          <div class="ddp-divide2">
             <!-- slider -->
             <div class="ddp-wrap-option-slider">
               <span class="ddp-label-slider">{{'msg.page.common.kpi.icon' | translate}}</span>
@@ -842,7 +842,7 @@
               <!-- //Slide THREE -->
             </div>
             <!-- //slider -->
-            <div class="ddp-divide2">
+            <div [ngClass]="{'ddp-wrap-disabled ddp-disabled' : !uiOption?.icons[0]?.show }" class="ddp-divide2" >
               <component-select
                 #iconTargetListComp
                 [array]="kpiIconTargetList"
@@ -851,7 +851,7 @@
                 (onSelected)="kpiChangeIconTarget($event)"
               ></component-select>
             </div>
-            <div class="ddp-wrap-multy-express">
+            <div [ngClass]="{'ddp-wrap-disabled ddp-disabled' : !uiOption?.icons[0]?.show }" class="ddp-wrap-multy-express">
               <ul class="ddp-list-express ddp-multy4 ddp-type">
                 <li [class.ddp-selected]="kpiGetIconSelected('USER')" (click)="kpiChangeIconType('USER');">
                   <em class="ddp-img-kpi-type1"></em>
@@ -880,7 +880,7 @@
         <!-- //wrap divide -->
         <!-- wrap divide -->
         <div class="ddp-wrap-divide ">
-          <div [ngClass]="{'ddp-wrap-disabled ddp-disabled':!uiOption?.annotations[0]?.show}" class="ddp-divide2">
+          <div class="ddp-divide2">
             <!--  divide -->
             <div class="ddp-divide2">
               <!-- slider -->
@@ -894,23 +894,26 @@
                 <!-- //Slide THREE -->
               </div>
               <!-- //slider -->
-              <div class="ddp-divide2">
-                <component-select
-                  #textTargetListComp
-                  [class.ddp-disabled]="!uiOption?.annotations[0]?.show"
-                  [array]="kpiIconTargetList"
-                  [viewKey]="'name'"
-                  [defaultIndex]="kpiGetTextTargetIndex()"
-                  (onSelected)="kpiChangeTextTarget($event)"
-                ></component-select>
+              <div [ngClass]="{'ddp-wrap-disabled ddp-disabled':!uiOption?.annotations[0]?.show}" >
+                <div class="ddp-divide2">
+                  <component-select
+                    #textTargetListComp
+                    [class.ddp-disabled]="!uiOption?.annotations[0]?.show"
+                    [array]="kpiIconTargetList"
+                    [viewKey]="'name'"
+                    [defaultIndex]="kpiGetTextTargetIndex()"
+                    (onSelected)="kpiChangeTextTarget($event)"
+                  ></component-select>
+                </div>
+                <component-input
+                  [inputClass]="'ddp-input-typebasic ddp-font-size'"
+                  [value]="kpiTextTemp"
+                  [maxLen]="50"
+                  [autoFocus]="false"
+                  (inputBlur)="kpiTextTemp = kpiText"
+                  (changeValue)="kpiTextTemp = $event; kpiApplyText();">
+                </component-input>
               </div>
-              <component-input
-                [inputClass]="'ddp-input-typebasic ddp-font-size'"
-                [value]="kpiTextTemp"
-                [maxLen]="50"
-                (inputBlur)="kpiTextTemp = kpiText"
-                (changeValue)="kpiTextTemp = $event; kpiApplyText();">
-              </component-input>
             </div>
             <!--  //divide -->
           </div>
@@ -1004,7 +1007,7 @@
         <!-- divide -->
         <div class="ddp-divide2">
           <div class="ddp-list-label">{{'msg.page.common.pie.max.category' | translate}}</div>
-          <input type="number" (keyup.enter)="changeMaximumCategores(uiOption['maxCategory'])" (focusout)="changeMaximumCategores(uiOption['maxCategory'])" [(ngModel)]="uiOption['maxCategory']" input-mask="number" class="ddp-input-typebasic"
+          <input type="number" (keyup.enter)="changeMaximumCategores(uiOption['maxCategory'])" (focusout)="changeMaximumCategores(uiOption['maxCategory'])" [(ngModel)]="uiOption['maxCategory']" class="ddp-input-typebasic"
                  placeholder="{{'msg.page.common.pie.max.category.placeholder' | translate}}">
         </div>
         <!-- //divide -->
@@ -1029,7 +1032,7 @@
                 <div class="ddp-input-number" [ngClass]="{'ddp-disabled' : !uiOption.limitCheck}">
                   <input (keyup.enter)="onLimitChange(uiOption.limit)" (focusout)="onLimitChange(uiOption.limit)" [readonly]="!uiOption.limitCheck" [(ngModel)]="uiOption.limit"
                          placeholder="{{limitPlaceHolder}}"
-                         type="number" input-mask="number">
+                         type="number">
                   <div class="ddp-input-number-nav">
                     <div (click)="onLimitChange(uiOption.limit - 1)" class="ddp-input-number-button ddp-input-number-down"></div>
                     <div (click)="onLimitChange(uiOption.limit + 1)" class="ddp-input-number-button ddp-input-number-up"></div>

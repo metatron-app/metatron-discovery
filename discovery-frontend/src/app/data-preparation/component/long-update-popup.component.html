@@ -54,12 +54,11 @@
                     </colgroup>
                     <thead>
                     <tr>
-                      <th class="ddp-txt-center" (click)="checkAll();">
-                        <div class="ddp-ui-checkbox">
-                          <!--<div class="ddp-ui-checkbox" [ngClass]="{'ddp-checkboxtype' : partialChecked()}" >-->
-                          <input type="checkbox" class="ddp-checkbox-form" [checked]="isCheckAll && !isCheckAllDisabled" [disabled]="isCheckAllDisabled">
+                      <th class="ddp-txt-center">
+                        <label class="ddp-ui-checkbox" (click)="checkAll();">
+                          <input type="checkbox" class="ddp-checkbox-form" [checked]="isAllChecked()" [disabled]="isCheckAllDisabled()">
                           <i class="ddp-icon-checkbox"></i>
-                        </div>
+                        </label>
                       </th>
                       <th class="ddp-cursor" (click)="changeOrder('dsName');">
                         {{'msg.comm.menu.manage.prep.set' | translate}}
@@ -70,7 +69,7 @@
                       <th>
                         {{'msg.comm.th.type' | translate}}
                       </th>
-                      <th (click)="changeOrder('modifiedTime');">
+                      <th class="ddp-cursor" (click)="changeOrder('modifiedTime');">
                         {{'msg.comm.ui.list.last' | translate}}
                         <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'modifiedTime' || selectedContentSort.sort === 'default'"></em>
                         <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'asc'"></em>
@@ -97,11 +96,11 @@
                     <tr *ngFor="let item of datasets"
                         (click)="selectDataset(item);"
                         [ngClass]="{'ddp-selected': selectedDatasetId == item.dsId}">
-                      <td class="ddp-txt-center"  (click)="check($event, item);">
-                        <div class="ddp-ui-checkbox">
+                      <td class="ddp-txt-center">
+                        <label class="ddp-ui-checkbox" (click)="check(item);">
                           <input type="checkbox" class="ddp-checkbox-form" [disabled]="item.origin" [checked]="item.selected && !item.origin" >
                           <i class="ddp-icon-checkbox"></i>
-                        </div>
+                        </label>
                       </td>
                       <td>
                         <div class="ddp-txt-long" title="{{item.dsName}} {{item.dsDesc? ' - ' + item.dsDesc : ''}}">
@@ -109,17 +108,11 @@
                           <span class="ddp-txt-colortype" *ngIf="item.dsDesc">- {{item.dsDesc}}</span>
                         </div>
                       </td>
-
-                      <!--<td>-->
-                      <!--<span *ngIf="item.dsType.toString() === 'WRANGLED'">{{'msg.dp.ui.wrangled.ds' | translate}}</span>-->
-                      <!--<span *ngIf="item.dsType.toString() === 'IMPORTED'">Imported ({{prepCommonUtil.getImportType(item.importType)}})</span>-->
-                      <!--</td>-->
                       <td *ngIf="item.dsType.toString() === 'WRANGLED'">
                         <span>{{'msg.dp.ui.wrangled.ds' | translate}}</span>
                       </td>
 
                       <td *ngIf="item.dsType !== null && item.dsType.toString() === 'IMPORTED'">
-                        <!--<span *ngIf="item.importType.toString() === 'IMPORTED'">Imported ({{prepCommonUtil.getImportType(item.importType)}})</span>-->
                         <span class="ddp-data-source" *ngIf="item.importType !== null && item.importType.toString() === 'UPLOAD'">
                           <em class="ddp-icon-file"></em>
                           File
@@ -169,10 +162,6 @@
                     <thead>
                     <tr>
                       <th class="ddp-txt-center">
-                        <!--<div class="ddp-ui-checkbox" [ngClass]="{'ddp-checkboxtype' : partialChecked()}" >-->
-                        <!--<input type="checkbox" class="ddp-checkbox-form" [checked]="isCheckAll && !isCheckAllDisabled" [disabled]="isCheckAllDisabled">-->
-                        <!--<i class="ddp-icon-checkbox"></i>-->
-                        <!--</div>-->
                       </th>
                       <th class="ddp-cursor" (click)="changeOrder('dsName');">
                         {{'msg.comm.menu.manage.prep.set' | translate}}
@@ -269,7 +258,9 @@
         <!-- //설명 -->
         <!-- bottom option -->
         <div class="ddp-ui-bottomoption ddp-clear">
-          <span class="ddp-data-type ddp-fleft" *ngIf="layoutType == 'ADD'">{{'msg.dp.ui.sel.count' | translate: { value : countSelected } }}</span>
+          <span class="ddp-data-type ddp-fleft" *ngIf="layoutType == 'ADD'">
+            {{'msg.dp.ui.sel.count' | translate: { value : selectedDatasets.length } }}
+          </span>
 
           <a href="javascript:"
              class="ddp-type-link3 ddp-fright"

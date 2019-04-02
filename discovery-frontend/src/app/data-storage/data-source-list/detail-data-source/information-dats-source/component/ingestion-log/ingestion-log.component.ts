@@ -58,24 +58,26 @@ export class IngestionLogComponent extends AbstractComponent {
    * @param {string} progress
    * @param failResults
    */
-  public init(datasourceId: string, historyId: string, progress?: string, failResults?: any) {
+  public init(datasourceId: string, historyId: string, ingestionProgress?) {
     // init view
     this._initView();
     // set datasource id
     this._datasourceId = datasourceId;
     // set history id
     this.historyId = historyId;
-    // progress status step
-    this.ingestionProgress = progress;
-    // set fail object
-    this.failResultsObject = failResults;
+    // if exist ingestion progress
+    if (ingestionProgress) {
+      // progress status step
+      this.ingestionProgress = ingestionProgress['message'];
+      // set fail object
+      this.failResultsObject = ingestionProgress['failResults'];
+    }
     // show log component
     this.isShow = true;
     // is get all log
     this._isGetAllLog = false;
-
     // get ingestion result details
-    if (historyId && progress === 'ENGINE_RUNNING_TASK') {
+    if (historyId && this.ingestionProgress === 'ENGINE_RUNNING_TASK') {
       this._getIngestionDetails(this._datasourceId, this.historyId);
     }
   }

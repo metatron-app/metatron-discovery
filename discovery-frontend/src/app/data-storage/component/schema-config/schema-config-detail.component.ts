@@ -207,8 +207,6 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
   }
 
   ngOnInit() {
-    // set searched timezone list
-    this._setSearchedTimezoneList(this.searchTimezoneKeyword);
   }
 
   /**
@@ -226,6 +224,10 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
       // TODO ingestion setting 하면서 개편
       this.safelyDetectChanges();
       this._previewComponent.init(this.selectedField, this.selectedFieldDataList);
+      // search keyword initial
+      this.searchTimezoneKeyword = undefined;
+      // set searched timezone list
+      this._setSearchedTimezoneList(this.searchTimezoneKeyword);
     }
   }
 
@@ -608,7 +610,7 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
                   field.isValidTimeFormat = true;
                   // if enable timezone, set browser timezone at field
                   if (this._timezoneService.isEnableTimezoneInDateFormat(field.format)) {
-                    !field.format.timeZone && (field.format.timeZone = this._timezoneService.browserTimezone.momentName);
+                    !field.format.timeZone && (field.format.timeZone = this._timezoneService.getBrowserTimezone().momentName);
                     field.format.locale = this._timezoneService.browserLocale;
                   } else { // if not enable timezone
                     field.format.timeZone = TimezoneService.DISABLE_TIMEZONE_KEY;
@@ -787,7 +789,7 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
           field.isValidTimeFormat = true;
           // if enable timezone, set browser timezone at field
           if (this._timezoneService.isEnableTimezoneInDateFormat(field.format)) {
-            !field.format.timeZone && (field.format.timeZone = this._timezoneService.browserTimezone.momentName);
+            !field.format.timeZone && (field.format.timeZone = this._timezoneService.getBrowserTimezone().momentName);
             field.format.locale = this._timezoneService.browserLocale;
           } else { // if not enable timezone
             field.format.timeZone = TimezoneService.DISABLE_TIMEZONE_KEY;

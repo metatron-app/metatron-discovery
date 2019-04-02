@@ -39,6 +39,8 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   private selectedDatasetId : string;
+
+  private _timeOut: any;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -83,7 +85,7 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
   }
 
   ngOnDestroy() {
-    this.clearExistingInterval();
+    this.clearExistingTimeout();
     super.ngOnDestroy();
   }
 
@@ -112,29 +114,49 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
         this.loadingHide();
         this.isRequested = false;
 
-        this.dataset = data;
+        if (data) {
+          this.dataset = data;
+          if (data.gridResponse) {
+            this.clearGrid = false;
+            this._setGridData(data.gridResponse);
+          } else {
+            this.clearGrid = true;
+          }
+          this.changeDetect.detectChanges();
+          this._setDsInformationList(this.dataset);
 
-        if (data.gridResponse) {
-          this._setGridData(data.gridResponse);
+          this.clearExistingTimeout();
+          // FIXME : Used recursive instead of interval. Which is better?
+          if (this.dataset.totalLines === -1) {
+            this._timeOut = setTimeout(() => {
+              this.getDatasetInfo();
+            }, 3000)
+          }
         } else {
-          this.clearGrid = true;
+          this.datasetFetchFail();
         }
-        this.changeDetect.detectChanges();
-        this._setDsInformationList(this.dataset);
 
-        this.clearExistingInterval();
-
-        if (this.dataset.totalLines === -1) {
-          this.interval = setInterval(() => {
-            this.getDatasetInfo();
-          }, 3000)
-        }
       }).catch(() => {
-        this.loadingHide();
-        this.clearExistingInterval();
+        this.datasetFetchFail();
       })
     }
+    this.clearExistingTimeout();
+    this.loadingHide();
   } // function - getDatasetInfo
+
+
+  /**
+   * What happens when dataset detail fetch fails
+   */
+  public datasetFetchFail() {
+    this.loadingHide();
+    this.clearExistingTimeout();
+
+    this.dataset = new PrDataset();
+    this.isRequested = false;
+    this.clearGrid = true;
+    this._setDsInformationList();
+  }
 
 
   /** get rows */
@@ -157,7 +179,7 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
    * close popup
    */
   public closeBtn() {
-    this.clearExistingInterval();
+    this.clearExistingTimeout();
     this.closeEvent.emit();
   } // function - closeBtn
 
@@ -299,12 +321,12 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
 
 
   /**
-   * Clear interval
+   * Clear timeout
    */
-  private clearExistingInterval() {
-    if (!isNullOrUndefined(this.interval)) {
-      clearInterval(this.interval);
-      this.interval = undefined;
+  private clearExistingTimeout() {
+    if (!isNullOrUndefined(this._timeOut)) {
+      clearTimeout(this._timeOut);
+      this._timeOut = undefined;
     }
   }
 
@@ -313,20 +335,22 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
    * @param dataset
    * @private
    */
-  private _setDsInformationList(dataset : PrDataset) {
+  private _setDsInformationList(dataset? : PrDataset) {
 
     this.dsInformationList = [];
 
-    this.dsInformationList.push({label : this.translateService.instant('msg.comm.detail.created')
-      , value : moment.utc(dataset.createdTime).format('YYYY-MM-DD HH:mm')});
+    if (dataset) { // 서버에러나면 데이터셋 정보가 없을 수 있음
+      this.dsInformationList.push({label : this.translateService.instant('msg.comm.detail.created')
+        , value : moment.utc(dataset.createdTime).format('YYYY-MM-DD HH:mm')});
 
-    if (dataset.dcType !== 'JDBC') {
-      this.dsInformationList.push({label : this.translateService.instant('msg.comm.detail.size')
-        , value : this._getTotalBytes(dataset.totalBytes)});
+      if (dataset.dcType !== 'JDBC') {
+        this.dsInformationList.push({label : this.translateService.instant('msg.comm.detail.size')
+          , value : this._getTotalBytes(dataset.totalBytes)});
+      }
+
+      this.dsInformationList.push({label : this.translateService.instant('msg.comm.detail.rows')
+        , value : this.getRows });
     }
-
-    this.dsInformationList.push({label : this.translateService.instant('msg.comm.detail.rows')
-      , value : this.getRows });
 
   }
 

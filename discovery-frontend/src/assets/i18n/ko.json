@@ -103,6 +103,7 @@
   "msg.comm.th.role" : "역할",
   "msg.comm.btn.add": "추가",
   "msg.comm.search.usr" : "사용자 이름으로 찾기",
+  "msg.comm.search.usr_and_full" : "사용자 이름으로 찾기",
   "msg.comm.search.grp" : "그룹 이름으로 찾기",
   "msg.comm.ui.num.lists" : "데이터가 <strong>{{count}}</strong> 개 있습니다",
   "msg.comm.th.no" : "No.",
@@ -400,6 +401,7 @@
   "msg.space.th.server" : "서버",
   "msg.space.create.notebook.title" : "소스 타입을 선택해 주세요",
   "msg.space.warning.can-not-create-11depth-folder" : "하위 폴더는 10 Depth 까지만 만들 수 있습니다.",
+  "msg.space.ui.list.search.placeholder" : "서버명을 검색해 주세요",
 
   "msg.alert.retrieve.fail" : "조회에 실패하였습니다",
   "msg.alert.del.success" : "을(를) 삭제하였습니다",
@@ -1333,7 +1335,7 @@
   "msg.dp.alert.no.backtick.colname": "컬럼 이름에 back quote를 사용할 수 없습니다.",
   "msg.dp.alert.duplicate.colname" : "이미 사용중입니다",
   "msg.dp.alert.empty.column" : "컬럼 이름을 입력하세요",
-  "msg.dp.ui.list.my.file": "파일",
+  "msg.dp.ui.list.my.file": "My file",
   "msg.dp.th.sheet.name" : "시트 이름",
   "msg.dp.alert.dataset.fail.to.create" : "데이터셋 생성 실패",
   "msg.dp.alert.num.fail.dataset" : "{{value}}개의 데이터셋 생성이 실패하였습니다",
@@ -2197,6 +2199,7 @@
   "msg.storage.ui.file.name": "파일 이름",
   "msg.storage.ui.linked.source.preview.include.geo": "연결형 데이터는 Geo타입에 대한 데이터 미리보기를 지원하지 않습니다.",
   "msg.storage.ui.linked.source.preview": "엔진에 적재된 데이터가 아닌 원본 데이터 입니다. 대시보드 생성할 때, 임시 적재되는 데이터 값이 이 데이터 값과 다를 수 있습니다.",
+  "msg.storage.ph.search.timezone": "타임존 검색",
 
   "msg.storage.ui.timezone.country.zimbabwe": "짐바브웨",
   "msg.storage.ui.timezone.country.zambia": "잠비아",

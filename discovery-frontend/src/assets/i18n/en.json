@@ -103,6 +103,7 @@
   "msg.comm.th.role": "Role",
   "msg.comm.btn.add": "Add",
   "msg.comm.search.usr": "Search by User name",
+  "msg.comm.search.usr_and_full" : "Search by full name or username",
   "msg.comm.search.grp": "Search by Group name",
   "msg.comm.ui.num.lists" : "There are <strong>{{count}}</strong> entries.",
   "msg.comm.th.no": "No.",
@@ -400,6 +401,7 @@
   "msg.space.th.server" : "Server",
   "msg.space.create.notebook.title": "Select source type",
   "msg.space.warning.can-not-create-11depth-folder" : "You can only create subfolders to 10 depths.",
+  "msg.space.ui.list.search.placeholder" : "Search by sever name",
 
   "msg.alert.retrieve.fail" : "Failed to retrieve data",
   "msg.alert.del.success": " deleted",
@@ -2199,6 +2201,7 @@
   "msg.storage.ui.file.name": "File name",
   "msg.storage.ui.linked.source.preview.include.geo": "Linked data does not support preview for Geo type.",
   "msg.storage.ui.linked.source.preview": "This data grid is source data, not ingested data. This may differ from the temporarily ingested data value when creating a dashboard.",
+  "msg.storage.ph.search.timezone": "Search Time zone",
 
   "msg.storage.ui.timezone.country.zimbabwe": "Zimbabwe",
   "msg.storage.ui.timezone.country.zambia": "Zambia",
