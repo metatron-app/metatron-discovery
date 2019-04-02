@@ -152,6 +152,12 @@
     </div>
   </div>
 </div>
+
 <app-union-add-datasets
-  [editInfo]="editInfo" [isUpdate]="isUpdate" [existingDatasets]="datasets" [dfId]="dfId" (complete)="selectedDatasets($event);" *ngIf="isAddDatasetsModal">
+  *ngIf="isAddDatasetsModal"
+  [editInfo]="editInfo"
+  [existingDatasets]="datasets"
+  [dfId]="dfId"
+  (complete)="selectedDatasets($event);"
+  [masterDsId]="masterDataset.dsId">
 </app-union-add-datasets>
