@@ -104,11 +104,11 @@ To access Metatron Discovery, go to [http://localhost:8180](http://localhost:818
 
 Problems & Suggestions
 ----------------------------
-This project welcomes contributions and suggestions. If you encounter any bugs or want to request new features, feel free to open an [GitHub Issue](https://github.com/metatron-app/metatron-discovery/issues) in the repo so that the community can find resolutions for it. Although, please check before you raise an issue. That is, please make sure someone else hasn’t already created an issue for the same topic.
+This project welcomes contributions and suggestions. If you encounter any bugs or want to request new features, feel free to open an [GitHub Issue](https://github.com/metatron-app/metatron-discovery/issues) in the repo so that the community can find resolutions for it. Or reports bug to our [discussion forum](https://metatron.app/discussion/). Although, please check before you raise an issue. That is please make sure someone else hasn’t already created an issue for the same topic.
 
 Question
 ----------------------------
-Need help using Metatron Discovery? Ask away on our [Metatron Discovery User Group](https://groups.google.com/forum/#!forum/metatron-discovery)! Our fellow community member or our engineers will be glad to help you out! Or maybe you might want to check out our user manual on our website as well.
+Need help using Metatron Discovery? Ask away on our [discussion forum](https://metatron.app/discussion/)! Our fellow community members will be glad to help you out! Or you can check out our [user manual on our website](https://metatron.app/documents/) as well.
 
 License
 ----------------------------
