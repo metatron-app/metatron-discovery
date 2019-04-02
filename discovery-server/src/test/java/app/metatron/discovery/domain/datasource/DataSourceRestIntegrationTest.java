@@ -3502,6 +3502,37 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
+  public void dataSourceValidateWkt() throws JsonProcessingException {
+
+    //    List<String> wktList = Lists.newArrayList(
+    //        "LINESTRING (127.007656 37.491764, 127.027648 37.497879)",
+    //        "LINESTRING (127.027648 37.497879, 127.066436 37.509842)"
+    //    );
+
+    //
+    List<String> wktList = Lists.newArrayList(
+            "MULTIPOINT((3.5 5.6),(4.8 10.5))"
+    );
+
+    // @formatter:off
+    Response connRes =
+            given()
+                    .auth().oauth2(oauth_token)
+                    .accept(ContentType.JSON)
+                    .contentType(ContentType.JSON)
+                    .body(new WktCheckRequest("GEO_POINT", wktList))
+                    .log().all()
+                    .when()
+                    .post("/api/datasources/validation/wkt");
+
+    connRes.then()
+            .log().all()
+            .statusCode(HttpStatus.SC_OK);
+    // @formatter:on
+  }
+
+  @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   @Sql("/sql/test_dataconnection.sql")
   public void createSingleJdbcDataSourcePresetConnectionManual() {

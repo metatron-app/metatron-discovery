@@ -20,7 +20,6 @@ import {MetadataModelService} from './service/metadata.model.service';
 import {InputComponent} from '../../common/component/input/input.component';
 import * as _ from 'lodash';
 import {MetadataSourceType} from '../../domain/meta-data-management/metadata';
-import {Datasource, SourceType as DatasourceSourceType} from '../../domain/datasource/datasource';
 
 @Component({
   selector: 'app-metadata-detail-information',
@@ -281,11 +280,13 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
    * @returns {any}
    */
   public getDescription(description: string) {
+    if (_.isNil(description)) {
+      return;
+    }
     if (description === '') {
       return this.translateService.instant('msg.metadata.ui.no.description');
-    } else {
-      return description.replace(/\r\n|\n/gi, '<br>');
     }
+    return description.replace(/\r\n|\n/gi, '<br>');
   }
 
   public gotoDatasource() {
@@ -297,17 +298,12 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     this.router.navigate([`/management/storage/datasource/${datasourceId}`]);
   }
 
-  public isEngine() {
-    return new MetadataSourceType(this.metadataModelService.getMetadata().sourceType).isEngine();
+  public isSourceTypeDatasource() {
+    return !_.isNil(this.metadataModelService.getMetadata().source.source);
   }
 
-  public isSourceTypeDatasource() {
-
-    if (_.isNil(this.metadataModelService.getMetadata().source.source)) {
-      return false;
-    }
-
-    return (this.metadataModelService.getMetadata().source.source as Datasource).srcType === DatasourceSourceType.JDBC;
+  public isMetadataSourceTypeIsEngine() {
+    return new MetadataSourceType(this.metadataModelService.getMetadata().sourceType).isEngine();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

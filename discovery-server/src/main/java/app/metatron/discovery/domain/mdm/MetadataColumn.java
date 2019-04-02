@@ -91,6 +91,9 @@ public class MetadataColumn implements MetatronDomain<Long>  {
   @Column(name = "column_field_ref")
   private Long fieldRef;
 
+  @Column(name = "column_field_role")
+  private Field.FieldRole role;
+
   /**
    * Sequence for column alignment
    */
@@ -144,6 +147,7 @@ public class MetadataColumn implements MetatronDomain<Long>  {
     this.description = field.getDescription();
     this.format = field.getFormat();
     this.fieldRef = field.getId();
+    this.role = field.getRole();
     this.seq = field.getSeq();
     this.metadata = metadata;
   }
@@ -155,6 +159,9 @@ public class MetadataColumn implements MetatronDomain<Long>  {
     if (patch.hasProperty("seq")) this.seq = patch.getLongValue("seq");
     if(patch.hasProperty("type")) {
       this.type = SearchParamValidator.enumUpperValue(LogicalType.class, patch.getValue("type"), "type");
+    }
+    if (patch.hasProperty("role")) {
+      this.role = SearchParamValidator.enumUpperValue(Field.FieldRole.class, patch.getValue("role"), "role");
     }
     if(patch.hasProperty("description")) this.description = patch.getValue("description");
     if(patch.hasProperty("format")) {
@@ -182,6 +189,9 @@ public class MetadataColumn implements MetatronDomain<Long>  {
     if (patch.hasProperty("seq")) this.seq = patch.getLongValue("seq");
     if(patch.hasProperty("type")) {
       this.type = SearchParamValidator.enumUpperValue(LogicalType.class, patch.getValue("type"), "type");
+    }
+    if (patch.hasProperty("role")) {
+      this.role = SearchParamValidator.enumUpperValue(Field.FieldRole.class, patch.getValue("role"), "role");
     }
     if(patch.hasProperty("description")) this.description = patch.getValue("description");
     if(patch.hasProperty("format")) {
@@ -280,6 +290,14 @@ public class MetadataColumn implements MetatronDomain<Long>  {
 
   public void setFieldRef(Long fieldRef) {
     this.fieldRef = fieldRef;
+  }
+
+  public Field.FieldRole getRole() {
+    return role;
+  }
+
+  public void setRole(Field.FieldRole role) {
+    this.role = role;
   }
 
   public Long getSeq() {

@@ -14,7 +14,7 @@
 
 import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChildren} from '@angular/core';
 import {AbstractComponent} from '../../common/component/abstract.component';
-import {Datasource, FieldFormat, FieldFormatType, LogicalType, SourceType} from '../../domain/datasource/datasource';
+import {FieldFormat, FieldFormatType, LogicalType} from '../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import {MetadataService} from './service/metadata.service';
 import {MetadataModelService} from './service/metadata.model.service';
@@ -27,6 +27,7 @@ import {ColumnDictionaryService} from '../column-dictionary/service/column-dicti
 import {Alert} from '../../common/util/alert.util';
 import {CommonConstant} from '../../common/constant/common.constant';
 import {MetadataSourceType} from '../../domain/meta-data-management/metadata';
+import {Type} from '../../shared/datasource-metadata/domain/type';
 
 class Order {
   key: string = 'physicalName';
@@ -111,6 +112,8 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   @Input()
   public isNameEdit: boolean;
 
+  public readonly ROLE = Type.Role;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -189,12 +192,11 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   public isSourceTypeDatasource() {
+    return !_.isNil(this.metaDataModelService.getMetadata().source.source);
+  }
 
-    if (_.isNil(this.metaDataModelService.getMetadata().source.source)) {
-      return false;
-    }
-
-    return (this.metaDataModelService.getMetadata().source.source as Datasource).srcType === SourceType.JDBC;
+  public isMetadataSourceTypeIsEngine() {
+    return new MetadataSourceType(this.metaDataModelService.getMetadata().sourceType).isEngine();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -240,10 +242,6 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
     return column.type === logicalType;
   }
 
-  public isEngine() {
-    return new MetadataSourceType(this.metaDataModelService.getMetadata().sourceType).isEngine();
-  }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - event
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -280,6 +278,11 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
    * @param {number} index
    */
   public onShowLogicalTypeList(column: MetadataColumn, index: number): void {
+
+    if (!this.isLogicalTypesLayerActivation(column)) {
+      return;
+    }
+
     // 컬럼 사전이 정해져있지 않을때
     if (!this.isSelectedDictionary(column)) {
       // show flag
@@ -460,6 +463,10 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
     this.columnList = _.orderBy(this.columnList, this.selectedContentSort.key, 'asc' === this.selectedContentSort.sort ? 'asc' : 'desc');
   }
 
+  public isLogicalTypesLayerActivation(column: MetadataColumn) {
+    return column.type !== LogicalType.GEO_LINE && column.type !== LogicalType.GEO_POINT && column.type !== LogicalType.GEO_LINE;
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -499,14 +506,32 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   private _getColumnSchemas(): void {
     this.loadingShow();
     this._metaDataService.getColumnSchemaListInMetaData(this.metaDataModelService.getMetadata().id).then((result) => {
-      this._hideCurrentTime(result);
-      this._saveColumnDataOriginal();
-      this.loadingHide();
+      this._getMetadataDetail().then(metadata => {
+        _.get(metadata, 'columns', []).forEach((column, index) => {
+          const format = _.get(column, 'format', undefined);
+          if (this._isNotNil(format)) {
+            if (!(result[index].physicalName === CommonConstant.COL_NAME_CURRENT_DATETIME && result[index].physicalType === 'TIMESTAMP')) {
+              result[index].format = format;
+            }
+          }
+        });
+        this._hideCurrentTime(result);
+        this._saveColumnDataOriginal();
+        this.loadingHide();
+      }).catch(error => this.commonExceptionHandler(error));
     }).catch(error => this.commonExceptionHandler(error));
   }
 
+  // noinspection JSMethodCanBeStatic
+  private _isNotNil(format) {
+    return _.negate(_.isNil)(format);
+  }
+
   private _hideCurrentTime(result) {
-    this.columnList = result.filter((item) => item.physicalName !== CommonConstant.COL_NAME_CURRENT_DATETIME && item.physicalType !== 'TIMESTAMP');
+    this.columnList = result.filter((item) => {
+      return !(item.physicalName === CommonConstant.COL_NAME_CURRENT_DATETIME && item.physicalType === 'TIMESTAMP')
+        && item.role !== this.ROLE.TIMESTAMP;
+    });
   }
 
   /**
@@ -730,5 +755,14 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
    */
   private _setCodeTableForSelectedColumn(result) {
     this._selectedColumn.codeTable = result;
+  }
+
+  /**
+   * Get metadata detail information
+   */
+  private _getMetadataDetail() {
+    return this._metaDataService.getDetailMetaData(this.metaDataModelService.getMetadata().id).then((result) => {
+      return result;
+    });
   }
 }

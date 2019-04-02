@@ -27,12 +27,11 @@ import { SetWorkspacePublishedComponent } from './component/set-workspace-publis
 import { MonitoringDataSourceComponent } from './data-source-list/detail-data-source/monitoring-data-source/monitoring-data-source.component';
 import { InformationDataSourceComponent } from './data-source-list/detail-data-source/information-dats-source/information-data-source.component';
 import { DetailDataSourceComponent } from './data-source-list/detail-data-source/detail-data-source.component';
-import { DataPreviewModule } from '../common/data.preview.module';
 import { DndModule } from 'ng2-dnd';
 import { CanDeactivateGuard } from '../common/gaurd/can.deactivate.guard';
 import { DataGridDataSourceComponent } from './data-source-list/detail-data-source/data-grid-data-source/data-grid-data-source.component';
 import { ColumnDetailDataSourceComponent } from './data-source-list/detail-data-source/column-detail-data-source/column-detail-data-source.component';
-import { EditConfigSchemaComponent } from './data-source-list/detail-data-source/column-detail-data-source/edit-config-schema/edit-config-schema.component';
+import { EditConfigSchemaComponent } from './data-source-list/detail-data-source/column-detail-data-source/edit-config-schema.component';
 import { MetadataService } from '../meta-data-management/metadata/service/metadata.service';
 import { EditFilterDataSourceComponent } from './data-source-list/detail-data-source/edit-filter-data-source.component';
 import { IngestionLogComponent } from './data-source-list/detail-data-source/information-dats-source/component/ingestion-log/ingestion-log.component';
@@ -41,8 +40,11 @@ import { CriterionCheckboxComponent } from './component/criterion/criterion-chec
 import { CriterionTimeRadioboxComponent } from './component/criterion/criterion-time-radiobox.component';
 import {DataConnectionCreateService} from "./service/data-connection-create.service";
 import {DataSourceCreateModule} from "./data-source-list/create-data-source/data-source-create.module";
-import {StorageFilterSelectBoxComponent} from "./data-source-list/component/storage-filter-select-box.component";
+import {FieldConfigService} from "./service/field-config.service";
+import {DatasourceMetadataSharedModule} from "../shared/datasource-metadata/datasource-metadata-shared.module";
+import {DataStorageCommonModule} from "./data-storage-common.module";
 import {DataStorageShareModule} from "./data-storage-share.module";
+import {ConstantService} from "../shared/datasource-metadata/service/constant.service";
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -55,14 +57,13 @@ const storageRoutes: Routes = [
   imports: [
     CommonModule,
     DndModule,
-    DataPreviewModule,
     DataSourceCreateModule,
+    DatasourceMetadataSharedModule,
+    DataStorageCommonModule,
     DataStorageShareModule,
     RouterModule.forChild(storageRoutes)
   ],
   declarations: [
-    // common
-    StorageFilterSelectBoxComponent,
     // data source
     DataSourceListComponent,
     // data source - detail
@@ -77,16 +78,13 @@ const storageRoutes: Routes = [
     EditFilterDataSourceComponent,
     EditConfigSchemaComponent,
     IngestionLogComponent,
-
     // data connection
     DataConnectionComponent,
     CreateConnectionComponent,
     UpdateConnectionComponent,
-    // criterion filter creator box
+    // criterion
     CriterionFilterBoxComponent,
-    // criterion checkbox
     CriterionCheckboxComponent,
-    // criterion time radiobox
     CriterionTimeRadioboxComponent,
   ],
   exports: [
@@ -97,6 +95,8 @@ const storageRoutes: Routes = [
     DatasourceManagementGuard,
     MetadataService,
     DataConnectionCreateService,
+    FieldConfigService,
+    ConstantService,
   ]
 })
 export class DataStorageModule {

@@ -37,6 +37,7 @@ import {Observable} from 'rxjs';
 import {filter, map} from 'rxjs/operators';
 import {isUndefined} from "util";
 import {ImplementorType} from "../../domain/dataconnection/dataconnection";
+import {LogicalType} from '../../domain/datasource/datasource';
 
 declare let moment;
 
@@ -570,6 +571,21 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
       {label: this.translateService.instant('msg.metadata.ui.dictionary.type.gu'), value: 'GU', icon: ''},
       {label: this.translateService.instant('msg.metadata.ui.dictionary.type.dong'), value: 'DONG', icon: ''},
       {label: this.translateService.instant('msg.metadata.ui.dictionary.type.etc'), value: 'ETC', icon: ''},
+      {
+        label: this.translateService.instant('msg.storage.ui.list.geo.point'),
+        value: LogicalType.GEO_POINT,
+        icon: 'ddp-icon-type-point'
+      },
+      {
+        label: this.translateService.instant('msg.storage.ui.list.geo.polygon'),
+        value: LogicalType.GEO_POLYGON,
+        icon: 'ddp-icon-type-polygon'
+      },
+      {
+        label: this.translateService.instant('msg.storage.ui.list.geo.line'),
+        value: LogicalType.GEO_LINE,
+        icon: 'ddp-icon-type-line'
+      },
     ];
   }
 

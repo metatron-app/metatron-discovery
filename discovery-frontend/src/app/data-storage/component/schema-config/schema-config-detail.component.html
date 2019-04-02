@@ -94,30 +94,22 @@
                 <!-- //seletbox -->
                 <div class="ddp-info" *ngIf="isTimestampField(selectedField)">{{'msg.storage.ui.configure.schema.logical.change.timestamp' | translate}}</div>
                 <div class="ddp-info" *ngIf="isDerivedField(selectedField)">{{'msg.storage.ui.configure.schema.logical.change.derived' | translate}}</div>
+                <div class="ddp-txt-error" *ngIf="!isDerivedField(selectedField) && isGeoTypeField(selectedField) && isGeoFormatError(selectedField)"><em class="ddp-icon-error-s"></em>{{selectedField.format.formatValidMessage}}</div>
               </div>
               <!-- //edit option -->
             </div>
             <!-- //type -->
             <!-- geo -->
-            <div class="ddp-wrap-edit3" *ngIf="selectedField.logicalType.toString().indexOf('GEO_') !== -1"
-                 (click)="geoCoordinateListShowFlag = !geoCoordinateListShowFlag" (clickOutside)="geoCoordinateListShowFlag = false">
-              <label class="ddp-ui-label-name">
-                {{'msg.storage.ui.geo.coordinate' | translate}}
-              </label>
+            <div class="ddp-wrap-edit3" *ngIf="isGeoTypeField(selectedField) && selectedField.format">
+              <label class="ddp-ui-label-name">{{'msg.storage.ui.geo.coordinate' | translate}}</label>
               <!-- edit option -->
               <div class="ddp-ui-option-in">
-                <!-- selectbox -->
-                <div class="ddp-type-selectbox" [class.ddp-selected]="geoCoordinateListShowFlag">
-                  <span class="ddp-txt-selectbox">{{selectedField.format.originalSrsName}}</span>
-                  <ul class="ddp-list-selectbox ddp-selectdown">
-                    <li *ngFor="let item of geoCoordinateList">
-                      <a href="javascript:" (click)="onChangeGeoCoordinateInField(selectedField, item)">
-                        {{item}}
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-                <!-- //selectbox -->
+                <storage-filter-select-box [filterList]="geoCoordinateList"
+                                           [isOnlyStringList]="true"
+                                           [isDisableList]="!selectedField.format.isValidFormat"
+                                           [selectedFilter]="selectedField.format.originalSrsName"
+                                           (changedFilter)="onChangeGeoCoordinateInField(selectedField, $event)">
+                </storage-filter-select-box>
               </div>
               <!-- //edit option -->
             </div>

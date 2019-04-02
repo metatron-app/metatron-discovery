@@ -257,6 +257,10 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
     delete column.replaceValidMessage;
     delete column.timeFormatValidMessage;
     delete column.checked;
+    if (column.format) {
+      delete column.format.isValidFormat;
+      delete column.format.formatValidMessage;
+    }
     // if not GEO types
     if (column.logicalType.indexOf('GEO_') === -1) {
       if (column.logicalType !== 'TIMESTAMP' && column.format) {
@@ -270,6 +274,8 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
       } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.DATE_TIME) {
         delete column.format.unit;
       }
+    } else {  // if GEO types
+      delete column.format.unit;
     }
   }
 
