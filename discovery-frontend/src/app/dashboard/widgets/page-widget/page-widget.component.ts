@@ -70,6 +70,7 @@ import {GridOption} from "../../../common/component/grid/grid.option";
 import {Pivot} from "../../../domain/workbook/configurations/pivot";
 import {MapChartComponent} from '../../../common/component/chart/type/map-chart/map-chart.component';
 import {Shelf, ShelfLayers} from "../../../domain/workbook/configurations/shelf/shelf";
+import {CommonConstant} from "../../../common/constant/common.constant";
 
 declare let $;
 
@@ -740,17 +741,17 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   public getDataSourceName(): string {
     let strName: string = '';
-    if (this.widget ) {
-      const widgetConf:PageWidgetConfiguration = this.widget.configuration;
-      if( ChartType.MAP === widgetConf.chart.type && widgetConf.shelf.layers ) {
+    if (this.widget) {
+      const widgetConf: PageWidgetConfiguration = this.widget.configuration;
+      if (ChartType.MAP === widgetConf.chart.type && widgetConf.shelf.layers) {
         strName = widgetConf.shelf.layers.reduce((acc, currVal) => {
-          const dsInfo:Datasource = this.widget.dashBoard.dataSources.find( item => item.engineName === currVal.ref );
-          if( dsInfo ) {
-            acc = ( '' === acc ) ? acc + dsInfo.name : acc + ',' + dsInfo.name;
+          const dsInfo: Datasource = this.widget.dashBoard.dataSources.find(item => item.engineName === currVal.ref);
+          if (dsInfo) {
+            acc = ('' === acc) ? acc + dsInfo.name : acc + ',' + dsInfo.name;
           }
           return acc;
-        }, '' );
-      } else if( widgetConf.dataSource ) {
+        }, '');
+      } else if (widgetConf.dataSource) {
         const widgetDataSource: Datasource
           = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, widgetConf.dataSource);
         (widgetDataSource) && (strName = widgetDataSource.name);
@@ -1211,7 +1212,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * @param {PageWidget} widget
    * @private
    */
-  private _setCommonConfig(widget : PageWidget ) {
+  private _setCommonConfig(widget: PageWidget) {
 
     this.isMissingDataSource = false;
 
@@ -1320,14 +1321,14 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     }
 
     if (ChartType.MAP === this.widgetConfiguration.chart.type) {
-      let targetDs:Datasource;
-      if( 'multi' === boardConf.dataSource.type ) {
-        const targetBoardDs:BoardDataSource = boardConf.dataSource.dataSources.find( item => {
+      let targetDs: Datasource;
+      if ('multi' === boardConf.dataSource.type) {
+        const targetBoardDs: BoardDataSource = boardConf.dataSource.dataSources.find(item => {
           return item.engineName === this.widgetConfiguration.shelf.layers[0].ref
         });
-        targetDs = DashboardUtil.getDataSourceFromBoardDataSource( this.widget.dashBoard, targetBoardDs );
+        targetDs = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, targetBoardDs);
       } else {
-        targetDs = DashboardUtil.getDataSourceFromBoardDataSource( this.widget.dashBoard, boardConf.dataSource );
+        targetDs = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, boardConf.dataSource);
       }
 
       if (isNullOrUndefined(this.widgetConfiguration.chart['lowerCorner']) && targetDs.summary) {
@@ -1357,9 +1358,11 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     const uiCloneQuery = _.cloneDeep(query);
 
     if (ChartType.MAP === this.widgetConfiguration.chart.type) {
-      if( this.widgetConfiguration.shelf.layers.some( layer => {
-        return isNullOrUndefined(this.widget.dashBoard.dataSources.find( item => item.engineName === layer.ref ));
-      }) ) {
+      if (this.widgetConfiguration.shelf.layers
+        .filter(layer => layer.name !== CommonConstant.MAP_ANALYSIS_LAYER_NAME)
+        .some(layer => {
+          return isNullOrUndefined(this.widget.dashBoard.dataSources.find(item => item.engineName === layer.ref));
+        })) {
         this.isMissingDataSource = true;
         this._showError({code: 'GB0000', details: this.translateService.instant('msg.board.error.missing-datasource')});
         this.updateComplete();
@@ -1502,7 +1505,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   /**
    * 서버시에 필요없는 ui에서만 사용되는 파라미터 제거
    */
-  private _makeSearchQueryParam(cloneQuery) : SearchQueryRequest {
+  private _makeSearchQueryParam(cloneQuery): SearchQueryRequest {
 
     // 선반 데이터 설정
     for (let field of _.concat(cloneQuery.pivot.columns, cloneQuery.pivot.rows, cloneQuery.pivot.aggregations)) {
@@ -1580,7 +1583,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * @returns {string}
    * @private
    */
-  private _findParentWidgetId(widgetId :string, relations : DashboardPageRelation[]): string {
+  private _findParentWidgetId(widgetId: string, relations: DashboardPageRelation[]): string {
     let parentId: string = '';
 
     relations.some(item => {
@@ -1608,7 +1611,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * @return {string}
    * @private
    */
-  private _findChildWidgetIds(widgetId : string, relations : DashboardPageRelation[], isCollect : boolean = false ): string[] {
+  private _findChildWidgetIds(widgetId: string, relations: DashboardPageRelation[], isCollect: boolean = false): string[] {
     let childIds: string[] = [];
 
     relations.forEach(item => {
@@ -1633,14 +1636,14 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * 고급분석 예측선 활성화 여부 검사
    * @returns {boolean}
    */
-  private isAnalysisPredictionEnabled() : boolean {
+  private isAnalysisPredictionEnabled(): boolean {
     return !_.isUndefined(this.widgetConfiguration.analysis) && !_.isEmpty(this.widgetConfiguration.analysis);
   }
 
   /**
    * 고급분석 예측선을 사용안하는 경우 처리
    */
-  private predictionLineDisabled() : void {
+  private predictionLineDisabled(): void {
     this.chart.analysis = null;
     this.chart.resultData = this.resultData;
   }
@@ -1648,8 +1651,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   /**
    * 고급분석 예측선 API 호출
    */
-  private getAnalysis() : void {
-    if (this.isAnalysisPredictionEnabled() ) {
+  private getAnalysis(): void {
+    if (this.isAnalysisPredictionEnabled()) {
       Promise
         .resolve()
         .then(() => {

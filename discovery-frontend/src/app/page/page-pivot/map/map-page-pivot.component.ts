@@ -39,6 +39,7 @@ import {Alert} from '../../../common/util/alert.util';
 import {ChartUtil} from '../../../common/component/chart/option/util/chart-util';
 import {OptionGenerator} from "../../../common/component/chart/option/util/option-generator";
 import {isNullOrUndefined} from "util";
+import {CommonConstant} from "../../../common/constant/common.constant";
 
 @Component({
   selector: 'map-page-pivot',
@@ -811,7 +812,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
     this.uiOption = value;
 
     let layers = {
-      name: 'SpatialAnalysisLayer',
+      name: CommonConstant.MAP_ANALYSIS_LAYER_NAME,
       ref: '',
       fields: _.cloneDeep(this.shelf.layers[this.uiOption.analysis.layerNum].fields)
     };
@@ -822,7 +823,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
     // layer 생성 (page.component에서 uiOption 전체를 생성함, layer만 추가 하기, 추가 layer 생성하기 위해서 0번째를 복사)
     let addUiOptionLayer = OptionGenerator.initUiOption(this.uiOption)['layers'][0];
     // layer name setting
-    addUiOptionLayer.name = 'SpatialAnalysisLayer';
+    addUiOptionLayer.name = CommonConstant.MAP_ANALYSIS_LAYER_NAME;
 
     this.uiOption.layers.push(addUiOptionLayer);
     // 0 ~ 1 은 multi-layer, 그래서 공간연산 layer 값은 2
@@ -840,7 +841,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
       let uiOption = this.uiOption;
       this.shelf.layers.forEach( (layer) => {
-        if(layer.name === 'SpatialAnalysisLayer') {
+        if(layer.name === CommonConstant.MAP_ANALYSIS_LAYER_NAME) {
           layer.fields.push(_.cloneDeep(field));
           layer.fields.forEach( (field) => {
             if( uiOption['analysis']['operation']['aggregation']['column'] == field.name ){
