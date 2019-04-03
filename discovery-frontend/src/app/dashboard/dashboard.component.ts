@@ -354,6 +354,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
 
     // 초기화
     this.fullSizeWidget = null;
+    this.datasourceStatus = TempDsStatus.ENABLE;
     if (this.selectionFilter) {
       this.selectionFilter.resetFilter(false);
     }

@@ -803,7 +803,7 @@ export class DatasourceService extends AbstractService {
             (result.pattern) && (field.format.format = result.pattern);
             // if enable timezone, set browser timezone at field
             if (this._timezoneSvc.isEnableTimezoneInDateFormat(field.format)) {
-              !field.format.timeZone && (field.format.timeZone = this._timezoneSvc.browserTimezone.momentName);
+              !field.format.timeZone && (field.format.timeZone = this._timezoneSvc.getBrowserTimezone().momentName);
               field.format.locale = this._timezoneSvc.browserLocale;
             } else { // if not enable timezone
               field.format.timeZone = TimezoneService.DISABLE_TIMEZONE_KEY;
