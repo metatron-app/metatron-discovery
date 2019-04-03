@@ -224,6 +224,11 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    * When delimiter is changed(only CSV)
    */
   public changeDelimiter() {
+
+    if (this.clearGrid) {
+      return;
+    }
+
     this.isDelimiterRequired = ('' === this.currDelimiter && this.isCSV);
 
     // No change in grid when delimiter is empty
@@ -243,6 +248,11 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    * When columnCount is changed(CSV, EXCEL)
    */
   public changeColumnCount(){
+
+    if (this.clearGrid) {
+      return;
+    }
+
     this.isColumnCountRequired = ( (isNullOrUndefined(this.currColumnCount) || 1 > this.currColumnCount) && this.datasetFiles[this.currDSIndex].fileFormat != FileFormat.JSON);
 
     if (isNullOrUndefined(this.currColumnCount) || 1 > this.currColumnCount || this.datasetFiles[this.currDSIndex].fileFormat === FileFormat.JSON) {
@@ -325,7 +335,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     event.stopPropagation();
     event.preventDefault();
 
-    this.previewErrorMsg = (this.datasetFiles[dsIdx].error? this.datasetFiles[dsIdx].error.details : '');
+    this.previewErrorMsg = (this.datasetFiles[dsIdx].error? this.translateService.instant(this.datasetFiles[dsIdx].error.message) : '');
 
     this.isDelimiterRequired = false;
     this.isColumnCountRequired = false;
@@ -538,14 +548,12 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
     }).catch((error) => {
 
-      // TODO : When error use toast ?
-      console.info(error);
-      this.datasetFiles[idx].error = error;
-
-      if(this._isInit && idx === 0){
-        this.previewErrorMsg = this.translateService.instant(this.datasetFiles[0].error.message);
+      // Timeout
+      if (error === 'Server error') {
+        error['message'] = 'Server error';
       }
-
+      this.datasetFiles[idx].error = error;
+      this.selectFile(event, 0);
       if( option && option === 'draw') this.clearGrid = true;
       this.loadingHide();
 
