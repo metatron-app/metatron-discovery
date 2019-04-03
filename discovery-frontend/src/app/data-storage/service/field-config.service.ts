@@ -164,7 +164,7 @@ export class FieldConfigService extends AbstractService {
               (result.pattern) && (fieldFormat.format = result.pattern);
               // if enable timezone, set browser timezone at fieldFormat
               if (this._timezoneSvc.isEnableTimezoneInDateFormat(fieldFormat)) {
-                !fieldFormat.timeZone && (fieldFormat.timeZone = this._timezoneSvc.browserTimezone.momentName);
+                !fieldFormat.timeZone && (fieldFormat.timeZone = this._timezoneSvc.getBrowserTimezone().momentName);
                 fieldFormat.locale = this._timezoneSvc.browserLocale;
               } else { // if not enable timezone
                 fieldFormat.timeZone = TimezoneService.DISABLE_TIMEZONE_KEY;
