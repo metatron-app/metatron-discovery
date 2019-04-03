@@ -636,7 +636,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       }
 
       if (jsonRuleString.name === 'join') {
-        if (this.selectedDataSet.gridData.data.length > 1) {
+        if (this.selectedDataSet.gridData.data.length > 0) {
           this.editJoinOrUnionRuleStr = rule['jsonRuleString'];
           this.setJoinEditInfo(rule);
         } else {
@@ -645,7 +645,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       }
 
       if (jsonRuleString.name === 'union') {
-        if (this.selectedDataSet.gridData.data.length > 1) {
+        if (this.selectedDataSet.gridData.data.length > 0) {
           this.editJoinOrUnionRuleStr = rule['jsonRuleString'];
           this.isUpdate = true;
           this.isRuleUnionModalShow = true;
