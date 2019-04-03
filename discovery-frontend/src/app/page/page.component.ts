@@ -1797,9 +1797,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @param {boolean} isSetPanel
    */
   public updateFilter(filter: Filter, isSetPanel: boolean = false) {
-    if (!this.isDashboard) {
-      return;
-    }
+    // if (!this.isDashboard) {
+    //   return;
+    // }
 
     if (filter.ui.widgetId) {
       this._setChartFilter(filter, isSetPanel);   // 차트 필터 설정
@@ -1821,7 +1821,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @param {Filter} filter
    */
   public deleteFilter(filter: Filter) {
-    if (filter.ui.widgetId || !this.isDashboard) {
+    // if (filter.ui.widgetId || !this.isDashboard) {
+    if (filter.ui.widgetId ) {
       // 차트필터 또는 워크벤치인경우 제거
       const idx = _.findIndex(this.widgetConfiguration.filters, {field: filter.field});
       if (idx < 0) {

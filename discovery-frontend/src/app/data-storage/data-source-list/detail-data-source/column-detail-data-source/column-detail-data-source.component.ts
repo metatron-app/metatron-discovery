@@ -395,7 +395,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
         }
       }
       // update field
-      this._updateField([result]);
+      // this._updateField([result]);
     }
   }
 

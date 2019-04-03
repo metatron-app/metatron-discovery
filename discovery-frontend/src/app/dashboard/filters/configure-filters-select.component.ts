@@ -175,6 +175,7 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
   public selectDataSource(dataSource: Datasource) {
     // Granularity 별 항목 설정
     this.granularity = dataSource.granularity;
+    ( this.granularity ) || ( this.granularity = GranularityType.ALL );
     if (GranularityType.ALL !== this.granularity) {
       const strGranularity: string = this.granularity.toString();
       const idx: number = this._allContinuousList.findIndex(unit => unit.toUpperCase() === strGranularity);

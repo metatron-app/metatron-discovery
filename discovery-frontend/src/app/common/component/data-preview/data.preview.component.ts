@@ -101,6 +101,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   private _filters: Filter[] = [];
 
   private _queryParams = new QueryParam();
+
+  private _isGridDataDown:boolean = true;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -339,32 +341,11 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   private queryData(source: Datasource): Promise<any> {
     return new Promise<any>((res, rej) => {
 
-      const params = new QueryParam();
+      let params = new QueryParam();
       params.limits.limit = this.rowNum < 1 ? 100 : this.rowNum;
       if (this.isDashboard) {
         // 대시보드인 경우
-
-        if (this.timestampField) {
-          const sortInfo: Sort = new Sort();
-          sortInfo.field = this.timestampField.name;
-          sortInfo.direction = DIRECTION.DESC;
-          params.limits.sort.push(sortInfo);
-        }
-
-        let boardDs: BoardDataSource = (<Dashboard>this.source).configuration.dataSource;
-        if ('multi' === boardDs.type) {
-          boardDs = boardDs.dataSources.find(item => DashboardUtil.isSameDataSource(item, source));
-        }
-
-        params.dataSource = _.cloneDeep(boardDs);
-        params.dataSource.name = boardDs.engineName;
-        const joins = boardDs.joins;
-        if (joins && joins.length > 0) {
-          this.isJoin = true;
-          this.joinMappings = joins;
-          params.dataSource.type = 'mapping';
-          params.dataSource['joins'] = joins;
-        }
+        params = this._getDashboardQueryParam( source, (<Dashboard>this.source), params );
       } else {
         // 데이터소스인 경우
         const dsInfo = _.cloneDeep(<Datasource>source);
@@ -547,9 +528,17 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     // 프리셋을 생성한 연결형 : source.connection 사용
     // 커넥션 정보로 생성한 연결형 : source.ingestion.connection 사용
     const connection: Dataconnection = source.connection || source.ingestion.connection;
-    const params = source.ingestion && connection
+    const params:any = source.ingestion && connection
       ? this._getConnectionParams(source.ingestion, connection)
       : {};
+
+    if( !this._isGridDataDown ) {
+      // 다운로드 파라메터 설정 -> Linked Data Source 데이터를 Druid에서 받아서 다운로드 할 경우에는 아래의 코드가 필요
+      const downloadParams = this._getDashboardQueryParam( source, (<Dashboard>this.source) );
+      downloadParams.limits.limit = 10000000;
+      this._queryParams = _.cloneDeep(downloadParams);
+    }
+
     this.connectionService.getTableDetailWitoutId(params, connection.implementor === ImplementorType.HIVE, this.rowNum < 1 ? 100 : this.rowNum)
       .then((result: {data: any, fields: Field[], totalRows: number}) => {
         // grid data
@@ -562,6 +551,40 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       })
       .catch(error => this.commonExceptionHandler(error));
   }
+
+  /**
+   * 대시보드 타입에 대한 데이터 조회 파라메터 생성
+   * @param {Datasource} dataSource
+   * @param {Dashboard} board
+   * @param {QueryParam} params
+   * @return {QueryParam}
+   * @private
+   */
+  private _getDashboardQueryParam(dataSource:Datasource, board:Dashboard, params?:QueryParam):QueryParam {
+    ( params ) || ( params = new QueryParam() );
+    if (this.timestampField) {
+      const sortInfo: Sort = new Sort();
+      sortInfo.field = this.timestampField.name;
+      sortInfo.direction = DIRECTION.DESC;
+      params.limits.sort.push(sortInfo);
+    }
+
+    let boardDs: BoardDataSource = board.configuration.dataSource;
+    if ('multi' === boardDs.type) {
+      boardDs = boardDs.dataSources.find(item => DashboardUtil.isSameDataSource(item, dataSource));
+    }
+
+    params.dataSource = _.cloneDeep(boardDs);
+    params.dataSource.name = boardDs.engineName;
+    const joins = boardDs.joins;
+    if (joins && joins.length > 0) {
+      this.isJoin = true;
+      this.joinMappings = joins;
+      params.dataSource.type = 'mapping';
+      params.dataSource['joins'] = joins;
+    }
+    return params;
+  } // function - _getDashboardQueryParam
 
   // noinspection JSMethodCanBeStatic
   /**
@@ -1498,14 +1521,18 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     event.preventDefault();
     event.stopPropagation();
 
-    this.loadingShow();
-    this.datasourceService.getDatasourceQuery(this._queryParams).then(downData => {
-      this._dataDownComp.openDataDown(event, this.columns, downData, this.downloadPreview);
-      this.loadingHide();
-    }).catch((err) => {
+    if (this.connType === 'LINK' && this._isGridDataDown) {
+      this._dataDownComp.openDataDown(event, this.columns, this.gridData, this.downloadPreview);
+    } else {
+      this.loadingShow();
+      this.datasourceService.getDatasourceQuery(this._queryParams).then(downData => {
+        this._dataDownComp.openDataDown(event, this.columns, downData, this.downloadPreview);
+        this.loadingHide();
+      }).catch(() => {
+        this.loadingHide();
+      });
+    }
 
-      this.loadingHide();
-    });
   } // function - downloadData
 
   /**
