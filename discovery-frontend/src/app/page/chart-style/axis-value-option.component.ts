@@ -300,6 +300,7 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
     if( max == 0 ){
       let dataMax = AxisOptionConverter.axisMinMax[(_.eq(this.axis.mode,AxisLabelType.ROW) ? 'xAxis' : 'yAxis')].max;
       max = Number(dataMax.toFixed(2));
+      this.axis.grid.max = max;
     }
 
     if( min >= max ) {
@@ -356,12 +357,7 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
     let min: number = Number(this.axis.grid.min);
     let max: number = !isNaN(this.axisTemp.grid.max) ? Number(this.axisTemp.grid.max) : 0;
 
-    // max 값이 0일 경우 (설정안했을경우)
-    if( min == 0 ){
-      let dataMin = AxisOptionConverter.axisMinMax[(_.eq(this.axis.mode,AxisLabelType.ROW) ? 'xAxis' : 'yAxis')].min;
-      min = Number(dataMin.toFixed(2));
-    }
-    if( max <= min ) {
+    if( max <= min && (max != 0 && min != 0) ) {
       Alert.info(this.translateService.instant('msg.page.yaxis.grid.max.alert'));
       this.axisTemp.grid.max = this.axis.grid.max != 0 ? originAxisMax : null;
       return;
