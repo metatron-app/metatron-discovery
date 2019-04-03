@@ -19,6 +19,7 @@ import { PopupService } from '../../../../../../common/service/popup.service';
 import { DataflowService } from '../../../../service/dataflow.service';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { PreparationAlert } from '../../../../../util/preparation-alert.util';
+import * as _ from 'lodash';
 
 class Field {
   public name: string;
@@ -184,7 +185,6 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
    * 데이터셋 추가 팝업 열기
    */
   public openPopup() {
-    this.editInfo = this.unionDatasets;
     this.isAddDatasetsModal = true;
   } // function - openPopup
 
@@ -194,8 +194,8 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
    */
   public selectedDatasets(data) {
     if (null != data) {
-      this.unionDatasets = this.unionDatasets.concat(data);
-      this.datasets = [this.masterDataset].concat(this.unionDatasets);
+      this.unionDatasets = data;
+      this.datasets = _.union([this.masterDataset], this.unionDatasets);
       this.convertDataToUiType();
     }
     this.isAddDatasetsModal = false;
