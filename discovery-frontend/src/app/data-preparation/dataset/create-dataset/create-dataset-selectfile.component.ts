@@ -24,6 +24,7 @@ import {DeleteModalComponent} from '../../../common/component/modal/delete/delet
 import {Modal} from '../../../common/domain/modal';
 import {PreparationCommonUtil} from "../../util/preparation-common.util";
 import * as _ from 'lodash';
+import {Alert} from "../../../common/util/alert.util";
 
 declare let plupload: any;
 
@@ -370,6 +371,10 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
               break;
             case -200:
               console.log('HTTP_ERROR', err);
+              if (err.response) {
+                const res = JSON.parse(err.response);
+                Alert.error(this.translateService.instant(res.message));
+              }
               break;
             case -300:
               console.log('IO_ERROR', err);
@@ -599,6 +604,10 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
               break;
             case -200:
               console.log('HTTP_ERROR', err);
+              if (err.response) {
+                const res = JSON.parse(err.response);
+                Alert.error(this.translateService.instant(res.message));
+              }
               break;
             case -300:
               console.log('IO_ERROR', err);
@@ -706,11 +715,13 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
         datasetFile.filenameBeforeUpload = this.upFiles[i].name;
         datasetFile.storedUri = this.upFiles[i].storedUri;
         datasetFile.storageType = this._getStorageType(this.fileLocation);
+        datasetFile.fileFormat = this._getFileFormat(this.upFiles[i].fileExtension);
 
-        const fileFormat = PreparationCommonUtil.getFileFormat(this.upFiles[i].fileExtension);
-        datasetFile.fileFormat = !_.isNil(fileFormat) ? fileFormat : FileFormat.CSV;
-
-        datasetFile.delimiter = FileFormat.CSV || datasetFile.fileFormat === FileFormat.EXCEL ? ',' : null;
+        // Delimiter is , when fileFormat is csv or excel or txt
+        const formatWithCommaDel = ['CSV','EXCEL', 'TXT'];
+        if(-1 !== formatWithCommaDel.indexOf(datasetFile.fileFormat.toString())) {
+          datasetFile.delimiter = ',';
+        }
 
         datasetFile.fileName = this.upFiles[i].fileName;
         datasetFile.fileExtension = this.upFiles[i].fileExtension;
@@ -845,5 +856,32 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
     return StorageType.LOCAL;
   }
 
+
+  /**
+   * Returns appropriate file format for each extension
+   * Extensions : CSV, TXT, JSON, XLSX, XLS
+   * @param fileExtension
+   * @returns {FileFormat}
+   * @private
+   */
+  private _getFileFormat(fileExtension) {
+    let fileType : string = fileExtension.toUpperCase();
+
+    const formats = [
+      {extension:'CSV', fileFormat:FileFormat.CSV},
+      {extension:'TXT', fileFormat:FileFormat.TXT},
+      {extension:'JSON', fileFormat:FileFormat.JSON},
+      {extension:'XLSX', fileFormat:FileFormat.EXCEL},
+      {extension:'XLS', fileFormat:FileFormat.EXCEL},
+    ];
+
+    const idx = _.findIndex(formats, {extension: fileType});
+
+    if (idx !== -1) {
+      return formats[idx].fileFormat
+    } else {
+      return formats[0].fileFormat
+    }
+  }
 }
 

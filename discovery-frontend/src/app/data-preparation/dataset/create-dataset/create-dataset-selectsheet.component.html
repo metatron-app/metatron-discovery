@@ -19,8 +19,8 @@
   <!-- //닫기 버튼 -->
   <div class="ddp-icon-name">
     <div class="ddp-ui-name2 ddp-type3">
-      Create a file type dataset
-      <span class="ddp-txt-info ddp-type">Please select data</span>
+      {{'msg.dp.ui.ds.create.title' | translate : {type : 'file'} }}
+      <span class="ddp-txt-info ddp-type">{{'msg.dp.create.staging.sub.title' | translate}}</span>
       <em class="ddp-bg-order-line3-type2"></em>
     </div>
   </div>
@@ -34,9 +34,11 @@
           <ul class="ddp-list-file-name" >
 
             <ng-container *ngFor="let file of datasetFiles; let i = index">
-              <li [ngClass]="{'ddp-selected':currDSIndex===i && file.fileFormat.toString() !='EXCEL'}"  >
+              <li [ngClass]="{'ddp-selected':currDSIndex===i && file.fileFormat !== fileFormat.EXCEL}"  >
 
-                <ng-container *ngIf="file.fileFormat.toString()==='CSV' || file.fileFormat.toString()==='JSON'">
+
+                <!-- NOT EXCEL -->
+                <ng-container *ngIf="file.fileFormat !== fileFormat.EXCEL">
                   <!-- checkbox -->
                   <div class="ddp-wrap-checkbox" (click)="selectFile($event,i)">
                     <label class="ddp-label-checkbox" (click)="checkGroup($event, i)">
@@ -44,14 +46,19 @@
                       <i class="ddp-icon-checkbox"></i>
                     </label>
                     <span class="ddp-txt-checkbox">
-                      <span class="ddp-txt-subname">{{file.fileExtension}} <em class="ddp-icon-error2" [ngStyle]="{'display': file.error?'':'none'}"></em></span>
+                      <span class="ddp-txt-subname">{{file.fileExtension}}
+                        <em class="ddp-icon-error2" [ngStyle]="{'display': file.error?'':'none'}"></em>
+                      </span>
                       <span class="ddp-txt-filename">{{file.fileName}}.</span>
                     </span>
                   </div>
                   <!-- //checkbox -->
                 </ng-container>
+                <!-- // NOT EXCEL -->
 
-                <ng-container *ngIf="file.fileFormat.toString()==='EXCEL'">
+
+                <!-- EXCEL -->
+                <ng-container *ngIf="file.fileFormat === fileFormat.EXCEL">
                   <!-- checkbox -->
                   <div class="ddp-wrap-checkbox" (click)="selectFile($event,i)">
                     <label class="ddp-label-checkbox" (click)="checkGroup($event, i)">
@@ -84,8 +91,11 @@
                   </ul>
                   <!-- sub -->
                 </ng-container>
+                <!-- EXCEL -->
+
               </li>
             </ng-container>
+
           </ul>
         </div>
         <!-- //list file -->
@@ -98,9 +108,6 @@
               <div class="ddp-data-total">
                   <span class="ddp-txt-data">
                     <span class="ddp-txt-num" *ngIf="(currDetail.columns)">{{currDetail.columns}}</span> Column(s)
-                  </span>
-                <span class="ddp-txt-data">
-                    <span class="ddp-txt-num" *ngIf="(currDetail.rows)">{{currDetail.rows}}</span> Row(s)
                   </span>
               </div>
 
@@ -132,11 +139,14 @@
 
                       <!-- apply -->
                       <div class="ddp-input-apply ddp-edit" [ngClass]="{'ddp-disabled': !isCSV}">
-                        <input type="text" placeholder="{{'msg.dp.th.col.delimiter.ph' | translate}}" class="ddp-input-txt" [(ngModel)]="currDelimiter" (keydown)="keydownEvent($event, 'delimiter')">
+                        <input type="text" placeholder="{{'msg.dp.th.col.delimiter.ph' | translate}}"
+                               class="ddp-input-txt" [(ngModel)]="currDelimiter"
+                               (keydown)="keyDownEvent($event, 'delimiter')">
                         <em class="ddp-icon-apply" (click)="changeDelimiter()"></em>
                       </div>
                       <!-- //apply -->
-                      <span class="ddp-data-error" [ngStyle]="{'visibility': isDelimiterRequired?'visible':'hidden'}">{{'msg.common.ui.required' | translate}}</span>
+                      <span class="ddp-data-error" [ngStyle]="{'visibility': isDelimiterRequired?'visible':'hidden'}">
+                        {{'msg.common.ui.required' | translate}}</span>
                     </div>
                     <!-- //edit option -->
                   </div>
@@ -149,11 +159,15 @@
 
                       <!-- apply -->
                       <div class="ddp-input-apply"  [ngClass]="{'ddp-disabled': isJSON}">
-                        <input type="text" placeholder="{{'msg.dp.th.col.cnt.ph' | translate}}" class="ddp-input-txt" [(ngModel)]="currColumnCount" (keydown)="keydownEvent($event, 'colCnt')">
+                        <input type="text" placeholder="{{'msg.dp.th.col.cnt.ph' | translate}}"
+                               class="ddp-input-txt" [(ngModel)]="currColumnCount"
+                               (keydown)="keyDownEvent($event, 'colCnt')">
                         <em class="ddp-icon-apply" (click)="changeColumnCount()"></em>
                       </div>
                       <!-- //apply -->
-                      <span class="ddp-data-error" [ngStyle]="{'visibility': isColumnCountRequired?'visible':'hidden'}">{{'msg.common.ui.required' | translate}}</span>
+                      <span class="ddp-data-error" [ngStyle]="{'visibility': isColumnCountRequired?'visible':'hidden'}">
+                        {{'msg.common.ui.required' | translate}}
+                      </span>
                     </div>
                     <!-- //edit option -->
                   </div>
@@ -172,10 +186,10 @@
       <!-- //create file -->
 
       <!-- warning -->
-      <div class="ddp-box-synch type-error" [ngStyle]="{'display': previewErrorMessge != ''?'':'none'}">
+      <div class="ddp-box-synch type-error" [ngStyle]="{'display': previewErrorMsg != ''?'':'none'}">
         <div class="ddp-txt-synch">
           <em class="ddp-icon-info"></em>
-          {{previewErrorMessge}}
+          {{previewErrorMsg}}
         </div>
       </div>
       <!-- //warning 에러항목을 확인하세요-->
@@ -185,9 +199,12 @@
   <!-- //contents in  -->
   <!-- buttons -->
   <div class="ddp-ui-buttons">
-    <a href="javscript:" class="ddp-btn-type-popup" (click)="prev()">Previous</a>
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
     <!-- disabled 시 ddp-disabled 추가 -->
-    <a href="javscript:" class="ddp-btn-type-popup ddp-bg-black " [ngClass]="{'ddp-disabled': !isNext}" (click)="next()">Next</a>
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black"
+       [ngClass]="{'ddp-disabled': !isNext}" (click)="next()">
+      {{'msg.comm.btn.next' | translate}}
+    </a>
   </div>
   <!-- //buttons -->
 

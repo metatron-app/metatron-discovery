@@ -26,12 +26,12 @@ import {DsType, ImportType, PrDataset, Rule} from "../../../domain/data-preparat
 import {DataflowService} from "../service/dataflow.service";
 import {DataflowModelService} from "../service/dataflow.model.service";
 import {ActivatedRoute} from "@angular/router";
-import {Observable} from "rxjs";
 import {StringUtil} from "../../../common/util/string.util";
 import {Alert} from "../../../common/util/alert.util";
 import {PreparationAlert} from "../../util/preparation-alert.util";
 import {Modal} from "../../../common/domain/modal";
 import {DatasetInfoPopupComponent} from "./component/dataset-info-popup/dataset-info-popup.component";
+import {PreparationCommonUtil} from "../../util/preparation-common.util";
 
 declare let echarts: any;
 
@@ -90,10 +90,6 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  public canNavigationBack: boolean;
-  public locationSubscription: any;
-
   @Input()
   public dataflow: PrDataflow;
 
@@ -156,8 +152,6 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(
     private dfService: DataflowService,
     private dfModelService : DataflowModelService,
@@ -181,11 +175,29 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
 
     // navigation back check
     this.step = '';
-    this.canNavigationBack = true;
 
-    // 초기화
-    this.init();
+    this._initialiseValues();
+    this._initialiseChartValues();
 
+    // Get param from url
+    this.activatedRoute.params.subscribe((params) => {
+
+      if (!_.isNil(params['id'])) {
+        this.dfId = params['id'];
+      }
+
+      if (!this.dfModelService.isSelectedDsIdAndDsTypeEmpty()) {
+        this.selectedDataSet.dsId = this.dfModelService.getSelectedDsId();
+        this.selectedDataSet.dsType = this.dfModelService.getSelectedDsType();
+
+        this.dfModelService.emptyDsIdAndDsType();
+
+        this.getDataflow(true);
+      } else {
+        this.getDataflow();
+      }
+
+    });
 
   } // function - ngOnInit
 
@@ -303,33 +315,6 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
 
   }
 
-  // 팝업끼리 관리하는 모델들 초기화
-  public init() {
-
-    this._initialiseValues();
-    this._initialiseChartValues();
-
-    // Get param from url
-    this.activatedRoute.params.subscribe((params) => {
-
-      if (!_.isNil(params['id'])) {
-        this.dfId = params['id'];
-      }
-
-      if (!this.dfModelService.isSelectedDsIdAndDsTypeEmpty()) {
-        this.selectedDataSet.dsId = this.dfModelService.getSelectedDsId();
-        this.selectedDataSet.dsType = this.dfModelService.getSelectedDsType();
-
-        this.dfModelService.emptyDsIdAndDsType();
-
-        this.getDataflow(true);
-      } else {
-        this.getDataflow();
-      }
-
-    });
-  }
-
   /**
    * 데이터플로로우 이름, 설명 편집 
    */
@@ -430,7 +415,17 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
    * */
   public datasetEventHandler(data?: string) {
     if (data) {
-      this.step = data;
+      if (data === 'resize') {
+        // Check whether to put scroll bar
+        const resize = $('.sys-dataflow-right-panel').width() !== null && $('.sys-dataflow-right-panel').width() / $('.ddp-wrap-flow2').width() > 0.5;
+        if(resize) {
+          $('.ddp-box-chart').css('overflow-x', 'auto');
+        }else{
+          $('.ddp-box-chart').css('overflow-x', 'hidden');
+        }
+      } else {
+        this.step = data;
+      }
     } else {
       this.createWrangledDataset();
     }
@@ -481,58 +476,6 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
     }
   }
 
-  /**
-   * 데이터셋 타입 아이콘
-   * @param datasetType
-   */
-  public getIconClass(datasetType): string {
-    let result = '';
-    switch (datasetType.toLowerCase()) {
-      case 'dataset':
-        result = 'ddp-icon-flow-dataset';
-        break;
-      case 'wrangled':
-        result = 'ddp-icon-flow-wrangled';
-        break;
-      case 'db':
-        result = 'ddp-icon-flow-db';
-        break;
-      case 'mysql':
-        result = 'ddp-icon-flow-mysql';
-        break;
-      case 'post':
-        result = 'ddp-icon-flow-post';
-        break;
-      case 'hive':
-        result = 'ddp-icon-flow-db';
-        break;
-      case 'presto':
-        result = 'ddp-icon-flow-presto';
-        break;
-      case 'phoenix':
-        result = 'ddp-icon-flow-phoenix';
-        break;
-      case 'tibero':
-        result = 'ddp-icon-flow-tibero';
-        break;
-      case 'file':
-        result = 'ddp-icon-flow-file';
-        break;
-      case 'xls':
-        result = 'ddp-icon-flow-xls';
-        break;
-      case 'xlsx':
-        result = 'ddp-icon-flow-xlsx';
-        break;
-      case 'csv':
-        result = 'ddp-icon-flow-csv';
-        break;
-      default:
-        Alert.error(this.translateService.instant('msg.common.ui.no.icon.type'));
-        break;
-    }
-    return result;
-  }
 
   /**
    * chart에서 icon에 selected/unselected표시
@@ -547,7 +490,7 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
         temp = temp.series[0].nodes.filter((node) => {
           if (_.eq(node.dsId, dataset.dsId)) {
             if (init) {
-              node.symbol = this.symbolInfo.SELECTED[dataset.dsType];
+              node.symbol = this.symbolInfo[node.type]['SELECTED'];
               this.chart.setOption(temp);
             } else {
               node.detailType = dataset.dsType;
@@ -566,7 +509,7 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
           if (!isUndefined(temp1)) {
             temp1 = temp1.series[0].nodes.filter((node) => {
               if (_.eq(node.dsId, dataset.dsId)) {
-                node.symbol = this.symbolInfo.SELECTED[dataset.dsType];
+                node.symbol = this.symbolInfo[node.type]['SELECTED'];
                 tempChart.setOption(temp1);
               }
             });
@@ -595,38 +538,18 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
    */
   private dataflowChartAreaResize(resizeCall?:boolean): void {
     if(resizeCall == undefined) resizeCall = false;
-    // const itemMinSize: number = 64;
-    const itemMinSize: number = 70;
     const hScrollbarWith: number = 30;
-    const topMargin: number = 50;
-    let minHeightSize: number = 600;
-    if($('.ddp-wrap-flow2')!=null && $('.ddp-wrap-flow2')!=undefined){
-      minHeightSize = $('.ddp-wrap-flow2').height()- topMargin;
-    }
+    let minHeightSize: number = this.dataflow.datasets.length < 6 ? 600 : this.dataflow.datasets.length * 100;
     let fixHeight: number = minHeightSize;
-    if(this.dataflow!=null && this.dataflow.hasOwnProperty('wrangledDsCount') && this.dataflow.hasOwnProperty('importedDsCount')){
-      let imported: number = this.dataflow.importedDsCount;
-      let wrangled: number = this.dataflow.wrangledDsCount;
-      if(imported == undefined) imported = 0;
-      if(wrangled == undefined) wrangled = 0;
-      const lImported: number = (imported * itemMinSize) + Math.floor(wrangled * itemMinSize/2);
-      const lWrangled: number = (wrangled * itemMinSize) + Math.floor(imported * itemMinSize/2);
-      if(lImported > minHeightSize || lWrangled > minHeightSize) {if(lImported>lWrangled) {fixHeight = lImported;}else{fixHeight = lWrangled;}}
-    }
-    let isRight: boolean = false;
-    if($('.sys-dataflow-right-panel').width() !== null) {isRight = true;}
     const minWidthSize: number = $('.ddp-wrap-flow2').width()- hScrollbarWith;
-    if(isRight) {
-      $('.ddp-box-chart').css('overflow-x', 'auto');
-    }else{
-      $('.ddp-box-chart').css('overflow-x', 'hidden');
-    }
+    $('.ddp-box-chart').css('overflow-x', 'hidden');
     $('#chartCanvas').css('height', fixHeight+'px').css('width', minWidthSize+'px').css('overflow', 'hidden');
     if($('#chartCanvas').children()!=null && $('#chartCanvas').children()!=undefined){
       $('#chartCanvas').children().css('height', fixHeight+'px').css('width', minWidthSize+'px');}
     if($('#chartCanvas').children().children()!=null && $('#chartCanvas').children().children()!=undefined) {
       $('#chartCanvas').children().children().css('height', fixHeight+'px').css('width', minWidthSize+'px');}
-
+    $('#chartCanvas div:last-child').css('height', '');
+    $('#chartCanvas div:last-child').css('width', '');
     if (resizeCall == true && this.chart != null) {this.chart.resize();}
   }
 
@@ -646,10 +569,6 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
 
         this.setDataflowName(this.dataflow.dfName);
         this.setDataflowDesc(this.dataflow.dfDesc);
-
-        // canvas height resize
-        this.dataflowChartAreaResize();
-        // canvas height resize
 
         this.dataSetList = [];
         if (this.dataflow.datasets) { // if dataflow has datasets
@@ -680,7 +599,6 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
             this.changeChartClickStatus(this.selectedDataSet, true);
             (this.datasetInfoPopup) && (this.datasetInfoPopup.setDataset(this.selectedDataSet));
           }
-
           this.loadingHide();
 
         }).catch((error) => {
@@ -689,6 +607,7 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
         });
 
       } else {
+        this.loadingHide();
         Alert.warning(this.translateService.instant('msg.dp.alert.no.flow.info'));
       }
 
@@ -817,9 +736,10 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
    */
   public datasetPopupAddEvent(data): void {
 
-    if (data == undefined || data == null || data.length === 0 ) {
-      return
+    if (isNullOrUndefined(data) || data.length === 0 ) {
+      return;
     }
+
     this.loadingShow();
     this.dataSetList.forEach((ds) => {
       data.push(ds.dsId);
@@ -964,10 +884,15 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
     this.chartOptions.yAxis.max = this.rootCount > 5 ? 5 + (this.rootCount - 5) : 5;
     this.chartOptions.series[0].nodes = this.chartNodes;
     this.chartOptions.series[0].links = this.chartLinks;
+    this.chartOptions.tooltip = {
+      formatter: (param) => {
+        return param.dataType === 'node' ? PreparationCommonUtil.parseTooltip(param.data.dsName) : '';
+      }
+    };
     this.chart.setOption(this.chartOptions);
     this.chartClickEventListener(this.chart);
     this.cloneFlag = false;
-    this.chart.resize();
+    this.dataflowChartAreaResize(true);
 
     let $chart = this;
 
@@ -1017,6 +942,7 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
 
   } // function - createNodeTree
 
+
   /**
    * 차트 노드 생성
    * @param dataset
@@ -1025,35 +951,21 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
    * @param {Dataset} rootNode
    * @returns {{dsId: (string | any); dsName: (string | any); name: (string | any); dsType; importType: any; detailType: any; flowName: any; upstream: any; children: Array; value: any[]; symbol: any; originSymbol: any; label: any}}
    */
-  //private createNode(dataset: Dataset, depth: number, position: number, rootNode?: any) {
   private createNode(dataset: PrDataset, depth: number, position: number, rootNode?: any) {
-    let importType: ImportType = null;
-    let detailType = null;
-    let flowName = null;
 
-    // if (DsType.IMPORTED === dataset.dsType) {
-    //   importType = dataset.importType;
-    //   detailType = isUndefined(dataset.custom) ? 'DEFAULT' : JSON.parse(dataset.custom);
-    //   if (ImportType.DB === importType || ImportType.HIVE === importType) {
-    //     detailType = detailType.connType || 'DEFAULT';
-    //   } else if (ImportType.FILE === importType) {
-    //     detailType = detailType.fileType || 'DEFAULT';
-    //   }
-    // } else {
-    //   detailType = _.eq(dataset.creatorDfId, this.dataflow.dfId) ? 'CURR' : 'DIFF';
-    //   flowName = dataset.creatorDfId;
-    // }
-
-    flowName = dataset.creatorDfId;
-    importType = dataset.importType;
-    detailType = 'DEFAULT';
-
-    const nodeSymbol = DsType.IMPORTED === dataset.dsType ? this.symbolInfo[dataset.dsType][importType][detailType] : this.symbolInfo[dataset.dsType][detailType];
-
+    let importType: ImportType = dataset.importType|| null;
+    let detailType: string = 'DEFAULT';
+    let flowName: string = dataset.creatorDfId;
+    let name = PreparationCommonUtil.getNameForSvgWithDataset(dataset);
+    if (name === '') {
+      name = 'WRANGLED';
+    }
+    let nodeSymbol = this.symbolInfo[name][detailType];
     const node = {
       dsId: dataset.dsId,
       dsName: dataset.dsName,
       name: dataset.dsId,
+      type: name,
       dsType: dataset.dsType,
       importType: importType != null ? importType : undefined,
       detailType: detailType != null ? detailType : undefined,
@@ -1181,8 +1093,8 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
         clearSelectedNodeEffect();
       } else {
         option.series[params.seriesIndex].nodes.map((node, idx) => {
-          if (_.eq(idx, params.dataIndex) && params.data.detailType) {
-            node.symbol = symbolInfo.SELECTED[params.data.dsType];
+          if (_.eq(idx, params.dataIndex) && params.data.type) {
+            node.symbol = symbolInfo[params.data.type]['SELECTED'];
           } else {
             node.symbol = _.cloneDeep(node.originSymbol);
           }
@@ -1202,6 +1114,10 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
     });
   } // function - chartClickEventListener
 
+  /**
+   * Initialise values
+   * @private
+   */
   private _initialiseValues() {
 
     this.commandList = [
@@ -1236,29 +1152,68 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
   }
 
 
+  /**
+   * Initialise chart values and options
+   * @private
+   */
   private _initialiseChartValues() {
+
+    const SVG_LOCATION: string = 'image://' + window.location.origin + '/assets/images/datapreparation/svg/icon_';
+
     this.symbolInfo = {
-      IMPORTED: {
-        UPLOAD: {
-          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.png',
+        CSV : {
+          DEFAULT: SVG_LOCATION + 'file_csv.svg',
+          SELECTED: SVG_LOCATION + 'file_csv_focus.svg',
         },
-        URI: {
-          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.png',
+        EXCEL : {
+          DEFAULT: SVG_LOCATION + 'file_xls.svg',
+          SELECTED: SVG_LOCATION + 'file_xls_focus.svg',
         },
-        DATABASE: {
-          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.png',
+        JSON : {
+          DEFAULT: SVG_LOCATION + 'file_json.svg',
+          SELECTED: SVG_LOCATION + 'file_json_focus.svg',
+        },
+        TXT : {
+          DEFAULT: SVG_LOCATION + 'file_txt.svg',
+          SELECTED: SVG_LOCATION + 'file_txt_focus.svg',
+        },
+        MYSQL: {
+          DEFAULT: SVG_LOCATION + 'db_mysql.svg',
+          SELECTED: SVG_LOCATION + 'db_mysql_focus.svg',
+        },
+        HIVE: {
+          DEFAULT: SVG_LOCATION + 'db_hive.svg',
+          SELECTED: SVG_LOCATION + 'db_hive_focus.svg',
+        },
+        PRESTO: {
+          DEFAULT: SVG_LOCATION + 'db_presto.svg',
+          SELECTED: SVG_LOCATION + 'db_presto_focus.svg',
+        },
+        DRUID: {
+          DEFAULT: SVG_LOCATION + 'db_druid.svg',
+          SELECTED: SVG_LOCATION + 'db_druid_focus.svg',
+        },
+        POSTGRESQL: {
+          DEFAULT: SVG_LOCATION + 'db_post.svg',
+          SELECTED: SVG_LOCATION + 'db_post_focus.svg',
+        },
+        ORACLE: {
+          DEFAULT: SVG_LOCATION + 'db_oracle.svg',
+          SELECTED: SVG_LOCATION + 'db_oracle_focus.svg',
+        },
+        TIBERO: {
+          DEFAULT: SVG_LOCATION + 'db_tibero.svg',
+          SELECTED: SVG_LOCATION + 'db_tibero_focus.svg',
         },
         STAGING_DB: {
-          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.png'
+          DEFAULT: SVG_LOCATION + 'db_hive.svg',
+          SELECTED: SVG_LOCATION + 'db_hive_focus.svg'
+        },
+        WRANGLED: {
+          DEFAULT: SVG_LOCATION + 'dataset_wrangled_.svg',
+          SELECTED: SVG_LOCATION + 'dataset_wrangled_focus.svg',
         }
-      },
-      WRANGLED: {
-        DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_wrangled.png',
-      },
-      SELECTED: {
-        IMPORTED: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db_focus.png',
-        WRANGLED: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_dataset_focus.png'
-      }
+
     };
 
     const labelOption = {
@@ -1266,11 +1221,7 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
       position: 'bottom',
       textStyle: { color: '#000000', fontWeight: 'bold' },
       formatter(params) {
-        if (params.data.dsName.length > 20) {
-          return params.data.dsName.slice(0,20) + ' ...'
-        } else {
-          return params.data.dsName;
-        }
+        return PreparationCommonUtil.parseChartName(params.data.dsName);
       }
     };
     this.label = {
@@ -1280,7 +1231,7 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
 
     this.chartOptions = {
       backgroundColor: '#ffffff',
-      tooltip: { show: false },
+      tooltip: { show: true },
       xAxis: {
         type: 'value',
         max: null,
@@ -1307,7 +1258,7 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
           layout: 'none',
           coordinateSystem: 'cartesian2d',
           focusNodeAdjacency: false,
-          symbolSize: 40,
+          symbolSize: 55,
           hoverAnimation: true,
           roam: false,
           edgeSymbol: ['none', 'arrow'],

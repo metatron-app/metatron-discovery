@@ -158,6 +158,7 @@ em.ddp-icon-use {display:inline-block; position:absolute; top:50%; left:8px; wid
 .ddp-icon-edit2 {display:inline-block; width:10px; height:10px; background:url(../../../images/icon_edit2.png) no-repeat; vertical-align: middle;}
 .ddp-icon-edit2:hover {background-position:-11px top;}
 
+em.ddp-icon-svg {display:inline-block; width:24px; height:24px; margin-right:5px; vertical-align:middle;}
 em.ddp-icon-sinfo2,
 em.ddp-icon-error2,
 em.ddp-icon-error-s,

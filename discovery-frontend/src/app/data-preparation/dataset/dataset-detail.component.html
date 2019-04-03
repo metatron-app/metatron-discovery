@@ -114,9 +114,9 @@
             <th>
               {{item.name}}
             </th>
-            <td [ngClass]="{'ddp-link-url': item.name === 'URI' && dataset.importType.toString() === 'UPLOAD'}">
+            <td [ngClass]="{'ddp-link-url': (item.name === 'URI' && dataset.importType === ImportType.UPLOAD) || (item.name === 'URI' && dataset.importType === ImportType.URI)}">
               <div class="ddp-txt-cut" *ngIf="item.name === 'URI'; else notURI" title="{{item.value}}" >
-                <a href="javascript:" *ngIf="dataset.importType.toString() === 'UPLOAD'; else notUpload" (click)="downloadDataset()">
+                <a href="javascript:" *ngIf="dataset.importType === ImportType.UPLOAD || dataset.importType === ImportType.URI; else notUpload" (click)="downloadDataset()">
                   {{item.value}}
                 </a>
                 <ng-template #notUpload>

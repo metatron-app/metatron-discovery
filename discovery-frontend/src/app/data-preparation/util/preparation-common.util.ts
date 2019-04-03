@@ -12,9 +12,10 @@
  * limitations under the License.
  */
 
-import {FileFormat, ImportType} from '../../domain/data-preparation/pr-dataset';
-import { SsType } from '../../domain/data-preparation/pr-snapshot';
+import {DsType, FileFormat, ImportType, PrDataset} from '../../domain/data-preparation/pr-dataset';
+import {SsType} from '../../domain/data-preparation/pr-snapshot';
 import {isNullOrUndefined} from "util";
+import * as _ from "lodash";
 
 declare const moment: any;
 
@@ -362,11 +363,11 @@ export class PreparationCommonUtil {
     } else if (importType === ImportType.URI) {
       result = 'URI';
     } else if (importType === ImportType.STAGING_DB) {
-      result = 'Staging DB';
+      result = 'STAGING_DB';
     } else if (importType === ImportType.DATABASE) {
-      result = 'Database';
+      result = 'DB';
     } else if (importType === ImportType.DRUID) {
-      result = 'Druid';
+      result = 'DRUID';
     }
     return result
   } // user friendly import type name
@@ -399,14 +400,21 @@ export class PreparationCommonUtil {
    */
   public static getFileFormat(fileExtension: string) : FileFormat{
     let fileType : string = fileExtension.toUpperCase();
-    if (fileType === 'CSV' || fileType === 'TXT'){
-      return FileFormat.CSV;
-    } else if (fileType === 'XLSX' || fileType === 'XLS'){
-      return FileFormat.EXCEL
-    } else if (fileType === 'JSON'){
-      return FileFormat.JSON
+
+    const formats = [
+      {extension:'CSV', fileFormat:FileFormat.CSV},
+      {extension:'TXT', fileFormat:FileFormat.TXT},
+      {extension:'JSON', fileFormat:FileFormat.JSON},
+      {extension:'XLSX', fileFormat:FileFormat.EXCEL},
+      {extension:'XLS', fileFormat:FileFormat.EXCEL},
+    ];
+
+    const idx = _.findIndex(formats, {extension: fileType});
+
+    if (idx !== -1) {
+      return formats[idx].fileFormat
     } else {
-      return null;
+      return formats[0].fileFormat
     }
   }
 
@@ -490,4 +498,154 @@ export class PreparationCommonUtil {
     return rows;
   }
 
+  /**
+   * Return a modified icon title
+   * @param data
+   * @param length(Optional): set number of words appeared per line
+   * @param steps(Optional): set number of lines appeared per icon
+   * @returns any
+   */
+  public static parseChartName(data : any, length?: any, steps?: any) {
+
+    if (data !== null && data !== undefined) {
+      length = length ? length : 20; // default value of 20, appearing twenty words per line
+      steps = steps ? steps : 2; // default value of 2, appearing two lines per icon
+
+      if (data.length < length) {
+        return data;
+      } else { // parse icon name
+        let temp = '';
+        let index = 0;
+
+        for (let i = 0; i < steps; i = i + 1) {
+          if (index > data.length) {
+            temp = temp + data.substring(index);
+            break;
+          }
+          temp = temp + data.substring(index, index + length);
+
+          if (i + 1 === steps) {
+            const isFinalLine = (index + length) < data.length;
+            temp = isFinalLine ? temp.substring(0, index + length - 3) + ' ...' : temp;
+            break;
+          }
+
+          temp = temp + '\n';
+          index = index + length;
+        }
+        return temp;
+      }
+    } else {
+      return '';
+    }
+  }
+
+  /**
+   * Return a modified tooltip info
+   * @param data
+   * @param length(Optional): set maximum number of words each line
+   * @returns any
+   */
+  public static parseTooltip(data : any, length?: any) {
+
+    if (data !== null && data !== undefined) {
+      length = length ? length : 20; // default at 20, twenty words each line
+      const steps = Math.ceil(data.length / length);
+      if (data.length < length) {
+        return data;
+      } else { // parse tooltip info
+        let temp = '';
+        let index = 0;
+
+        for (let i = 0; i < steps; i = i + 1) {
+          if (index > data.length || i + 1 === steps) {
+            temp = temp + data.substring(index);
+            break;
+          }
+          temp = temp + data.substring(index, index + length);
+          temp = temp + '</br>';
+          index = index + length;
+        }
+        return temp;
+      }
+    } else {
+      return '';
+    }
+  }
+
+
+  /**
+   * Returns appropriate file format for each extension
+   * Extensions : CSV, TXT, JSON, XLSX, XLS
+   * @param fileExtension {string}
+   * @returns {FileFormat}
+   * @private
+   */
+  public static getFileFormatWithExtension(fileExtension: string) {
+    let fileType : string = fileExtension.toUpperCase();
+
+    const formats = [
+      {extension:'CSV', fileFormat:FileFormat.CSV},
+      {extension:'TXT', fileFormat:FileFormat.TXT},
+      {extension:'JSON', fileFormat:FileFormat.JSON},
+      {extension:'XLSX', fileFormat:FileFormat.EXCEL},
+      {extension:'XLS', fileFormat:FileFormat.EXCEL},
+    ];
+
+    const idx = _.findIndex(formats, {extension: fileType});
+
+    if (idx !== -1) {
+      return formats[idx].fileFormat
+    } else {
+      return formats[0].fileFormat
+    }
+  }
+
+
+  /**
+   * Find name to get svg icon
+   * HIVE, MYSQL, POSTGRESQL, PRESTO, TIBERO, ORACLE
+   * EXCEL, CSV, JSON, TXT
+   * @param {PrDataset} ds
+   * @returns {string}
+   */
+  public static getNameForSvgWithDataset(ds: PrDataset) {
+
+    let name = '';
+    if (ds.importType === ImportType.UPLOAD || ds.importType === ImportType.URI) {
+      name = this.getFileFormatWithExtension(this.getFileNameAndExtension(ds.filenameBeforeUpload)[1]).toString();
+    }  else if (ds.importType === ImportType.DATABASE) {
+      name = ds['dcImplementor'];
+    } else if (ds.importType === ImportType.STAGING_DB) {
+      return 'HIVE'
+    } else if (ds.importType === ImportType.DRUID) {
+      name = 'DRUID'
+    } else if (ds.dsType == DsType.WRANGLED) {
+      name = 'WRANGLED';
+    }
+    return name;
+  }
+
+
+  /**
+   * There are different ways to show type of dataset
+   * Database ==> DB(MYSQL) etc
+   * STAGING  ==> STAGING_DB
+   * FILE     ==> FILE(EXCEL)
+   * URI      ==> URI(EXCEL)
+   * @param dataset
+   */
+  public static getDatasetType(dataset: PrDataset) {
+
+    let result:any = '';
+    const iType: string = this.getImportType(dataset.importType);
+
+    if ('FILE' === iType || 'URI' === iType) {
+      const ext = this.getFileNameAndExtension(dataset.filenameBeforeUpload)[1];
+      result = `(${this.getFileFormatWithExtension(ext)})`
+    } else if ('DB' === iType) {
+      result = `(${dataset['dcImplementor']})`;
+    }
+    return `${iType}${result}`
+  }
 }

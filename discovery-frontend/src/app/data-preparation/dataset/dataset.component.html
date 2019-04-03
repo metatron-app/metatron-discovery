@@ -114,14 +114,10 @@
         </td>
         <td>
           <span class="ddp-data-source" *ngIf="item.dsType.toString() === 'IMPORTED'">
-            <span>
-              <!--
-              <em [ngClass]="{HIVE:'ddp-icon-dbdata2', DB:'ddp-icon-db-s', 'FILE':'ddp-icon-file'}[item.importType.toString()]" ></em>
-              -->
-              <!-- FIXME: need to append classes URI,DRUID -->
-              <em [ngClass]="{ STAGING_DB:'ddp-icon-dbdata2', DATABASE:'ddp-icon-db-s', UPLOAD:'ddp-icon-file', URI:'', DRUID:'' }[item.importType]" ></em>
-              {{prepCommonUtil.getImportType(item.importType)}}
-              </span>
+              <em class="ddp-icon-svg">
+                <svg-icon-component [name]="prepCommonUtil.getNameForSvgWithDataset(item)" [isBlackAndWhite]="false"></svg-icon-component>
+              </em>
+              {{prepCommonUtil.getDatasetType(item)}}
             </span>
           <span class="ddp-data-source" *ngIf="item.dsType.toString() === 'WRANGLED'">
             <em class="ddp-icon-flow"></em>{{item.creatorDfName}}

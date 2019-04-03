@@ -116,11 +116,15 @@
                     </label>
                   </td>
                   <td>
-                    <div class=" ddp-txt-long">
+                    <div class=" ddp-txt-long" title="{{dsItem.dsName}}" *ngIf="!dsItem.dsDesc; else yesDesc">
                       {{dsItem.dsName}}
-                      <span *ngIf="dsItem.dsDesc" class="ddp-txt-colortype">- {{dsItem.dsDesc}}</span>
-                      <!--<em class="ddp-icon-global"></em>-->
                     </div>
+                    <ng-template #yesDesc>
+                      <div class=" ddp-txt-long" title="{{dsItem.dsName}} - {{dsItem.dsDesc}}">
+                        {{dsItem.dsName}}
+                        <span class="ddp-txt-colortype">- {{dsItem.dsDesc}}</span>
+                      </div>
+                    </ng-template>
                   </td>
                   <td>
                     <span *ngIf="dsItem.dsType.toString() === 'IMPORTED'">{{'msg.dp.ui.imported' | translate}}({{dsItem.importType}})</span>
