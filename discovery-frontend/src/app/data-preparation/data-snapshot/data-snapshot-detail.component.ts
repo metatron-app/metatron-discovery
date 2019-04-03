@@ -137,7 +137,6 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   public valid:string= '100%';
   public mismatched:string = '0%';
 
-  public interval : any;
   public currentTab : number = 0;
 
   public ruleList : any = [];
@@ -179,8 +178,6 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   // Destroy
   public ngOnDestroy() {
     super.ngOnDestroy();
-
-    this._clearSnapshotInterval();
     $('body').removeClass('body-hidden');
 
   }
@@ -208,9 +205,6 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     this.isEnableCreateDatasource = isEnableCreateDatasource;
 
     $('body').removeClass('body-hidden').addClass('body-hidden');
-
-    this._clearSnapshotInterval();
-    this.interval =  setInterval(() => this.getSnapshot(), 3000);
     this.getSnapshot(true);
   }
 
@@ -219,7 +213,6 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
    * Close snapshot popup
    */
   public close() {
-    this._clearSnapshotInterval();
     this.isShow = false;
     $('body').removeClass('body-hidden');
     this.snapshotDetailCloseEvent.emit();
@@ -412,8 +405,6 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
    * @param param
    */
   public cancelClick(param:boolean){
-    clearInterval(this.interval);
-    this.interval = undefined;
     let elm = $('.ddp-wrap-progress');
     if (param) {
       if(this.selectedDataSnapshot.ruleCntDone == this.selectedDataSnapshot.ruleCntTotal) {
@@ -426,7 +417,6 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     } else {
       elm[0].style.display = "";
       elm[1].style.display = "none";
-      this.interval =  setInterval(() => this.getSnapshot(), 1000);
     }
   }
 
@@ -488,10 +478,6 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         // set Only success enable create datasource
         this.isEnableCreateDatasource !== false && (this.isEnableCreateDatasource = snapshot.status === Status.SUCCEEDED);
 
-        // clear interval
-        this._clearSnapshotInterval();
-
-
         // set file format
         if (this.selectedDataSnapshot.ssType ===  SsType.URI){
           this.snapshotUriFileFormat = this.selectedDataSnapshot.storedUri.slice((this.selectedDataSnapshot.storedUri.lastIndexOf(".") - 1 >>> 0) + 2).toLowerCase();
@@ -538,6 +524,11 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
           } else {
             this.progressbarWidth = '100%';
           }
+          // Whenever received response at the status of preparing, it requests snapshot data
+          setTimeout(() => {
+            this.getSnapshot();
+          }, 2000)
+
         }
 
         if (this.selectedDataSnapshot.displayStatus === 'FAIL') {
@@ -840,18 +831,6 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     this.sSInformationList.push(
       {label: this.translateService.instant('msg.dp.th.et'), value : this.getElapsedTime(snapshot)},
       {label: this.translateService.instant('msg.comm.th.created'), value : moment(snapshot.createdTime).format('YYYY-MM-DD HH:mm')});
-  }
-
-
-  /**
-   * Clears exisiting snapshot interval
-   * @private
-   */
-  private _clearSnapshotInterval() {
-    if (!isNullOrUndefined(this.interval)) {
-      clearInterval(this.interval);
-      this.interval = undefined;
-    }
   }
 
 
