@@ -12,7 +12,7 @@
 * limitations under the License.
 */
 
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
+import {AbstractHistoryEntity, UserDetail} from '../common/abstract-history-entity';
 import { PrDataflow } from './pr-dataflow';
 import {header} from "../../common/component/grid/grid.header";
 
@@ -161,6 +161,7 @@ export class PrDatasetJdbc extends PrDataset {
   public tableInfo? : TableInfo;
 
   public dataconnection: any;
+  public connectionList?: any[];
 }
 
 export class Rule {

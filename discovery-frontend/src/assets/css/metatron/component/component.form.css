@@ -130,10 +130,6 @@
 .ddp-wrap-edit3 .ddp-wrap-hover-info .ddp-box-layout4 {display:none; position:absolute; top:-15px; left:20px; width:320px;}
 .ddp-wrap-edit3 .ddp-wrap-hover-info:hover .ddp-box-layout4 {display:block;}
 
-/*.ddp-info-inline .ddp-wrap-hover-info {display:inline-block; position:relative; vertical-align: middle; cursor: pointer;}*/
-/*.ddp-info-inline .ddp-wrap-hover-info em.ddp-icon-info3 {display:inline-block; position:relative; top:-1px; width:11px; height:11px; background:url(../../../images/icon_que.png) no-repeat; background-position:left -12px;}*/
-/*.ddp-info-inline .ddp-wrap-hover-info .ddp-box-layout4 {display:none; position:absolute; top:-40px; left:20px; width:240px;}*/
-/*.ddp-info-inline .ddp-wrap-hover-info .ddp-box-layout4.ddp-bottom {top:inherit; bottom:-30px;}*/
 
 .ddp-wrap-edit3 .ddp-ui-edit-suboption {overflow:hidden;}
 .ddp-wrap-edit3 .ddp-ui-edit-option .ddp-ui-option-in .ddp-input-typebasic {margin-top:-9px;}
@@ -160,7 +156,7 @@
 .ddp-wrap-edit3 .ddp-ui-edit-option.ddp-type.ddp-btn-multy .ddp-btn-gray {position:absolute; top:0; right:0; width:100px; padding:7px; text-align:center; box-sizing:border-box;}
 
 .ddp-wrap-edit3 .ddp-ui-edit-option .ddp-data-error {position:absolute; bottom:4px; left:0; color:#e70000; font-size:12px; font-style:italic;}
-.ddp-wrap-edit3 .ddp-ui-edit-option .ddp-data-error:before {display:inline-block; width:13px; height:13px; vertical-align:middle; background:url(../../../images/icon_info.png) no-repeat; background-position:-28px top; content:'';}
+.ddp-wrap-edit3 .ddp-ui-edit-option .ddp-data-error:before {display:inline-block; margin-right:2px; width:13px; height:13px; vertical-align:middle; background:url(../../../images/icon_info.png) no-repeat; background-position:-28px top; content:'';}
 
 .ddp-wrap-edit3 .ddp-ui-edit-option.ddp-error .ddp-data-error {bottom:-15px;}
 
@@ -188,7 +184,7 @@
 .ddp-wrap-edit4 .ddp-form-edit.type-file {white-space:nowrap;}
 .ddp-wrap-edit4 .ddp-form-edit.type-file input {display:inline-block; float:left; width:460px; margin-right:4px;}
 .ddp-wrap-edit4 .ddp-form-edit.type-file .ddp-btn-pop {float:left;}
-.ddp-wrap-edit4 .ddp-form-edit.type-file .ddp-form-file {disiplay:inline-block;}
+.ddp-wrap-edit4 .ddp-form-edit.type-file .ddp-form-file {display:inline-block;}
 .ddp-wrap-edit4 .ddp-form-edit.type-file .ddp-ui-message {display:inline-block; margin-left:10px;  white-space:nowrap; vertical-align: middle;}
 .ddp-wrap-edit4 .ddp-form-edit.type-file .ddp-ui-message [class*="ddp-data-"] {display:block; position:relative; top:6px; padding-top:0;}
 /**************************************************************

@@ -690,7 +690,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     this.loadingShow();
 
     if (!this.datasetJdbc.dataconnection.connection) {
-      this.datasetJdbc.dcId = this.datasetJdbc.dataconnection.id;
+      // this.datasetJdbc.dcId = this.datasetJdbc.dataconnection.id;
 
       const connectionInfo = _.clone(this.datasetJdbc.dataconnection);
 
@@ -711,6 +711,10 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
       if (this.datasetJdbc.dataconnection.connection.implementor === 'PRESTO' && !connectionInfo.url) {
         this.datasetJdbc.dataconnection.connection.catalog = connectionInfo.catalog;
+      }
+
+      if (this.datasetJdbc.dataconnection.connection.implementor === 'TIBERO' && !connectionInfo.url) {
+        this.datasetJdbc.dataconnection.connection.sid = connectionInfo.sid;
       }
 
     }
@@ -818,15 +822,17 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
    */
   private _drawGrid(headers: header[], rows : any[]) {
     // 그리드가 영역을 잡지 못해서 setTimeout으로 처리
-    setTimeout(() => {
-      this.gridComponent.create(headers, rows, new GridOption()
-        .SyncColumnCellResize(true)
-        .MultiColumnSort(true)
-        .RowHeight(32)
-        .NullCellStyleActivate(true)
-        .build()
-      )},400);
-    this.clickable = true;
+    if (this.gridComponent) {
+      setTimeout(() => {
+        this.gridComponent.create(headers, rows, new GridOption()
+          .SyncColumnCellResize(true)
+          .MultiColumnSort(true)
+          .RowHeight(32)
+          .NullCellStyleActivate(true)
+          .build()
+        )},400);
+      this.clickable = true;
+    }
   }
 
 
