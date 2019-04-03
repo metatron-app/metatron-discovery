@@ -87,6 +87,7 @@ import {MultipleRenamePopupComponent} from "./dataflow/dataflow-detail/component
 import {DataSourceCreateModule} from "../data-storage/data-source-list/create-data-source/data-source-create.module";
 import {DataconnectionService} from "../dataconnection/service/dataconnection.service";
 import {DataflowDetail2Component} from "./dataflow/dataflow-detail/dataflow-detail2.component";
+import {DataStorageShareModule} from "../data-storage/data-storage-share.module";
 
 
 const dataPreparationRoutes: Routes = [
@@ -107,7 +108,8 @@ const dataPreparationRoutes: Routes = [
     RouterModule.forChild(dataPreparationRoutes),
     SplitPaneModule,
     WorkbenchEditorModule,
-    DataSourceCreateModule
+    DataSourceCreateModule,
+    DataStorageShareModule
   ],
   declarations: [
     DataPreparationComponent,
