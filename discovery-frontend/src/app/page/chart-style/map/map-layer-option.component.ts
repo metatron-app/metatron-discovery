@@ -1405,7 +1405,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    */
   private removeAggregationType() {
     // add aggregation type in current layer
-    let layer = this.shelf.layers[this.uiOption.layerNum].fields;
+    let layer = this.shelf.layers[this.index].fields;
 
     // remove duplicate measure list
     let uniMeasureList = _.uniqBy(layer, 'name');
@@ -1418,7 +1418,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       }
     }
 
-    this.shelf.layers[this.uiOption.layerNum].fields = uniMeasureList;
+    this.shelf.layers[this.index].fields = uniMeasureList;
   }
 
   /**
@@ -1426,7 +1426,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    */
   private addAggregationType() {
     // add aggregation type in current layer
-    let layer = this.shelf.layers[this.uiOption.layerNum].fields;
+    let layer = this.shelf.layers[this.index].fields;
 
     for (const item of layer) {
       if (item.type === 'measure') {
