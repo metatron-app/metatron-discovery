@@ -338,7 +338,9 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
       return;
     }
     // 값이 비어있다면 0으로 치환
+    let isDefaultValue : boolean = false;
     if( _.eq(value, "") ) {
+      isDefaultValue = true;
       this.axisTemp.grid.max = 0;
     }
 
@@ -357,14 +359,23 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
     let min: number = Number(this.axis.grid.min);
     let max: number = !isNaN(this.axisTemp.grid.max) ? Number(this.axisTemp.grid.max) : 0;
 
-    if( max <= min && (max != 0 && min != 0) ) {
+    // max 값이 0일 경우 (설정안했을경우)
+    if( isDefaultValue ){
+      let dataMax = AxisOptionConverter.axisMinMax[(_.eq(this.axis.mode,AxisLabelType.ROW) ? 'xAxis' : 'yAxis')].max;
+      max = Number(dataMax.toFixed(2));
+      this.axis.grid.max = max;
+    }
+
+    if( max <= min && (max != 0 && min != 0) || max == 0 ) {
       Alert.info(this.translateService.instant('msg.page.yaxis.grid.max.alert'));
-      this.axisTemp.grid.max = this.axis.grid.max != 0 ? originAxisMax : null;
+      this.axisTemp.grid.max = originAxisMax;
       return;
     }
 
     // 기준선 변경
-    this.axis.grid.max = Number(this.axisTemp.grid.max);
+    if (Number(this.axisTemp.grid.max) != 0)
+      this.axis.grid.max = Number(this.axisTemp.grid.max);
+
     if( this.axisTemp.grid.autoScaled || this.axis.grid.autoScaled ) {
       this.axisTemp.grid.autoScaled = false;
       this.axisTemp.grid.min = null;
