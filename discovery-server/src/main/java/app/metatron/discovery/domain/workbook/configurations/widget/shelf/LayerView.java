@@ -33,7 +33,9 @@ import app.metatron.discovery.query.druid.Aggregation;
 import app.metatron.discovery.query.druid.PostAggregation;
 import app.metatron.discovery.query.druid.aggregations.CountAggregation;
 import app.metatron.discovery.query.druid.aggregations.GenericSumAggregation;
+import app.metatron.discovery.query.druid.aggregations.RelayAggregation;
 import app.metatron.discovery.query.druid.postaggregations.ExprPostAggregator;
+import app.metatron.discovery.util.EnumUtils;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
@@ -41,6 +43,7 @@ import app.metatron.discovery.query.druid.postaggregations.ExprPostAggregator;
     defaultImpl = LayerView.OriginalLayerView.class)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = LayerView.OriginalLayerView.class, name = "original"),
+    @JsonSubTypes.Type(value = LayerView.AbbreviatedView.class, name = "abbr"),
     @JsonSubTypes.Type(value = LayerView.ClusteringLayerView.class, name = "clustering"),
     @JsonSubTypes.Type(value = LayerView.HashLayerView.class, name = "hash")
 })
@@ -112,6 +115,24 @@ public interface LayerView extends Serializable {
 
     public Integer getPrecision() {
       return precision;
+    }
+  }
+
+
+  class AbbreviatedView extends ClusteringLayerView implements LayerView {
+
+    RelayAggregation.Relaytype relayType;
+
+    @JsonCreator
+    public AbbreviatedView(@JsonProperty("method") String method,
+                           @JsonProperty("precision") Integer precision,
+                           @JsonProperty("relayType") String relayType) {
+      super(method, precision);
+      this.relayType = EnumUtils.getUpperCaseEnum(RelayAggregation.Relaytype.class, relayType);
+    }
+
+    public RelayAggregation.Relaytype getRelayType() {
+      return relayType;
     }
   }
 

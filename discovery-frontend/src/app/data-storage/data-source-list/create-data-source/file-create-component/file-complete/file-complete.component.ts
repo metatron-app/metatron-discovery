@@ -236,6 +236,10 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
     delete column.replaceValidMessage;
     delete column.timeFormatValidMessage;
     delete column.checked;
+    if (column.format) {
+      delete column.format.isValidFormat;
+      delete column.format.formatValidMessage;
+    }
     // if not GEO types
     if (column.logicalType.indexOf('GEO_') === -1) {
       if (column.logicalType !== 'TIMESTAMP' && column.format) {
@@ -249,6 +253,8 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
       } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.DATE_TIME) {
         delete column.format.unit;
       }
+    } else {  // if GEO types
+      delete column.format.unit;
     }
   }
 
@@ -384,7 +390,8 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
       format: this._getFileFormatParams(),
       removeFirstRow: this.getFileData.isFirstHeaderRow,
       path: this.getFileData.fileResult.filePath,
-      rollup: this.getIngestionData.selectedRollUpType.value
+      rollup: this.getIngestionData.selectedRollUpType.value,
+      uploadFileName: this.getFileData.fileResult.fileName
     };
     // advanced
     if (this.getIngestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)).length > 0) {

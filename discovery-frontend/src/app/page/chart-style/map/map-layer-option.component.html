@@ -26,7 +26,7 @@
 
           <div class="ddp-wrap-divide">
             <!-- divide -->
-            <div class="ddp-divide2 ">
+            <div *ngIf="uiOption['analysis'] == null || uiOption['analysis']['use'] == false" class="ddp-divide2">
               <div class="ddp-list-label">{{'msg.page.layer.map.name' | translate}}</div>
               <input type="text" class="ddp-input-typebasic" placeholder=""
                      [(ngModel)]="uiOption.layers[layerIndex].name"
@@ -37,7 +37,7 @@
             <div class="ddp-type-map-chart">
               <!-- TODO layer type divide -->
               <div
-                *ngIf="'line' !== uiOption.layers[layerIndex].type.toString() && 'polygon' !== uiOption.layers[layerIndex].type.toString()"
+                *ngIf="(uiOption['analysis'] == null || uiOption['analysis']['use'] == false) && 'line' !== uiOption.layers[layerIndex].type.toString() && 'polygon' !== uiOption.layers[layerIndex].type.toString()"
                 class="ddp-divide2 ">
                 <div class="ddp-list-label">{{'msg.page.layer.map.type' | translate}}</div>
                 <div class="ddp-wrap-tab-type2">
@@ -99,8 +99,8 @@
                               [array]="colorByList"
                               [defaultIndex]="findIndex(colorByList, 'value', uiOption.layers[layerIndex].color.by)"
                               [viewKey]="'name'"
-                              (onSelected)="changeColorBy($event, layerIndex)"
-                            ></component-select>
+                              (onSelected)="changeColorBy($event, layerIndex)">
+                            </component-select>
                             <!-- //SELECTBOX -->
                           </div>
                           <!-- color by dimension column -->
@@ -112,8 +112,8 @@
                               [array]="fieldList[layerIndex].dimensionList"
                               [defaultIndex]="findIndex(fieldList[layerIndex].dimensionList, 'name', uiOption.layers[layerIndex].color.column)"
                               [viewKey]="'alias'"
-                              (onSelected)="changeColorColumn($event, layerIndex)"
-                            ></component-select>
+                              (onSelected)="changeColorColumn($event, layerIndex)">
+                            </component-select>
                             <!-- //SELECTBOX -->
                           </div>
                           <!-- //color by dimension column -->
@@ -126,8 +126,8 @@
                               [array]="fieldList[layerIndex].measureList"
                               [defaultIndex]="findIndex(fieldList[layerIndex].measureList, 'name', uiOption.layers[layerIndex].color.column, 'aggregationType', uiOption.layers[layerIndex].color.aggregationType)"
                               [viewKey]="'alias'"
-                              (onSelected)="changeColorColumn($event, layerIndex)"
-                            ></component-select>
+                              (onSelected)="changeColorColumn($event, layerIndex)">
+                            </component-select>
                             <!-- //SELECTBOX -->
                           </div>
                           <!-- //color by measure column -->
@@ -225,10 +225,11 @@
                                             (click)="showMinInputColorRange(item, true, minInput, rangeIndex)"> {{item['gt']}}</span>
                                       <input #minInput
                                              [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}"
-                                             type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right"
+                                             type="text" class="ddp-input-typebasic ddp-txt-right"
                                              [(ngModel)]="item['gt']"
-                                             (keyup.enter)="changeRangeMinInput(item, rangeIndex, layerIndex)"
-                                             (focusout)="showMinInputColorRange(item, false, minInput)">
+                                             (mouseenter)="item['minInputShow'] = true;"
+                                             (mouseleave)="item['minInputShow'] = false;"
+                                             (keyup.enter)="changeRangeMinInput(item, rangeIndex, layerIndex)">
                                       <!-- tooltip -->
                                       <div class="ddp-ui-tooltip-info">
                                         <em class="ddp-icon-view-down"></em>
@@ -250,10 +251,11 @@
                                             (click)="showMaxInputColorRange(item, true, maxInput, rangeIndex)">{{item['lte']}}</span>
                                       <input #maxInput
                                              [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}"
-                                             type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right"
+                                             type="text" class="ddp-input-typebasic ddp-txt-right"
                                              [(ngModel)]="item['lte']"
-                                             (keyup.enter)="changeRangeMaxInput(item, rangeIndex, layerIndex)"
-                                             (focusout)="showMaxInputColorRange(item, false, maxInput)">
+                                             (mouseenter)="item['maxInputShow'] = true;"
+                                             (mouseleave)="item['maxInputShow'] = false;"
+                                             (keyup.enter)="changeRangeMaxInput(item, rangeIndex, layerIndex)">
                                       <!-- tooltip -->
                                       <div class="ddp-ui-tooltip-info">
                                         <em class="ddp-icon-view-down"></em>
@@ -306,7 +308,7 @@
                             <div class="ddp-box-option-input ddp-type ddp-inline">
                               <span class="ddp-txt-input">%</span>
                               <span class="ddp-txt-input"></span>
-                              <input type="number" input-mask="number"
+                              <input type="number"
                                      [ngModel]="uiOption.layers[layerIndex].color.transparency"
                                      (keyup.enter)="changeTransparencyText($event, layerIndex);">
                             </div>
@@ -465,7 +467,7 @@
                   <!-- //symbol, polygon : outline -->
 
                   <!-- symbol : cluster -->
-                  <div class="ddp-wrap-divide" *ngIf="'symbol' === uiOption.layers[layerIndex].type.toString()">
+                  <div class="ddp-wrap-divide" *ngIf="(uiOption['analysis'] == null || uiOption['analysis']['use'] == false) && 'symbol' === uiOption.layers[layerIndex].type.toString()">
                     <!-- divide -->
                     <div class="ddp-divide2 ">
                       <div class="ddp-wrap-option-slider">
@@ -504,7 +506,7 @@
                               </div>
                               <div class="ddp-box-option-input ddp-type ddp-inline">
                                 <span class="ddp-txt-input">%</span>
-                                <input type="number" input-mask="number"
+                                <input type="number"
                                        [ngModel]="uiOption.layers[layerIndex]['coverage']"
                                        (keyup.enter)="changeClusteringText($event, layerIndex);">
                               </div>
@@ -555,7 +557,7 @@
                         <div class="ddp-box-option-input ddp-type ddp-inline">
                           <span class="ddp-txt-input">%</span>
                           <span class="ddp-txt-input"></span>
-                          <input type="number" input-mask="number" [ngModel]="uiOption.layers[layerIndex]['blur']"
+                          <input type="number" [ngModel]="uiOption.layers[layerIndex]['blur']"
                                  (keyup.enter)="changeBlurText($event,layerIndex)">
                         </div>
                       </div>
@@ -580,7 +582,7 @@
                         <div class="ddp-box-option-input ddp-type ddp-inline">
                           <!--<span class="ddp-txt-input">%</span>-->
                           <span class="ddp-txt-input"></span>
-                          <input type="number" input-mask="number" [ngModel]="uiOption.layers[layerIndex]['radius']"
+                          <input type="number" [ngModel]="uiOption.layers[layerIndex]['radius']"
                                  (keyup.enter)="changeRadiusText($event,layerIndex)">
                         </div>
                       </div>
@@ -610,7 +612,7 @@
                         <div class="ddp-box-option-input ddp-type ddp-inline">
                           <!--<span class="ddp-txt-input">%</span>-->
                           <span class="ddp-txt-input"></span>
-                          <input type="number" input-mask="number" [ngModel]="uiOption.layers[layerIndex]['radius']"
+                          <input type="number" [ngModel]="uiOption.layers[layerIndex]['radius']"
                                  (keyup.enter)="changeHexagonRadiusText($event, layerIndex)">
                         </div>
                       </div>
@@ -680,7 +682,7 @@
                                   (pt)</span>
                               </div>
                               <div class="ddp-col-4">
-                                <input type="number" input-mask="number" class="ddp-input-typebasic ddp-txt-right"
+                                <input type="number" class="ddp-input-typebasic ddp-txt-right"
                                        [ngModel]="uiOption.layers[layerIndex].thickness.maxValue"
                                        (keyup.enter)="changeThickMaxValue($event, layerIndex)">
                               </div>
@@ -717,6 +719,24 @@
                     <!-- //line : line type -->
                   </div>
                   <!-- //line : stroke, line type -->
+
+                  <!-- 공간연산 visible (비교 레이어 영역 ) -->
+                  <div *ngIf="uiOption['analysis'] != null && uiOption['analysis']['use'] == true" class="ddp-wrap-divide">
+                    <!-- divide -->
+                    <div class="ddp-divide2 ">
+                      <div class="ddp-wrap-option-slider">
+                        <span class="ddp-label-slider">{{'msg.page.chart.map.spatial.comparelayer.area' | translate}}</span>
+                        <!-- Slide THREE -->
+                        <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+                          <input type="checkbox" name="check" [ngModel]="uiOption['analysis']['includeCompareLayer']" (click)="analysisVisibilityBtn()">
+                          <label><span class="ddp-slide"></span></label>
+                        </div>
+                        <!-- //Slide THREE -->
+                      </div>
+                    </div>
+                  </div>
+                  <!-- // 공간연산 visible (비교 레이어 영역 ) -->
+
                 </div>
               </div>
               <!-- //레이어 유형 contents -->

@@ -26,6 +26,7 @@ import { DatasourceService } from '../../../../../datasource/service/datasource.
 import { header, SlickGridHeader } from '../../../../../common/component/grid/grid.header';
 import { GridOption } from '../../../../../common/component/grid/grid.option';
 import { GridComponent } from '../../../../../common/component/grid/grid.component';
+import {isNullOrUndefined} from 'util';
 import * as pixelWidth from 'string-pixel-width';
 import * as _ from 'lodash';
 import {
@@ -45,10 +46,11 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성될 데이터소스 정보
-  private sourceData: DatasourceInfo;
+  @Input('sourceData')
+  private readonly sourceData: DatasourceInfo;
 
   @ViewChild(GridComponent)
-  private gridComponent: GridComponent;
+  private readonly gridComponent: GridComponent;
 
   // file uploaded results
   private _uploadResult: UploadResult;
@@ -59,16 +61,11 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
   // selected file detail data
   public selectedFileDetailData: FileDetail;
 
-  @Input('sourceData')
-  public set setSourceData(sourceData: DatasourceInfo) {
-    this.sourceData = sourceData;
-  }
-
   @Input()
   public step: string;
 
   @Output()
-  public stepChange: EventEmitter<string> = new EventEmitter();
+  public readonly stepChange: EventEmitter<string> = new EventEmitter();
 
   // 파일 업로드
   public uploader: FileUploader;
@@ -89,9 +86,12 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
   // grid hide
   public clearGrid = true;
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Constructor
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public typeList = [];
+
+  // flag
+  public isValidFile: boolean;
+  public isValidDelimiter: boolean;
+  public isValidSeparator: boolean;
 
   // 생성자
   constructor(private datasourceService: DatasourceService,
@@ -161,10 +161,6 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
 
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Override Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   // Init
   public ngOnInit() {
     // Init
@@ -183,55 +179,47 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
     super.ngOnDestroy();
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
    * 다음화면으로 이동
    */
   public next() {
-    // validation
-    if (this.isEnableNext()) {
-      // 데이터 변경이 일어난경우 스키마 데이터와 적재데이터 제거
-      this._deleteSchemaData();
-      // 기존 파일 데이터 삭제후 생성
-      this._deleteAndSaveFileData();
-      // 다음페이지로 이동
-      this.step = 'file-configure-schema';
-      this.stepChange.emit(this.step);
+    if (this.fileResult) {
+      if (this.isCsvFile()) {
+        isNullOrUndefined(this.isValidDelimiter) && (this.isValidDelimiter = false);
+        isNullOrUndefined(this.isValidSeparator) && (this.isValidSeparator = false);
+      }
+      // validation
+      if (this.isEnableNext()) {
+        // 데이터 변경이 일어난경우 스키마 데이터와 적재데이터 제거
+        this._deleteSchemaData();
+        // 기존 파일 데이터 삭제후 생성
+        this._deleteAndSaveFileData();
+        // 다음페이지로 이동
+        this.step = 'file-configure-schema';
+        this.stepChange.emit(this.step);
+      }
     }
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method - getter
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
    * logical Types
    * @returns {{}}
    */
-  public getLogicalTypes() {
-    const result = {};
-    this.selectedFileDetailData.fields.forEach((field) => {
+  public setTypeList(): void {
+    const result = this.selectedFileDetailData.fields.reduce((acc, field) => {
       // result 에 해당 타입이 있다면
-      if (result.hasOwnProperty(field.logicalType)) {
-        result[field.logicalType] += 1;
+      if (acc.hasOwnProperty(field.logicalType)) {
+        acc[field.logicalType] += 1;
       } else {
         // 없다면 새로 생성
-        result[field.logicalType] = 1;
+        acc[field.logicalType] = 1;
       }
-    });
-
-    const keys = Object.keys(result);
-
-    const logicalTypes = [];
-
-    keys.forEach((key) => {
-      logicalTypes.push({label: key, value: result[key]});
-    });
-
-    return logicalTypes;
+      return acc;
+    }, {});
+    this.typeList = Object.keys(result).reduce((acc, key) => {
+      acc.push({label: key, value: result[key]});
+      return acc;
+    }, []);
   }
 
 
@@ -244,14 +232,19 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
   }
 
   /**
+   * Is excel file
+   * @return {boolean}
+   */
+  public isExcelFile(): boolean {
+    return this.fileResult.hasOwnProperty('sheets');
+  }
+
+  /**
    * Is enable next
    * @return {boolean}
    */
   public isEnableNext(): boolean {
-    // exist selectedFileDetailData
-    // exist fields in selectedFileDetailData
-    // enable grid
-    return !this.clearGrid && this.selectedFileDetailData && this.selectedFileDetailData.fields && this.selectedFileDetailData.isParsable.valid;
+    return this.isValidFile;
   }
 
   /**
@@ -363,6 +356,12 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
       separator: this.separator,
       // 임의의 헤드컬럼 생성여부
       isFirstHeaderRow: this.isFirstHeaderRow,
+      // type list
+      typeList: this.typeList,
+      // flag
+      isValidFile: this.isValidFile,
+      isValidDelimiter: this.isValidDelimiter,
+      isValidSeparator: this.isValidSeparator,
     };
     sourceData['fileData'] = fileData;
   }
@@ -456,15 +455,13 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
   private _isChangeData(): boolean {
     if (this.sourceData.fileData) {
       // 파일 key 가 변경된 경우
-      if (this.sourceData.fileData.fileResult.fileKey !== this.fileResult.fileKey) {
-        return true;
-      }
-      // 파일 시트가 변경된 경우
-      if (!this.isCsvFile() && (this.sourceData.fileData.fileResult.selectedSheet !== this.fileResult.selectedSheet)) {
-        return true;
-      }
       // 파일 헤더 생성여부가 변경된경우
-      if (this.sourceData.fileData.isFirstHeaderRow !== this.isFirstHeaderRow){
+      // 파일 시트가 변경된 경우 (excel)
+      // 파일의 구분자가 변경된 경우 (csv)
+      if ((this.sourceData.fileData.fileResult.fileKey !== this.fileResult.fileKey)
+        || this.sourceData.fileData.isFirstHeaderRow !== this.isFirstHeaderRow
+        || (this.isExcelFile() && (this.sourceData.fileData.fileResult.selectedSheet.sheetName !== this.fileResult.selectedSheet.sheetName))
+        || (!this.isExcelFile() && (this.sourceData.fileData.separator !== this.separator || this.sourceData.fileData.delimiter !== this.delimiter))) {
         return true;
       }
     }
@@ -508,8 +505,17 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
         }
         // if result is parsable
         if (result.isParsable && result.isParsable.valid) {
+          // valid true
+          this.isValidFile = true;
+          // set type list
+          this.setTypeList();
           // grid 출력
           this._updateGrid(this.selectedFileDetailData.data, this.selectedFileDetailData.fields);
+          // if CSV file
+          if (this.isCsvFile()) {
+            this.isValidDelimiter = true;
+            this.isValidSeparator = true;
+          }
         } else if (result.isParsable) { // if result is not parsable
           // set error message
           this.selectedFileDetailData.errorMessage = this._dataSourceCreateService.getFileErrorMessage(result.isParsable.warning);
@@ -580,6 +586,12 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
     this.separator = fileData.separator;
     // 임의의 헤드컬럼 생성여부
     this.isFirstHeaderRow = fileData.isFirstHeaderRow;
+    // type list
+    this.typeList = fileData.typeList;
+    // flag
+    this.isValidFile = fileData.isValidFile;
+    this.isValidDelimiter = fileData.isValidDelimiter;
+    this.isValidSeparator = fileData.isValidSeparator;
     // grid 출력
     this._updateGrid(this.selectedFileDetailData.data, this.selectedFileDetailData.fields);
   }

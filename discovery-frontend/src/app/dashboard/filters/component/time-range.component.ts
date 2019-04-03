@@ -188,7 +188,7 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
     } else {
       let fromMoment;
       if (interval.startDate && 'undefined' !== interval.startDate) {
-        fromMoment = moment(interval.startDate);
+        fromMoment = this.customMoment( interval.startDate );
       } else {
         fromMoment = moment(minTime);
       }
@@ -207,11 +207,12 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
         this.selectedFromComboItem = this.comboList[this.fromComboIdx];
       }
 
-      if ([TimeUnit.NONE, TimeUnit.HOUR, TimeUnit.MINUTE].some(unit => unit === this.compData.timeUnit)) {
-        this._fromDate = fromMoment.subtract(9, 'hours').toDate();
-      } else {
-        this._fromDate = fromMoment.toDate();
-      }
+      // if ([TimeUnit.NONE, TimeUnit.HOUR, TimeUnit.MINUTE].some(unit => unit === this.compData.timeUnit)) {
+      //   this._fromDate = fromMoment.subtract(9, 'hours').toDate();
+      // } else {
+      //   this._fromDate = fromMoment.toDate();
+      // }
+      this._fromDate = fromMoment.toDate();
 
       if (isNullOrUndefined(this._fromPicker)) {
         // 시작일 DatePicker 생성
@@ -238,7 +239,7 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
     } else {
       let toMoment;
       if (interval.endDate && 'undefined' != interval.endDate) {
-        toMoment = moment(interval.endDate);
+        toMoment = this.customMoment( interval.endDate );
       } else {
         toMoment = moment(maxTime);
       }
@@ -257,11 +258,12 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
         this.selectedToComboItem = this.comboList[this.toComboIdx];
       }
 
-      if ([TimeUnit.NONE, TimeUnit.HOUR, TimeUnit.MINUTE].some(unit => unit === this.compData.timeUnit)) {
-        this._toDate = toMoment.subtract(9, 'hours').toDate();
-      } else {
-        this._toDate = toMoment.toDate();
-      }
+      // if ([TimeUnit.NONE, TimeUnit.HOUR, TimeUnit.MINUTE].some(unit => unit === this.compData.timeUnit)) {
+      //   this._toDate = toMoment.subtract(9, 'hours').toDate();
+      // } else {
+      //   this._toDate = toMoment.toDate();
+      // }
+      this._toDate = toMoment.toDate();
 
       // 종료일 DatePicker 생성
       if (isNullOrUndefined(this._toPicker)) {

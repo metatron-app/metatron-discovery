@@ -31,33 +31,33 @@ import app.metatron.discovery.common.exception.BadRequestException;
  */
 public class WktCheckRequest implements Serializable {
 
-  LogicalType geoType;
+    LogicalType geoType;
 
-  List<String> values;
+    List<String> values;
 
-  public WktCheckRequest() {
-  }
-
-  @JsonCreator
-  public WktCheckRequest(@JsonProperty("geoType") String geoType,
-                         @JsonProperty("values") List<String> values) {
-    LogicalType type = SearchParamValidator.enumUpperValue(LogicalType.class, geoType, "geoType");
-    if (!type.isGeoType()) {
-      throw new BadRequestException("Invalid type for geo : " + geoType);
+    public WktCheckRequest() {
     }
-    this.geoType = type;
 
-    if (CollectionUtils.isEmpty(values)) {
-      throw new BadRequestException("WKT values required.");
+    @JsonCreator
+    public WktCheckRequest(@JsonProperty("geoType") String geoType,
+                           @JsonProperty("values") List<String> values) {
+        LogicalType type = SearchParamValidator.enumUpperValue(LogicalType.class, geoType, "geoType");
+        if (!type.isGeoType()) {
+            throw new BadRequestException("Invalid type for geo : " + geoType);
+        }
+        this.geoType = type;
+
+        if (CollectionUtils.isEmpty(values)) {
+            throw new BadRequestException("WKT values required.");
+        }
+        this.values = values;
     }
-    this.values = values;
-  }
 
-  public LogicalType getGeoType() {
-    return geoType;
-  }
+    public LogicalType getGeoType() {
+        return geoType;
+    }
 
-  public List<String> getValues() {
-    return values;
-  }
+    public List<String> getValues() {
+        return values;
+    }
 }

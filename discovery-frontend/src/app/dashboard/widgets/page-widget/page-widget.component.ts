@@ -52,7 +52,7 @@ import {EventBroadcaster} from '../../../common/event/event.broadcaster';
 import {FilterUtil} from '../../util/filter.util';
 import {NetworkChartComponent} from '../../../common/component/chart/type/network-chart/network-chart.component';
 import {DashboardPageRelation} from '../../../domain/dashboard/widget/page-widget.relation';
-import {BoardConfiguration, LayoutMode} from '../../../domain/dashboard/dashboard';
+import {BoardConfiguration, BoardDataSource, LayoutMode} from '../../../domain/dashboard/dashboard';
 import {GridChartComponent} from '../../../common/component/chart/type/grid-chart/grid-chart.component';
 import {BarChartComponent} from '../../../common/component/chart/type/bar-chart/bar-chart.component';
 import {LineChartComponent} from '../../../common/component/chart/type/line-chart/line-chart.component';
@@ -740,11 +740,22 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   public getDataSourceName(): string {
     let strName: string = '';
-    if (this.widget && this.widget.configuration.dataSource) {
-      const widgetDataSource: Datasource
-        = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widget.configuration.dataSource);
-      (widgetDataSource) && (strName = widgetDataSource.name);
-    }
+    if (this.widget ) {
+      const widgetConf:PageWidgetConfiguration = this.widget.configuration;
+      if( ChartType.MAP === widgetConf.chart.type && widgetConf.shelf.layers ) {
+        strName = widgetConf.shelf.layers.reduce((acc, currVal) => {
+          const dsInfo:Datasource = this.widget.dashBoard.dataSources.find( item => item.engineName === currVal.ref );
+          if( dsInfo ) {
+            acc = ( '' === acc ) ? acc + dsInfo.name : acc + ',' + dsInfo.name;
+          }
+          return acc;
+        }, '' );
+      } else if( widgetConf.dataSource ) {
+        const widgetDataSource: Datasource
+          = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, widgetConf.dataSource);
+        (widgetDataSource) && (strName = widgetDataSource.name);
+      } // enf if - widgetConf.dataSource
+    } // end if - widget
     return strName;
   } // function - getDataSourceName
 
@@ -1067,6 +1078,13 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     this._dataGridComp.search(this.srchText);
   } // function - setSearchText
 
+  /**
+   * redraw chart
+   */
+  public changeDraw(value?: any) {
+    this._search();
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -1301,6 +1319,23 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       }
     }
 
+    if (ChartType.MAP === this.widgetConfiguration.chart.type) {
+      let targetDs:Datasource;
+      if( 'multi' === boardConf.dataSource.type ) {
+        const targetBoardDs:BoardDataSource = boardConf.dataSource.dataSources.find( item => {
+          return item.engineName === this.widgetConfiguration.shelf.layers[0].ref
+        });
+        targetDs = DashboardUtil.getDataSourceFromBoardDataSource( this.widget.dashBoard, targetBoardDs );
+      } else {
+        targetDs = DashboardUtil.getDataSourceFromBoardDataSource( this.widget.dashBoard, boardConf.dataSource );
+      }
+
+      if (isNullOrUndefined(this.widgetConfiguration.chart['lowerCorner']) && targetDs.summary) {
+        this.widgetConfiguration.chart['lowerCorner'] = targetDs.summary['geoLowerCorner'];
+        this.widgetConfiguration.chart['upperCorner'] = targetDs.summary['geoUpperCorner'];
+      }
+    }
+
     // 쿼리 생성
     const query: SearchQueryRequest
       = this.datasourceService.makeQuery(
@@ -1321,8 +1356,17 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
     const uiCloneQuery = _.cloneDeep(query);
 
-    if ('default' === this.widgetConfiguration.dataSource.type) {
-      // General or Single Layer Map Chart
+    if (ChartType.MAP === this.widgetConfiguration.chart.type) {
+      if( this.widgetConfiguration.shelf.layers.some( layer => {
+        return isNullOrUndefined(this.widget.dashBoard.dataSources.find( item => item.engineName === layer.ref ));
+      }) ) {
+        this.isMissingDataSource = true;
+        this._showError({code: 'GB0000', details: this.translateService.instant('msg.board.error.missing-datasource')});
+        this.updateComplete();
+        return;
+      }
+    } else {
+      // General Chart
 
       // 필터 설정
       const widgetDataSource: Datasource = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widgetConfiguration.dataSource);
@@ -1346,10 +1390,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         uiCloneQuery.filters = externalFilters.concat(uiCloneQuery.filters);
       }
 
-    } else {
-
     }
-
 
     this.isShowNoData = false;
     this._hideError();
@@ -1481,6 +1522,20 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
           delete layer['segGranularity'];
         }
       }
+
+      // spatial analysis
+      if (!_.isUndefined(cloneQuery.analysis)) {
+        if (cloneQuery.analysis.use == true) {
+          // 공간연산 사용
+          delete cloneQuery.analysis.operation.unit;
+          delete cloneQuery.analysis.layer;
+          delete cloneQuery.analysis.layerNum;
+          delete cloneQuery.analysis.use;
+        } else {
+          // 공간연산 미사용
+          delete cloneQuery.analysis;
+        }
+      }
     }
 
     // 필터 설정
@@ -1492,6 +1547,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     cloneQuery.filters = cloneQuery.filters.filter(item => {
       return (item.type === 'include' && item['valueList'] && 0 < item['valueList'].length) ||
         (item.type === 'bound' && item['min'] != null) ||
+        item.type === 'spatial_bbox' ||
         FilterUtil.isTimeAllFilter(item) ||
         FilterUtil.isTimeRelativeFilter(item) ||
         FilterUtil.isTimeRangeFilter(item) ||

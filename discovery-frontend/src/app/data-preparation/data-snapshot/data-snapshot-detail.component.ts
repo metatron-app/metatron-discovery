@@ -28,7 +28,7 @@ import {DataSnapshotService} from './service/data-snapshot.service';
 import {PopupService} from '../../common/service/popup.service';
 import {GridComponent} from '../../common/component/grid/grid.component';
 import {header, SlickGridHeader} from '../../common/component/grid/grid.header';
-import {Field} from '../../domain/data-preparation/pr-dataset';
+import {DsType, Field} from '../../domain/data-preparation/pr-dataset';
 import {GridOption} from '../../common/component/grid/grid.option';
 import {Alert} from '../../common/util/alert.util';
 import {PreparationAlert} from '../util/preparation-alert.util';
@@ -47,6 +47,7 @@ import {
   SourceType
 } from "../../domain/datasource/datasource";
 import {CreateSnapShotData} from "../../data-storage/service/data-source-create.service";
+import {DataflowModelService} from "../dataflow/service/dataflow.model.service";
 
 declare let moment: any;
 
@@ -158,6 +159,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   constructor(protected datasnapshotservice: DataSnapshotService,
+              protected dataflowModelService: DataflowModelService,
               protected popupService: PopupService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
@@ -332,8 +334,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
    * 데이터셋 아이디 저장
    */
   private _savePrevRouterUrl(): void {
-    this.cookieService.set('SELECTED_DATASET_ID', this.dsId);
-    this.cookieService.set('SELECTED_DATASET_TYPE', 'WRANGLED');
+    this.dataflowModelService.setSelectedDsId(this.dsId);
+    this.dataflowModelService.setSelectedDsType(DsType.WRANGLED);
   }
 
   /**

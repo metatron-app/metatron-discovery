@@ -31,6 +31,7 @@ public class PrepProperties {
   public static final String LOCAL_BASE_DIR       = "polaris.dataprep.localBaseDir";
   public static final String HADOOP_CONF_DIR      = "polaris.dataprep.hadoopConfDir";
   public static final String STAGING_BASE_DIR     = "polaris.dataprep.stagingBaseDir";
+  public static final String S3_BASE_DIR          = "polaris.dataprep.s3BaseDir";
 
   public static final String SAMPLING_CORES       = "polaris.dataprep.sampling.cores";
   public static final String SAMPLING_TIMEOUT     = "polaris.dataprep.sampling.timeout";
@@ -56,6 +57,7 @@ public class PrepProperties {
 
   public String localBaseDir;
   public String stagingBaseDir;
+  public String s3BaseDir;
   public String hadoopConfDir;
   public SamplingInfo sampling;
   public EtlInfo etl;
@@ -85,7 +87,7 @@ public class PrepProperties {
 
   public String getHadoopConfDir(boolean mandatory) {
     if (mandatory && hadoopConfDir == null) {
-      throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_NOT_CONFIGURED, "Hive not configured");
+      throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_NOT_CONFIGURED, "Hadoop not configured");
     }
     return hadoopConfDir;
   }
@@ -95,6 +97,13 @@ public class PrepProperties {
       throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED, "StagingDir not configured");
     }
     return stagingBaseDir;
+  }
+
+  public String getS3BaseDir(boolean mandatory) {
+    if (mandatory && s3BaseDir == null) {
+      throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED, "S3Dir not configured");
+    }
+    return s3BaseDir;
   }
 
   // sampling, etl cannot be null (see init())
@@ -290,8 +299,20 @@ public class PrepProperties {
     }
   }
 
+  public void setS3BaseDir(String s3BaseDir) {
+    if(null!=s3BaseDir && 1<s3BaseDir.length() && true==s3BaseDir.endsWith(File.separator)) {
+      this.s3BaseDir = s3BaseDir.substring(0,s3BaseDir.length());
+    } else {
+      this.s3BaseDir = s3BaseDir;
+    }
+  }
+
   public String getStagingBaseDir() {
     return stagingBaseDir;
+  }
+
+  public String getS3BaseDir() {
+    return s3BaseDir;
   }
 
   public String getHadoopConfDir() {
@@ -336,7 +357,7 @@ public class PrepProperties {
 
   @Override
   public String toString() {
-    return String.format("PrepProperties{localBaseDir=%s stagingBaseDir=%s hadoopConfDir=%s sampling=%s etl=%s}",
-                                         localBaseDir, stagingBaseDir, hadoopConfDir, sampling, etl);
+    return String.format("PrepProperties{localBaseDir=%s stagingBaseDir=%s s3BaseDir=%s hadoopConfDir=%s sampling=%s etl=%s}",
+                                         localBaseDir, stagingBaseDir, s3BaseDir, hadoopConfDir, sampling, etl);
   }
 }

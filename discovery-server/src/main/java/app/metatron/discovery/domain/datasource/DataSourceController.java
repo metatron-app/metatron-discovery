@@ -19,6 +19,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
+import com.univocity.parsers.common.TextParsingException;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -71,6 +73,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
 
 import app.metatron.discovery.common.CommonLocalVariable;
+import app.metatron.discovery.common.MetatronProperties;
 import app.metatron.discovery.common.criteria.ListCriterion;
 import app.metatron.discovery.common.criteria.ListFilter;
 import app.metatron.discovery.common.datasource.DataType;
@@ -80,7 +83,7 @@ import app.metatron.discovery.common.exception.BadRequestException;
 import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.CollectionPatch;
-import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
+import app.metatron.discovery.domain.dataconnection.DataConnectionRepository;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
 import app.metatron.discovery.domain.datasource.data.DataSourceValidator;
 import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
@@ -171,6 +174,9 @@ public class DataSourceController {
 
   @Autowired
   WorkbenchProperties workbenchProperties;
+
+  @Autowired
+  MetatronProperties metatronProperties;
 
   DataSourceProjections dataSourceProjections = new DataSourceProjections();
 
@@ -442,6 +448,10 @@ public class DataSourceController {
       request.setResultFormat(resultFormat);
     }
     request.setDataSource(defaultDataSource);
+
+    if(CollectionUtils.isEmpty(request.getProjections())) {
+      request.setProjections(new ArrayList<>());
+    }
 
     // 데이터 Limit 처리 최대 백만건까지 확인 가능함
     if (request.getLimits() == null) {
@@ -840,7 +850,7 @@ public class DataSourceController {
         geometry = wktReader.read(value);
 
         LogicalType parsedType = findGeoType(geometry).orElseThrow(
-            () -> new RuntimeException("ERROR_NOT_SUPPORT_WKT_TYPE")
+                () -> new RuntimeException("ERROR_NOT_SUPPORT_WKT_TYPE")
         );
 
         if (type != parsedType) {
@@ -973,11 +983,20 @@ public class DataSourceController {
       if ("xlsx".equals(extensionType) || "xls".equals(extensionType)) {
         resultResponse = new ExcelProcessor(tempFile).getSheetData(sheetName, limit, firstHeaderRow);
       } else if ("csv".equals(extensionType)) {
-        resultResponse = new CsvProcessor(tempFile).getData(lineSep, delimiter, limit, firstHeaderRow);
+        CsvProcessor csvProcessor = new CsvProcessor(tempFile);
+        csvProcessor.setCsvMaxCharsPerColumn(metatronProperties.getCsvMaxCharsPerColumn());
+        resultResponse = csvProcessor.getData(lineSep, delimiter, limit, firstHeaderRow);
       } else {
         throw new BadRequestException("Invalid temporary file.");
       }
 
+    } catch (TextParsingException e) {
+      LOGGER.error("Failed to parse csv file ({}) : {}", fileKey, e.getMessage());
+      throw new DataSourceIngestionException("Fail to parse csv file. \n" +
+                                                 "Line Index : " + e.getLineIndex() + ",\n" +
+                                                 "Column Index : " + e.getColumnIndex() + ",\n" +
+                                                 "Char Index : " + e.getCharIndex()
+          , e.getCause());
     } catch (Exception e) {
       LOGGER.error("Failed to parse file ({}) : {}", fileKey, e.getMessage());
       throw new DataSourceIngestionException("Fail to parse file.", e.getCause());

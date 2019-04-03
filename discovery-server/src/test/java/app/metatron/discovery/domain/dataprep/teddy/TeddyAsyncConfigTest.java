@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.domain.dataprep.etl.TeddyExecutor;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;

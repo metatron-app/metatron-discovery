@@ -31,6 +31,7 @@ import { Page } from '../../../../domain/common/page';
 import { StringUtil } from '../../../../common/util/string.util';
 import { AbstractWorkbenchComponent } from '../../abstract-workbench.component';
 import { WorkbenchService } from '../../../service/workbench.service';
+import {ImplementorType} from "../../../../domain/dataconnection/dataconnection";
 
 @Component({
   selector: 'detail-workbench-table',
@@ -54,6 +55,8 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   //
   // @Input()
   // public websocketId: string;
+  @Input()
+  public implementorType:ImplementorType;
 
   @Input()
   public disable: boolean = false;
@@ -393,10 +396,17 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
     });
   }
 
-  // 테이블 선택시.
+  /**
+   * 테이블 선택시.
+   * @param item
+   */
   public setTableSql(item) {
-    this.sqlIntoEditorEvent.emit('\nSELECT * FROM ' + this.inputParams.dataconnection.database + '.' + item + ';');
-  }
+    if( ImplementorType.DRUID === this.implementorType ) {
+      this.sqlIntoEditorEvent.emit('\nSELECT * FROM ' + this.inputParams.dataconnection.database + '."' + item + '";');
+    } else {
+      this.sqlIntoEditorEvent.emit('\nSELECT * FROM ' + this.inputParams.dataconnection.database + '.' + item + ';');
+    }
+  } // function - setTableSql
 
   /**
    * 테이블 검색 이벤트

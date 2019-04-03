@@ -14,8 +14,6 @@
 
 package app.metatron.discovery.domain.workbench.hive;
 
-import app.metatron.discovery.common.exception.MetatronException;
-import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -30,14 +28,18 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import app.metatron.discovery.common.exception.MetatronException;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.dialect.HiveDialect;
+
 @Repository
 public class DataTableHiveRepository {
 
-  public String saveToHdfs(HiveConnection hiveConnection, Path path, DataTable dataTable) {
-    final String hiveAdminUser = hiveConnection.getPropertiesMap().get(HiveConnection.PROPERTY_KEY_ADMIN_NAME);
+  public String saveToHdfs(DataConnection hiveConnection, Path path, DataTable dataTable) {
+    final String hiveAdminUser = hiveConnection.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_ADMIN_NAME);
     FileSystem fs = null;
     try {
-      fs = getFileSystem(hiveConnection.getPropertiesMap().get(HiveConnection.PROPERTY_KEY_HDFS_CONF_PATH), hiveAdminUser);
+      fs = getFileSystem(hiveConnection.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_HDFS_CONF_PATH), hiveAdminUser);
       if (!fs.exists(path)) {
         try {
           fs.mkdirs(path);

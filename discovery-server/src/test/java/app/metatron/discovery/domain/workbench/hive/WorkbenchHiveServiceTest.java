@@ -13,32 +13,38 @@
  */
 package app.metatron.discovery.domain.workbench.hive;
 
-import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
-import app.metatron.discovery.domain.workbench.WorkbenchProperties;
-import app.metatron.discovery.domain.workbench.dto.ImportCsvFile;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
 import org.apache.hadoop.fs.Path;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.nio.file.Paths;
 import java.util.UUID;
+
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.dialect.HiveDialect;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
+import app.metatron.discovery.domain.workbench.WorkbenchProperties;
+import app.metatron.discovery.domain.workbench.dto.ImportCsvFile;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class WorkbenchHiveServiceTest {
 
   @Test
   public void importFileToPersonalDatabase_csv() {
+    WorkbenchDataSourceManager workbenchDataSourceManager = mock(WorkbenchDataSourceManager.class);
+
     // given
     final String webSocketId = "test-ws";
     final String metatronUserId = "polaris";
-    HiveConnection hiveConnection = getHiveConnection();
-    WorkbenchDataSourceUtils.createDataSourceInfo(hiveConnection, webSocketId, hiveConnection.getUsername(), hiveConnection.getPassword(), false);
+    DataConnection hiveConnection = getHiveConnection();
+    workbenchDataSourceManager.createDataSourceInfo(hiveConnection, webSocketId);
 
     WorkbenchHiveService workbenchHiveService = new WorkbenchHiveService();
 
@@ -81,24 +87,24 @@ public class WorkbenchHiveServiceTest {
 
     // saveAsHiveTable
     ArgumentCaptor<String> queries = ArgumentCaptor.forClass(String.class);
-    verify(mockJdbcConnectionService, times(3)).ddlQuery(eq(hiveConnection),
-        eq(WorkbenchDataSourceUtils.findDataSourceInfo(webSocketId).getSecondarySingleConnectionDataSource()),
+    verify(mockJdbcConnectionService, times(3)).executeUpdate(eq(hiveConnection),
+        eq(workbenchDataSourceManager.findDataSourceInfo(webSocketId).getSecondaryConnection()),
         queries.capture());
     assertThat(queries.getAllValues()).hasSize(3);
     assertThat(queries.getAllValues().get(0))
         .isEqualTo(String.format("CREATE DATABASE IF NOT EXISTS %s_%s",
-            hiveConnection.getPropertiesMap().get(HiveConnection.PROPERTY_KEY_PERSONAL_DATABASE_PREFIX), metatronUserId));
+                                 hiveConnection.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_PERSONAL_DATABASE_PREFIX), metatronUserId));
     assertThat(queries.getAllValues().get(1))
         .isEqualTo(
             String.format("CREATE TABLE %s_%s.%s (`time` STRING, `order_id` STRING, `amount` STRING, `product_id` STRING, `sale_count` STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\\001' LINES TERMINATED BY '\\n'",
-                hiveConnection.getPropertiesMap().get(HiveConnection.PROPERTY_KEY_PERSONAL_DATABASE_PREFIX), metatronUserId, importFile.getTableName()));
+                hiveConnection.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_PERSONAL_DATABASE_PREFIX), metatronUserId, importFile.getTableName()));
     assertThat(queries.getAllValues().get(2))
         .isEqualTo(String.format("LOAD DATA INPATH '%s' OVERWRITE INTO TABLE %s_%s.%s",
-            savedFilePath, hiveConnection.getPropertiesMap().get(HiveConnection.PROPERTY_KEY_PERSONAL_DATABASE_PREFIX), metatronUserId, importFile.getTableName()));
+            savedFilePath, hiveConnection.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_PERSONAL_DATABASE_PREFIX), metatronUserId, importFile.getTableName()));
   }
 
-  private HiveConnection getHiveConnection() {
-    HiveConnection hiveConnection = new HiveConnection();
+  private DataConnection getHiveConnection() {
+    DataConnection hiveConnection = new DataConnection("HIVE");
     hiveConnection.setUsername("read_only");
     hiveConnection.setPassword("1111");
     hiveConnection.setHostname("localhost");

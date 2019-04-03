@@ -14,8 +14,6 @@
 
 package app.metatron.discovery.domain.scheduling.workbench;
 
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -37,6 +35,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceManager;
+
 @Component
 @Transactional(readOnly = true, isolation = Isolation.READ_UNCOMMITTED)
 public class TimeoutConnectionCloseJob extends QuartzJobBean {
@@ -45,6 +46,9 @@ public class TimeoutConnectionCloseJob extends QuartzJobBean {
 
   @Autowired
   WebSocketMessageBrokerStats webSocketMessageBrokerStats;
+
+  @Autowired
+  WorkbenchDataSourceManager workbenchDataSourceManager;
 
   @Autowired
   private SimpUserRegistry userRegistry;
@@ -71,7 +75,7 @@ public class TimeoutConnectionCloseJob extends QuartzJobBean {
     LOGGER.info("Current subscribed queue from workbench : {}", subscribedWebsocketId);
 
     //2. getting workbench datasource
-    Map<String, WorkbenchDataSource> workbenchDataSourceList = WorkbenchDataSourceUtils.getCurrentConnection();
+    Map<String, WorkbenchDataSource> workbenchDataSourceList = workbenchDataSourceManager.getCurrentConnections();
     LOGGER.info("Current connected workbench DataSource : {}", workbenchDataSourceList.keySet());
 
     //3. filter workbench datasource not in queue
@@ -85,10 +89,8 @@ public class TimeoutConnectionCloseJob extends QuartzJobBean {
 
     //4. destroy DataSource
     for(WorkbenchDataSource workbenchDataSource : dataSourceList){
-      if(workbenchDataSource.getSingleConnectionDataSource() != null){
-        workbenchDataSource.getSingleConnectionDataSource().destroy();
-        LOGGER.info("Destroy workbench DataSource : {}", workbenchDataSource.getWebSocketId());
-      }
+      workbenchDataSource.destroy();
+      LOGGER.info("Destroy workbench DataSource : {}", workbenchDataSource.getWebSocketId());
     }
 
     LOGGER.info("## End batch job for checking time out websocket.");

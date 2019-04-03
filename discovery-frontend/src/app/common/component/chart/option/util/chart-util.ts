@@ -24,7 +24,6 @@ export class ChartUtil {
    * @param field
    */
   public static getAggregationAlias(field: any): string {
-
     let fieldName: string = !_.isEmpty(field.alias) ? field.alias : field.name;
     if (field['alias'] && field['alias'] !== field.name) {
       fieldName = field['alias'];
@@ -42,16 +41,11 @@ export class ChartUtil {
    * @returns {string[]}
    */
   public static returnNameFromField(fields: Field[]): string[] {
-
     if (!fields || 0 == fields.length) return [];
-
     let returnList: string[] = [];
-
     fields.forEach((item) => {
-
       returnList.push( ChartUtil.getAggregationAlias(item) );
     });
-
     return returnList;
   }
 

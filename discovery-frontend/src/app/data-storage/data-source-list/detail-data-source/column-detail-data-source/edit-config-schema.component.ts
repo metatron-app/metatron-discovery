@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Output, QueryList, ViewChild, ViewChildren} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
 import {
   ConnectionType,
   Datasource,
@@ -36,6 +36,8 @@ import {FieldConfigService} from "../../../service/field-config.service";
 import {ConstantService} from "../../../../shared/datasource-metadata/service/constant.service";
 import {Filter} from "../../../../shared/datasource-metadata/domain/filter";
 import {Type} from "../../../../shared/datasource-metadata/domain/type";
+import {isNullOrUndefined} from "util";
+import {StorageService} from "../../../service/storage.service";
 import Role = Type.Role;
 
 @Component({
@@ -91,6 +93,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
               private datasourceCreateService: DataSourceCreateService,
               private fieldConfigService: FieldConfigService,
               private connectionService: DataconnectionService,
+              private storageService: StorageService,
               public constant: ConstantService,
               protected element: ElementRef,
               protected injector: Injector) {
@@ -133,16 +136,31 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    * Set exist error in field list flag
    */
   public setIsExistErrorInFieldListFlag(): void {
-    this.isExistErrorInFieldList = this.fieldList.some(field =>
-      ((field.logicalType === LogicalType.GEO_POINT || field.logicalType === LogicalType.GEO_LINE || field.logicalType === LogicalType.GEO_POLYGON) && !field.isValidType)
-      || (field.logicalType === LogicalType.TIMESTAMP && !field.isValidTimeFormat));
+    // this.isExistErrorInFieldList = this.fieldList.some(field => field.logicalType === LogicalType.TIMESTAMP && !field.format.isValidFormat);
   }
 
   /**
    * save
    */
   public save(): void {
-    this._updateSchema();
+    // if not exist error
+    if (!this.isExistErrorInFieldList) {
+      // 로딩 show
+      this.loadingShow();
+      // 필드 업데이트
+      this.datasourceService.updateDatasourceFields(this._sourceId, this._getUpdateFieldParams())
+        .then((result) => {
+          // alert
+          Alert.success(this.translateService.instant('msg.storage.alert.schema.config.success'));
+          // 로딩 hide
+          this.loadingHide();
+          // 변경 emit
+          this.updatedSchema.emit();
+          // close
+          this.cancel();
+        })
+        .catch(error => this.commonExceptionHandler(error));
+    }
   }
 
   /**
@@ -175,24 +193,15 @@ export class EditConfigSchemaComponent extends AbstractComponent {
   }
 
   /**
-   * filed 의 변경이벤트 발생
-   * @param {Field} field
-   */
-  public setReplaceFlag(field: Field): void {
-    // 변경이벤트 체크
-    field['replaceFl'] = true;
-  }
-
-  /**
    * Is show information icon
    * @param {Field} field
    * @return {boolean}
    */
   public isShowInformationIcon(field: Field): boolean {
-    // if not TIMESTAMP field
+    // TODO if not TIMESTAMP field
     // is field logicalType TIMESTAMP OR invalid GEO types
-    return field.role !== FieldRole.TIMESTAMP
-      && (field.logicalType === LogicalType.TIMESTAMP || (field.isValidType === false && (field.logicalType === LogicalType.GEO_POINT || field.logicalType === LogicalType.GEO_LINE || field.logicalType === LogicalType.GEO_POLYGON)));
+    // return field.role !== FieldRole.TIMESTAMP && (field.format && !field.format.isValidFormat && (field.logicalType === LogicalType.GEO_POINT || field.logicalType === LogicalType.GEO_LINE || field.logicalType === LogicalType.GEO_POLYGON));
+    return field.role !== FieldRole.TIMESTAMP && field.logicalType === LogicalType.TIMESTAMP;
   }
 
   /**
@@ -201,7 +210,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    * @return {boolean}
    */
   public isInvalidInformationIcon(field: Field): boolean {
-    return field.isValidType === false || (field.format && field.format.isValidTimeFormat === false);
+    return field.format && field.format.isValidFormat === false;
   }
 
   /**
@@ -210,7 +219,16 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    * @return {boolean}
    */
   public isValidInformationIcon(field: Field): boolean {
-    return (field.format && field.format.isValidTimeFormat);
+    return (field.format && field.format.isValidFormat);
+  }
+
+  /**
+   * Is disable chagne type
+   * @param {Field} field
+   * @return {boolean}
+   */
+  public isDisableChangeType(field: Field): boolean {
+    return field.derived || field.role === FieldRole.TIMESTAMP || (field.logicalType === LogicalType.GEO_LINE || field.logicalType === LogicalType.GEO_POINT || field.logicalType === LogicalType.GEO_POLYGON);
   }
 
   /**
@@ -264,31 +282,29 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    * @param {Field} field
    * @param logicalType
    */
-  public onChangeLogicalType(targetField: Field, typeToChange: any): void {
+  public onChangeLogicalType(targetField: Field, typeToChange): void {
     // if different type
     if (targetField.logicalType !== typeToChange.value) {
       // prev logical type
       const prevLogicalType: LogicalType = targetField.logicalType;
       // change logical type
       targetField.logicalType = typeToChange.value;
-      // 만약 기존 타입이 GEO 타입이라면
-      if ((prevLogicalType ===  LogicalType.GEO_POINT || prevLogicalType === LogicalType.GEO_POLYGON || prevLogicalType === LogicalType.GEO_LINE) && targetField.hasOwnProperty('isValidType')) {
-        this.setIsExistErrorInFieldListFlag();
-        // remove valid flag
-        delete targetField.isValidType;
-      } else if (prevLogicalType === LogicalType.TIMESTAMP) {  // 만약 기존 타입이 타임타입이라면
+      // 만약 기존 타입이 GEO 또는 TIMESTAMP 타입이라면
+      if (prevLogicalType ===  LogicalType.GEO_POINT || prevLogicalType === LogicalType.GEO_POLYGON || prevLogicalType === LogicalType.GEO_LINE || prevLogicalType === LogicalType.TIMESTAMP) {
         // remove format
         delete targetField.format;
         this.setIsExistErrorInFieldListFlag();
-        // if exist timestamp valid result
-        (targetField.hasOwnProperty('isValidTimeFormat')) && (delete targetField.isValidTimeFormat);
       }
       // 변경될 타입이 GEO 타입이라면
       if (typeToChange.value === LogicalType.GEO_POINT || typeToChange.value === LogicalType.GEO_POLYGON || typeToChange.value === LogicalType.GEO_LINE) {
+        // if not exist format in field
+        if (isNullOrUndefined(targetField.format)) {
+          targetField.format = new FieldFormat();
+        }
         // loading show
         this.loadingShow();
         // valid WKT
-        this.fieldConfigService.checkEnableGeoTypeAndSetValidationResult(targetField, this.fieldConfigService.getFieldDataList(targetField, this.fieldDataList))
+        this.fieldConfigService.checkEnableGeoTypeAndSetValidationResult(targetField.format, this.fieldConfigService.getFieldDataList(targetField, this.fieldDataList), typeToChange.value)
           .then((result) => {
             this.setIsExistErrorInFieldListFlag();
             // loading hide
@@ -299,8 +315,12 @@ export class EditConfigSchemaComponent extends AbstractComponent {
             // loading hide
             this.loadingHide();
           });
-      } else if (typeToChange.value === LogicalType.TIMESTAMP) {  // 변경될 타입이 TIMESTAMP 타입이라면
-        targetField.isShowTimestampValidPopup = true;
+      } else if (typeToChange.value === LogicalType.TIMESTAMP && isNullOrUndefined(targetField.format)) {  // 변경될 타입이 TIMESTAMP 타입이라면
+        targetField.format = new FieldFormat();
+        // TODO 타임스탬프 1540 진행시 제거
+        targetField.format.formatInitialize();
+        delete targetField.format.unit;
+        // targetField.isShowTimestampValidPopup = true;
       }
     }
   }
@@ -311,7 +331,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    */
   public onChangeTypeListShowFlag(field: Field): void {
     // if not derived and TIMESTAMP
-    if (!field.derived && field.role !== FieldRole.TIMESTAMP) {
+    if (!this.isDisableChangeType(field)) {
       if (!field.isShowTypeList) {
         this._setConvertedTypeList(field);
       }
@@ -332,56 +352,64 @@ export class EditConfigSchemaComponent extends AbstractComponent {
   }
 
   /**
-   * Update schema
-   * @private
-   */
-  private _updateSchema(): void {
-    // 로딩 show
-    this.loadingShow();
-    // 필드 업데이트
-    this.datasourceService.updateDatasourceFields(this._sourceId, this._getUpdateFieldParams())
-      .then((result) => {
-        // alert
-        Alert.success(this.translateService.instant('msg.storage.alert.schema.config.success'));
-        // 로딩 hide
-        this.loadingHide();
-        // 변경 emit
-        this.updatedSchema.emit();
-        // close
-        this.cancel();
-      })
-      .catch(error => this.commonExceptionHandler(error));
-  }
-
-  /**
    * Get update field params
    * @return {Field[]}
    * @private
    */
   private _getUpdateFieldParams(): Field[] {
-    return this._originFieldList.reduce((acc, field) => {
-      if (field['replaceFl']) {
-        field['op'] = 'replace';
-        delete field['replaceFl'];
-        delete field['isShowTypeList'];
-        // if is TIMESTAMP logical type
-        if (field.logicalType === LogicalType.TIMESTAMP) {
-          // DATE_TIME
-          if (field.format.type === FieldFormatType.DATE_TIME) {
-            // remove format unit
-            delete field.format.unit;
-          } else if (field.format.type === FieldFormatType.UNIX_TIME) { // UNIX_TIME
-            // remove format
-            delete field.format.format;
-            // remove timezone
-            delete field.format.timeZone;
-            delete field.format.locale;
+    const result = [];
+    // original fields list loop
+    this._originFieldList.forEach((originField) => {
+      // find field in fieldList
+      const targetField = this.fieldList.find(field => field.name === originField.name);
+      // if not exist target field (removed field)
+      if (isNullOrUndefined(targetField)) {
+        // TODO removed field 설정후 result.push
+      } else { // if exist target field
+        const tempField = _.cloneDeep(targetField);
+        delete tempField['isShowTypeList'];
+        // if changed logical name
+        if (originField.logicalName !== tempField.logicalName) {
+          tempField['op'] = 'replace';
+          tempField.logicalName = tempField.logicalName;
+        }
+        // if changed description
+        if (originField.description !== tempField.description) {
+          tempField['op'] = 'replace';
+          tempField.description = tempField.description;
+        }
+        // if changed logical type
+        if (originField.logicalType !== tempField.logicalType) {
+          tempField['op'] = 'replace';
+          tempField.logicalType = tempField.logicalType;
+          // if is TIMESTAMP, not GEO in originField
+          if (originField.logicalType === LogicalType.TIMESTAMP) {
+            tempField.format = null;
           }
         }
-        acc.push(field);
+        // if changed field format TODO 1540
+        if (tempField.logicalType === LogicalType.TIMESTAMP && tempField.format) {
+          delete tempField.format.isValidFormat;
+          delete tempField.format.formatValidMessage;
+          // if changed format
+          if (tempField.format.format !== tempField.format.format) {
+            tempField['op'] = 'replace';
+            if (StringUtil.isEmpty(tempField.format.format)) {
+              tempField.format.format = null;
+            }
+          }
+        }
+        // push result
+        tempField['op'] && result.push(tempField);
       }
-      return acc;
-    }, []);
+    });
+    // TODO check created field
+    // this.fieldList.forEach((field) => {
+    //   if (isNullOrUndefined(this._originFieldList.find(originField => originField.name === field.name))) {
+    //     // TODO created field 설정후 result.push
+    //   }
+    // });
+    return result;
   }
 
   /**
@@ -392,10 +420,9 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    * @private
    */
   private _getConnectionParams(ingestion: any, connection: Dataconnection) {
+    const connectionType = this.storageService.findConnectionType(connection.implementor);
     const params = {
       connection: {
-        hostname: connection.hostname,
-        port: connection.port,
         implementor: connection.implementor,
         authenticationType: connection.authenticationType || AuthenticationType.MANUAL
       },
@@ -403,17 +430,25 @@ export class EditConfigSchemaComponent extends AbstractComponent {
       type: ingestion.dataType,
       query: ingestion.query
     };
+    // if not used URL
+    if (StringUtil.isEmpty(connection.url)) {
+      params.connection['hostname'] = connection.hostname;
+      params.connection['port'] = connection.port;
+      if (this.storageService.isRequireCatalog(connectionType)) {
+        params.connection['catalog'] = connection.catalog;
+      } else if (this.storageService.isRequireDatabase(connectionType)) {
+        params.connection['database'] = connection.database;
+      } else if (this.storageService.isRequireSid(connectionType)) {
+        params.connection['sid'] = connection.sid;
+      }
+    } else {  // if used URL
+      params.connection['url'] = connection.url;
+    }
     // if security type is not USERINFO, add password and username
     if (connection.authenticationType !== AuthenticationType.USERINFO) {
-      params['connection']['username'] = connection.authenticationType === AuthenticationType.DIALOG ? ingestion.connectionUsername : connection.username;
-      params['connection']['password'] = connection.authenticationType === AuthenticationType.DIALOG ? ingestion.connectionPassword : connection.password;
+      params.connection['username'] = connection.authenticationType === AuthenticationType.DIALOG ? ingestion.connectionUsername : connection.username;
+      params.connection['password'] = connection.authenticationType === AuthenticationType.DIALOG ? ingestion.connectionPassword : connection.password;
     }
-
-    // 데이터 베이스가 있는경우
-    if (ingestion.connection && ingestion.connection.hasOwnProperty('database')) {
-      params['connection']['database'] = ingestion.connection.database;
-    }
-
     return params;
   }
 
@@ -425,9 +460,10 @@ export class EditConfigSchemaComponent extends AbstractComponent {
   private _setConvertedTypeList(field: Field): void {
     if (field.role === FieldRole.MEASURE) {
       this.convertibleTypeList = this.constant.getTypeFiltersInMeasure();
-    } else if (field.role === FieldRole.DIMENSION && field.type === LogicalType.STRING.toString()) {
-      this.convertibleTypeList = this.constant.getTypeFiltersInDimensionOnlyBaseTypeString();
-    } else {
+    }
+    // else if (field.role === FieldRole.DIMENSION && field.type === LogicalType.STRING.toString()) {
+    //   this.convertibleTypeList = this.constant.getTypeFiltersInDimensionOnlyBaseTypeString(); }
+    else {
       this.convertibleTypeList = this.constant.getTypeFiltersInDimension();
     }
   }

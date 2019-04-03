@@ -333,6 +333,11 @@ export class DatasourceService extends AbstractService {
       for (let layer of query.shelf.layers) {
         layerNum++;
 
+        // 3번째 layer는 공간연산 layer 이기 떄문에, 미포함
+        if(layerNum>1) {
+          break;
+        }
+
         // layer name
         query.shelf.layers[layerNum].name = (<UIMapOption>pageConf.chart).layers[layerNum].name;
 
@@ -369,7 +374,7 @@ export class DatasourceService extends AbstractService {
                   delete field.format['timeZone'];
                   delete field.format['locale'];
                 } else {
-                  field.format['timeZone'] = this._timezoneSvc.browserTimezone.momentName;
+                  field.format['timeZone'] = this._timezoneSvc.getBrowserTimezone().momentName;
                   field.format['locale'] = this._timezoneSvc.browserLocale;
                 }
               }
@@ -379,7 +384,7 @@ export class DatasourceService extends AbstractService {
         // timezone 처리 - E
       } // end for - shelf.layers
 
-      allPivotFields = _.concat(query.shelf.layers[(<UIMapOption>pageConf.chart).layerNum]);
+      // allPivotFields = _.concat(query.shelf.layers[(<UIMapOption>pageConf.chart).layerNum]);
     } else {
 
       // timezone 처리 - S
@@ -395,7 +400,7 @@ export class DatasourceService extends AbstractService {
                 delete column.format['timeZone'];
                 delete column.format['locale'];
               } else {
-                column.format.timeZone = this._timezoneSvc.browserTimezone.momentName;
+                column.format.timeZone = this._timezoneSvc.getBrowserTimezone().momentName;
                 column.format.locale = this._timezoneSvc.browserLocale;
               }
             }
@@ -411,7 +416,7 @@ export class DatasourceService extends AbstractService {
                 delete row.format['timeZone'];
                 delete row.format['locale'];
               } else {
-                row.format.timeZone = this._timezoneSvc.browserTimezone.momentName;
+                row.format.timeZone = this._timezoneSvc.getBrowserTimezone().momentName;
                 row.format.locale = this._timezoneSvc.browserLocale;
               }
             }
@@ -563,13 +568,6 @@ export class DatasourceService extends AbstractService {
             // when it's dimension
           } else if ('dimension' === layer.type) {
 
-            // set current layer datasource
-            // if (layer.field.dataSource && layer.field.dsId) {
-            //   query.dataSource.dataSources[0].engineName = layer.field.dataSource;
-            //   query.dataSource.dataSources[0].name = layer.field.dataSource;
-            //   query.dataSource.dataSources[0].id = layer.field.dsId;
-            // }
-
             let radius = (<UITileLayer>(<UIMapOption>pageConf.chart).layers[idx]).radius;
 
             // to make reverse (bigger radius => set small precision), get precision from 0 - 100
@@ -583,7 +581,7 @@ export class DatasourceService extends AbstractService {
               if (layer.field.logicalType && layer.field.logicalType.toString().indexOf('GEO') > -1) {
                 layer.format = {
                   type: FormatType.GEO.toString()
-                }
+                };
 
                 // clustering
                 let chart = (<UIMapOption>pageConf.chart);
@@ -607,13 +605,13 @@ export class DatasourceService extends AbstractService {
                     type: LayerViewType.CLUSTERING.toString(),
                     method: "h3",
                     // 0~99 퍼센트 값을 1~12값으로 변환
-                    precision: clusterPrecision
+                    precision: (_.isNaN(clusterPrecision) ? 6 : clusterPrecision)
                   };
                 }
 
                 let spatialFilter = new SpatialFilter();
                 spatialFilter.dataSource = query.shelf.layers[idx].ref;
-                spatialFilter.ref = query.shelf.layers[idx].ref;
+                // spatialFilter.ref = query.shelf.layers[idx].ref;
                 spatialFilter.field = layer.field.name;
                 // 최초 default 값 sales-geo 초기값으로 고정 (빈값일 경우 에러리턴)
                 spatialFilter.lowerCorner = _.isUndefined(chart['lowerCorner']) ? '-123.0998 25.4766' : chart['lowerCorner'];
@@ -634,10 +632,29 @@ export class DatasourceService extends AbstractService {
                   //   precision: precision
                   // };
 
+                  // radius precision 값 변경
+                  let chart = (<UIMapOption>pageConf.chart);
+                  let radiusPrecision : number = precision;
+                  if(chart['layers'][idx]['changeTileRadius']){
+                    // radius 값 변경
+                    radiusPrecision = precision;
+                  } else {
+                    // zoom size 변경
+                    let zoomSize = chart.zoomSize - 2;
+                    radiusPrecision = Math.round((18 + (zoomSize-18)) / 1.5);
+                    // radius 값 지정
+                    chart['layers'][idx]['changeTileRadius'] = true;
+                    chart['layers'][idx]['radius'] = Math.round(100 - (radiusPrecision * 8.33));
+                    chart['layers'][idx]['tileRadius'] = chart['layers'][idx]['radius'];
+                  }
+
+                  if (radiusPrecision > 12) radiusPrecision = 12;
+                  if (radiusPrecision < 1) radiusPrecision = 1;
+
                   query.shelf.layers[idx].view = <GeoHashFormat>{
                     type: LayerViewType.HASH.toString(),
                     method: "geohex",
-                    precision: precision
+                    precision: radiusPrecision
                   };
                 }
 
@@ -746,8 +763,9 @@ export class DatasourceService extends AbstractService {
   }
 
   // 데이터소스 상세
-  public getDatasourceDetail(datasourceId: string, projection: string = 'forDetailView'): Promise<any> {
-    return this.get(this.API_URL + `datasources/${datasourceId}?projection=${projection}`);
+  public getDatasourceDetail(datasourceId: string, includeUnloadedField?: boolean): Promise<any> {
+    const url = this.API_URL + (includeUnloadedField ? `datasources/${datasourceId}?projection=forDetailView&includeUnloadedField=${includeUnloadedField}` : `datasources/${datasourceId}?projection=forDetailView`);
+    return this.get(url);
   }
 
   /**
@@ -785,7 +803,7 @@ export class DatasourceService extends AbstractService {
             (result.pattern) && (field.format.format = result.pattern);
             // if enable timezone, set browser timezone at field
             if (this._timezoneSvc.isEnableTimezoneInDateFormat(field.format)) {
-              !field.format.timeZone && (field.format.timeZone = this._timezoneSvc.browserTimezone.momentName);
+              !field.format.timeZone && (field.format.timeZone = this._timezoneSvc.getBrowserTimezone().momentName);
               field.format.locale = this._timezoneSvc.browserLocale;
             } else { // if not enable timezone
               field.format.timeZone = TimezoneService.DISABLE_TIMEZONE_KEY;

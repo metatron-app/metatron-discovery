@@ -32,10 +32,11 @@ import { MetadataManagementGuard } from '../../common/gaurd/metadata-management.
 import {CommonService} from "../../common/service/common.service";
 import {StagedbEnabledGuard} from '../../common/gaurd/stagedb-enabled.guard';
 import {StorageService} from '../../data-storage/service/storage.service';
+import {ConnectionListGuard} from "../../common/gaurd/connection-list.guard";
 
 const layoutRoutes: Routes = [
   {
-    path: '', component: LayoutComponent, canActivate: [StagedbEnabledGuard],
+    path: '', component: LayoutComponent, canActivate: [StagedbEnabledGuard, ConnectionListGuard],
     children: [
       { path: '', redirectTo: 'workspace', pathMatch: 'full' },
       { path: 'workspace', loadChildren: 'app/workspace/workspace.module#WorkspaceModule' },
@@ -104,6 +105,7 @@ const layoutRoutes: Routes = [
     DatasourceManagementGuard,
     StorageService,
     StagedbEnabledGuard,
+    ConnectionListGuard
   ]
 })
 export class LayoutModule {

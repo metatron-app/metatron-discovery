@@ -65,7 +65,6 @@ import app.metatron.discovery.common.entity.SearchParamValidator;
 import app.metatron.discovery.common.entity.Spec;
 import app.metatron.discovery.domain.CollectionPatch;
 import app.metatron.discovery.domain.MetatronDomain;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
 import app.metatron.discovery.domain.datasource.ingestion.rule.IngestionRule;
 import app.metatron.discovery.domain.mdm.MetadataColumn;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
@@ -76,6 +75,7 @@ import app.metatron.discovery.domain.workbook.configurations.format.CustomDateTi
 import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.UnixTimeFormat;
+import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 import app.metatron.discovery.query.druid.Aggregation;
 import app.metatron.discovery.query.druid.aggregations.ApproxHistogramFoldAggregation;
 import app.metatron.discovery.query.druid.aggregations.AreaAggregation;
@@ -99,6 +99,7 @@ public class Field implements MetatronDomain<Long> {
 
   public final static String FIELD_NAME_CURRENT_TIMESTAMP = "__ctime";
   public final static String COLUMN_NAME_CURRENT_DATETIME = "current_datetime";
+  public final static String[] RESERVED_FIELDS = { "count", "__time", "timestamp" };
 
   static final Comparator<Field> FILTERING_COMPARATOR = new Ordering<Field>() {
     @Override
@@ -380,7 +381,7 @@ public class Field implements MetatronDomain<Long> {
         || logicalType == LogicalType.GEO_POLYGON;
   }
 
-  public void setColumnType(JdbcDataConnection connection, String columnType) {
+  public void setColumnType(JdbcDialect jdbcDialect, String columnType) {
 
     if (StringUtils.isEmpty(columnType)) {
       this.type = DataType.STRING;
@@ -401,7 +402,7 @@ public class Field implements MetatronDomain<Long> {
       case "DATE":
         this.type = DataType.TIMESTAMP;
         this.role = FieldRole.DIMENSION;
-        this.format = connection.getDefaultTimeFormat();
+        this.format = jdbcDialect.getDefaultTimeFormat(null);
         break;
       case "FLOAT":
         this.type = DataType.FLOAT;

@@ -47,6 +47,7 @@ import app.metatron.discovery.domain.datasource.ingestion.rule.ValidationRule;
 import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.GeoFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.GeoPointFormat;
+import app.metatron.discovery.query.druid.ShapeFormat;
 import app.metatron.discovery.query.druid.aggregations.CountAggregation;
 import app.metatron.discovery.query.druid.aggregations.RelayAggregation;
 import app.metatron.discovery.spec.druid.ingestion.granularity.UniformGranularitySpec;
@@ -61,7 +62,7 @@ public class AbstractSpecBuilder {
 
   protected DataSchema dataSchema = new DataSchema();
 
-  protected boolean useGeoIngestion;
+  protected boolean useRelay;
 
   protected boolean derivedTimestamp;
 
@@ -86,11 +87,15 @@ public class AbstractSpecBuilder {
       FieldFormat fieldFormat = field.getFormatObject();
       if (fieldFormat != null) {
         if (fieldFormat instanceof GeoFormat) {
-          useGeoIngestion = true;
+          useRelay = true;
           GeoFormat geoFormat = (GeoFormat) fieldFormat;
           makeSecondaryIndexing(field.getName(), field.getType(), geoFormat);
           addGeoFieldToMatric(field.getName(), field.getType(), geoFormat);
         }
+      }
+
+      if (field.getType() == DataType.ARRAY) {
+        useRelay = true;
       }
     }
 
@@ -113,7 +118,7 @@ public class AbstractSpecBuilder {
         intervals == null ? null : intervals.toArray(new String[intervals.size()]));
 
     // Set Roll up
-    if (useGeoIngestion) {
+    if (useRelay) {
       granularitySpec.setRollup(false);
     } else {
       granularitySpec.setRollup(dataSource.getIngestionInfo().getRollup());
@@ -121,7 +126,7 @@ public class AbstractSpecBuilder {
 
     dataSchema.setGranularitySpec(granularitySpec);
 
-    if (!useGeoIngestion) {
+    if (!useRelay) {
       // Set measure field
       // 1. default pre-Aggreation
       dataSchema.addMetrics(new CountAggregation("count"));
@@ -134,7 +139,7 @@ public class AbstractSpecBuilder {
       if (BooleanUtils.isTrue(field.getUnloaded())) {
         continue;
       }
-      dataSchema.addMetrics(field.getAggregation(useGeoIngestion));
+      dataSchema.addMetrics(field.getAggregation(useRelay));
     }
 
   }
@@ -151,15 +156,19 @@ public class AbstractSpecBuilder {
 
   private void makeSecondaryIndexing(String name, DataType originalType, GeoFormat geoFormat) {
     String originalSrsName = geoFormat.notDefaultSrsName();
-    if (geoFormat instanceof GeoPointFormat || (originalType == DataType.STRUCT)) {
-      secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.LatLonStrategy("coord", "lat", "lon", originalSrsName)));
+    if (geoFormat instanceof GeoPointFormat) {
+      if (originalType == DataType.STRUCT) {
+        secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.LatLonStrategy("coord", "lat", "lon", originalSrsName)));
+      } else {
+        secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.LatLonShapeStrategy("coord", ShapeFormat.WKT, originalSrsName)));
+      }
     } else {
-      secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.ShapeStrategy("shape", "WKT", geoFormat.getMaxLevels())));
+      secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.ShapeStrategy("shape", ShapeFormat.WKT, geoFormat.getMaxLevels(), originalSrsName)));
     }
   }
 
   private void addGeoFieldToMatric(String name, DataType originalType, GeoFormat geoFormat) {
-    if (geoFormat instanceof GeoPointFormat || (originalType == DataType.STRUCT)) {
+    if (geoFormat instanceof GeoPointFormat && originalType == DataType.STRUCT) {
       dataSchema.addMetrics(new RelayAggregation(name, "struct(lat:double,lon:double)"));
     } else {
       dataSchema.addMetrics(new RelayAggregation(name, "string"));
@@ -204,12 +213,37 @@ public class AbstractSpecBuilder {
 
     // Set dimnesion field
     List<Field> dimensionfields = dataSource.getFieldByRole(Field.FieldRole.DIMENSION);
-    List<String> dimenstionNames = dimensionfields.stream()
-                                                  // 삭제된 필드는 추가 하지 않음
-                                                  .filter(field -> BooleanUtils.isNotTrue(field.getUnloaded()) && !field.isGeoType())
-                                                  .map((field) -> field.getName())
-                                                  .collect(Collectors.toList());
-    DimensionsSpec dimensionsSpec = new DimensionsSpec(dimenstionNames);
+
+    List<Object> dimenstionSchemas = Lists.newArrayList();
+    for (Field dimensionfield : dimensionfields) {
+      if (BooleanUtils.isTrue(dimensionfield.getUnloaded()) || dimensionfield.isGeoType()) {
+        continue;
+      }
+
+      switch (dimensionfield.getType()) {
+        case TIMESTAMP:
+        case STRING:
+        case TEXT:
+          dimenstionSchemas.add(dimensionfield.getName());
+          break;
+        case INTEGER:
+        case LONG:
+          dimenstionSchemas.add(new DimensionSchema(dimensionfield.getName(), "long", null));
+          break;
+        case FLOAT:
+        case DOUBLE:
+          dimenstionSchemas.add(new DimensionSchema(dimensionfield.getName(), "double", null));
+          break;
+        case ARRAY:
+          dimenstionSchemas.add(new DimensionSchema(dimensionfield.getName(), "string", DimensionSchema.MultiValueHandling.ARRAY));
+          break;
+        default:
+          throw new IllegalArgumentException("Not support dimension type");
+      }
+
+    }
+
+    DimensionsSpec dimensionsSpec = new DimensionsSpec(dimenstionSchemas);
 
 
     this.fileFormat = ingestionInfo.getFormat() == null ? new CsvFileFormat() : ingestionInfo.getFormat();

@@ -16,6 +16,7 @@ package app.metatron.discovery.domain.dataprep.teddy;
 
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
 import app.metatron.discovery.domain.dataprep.json.PrepJsonParseResult;
+import app.metatron.discovery.domain.dataprep.transform.Histogram;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
@@ -493,14 +494,14 @@ public class DataFrame implements Serializable, Transformable {
         }
       }
     }
-    Util.showSep(widths);
-    Util.showColNames(widths, colNames);
-    Util.showColTypes(widths, colDescs);
-    Util.showSep(widths);
+    TeddyUtil.showSep(widths);
+    TeddyUtil.showColNames(widths, colNames);
+    TeddyUtil.showColTypes(widths, colDescs);
+    TeddyUtil.showSep(widths);
     for (int rowno = 0; rowno < limit; rowno++) {
-      Util.showRow(widths, rows.get(rowno));
+      TeddyUtil.showRow(widths, rows.get(rowno));
     }
-    Util.showSep(widths);
+    TeddyUtil.showSep(widths);
   }
 
   public void dropColumn(String targetColName) throws TeddyException{
@@ -893,11 +894,7 @@ public class DataFrame implements Serializable, Transformable {
             try {
               return Long.valueOf(obj.toString());
             } catch(Exception e) {
-              try {
-                return Double.valueOf(obj.toString()).longValue();
-              } catch (Exception e2){
-                return obj;
-              }
+              return obj;
             }
           case BOOLEAN:
             return (boolean)obj ? 1L : 0L;
@@ -1379,12 +1376,6 @@ public class DataFrame implements Serializable, Transformable {
     // 영문자, 숫자, _만 허용
     if (m.matches() == false) {
       throw new IllegalColumnNameForHiveException("The column name contains non-alphanumerical characters: " + colName);
-    }
-
-    // 그리고, 첫글자는 반드시 영문자
-    char c = colName.charAt(0);
-    if (Character.isDigit(c) || c == '_') {
-      throw new IllegalColumnNameForHiveException("The first character should be alphabetic: " + colName);
     }
   }
 

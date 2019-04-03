@@ -21,7 +21,7 @@ import {Widget} from '../../../domain/dashboard/widget/widget';
 import {PageWidget, PageWidgetConfiguration} from 'app/domain/dashboard/widget/page-widget';
 import {saveAs} from 'file-saver';
 import {Alert} from '../../../common/util/alert.util';
-import {FunctionValidator} from '../../../common/component/chart/option/define/common';
+import {ChartType, FunctionValidator} from '../../../common/component/chart/option/define/common';
 import {EventBroadcaster} from '../../../common/event/event.broadcaster';
 import {LayoutMode} from '../../../domain/dashboard/dashboard';
 import {FilterWidgetConfiguration} from '../../../domain/dashboard/widget/filter-widget';
@@ -32,6 +32,7 @@ import {
 } from '../../../domain/workbook/configurations/filter/inclusion-filter';
 import {DashboardUtil} from '../../util/dashboard.util';
 import {Datasource} from '../../../domain/datasource/datasource';
+import {isNullOrUndefined} from "util";
 
 @Component({
   selector: 'dashboard-widget-header',
@@ -110,18 +111,22 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
     // Header 내 아이콘이 그러지지 않는 상황에 대한 임시 해결
     setTimeout(() => {
 
-      if (this.isPageWidget && this.widget && (<PageWidgetConfiguration>this.widget.configuration).dataSource) {
-        const widgetDataSource: Datasource
-          = DashboardUtil.getDataSourceFromBoardDataSource(
-          this.widget.dashBoard, (<PageWidgetConfiguration>this.widget.configuration).dataSource
-        );
-
-        this.isMissingDataSource = !widgetDataSource;
-
+      if (this.isPageWidget && this.widget) {
+        const pageWidgetConf:PageWidgetConfiguration = (<PageWidgetConfiguration>this.widget.configuration);
+        if (ChartType.MAP === pageWidgetConf.chart.type) {
+          if( pageWidgetConf.shelf.layers.some( layer => {
+            return isNullOrUndefined(this.widget.dashBoard.dataSources.find( item => item.engineName === layer.ref ));
+          }) ) {
+            this.isMissingDataSource = true;
+          }
+        } else {
+          const widgetDataSource: Datasource
+            = DashboardUtil.getDataSourceFromBoardDataSource( this.widget.dashBoard, pageWidgetConf.dataSource );
+          this.isMissingDataSource = !widgetDataSource;
+        }
       } else {
         this.isMissingDataSource = false;
       }
-
       this.safelyDetectChanges();
     }, 200);
 
@@ -162,14 +167,23 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
    */
   public getDataSourceName(): string {
     let strName: string = '';
-    if (this.isPageWidget && this.widget && (<PageWidgetConfiguration>this.widget.configuration).dataSource) {
-      const widgetDataSource: Datasource
-        = DashboardUtil.getDataSourceFromBoardDataSource(
-        this.widget.dashBoard, (<PageWidgetConfiguration>this.widget.configuration).dataSource
-      );
 
-      (widgetDataSource) && (strName = widgetDataSource.name);
-    }
+    if (this.isPageWidget && this.widget) {
+      const widgetConf: PageWidgetConfiguration = (<PageWidgetConfiguration>this.widget.configuration);
+      if (ChartType.MAP === widgetConf.chart.type && widgetConf.shelf.layers) {
+        strName = widgetConf.shelf.layers.reduce((acc, currVal) => {
+          const dsInfo: Datasource = this.widget.dashBoard.dataSources.find(item => item.engineName === currVal.ref);
+          if( dsInfo ) {
+            acc = ('' === acc) ? acc + dsInfo.name : acc + ',' + dsInfo.name;
+          }
+          return acc;
+        }, '');
+      } else if (widgetConf.dataSource) {
+        const widgetDataSource: Datasource
+          = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, widgetConf.dataSource);
+        (widgetDataSource) && (strName = widgetDataSource.name);
+      } // enf if - widgetConf.dataSource
+    } // end if - widget
     return strName;
   } // function - getDataSourceName
 
@@ -497,7 +511,7 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
    * Header 에 마우스 오버 했을 때의 동작
    */
   public mouseOverHeader() {
-    if( 0 === $( '.sys-widget-header-layer:visible' ).length ) {
+    if (0 === $('.sys-widget-header-layer:visible').length) {
       this.$element.closest('.lm_header')
         .attr('style', 'display: block; height: 25px; z-index:21 !important;');
     }

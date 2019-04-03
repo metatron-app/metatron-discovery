@@ -28,7 +28,10 @@ import {
   MeasurePositionFilter,
   PositionType
 } from '../../domain/workbook/configurations/filter/measure-position-filter';
-import {ContainsType, WildCardFilter} from '../../domain/workbook/configurations/filter/wild-card-filter';
+import {
+  ContainsType,
+  WildCardFilter
+} from '../../domain/workbook/configurations/filter/wild-card-filter';
 import {Datasource, Field} from '../../domain/datasource/datasource';
 import {BoardDataSource, Dashboard} from '../../domain/dashboard/dashboard';
 import {Filter} from '../../domain/workbook/configurations/filter/filter';
@@ -312,9 +315,9 @@ export class FilterUtil {
     else if (FilterUtil.isTimeRelativeFilter(filter)) {
       const timeRelativeFilter: TimeRelativeFilter = <TimeRelativeFilter>filter;
       if (timeRelativeFilter.clzField && timeRelativeFilter.clzField.format && TimezoneService.DISABLE_TIMEZONE_KEY === timeRelativeFilter.clzField.format.timeZone) {
-        delete timeRelativeFilter.timezone;
+        delete timeRelativeFilter.timeZone;
       } else {
-        (timeRelativeFilter.timezone) || (timeRelativeFilter.timezone = moment.tz.guess());
+        (timeRelativeFilter.timeZone) || (timeRelativeFilter.timeZone = moment.tz.guess());
       }
     } // end if - time_relative
 
@@ -322,7 +325,7 @@ export class FilterUtil {
     let keyMap: string[];
     switch (filter.type) {
       case 'interval' :
-        keyMap = ['selector', 'startDate', 'endDate', 'intervals', 'timezone',
+        keyMap = ['selector', 'startDate', 'endDate', 'intervals', 'timeZone',
           'locale', 'format', 'rrule', 'relValue', 'timeUnit'];
         break;
       case 'include' :
@@ -338,7 +341,7 @@ export class FilterUtil {
         keyMap = [];
         break;
       case 'time_relative' :
-        keyMap = ['relTimeUnit', 'tense', 'value', 'timeUnit', 'byTimeUnit', 'discontinuous', 'timezone'];
+        keyMap = ['relTimeUnit', 'tense', 'value', 'timeUnit', 'byTimeUnit', 'discontinuous', 'timeZone'];
         break;
       case 'time_range' :
         keyMap = ['intervals', 'timeUnit', 'byTimeUnit', 'discontinuous'];
@@ -398,9 +401,9 @@ export class FilterUtil {
     else if (FilterUtil.isTimeRelativeFilter(filter)) {
       const timeRelativeFilter: TimeRelativeFilter = <TimeRelativeFilter>filter;
       if (timeRelativeFilter.clzField && timeRelativeFilter.clzField.format && TimezoneService.DISABLE_TIMEZONE_KEY === timeRelativeFilter.clzField.format.timeZone) {
-        delete timeRelativeFilter.timezone;
+        delete timeRelativeFilter.timeZone;
       } else {
-        (timeRelativeFilter.timezone) || (timeRelativeFilter.timezone = moment.tz.guess());
+        (timeRelativeFilter.timeZone) || (timeRelativeFilter.timeZone = moment.tz.guess());
       }
     } // end if - time_relative
 
@@ -408,7 +411,7 @@ export class FilterUtil {
     let keyMap: string[];
     switch (filter.type) {
       case 'interval' :
-        keyMap = ['selector', 'startDate', 'endDate', 'intervals', 'timezone',
+        keyMap = ['selector', 'startDate', 'endDate', 'intervals', 'timeZone',
           'locale', 'format', 'rrule', 'relValue', 'timeUnitUI', 'timeUnit', 'byTimeUnit',
           'minTime', 'maxTime', 'valueList', 'candidateValues', 'discontinuous', 'granularity'];
         break;
@@ -425,7 +428,7 @@ export class FilterUtil {
         keyMap = [];
         break;
       case 'time_relative' :
-        keyMap = ['relTimeUnit', 'tense', 'value', 'timeUnit', 'byTimeUnit', 'discontinuous', 'timezone'];
+        keyMap = ['relTimeUnit', 'tense', 'value', 'timeUnit', 'byTimeUnit', 'discontinuous', 'timeZone'];
         break;
       case 'time_range' :
         keyMap = ['intervals', 'timeUnit', 'byTimeUnit', 'discontinuous'];
@@ -464,6 +467,9 @@ export class FilterUtil {
    * @returns {string}
    */
   public static getDateTimeFormat(date: (Date | string), timeUnit: TimeUnit, isStart: boolean = true): string {
+    if( date.constructor === String ) {
+      date = (<string>date).replace( '.000Z', '' );
+    }
     switch (timeUnit) {
       case TimeUnit.SECOND:
         return moment(date).format('YYYY-MM-DD HH:mm:ss');

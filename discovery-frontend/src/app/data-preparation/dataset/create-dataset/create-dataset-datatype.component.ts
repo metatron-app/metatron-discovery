@@ -44,7 +44,6 @@ export class CreateDatasetDataTypeComponent extends AbstractPopupComponent imple
 
   // 생성자
   constructor(private popupService: PopupService,
-              private storageService: StorageService,
               private datasetService : DatasetService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
@@ -60,11 +59,6 @@ export class CreateDatasetDataTypeComponent extends AbstractPopupComponent imple
   public ngOnInit() {
 
     super.ngOnInit();
-
-    if (sessionStorage.getItem('DATAFLOW_ID')) {
-      this.datasetService.dataflowId = sessionStorage.getItem('DATAFLOW_ID');
-      sessionStorage.removeItem('DATAFLOW_ID');
-    }
 
   }
 
@@ -99,6 +93,12 @@ export class CreateDatasetDataTypeComponent extends AbstractPopupComponent imple
           data: null
         });
         break;
+      case 'url' :
+        this.popupService.notiPopup({
+          name: 'select-url',
+          data: null
+        });
+        break;
     }
   } // function - next
 
@@ -120,12 +120,6 @@ export class CreateDatasetDataTypeComponent extends AbstractPopupComponent imple
   public close() {
     super.close();
 
-
-    // Check if came from dataflow
-    if (this.datasetService.dataflowId) {
-      this.datasetService.dataflowId = undefined;
-    }
-
     this.popupService.notiPopup({
       name: 'close-create',
       data: null
@@ -137,7 +131,7 @@ export class CreateDatasetDataTypeComponent extends AbstractPopupComponent imple
    * Check if staging db is enabled
    */
   public isStagingEnabled() : boolean {
-    return this.storageService.isEnableStageDB();
+    return StorageService.isEnableStageDB;
   }
 
 

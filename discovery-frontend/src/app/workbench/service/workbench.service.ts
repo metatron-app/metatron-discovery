@@ -217,12 +217,14 @@ export class WorkbenchService extends AbstractService {
       connInfo.username = connection.username;
       connInfo.password = connection.password;
     }
+    // TODO #1573 추후 extensions 스펙에 맞게 변경 필요
     connInfo.authenticationType = connection.authenticationType;
     connInfo.database = connection.connectionDatabase;
     connInfo.implementor = connection.implementor;
     connInfo.name = connection.name;
     connInfo.type = connection.type;
     connInfo.catalog = connection.catalog;
+    connInfo.sid = connection.sid;
     connInfo.table = table;
     connInfo.url = connection.url;
 

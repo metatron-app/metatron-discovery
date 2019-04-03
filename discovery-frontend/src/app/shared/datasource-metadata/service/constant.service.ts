@@ -3,7 +3,6 @@ import {TranslateService} from '@ngx-translate/core';
 import * as _ from 'lodash';
 import {Type} from '../domain/type';
 import {Filter} from '../domain/filter';
-import Logical = Type.Logical;
 
 /**
  * Service to be shared by the datasource and metadata
@@ -27,8 +26,8 @@ export class ConstantService {
     new Filter.Logical(this.translateService.instant('msg.storage.ui.list.lnt'), Type.Logical.LNT, 'ddp-icon-type-latitude'),
     new Filter.Logical(this.translateService.instant('msg.storage.ui.list.lng'), Type.Logical.LNG, 'ddp-icon-type-longitude'),
     new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.point'), Type.Logical.GEO_POINT, 'ddp-icon-type-point'),
-    // new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.polygon'), Type.Logical.GEO_POLYGON, 'ddp-icon-type-polygon'),
-    // new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.line'), Type.Logical.GEO_LINE, 'ddp-icon-type-line'),
+    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.polygon'), Type.Logical.GEO_POLYGON, 'ddp-icon-type-polygon'),
+    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.line'), Type.Logical.GEO_LINE, 'ddp-icon-type-line'),
   ];
 
   constructor(private translateService: TranslateService) {

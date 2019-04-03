@@ -16,7 +16,7 @@
   <!-- setting -->
   <div class="ddp-box-setting">
     <div class="ddp-data-top-title">
-      {{selectedField.name}}
+      <span class="ddp-data-name" title="{{selectedField.name}}">{{selectedField.name}}</span>
     </div>
     <!-- is removed field -->
     <div class="ddp-data-delete" *ngIf="isRemovedField(selectedField)">
@@ -26,31 +26,7 @@
     <!-- is not removed field -->
     <div class="ddp-wrap-set-contents" *ngIf="!isRemovedField(selectedField)">
       <!-- value -->
-      <div class="ddp-wrap-value-det">
-        <div class="ddp-top-set">
-          <div class="ddp-data-name">
-            {{'msg.storage.ui.data' | translate}}
-          </div>
-          <!-- 선택시 ddp-selected 추가 -->
-          <div class="ddp-view-option ddp-fright ddp-selected">
-            <span>{{selectedFieldDataList.length}}</span>
-            {{'msg.storage.ui.row' | translate}}
-          </div>
-        </div>
-        <!-- list value -->
-        <ul class="ddp-list-value">
-          <li class="ddp-data-none" *ngIf="selectedFieldDataList.length === 0">
-            {{(isDerivedField(selectedField) && selectedField.derivationRule.type === 'user_defined' ? 'msg.storage.ui.config.extension.no.data' : 'msg.storage.ui.config.no.data') | translate}}
-          </li>
-          <li *ngFor="let data of selectedFieldDataList">
-            {{data}}
-          </li>
-          <li class="ddp-data-none" *ngIf="selectedFieldDataList.length !== 0">
-            {{'msg.storage.ui.schema.column.rows.desc' | translate}}
-          </li>
-        </ul>
-        <!-- //list value -->
-      </div>
+      <schema-config-data-preview [connType]="connType"></schema-config-data-preview>
       <!-- //value -->
 
       <!-- setting -->
@@ -118,30 +94,22 @@
                 <!-- //seletbox -->
                 <div class="ddp-info" *ngIf="isTimestampField(selectedField)">{{'msg.storage.ui.configure.schema.logical.change.timestamp' | translate}}</div>
                 <div class="ddp-info" *ngIf="isDerivedField(selectedField)">{{'msg.storage.ui.configure.schema.logical.change.derived' | translate}}</div>
+                <div class="ddp-txt-error" *ngIf="!isDerivedField(selectedField) && isGeoTypeField(selectedField) && isGeoFormatError(selectedField)"><em class="ddp-icon-error-s"></em>{{selectedField.format.formatValidMessage}}</div>
               </div>
               <!-- //edit option -->
             </div>
             <!-- //type -->
             <!-- geo -->
-            <div class="ddp-wrap-edit3" *ngIf="selectedField.logicalType.toString().indexOf('GEO_') !== -1"
-                 (click)="geoCoordinateListShowFlag = !geoCoordinateListShowFlag" (clickOutside)="geoCoordinateListShowFlag = false">
-              <label class="ddp-ui-label-name">
-                {{'msg.storage.ui.geo.coordinate' | translate}}
-              </label>
+            <div class="ddp-wrap-edit3" *ngIf="isGeoTypeField(selectedField) && selectedField.format">
+              <label class="ddp-ui-label-name">{{'msg.storage.ui.geo.coordinate' | translate}}</label>
               <!-- edit option -->
               <div class="ddp-ui-option-in">
-                <!-- selectbox -->
-                <div class="ddp-type-selectbox" [class.ddp-selected]="geoCoordinateListShowFlag">
-                  <span class="ddp-txt-selectbox">{{selectedField.format.originalSrsName}}</span>
-                  <ul class="ddp-list-selectbox ddp-selectdown">
-                    <li *ngFor="let item of geoCoordinateList">
-                      <a href="javascript:" (click)="onChangeGeoCoordinateInField(selectedField, item)">
-                        {{item}}
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-                <!-- //selectbox -->
+                <storage-filter-select-box [filterList]="geoCoordinateList"
+                                           [isOnlyStringList]="true"
+                                           [isDisableList]="!selectedField.format.isValidFormat"
+                                           [selectedFilter]="selectedField.format.originalSrsName"
+                                           (changedFilter)="onChangeGeoCoordinateInField(selectedField, $event)">
+                </storage-filter-select-box>
               </div>
               <!-- //edit option -->
             </div>
@@ -279,11 +247,11 @@
                 -->
                 <div class="ddp-type-selectbox ddp-type-search-select ddp-result" [class.ddp-selected]="isShowTimezoneList" (click)="onChangeTimezoneSelectBoxShowFlag($event)" (clickOutside)="isShowTimezoneList = false">
                   <!-- 선택시 자동 input display:block; -->
-                  <input type="text" class="ddp-input-selectbox" [ngModel]="searchTimezoneKeyword" (ngModelChange)="onChangeSearchTimezoneKeyword($event)">
+                  <input type="text" class="ddp-input-selectbox" placeholder="{{'msg.storage.ph.search.timezone' | translate}}" [ngModel]="searchTimezoneKeyword" (ngModelChange)="onChangeSearchTimezoneKeyword($event)">
                   <span class="ddp-txt-selectbox">{{getSelectedTimezoneLabel(selectedField.format)}}</span>
                   <div class="ddp-wrap-popup2">
-                    <ul class="ddp-list-popup">
-                      <li *ngIf="filteredTimezoneList.length === 0">
+                    <ul class="ddp-list-popup ddp-focus-hover">
+                      <li *ngIf="filteredTimezoneList && filteredTimezoneList.length === 0">
                         <span class="ddp-noresult">{{'msg.comm.ui.no.rslt' | translate}}</span>
                       </li>
                       <li [class.ddp-selected]="item.momentName === selectedField.format.timeZone" *ngFor="let item of filteredTimezoneList" (click)="onChangeTimezoneInField(selectedField, item)">

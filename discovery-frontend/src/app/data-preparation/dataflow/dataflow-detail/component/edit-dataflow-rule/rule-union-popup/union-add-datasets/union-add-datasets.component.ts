@@ -14,14 +14,11 @@
 
 import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { AbstractPopupComponent } from '../../../../../../../common/component/abstract-popup.component';
-//import { Dataset } from '../../../../../../../domain/data-preparation/dataset';
 import { PrDataset } from '../../../../../../../domain/data-preparation/pr-dataset';
-//import { Dataflow } from '../../../../../../../domain/data-preparation/dataflow';
 import { PopupService } from '../../../../../../../common/service/popup.service';
 import { DataflowService } from '../../../../../service/dataflow.service';
-import { Alert } from '../../../../../../../common/util/alert.util';
 import { PreparationAlert } from '../../../../../../util/preparation-alert.util';
-
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-union-add-datasets',
@@ -32,67 +29,45 @@ export class UnionAddDatasetsComponent extends AbstractPopupComponent implements
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  private searchDsType: string = 'WRANGLED';
-  private searchImportType: string = '';
-  public isCheckAll: boolean = false;
-  public searchText: string = '';
-  public selectedContentSort: Order = new Order();
-  @Input()
-  public isUpdate: boolean ; //수정 모드 여부
-
-
-  //public datasets: Dataset[] = [];        // 화면에 보여지는 데이터셋 리스트
-  public datasets: PrDataset[] = [];        // 화면에 보여지는 데이터셋 리스트
-
-  //public tempDatasets: Dataset[] = [];     // 화면상에 체크 된 데이터셋들 유지해야해서 갖고 있는다
-  public tempDatasets: PrDataset[] = [];     // 화면상에 체크 된 데이터셋들 유지해야해서 갖고 있는다
-
-  private originalDsIds: string[] = [];    // existingDatasets안에 ids 모음
-
+  private readonly DS_TYPE: string = 'WRANGLED';
+  private readonly IMPORT_TYPE: string = '';
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public - Input Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @Input() // 현재 데이터플로우를 확인하기 위한 데이터
+  @Input()
+  public masterDsId: string;
+
+  @Input()
   public dfId: string;
 
-  @Input() // 받아오는 기존 데이터
-  //public existingDatasets: Dataset[];
+  @Input()
   public existingDatasets: PrDataset[];
 
   @Input()
-  //public editInfo: Dataset[];
   public editInfo: PrDataset[];
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public - Output Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @Output() // 유니온 팝업을 닫을때 사용하는 eventemitter
+  @Output()
   public complete = new EventEmitter();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public typeFilter: any[] = [
-    { viewKey: '전체', dsType: '', importType: '' },
-    { viewKey: 'WRANGLED', dsType: 'WRANGLED', importType: '' }
-  ];
+  public searchText: string = '';
 
-  // 선택된 데이터셋 수
-  get countSelected() {
+  public selectedContentSort: Order = new Order();
 
-    let num = this.datasets.filter((item) => {
-      return item.origin
-    }).length;
+  public datasets: PrDataset[] = [];        // 화면에 보여지는 데이터셋 리스트
 
-    return this.datasets.filter((obj) => {
-      return obj.selected && obj.origin === false;
-    }).length + num;
-  }
+  public selectedItems: PrDataset[] = [];
+
+  public isUpdate: boolean = false; //수정 모드 여부
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(protected popupService: PopupService,
               protected dataflowService: DataflowService,
               protected elementRef: ElementRef,
@@ -104,17 +79,19 @@ export class UnionAddDatasetsComponent extends AbstractPopupComponent implements
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Override Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // Init
   public ngOnInit() {
     super.ngOnInit();
-    this.page.sort = 'modifiedTime,desc';
 
-    this.isUpdate ? this.checkEditInfo() : null;
-    this.getDatasets();
+    this.initialisePaging();
+
+    // Update if editInfo has value
+    this.isUpdate = this.editInfo.length > 0;
+
+    this._getDatasets(true);
+
   }
 
-  // Destory
+
   public ngOnDestroy() {
     super.ngOnDestroy();
   }
@@ -122,157 +99,184 @@ export class UnionAddDatasetsComponent extends AbstractPopupComponent implements
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Initialise paging information
+   */
+  public initialisePaging() {
+
+    // TODO: no paging ?
+    this.page.size = 10000;
+    this.page.sort = 'modifiedTime,desc';
+  }
+
 
   /**
    * 수정 정보 세팅
    */
-  public checkEditInfo() {
-    let ids = this.editInfo.map((ds) => {return ds.dsId;});
-
-    this.existingDatasets = this.existingDatasets.filter((item) => {
-      if (ids.indexOf(item.dsId) === -1) {
-        return item
+  public checkEditInfo(list) {
+    list.forEach((item) => {
+      if (item.dsId !== this.masterDsId) {
+        const idx = _.findIndex(this.datasets, {dsId: item.dsId});
+        if (-1 !== idx) {
+          this.datasets[idx].selected= true;
+          this.datasets[idx].origin = false;
+          this.selectedItems.push(this.datasets[idx]);
+        }
       }
-    });
+    })
+  }
 
-    this.editInfo.forEach((item) => {
-      item.selected = true;
-      item.origin = false;
-    });
 
-    this.editInfo.map((item) => {
-      this.tempDatasets.push(item);
+  /**
+   * Close popup
+   */
+  public close() {
+    this.complete.emit(null);
+  }
+
+
+  /**
+   * When add button is pressed
+   */
+  public addDatasets() {
+
+    if (this.selectedItems.length === 0) {
+      return;
+    }
+    this.complete.emit(this.selectedItems);
+
+  }
+
+
+  /**
+   * Add selected item
+   * @param ds
+   * @private
+   */
+  private _addSelectedItem(ds: PrDataset) {
+    this.selectedItems.push(ds);
+  }
+
+
+  /**
+   * Delete selected item
+   * @param ds
+   * @private
+   */
+  private _deleteSelectedItem(ds: PrDataset) {
+    const index = _.findIndex(this.selectedItems, {dsId: ds.dsId});
+    if (-1 !== index) {
+      this.selectedItems.splice(index,1);
+    }
+  }
+
+
+  /**
+   * 모든 아이템 선택 해제
+   * @private
+   */
+  private _deleteAllItems(){
+    this.datasets.forEach((item) => {
+      if (!item.origin && item.selected) {
+        item.selected = false;
+        this._deleteSelectedItem(item);
+      }
+    })
+  }
+
+
+  /**
+   * 모든 아이템 선택
+   * @private
+   */
+  private _addAllItems() {
+    this.datasets.forEach((item) => {
+      if (!item.origin) {
+        item.selected = true;
+        if (-1 === _.findIndex(this.selectedItems, {dsId: item.dsId})) {
+          this._addSelectedItem(item);
+        }
+      }
     })
 
   }
 
   /**
-   * 유니온 팝업 닫기
+   * 체크박스 전체 선택
    */
-  public close() {
-    this.complete.emit(null);
-  } // function - close
+  public checkAll() {
+
+    this.isAllChecked() ? this._deleteAllItems() : this._addAllItems();
+
+  }
+
 
   /**
-   * 유니온 룰 적용
+   * 체크박스 선택
    */
-  public applyRule() {
+  public check(ds: PrDataset) {
 
-    const selectedCnt = this.datasets.filter(item => item.origin === false && item.selected).length;
+    // 중복 체크 방지
+    event.stopImmediatePropagation();
 
-    if (0 === selectedCnt) {
-      // Alert.error(this.translateService.instant('msg.dp.alert.no.added.ds'));
+    // Original dataset cannot be checked
+    if (ds.origin) {
       return;
     }
 
-    this.existingDatasets = [];
-    this.existingDatasets = this.datasets.filter((ds) => {
-      return ds.selected && ds.origin === false;
-    });
-    this.complete.emit(this.existingDatasets);
+    ds.selected = !ds.selected;
+    -1 === _.findIndex(this.selectedItems, {dsId: ds.dsId}) ?
+      this._addSelectedItem(ds) : this._deleteSelectedItem(ds);
 
-  } // function - applyRule
+  } // function - check
 
   /**
-   * 전체 선택 이벤트 핸들러
+   * 전체 체크 박스가 비활성화 인지 확인
    */
-  public checkAllEventHandler() {
-    this.isCheckAll = !this.isCheckAll;
+  public isCheckAllDisabled(): boolean {
+    return this.datasets.filter((item) => {
+      return !item.origin
+    }).length === 0;
+  }
 
-    this.datasets = this.datasets.map((obj) => {
-      obj.selected = this.isCheckAll;
-      return obj;
+  /**
+   * 전체 체크 인지 확인
+   */
+  public isAllChecked(): boolean {
+
+    if (this.isCheckAllDisabled()) {
+      return;
+    }
+
+    const listWithNoOrigin = this.datasets.filter((item) => {
+      return !item.origin
     });
-
-    this.datasets.filter((item) => { // this.datasets을 돌면서 selected 인건 this.dataflow.datasets에 push하고 빠지는건 splice한다
-      const index = this.tempDatasets.map((ds) => {return ds.dsId;}).indexOf(item.dsId);
-      if (index === -1 && item.selected) { // selected이고 list에 없다면
-        this.tempDatasets.push(item);
-      } else  if (!item.selected && index > -1){
-        this.tempDatasets.splice(index, 1);
+    if (listWithNoOrigin.length !== 0) {
+      for (let index = 0; index < listWithNoOrigin.length; index++) {
+        if (_.findIndex(this.selectedItems, {dsId: listWithNoOrigin[index].dsId}) === -1) {
+          return false;
+        }
       }
-    });
-  } // function - checkAllEventHandler
-
-  /**
-   * 체크박스 이벤트 핸들러
-   * @param item
-   */
-  public checkEventHandler(item) {
-    item.selected = !item.selected;
-
-    if (item.selected) {
-      this.tempDatasets.push(item);
+      return true;
     } else {
-      const idx = this.tempDatasets.map((ds) => {return ds.dsId;}).indexOf(item.dsId);
-      if (idx > -1) {
-        this.tempDatasets.splice(idx, 1);
-      }
+      // 조회된 멤버 목록이 없다면 false
+      return false;
     }
-
-    const num = this.datasets.filter((data) => {
-      return data.selected;
-    }).length;
-
-    this.datasets.length === num ? this.isCheckAll = true : this.isCheckAll = false;
-  } // function - checkEventHandler
+  }
 
   /**
-   * 체크박스 부분선택 여부
+   * Check if add selections btn should be disabled or not
    * @returns {boolean}
    */
-  public partialChecked() {
-
-    if (this.datasets.length === 0) {
-      this.isCheckAll = false;
-      return false;
-    }
-
-    const isCheckAll = this.datasets.every((item) => {
-      return item.selected;
-    });
-
-    if (isCheckAll) {
-      this.isCheckAll = true;
-      return false;
-    }
-
-    const unChecked = this.datasets.every((item) => {
-      return item.selected === false;
-    });
-
-    if (unChecked) {
-      return false;
-    }
-
-    this.isCheckAll = false;
-
-    return true;
-
-  } // function - partialChecked
-
-  /**
-   * 타입필터가 선택되었을 때 처리
-   * @param $event
-   */
-  public onTypeSelected($event) {
-    const filter = $event;
-    this.searchDsType = filter.dsType;
-    this.searchImportType = filter.importType;
-  } // function - onTypeSelected
-
-  /**
-   * 추가하기에 유효하지 않는 상태인지 확인한다
-   * @returns {boolean}
-   */
-  public checkInvalidStateAdd() {
+  public isAddEnabled() {
     return ( 0 === this.datasets.filter(item => item.origin === false && item.selected).length );
-  } // function - validateAddSelection
+  }
+
 
   /**
-   * 정렬 변경
+   * Sort list
    */
-  public changeOrder(column: string) {
+  public sortList(column: string) {
 
     this.page.page = 0;
 
@@ -296,159 +300,70 @@ export class UnionAddDatasetsComponent extends AbstractPopupComponent implements
     this.page.sort = column + ',' + this.selectedContentSort.sort;
 
     // 데이터소스 리스트 조회
-    this.getDatasets();
+    this._getDatasets();
 
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * On key press event
+   * @param event
+   */
+  public onKeyPress(event: any) {
 
-  public notUpstream(leftDsId, rightDsId, upstreams) {
-    let ret = true;
+    // Enter key
+    if (13 === event.keyCode) {
 
-    let list = [leftDsId];
-    while( 0<list.length ) {
-      let pop = list.shift();
-      if( pop === rightDsId ) {
-        ret = false;
-        break;
-      }
-      for(let us of upstreams ) {
-        if( us.dsId === pop ) {
-          if( false==list.includes( us.dsId ) ) {
-            list.push( us.upstreamDsId );
-          }
-        }
-      }
-    }
+      this._getDatasets();
 
-    return ret;
-  }
-
-  // 데아터셋 검색
-  public searchDatasets(event :KeyboardEvent) {
-
-    // enter 키로 검색시
-    if(13 === event.keyCode) {
-      // 데이터셋 목록 조회
-      this.getDatasets();
-
-      // esc 키
+      // ESC
     } else if (27 === event.keyCode) {
 
-      // 검색어 초기화
+      // Refresh search text
       this.searchText = '';
 
-      // 데이터셋 목록 조회
-      this.getDatasets();
     }
   }
 
 
   /**
-   * 데이터 셋 리스트 불러오기
+   * Refresh search text
    */
-  public getDatasets() {
+  public refreshSearch() {
+    this.searchText = '';
+    this._getDatasets();
+  }
 
-    this.page.size = 10000;
 
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Private Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Fetch dataset list
+   */
+  private _getDatasets(isInitial: boolean = false) {
 
-    const checkedList = [];
-
-    // 화면에서 선택된 것들을 checkedList에 넣는다
-    this.tempDatasets.map((item) => {
-      if (item.origin === false && item.selected){
-        checkedList.push(item.dsId);
-      }
-    });
-
-    // 이미 선택된 데이터셋에 대한 아이디 목록을 정리한다
-    this.originalDsIds = this.existingDatasets.map(ds => ds.dsId);
     this.datasets = [];
-
     this.loadingShow();
 
-    // 데이터셋 목록을 불러온다
-    this.dataflowService.getDatasets(this.searchText, this.page, 'listing', this.searchDsType, this.searchImportType).then((data) => {
-      this.loadingHide();
+    // Fetch dataset list
+    this.dataflowService.getDatasets(this.searchText, this.page, 'listing', this.DS_TYPE, this.IMPORT_TYPE).then((data) => {
 
       // sorting
       const sorting = this.page.sort.split(',');
       this.selectedContentSort.key = sorting[0];
       this.selectedContentSort.sort = sorting[1];
 
-      if (data && data['_embedded'] && data['_embedded'].preparationdatasets) {
+      // if result exists
+      if (data['_embedded'] && data['_embedded'].preparationdatasets) {
 
-        //this.datasets = data['_embedded'].preparationdatasets.filter((ds: Dataset) => {
-        this.datasets = data['_embedded'].preparationdatasets.filter((ds: PrDataset) => {
-
-          if (ds.dataflows.length !== 0) {
-            if (ds.dataflows[0].dfId === this.dfId) {
-              if (this.originalDsIds.indexOf(ds.dsId) > -1) {
-                ds.selected = true;
-                ds.origin = true;
-              } else {
-                ds.selected = false;
-                ds.origin = false;
-              }
-              return ds;
-            }
-          }
+        // Show only datasets from same dataflow as master dataset
+        this.datasets = data['_embedded'].preparationdatasets.filter((item) => {
+          return item.creatorDfId === this.dfId;
         });
 
-        const dfId = this.dfId;
-        this.loadingShow();
-        this.dataflowService.getUpstreams(dfId, this.isUpdate)
-          .then((upstreams) => {
-            this.loadingHide();
-            let upstreamList = upstreams.filter((upstream) => {
-              if (upstream.dfId === dfId) {
-                return true;
-              }
-            });
-
-            this.datasets = this.datasets.filter((obj) => {
-              if (obj.dataflows.length !== 0) {
-                for(let _df of obj.dataflows) {
-                  if(_df.dfId === dfId) {
-                    for(let originalDsId of this.originalDsIds) {
-                      if( false == this.notUpstream( originalDsId, obj.dsId, upstreamList ) ) {
-                        obj.selected = true;
-                        obj.origin = true;
-                        return true;
-                        // 목록에서 제외 대신에 dim 처리
-                        // return false;
-                      }
-                    }
-                    return true;
-                  }
-                }
-              }
-              return false;
-            });
-
-          })
-          .catch((error) => {
-            this.loadingHide();
-            let prep_error = this.dataprepExceptionHandler(error);
-            PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-          });
-
-        // checkList에 들어있는 dataset들도 check
-        this.datasets.forEach((item) => {
-          item.selected = checkedList.indexOf(item.dsId) > -1;
-        });
-
-        // 전체 선택인지 확인
-        const allTicked = this.datasets.filter((data) => {
-          return data.selected;
-        }).length;
-        this.datasets.length === allTicked ? this.isCheckAll = true : this.isCheckAll = false;
+        // get upstreams
+        this._getUpstreams(isInitial);
 
       } else {
         this.loadingHide();
@@ -459,9 +374,81 @@ export class UnionAddDatasetsComponent extends AbstractPopupComponent implements
       let prep_error = this.dataprepExceptionHandler(error);
       PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
     });
-  } // function - getDatasets
+  }
+
+
+  /**
+   * Fetch upstreams
+   * @param isInitial 처음 실행인지 ?
+   * @private
+   */
+  private _getUpstreams(isInitial?: boolean) {
+    // Fetch upstreams
+    this.dataflowService.getUpstreams(this.dfId, this.isUpdate).then((upstreams) => {
+
+      this.loadingHide();
+      const upstreamIds = [];
+
+      // it upstream exists
+      if (upstreams.length > 0) {
+
+        // returns upstreamDsIds that has same dsId as masterDsId
+        upstreams.forEach((item) => {
+          if (item.dsId === this.masterDsId)  {
+            upstreamIds.push(item.upstreamDsId);
+          }
+        });
+      }
+
+      /*
+      How upstream works ?
+
+      masterDsId : 444
+
+      list = [
+        {dsId: 111, upstreamDsId: aaa},
+        {dsId: 222, upstreamDsId: bbb},
+        {dsId: 333, upstreamDsId: ccc},
+        {dsId: 444, upstreamDsId: ddd},
+        {dsId: ddd, upstreamDsId: fff}
+      ]
+
+      list[3]is origin = true (dsId is same as masterDsId)
+      list[4]os origin = true (dsId is same as ↑ upstreamDsId)
+      */
+      this.datasets.forEach((item) => {
+        item.origin = (-1 < upstreamIds.indexOf(item.dsId)) || item.dsId === this.masterDsId;
+
+        // set already selected items
+        const idx = _.findIndex(this.selectedItems, {dsId: item.dsId});
+        item.selected = (-1 < upstreamIds.indexOf(item.dsId)) || item.dsId === this.masterDsId || idx > -1;
+      });
+
+
+      // if initial loading, set existingDatasets
+      if (isInitial && this.existingDatasets.length > 0) {
+        this.checkEditInfo(this.existingDatasets);
+      }
+
+      // If editInfo exists, it's update
+      if (isInitial && this.editInfo.length > 0) {
+
+        // 편집일떄 해야하는일
+        this.checkEditInfo(this.editInfo);
+
+      }
+
+    }).catch((error) => {
+      this.loadingHide();
+      let prep_error = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+    });
+
+  }
 
 }
+
+
 
 class Order {
   key: string = 'createdTime';

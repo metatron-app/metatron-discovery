@@ -521,11 +521,11 @@ ul.ddp-list-typebasic.ddp-view li.ddp-selected a .ddp-icon-plus {display:block;}
 .ddp-cursor {cursor: pointer;}
 .ddp-mgb20 {margin-bottom:20px !important;}
 .ddp-mgl10 {margin-left:10px !important;}
-.ddp-index { position: fixed; left: 0; right: 0;  bottom: 0; top: 0; z-index: 9999;}
+.ddp-index {position: fixed; left: 0; right: 0;  bottom: 0; top: 0; z-index: 9999;}
 .ddp-show {display:block !important;}
 .ddp-none {display:none !important;}
 .ddp-border-none {border:none !important;}
-
+.ddp-txt-ellipsis {white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 .ddp-null {color:#b8bac2 !important;font-style:italic !important;}
 .ddp-null * {color:#b8bac2 !important; font-style:italic !important;;}
 .ddp-empty {background:blue !important; opacity:0.2 !important;}
@@ -740,6 +740,7 @@ ul.ddp-list-typebasic.ddp-view li.ddp-selected a .ddp-icon-plus {display:block;}
 /**************************************************************
   synch
 **************************************************************/
+.ddp-wrap-tab-contents .ddp-ui-tab-contents .ddp-box-message.ddp-type {margin-bottom:0;}
 .ddp-wrap-tab-contents .ddp-ui-tab-contents .ddp-box-message {margin-bottom:-10px;}
 .ddp-box-synch {display:table; width:100%; position:relative; padding:7px 12px; border:1px solid #cdd8f4; background-color:#f0f3fc; color:#6174b3; font-size:12px; border-radius:2px; overflow:hidden; box-sizing:border-box;}
 .ddp-box-synch + .ddp-box-synch {margin-top:4px;}
@@ -754,5 +755,6 @@ ul.ddp-list-typebasic.ddp-view li.ddp-selected a .ddp-icon-plus {display:block;}
 .ddp-box-synch.type-warning {border-color:#fbe4b3; background-color:#fef6e4; color:#e9b017;}
 .ddp-box-synch.type-warning .ddp-icon-info {background-position:left -67px;}
 .ddp-btn-blue:hover {color:#fff;}
+.ddp-btn-blue.ddp-disabled {background-color:#d0d1d8; cursor:no-drop;}
 .ddp-btn-blue .ddp-icon-btn-sync {display:inline-block; margin-right:6px; width:13px; height:12px; background:url(../images/icon_buttons.png) no-repeat; background-position:left -363px;}
 

@@ -26,6 +26,7 @@ import { CreateDatasetComponent } from './dataset/create-dataset/create-dataset.
 import { CreateDatasetDataTypeComponent } from './dataset/create-dataset/create-dataset-datatype.component';
 import { CreateDatasetSelectfileComponent } from './dataset/create-dataset/create-dataset-selectfile.component';
 import { CreateDatasetSelectsheetComponent } from './dataset/create-dataset/create-dataset-selectsheet.component';
+import { CreateDatasetSelecturlComponent } from './dataset/create-dataset/create-dataset-selecturl.component';
 import { CreateDatasetStagingSelectdataComponent } from './dataset/create-dataset/create-dataset-staging-selectdata.component';
 import { DatasetService } from './dataset/service/dataset.service';
 import { FileModule } from '../common/file.module';
@@ -79,19 +80,21 @@ import { PrepSelectBoxComponent } from './util/prep-select-box.component';
 import { PrepSelectBoxCustomComponent } from './util/prep-select-box-custom.component';
 import { DataflowModelService } from "./dataflow/service/dataflow.model.service";
 import {EditRuleWindowComponent} from "./dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-window.component";
-import {CheckboxSelectDatasetComponent} from "./component/checkbox-select-dataset.component";
 import {LongUpdatePopupComponent} from "./component/long-update-popup.component";
 import {RadioSelectDatasetComponent} from "./component/radio-select-dataset.component";
 import {AddDatasetDataflowComponent} from "./dataset/add-dataset-dataflow.component";
 import {MultipleRenamePopupComponent} from "./dataflow/dataflow-detail/component/edit-dataflow-rule/multiple-rename-popup.component";
 import {DataSourceCreateModule} from "../data-storage/data-source-list/create-data-source/data-source-create.module";
 import {DataconnectionService} from "../dataconnection/service/dataconnection.service";
+import {DataflowDetail2Component} from "./dataflow/dataflow-detail/dataflow-detail2.component";
+import {DataStorageShareModule} from "../data-storage/data-storage-share.module";
 
 
 const dataPreparationRoutes: Routes = [
   { path: '', component: DatasetComponent },
   { path: 'dataflow', component: DataflowComponent },
-  { path: 'dataflow/:id', component: DataflowDetailComponent, canDeactivate: [DataPreparationGuard] },
+  { path: 'dataflow/:id', component: DataflowDetail2Component, canDeactivate: [DataPreparationGuard] },
+  { path: 'dataflow/:dfId/rule/:dsId', component: EditDataflowRule2Component, canDeactivate: [DataPreparationGuard] },
   { path: 'dataset', component: DatasetComponent },
   { path: 'dataset/new', component: DatasetComponent },
   { path: 'dataset/:id', component: DatasetDetailComponent },
@@ -105,7 +108,8 @@ const dataPreparationRoutes: Routes = [
     RouterModule.forChild(dataPreparationRoutes),
     SplitPaneModule,
     WorkbenchEditorModule,
-    DataSourceCreateModule
+    DataSourceCreateModule,
+    DataStorageShareModule
   ],
   declarations: [
     DataPreparationComponent,
@@ -115,6 +119,7 @@ const dataPreparationRoutes: Routes = [
     CreateDatasetDataTypeComponent,
     CreateDatasetSelectfileComponent,
     CreateDatasetSelectsheetComponent,
+    CreateDatasetSelecturlComponent,
     CreateDatasetStagingSelectdataComponent,
     DataSnapshotComponent,
     CreateDatasetDbSelectComponent,
@@ -165,10 +170,10 @@ const dataPreparationRoutes: Routes = [
     PrepSelectBoxComponent,
     PrepSelectBoxCustomComponent,
     RadioSelectDatasetComponent,
-    CheckboxSelectDatasetComponent,
     LongUpdatePopupComponent,
     AddDatasetDataflowComponent,
-    MultipleRenamePopupComponent
+    MultipleRenamePopupComponent,
+    DataflowDetail2Component
   ],
   providers: [
     DataconnectionService,

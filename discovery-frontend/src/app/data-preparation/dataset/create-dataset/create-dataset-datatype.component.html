@@ -46,6 +46,13 @@
             <em class="ddp-icon-check"></em>
           </a>
 
+          <a href="javascript:" class="ddp-btn-select"
+             (click)="setConnectionType('url')"
+             [ngClass]="{'ddp-selected':connectionType=='url'}">
+            <em class="ddp-icon-boxbtn-url"></em>
+            {{'msg.storage.ui.conn.url' | translate}}
+          </a>
+
         </div>
         <!-- //데이터 선택 -->
 

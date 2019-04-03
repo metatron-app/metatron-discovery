@@ -16,10 +16,12 @@ package app.metatron.discovery.domain.dataprep;
 
 
 import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_HADOOP_HDFS_FAILED_TO_CONNECT;
 
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.entity.PrUploadFile;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
@@ -28,11 +30,11 @@ import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrameService;
-import app.metatron.discovery.domain.dataprep.teddy.Util;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.transform.TeddyImpl;
 import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
 import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.util.ExcelProcessor;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,6 +42,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.monitorjbl.xlsx.StreamingReader;
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,6 +52,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -65,10 +72,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.ContentSummary;
 import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IOUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -94,7 +102,7 @@ public class PrepDatasetFileService {
     PrepProperties prepProperties;
 
     @Autowired
-    PrepHdfsService hdfsService;
+    StorageProperties storageProperties;
 
     @Autowired
     TeddyImpl teddyImpl;
@@ -127,14 +135,17 @@ public class PrepDatasetFileService {
                 switch (extensionType) {
                     case "xlsx":
                     case "xls":
-                        // Excel files are treated as CSV
-                        break;
+                        assert false : "Excel files are treated as CSV";
+                        throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
+                            PrepMessageKey.MSG_DP_ALERT_UNKOWN_ERROR, "Excel files should have converted as CSV");
                     case "json":
-                        result = PrepJsonUtil.countJson(storedUri, limitRows, hdfsService.getConf());
+                        Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
+                        result = PrepJsonUtil.countJson(storedUri, limitRows, conf);
                         break;
                     default:
+                        conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
                         String delimiterCol = dataset.getDelimiter();
-                        result = PrepCsvUtil.countCsv(storedUri, delimiterCol, limitRows, hdfsService.getConf());
+                        result = PrepCsvUtil.countCsv(storedUri, delimiterCol, limitRows, conf);
                 }
 
                 if(result != null) {
@@ -166,29 +177,91 @@ public class PrepDatasetFileService {
     }
 
     private String fileDatasetUploadLocalPath=null;
+    private String fileDatasetUploadStagingPath=null;
+    private String fileDatasetUploadS3Path=null;
 
     private String prefixColumnName = "column";
 
-    private String getPathLocal(String fileKey) {
-        String pathStr;
-        if(true==fileKey.contains(File.separator)) {
-            pathStr = fileKey;
-        } else {
-            if(null==fileDatasetUploadLocalPath) {
-                fileDatasetUploadLocalPath = prepProperties.getLocalBaseDir() + File.separator + PrepProperties.dirUpload;
-            }
+    private void mkdirsIfNotExist(String dirUri) {
+        boolean result = false;
 
+        URI uri = null;
+        try {
+            uri = new URI(dirUri);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, dirUri);
+        }
+
+        switch (uri.getScheme()) {
+            case "hdfs":
+                Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
+                if (conf == null) {
+                    throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
+                }
+                Path path = new Path(uri);
+
+                FileSystem hdfsFs = null;
+                try {
+                    hdfsFs = FileSystem.get(conf);
+                    if (!hdfsFs.exists(path)) {
+                        result = hdfsFs.mkdirs(path);
+                    }
+                    hdfsFs.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, dirUri);
+                }
+                break;
+
+            case "file":
+                File file = new File(uri);
+                if(!file.exists()){
+                    file.mkdirs();
+                }
+                break;
+
+            default:
+                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, dirUri);
+        }
+    }
+
+    private String getPathS3Base(String filename) {
+        if(null==fileDatasetUploadS3Path) {
+            fileDatasetUploadS3Path = prepProperties.getS3BaseDir(true) + File.separator + PrepProperties.dirUpload;
+            mkdirsIfNotExist(fileDatasetUploadS3Path);
+        }
+
+        String pathStr = fileDatasetUploadS3Path + File.separator + filename;
+        return pathStr;
+    }
+
+    private String getPathStagingBase(String filename) {
+        if(null==fileDatasetUploadStagingPath) {
+            fileDatasetUploadStagingPath = prepProperties.getStagingBaseDir(true) + File.separator + PrepProperties.dirUpload;
+        }
+        mkdirsIfNotExist(fileDatasetUploadStagingPath);
+
+        String pathStr = fileDatasetUploadStagingPath + File.separator + filename;
+        return pathStr;
+    }
+
+    public String getPathLocalBase(String filename) {
+        if(null==fileDatasetUploadLocalPath) {
+            fileDatasetUploadLocalPath = prepProperties.getLocalBaseDir() + File.separator + PrepProperties.dirUpload;
+            if(fileDatasetUploadLocalPath.startsWith("file://")==false) {
+                fileDatasetUploadLocalPath = "file://" + fileDatasetUploadLocalPath;
+            }
+            mkdirsIfNotExist(fileDatasetUploadLocalPath);
+            /*
             File tempPath = new File(fileDatasetUploadLocalPath);
             if(!tempPath.exists()){
                 tempPath.mkdirs();
             }
-
-            if(true==fileDatasetUploadLocalPath.endsWith(File.separator)) {
-                pathStr = fileDatasetUploadLocalPath + fileKey;
-            } else {
-                pathStr = fileDatasetUploadLocalPath + File.separator + fileKey;
-            }
+            */
         }
+
+        String pathStr = fileDatasetUploadLocalPath + File.separator + filename;
         return pathStr;
     }
 
@@ -257,7 +330,7 @@ public class PrepDatasetFileService {
         }
     }
 
-    private List<String[]> getGridFromExcel(Sheet sheet, int limitRows) {
+    private List<String[]> getGridFromExcel(Sheet sheet, int limitRows, Integer columnCount) {
         List<String[]> grid = Lists.newArrayList();
 
         for (Row r : sheet) {
@@ -270,7 +343,14 @@ public class PrepDatasetFileService {
             }
             if(limitRows<=r.getRowNum()) { break; }
 
-            for (Cell c : r) {
+            int lastColCnt = r.getLastCellNum();
+            if(columnCount!=null) {
+                lastColCnt = columnCount;
+            }
+            //for (Cell c : r) {
+            for (int columnIndex=0;columnIndex<lastColCnt;columnIndex++) {
+                Cell c = r.getCell(columnIndex);
+
                 if(c==null) {
                     row.add(null);
                     continue;
@@ -298,16 +378,65 @@ public class PrepDatasetFileService {
         return grid;
     }
 
-    private Map<String, Object> getResponseMapFromExcel(File theFile, String extensionType, int limitRows, boolean autoTyping) throws IOException, TeddyException {
+    private Map<String, Object> getResponseMapFromExcel(String storedUri, String extensionType, int limitRows, Integer columnCount, boolean autoTyping) throws IOException, TeddyException {
         Map<String, Object> responseMap = Maps.newHashMap();
         List<String> sheetNames = Lists.newArrayList();
         List<DataFrame> gridResponses = Lists.newArrayList();
         Workbook workbook;
 
+        URI uri = null;
+        try {
+            uri = new URI(storedUri);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, storedUri);
+        }
+
+        InputStream is = null;
+        switch (uri.getScheme()) {
+            case "hdfs":
+                Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
+                Path path = new Path(uri);
+
+                FileSystem hdfsFs;
+                try {
+                    hdfsFs = FileSystem.get(conf);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, storedUri);
+                }
+
+                FSDataInputStream his;
+                try {
+                    his = hdfsFs.open(path);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_HDFS_PATH, storedUri);
+                }
+
+                is = his;
+                break;
+
+            case "file":
+                File file = new File(uri);
+                FileInputStream fis;
+                try {
+                    fis = new FileInputStream(file);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, storedUri);
+                }
+
+                is = fis;
+                break;
+
+            default:
+                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, storedUri);
+        }
+
         if ("xls".equals(extensionType)) {       // 97~2003
-            workbook = new HSSFWorkbook(new FileInputStream(theFile));
+            workbook = new HSSFWorkbook(is);
         } else {   // 2007 ~
-            InputStream is = new FileInputStream(theFile);
             workbook = StreamingReader.builder()
                     .rowCacheSize(100)
                     .bufferSize(4096)
@@ -322,9 +451,9 @@ public class PrepDatasetFileService {
 
         for (Sheet sheet : workbook) {
             DataFrame df = new DataFrame(sheet.getSheetName());
-            df.setByGrid(getGridFromExcel(sheet, limitRows), null);
+            df.setByGrid(getGridFromExcel(sheet, limitRows, columnCount), null);
 
-            if (autoTyping) {
+            if (autoTyping && 0<df.rows.size()) {
                 df = teddyImpl.applyAutoTyping(df);
             }
 
@@ -337,14 +466,15 @@ public class PrepDatasetFileService {
         return responseMap;
     }
 
-    private Map<String, Object> getResponseMapFromJson(String storedUri, int limitRows, boolean autoTyping) throws TeddyException {
+    private Map<String, Object> getResponseMapFromJson(String storedUri, int limitRows, Integer columnCount, boolean autoTyping) throws TeddyException {
         Map<String, Object> responseMap = Maps.newHashMap();
         List<DataFrame> gridResponses = Lists.newArrayList();
+        Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
 
         DataFrame df = new DataFrame("df_for_preview");
-        df.setByGridWithJson(PrepJsonUtil.parseJson(storedUri, limitRows, hdfsService.getConf()));
+        df.setByGridWithJson(PrepJsonUtil.parseJson(storedUri, limitRows, columnCount, hadoopConf));
 
-        if (autoTyping) {
+        if (autoTyping && 0<df.rows.size()) {
             df = teddyImpl.applyAutoTyping(df);
         }
 
@@ -354,14 +484,15 @@ public class PrepDatasetFileService {
         return responseMap;
     }
 
-    private Map<String, Object> getResponseMapFromCsv(String storedUri, int limitRows, String delimiterCol, boolean autoTyping) throws TeddyException {
+    private Map<String, Object> getResponseMapFromCsv(String storedUri, int limitRows, String delimiterCol, Integer columnCount, boolean autoTyping) throws TeddyException {
         Map<String, Object> responseMap = Maps.newHashMap();
         List<DataFrame> gridResponses = Lists.newArrayList();
+        Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
 
         DataFrame df = new DataFrame("df_for_preview");
-        df.setByGrid(PrepCsvUtil.parse(storedUri, delimiterCol, limitRows, hdfsService.getConf()));
+        df.setByGrid(PrepCsvUtil.parse(storedUri, delimiterCol, limitRows, columnCount, hadoopConf));
 
-        if (autoTyping) {
+        if (autoTyping && 0<df.rows.size()) {
             df = teddyImpl.applyAutoTyping(df);
         }
 
@@ -384,6 +515,31 @@ public class PrepDatasetFileService {
 //        return df;
 //    }
 
+    public void checkStoredUri(String storedUri) {
+
+        URI uri = null;
+        try {
+            uri = new URI(storedUri);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, storedUri);
+        }
+
+        switch (uri.getScheme()) {
+            case "hdfs":
+                uri.getPath();
+                break;
+
+            case "file":
+                uri.getPath(); // should check for security reasons
+                break;
+
+            default:
+                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, storedUri);
+        }
+
+    }
+
     /*
      * Response contains:
      *   success    FIXME: do not use   -> 200 or 500
@@ -401,32 +557,24 @@ public class PrepDatasetFileService {
      *     sheetName    (Excel only)
      *   totalBytes     FIXME: is this needed?
      */
-    public Map<String, Object> fileCheckSheet3(String storedUri, String size, String delimiterCol, boolean autoTyping) {
+    public Map<String, Object> makeFileGrid(String storedUri, Integer size, String delimiterCol, Integer columnCount, boolean autoTyping) {
 
         Map<String, Object> responseMap;
         String extensionType = FilenameUtils.getExtension(storedUri);
-        int limitRows = Integer.parseInt(size);
+        int limitRows = size;
 
         try {
-            File theFile = new File(new URI(storedUri));
-            if(false==theFile.exists()) {
-                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND, "No file : " + storedUri);
-            }
-
             switch (extensionType) {
                 case "xlsx":
                 case "xls":
-                    responseMap = getResponseMapFromExcel(theFile, extensionType, limitRows, autoTyping);
+                    responseMap = getResponseMapFromExcel(storedUri, extensionType, limitRows, columnCount, autoTyping);
                     break;
                 case "json":
-                    responseMap = getResponseMapFromJson(storedUri, limitRows, autoTyping);
+                    responseMap = getResponseMapFromJson(storedUri, limitRows, columnCount, autoTyping);
                     break;
                 default:
-                    responseMap = getResponseMapFromCsv(storedUri, limitRows, delimiterCol, autoTyping);
+                    responseMap = getResponseMapFromCsv(storedUri, limitRows, delimiterCol, columnCount, autoTyping);
             }
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, storedUri);
         } catch (IOException e) {
             e.printStackTrace();
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNKOWN_ERROR, storedUri);
@@ -458,11 +606,7 @@ public class PrepDatasetFileService {
                 autoTyping = false;
             }
 
-            File theFile = new File(new URI(storedUri));
-            if(theFile.exists()==false) {
-                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND, "No file : " + storedUri);
-            }
-
+            Integer columnCount = dataset.getManualColumnCount();
             Map<String, Object> responseMap = null;
             switch (extensionType) {
                 case "xlsx":
@@ -470,11 +614,11 @@ public class PrepDatasetFileService {
                     // Excel files are treated as CSV
                     break;
                 case "json":
-                    responseMap = getResponseMapFromJson(storedUri, limitRows, autoTyping);
+                    responseMap = getResponseMapFromJson(storedUri, limitRows, columnCount, autoTyping);
                     break;
                 default:
                     String delimiterCol = dataset.getDelimiter();
-                    responseMap = getResponseMapFromCsv(storedUri, limitRows, delimiterCol, autoTyping);
+                    responseMap = getResponseMapFromCsv(storedUri, limitRows, delimiterCol, columnCount, autoTyping);
             }
 
             if(responseMap != null) {
@@ -490,9 +634,6 @@ public class PrepDatasetFileService {
 
             Callable<Map<String,Long>> callable = new PrepDatasetTotalLinesCallable(datasetRepository, dataset);
             this.futures.add( poolExecutorService.submit(callable) );
-        } catch (URISyntaxException e1) {
-            e1.printStackTrace();
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, storedUri);
         } catch (Exception e) {
             LOGGER.error("Failed to read file : {}", e.getMessage());
             throw e;
@@ -501,193 +642,139 @@ public class PrepDatasetFileService {
         return dataFrame;
     }
 
-    public DataFrame getPreviewLinesFromFileForDataFrame_bak(PrDataset dataset, String sheetindex, String size) throws IOException, TeddyException {
-        DataFrame dataFrame = new DataFrame();
-        String strUri = null;
+    public String getStoredUri( PrUploadFile uploadFile ) {
+        String storedUri = null;
+
+        String fileName = uploadFile.getFilename();
+        String extensionType = FilenameUtils.getExtension(fileName);
+        if(extensionType==null || extensionType.isEmpty()==true) {
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG, "need a extension of filename");
+        }
+
+        if (uploadFile.getStorageType() == PrUploadFile.STORAGE_TYPE.LOCAL) {
+            storedUri = this.getPathLocalBase(fileName);
+        } else if (uploadFile.getStorageType() == PrUploadFile.STORAGE_TYPE.HDFS) {
+            storedUri = this.getPathStagingBase(fileName);
+        } else if (uploadFile.getStorageType() == PrUploadFile.STORAGE_TYPE.S3) {
+            storedUri = this.getPathS3Base(fileName);
+        } else {
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, uploadFile.getStorageType() + " is not supported");
+        }
+
+        if(storedUri==null) {
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, "cannot make the storedUri: " + uploadFile.toString() );
+        }
+
+        return storedUri;
+    }
+
+    public Map<String, Object> uploadFileChunk( PrUploadFile uploadFile,
+                                               Integer chunkIdx, Long chunkSize,
+                                               MultipartFile file) {
+
+        Map<String, Object> responseMap = Maps.newHashMap();
+
+        FileOutputStream fos=null;
+        FileChannel och = null;
+        FileLock lock = null;
+        try {
+            URI uri = new URI(uploadFile.getLocalUri());
+            File theFile = new File(uri);
+
+            InputStream is = file.getInputStream();
+
+            fos = new FileOutputStream(theFile, true);
+            och = fos.getChannel();
+
+            byte[] buffer = new byte[8192];
+
+            lock = och.lock();
+
+            long offset = chunkIdx*chunkSize;
+            int byteCnt = 0;
+            int totalWrote = 0;
+            while(true)
+            {
+                byteCnt = is.read(buffer,0,buffer.length);
+                if(byteCnt == -1) break;
+
+                if( offset<0 || uploadFile.getFileSize()<offset+byteCnt ) {
+                    // index error
+                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_LOCAL_PATH, "out of bound");
+                }
+                och.write( ByteBuffer.wrap(buffer,0,byteCnt), offset );
+                offset = offset + byteCnt;
+                totalWrote = totalWrote + byteCnt;
+            }
+
+            responseMap.put("success", true);
+            responseMap.put("localUri", uploadFile.getLocalUri());
+            responseMap.put("storedUri", uploadFile.getFileUri());
+            responseMap.put("chunkIdx", chunkIdx);
+            responseMap.put("chunkWrote", totalWrote);
+            responseMap.put("filenameBeforeUpload", uploadFile.getOriginalFilename());
+            responseMap.put("createTime", uploadFile.getCreatedTime());
+
+            uploadFile.setRestChunk( uploadFile.getRestChunk()-1 );
+        } catch (Exception e) {
+            LOGGER.error("Failed to upload file : {}", e.getMessage());
+            responseMap.put("success", false);
+            responseMap.put("message", e.getMessage());
+        } finally {
+            try {
+                if (null != lock) {
+                    lock.release();
+                }
+                if (null != och) {
+                    och.close();
+                }
+                if(null!=fos) {
+                    fos.close();
+                }
+            } catch (Exception e) {
+                LOGGER.error("finally: {}", e.getMessage());
+            }
+        }
+
+        return  responseMap;
+    }
+
+    public void copyLocalToStaging(PrUploadFile uploadFile) {
+        String storedUri = uploadFile.getFileUri();
+        String localUri = uploadFile.getLocalUri();
 
         try {
-            if(dataset==null) {
-                throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET);
-            }
+            URI uri = new URI(localUri);
+            File inFile = new File(uri);
+            InputStream in = new BufferedInputStream(new FileInputStream(inFile));
 
-            assert dataset.getImportType() == PrDataset.IMPORT_TYPE.UPLOAD || dataset.getImportType() == PrDataset.IMPORT_TYPE.URI;
+            Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
+            FileSystem fs = FileSystem.get(conf);
+            Path outPath = new Path(storedUri);
+            OutputStream out = fs.create(outPath);
 
-            long totalBytes = 0L;
-            InputStreamReader inputStreamReader = null;
-            String storedUri = dataset.getStoredUri();
-
-            URI uri = new URI(storedUri);
-
-            if(uri.getScheme().equalsIgnoreCase("file")) {
-                assert storedUri != null;
-
-                File theFile = new File(uri);
-                if(false==theFile.exists()) {
-                    throw new IllegalArgumentException("Invalid filekey.");
-                }
-                totalBytes = theFile.length();
-                inputStreamReader = new InputStreamReader(new FileInputStream(theFile));
-            } else if(uri.getScheme().equals("hdfs")) {
-                Configuration conf = this.hdfsService.getConf();
-                FileSystem fs = FileSystem.get(conf);
-                Path thePath = new Path(uri);
-
-                assert fs.exists(thePath);
-//                if( false==fs.exists(thePath) ) {
-//                    strUri = prepProperties.getStagingBaseDir() + "/uploads/" + fileKey;
-//                    thePath = new Path(new URI(strUri));
-//                    if( false==fs.exists(thePath) ) {
-//                        throw new IllegalArgumentException("Invalid filekey.");
-//                    }
-//                    // TODO: amend the dataset entity with the new path
-//                }
-                ContentSummary cSummary = fs.getContentSummary(thePath);
-                totalBytes = cSummary.getLength();
-                inputStreamReader = new InputStreamReader(fs.open(thePath));
-            } else {
-                assert false : uri.getScheme();
-            }
-
-            String extensionType = FilenameUtils.getExtension(storedUri);
-            int findSheetIndex = Integer.parseInt(sheetindex);
-            int limitSize = Integer.parseInt(size);
-            int dataFrameRows = 0;
-            long totalRows = 0;
-
-            if(null==inputStreamReader) {
-                throw new IllegalArgumentException("failed to open file stream: ["+storedUri+"]");
-            } else {
-
-                List<Map<String, String>> resultSet = Lists.newArrayList();
-
-                if("json".equals(extensionType)) {
-                    // 현재 FILE이면 무조건 csv로 치환됨
-                } else if ("xlsx".equals(extensionType) || "xls".equals(extensionType)) {
-                    // 현재 FILE이면 무조건 csv로 치환됨
-                } else if ("csv".equals(extensionType)
-                        || true // 기타 확장자는 모두 csv로 간주
-                        ) {
-                    BufferedReader br = null;
-                    String line;
-                    String[] csv_fields = null;
-                    Boolean hasFields;
-                    int maxColLength=0;
-                    String delimiterCol = dataset.getDelimiter();
-                    try {
-                        //br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
-                        br = new BufferedReader(inputStreamReader);
-
-                        /*
-                        // hasFields 사용안함
-                        hasFields=true;
-                        line = br.readLine();
-                        csv_fields = Util.csvLineSplitter(line, delimiterCol, "\"");
-                        for(String str : csv_fields) {
-                            if(!getTypeFormString(str).equals(ColumnType.STRING)) {
-                                hasFields = false;
-                                break;
-                            }
-                        }
-
-                        if(hasFields) {
-                            //1번 라인의 type검사. String이 아닌 컬럼이 1개라도 있어야 0번 라인은 header로 인정.
-                            hasFields =false;
-                            line = br.readLine();
-                            String[] csv_fields2 = Util.csvLineSplitter(line, delimiterCol, "\"");
-                            for(String str : csv_fields2) {
-                                if(!getTypeFormString(str).equals(ColumnType.STRING)) {
-                                    hasFields = true;
-                                    break;
-                                }
-                            }
-
-                            if(hasFields) {
-                                //포인터를 1번 라인에 맞춰줌.
-                                br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
-                                br.readLine();
-                                maxColLength = csv_fields.length;
-                            } else {
-                                br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
-                            }
-                        } else {
-                            br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
-                        }
-                        */
-
-                        while ((line = br.readLine()) != null) {
-                            if(limitSize <= totalRows) {
-                                totalRows++;
-                                continue;
-                            }
-                            String[] cols = Util.csvLineSplitter(line, delimiterCol, "\"");
-
-                            //if(!hasFields && maxColLength<cols.length) {
-                            if(maxColLength<cols.length) {
-                                maxColLength = cols.length;
-                                csv_fields = new String[cols.length];
-                                for(int i=0; i<cols.length; i++){
-                                    csv_fields[i]=prefixColumnName+String.valueOf(i+1);
-                                }
-                            }
-
-                            Map<String,String> result = Maps.newTreeMap();
-                            for(int colIdx=0;colIdx<cols.length;colIdx++) {
-                                result.put(csv_fields[colIdx],cols[colIdx]);
-                            }
-                            resultSet.add(result);
-
-                            totalRows++;
-                            dataFrameRows++;
-                        }
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally {
-                        if (br != null) {
-                            try {
-                                br.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-
-                    for(int colIdx=0;colIdx<maxColLength;colIdx++) {
-                        String columnName = csv_fields[colIdx];
-                        dataFrame.addColumn(columnName, getTypeFormString(resultSet.get(0).get(columnName)));
-                    }
-
-                    for(int i=0;i<dataFrameRows;i++) {
-                        app.metatron.discovery.domain.dataprep.teddy.Row row = new app.metatron.discovery.domain.dataprep.teddy.Row();
-                        for(int j=0;j<maxColLength;j++) {
-                            String columnName = csv_fields[j];
-                            String value = resultSet.get(i).get(columnName);
-                            row.add(columnName, value);
-                        }
-                        dataFrame.rows.add(row);
-                    }
-                }
-
-                dataset.setTotalBytes(totalBytes);
-                dataset.setTotalLines(totalRows);
-            }
-        } catch (URISyntaxException e1) {
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, strUri);
-        } catch (Exception e) {
-            LOGGER.error("Failed to read file : {}", e.getMessage());
-            throw e;
+            IOUtils.copyBytes(in, out, 8192, true);
+        } catch (URISyntaxException e) {
+            LOGGER.error("copyLocalToStaging: URISyntaxException", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
+        } catch (FileNotFoundException e) {
+            LOGGER.error("copyLocalToStaging: FileNotFoundException", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
+        } catch (ConnectException e) {
+            LOGGER.error("copyLocalToStaging: IOException", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
+                MSG_DP_ALERT_HADOOP_HDFS_FAILED_TO_CONNECT, e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error("copyLocalToStaging: IOException", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
         }
-
-        // This is the only point where the auto typing is applied for I.DS preview.
-        // BTW, there are 2 more points where auto typing is applied. They're for upload previews.
-        // Auto typing for W.DS does not use this function.
-        dataFrame = teddyImpl.applyAutoTyping(dataFrame);
-
-        return dataFrame;
     }
 
-    public Map<String, Object> uploadFileChunk( String originalFilename, String uploadId,
+    public void copyLocalToS3(PrUploadFile uploadFile) {
+        return;
+    }
+
+    public Map<String, Object> uploadFileChunk_local( String originalFilename, String uploadId,
                   Integer chunkIdx, Integer chunkTotal, Integer chunkSize, Integer totalSize,
                   PrDataset.STORAGE_TYPE storageType,
                   MultipartFile file) {
@@ -709,7 +796,7 @@ public class PrepDatasetFileService {
             String tempFilePath = null;
 
             if(0<extensionType.length()) { tempFileName = uploadId + "." + extensionType; }
-            String storedUri = "file://" + this.getPathLocal(tempFileName);
+            String storedUri = this.getPathLocalBase(tempFileName);
 
             URI uri = new URI(storedUri);
             File theFile = new File(uri);
@@ -745,7 +832,9 @@ public class PrepDatasetFileService {
             responseMap.put("chunkIdx", chunkIdx);
             responseMap.put("chunkWrote", totalWrote);
             responseMap.put("filenameBeforeUpload", originalFilename);
-            responseMap.put("createTime", DateTime.now());
+            if(chunkIdx==0) {
+                responseMap.put("createTime", DateTime.now());
+            }
         } catch (Exception e) {
             LOGGER.error("Failed to upload file : {}", e.getMessage());
             responseMap.put("success", false);
@@ -770,19 +859,23 @@ public class PrepDatasetFileService {
 
     public String moveExcelToCsv(String excelStrUri, String sheetName, String delimiter) {
         String csvStrUri = null;
-        try {
-            int idx = excelStrUri.lastIndexOf(".");
-            csvStrUri = excelStrUri.substring(0, idx) + ".csv";
 
+        int idx = excelStrUri.lastIndexOf(".");
+        csvStrUri = excelStrUri.substring(0, idx) + ".csv";
+
+        return moveExcelToCsv(csvStrUri, excelStrUri, sheetName, delimiter);
+    }
+
+    public String moveExcelToCsv(String csvStrUri, String excelStrUri, String sheetName, String delimiter) {
+        try {
             URI excelUri = new URI(excelStrUri);
             String extensionType = FilenameUtils.getExtension(excelStrUri);
 
             Workbook wb;
-            InputStream is=null;
+            InputStream is=getStream(excelStrUri);
             if ("xls".equals(extensionType)) {       // 97~2003
-                wb = new HSSFWorkbook(new FileInputStream(new File(excelUri)));
+                wb = new HSSFWorkbook(is);
             } else {   // 2007 ~
-                is = new FileInputStream(new File(excelUri));
                 wb = StreamingReader.builder()
                         .rowCacheSize(100)
                         .bufferSize(4096)
@@ -804,10 +897,10 @@ public class PrepDatasetFileService {
                 is.close();
             }
 
+            is=getStream(excelStrUri);
             if ("xls".equals(extensionType)) {       // 97~2003
-                wb = new HSSFWorkbook(new FileInputStream(new File(excelUri)));
+                wb = new HSSFWorkbook(is);
             } else {   // 2007 ~
-                is = new FileInputStream(new File(excelUri));
                 wb = StreamingReader.builder()
                         .rowCacheSize(100)
                         .bufferSize(4096)
@@ -817,8 +910,7 @@ public class PrepDatasetFileService {
             sheet = wb.getSheet(sheetName);
             String separator = delimiter;
 
-            URI csvUri = new URI(csvStrUri);
-            FileWriter writer = new FileWriter(new File(csvUri));
+            Writer osw = getWriter(csvStrUri);
             for (Row r : sheet) {
                 int not_empty = 0;
                 StringBuilder sb = new StringBuilder();
@@ -852,11 +944,11 @@ public class PrepDatasetFileService {
                 }
                 sb.append("\n");
                 if(0<not_empty) {
-                    writer.append(sb.toString());
+                    osw.append(sb.toString());
                 }
             }
-            writer.flush();
-            writer.close();
+            osw.flush();
+            osw.close();
 
         } catch (Exception e) {
             LOGGER.error("Failed to copy localFile : {}", e.getMessage());
@@ -957,7 +1049,7 @@ public class PrepDatasetFileService {
 
         switch(uri.getScheme()) {
             case "hdfs":
-                Configuration conf = hdfsService.getConf();
+                Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
                 if (conf == null) {
                     throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
                 }
@@ -1001,5 +1093,67 @@ public class PrepDatasetFileService {
         }
 
         return is;
+    }
+
+    public Writer getWriter(String storedUri) {
+        OutputStreamWriter osw = null;
+        OutputStream os = null;
+        URI uri;
+
+        try {
+            uri = new URI(storedUri);
+        } catch( URISyntaxException e ) {
+            e.printStackTrace();
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, storedUri);
+        }
+
+        switch(uri.getScheme()) {
+            case "hdfs":
+                Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
+                if (conf == null) {
+                    throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
+                }
+                Path path = new Path(uri);
+
+                FileSystem hdfsFs;
+                try {
+                    hdfsFs = FileSystem.get(conf);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, storedUri);
+                }
+
+                FSDataOutputStream hos;
+                try {
+                    hos = hdfsFs.create(path);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_HDFS_PATH, storedUri);
+                }
+
+                os = hos;
+                break;
+
+            case "file":
+                File file = new File(uri);
+
+                FileOutputStream fos;
+                try {
+                    fos = new FileOutputStream(file);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, storedUri);
+                }
+
+                os = fos;
+                break;
+
+            default:
+                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, storedUri);
+        }
+
+        osw = new OutputStreamWriter(os);
+
+        return osw;
     }
 }

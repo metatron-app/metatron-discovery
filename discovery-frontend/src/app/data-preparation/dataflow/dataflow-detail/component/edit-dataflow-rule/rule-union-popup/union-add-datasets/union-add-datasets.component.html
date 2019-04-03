@@ -29,19 +29,27 @@
 
           <!-- pop button -->
           <div class="ddp-ui-pop-buttons">
-            <a href="javascript:" class="ddp-btn-pop" (click)="close()">{{'msg.comm.btn.close' | translate}}</a>
-            <a href="javascript:" class="ddp-btn-pop ddp-bg-black" [ngClass]="{'ddp-disabled': checkInvalidStateAdd()}" (click)="applyRule()"><em class="ddp-icon-link-plus"></em> {{'msg.dp.btn.union.add' | translate}}</a>
-
+            <a href="javascript:" class="ddp-btn-pop" (click)="close()">
+              {{'msg.comm.btn.close' | translate}}
+            </a>
+            <a href="javascript:" class="ddp-btn-pop ddp-bg-black"
+               [ngClass]="{'ddp-disabled': isAddEnabled()}"
+               (click)="addDatasets()">
+              <em class="ddp-icon-link-plus"></em>
+              {{'msg.dp.btn.union.add' | translate}}
+            </a>
           </div>
           <!-- //pop button -->
+
         </div>
         <!-- //sub title -->
         <div class="ddp-type-top-option ddp-clear">
           <!-- 검색 -->
           <div class="ddp-form-search ddp-fleft">
             <em class="ddp-icon-search"></em>
-            <input type="text" placeholder="{{'msg.dp.ui.ds.search.description' | translate}}" (keypress)="searchDatasets($event)" [(ngModel)]="searchText">
-            <em class="ddp-btn-search-close" *ngIf="searchText" (click)="searchText='';getDatasets()"></em>
+            <input type="text" placeholder="{{'msg.dp.ui.ds.search.description' | translate}}"
+                   (keypress)="onKeyPress($event)" [(ngModel)]="searchText">
+            <em class="ddp-btn-search-close" *ngIf="searchText" (click)="refreshSearch()"></em>
           </div>
           <!-- //검색 -->
 
@@ -61,13 +69,13 @@
                 </colgroup>
                 <thead>
                 <tr>
-                  <th class="ddp-txt-center" (click)="checkAllEventHandler();">
-                    <div class="ddp-ui-checkbox" [ngClass]="{'ddp-checkboxtype' : partialChecked()}">
-                      <input type="checkbox" class="ddp-checkbox-form" [checked]="isCheckAll" >
+                  <th class="ddp-txt-center">
+                    <label class="ddp-ui-checkbox" (click)="checkAll();">
+                      <input type="checkbox" class="ddp-checkbox-form" [checked]="isAllChecked()" [disabled]="isCheckAllDisabled()">
                       <i class="ddp-icon-checkbox"></i>
-                    </div>
+                    </label>
                   </th>
-                  <th (click)="changeOrder('dsName')">
+                  <th (click)="sortList('dsName')">
                     {{'msg.comm.menu.manage.prep.set' | translate}}
                     <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'dsName' || selectedContentSort.sort === 'default'"></em>
                     <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'dsName' && selectedContentSort.sort === 'asc'"></em>
@@ -76,7 +84,7 @@
                   <th>
                     {{'msg.comm.th.type' | translate}}
                   </th>
-                  <th (click)="changeOrder('modifiedTime')">
+                  <th (click)="sortList('modifiedTime')">
                     {{'msg.comm.ui.list.last' | translate}}
                     <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'modifiedTime' || selectedContentSort.sort === 'default'"></em>
                     <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'asc'"></em>
@@ -100,12 +108,12 @@
                 </colgroup>
 
                 <tbody>
-                <tr *ngFor="let dsItem of datasets" [class.ddp-disabled]="dsItem.origin">
-                  <td class="ddp-txt-center" (click)="checkEventHandler(dsItem);">
-                    <div class="ddp-ui-checkbox">
-                      <input type="checkbox" [checked]="dsItem.selected" >
+                <tr *ngFor="let dsItem of datasets">
+                  <td class="ddp-txt-center">
+                    <label class="ddp-ui-checkbox" (click)="check(dsItem);">
+                      <input type="checkbox" [checked]="dsItem.selected && !dsItem.origin" [disabled]="dsItem.origin">
                       <i class="ddp-icon-checkbox"></i>
-                    </div>
+                    </label>
                   </td>
                   <td>
                     <div class=" ddp-txt-long">
@@ -131,7 +139,7 @@
           <!-- //테이블 -->
           <div class="ddp-ui-bottomoption ddp-clear">
             <span class="ddp-data-type ddp-fleft">
-              {{'msg.dp.ui.sel.count'| translate :{value:countSelected} }}
+              {{'msg.dp.ui.sel.count'| translate :{value:selectedItems.length} }}
             </span>
 
           </div>

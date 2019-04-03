@@ -40,23 +40,7 @@
               {{'msg.comm.th.type' | translate}}
             </th>
             <td>
-              {{getConnectionData.selectedDbType.label}}
-            </td>
-          </tr>
-          <tr *ngIf="!isEnableUrl()">
-            <th>
-              {{'msg.comm.th.host' | translate }}
-            </th>
-            <td>
-              {{getConnectionData.hostname}}
-            </td>
-          </tr>
-          <tr *ngIf="!isEnableUrl()">
-            <th>
-              {{'msg.comm.th.port' | translate}}
-            </th>
-            <td>
-              {{getConnectionData.port}}
+              {{getConnectionType()}}
             </td>
           </tr>
           <tr *ngIf="isEnableUrl()">
@@ -64,33 +48,51 @@
               {{'msg.storage.ui.conn.url' | translate}}
             </th>
             <td>
-              {{getConnectionData.url}}
+              {{getConnectionData.connection.url}}
             </td>
           </tr>
-          <tr *ngIf="!isEnableUrl() && isRequiredDatabase()">
-            <th>
-              {{'msg.storage.th.db_name' | translate}}
-            </th>
-            <td>
-              {{getConnectionData.database}}
-            </td>
-          </tr>
-          <tr *ngIf="!isEnableUrl() && isRequiredCatalog()">
-            <th>
-              {{'msg.storage.th.catalog' | translate}}
-            </th>
-            <td>
-              {{getConnectionData.catalog}}
-            </td>
-          </tr>
-          <tr *ngIf="!isEnableUrl() && isRequiredSid()">
-            <th>
-              {{'msg.storage.th.sid' | translate}}
-            </th>
-            <td>
-              {{getConnectionData.sid}}
-            </td>
-          </tr>
+          <ng-container *ngIf="!isEnableUrl()">
+            <tr >
+              <th>
+                {{'msg.comm.th.host' | translate }}
+              </th>
+              <td>
+                {{getConnectionData.connection.hostname}}
+              </td>
+            </tr>
+            <tr>
+              <th>
+                {{'msg.comm.th.port' | translate}}
+              </th>
+              <td>
+                {{getConnectionData.connection.port}}
+              </td>
+            </tr>
+            <tr *ngIf="isRequiredDatabase()">
+              <th>
+                {{'msg.storage.th.db_name' | translate}}
+              </th>
+              <td>
+                {{getConnectionData.connection.database}}
+              </td>
+            </tr>
+            <tr *ngIf="isRequiredCatalog()">
+              <th>
+                {{'msg.storage.th.catalog' | translate}}
+              </th>
+              <td>
+                {{getConnectionData.connection.catalog}}
+              </td>
+            </tr>
+            <tr *ngIf="isRequiredSid()">
+              <th>
+                {{'msg.storage.th.sid' | translate}}
+              </th>
+              <td>
+                {{getConnectionData.connection.sid}}
+              </td>
+            </tr>
+          </ng-container>
           <tr *ngIf="getDatabaseData.selectedTab === 'TABLE'">
             <th>
               {{'msg.lineage.ui.list.title.database' | translate}} / {{'msg.lineage.ui.list.title.table' | translate}}

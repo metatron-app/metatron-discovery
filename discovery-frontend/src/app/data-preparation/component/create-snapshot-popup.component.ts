@@ -12,13 +12,25 @@
  * limitations under the License.
  */
 
+import {ConfirmModalComponent} from "../../common/component/modal/confirm/confirm.component";
+
 declare let moment : any;
 import * as _ from 'lodash';
 import {isUndefined} from 'util';
 import {Alert} from '../../common/util/alert.util';
 import {PreparationAlert} from '../util/preparation-alert.util';
 
-import {Component, ElementRef, EventEmitter, HostListener, Injector, OnDestroy, OnInit, Output} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector, Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import {AbstractPopupComponent} from '../../common/component/abstract-popup.component';
 import {DatasetService} from '../dataset/service/dataset.service';
 import {DataflowService} from '../dataflow/service/dataflow.service';
@@ -27,6 +39,7 @@ import {HiveFileCompression, Engine, SsType, UriFileFormat, AppendMode, HiveFile
 import {Field} from '../../domain/data-preparation/pr-dataset';
 import {DataconnectionService} from "../../dataconnection/service/dataconnection.service";
 import {StorageService} from "../../data-storage/service/storage.service";
+import {Modal} from "../../common/domain/modal";
 
 @Component({
   selector: 'create-snapshot-popup',
@@ -39,6 +52,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   private uriFileFormat: UriFileFormat;
 
+  private _isDataprepStagingEnabled: boolean = true;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -86,11 +100,15 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
   @Output()
   public snapshotCloseEvent = new EventEmitter();
 
+  @ViewChild(ConfirmModalComponent)
+  private confirmModalComponent: ConfirmModalComponent;
+
+  @Input()
+  public isFromMainGrid?: boolean = false;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   constructor(private _connectionService: DataconnectionService,
-              private storageService: StorageService,
               protected popupService: PopupService,
               protected dataflowService: DataflowService,
               protected datasetService: DatasetService,
@@ -119,15 +137,20 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    * Initial
    * @param {id:string, name : string, fields : Field[]} data
    */
-  public init(data : {id: string, name: string, fields: Field[]}) {
+  public init(data : {id: string, name: string, isFromMainGrid?: boolean}) {
 
     this.datasetId = data.id;
     this.datasetName = data.name;
-    this.fields = data.fields;
+
+    if (data.isFromMainGrid) { // Check if snapshot popup is open from main grid
+      this.isFromMainGrid = true;
+    }
 
     this._initialiseValues();
 
-    this._getConfig();
+    this._getConfig().then(() => {
+      this._getGridData(this.datasetId);
+    });
 
   }
 
@@ -144,13 +167,36 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
 
   /**
+   * Open rename popup
+   */
+  public openRenamePopup() {
+
+    this.snapshotCloseEvent.emit('hive');
+    this.isShow = false;
+  }
+
+
+  /**
    * Complete making snapshot
    */
   public complete() {
 
     if (this.isErrorShow) {
       return;
-  }
+    }
+
+    // Only check field names for hive when isFromMainGrid
+    // If Hive type (ssType)
+    // open modal If there is inappropriate name for hive snapshot
+    if (this.isFromMainGrid && this.snapshot.ssType === SsType.STAGING_DB && !this._isFieldsValidationPass()) {
+
+      const modal = new Modal();
+      modal.name = this.translateService.instant('msg.dp.alert.hive.column.error');
+      modal.btnName = this.translateService.instant('msg.comm.ui.ok');
+      this.confirmModalComponent.init(modal);
+
+      return;
+    }
 
     // Snapshot name cannot be empty
     if (this.snapshot.ssName.trim() === '') {
@@ -322,7 +368,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    * Check if staging is enabled
    */
   public isStagingEnabled() :boolean {
-    return this.storageService.isEnableStageDB();
+    return StorageService.isEnableStageDB && this._isDataprepStagingEnabled
   }
 
 
@@ -494,15 +540,14 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    */
   private _getStagingDb() {
     this.dbList = [];
-    if (this.isStagingEnabled()) {
-      this._connectionService.getDatabaseForHive().then((data) => {
-        if (data['databases']) {
-          this.dbList = data['databases'];
-        }
-      }).catch((error) => {
-        this.commonExceptionHandler(error);
-      });
-    }
+    this._connectionService.getDatabaseForHive().then((data) => {
+      if (data['databases']) {
+        this.dbList = data['databases'];
+      }
+    }).catch((error) => {
+      console.info('error -> ', error);
+      this._isDataprepStagingEnabled = false;
+    });
   }
 
 
@@ -512,20 +557,25 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    */
   private _getConfig() {
 
-    this.dataflowService.getConfiguration(this.datasetId).then((conf) => {
+    return new Promise<any>((resolve, reject) => {
 
-      this.ssName = this._getDefaultSnapshotName(conf['ss_name']);
+      this.dataflowService.getConfiguration(this.datasetId).then((conf) => {
 
-      this._setFileLocationAndUri(conf['file_uri']);
+        this.ssName = this._getDefaultSnapshotName(conf['ss_name']);
 
-      // Show popup
-      this.isShow = true;
+        this._setFileLocationAndUri(conf['file_uri']);
 
-      this._getStagingDb();
+        // Show popup
+        this.isShow = true;
 
-      this.changeSsType(SsType.URI);
+        this._getStagingDb();
 
-      this.loadingHide();
+        this.changeSsType(SsType.URI);
+
+        this.loadingHide();
+        resolve();
+      }).catch((err) => reject(err));
+
     });
   }
 
@@ -555,6 +605,72 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
     });
   }
+
+
+  /**
+   * Returns true is all fields only consists of small alphabet, numbers and _
+   * @private
+   */
+  private _isFieldsValidationPass(): boolean {
+
+    const names = this.fields.map((item) => item.name);
+    let enCheckReg = /^[a-z0-9_]+$/;
+    let idx = names.findIndex((item) => {
+      return (-1 !== item.indexOf(' ')) || !enCheckReg.test(item)
+    });
+
+    return idx === -1
+  }
+
+
+  /**
+   * Fetch grid data of dataset
+   * @param dsId
+   * @private
+   */
+  private _getGridData(dsId: string) {
+
+    this.datasetService.getDatasetDetail(dsId).then((result) => {
+      this.fields = this._getGridDataFromGridResponse(result.gridResponse).fields;
+    })
+
+  }
+
+  /**
+   * Change grid data to grid response
+   * @param gridResponse 매트릭스 정보
+   * @returns 그리드 데이터
+   */
+  private _getGridDataFromGridResponse(gridResponse: any) {
+    let colCnt = gridResponse.colCnt;
+    let colNames = gridResponse.colNames;
+    let colTypes = gridResponse.colDescs;
+
+    const gridData = {
+      data: [],
+      fields: []
+    };
+
+    for ( let idx = 0; idx < colCnt; idx++ ) {
+      gridData.fields.push({
+        name: colNames[idx],
+        type: colTypes[idx].type,
+        seq: idx
+      });
+    }
+
+    gridResponse.rows.forEach((row) => {
+      const obj = {};
+      for ( let idx = 0;idx < colCnt; idx++ ) {
+        obj[ colNames[idx] ] = row.objCols[idx];
+      }
+      gridData.data.push(obj);
+    });
+
+    return gridData;
+  } // function - getGridDataFromGridResponse
+
+
 
 }
 

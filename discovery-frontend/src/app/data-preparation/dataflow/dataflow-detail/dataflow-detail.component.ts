@@ -231,7 +231,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
   }
 
   public openSnapshotPopup() {
-    this.createSnapshotPopup.init({id : this.selectedDataSet.dsId , name : this.selectedDataSet.dsName, fields : this.selectedDataSet.gridData.fields});
+    this.createSnapshotPopup.init({id : this.selectedDataSet.dsId , name : this.selectedDataSet.dsName});
   }
 
   /**
@@ -391,7 +391,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
     }
 
     // 이름 validation
-    if (this.dataflowName.length > 50) {
+    if (this.dataflowName.length > 150) {
       Alert.warning(this.translateService.instant('msg.dp.alert.name.error.description'));
       return;
     }
@@ -667,7 +667,11 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
         position: 'bottom',
         textStyle: { color: '#000000', fontWeight: 'bold' },
         formatter(params) {
-          return params.data.dsName;
+          if (params.data.dsName.length > 20) {
+            return params.data.dsName.slice(0,20) + ' ...'
+          } else {
+            return params.data.dsName;
+          }
         }
       },
       emphasis: {
@@ -675,7 +679,11 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
         position: 'bottom',
         textStyle: { color: '#000000', fontWeight: 'bold' },
         formatter(params) {
-          return params.data.dsName;
+          if (params.data.dsName.length > 20) {
+            return params.data.dsName.slice(0,20) + ' ...'
+          } else {
+            return params.data.dsName;
+          }
         }
       }
     };

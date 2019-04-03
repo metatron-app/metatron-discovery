@@ -34,6 +34,7 @@ import { PreparationCommonUtil } from "../util/preparation-common.util";
 import { isNull, isNullOrUndefined } from "util";
 import * as pixelWidth from 'string-pixel-width';
 import { saveAs } from 'file-saver';
+import {DataflowModelService} from "../dataflow/service/dataflow.model.service";
 
 declare let moment: any;
 
@@ -112,6 +113,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   constructor(private datasetService: DatasetService,
               private dataflowService: DataflowService,
+              private dataflowModelService: DataflowModelService,
               private activatedRoute: ActivatedRoute,
               protected elementRef: ElementRef,
               protected injector: Injector) {
@@ -242,7 +244,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     }
 
     // 이름 validation
-    if (this.datasetName.length > 50) {
+    if (this.datasetName.length > 150) {
       Alert.warning(this.translateService.instant('msg.dp.alert.name.error.description'));
       return;
     }
@@ -565,7 +567,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
    * Create snapshot (only wrangled)
    */
   public createSnapshot() {
-    this.createSnapshotPopup.init({id : this.dataset.dsId , name : this.dataset.dsName, fields : this.fields});
+    this.createSnapshotPopup.init({id : this.dataset.dsId , name : this.dataset.dsName});
   }
 
 
@@ -599,8 +601,8 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
    * 데이터셋 아이디 저장
    */
   private _savePrevRouterUrl(): void {
-    this.cookieService.set('SELECTED_DATASET_ID', this.dataset.dsId);
-    this.cookieService.set('SELECTED_DATASET_TYPE', this.dataset.dsType.toString());
+    this.dataflowModelService.setSelectedDsId(this.dataset.dsId);
+    this.dataflowModelService.setSelectedDsType(this.dataset.dsType);
   }
 
 

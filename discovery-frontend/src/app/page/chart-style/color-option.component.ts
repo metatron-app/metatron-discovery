@@ -606,6 +606,8 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
    */
   public addNewRange(index: number) {
 
+    this.removeInputRangeStatus();
+
     // 색상 범위리스트
     const rangeList = (<UIChartColorByValue>this.uiOption.color).ranges;
 
@@ -820,10 +822,13 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
    */
   public changeRangeMinInput(range: any, index: number): void {
 
+    // number format regex
+    let isNumber = this.isNumberRegex(range.gt);
+
     // 색상 범위리스트
     let rangeList = (<UIChartColorByValue>this.uiOption.color).ranges;
 
-    if (!range.gt || isNaN(FormatOptionConverter.getNumberValue(range.gt))) {
+    if (!range.gt || isNaN(FormatOptionConverter.getNumberValue(range.gt)) || isNumber == false) {
       // set original value
       range.gt = _.cloneDeep(FormatOptionConverter.getDecimalValue(rangeList[index].fixMin, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep));
       return;
@@ -883,10 +888,13 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
    */
   public changeRangeMaxInput(range: any, index: number): void {
 
+    // number format regex
+    let isNumber = this.isNumberRegex(range.lte);
+
     // 색상 범위리스트
     let rangeList = (<UIChartColorByValue>this.uiOption.color).ranges;
 
-    if (!range.lte || isNaN(FormatOptionConverter.getNumberValue(range.lte))) {
+    if (!range.lte || isNaN(FormatOptionConverter.getNumberValue(range.lte)) || isNumber == false ) {
 
       // set original value
       range.lte = _.cloneDeep(FormatOptionConverter.getDecimalValue(rangeList[index].fixMax, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep));
@@ -1245,15 +1253,11 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     event.stopPropagation();
 
     // hide other range preview
-    _.each(this.rangesViewList, (item) => {
-      if (item['minInputShow']) delete item['minInputShow'];
-      if (item['maxInputShow']) delete item['maxInputShow'];
-    });
+    this.removeInputRangeStatus();
 
-    item.minInputShow = inputShow;
+    item['minInputShow'] = inputShow;
 
     if (undefined !== index) {
-
       // show input box
       this.changeDetect.detectChanges();
       this.availableRange(item, index);
@@ -1269,15 +1273,11 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     event.stopPropagation();
 
     // hide other range preview
-    _.each(this.rangesViewList, (item) => {
-      if (item['minInputShow']) delete item['minInputShow'];
-      if (item['maxInputShow']) delete item['maxInputShow'];
-    });
+    this.removeInputRangeStatus();
 
-    item.maxInputShow = inputShow;
+    item['maxInputShow'] = inputShow;
 
     if (undefined !== index) {
-
       // show input box
       this.changeDetect.detectChanges();
       this.availableRange(item, index);
@@ -1465,4 +1465,34 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
 
     return returnValue;
   }
+
+  /**
+   * number validation regex
+   * @param value
+   */
+  private isNumberRegex(value: any): boolean {
+    // 숫자 정규식 (범위는 : -000.000 ~ 000.000)
+    const regex: RegExp = /^(?!-0?(\.0+)?$)-?(0|[1-9]\d*)?(\.\d+)?(?<=\d)$/;
+    // comma 빼기
+    if( value.indexOf(',') != -1) {
+      value = value.replace(/,/g, '');
+    }
+    const isValueNumber: boolean = regex.test(value);
+    return isValueNumber;
+  }
+
+  private removeInputRangeStatus() {
+    // hide other range preview
+    _.each(this.rangesViewList, (rangeVal) => {
+      if (rangeVal['minInputShow']) delete rangeVal['minInputShow'];
+      if (rangeVal['maxInputShow']) delete rangeVal['maxInputShow'];
+    });
+    if(!_.isUndefined(this.uiOption.color['ranges']) && this.uiOption.color['ranges'].length > 0) {
+      _.each(this.uiOption.color['ranges'], (uiRangeVal) => {
+        if (uiRangeVal['minInputShow']) delete uiRangeVal['minInputShow'];
+        if (uiRangeVal['maxInputShow']) delete uiRangeVal['maxInputShow'];
+      });
+    }
+  }
+
 }

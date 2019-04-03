@@ -14,35 +14,48 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
-import app.metatron.discovery.domain.dataprep.PrepHdfsService;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
 import app.metatron.discovery.domain.dataprep.PrepProperties;
+import app.metatron.discovery.domain.dataprep.PrepUtil;
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.dataprep.jdbc.PrepJdbcService;
 import app.metatron.discovery.domain.dataprep.json.PrepJsonUtil;
-import app.metatron.discovery.domain.dataprep.teddy.*;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
+import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrameService;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcQueryFailedException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcTypeNotSupportedException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformExecutionFailedException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformTimeoutException;
 import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection;
+import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
 import com.facebook.presto.jdbc.internal.guava.collect.Maps;
 import com.facebook.presto.jdbc.internal.joda.time.DateTime;
 import com.facebook.presto.jdbc.internal.joda.time.format.DateTimeFormat;
 import com.facebook.presto.jdbc.internal.joda.time.format.DateTimeFormatter;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.sql.DataSource;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.*;
 
 @Component
 public class TeddyImpl {
@@ -55,9 +68,6 @@ public class TeddyImpl {
 
   @Autowired(required = false)
   DataFrameService dataFrameService;
-
-  @Autowired
-  private PrepHdfsService hdfsService;
 
   @Autowired
   PrepProperties prepProperties;
@@ -98,11 +108,6 @@ public class TeddyImpl {
   public int getCurStageIdx(String dsId) {
     RevisionSet rs = revisionSetCache.get(dsId);
     return rs.get().getCurStageIdx();
-  }
-
-  public int getCurStageCnt(String dsId) {
-    RevisionSet rs = revisionSetCache.get(dsId);
-    return rs.get().getCurStageCnt();
   }
 
   public int getRevCnt(String dsId) {
@@ -251,6 +256,7 @@ public class TeddyImpl {
     // replace with the new, updated DF
     DataFrame newDf = apply(rev.get(stageIdx - 1), ruleString, jsonRuleString);
     newRev.add(newDf);
+    newRev.setCurStageIdx(stageIdx);
 
     appendNewDfs(newRev, rev, stageIdx + 1);
 
@@ -259,16 +265,18 @@ public class TeddyImpl {
     addRev(dsId, newRev);
   }
 
-  public DataFrame loadFileDataset(String dsId, String strUri, String delimiter, String dsName) {
+  public DataFrame loadFileDataset(String dsId, String strUri, String delimiter, Integer columnCount, String dsName) {
     DataFrame df = new DataFrame(dsName);   // join, union등에서 dataset 이름을 제공하기위해 dsName 추가
+    Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
+    int samplingRows = prepProperties.getSamplingLimitRows();
 
     String extensionType = FilenameUtils.getExtension(strUri);
     switch (extensionType) {
       case "json":
-        df.setByGridWithJson(PrepJsonUtil.parseJson(strUri, prepProperties.getSamplingLimitRows(), hdfsService.getConf()));
+        df.setByGridWithJson(PrepJsonUtil.parseJson(strUri, samplingRows, columnCount, hadoopConf));
         break;
       default: // csv
-        df.setByGrid(PrepCsvUtil.parse(strUri, delimiter, prepProperties.getSamplingLimitRows(), hdfsService.getConf()));
+        df.setByGrid(PrepCsvUtil.parse(strUri, delimiter, samplingRows, columnCount, hadoopConf));
     }
 
     return createStage0(dsId, df);
@@ -283,21 +291,22 @@ public class TeddyImpl {
 
   public DataFrame loadStageDBDataset(String dsId, String sql, String dsName) throws PrepException {
 
-    HiveConnection hiveConnection = new HiveConnection();
+    DataConnection hiveConnection = new DataConnection();
     StageDBConnection stageDB = storageProperties.getStagedb();
-
     hiveConnection.setHostname(stageDB.getHostname());
     hiveConnection.setPort(    stageDB.getPort());
     hiveConnection.setUsername(stageDB.getUsername());
     hiveConnection.setPassword(stageDB.getPassword());
     hiveConnection.setUrl(     stageDB.getUrl());
+    hiveConnection.setImplementor("HIVE");
 
-    PrepJdbcService jdbcConnectionService = new PrepJdbcService();
-    DataSource dataSource = jdbcConnectionService.getDataSource(hiveConnection, true);
+    JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(hiveConnection);
+    Connection conn;
     Statement stmt;
 
     try {
-      stmt = dataSource.getConnection().createStatement();
+      conn = jdbcDataAccessor.getConnection();
+      stmt = conn.createStatement();
     } catch (SQLException e) {
       e.printStackTrace();
       throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, e);
@@ -318,21 +327,15 @@ public class TeddyImpl {
     return createStage0(dsId, df);
   }
 
-  public DataFrame loadJdbcDataset(String dsId, DataConnection dataConnection, String dbName, String sql,
+  public DataFrame loadJdbcDataset(String dsId, DataConnection jdbcDataConnection, String dbName, String sql,
                                    String dsName) throws PrepException {
-    PrepJdbcService jdbcConnectionService = new PrepJdbcService();
-    JdbcDataConnection jdbcDataConnection;
-    if( dataConnection instanceof JdbcDataConnection ) {
-      jdbcDataConnection = (JdbcDataConnection) dataConnection;
-    } else {
-      jdbcDataConnection = jdbcConnectionService.makeJdbcDataConnection(dataConnection);
-    }
-    jdbcDataConnection.setDatabase(dbName);
-    DataSource dataSource = jdbcConnectionService.getDataSource(jdbcDataConnection, true);
+    JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(jdbcDataConnection);
+    Connection conn;
     Statement stmt = null;
 
     try {
-      stmt = dataSource.getConnection().createStatement();
+      conn = jdbcDataAccessor.getConnection();
+      stmt = conn.createStatement();
     } catch (SQLException e) {
       e.printStackTrace();
     }
@@ -379,6 +382,27 @@ public class TeddyImpl {
     return valids;
   }
 
+  private boolean looksLikeHeadered(DataFrame df) {
+    if (df.rows.size() == 0) {
+      return false;
+    }
+
+    Set<Object> strSet = new HashSet();
+    for (int i = 0; i < df.getColCnt(); i++) {
+      Object obj = df.rows.get(0).get(i);
+      if (obj == null || !(obj instanceof String)) {
+        return false;
+      }
+
+      if (strSet.contains(obj)) {
+        return false;
+      }
+      strSet.add(obj);
+    }
+
+    return true;
+  }
+
   // Get header and settype rule strings via inspecting 100 rows.
   public List<String> getAutoTypingRules(DataFrame df) throws TeddyException {
     String[] ruleStrings = new String[3];
@@ -399,7 +423,7 @@ public class TeddyImpl {
     //If all column types of row 0 elements is String and predicted column types is not all String.
     //Then add Header rule and change column name.
     if(Collections.frequency(columnTypesRow0, ColumnType.STRING) == df.colCnt &&
-            Collections.frequency(columnTypes, ColumnType.STRING) != df.colCnt) {
+        Collections.frequency(columnTypes, ColumnType.STRING) != df.colCnt && looksLikeHeadered(df)) {
       String ruleString = "header rownum: 1";
 
       setTypeRules.add(ruleString);

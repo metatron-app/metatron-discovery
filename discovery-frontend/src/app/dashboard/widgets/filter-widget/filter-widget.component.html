@@ -39,7 +39,7 @@
     <!-- //title -->
 
     <!-- 차원값 필터 -->
-    <div *ngIf="filter.type === 'include'" [ngStyle]="{ 'top' : isShowTitle ? '43px' : '0px' }"
+    <div *ngIf="filter.type === 'include'" [ngStyle]="{ 'top' : isShowTitle ? '38px' : '0px' }"
          class="ddp-ui-widget-contents" >
       <!-- 복수 선택 콤보 박스 -->
       <component-filter-multi-select *ngIf="convertToIncludeFilter(filter).selector === inclusionSelectorType.MULTI_COMBO"
@@ -114,7 +114,7 @@
     </div>
     <!-- // 차원값 필터 -->
     <!-- 측정값 필터 -->
-    <div *ngIf="filter.type === 'bound'" [ngStyle]="{ 'top' : isShowTitle ? '43px' : '0px' }"
+    <div *ngIf="filter.type === 'bound'" [ngStyle]="{ 'top' : isShowTitle ? '38px' : '0px' }"
          class="ddp-ui-widget-contents" >
       <div class="ddp-display-table" >
         <div class="ddp-table-in" >
@@ -124,7 +124,10 @@
     </div>
     <!-- // 측정값 필터 -->
     <!-- Timestamp Filter -->
-    <div *ngIf="isTimeFilter" [ngStyle]="{ 'top' : isShowTitle ? '43px' : '0px' }"
+    <div *ngIf="isTimeFilter" [ngStyle]="{
+      'top' : ( isShowTitle ? ( ( isListTypeTimeFilter || isDiscontinuousFilter ) ? '39px' : '23px' ) : '0px' ),
+      'padding-top' : ( ( isListTypeTimeFilter || isDiscontinuousFilter ) ? '0px' : '' )
+    }"
          class="ddp-ui-widget-contents" >
 
       <!-- 전체 기간 선택 탭 영역 -->

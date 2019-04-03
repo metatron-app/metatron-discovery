@@ -568,7 +568,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     }
 
     // 이름 validation
-    if (this.datasetName.length > 50) {
+    if (this.datasetName.length > 150) {
       Alert.warning(this.translateService.instant('msg.dp.alert.name.error.description'));
       return;
     }
@@ -615,7 +615,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
    */
   public onEditRulesBtnClicked() {
     this.gridComponent.destroy();
-    this.datasetEventHandler.emit('update-rules');
+    this.router.navigate([`/management/datapreparation/dataflow/${this.dataflow.dfId}/rule/${this.selectedDataSet.dsId}`]);
   }
 
   /**

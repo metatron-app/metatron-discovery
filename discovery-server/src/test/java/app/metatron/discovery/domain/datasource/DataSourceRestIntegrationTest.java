@@ -69,7 +69,7 @@ import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.core.oauth.OAuthRequest;
 import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
-import app.metatron.discovery.domain.datasource.connection.jdbc.MySQLConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
 import app.metatron.discovery.domain.datasource.ingestion.BatchPeriod;
 import app.metatron.discovery.domain.datasource.ingestion.HdfsIngestionInfo;
@@ -94,6 +94,7 @@ import app.metatron.discovery.domain.workbook.configurations.field.DimensionFiel
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.format.CustomDateTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.GeoPointFormat;
+import app.metatron.discovery.domain.workbook.configurations.format.GeoPolygonFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TemporaryTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.UnixTimeFormat;
 import app.metatron.discovery.util.JsonPatch;
@@ -1208,7 +1209,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     dataSource.setFields(fields);
 
     // Add Connection Info
-    MySQLConnection dataConnection = new MySQLConnection();
+    DataConnection dataConnection = new DataConnection("MYSQL");
     dataConnection.setHostname("localhost");
     dataConnection.setPort(3306);
     dataConnection.setUsername("polaris");
@@ -1295,6 +1296,83 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
       .statusCode(HttpStatus.SC_CREATED)
     .log().all();
     // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
+  public void createDataSourceWithLocalJsonArrayFileIngestion() {
+
+    StompHeaders stompHeaders = new StompHeaders();
+    stompHeaders.set("X-AUTH-TOKEN", oauth_token);
+
+    StompSession session = null;
+    try {
+      session = stompClient
+          .connect("ws://localhost:{port}/stomp", webSocketHttpHeaders, stompHeaders, new StompSessionHandlerAdapter() {}, serverPort)
+          .get(3, SECONDS);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    String targetFile = getClass().getClassLoader().getResource("ingestion/sample_ingestion_array.json").getPath();
+
+    DataSource dataSource = new DataSource();
+    dataSource.setName("localJsonFileIngestion_" + PolarisUtils.randomString(5));
+    dataSource.setDsType(MASTER);
+    dataSource.setConnType(ENGINE);
+    dataSource.setGranularity(DAY);
+    dataSource.setSegGranularity(MONTH);
+    dataSource.setSrcType(FILE);
+
+    List<Field> fields = Lists.newArrayList();
+    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L));
+    fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
+    fields.add(new Field("sd", DataType.ARRAY, DIMENSION, 2L));
+    fields.add(new Field("array_measure", DataType.ARRAY, MEASURE, 3L));
+
+    dataSource.setFields(fields);
+
+    LocalFileIngestionInfo localFileIngestionInfo = new LocalFileIngestionInfo();
+    localFileIngestionInfo.setPath(targetFile);
+
+    localFileIngestionInfo.setFormat(new JsonFileFormat(null));
+
+    dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(localFileIngestionInfo));
+
+    String reqBody = GlobalObjectMapper.writeValueAsString(dataSource);
+
+    System.out.println(reqBody);
+
+    // @formatter:off
+    Response dsRes =
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(reqBody)
+      .log().all()
+    .when()
+      .post("/api/datasources");
+
+    dsRes.then()
+      .statusCode(HttpStatus.SC_CREATED)
+    .log().all();
+    // @formatter:on
+
+    String id = from(dsRes.asString()).get("id");
+
+    StompHeaders stompSubscribeHeaders = new StompHeaders();
+    stompSubscribeHeaders.setDestination("/topic/datasources/" + id + "/progress");
+    stompSubscribeHeaders.set("X-AUTH-TOKEN", oauth_token);
+
+    session.subscribe(stompSubscribeHeaders, new DefaultStompFrameHandler());
+
+    try {
+      System.out.println("Sleep!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      Thread.sleep(1000000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
 
   }
 
@@ -1686,6 +1764,178 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     LocalFileIngestionInfo localFileIngestionInfo = new LocalFileIngestionInfo();
     localFileIngestionInfo.setPath(targetFile);
     localFileIngestionInfo.setRemoveFirstRow(false);
+    localFileIngestionInfo.setFormat(new CsvFileFormat(",", "\n"));
+
+    dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(localFileIngestionInfo));
+
+    String reqBody = GlobalObjectMapper.writeValueAsString(dataSource);
+
+    System.out.println(reqBody);
+
+    // @formatter:off
+    Response dsRes =
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(reqBody)
+      .log().all()
+    .when()
+      .post("/api/datasources");
+
+    dsRes.then()
+      .statusCode(HttpStatus.SC_CREATED)
+    .log().all();
+    // @formatter:on
+
+    String id = from(dsRes.asString()).get("id");
+
+    StompHeaders stompSubscribeHeaders = new StompHeaders();
+    stompSubscribeHeaders.setDestination("/topic/datasources/" + id + "/progress");
+    stompSubscribeHeaders.set("X-AUTH-TOKEN", oauth_token);
+
+    session.subscribe(stompSubscribeHeaders, new DefaultStompFrameHandler());
+
+    try {
+      System.out.println("Sleep!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      Thread.sleep(1000000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
+  public void createDataSourceWithGeoPointCsvFileIngestionByAsync() throws JsonProcessingException {
+
+    StompHeaders stompHeaders = new StompHeaders();
+    stompHeaders.set("X-AUTH-TOKEN", oauth_token);
+
+    StompSession session = null;
+    try {
+      session = stompClient
+          .connect("ws://localhost:{port}/stomp", webSocketHttpHeaders, stompHeaders, new StompSessionHandlerAdapter() {}, serverPort)
+          .get(3, SECONDS);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    String targetFile = getClass().getClassLoader().getResource("ingestion/sample_ingestion_point_wkt.csv").getPath();
+
+    DataSource dataSource = new DataSource();
+    dataSource.setName("localFileIngestion_geo_" + PolarisUtils.randomString(5));
+    dataSource.setDsType(MASTER);
+    dataSource.setConnType(ENGINE);
+    dataSource.setGranularity(DAY);
+    dataSource.setSegGranularity(MONTH);
+    dataSource.setSrcType(FILE);
+
+    List<Field> fields = Lists.newArrayList();
+
+    Field geoField = new Field("GeoPoint", DataType.STRING, DIMENSION, 1L);
+    geoField.setLogicalType(LogicalType.GEO_POINT);
+    geoField.setFormat(GlobalObjectMapper.writeValueAsString(new GeoPointFormat(null, null)));
+    fields.add(geoField);
+
+    Field timestampField = new Field("OrderDate", DataType.TIMESTAMP, TIMESTAMP, 0L);
+    timestampField.setFormat(GlobalObjectMapper.writeValueAsString(new CustomDateTimeFormat("yyyy-MM-ddTHH:mm:ss.SSSZ")));
+    fields.add(timestampField);
+
+    fields.add(new Field("Category", DataType.STRING, DIMENSION, 2L));
+    fields.add(new Field("City", DataType.STRING, DIMENSION, 3L));
+    fields.add(new Field("Region", DataType.STRING, DIMENSION, 4L));
+    fields.add(new Field("Sales", DataType.DOUBLE, MEASURE, 5L));
+
+    dataSource.setFields(fields);
+
+    LocalFileIngestionInfo localFileIngestionInfo = new LocalFileIngestionInfo();
+    localFileIngestionInfo.setPath(targetFile);
+    localFileIngestionInfo.setRemoveFirstRow(true);
+    localFileIngestionInfo.setFormat(new CsvFileFormat(",", "\n"));
+
+    dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(localFileIngestionInfo));
+
+    String reqBody = GlobalObjectMapper.writeValueAsString(dataSource);
+
+    System.out.println(reqBody);
+
+    // @formatter:off
+    Response dsRes =
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(reqBody)
+      .log().all()
+    .when()
+      .post("/api/datasources");
+
+    dsRes.then()
+      .statusCode(HttpStatus.SC_CREATED)
+    .log().all();
+    // @formatter:on
+
+    String id = from(dsRes.asString()).get("id");
+
+    StompHeaders stompSubscribeHeaders = new StompHeaders();
+    stompSubscribeHeaders.setDestination("/topic/datasources/" + id + "/progress");
+    stompSubscribeHeaders.set("X-AUTH-TOKEN", oauth_token);
+
+    session.subscribe(stompSubscribeHeaders, new DefaultStompFrameHandler());
+
+    try {
+      System.out.println("Sleep!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      Thread.sleep(1000000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
+  public void createDataSourceWithGeoPolygonCsvFileIngestionByAsync() throws JsonProcessingException {
+
+    StompHeaders stompHeaders = new StompHeaders();
+    stompHeaders.set("X-AUTH-TOKEN", oauth_token);
+
+    StompSession session = null;
+    try {
+      session = stompClient
+          .connect("ws://localhost:{port}/stomp", webSocketHttpHeaders, stompHeaders, new StompSessionHandlerAdapter() {}, serverPort)
+          .get(3, SECONDS);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    String targetFile = getClass().getClassLoader().getResource("ingestion/sample_ingestion_zipcode_polygon.csv").getPath();
+
+    DataSource dataSource = new DataSource();
+    dataSource.setName("localFileIngestion_geo_" + PolarisUtils.randomString(5));
+    dataSource.setDsType(MASTER);
+    dataSource.setConnType(ENGINE);
+    dataSource.setGranularity(DAY);
+    dataSource.setSegGranularity(MONTH);
+    dataSource.setSrcType(FILE);
+
+    List<Field> fields = Lists.newArrayList();
+
+    Field timestampField = new Field("current_time", DataType.TIMESTAMP, TIMESTAMP, 0L);
+    timestampField.setDerived(true);
+    timestampField.setFormat(GlobalObjectMapper.writeValueAsString(new TemporaryTimeFormat()));
+    fields.add(timestampField);
+
+    Field geoField = new Field("geometry", DataType.STRING, DIMENSION, 1L);
+    geoField.setLogicalType(LogicalType.GEO_POINT);
+    geoField.setFormat(GlobalObjectMapper.writeValueAsString(new GeoPolygonFormat(null, 8)));
+    fields.add(geoField);
+
+    fields.add(new Field("zip_code", DataType.STRING, DIMENSION, 2L));
+
+    dataSource.setFields(fields);
+
+    LocalFileIngestionInfo localFileIngestionInfo = new LocalFileIngestionInfo();
+    localFileIngestionInfo.setPath(targetFile);
+    localFileIngestionInfo.setRemoveFirstRow(true);
     localFileIngestionInfo.setFormat(new CsvFileFormat(",", "\n"));
 
     dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(localFileIngestionInfo));
@@ -2741,7 +2991,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     batchJdbcInfo.setMaxLimit(100);
 
     // Add Connection Info
-    MySQLConnection dataConnection = new MySQLConnection();
+    DataConnection dataConnection = new DataConnection("MYSQL");
     dataConnection.setHostname("localhost");
     dataConnection.setPort(3306);
     dataConnection.setUsername("polaris");
@@ -2897,7 +3147,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     dataSource.setSrcType(JDBC);
 
     // Add Connection Info
-    MySQLConnection dataConnection = new MySQLConnection();
+    DataConnection dataConnection = new DataConnection("MYSQL");
     dataConnection.setHostname("localhost");
     dataConnection.setPort(3306);
     dataConnection.setUsername("polaris");
@@ -2979,7 +3229,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     dataSource.setSrcType(JDBC);
 
     // Add Connection Info
-    MySQLConnection dataConnection = new MySQLConnection();
+    DataConnection dataConnection = new DataConnection("MYSQL");
     dataConnection.setHostname("localhost");
     dataConnection.setPort(3306);
     dataConnection.setUsername("polaris");
@@ -3262,23 +3512,23 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
     //
     List<String> wktList = Lists.newArrayList(
-        "MULTIPOINT((3.5 5.6),(4.8 10.5))"
+            "MULTIPOINT((3.5 5.6),(4.8 10.5))"
     );
 
     // @formatter:off
     Response connRes =
-    given()
-      .auth().oauth2(oauth_token)
-      .accept(ContentType.JSON)
-      .contentType(ContentType.JSON)
-      .body(new WktCheckRequest("GEO_POINT", wktList))
-      .log().all()
-    .when()
-      .post("/api/datasources/validation/wkt");
+            given()
+                    .auth().oauth2(oauth_token)
+                    .accept(ContentType.JSON)
+                    .contentType(ContentType.JSON)
+                    .body(new WktCheckRequest("GEO_POINT", wktList))
+                    .log().all()
+                    .when()
+                    .post("/api/datasources/validation/wkt");
 
     connRes.then()
-           .log().all()
-           .statusCode(HttpStatus.SC_OK);
+            .log().all()
+            .statusCode(HttpStatus.SC_OK);
     // @formatter:on
   }
 

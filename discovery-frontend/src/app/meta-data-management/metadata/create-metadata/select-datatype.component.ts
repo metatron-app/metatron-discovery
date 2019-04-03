@@ -48,7 +48,6 @@ export class SelectDatatypeComponent extends AbstractComponent implements OnInit
   // 생성자
   constructor(
     public metaDataModelService: MetadataModelService,
-    private storageService: StorageService,
     protected element: ElementRef,
     protected injector: Injector) {
     super(element, injector);
@@ -70,7 +69,6 @@ export class SelectDatatypeComponent extends AbstractComponent implements OnInit
     // Destory
     super.ngOnDestroy();
   }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -134,7 +132,7 @@ export class SelectDatatypeComponent extends AbstractComponent implements OnInit
    * @return {boolean}
    */
   public isEnableStageDB(): boolean {
-    return this.storageService.isEnableStageDB();
+    return StorageService.isEnableStageDB;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

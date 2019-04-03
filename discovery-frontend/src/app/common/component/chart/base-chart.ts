@@ -1402,7 +1402,6 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     // Apply!
     // chart.setOption(option, notMerge, lazyUpdate);
     this.chart.setOption(this.chartOption, false, false);
-    console.info(this.chartOption);
   }
 
   ////////////////////////////////////////////////////////
@@ -1411,39 +1410,42 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
   protected convertDataZoom(isKeepRange?: boolean): BaseOption {
 
-    ////////////////////////////////////////////////////////
-    // 데이터줌 설정
-    ////////////////////////////////////////////////////////
+    if( this.uiOption.chartZooms && this.uiOption.chartZooms[0].auto ) {
+      ////////////////////////////////////////////////////////
+      // 데이터줌 설정
+      ////////////////////////////////////////////////////////
 
-    // 차트가 이미 그려진 상태 & 현재 스크롤 위치를 기억해야 하는경우
-    if (!_.isEmpty(this.chart._chartsViews) && isKeepRange) {
-      this.chart.getOption().dataZoom.map((obj, idx) => {
-        this.chartOption.dataZoom[idx].start = obj.start;
-        this.chartOption.dataZoom[idx].end = obj.end;
-        this.chartOption.dataZoom[idx].startValue = obj.startValue;
-        this.chartOption.dataZoom[idx].endValue = obj.endValue;
-      });
+      // 차트가 이미 그려진 상태 & 현재 스크롤 위치를 기억해야 하는경우
+      if (!_.isEmpty(this.chart._chartsViews) && isKeepRange) {
+        this.chart.getOption().dataZoom.map((obj, idx) => {
+          this.chartOption.dataZoom[idx].start = obj.start;
+          this.chartOption.dataZoom[idx].end = obj.end;
+          this.chartOption.dataZoom[idx].startValue = obj.startValue;
+          this.chartOption.dataZoom[idx].endValue = obj.endValue;
+        });
+      }
+
+      // dataZoom start / end 설정
+      this.chartOption = this.convertDataZoomRange(this.chartOption, this.uiOption);
+
+      ////////////////////////////////////////////////////////
+      // 데이터줌 show/hide, 축변환 (가로/세로) 설정
+      ////////////////////////////////////////////////////////
+      this.chartOption = ToolOptionConverter.convertDataZoom(this.chartOption, this.uiOption);
+
+      ////////////////////////////////////////////////////////
+      // 차트별 추가사항
+      ////////////////////////////////////////////////////////
+
+      // 차트별 추가사항 반영
+      this.chartOption = this.additionalDataZoom();
+
+    } else {
+      delete this.chartOption.dataZoom;
     }
-
-    // dataZoom start / end 설정
-    this.chartOption = this.convertDataZoomRange(this.chartOption, this.uiOption);
-
-    ////////////////////////////////////////////////////////
-    // 데이터줌 show/hide, 축변환 (가로/세로) 설정
-    ////////////////////////////////////////////////////////
-
-    this.chartOption = ToolOptionConverter.convertDataZoom(this.chartOption, this.uiOption);
-
-    ////////////////////////////////////////////////////////
-    // 차트별 추가사항
-    ////////////////////////////////////////////////////////
-
-    // 차트별 추가사항 반영
-    this.chartOption = this.additionalDataZoom();
 
     // 차트옵션 반환
     return this.chartOption;
-
   }
 
   /**
@@ -2683,7 +2685,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
     if (_.isUndefined(chartZooms)) return this.chartOption;
 
-    chartZooms.map((zoom, idx) => {
+    chartZooms.forEach((zoom, idx) => {
       if (!_.isUndefined(zoom.start) && !_.isUndefined(zoom.end)) {
 
         option = this.convertDataZoomRangeByType(option, DataZoomRangeType.PERCENT, zoom.start, zoom.end, idx);

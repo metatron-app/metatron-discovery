@@ -59,7 +59,7 @@ export class MapCommonOptionComponent extends BaseOptionComponent {
           );
       }
       if( objConf.defaultBaseMap ) {
-        this.setMapStyle( this.mapStyleList.find( item => objConf.defaultBaseMap === item.name ) );
+        this.setMapStyle( this.mapStyleList.find( item => this.uiOption.style === item.name ) );
       }
     }
   }

@@ -19,16 +19,14 @@ import { RouterModule, Routes } from '@angular/router';
 import { DataConnectionComponent } from './data-connection/data-connection.component';
 import { DataSourceListComponent } from './data-source-list/data-source-list.component';
 import { CreateDataSourceComponent } from './data-source-list/create-data-source/create-data-source.component';
-import { HandlerDataConnectionComponent } from './data-connection/handler-data-connection/handler-data-connection.component';
-import { CreateConnectionComponent } from './data-connection/handler-data-connection/create-data-connection/create-connection.component';
-import { UpdateConnectionComponent } from './data-connection/handler-data-connection/update-data-connection/update-connection.component';
+import { CreateConnectionComponent } from './data-connection/create-connection.component';
+import { UpdateConnectionComponent } from './data-connection/update-connection.component';
 import { BatchHistoryComponent } from './data-source-list/detail-data-source/information-dats-source/component/batch-history/batch-history.component';
 import { QueryDetailComponent } from './data-source-list/detail-data-source/information-dats-source/component/query-detail/query-detail.component';
 import { SetWorkspacePublishedComponent } from './component/set-workspace-published/set-workspace-published.component';
 import { MonitoringDataSourceComponent } from './data-source-list/detail-data-source/monitoring-data-source/monitoring-data-source.component';
 import { InformationDataSourceComponent } from './data-source-list/detail-data-source/information-dats-source/information-data-source.component';
 import { DetailDataSourceComponent } from './data-source-list/detail-data-source/detail-data-source.component';
-import { DataPreviewModule } from '../common/data.preview.module';
 import { DndModule } from 'ng2-dnd';
 import { CanDeactivateGuard } from '../common/gaurd/can.deactivate.guard';
 import { DataGridDataSourceComponent } from './data-source-list/detail-data-source/data-grid-data-source/data-grid-data-source.component';
@@ -42,9 +40,11 @@ import { CriterionCheckboxComponent } from './component/criterion/criterion-chec
 import { CriterionTimeRadioboxComponent } from './component/criterion/criterion-time-radiobox.component';
 import {DataConnectionCreateService} from "./service/data-connection-create.service";
 import {DataSourceCreateModule} from "./data-source-list/create-data-source/data-source-create.module";
-import {StorageFilterSelectBoxComponent} from "./data-source-list/component/storage-filter-select-box.component";
 import {FieldConfigService} from "./service/field-config.service";
 import {DatasourceMetadataSharedModule} from "../shared/datasource-metadata/datasource-metadata-shared.module";
+import {DataStorageCommonModule} from "./data-storage-common.module";
+import {DataStorageShareModule} from "./data-storage-share.module";
+import {ConstantService} from "../shared/datasource-metadata/service/constant.service";
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -57,14 +57,13 @@ const storageRoutes: Routes = [
   imports: [
     CommonModule,
     DndModule,
-    DataPreviewModule,
     DataSourceCreateModule,
     DatasourceMetadataSharedModule,
+    DataStorageCommonModule,
+    DataStorageShareModule,
     RouterModule.forChild(storageRoutes)
   ],
   declarations: [
-    // common
-    StorageFilterSelectBoxComponent,
     // data source
     DataSourceListComponent,
     // data source - detail
@@ -81,17 +80,12 @@ const storageRoutes: Routes = [
     IngestionLogComponent,
     // data connection
     DataConnectionComponent,
-    HandlerDataConnectionComponent,
-    // data connection - create
     CreateConnectionComponent,
-    // data connection - update
     UpdateConnectionComponent,
-    // criterion filter creator box
+    // criterion
     CriterionFilterBoxComponent,
-    // criterion checkbox
     CriterionCheckboxComponent,
-    // criterion time radiobox
-    CriterionTimeRadioboxComponent
+    CriterionTimeRadioboxComponent,
   ],
   exports: [
     // 워크벤치에서 사용하기 위해
@@ -102,6 +96,7 @@ const storageRoutes: Routes = [
     MetadataService,
     DataConnectionCreateService,
     FieldConfigService,
+    ConstantService,
   ]
 })
 export class DataStorageModule {

@@ -205,12 +205,11 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   }
 
   public isDatasourceSourceTypeIsJdbc() {
+    return !_.isNil(this.metaDataModelService.getMetadata().source.source);
+  }
 
-    if (_.isNil(this.metaDataModelService.getMetadata().source.source)) {
-      return false;
-    }
-
-    return (this.metaDataModelService.getMetadata().source.source as Datasource).srcType === SourceType.JDBC;
+  public isMetadataSourceTypeIsEngine() {
+    return new MetadataSourceType(this.metaDataModelService.getMetadata().sourceType).isEngine();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -256,10 +255,6 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     return column.type === logicalType;
   }
 
-  public isMetadataSourceTypeIsEngine() {
-    return new MetadataSourceType(this.metaDataModelService.getMetadata().sourceType).isEngine();
-  }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - event
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -296,6 +291,11 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    * @param {number} index
    */
   public onShowLogicalTypeList(column: MetadataColumn, index: number): void {
+
+    if (!this.isLogicalTypesLayerActivation(column)) {
+      return;
+    }
+
     // 컬럼 사전이 정해져있지 않을때
     if (!this.isSelectedDictionary(column)) {
       // show flag
@@ -476,6 +476,12 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     this.columnList = _.orderBy(this.columnList, this.selectedContentSort.key, 'asc' === this.selectedContentSort.sort ? 'asc' : 'desc');
   }
 
+  public isLogicalTypesLayerActivation(column: MetadataColumn) {
+    return column.type !== Type.Logical.GEO_LINE
+      && column.type !== Type.Logical.GEO_POINT
+      && column.type !== Type.Logical.GEO_POLYGON;
+  }
+
   public changeKeyword(keyword: number | string) {
     this.keyword = keyword;
   }
@@ -549,14 +555,32 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   private _getColumnSchemas(): void {
     this.loadingShow();
     this._metaDataService.getColumnSchemaListInMetaData(this.metaDataModelService.getMetadata().id).then((result) => {
-      this._hideCurrentTime(result);
-      this._saveColumnDataOriginal();
-      this.loadingHide();
+      this._getMetadataDetail().then(metadata => {
+        _.get(metadata, 'columns', []).forEach((column, index) => {
+          const format = _.get(column, 'format', undefined);
+          if (this._isNotNil(format)) {
+            if (!(result[index].physicalName === CommonConstant.COL_NAME_CURRENT_DATETIME && result[index].physicalType === 'TIMESTAMP')) {
+              result[index].format = format;
+            }
+          }
+        });
+        this._hideCurrentTime(result);
+        this._saveColumnDataOriginal();
+        this.loadingHide();
+      }).catch(error => this.commonExceptionHandler(error));
     }).catch(error => this.commonExceptionHandler(error));
   }
 
+  // noinspection JSMethodCanBeStatic
+  private _isNotNil(format) {
+    return _.negate(_.isNil)(format);
+  }
+
   private _hideCurrentTime(result) {
-    this.columnList = result.filter((item) => item.physicalName !== CommonConstant.COL_NAME_CURRENT_DATETIME && item.physicalType !== 'TIMESTAMP');
+    this.columnList = result.filter((item) => {
+      return !(item.physicalName === CommonConstant.COL_NAME_CURRENT_DATETIME && item.physicalType === 'TIMESTAMP')
+        && item.role !== this.ROLE.TIMESTAMP;
+    });
   }
 
   /**
@@ -780,5 +804,14 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    */
   private _setCodeTableForSelectedColumn(result) {
     this._selectedColumn.codeTable = result;
+  }
+
+  /**
+   * Get metadata detail information
+   */
+  private _getMetadataDetail() {
+    return this._metaDataService.getDetailMetaData(this.metaDataModelService.getMetadata().id).then((result) => {
+      return result;
+    });
   }
 }

@@ -29,6 +29,7 @@ public class LocalFileIngestionInfo implements IngestionInfo {
 
   String path;
 
+  String uploadFileName;
   String originalFileName;
 
   Boolean removeFirstRow = false;
@@ -67,6 +68,14 @@ public class LocalFileIngestionInfo implements IngestionInfo {
 
   public void setOriginalFileName(String originalFileName) {
     this.originalFileName = originalFileName;
+  }
+
+  public String getUploadFileName() {
+    return uploadFileName;
+  }
+
+  public void setUploadFileName(String uploadFileName) {
+    this.uploadFileName = uploadFileName;
   }
 
   public Boolean getRemoveFirstRow() {

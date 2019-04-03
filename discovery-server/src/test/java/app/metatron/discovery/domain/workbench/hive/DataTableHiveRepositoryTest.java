@@ -13,15 +13,19 @@
  */
 package app.metatron.discovery.domain.workbench.hive;
 
-import app.metatron.discovery.TestLocalHdfs;
-import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
 import org.apache.hadoop.fs.Path;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import app.metatron.discovery.TestLocalHdfs;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,7 +41,7 @@ public class DataTableHiveRepositoryTest {
   @Test
   public void saveToHdfs() throws IOException, InterruptedException {
     // given
-    HiveConnection hiveConnection = getHiveConnection();
+    DataConnection hiveConnection = getHiveConnection();
 
     List<String> fields = Arrays.asList("records.year", "records.temperature", "records.quality");
 
@@ -63,8 +67,8 @@ public class DataTableHiveRepositoryTest {
     assertThat(testLocalHdfs.exists(new Path(filePath))).isTrue();
   }
 
-  private HiveConnection getHiveConnection() {
-    HiveConnection hiveConnection = new HiveConnection();
+  private DataConnection getHiveConnection() {
+    DataConnection hiveConnection = new DataConnection("HIVE");
     hiveConnection.setUsername("read_only");
     hiveConnection.setPassword("1111");
     hiveConnection.setHostname("localhost");

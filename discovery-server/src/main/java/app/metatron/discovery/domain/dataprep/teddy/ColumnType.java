@@ -80,11 +80,11 @@ public enum ColumnType {
       return Double.valueOf(((Float) obj).doubleValue());
     }
     else if (obj instanceof Timestamp) {
-      return Util.sqlTimestampToJodaDateTime((Timestamp) obj);
+      return TeddyUtil.sqlTimestampToJodaDateTime((Timestamp) obj);
     }
     else if (obj instanceof Date) {
       long millis = ((Date) obj).getTime();
-      return Util.sqlTimestampToJodaDateTime(new Timestamp(millis));
+      return TeddyUtil.sqlTimestampToJodaDateTime(new Timestamp(millis));
     }
 
     return obj;

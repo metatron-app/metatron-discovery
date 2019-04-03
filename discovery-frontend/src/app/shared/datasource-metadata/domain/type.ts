@@ -52,4 +52,13 @@ export namespace Type {
     ALL = 'ALL',
     USER_DEFINED = 'user_defined'
   }
+
+  export enum FieldFormat {
+    DATE_TIME = 'time_format',
+    UNIX_TIME = 'time_unix',
+    TEMPORARY_TIME = 'time_temporary',
+    GEO_POINT = 'geo_point',
+    GEO_LINE = 'geo_line',
+    GEO_POLYGON = 'geo_polygon'
+  }
 }

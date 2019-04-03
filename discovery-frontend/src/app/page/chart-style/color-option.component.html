@@ -215,7 +215,7 @@
               </component-select>
               <!-- //selectbox -->
             </div>
-            <div *ngFor="let item of rangesViewList; let index = index" class="ddp-wrap-usercolor">
+            <div *ngFor="let item of uiOption.color['ranges']; let index = index" class="ddp-wrap-usercolor">
               <!-- blank -->
               <div *ngIf="0 !== index && 'SECTION' == uiOption.color['customMode']" (click)="addNewRange(index)" class="ddp-list-blank">
                 {{'msg.page.chart.color.measure.new.range.add.description' | translate}}
@@ -231,9 +231,14 @@
                   <div class="ddp-input-range">
                     <!-- 말줄임 -->
                     <!-- 클릭시 is-selected 추가 -->
-                    <div *ngIf="null !== item.fixMin && undefined !== item.fixMin" class="ddp-ng-ellipsis" [ngClass]="{'ddp-selected' : item['minInputShow']}">
-                      <span [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}" class="ddp-data-ellipsis ddp-txt-right" (click)="showMinInputColorRange(item, true, minInput, index)"> {{item.gt}}</span>
-                      <input #minInput [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.gt"
+                    <div class="ddp-ng-ellipsis" [ngClass]="{'ddp-selected' : item['minInputShow']}">
+                      <span class="ddp-data-ellipsis ddp-txt-right" [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}"
+                            (click)="showMinInputColorRange(item, true, minInput, index)"> {{item.gt}}</span>
+                      <input #minInput type="text" class="ddp-input-typebasic ddp-txt-right"
+                             [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}"
+                             [(ngModel)]="item.gt"
+                             (mouseenter)="item['minInputShow'] = true;"
+                             (mouseleave)="item['minInputShow'] = false;"
                              (keyup.enter)="changeRangeMinInput(item, index)">
                       <!-- tooltip -->
                       <div class="ddp-ui-tooltip-info">
@@ -251,8 +256,14 @@
                     <!-- 말줄임 -->
                     <!-- 클릭시 is-selected 추가 -->
                     <div class="ddp-ng-ellipsis" [ngClass]="{'ddp-selected' : item['maxInputShow']}">
-                      <span *ngIf="item.fixMax" [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}" class="ddp-data-ellipsis ddp-txt-right" (click)="showMaxInputColorRange(item, true, maxInput, index)">{{item.lte}}</span>
-                      <input #maxInput [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.lte"
+                      <span *ngIf="item.fixMax" class="ddp-data-ellipsis ddp-txt-right"
+                            [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}"
+                            (click)="showMaxInputColorRange(item, true, maxInput, index)">{{item.lte}}</span>
+                      <input #maxInput type="text" class="ddp-input-typebasic ddp-txt-right"
+                             [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}"
+                             [(ngModel)]="item.lte"
+                             (mouseenter)="item['maxInputShow'] = true;"
+                             (mouseleave)="item['maxInputShow'] = false;"
                              (keyup.enter)="changeRangeMaxInput(item, index)">
                       <!-- tooltip -->
                       <div class="ddp-ui-tooltip-info">

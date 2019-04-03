@@ -13,12 +13,13 @@
  */
 
 import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import {Location} from '@angular/common';
 import { AbstractComponent } from '../../../../common/component/abstract.component';
 import { Workbench } from '../../../../domain/workbench/workbench';
 import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
 import { Alert } from '../../../../common/util/alert.util';
 import { ConnectionRequest } from '../../../../domain/dataconnection/connectionrequest';
-import { ConnectionType, Dataconnection } from '../../../../domain/dataconnection/dataconnection';
+import { ImplementorType, Dataconnection } from '../../../../domain/dataconnection/dataconnection';
 import { isUndefined } from 'util';
 import { StringUtil } from '../../../../common/util/string.util';
 
@@ -68,7 +69,8 @@ export class WorkbenchLoginComponent extends AbstractComponent implements OnInit
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(protected  connectionService: DataconnectionService,
+  constructor(private _location: Location,
+              protected  connectionService: DataconnectionService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -104,7 +106,7 @@ export class WorkbenchLoginComponent extends AbstractComponent implements OnInit
 
   // 강제 닫기를 누를 경우
   protected close() {
-    this.router.navigate(['/workspace']);
+    this._location.back();
   }
 
   // 커넥션 체크
@@ -122,9 +124,10 @@ export class WorkbenchLoginComponent extends AbstractComponent implements OnInit
 
     this.dataconnection.implementor = this.workbench.dataConnection.implementor;
 
-    !StringUtil.isEmpty(this.workbench.dataConnection.hostname) && (this.dataconnection.hostname = this.workbench.dataConnection.hostname);
-    !StringUtil.isEmpty(this.workbench.dataConnection.port) && (this.dataconnection.port = this.workbench.dataConnection.port);
-    !StringUtil.isEmpty(this.workbench.dataConnection.url) && (this.dataconnection.url = this.workbench.dataConnection.url);
+    ( !StringUtil.isEmpty(this.workbench.dataConnection.hostname) ) && (this.dataconnection.hostname = this.workbench.dataConnection.hostname);
+    ( this.workbench.dataConnection.port ) && (this.dataconnection.port = this.workbench.dataConnection.port);
+    ( !StringUtil.isEmpty(this.workbench.dataConnection.url) ) && (this.dataconnection.url = this.workbench.dataConnection.url);
+    ( !StringUtil.isEmpty(this.workbench.dataConnection.sid) ) && (this.dataconnection.sid = this.workbench.dataConnection.sid);
     // add authenticationType in connection
     this.dataconnection.authenticationType = this.workbench.dataConnection.authenticationType || 'MANUAL';
     // if authenticationType is not USERINFO, add username and password in connection
@@ -164,33 +167,33 @@ export class WorkbenchLoginComponent extends AbstractComponent implements OnInit
       });
   }
 
-  protected getImplemntor(param: string): ConnectionType {
+  protected getImplemntor(param: string): ImplementorType {
     if (param === 'H2') {
-      return ConnectionType.H2;
+      return ImplementorType.H2;
     } else if (param === 'MYSQL') {
-      return ConnectionType.MYSQL;
+      return ImplementorType.MYSQL;
     } else if (param === 'ORACLE') {
-      return ConnectionType.ORACLE;
+      return ImplementorType.ORACLE;
     } else if (param === 'TIBERO') {
-      return ConnectionType.TIBERO;
+      return ImplementorType.TIBERO;
     } else if (param === 'HIVE') {
-      return ConnectionType.HIVE;
+      return ImplementorType.HIVE;
     } else if (param === 'HAWQ') {
-      return ConnectionType.HAWQ;
+      return ImplementorType.HAWQ;
     } else if (param === 'POSTGRESQL') {
-      return ConnectionType.POSTGRESQL;
+      return ImplementorType.POSTGRESQL;
     } else if (param === 'MSSQL') {
-      return ConnectionType.MSSQL;
+      return ImplementorType.MSSQL;
     } else if (param === 'PRESTO') {
-      return ConnectionType.PRESTO;
+      return ImplementorType.PRESTO;
     } else if (param === 'PHOENIX') {
-      return ConnectionType.PHOENIX;
+      return ImplementorType.PHOENIX;
     } else if (param === 'NVACCEL') {
-      return ConnectionType.NVACCEL;
+      return ImplementorType.NVACCEL;
     } else if (param === 'STAGE') {
-      return ConnectionType.STAGE;
+      return ImplementorType.STAGE;
     } else if (param === 'FILE') {
-      return ConnectionType.FILE;
+      return ImplementorType.FILE;
     }
   }
 

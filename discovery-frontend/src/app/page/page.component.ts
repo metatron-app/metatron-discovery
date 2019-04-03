@@ -353,7 +353,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     const widgetDataSource: Datasource
       = DashboardUtil.getDataSourceFromBoardDataSource(widget.dashBoard, widget.configuration.dataSource);
-    this.selectDataSource(widgetDataSource ? widgetDataSource : this.dataSourceList[0]);
+    this.selectDataSource(widgetDataSource ? widgetDataSource : this.dataSourceList[0], false);
   }
 
   @Input('dashboard')
@@ -427,6 +427,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
         // find geo type from dimension list
         this.geoType = this.getMapGeoType();
+
+        this._setDefaultAreaForBBox(this.dataSource);
+
       } else {
         this.pivot = this.convertShelfToPivot(this.pivot, deepCopyUiOption);
       }
@@ -449,7 +452,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   }
 
   set uiOption(uiOption: UIOption) {
-
     this.widgetConfiguration.chart = uiOption;
   }
 
@@ -613,18 +615,47 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - Multi DataSource
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * BBox 필터를 위한 기본 영역 설정
+   * @param dataSource
+   * @private
+   */
+  private _setDefaultAreaForBBox(dataSource: Datasource) {
+    if ((isNullOrUndefined(this.widgetConfiguration.chart['lowerCorner']) || !this.isChartShow) && dataSource.summary) {
+      this.widgetConfiguration.chart['lowerCorner'] = dataSource.summary['geoLowerCorner'];
+      this.widgetConfiguration.chart['upperCorner'] = dataSource.summary['geoUpperCorner'];
+    }
+  } // function - _setDefaultAreaForBBox
+
+  /**
+   * 현재 레이어에 데이터 소스를 설정한다.
+   * @param dataSource
+   * @private
+   */
+  private _setDataSourceCurrentLayer(dataSource: Datasource) {
+    if (this.widgetConfiguration.shelf) {
+      const currentLayer: ShelfLayers = this.widgetConfiguration.shelf.layers[(<UIMapOption>this.uiOption).layerNum];
+      if (0 === currentLayer.fields.length) {
+        currentLayer.ref = dataSource.engineName;
+      }
+    }
+  } // function - _setDataSourceCurrentLayer
 
   /**
    * 데이터소스 선택 및 차트 초기화
    * @param {Datasource} dataSource
+   * @param {boolean} isBBoxChange
    */
-  public selectDataSource(dataSource: Datasource) {
+  public selectDataSource(dataSource: Datasource, isBBoxChange: boolean) {
 
     (this.widget) || (this.widget = _.cloneDeep(this.originalWidget));
 
     if (ChartType.MAP === this.widget.configuration.chart.type) {
-      this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, this.widget.configuration.dataSource.engineName);
+      // this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, this.widget.configuration.dataSource.engineName);
+      this.boardFilters = this.widget.dashBoard.configuration.filters;
       this.dataSource = dataSource;
+
+      (isBBoxChange) && (this._setDefaultAreaForBBox(dataSource));
 
       // 데이터 필드 설정 (data panel의 pivot 설정)
       this.setDatasourceFields(true);
@@ -633,12 +664,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.widget.configuration.dataSource = this.widget.dashBoard.configuration.dataSource;
 
       // Shelf 내 타겟 데이터소스 설정
-      if (this.widget.configuration.shelf) {
-        const currentLayer: ShelfLayers = this.widget.configuration.shelf.layers[(<UIMapOption>this.uiOption).layerNum];
-        if (0 === currentLayer.fields.length) {
-          currentLayer.ref = this.dataSource.engineName;
-        }
-      }
+      this._setDataSourceCurrentLayer(dataSource);
 
       // find geo type from dimension list
       this.geoType = this.getMapGeoType();
@@ -941,11 +967,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   /**
    * 데이터 디테일 팝업 호출
    */
-  public onDataDetailPopup(): void {
+  public onDataPreviewPopup(): void {
     this.selectedField = null;
     this.isColumnDetail = false;
     this.isShowDataDetail = true;
-  }
+  } // function - onDataPreviewPopup
 
   /**
    * map chart - toggle map layer
@@ -992,7 +1018,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (this.getPivotComp()) this.getPivotComp().onShelveAnimation(this.$element.find('.ddp-wrap-default'));
 
     // 차트 리사이즈
-    this.chartResize();
+    if (this.selectChart != 'map' || this.rnbMenu == '') this.chartResize();
   }
 
   public isShowChartInfo(chartType: string) {
@@ -1065,7 +1091,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    */
   public showDataZoom(show: boolean): void {
     const chartZooms = _.cloneDeep(this.uiOption.chartZooms);
-    chartZooms.map((zoom) => {
+    chartZooms.forEach((zoom) => {
       zoom.auto = show;
     });
 
@@ -1847,17 +1873,15 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    */
   public toggleFilter(field: Field, $event?: MouseEvent) {
 
+    ($event) && ($event.stopPropagation());
+
     // 사용자 정의 측정값 필터는 사용할 수 없다고 해서 막음
     if (this.isCustomMeasureField(field)) {
-      event.stopPropagation();
       return;
     }
 
     // custom measure필드에서 aggregation 함수가 쓰인경우 필터 적용못하게 막기
     if (field.aggregated) {
-
-      event.stopPropagation();
-
       Alert.info(this.translateService.instant('msg.page.custom.measure.aggregation.unavailable'));
       return;
     }
@@ -1868,9 +1892,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     else selectedField = field;
 
     this.rnbMenu = 'filter';
-    if ($event) event.stopPropagation();
-    // 제거
     if (selectedField.useFilter) {
+      // 제거
 
       // 필수필터이면 제거 불가능
       if (selectedField.role === FieldRole.TIMESTAMP && selectedField.type === 'TIMESTAMP') {
@@ -1899,80 +1922,81 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.getPivotComp().setWidgetConfig = this.widgetConfiguration;
 
       return;
-    }
-    // 추가
-    selectedField.useFilter = true;
-
-
-    if (selectedField.logicalType === LogicalType.TIMESTAMP) {
-      // 시간 필터
-      const timeFilter = FilterUtil.getTimeAllFilter(selectedField);
-
-      // widgetId set
-      timeFilter.ui.widgetId = this.widget.id;
-      if (this.isNewWidget()) {
-        timeFilter.ui.widgetId = 'NEW';
-      }
-
-      this.widgetConfiguration.filters.push(timeFilter);
-
-    } else if (selectedField.role === FieldRole.MEASURE) {
-      // 측정값 필터
-      const boundFilter = FilterUtil.getBasicBoundFilter(selectedField);
-      // widgetId set
-      boundFilter.ui.widgetId = this.widget.id;
-      if (this.isNewWidget()) {
-        boundFilter.ui.widgetId = 'NEW';
-      }
-
-      // 사용자 필드일경우
-      if (selectedField.type === 'user_expr') {
-        boundFilter.ref = 'user_defined';
-      }
-
-      this.widgetConfiguration.filters.push(boundFilter);
     } else {
-      // inclusion필터
-      const inclusionFilter = FilterUtil.getBasicInclusionFilter(selectedField);
+      // 추가
 
-      // widgetId set
-      inclusionFilter.ui.widgetId = this.widget.id;
-      if (this.isNewWidget()) {
-        inclusionFilter.ui.widgetId = 'NEW';
-      }
+      selectedField.useFilter = true;
 
-      // 사용자 필드일경우
-      if (selectedField.type === 'user_expr') {
-        inclusionFilter.ref = 'user_defined';
-      }
+      if (selectedField.logicalType === LogicalType.TIMESTAMP) {
+        // 시간 필터
+        const timeFilter = FilterUtil.getTimeAllFilter(selectedField);
 
-      this.widgetConfiguration.filters.push(inclusionFilter);
-    }
-
-
-    // 필터 업데이트
-    if (!this.isNewWidget()) {
-      // 글로벌 필터 업데이트
-      const widget = {configuration: _.cloneDeep(this.originalWidgetConfiguration)};
-      widget.configuration.filters = _.cloneDeep(this.widgetConfiguration.filters);
-
-      // 스펙 변경
-      widget.configuration = DashboardUtil.convertPageWidgetSpecToServer(widget.configuration);
-
-      this.loadingShow();
-      this.widgetService.updateWidget(this.widget.id, widget).then((page: Widget) => {
-        this.loadingHide();
-        return page;
-      }).catch((error) => {
-        this.loadingHide();
-        if (!isUndefined(error.details)) {
-          Alert.error(error.details);
-        } else if (!isUndefined(error.message)) {
-          Alert.error(error.message);
-        } else {
-          Alert.error(error);
+        // widgetId set
+        timeFilter.ui.widgetId = this.widget.id;
+        if (this.isNewWidget()) {
+          timeFilter.ui.widgetId = 'NEW';
         }
-      });
+
+        this.widgetConfiguration.filters.push(timeFilter);
+
+      } else if (selectedField.role === FieldRole.MEASURE) {
+        // 측정값 필터
+        const boundFilter = FilterUtil.getBasicBoundFilter(selectedField);
+        // widgetId set
+        boundFilter.ui.widgetId = this.widget.id;
+        if (this.isNewWidget()) {
+          boundFilter.ui.widgetId = 'NEW';
+        }
+
+        // 사용자 필드일경우
+        if (selectedField.type === 'user_expr') {
+          boundFilter.ref = 'user_defined';
+        }
+
+        this.widgetConfiguration.filters.push(boundFilter);
+      } else {
+        // inclusion필터
+        const inclusionFilter = FilterUtil.getBasicInclusionFilter(selectedField);
+
+        // widgetId set
+        inclusionFilter.ui.widgetId = this.widget.id;
+        if (this.isNewWidget()) {
+          inclusionFilter.ui.widgetId = 'NEW';
+        }
+
+        // 사용자 필드일경우
+        if (selectedField.type === 'user_expr') {
+          inclusionFilter.ref = 'user_defined';
+        }
+
+        this.widgetConfiguration.filters.push(inclusionFilter);
+      }
+
+
+      // 필터 업데이트
+      if (!this.isNewWidget()) {
+        // 글로벌 필터 업데이트
+        const widget = {configuration: _.cloneDeep(this.originalWidgetConfiguration)};
+        widget.configuration.filters = _.cloneDeep(this.widgetConfiguration.filters);
+
+        // 스펙 변경
+        widget.configuration = DashboardUtil.convertPageWidgetSpecToServer(widget.configuration);
+
+        this.loadingShow();
+        this.widgetService.updateWidget(this.widget.id, widget).then((page: Widget) => {
+          this.loadingHide();
+          return page;
+        }).catch((error) => {
+          this.loadingHide();
+          if (!isUndefined(error.details)) {
+            Alert.error(error.details);
+          } else if (!isUndefined(error.message)) {
+            Alert.error(error.message);
+          } else {
+            Alert.error(error);
+          }
+        });
+      }
     }
   } // function - toggleFilter
 
@@ -2363,6 +2387,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     // when it's map
     if (_.eq(this.selectChart, ChartType.MAP)) {
+
+      // 선반에 아이템이 존재한 상태에서 데이터소스가 변경되고, 새로 아이템을 추가할 경우에 맞추기 위해서...
+      this._setDataSourceCurrentLayer(this.dataSource);
 
       let layerNum = (<UIMapOption>this.uiOption).layerNum;
       let currentMapLayer = this.shelf.layers[layerNum].fields;
@@ -3250,8 +3277,13 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     let valid: boolean = true;
 
-    // 공간연산 실행시 disable
+    // 공간연산 실행시 나머지 옵션 레이어 disable
     if ('map' == this.selectChart && this.uiOption['analysis'] != null && this.uiOption['analysis']['use'] == true) {
+      (layerNum == this.shelf.layers.length - 1 ? valid = false : valid = true);
+      return valid;
+    }
+
+    if (_.isUndefined(this.shelf.layers[layerNum])) {
       return valid;
     }
 
@@ -3294,12 +3326,17 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    */
   public changeDraw(value?: any) {
 
-    // 공간연산 analysis btn 클릭시 layer 추가
-    if (!_.isUndefined(value)) {
+    // 공간연산 analysis layer 관련 event 구현
+    if (!_.isUndefined(value) && value == 'removeAnalysisLayerEvent') {
+      this.mapPivot.removeAnalysis();
+      this.drawChart();
+    } else if (!_.isUndefined(value)) {
       this.mapPivot.spatialAnalysisBtnClicked(value);
+      // 현재 화면이 벗어나면 짤리므로
+      this.drawChart({type: EventType.MAP_SPATIAL_ANALYSIS});
+    } else {
+      this.drawChart();
     }
-
-    this.drawChart();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -3340,6 +3377,10 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     // drag 이벤트
     const dragulaDragSubs = this.dragulaService.drag.subscribe((value) => {
       // console.log('drag', value);
+      if (_.eq(this.selectChart, ChartType.MAP)) {
+        // 선반에 아이템이 존재한 상태에서 데이터소스가 변경되고, 새로 아이템을 추가할 경우에 맞추기 위해서...
+        this._setDataSourceCurrentLayer(this.dataSource);
+      }
     });
 
     const dragulaDropSubs = this.dragulaService.drop.subscribe((value) => {
@@ -3387,6 +3428,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       }
 
       if (acceptsContainer.indexOf(info.target) > -1) {
+
         if (info.target.includes('guide') && targetField) {
           // 가이드를 통해 넣은 경우
           this.getPivotComp().addField(targetField, info.target.replace(/-.*$/, ''), this.getPivotComp().dragField);
@@ -3638,7 +3680,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
      * @param {Field[]} allPivot
      * @returns {number}
      */
-    function getGeoType(logicalType: string, allPivot: AbstractField[]): number {
+    function getGeoType(logicalType: string, allPivot: AbstractField[], uiOption: UIOption): number {
+
+      if (!_.isUndefined(uiOption['analysis']) && !_.isUndefined(uiOption['analysis']['use']) && uiOption['analysis']['use']) {
+        return allPivot.length;
+      }
 
       return allPivot.filter((item: AbstractField) => {
         return item.field.logicalType && -1 !== item.field.logicalType.toString().indexOf(logicalType);
@@ -3659,7 +3705,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (this.shelf && this.shelf.layers && undefined !== (<UIMapOption>this.uiOption).layerNum) pivotList = this.shelf.layers[(<UIMapOption>this.uiOption).layerNum].fields;
     else if (this.pivot) pivotList = this.pivot.aggregations.concat(this.pivot.rows.concat(this.pivot.columns));
 
-    const geoCnt = getGeoType('GEO', pivotList);
+    const geoCnt = getGeoType('GEO', pivotList, this.uiOption);
 
     // map chart
     if (geoCnt > 0) {
@@ -3920,14 +3966,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     // 서버 조회용 파라미터 (서버 조회시 필요없는 파라미터 제거)
     const cloneQuery = this.makeSearchQueryParam(_.cloneDeep(uiCloneQuery));
 
-    // Map Chart spatial analysis init
-    // if ('map' == this.selectChart && !_.isUndefined(uiCloneQuery.analysis) ) {
-    //   delete uiCloneQuery.analysis.operation;
-    //   delete uiCloneQuery.analysis.mainLayer;
-    //   delete uiCloneQuery.analysis.compareLayer;
-    //   delete uiCloneQuery.analysis.type;
-    // }
-
     this.query = cloneQuery;
     if (this.selectChart === 'label') {
       this.chart['setQuery'] = this.query;
@@ -3993,6 +4031,14 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
               this.chart.resultData = resultData;
             }, 300);
           }
+        } else if (this.selectChart == 'map') {
+          // map chart 일 경우 aggregation type 변경시 min/max 재설정 필요
+          if (!_.isUndefined(params) && !_.isUndefined(params.type) && params.type == EventType.AGGREGATION) {
+            this.uiOption['layers'][this.uiOption['layerNum']]['isColorOptionChanged'] = true;
+          }
+          setTimeout(() => {
+            this.chart.resultData = resultData;
+          }, 300);
         } else {
           setTimeout(() => {
             this.chart.resultData = resultData;
@@ -4005,10 +4051,33 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         }
       }
     ).catch((reason) => {
-      console.error('Search Query Error =>', reason);
+      let err = {};
+      // only analysis 사용할때 에러 발생시 예외 처리
+      if (!_.isUndefined(this.uiOption['analysis']) && this.uiOption['analysis']['use'] == true) {
+        if (!_.isUndefined(reason) && (!_.isUndefined(reason['message']) || !_.isUndefined(reason['details']))) {
+          err['code'] = reason.code;
+          // 에러 메시지가 형식대로 떨어질 경우
+          let message = reason['message'];
+          let detailMessage = reason['details'];
+          // message 길 경우
+          if (!_.isUndefined(message) && message.length > 30) {
+            err['message'] = 'Spatial Config Error <br/>' + message.substring(0, 30);
+            err['details'] = message + '<br/>' + detailMessage;
+          } else {
+            err['message'] = 'Spatial Config Error';
+            err['details'] = message + '<br/>' + detailMessage;
+          }
+        } else {
+          err['message'] = 'Spatial Config Error <br/>';
+          err['details'] = reason;
+        }
+      } else {
+        err = reason;
+      }
+      console.error('Search Query Error =>', err);
       this.isChartShow = false;
       this.isError = true;
-      this.commonExceptionHandler(reason);
+      this.commonExceptionHandler(err);
 
       // 변경사항 반영
       this.changeDetect.detectChanges();
@@ -4073,9 +4142,16 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       // spatial analysis
       if (!_.isUndefined(cloneQuery.analysis)) {
-        delete cloneQuery.analysis.layerNum;
-        delete cloneQuery.analysis.operation.unit;
-        delete cloneQuery.analysis.use;
+        if (cloneQuery.analysis.use == true) {
+          // 공간연산 사용
+          delete cloneQuery.analysis.operation.unit;
+          delete cloneQuery.analysis.layer;
+          delete cloneQuery.analysis.layerNum;
+          delete cloneQuery.analysis.use;
+        } else {
+          // 공간연산 미사용
+          delete cloneQuery.analysis;
+        }
       }
     }
 
@@ -4182,7 +4258,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     });
 
     // 보드 필터 설정
-    this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, this.widget.configuration.dataSource.engineName);
+    if (ChartType.MAP === this.widget.configuration.chart.type) {
+      this.boardFilters = this.widget.dashBoard.configuration.filters;
+    } else {
+      this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, this.widget.configuration.dataSource.engineName);
+    }
 
     // 해당 필터에 차트 위젯 아이디 설정
     targetFilter.ui.widgetId = this.isNewWidget() ? 'NEW' : this.widget.id;
@@ -4251,7 +4331,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     // when shelf is empty, convert shelf from pivot
     // if (0 === shelf.layers[(<UIMapOption>this.uiOption).layerNum].length) {
     const currentLayer: ShelfLayers = shelf.layers[(<UIMapOption>this.uiOption).layerNum];
-    if (0 === currentLayer.fields.length) {
+    if (!_.isUndefined(currentLayer) && 0 === currentLayer.fields.length) {
 
       currentLayer.ref = this.dataSource.engineName;
 
@@ -4315,4 +4395,13 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   //   // 차트별 선반위치 변경
   //   this.changeDetect.detectChanges();
   // }
+
+  /**
+   * remove analysis layer
+   * @param value
+   */
+  public removeAnalysisLayer() {
+    this.changeDraw();
+  }
+
 }

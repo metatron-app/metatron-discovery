@@ -224,7 +224,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   public isEnableTimezone(field: Field): boolean {
     return field.format && (field.format.type === FieldFormatType.UNIX_TIME || this._timezoneService.isEnableTimezoneInDateFormat(field.format));
   }
-  
+
   /**
    * Get timezone label
    * @param {FieldFormat} format
@@ -347,6 +347,55 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
       this.selectedLogicalTypeFilter = filter;
       // 컬럼 목록 갱신
       this._updateFilteredColumnList();
+    }
+  }
+
+  /**
+   * Physical type in selected column change event
+   * @param column
+   * @param type
+   */
+  public onChangeFieldPhysicalType(column: any, type: any): void {
+    // if different logicalType
+    if (column.logicalType !== type.value) {
+      // copy column data
+      const result = _.cloneDeep(column);
+      // change logicalType
+      result['logicalType'] = type.value;
+      result['op'] = 'replace';
+      // if logicalType is TIMESTAMP or type is TIMESTAMP
+      if (column.logicalType === 'TIMESTAMP' || type.value === 'TIMESTAMP') {
+        // if logical type is TIMESTAMP, delete format in column
+        if (column.logicalType === 'TIMESTAMP') {
+          delete result.format;
+        } else if (type.value === LogicalType.TIMESTAMP) {
+          // set default format
+          result['format'] = {
+            format: 'yyyy-MM-dd HH:mm:ss',
+            timeZone: this._timezoneService.getBrowserTimezone().momentName,
+            locale: this._timezoneService.browserLocale,
+            type: FieldFormatType.DATE_TIME
+          };
+        }
+        // if exist filtering and filteringOptions in column
+        if (column.filtering && column.filteringOptions) {
+          // new filteringOptions
+          result.filteringOptions = new FilteringOptions();
+          // if type is TIMESTAMP, add TIME filteringOptions
+          if (type.value === 'TIMESTAMP') {
+            result.filteringOptions.type = FilteringOptionType.TIME;
+            result.filteringOptions.defaultSelector = 'RANGE';
+            result.filteringOptions.allowSelectors = ['RANGE'];
+          } else {
+            // if type is not TIMESTAMP, add INCLUSION filteringOptions
+            result.filteringOptions.type = FilteringOptionType.INCLUSION;
+            result.filteringOptions.defaultSelector = 'SINGLE_LIST';
+            result.filteringOptions.allowSelectors = ['SINGLE_LIST'];
+          }
+        }
+      }
+      // update field
+      this._updateField([result]);
     }
   }
 
@@ -553,6 +602,27 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   }
 
   /**
+   * Update field
+   * @param params
+   * @private
+   */
+  private _updateField(params: any): void {
+    // loading show
+    this.loadingShow();
+    //update field
+    this.datasourceService.updateDatasourceFields(this.datasource.id, params)
+      .then((result) => {
+        // alert
+        Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
+        // loading hide
+        this.loadingHide();
+        // complete update schema
+        this.completeUpdatedSchema();
+      })
+      .catch(error => this.commonExceptionHandler(error));
+  }
+
+  /**
    * Update filtered column list
    * @private
    */
@@ -641,7 +711,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
     if (this.selectedField.role !== 'TIMESTAMP' && this.statsData.hasOwnProperty(this.selectedField.name)) {
       return this.statsData[this.selectedField.name];
     } else if (this.selectedField.role === 'TIMESTAMP' && this.statsData.hasOwnProperty('__time')) {
-    // If the selected field is a TIMESTAMP
+      // If the selected field is a TIMESTAMP
       return this.statsData['__time'];
     } else {
       return new Stats();

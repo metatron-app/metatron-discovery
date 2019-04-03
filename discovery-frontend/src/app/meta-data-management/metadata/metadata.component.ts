@@ -85,8 +85,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     protected injector: Injector,
     protected metadataService: MetadataService,
     protected catalogService: CatalogService,
-    public sanitizer: DomSanitizer,
-    private storageService: StorageService) {
+    public sanitizer: DomSanitizer) {
     super(element, injector);
   }
 
@@ -445,7 +444,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    * @private
    */
   private _initView() {
-    this.sourceTypeList = this.storageService.isEnableStageDB()
+    this.sourceTypeList = StorageService.isEnableStageDB
       ? [
         {label: 'All', value: ''},
         {label: 'Datasource', value: SourceType.ENGINE},

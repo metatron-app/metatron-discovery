@@ -14,14 +14,20 @@
 
 package app.metatron.discovery.domain.workbook.configurations.analysis;
 
+import com.google.common.base.Preconditions;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import org.apache.commons.lang3.BooleanUtils;
 
 public class GeoSpatialAnalysis implements Analysis {
 
   String mainLayer;
 
   String compareLayer;
+
+  boolean includeCompareLayer;
 
   GeoSpatialOperation operation;
 
@@ -31,10 +37,16 @@ public class GeoSpatialAnalysis implements Analysis {
   @JsonCreator
   public GeoSpatialAnalysis(@JsonProperty("mainLayer") String mainLayer,
                             @JsonProperty("compareLayer") String compareLayer,
+                            @JsonProperty("includeCompareLayer") Boolean includeCompareLayer,
                             @JsonProperty("operation") GeoSpatialOperation operation) {
-    this.mainLayer = mainLayer;
-    this.compareLayer = compareLayer;
-    this.operation = operation;
+    this.mainLayer = Preconditions.checkNotNull(mainLayer);
+    this.compareLayer = Preconditions.checkNotNull(compareLayer);
+    this.includeCompareLayer = BooleanUtils.isTrue(includeCompareLayer);
+    this.operation = Preconditions.checkNotNull(operation);
+  }
+
+  public boolean enableChoropleth() {
+    return operation.isChoropleth();
   }
 
   public String getMainLayer() {
@@ -43,6 +55,10 @@ public class GeoSpatialAnalysis implements Analysis {
 
   public String getCompareLayer() {
     return compareLayer;
+  }
+
+  public boolean isIncludeCompareLayer() {
+    return includeCompareLayer;
   }
 
   public GeoSpatialOperation getOperation() {

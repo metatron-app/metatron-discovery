@@ -132,10 +132,10 @@ public class DataSourceService {
     dataSource.setConnType(DataSource.ConnectionType.ENGINE);
     dataSource.setDsType(DataSource.DataSourceType.MASTER);
 
-    dataSource.setGranularity(segmentMetaData.getQueryGranularity() == null ? DataSource.GranularityType.NONE
+    dataSource.setGranularity(isEmptyGranularity(segmentMetaData.getQueryGranularity())? DataSource.GranularityType.NONE
         : getGranularityType(segmentMetaData.getQueryGranularity()));
 
-    dataSource.setSegGranularity(segmentMetaData.getSegmentGranularity() == null ? DataSource.GranularityType.DAY
+    dataSource.setSegGranularity(isEmptyGranularity(segmentMetaData.getSegmentGranularity()) ? DataSource.GranularityType.DAY
         : getGranularityType(segmentMetaData.getSegmentGranularity()));
 
     dataSource.setStatus(DataSource.Status.ENABLED);
@@ -146,6 +146,16 @@ public class DataSourceService {
     metadataService.saveFromDataSource(importedDataSource);
 
     return importedDataSource;
+  }
+
+  private boolean isEmptyGranularity(Granularity granularity) {
+    if (granularity == null) {
+      return true;
+    } else if (granularity instanceof SimpleGranularity && ((SimpleGranularity) granularity).getValue() == null) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   public DataSource.GranularityType getGranularityType(Granularity granularity) {
@@ -428,6 +438,7 @@ public class DataSourceService {
         //allow search
         criterion.setSearchable(true);
 
+        //published workspace
         criterion.addFilter(new ListFilter(criterionKey, "published", "true", "msg.storage.ui.criterion.open-data"));
 
         //my private workspace
@@ -435,10 +446,18 @@ public class DataSourceService {
         criterion.addFilter(new ListFilter(criterionKey, "workspace",
                                            myWorkspace.getId(), myWorkspace.getName()));
 
-        //my public workspace
-        List<Workspace> publicWorkspaces
+        //owner public workspace not published
+        List<Workspace> ownerPublicWorkspaces
+            = workspaceService.getPublicWorkspaces(false, true, false, null);
+        for(Workspace workspace : ownerPublicWorkspaces){
+          criterion.addFilter(new ListFilter(criterionKey, "workspace",
+                                             workspace.getId(), workspace.getName()));
+        }
+
+        //member public workspace not published
+        List<Workspace> memberPublicWorkspaces
             = workspaceService.getPublicWorkspaces(false, false, false, null);
-        for (Workspace workspace : publicWorkspaces) {
+        for (Workspace workspace : memberPublicWorkspaces) {
           criterion.addFilter(new ListFilter(criterionKey, "workspace",
                                              workspace.getId(), workspace.getName()));
         }

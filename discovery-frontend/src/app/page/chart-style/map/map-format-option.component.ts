@@ -52,6 +52,10 @@ export class MapFormatOptionComponent extends FormatOptionComponent {
 
     // 이전 필드목록의 포맷타입을 승계한다.
     for( let afterField of fieldList ) {
+      // 공간연산 실행시 custom field가 있기 때문에 validation 추가함
+      if(afterField.name == 'count' && !_.isUndefined(afterField['isCustomField']) && afterField['isCustomField'] == true) {
+        continue;
+      }
       let isBeforeFormat: boolean = false;
       for( let beforeField of this.fieldList ) {
         if( afterField.name == beforeField.name && afterField.aggregationType == beforeField.aggregationType ) {

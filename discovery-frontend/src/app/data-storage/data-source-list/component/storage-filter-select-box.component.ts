@@ -38,6 +38,12 @@ export class StorageFilterSelectBoxComponent extends AbstractComponent {
   public readonly isEnableIcon: boolean;
 
   @Input()
+  public readonly isDisableList: boolean;
+
+  @Input()
+  public readonly isOnlyStringList: boolean;
+
+  @Input()
   public selectedFilter: any;
 
   // select list show/hide flag
@@ -70,5 +76,14 @@ export class StorageFilterSelectBoxComponent extends AbstractComponent {
     this.selectedFilter = filter;
     // event emit
     this._changedFilter.emit(filter);
+  }
+
+  /**
+   * Change list show
+   */
+  public onChangeListShow(): void {
+    if (!this.isDisableList) {
+      this.isListShow = !this.isListShow
+    }
   }
 }

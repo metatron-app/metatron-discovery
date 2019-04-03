@@ -19,6 +19,7 @@ import {GranularityObject, GranularityService} from "./granularity.service";
 import {HiveFileFormat, PrDataSnapshot, SsType} from "../../domain/data-preparation/pr-snapshot";
 import * as _ from "lodash";
 import {CommonConstant} from "../../common/constant/common.constant";
+import {ConnectionParam} from "./data-connection-create.service";
 
 @Injectable()
 export class DataSourceCreateService {
@@ -184,54 +185,14 @@ export class DataSourceCreateService {
         value: LogicalType.GEO_POINT
       },
       {
-        label: this._translateService.instant('msg.storage.ui.list.expression'),
-        icon: 'ddp-icon-type-expression',
-        value: LogicalType.USER_DEFINED
-      }
-    ];
-  }
-
-  public getDimensionLogicalTypeList(): TypeFilterObject[] {
-    return [
-      {
-        label: this._translateService.instant('msg.storage.ui.list.string'),
-        icon: 'ddp-icon-type-ab',
-        value: LogicalType.STRING
+        label: this._translateService.instant('msg.storage.ui.list.geo.polygon'),
+        icon: 'ddp-icon-type-polygon',
+        value: LogicalType.GEO_POLYGON
       },
       {
-        label: this._translateService.instant('msg.storage.ui.list.boolean'),
-        icon: 'ddp-icon-type-tf',
-        value: LogicalType.BOOLEAN
-      },
-      {
-        label: this._translateService.instant('msg.storage.ui.list.integer'),
-        icon: 'ddp-icon-type-int',
-        value: LogicalType.INTEGER
-      },
-      {
-        label: this._translateService.instant('msg.storage.ui.list.double'),
-        icon: 'ddp-icon-type-float',
-        value: LogicalType.DOUBLE
-      },
-      {
-        label: this._translateService.instant('msg.storage.ui.list.date'),
-        icon: 'ddp-icon-type-calen',
-        value: LogicalType.TIMESTAMP
-      },
-      {
-        label: this._translateService.instant('msg.storage.ui.list.lnt'),
-        icon: 'ddp-icon-type-latitude',
-        value: LogicalType.LNT
-      },
-      {
-        label: this._translateService.instant('msg.storage.ui.list.lng'),
-        icon: 'ddp-icon-type-longitude',
-        value: LogicalType.LNG
-      },
-      {
-        label: this._translateService.instant('msg.storage.ui.list.geo.point'),
-        icon: 'ddp-icon-type-point',
-        value: LogicalType.GEO_POINT
+        label: this._translateService.instant('msg.storage.ui.list.geo.line'),
+        icon: 'ddp-icon-type-line',
+        value: LogicalType.GEO_LINE
       },
       {
         label: this._translateService.instant('msg.storage.ui.list.expression'),
@@ -239,31 +200,6 @@ export class DataSourceCreateService {
         value: LogicalType.USER_DEFINED
       }
     ];
-  }
-
-  public getMeasureLogicalTypeList(): TypeFilterObject[] {
-    return [
-      {
-        label: this._translateService.instant('msg.storage.ui.list.integer'),
-        icon: 'ddp-icon-type-int',
-        value: LogicalType.INTEGER
-      },
-      {
-        label: this._translateService.instant('msg.storage.ui.list.double'),
-        icon: 'ddp-icon-type-float',
-        value: LogicalType.DOUBLE
-      },
-    ];
-  }
-
-  public getConvertibleLogicalTypeList(isDimensionRole: boolean, isTypeString?: boolean): TypeFilterObject[] {
-    if (isDimensionRole) {
-      return isTypeString
-        ? this.getDimensionLogicalTypeList().filter(type => type.value !== LogicalType.USER_DEFINED && type.value !==  LogicalType.GEO_LINE && type.value !==  LogicalType.GEO_POLYGON)
-        : this.getDimensionLogicalTypeList().filter(type => type.value !== LogicalType.USER_DEFINED && type.value !==  LogicalType.GEO_POINT && type.value !==  LogicalType.GEO_LINE && type.value !==  LogicalType.GEO_POLYGON);
-    } else {
-      return  this.getMeasureLogicalTypeList();
-    }
   }
 
   /**
@@ -284,9 +220,13 @@ export class DataSourceCreateService {
       ingestion: this.getIngestionParams(sourceInfo)
     };
     // if snapshot type
-    sourceInfo.type === SourceType.SNAPSHOT && (result.snapshot = `/api/preparationsnapshots/${sourceInfo.snapshotData.selectedSnapshot.ssId}`);
+    if (sourceInfo.type === SourceType.SNAPSHOT) {
+      result.snapshot = `/api/preparationsnapshots/${sourceInfo.snapshotData.selectedSnapshot.ssId}`;
+    }
     // if db type, is enable connection preset
-    sourceInfo.type === SourceType.JDBC && sourceInfo.connectionData.isUsedConnectionPreset && (result.connection = `/api/connections/${sourceInfo.connectionData.selectedConnectionPreset.id}`);
+    if (sourceInfo.type === SourceType.JDBC && !sourceInfo.connectionData.selectedConnectionPreset.default) {
+      result.connection = `/api/connections/${sourceInfo.connectionData.selectedConnectionPreset.id}`;
+    }
     return result;
   }
 
@@ -516,8 +456,8 @@ export class DataSourceCreateService {
 export enum ConfigureTimestampType {
   // FIELD = <any>'FIELD',
   // CURRENT = <any>'CURRENT',
-  CURRENT_TIME = 'CURRENT_TIME',
-  TIMESTAMP_FIELD = 'TIMESTAMP_FIELD'
+  CURRENT_TIME = 'CURRENT',
+  TIMESTAMP_FIELD = 'FIELD'
 }
 
 // 타입 셀렉트 필터
@@ -615,6 +555,14 @@ export interface CreateSourceIngestionParams {
   partitions?: any[];
   paths?: string[];
   format?: {type: string, delimiter?: string, lineSeparator?: string, sheetIndex?: number};
+}
+
+export interface CreateConnectionData {
+  connectionPresetList;
+  selectedConnectionPreset;
+  selectedIngestionType;
+  pageResult?: PageResult;
+  connection: ConnectionParam;
 }
 
 // create data source stagingDB select step data

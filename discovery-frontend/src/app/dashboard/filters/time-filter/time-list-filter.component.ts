@@ -119,7 +119,7 @@ export class TimeListFilterComponent extends AbstractFilterPopupComponent implem
     const prevFilter: TimeListFilter = filterChanges.previousValue;
     const currFilter: TimeListFilter = filterChanges.currentValue;
     if (currFilter && (
-      !prevFilter || prevFilter.field !== currFilter.field ||
+      !prevFilter || prevFilter.field !== currFilter.field || prevFilter.timeUnit !== currFilter.timeUnit ||
       0 < _.difference(prevFilter.valueList, currFilter.valueList).length ||
       0 < _.difference(prevFilter.candidateValues, currFilter.candidateValues).length)) {
       this.setData(filterChanges.currentValue, !filterChanges.firstChange);

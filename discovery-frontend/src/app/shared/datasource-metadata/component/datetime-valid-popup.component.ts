@@ -164,7 +164,7 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
    */
   private _checkFormatValidation(isInitValid?: boolean): void {
     this.loadingShow();
-    this.fieldConfigService.checkEnableDateTimeFormatAndSetValidationResultInField1(this.format, this._valueList, isInitValid).then((format: FieldFormat) => {
+    this.fieldConfigService.checkEnableDateTimeFormatAndSetValidationResultInField(this.format, this._valueList, isInitValid).then((format: FieldFormat) => {
       this.loadingHide();
       // set format in defaultFormatObj
       if (isInitValid) {

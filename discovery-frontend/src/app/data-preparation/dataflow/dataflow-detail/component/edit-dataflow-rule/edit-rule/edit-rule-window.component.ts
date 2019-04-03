@@ -12,13 +12,23 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChildren, QueryList} from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Injector,
+  OnDestroy,
+  OnInit,
+  ViewChildren,
+  QueryList,
+} from '@angular/core';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import {isNullOrUndefined,isUndefined} from "util";
 import { RuleSuggestInputComponent } from './rule-suggest-input.component';
 import {WindowRule} from "../../../../../../domain/data-preparation/prep-rules";
+import {DataflowModelService} from "../../../../service/dataflow.model.service";
 
 interface formula {
   id: number;
@@ -56,6 +66,7 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   constructor(
+    private dataflowModelService:DataflowModelService,
     protected elementRef: ElementRef,
     protected injector: Injector) {
     super(elementRef, injector);
@@ -198,6 +209,13 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
 
   } // function - selectItem
 
+
+  /**
+   * When scrolled
+   */
+  public scrollHandler() {
+    this.dataflowModelService.scrollClose.next();
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method

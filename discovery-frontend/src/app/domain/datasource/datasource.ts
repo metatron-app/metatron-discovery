@@ -18,6 +18,7 @@ import { Dataconnection } from '../dataconnection/dataconnection';
 import { MetadataColumn } from '../meta-data-management/metadata-column';
 import { CodeTable } from '../meta-data-management/code-table';
 import {
+  CreateConnectionData,
   CreateSnapShotData,
   CreateSourceCompleteData,
   CreateSourceConfigureData
@@ -270,7 +271,7 @@ export class DatasourceInfo {
   public fieldData: any;
 
   // 1step 커넥션 정보
-  public connectionData: any;
+  public connectionData: CreateConnectionData;
 
   // 2step 데이터베이스 정보
   public databaseData: any;
@@ -457,31 +458,49 @@ export class FieldFormat {
   format: string;
   // default FieldFormatType.DATE_TIME
   type: FieldFormatType;
-  // default FieldFormatUnit.MILLISECOND
   unit: FieldFormatUnit;
   // timezone (default browser) TODO 추후 서비스 로직에서 default 설정
   timeZone: string;
   locale: string;
+  // GEO format
+  originalSrsName?: string;
   ////////////////////////////////////////////////////////////////////////////
   // Value to be used only on View
   ////////////////////////////////////////////////////////////////////////////
   isValidTimeFormat?: boolean;
   timeFormatValidMessage?: string;
+  // TODO 아래로 통일
+  isValidFormat?: boolean;
+  formatValidMessage?: string;
 
   formatInitialize() {
     this.format = 'yyyy-MM-dd';
   }
 
-  constructor() {
+  geoCoordinateInitialize() {
+    this.originalSrsName = 'EPSG:4326';
+  }
+
+  unitInitialize() {
     this.unit = FieldFormatUnit.MILLISECOND;
+  }
+
+  constructor() {
     this.type = FieldFormatType.DATE_TIME;
+    // TODO 타임스탬프 개선시 제거
+    this.unit = FieldFormatUnit.MILLISECOND;
   }
 }
 
 export enum FieldFormatType {
+  // TIMESTAMP
   DATE_TIME = <any>'time_format',
   UNIX_TIME = <any>'time_unix',
   TEMPORARY_TIME = <any>'time_temporary',
+  // GEO type
+  GEO_POINT = <any>'geo_point',
+  GEO_LINE = <any>'geo_line',
+  GEO_POLYGON = <any>'geo_polygon',
 }
 
 export enum FieldFormatUnit {

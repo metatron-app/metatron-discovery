@@ -14,8 +14,20 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import static org.junit.Assert.assertEquals;
+
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
+import app.metatron.discovery.domain.dataprep.etl.TeddyExecutor;
+import app.metatron.discovery.domain.dataprep.etl.TeddyOrcWriter;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -28,16 +40,6 @@ import org.apache.orc.TypeDescription;
 import org.apache.orc.Writer;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.io.File;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.*;
-
-import static org.junit.Assert.assertEquals;
-
-//import org.apache.hadoop.hive.ql.io.orc.OrcFile;
-//import org.apache.hadoop.hive.ql.io.orc.Writer;
 
 public class OrcTest extends TeddyTest {
 

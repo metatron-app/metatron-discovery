@@ -3,11 +3,7 @@ package app.metatron.discovery.domain.workbench;
 import org.junit.Test;
 
 /**
- * Project : metatron-discovery
- * Created by IntelliJ IDEA
- * Developer : sohncw
- * Date : 2018. 8. 22.
- * Time : AM 11:34
+ *
  */
 public class HiveQueryLogThreadTest {
 

@@ -1,0 +1,189 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-contents ddp-resize2 ddp-type2  ">
+  <!-- 닫기 버튼 -->
+  <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+  <!-- 닫기 버튼 -->
+  <div class="ddp-icon-name">
+    <div class="ddp-ui-name2 ddp-type3">
+      {{'msg.dp.ui.url.dataset.title' | translate}}
+      <span class="ddp-txt-info ddp-type">{{'msg.dp.ui.url.ph' | translate}}</span>
+      <em class="ddp-bg-order-line2-type"></em>
+    </div>
+  </div>
+  <div class="ddp-type-contents-in ddp-size-resize ">
+    <div class="ddp-wrap-urltype ">
+      <!-- edit -->
+      <div class="ddp-wrap-edit4">
+        <div class="ddp-label-type">URL</div>
+        <div class="ddp-form-edit type-file">
+          <div class="ddp-form-file">
+            <input type="text" class="ddp-input-typebasic" placeholder="{{'msg.dp.ui.url.ph' | translate }} (e.g. file://location/of/file.csv, hdfs://location/of/file.xls)"
+                   (keydown)="keydownEvent($event, 'url')"
+                   [(ngModel)]="storedUri">
+            <a href="javascript:" class="ddp-btn-pop ddp-bg-gray " (click)="checkValidation()">{{'msg.dp.btn.load.data' | translate}}</a>
+          </div>
+          <div class="ddp-ui-message ddp-ui-info ">
+            <span [ngClass]="{'ddp-data-error2': errorNum === 0, 'ddp-data-error': errorNum === 1 }" *ngIf="errorNum === 0 ||errorNum === 1">
+              <em *ngIf="errorNum === 1" class="ddp-icon-error"></em>
+              {{errorNum === 0 ? ('msg.common.ui.required' | translate) : ('msg.dp.ui.invalid.url' | translate) }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <!-- //edit -->
+
+      <div class="ddp-box-resultpreview ddp-box-type">
+        <!-- top -->
+        <div class="ddp-ui-pop-top">
+          <div class="ddp-label-type">{{'msg.dp.ui.data.preview' | translate}}</div>
+          <div class="ddp-wrap-grid-option">
+            <div class="ddp-part-right">
+              <!--<div class="ddp-data-form">-->
+                <!--<strong>{{currDetail.rows}}</strong>-->
+                <!--Rows-->
+              <!--</div>-->
+              <div class="ddp-data-form">
+                <strong>{{currDetail.columns}}</strong>
+                Column(s)
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <!-- //top -->
+
+        <div class="ddp-ui-create-file " [ngClass]="{'type-filelist-none':!isEXCEL}">
+          <!-- list file -->
+          <div class="ddp-list-create-file">
+            <ul class="ddp-list-file-name">
+
+              <li class="ddp-selected">
+
+                <div class="ddp-wrap-checkbox" (click)="selectFile($event,0)">
+                  <label class="ddp-label-checkbox" (click)="checkGroup($event, 0)">
+                    <input type="checkbox" [checked]="datasetFiles[0].selected">
+                    <i class="ddp-icon-checkbox"></i>
+                  </label>
+                  <span class="ddp-txt-checkbox">
+                      <span class="ddp-txt-subname">{{datasetFiles[0].fileExtension}} <em class="ddp-icon-error2" [ngStyle]="{'display': datasetFiles[0].error?'':'none'}"></em></span>
+                      <span class="ddp-txt-filename">{{datasetFiles[0].fileName}}.</span>
+                    </span>
+                </div>
+                <!-- //checkbox -->
+
+                <!-- sub -->
+                <ul class="ddp-list-sub-file">
+                  <li class="ddp-selected" *ngFor="let item of datasetFiles[0].sheetInfo; let j = index"
+                      [ngClass]="{'ddp-selected':currSheetIndex===j && currDSIndex===0}">
+                    <!-- checkbox -->
+                    <div class="ddp-wrap-checkbox" (click)="selectSheet($event, 0, item.sheetName, j)">
+                      <label class="ddp-label-checkbox" (click)="checkSheet($event, 0, j)">
+                        <input type="checkbox"  [checked]="item.selected">
+                        <i class="ddp-icon-checkbox"></i>
+                      </label>
+                      <span class="ddp-txt-checkbox">
+                          <span class="ddp-txt-subname"></span>
+                          <span class="ddp-txt-filename">{{item.sheetName}}</span>
+                        </span>
+                    </div>
+                    <!-- //checkbox -->
+                  </li>
+                </ul>
+                <!-- sub -->
+              </li>
+            </ul>
+          </div>
+          <!-- //list file -->
+
+          <!-- detail -->
+          <div class="ddp-wrap-create-detail ">
+            <div class="ddp-ui-create-detail">
+
+              <!-- 그리드 영역 -->
+              <div class="ddp-wrap-grid"  [ngStyle]="getGridStyle()">
+                <div class="ddp-ui-empty" *ngIf="clearGrid">{{'msg.dp.ui.validate.url' | translate}}</div>
+                <div grid-component style="width:100%; height:100%;" [hidden]="clearGrid" ></div>
+              </div>
+              <!-- //그리드 영역 -->
+
+
+              <div class="ddp-wrap-column-option" *ngIf="!clearGrid && !isJSON">
+                <!--
+                    ddp-fold-link 클릭시 ddp-selected 추가
+                -->
+                <div class="ddp-wrap-fold " [ngClass]="{'ddp-selected':settingFoldFlag}" >
+                  <a href="javascript:" class="ddp-fold-link" (click)="toggleAdvancedSetting()">{{'msg.dp.btn.advanced.settings' | translate}}</a>
+                  <div class="ddp-fold-det">
+
+                    <!-- edit -->
+                    <div class="ddp-wrap-edit3 ddp-type ddp-error" [ngStyle]="{'display': !isCSV?'none':''}">
+                      <label class="ddp-label-type">{{'msg.dp.th.col.delimiter' | translate}}</label>
+                      <!-- edit option -->
+                      <div class="ddp-ui-edit-option ddp-type">
+
+                        <!-- apply -->
+                        <div class="ddp-input-apply ddp-edit" [ngClass]="{'ddp-disabled': !isCSV}">
+                          <input type="text" placeholder="{{'msg.dp.th.col.delimiter.ph' | translate}}"
+                                 class="ddp-input-txt" [(ngModel)]="currDelimiter"
+                                 (keydown)="keydownEvent($event, 'delimiter')">
+                          <em class="ddp-icon-apply" (click)="changeDelimiter()"></em>
+                        </div>
+                        <!-- //apply -->
+                        <span class="ddp-data-error" [ngStyle]="{'visibility': isDelimiterRequired?'visible':'hidden'}">{{'msg.common.ui.required' | translate}}</span>
+                      </div>
+                    </div>
+
+                    <!-- edit -->
+                    <div class="ddp-wrap-edit3 ddp-type ddp-error" [ngStyle]="{'display': isCSV || isEXCEL? '':'none'}">
+                      <label class="ddp-label-type">{{'msg.dp.th.col.cnt' | translate}}</label>
+                      <!-- edit option -->
+                      <div class="ddp-ui-edit-option ddp-type">
+
+                        <!-- apply -->
+                        <div class="ddp-input-apply"  [ngClass]="{'ddp-disabled': isJSON}">
+                          <input type="text" placeholder="{{'msg.dp.th.col.cnt.ph' | translate}}" class="ddp-input-txt"
+                                 (keydown)="keydownEvent($event, 'colCnt')"
+                                 [(ngModel)]="currColumnCount" >
+                          <em class="ddp-icon-apply" (click)="changeColumnCount()"></em>
+                        </div>
+                        <!-- //apply -->
+                        <span class="ddp-data-error" [ngStyle]="{'visibility': isColumnCountRequired?'visible':'hidden'}">{{'msg.common.ui.required' | translate}}</span>
+                      </div>
+                      <!-- //edit option -->
+                    </div>
+                    <!-- //edit -->
+
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <!-- //detail -->
+
+        </div>
+        <!-- //그리드 영역 -->
+      </div>
+    </div>
+  </div>
+  <!-- buttons -->
+  <div class="ddp-ui-buttons">
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.cancl' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup  ddp-bg-black" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+  </div>
+  <!-- //buttons -->
+</div>
+

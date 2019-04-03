@@ -179,8 +179,7 @@
             </td>
             <td>
               <div class="ddp-input-form">
-                <input type="text" class="ddp-txt-input"
-                       (ngModelChange)="setReplaceFlag(column)" [(ngModel)]="column.logicalName">
+                <input type="text" class="ddp-txt-input" [(ngModel)]="column.logicalName">
                 <em class="ddp-bg-select"></em>
               </div>
             </td>
@@ -191,10 +190,10 @@
                 <span class="ddp-link-text ddp-txt-icon">
                   <em class="{{getFieldTypeIconClass(column.logicalType)}}"></em>
                   {{column.role === FIELD_ROLE.TIMESTAMP ? ('msg.storage.ui.list.timestamp' | translate) : getSelectedLogicalTypeLabel(column)}}
-                  <span class="ddp-wrap-icons" *ngIf="column.role !== FIELD_ROLE.TIMESTAMP && !column.derived"></span>
+                  <span class="ddp-wrap-icons" *ngIf="!isDisableChangeType(column)"></span>
                 </span>
                 <!-- popup -->
-                <div class="ddp-wrap-popup2 ddp-types ddp-scroll-none" *ngIf="column.role !== FIELD_ROLE.TIMESTAMP && !column.derived">
+                <div class="ddp-wrap-popup2 ddp-types ddp-scroll-none" *ngIf="!isDisableChangeType(column)">
                   <ul class="ddp-list-popup">
                     <li *ngFor="let type of convertibleTypeList"
                         [ngClass]="{'ddp-selected' : column.logicalType === type.value}">
@@ -209,8 +208,8 @@
                 <!-- //popup -->
               </div>
               <!-- //select -->
-              <div class="ddp-ui-info" [class.ddp-selected]="column.isShowTimestampValidPopup" *ngIf="isShowInformationIcon(column)">
-                <em [class.ddp-icon-sinfo2]="isValidInformationIcon(column)" [class.ddp-icon-error2]="isInvalidInformationIcon(column)" (click)="onClickInfoIcon(column)"></em>
+              <div class="ddp-ui-info" *ngIf="isShowInformationIcon(column)">
+                <em [class.ddp-icon-error2]="isInvalidInformationIcon(column)"></em>
                 <!-- format layer -->
                 <datetime-valid-popup *ngIf="column.isShowTimestampValidPopup"
                                       [format]="column?.format"
@@ -222,19 +221,18 @@
                                       (closed)="column.isShowTimestampValidPopup = undefined; setIsExistErrorInFieldListFlag()"></datetime-valid-popup>
                 <!-- //format layer -->
               </div>
-
             </td>
+            <!-- description -->
             <td>
               <div class="ddp-input-form">
                 <input type="text" class="ddp-txt-input"
-                       (ngModelChange)="setReplaceFlag(column)"
                        [(ngModel)]="column.description">
                 <em class="ddp-bg-select"></em>
               </div>
             </td>
+            <!-- //description -->
           </tr>
           </tbody>
-
         </table>
         <!-- //header -->
       </div>

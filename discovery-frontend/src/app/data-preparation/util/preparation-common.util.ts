@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { ImportType } from '../../domain/data-preparation/pr-dataset';
+import {FileFormat, ImportType} from '../../domain/data-preparation/pr-dataset';
 import { SsType } from '../../domain/data-preparation/pr-snapshot';
 import {isNullOrUndefined} from "util";
 
@@ -390,6 +390,24 @@ export class PreparationCommonUtil {
 
     return [val[0].split('.' + val[1])[0],val[1]]
 
+  }
+
+
+  /**
+   * Returns file format (csv, excel, json)
+   * @param fileExtension
+   */
+  public static getFileFormat(fileExtension: string) : FileFormat{
+    let fileType : string = fileExtension.toUpperCase();
+    if (fileType === 'CSV' || fileType === 'TXT'){
+      return FileFormat.CSV;
+    } else if (fileType === 'XLSX' || fileType === 'XLS'){
+      return FileFormat.EXCEL
+    } else if (fileType === 'JSON'){
+      return FileFormat.JSON
+    } else {
+      return null;
+    }
   }
 
   /**

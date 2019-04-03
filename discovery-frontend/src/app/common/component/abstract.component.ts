@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, ChangeDetectorRef, ElementRef, HostListener, Injector, OnDestroy, OnInit} from '@angular/core';
 import * as $ from 'jquery';
+import {AfterViewInit, ChangeDetectorRef, ElementRef, HostListener, Injector, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {Loading} from '../util/loading.util';
 import {TranslateService} from '@ngx-translate/core';
@@ -36,6 +36,10 @@ import {StompService, StompState} from '@stomp/ng2-stompjs';
 import {Observable} from 'rxjs';
 import {filter, map} from 'rxjs/operators';
 import {isUndefined} from "util";
+import {ImplementorType} from "../../domain/dataconnection/dataconnection";
+import {LogicalType} from '../../domain/datasource/datasource';
+
+declare let moment;
 
 export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanComponentDeactivate {
 
@@ -159,8 +163,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   /**
    * unload 전 실행
    */
-  public execBeforeUnload() {
-  }
+  public execBeforeUnload() {}
 
   /**
    * deactive 체크
@@ -247,6 +250,18 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   public isPermissionManager() {
     return CommonUtil.isValidPermission(SYSTEM_PERMISSION.MANAGE_WORKSPACE);
   } // function - isPermissionManager
+
+  /**
+   * moment 재정의
+   * @param date
+   */
+  public customMoment( date:(Date|string) ) {
+    if (date.constructor === String) {
+      return moment((<string>date).replace('.000Z', ''));
+    } else {
+      return moment(date);
+    }
+  } // function - customMoment
 
   // noinspection JSMethodCanBeStatic
   /**
@@ -556,6 +571,21 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
       {label: this.translateService.instant('msg.metadata.ui.dictionary.type.gu'), value: 'GU', icon: ''},
       {label: this.translateService.instant('msg.metadata.ui.dictionary.type.dong'), value: 'DONG', icon: ''},
       {label: this.translateService.instant('msg.metadata.ui.dictionary.type.etc'), value: 'ETC', icon: ''},
+      {
+        label: this.translateService.instant('msg.storage.ui.list.geo.point'),
+        value: LogicalType.GEO_POINT,
+        icon: 'ddp-icon-type-point'
+      },
+      {
+        label: this.translateService.instant('msg.storage.ui.list.geo.polygon'),
+        value: LogicalType.GEO_POLYGON,
+        icon: 'ddp-icon-type-polygon'
+      },
+      {
+        label: this.translateService.instant('msg.storage.ui.list.geo.line'),
+        value: LogicalType.GEO_LINE,
+        icon: 'ddp-icon-type-line'
+      },
     ];
   }
 
@@ -618,6 +648,68 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   public getGroupName(group: Group) {
     return (group && '__UNKNOWN_GROUP' !== group.name) ? group.name : '';
   } // function - getGroupName
+
+  /**
+   * 커넥션 타입 이미지 URL 반환 ( Color )
+   * @param {ImplementorType} impType
+   * @param {string} imgResource
+   * @return {string}
+   */
+  public getConnImplementorImgUrl(impType:ImplementorType, imgResource?:string ):string {
+    let connImgUrl = '';
+    switch (impType) {
+      case ImplementorType.MYSQL:
+        connImgUrl = location.origin + '/assets/images/img_db/ic-db-mysql.png';
+        break;
+      case ImplementorType.HIVE:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_hive.png';
+        break;
+      case ImplementorType.DRUID:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_druid.png';
+        break;
+      case ImplementorType.POSTGRESQL:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_post.png';
+        break;
+      case ImplementorType.PRESTO:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_presto.png';
+        break;
+      default:
+        connImgUrl = imgResource ? imgResource : location.origin + '/assets/images/img_db/ic_DB.png';
+        break;
+    }
+    return connImgUrl;
+  } // function - getConnImplementorImgUrl
+
+  /**
+   * 커넥션 타입 이미지 URL 반환 ( Gray )
+   * @param {ImplementorType} impType
+   * @param {string} imgResource
+   * @return {string}
+   */
+  public getConnImplementorGrayImgUrl(impType:ImplementorType, imgResource?:string ):string {
+    let connImgUrl = '';
+    switch (impType) {
+      case ImplementorType.MYSQL:
+        connImgUrl = location.origin + '/assets/images/img_db/ic-db-mysql-w.png';
+        break;
+      case ImplementorType.HIVE:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_hive_w.png';
+        break;
+      case ImplementorType.DRUID:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_druid_w.png';
+        break;
+      case ImplementorType.POSTGRESQL:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_post_w.png';
+        break;
+      case ImplementorType.PRESTO:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_presto_w.png';
+        break;
+      default:
+        connImgUrl = imgResource ? imgResource : location.origin + '/assets/images/img_db/ic_db_w.png';
+        break;
+    }
+    return connImgUrl;
+  } // function - getConnImplementorGrayImgUrl
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
@@ -778,7 +870,6 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
       });
     }, 500);
   } // function - sendViewActivityStream
-
 
   /**
    * Send Link Activity Stream
