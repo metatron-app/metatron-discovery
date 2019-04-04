@@ -306,8 +306,11 @@ public class AbstractSpecBuilder {
           csvStreamParser.setTimestampSpec(timestampSpec);
           csvStreamParser.setDimensionsSpec(dimensionsSpec);
           csvStreamParser.setColumns(columns);
-          csvStreamParser.setDelimiter(csvFormat.getDelimiter());
-          csvStreamParser.setRecordSeparator(csvFormat.getLineSeparator());
+
+          if(!csvFormat.isDefaultCsvMode()) {
+            csvStreamParser.setDelimiter(csvFormat.getDelimiter());
+            csvStreamParser.setRecordSeparator(csvFormat.getLineSeparator());
+          }
 
           parser = csvStreamParser;
         } else {
