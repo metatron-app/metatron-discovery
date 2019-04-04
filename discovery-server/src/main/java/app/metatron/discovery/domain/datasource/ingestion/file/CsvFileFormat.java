@@ -47,7 +47,7 @@ public class CsvFileFormat implements FileFormat {
   @JsonIgnore
   public boolean isDefaultCsvMode() {
     return DEFAULT_DELIMITER.equals(delimiter)
-        && DEFAULT_LINE_SEPARATOR.equals(DEFAULT_LINE_SEPARATOR)
+        && DEFAULT_LINE_SEPARATOR.equals(lineSeparator)
         ? true : false;
   }
 

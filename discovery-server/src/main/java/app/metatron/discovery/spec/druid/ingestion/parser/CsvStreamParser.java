@@ -16,6 +16,8 @@
 
 package app.metatron.discovery.spec.druid.ingestion.parser;
 
+import com.fasterxml.jackson.annotation.JsonRawValue;
+
 import java.util.List;
 
 public class CsvStreamParser implements Parser {
@@ -26,12 +28,14 @@ public class CsvStreamParser implements Parser {
 
   List<String> columns;
 
+  @JsonRawValue
   String delimiter;
 
   Character quoteCharacter;
 
   Character escapeCharacter;
 
+  @JsonRawValue
   String recordSeparator;
 
   String nullString;
@@ -89,7 +93,11 @@ public class CsvStreamParser implements Parser {
   }
 
   public void setDelimiter(String delimiter) {
-    this.delimiter = delimiter;
+    if (!delimiter.startsWith("\"")){
+      this.delimiter = "\"" + delimiter + "\"";
+    } else {
+      this.delimiter = delimiter;
+    }
   }
 
   public Character getQuoteCharacter() {
@@ -113,7 +121,11 @@ public class CsvStreamParser implements Parser {
   }
 
   public void setRecordSeparator(String recordSeparator) {
-    this.recordSeparator = recordSeparator;
+    if (!recordSeparator.startsWith("\"")){
+      this.recordSeparator = "\"" + recordSeparator + "\"";
+    } else {
+      this.recordSeparator = recordSeparator;
+    }
   }
 
   public String getNullString() {
