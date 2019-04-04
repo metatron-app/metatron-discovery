@@ -933,7 +933,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.changeDetect.detectChanges();
 
     // Map data place fit
-    if ((this.drawByType == EventType.CHANGE_PIVOT && isLogicalType && this.shelf.layers[layerIndex].fields[this.shelf.layers[layerIndex].fields.length - 1].field.logicalType != null) && 'Infinity'.indexOf(source.getExtent()[0]) == -1 &&
+    if (( (this.drawByType == EventType.CHART_TYPE || this.drawByType == EventType.CHANGE_PIVOT) && isLogicalType && this.shelf.layers[layerIndex].fields[this.shelf.layers[layerIndex].fields.length - 1].field.logicalType != null) && 'Infinity'.indexOf(source.getExtent()[0]) == -1 &&
       (_.isUndefined(this.uiOption['layers'][layerIndex]['changeCoverage']) || this.uiOption['layers'][layerIndex]['changeCoverage'])) {
       this.olmap.getView().fit(source.getExtent());
     } else {

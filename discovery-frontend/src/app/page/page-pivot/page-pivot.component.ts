@@ -507,13 +507,6 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       return field.name === targetField.name && targetField.role === field.role;
     });
 
-    // GEO data is only usable in map chart
-    if (targetField.logicalType && -1 !== targetField.logicalType.toString().indexOf('GEO')) {
-      shelf.splice(idx, 1);
-      Alert.warning(this.translateService.instant('msg.storage.ui.list.geo.block.other.charts'));
-      return;
-    }
-
     if (idx > -1) {
       let field;
 

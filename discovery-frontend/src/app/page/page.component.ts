@@ -2455,14 +2455,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       }
       return;
 
-      // other charts
-    } else {
-
-      // GEO data is only usable in map chart
-      if (targetField.logicalType && -1 !== targetField.logicalType.toString().indexOf('GEO')) {
-        Alert.warning(this.translateService.instant('msg.storage.ui.list.geo.block.other.charts'));
-        return;
-      }
     }
 
     // 이미 들어가있는 선반을 찾는다.

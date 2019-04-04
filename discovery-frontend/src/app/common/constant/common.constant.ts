@@ -76,4 +76,6 @@ export class CommonConstant {
 
   public static PROP_MAP_CONFIG:string = 'METATRON_PROP_MAP_CONFIG';
 
+  public static MAP_ANALYSIS_LAYER_NAME:string = 'SpatialAnalysisLayer';
+
 }
