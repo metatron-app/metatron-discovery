@@ -377,6 +377,10 @@ export class SchemaConfigComponent extends AbstractComponent {
     fieldList.length !== 0 && this._initTimeFormatInTimestampFieldList(fieldList);
   }
 
+  /**
+   * Change logical type to GEO
+   * @param {Field[]} fieldList
+   */
   public onChangedLogicalTypeToGeo(fieldList: Field[]): void {
     console.log(fieldList);
     if (fieldList.length !== 0) {
@@ -473,13 +477,19 @@ export class SchemaConfigComponent extends AbstractComponent {
    */
   public isErrorField(field: Field): boolean {
     // is not removed field, is time format error or ingestion value error
-    return !field.unloaded &&
+    return !this.isRemovedField(field) &&
       ((field.logicalType === LogicalType.TIMESTAMP && (field.format && field.format.type === FieldFormatType.DATE_TIME) && field.isValidTimeFormat === false)
         || (field.ingestionRule && field.ingestionRule.type === IngestionRuleType.REPLACE && field.isValidReplaceValue === false) || this.isGeoFormatError(field));
   }
 
+  /**
+   * Is geo format error
+   * @param {Field} field
+   * @return {boolean}
+   */
   public isGeoFormatError(field: Field): boolean {
-    return (field.logicalType === LogicalType.GEO_LINE || field.logicalType === LogicalType.GEO_POINT || field.logicalType === LogicalType.GEO_POLYGON)&& field.format && !field.format.isValidFormat;
+    return !field.derived && (field.logicalType === LogicalType.GEO_LINE || field.logicalType === LogicalType.GEO_POINT || field.logicalType === LogicalType.GEO_POLYGON)
+      && field.format && !field.format.isValidFormat;
   }
 
   /**
@@ -559,7 +569,7 @@ export class SchemaConfigComponent extends AbstractComponent {
       return false;
     }
     // enable field list
-    const enableFieldList = this._originFieldList.filter(field => !field.unloaded);
+    const enableFieldList = this._originFieldList.filter(field => !this.isRemovedField(field));
     // if all field unloaded
     if (enableFieldList.length === 0) {
       Alert.warning(this.translateService.instant('msg.storage.ui.configure.schema.require.column'));
@@ -775,6 +785,6 @@ export class SchemaConfigComponent extends AbstractComponent {
    * @private
    */
   private _setTimestampFieldList(): void {
-    this.timestampFieldList = this._originFieldList.filter(field => !field.unloaded && LogicalType.TIMESTAMP === field.logicalType);
+    this.timestampFieldList = this._originFieldList.filter(field => !this.isRemovedField(field) && LogicalType.TIMESTAMP === field.logicalType);
   }
 }

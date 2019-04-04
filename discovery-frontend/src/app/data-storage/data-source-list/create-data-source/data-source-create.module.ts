@@ -56,6 +56,7 @@ import {SchemaConfigDataPreviewComponent} from "../../component/schema-config/sc
 import {DataflowModelService} from "../../../data-preparation/dataflow/service/dataflow.model.service";
 import {DataStorageCommonModule} from "../../data-storage-common.module";
 import {DataStorageShareModule} from "../../data-storage-share.module";
+import {FieldConfigService} from "../../service/field-config.service";
 
 
 @NgModule({
@@ -166,7 +167,8 @@ import {DataStorageShareModule} from "../../data-storage-share.module";
     GranularityService,
     TimezoneService,
     DataSnapshotService,
-    DataflowModelService
+    DataflowModelService,
+    FieldConfigService
   ]
 })
 export class DataSourceCreateModule {
