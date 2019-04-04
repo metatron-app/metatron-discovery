@@ -24,6 +24,7 @@ import {
   CreateSourceConfigureData
 } from "../../data-storage/service/data-source-create.service";
 import {PrDataSnapshot} from "../data-preparation/pr-snapshot";
+import {isNullOrUndefined} from "util";
 
 export class Datasource extends AbstractHistoryEntity {
   id: string;             // ID
@@ -156,7 +157,7 @@ export class Field {
   // format
   // TODO 추후 FieldFormat으로 변환
   // format: FieldFormat;
-  format: any;
+  format: any | FieldFormat;
 
   // Field 별칭
   alias: string;
@@ -189,6 +190,8 @@ export class Field {
   isShowTypeList?: boolean;
   isShowTimestampValidPopup?: boolean;
 
+
+
   // [UI] for Alias
   dsId?:string;                   // 데이터소스 아이디
   dataSource?: string;            // 데이터소스 engine Name
@@ -198,6 +201,14 @@ export class Field {
 
   // for MetaData
   uiMetaData?: MetadataColumn;
+
+  // for Datasource detail
+  op?: 'replace';
+
+  removeUIproperties?() {
+    delete this.isShowTypeList;
+    delete this.isValidType;
+  }
 
   /**
    * 차원값의 타입 아이콘 클래스 반환
@@ -455,15 +466,13 @@ export enum TempDsStatus {
 }
 
 export class FieldFormat {
-  format: string;
   // default FieldFormatType.DATE_TIME
   type: FieldFormatType;
-  unit: FieldFormatUnit;
-  // timezone (default browser) TODO 추후 서비스 로직에서 default 설정
-  timeZone: string;
-  locale: string;
-  // GEO format
-  originalSrsName?: string;
+  unit?: FieldFormatUnit;  // ONLY USE UNIX
+  format?: string; // ONLY USE TIME
+  timeZone?: string; // ONLY USE TIME (default browser) TODO 추후 서비스 로직에서 default 설정
+  locale?: string; // ONLY USE TIME
+  originalSrsName?: string; // ONLY GEO
   ////////////////////////////////////////////////////////////////////////////
   // Value to be used only on View
   ////////////////////////////////////////////////////////////////////////////
@@ -485,10 +494,47 @@ export class FieldFormat {
     this.unit = FieldFormatUnit.MILLISECOND;
   }
 
+  removeDateTypeProperties() {
+    delete this.format;
+    delete this.timeZone;
+    delete this.locale;
+  }
+
+  removeUnixTypeProperties() {
+    delete this.unit;
+  }
+
+  removeUIProperties() {
+    delete this.isValidFormat;
+    delete this.formatValidMessage;
+  }
+
   constructor() {
     this.type = FieldFormatType.DATE_TIME;
     // TODO 타임스탬프 개선시 제거
     this.unit = FieldFormatUnit.MILLISECOND;
+  }
+
+  public static of(fieldFormat: FieldFormat) {
+    let resultFieldFormat = new FieldFormat();
+    resultFieldFormat.type = fieldFormat.type;
+    // if not undefined properties
+    if (!isNullOrUndefined(fieldFormat.unit)) {
+      resultFieldFormat.unit = fieldFormat.unit;
+    }
+    if (!isNullOrUndefined(fieldFormat.timeZone)) {
+      resultFieldFormat.timeZone = fieldFormat.timeZone;
+    }
+    if (!isNullOrUndefined(fieldFormat.format)) {
+      resultFieldFormat.format = fieldFormat.format;
+    }
+    if (!isNullOrUndefined(fieldFormat.locale)) {
+      resultFieldFormat.locale = fieldFormat.locale;
+    }
+    if (!isNullOrUndefined(fieldFormat.originalSrsName)) {
+      resultFieldFormat.originalSrsName = fieldFormat.originalSrsName;
+    }
+    return resultFieldFormat;
   }
 }
 
@@ -504,8 +550,8 @@ export enum FieldFormatType {
 }
 
 export enum FieldFormatUnit {
-  SECOND = <any>'second',
-  MILLISECOND = <any>'millisecond'
+  SECOND = 'SECOND',
+  MILLISECOND = 'MILLISECOND'
 }
 
 export enum IngestionRuleType {

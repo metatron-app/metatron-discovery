@@ -12,11 +12,11 @@
   ~ limitations under the License.
   -->
 <!-- box -->
-<div class="ddp-box-layout4 type-time" (clickOutside)="cancel()" [delayClickOutsideInit]="true">
-  <a href="javascript:" class="ddp-btn-close" (click)="cancel()"></a>
-  <div class="ddp-data-title">
+<div class="ddp-box-layout4 type-time" (clickOutside)="cancelPopup()" [delayClickOutsideInit]="true" *ngIf="isPopupShow">
+  <div class="ddp-data-title" >
     {{'msg.storage.ui.schema.column.format.title' | translate}}
   </div>
+  <a href="javascript:" class="ddp-btn-close" (click)="cancelPopup()"></a>
   <div class="ddp-data-det">
     <!--edit -->
     <div class="ddp-wrap-edit3">
@@ -111,7 +111,7 @@
         </label>
         <div class="ddp-type-format" (click)="onChangeEnableUnixType(); $event.preventDefault()">
           <label class="ddp-label-checkbox">
-            <input type="checkbox" [checked]=" format.type === FIELD_FORMAT_TYPE.UNIX_TIME">
+            <input type="checkbox" [checked]=" fieldFormat.type === FIELD_FORMAT_TYPE.UNIX_TIME">
             <i class="ddp-icon-checkbox"></i>
             <span class="ddp-txt-checkbox">{{'msg.storage.ui.enable.unix' | translate}}</span>
           </label>
@@ -120,23 +120,23 @@
       <!-- edit option -->
       <div class="ddp-ui-option-in">
         <!-- apply -->
-        <div class="ddp-type-apply" *ngIf="format.type === FIELD_FORMAT_TYPE.DATE_TIME">
+        <div class="ddp-type-apply" *ngIf="fieldFormat.type === FIELD_FORMAT_TYPE.DATE_TIME">
           <!-- input text 입력시 ddp-edit 추가 -->
           <div class="ddp-input-apply">
-            <input type="text" placeholder="Enter column delimiter" class="ddp-input-txt" [(ngModel)]="format.format" (ngModelChange)="format.isValidTimeFormat = undefined">
+            <input type="text" placeholder="Enter column delimiter" class="ddp-input-txt" [(ngModel)]="fieldFormat.format" (ngModelChange)="prevFormat = $event">
             <em class="ddp-icon-apply" (click)="onClickFormatValidation()"></em>
           </div>
-          <div class="ddp-txt-error" *ngIf="format.isValidTimeFormat === false">
-            <em class="ddp-icon-error-s"></em>{{format.timeFormatValidMessage}}
+          <div class="ddp-txt-error" *ngIf="fieldFormat.isValidFormat === false">
+            <em class="ddp-icon-error-s"></em>{{fieldFormat.formatValidMessage}}
           </div>
         </div>
         <!-- //apply -->
 
         <!-- checkbox -->
-        <ul class="ddp-list-checktype" *ngIf="format.type === FIELD_FORMAT_TYPE.UNIX_TIME">
+        <ul class="ddp-list-checktype" *ngIf="fieldFormat.type === FIELD_FORMAT_TYPE.UNIX_TIME">
           <li *ngFor="let type of formatUnitList">
             <label class="ddp-label-radio" (click)="onChangeUnixType(type)">
-              <input type="radio" [checked]="format.unit === type.value">
+              <input type="radio" [checked]="fieldFormat.unit === type.value">
               <i class="ddp-icon-radio"></i>
               <span class="ddp-txt-radio">{{type.label}}</span>
             </label>
@@ -148,7 +148,7 @@
     </div>
     <!--//edit -->
     <!-- edit -->
-    <div class="ddp-wrap-edit3 type-det" *ngIf="format.type === FIELD_FORMAT_TYPE.DATE_TIME && format.timeZone !== 'DISABLE_ZONE'">
+    <div class="ddp-wrap-edit3 type-det" *ngIf="fieldFormat.isValidFormat && fieldFormat.type === FIELD_FORMAT_TYPE.DATE_TIME && fieldFormat.timeZone !== TIMEZONE_DISABLE_KEY">
       {{'msg.storage.ui.timezone' | translate}}
       <span class="ddp-txt-det">{{getTimezoneLabel()}}</span>
     </div>

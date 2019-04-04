@@ -454,8 +454,6 @@ export class DataSourceCreateService {
 }
 
 export enum ConfigureTimestampType {
-  // FIELD = <any>'FIELD',
-  // CURRENT = <any>'CURRENT',
   CURRENT_TIME = 'CURRENT',
   TIMESTAMP_FIELD = 'FIELD'
 }
