@@ -17,7 +17,7 @@ import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output
 import {AbstractFilterPopupComponent} from 'app/dashboard/filters/abstract-filter-popup.component';
 import {Filter} from '../../domain/workbook/configurations/filter/filter';
 import {Dashboard} from '../../domain/dashboard/dashboard';
-import {ConnectionType, Datasource, Field, FieldRole, LogicalType} from '../../domain/datasource/datasource';
+import {ConnectionType, Datasource, Field, FieldRole} from '../../domain/datasource/datasource';
 import {CustomField} from '../../domain/workbook/configurations/field/custom-field';
 import {InclusionFilter} from '../../domain/workbook/configurations/filter/inclusion-filter';
 import {ConfigureFiltersInclusionComponent} from './inclusion-filter/configure-filters-inclusion.component';
@@ -86,7 +86,7 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
   public dataSource: Datasource;
 
   @Output()
-  public goToSelectField: EventEmitter<any> = new EventEmitter();
+  public goToSelectField: EventEmitter<Filter> = new EventEmitter();
 
   @Output()
   public done: EventEmitter<Filter> = new EventEmitter();
@@ -148,7 +148,7 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
    * Back Button 클릭 이벤트 핸들러
    */
   public clickBtnBack() {
-    this.goToSelectField.emit();
+    this.goToSelectField.emit(this.targetFilter);
   } // function - clickBtnBack
 
   /**

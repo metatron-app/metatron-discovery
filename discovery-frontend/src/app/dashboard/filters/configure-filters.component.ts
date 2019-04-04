@@ -136,11 +136,12 @@ export class ConfigureFiltersComponent extends AbstractFilterPopupComponent impl
 
   /**
    * 필드 선택 컴포넌트를 연다.
+   * @param {Filter} selectedFilter
    */
-  public showSelectFieldComp() {
+  public showSelectFieldComp(selectedFilter:Filter) {
     const dataSources:Datasource[] = DashboardUtil.getMainDataSources( this._board );
     this._selectFieldComp.open(
-      this._board.configuration, dataSources, this._getTargetDataSource( dataSources, this._widget ),
+      this._board.configuration, dataSources, dataSources.find( ds => ds.engineName === selectedFilter.dataSource ),
       this._chartFilters, this._widget
     );
     this._updateFilterComp.close();
