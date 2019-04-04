@@ -303,22 +303,13 @@ public class AbstractSpecBuilder {
 
           CsvFileFormat csvFormat = (CsvFileFormat) fileFormat;
 
-          if (!csvFormat.isDefaultCsvMode()) {
-            csvStreamParser.setTimestampSpec(timestampSpec);
-            csvStreamParser.setDimensionsSpec(dimensionsSpec);
-            csvStreamParser.setColumns(columns);
-            csvStreamParser.setDelimiter(csvFormat.getDelimiter());
+          csvStreamParser.setTimestampSpec(timestampSpec);
+          csvStreamParser.setDimensionsSpec(dimensionsSpec);
+          csvStreamParser.setColumns(columns);
+          csvStreamParser.setDelimiter(csvFormat.getDelimiter());
+          csvStreamParser.setRecordSeparator(csvFormat.getLineSeparator());
 
-            parser = csvStreamParser;
-          } else {
-            csvStreamParser.setTimestampSpec(timestampSpec);
-            csvStreamParser.setDimensionsSpec(dimensionsSpec);
-            csvStreamParser.setColumns(columns);
-            csvStreamParser.setDelimiter(csvFormat.getDelimiter());
-            csvStreamParser.setRecordSeparator(csvFormat.getLineSeparator());
-
-            parser = csvStreamParser;
-          }
+          parser = csvStreamParser;
         } else {
           csvStreamParser.setTimestampSpec(timestampSpec);
           csvStreamParser.setDimensionsSpec(dimensionsSpec);
