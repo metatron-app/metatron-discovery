@@ -106,7 +106,7 @@
               <div class="ddp-ui-option-in">
                 <storage-filter-select-box [filterList]="geoCoordinateList"
                                            [isOnlyStringList]="true"
-                                           [isDisableList]="!selectedField.format.isValidFormat"
+                                           [isDisableList]="!selectedField.derived && !selectedField.format.isValidFormat"
                                            [selectedFilter]="selectedField.format.originalSrsName"
                                            (changedFilter)="onChangeGeoCoordinateInField(selectedField, $event)">
                 </storage-filter-select-box>
