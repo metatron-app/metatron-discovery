@@ -35,7 +35,6 @@ import {
   LegendConvertType,
   SPEC_VERSION
 } from '../../../common/component/chart/option/define/common';
-import {saveAs} from 'file-saver';
 import {AbstractWidgetComponent} from '../abstract-widget.component';
 import {PageWidget, PageWidgetConfiguration} from '../../../domain/dashboard/widget/page-widget';
 import {BaseChart, ChartSelectInfo} from '../../../common/component/chart/base-chart';
@@ -1082,7 +1081,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   /**
    * redraw chart
    */
-  public changeDraw(value?: any) {
+  public changeDraw() {
     this._search();
   }
 
@@ -1368,6 +1367,26 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         this.updateComplete();
         return;
       }
+
+      // 외부필터가 없고 글로벌 필터가 있을 경우 추가 (초기 진입시)
+      if( isNullOrUndefined(globalFilters) ) {
+        globalFilters = [];
+        this.widgetConfiguration.shelf.layers
+          .filter(layer => layer.name !== CommonConstant.MAP_ANALYSIS_LAYER_NAME).forEach( layer => {
+          globalFilters = globalFilters.concat( DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, layer.ref) );
+        });
+      }
+
+      // 외부 필터 ( 글로벌 필터 + Selection Filter )
+      {
+        let externalFilters = currentSelectionFilters ? globalFilters.concat(currentSelectionFilters) : globalFilters;
+        this.widgetConfiguration.shelf.layers
+          .filter(layer => layer.name !== CommonConstant.MAP_ANALYSIS_LAYER_NAME).forEach( layer => {
+          uiCloneQuery.filters
+            = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, layer.ref, externalFilters).concat(uiCloneQuery.filters);
+        });
+      }
+
     } else {
       // General Chart
 
@@ -1392,7 +1411,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         externalFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, widgetDataSource.engineName, externalFilters);
         uiCloneQuery.filters = externalFilters.concat(uiCloneQuery.filters);
       }
-
     }
 
     this.isShowNoData = false;
