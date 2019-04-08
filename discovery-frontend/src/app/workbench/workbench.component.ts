@@ -76,6 +76,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // 에디터 행수
   private MAX_LINES: number = 20;
 
+  private _gridScrollEvtSub: any;
+
   // 그리드
   @ViewChild('main')
   private gridComponent: GridComponent;
@@ -347,6 +349,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public supportSaveAsHiveTable: boolean = false;
 
   public connTargetImgUrl: string = '';
+
+  public hideResultButtons: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -2480,6 +2484,19 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         .RowSelectionActivate(true)
         .build()
       );
+      if (this._gridScrollEvtSub) {
+        this._gridScrollEvtSub.unsubscribe();
+        this._gridScrollEvtSub = undefined;
+      }
+      const $gridViewport = $('.slick-viewport');
+      const $gridCanvas = $('.grid-canvas');
+      this._gridScrollEvtSub
+        = this.gridComponent.grid.onScroll.subscribe((data1, data2) => {
+        if (data2.scrollTop > $gridViewport.height()) {
+          this.hideResultButtons = (data2.scrollTop > ($gridCanvas.height() - $gridViewport.height() - 30 ));
+          this.safelyDetectChanges();
+        }
+      });
     }
 
     if (this.searchText !== '') {
