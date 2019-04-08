@@ -25,7 +25,6 @@ import {CodeTableService} from '../../../code-table/service/code-table.service';
 import {CodeValuePair} from '../../../../domain/meta-data-management/code-value-pair';
 import {ColumnDictionaryService} from '../../../column-dictionary/service/column-dictionary.service';
 import {Alert} from '../../../../common/util/alert.util';
-import {CommonConstant} from '../../../../common/constant/common.constant';
 import {MetadataSourceType} from '../../../../domain/meta-data-management/metadata';
 import {CommonUtil} from '../../../../common/util/common.util';
 import {ConstantService} from '../../../../shared/datasource-metadata/service/constant.service';
@@ -515,32 +514,14 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   private _getColumnSchemas(): void {
     this.loadingShow();
     this._metaDataService.getColumnSchemaListInMetaData(this.metaDataModelService.getMetadata().id).then((result) => {
-      this._getMetadataDetail().then(metadata => {
-        _.get(metadata, 'columns', []).forEach((column, index) => {
-          const format = _.get(column, 'format', undefined);
-          if (this._isNotNil(format)) {
-            if (!(result[index].physicalName === CommonConstant.COL_NAME_CURRENT_DATETIME && result[index].physicalType === 'TIMESTAMP')) {
-              result[index].format = format;
-            }
-          }
-        });
-        this._hideCurrentTime(result);
-        this._saveColumnDataOriginal();
-        this.loadingHide();
-      }).catch(error => this.commonExceptionHandler(error));
+      this._hideCurrentTime(result);
+      this._saveColumnDataOriginal();
+      this.loadingHide();
     }).catch(error => this.commonExceptionHandler(error));
   }
 
-  // noinspection JSMethodCanBeStatic
-  private _isNotNil(format) {
-    return _.negate(_.isNil)(format);
-  }
-
   private _hideCurrentTime(result) {
-    this.columnList = result.filter((item) => {
-      return !(item.physicalName === CommonConstant.COL_NAME_CURRENT_DATETIME && item.physicalType === 'TIMESTAMP')
-        && item.role !== this.ROLE.TIMESTAMP;
-    });
+    this.columnList = result.filter((metadataColumn: MetadataColumn) => MetadataColumn.isCurrentDatetime(metadataColumn) === false);
   }
 
   /**

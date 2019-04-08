@@ -230,7 +230,7 @@
         <td *ngIf="isDatasourceSourceTypeIsJdbc() && isMetadataSourceTypeIsEngine()" class="ddp-disabled">
           <span class="ddp-box-tag-value"
                 [class.ddp-measure]="column.role === ROLE.MEASURE"
-                [class.ddp-dimension]="column.role === ROLE.DIMENSION">
+                [class.ddp-dimension]="column.role === ROLE.DIMENSION || column.role === ROLE.TIMESTAMP">
             {{ column.role === ROLE.MEASURE ? ('msg.comm.name.mea' | translate) : ('msg.comm.name.dim' | translate) }}
           </span>
         </td>
@@ -282,6 +282,7 @@
                   {{getSelectedLogicalTypeLabel(column)}}
                   <span class="ddp-wrap-icons" *ngIf="isLogicalTypesLayerActivation(column)"></span>
                 </span>
+            <!--suppress JSUnusedGlobalSymbols -->
             <div class="ddp-wrap-popup2 ddp-types ddp-scroll-none ddp-pop-fix" #logicalTypeList>
               <ul class="ddp-list-popup">
                 <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.STRING)">

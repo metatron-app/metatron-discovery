@@ -12,11 +12,12 @@
  * limitations under the License.
  */
 
-import {FieldFormat} from '../datasource/datasource';
+import {FieldFormat, FieldFormatType} from '../datasource/datasource';
 import {ColumnDictionary} from './column-dictionary';
 import {CodeTable} from './code-table';
 import {MetadataSource} from './metadata-source';
 import {Type} from '../../shared/datasource-metadata/domain/type';
+import * as _ from 'lodash';
 
 export class MetadataColumn {
   // id
@@ -41,6 +42,13 @@ export class MetadataColumn {
   public popularity: number;
   // 역할
   public role: Type.Role;
+
+  public static isCurrentDatetime(metadataColumn: MetadataColumn) {
+    return _.negate(_.isNil)(metadataColumn.format)
+      && _.negate(_.isNil)(metadataColumn.format.type)
+      && metadataColumn.format.type === FieldFormatType.TEMPORARY_TIME
+      && metadataColumn.role === Type.Role.TIMESTAMP;
+  }
 
   ////////////////////////////////////////////////////////////////////////////
   // Value to be used only on View
