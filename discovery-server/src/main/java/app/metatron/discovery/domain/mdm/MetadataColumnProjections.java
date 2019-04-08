@@ -61,6 +61,9 @@ public class MetadataColumnProjections extends BaseProjections {
     ColumnDictionary getDictionary();
 
     CodeTable getCodeTable();
+
+    @Value("#{target.getFieldFormat()}")
+    Object getFormat();
   }
 
   @Projection(types = MetadataColumn.class, name = "forDictionaryListView")
