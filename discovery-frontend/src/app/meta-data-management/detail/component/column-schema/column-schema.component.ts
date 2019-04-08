@@ -14,7 +14,7 @@
 
 import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChildren} from '@angular/core';
 import {AbstractComponent} from '../../../../common/component/abstract.component';
-import {Datasource, FieldFormat, FieldFormatType, SourceType} from '../../../../domain/datasource/datasource';
+import {FieldFormat, FieldFormatType} from '../../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import {MetadataService} from '../../../metadata/service/metadata.service';
 import {MetadataModelService} from '../../../metadata/service/metadata.model.service';
@@ -42,10 +42,6 @@ class Order {
   templateUrl: './column-schema.component.html',
 })
 export class ColumnSchemaComponent extends AbstractComponent implements OnInit, OnDestroy {
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
    * Code Table Preview Layer
@@ -83,14 +79,6 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    */
   private _codeTableDetailList: CodeTable[];
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
    * List Of Fields
    */
@@ -126,10 +114,6 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
   public readonly ROLE = Type.Role;
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Constructor
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   constructor(
     public metaDataModelService: MetadataModelService,
     public constantService: ConstantService,
@@ -141,10 +125,6 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     super(element, injector);
     this._initView();
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Override Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // Init
   public ngOnInit() {
@@ -162,10 +142,6 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     // Destory
     super.ngOnDestroy();
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
    * Current field logical type label
@@ -212,10 +188,6 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     return new MetadataSourceType(this.metaDataModelService.getMetadata().sourceType).isEngine();
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method - validation
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
    * Whether column dictionary is selected
    *
@@ -254,10 +226,6 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   public isSelectedColumnLogicalType(column: MetadataColumn, logicalType: Type.Logical): boolean {
     return column.type === logicalType;
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method - event
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
    * Close column view in case scroll occurs
@@ -514,14 +482,6 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     this.roleTypeFilters = this.constantService.getRoleTypeFilters();
     this.typeFilters = this.constantService.getTypeFilters();
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // noinspection JSMethodCanBeStatic
   /**
