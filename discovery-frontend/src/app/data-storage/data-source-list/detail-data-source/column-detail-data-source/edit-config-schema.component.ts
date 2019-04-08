@@ -380,7 +380,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
             tempField.op = 'replace';
           }
           // if changed description
-          if (originField.description !== tempField.description) {
+          else if (originField.description !== tempField.description) {
             tempField.op = 'replace';
           }
           // if changed logical type

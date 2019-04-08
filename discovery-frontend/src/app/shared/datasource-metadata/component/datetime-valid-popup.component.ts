@@ -78,16 +78,23 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
     super.ngOnDestroy();
   }
 
+  /**
+   * Init
+   */
   public init(): void {
     // field format
-    this.fieldFormat = FieldFormat.of(this.fieldFormat);
+    if (isNullOrUndefined(this.fieldFormat.formatInitialize)) {
+      this.fieldFormat = FieldFormat.of(this.fieldFormat);
+    }
     // set value list
-    this._valueList = this._dateList ? this._dateList.reduce((acc, data) => {
-      if (!isNullOrUndefined(data[this.name])) {
-        acc.push(data[this.name]);
-      }
-      return acc;
-    }, []) : [];
+    if (isNullOrUndefined(this._valueList)) {
+      this._valueList = this._dateList ? this._dateList.reduce((acc, data) => {
+        if (!isNullOrUndefined(data[this.name])) {
+          acc.push(data[this.name]);
+        }
+        return acc;
+      }, []) : [];
+    }
     // if init format
     if (StringUtil.isEmpty(this.fieldFormat.format) && this.fieldFormat.type === FieldFormatType.DATE_TIME) {
       // if not exist default format
@@ -138,6 +145,8 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
       this.prevFormat = this.fieldFormat.format;
       // remove date type properties
       this.fieldFormat.removeDateTypeProperties();
+      // set timezone disable
+      this.fieldFormat.disableTimezone();
       // init format unit
       this.fieldFormat.unitInitialize();
       // remove format valid message property

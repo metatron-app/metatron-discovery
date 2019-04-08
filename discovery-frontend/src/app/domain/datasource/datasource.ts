@@ -25,6 +25,7 @@ import {
 } from "../../data-storage/service/data-source-create.service";
 import {PrDataSnapshot} from "../data-preparation/pr-snapshot";
 import {isNullOrUndefined} from "util";
+import {TimezoneService} from "../../data-storage/service/timezone.service";
 
 export class Datasource extends AbstractHistoryEntity {
   id: string;             // ID
@@ -494,9 +495,12 @@ export class FieldFormat {
     this.unit = FieldFormatUnit.MILLISECOND;
   }
 
+  disableTimezone() {
+    this.timeZone = TimezoneService.DISABLE_TIMEZONE_KEY;
+  }
+
   removeDateTypeProperties() {
     delete this.format;
-    delete this.timeZone;
     delete this.locale;
   }
 
