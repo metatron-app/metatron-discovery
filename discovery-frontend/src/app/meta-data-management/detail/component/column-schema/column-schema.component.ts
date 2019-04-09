@@ -38,7 +38,7 @@ class Order {
 
 @Component({
   selector: 'app-metadata-detail-columnschema',
-  templateUrl: './column-schema.component.html',
+  templateUrl: './column-schema.component.html'
 })
 export class ColumnSchemaComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -152,7 +152,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     return column.type
       ? this.logicalTypeList.filter((type) => {
         return type.value === column.type;
-      })[0].label
+      })[ 0 ].label
       : 'Select';
   }
 
@@ -166,7 +166,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     const index = _.findIndex(this._codeTableDetailList, (item) => {
       return codeTableId === item.id;
     });
-    return index === -1 ? [] : this._codeTableDetailList[index].codes;
+    return index === -1 ? [] : this._codeTableDetailList[ index ].codes;
   }
 
   /**
@@ -221,8 +221,8 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    */
   public onScrollColumnView(): void {
     this.columnList && this.columnList.forEach((column) => {
-      column['typeListFl'] = false;
-      column['codeTableShowFl'] = false;
+      column[ 'typeListFl' ] = false;
+      column[ 'codeTableShowFl' ] = false;
     });
   }
 
@@ -256,12 +256,12 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     // 컬럼 사전이 정해져있지 않을때
     if (!this.isSelectedDictionary(column)) {
       // show flag
-      column['typeListFl'] = !column['typeListFl'];
+      column[ 'typeListFl' ] = !column[ 'typeListFl' ];
       // detect changes
       this.changeDetect.detectChanges();
       // 레이어 팝업 위치 조정
-      const logicalType = this._logicalType['_results'][index].nativeElement;
-      const listView = this._logicalTypeList['_results'][index].nativeElement;
+      const logicalType = this._logicalType[ '_results' ][ index ].nativeElement;
+      const listView = this._logicalTypeList[ '_results' ][ index ].nativeElement;
       listView.style.top = (logicalType.getBoundingClientRect().top > (this.$window.outerHeight() / 2))
         ? (logicalType.getBoundingClientRect().top - listView.offsetHeight + 'px')
         : (logicalType.getBoundingClientRect().top + 25 + 'px');
@@ -293,7 +293,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    */
   public onChangedColumnDictionary(columnDictionary: ColumnDictionary): void {
     // 변경 on
-    this._selectedColumn['replaceFl'] = true;
+    this._selectedColumn[ 'replaceFl' ] = true;
     // 현재 선택한 컬럼의 사전 변경
     this._selectedColumn.dictionary = columnDictionary;
     // 컬럼 사전이 있다면 해당 컬럼 사전의 상세정보 조회
@@ -306,7 +306,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    */
   public onChangedCodeTable(codeTable: CodeTable): void {
     // 변경 on
-    this._selectedColumn['replaceFl'] = true;
+    this._selectedColumn[ 'replaceFl' ] = true;
     this._setCodeTableForSelectedColumn(codeTable);
     this._releaseSelectedColumn();
   }
@@ -320,9 +320,9 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     // event bubbling stop
     event.stopImmediatePropagation();
     // 해당 코드테이블 레이어 팝업 show flag
-    column.codeTable && (column['codeTableShowFl'] = !column['codeTableShowFl']);
+    column.codeTable && (column[ 'codeTableShowFl' ] = !column[ 'codeTableShowFl' ]);
     // 레이어 팝업 설정
-    if (column.codeTable && column['codeTableShowFl']) {
+    if (column.codeTable && column[ 'codeTableShowFl' ]) {
       // 코드테이블 상세정보 목록에 데이터가 있는지
       const codeIndex = _.findIndex(this._codeTableDetailList, (item) => {
         return column.codeTable.id === item.id;
@@ -332,8 +332,8 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
       // detect changes
       this.changeDetect.detectChanges();
       // 레이어 팝업 위치 조정
-      const table = this._codeTable['_results'][index].nativeElement;
-      const preview = this._codeTablePreview['_results'][index].nativeElement;
+      const table = this._codeTable[ '_results' ][ index ].nativeElement;
+      const preview = this._codeTablePreview[ '_results' ][ index ].nativeElement;
       preview.style.top = (table.getBoundingClientRect().top > (this.$window.outerHeight() / 2))
         ? (table.getBoundingClientRect().top - preview.offsetHeight + 'px')
         : (table.getBoundingClientRect().top + 25 + 'px');
@@ -352,7 +352,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   }
 
   private _gotoCodeTableDetailView(codeTable: CodeTable) {
-    this.router.navigate(['management/metadata/code-table', codeTable.id]);
+    this.router.navigate([ 'management/metadata/code-table', codeTable.id ]);
   }
 
   /**
@@ -366,7 +366,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   }
 
   private _gotoDictionaryDetailView(dictionary: ColumnDictionary) {
-    dictionary && this.router.navigate(['management/metadata/column-dictionary', dictionary.id]);
+    dictionary && this.router.navigate([ 'management/metadata/column-dictionary', dictionary.id ]);
   }
 
   /**
@@ -377,7 +377,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   public onClickSearchDictionary(column: MetadataColumn): void {
     event.stopImmediatePropagation();
     this._saveCurrentlySelectedColumn(column);
-    this.chooseDictionaryEvent.emit({name: 'CREATE', dictionary: column.dictionary}); // 컬럼 사전 선택 컴포넌트
+    this.chooseDictionaryEvent.emit({ name: 'CREATE', dictionary: column.dictionary }); // 컬럼 사전 선택 컴포넌트
   }
 
   /**
@@ -403,7 +403,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
       // 현재 선택한 컬럼 저장
       this._selectedColumn = column;
       // 코드 테이블 선택 컴포넌트
-      this.chooseCodeTableEvent.emit({name: 'CREATE', codeTable: column.codeTable});
+      this.chooseCodeTableEvent.emit({ name: 'CREATE', codeTable: column.codeTable });
     }
   }
 
@@ -492,7 +492,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    */
   private onChangedValue(column: MetadataColumn): void {
     // 변경이벤트 체크
-    column['replaceFl'] = true;
+    column[ 'replaceFl' ] = true;
   }
 
   /**
@@ -542,12 +542,10 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    */
   private _updateColumnSchema(): void {
     this.loadingShow();
-    this._metaDataService.updateColumnSchema(this.metaDataModelService.getMetadata().id, this._getUpdateColumnParams()).
-      then(() => {
-        Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
-        this._refreshColumnSchemas();
-      }).
-      catch(error => this.commonExceptionHandler(error));
+    this._metaDataService.updateColumnSchema(this.metaDataModelService.getMetadata().id, this._getUpdateColumnParams()).then(() => {
+      Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
+      this._refreshColumnSchemas();
+    }).catch(error => this.commonExceptionHandler(error));
   }
 
   private _refreshColumnSchemas() {
@@ -572,25 +570,25 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
       // format이 있고 255자가 넘어간다면
       if (item.type === 'TIMESTAMP' && item.format && item.format.format && item.format.format.length > 255) {
         item.format = {
-          format: item.format.format.substr(0, 254),
+          format: item.format.format.substr(0, 254)
         };
       }
       // dictionary가 있다면
-      item.dictionary && (item['dictionary'] = `/api/dictionaries/${item.dictionary.id}`);
+      item.dictionary && (item[ 'dictionary' ] = `/api/dictionaries/${item.dictionary.id}`);
       // code table이 있다면
-      item.codeTable && (item['codeTable'] = `/api/codetables/${item.codeTable.id}`);
+      item.codeTable && (item[ 'codeTable' ] = `/api/codetables/${item.codeTable.id}`);
     });
     return result;
   }
 
   // noinspection JSMethodCanBeStatic
   private _convertIdFromStringTypeToNumeric(item: any) {
-    (item['id']) && (item['id'] = (item['id'] * 1));
+    (item[ 'id' ]) && (item[ 'id' ] = (item[ 'id' ] * 1));
   }
 
   // noinspection JSMethodCanBeStatic
   private _operationSetting(item: any) {
-    item['op'] = 'replace';
+    item[ 'op' ] = 'replace';
   }
 
   private _isDescriptionExistsAndExceeds1000Characters(item: any) {
@@ -612,22 +610,22 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
   // noinspection JSMethodCanBeStatic
   private _removeCodeTableShowFl(item: any) {
-    delete item['codeTableShowFl'];
+    delete item[ 'codeTableShowFl' ];
   }
 
   // noinspection JSMethodCanBeStatic
   private _removeTypeListFl(item: any) {
-    delete item['typeListFl'];
+    delete item[ 'typeListFl' ];
   }
 
   // noinspection JSMethodCanBeStatic
   private _removeNameChangeFl(item: any) {
-    delete item['nameChangeFl'];
+    delete item[ 'nameChangeFl' ];
   }
 
   // noinspection JSMethodCanBeStatic
   private _removeReplaceFl(item: any) {
-    delete item['replaceFl'];
+    delete item[ 'replaceFl' ];
   }
 
   private _isNameExistsAndExceeds255Characters(item: any) {
@@ -646,7 +644,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    */
   private _getReplaceColumns(): MetadataColumn[] {
     return this.columnList.filter((field) => {
-      return field['replaceFl'];
+      return field[ 'replaceFl' ];
     });
   }
 
@@ -689,7 +687,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
       this._selectedColumn.description = result.description || null;
 
       // 이름이 사용자에 의해 변경되지 않았다면 컬럼 사전의 이름을 name으로 지정함
-      !this._selectedColumn['nameChangeFl'] && (this._selectedColumn.name = result.logicalName);
+      !this._selectedColumn[ 'nameChangeFl' ] && (this._selectedColumn.name = result.logicalName);
 
       if (this._hasCodeTableConnectedToColumnDictionary(result)) {
         this._getCodeTableInColumnDictionary(dictionaryId);
