@@ -446,7 +446,8 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   public isLogicalTypesLayerActivation(column: MetadataColumn) {
     return column.type !== Type.Logical.GEO_LINE
       && column.type !== Type.Logical.GEO_POINT
-      && column.type !== Type.Logical.GEO_POLYGON;
+      && column.type !== Type.Logical.GEO_POLYGON
+      && (column.role === Type.Role.TIMESTAMP && column.type === Type.Logical.TIMESTAMP) === false;
   }
 
   public changeKeyword(keyword: number | string) {
