@@ -352,26 +352,18 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     if (!isNull(this._gridComp.getGridCore())) {
       switch (direction) {
         case 'COL' :
-          if (this._selectedColumns.length > 0) {
-            this._gridComp.columnAllUnSelection();
-            this._selectedColumns = [];
-          }
+          this._gridComp.columnAllUnSelection();
+          this._selectedColumns = [];
           break;
         case 'ROW' :
-          if (0 < this._selectedRows.length) {
-            this._gridComp.rowAllUnSelection();
-            this._selectedRows = [];
-          }
+          this._gridComp.rowAllUnSelection();
+          this._selectedRows = [];
           break;
         default :
-          if (0 < this._selectedRows.length) {
-            this._gridComp.rowAllUnSelection();
-            this._selectedRows = [];
-          }
-          if (this._selectedColumns.length > 0) {
-            this._gridComp.columnAllUnSelection();
-            this._selectedColumns = [];
-          }
+          this._gridComp.rowAllUnSelection();
+          this._selectedRows = [];
+          this._gridComp.columnAllUnSelection();
+          this._selectedColumns = [];
       }
     }
   } // function - unSelectionAll
@@ -490,8 +482,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
           this._applyChart(this._barCharts[i], options)
         }
       }
-      this._gridComp.rowAllUnSelection();
-      this._selectedRows = [];
+      this.unSelectionAll('ROW');
 
     }
 
@@ -829,7 +820,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
   public onContextMenuItemClick(data) {
 
     if (data.more) {
-      this._gridComp.columnAllUnSelection();
+      this.unSelectionAll('COL');
 
       this._selectedColumns = data.more.col;
 
@@ -1117,8 +1108,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
 
         // 현재 선택되어있는 column/row refresh
         if (this._selectedColumns.length > 0) {
-          this._gridComp.columnAllUnSelection();
-          this._selectedRows = [];
+          this.unSelectionAll('COL');
         }
 
         // 현재 선택되어있는 바 차트 refresh
