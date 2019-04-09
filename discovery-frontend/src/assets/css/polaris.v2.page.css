@@ -2667,6 +2667,9 @@ table.ddp-table-form2 tbody tr td .ddp-ui-photo {display:block; overflow:hidden;
 table.ddp-table-form2 tbody tr td em.ddp-icon-group {float:left; margin-right:7px;}
 table.ddp-table-form2 tbody tr td span.ddp-data-username {display:block; overflow:hidden;}
 
+.ddp-wrap-type-option {position:relative;}
+.ddp-wrap-type-option .ddp-box-layout4.type-time {width:330px; position:absolute; top:100%; right:-30px; margin-top:5px;}
+table.ddp-table-type2 tr td.ddp-info .ddp-wrap-type-option .ddp-ui-info {right:-20px;}
 .ddp-ui-selected-option span.ddp-link-text {display:inline-block; position:relative; width:100%; padding-right:19px; cursor:pointer; box-sizing:border-box;}
 .ddp-ui-selected-option span.ddp-link-text.ddp-txt-icon {padding-left:30px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal; vertical-align:middle;}
 .ddp-ui-selected-option span.ddp-link-text span.ddp-wrap-icons {display:inline-block; position:absolute; top:50%; right:0; width:17px; height:17px; margin-top:-9px; cursor:pointer;}
@@ -8290,6 +8293,7 @@ table.ddp-table-form.ddp-table-details tr th:nth-child(3) .ddp-box-layout4,
 table.ddp-table-form.ddp-table-details tr th:nth-child(4) .ddp-box-layout4 {right:inherit; left:-30px;}
 .ddp-wrap-datadetail.ddp-wrap-datacolumn .ddp-data-details.ddp-ui-preview-contents {position:fixed; left:45px; right:45px; bottom:20px; top:246px; height:inherit;}
 .ddp-wrap-datadetail.ddp-wrap-datacolumn .ddp-data-details.ddp-ui-preview-contents.ddp-info {top:265px;}
+.ddp-wrap-datadetail.ddp-wrap-datacolumn .ddp-data-details.ddp-ui-preview-contents.ddp-info2 {top:299px;}
 .ddp-page-catalog {position:relative; box-sizing:border-box; border-top:1px solid #e7e7ea;}
 .ddp-page-catalog .ddp-ui-root {padding:8px 0;}
 .ddp-page-catalog .ddp-ui-root .ddp-btn-bg {float:right;margin-left:14px;}

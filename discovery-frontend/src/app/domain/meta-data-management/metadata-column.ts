@@ -43,20 +43,50 @@ export class MetadataColumn {
   // 역할
   public role: Type.Role;
 
-  public static isCurrentDatetime(metadataColumn: MetadataColumn) {
-    return _.negate(_.isNil)(metadataColumn.format)
-      && _.negate(_.isNil)(metadataColumn.format.type)
-      && metadataColumn.format.type === FieldFormatType.TEMPORARY_TIME
-      && metadataColumn.role === Type.Role.TIMESTAMP;
-  }
-
   ////////////////////////////////////////////////////////////////////////////
   // Value to be used only on View
   ////////////////////////////////////////////////////////////////////////////
+
+  public static isTypeIsTimestamp(metadataColumn: MetadataColumn) {
+    return metadataColumn.type === Type.Logical.TIMESTAMP
+  }
+
+  /**
+   * Use it if you need to verify that it is the column specified to act as a timestamp
+   */
+  public static isTimestampColumn(metadataColumn: MetadataColumn) {
+    return metadataColumn.role === Type.Role.TIMESTAMP
+      && metadataColumn.type === Type.Logical.TIMESTAMP
+  }
+
+  /**
+   * The Current Date Time column provides a function to check the column
+   * because it should not be exposed to the screen.
+   */
+  public static isCurrentDatetime(metadataColumn: MetadataColumn) {
+    // return _.negate(_.isNil)(metadataColumn.format)
+    //   && _.negate(_.isNil)(metadataColumn.format.type)
+    //   && metadataColumn.format.type === FieldFormatType.TEMPORARY_TIME
+    //   && metadataColumn.role === Type.Role.TIMESTAMP;
+    return metadataColumn.type === Type.Logical.TIMESTAMP
+      && metadataColumn.role === Type.Role.TIMESTAMP;
+  }
+
+  /**
+   * If a column dictionary is defined
+   */
+  public static isColumnDictionaryDefined(metadataColumn: MetadataColumn) {
+    return _.negate(_.isNil)(metadataColumn)
+      && _.negate(_.isNil)(metadataColumn.dictionary);
+  }
+
   isValidType?: boolean;
   isValidTimeFormat?: boolean;
   timeFormatValidMessage?: string;
   isShowTypeValidPopup?: boolean;
+  isShowTimestampValidPopup: boolean;
+  replaceFl: boolean;
+  checked: boolean;
 }
 
 export class LinkedMetaDataColumn extends MetadataColumn {

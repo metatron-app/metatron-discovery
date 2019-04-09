@@ -18,7 +18,10 @@ import {AbstractComponent} from '../../../../common/component/abstract.component
 @Component({
   selector: '[top-info]',
   templateUrl: './top-info.component.html',
-  host: {'[class.ddp-box-message]': 'true'},
+  host: {
+    '[class.ddp-box-synch]': 'true',
+    '[class.type-info]': 'true'
+  }
 })
 export class TopInfoComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
 

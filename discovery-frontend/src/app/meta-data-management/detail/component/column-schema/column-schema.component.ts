@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChildren} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, QueryList, ViewChildren} from '@angular/core';
 import {AbstractComponent} from '../../../../common/component/abstract.component';
-import {FieldFormat, FieldFormatType} from '../../../../domain/datasource/datasource';
+import {ConnectionType, Datasource, FieldFormat, FieldFormatType} from '../../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import {MetadataService} from '../../../metadata/service/metadata.service';
 import {MetadataModelService} from '../../../metadata/service/metadata.model.service';
@@ -25,11 +25,18 @@ import {CodeTableService} from '../../../code-table/service/code-table.service';
 import {CodeValuePair} from '../../../../domain/meta-data-management/code-value-pair';
 import {ColumnDictionaryService} from '../../../column-dictionary/service/column-dictionary.service';
 import {Alert} from '../../../../common/util/alert.util';
-import {MetadataSourceType} from '../../../../domain/meta-data-management/metadata';
 import {CommonUtil} from '../../../../common/util/common.util';
 import {ConstantService} from '../../../../shared/datasource-metadata/service/constant.service';
 import {Type} from '../../../../shared/datasource-metadata/domain/type';
 import {Filter} from '../../../../shared/datasource-metadata/domain/filter';
+import {DataconnectionService} from '../../../../dataconnection/service/dataconnection.service';
+import {QueryParam} from '../../../../domain/dashboard/dashboard';
+import {DatasourceService} from '../../../../datasource/service/datasource.service';
+import {AuthenticationType, Dataconnection, ImplementorType} from '../../../../domain/dataconnection/dataconnection';
+import {StringUtil} from '../../../../common/util/string.util';
+import {StorageService} from '../../../../data-storage/service/storage.service';
+import {Metadata} from '../../../../domain/meta-data-management/metadata';
+import {DatetimeValidPopupComponent} from '../../../../shared/datasource-metadata/component/datetime-valid-popup.component';
 
 class Order {
   key: string = 'physicalName';
@@ -41,6 +48,51 @@ class Order {
   templateUrl: './column-schema.component.html'
 })
 export class ColumnSchemaComponent extends AbstractComponent implements OnInit, OnDestroy {
+
+  public readonly UUID = CommonUtil.getUUID();
+  public readonly ROLE = Type.Role;
+  public readonly TYPE_SELECT_AND_TIMESTAMP_VALID_WRAP_ELEMENT = this.UUID + '-type-select-and-timestamp-valid-wrap-pupop-elm';
+  public readonly TIMESTAMP_VALID_PUPOP_ELEMENT = this.UUID + '-timestamp-valid-pupop-elm';
+  public readonly TYPE_SELECT_PUPOP_ELEMENT = this.UUID + '-type-select-pupop-elm';
+
+  /**
+   * Sort
+   */
+  public readonly selectedContentSort: Order = new Order();
+
+  /**
+   * Logical
+   */
+  public readonly LOGICAL = Type.Logical;
+
+  @Input()
+  public isNameEdit: boolean;
+
+  /**
+   * List Of Fields
+   */
+  public columnList: MetadataColumn[];
+
+  /**
+   * Logical Type List
+   */
+  public logicalTypeList: any[];
+
+  public logicalTypeEtcList: any[];
+
+  public selectedRole: Filter.Role = this.constantService.getRoleTypeFilterFirst();
+
+  public selectedType: Filter.Logical = this.constantService.getTypeFiltersFirst();
+
+  public roleTypeFilters: Filter.Role[] = this.constantService.getRoleTypeFilters();
+
+  public typeFilters = this.constantService.getTypeFilters();
+
+  public keyword: number | string = '';
+
+  public isShowTypeFilters: boolean = false;
+
+  public fieldDataList;
 
   /**
    * Code Table Preview Layer
@@ -58,10 +110,13 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   @ViewChildren('logicalTypeList')
   private readonly _logicalTypeList: ElementRef;
 
+  @ViewChildren(DatetimeValidPopupComponent)
+  private readonly _datetimePopupComponentList: QueryList<DatetimeValidPopupComponent>;
+
   @Output()
-  private readonly chooseCodeTableEvent = new EventEmitter();
+  private readonly _chooseCodeTableEvent = new EventEmitter();
   @Output()
-  private readonly chooseDictionaryEvent = new EventEmitter();
+  private readonly _chooseDictionaryEvent = new EventEmitter();
 
   /**
    * Field List Original
@@ -78,89 +133,69 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    */
   private _codeTableDetailList: CodeTable[];
 
-  /**
-   * List Of Fields
-   */
-  public columnList: MetadataColumn[];
-
-  /**
-   * Logical Type List
-   */
-  public logicalTypeList: any[];
-  public logicalTypeEtcList: any[];
-
-  /**
-   * Sort
-   */
-  public readonly selectedContentSort: Order = new Order();
-
-  /**
-   * Logical
-   */
-  public readonly LOGICAL = Type.Logical;
-
-  @Input()
-  public isNameEdit: boolean;
-
-  public readonly UUID = CommonUtil.getUUID();
-
-  public selectedRole: Filter.Role = this.constantService.getRoleTypeFilterFirst();
-  public selectedType: Filter.Logical = this.constantService.getTypeFiltersFirst();
-  public roleTypeFilters: Filter.Role[] = this.constantService.getRoleTypeFilters();
-  public typeFilters = this.constantService.getTypeFilters();
-  public keyword: number | string = '';
-  public isShowTypeFilters: boolean = false;
-
-  public readonly ROLE = Type.Role;
-
   constructor(
-    public metaDataModelService: MetadataModelService,
-    public constantService: ConstantService,
     protected element: ElementRef,
     protected injector: Injector,
+    public metaDataModelService: MetadataModelService,
+    public constantService: ConstantService,
     private _columnDictionaryService: ColumnDictionaryService,
     private _codeTableService: CodeTableService,
-    private _metaDataService: MetadataService) {
+    private _metaDataService: MetadataService,
+    private _datasourceService: DatasourceService,
+    private _storageService: StorageService,
+    private _dataconnectionService: DataconnectionService) {
     super(element, injector);
-    this._initView();
   }
 
-  // Init
   public ngOnInit() {
-    // Init
+
     super.ngOnInit();
-    // ui 초기화
+
     this._initView();
-    // 컬럼 조회
-    this._getColumnSchemas();
+
+    Promise
+      .resolve()
+      .then(() => this.loadingShow())
+      .then(() => this._getColumnSchemas().then())
+      .then(() => {
+        return this.getFieldData()
+          .then(fieldDataList => {
+            this.fieldDataList = _.isNil(fieldDataList) ? [] : fieldDataList
+          });
+      })
+      .then(() => this.loadingHide())
+      .catch(error => this.commonExceptionHandler(error));
   }
 
-  // Destory
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
+  }
+
+  public onClickInfoIcon(metadataColumn: MetadataColumn, index: number): void {
+    if (MetadataColumn.isTypeIsTimestamp(metadataColumn)) {
+      metadataColumn.checked = true;
+      metadataColumn.format.isShowTimestampValidPopup = true;
+      this._datetimePopupComponentList.toArray()[ index ].init();
+    }
+  }
+
+  public hasMetadataColumnInDatasource() {
+    return this.isDatasourceSourceTypeIsJdbc() && this.isMetadataSourceTypeIsEngine();
   }
 
   /**
    * Current field logical type label
-   *
-   * @param {MetadataColumn} column
-   * @returns {string}
    */
-  public getSelectedLogicalTypeLabel(column: MetadataColumn): string {
-    return column.type
+  public getSelectedLogicalTypeLabel(metadataColumn: MetadataColumn): string {
+    return metadataColumn.type
       ? this.logicalTypeList.filter((type) => {
-        return type.value === column.type;
+        return type.value === metadataColumn.type;
       })[ 0 ].label
       : 'Select';
   }
 
   /**
    * Code preview data
-   *
-   * @param {string} codeTableId
-   * @returns {CodeValuePair[]}
    */
   public getTableCodePair(codeTableId: string): CodeValuePair[] {
     const index = _.findIndex(this._codeTableDetailList, (item) => {
@@ -171,49 +206,16 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
   /**
    * Column popularity
-   *
-   * @param {MetadataColumn} column
-   * @returns {string}
    */
-  public getColumnPopularity(column: MetadataColumn): string {
-    return (column.popularity || 0) + '%';
-  }
-
-  public isDatasourceSourceTypeIsJdbc() {
-    return !_.isNil(this.metaDataModelService.getMetadata().source.source);
-  }
-
-  public isMetadataSourceTypeIsEngine() {
-    return new MetadataSourceType(this.metaDataModelService.getMetadata().sourceType).isEngine();
-  }
-
-  /**
-   * Whether column dictionary is selected
-   *
-   * @param {MetadataColumn} column
-   * @returns {boolean}
-   */
-  public isSelectedDictionary(column: MetadataColumn): boolean {
-    return !_.isNil(column.dictionary);
-  }
-
-  /**
-   * Save validation
-   *
-   * @returns {boolean}
-   */
-  public isEnableSave(): boolean {
-    return this._getReplaceColumns().length > 0;
+  public getColumnPopularity(metadataColumn: MetadataColumn): string {
+    return (metadataColumn.popularity || 0) + '%';
   }
 
   /**
    * If the column of the currently selected type is the logical type
-   *
-   * @param column
-   * @param logicalType
    */
-  public isSelectedColumnLogicalType(column: MetadataColumn, logicalType: Type.Logical): boolean {
-    return column.type === logicalType;
+  public isSelectedColumnLogicalType(metadataColumn: MetadataColumn, logicalType: Type.Logical): boolean {
+    return metadataColumn.type === logicalType;
   }
 
   /**
@@ -226,74 +228,68 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     });
   }
 
-  /**
-   * When the field source recovery event is clicked
-   */
-  public onClickRestore(): void {
-    this.columnList = _.cloneDeep(this._originColumnList);
-  }
+  public isSaveInvalid: boolean = false;
 
   /**
    * Save changed fields click event
    */
   public onClickSave(): void {
-    // 변경사항이 있을때만 on
-    this.isEnableSave() && this._updateColumnSchema();
+
+    const datetimeValidPopupComponents: DatetimeValidPopupComponent[]
+      = this._datetimePopupComponentList
+      .filter(datetimePopupComponent => _.negate(_.isNil)(datetimePopupComponent.fieldFormat) && _.negate(_.isNil)(datetimePopupComponent.fieldFormat.isValidFormat))
+      .filter(datetimeValidPopupComponent => !datetimeValidPopupComponent.fieldFormat.isValidFormat);
+
+    if (datetimeValidPopupComponents.length > 0) {
+      this.isSaveInvalid = true;
+      return;
+    }
+
+    this._updateColumnSchema();
   }
 
   /**
    * Logical type list show
-   *
-   * @param {MetadataColumn} column
-   * @param {number} index
    */
-  public onShowLogicalTypeList(column: MetadataColumn, index: number): void {
+  public onShowLogicalTypeList(metadataColumn: MetadataColumn): void {
 
-    if (!this.isLogicalTypesLayerActivation(column)) {
+    if (!this.isLogicalTypesLayerActivation(metadataColumn)) {
       return;
     }
 
-    // 컬럼 사전이 정해져있지 않을때
-    if (!this.isSelectedDictionary(column)) {
+    if (this.isSelectedMetadataColumnInColumnDictionaryDefined(metadataColumn) === false) {
       // show flag
-      column[ 'typeListFl' ] = !column[ 'typeListFl' ];
+      metadataColumn[ 'typeListFl' ] = !metadataColumn[ 'typeListFl' ];
       // detect changes
       this.changeDetect.detectChanges();
-      // 레이어 팝업 위치 조정
-      const logicalType = this._logicalType[ '_results' ][ index ].nativeElement;
-      const listView = this._logicalTypeList[ '_results' ][ index ].nativeElement;
-      listView.style.top = (logicalType.getBoundingClientRect().top > (this.$window.outerHeight() / 2))
-        ? (logicalType.getBoundingClientRect().top - listView.offsetHeight + 'px')
-        : (logicalType.getBoundingClientRect().top + 25 + 'px');
-      listView.style.left = logicalType.getBoundingClientRect().left + 'px';
     }
   }
 
   /**
    * Logical type change event
-   *
-   * @param {MetadataColumn} column
-   * @param logicalType
    */
-  public onChangeLogicalType(column: MetadataColumn, logicalType: Type.Logical): void {
+  public onChangeLogicalType(metadataColumn: MetadataColumn, logicalType: Type.Logical): void {
     // 변경이벤트 체크
-    this.onChangedValue(column);
+    this._onChangedValue(metadataColumn);
     // 만약 변경될 타입이 logicalType이라면 format init
     if (logicalType === Type.Logical.TIMESTAMP) {
-      column.format = new FieldFormat();
-      column.format.type = FieldFormatType.DATE_TIME;
+      if (_.isNil(metadataColumn.format)) {
+        metadataColumn.format = new FieldFormat();
+        metadataColumn.format.type = FieldFormatType.DATE_TIME;
+      }
+    } else {
+      metadataColumn.format = null;
     }
     // logical type 변경
-    column.type = logicalType;
+    metadataColumn.type = logicalType;
   }
 
   /**
    * 컬럼 사전 변경 이벤트
-   * @param {ColumnDictionary} columnDictionary
    */
   public onChangedColumnDictionary(columnDictionary: ColumnDictionary): void {
     // 변경 on
-    this._selectedColumn[ 'replaceFl' ] = true;
+    this._selectedColumn.replaceFl = true;
     // 현재 선택한 컬럼의 사전 변경
     this._selectedColumn.dictionary = columnDictionary;
     // 컬럼 사전이 있다면 해당 컬럼 사전의 상세정보 조회
@@ -302,33 +298,30 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
   /**
    * 코드 테이블 변경 이벤트
-   * @param {CodeTable} codeTable
    */
   public onChangedCodeTable(codeTable: CodeTable): void {
     // 변경 on
-    this._selectedColumn[ 'replaceFl' ] = true;
+    this._selectedColumn.replaceFl = true;
     this._setCodeTableForSelectedColumn(codeTable);
     this._releaseSelectedColumn();
   }
 
   /**
    * 코드 테이블 이름 클릭 이벤트
-   * @param {MetadataColumn} column
-   * @param {number} index
    */
-  public onClickCodeTable(column: MetadataColumn, index): void {
+  public onClickCodeTable(metadataColumn: MetadataColumn, index: number): void {
     // event bubbling stop
     event.stopImmediatePropagation();
     // 해당 코드테이블 레이어 팝업 show flag
-    column.codeTable && (column[ 'codeTableShowFl' ] = !column[ 'codeTableShowFl' ]);
+    metadataColumn.codeTable && (metadataColumn[ 'codeTableShowFl' ] = !metadataColumn[ 'codeTableShowFl' ]);
     // 레이어 팝업 설정
-    if (column.codeTable && column[ 'codeTableShowFl' ]) {
+    if (metadataColumn.codeTable && metadataColumn[ 'codeTableShowFl' ]) {
       // 코드테이블 상세정보 목록에 데이터가 있는지
       const codeIndex = _.findIndex(this._codeTableDetailList, (item) => {
-        return column.codeTable.id === item.id;
+        return metadataColumn.codeTable.id === item.id;
       });
       // 해당 코드 정보가 존재하지 않는다면 조회
-      codeIndex === -1 && this._getDetailCodeTable(column.codeTable.id);
+      codeIndex === -1 && this._getDetailCodeTable(metadataColumn.codeTable.id);
       // detect changes
       this.changeDetect.detectChanges();
       // 레이어 팝업 위치 조정
@@ -343,68 +336,47 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
   /**
    * Code table detail click event
-   *
-   * @param {CodeTable} codeTable
    */
   public onClickCodeTableDetails(codeTable: CodeTable): void {
     event.stopImmediatePropagation();
     this._gotoCodeTableDetailView(codeTable);
   }
 
-  private _gotoCodeTableDetailView(codeTable: CodeTable) {
-    this.router.navigate([ 'management/metadata/code-table', codeTable.id ]);
-  }
-
   /**
    * Dictionary name click event
-   *
-   * @param {ColumnDictionary} dictionary
    */
   public onClickDictionary(dictionary: ColumnDictionary): void {
     event.stopImmediatePropagation();
     this._gotoDictionaryDetailView(dictionary);
   }
 
-  private _gotoDictionaryDetailView(dictionary: ColumnDictionary) {
-    dictionary && this.router.navigate([ 'management/metadata/column-dictionary', dictionary.id ]);
-  }
-
   /**
-   * Click on column dictionary search event
-   *
-   * @param {MetadataColumn} column
+   * Click on metadata column dictionary search event
    */
-  public onClickSearchDictionary(column: MetadataColumn): void {
+  public onClickSearchDictionary(metadataColumn: MetadataColumn): void {
     event.stopImmediatePropagation();
-    this._saveCurrentlySelectedColumn(column);
-    this.chooseDictionaryEvent.emit({ name: 'CREATE', dictionary: column.dictionary }); // 컬럼 사전 선택 컴포넌트
-  }
-
-  /**
-   * Save the currently selected column
-   *
-   * @param column
-   * @private
-   */
-  private _saveCurrentlySelectedColumn(column: MetadataColumn) {
-    this._selectedColumn = column;
+    this._saveCurrentlySelectedColumn(metadataColumn);
+    this._chooseDictionaryEvent.emit({ name: 'CREATE', dictionary: metadataColumn.dictionary }); // 컬럼 사전 선택 컴포넌트
   }
 
   /**
    * Code table search click event
-   *
-   * @param {MetadataColumn} column
    */
-  public onClickSearchCodeTable(column: MetadataColumn): void {
-    // event bubbling stop
+  public onClickSearchCodeTable(metadataColumn: MetadataColumn): void {
     event.stopImmediatePropagation();
-    // 현재 컬럼에 컬럼사전이 없는 경우에만 작용
-    if (!this.isSelectedDictionary(column)) {
-      // 현재 선택한 컬럼 저장
-      this._selectedColumn = column;
-      // 코드 테이블 선택 컴포넌트
-      this.chooseCodeTableEvent.emit({ name: 'CREATE', codeTable: column.codeTable });
+    if (this.isSelectedMetadataColumnInColumnDictionaryDefined(metadataColumn) === false) {
+      // Save the currently selected column
+      this._selectedColumn = metadataColumn;
+      // Select code table Component call
+      this._chooseCodeTableEvent.emit({ name: 'CREATE', codeTable: metadataColumn.codeTable });
     }
+  }
+
+  /**
+   * If a column dictionary for the selected metadata column is defined
+   */
+  public isSelectedMetadataColumnInColumnDictionaryDefined(metadataColumn: MetadataColumn) {
+    return MetadataColumn.isColumnDictionaryDefined(metadataColumn);
   }
 
   /**
@@ -433,11 +405,19 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     this.columnList = _.orderBy(this.columnList, this.selectedContentSort.key, 'asc' === this.selectedContentSort.sort ? 'asc' : 'desc');
   }
 
-  public isLogicalTypesLayerActivation(column: MetadataColumn) {
-    return column.type !== Type.Logical.GEO_LINE
-      && column.type !== Type.Logical.GEO_POINT
-      && column.type !== Type.Logical.GEO_POLYGON
-      && (column.role === Type.Role.TIMESTAMP && column.type === Type.Logical.TIMESTAMP) === false;
+  public isLogicalTypesLayerActivation(metadataColumn: MetadataColumn) {
+    return metadataColumn.type !== Type.Logical.GEO_LINE
+      && metadataColumn.type !== Type.Logical.GEO_POINT
+      && metadataColumn.type !== Type.Logical.GEO_POLYGON
+      && this.isTimestampColumn(metadataColumn) === false;
+  }
+
+  public isTypeIsTimestamp(metadataColumn: MetadataColumn) {
+    return MetadataColumn.isTypeIsTimestamp(metadataColumn);
+  }
+
+  public isTimestampColumn(metadataColumn: MetadataColumn) {
+    return MetadataColumn.isTimestampColumn(metadataColumn);
   }
 
   public changeKeyword(keyword: number | string) {
@@ -484,21 +464,163 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     this.typeFilters = this.constantService.getTypeFilters();
   }
 
-  // noinspection JSMethodCanBeStatic
+  public isShowInformationMessage() {
+    return this.hasMetadataColumnInDatasource() && this.isNameEdit
+  }
+
+  public isValidInformationIcon(metadataColumn: MetadataColumn) {
+    return metadataColumn.format && metadataColumn.format.isValidFormat !== false;
+  }
+
   /**
-   * Change event in column occurred
-   *
-   * @param column
+   * Is invalid information icon
    */
-  private onChangedValue(column: MetadataColumn): void {
+  public isInvalidInformationIcon(metadataColumn: MetadataColumn): boolean {
+    return metadataColumn.format && metadataColumn.format.isValidFormat === false;
+  }
+
+  public onClickTypeSelectAndTimestampValidWrapElement(event: MouseEvent, metadataColumn: MetadataColumn) {
+
+    // if (this._checkIfElementContainsClassName(this._getTargetElementClassList(event), this.TYPE_SELECT_AND_TIMESTAMP_VALID_WRAP_ELEMENT)) {
+    //   metadataColumn.isShowTimestampValidPopup = false;
+    //   this.onShowLogicalTypeList(metadataColumn);
+    //   return;
+    // }
+    //
+    // if (this._checkIfElementContainsClassName(this._getTargetElementClassList(event), this.TYPE_SELECT_PUPOP_ELEMENT)) {
+    //   metadataColumn.isShowTimestampValidPopup = false;
+    //   return;
+    // }
+    //
+    // if (this._checkIfElementContainsClassName(this._getTargetElementClassList(event), this.TIMESTAMP_VALID_PUPOP_ELEMENT)) {
+    //   metadataColumn[ 'typeListFl' ] = false;
+    //   return;
+    // }
+  }
+
+  private getFieldData() {
+
+    if (this.hasMetadataColumnInDatasource()) {
+
+      const datasource = this.metaDataModelService.getMetadata().source.source as Datasource;
+      if (datasource.connType === ConnectionType.ENGINE) {
+        const params = new QueryParam();
+        params.limits.limit = 20;
+        params.dataSource.name = datasource.engineName;
+        params.dataSource.engineName = datasource.engineName;
+        params.dataSource.connType = 'ENGINE';
+        params.dataSource.type = 'default';
+        return new Promise(((resolve, reject) => {
+          return this._datasourceService
+            .getDatasourceQuery(params)
+            .then(result => resolve(result))
+            .catch(error => reject(error))
+        }));
+      }
+
+      if (datasource.connType === ConnectionType.LINK) {
+        return new Promise((resolve, reject) => {
+          return this._dataconnectionService
+            .getTableDetailWitoutId(
+              this._getConnectionParams(datasource.ingestion, Datasource.getConnection(datasource)),
+              Datasource.getConnection(datasource).implementor === ImplementorType.HIVE
+            )
+            .then((result) => resolve(result.data))
+            .catch(error => reject(error))
+        });
+      }
+    }
+
+    if (this.isMetadataSourceTypeIsJdbc()) {
+      return new Promise((resolve, reject) => {
+        return this._dataconnectionService.getTableDataForHive({
+          'type': 'TABLE',
+          'query': this.metaDataModelService.getMetadata().source.table,
+          'database': this.metaDataModelService.getMetadata().source.schema
+        })
+          .then(result => resolve(result.data))
+          .catch(error => reject(error))
+      });
+    }
+
+    if (this.isMetadataSourceTypeIsStaging()) {
+      return new Promise((resolve, reject) => {
+        return this._dataconnectionService.getTableDataForHive({
+          'type': 'TABLE',
+          'query': this.metaDataModelService.getMetadata().source.table,
+          'database': this.metaDataModelService.getMetadata().source.schema
+        })
+          .then(result => resolve(result.data))
+          .catch(error => reject(error))
+      });
+    }
+  }
+
+  /**
+   * Get connection params
+   * @param {any} ingestion
+   * @param {Dataconnection} connection
+   * @returns {{connection: {hostname; port; username; password; implementor}; database: any; type: any; query: any}}
+   * @private
+   */
+  private _getConnectionParams(ingestion, connection: Dataconnection) {
+    const connectionType = this._storageService.findConnectionType(connection.implementor);
+    const params = {
+      connection: {
+        implementor: connection.implementor,
+        authenticationType: connection.authenticationType || AuthenticationType.MANUAL
+      },
+      database: ingestion.database,
+      type: ingestion.dataType,
+      query: ingestion.query
+    };
+    // if not used URL
+    if (StringUtil.isEmpty(connection.url)) {
+      params.connection[ 'hostname' ] = connection.hostname;
+      params.connection[ 'port' ] = connection.port;
+      if (this._storageService.isRequireCatalog(connectionType)) {
+        params.connection[ 'catalog' ] = connection.catalog;
+      } else if (this._storageService.isRequireDatabase(connectionType)) {
+        params.connection[ 'database' ] = connection.database;
+      } else if (this._storageService.isRequireSid(connectionType)) {
+        params.connection[ 'sid' ] = connection.sid;
+      }
+    } else {  // if used URL
+      params.connection[ 'url' ] = connection.url;
+    }
+    // if security type is not USERINFO, add password and username
+    if (connection.authenticationType !== AuthenticationType.USERINFO) {
+      params.connection[ 'username' ] = connection.authenticationType === AuthenticationType.DIALOG ? ingestion.connectionUsername : connection.username;
+      params.connection[ 'password' ] = connection.authenticationType === AuthenticationType.DIALOG ? ingestion.connectionPassword : connection.password;
+    }
+    return params;
+  }
+
+  private _gotoDictionaryDetailView(dictionary: ColumnDictionary) {
+    dictionary && this.router.navigate([ 'management/metadata/column-dictionary', dictionary.id ]);
+  }
+
+  private _gotoCodeTableDetailView(codeTable: CodeTable) {
+    this.router.navigate([ 'management/metadata/code-table', codeTable.id ]);
+  }
+
+  /**
+   * Save the currently selected metadata column
+   */
+  private _saveCurrentlySelectedColumn(metadataColumn: MetadataColumn) {
+    this._selectedColumn = metadataColumn;
+  }
+
+  /**
+   * Change event in metadata column occurred
+   */
+  private _onChangedValue(metadataColumn: MetadataColumn): void {
     // 변경이벤트 체크
-    column[ 'replaceFl' ] = true;
+    metadataColumn.replaceFl = true;
   }
 
   /**
    * View initialization
-   *
-   * @private
    */
   private _initView(): void {
     this.columnList = [];
@@ -510,16 +632,17 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
   /**
    * Column schema list lookup
-   *
-   * @private
    */
-  private _getColumnSchemas(): void {
-    this.loadingShow();
-    this._metaDataService.getColumnSchemaListInMetaData(this.metaDataModelService.getMetadata().id).then((result) => {
-      this._hideCurrentTime(result);
-      this._saveColumnDataOriginal();
-      this.loadingHide();
-    }).catch(error => this.commonExceptionHandler(error));
+  private _getColumnSchemas() {
+    return new Promise((resolve, reject) => {
+      return this._metaDataService.getColumnSchemaListInMetaData(this.metaDataModelService.getMetadata().id)
+        .then((result) => {
+          this._hideCurrentTime(result);
+          this._saveColumnDataOriginal();
+          resolve();
+        })
+        .catch(error => reject(error))
+    });
   }
 
   private _hideCurrentTime(result) {
@@ -528,8 +651,6 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
   /**
    * Saving column data original
-   *
-   * @private
    */
   private _saveColumnDataOriginal() {
     this._originColumnList = _.cloneDeep(this.columnList);
@@ -537,26 +658,26 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
   /**
    * Modify column schema
-   *
-   * @private
    */
   private _updateColumnSchema(): void {
     this.loadingShow();
-    this._metaDataService.updateColumnSchema(this.metaDataModelService.getMetadata().id, this._getUpdateColumnParams()).then(() => {
-      Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
-      this._refreshColumnSchemas();
-    }).catch(error => this.commonExceptionHandler(error));
+    this._metaDataService.updateColumnSchema(this.metaDataModelService.getMetadata().id, this._getUpdateColumnParams())
+      .then(() => {
+        Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
+        this._refreshColumnSchemas();
+      })
+      .catch(error => this.commonExceptionHandler(error));
   }
 
   private _refreshColumnSchemas() {
-    this._getColumnSchemas();
+    return this._getColumnSchemas()
+      .then(() => {
+        this.loadingHide();
+      });
   }
 
   /**
    * Fields to be used for the change
-   *
-   * @returns {any}
-   * @private
    */
   private _getUpdateColumnParams() {
     // 변경이 일어난 컬럼 목록
@@ -581,12 +702,10 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     return result;
   }
 
-  // noinspection JSMethodCanBeStatic
   private _convertIdFromStringTypeToNumeric(item: any) {
     (item[ 'id' ]) && (item[ 'id' ] = (item[ 'id' ] * 1));
   }
 
-  // noinspection JSMethodCanBeStatic
   private _operationSetting(item: any) {
     item[ 'op' ] = 'replace';
   }
@@ -595,12 +714,10 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     return !_.isNil(item.description) && this._isDescriptioneOver1000CharactersLong(item);
   }
 
-  // noinspection JSMethodCanBeStatic
   private _isDescriptioneOver1000CharactersLong(item: any) {
     return item.description.length > 1000;
   }
 
-  // noinspection JSMethodCanBeStatic
   private _removeUnnecessaryVariables(item: any) {
     this._removeReplaceFl(item);
     this._removeNameChangeFl(item);
@@ -608,65 +725,54 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     this._removeCodeTableShowFl(item);
   }
 
-  // noinspection JSMethodCanBeStatic
   private _removeCodeTableShowFl(item: any) {
     delete item[ 'codeTableShowFl' ];
   }
 
-  // noinspection JSMethodCanBeStatic
   private _removeTypeListFl(item: any) {
     delete item[ 'typeListFl' ];
   }
 
-  // noinspection JSMethodCanBeStatic
   private _removeNameChangeFl(item: any) {
     delete item[ 'nameChangeFl' ];
   }
 
-  // noinspection JSMethodCanBeStatic
   private _removeReplaceFl(item: any) {
-    delete item[ 'replaceFl' ];
+    delete item.replaceFl;
   }
 
   private _isNameExistsAndExceeds255Characters(item: any) {
     return !_.isNil(item.name) && this._isNameOver255CharactersLong(item);
   }
 
-  // noinspection JSMethodCanBeStatic
   private _isNameOver255CharactersLong(item: any) {
     return item.name.length > 255;
   }
 
   /**
    * List of columns being changed
-   *
-   * @private
    */
   private _getReplaceColumns(): MetadataColumn[] {
     return this.columnList.filter((field) => {
-      return field[ 'replaceFl' ];
+      return field.replaceFl;
     });
   }
 
   /**
    * Get code table details
-   *
-   * @param {string} codeTableId
-   * @private
    */
   private _getDetailCodeTable(codeTableId: string): void {
     this.loadingShow();
-    this._codeTableService.getCodeTableDetail(codeTableId).then((result) => {
-      this._addCodeTableDetailDataToCodeTableDetails(result);
-      this.loadingHide();
-    }).catch(error => this.commonExceptionHandler(error));
+    this._codeTableService.getCodeTableDetail(codeTableId)
+      .then((result) => {
+        this._addCodeTableDetailDataToCodeTableDetails(result);
+        this.loadingHide();
+      })
+      .catch(error => this.commonExceptionHandler(error));
   }
 
   /**
    * Add code table data to code tables
-   *
-   * @param result
-   * @private
    */
   private _addCodeTableDetailDataToCodeTableDetails(result) {
     this._codeTableDetailList.push(result);
@@ -674,35 +780,31 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
   /**
    * Get column dictionary detail
-   *
-   * @param {string} dictionaryId
-   * @private
    */
   private _getDetailColumnDictionary(dictionaryId: string): void {
     this.loadingShow();
-    this._columnDictionaryService.getColumnDictionaryDetail(dictionaryId).then((result) => {
-      // 변경된 컬럼의 사전정보로 logicalType, Format, CodeTable, Description 적용
-      this._selectedColumn.type = result.logicalType || null;
-      this._selectedColumn.format = result.format || new FieldFormat();
-      this._selectedColumn.description = result.description || null;
+    this._columnDictionaryService.getColumnDictionaryDetail(dictionaryId)
+      .then((result) => {
+        // 변경된 컬럼의 사전정보로 logicalType, Format, CodeTable, Description 적용
+        this._selectedColumn.type = result.logicalType || null;
+        this._selectedColumn.format = result.format || new FieldFormat();
+        this._selectedColumn.description = result.description || null;
 
-      // 이름이 사용자에 의해 변경되지 않았다면 컬럼 사전의 이름을 name으로 지정함
-      !this._selectedColumn[ 'nameChangeFl' ] && (this._selectedColumn.name = result.logicalName);
+        // 이름이 사용자에 의해 변경되지 않았다면 컬럼 사전의 이름을 name으로 지정함
+        !this._selectedColumn[ 'nameChangeFl' ] && (this._selectedColumn.name = result.logicalName);
 
-      if (this._hasCodeTableConnectedToColumnDictionary(result)) {
-        this._getCodeTableInColumnDictionary(dictionaryId);
-      } else {
-        this._removeCodeTableForSelectedColumn();
-        this.loadingHide();
-      }
-    }).catch(error => this.commonExceptionHandler(error));
+        if (this._hasCodeTableConnectedToColumnDictionary(result)) {
+          this._getCodeTableInColumnDictionary(dictionaryId);
+        } else {
+          this._removeCodeTableForSelectedColumn();
+          this.loadingHide();
+        }
+      })
+      .catch(error => this.commonExceptionHandler(error));
   }
 
-  // noinspection JSMethodCanBeStatic
   /**
    * If the column dictionary has a linked code table
-   *
-   * @param result
    */
   private _hasCodeTableConnectedToColumnDictionary(result) {
     return result.linkCodeTable;
@@ -717,17 +819,16 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
   /**
    * Get code table connected to column dictionary
-   *
-   * @param dictionaryId
-   * @private
    */
   private _getCodeTableInColumnDictionary(dictionaryId: string): void {
     this.loadingShow();
-    this._columnDictionaryService.getCodeTableInColumnDictionary(dictionaryId).then((result) => {
-      this._setCodeTableForSelectedColumn(result);
-      this._releaseSelectedColumn();
-      this.loadingHide();
-    }).catch(error => this.commonExceptionHandler(error));
+    this._columnDictionaryService.getCodeTableInColumnDictionary(dictionaryId)
+      .then((result) => {
+        this._setCodeTableForSelectedColumn(result);
+        this._releaseSelectedColumn();
+        this.loadingHide();
+      })
+      .catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -739,11 +840,32 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
   /**
    * Set code table in selected column
-   *
-   * @param result
-   * @private
    */
   private _setCodeTableForSelectedColumn(result) {
     this._selectedColumn.codeTable = result;
+  }
+
+  private _getTargetElementClassList(event: MouseEvent) {
+    return event.target[ 'classList' ];
+  }
+
+  private _checkIfElementContainsClassName(targetElementClassList: DOMTokenList, className: string) {
+    return targetElementClassList.contains(className);
+  }
+
+  private isDatasourceSourceTypeIsJdbc() {
+    return _.negate(_.isNil)(this.metaDataModelService.getMetadata().source.source);
+  }
+
+  private isMetadataSourceTypeIsEngine() {
+    return Metadata.isSourceTypeIsEngine(this.metaDataModelService.getMetadata().sourceType);
+  }
+
+  private isMetadataSourceTypeIsJdbc() {
+    return Metadata.isSourceTypeIsJdbc(this.metaDataModelService.getMetadata().sourceType);
+  }
+
+  private isMetadataSourceTypeIsStaging() {
+    return Metadata.isSourceTypeIsStaging(this.metaDataModelService.getMetadata().sourceType);
   }
 }

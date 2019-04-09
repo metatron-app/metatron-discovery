@@ -43,7 +43,7 @@ export class Datasource extends AbstractHistoryEntity {
   status: Status;
   published: boolean;         // 전체 공개 여부 true일 경우 전체 공개
   linkedWorkspaces: number;   // 연결된 workspaces 개수
-  ingestion: any;             // 데이터 소스 적재 정보
+  ingestion;             // 데이터 소스 적재 정보
   fields: Field[];            // 데이터 소스 필드 정보
   snapshot?: PrDataSnapshot;
   // workspaces
@@ -60,6 +60,10 @@ export class Datasource extends AbstractHistoryEntity {
   num?: number;
   temporary?: TemporaryDatasource;
   uiMetaData?: { name: string, id: string, description: string, columns: MetadataColumn[] };
+
+  public static getConnection(datasource: Datasource) {
+    return datasource.connection || datasource.ingestion.connection;
+  }
 }
 
 export class DataSourceSummary {
