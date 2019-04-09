@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.dataconnection.dialect;
 
+import app.metatron.discovery.domain.workbench.hive.HiveNamingRule;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -431,5 +432,27 @@ public class HiveDialect implements JdbcDialect {
     if(StringUtils.isEmpty(metastoreUsername)) return false;
     if(StringUtils.isEmpty(metastorePassword)) return false;
     return true;
+  }
+
+  public static boolean isSupportPersonalDatabase(JdbcConnectInformation connectionInfo) {
+    return isSupportSaveAsHiveTable(connectionInfo);
+  }
+
+  public static boolean isOwnPersonalDatabase(JdbcConnectInformation connectionInfo, String userName, String database) {
+    if(isSupportPersonalDatabase(connectionInfo)) {
+      Map<String, String> propMap = connectionInfo.getPropertiesMap();
+      if(propMap == null){
+        return false;
+      }
+
+      if(database.toUpperCase().startsWith(propMap.get(PROPERTY_KEY_PERSONAL_DATABASE_PREFIX).toUpperCase()) &&
+          database.toUpperCase().endsWith(HiveNamingRule.replaceNotAllowedCharacters(userName).toUpperCase())) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
   }
 }

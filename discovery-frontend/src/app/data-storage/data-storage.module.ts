@@ -37,7 +37,6 @@ import { EditFilterDataSourceComponent } from './data-source-list/detail-data-so
 import { IngestionLogComponent } from './data-source-list/detail-data-source/information-dats-source/component/ingestion-log/ingestion-log.component';
 import { CriterionCheckboxListComponent } from './component/criterion/criterion-checkbox-list.component';
 import {DataConnectionCreateService} from "./service/data-connection-create.service";
-import {ImportFileComponent} from "../workbench/component/import-file/import-file.component";
 import {ReUploadFileDataSource} from "./data-source-list/detail-data-source/reupload-file-data-source/reupload-file-data-source";
 import {DataSourceCreateModule} from "./data-source-list/create-data-source/data-source-create.module";
 import {FieldConfigService} from "./service/field-config.service";
@@ -49,6 +48,7 @@ import {CriterionComponent} from "./component/criterion/criterion.component";
 import {CriterionExtensionBoxComponent} from "./component/criterion/criterion-extension-box.component";
 import {CriterionFilterBoxComponent} from "./component/criterion/criterion-filter-box.component";
 import {CriterionTimeRadioboxListComponent} from "./component/criterion/criterion-time-radiobox-list.component";
+import {FileModule} from "../common/file.module";
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -60,6 +60,7 @@ const storageRoutes: Routes = [
 @NgModule({
   imports: [
     CommonModule,
+    FileModule,
     DndModule,
     DataSourceCreateModule,
     DatasourceMetadataSharedModule,
@@ -94,7 +95,6 @@ const storageRoutes: Routes = [
     CriterionTimeRadioboxListComponent,
     // criterion time radiobox
     ReUploadFileDataSource
-    CriterionTimeRadioboxComponent,
   ],
   exports: [
     // 워크벤치에서 사용하기 위해

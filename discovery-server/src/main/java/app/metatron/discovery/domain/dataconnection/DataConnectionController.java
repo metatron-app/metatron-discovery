@@ -14,11 +14,40 @@
 
 package app.metatron.discovery.domain.dataconnection;
 
+import app.metatron.discovery.common.criteria.ListCriterion;
+import app.metatron.discovery.common.criteria.ListFilter;
+import app.metatron.discovery.common.entity.SearchParamValidator;
+import app.metatron.discovery.common.exception.GlobalErrorCodes;
+import app.metatron.discovery.common.exception.MetatronException;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.dataconnection.accessor.HiveDataAccessor;
+import app.metatron.discovery.domain.dataconnection.accessor.HiveDataAccessorUsingMetastore;
+import app.metatron.discovery.domain.dataconnection.dialect.HiveDialect;
+import app.metatron.discovery.domain.datasource.DataSourceProperties;
+import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.connection.dto.RenameDatabaseTable;
+import app.metatron.discovery.domain.datasource.connection.jdbc.HiveTableInformation;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcQueryResultResponse;
+import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
+import app.metatron.discovery.domain.engine.EngineProperties;
+import app.metatron.discovery.domain.mdm.Metadata;
+import app.metatron.discovery.domain.mdm.source.MetadataSource;
+import app.metatron.discovery.domain.mdm.source.MetadataSourceRepository;
+import app.metatron.discovery.domain.storage.StorageProperties;
+import app.metatron.discovery.domain.workbench.Workbench;
+import app.metatron.discovery.domain.workbench.WorkbenchRepository;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceManager;
+import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
+import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionErrorCodes;
+import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionException;
+import app.metatron.discovery.util.AuthUtils;
+import app.metatron.discovery.util.PolarisUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
 import com.querydsl.core.types.Predicate;
-
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -32,12 +61,7 @@ import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.sql.Connection;
 import java.util.HashMap;
@@ -45,32 +69,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import app.metatron.discovery.common.criteria.ListCriterion;
-import app.metatron.discovery.common.criteria.ListFilter;
-import app.metatron.discovery.common.entity.SearchParamValidator;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.dataconnection.accessor.HiveDataAccessor;
-import app.metatron.discovery.domain.dataconnection.accessor.HiveDataAccessorUsingMetastore;
-import app.metatron.discovery.domain.dataconnection.dialect.HiveDialect;
-import app.metatron.discovery.domain.datasource.DataSourceProperties;
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.connection.jdbc.HiveTableInformation;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcQueryResultResponse;
-import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
-import app.metatron.discovery.domain.engine.EngineProperties;
-import app.metatron.discovery.domain.mdm.Metadata;
-import app.metatron.discovery.domain.mdm.source.MetadataSource;
-import app.metatron.discovery.domain.mdm.source.MetadataSourceRepository;
-import app.metatron.discovery.domain.storage.StorageProperties;
-import app.metatron.discovery.domain.workbench.Workbench;
-import app.metatron.discovery.domain.workbench.WorkbenchRepository;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceManager;
-import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionErrorCodes;
-import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionException;
-import app.metatron.discovery.util.PolarisUtils;
 
 /**
  * Created by kyungtaak on 2016. 6. 10..
@@ -398,15 +396,15 @@ public class DataConnectionController {
       @PathVariable("databaseName") String database,
       @PathVariable("tableName") String table,
       @RequestParam(value = "webSocketId") String webSocketId) {
-    DataConnection connection = connectionRepository.findOne(connectionId);
-    if(connection == null) {
+    DataConnection dataConnection = connectionRepository.findOne(connectionId);
+    if(dataConnection == null) {
       throw new ResourceNotFoundException(connectionId);
     }
 
-    SingleConnectionDataSource connectionDataSource = getConnectionDataSourceFromWebSocket(connection, database, webSocketId);
+    Connection jdbcConnection = getConnectionDataSourceFromWebSocket(dataConnection, database, webSocketId);
 
     final String sql = String.format("DROP TABLE %s.%s", database, table);
-    connectionService.ddlQuery((JdbcDataConnection)connection, connectionDataSource, sql);
+    connectionService.executeUpdate(dataConnection, jdbcConnection, sql);
 
     return ResponseEntity.noContent().build();
   }
@@ -417,42 +415,35 @@ public class DataConnectionController {
       @PathVariable("databaseName") String database,
       @PathVariable("tableName") String table,
       @RequestBody RenameDatabaseTable renameTable) {
-    DataConnection connection = connectionRepository.findOne(connectionId);
-    if(connection == null) {
+    DataConnection dataConnection = connectionRepository.findOne(connectionId);
+    if(dataConnection == null) {
       throw new ResourceNotFoundException(connectionId);
     }
 
-    SingleConnectionDataSource connectionDataSource = getConnectionDataSourceFromWebSocket(connection, database, renameTable.getWebSocketId());
+    Connection jdbcConnection = getConnectionDataSourceFromWebSocket(dataConnection, database, renameTable.getWebSocketId());
 
     final String sql = String.format("ALTER TABLE %s.%s RENAME TO %s.%s", database, table, database, renameTable.getTable());
-    connectionService.ddlQuery((JdbcDataConnection)connection, connectionDataSource, sql);
+    connectionService.executeUpdate(dataConnection, jdbcConnection, sql);
 
     return ResponseEntity.noContent().build();
   }
 
-  private SingleConnectionDataSource getConnectionDataSourceFromWebSocket(DataConnection connection, String database, String webSocketId) {
-    WorkbenchDataSource dataSourceInfo = WorkbenchDataSourceUtils.findDataSourceInfo(webSocketId);
-    if(connection instanceof JdbcDataConnection) {
-      SingleConnectionDataSource connectionDataSource;
-      if(connection instanceof HiveConnection) {
-        HiveConnection hiveConnection = (HiveConnection)connection;
+  private Connection getConnectionDataSourceFromWebSocket(DataConnection connection, String database, String webSocketId) {
+    WorkbenchDataSource dataSourceInfo = workbenchDataSourceManager.findDataSourceInfo(webSocketId);
 
-        if(hiveConnection.isSupportPersonalDatabase()) {
-          if(hiveConnection.isOwnPersonalDatabase(AuthUtils.getAuthUserName(), database)) {
-            connectionDataSource = dataSourceInfo.getSecondarySingleConnectionDataSource();
-          } else {
-            throw new MetatronException(GlobalErrorCodes.BAD_REQUEST_CODE, String.format("%s database is not %s", database, AuthUtils.getAuthUserName()));
-          }
+    JdbcDialect dialect = DataConnectionHelper.lookupDialect(connection);
+    if (dialect instanceof HiveDialect) {
+      if(HiveDialect.isSupportPersonalDatabase(connection)) {
+        if(HiveDialect.isOwnPersonalDatabase(connection, AuthUtils.getAuthUserName(), database)) {
+          return dataSourceInfo.getSecondaryConnection();
         } else {
-          throw new MetatronException(GlobalErrorCodes.BAD_REQUEST_CODE, String.format("%s connection is not supported", connection.getId()));
+          throw new MetatronException(GlobalErrorCodes.BAD_REQUEST_CODE, String.format("%s database is not %s", database, AuthUtils.getAuthUserName()));
         }
       } else {
-        connectionDataSource = dataSourceInfo.getSingleConnectionDataSource();
+        throw new MetatronException(GlobalErrorCodes.BAD_REQUEST_CODE, String.format("%s connection is not supported", connection.getId()));
       }
-
-      return connectionDataSource;
     } else {
-      throw new MetatronException(GlobalErrorCodes.BAD_REQUEST_CODE, String.format("%s connection is not supported", connection.getId()));
+      return dataSourceInfo.getPrimaryConnection();
     }
   }
 

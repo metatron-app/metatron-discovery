@@ -23,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import app.metatron.discovery.query.druid.limits.PivotColumn;
 import app.metatron.discovery.util.EnumUtils;
-import org.apache.commons.lang3.StringUtils;
 
 public class ContinuousTimeFormat extends TimeFieldFormat implements FieldFormat {
 

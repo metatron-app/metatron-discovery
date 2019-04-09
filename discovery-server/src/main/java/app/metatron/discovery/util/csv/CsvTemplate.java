@@ -17,6 +17,7 @@ package app.metatron.discovery.util.csv;
 import com.univocity.parsers.common.processor.RowListProcessor;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
+import com.univocity.parsers.csv.CsvRoutines;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -43,6 +44,10 @@ public class CsvTemplate {
   }
 
   public <T> List<T> getRows(String lineSep, String delimiter, CsvRowMapper<T> rowMapper) {
+    return getRows(lineSep, delimiter, rowMapper, -1);
+  }
+
+  public <T> List<T> getRows(String lineSep, String delimiter, CsvRowMapper<T> rowMapper, int limit) {
     CsvParserSettings settings = new CsvParserSettings();
     settings.getFormat().setLineSeparator(lineSep);
     settings.getFormat().setDelimiter(delimiter.charAt(0));
@@ -62,6 +67,10 @@ public class CsvTemplate {
 
     int rowNumber = 1;
     while ((row = parser.parseNext()) != null) {
+      if((rowNumber - 1) == limit) {
+        break;
+      }
+
       T mappedRow = rowMapper.mapRow(rowNumber, row);
 
       if(mappedRow != null) {
@@ -72,6 +81,19 @@ public class CsvTemplate {
     parser.stopParsing();
 
     return rows;
+  }
+
+  public int getTotalRows(String lineSep, String delimiter) {
+    CsvParserSettings settings = new CsvParserSettings();
+    settings.getFormat().setLineSeparator(lineSep);
+    settings.getFormat().setDelimiter(delimiter.charAt(0));
+    if(csvMaxCharsPerColumn != null && csvMaxCharsPerColumn > 0){
+      settings.setMaxCharsPerColumn(csvMaxCharsPerColumn);
+    }
+    settings.setMaxColumns(MAX_CSV_COLUMNS);
+
+    long totalCount = new CsvRoutines(settings).getInputDimension(targetFile).rowCount();
+    return Long.valueOf(totalCount).intValue() + 1;
   }
 
 }

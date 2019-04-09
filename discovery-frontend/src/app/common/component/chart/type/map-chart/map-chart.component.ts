@@ -66,6 +66,7 @@ import {ColorOptionConverter} from '../../option/converter/color-option-converte
 import {CommonConstant} from "../../../../constant/common.constant";
 import proj4 from 'proj4';
 import * as ol from 'openlayers';
+// declare let ol;
 
 @Component({
   selector: 'map-chart',
@@ -1899,9 +1900,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     ////////////////////////////////////////////////////////
     // Add event
     ////////////////////////////////////////////////////////
-    if (!_.isNull(this.olmap.frameState_)) {
-      this.preZoomSize = Math.round(this.olmap.frameState_.viewState.zoom);
-    }
+    // if (!_.isNull(this.olmap.frameState_)) {
+    //   this.preZoomSize = Math.round(this.olmap.frameState_.viewState.zoom);
+    // }
     this.olmap.un('pointermove', this.tooltipFunction);
     this.olmap.on('pointermove', this.tooltipFunction);
     // this.olmap.on('click', this.zoomFunction);

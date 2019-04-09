@@ -871,7 +871,15 @@ public class JdbcConnectionService {
     return false;
   }
 
-  public Object getConnectionInformation(DataConnection jdbcDataConnection){
+  public boolean isSupportPersonalDatabase(DataConnection jdbcDataConnection){
+    JdbcDialect dialect = DataConnectionHelper.lookupDialect(jdbcDataConnection);
+    if(dialect instanceof HiveDialect){
+      return HiveDialect.isSupportPersonalDatabase(jdbcDataConnection);
+    }
+    return false;
+  }
+
+  public Object getConnectionInformation(DataConnection jdbcDataConnection) {
     Map<String, Object> extensionInfo = new HashMap<>();
     extensionInfo.put("implementor", jdbcDataConnection.getImplementor());
 

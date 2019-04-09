@@ -31,9 +31,9 @@ public class CsvTemplateTest {
     final boolean firstRowHeadColumnUsed = true;
 
     // when
-    CsvTemplate csvTemplate = new CsvTemplate(new File(filePath), "\n", ",");
+    CsvTemplate csvTemplate = new CsvTemplate(new File(filePath));
     Map<Integer, String> headers = Maps.newTreeMap();
-    List<Map<String, String>> csvData = csvTemplate.getRows(
+    List<Map<String, String>> csvData = csvTemplate.getRows("\n", ",",
         (rowNumber, row) -> {
           if(rowNumber == 1) {
             if(firstRowHeadColumnUsed) {
@@ -77,9 +77,9 @@ public class CsvTemplateTest {
     final boolean firstRowHeadColumnUsed = true;
 
     // when
-    CsvTemplate csvTemplate = new CsvTemplate(new File(filePath), "\n", ",");
+    CsvTemplate csvTemplate = new CsvTemplate(new File(filePath));
     Map<Integer, String> headers = Maps.newTreeMap();
-    List<Map<String, String>> csvData = csvTemplate.getRows(
+    List<Map<String, String>> csvData = csvTemplate.getRows("\n", ",",
         (rowNumber, row) -> {
           if(rowNumber == 1) {
             if(firstRowHeadColumnUsed) {
@@ -121,10 +121,10 @@ public class CsvTemplateTest {
   public void getTotalRows() {
     // given
     final String filePath = getClass().getClassLoader().getResource("product_sales.csv").getPath();
-    CsvTemplate csvTemplate = new CsvTemplate(new File(filePath), "\n", ",");
+    CsvTemplate csvTemplate = new CsvTemplate(new File(filePath));
 
     // when
-    int totalRows = csvTemplate.getTotalRows();
+    int totalRows = csvTemplate.getTotalRows( "\n", ",");
 
     // then
     assertThat(totalRows).isEqualTo(10);

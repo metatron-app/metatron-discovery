@@ -64,6 +64,7 @@
     "sql-formatter": "2.3.2",
     "string-pixel-width": "1.8.0",
     "zone.js": "0.8.26",
+    "openlayers": "4.6.5",
     "proj4": "^2.5.0"
   },
   "devDependencies": {

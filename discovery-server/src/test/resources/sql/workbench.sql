@@ -1,10 +1,10 @@
 
-INSERT INTO DATACONNECTION(DC_IMPLEMENTOR, ID, CREATED_BY, CREATED_TIME, MODIFIED_BY, MODIFIED_TIME, VERSION, DC_DESC, DC_HOSTNAME, DC_NAME, DC_OPTIONS, DC_PASSWORD, DC_PORT, DC_TYPE, DC_URL, DC_USERNAME, DC_DATABASE, PATH, DC_CATALOG, DC_SID, REMOVEFIRSTROW, DC_PROPERTIES) VALUES
-('STAGE', 'stage-hive-connection-for-test', 'polaris', now(), 'polaris', now(), 0, NULL, 'localhost', 'hive-local', NULL, 'hive', 10000, 'JDBC', NULL, 'hive', NULL, NULL, NULL, NULL, NULL, NULL),
-('HIVE', 'hive-local', 'polaris', now(), 'polaris', now(), 0, NULL, 'localhost', 'hive-local', NULL, 'hive', 10000, 'JDBC', NULL, 'hive', NULL, NULL, NULL, NULL, NULL, NULL),
-('MYSQL', 'mysql-local', 'polaris', now(), 'polaris', now(), 0, NULL, 'localhost', 'mysql-local', NULL, 'polaris', 3306, 'JDBC', NULL, 'polaris', NULL, NULL, NULL, NULL, NULL, NULL),
-('PRESTO', 'presto-local', 'polaris', now(), 'polaris', now(), 0, NULL, 'localhost', 'presto-local', NULL, 'hive', 8080, 'JDBC', NULL, 'hive', NULL, NULL, 'hive', NULL, NULL, NULL),
-('HIVE', 'hive-local-enable-save-as-hive-table', 'polaris', now(), 'polaris', now(), 0, NULL, 'localhost', 'hive-local-enable-save-as-hive-table', NULL, 'hive', 10000, 'JDBC', NULL, 'hive', NULL, NULL, NULL, NULL, NULL, '{"metatron.hive.admin.name":"hive_admin","metatron.hive.admin.password":"1111","metatron.personal.database.prefix":"private","metatron.hdfs.conf.path":"/tmp/hdfs-conf"}');
+INSERT INTO DATACONNECTION(DC_IMPLEMENTOR, ID, CREATED_BY, CREATED_TIME, MODIFIED_BY, MODIFIED_TIME, VERSION, DC_DESC, DC_HOSTNAME, DC_NAME, DC_OPTIONS, DC_PASSWORD, DC_PORT, DC_TYPE, DC_URL, DC_USERNAME, DC_DATABASE, DC_CATALOG, DC_SID, DC_PROPERTIES) VALUES
+('STAGE', 'stage-hive-connection-for-test', 'polaris', now(), 'polaris', now(), 0, NULL, 'localhost', 'hive-local', NULL, 'hive', 10000, 'JDBC', NULL, 'hive', NULL, NULL, NULL, NULL),
+('HIVE', 'hive-local', 'polaris', now(), 'polaris', now(), 0, NULL, 'localhost', 'hive-local', NULL, 'hive', 10000, 'JDBC', NULL, 'hive', NULL, NULL, NULL, NULL),
+('MYSQL', 'mysql-local', 'polaris', now(), 'polaris', now(), 0, NULL, 'localhost', 'mysql-local', NULL, 'polaris', 3306, 'JDBC', NULL, 'polaris', NULL, NULL, NULL, NULL),
+('PRESTO', 'presto-local', 'polaris', now(), 'polaris', now(), 0, NULL, 'localhost', 'presto-local', NULL, 'hive', 8080, 'JDBC', NULL, 'hive', NULL, 'hive', NULL, NULL),
+('HIVE', 'hive-local-enable-save-as-hive-table', 'polaris', now(), 'polaris', now(), 0, NULL, 'localhost', 'hive-local-enable-save-as-hive-table', NULL, 'hive', 10000, 'JDBC', NULL, 'hive', NULL, NULL, NULL, '{"metatron.hive.admin.name":"hive_admin","metatron.hive.admin.password":"1111","metatron.personal.database.prefix":"private","metatron.hdfs.conf.path":"/tmp/hdfs-conf"}');
 
 INSERT INTO book (type,id, created_by, created_time, modified_by, modified_time,version,book_desc,book_favorite,book_folder_id,book_name,book_tag,ws_id) VALUES
 ('workbench','workbench-01','admin',NOW(),'admin',NOW(),1.0,'',FALSE,'','TEST-Workbench-01','','ws-00'),

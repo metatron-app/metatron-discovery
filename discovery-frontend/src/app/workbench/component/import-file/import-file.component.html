@@ -26,12 +26,13 @@
   <div class="ddp-type-contents-in ddp-full">
     <!-- 파일 선택하기전 -->
     <div class="ddp-box-popupcontents" *ngIf="!isSuccessFileUpload()">
-      <!-- file create -->
+      <!-- import file -->
       <div class="ddp-box-file-create" ng2FileDrop [uploader]="uploader">
         <!-- default -->
         <div class="ddp-box-default">
           <div class="ddp-txt-file-info">
             <div class="ddp-link-file">
+              <!-- import file -->
               <input type="file" ng2FileSelect [uploader]="uploader">
               {{'msg.storage.ui.dsource.create.file.import' | translate}}
             </div>

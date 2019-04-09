@@ -2026,7 +2026,6 @@ export namespace OptionGenerator {
 
       let defaultStyle:string = MapLayerStyle.TANGO_GIS.toString();
       const propMapConf = sessionStorage.getItem( CommonConstant.PROP_MAP_CONFIG );
-
       if ( propMapConf ) {
         const objConf = JSON.parse( propMapConf );
         ( objConf && objConf.defaultBaseMap );
