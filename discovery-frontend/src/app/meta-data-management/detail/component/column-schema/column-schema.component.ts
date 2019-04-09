@@ -198,16 +198,6 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   }
 
   /**
-   * Check if the type of the column is time
-   *
-   * @param {MetadataColumn} column
-   * @returns {boolean}
-   */
-  public isTimeType(column: MetadataColumn): boolean {
-    return column.type && column.type === Type.Logical.TIMESTAMP;
-  }
-
-  /**
    * Save validation
    *
    * @returns {boolean}
@@ -757,14 +747,5 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    */
   private _setCodeTableForSelectedColumn(result) {
     this._selectedColumn.codeTable = result;
-  }
-
-  /**
-   * Get metadata detail information
-   */
-  private _getMetadataDetail() {
-    return this._metaDataService.getDetailMetaData(this.metaDataModelService.getMetadata().id).then((result) => {
-      return result;
-    });
   }
 }
