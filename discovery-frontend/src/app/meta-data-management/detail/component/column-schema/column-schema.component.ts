@@ -464,14 +464,25 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   }
 
   public getColumns() {
-    // @formatter:off
     let keyword = _.cloneDeep(this.keyword as string);
     keyword = _.isNil(keyword) ? '' : keyword;
     return this.columnList
-      .filter(column => _.isNil(this.selectedType) || this.selectedType.value === 'ALL' ? true : column.type.toString() === this.selectedType.value)
-      .filter(column => _.isNil(this.selectedRole) || this.selectedRole.value === 'ALL' ? true : column.role === this.selectedRole.value)
-      .filter(column => column.physicalName.indexOf(keyword) !== -1);
-    // @formatter:on
+      .filter(column => _.isNil(this.selectedType) || this.selectedType.value === 'ALL' ? true : column.type === this.selectedType.value)
+      .filter(column => {
+
+        if (_.isNil(this.selectedRole) || this.selectedRole.value === 'ALL') {
+          return true;
+        }
+
+        let isMetadataColumnRoleIsSameSelectedRole = column.role === this.selectedRole.value;
+        if (_.eq(isMetadataColumnRoleIsSameSelectedRole, false)
+          && this.selectedRole.value === Type.Role.DIMENSION
+          && column.role === Type.Role.TIMESTAMP) {
+          return true;
+        }
+
+        return isMetadataColumnRoleIsSameSelectedRole;
+      }).filter(column => column.physicalName.indexOf(keyword) !== -1);
   }
 
   public filterInitialize() {
