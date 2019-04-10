@@ -183,10 +183,9 @@
                 <em class="ddp-bg-select"></em>
               </div>
             </td>
-            <td class="ddp-inherit ddp-info" [class.ddp-selected]="column.isShowTimestampValidPopup">
+            <td class="ddp-inherit ddp-info" [class.ddp-selected]="column.isShowTimestampValidPopup" (click)="onChangeTypeListShowFlag(column)" (clickOutside)="column.isShowTypeList = false">
               <!-- select -->
-              <div class="ddp-ui-selected-option" [class.ddp-selected]="column.isShowTypeList"
-                   (clickOutside)="column.isShowTypeList = false" (click)="onChangeTypeListShowFlag(column)">
+              <div class="ddp-ui-selected-option" [class.ddp-selected]="column.isShowTypeList">
                 <span class="ddp-link-text ddp-txt-icon">
                   <em class="{{getFieldTypeIconClass(column.logicalType)}}"></em>
                   {{column.role === FIELD_ROLE.TIMESTAMP ? ('msg.storage.ui.list.timestamp' | translate) : getSelectedLogicalTypeLabel(column)}}
