@@ -3623,6 +3623,7 @@ em[class*="ddp-bg-chart-"] {display:inline-block; position:absolute; top:50%; le
 .ddp-box-down .ddp-list-part .ddp-ui-divide:first-of-type {padding-top:0px;}
 .ddp-box-down .ddp-list-part.ddp-divide {margin-top:0; padding:3px 0;}
 .ddp-box-down .ddp-list-label {padding:10px 0; color:#4a515c; font-size:13px;}
+.ddp-box-down .ddp-list-label.type-label {padding-bottom:0;}
 .ddp-box-down .ddp-preview {padding:5px 0; color:#4b515b; font-size:16px; text-align:center; background-color:#eeeef0;}
 .ddp-box-down .ddp-preview2 {padding:15px 18px; font-size:12px; color:#4b515b; background-color:#eeeef0;}
 .ddp-box-down .ddp-preview2 p {font-size:12px;}
