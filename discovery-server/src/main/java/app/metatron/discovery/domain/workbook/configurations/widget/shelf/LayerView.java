@@ -87,11 +87,16 @@ public interface LayerView extends Serializable {
       List<String> pointKeyList = LogicalType.GEO_POINT.getGeoPointKeys();
 
       StringBuilder builder = new StringBuilder();
-      if (isGeom) builder.append("geom_");
-      builder.append("to_").append(method).append("(");
-      builder.append(fieldName).append(".").append(pointKeyList.get(0)).append(",");
-      builder.append(fieldName).append(".").append(pointKeyList.get(1)).append(",");
-      builder.append(precision).append(")");
+      if (isGeom) {
+        builder.append("geom_to_").append(method).append("(");
+        builder.append(fieldName).append(",");
+        builder.append(precision).append(")");
+      } else {
+        builder.append("to_").append(method).append("(");
+        builder.append(fieldName).append(".").append(pointKeyList.get(0)).append(",");
+        builder.append(fieldName).append(".").append(pointKeyList.get(1)).append(",");
+        builder.append(precision).append(")");
+      }
 
       return builder.toString();
     }

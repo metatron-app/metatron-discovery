@@ -390,7 +390,16 @@ public abstract class AbstractQueryBuilder {
       MultiDataSource multiDataSource = (MultiDataSource) dataSource;
       multiDataSource.electMainDataSource(mapViewLayer);
       mainMetaDataSource = multiDataSource.getMetaDataSource();
+
+      // set ref, if 'ref' value in field is null
+      // under the multi-datasource, field has to get 'ref' value.
+      for (Field field : mapViewLayer.getFields()) {
+        if (StringUtils.isEmpty(field.getRef())) {
+          field.setRef(mapViewLayer.getRef());
+        }
+      }
     }
+
   }
 
   protected TimeFormatFunc createTimeFormatFunc(String fieldName, TimeFieldFormat originalTimeFormat, TimeFieldFormat timeFormat) {
@@ -699,9 +708,14 @@ public abstract class AbstractQueryBuilder {
 
   private boolean isNotMainDataSourceColumn(app.metatron.discovery.domain.workbook.configurations.filter.Filter filter) {
 
-    if (dataSource instanceof MultiDataSource
-        && !mainMetaDataSource.getEngineName().equals(filter.getDataSource())) {
-      return true;
+    if (dataSource instanceof MultiDataSource) {
+      if (!mainMetaDataSource.getEngineName().equals(filter.getDataSource())) {
+        return true;
+      }
+
+      if (StringUtils.isEmpty(filter.getRef())) {
+        filter.setRef(mainMetaDataSource.getEngineName());
+      }
     }
 
     return false;

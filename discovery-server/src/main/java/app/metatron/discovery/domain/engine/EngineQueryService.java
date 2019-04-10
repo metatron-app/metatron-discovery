@@ -380,6 +380,10 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
 
       for (MapViewLayer layer : geoShelf.getLayers()) {
 
+        if (CollectionUtils.isEmpty(layer.getFields())) {
+          continue;
+        }
+
         CommonLocalVariable.generateQueryId();
 
         if (layer.getView().needAggregation()) {
