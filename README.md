@@ -3,11 +3,14 @@
 **Metatron Discovery** is an end-to-end big data self discovery solution.
 To learn more about it, visit our [web site](https://metatron.app). Check [our blog](https://metatron.app/index.php/blog/) for upcoming events and development news.
 
+
 Strengths
 ------------------
-- Able to process HUGE data sets super FAST, powered by (optimized) [Apache Druid](http://druid.io/)
-- Easy data analytics for everyone
-- Intuitive UI with full API support
+
+- Able to process HUGE data sets super FAST, powered by (optimized) [Apache Druid](http://druid.io/).
+- Single solution for data analytics from easy data preparation to fast visualization.
+- Easy data analytics for everyone.
+
 
 Key Features
 ------------------
