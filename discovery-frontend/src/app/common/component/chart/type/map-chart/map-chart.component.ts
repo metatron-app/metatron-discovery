@@ -2780,10 +2780,16 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // Tooltip
       ////////////////////////////////////////////////////////
       if (!uiOption.toolTip.displayColumns) uiOption.toolTip.displayColumns = [];
-
+      let itemsForTooltip = TooltipOptionConverter.returnTooltipDataValue(shelf);
       if (!isAnalysisUse) {
-        let fields = TooltipOptionConverter.returnTooltipDataValue(shelf);
-        this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(fields);
+        // multi layer 를 고려해야 함
+        let fieldsForTooltip = ChartUtil.returnNameFromField(itemsForTooltip);
+        fieldsForTooltip.forEach((field) => {
+          this.uiOption.toolTip.displayColumns.push(field);
+        });
+      } else {
+        // 공간연산 실행 시 보여줘야하는 tooltip
+        this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(itemsForTooltip);
       }
     }
   }

@@ -83,11 +83,11 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
     // return shelf list except geo dimension
     let uniqList = TooltipOptionConverter.returnTooltipDataValue(layerItems);
 
-    // set displayColumns
+    // tooltip option panel이 첫번째로 열렸는지 여부
     if(_.isUndefined(this.uiOption.toolTip['isFirstOpenTooltipOption'])
       || !_.isUndefined(this.uiOption.toolTip['isFirstOpenTooltipOption']) && this.uiOption.toolTip['isFirstOpenTooltipOption']) {
-      // tooltip option panel이 첫번째로 열렸는지 여부
       this.uiOption.toolTip['isFirstOpenTooltipOption'] = false;
+      // set displayColumns
       this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(uniqList);
     }
 
