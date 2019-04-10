@@ -189,6 +189,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   @Output('shelf')
   public shelfEvent: EventEmitter<any> = new EventEmitter();
 
+  // resize 이벤트
+  public isResize : boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -373,6 +376,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    */
   public draw(isKeepRange?: boolean): void {
 
+    this.isResize = false;
+
     // analysis
     if (!_.isUndefined(this.getUiMapOption().analysis) && !_.isUndefined(this.getUiMapOption().analysis['use']) && this.getUiMapOption().analysis['use'] == true
       && this.getUiMapOption().layerNum == this.getUiMapOption().layers.length - 1) {
@@ -476,6 +481,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   }
 
   public resize(): void {
+    this.isResize = true;
     this.onResize(null);
   }
 
@@ -2813,9 +2819,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // zoom size
     mapUIOption.zoomSize = Math.round(event.frameState.viewState.zoom);
 
-    if ((_.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner)) || that.preZoomSize == 0) {
+    if ((_.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner)) || that.preZoomSize == 0 || that.isResize) {
       this.preZoomSize = mapUIOption.zoomSize;
       this.setUiExtent(event);
+      this.isResize = false;
       return;
     }
 
