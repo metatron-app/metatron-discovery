@@ -450,7 +450,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.createMapOverLayEvent();
 
     // Chart resize
-    if( this.drawByType != null || !_.isEmpty(this.drawByType) )
+    if (this.drawByType != null || !_.isEmpty(this.drawByType))
       this.olmap.updateSize();
     ////////////////////////////////////////////////////////
     // Apply
@@ -933,7 +933,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.changeDetect.detectChanges();
 
     // Map data place fit
-    if (( (this.drawByType == EventType.CHART_TYPE || this.drawByType == EventType.CHANGE_PIVOT) && isLogicalType && this.shelf.layers[layerIndex].fields[this.shelf.layers[layerIndex].fields.length - 1].field.logicalType != null) && 'Infinity'.indexOf(source.getExtent()[0]) == -1 &&
+    if (((this.drawByType == EventType.CHART_TYPE || this.drawByType == EventType.CHANGE_PIVOT) && isLogicalType && this.shelf.layers[layerIndex].fields[this.shelf.layers[layerIndex].fields.length - 1].field.logicalType != null) && 'Infinity'.indexOf(source.getExtent()[0]) == -1 &&
       (_.isUndefined(this.uiOption['layers'][layerIndex]['changeCoverage']) || this.uiOption['layers'][layerIndex]['changeCoverage'])) {
       this.olmap.getView().fit(source.getExtent());
     } else {
@@ -2035,20 +2035,20 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         ////////////////////////////////////////////////////////
 
         this.tooltipInfo.fields = [];
-        let layerFieldList = [];
+        // let layerFieldList = [];
 
         // Properties (DATA_VALUE)
         if (this.getUiMapOption().toolTip.displayTypes != undefined && this.getUiMapOption().toolTip.displayTypes[19] !== null) {
           let aggregationKeys: any[] = [];
           // layer 에 올라간 field 값 조회
           let layerItems = [];
-          let itemIndex = 0;
-          let customField = {};
+          // let itemIndex = 0;
+          // let customField = {};
           if (!_.isUndefined(this.getUiMapOption().analysis) && !_.isUndefined(this.getUiMapOption().analysis['use']) && this.getUiMapOption().analysis['use'] === true) {
             // 공간연산 실행 시
             layerItems = _.cloneDeep(
               !_.isUndefined(this.shelf.layers[this.getUiMapOption().layerNum].fields) && this.shelf.layers[this.getUiMapOption().layerNum].fields.length > 0
-              ? this.shelf.layers[this.getUiMapOption().layerNum].fields : []
+                ? this.shelf.layers[this.getUiMapOption().layerNum].fields : []
             );
           } else {
             this.shelf.layers[toolTipLayerNum].fields.forEach((field) => {
@@ -2056,10 +2056,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             });
           }
           // layer 에 올란간 dimension 와 measure list 조회
-          layerFieldList = TooltipOptionConverter.returnTooltipDataValue(layerItems);
-          // set tooltip displayColumns
-          this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(layerFieldList);
-
+          // layerFieldList = TooltipOptionConverter.returnTooltipDataValue(layerItems);
 
           for (let key in feature.getProperties()) {
             _.each(this.getUiMapOption().toolTip.displayColumns, (field, idx) => {
@@ -2068,6 +2065,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
                 return false;
               }
             });
+          }
+
+          // 공간연산 실행 후 단계구분도(choropleth) 설정을 count로 custom하기 때문에 해당 부분 tooltip에 보여주기 위해 적용
+          if (aggregationKeys.length == 0 && !_.isUndefined(this.getUiMapOption().analysis) && this.getUiMapOption().analysis['use'] === true) {
+            aggregationKeys.push({idx: 0, key: 'count'});
           }
 
           _.each(_.orderBy(aggregationKeys, ['idx']), (aggregationKey) => {
@@ -2118,20 +2120,20 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
           // tooltip info 에 보여줄 양에 따라 height 구하기
           let sizeOfToolTipHeight = [];
-          if(!_.isUndefined(this.tooltipInfo.fields) && this.tooltipInfo.fields.length > 0) {
+          if (!_.isUndefined(this.tooltipInfo.fields) && this.tooltipInfo.fields.length > 0) {
             // column 이름은 있는데, column value가 없을 경우 사이즈 다를 수 있음
-            this.tooltipInfo.fields.forEach( (field) => {
-              if(field['name'] != null && !_.isUndefined(field['name'])) {
+            this.tooltipInfo.fields.forEach((field) => {
+              if (field['name'] != null && !_.isUndefined(field['name'])) {
                 sizeOfToolTipHeight.push(field['name']);
               }
-              if(field['value'] != null && !_.isUndefined(field['value'])) {
+              if (field['value'] != null && !_.isUndefined(field['value'])) {
                 sizeOfToolTipHeight.push(field['value']);
               }
             });
           }
           if (sizeOfToolTipHeight.length > 0) {
             // height 계산
-            yOffset = yOffset - (25 * (sizeOfToolTipHeight.length/1.2));
+            yOffset = yOffset - (25 * (sizeOfToolTipHeight.length / 1.2));
           }
           let offset = [-92, yOffset];
           this.tooltipLayer.setOffset(offset);
@@ -3318,7 +3320,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.createLegend(this.getUiMapOption().layerNum);
 
     // Chart resize
-    if( this.drawByType != null || !_.isEmpty(this.drawByType) )
+    if (this.drawByType != null || !_.isEmpty(this.drawByType))
       this.olmap.updateSize();
 
     this.loadingHide();

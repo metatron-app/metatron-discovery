@@ -936,7 +936,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     // color setting show / hide 값 반대로 설정
     this.uiOption.layers[layerIndex].color.settingUseFl = !this.uiOption.layers[layerIndex].color.settingUseFl;
 
-    let colorOption = this.uiOption.layers[this.uiOption.layerNum].color;
+    let colorOption = this.uiOption.layers[layerIndex].color;
 
     // custom user color is show, set ranges
     const ranges = this.uiOption.layers[layerIndex].color.settingUseFl ? colorOption.ranges : [];

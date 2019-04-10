@@ -47,11 +47,9 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
 
   @Input('uiOption')
   public set setUiOption(uiOption: UIMapOption) {
-
     if (!uiOption.toolTip) {
       uiOption.toolTip = {};
     }
-
     // Set
     this.uiOption = uiOption;
   }
@@ -86,7 +84,12 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
     let uniqList = TooltipOptionConverter.returnTooltipDataValue(layerItems);
 
     // set displayColumns
-    this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(uniqList);
+    if(_.isUndefined(this.uiOption.toolTip['isFirstOpenTooltipOption'])
+      || !_.isUndefined(this.uiOption.toolTip['isFirstOpenTooltipOption']) && this.uiOption.toolTip['isFirstOpenTooltipOption']) {
+      // tooltip option panel이 첫번째로 열렸는지 여부
+      this.uiOption.toolTip['isFirstOpenTooltipOption'] = false;
+      this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(uniqList);
+    }
 
     this.selectedLayerItems = [];
     this.unselectedLayerItems = [];

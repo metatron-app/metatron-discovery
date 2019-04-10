@@ -829,22 +829,27 @@ export class MapPagePivotComponent extends PagePivotComponent {
     // 0 ~ 1 은 multi-layer, 그래서 공간연산 layer 값은 2
     this.uiOption.layerNum = this.uiOption.layers.length - 1;
 
-    // 공간연산에서 choropleth 를 활성화 하고 default 값인 count를 지정할 경우 count에 대한 정보를 강제 입력
-    if(this.uiOption['analysis']['operation']['choropleth'] == true ) {
-      let field = {
-        alias: 'count',
-        type: 'measure',
-        subRole: 'measure',
-        name: 'count',
-        isCustomField: true
-      };
+    // 공간연산에서 choropleth 를 활성화 했을 경우
+    // 커스텀 하게 default 값 count 정보 설정
+    if (this.uiOption['analysis']['operation']['choropleth'] == true) {
+      let field: MeasureField = new MeasureField();
+      // 이미 변수가 선언이 되어 있어 강제로 변경
+      field.aggregationType = null;
+      field.alias = 'count';
+      field.type = 'measure';
+      field.subRole = 'measure';
+      field.name = 'count';
+      field.isCustomField = true;
+      field.field = new Field();
+      field.field.logicalType = LogicalType.INTEGER;
 
+      // 공간연산 실행 시 layer의 field에 해당 값 적용
       let uiOption = this.uiOption;
-      this.shelf.layers.forEach( (layer) => {
-        if(layer.name === CommonConstant.MAP_ANALYSIS_LAYER_NAME) {
+      this.shelf.layers.forEach((layer) => {
+        if (layer.name === CommonConstant.MAP_ANALYSIS_LAYER_NAME) {
           layer.fields.push(_.cloneDeep(field));
-          layer.fields.forEach( (field) => {
-            if( uiOption['analysis']['operation']['aggregation']['column'] == field.name ){
+          layer.fields.forEach((field) => {
+            if (uiOption['analysis']['operation']['aggregation']['column'] == field.name && !(!_.isUndefined(field.isCustomField) && field.isCustomField == true)) {
               field.aggregationType = uiOption['analysis']['operation']['aggregation']['type'];
             }
           });

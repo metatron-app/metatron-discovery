@@ -544,7 +544,6 @@ export class DatasourceService extends AbstractService {
 
       // check multiple geo type
       for (let idx = 0; idx < query.shelf.layers.length; idx++) {
-
         let geoFieldCnt: number = 0;
         for (let column of query.shelf.layers[idx].fields) {
           if (column && column.field && column.field.logicalType && (-1 !== column.field.logicalType.toString().indexOf('GEO'))) {

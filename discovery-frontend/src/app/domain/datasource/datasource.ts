@@ -12,11 +12,10 @@
  * limitations under the License.
  */
 
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
-import { GranularityType } from '../workbook/configurations/field/timestamp-field';
-import { Dataconnection } from '../dataconnection/dataconnection';
-import { MetadataColumn } from '../meta-data-management/metadata-column';
-import { CodeTable } from '../meta-data-management/code-table';
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
+import {GranularityType} from '../workbook/configurations/field/timestamp-field';
+import {Dataconnection} from '../dataconnection/dataconnection';
+import {MetadataColumn} from '../meta-data-management/metadata-column';
 import {
   CreateConnectionData,
   CreateSnapShotData,
@@ -190,7 +189,7 @@ export class Field {
   isShowTimestampValidPopup?: boolean;
 
   // [UI] for Alias
-  dsId?:string;                   // 데이터소스 아이디
+  dsId?: string;                   // 데이터소스 아이디
   dataSource?: string;            // 데이터소스 engine Name
   boardId?: string;               // 대시보드 아이디
   nameAlias?: FieldNameAlias;     // 데이터소스 필드 이름 별칭 정보
@@ -303,6 +302,7 @@ export class IngestionRule {
   public type: IngestionRuleType;
   // value
   public value: string;
+
   // constructor
   constructor() {
     this.type = IngestionRuleType.DEFAULT;
@@ -399,7 +399,7 @@ export enum LogicalType {
   GEO_POINT = <any>'GEO_POINT',
   GEO_LINE = <any>'GEO_LINE',
   GEO_POLYGON = <any>'GEO_POLYGON',
-  USER_DEFINED = <any>'user_defined',
+  USER_DEFINED = <any>'user_defined'
 }
 
 export enum FieldRole {
