@@ -115,13 +115,13 @@ export class WidgetService extends AbstractService {
   }
 
   /**
-   * 위젯 설정 다운로드
+   * 위젯 설정을 통한 데이터 조회
    * @param {SearchQueryRequest} query
    * @param {boolean} original
-   * @param {number} maxRowsPerSheet
-   * @return {Observable<any>}
+   * @param {boolean} preview
+   * @param {any} param
    */
-  public downloadConfig(query: SearchQueryRequest, original: boolean, maxRowsPerSheet: number): Observable<any> {
+  public previewConfig(query: SearchQueryRequest, original: boolean, preview:boolean, param: any = null): Promise<any> {
 
     // 파라미터 가공
     let config: Object = {
@@ -134,11 +134,38 @@ export class WidgetService extends AbstractService {
     };
 
     // URL
+    let url: string = this.API_URL + `widgets/config/data?original=${original}&preview=${preview}`;
+    return this.post(url, config);
+  } // function - previewConfig
+
+  /**
+   * 위젯 설정을 통한 데이터 다운로드
+   * @param {SearchQueryRequest} query
+   * @param {boolean} original
+   * @param {number} maxRowsPerSheet
+   * @param {string} fileType
+   * @return {Observable<any>}
+   */
+  public downloadConfig(query: SearchQueryRequest, original: boolean, maxRowsPerSheet: number, fileType?: string): Observable<any> {
+
+    // 파라미터 가공
+    let config: Object = {
+      type: 'page',
+      dataSource: query.dataSource,
+      fields: query.userFields,
+      filters: query.filters,
+      pivot: query.pivot,
+      limit: query.limits
+    };
+
+    const strType: string = ('CSV' === fileType) ? 'application/csv' : 'application/vnd.ms-excel';
+
+    // URL
     let url: string = this.API_URL + 'widgets/config/download?original=' + original + '&maxRowsPerSheet=' + maxRowsPerSheet;
 
     // 헤더
     let headers = new HttpHeaders({
-      'Accept': 'application/vnd.ms-excel',
+      'Accept': strType,
       'Content-Type': 'application/json',
       'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
     });
@@ -152,15 +179,16 @@ export class WidgetService extends AbstractService {
     // 호출
     return this.http.post(url, config, option)
       .map((res) => {
-        return new Blob([res], { type: 'application/vnd.ms-excel' })
+        return new Blob([res], { type: strType })
       });
-  }
+  } // function - downloadConfig
 
   /**
    * 위젯 정보 미리보기
    * @param {string} widgetId
    * @param {boolean} original
    * @param {boolean} preview
+   * @param {any} param
    * @returns {Promise<any>}
    */
   public previewWidget(widgetId: string, original: boolean, preview:boolean, param: any = null): Promise<any> {
@@ -174,6 +202,7 @@ export class WidgetService extends AbstractService {
    * @param {boolean} original
    * @param {number} maxRowsPerSheet
    * @param {string} fileType
+   * @param {any} param
    * @returns {Observable<any>}
    */
   public downloadWidget(widgetId: string, original: boolean, maxRowsPerSheet?: number, fileType?: string, param: any = null): Observable<any> {
@@ -206,7 +235,7 @@ export class WidgetService extends AbstractService {
       .map((res) => {
         return new Blob([res], { type: strType })
       });
-  }
+  } // function - downloadWidget
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
