@@ -327,11 +327,12 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
                                                   .emptyQueryId()
                                                   .build();
 
-        operationQuery = ChoroplethMapQuery.builder()
-                                           .query(mainLayerQuery)
-                                           .geometry(mainLayerQuery.getGeometry())
-                                           .boundary(compareLayerQuery, GEOMETRY_BOUNDARY_COLUMN_NAME)
-                                           .build();
+        operationQuery = GeoBoundaryFilterQuery.builder()
+                                               .query(mainLayerQuery)
+                                               .geometry(mainLayerQuery.getGeometry())
+                                               .boundary(compareLayerQuery, GEOMETRY_BOUNDARY_COLUMN_NAME, true)
+                                               .operation(geoSpatialAnalysis.getOperation())
+                                               .build();
 
         Map<String, String> mapper = Maps.newLinkedHashMap();
         for (String outputColumn : mainLayerQuery.getOutputColumns()) {
@@ -360,7 +361,7 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
         operationQuery = GeoBoundaryFilterQuery.builder()
                                                .query(mainLayerQuery)
                                                .geometry(mainLayerQuery.getGeometry())
-                                               .boundary(compareLayerQuery, GEOMETRY_BOUNDARY_COLUMN_NAME)
+                                               .boundary(compareLayerQuery, GEOMETRY_BOUNDARY_COLUMN_NAME, false)
                                                .operation(geoSpatialAnalysis.getOperation())
                                                .build();
         request.setResultFieldMapper(mainLayerQuery.getFieldMapper());

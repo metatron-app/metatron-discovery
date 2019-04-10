@@ -37,7 +37,13 @@ public class GeoBoundaryFilterQuery extends Query {
 
   String boundaryColumn;
 
+  Boolean boundaryUnion;
+
+  Map<String, String> boundaryJoin;
+
   SpatialOperations operation;
+
+  Integer parallelism;
 
   Map<String, Object> context;
 
@@ -49,14 +55,20 @@ public class GeoBoundaryFilterQuery extends Query {
                                 String shapeColumn,
                                 SelectStreamQuery boundary,
                                 String boundaryColumn,
+                                Boolean boundaryUnion,
+                                Map<String, String> boundaryJoin,
                                 SpatialOperations operation,
+                                Integer parallelism,
                                 Map<String, Object> context) {
     this.query = query;
     this.pointColumn = pointColumn;
     this.shapeColumn = shapeColumn;
     this.boundary = boundary;
     this.boundaryColumn = boundaryColumn;
+    this.boundaryUnion = boundaryUnion;
+    this.boundaryJoin = boundaryJoin;
     this.operation = operation;
+    this.parallelism = parallelism;
     this.context = context;
   }
 
@@ -78,6 +90,14 @@ public class GeoBoundaryFilterQuery extends Query {
 
   public String getBoundaryColumn() {
     return boundaryColumn;
+  }
+
+  public Boolean getBoundaryUnion() {
+    return boundaryUnion;
+  }
+
+  public Map<String, String> getBoundaryJoin() {
+    return boundaryJoin;
   }
 
   public SpatialOperations getOperation() {

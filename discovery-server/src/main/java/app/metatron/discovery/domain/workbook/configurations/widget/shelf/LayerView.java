@@ -82,10 +82,12 @@ public interface LayerView extends Serializable {
       }
     }
 
-    public String toHashExpression(String fieldName) {
+    public String toHashExpression(String fieldName, boolean isGeom) {
 
       List<String> pointKeyList = LogicalType.GEO_POINT.getGeoPointKeys();
+
       StringBuilder builder = new StringBuilder();
+      if (isGeom) builder.append("geom_");
       builder.append("to_").append(method).append("(");
       builder.append(fieldName).append(".").append(pointKeyList.get(0)).append(",");
       builder.append(fieldName).append(".").append(pointKeyList.get(1)).append(",");

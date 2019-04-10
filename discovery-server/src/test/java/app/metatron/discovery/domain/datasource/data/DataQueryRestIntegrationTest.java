@@ -2300,10 +2300,10 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     );
 
     //    List<Field> fields1 = Lists.newArrayList(new DimensionField("gis", null, null), new DimensionField("gu"), new MeasureField("amt", null, MeasureField.AggregationType.SUM));
-    List<Field> fields1 = Lists.newArrayList(new DimensionField("gis", null, null), new DimensionField("gu"));
+    List<Field> fields1 = Lists.newArrayList(new DimensionField("gis"), new DimensionField("gu"));
     MapViewLayer layer1 = new MapViewLayer("layer1", "estate", fields1, null);
 
-    List<Field> fields2 = Lists.newArrayList(new DimensionField("geom", null, null));
+    List<Field> fields2 = Lists.newArrayList(new DimensionField("geom"), new DimensionField("name"));
     MapViewLayer layer2 = new MapViewLayer("layer2", "seoul_roads", fields2, null);
 
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1, layer2));
@@ -2858,11 +2858,14 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     System.out.println(GlobalObjectMapper.getDefaultMapper().writeValueAsString(request));
 
+    String query = "{\"dataSource\":{\"joins\":[],\"temporary\":false,\"id\":\"ds-gis-37\",\"name\":\"sales_geo\",\"uiDescription\":\"Sales data (2011~2014)\",\"type\":\"default\",\"connType\":\"ENGINE\",\"engineName\":\"sales_geo\"},\"targetField\":{\"type\":\"dimension\",\"name\":\"Category\"}}";
+
     // @formatter:off
     given()
       .auth().oauth2(oauth_token)
-      .body(request)
+      .body(query)
       .contentType(ContentType.JSON)
+      .log().all()
     .when()
       .post("/api/datasources/query/candidate")
     .then()
