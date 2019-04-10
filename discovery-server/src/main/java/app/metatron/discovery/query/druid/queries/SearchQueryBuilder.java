@@ -87,6 +87,8 @@ public class SearchQueryBuilder extends AbstractQueryBuilder {
     for (Field field : reqFields) {
 
       String fieldName = checkColumnName(field.getColunm());
+      String engineColumnName = engineColumnName(fieldName);
+
       if (!fieldName.equals(field.getColunm())) {
         field.setRef(StringUtils.substringBeforeLast(fieldName, FIELD_NAMESPACE_SEP));
       }
@@ -100,17 +102,17 @@ public class SearchQueryBuilder extends AbstractQueryBuilder {
           if (virtualColumn instanceof IndexVirtualColumn) {
             dimensions.add(new DefaultDimension(((IndexVirtualColumn) virtualColumn).getKeyDimension(), alias));
           } else {
-            dimensions.add(new DefaultDimension(fieldName, alias));
+            dimensions.add(new DefaultDimension(engineColumnName, alias));
           }
           unUsedVirtualColumnName.remove(fieldName);
         } else if (metaFieldMap.containsKey(fieldName)) {     // from datasource
           // ValueAlias 처리
           if (MapUtils.isNotEmpty(field.getValuePair())) {
-            dimensions.add(new LookupDimension(fieldName,
+            dimensions.add(new LookupDimension(engineColumnName,
                                                alias,
                                                new MapLookupExtractor(field.getValuePair())));
           } else {
-            dimensions.add(new DefaultDimension(fieldName, alias));
+            dimensions.add(new DefaultDimension(engineColumnName, alias));
           }
         } else {
           LOGGER.debug("Unusable dimension : {}", fieldName);
@@ -147,6 +149,7 @@ public class SearchQueryBuilder extends AbstractQueryBuilder {
 
     if (StringUtils.isEmpty(searchWord)) {
       query = new AllSearchQuerySpec();
+      return this;
     }
 
     String[] splitedWords = StringUtils.split(searchWord, " ");
