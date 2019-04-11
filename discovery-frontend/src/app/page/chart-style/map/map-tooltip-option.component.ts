@@ -64,7 +64,13 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
     let layerItems = [];
     // 공간연산 사용 여부
     if(!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) &&  this.uiOption.analysis['use'] === true) {
-      layerItems = _.cloneDeep(shelf.layers[this.uiOption.layerNum].fields);
+      // layerItems = _.cloneDeep(shelf.layers[this.uiOption.layerNum].fields);
+      shelf.layers[this.uiOption.layerNum].fields.forEach((field) => {
+        // 공간연산에 사용된 aggregationType으로 tooltip 설정
+        if (field.name == this.uiOption.analysis.operation.aggregation.column || field.isCustomField == true) {
+          layerItems.push(field);
+        }
+      });
     } else {
       for(let layerIndex = 0; this.uiOption.layers.length > layerIndex; layerIndex++) {
         if (shelf && !_.isUndefined(shelf.layers[layerIndex])) {
