@@ -576,7 +576,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       });
 
       measureList = getShelveReturnField(layers, [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
-      // dimensionList = getShelveReturnField(layers, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
+      dimensionList = getShelveReturnField(layers, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
       tempObj = {
         'measureList': measureList,
         'dimensionList': dimensionList

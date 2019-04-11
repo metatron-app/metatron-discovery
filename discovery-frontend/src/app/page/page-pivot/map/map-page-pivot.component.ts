@@ -40,6 +40,7 @@ import {ChartUtil} from '../../../common/component/chart/option/util/chart-util'
 import {OptionGenerator} from "../../../common/component/chart/option/util/option-generator";
 import {isNullOrUndefined} from "util";
 import {CommonConstant} from "../../../common/constant/common.constant";
+import {TooltipOptionConverter} from "../../../common/component/chart/option/converter/tooltip-option-converter";
 
 @Component({
   selector: 'map-page-pivot',
@@ -842,6 +843,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
       field.isCustomField = true;
       field.field = new Field();
       field.field.logicalType = LogicalType.INTEGER;
+      this.uiOption.toolTip['isFirstOpenTooltipOption'] = true;
 
       // 공간연산 실행 시 layer의 field에 해당 값 적용
       let uiOption = this.uiOption;
@@ -872,8 +874,29 @@ export class MapPagePivotComponent extends PagePivotComponent {
       delete this.uiOption.analysis.mainLayer;
       delete this.uiOption.analysis.compareLayer;
       delete this.uiOption.analysis.type;
+
+      // Tooltip setting
+      let layerItems = [];
+      // 공간연산 사용 여부
+      for (let layerIndex = 0; this.uiOption.layers.length > layerIndex; layerIndex++) {
+        if (this.shelf && !_.isUndefined(this.shelf.layers[layerIndex])) {
+          this.shelf.layers[layerIndex].fields.forEach((field) => {
+            layerItems.push(field);
+          });
+        }
+      }
+      // set alias
+      for (const item of layerItems) {
+        item['alias'] = ChartUtil.getAlias(item);
+      }
+      // return shelf list except geo dimension
+      let uniqList = TooltipOptionConverter.returnTooltipDataValue(layerItems);
+      // tooltip option panel이 첫번째로 열렸는지 여부
+      this.uiOption.toolTip['isFirstOpenTooltipOption'] = true;
+      this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(uniqList);
+
       // emit
-      this.removeAnalysisLayerEvent.emit();
+      this.removeAnalysisLayerEvent.emit(this.shelf);
     }
   }
 }

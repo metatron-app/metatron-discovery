@@ -190,7 +190,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   public shelfEvent: EventEmitter<any> = new EventEmitter();
 
   // resize 이벤트
-  public isResize : boolean = false;
+  public isResize: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -981,7 +981,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       for (let i = 0; i < data.features.length; i++) {
         // geo type
         if (data.features[i].geometry.type.toString().toLowerCase().indexOf('point') != -1) {
-          // point
+          // point && heatmap
           let pointFeature = (new ol.format.GeoJSON()).readFeature(data.features[i]);
           if (_.eq(geomType, LogicalType.GEO_POINT)) {
             let featureCenter = pointFeature.getGeometry().getCoordinates();
@@ -2037,7 +2037,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         }
 
         ////////////////////////////////////////////////////////
-        // Field info (Data Value)
+        // tooltip Field info (Data Value)
         ////////////////////////////////////////////////////////
 
         this.tooltipInfo.fields = [];
@@ -2052,15 +2052,16 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           // let customField = {};
           if (!_.isUndefined(this.getUiMapOption().analysis) && !_.isUndefined(this.getUiMapOption().analysis['use']) && this.getUiMapOption().analysis['use'] === true) {
             // 공간연산 실행 시
-            layerItems = _.cloneDeep(
-              !_.isUndefined(this.shelf.layers[this.getUiMapOption().layerNum].fields) && this.shelf.layers[this.getUiMapOption().layerNum].fields.length > 0
-                ? this.shelf.layers[this.getUiMapOption().layerNum].fields : []
-            );
+            layerItems = _.cloneDeep(!_.isUndefined(this.shelf.layers[this.getUiMapOption().layerNum])
+            && !_.isUndefined(this.shelf.layers[this.getUiMapOption().layerNum].fields)
+            && this.shelf.layers[this.getUiMapOption().layerNum].fields.length > 0
+              ? this.shelf.layers[this.getUiMapOption().layerNum].fields : []);
           } else {
             this.shelf.layers[toolTipLayerNum].fields.forEach((field) => {
               layerItems.push(field);
             });
           }
+
           // layer 에 올란간 dimension 와 measure list 조회
           // layerFieldList = TooltipOptionConverter.returnTooltipDataValue(layerItems);
 
@@ -2074,9 +2075,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           }
 
           // 공간연산 실행 후 단계구분도(choropleth) 설정을 count로 custom하기 때문에 해당 부분 tooltip에 보여주기 위해 적용
-          if (aggregationKeys.length == 0 && !_.isUndefined(this.getUiMapOption().analysis) && this.getUiMapOption().analysis['use'] === true) {
-            aggregationKeys.push({idx: 0, key: 'count'});
-          }
+          // if (aggregationKeys.length == 0 && !_.isUndefined(this.getUiMapOption().analysis) && this.getUiMapOption().analysis['use'] === true) {
+          //   aggregationKeys.push({idx: 0, key: 'count'});
+          // }
 
           _.each(_.orderBy(aggregationKeys, ['idx']), (aggregationKey) => {
             let tooltipVal = feature.get(aggregationKey.key);
@@ -2101,7 +2102,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         }
 
         ////////////////////////////////////////////////////////
-        // Apply
+        // tooltip enable/disable
         ////////////////////////////////////////////////////////
 
         // if required values are empty, enable false
@@ -3374,7 +3375,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         features[i] = pointFeature;
         source.addFeature(features[i]);
       } else if (data.features[i].geometry.type.toString().toLowerCase().indexOf('polygon') != -1 || data.features[i].geometry.type.toString().toLowerCase().indexOf('multipolygon') != -1) {
-        // polygon
         let polygonFeature = (new ol.format.GeoJSON()).readFeature(data.features[i]);
         polygonFeature.set('layerNum', this.getUiMapOption().layerNum);
         features[i] = polygonFeature;

@@ -807,7 +807,7 @@
             (customField)="openCustomFieldPopup($event)"
             (showPopup)="onShowPopup($event)"
             (changeLayer)="onChangeLayer(shelf)"
-            (removeAnalysisLayer)="removeAnalysisLayer()">
+            (removeAnalysisLayer)="removeAnalysisLayer($event)">
             <!--(selectLayer)="onSelectLayer($event)">-->
           </map-page-pivot>
           <!-- //선반 -->
@@ -1717,7 +1717,7 @@
           <map-tooltip-option #mapTooltipOption
                               *ngIf="isChartShow && 'mapTooltip' === rnbMenu"
                               [(uiOption)]="uiOption"
-                              [shelf]="shelf"
+                              [(shelf)]="shelf"
                               (drawChartParam)="onSetDrawChartParam($event)">
           </map-tooltip-option>
           <!-- //MapView -->
