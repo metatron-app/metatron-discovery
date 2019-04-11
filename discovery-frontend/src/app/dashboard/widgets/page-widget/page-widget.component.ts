@@ -61,7 +61,7 @@ import {DataDownloadComponent} from '../../../common/component/data-download/dat
 import {CustomField} from '../../../domain/workbook/configurations/field/custom-field';
 import {ChartLimitInfo, DashboardUtil} from '../../util/dashboard.util';
 import {isNullOrUndefined} from 'util';
-import {Datasource, Field} from '../../../domain/datasource/datasource';
+import {ConnectionType, Datasource, Field} from '../../../domain/datasource/datasource';
 import {CommonUtil} from '../../../common/util/common.util';
 import {GridComponent} from "../../../common/component/grid/grid.component";
 import {header, SlickGridHeader} from "../../../common/component/grid/grid.header";
@@ -973,7 +973,11 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public showDownloadLayer(event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
-    this._dataDownComp.openWidgetDown(event, this.widget.id, this.isOriginDown);
+    if( ConnectionType.LINK === ConnectionType[this.widget.configuration.dataSource.connType] ) {
+      this._dataDownComp.openGridDown(event, this._dataGridComp );
+    } else {
+      this._dataDownComp.openWidgetDown(event, this.widget.id, this.isOriginDown);
+    }
   } // function - showDownloadLayer
 
   /**
@@ -1000,7 +1004,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     this.loadingShow();
     const param = this.query.getDownloadFilters();
 
-    this.widgetService.previewWidget(this.widget.id, isOriginal, false, param).then(result => {
+    // 그리드 생성 함수 정의
+    const renderGrid: Function = (result) => {
 
       // 헤더정보 생성
       const headers: header[]
@@ -1060,13 +1065,38 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
         this.loadingHide();
       }
-    }).catch((err) => {
-      console.error(err);
-      this.loadingHide();
-      // 변경 적용
-      this.safelyDetectChanges();
-    });
+    };
 
+    if( ConnectionType.LINK === ConnectionType[this.widget.configuration.dataSource.connType] ) {
+      const boardConf: BoardConfiguration = this.widget.dashBoard.configuration;
+      const query: SearchQueryRequest
+        = this.datasourceService.makeQuery(
+        this.widgetConfiguration,
+        boardConf.fields,
+        {
+          url: this.router.url,
+          dashboardId: this.widget.dashBoard.id,
+          widgetId: this.widget.id
+        }, null, true
+      );
+      this.widgetService.previewConfig(query, isOriginal, false, param)
+        .then(result => renderGrid(result))
+        .catch((err) => {
+          console.error(err);
+          this.loadingHide();
+          // 변경 적용
+          this.safelyDetectChanges();
+        });
+    } else {
+      this.widgetService.previewWidget(this.widget.id, isOriginal, false, param)
+        .then(result => renderGrid(result))
+        .catch((err) => {
+          console.error(err);
+          this.loadingHide();
+          // 변경 적용
+          this.safelyDetectChanges();
+        });
+    }
   } // function - drawDataGrid
 
   /**
@@ -1369,11 +1399,11 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       }
 
       // 외부필터가 없고 글로벌 필터가 있을 경우 추가 (초기 진입시)
-      if( isNullOrUndefined(globalFilters) ) {
+      if (isNullOrUndefined(globalFilters)) {
         globalFilters = [];
         this.widgetConfiguration.shelf.layers
-          .filter(layer => layer.name !== CommonConstant.MAP_ANALYSIS_LAYER_NAME).forEach( layer => {
-          globalFilters = globalFilters.concat( DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, layer.ref) );
+          .filter(layer => layer.name !== CommonConstant.MAP_ANALYSIS_LAYER_NAME).forEach(layer => {
+          globalFilters = globalFilters.concat(DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, layer.ref));
         });
       }
 
@@ -1381,7 +1411,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       {
         let externalFilters = currentSelectionFilters ? globalFilters.concat(currentSelectionFilters) : globalFilters;
         this.widgetConfiguration.shelf.layers
-          .filter(layer => layer.name !== CommonConstant.MAP_ANALYSIS_LAYER_NAME).forEach( layer => {
+          .filter(layer => layer.name !== CommonConstant.MAP_ANALYSIS_LAYER_NAME).forEach(layer => {
           uiCloneQuery.filters
             = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, layer.ref, externalFilters).concat(uiCloneQuery.filters);
         });
