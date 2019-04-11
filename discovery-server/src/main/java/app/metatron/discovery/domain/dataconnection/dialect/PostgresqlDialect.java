@@ -208,7 +208,7 @@ public class PostgresqlDialect implements JdbcDialect {
   @Override
   public String getTableQuery(JdbcConnectInformation connectInfo, String catalog, String schema, String tableNamePattern, List<String> excludeTables, Integer pageSize, Integer pageNumber) {
     StringBuilder builder = new StringBuilder();
-    builder.append(" SELECT TABLE_NAME as name, TABLE_TYPE as type, obj_description(TABLE_NAME::regclass, 'pg_class') as comment ");
+    builder.append(" SELECT TABLE_NAME as name, TABLE_TYPE as type, obj_description((TABLE_SCHEMA||'.'||TABLE_NAME)::regclass, 'pg_class') as comment ");
     builder.append(" FROM INFORMATION_SCHEMA.TABLES ");
     builder.append(" WHERE TABLE_TYPE = 'BASE TABLE' ");
     builder.append(" AND TABLE_SCHEMA NOT IN ('pg_catalog', 'information_schema') ");
