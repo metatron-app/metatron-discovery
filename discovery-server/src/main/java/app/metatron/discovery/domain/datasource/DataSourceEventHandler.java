@@ -28,11 +28,6 @@
 
 package app.metatron.discovery.domain.datasource;
 
-import app.metatron.discovery.domain.activities.ActivityStreamService;
-import app.metatron.discovery.domain.activities.spec.ActivityGenerator;
-import app.metatron.discovery.domain.activities.spec.ActivityObject;
-import app.metatron.discovery.domain.activities.spec.ActivityStreamV2;
-import app.metatron.discovery.domain.mdm.MetadataService;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
@@ -72,6 +67,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
+import app.metatron.discovery.domain.activities.ActivityStreamService;
+import app.metatron.discovery.domain.activities.spec.ActivityGenerator;
+import app.metatron.discovery.domain.activities.spec.ActivityObject;
+import app.metatron.discovery.domain.activities.spec.ActivityStreamV2;
 import app.metatron.discovery.domain.context.ContextService;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionRepository;
@@ -86,7 +85,6 @@ import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo
 import app.metatron.discovery.domain.datasource.ingestion.job.IngestionJobRunner;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.EngineIngestionService;
-import app.metatron.discovery.domain.geo.GeoService;
 import app.metatron.discovery.domain.mdm.MetadataService;
 import app.metatron.discovery.domain.workspace.Workspace;
 import app.metatron.discovery.util.AuthUtils;
@@ -120,9 +118,6 @@ public class DataSourceEventHandler {
 
   @Autowired
   MetadataService metadataService;
-
-  @Autowired
-  GeoService geoService;
 
   @Autowired
   DataSourceRepository dataSourceRepository;
@@ -472,14 +467,6 @@ public class DataSourceEventHandler {
       // Shutdown Ingestion Task
       engineIngestionService.shutDownIngestionTask(dataSource.getId());
       LOGGER.debug("Successfully shutdown ingestion tasks in datasource ({})", dataSource.getId());
-
-      // Delete datastore on geoserver if datasource include geo column
-      if (dataSource.getIncludeGeo() == null) {
-        LOGGER.debug("Datasource with previous schema, skip removing geo service");
-      } else if (dataSource.getIncludeGeo()) {
-        geoService.deleteDataStore(dataSource.getEngineName());
-        LOGGER.debug("Successfully delete datastore on geoserver ({})", dataSource.getId());
-      }
 
       // Disable DataSource
       try {

@@ -55,7 +55,7 @@ public class ShapeBufferFunc {
 
   public enum EndCapStyle {
 
-    ROUND(2), FLAT(1);
+    ROUND(1), FLAT(2);
 
     Integer style;
 

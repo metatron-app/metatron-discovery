@@ -63,7 +63,6 @@ import app.metatron.discovery.domain.engine.EngineProperties;
 import app.metatron.discovery.domain.engine.EngineQueryService;
 import app.metatron.discovery.domain.engine.model.IngestionStatusResponse;
 import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
-import app.metatron.discovery.domain.geo.GeoService;
 import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.util.PolarisUtils;
 
@@ -120,9 +119,6 @@ public class IngestionJobRunner {
 
   @Autowired
   private EngineQueryService queryService;
-
-  @Autowired
-  private GeoService geoService;
 
   @Autowired
   private IngestionOptionService ingestionOptionService;
@@ -318,7 +314,6 @@ public class IngestionJobRunner {
       ingestionJob.setFileLoaderFactory(fileLoaderFactory);
       ingestionJob.setHistoryRepository(historyRepository);
       ingestionJob.setIngestionOptionService(ingestionOptionService);
-      ingestionJob.setGeoService(geoService);
       return ingestionJob;
 
     } else if (ingestionInfo instanceof JdbcIngestionInfo) {
@@ -331,7 +326,6 @@ public class IngestionJobRunner {
       ingestionJob.setHistoryRepository(historyRepository);
       ingestionJob.setIngestionOptionService(ingestionOptionService);
       ingestionJob.setJdbcConnectionService(jdbcConnectionService);
-      ingestionJob.setGeoService(geoService);
       return ingestionJob;
 
     } else if (ingestionInfo instanceof HdfsIngestionInfo) {
@@ -343,7 +337,6 @@ public class IngestionJobRunner {
       ingestionJob.setFileLoaderFactory(fileLoaderFactory);
       ingestionJob.setHistoryRepository(historyRepository);
       ingestionJob.setIngestionOptionService(ingestionOptionService);
-      ingestionJob.setGeoService(geoService);
       return ingestionJob;
 
     } else if (ingestionInfo instanceof HiveIngestionInfo) {
@@ -356,7 +349,6 @@ public class IngestionJobRunner {
       ingestionJob.setHistoryRepository(historyRepository);
       ingestionJob.setIngestionOptionService(ingestionOptionService);
       ingestionJob.setJdbcConnectionService(jdbcConnectionService);
-      ingestionJob.setGeoService(geoService);
       return ingestionJob;
     } else {
       throw new IllegalArgumentException("Not supported ingestion information.");
