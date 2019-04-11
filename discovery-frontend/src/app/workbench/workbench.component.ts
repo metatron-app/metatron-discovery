@@ -76,6 +76,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // 에디터 행수
   private MAX_LINES: number = 20;
 
+  private _gridScrollEvtSub: any;
+
   // 그리드
   @ViewChild('main')
   private gridComponent: GridComponent;
@@ -348,6 +350,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   public connTargetImgUrl: string = '';
 
+  public hideResultButtons: boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -441,6 +445,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this._splitVertical.destroy();
     this._splitVertical = undefined;
     this._deactiveHorizontalSlider();
+
+    if (this._gridScrollEvtSub) {
+      this._gridScrollEvtSub.unsubscribe();
+      this._gridScrollEvtSub = undefined;
+    }
 
     // this.webSocketCheck(() => {});
     (this._subscription) && (this._subscription.unsubscribe());     // Socket 응답 해제
@@ -955,6 +964,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   public changeResultTabHandler(selectedTabId: string) {
 
+    this.hideResultButtons = false;
+
     let selectedTab: ResultTab = null;
     const currentEditorResultTabs: ResultTab[] = this._getCurrentEditorResultTabs();
     currentEditorResultTabs.forEach((tabItem: ResultTab) => {
@@ -1304,6 +1315,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   /**
    * run query
    * @param {string} resultTabId
+   * @param {boolean} retry
    */
   public runQueries(resultTabId: string, retry: boolean = false) {
     const resultTab: ResultTab = this._getResultTab(resultTabId);
@@ -1316,7 +1328,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     resultTab.initialize();
     resultTab.executeTimer();
     this.runningResultTabId = resultTab.id;
-
+    this.hideResultButtons = false;
 
     this.workbenchService.runSingleQueryWithInvalidQuery(resultTab.queryEditor, additionalParams)
       .then((result) => {
@@ -2480,6 +2492,21 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         .RowSelectionActivate(true)
         .build()
       );
+      if (this._gridScrollEvtSub) {
+        this._gridScrollEvtSub.unsubscribe();
+        this._gridScrollEvtSub = undefined;
+      }
+      const $gridViewport = $('.slick-viewport');
+      const $gridCanvas = $('.grid-canvas');
+      this._gridScrollEvtSub
+        = this.gridComponent.grid.onScroll.subscribe((data1, data2) => {
+        if ( 0 < data2.scrollTop ) {
+          this.hideResultButtons = (data2.scrollTop > ($gridCanvas.height() - $gridViewport.height() - 10 ));
+          this.safelyDetectChanges();
+        } else if( 0 === data2.scrollTop ) {
+          this.hideResultButtons = false;
+        }
+      });
     }
 
     if (this.searchText !== '') {

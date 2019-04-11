@@ -488,9 +488,11 @@
                 </div>
 
                 <!-- buttons -->
-                <div class="ddp-ui-buttons" *ngIf="visibleResultTab.result && visibleResultTab.result.fields">
+                <div *ngIf="visibleResultTab.result && visibleResultTab.result.fields"
+                     class="ddp-ui-buttons" >
                   <!-- Paging -->
-                  <div class="ddp-wrap-btn-link" [hidden]="visibleResultTab.message">
+                  <div [class.type-opacity]="hideResultButtons" [hidden]="visibleResultTab.message"
+                       class="ddp-wrap-btn-link" >
                     <a *ngIf="visibleResultTab.isShowPrevBtn()"
                        (click)="changeResultPage( visibleResultTab, 'PREV' )"
                        href="javascript:" class="ddp-box-page" >
@@ -505,7 +507,7 @@
                   <!-- // Paging -->
 
                   <!-- Result Search -->
-                  <div class="ddp-wrap-btn-link">
+                  <div [class.type-opacity]="hideResultButtons" class="ddp-wrap-btn-link">
                     <!-- search link -->
                     <a (click)="toggleResultSearchLayer($event)"
                        [ngClass]="{'ddp-selected':isSearchLink, 'ddp-value': searchText.trim() != '' }"
