@@ -33,7 +33,7 @@ Metatron provides:
 Screenshots
 ------------------
 ### Create Dashboards
-<kbd><img title="Metatron-dashboard" src="https://user-images.githubusercontent.com/8841220/53786832-3d567f80-3f60-11e9-8be0-090e7e97f591.png"></kbd><br />
+<kbd><img title="Metatron-dashboard" src="https://user-images.githubusercontent.com/8841220/56104113-598f0880-5f71-11e9-8dbc-930703fe9b92.png"></kbd><br />
 
 ### Create Charts
 <kbd><img title="Metatron-chart" src="https://user-images.githubusercontent.com/6300003/44201180-98bb4e80-a183-11e8-81da-54dd59d14330.png"></kbd><br />
