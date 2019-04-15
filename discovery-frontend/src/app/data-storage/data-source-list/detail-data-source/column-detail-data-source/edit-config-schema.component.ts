@@ -40,6 +40,7 @@ import {isNullOrUndefined} from "util";
 import {StorageService} from "../../../service/storage.service";
 import {DatetimeValidPopupComponent} from "../../../../shared/datasource-metadata/component/datetime-valid-popup.component";
 import Role = Type.Role;
+import {CommonUtil} from "../../../../common/util/common.util";
 
 @Component({
   selector: 'edit-config-schema',
@@ -82,6 +83,14 @@ export class EditConfigSchemaComponent extends AbstractComponent {
 
   // error flag
   public isExistErrorInFieldList: boolean;
+
+  // constant
+  public readonly UUID = CommonUtil.getUUID();
+  public readonly TYPE_SELECT_LIST_WRAP_ELEMENT = this.UUID + '-type-select-list-wrap-elm';
+  public readonly TYPE_SELECT_LIST_ICON_ELEMENT = this.UUID + '-type-select-list-icon-elm';
+  public readonly TYPE_SELECTED_LABEL_ELEMENT = this.UUID + '-type-selected-label-elm';
+  public readonly TYPE_SELECTED_ICON_ELEMENT = this.UUID + '-type-selected-icon-elm';
+
 
   @Output()
   public readonly updatedSchema: EventEmitter<any> = new EventEmitter();
@@ -248,7 +257,13 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    */
   public onClickInfoIcon(field: Field): void {
     if (field.logicalType === LogicalType.TIMESTAMP) {
-      field.isShowTimestampValidPopup = true;
+      // set selected
+      field.checked = true;
+      // if open type list
+      if (field.isShowTypeList) {
+        field.isShowTypeList = false;
+      }
+      field.format.isShowTimestampValidPopup = true;
       const index = this.filteredFieldList.filter(item => item.role !== FieldRole.TIMESTAMP && item.logicalType === LogicalType.TIMESTAMP).findIndex(item => item.name === field.name);
       // popup show
       this._datetimePopupComponentList.toArray()[index].init();
@@ -326,7 +341,11 @@ export class EditConfigSchemaComponent extends AbstractComponent {
         this.safelyDetectChanges();
         // open timestamp popup
         this.onClickInfoIcon(targetField);
+      } else {
+        targetField.checked = false;
       }
+      // close list
+      targetField.isShowTypeList = false;
     }
   }
 
@@ -334,13 +353,16 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    * Change type list show flag
    * @param {Field} field
    */
-  public onChangeTypeListShowFlag(field: Field): void {
+  public onChangeTypeListShowFlag(field: Field, event: MouseEvent): void {
+    const targetElement = event.target['classList'];
     // if not derived and TIMESTAMP
-    if (!this.isDisableChangeType(field)) {
+    if ((targetElement.contains(this.TYPE_SELECT_LIST_ICON_ELEMENT) || targetElement.contains(this.TYPE_SELECT_LIST_WRAP_ELEMENT) || targetElement.contains(this.TYPE_SELECTED_ICON_ELEMENT)) || targetElement.contains(this.TYPE_SELECTED_LABEL_ELEMENT)
+      && !this.isDisableChangeType(field)) {
       if (!field.isShowTypeList) {
         this._setConvertedTypeList(field);
       }
       field.isShowTypeList = !field.isShowTypeList;
+      field.checked = !field.checked;
     }
   }
 
@@ -386,8 +408,8 @@ export class EditConfigSchemaComponent extends AbstractComponent {
           // if changed logical type
           if (originField.logicalType !== tempField.logicalType) {
             tempField.op  = 'replace';
-            // if field is not TIMESTAMP or GEO
-            if (tempField.logicalType !== LogicalType.TIMESTAMP && tempField.logicalType !== LogicalType.GEO_POINT && tempField.logicalType !== LogicalType.GEO_LINE && tempField.logicalType !== LogicalType.GEO_POLYGON) {
+            // if exist format and is not TIMESTAMP or GEO
+            if (tempField.hasOwnProperty('format') && tempField.logicalType !== LogicalType.TIMESTAMP && tempField.logicalType !== LogicalType.GEO_POINT && tempField.logicalType !== LogicalType.GEO_LINE && tempField.logicalType !== LogicalType.GEO_POLYGON) {
               // remove format property
               tempField.format = null;
             } else if (tempField.logicalType === LogicalType.TIMESTAMP) { // if change type is TIMESTAMP

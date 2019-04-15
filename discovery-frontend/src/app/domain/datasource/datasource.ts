@@ -189,7 +189,6 @@ export class Field {
 
   // [UI] valid layer popup
   isShowTypeList?: boolean;
-  isShowTimestampValidPopup?: boolean;
 
 
 
@@ -482,6 +481,7 @@ export class FieldFormat {
   // TODO 아래로 통일
   isValidFormat?: boolean;
   formatValidMessage?: string;
+  isShowTimestampValidPopup?: boolean;
 
   formatInitialize() {
     this.format = 'yyyy-MM-dd';
@@ -511,6 +511,7 @@ export class FieldFormat {
   removeUIProperties() {
     delete this.isValidFormat;
     delete this.formatValidMessage;
+    delete this.isShowTimestampValidPopup;
   }
 
   constructor() {
