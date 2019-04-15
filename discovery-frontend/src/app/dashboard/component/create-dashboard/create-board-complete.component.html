@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2" *ngIf="isShow">
+<div class="ddp-type-contents ddp-resize2 ddp-type2" *ngIf="isShow">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="closeComp();"></a>
   <!-- //닫기 버튼 -->
@@ -20,11 +20,11 @@
   <!-- 제목 영역 -->
   <div class="ddp-icon-name" >
     <div class="ddp-ui-name2">
-      <em class="ddp-icon-newlink2"></em>
+      <!-- <em class="ddp-icon-newlink2"></em>-->
       {{'msg.board.create.title' | translate}}
+      <span class="ddp-txt-info">{{'msg.board.create.cmplt' | translate}}</span>
       <em class="ddp-bg-order-line2-type2"></em>
     </div>
-    <span class="ddp-txt-info">{{'msg.board.create.cmplt' | translate}}</span>
   </div>
   <!-- // 제목 영역 -->
 

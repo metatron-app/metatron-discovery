@@ -89,7 +89,7 @@ public class AbstractSpecBuilder {
         if (fieldFormat instanceof GeoFormat) {
           useRelay = true;
           GeoFormat geoFormat = (GeoFormat) fieldFormat;
-          makeSecondaryIndexing(field.getName(), field.getType(), geoFormat);
+          makeSecondaryIndexing(field.getName(), field.getType(), geoFormat, BooleanUtils.isTrue(field.getDerived()));
           addGeoFieldToMatric(field.getName(), field.getType(), geoFormat);
         }
       }
@@ -154,10 +154,10 @@ public class AbstractSpecBuilder {
     }
   }
 
-  private void makeSecondaryIndexing(String name, DataType originalType, GeoFormat geoFormat) {
+  private void makeSecondaryIndexing(String name, DataType originalType, GeoFormat geoFormat, boolean derived) {
     String originalSrsName = geoFormat.notDefaultSrsName();
     if (geoFormat instanceof GeoPointFormat) {
-      if (originalType == DataType.STRUCT) {
+      if (originalType == DataType.STRUCT && derived) {
         secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.LatLonStrategy("coord", "lat", "lon", originalSrsName)));
       } else {
         secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.LatLonShapeStrategy("coord", ShapeFormat.WKT, originalSrsName)));

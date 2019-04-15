@@ -56,7 +56,6 @@ import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionSe
 import app.metatron.discovery.domain.datasource.data.result.ChartResultFormat;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.EngineQueryService;
-import app.metatron.discovery.domain.geo.GeoService;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.ExpressionField;
@@ -84,9 +83,6 @@ public class DataQueryController {
 
   @Autowired
   EngineQueryService engineQueryService;
-
-  @Autowired
-  GeoService geoService;
 
   @Autowired
   DruidEngineMetaRepository engineMetaRepository;
