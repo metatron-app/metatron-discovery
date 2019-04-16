@@ -63,7 +63,6 @@ import app.metatron.discovery.domain.datasource.ingestion.IngestionOptionService
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.DruidEngineRepository;
 import app.metatron.discovery.domain.engine.EngineProperties;
-import app.metatron.discovery.domain.geo.GeoService;
 import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.spec.druid.ingestion.Index;
 
@@ -82,8 +81,6 @@ public abstract class AbstractIngestionJob {
   protected DruidEngineRepository engineRepository;
 
   protected IngestionOptionService ingestionOptionService;
-
-  protected GeoService geoService;
 
   protected DataSource dataSource;
 
@@ -124,10 +121,6 @@ public abstract class AbstractIngestionJob {
 
   public void setIngestionOptionService(IngestionOptionService ingestionOptionService) {
     this.ingestionOptionService = ingestionOptionService;
-  }
-
-  public void setGeoService(GeoService geoService) {
-    this.geoService = geoService;
   }
 
   protected void setDedicatedWoker() {

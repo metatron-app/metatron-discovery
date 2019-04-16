@@ -70,7 +70,7 @@ public class DruidEngineRepositoryTest extends AbstractIntegrationTest {
     GeoBoundaryFilterQuery geoBoundaryQuery = GeoBoundaryFilterQuery.builder()
                                                                     .query(selectStreamQuery1)
                                                                     .point("gis.coord")
-                                                                    .boundary(selectStreamQuery2, "geom_buf")
+                                                                    .boundary(selectStreamQuery2, "geom_buf", false)
                                                                     .build();
 
     String strGeoBoundaryQuery = GlobalObjectMapper.writeValueAsString(geoBoundaryQuery);
