@@ -137,7 +137,7 @@ export class ConnectionComponent extends AbstractComponent {
   public setConnectionInput(connection: Dataconnection | ConnectionParam): void {
     this.hostname = StringUtil.isNotEmpty(connection.hostname) ?connection.hostname : undefined;
     this.port = connection.port || undefined;
-    this.catalog = StringUtil.isNotEmpty(connection.catalog) ?connection.hostname : undefined;
+    this.catalog = StringUtil.isNotEmpty(connection.catalog) ?connection.catalog : undefined;
     this.database = StringUtil.isNotEmpty(connection.database) ?connection.database : undefined;
     this.sid = StringUtil.isNotEmpty(connection.sid) ?connection.sid : undefined;
     this.url = StringUtil.isNotEmpty(connection.url) ?connection.url : undefined;
