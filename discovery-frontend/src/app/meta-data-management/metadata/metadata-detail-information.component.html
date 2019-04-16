@@ -15,7 +15,17 @@
 <!-- tab contents -->
 <!--suppress NsUnresolvedStyleClassReference -->
 <div class="ddp-ui-tab-contents" *ngIf="metadataModelService.getMetadata()">
-  <div top-info *ngIf="isSourceTypeDatasource() && isMetadataSourceTypeIsEngine() && (isDescEdit || isNameEdit)"></div>
+
+  <div class="ddp-box-message">
+    <div class="ddp-box-synch type-info" *ngIf="isSourceTypeDatasource() && isMetadataSourceTypeIsEngine() && isMsgPopupShow">
+      <div class="ddp-txt-synch">
+        <em class="ddp-icon-info"></em>
+        {{ 'msg.metadata.ui.description' | translate }}
+      </div>
+      <a href="javascript:" class="ddp-btn-info-close" (click)="closeMsgPopup($event)"></a>
+    </div>
+  </div>
+
   <!-- datadetail -->
   <div class="ddp-ui-datadetail ddp-border-none">
     <a href="javascript:" class="ddp-btn-solid2 ddp-dark type-link"
@@ -42,7 +52,11 @@
                    (click)="!isDescEdit ? onDescEdit($event) : $event.stopPropagation();">
               </div>
               <a href="javascript:" class="ddp-btn-edit"
-                 (click)="!isDescEdit ? onDescEdit($event) : $event.stopPropagation();" [ngClass]="{'ddp-data-none' : metadataModelService.getMetadata()?.description === ''}"><em class="ddp-icon-edit"></em>Edit</a>
+                 (click)="!isDescEdit ? onDescEdit($event) : $event.stopPropagation();"
+                 [ngClass]="{'ddp-data-none' : metadataModelService.getMetadata()?.description === ''}">
+                <em class="ddp-icon-edit"></em>
+                Edit
+              </a>
             </div>
             <!-- //data -->
             <div class="ddp-box-textarea" (clickOutside)="isDescEdit ? onDescChange() : null">

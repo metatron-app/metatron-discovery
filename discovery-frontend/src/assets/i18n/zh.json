@@ -2096,7 +2096,7 @@
   "msg.storage.ui.file.result.FV005": "Empty column name is not allowed.",
   "msg.storage.ui.timezone": "Time zone",
   "msg.storage.ui.username": "Username",
-  "msg.storage.ui.guide.meta.modified": "Metadata is also updated when modified.",
+  "msg.storage.ui.guide.meta.modified": "The metadata shows the data you saved.",
   "msg.storage.btn.master.data.link": "Go to Metadata",
   "msg.storage.ui.cannot.load.data": "Cannot load data",
   "msg.storage.btn.create.source": "Create datasource",
