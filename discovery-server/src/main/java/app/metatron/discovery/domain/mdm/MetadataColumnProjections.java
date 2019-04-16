@@ -21,6 +21,7 @@ import app.metatron.discovery.common.BaseProjections;
 import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.mdm.source.MetadataSource;
+import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
 
 public class MetadataColumnProjections extends BaseProjections {
 
@@ -63,7 +64,7 @@ public class MetadataColumnProjections extends BaseProjections {
     CodeTable getCodeTable();
 
     @Value("#{target.getFieldFormat()}")
-    Object getFormat();
+    FieldFormat getFormat();
   }
 
   @Projection(types = MetadataColumn.class, name = "forDictionaryListView")
