@@ -162,6 +162,8 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   // range list for view
   public rangesViewList = [];
 
+  public resultData: Object;
+
   // constructor
   constructor(protected elementRef: ElementRef,
               protected injector: Injector,
@@ -189,7 +191,16 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   public pivot: Pivot;
 
   @Input('resultData')
-  public resultData: Object;
+  public set setResultData(resultData: Object) {
+    this.resultData = resultData;
+    if (resultData && resultData['data'] && resultData['data']['info'] && this.uiOption) {
+      const tmpInfo = resultData['data']['info'];
+      const tmpValFormat = this.uiOption.valueFormat;
+      const minValue = this.checkMinZero(tmpInfo['minValue'], tmpInfo['minValue']);
+      this.minValue = FormatOptionConverter.getDecimalValue(minValue, tmpValFormat.decimal, tmpValFormat.useThousandsSep);
+      this.maxValue = FormatOptionConverter.getDecimalValue(tmpInfo['maxValue'], tmpValFormat.decimal, tmpValFormat.useThousandsSep);
+    }
+  }
 
   @Input('uiOption')
   public set setUiOption(uiOption: UIOption) {
@@ -570,10 +581,10 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       // color by measure일때
     } else if (this.uiOption.color.type == ChartColorType.MEASURE) {
 
-      const index = this.rangesViewList.indexOf(item);
+      const index = this.rangesViewList.findIndex( rangeItem => rangeItem.color === item.color );
+
       // 선택된 색상으로 설정
       (<UIChartColorByValue>this.uiOption.color).ranges[index].color = colorCode;
-
 
       // 그리드라면
       if( _.eq(this.uiOption.type, ChartType.GRID) ) {
