@@ -539,6 +539,9 @@ export class FieldFormat {
     if (!isNullOrUndefined(fieldFormat.originalSrsName)) {
       resultFieldFormat.originalSrsName = fieldFormat.originalSrsName;
     }
+    if (!isNullOrUndefined(fieldFormat.isValidFormat)) {
+      resultFieldFormat.isValidFormat = fieldFormat.isValidFormat;
+    }
     return resultFieldFormat;
   }
 }

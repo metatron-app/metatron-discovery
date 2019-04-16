@@ -123,7 +123,7 @@
         <div class="ddp-type-apply" *ngIf="fieldFormat.type === FIELD_FORMAT_TYPE.DATE_TIME">
           <!-- input text 입력시 ddp-edit 추가 -->
           <div class="ddp-input-apply">
-            <input type="text" placeholder="Enter column delimiter" class="ddp-input-txt" [(ngModel)]="fieldFormat.format" (ngModelChange)="prevFormat = $event">
+            <input type="text" placeholder="Enter column delimiter" class="ddp-input-txt" [(ngModel)]="fieldFormat.format" (ngModelChange)="prevFormat = $event; fieldFormat.isValidFormat = undefined">
             <em class="ddp-icon-apply" (click)="onClickFormatValidation()"></em>
           </div>
           <div class="ddp-txt-error" *ngIf="fieldFormat.isValidFormat === false">

@@ -134,6 +134,9 @@ export class EditConfigSchemaComponent extends AbstractComponent {
       if (column.logicalType === LogicalType.TIMESTAMP && !column.format) {
         column.format = new FieldFormat();
       }
+      if (column.logicalType === LogicalType.TIMESTAMP) {
+        column.format.isValidFormat = true;
+      }
     });
     // init filtered field list
     this._updateFilteredFieldList();
