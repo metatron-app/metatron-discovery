@@ -72,7 +72,7 @@ public interface LayerView extends Serializable {
     @JsonCreator
     public HashLayerView(@JsonProperty("method") String method,
                          @JsonProperty("precision") Integer precision) {
-      this.method = StringUtils.isEmpty(method) ? "geohex" : method;
+      this.method = "geohex";
 
       if (precision == null) {
         this.precision = 4;
