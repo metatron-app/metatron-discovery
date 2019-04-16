@@ -50,6 +50,11 @@ import java.util.UUID;
 public class SshUtils {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SshUtils.class);
+  private static final Logger JSCH_LOGGER = LoggerFactory.getLogger("com.jcraft.jsch");
+
+  static{
+    JSch.setLogger(new JschLogAdapter());
+  }
 
   private static Session getSSHSession(String hostname, String username, String password, int port) {
 
@@ -416,4 +421,46 @@ public class SshUtils {
       return new FileSystemResource(filePath).getFile();
     }
   }
+
+  private static class JschLogAdapter implements com.jcraft.jsch.Logger {
+
+    @Override
+    public boolean isEnabled(int level) {
+      switch (level) {
+        case com.jcraft.jsch.Logger.DEBUG:
+          return JSCH_LOGGER.isDebugEnabled();
+        case com.jcraft.jsch.Logger.INFO:
+          return JSCH_LOGGER.isInfoEnabled();
+        case com.jcraft.jsch.Logger.WARN:
+          return JSCH_LOGGER.isWarnEnabled();
+        case com.jcraft.jsch.Logger.ERROR:
+        case com.jcraft.jsch.Logger.FATAL:
+          return JSCH_LOGGER.isErrorEnabled();
+        default:
+          return false;
+      }
+    }
+
+    @Override
+    public void log(int level, String message) {
+      switch (level) {
+        case com.jcraft.jsch.Logger.DEBUG:
+          JSCH_LOGGER.debug(message);
+          break;
+        case com.jcraft.jsch.Logger.INFO:
+          JSCH_LOGGER.info(message);
+          break;
+        case com.jcraft.jsch.Logger.WARN:
+          JSCH_LOGGER.warn(message);
+          break;
+        case com.jcraft.jsch.Logger.ERROR:
+        case com.jcraft.jsch.Logger.FATAL:
+          JSCH_LOGGER.error(message);
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
 }
