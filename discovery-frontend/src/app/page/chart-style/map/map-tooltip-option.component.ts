@@ -63,18 +63,27 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
 
     let layerItems = [];
     // 공간연산 사용 여부
-    if(!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) &&  this.uiOption.analysis['use'] === true) {
+    if (!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] === true) {
       // layerItems = _.cloneDeep(shelf.layers[this.uiOption.layerNum].fields);
-      shelf.layers[this.uiOption.layerNum].fields.forEach((field) => {
+      let tempFields = shelf.layers[this.uiOption.layerNum].fields;
+      for (let fieldIndex = 0; tempFields.length > fieldIndex; fieldIndex++) {
         // 공간연산에 사용된 aggregationType으로 tooltip 설정
-        if (field.name == this.uiOption.analysis.operation.aggregation.column || field.isCustomField == true) {
-          layerItems.push(field);
+        if (tempFields[fieldIndex].name == this.uiOption.analysis.operation.aggregation.column) {
+          if (_.isUndefined(this.uiOption.analysis.operation.aggregation.type) && tempFields[fieldIndex].isCustomField == true) {
+            // 공간연산에 설정된 default 값인 count 를 사용 할 경우, Measure 에 중첩된 count 이름 값이 있을 경우 전부 삭제 후 한개만 등록
+            layerItems = [];
+            layerItems.push(tempFields[fieldIndex]);
+            break;
+          } else if (_.isUndefined(tempFields[fieldIndex].isCustomField)
+            || (!_.isUndefined(tempFields[fieldIndex].isCustomField) && tempFields[fieldIndex].isCustomField == false)) {
+            layerItems.push(tempFields[fieldIndex]);
+          }
         }
-      });
+      }
     } else {
-      for(let layerIndex = 0; this.uiOption.layers.length > layerIndex; layerIndex++) {
+      for (let layerIndex = 0; this.uiOption.layers.length > layerIndex; layerIndex++) {
         if (shelf && !_.isUndefined(shelf.layers[layerIndex])) {
-          shelf.layers[layerIndex].fields.forEach( (field) => {
+          shelf.layers[layerIndex].fields.forEach((field) => {
             layerItems.push(field);
           });
         }
@@ -90,7 +99,7 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
     let uniqList = TooltipOptionConverter.returnTooltipDataValue(layerItems);
 
     // tooltip option panel이 첫번째로 열렸는지 여부
-    if(_.isUndefined(this.uiOption.toolTip['isFirstOpenTooltipOption'])
+    if (_.isUndefined(this.uiOption.toolTip['isFirstOpenTooltipOption'])
       || !_.isUndefined(this.uiOption.toolTip['isFirstOpenTooltipOption']) && this.uiOption.toolTip['isFirstOpenTooltipOption']) {
       this.uiOption.toolTip['isFirstOpenTooltipOption'] = false;
       // set displayColumns

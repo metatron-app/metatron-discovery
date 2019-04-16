@@ -2079,7 +2079,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           //   aggregationKeys.push({idx: 0, key: 'count'});
           // }
           // 공간연산시 단계구분도를 default 값(count)으로 하지 않을 경우 아래와 같이 count를 제외 시킴
-          if (aggregationKeys.length <= 2 && !_.isUndefined(this.getUiMapOption().analysis) && this.getUiMapOption().analysis['use'] === true) {
+          if (aggregationKeys.length >= 2 && !_.isUndefined(this.getUiMapOption().analysis) && this.getUiMapOption().analysis['use'] === true
+            || !_.isUndefined(this.getUiMapOption().analysis.operation.aggregation.type)) {
             let aggregationKeyNum = 0;
             for (let aggregationKeyIndex = 0; aggregationKeys.length > aggregationKeyIndex; aggregationKeyIndex++) {
               if (aggregationKeys[aggregationKeyIndex].key == 'count') {
