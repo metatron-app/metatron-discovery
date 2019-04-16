@@ -1911,13 +1911,16 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
           break;
         default:
           // ranges 초기화
+          delete (<UIChartColorByValue>this.uiOption.color).ranges;
+          delete (<UIChartColorGradationByValue>this.uiOption.color).visualGradations;
+          delete (<UIChartColorByValue>this.uiOption.color).customMode;
           colorList = <any>ChartColorList[this.uiOption.color['schema']];
           this.uiOption.color['ranges'] = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.data, colorList);
       }
     }
 
     // color mapping값 설정
-    this.uiOption.color = this.setMapping();
+    // this.uiOption.color = this.setMapping();
   }
 
   /**
