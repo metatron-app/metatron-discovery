@@ -71,6 +71,7 @@ import {Shelf} from '../../../domain/workbook/configurations/shelf/shelf';
 import {fromEvent} from 'rxjs';
 import {debounceTime, map} from 'rxjs/operators';
 import UI = OptionGenerator.UI;
+import {isNullOrUndefined} from "util";
 
 declare let echarts: any;
 
@@ -1412,7 +1413,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
   protected convertDataZoom(isKeepRange?: boolean): BaseOption {
 
-    if( this.uiOption.chartZooms && this.uiOption.chartZooms[0].auto ) {
+    if (this.uiOption.chartZooms && this.uiOption.chartZooms[0].auto) {
       ////////////////////////////////////////////////////////
       // 데이터줌 설정
       ////////////////////////////////////////////////////////
@@ -1871,43 +1872,43 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     // 색상지정 기준 필드리스트 설정(measure list)
     this.uiOption = this.setMeasureList();
 
-/*
-    // color by measure일때 eventType이 있는경우 (min / max가 바뀌는경우) 색상 설정값 초기화
-    if (!_.isEmpty(this.drawByType) && this.uiOption.color && ChartColorType.MEASURE == this.uiOption.color.type) {
-      delete (<UIChartColorByValue>this.uiOption.color).ranges;
-      delete (<UIChartColorGradationByValue>this.uiOption.color).visualGradations;
-      delete (<UIChartColorByValue>this.uiOption.color).customMode;
+    /*
+        // color by measure일때 eventType이 있는경우 (min / max가 바뀌는경우) 색상 설정값 초기화
+        if (!_.isEmpty(this.drawByType) && this.uiOption.color && ChartColorType.MEASURE == this.uiOption.color.type) {
+          delete (<UIChartColorByValue>this.uiOption.color).ranges;
+          delete (<UIChartColorGradationByValue>this.uiOption.color).visualGradations;
+          delete (<UIChartColorByValue>this.uiOption.color).customMode;
 
-      const colorList = <any>ChartColorList[this.uiOption.color['schema']];
+          const colorList = <any>ChartColorList[this.uiOption.color['schema']];
 
-      // ranges가 초기화
-      this.uiOption.color['ranges'] = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.data, colorList);
-    }
-*/
+          // ranges가 초기화
+          this.uiOption.color['ranges'] = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.data, colorList);
+        }
+    */
 
-    if (!_.isEmpty(this.drawByType) && this.uiOption.color && (<UIChartColorByValue>this.uiOption.color).customMode ) {
+    if (!_.isEmpty(this.drawByType) && this.uiOption.color && (<UIChartColorByValue>this.uiOption.color).customMode) {
       let colorList = [];
-      const colrObj:UIChartColorByValue = <UIChartColorByValue>this.uiOption.color;
-      switch( colrObj.customMode ) {
+      const colrObj: UIChartColorByValue = <UIChartColorByValue>this.uiOption.color;
+      switch (colrObj.customMode) {
         case ColorCustomMode.SECTION:
-          colorList = colrObj.ranges.map( item => item.color ).reverse();
+          colorList = colrObj.ranges.map(item => item.color).reverse();
           this.uiOption.color['ranges'] = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.data, colorList);
           break;
         case ColorCustomMode.GRADIENT :
-          const prevMaxVal:number = colrObj.ranges[colrObj.ranges.length - 1]['value'];
-          const currMaxVal:number = this.uiOption.maxValue;
-          const resetRange:Function = ( item ) => {
-            if( item['value'] ) {
-              if( item['value'] < prevMaxVal ) {
-                item['value'] = currMaxVal * (item['value'] / prevMaxVal );
+          const prevMaxVal: number = colrObj.ranges[colrObj.ranges.length - 1]['value'];
+          const currMaxVal: number = this.uiOption.maxValue;
+          const resetRange: Function = (item) => {
+            if (item['value']) {
+              if (item['value'] < prevMaxVal) {
+                item['value'] = Math.round(currMaxVal * (item['value'] / prevMaxVal));
               } else {
                 item['value'] = currMaxVal;
               }
             }
             return item;
           };
-          this.uiOption.color['ranges'] = colrObj['ranges'].map( item => resetRange(item) );
-          this.uiOption.color['visualGradations'] = colrObj['visualGradations'].map( item => resetRange(item) );
+          this.uiOption.color['ranges'] = colrObj['ranges'].map(item => resetRange(item));
+          this.uiOption.color['visualGradations'] = colrObj['visualGradations'].map(item => resetRange(item));
           break;
         default:
           // ranges 초기화
@@ -1920,7 +1921,9 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     }
 
     // color mapping값 설정
-    // this.uiOption.color = this.setMapping();
+    if (this.uiOption.color && isNullOrUndefined(this.uiOption.color['mapping'])) {
+      this.uiOption.color = this.setMapping();
+    }
   }
 
   /**
