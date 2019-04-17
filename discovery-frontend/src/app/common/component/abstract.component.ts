@@ -538,7 +538,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
         icon: 'ddp-icon-type-float'
       },
       {
-        label: this.translateService.instant('msg.metadata.ui.dictionary.type.timestamp'),
+        label: this.translateService.instant('msg.storage.ui.list.date'),
         value: 'TIMESTAMP',
         icon: 'ddp-icon-type-calen'
       },
