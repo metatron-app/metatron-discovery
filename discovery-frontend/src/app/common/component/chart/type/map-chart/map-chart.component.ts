@@ -2080,15 +2080,22 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           // }
           // 공간연산시 단계구분도를 default 값(count)으로 하지 않을 경우 아래와 같이 count를 제외 시킴
           if (aggregationKeys.length >= 2 && !_.isUndefined(this.getUiMapOption().analysis) && this.getUiMapOption().analysis['use'] === true
-            || !_.isUndefined(this.getUiMapOption().analysis.operation.aggregation.type)) {
-            let aggregationKeyNum = 0;
+            || (!_.isUndefined(this.getUiMapOption().analysis)
+              && !_.isUndefined(this.getUiMapOption().analysis.operation)
+              && !_.isUndefined(this.getUiMapOption().analysis.operation.aggregation)
+              && !_.isUndefined(this.getUiMapOption().analysis.operation.aggregation.type))) {
+            let aggregationKeyNum: number = 0;
+            let isAggregationKeyNeedToRemove: boolean = false;
             for (let aggregationKeyIndex = 0; aggregationKeys.length > aggregationKeyIndex; aggregationKeyIndex++) {
               if (aggregationKeys[aggregationKeyIndex].key == 'count') {
                 aggregationKeyNum = aggregationKeyIndex;
+                isAggregationKeyNeedToRemove = true;
                 break;
               }
             }
-            aggregationKeys.splice(aggregationKeyNum, 1);
+            if (isAggregationKeyNeedToRemove) {
+              aggregationKeys.splice(aggregationKeyNum, 1);
+            }
           }
 
           _.each(_.orderBy(aggregationKeys, ['idx']), (aggregationKey) => {
