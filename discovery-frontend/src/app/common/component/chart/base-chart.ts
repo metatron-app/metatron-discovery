@@ -1920,10 +1920,30 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       }
     }
 
-    // color mapping값 설정
-    if (this.uiOption.color && isNullOrUndefined(this.uiOption.color['mapping'])) {
-      this.uiOption.color = this.setMapping();
+    // color mapping값 설정 - S
+    // 이전값 임시 저장
+    let prevMappingList: { alias: string, color: string }[] = [];
+    if (this.uiOption.color && this.uiOption.color && this.uiOption.color['mappingArray']) {
+      prevMappingList = this.uiOption.color['mappingArray'];
     }
+    // 매핑값 초기화
+    this.uiOption.color = this.setMapping();
+    // 이전값 재적용
+    if (0 < prevMappingList.length) {
+      const currColorMapObj = this.uiOption.color['mapping'];
+      const currColorMapList = this.uiOption.color['mappingArray'];
+      prevMappingList.forEach(prev => {
+        currColorMapList.some(curr => {
+          if (curr.alias === prev.alias) {
+            curr.color = prev.color;
+            return true;
+          }
+          return false;
+        });
+        (currColorMapObj[prev.alias]) && (currColorMapObj[prev.alias] = prev.color);
+      });
+    }
+    // color mapping값 설정 - E
   }
 
   /**

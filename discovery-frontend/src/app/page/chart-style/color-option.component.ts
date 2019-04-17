@@ -498,8 +498,24 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
    * 사용자 색상설정 show
    */
   public showUserColorSet() {
+    const colorObj:UIChartColorBySeries = <UIChartColorBySeries>this.uiOption.color;
     // color setting show / hide 값 반대로 설정
-    (<UIChartColorBySeries>this.uiOption.color).settingUseFl = !(<UIChartColorBySeries>this.uiOption.color).settingUseFl;
+    colorObj.settingUseFl = !colorObj.settingUseFl;
+    // if( !colorObj.settingUseFl ) {
+    //   const colorList = ChartColorList[colorObj.schema];
+    //
+    //   // 기존 컬러 리스트로 초기화
+    //   const currColorMapObj = colorObj.mapping;
+    //   const currColorMapList = colorObj.mappingArray;
+    //   currColorMapList.forEach((item,idx) => {
+    //     item['color'] = colorList[idx];
+    //     (currColorMapObj[item['alias']]) && (currColorMapObj[item['alias']] = colorList[idx]);
+    //   });
+    //
+    //   // 차트 업데이트
+    //   this.uiOption.color = colorObj;
+    //   this.update();
+    // }
   }
 
   /**
