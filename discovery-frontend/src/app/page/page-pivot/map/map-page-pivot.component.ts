@@ -40,6 +40,7 @@ import {ChartUtil} from '../../../common/component/chart/option/util/chart-util'
 import {OptionGenerator} from "../../../common/component/chart/option/util/option-generator";
 import {isNullOrUndefined} from "util";
 import {CommonConstant} from "../../../common/constant/common.constant";
+import {TooltipOptionConverter} from "../../../common/component/chart/option/converter/tooltip-option-converter";
 
 @Component({
   selector: 'map-page-pivot',
@@ -829,22 +830,28 @@ export class MapPagePivotComponent extends PagePivotComponent {
     // 0 ~ 1 은 multi-layer, 그래서 공간연산 layer 값은 2
     this.uiOption.layerNum = this.uiOption.layers.length - 1;
 
-    // 공간연산에서 choropleth 를 활성화 하고 default 값인 count를 지정할 경우 count에 대한 정보를 강제 입력
-    if(this.uiOption['analysis']['operation']['choropleth'] == true ) {
-      let field = {
-        alias: 'count',
-        type: 'measure',
-        subRole: 'measure',
-        name: 'count',
-        isCustomField: true
-      };
+    // 공간연산에서 choropleth 를 활성화 했을 경우
+    // 커스텀 하게 default 값 count 정보 설정
+    if (this.uiOption['analysis']['operation']['choropleth'] == true) {
+      let field: MeasureField = new MeasureField();
+      // 이미 변수가 선언이 되어 있어 강제로 변경
+      field.aggregationType = null;
+      field.alias = 'count';
+      field.type = 'measure';
+      field.subRole = 'measure';
+      field.name = 'count';
+      field.isCustomField = true;
+      field.field = new Field();
+      field.field.logicalType = LogicalType.INTEGER;
+      this.uiOption.toolTip['isFirstOpenTooltipOption'] = true;
 
+      // 공간연산 실행 시 layer의 field에 해당 값 적용
       let uiOption = this.uiOption;
-      this.shelf.layers.forEach( (layer) => {
-        if(layer.name === CommonConstant.MAP_ANALYSIS_LAYER_NAME) {
+      this.shelf.layers.forEach((layer) => {
+        if (layer.name === CommonConstant.MAP_ANALYSIS_LAYER_NAME) {
           layer.fields.push(_.cloneDeep(field));
-          layer.fields.forEach( (field) => {
-            if( uiOption['analysis']['operation']['aggregation']['column'] == field.name ){
+          layer.fields.forEach((field) => {
+            if (uiOption['analysis']['operation']['aggregation']['column'] == field.name && !(!_.isUndefined(field.isCustomField) && field.isCustomField == true)) {
               field.aggregationType = uiOption['analysis']['operation']['aggregation']['type'];
             }
           });
@@ -867,8 +874,29 @@ export class MapPagePivotComponent extends PagePivotComponent {
       delete this.uiOption.analysis.mainLayer;
       delete this.uiOption.analysis.compareLayer;
       delete this.uiOption.analysis.type;
+
+      // Tooltip setting
+      let layerItems = [];
+      // 공간연산 사용 여부
+      for (let layerIndex = 0; this.uiOption.layers.length > layerIndex; layerIndex++) {
+        if (this.shelf && !_.isUndefined(this.shelf.layers[layerIndex])) {
+          this.shelf.layers[layerIndex].fields.forEach((field) => {
+            layerItems.push(field);
+          });
+        }
+      }
+      // set alias
+      for (const item of layerItems) {
+        item['alias'] = ChartUtil.getAlias(item);
+      }
+      // return shelf list except geo dimension
+      let uniqList = TooltipOptionConverter.returnTooltipDataValue(layerItems);
+      // tooltip option panel이 첫번째로 열렸는지 여부
+      this.uiOption.toolTip['isFirstOpenTooltipOption'] = true;
+      this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(uniqList);
+
       // emit
-      this.removeAnalysisLayerEvent.emit();
+      this.removeAnalysisLayerEvent.emit(this.shelf);
     }
   }
 }

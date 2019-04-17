@@ -13,7 +13,8 @@
   -->
 
 <!-- 선택시 ddp-selected 추가 -->
-<div [ngClass]="{'ddp-selectbox-disabled': disabled, 'ddp-inline':inline}">
+<div [ngClass]="{'ddp-selectbox-disabled': disabled, 'ddp-inline':inline}"
+     (clickOutside)="this.isShowSelectList=false;">
   <div class="ddp-type-selectbox" [ngClass]="{'ddp-selected' : isShowSelectList && isShowSelectListForOutSide, 'ddp-nowrap-r': noWrapFl, 'ddp-full' : isFull, 'ddp-flow':isDataprep}" (click)="toggleSelectList()" >
     <span class="ddp-txt-selectbox">{{selectedItem == null ? unselectedMessage :  isStringArray ? selectedItem : selectedItem[viewKey] }}</span>
     <ul [ngClass]="{'ddp-selectdown': isUpSelect == false, 'ddp-pass' : isOptionToLeft, 'ddp-pass2' : !isOptionToLeft }"
