@@ -260,8 +260,6 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    */
   public onClickInfoIcon(field: Field): void {
     if (field.logicalType === LogicalType.TIMESTAMP) {
-      // set selected
-      field.checked = true;
       // if open type list
       if (field.isShowTypeList) {
         field.isShowTypeList = false;
@@ -344,8 +342,6 @@ export class EditConfigSchemaComponent extends AbstractComponent {
         this.safelyDetectChanges();
         // open timestamp popup
         this.onClickInfoIcon(targetField);
-      } else {
-        targetField.checked = false;
       }
       // close list
       targetField.isShowTypeList = false;
@@ -365,7 +361,6 @@ export class EditConfigSchemaComponent extends AbstractComponent {
         this._setConvertedTypeList(field);
       }
       field.isShowTypeList = !field.isShowTypeList;
-      field.checked = !field.checked;
     }
   }
 

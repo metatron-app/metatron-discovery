@@ -22,306 +22,307 @@
         {{'msg.storage.ui.schema.valid.desc' | translate}}
       </div>
     </div>
-    <div [ngClass]="['ddp-datagrid']">
-      <!-- option -->
-      <div [ngClass]="['ddp-ui-option']">
-        <div class="ddp-wrap-edit">
-          <!-- search -->
-          <component-input
-            [compType]="'search'"
-            [showClear]="true"
-            [value]="keyword"
-            [placeHolder]="'msg.storage.ui.search.data' | translate"
-            (changeValue)="changeKeyword($event)">
-          </component-input>
-          <!-- //search -->
-        </div>
-        <!-- label -->
-        <div class="ddp-wrap-edit">
-          <label class="ddp-label-type">
-            {{'msg.comm.th.role' | translate}}
-          </label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option ddp-inline">
-            <div [ngClass]="['ddp-ui-option-in']">
-              <label class="ddp-label-radio"
-                     *ngFor="let role of roleTypeFilters; let index = index;">
-                <input type="radio"
-                       [attr.name]="'metadata_role_radio_input_' + UUID"
-                       [attr.id]="'metadata_role_radio_input_' + UUID + index"
-                       [checked]="role.checked"
-                       (click)="selectRoleFilter(role)">
-                <i class="ddp-icon-radio"></i>
-                <span class="ddp-txt-radio">
+  </div>
+  <div [ngClass]="['ddp-datagrid']">
+    <!-- option -->
+    <div [ngClass]="['ddp-ui-option']">
+      <div class="ddp-wrap-edit">
+        <!-- search -->
+        <component-input
+          [compType]="'search'"
+          [showClear]="true"
+          [value]="keyword"
+          [placeHolder]="'msg.storage.ui.search.data' | translate"
+          (changeValue)="changeKeyword($event)">
+        </component-input>
+        <!-- //search -->
+      </div>
+      <!-- label -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">
+          {{'msg.comm.th.role' | translate}}
+        </label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option ddp-inline">
+          <div [ngClass]="['ddp-ui-option-in']">
+            <label class="ddp-label-radio"
+                   *ngFor="let role of roleTypeFilters; let index = index;">
+              <input type="radio"
+                     [attr.name]="'metadata_role_radio_input_' + UUID"
+                     [attr.id]="'metadata_role_radio_input_' + UUID + index"
+                     [checked]="role.checked"
+                     (click)="selectRoleFilter(role)">
+              <i class="ddp-icon-radio"></i>
+              <span class="ddp-txt-radio">
                 {{role.label}}
               </span>
-              </label>
-            </div>
+            </label>
           </div>
-          <!-- //edit option -->
         </div>
-        <!-- //label -->
-        <!-- label -->
-        <div class="ddp-wrap-edit">
-          <label class="ddp-label-type">
-            {{'msg.storage.ui.type' | translate}}
-          </label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option"
-               (click)="isShowTypeFilters = !isShowTypeFilters"
-               (clickOutside)="isShowTypeFilters = false">
-            <!-- selectbox -->
-            <div class="ddp-type-selectbox"
-                 [class.ddp-selected]="isShowTypeFilters">
+        <!-- //edit option -->
+      </div>
+      <!-- //label -->
+      <!-- label -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">
+          {{'msg.storage.ui.type' | translate}}
+        </label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option"
+             (click)="isShowTypeFilters = !isShowTypeFilters"
+             (clickOutside)="isShowTypeFilters = false">
+          <!-- selectbox -->
+          <div class="ddp-type-selectbox"
+               [class.ddp-selected]="isShowTypeFilters">
             <span class="ddp-txt-selectbox">
               {{selectedType.label}}
             </span>
-              <div class="ddp-wrap-popup2"
-                   [ngClass]="['ddp-types']">
-                <ul class="ddp-list-popup">
-                  <li [class.ddp-selected]="selectedType === type"
-                      *ngFor="let type of typeFilters">
-                    <a href="javascript:"
-                       (click)="selectTypeFilter(type)">
-                      <em [ngClass]="[getFieldTypeIconClass(type.value)]"></em>
-                      {{type.label}}
-                      <em class="ddp-icon-check"
-                          *ngIf="selectedType === type">
-                      </em>
-                    </a>
-                  </li>
-                </ul>
-              </div>
+            <div class="ddp-wrap-popup2"
+                 [ngClass]="['ddp-types']">
+              <ul class="ddp-list-popup">
+                <li [class.ddp-selected]="selectedType === type"
+                    *ngFor="let type of typeFilters">
+                  <a href="javascript:"
+                     (click)="selectTypeFilter(type)">
+                    <em [ngClass]="[getFieldTypeIconClass(type.value)]"></em>
+                    {{type.label}}
+                    <em class="ddp-icon-check"
+                        *ngIf="selectedType === type">
+                    </em>
+                  </a>
+                </li>
+              </ul>
             </div>
-            <!-- //selectbox -->
           </div>
-          <!-- //edit option -->
+          <!-- //selectbox -->
         </div>
-        <!-- //label -->
-        <div class="ddp-reset">
-          <a href="javascript:"
-             class="ddp-btn-reset3"
-             (click)="filterInitialize()">
-          </a>
-        </div>
-        <!-- column option -->
-        <div class="ddp-option-column ddp-fright">
-          <a href="javascript:"
-             class="ddp-btn-pop ddp-bg-black"
-             (click)="onClickSave()">
-            {{'msg.comm.btn.save' | translate}}
-          </a>
-        </div>
-        <!-- //column option -->
+        <!-- //edit option -->
       </div>
-      <!-- //option -->
+      <!-- //label -->
+      <div class="ddp-reset">
+        <a href="javascript:"
+           class="ddp-btn-reset3"
+           (click)="filterInitialize()">
+        </a>
+      </div>
+      <!-- column option -->
+      <div class="ddp-option-column ddp-fright">
+        <a href="javascript:"
+           class="ddp-btn-pop ddp-bg-black"
+           (click)="onClickSave()">
+          {{'msg.comm.btn.save' | translate}}
+        </a>
+      </div>
+      <!-- //column option -->
     </div>
-    <div class="ddp-data-details ddp-ui-preview-contents"
-         [class.ddp-info]="true"
-         [class.ddp-info2]="isSaveInvalid"
-         (scroll)="onScrollColumnView()">
-      <!-- header -->
-      <table class="ddp-table-form" [ngClass]="['ddp-table-type2', 'ddp-table-details', 'ddp-inheribt']">
-        <colgroup>
-          <col [style.width]="'100px'" *ngIf="hasMetadataColumnInDatasource()">
-          <col [style.width]="'160px'">
-          <col [style.width]="'180px'">
-          <col [style.width]="'180px'">
-          <col [style.width]="'150px'">
-          <col [style.width]="'150px'">
-          <col [style.width]="'150px'">
-          <col [style.width]="'300px'">
-        </colgroup>
-        <thead>
-        <tr>
-          <th *ngIf="hasMetadataColumnInDatasource()">
-            <div class="ddp-th-long">
+    <!-- //option -->
+  </div>
+  <div class="ddp-data-details ddp-ui-preview-contents"
+       [class.ddp-info]="true"
+       [class.ddp-info2]="isSaveInvalid"
+       (scroll)="onScrollColumnView()">
+    <!-- header -->
+    <table class="ddp-table-form" [ngClass]="['ddp-table-type2', 'ddp-table-details', 'ddp-inheribt']">
+      <colgroup>
+        <col [style.width]="'100px'" *ngIf="hasMetadataColumnInDatasource()">
+        <col [style.width]="'160px'">
+        <col [style.width]="'180px'">
+        <col [style.width]="'180px'">
+        <col [style.width]="'150px'">
+        <col [style.width]="'150px'">
+        <col [style.width]="'150px'">
+        <col [style.width]="'300px'">
+      </colgroup>
+      <thead>
+      <tr>
+        <th *ngIf="hasMetadataColumnInDatasource()">
+          <div class="ddp-th-long">
             <span class="ddp-th-txt"
                   [attr.title]="('msg.comm.th.role' | translate)">
               {{'msg.comm.th.role' | translate}}
             </span>
-            </div>
-          </th>
-          <th class="ddp-cursor"
-              (click)="onClickSort('popularity')">
-            <div class="ddp-th-long">
-              <div class="ddp-th-icons">
-                <div class="ddp-wrap-hover-info">
-                  <em class="ddp-icon-info3"></em>
-                  <!-- popup -->
-                  <div class="ddp-box-layout4 ddp-popularity">
-                    <div class="ddp-data-title">
-                      {{'msg.metadata.th.column.popularity.tooltip.title' | translate}}
-                    </div>
-                    <div class="ddp-data-det">
-                      {{'msg.metadata.th.column.popularity.tooltip.desc' | translate}}
-                      <ul>
-                        <li>• {{'msg.metadata.th.column.popularity.tooltip.dashboard.conn' | translate}}
-                        </li>
-                      </ul>
-                    </div>
+          </div>
+        </th>
+        <th class="ddp-cursor"
+            (click)="onClickSort('popularity')">
+          <div class="ddp-th-long">
+            <div class="ddp-th-icons">
+              <div class="ddp-wrap-hover-info">
+                <em class="ddp-icon-info3"></em>
+                <!-- popup -->
+                <div class="ddp-box-layout4 ddp-popularity">
+                  <div class="ddp-data-title">
+                    {{'msg.metadata.th.column.popularity.tooltip.title' | translate}}
                   </div>
-                  <!-- //popup -->
+                  <div class="ddp-data-det">
+                    {{'msg.metadata.th.column.popularity.tooltip.desc' | translate}}
+                    <ul>
+                      <li>• {{'msg.metadata.th.column.popularity.tooltip.dashboard.conn' | translate}}
+                      </li>
+                    </ul>
+                  </div>
                 </div>
-                <em class="ddp-icon-array-default2"
-                    *ngIf="selectedContentSort.key !== 'popularity' || selectedContentSort.sort === 'default'">
-                </em>
-                <em class="ddp-icon-array-asc2"
-                    *ngIf="selectedContentSort.key === 'popularity' && selectedContentSort.sort === 'asc'">
-                </em>
-                <em class="ddp-icon-array-des2"
-                    *ngIf="selectedContentSort.key === 'popularity' && selectedContentSort.sort === 'desc'">
-                </em>
+                <!-- //popup -->
               </div>
-              <span class="ddp-th-txt"
-                    [attr.title]="('msg.metadata.th.column.popularity' | translate)">
+              <em class="ddp-icon-array-default2"
+                  *ngIf="selectedContentSort.key !== 'popularity' || selectedContentSort.sort === 'default'">
+              </em>
+              <em class="ddp-icon-array-asc2"
+                  *ngIf="selectedContentSort.key === 'popularity' && selectedContentSort.sort === 'asc'">
+              </em>
+              <em class="ddp-icon-array-des2"
+                  *ngIf="selectedContentSort.key === 'popularity' && selectedContentSort.sort === 'desc'">
+              </em>
+            </div>
+            <span class="ddp-th-txt"
+                  [attr.title]="('msg.metadata.th.column.popularity' | translate)">
               {{'msg.metadata.th.column.popularity' | translate}}
             </span>
+          </div>
+        </th>
+        <th class="ddp-cursor"
+            (click)="onClickSort('physicalName')">
+          <div class="ddp-th-long">
+            <div class="ddp-th-icons">
+              <em class="ddp-icon-array-default2"
+                  *ngIf="selectedContentSort.key !== 'physicalName' || selectedContentSort.sort === 'default'">
+              </em>
+              <em class="ddp-icon-array-asc2"
+                  *ngIf="selectedContentSort.key === 'physicalName' && selectedContentSort.sort === 'asc'">
+              </em>
+              <em class="ddp-icon-array-des2"
+                  *ngIf="selectedContentSort.key === 'physicalName' && selectedContentSort.sort === 'desc'">
+              </em>
             </div>
-          </th>
-          <th class="ddp-cursor"
-              (click)="onClickSort('physicalName')">
-            <div class="ddp-th-long">
-              <div class="ddp-th-icons">
-                <em class="ddp-icon-array-default2"
-                    *ngIf="selectedContentSort.key !== 'physicalName' || selectedContentSort.sort === 'default'">
-                </em>
-                <em class="ddp-icon-array-asc2"
-                    *ngIf="selectedContentSort.key === 'physicalName' && selectedContentSort.sort === 'asc'">
-                </em>
-                <em class="ddp-icon-array-des2"
-                    *ngIf="selectedContentSort.key === 'physicalName' && selectedContentSort.sort === 'desc'">
-                </em>
-              </div>
-              <span class="ddp-th-txt"
-                    [attr.title]="('msg.metadata.th.physical.name' | translate)">
+            <span class="ddp-th-txt"
+                  [attr.title]="('msg.metadata.th.physical.name' | translate)">
               {{'msg.metadata.th.physical.name' | translate}}
             </span>
-            </div>
-          </th>
-          <th class="ddp-cursor"
-              (click)="onClickSort('name')">
-            <div class="ddp-th-long">
-              <div class="ddp-th-icons">
-                <div class="ddp-wrap-hover-info">
-                  <em class="ddp-icon-info3"></em>
-                  <!-- popup -->
-                  <div class="ddp-box-layout4 ddp-popularity">
-                    <div class="ddp-data-title">
-                      {{'msg.metadata.th.column.logical.tooltip.title' | translate}}
-                    </div>
-                    <div class="ddp-data-det">
-                      {{'msg.metadata.th.column.logical.tooltip.desc' | translate}}
-                    </div>
+          </div>
+        </th>
+        <th class="ddp-cursor"
+            (click)="onClickSort('name')">
+          <div class="ddp-th-long">
+            <div class="ddp-th-icons">
+              <div class="ddp-wrap-hover-info">
+                <em class="ddp-icon-info3"></em>
+                <!-- popup -->
+                <div class="ddp-box-layout4 ddp-popularity">
+                  <div class="ddp-data-title">
+                    {{'msg.metadata.th.column.logical.tooltip.title' | translate}}
                   </div>
-                  <!-- //popup -->
+                  <div class="ddp-data-det">
+                    {{'msg.metadata.th.column.logical.tooltip.desc' | translate}}
+                  </div>
                 </div>
-                <em class="ddp-icon-array-default2"
-                    *ngIf="selectedContentSort.key !== 'name' || selectedContentSort.sort === 'default'">
-                </em>
-                <em class="ddp-icon-array-asc2"
-                    *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'asc'">
-                </em>
-                <em class="ddp-icon-array-des2"
-                    *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'desc'">
-                </em>
+                <!-- //popup -->
               </div>
-              <span class="ddp-th-txt"
-                    [attr.title]="('msg.metadata.th.name' | translate)">
+              <em class="ddp-icon-array-default2"
+                  *ngIf="selectedContentSort.key !== 'name' || selectedContentSort.sort === 'default'">
+              </em>
+              <em class="ddp-icon-array-asc2"
+                  *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'asc'">
+              </em>
+              <em class="ddp-icon-array-des2"
+                  *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'desc'">
+              </em>
+            </div>
+            <span class="ddp-th-txt"
+                  [attr.title]="('msg.metadata.th.name' | translate)">
               {{'msg.metadata.th.name' | translate}}
             </span>
-            </div>
-          </th>
-          <th>
-            <div class="ddp-th-long">
+          </div>
+        </th>
+        <th>
+          <div class="ddp-th-long">
             <span class="ddp-th-txt"
                   [attr.title]="('msg.metadata.th.dictionary' | translate)">
               {{'msg.metadata.th.dictionary' | translate}}
             </span>
-            </div>
-          </th>
-          <th>
-            <div class="ddp-th-long">
+          </div>
+        </th>
+        <th>
+          <div class="ddp-th-long">
             <span class="ddp-th-txt"
                   [attr.title]="('msg.metadata.th.logical.type'| translate)">
               {{'msg.metadata.th.logical.type'| translate}}
             </span>
-            </div>
-          </th>
-          <th>
-            <div class="ddp-th-long">
+          </div>
+        </th>
+        <th>
+          <div class="ddp-th-long">
             <span class="ddp-th-txt"
                   [attr.title]="('msg.storage.ui.th.code.table' | translate)">
               {{'msg.storage.ui.th.code.table' | translate}}
             </span>
-            </div>
-          </th>
-          <th>
-            <div class="ddp-th-long">
+          </div>
+        </th>
+        <th>
+          <div class="ddp-th-long">
             <span class="ddp-th-txt"
                   [attr.title]="('msg.storage.ui.th.description' | translate)">
               {{'msg.storage.ui.th.description' | translate}}
             </span>
-            </div>
-          </th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr *ngFor="let column of getColumns(); let index = index">
-          <td *ngIf="hasMetadataColumnInDatasource()">
+          </div>
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let column of getColumns(); let index = index">
+        <td *ngIf="hasMetadataColumnInDatasource()">
           <span class="ddp-box-tag-value"
                 [class.ddp-measure]="column.role === ROLE.MEASURE"
                 [class.ddp-dimension]="column.role === ROLE.DIMENSION || column.role === ROLE.TIMESTAMP">
             {{column.role === ROLE.MEASURE ? ('msg.comm.name.mea' | translate) : ('msg.comm.name.dim' | translate)}}
           </span>
-          </td>
-          <td>
-            <div class="ddp-bar">
-              <span [ngStyle]="{'width': getColumnPopularity(column)}"></span>
-            </div>
-          </td>
-          <td class="ddp-disabled">
-            {{column.physicalName}}
-          </td>
-          <td [ngClass]="['ddp-padding-none']">
-            <div class="ddp-input-form">
-              <!--suppress HtmlFormInputWithoutLabel -->
-              <input type="text"
-                     class="ddp-txt-input"
-                     [ngModel]="column.name"
-                     (ngModelChange)="column.name = $event; column.nameChangeFl = true; column.replaceFl = true">
-              <em class="ddp-bg-select"></em>
-            </div>
-          </td>
-          <td>
-            <div class="ddp-select-search ddp-hover-tooltip">
-              <a href="javascript:"
-                 class="ddp-ui-search2"
-                 (click)="onClickDictionary(column.dictionary)">
-                {{column.dictionary ? column.dictionary.logicalName : ''}}
-                <span class="ddp-icon-search"
-                      (click)="onClickSearchDictionary(column)">
+        </td>
+        <td>
+          <div class="ddp-bar">
+            <span [ngStyle]="{'width': getColumnPopularity(column)}"></span>
+          </div>
+        </td>
+        <td class="ddp-disabled">
+          {{column.physicalName}}
+        </td>
+        <td [ngClass]="['ddp-padding-none']">
+          <div class="ddp-input-form">
+            <!--suppress HtmlFormInputWithoutLabel -->
+            <input type="text"
+                   class="ddp-txt-input"
+                   [ngModel]="column.name"
+                   (ngModelChange)="column.name = $event; column.nameChangeFl = true; column.replaceFl = true">
+            <em class="ddp-bg-select"></em>
+          </div>
+        </td>
+        <td>
+          <div class="ddp-select-search ddp-hover-tooltip">
+            <a href="javascript:"
+               class="ddp-ui-search2"
+               (click)="onClickDictionary(column.dictionary)">
+              {{column.dictionary ? column.dictionary.logicalName : ''}}
+              <span class="ddp-icon-search"
+                    (click)="onClickSearchDictionary(column)">
               </span>
-              </a>
-            </div>
-            <div class="ddp-ui-tooltip-info"
-                 *ngIf="column.dictionary">
-              <em class="ddp-icon-view-top"></em>
-              {{column.dictionary.logicalName}}
-            </div>
-          </td>
-          <td class="ddp-inherit ddp-info"
-              [class.ddp-disabled]="isSelectedMetadataColumnInColumnDictionaryDefined(column)"
-              [class.ddp-selected]="column['typeListFl'] || column.isShowTimestampValidPopup"
-              [ngClass]="[TYPE_SELECT_AND_TIMESTAMP_VALID_WRAP_ELEMENT]"
-              (click)="onClickTypeSelectAndTimestampValidWrapElement($event, column)"
-              (clickOutside)="column['typeListFl'] = false; column.isShowTimestampValidPopup = false;">
-            <div class="ddp-wrap-type-option">
-              <!-- select -->
-              <div #logicalType
-                   [class.ddp-selected]="column['typeListFl']"
-                   [ngClass]="['ddp-ui-selected-option']"
-                   (click)="onShowLogicalTypeList(column)">
+            </a>
+          </div>
+          <div class="ddp-ui-tooltip-info"
+               *ngIf="column.dictionary">
+            <em class="ddp-icon-view-top"></em>
+            {{column.dictionary.logicalName}}
+          </div>
+        </td>
+        <td class="ddp-inherit ddp-info"
+            [class.ddp-disabled]="isSelectedMetadataColumnInColumnDictionaryDefined(column)"
+            [class.ddp-selected]="column['typeListFl'] || column.format?.isShowTimestampValidPopup"
+            [ngClass]="[TYPE_SELECT_AND_TIMESTAMP_VALID_WRAP_ELEMENT]"
+            (click)="onClickTypeSelectAndTimestampValidWrapElement($event, column)"
+            (clickOutside)="column['typeListFl'] = false;">
+          <div class="ddp-wrap-type-option">
+            <!-- select -->
+            <div #logicalType
+                 [class.ddp-selected]="column['typeListFl']"
+                 [ngClass]="['ddp-ui-selected-option']"
+                 (click)="onShowLogicalTypeList(column)">
                 <span class="ddp-link-text ddp-txt-icon">
                   <em [ngClass]="[getFieldTypeIconClass(column.type)]"></em>
                   {{getSelectedLogicalTypeLabel(column)}}
@@ -330,182 +331,181 @@
                         *ngIf="isLogicalTypesLayerActivation(column)">
                   </span>
                 </span>
-                <!--suppress JSUnusedGlobalSymbols -->
-                <div class="ddp-wrap-popup2 ddp-scroll-none" [ngClass]="['ddp-types']"
-                     #logicalTypeList>
-                  <ul class="ddp-list-popup">
-                    <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.STRING)">
-                      <a href="javascript:"
-                         (click)="onChangeLogicalType(column, LOGICAL.STRING)">
-                        <em class="ddp-icon-type-ab"></em>
-                        {{'msg.metadata.ui.dictionary.type.string' | translate}}
-                        <em class="ddp-icon-check"></em>
-                      </a>
-                    </li>
-                    <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.BOOLEAN)">
-                      <a href="javascript:"
-                         (click)="onChangeLogicalType(column,  LOGICAL.BOOLEAN)">
-                        <em class="ddp-icon-type-tf"></em>
-                        {{'msg.metadata.ui.dictionary.type.boolean' | translate}}
-                        <em class="ddp-icon-check"></em>
-                      </a>
-                    </li>
-                    <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.INTEGER)">
-                      <a href="javascript:"
-                         (click)="onChangeLogicalType(column, LOGICAL.INTEGER)">
-                        <em class="ddp-icon-type-int"></em>
-                        {{'msg.metadata.ui.dictionary.type.integer' | translate}}
-                        <em class="ddp-icon-check"></em>
-                      </a>
-                    </li>
-                    <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.DOUBLE)">
-                      <a href="javascript:"
-                         (click)="onChangeLogicalType(column, LOGICAL.DOUBLE)">
-                        <em class="ddp-icon-type-float"></em>
-                        {{'msg.metadata.ui.dictionary.type.double' | translate}}
-                        <em class="ddp-icon-check"></em>
-                      </a>
-                    </li>
-                    <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.TIMESTAMP)">
-                      <a href="javascript:"
-                         (click)="onChangeLogicalType(column, LOGICAL.TIMESTAMP)">
-                        <em class="ddp-icon-type-calen"></em>
-                        {{'msg.metadata.ui.dictionary.type.timestamp' | translate}}
-                        <em class="ddp-icon-check"></em>
-                      </a>
-                    </li>
-                    <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.LNT)">
-                      <a href="javascript:"
-                         (click)="onChangeLogicalType(column, LOGICAL.LNT)">
-                        <em class="ddp-icon-type-latitude"></em>
-                        {{'msg.metadata.ui.dictionary.type.latitude' | translate}}
-                        <em class="ddp-icon-check"></em>
-                      </a>
-                    </li>
-                    <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.LNG)">
-                      <a href="javascript:"
-                         (click)="onChangeLogicalType(column, LOGICAL.LNG)">
-                        <em class="ddp-icon-type-longitude"></em>
-                        {{'msg.metadata.ui.dictionary.type.longitude' | translate}}
-                        <em class="ddp-icon-check"></em>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-                <!-- //popup -->
-              </div>
-              <!-- //select -->
-              <div class="ddp-ui-info"
-                   [hidden]="isTypeIsTimestamp(column) === false"
-                   [class.ddp-selected]="column.isShowTimestampValidPopup"
-                   (click)="column.isShowTimestampValidPopup = !column.isShowTimestampValidPopup;">
-                <em [class.ddp-icon-sinfo2]="isValidInformationIcon(column)"
-                    [class.ddp-icon-error2]="isInvalidInformationIcon(column)"
-                    [ngClass]="[TIMESTAMP_VALID_PUPOP_ELEMENT]"
-                    (click)="onClickInfoIcon(column, index)">
-                </em>
-              </div>
-              <!-- format layer -->
-              <datetime-valid-popup
-                [hidden]="isTypeIsTimestamp(column) === false"
-                [fieldFormat]="column?.format"
-                [fieldDataList]="fieldDataList"
-                [fieldName]="column.physicalName"
-                (changedFieldFormat)="column.format = $event"
-                (closed)="column.format.isShowTimestampValidPopup = undefined;">
-              </datetime-valid-popup>
-              <!-- //format layer -->
-            </div>
-          </td>
-          <td [class.ddp-disabled]="isSelectedMetadataColumnInColumnDictionaryDefined(column)">
-            <div class=" ddp-select-search ddp-hover-tooltip"
-                 #codeTable
-                 [ngClass]="['ddp-pop-select']"
-                 [class.ddp-selected]="column['codeTableShowFl']"
-                 (clickOutside)="column['codeTableShowFl'] = false">
-              <a href="javascript:"
-                 class="ddp-ui-search2"
-                 (click)="onClickCodeTable(column, index)">
-                {{column.codeTable ? column.codeTable.name : ''}}
-                <span class="ddp-icon-search"
-                      (click)="onClickSearchCodeTable(column)">
-              </span>
-              </a>
-              <!-- hover -->
               <!--suppress JSUnusedGlobalSymbols -->
-              <div class="ddp-box-layout4 ddp-pop-fix"
-                   #codeTablePreview>
-                <a href="javascript:"
-                   class="ddp-btn-close"
-                   (click)="column['codeTableShowFl'] = false"></a>
-                <div class="ddp-data-title">
-                  {{'msg.metadata.ui.codetable.choose.code.table.preview.title' | translate}}
-                </div>
-                <div class="ddp-data-code ddp-size"
-                     *ngIf="column.codeTable">
-                  <table class="ddp-table-code"
-                         [ngClass]="['ddp-inherit']">
-                    <colgroup>
-                      <col [style.width]="'90px'">
-                      <col [style.width]="'*'">
-                    </colgroup>
-                    <tbody>
-                    <tr *ngFor="let pair of getTableCodePair(column.codeTable.id)">
-                      <td>
-                        <span class="ddp-txt-long">{{pair.code}}</span>
-                        <!-- tooltip -->
-                        <div class="ddp-ui-tooltip-info">
-                          <em class="ddp-icon-view-top"></em>
-                          {{pair.code}}
-                        </div>
-                        <!-- //tooltip -->
-                      </td>
-                      <td>
-                        <span class="ddp-txt-long">{{pair.value}}</span>
-                        <!-- tooltip -->
-                        <div class="ddp-ui-tooltip-info">
-                          <em class="ddp-icon-view-top"></em>
-                          {{pair.value}}
-                        </div>
-                        <!-- //tooltip -->
-                      </td>
-                    </tr>
-                    </tbody>
-                  </table>
-                  <a href="javascript:"
-                     class="ddp-link-detail"
-                     (click)="onClickCodeTableDetails(column.codeTable)">
-                    {{'msg.storage.btn.detail' | translate}}
-                  </a>
-                </div>
+              <div class="ddp-wrap-popup2 ddp-scroll-none" [ngClass]="['ddp-types']"
+                   #logicalTypeList>
+                <ul class="ddp-list-popup">
+                  <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.STRING)">
+                    <a href="javascript:"
+                       (click)="onChangeLogicalType(column, LOGICAL.STRING)">
+                      <em class="ddp-icon-type-ab"></em>
+                      {{'msg.metadata.ui.dictionary.type.string' | translate}}
+                      <em class="ddp-icon-check"></em>
+                    </a>
+                  </li>
+                  <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.BOOLEAN)">
+                    <a href="javascript:"
+                       (click)="onChangeLogicalType(column,  LOGICAL.BOOLEAN)">
+                      <em class="ddp-icon-type-tf"></em>
+                      {{'msg.metadata.ui.dictionary.type.boolean' | translate}}
+                      <em class="ddp-icon-check"></em>
+                    </a>
+                  </li>
+                  <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.INTEGER)">
+                    <a href="javascript:"
+                       (click)="onChangeLogicalType(column, LOGICAL.INTEGER)">
+                      <em class="ddp-icon-type-int"></em>
+                      {{'msg.metadata.ui.dictionary.type.integer' | translate}}
+                      <em class="ddp-icon-check"></em>
+                    </a>
+                  </li>
+                  <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.DOUBLE)">
+                    <a href="javascript:"
+                       (click)="onChangeLogicalType(column, LOGICAL.DOUBLE)">
+                      <em class="ddp-icon-type-float"></em>
+                      {{'msg.metadata.ui.dictionary.type.double' | translate}}
+                      <em class="ddp-icon-check"></em>
+                    </a>
+                  </li>
+                  <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.TIMESTAMP)">
+                    <a href="javascript:"
+                       (click)="onChangeLogicalType(column, LOGICAL.TIMESTAMP, index)">
+                      <em class="ddp-icon-type-calen"></em>
+                      {{'msg.metadata.ui.dictionary.type.timestamp' | translate}}
+                      <em class="ddp-icon-check"></em>
+                    </a>
+                  </li>
+                  <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.LNT)">
+                    <a href="javascript:"
+                       (click)="onChangeLogicalType(column, LOGICAL.LNT)">
+                      <em class="ddp-icon-type-latitude"></em>
+                      {{'msg.metadata.ui.dictionary.type.latitude' | translate}}
+                      <em class="ddp-icon-check"></em>
+                    </a>
+                  </li>
+                  <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.LNG)">
+                    <a href="javascript:"
+                       (click)="onChangeLogicalType(column, LOGICAL.LNG)">
+                      <em class="ddp-icon-type-longitude"></em>
+                      {{'msg.metadata.ui.dictionary.type.longitude' | translate}}
+                      <em class="ddp-icon-check"></em>
+                    </a>
+                  </li>
+                </ul>
               </div>
-              <!-- //hover -->
+              <!-- //popup -->
             </div>
-            <div class="ddp-ui-tooltip-info"
-                 *ngIf="column.codeTable && !column['codeTableShowFl']">
-              <em class="ddp-icon-view-top"></em>
-              {{column.codeTable.name}}
+            <!-- //select -->
+            <div class="ddp-ui-info"
+                 [hidden]="isTypeIsTimestamp(column) === false"
+                 [class.ddp-selected]="column.format?.isShowTimestampValidPopup">
+              <em [class.ddp-icon-sinfo2]="isValidInformationIcon(column)"
+                  [class.ddp-icon-error2]="isInvalidInformationIcon(column)"
+                  [ngClass]="[TIMESTAMP_VALID_PUPOP_ELEMENT]"
+                  (click)="onClickInfoIcon(column, index)">
+              </em>
             </div>
-          </td>
-          <td [class.ddp-padding-none]="!isSelectedMetadataColumnInColumnDictionaryDefined(column)"
-              [class.ddp-disabled]="isSelectedMetadataColumnInColumnDictionaryDefined(column)">
+            <!-- format layer -->
+            <datetime-valid-popup
+              [hidden]="isTypeIsTimestamp(column) === false"
+              [fieldFormat]="column?.format"
+              [fieldDataList]="fieldDataList"
+              [fieldName]="column.physicalName"
+              (changedFieldFormat)="column.format = $event"
+              (closed)="column.format.isShowTimestampValidPopup = undefined; setIsExistErrorInFieldListFlag()">
+            </datetime-valid-popup>
+            <!-- //format layer -->
+          </div>
+        </td>
+        <td [class.ddp-disabled]="isSelectedMetadataColumnInColumnDictionaryDefined(column)">
+          <div class=" ddp-select-search ddp-hover-tooltip"
+               #codeTable
+               [ngClass]="['ddp-pop-select']"
+               [class.ddp-selected]="column['codeTableShowFl']"
+               (clickOutside)="column['codeTableShowFl'] = false">
+            <a href="javascript:"
+               class="ddp-ui-search2"
+               (click)="onClickCodeTable(column, index)">
+              {{column.codeTable ? column.codeTable.name : ''}}
+              <span class="ddp-icon-search"
+                    (click)="onClickSearchCodeTable(column)">
+              </span>
+            </a>
+            <!-- hover -->
+            <!--suppress JSUnusedGlobalSymbols -->
+            <div class="ddp-box-layout4 ddp-pop-fix"
+                 #codeTablePreview>
+              <a href="javascript:"
+                 class="ddp-btn-close"
+                 (click)="column['codeTableShowFl'] = false"></a>
+              <div class="ddp-data-title">
+                {{'msg.metadata.ui.codetable.choose.code.table.preview.title' | translate}}
+              </div>
+              <div class="ddp-data-code ddp-size"
+                   *ngIf="column.codeTable">
+                <table class="ddp-table-code"
+                       [ngClass]="['ddp-inherit']">
+                  <colgroup>
+                    <col [style.width]="'90px'">
+                    <col [style.width]="'*'">
+                  </colgroup>
+                  <tbody>
+                  <tr *ngFor="let pair of getTableCodePair(column.codeTable.id)">
+                    <td>
+                      <span class="ddp-txt-long">{{pair.code}}</span>
+                      <!-- tooltip -->
+                      <div class="ddp-ui-tooltip-info">
+                        <em class="ddp-icon-view-top"></em>
+                        {{pair.code}}
+                      </div>
+                      <!-- //tooltip -->
+                    </td>
+                    <td>
+                      <span class="ddp-txt-long">{{pair.value}}</span>
+                      <!-- tooltip -->
+                      <div class="ddp-ui-tooltip-info">
+                        <em class="ddp-icon-view-top"></em>
+                        {{pair.value}}
+                      </div>
+                      <!-- //tooltip -->
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+                <a href="javascript:"
+                   class="ddp-link-detail"
+                   (click)="onClickCodeTableDetails(column.codeTable)">
+                  {{'msg.storage.btn.detail' | translate}}
+                </a>
+              </div>
+            </div>
+            <!-- //hover -->
+          </div>
+          <div class="ddp-ui-tooltip-info"
+               *ngIf="column.codeTable && !column['codeTableShowFl']">
+            <em class="ddp-icon-view-top"></em>
+            {{column.codeTable.name}}
+          </div>
+        </td>
+        <td [class.ddp-padding-none]="!isSelectedMetadataColumnInColumnDictionaryDefined(column)"
+            [class.ddp-disabled]="isSelectedMetadataColumnInColumnDictionaryDefined(column)">
           <span *ngIf="isSelectedMetadataColumnInColumnDictionaryDefined(column)">
             {{column.description}}
           </span>
-            <div class="ddp-input-form"
-                 *ngIf="!isSelectedMetadataColumnInColumnDictionaryDefined(column)">
-              <!--suppress HtmlFormInputWithoutLabel -->
-              <input type="text"
-                     class="ddp-txt-input"
-                     [ngModel]="column.description"
-                     (ngModelChange)="column.description = $event; column.replaceFl = true">
-              <em class="ddp-bg-select"></em>
-            </div>
-          </td>
-        </tr>
-        </tbody>
-      </table>
-      <!-- //header -->
-    </div>
+          <div class="ddp-input-form"
+               *ngIf="!isSelectedMetadataColumnInColumnDictionaryDefined(column)">
+            <!--suppress HtmlFormInputWithoutLabel -->
+            <input type="text"
+                   class="ddp-txt-input"
+                   [ngModel]="column.description"
+                   (ngModelChange)="column.description = $event; column.replaceFl = true">
+            <em class="ddp-bg-select"></em>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <!-- //header -->
   </div>
-  <!-- //tab contents -->
+</div>
+<!-- //tab contents -->

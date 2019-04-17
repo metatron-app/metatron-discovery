@@ -12,9 +12,26 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, QueryList, ViewChildren} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  QueryList,
+  ViewChildren
+} from '@angular/core';
 import {AbstractComponent} from '../../../../common/component/abstract.component';
-import {ConnectionType, Datasource, FieldFormat, FieldFormatType} from '../../../../domain/datasource/datasource';
+import {
+  ConnectionType,
+  Datasource,
+  FieldFormat,
+  FieldFormatType,
+  FieldRole, LogicalType
+} from '../../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import {MetadataService} from '../../../metadata/service/metadata.service';
 import {MetadataModelService} from '../../../metadata/service/metadata.model.service';
@@ -173,6 +190,9 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
   public onClickInfoIcon(metadataColumn: MetadataColumn, index: number): void {
     if (MetadataColumn.isTypeIsTimestamp(metadataColumn)) {
+      if (metadataColumn['typeListFl']) {
+        metadataColumn['typeListFl'] = false;
+      }
       metadataColumn.checked = true;
       metadataColumn.format.isShowTimestampValidPopup = true;
       this._datetimePopupComponentList.toArray()[ index ].init();
@@ -235,17 +255,18 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    */
   public onClickSave(): void {
 
-    const datetimeValidPopupComponents: DatetimeValidPopupComponent[]
-      = this._datetimePopupComponentList
-      .filter(datetimePopupComponent => _.negate(_.isNil)(datetimePopupComponent.fieldFormat) && _.negate(_.isNil)(datetimePopupComponent.fieldFormat.isValidFormat))
-      .filter(datetimeValidPopupComponent => !datetimeValidPopupComponent.fieldFormat.isValidFormat);
-
-    if (datetimeValidPopupComponents.length > 0) {
-      this.isSaveInvalid = true;
-      return;
+    // const datetimeValidPopupComponents: DatetimeValidPopupComponent[]
+    //   = this._datetimePopupComponentList
+    //   .filter(datetimePopupComponent => _.negate(_.isNil)(datetimePopupComponent.fieldFormat) && _.negate(_.isNil)(datetimePopupComponent.fieldFormat.isValidFormat))
+    //   .filter(datetimeValidPopupComponent => !datetimeValidPopupComponent.fieldFormat.isValidFormat);
+    //
+    // if (datetimeValidPopupComponents.length > 0) {
+    //   this.isSaveInvalid = true;
+    //   return;
+    // }
+    if (this.isSaveInvalid !== true) {
+      this._updateColumnSchema();
     }
-
-    this._updateColumnSchema();
   }
 
   /**
@@ -268,20 +289,33 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   /**
    * Logical type change event
    */
-  public onChangeLogicalType(metadataColumn: MetadataColumn, logicalType: Type.Logical): void {
-    // 변경이벤트 체크
-    this._onChangedValue(metadataColumn);
-    // 만약 변경될 타입이 logicalType이라면 format init
-    if (logicalType === Type.Logical.TIMESTAMP) {
-      if (_.isNil(metadataColumn.format)) {
-        metadataColumn.format = new FieldFormat();
-        metadataColumn.format.type = FieldFormatType.DATE_TIME;
+  public onChangeLogicalType(metadataColumn: MetadataColumn, logicalType: Type.Logical, index?: number): void {
+    event.stopImmediatePropagation();
+    if (metadataColumn.type !== logicalType) {
+      // prev type
+      const prevType: Type.Logical = metadataColumn.type;
+      // 변경이벤트 체크
+      this._onChangedValue(metadataColumn);
+      // 만약 변경될 타입이 logicalType이라면 format init
+      if (logicalType === Type.Logical.TIMESTAMP) {
+        if (_.isNil(metadataColumn.format)) {
+          metadataColumn.format = new FieldFormat();
+          metadataColumn.format.type = FieldFormatType.DATE_TIME;
+        }
+      } else {
+        metadataColumn.format = null;
       }
-    } else {
-      metadataColumn.format = null;
+      // logical type 변경
+      metadataColumn.type = logicalType;
+      // if target logical type timestamp layer open
+      if (logicalType === Type.Logical.TIMESTAMP) {
+        this.safelyDetectChanges();
+        this.onClickInfoIcon(metadataColumn, index);
+      } else if (prevType === Type.Logical.TIMESTAMP) {
+        this.setIsExistErrorInFieldListFlag();
+      }
     }
-    // logical type 변경
-    metadataColumn.type = logicalType;
+    metadataColumn['typeListFl'] = false;
   }
 
   /**
@@ -405,6 +439,13 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     this.columnList = _.orderBy(this.columnList, this.selectedContentSort.key, 'asc' === this.selectedContentSort.sort ? 'asc' : 'desc');
   }
 
+  /**
+   * Set exist error in field list flag
+   */
+  public setIsExistErrorInFieldListFlag(): void {
+    this.isSaveInvalid = this.columnList.some(field =>  field.role !== Type.Role.TIMESTAMP && (field.type === Type.Logical.TIMESTAMP && !field.format.isValidFormat));
+  }
+
   public isLogicalTypesLayerActivation(metadataColumn: MetadataColumn) {
     return metadataColumn.type !== Type.Logical.GEO_LINE
       && metadataColumn.type !== Type.Logical.GEO_POINT
@@ -481,12 +522,11 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
   public onClickTypeSelectAndTimestampValidWrapElement(event: MouseEvent, metadataColumn: MetadataColumn) {
 
-    // if (this._checkIfElementContainsClassName(this._getTargetElementClassList(event), this.TYPE_SELECT_AND_TIMESTAMP_VALID_WRAP_ELEMENT)) {
-    //   metadataColumn.isShowTimestampValidPopup = false;
-    //   this.onShowLogicalTypeList(metadataColumn);
-    //   return;
-    // }
-    //
+    if (this._checkIfElementContainsClassName(this._getTargetElementClassList(event), this.TYPE_SELECT_AND_TIMESTAMP_VALID_WRAP_ELEMENT)) {
+      this.onShowLogicalTypeList(metadataColumn);
+      return;
+    }
+
     // if (this._checkIfElementContainsClassName(this._getTargetElementClassList(event), this.TYPE_SELECT_PUPOP_ELEMENT)) {
     //   metadataColumn.isShowTimestampValidPopup = false;
     //   return;
