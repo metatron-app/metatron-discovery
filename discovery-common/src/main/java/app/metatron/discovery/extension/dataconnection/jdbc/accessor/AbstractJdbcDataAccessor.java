@@ -189,12 +189,14 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
   @Override
   public void useDatabase(String catalog, String database) {
     String useQuery = dialect.getUseDatabaseQuery(connectionInfo, database);
-    try{
-      execute(this.getConnection(), useQuery);
-    } catch (Exception e){
-      LOGGER.error("Fail to Use database : {}", e.getMessage());
-      throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
-                                            "Fail to Use database : " + e.getMessage());
+    if(StringUtils.isNotEmpty(useQuery)){
+      try{
+        execute(this.getConnection(), useQuery);
+      } catch (Exception e){
+        LOGGER.error("Fail to Use database : {}", e.getMessage());
+        throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
+                                              "Fail to Use database : " + e.getMessage());
+      }
     }
   }
 
@@ -431,8 +433,10 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
   public Map<String, Object> showTableDescription(String catalog, String schema, String tableName) {
     try {
       String tableDescQuery = dialect.getTableDescQuery(connectionInfo, catalog, schema, tableName);
-      return executeQueryForMap(this.getConnection(), tableDescQuery);
-
+      if(StringUtils.isNotEmpty(tableDescQuery)){
+        return executeQueryForMap(this.getConnection(), tableDescQuery);
+      }
+      return null;
     } catch (Exception e) {
       LOGGER.error("Fail to get desc of table : {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
