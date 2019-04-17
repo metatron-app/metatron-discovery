@@ -35,7 +35,7 @@
             <em *ngIf="selectedField.logicalType?.toString() === 'TIMESTAMP'" class="ddp-icon-type-calen"></em>
             <em *ngIf="selectedField.logicalType?.toString() === 'DOUBLE' || selectedField.logicalType?.toString() === 'INTEGER'" class="ddp-icon-type-float"></em>
             <em *ngIf="selectedField.logicalType?.toString() === 'STRING' || selectedField.type === 'user_expr'" class="ddp-icon-type-ab"></em>
-            {{selectedField.name}} {{selectedField.alias !== selectedField.name ? '(' + selectedField.alias + ')' : ''}}
+            {{selectedField.name}} {{selectedField.nameAlias.nameAlias !== selectedField.name ? '(' + selectedField.nameAlias.nameAlias + ')' : ''}}
         </span>
 
       <div class="ddp-box-copy-table">

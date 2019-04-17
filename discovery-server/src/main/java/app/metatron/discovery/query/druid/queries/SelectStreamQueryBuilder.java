@@ -141,7 +141,7 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
 
           String geoColumnName = geoJsonFormat ? GEOMETRY_COLUMN_NAME : aliasName;
 
-          if (datasourceField.getLogicalType() == LogicalType.GEO_POINT) {
+          if (datasourceField.getLogicalType() == LogicalType.GEO_POINT && datasourceField.getDerived()) {
             virtualColumns.put(VC_COLUMN_GEO_COORD, concatPointExprColumn(engineColumnName, VC_COLUMN_GEO_COORD));
             columns.add(VC_COLUMN_GEO_COORD);
 

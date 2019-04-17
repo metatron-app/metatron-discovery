@@ -71,4 +71,8 @@ public class PrepUtil {
 
     return hadoopConf;
   }
+
+  public static String getFileNameFromStrUri(String strUri) {
+    return strUri.substring(strUri.lastIndexOf('/') + 1, strUri.length());
+  }
 }

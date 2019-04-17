@@ -39,6 +39,10 @@ public class GeoBoundaryFilterQueryBuilder {
 
   String boundaryColumn;
 
+  Boolean boundaryUnion;
+
+  Map<String, String> boundaryJoin;
+
   SpatialOperations operation;
 
   Map<String, Object> context = Maps.newLinkedHashMap();
@@ -54,9 +58,18 @@ public class GeoBoundaryFilterQueryBuilder {
     return this;
   }
 
-  public GeoBoundaryFilterQueryBuilder boundary(SelectStreamQuery query, String boundaryColumn) {
+  public GeoBoundaryFilterQueryBuilder boundary(SelectStreamQuery query, String boundaryColumn, boolean choropleth) {
     this.boundary = query;
     this.boundaryColumn = boundaryColumn;
+
+    if (choropleth) {
+      boundaryUnion = false;
+      this.boundaryJoin = Maps.newLinkedHashMap();
+      for (String column : boundary.getColumns()) {
+        this.boundaryJoin.put(column, column);
+      }
+    }
+
     return this;
   }
 
@@ -74,7 +87,7 @@ public class GeoBoundaryFilterQueryBuilder {
     if (geometry.getLogicalType() == LogicalType.GEO_POINT) {
       this.pointColumn = geometry.getName() + ".coord";
     } else {
-      this.shapeColumn = geometry.getName();
+      this.shapeColumn = geometry.getName() + ".shape";
     }
 
     return this;
@@ -86,7 +99,7 @@ public class GeoBoundaryFilterQueryBuilder {
   }
 
   public GeoBoundaryFilterQueryBuilder shape(String shapeColumn) {
-    this.shapeColumn = shapeColumn;
+    this.shapeColumn = shapeColumn + ".shape";
     return this;
   }
 
@@ -122,7 +135,10 @@ public class GeoBoundaryFilterQueryBuilder {
         shapeColumn,
         boundary,
         boundaryColumn,
+        boundaryUnion,
+        boundaryJoin,
         operation,
+        10,
         context
     );
 
