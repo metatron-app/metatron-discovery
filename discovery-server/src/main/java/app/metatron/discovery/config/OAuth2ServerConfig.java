@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -35,6 +36,10 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationManager;
+import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
+import org.springframework.security.oauth2.provider.code.AuthorizationCodeServices;
+import org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeServices;
 import org.springframework.security.oauth2.provider.expression.OAuth2WebSecurityExpressionHandler;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
@@ -42,6 +47,7 @@ import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.FilterInvocation;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import app.metatron.discovery.common.oauth.CustomAccessDeniedHandler;
@@ -50,6 +56,7 @@ import app.metatron.discovery.common.oauth.CustomJdbcClientDetailsServiceBuilder
 import app.metatron.discovery.common.oauth.CustomWebResponseExceptionTranslator;
 import app.metatron.discovery.common.oauth.OauthProperties;
 import app.metatron.discovery.common.saml.SAMLTokenConverter;
+import app.metatron.discovery.common.web.OauthFilter;
 
 /**
  * Created by kyungtaak on 2016. 5. 2..
@@ -188,7 +195,12 @@ public class OAuth2ServerConfig {
 
           // Token 관련 처리 허용
           .antMatchers("/oauth/token").permitAll()
-//          .antMatchers("/oauth/check_token").permitAll()
+          // 인증 관련 처리
+          .antMatchers("/oauth/authorize").permitAll()
+          //별도 로그인 처리
+          .antMatchers("/api/oauth/client/login").permitAll()
+
+          //.antMatchers("/oauth/check_token").permitAll()
 
           // Websokect 관련 Auth 처리
           .antMatchers("/ws/**", "/stomp/**").permitAll()
@@ -209,7 +221,8 @@ public class OAuth2ServerConfig {
 						.access("#oauth2.clientHasRole('CLIENT') and (hasAuthority('USER') or #oauth2.isClient()) and #oauth2.hasScope('read')")
 					.regexMatchers(HttpMethod.GET, "/oauth/clients/.*")
 						.access("#oauth2.clientHasRole('CLIENT') and #oauth2.isClient() and #oauth2.hasScope('read')");
-			// @formatter:on
+          // @formatter:on
+
     }
 
   }
@@ -224,9 +237,20 @@ public class OAuth2ServerConfig {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-    @Autowired
-    @Qualifier("dataSource")
+    //@Autowired
+    //private AuthorizationEndpoint authorizationEndpoint;
+
     private DataSource dataSource;
+
+    public AuthorizationServerConfiguration(@Qualifier("dataSource") DataSource dataSource) {
+      this.dataSource = dataSource;
+    }
+
+    @PostConstruct
+    public void init() {
+      //authorizationEndpoint.setUserApprovalPage("forward:/auth/confirm_page");
+      //authorizationEndpoint.setErrorPage("forward:/auth/error");
+    }
 
     @Bean
     public JwtTokenStore tokenStore() {
@@ -250,14 +274,24 @@ public class OAuth2ServerConfig {
       return defaultTokenServices;
     }
 
+    @Bean
+    public AuthorizationCodeServices authorizationServerTokenServices() {
+      return new JdbcAuthorizationCodeServices(dataSource);
+    }
+
+    @Bean
+    public JdbcClientDetailsService jdbcClientDetailsService() {
+      return new JdbcClientDetailsService(dataSource);
+    }
 
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
 
       CustomJdbcClientDetailsServiceBuilder builder =  new CustomJdbcClientDetailsServiceBuilder();
+
       // @formatter:off
 			builder
-          .dataSource(dataSource)
+          .jdbcClientDetailsService(jdbcClientDetailsService())
             .withClient("polaris_client")
               .authorizedGrantTypes("authorization_code", "implicit", "password", "refresh_token", "client_credentials")
               .authorities("ROLE_CLIENT")
@@ -271,6 +305,20 @@ public class OAuth2ServerConfig {
 			// @formatter:on
 
       clients.setBuilder(builder);
+    }
+
+    @Bean
+    public FilterRegistrationBean oauthFilterRegistrationBean() {
+      OAuth2AuthenticationManager oAuth2AuthenticationManager = new OAuth2AuthenticationManager();
+      oAuth2AuthenticationManager.setTokenServices(tokenServices());
+      oAuth2AuthenticationManager.setClientDetailsService(jdbcClientDetailsService());
+
+      FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+      OauthFilter oauthFilter = new OauthFilter(oAuth2AuthenticationManager);
+      //OauthFilter oauthFilter = new OauthFilter(authenticationManager);
+      registrationBean.setFilter(oauthFilter);
+      registrationBean.setOrder(-5);
+      return registrationBean;
     }
 
     @Bean
@@ -289,6 +337,8 @@ public class OAuth2ServerConfig {
 //        .accessTokenConverter(accessTokenConverter())
         .exceptionTranslator(exceptionTranslator())
         .tokenServices(tokenServices())
+        .authorizationCodeServices(authorizationServerTokenServices()) // /oauth/authorize code(oauth_code) jdbc 사용(default inmemory)
+
 //        .accessTokenConverter(tokenEnhancer())
         .approvalStoreDisabled();
 //        .allowedTokenEndpointRequestMethods(HttpMethod.GET, HttpMethod.POST); // to allow get for password grant

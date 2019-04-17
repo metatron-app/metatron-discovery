@@ -20,7 +20,10 @@
             "tsConfig": "src/tsconfig.app.json",
             "assets": [
               "src/assets",
-              "src/favicon.ico"
+              "src/favicon.ico",
+              {
+                "glob": "jquery.min.js", "input": "node_modules/jquery/dist/", "output": "assets/js/"
+              }
             ],
             "styles": [
               "node_modules/codemirror/lib/codemirror.css",
