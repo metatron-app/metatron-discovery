@@ -2412,9 +2412,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     let rangeList = [];
     let featureList = [];
-    _.each(data.features, (feature) => {
-      featureList.push(feature.properties)
-    });
+    if( data ) {
+      _.each(data.features, (feature) => {
+        featureList.push(feature.properties)
+      });
+    }
 
     let featuresGroup = _.groupBy(featureList, ChartUtil.getFieldAlias(layer.color.column, this.shelf.layers[this.getUiMapOption().layerNum].fields, layer.color.aggregationType));
     _.each(Object.keys(featuresGroup), (column, index) => {
