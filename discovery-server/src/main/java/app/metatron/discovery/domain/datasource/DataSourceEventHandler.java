@@ -85,12 +85,11 @@ import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo
 import app.metatron.discovery.domain.datasource.ingestion.job.IngestionJobRunner;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.EngineIngestionService;
-import app.metatron.discovery.domain.geo.GeoService;
-import app.metatron.discovery.domain.mdm.Metadata;
 import app.metatron.discovery.domain.mdm.MetadataService;
 import app.metatron.discovery.domain.workspace.Workspace;
 import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.PolarisUtils;
+import app.metatron.discovery.domain.mdm.Metadata;
 
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.ENGINE;
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.LINK;
@@ -120,9 +119,6 @@ public class DataSourceEventHandler {
 
   @Autowired
   MetadataService metadataService;
-
-  @Autowired
-  GeoService geoService;
 
   @Autowired
   DataSourceRepository dataSourceRepository;
@@ -472,14 +468,6 @@ public class DataSourceEventHandler {
       // Shutdown Ingestion Task
       engineIngestionService.shutDownIngestionTask(dataSource.getId());
       LOGGER.debug("Successfully shutdown ingestion tasks in datasource ({})", dataSource.getId());
-
-      // Delete datastore on geoserver if datasource include geo column
-      if (dataSource.getIncludeGeo() == null) {
-        LOGGER.debug("Datasource with previous schema, skip removing geo service");
-      } else if (dataSource.getIncludeGeo()) {
-        geoService.deleteDataStore(dataSource.getEngineName());
-        LOGGER.debug("Successfully delete datastore on geoserver ({})", dataSource.getId());
-      }
 
       // Disable DataSource
       try {
