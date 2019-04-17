@@ -456,6 +456,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
   public rowAllUnSelection(scope: any = null): void {
     const fnScope: any = scope === null ? this : scope;
     fnScope._grid.setSelectedRows([]);
+    this.__selectedRows = [];
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

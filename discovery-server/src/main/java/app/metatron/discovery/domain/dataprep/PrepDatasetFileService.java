@@ -66,6 +66,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -858,17 +859,15 @@ public class PrepDatasetFileService {
     }
 
     public String moveExcelToCsv(String excelStrUri, String sheetName, String delimiter) {
-        String csvStrUri = null;
-
-        int idx = excelStrUri.lastIndexOf(".");
-        csvStrUri = excelStrUri.substring(0, idx) + ".csv";
+        String excelFilename = PrepUtil.getFileNameFromStrUri(excelStrUri);
+        String csvFileName = UUID.randomUUID() + "csv";
+        String csvStrUri = excelStrUri.replace(excelFilename, csvFileName);
 
         return moveExcelToCsv(csvStrUri, excelStrUri, sheetName, delimiter);
     }
 
     public String moveExcelToCsv(String csvStrUri, String excelStrUri, String sheetName, String delimiter) {
         try {
-            URI excelUri = new URI(excelStrUri);
             String extensionType = FilenameUtils.getExtension(excelStrUri);
 
             Workbook wb;
