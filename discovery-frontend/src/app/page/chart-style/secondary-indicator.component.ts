@@ -780,9 +780,9 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
     let score: number = 0;
     switch (granularity) {
       // 초단위 제거 요청으로 주석처리
-      // case String(GranularityType.SECOND):
-      //   score = 1;
-      //   break;
+      case String(GranularityType.SECOND):
+        score = 1;
+        break;
       case String(GranularityType.MINUTE):
         score = 2;
         break;

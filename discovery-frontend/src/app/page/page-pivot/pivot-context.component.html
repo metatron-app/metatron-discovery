@@ -251,16 +251,16 @@
           </div>
           <ul class="ddp-list-popup">
             <!-- 초단위 제거 요청으로 주석처리 -->
-            <!--<li (click)="onChangeGranularity(false, 'SECOND')" [class.ddp-selected]="isGranularitySelected(editingField, false, 'SECOND')"-->
-            <!--*ngIf="isUseGranularity(false, 'SECOND')"-->
-            <!--[class.ddp-disabled]="-1 !== editingField.granularityList.indexOf('SECOND')">-->
-            <!--<a href="javascript:">-->
-            <!--{{'msg.page.li.second' | translate}}-->
-            <!--<div class="ddp-data-info">-->
-            <!--May 8, 2015 14:05:30-->
-            <!--</div>-->
-            <!--</a>-->
-            <!--</li>-->
+            <li (click)="onChangeGranularity(false, 'SECOND')" [class.ddp-selected]="isGranularitySelected(editingField, false, 'SECOND')"
+                *ngIf="isUseGranularity(false, 'SECOND')"
+                [class.ddp-disabled]="-1 !== editingField.granularityList.indexOf('SECOND')">
+              <a href="javascript:">
+                {{'msg.page.li.second' | translate}}
+                <div class="ddp-data-info">
+                  May 8, 2015 14:05:30
+                </div>
+              </a>
+            </li>
             <!-- //초단위 제거 요청으로 주석처리 -->
             <li (click)="onChangeGranularity(false, 'MINUTE')" [class.ddp-selected]="isGranularitySelected(editingField, false, 'MINUTE')"
                 *ngIf="isUseGranularity(false, 'MINUTE')"
@@ -349,16 +349,16 @@
           </div>
           <ul class="ddp-list-popup">
             <!-- 초단위 제거 요청으로 주석처리 -->
-            <!--<li (click)="onChangeGranularity(true, 'SECOND')" [class.ddp-selected]="isGranularitySelected(editingField, true, 'SECOND')"-->
-            <!--*ngIf="isUseGranularity(true, 'SECOND')"-->
-            <!--[class.ddp-disabled]="-1 !== editingField.granularityList.indexOf('SECOND')">-->
-            <!--<a href="javascript:">-->
-            <!--{{'msg.page.li.second' | translate}}-->
-            <!--<div class="ddp-data-info">-->
-            <!--14:05:30 (by minute)-->
-            <!--</div>-->
-            <!--</a>-->
-            <!--</li>-->
+            <li (click)="onChangeGranularity(true, 'SECOND')" [class.ddp-selected]="isGranularitySelected(editingField, true, 'SECOND')"
+                *ngIf="isUseGranularity(true, 'SECOND')"
+                [class.ddp-disabled]="-1 !== editingField.granularityList.indexOf('SECOND')">
+              <a href="javascript:">
+                {{'msg.page.li.second' | translate}}
+                <div class="ddp-data-info">
+                  14:05:30 (by minute)
+                </div>
+              </a>
+            </li>
             <!-- //초단위 제거 요청으로 주석처리 -->
             <li (click)="onChangeGranularity(true, 'MINUTE')" [class.ddp-selected]="isGranularitySelected(editingField, true, 'MINUTE')"
                 *ngIf="isUseGranularity(true, 'MINUTE')"

@@ -50,6 +50,9 @@ import app.metatron.discovery.domain.workbook.configurations.format.GeoPointForm
 import app.metatron.discovery.query.druid.ShapeFormat;
 import app.metatron.discovery.query.druid.aggregations.CountAggregation;
 import app.metatron.discovery.query.druid.aggregations.RelayAggregation;
+import app.metatron.discovery.query.druid.funtions.ShapeCentroidYXFunc;
+import app.metatron.discovery.query.druid.funtions.ShapeFromWktFunc;
+import app.metatron.discovery.query.druid.funtions.StructFunc;
 import app.metatron.discovery.spec.druid.ingestion.granularity.UniformGranularitySpec;
 import app.metatron.discovery.spec.druid.ingestion.index.LuceneIndexStrategy;
 import app.metatron.discovery.spec.druid.ingestion.index.LuceneIndexing;
@@ -89,8 +92,18 @@ public class AbstractSpecBuilder {
         if (fieldFormat instanceof GeoFormat) {
           useRelay = true;
           GeoFormat geoFormat = (GeoFormat) fieldFormat;
-          makeSecondaryIndexing(field.getName(), field.getType(), geoFormat, BooleanUtils.isTrue(field.getDerived()));
-          addGeoFieldToMatric(field.getName(), field.getType(), geoFormat);
+
+          if (geoFormat instanceof GeoPointFormat && BooleanUtils.isNotTrue(field.getDerived())) {
+
+            ShapeFromWktFunc shapeFromWktFunc = new ShapeFromWktFunc(field.getName());
+            ShapeCentroidYXFunc shapeCentroidXYFunc = new ShapeCentroidYXFunc(shapeFromWktFunc.toExpression());
+            StructFunc structFunc = new StructFunc("\"_\"[0]", "\"_\"[1]");
+
+            dataSchema.addEvaluation(new Evaluation(field.getName(), shapeCentroidXYFunc.toExpression(), structFunc.toExpression()));
+          }
+
+          makeSecondaryIndexing(field.getName(), geoFormat);
+          addGeoFieldToMatric(field.getName(), geoFormat);
         }
       }
 
@@ -154,21 +167,17 @@ public class AbstractSpecBuilder {
     }
   }
 
-  private void makeSecondaryIndexing(String name, DataType originalType, GeoFormat geoFormat, boolean derived) {
+  private void makeSecondaryIndexing(String name, GeoFormat geoFormat) {
     String originalSrsName = geoFormat.notDefaultSrsName();
     if (geoFormat instanceof GeoPointFormat) {
-      if (originalType == DataType.STRUCT && derived) {
-        secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.LatLonStrategy("coord", "lat", "lon", originalSrsName)));
-      } else {
-        secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.LatLonShapeStrategy("coord", ShapeFormat.WKT, originalSrsName)));
-      }
+      secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.LatLonStrategy("coord", "lat", "lon", originalSrsName)));
     } else {
       secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.ShapeStrategy("shape", ShapeFormat.WKT, geoFormat.getMaxLevels(), originalSrsName)));
     }
   }
 
-  private void addGeoFieldToMatric(String name, DataType originalType, GeoFormat geoFormat) {
-    if (geoFormat instanceof GeoPointFormat && originalType == DataType.STRUCT) {
+  private void addGeoFieldToMatric(String name, GeoFormat geoFormat) {
+    if (geoFormat instanceof GeoPointFormat) {
       dataSchema.addMetrics(new RelayAggregation(name, "struct(lat:double,lon:double)"));
     } else {
       dataSchema.addMetrics(new RelayAggregation(name, "string"));
@@ -307,7 +316,7 @@ public class AbstractSpecBuilder {
           csvStreamParser.setDimensionsSpec(dimensionsSpec);
           csvStreamParser.setColumns(columns);
 
-          if(!csvFormat.isDefaultCsvMode()) {
+          if (!csvFormat.isDefaultCsvMode()) {
             csvStreamParser.setDelimiter(csvFormat.getDelimiter());
             csvStreamParser.setRecordSeparator(csvFormat.getLineSeparator());
           }
