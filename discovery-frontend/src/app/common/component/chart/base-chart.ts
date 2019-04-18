@@ -23,7 +23,7 @@ import {
   UIChartColor,
   UIChartColorByDimension,
   UIChartColorBySeries,
-  UIChartColorByValue,
+  UIChartColorByValue, UIChartColorGradationByValue,
   UIChartZoom,
   UIOption
 } from './option/ui-option';
@@ -40,12 +40,14 @@ import {
   ChartPivotType,
   ChartSelectMode,
   ChartType,
+  ColorCustomMode,
   ColorRangeType,
   DataZoomRangeType,
   EventType,
   SeriesType,
   ShelveFieldType,
-  ShelveType, UIChartDataLabelDisplayType
+  ShelveType,
+  UIChartDataLabelDisplayType
 } from './option/define/common';
 import {Field as AbstractField, Field} from '../../../domain/workbook/configurations/field/field';
 
@@ -61,14 +63,15 @@ import {CommonOptionConverter} from './option/converter/common-option-converter'
 import {ToolOptionConverter} from './option/converter/tool-option-converter';
 import {LegendOptionConverter} from './option/converter/legend-option-converter';
 import {analysis} from '../../../page/component/value/analysis';
-import {ColorRange, UIChartColorGradationByValue} from './option/ui-option/ui-color';
+import {ColorRange} from './option/ui-option/ui-color';
 import {UIScatterChart} from './option/ui-option/ui-scatter-chart';
-import UI = OptionGenerator.UI;
 import {UIChartAxisGrid} from "./option/ui-option/ui-axis";
 import {TooltipOptionConverter} from './option/converter/tooltip-option-converter';
 import {Shelf} from '../../../domain/workbook/configurations/shelf/shelf';
 import {fromEvent} from 'rxjs';
-import {map, debounceTime} from 'rxjs/operators';
+import {debounceTime, map} from 'rxjs/operators';
+import UI = OptionGenerator.UI;
+import {isNullOrUndefined} from "util";
 
 declare let echarts: any;
 
@@ -1410,7 +1413,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
   protected convertDataZoom(isKeepRange?: boolean): BaseOption {
 
-    if( this.uiOption.chartZooms && this.uiOption.chartZooms[0].auto ) {
+    if (this.uiOption.chartZooms && this.uiOption.chartZooms[0].auto) {
       ////////////////////////////////////////////////////////
       // 데이터줌 설정
       ////////////////////////////////////////////////////////
@@ -1869,21 +1872,78 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     // 색상지정 기준 필드리스트 설정(measure list)
     this.uiOption = this.setMeasureList();
 
-    // color by measure일때 eventType이 있는경우 (min / max가 바뀌는경우) 색상 설정값 초기화
-    if (!_.isEmpty(this.drawByType) && this.uiOption.color && ChartColorType.MEASURE == this.uiOption.color.type) {
-      delete (<UIChartColorByValue>this.uiOption.color).ranges;
-      delete (<UIChartColorGradationByValue>this.uiOption.color).visualGradations;
-      delete (<UIChartColorByValue>this.uiOption.color).customMode;
+    /*
+        // color by measure일때 eventType이 있는경우 (min / max가 바뀌는경우) 색상 설정값 초기화
+        if (!_.isEmpty(this.drawByType) && this.uiOption.color && ChartColorType.MEASURE == this.uiOption.color.type) {
+          delete (<UIChartColorByValue>this.uiOption.color).ranges;
+          delete (<UIChartColorGradationByValue>this.uiOption.color).visualGradations;
+          delete (<UIChartColorByValue>this.uiOption.color).customMode;
 
+          const colorList = <any>ChartColorList[this.uiOption.color['schema']];
 
-      const colorList = <any>ChartColorList[this.uiOption.color['schema']];
+          // ranges가 초기화
+          this.uiOption.color['ranges'] = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.data, colorList);
+        }
+    */
 
-      // ranges가 초기화
-      this.uiOption.color['ranges'] = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.data, colorList);
+    if (!_.isEmpty(this.drawByType) && this.uiOption.color && (<UIChartColorByValue>this.uiOption.color).customMode) {
+      let colorList = [];
+      const colrObj: UIChartColorByValue = <UIChartColorByValue>this.uiOption.color;
+      switch (colrObj.customMode) {
+        case ColorCustomMode.SECTION:
+          colorList = colrObj.ranges.map(item => item.color).reverse();
+          this.uiOption.color['ranges'] = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.data, colorList);
+          break;
+        case ColorCustomMode.GRADIENT :
+          const prevMaxVal: number = colrObj.ranges[colrObj.ranges.length - 1]['value'];
+          const currMaxVal: number = this.uiOption.maxValue;
+          const resetRange: Function = (item) => {
+            if (item['value']) {
+              if (item['value'] < prevMaxVal) {
+                item['value'] = Math.round(currMaxVal * (item['value'] / prevMaxVal));
+              } else {
+                item['value'] = currMaxVal;
+              }
+            }
+            return item;
+          };
+          this.uiOption.color['ranges'] = colrObj['ranges'].map(item => resetRange(item));
+          this.uiOption.color['visualGradations'] = colrObj['visualGradations'].map(item => resetRange(item));
+          break;
+        default:
+          // ranges 초기화
+          delete (<UIChartColorByValue>this.uiOption.color).ranges;
+          delete (<UIChartColorGradationByValue>this.uiOption.color).visualGradations;
+          delete (<UIChartColorByValue>this.uiOption.color).customMode;
+          colorList = <any>ChartColorList[this.uiOption.color['schema']];
+          this.uiOption.color['ranges'] = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.data, colorList);
+      }
     }
 
-    // color mapping값 설정
+    // color mapping값 설정 - S
+    // 이전값 임시 저장
+    let prevMappingList: { alias: string, color: string }[] = [];
+    if (this.uiOption.color && this.uiOption.color && this.uiOption.color['mappingArray']) {
+      prevMappingList = this.uiOption.color['mappingArray'];
+    }
+    // 매핑값 초기화
     this.uiOption.color = this.setMapping();
+    // 이전값 재적용
+    if (0 < prevMappingList.length) {
+      const currColorMapObj = this.uiOption.color['mapping'];
+      const currColorMapList = this.uiOption.color['mappingArray'];
+      prevMappingList.forEach(prev => {
+        currColorMapList.some(curr => {
+          if (curr.alias === prev.alias) {
+            curr.color = prev.color;
+            return true;
+          }
+          return false;
+        });
+        (currColorMapObj[prev.alias]) && (currColorMapObj[prev.alias] = prev.color);
+      });
+    }
+    // color mapping값 설정 - E
   }
 
   /**
