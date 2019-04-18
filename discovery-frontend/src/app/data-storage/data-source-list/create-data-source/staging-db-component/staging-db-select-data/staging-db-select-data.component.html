@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2">
+<div class="ddp-type-contents ddp-resize2 ddp-type2 popup-datastore-create">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- 닫기 버튼 -->
@@ -24,7 +24,7 @@
     </div>
   </div>
   <!-- import -->
-  <div class="ddp-type-contents-in">
+  <div class="ddp-type-contents-in ddp-size-resize">
     <div class="ddp-ui-import-option ddp-selected-table">
       <div class="ddp-ui-option-select">
         <div class="ddp-ui-edit-db">
@@ -73,15 +73,17 @@
         </div>
       </div>
       <!-- 그리드 영역 -->
-      <div class="ddp-ui-grid">
-        <!-- 데이터 없는경우 -->
-        <div class="ddp-ui-empty" *ngIf="clearGrid">
-          {{'msg.storage.ui.dsource.create.preview.no.data' | translate}}
+      <div class="ddp-wrap-variable ddp-dataset">
+        <div class="ddp-ui-grid">
+          <!-- 데이터 없는경우 -->
+          <div class="ddp-ui-empty" *ngIf="clearGrid">
+            {{'msg.storage.ui.dsource.create.preview.no.data' | translate}}
+          </div>
+          <!-- //데이터 없는경우 -->
+          <!-- 데이터 있는경우 -->
+          <div grid-component [hidden]="clearGrid" style="width:100%; height:100%;"></div>
+          <!-- //데이터 있는경우 -->
         </div>
-        <!-- //데이터 없는경우 -->
-        <!-- 데이터 있는경우 -->
-        <div grid-component [hidden]="clearGrid" style="width:100%; height:100%;"></div>
-        <!-- //데이터 있는경우 -->
       </div>
       <!-- //그리드 영역 -->
     </div>

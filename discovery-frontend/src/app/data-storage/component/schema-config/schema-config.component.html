@@ -13,7 +13,7 @@
   -->
 
 <!-- contents in  -->
-<div class="ddp-type-contents-in">
+<div class="ddp-type-contents-in ddp-size-resize3">
   <div class="ddp-box-popupcontents3 ">
     <!-- TOP -->
     <div class="ddp-type-top-option ddp-clear">
@@ -74,110 +74,112 @@
       <!-- //필터링 -->
     </div>
     <!-- //TOP -->
-    <div class=" ddp-box-schema ddp-clear">
-      <!-- left -->
-      <div class="ddp-wrap-fleft">
-        <!-- view table -->
-        <div class="ddp-box-viewtable">
-          <!-- check box -->
-          <div class="ddp-ui-gridhead">
-            <table class="ddp-table-form ddp-table-type2">
-              <colgroup>
-                <col width="51px">
-                <col width="*">
-              </colgroup>
-              <thead>
-              <tr>
-                <th class="ddp-txt-center">
-                  <div class="ddp-ui-checkbox" (click)="onClickAllCheckFilteredFieldList()" >
-                    <input type="checkbox" [checked]="isAllCheckedFilteredFieldList()">
-                    <i class="ddp-icon-checkbox"></i>
-                  </div>
-                </th>
-                <th>
-                  {{'msg.storage.th.column' | translate}}
-                </th>
-              </tr>
-              </thead>
-            </table>
-          </div>
-          <!--// check box -->
-          <!-- columns -->
-          <div class="ddp-ui-gridbody" [ngClass]="{'ddp-action' : getCheckedFieldList().length > 0}">
-            <table class="ddp-table-form ddp-table-type2 ddp-table-view ddp-inherit">
-              <colgroup>
-                <col width="51px">
-                <col width="*">
-              </colgroup>
-              <tbody>
-              <!-- column -->
-              <tr  *ngFor="let field of filteredFieldList"
-                   (click)="onChangeSelectedField(field)"
-                   [class.ddp-selected]="isSelectedField(field)" [class.ddp-disabled]="isRemovedField(field)">
-                <!-- check -->
-                <td class="ddp-txt-center">
-                  <div class="ddp-ui-checkbox" (click)="onClickCheckInField(field)" *ngIf="!isRemovedField(field)">
-                    <input type="checkbox" [checked]="field.checked" [disabled]="field.derived">
-                    <i class="ddp-icon-checkbox"></i>
-                    <!-- only show derived -->
-                    <div class="ddp-ui-tooltip-info ddp-left2" style="display:;" *ngIf="field.derived">
-                      <em class="ddp-icon-view-top"></em>{{'msg.storage.ui.configure.schema.tooltip.derived' | translate}}
+    <div class="ddp-wrap-variable">
+      <div class=" ddp-box-schema ddp-clear">
+        <!-- left -->
+        <div class="ddp-wrap-fleft">
+          <!-- view table -->
+          <div class="ddp-box-viewtable">
+            <!-- check box -->
+            <div class="ddp-ui-gridhead">
+              <table class="ddp-table-form ddp-table-type2">
+                <colgroup>
+                  <col width="51px">
+                  <col width="*">
+                </colgroup>
+                <thead>
+                <tr>
+                  <th class="ddp-txt-center">
+                    <div class="ddp-ui-checkbox" (click)="onClickAllCheckFilteredFieldList()" >
+                      <input type="checkbox" [checked]="isAllCheckedFilteredFieldList()">
+                      <i class="ddp-icon-checkbox"></i>
                     </div>
-                    <!-- //only show derived -->
-                  </div>
-                </td>
-                <!-- //check -->
-                <!-- column data -->
-                <td>
-                  <!-- value -->
-                  <div class="ddp-wrap-value-icon ddp-type">
-                    <em *ngIf="isTimestampField(field)" class="ddp-icon-time"></em>
-                    <em class="ddp-icon-view"></em>
-                  </div>
-                  <!-- //value -->
-                  <div class="ddp-td-schema">
+                  </th>
+                  <th>
+                    {{'msg.storage.th.column' | translate}}
+                  </th>
+                </tr>
+                </thead>
+              </table>
+            </div>
+            <!--// check box -->
+            <!-- columns -->
+            <div class="ddp-ui-gridbody" [ngClass]="{'ddp-action' : getCheckedFieldList().length > 0}">
+              <table class="ddp-table-form ddp-table-type2 ddp-table-view ddp-inherit">
+                <colgroup>
+                  <col width="51px">
+                  <col width="*">
+                </colgroup>
+                <tbody>
+                <!-- column -->
+                <tr  *ngFor="let field of filteredFieldList"
+                     (click)="onChangeSelectedField(field)"
+                     [class.ddp-selected]="isSelectedField(field)" [class.ddp-disabled]="isRemovedField(field)">
+                  <!-- check -->
+                  <td class="ddp-txt-center">
+                    <div class="ddp-ui-checkbox" (click)="onClickCheckInField(field)" *ngIf="!isRemovedField(field)">
+                      <input type="checkbox" [checked]="field.checked" [disabled]="field.derived">
+                      <i class="ddp-icon-checkbox"></i>
+                      <!-- only show derived -->
+                      <div class="ddp-ui-tooltip-info ddp-left2" style="display:;" *ngIf="field.derived">
+                        <em class="ddp-icon-view-top"></em>{{'msg.storage.ui.configure.schema.tooltip.derived' | translate}}
+                      </div>
+                      <!-- //only show derived -->
+                    </div>
+                  </td>
+                  <!-- //check -->
+                  <!-- column data -->
+                  <td>
+                    <!-- value -->
+                    <div class="ddp-wrap-value-icon ddp-type">
+                      <em *ngIf="isTimestampField(field)" class="ddp-icon-time"></em>
+                      <em class="ddp-icon-view"></em>
+                    </div>
+                    <!-- //value -->
+                    <div class="ddp-td-schema">
                       <span class="ddp-box-tag-value" [class.ddp-measure]="field.role.toString() === 'MEASURE'" [class.ddp-dimension]="field.role.toString() === 'DIMENSION'">
                         {{field.role.toString() === 'MEASURE' ? ('msg.comm.name.mea' | translate) : ('msg.comm.name.dim' | translate)}}
                       </span>
-                    <div class="ddp-type-icon">
-                      <em class="{{getLogicalTypeIconClass(field)}}"></em>
-                    </div>
-                    <div class="ddp-form-name">
+                      <div class="ddp-type-icon">
+                        <em class="{{getLogicalTypeIconClass(field)}}"></em>
+                      </div>
+                      <div class="ddp-form-name">
                         <span class="ddp-data-name" title="{{field.name}}">{{field.name}}
                           <em class="ddp-icon-error2" *ngIf="isErrorField(field)"></em>
                         </span>
+                      </div>
+                      <a href="javascript:" class="ddp-btn-box" (click)="onClickRevivalField(field)" *ngIf="isRemovedField(field)">{{'msg.storage.ui.revival' | translate}}</a>
                     </div>
-                    <a href="javascript:" class="ddp-btn-box" (click)="onClickRevivalField(field)" *ngIf="isRemovedField(field)">{{'msg.storage.ui.revival' | translate}}</a>
-                  </div>
-                </td>
-                <!-- //column data -->
-              </tr>
-              <!-- //column -->
-              </tbody>
-            </table>
+                  </td>
+                  <!-- //column data -->
+                </tr>
+                <!-- //column -->
+                </tbody>
+              </table>
+            </div>
+            <!--// columns -->
+            <!-- box action -->
+            <schema-config-action-bar (changedTimestamp)="checkAndInitTimestampField()"
+                                      (changedTimestampList)="onChangedLogicalTypeToTimestamp($event)"
+                                      (changedGeoList)="onChangedLogicalTypeToGeo($event)"
+                                      (changedAction)="setSelectedAction($event)"
+                                      (changedRoleType)="changeLogicalTypeListInSelectedField($event)"></schema-config-action-bar>
+            <!-- //box action -->
           </div>
-          <!--// columns -->
-          <!-- box action -->
-          <schema-config-action-bar (changedTimestamp)="checkAndInitTimestampField()"
-                                    (changedTimestampList)="onChangedLogicalTypeToTimestamp($event)"
-                                    (changedGeoList)="onChangedLogicalTypeToGeo($event)"
-                                    (changedAction)="setSelectedAction($event)"
-                                    (changedRoleType)="changeLogicalTypeListInSelectedField($event)"></schema-config-action-bar>
-          <!-- //box action -->
-        </div>
 
-        <!-- //view table -->
+          <!-- //view table -->
+        </div>
+        <!-- //left -->
+        <!-- right -->
+        <schema-config-detail-component [selectedField]="selectedField"
+                                        [connType]="getConnectionType()"
+                                        [selectedFieldDataList]="selectedFieldDataList"
+                                        [selectedTimestampField]="selectedTimestampField"
+                                        [selectedTimestampType]="selectedTimestampType"
+                                        (changedFieldLogicalType)="checkAndInitTimestampField()">
+        </schema-config-detail-component>
+        <!-- //right -->
       </div>
-      <!-- //left -->
-      <!-- right -->
-      <schema-config-detail-component [selectedField]="selectedField"
-                                      [connType]="getConnectionType()"
-                                      [selectedFieldDataList]="selectedFieldDataList"
-                                      [selectedTimestampField]="selectedTimestampField"
-                                      [selectedTimestampType]="selectedTimestampType"
-                                      (changedFieldLogicalType)="checkAndInitTimestampField()">
-      </schema-config-detail-component>
-      <!-- //right -->
     </div>
     <!-- timestamp bottom option -->
     <div class="ddp-ui-timestamp">
