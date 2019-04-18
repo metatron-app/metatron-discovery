@@ -44,8 +44,9 @@ import {EventBroadcaster} from '../common/event/event.broadcaster';
 import {PageResult} from '../domain/common/page';
 import {ChangeOwnerWorkspaceComponent} from './component/management/change-owner-workspace.component';
 import {WorkspacePermissionSchemaSetComponent} from './component/permission/workspace-permission-schema-set.component';
-import {ImplementorType} from '../domain/dataconnection/dataconnection';
+import {ImplementorType, JdbcDialect} from '../domain/dataconnection/dataconnection';
 import * as _ from 'lodash';
+import {StorageService} from "../data-storage/service/storage.service";
 
 @Component({
   selector: 'app-workspace',
@@ -111,6 +112,9 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
 
   // 저장된 초기 폴더 구조
   private initFolderHierarchies: Hirearchies[];
+
+  // 커넥션 타입 목록
+  private _connTypeList: JdbcDialect[] = [];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -214,8 +218,6 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   // 노트북 서버 설정 여부
   public isSetNotebookServer: boolean = false;
 
-  public readonly CONNECTION_TYPE = ImplementorType;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -244,6 +246,9 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     // Init
     super.ngOnInit();
 
+    // 커넥션 타입 목록 저장
+    this._connTypeList = StorageService.connectionTypeList;
+
     // Router에서 파라미터 전달 받기
     this.activatedRoute.params.subscribe((params) => {
       this._initViewPage(params['id'], params['folderId']);
@@ -256,7 +261,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
       // 워크벤치 생성 완료
       if (data.name === 'create-workbench') {
         // 재조회
-        this.detailPage( data.data, 'workbench' );
+        this.detailPage(data.data, 'workbench');
       }
     });
     this.subscriptions.push(popupSubscription);
@@ -286,6 +291,20 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * 워크벤치 커넥션 타입 아이콘 경로
+   * @param book
+   */
+  public getWorkbenchConnTypeIcon(book: Book): string {
+    if (isNullOrUndefined(this._connTypeList) || 0 === this._connTypeList.length) {
+      this._connTypeList = StorageService.connectionTypeList;
+    }
+    const connType = this.getConnType(book);
+    return this.getConnImplementorGrayImgUrl(
+      connType,
+      this._connTypeList.find(item => item.implementor === connType).iconResource3
+    );
+  } // function - getWorkbenchConnTypeIcon
 
   /**
    * 데이터를 검색한다.
@@ -514,8 +533,8 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
    */
   public createFolder() {
 
-    if( this.folder && this.folder.hierarchies && 9 <= this.folder.hierarchies.length ) {
-      Alert.warning( this.translateService.instant('msg.space.warning.can-not-create-11depth-folder') );
+    if (this.folder && this.folder.hierarchies && 9 <= this.folder.hierarchies.length) {
+      Alert.warning(this.translateService.instant('msg.space.warning.can-not-create-11depth-folder'));
       return;
     }
 

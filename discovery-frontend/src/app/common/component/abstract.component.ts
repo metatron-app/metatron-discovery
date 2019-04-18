@@ -659,7 +659,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
     let connImgUrl = '';
     switch (impType) {
       case ImplementorType.MYSQL:
-        connImgUrl = location.origin + '/assets/images/img_db/ic-db-mysql.png';
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_mysql.png';
         break;
       case ImplementorType.HIVE:
         connImgUrl = location.origin + '/assets/images/img_db/ic_db_hive.png';
@@ -681,16 +681,16 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   } // function - getConnImplementorImgUrl
 
   /**
-   * 커넥션 타입 이미지 URL 반환 ( Gray )
+   * 커넥션 타입 이미지 URL 반환 ( White )
    * @param {ImplementorType} impType
    * @param {string} imgResource
    * @return {string}
    */
-  public getConnImplementorGrayImgUrl(impType:ImplementorType, imgResource?:string ):string {
+  public getConnImplementorWhiteImgUrl(impType:ImplementorType, imgResource?:string ):string {
     let connImgUrl = '';
     switch (impType) {
       case ImplementorType.MYSQL:
-        connImgUrl = location.origin + '/assets/images/img_db/ic-db-mysql-w.png';
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_mysql_w.png';
         break;
       case ImplementorType.HIVE:
         connImgUrl = location.origin + '/assets/images/img_db/ic_db_hive_w.png';
@@ -706,6 +706,38 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
         break;
       default:
         connImgUrl = imgResource ? imgResource : location.origin + '/assets/images/img_db/ic_db_w.png';
+        break;
+    }
+    return connImgUrl;
+  } // function - getConnImplementorWhiteImgUrl
+
+
+  /**
+   * 커넥션 타입 이미지 URL 반환 ( Gray )
+   * @param {ImplementorType} impType
+   * @param {string} imgResource
+   * @return {string}
+   */
+  public getConnImplementorGrayImgUrl(impType:ImplementorType, imgResource?:string ):string {
+    let connImgUrl = '';
+    switch (impType) {
+      case ImplementorType.MYSQL:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_mysql_b.png';
+        break;
+      case ImplementorType.HIVE:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_hive_b.png';
+        break;
+      case ImplementorType.DRUID:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_druid_b.png';
+        break;
+      case ImplementorType.POSTGRESQL:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_post_b.png';
+        break;
+      case ImplementorType.PRESTO:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_presto_b.png';
+        break;
+      default:
+        connImgUrl = imgResource ? imgResource : location.origin + '/assets/images/img_db/ic_db_b.png';
         break;
     }
     return connImgUrl;
