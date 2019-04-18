@@ -28,9 +28,11 @@
             <!-- divide -->
             <div *ngIf="uiOption['analysis'] == null || uiOption['analysis']['use'] == false" class="ddp-divide2">
               <div class="ddp-list-label">{{'msg.page.layer.map.name' | translate}}</div>
-              <input type="text" class="ddp-input-typebasic" placeholder=""
-                     [(ngModel)]="uiOption.layers[layerIndex].name"
-                     (keyup.enter)="changeLayerName(uiOption.layers[layerIndex].name, layerIndex)">
+              <component-input
+                [value]="uiOption.layers[layerIndex].name"
+                [inputClass]="'ddp-input-typebasic'"
+                [maxLen]="100"
+                (changeValue)="uiOption.layers[layerIndex].name = $event; changeLayerName(uiOption.layers[layerIndex].name, layerIndex);"></component-input>
             </div>
             <!-- //divide -->
             <!-- [point, heatmap, hexagon, line, polygon] -->

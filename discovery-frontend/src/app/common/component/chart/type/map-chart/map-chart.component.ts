@@ -3383,7 +3383,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
       // data 에서 geometry 값을 추출, uiOption type에 적용
       if (!isChangedType) {
-        this.getUiMapOption().layers[this.getUiMapOption().layerNum].type = data.features[i].geometry.type.toString().toLowerCase() == 'point' ? 'symbol' : data.features[i].geometry.type.toString().toLowerCase();
+        const geometryType = data.features[i].geometry.type.toString().toLowerCase();
+        if( geometryType == 'point' ) {
+          this.getUiMapOption().layers[this.getUiMapOption().layerNum].type = MapLayerType.SYMBOL;
+        } else if( geometryType == 'multipolygon' ) {
+          this.getUiMapOption().layers[this.getUiMapOption().layerNum].type = MapLayerType.POLYGON;
+        } else {
+          this.getUiMapOption().layers[this.getUiMapOption().layerNum].type = geometryType;
+        }
         isChangedType = true;
       }
 

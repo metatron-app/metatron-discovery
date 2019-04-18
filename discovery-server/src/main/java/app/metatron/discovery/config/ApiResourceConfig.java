@@ -231,7 +231,7 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
         //add resource for extension
         // /plugins/plugin-id/**  -->  file:/plugin-path/classes/
         for(PluginWrapper pluginWrapper : pluginManager.getResolvedPlugins()){
-            registry.addResourceHandler("/plugins/" + pluginWrapper.getPluginId() + "/**")
+            registry.addResourceHandler("/extensions/" + pluginWrapper.getPluginId() + "/**")
                     .addResourceLocations("file:" + pluginWrapper.getPluginPath().toAbsolutePath().toString() + "/classes/");
         }
     }

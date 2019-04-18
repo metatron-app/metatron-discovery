@@ -14,53 +14,51 @@
 
 <div class="ddp-wrap-layout-popup">
   <div class="ddp-ui-layout-popup">
-    <div class="ddp-box-popup ddp-popup-type">
-      <!-- title -->
-      <div class="ddp-pop-title">{{'msg.storage.create.dsource.title' | translate}}</div>
-      <!-- //title -->
-      <div class="ddp-pop-detail">
-        <!-- 데이터 선택 -->
-        <div class="ddp-ui-data-select">
-          <a href="javascript:" class="ddp-btn-select" (click)="selectType('file')">
-            <em class="ddp-icon-boxbtn-file2"></em>
-            {{'msg.storage.li.file' | translate}}
-          </a>
+    <div class="ddp-scroll-popup">
+      <div class="ddp-box-popup ddp-popup-type">
+        <!-- title -->
+        <div class="ddp-pop-title">{{'msg.storage.create.dsource.title' | translate}}</div>
+        <!-- //title -->
+        <div class="ddp-pop-detail">
+          <!-- 데이터 선택 -->
+          <div class="ddp-ui-data-select">
+            <a href="javascript:" class="ddp-btn-select" (click)="selectType('file')">
+              <em class="ddp-icon-boxbtn-file2"></em>
+              {{'msg.storage.li.file' | translate}}
+            </a>
 
-          <a href="javascript:" class="ddp-btn-select" (click)="selectType('database')">
-            <em class="ddp-icon-boxbtn-database"></em>
-            {{'msg.storage.li.db' | translate}}
-          </a>
-          <a href="javascript:" class="ddp-btn-select" [class.ddp-disabled]="!isEnableStageDB()" (click)="selectType('staging')">
-            <em class="ddp-icon-boxbtn-staging"></em>
-            {{'msg.storage.li.hive' | translate}}
-          </a>
-          <a href="javascript:" class="ddp-btn-select ddp-disabled">
-            <em class="ddp-icon-boxbtn-stream"></em>
-            {{'msg.storage.li.stream' | translate}}
-          </a>
-          <!-- disabled 시 ddp-disabled 추가 -->
-          <a href="javascript:" class="ddp-btn-select" (click)="selectType('snapshot')">
-            <em class="ddp-icon-boxbtn-snapshot"></em>
-            {{'msg.storage.li.ss' |translate}}
-          </a>
-          <a href="javascript:" class="ddp-btn-select" (click)="selectType('druid')">
-            <em class="ddp-icon-boxbtn-engine"></em>
-            {{'msg.storage.li.druid' |translate}}
-          </a>
+            <a href="javascript:" class="ddp-btn-select" (click)="selectType('database')">
+              <em class="ddp-icon-boxbtn-database"></em>
+              {{'msg.storage.li.db' | translate}}
+            </a>
+            <a href="javascript:" class="ddp-btn-select" [class.ddp-disabled]="!isEnableStageDB()" (click)="selectType('staging')">
+              <em class="ddp-icon-boxbtn-staging"></em>
+              {{'msg.storage.li.hive' | translate}}
+            </a>
+            <a href="javascript:" class="ddp-btn-select ddp-disabled">
+              <em class="ddp-icon-boxbtn-stream"></em>
+              {{'msg.storage.li.stream' | translate}}
+            </a>
+            <!-- disabled 시 ddp-disabled 추가 -->
+            <a href="javascript:" class="ddp-btn-select" (click)="selectType('snapshot')">
+              <em class="ddp-icon-boxbtn-snapshot"></em>
+              {{'msg.storage.li.ss' |translate}}
+            </a>
+            <a href="javascript:" class="ddp-btn-select" (click)="selectType('druid')">
+              <em class="ddp-icon-boxbtn-engine"></em>
+              {{'msg.storage.li.druid' |translate}}
+            </a>
+          </div>
+          <!-- //데이터 선택 -->
+
         </div>
-        <!-- //데이터 선택 -->
 
+        <!-- button -->
+        <div class="ddp-ui-buttons">
+          <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+        </div>
+        <!-- //button -->
       </div>
-
-      <!-- button -->
-      <div class="ddp-ui-buttons">
-        <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
-      </div>
-      <!-- //button -->
     </div>
   </div>
-
-
-
-
 </div>
