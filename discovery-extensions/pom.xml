@@ -12,9 +12,8 @@
     <name>discovery-extensions</name>
 
     <modules>
-    <module>custom</module>
-    <module>mssql-connection</module>
-  </modules>
+        <module>mssql-connection</module>
+    </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
