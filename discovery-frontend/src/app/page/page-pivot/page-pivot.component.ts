@@ -503,6 +503,15 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       return;
     }
 
+    // map chart column validation
+    if (targetField.logicalType.toString().indexOf('GEO') != -1) {
+      _.remove(shelf, function (item) {
+        return item['logicalType'].toString().indexOf('GEO') != -1;
+      });
+      Alert.warning(this.translateService.instant('msg.board.ui.invalid-pivot'));
+      return;
+    }
+
     const idx = shelf.findIndex((field) => {
       return field.name === targetField.name && targetField.role === field.role;
     });
