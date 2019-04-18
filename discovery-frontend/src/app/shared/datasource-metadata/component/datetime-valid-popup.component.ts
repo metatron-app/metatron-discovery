@@ -222,6 +222,7 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
       this.changedFieldFormatValid.emit();
     }).catch(() => {
       this.loadingHide();
+      this.changedFieldFormatValid.emit();
     });
   }
 }
