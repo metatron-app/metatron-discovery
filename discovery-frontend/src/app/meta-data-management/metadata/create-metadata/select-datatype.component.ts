@@ -69,7 +69,6 @@ export class SelectDatatypeComponent extends AbstractComponent implements OnInit
     // Destory
     super.ngOnDestroy();
   }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

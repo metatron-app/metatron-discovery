@@ -23,6 +23,8 @@ import {
   CreateSourceConfigureData
 } from "../../data-storage/service/data-source-create.service";
 import {PrDataSnapshot} from "../data-preparation/pr-snapshot";
+import {isNullOrUndefined} from "util";
+import {TimezoneService} from "../../data-storage/service/timezone.service";
 
 export class Datasource extends AbstractHistoryEntity {
   id: string;             // ID
@@ -40,7 +42,7 @@ export class Datasource extends AbstractHistoryEntity {
   status: Status;
   published: boolean;         // 전체 공개 여부 true일 경우 전체 공개
   linkedWorkspaces: number;   // 연결된 workspaces 개수
-  ingestion: any;             // 데이터 소스 적재 정보
+  ingestion;             // 데이터 소스 적재 정보
   fields: Field[];            // 데이터 소스 필드 정보
   snapshot?: PrDataSnapshot;
   // workspaces
@@ -57,6 +59,10 @@ export class Datasource extends AbstractHistoryEntity {
   num?: number;
   temporary?: TemporaryDatasource;
   uiMetaData?: { name: string, id: string, description: string, columns: MetadataColumn[] };
+
+  public static getConnection(datasource: Datasource) {
+    return datasource.connection || datasource.ingestion.connection;
+  }
 }
 
 export class DataSourceSummary {
@@ -155,7 +161,7 @@ export class Field {
   // format
   // TODO 추후 FieldFormat으로 변환
   // format: FieldFormat;
-  format: any;
+  format: any | FieldFormat;
 
   // Field 별칭
   alias: string;
@@ -186,7 +192,8 @@ export class Field {
 
   // [UI] valid layer popup
   isShowTypeList?: boolean;
-  isShowTimestampValidPopup?: boolean;
+
+
 
   // [UI] for Alias
   dsId?: string;                   // 데이터소스 아이디
@@ -197,6 +204,14 @@ export class Field {
 
   // for MetaData
   uiMetaData?: MetadataColumn;
+
+  // for Datasource detail
+  op?: 'replace';
+
+  removeUIproperties?() {
+    delete this.isShowTypeList;
+    delete this.isValidType;
+  }
 
   /**
    * 차원값의 타입 아이콘 클래스 반환
@@ -455,15 +470,13 @@ export enum TempDsStatus {
 }
 
 export class FieldFormat {
-  format: string;
   // default FieldFormatType.DATE_TIME
   type: FieldFormatType;
-  unit: FieldFormatUnit;
-  // timezone (default browser) TODO 추후 서비스 로직에서 default 설정
-  timeZone: string;
-  locale: string;
-  // GEO format
-  originalSrsName?: string;
+  unit?: FieldFormatUnit;  // ONLY USE UNIX
+  format?: string; // ONLY USE TIME
+  timeZone?: string; // ONLY USE TIME (default browser) TODO 추후 서비스 로직에서 default 설정
+  locale?: string; // ONLY USE TIME
+  originalSrsName?: string; // ONLY GEO
   ////////////////////////////////////////////////////////////////////////////
   // Value to be used only on View
   ////////////////////////////////////////////////////////////////////////////
@@ -472,6 +485,7 @@ export class FieldFormat {
   // TODO 아래로 통일
   isValidFormat?: boolean;
   formatValidMessage?: string;
+  isShowTimestampValidPopup?: boolean;
 
   formatInitialize() {
     this.format = 'yyyy-MM-dd';
@@ -485,10 +499,54 @@ export class FieldFormat {
     this.unit = FieldFormatUnit.MILLISECOND;
   }
 
+  disableTimezone() {
+    this.timeZone = TimezoneService.DISABLE_TIMEZONE_KEY;
+  }
+
+  removeDateTypeProperties() {
+    delete this.format;
+    delete this.locale;
+  }
+
+  removeUnixTypeProperties() {
+    delete this.unit;
+  }
+
+  removeUIProperties() {
+    delete this.isValidFormat;
+    delete this.formatValidMessage;
+    delete this.isShowTimestampValidPopup;
+  }
+
   constructor() {
     this.type = FieldFormatType.DATE_TIME;
     // TODO 타임스탬프 개선시 제거
     this.unit = FieldFormatUnit.MILLISECOND;
+  }
+
+  public static of(fieldFormat: FieldFormat) {
+    let resultFieldFormat = new FieldFormat();
+    resultFieldFormat.type = fieldFormat.type;
+    // if not undefined properties
+    if (!isNullOrUndefined(fieldFormat.unit)) {
+      resultFieldFormat.unit = fieldFormat.unit;
+    }
+    if (!isNullOrUndefined(fieldFormat.timeZone)) {
+      resultFieldFormat.timeZone = fieldFormat.timeZone;
+    }
+    if (!isNullOrUndefined(fieldFormat.format)) {
+      resultFieldFormat.format = fieldFormat.format;
+    }
+    if (!isNullOrUndefined(fieldFormat.locale)) {
+      resultFieldFormat.locale = fieldFormat.locale;
+    }
+    if (!isNullOrUndefined(fieldFormat.originalSrsName)) {
+      resultFieldFormat.originalSrsName = fieldFormat.originalSrsName;
+    }
+    if (!isNullOrUndefined(fieldFormat.isValidFormat)) {
+      resultFieldFormat.isValidFormat = fieldFormat.isValidFormat;
+    }
+    return resultFieldFormat;
   }
 }
 
@@ -504,8 +562,8 @@ export enum FieldFormatType {
 }
 
 export enum FieldFormatUnit {
-  SECOND = <any>'second',
-  MILLISECOND = <any>'millisecond'
+  SECOND = 'SECOND',
+  MILLISECOND = 'MILLISECOND'
 }
 
 export enum IngestionRuleType {
