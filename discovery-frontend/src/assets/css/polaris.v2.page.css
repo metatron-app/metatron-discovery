@@ -8177,6 +8177,7 @@ table.ddp-table-type2 tbody tr td table.ddp-table-code tr td {background:none; c
 
 .ddp-wrap-codetable {position:relative; width:666px;}
 .ddp-wrap-codetable .ddp-box-code {margin-bottom:10px;}
+.ddp-wrap-codetable .ddp-txt-right .ddp-btn-pop { margin-left:4px;}
 .ddp-wrap-codetable .ddp-list-option {position:absolute; top:-7px; right:0;}
 
 .ddp-wrap-codetable .ddp-list-option  .ddp-btn-line-s {font-size:12px;}
