@@ -1,0 +1,308 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org" th:with="lang=${#locale.language}" th:lang="${lang}">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>metatron Discovery</title>
+
+    <!-- disable IE compatible view -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * {margin:0; padding:0; font-family:sans-serif; box-sizing:content-box; line-height:1.3em; }
+        *:focus {outline : none;}
+        html,body{width:100%; height:100%; min-width:1200px; line-height:1.3em;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            -ms-text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+            background-color: #fff;}
+        body,p,h1,h2,h3,h4,h5,h6,ul,ol,li,dl,dt,dd,table,th,td,form,fieldset,legend,input,textarea,button,select {margin:0; padding:0; font-size:12px; color:#4b515b;}
+        a,u,a:hover {text-decoration:none; color:#707070;}
+        a {outline:0;}
+        ul,ol {list-style:none;}
+        input::-ms-clear {display: none;}
+        input::placeholder {color:#b7b9c2; font-family:sans-serif; line-height:1.3em;}
+        input::-webkit-input-placeholder {color:#b7b9c2; font-family:sans-serif; line-height:1.3em;}
+        input:-ms-input-placeholder {color:#b7b9c2; font-family:sans-serif; line-height:1.3em;}
+
+        .ddp-wrap-login {height:100%; min-height:800px; background:url(/resource/assets/images/login.jpg) no-repeat center center fixed; background-size:cover;}
+        .ddp-wrap-login .ddp-blur2 {display:block;background:url(/resource/assets/images/login.jpg) no-repeat fixed;; background-size:cover; overflow:hidden; content:'';
+            filter: blur(5px);
+            position: absolute;
+            left:0;
+            bottom:0;
+            height: 100%;
+            width: 410px;
+        }
+        .ddp-ui-login {position:relative;width:410px; height:100%; padding:192px 0 0 0; background-color:rgba(255,255,255,0.7); z-index:1; box-sizing:border-box;}
+        .ddp-ui-login .ddp-box-login {width:278px; margin:0 auto;}
+        .ddp-ui-login .ddp-ui-logo {padding-bottom:20px;}
+        .ddp-ui-login .ddp-ui-logo .st0{fill:#1A274B;}
+        .ddp-ui-login .ddp-ui-logo .st1{fill:#272950;}
+        .ddp-ui-login .ddp-ui-logo .st2{fill:#47DBF4;}
+        .ddp-ui-login .ddp-ui-logo .st3{fill:#7575EA;}
+        .ddp-form-login .ddp-form-input {position:relative; width:100%; box-sizing:border-box;}
+        .ddp-form-login .ddp-form-input label {display:block; padding:30px 0 0 0; color:rgba(39,41,80,0.7); font-size:13px;}
+        .ddp-form-login .ddp-form-input span.ddp-input-type {display:block; width:100%; border:none; background:transparent;}
+        .ddp-form-login .ddp-form-input span.ddp-input-type input {width:100%; padding:8px 0; border:none;border-bottom:1px solid #b5b5cc; background-color:transparent; color:#272950; font-size:18px;}
+        .ddp-form-login .ddp-form-input span.ddp-input-type input:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0 1000px white inset;}
+        .ddp-form-login .ddp-form-input span.ddp-input-type input:focus {border-bottom:1px solid #272950;}
+        .ddp-form-login .ddp-ui-login-option .ddp-wrap-input-checkbox label {position:relative; font-size:14px; color:#272950;}
+        .ddp-form-login .ddp-ui-login-option .ddp-wrap-input-checkbox input[type="checkbox"] {position:absolute; top:50%; left:0; margin-top:-6px;  z-index:1;}
+        .ddp-form-login .ddp-ui-login-option .ddp-wrap-input-checkbox input[type="checkbox"]:checked + label {font-weight: bold;}
+
+        .ddp-ui-input-form {position:relative; padding-bottom:35px;}
+        .ddp-ui-input-form .ddp-ui-error {display:block; position:absolute; bottom:15px;  color:#eb5f58; font-size:12px;}
+        .ddp-ui-input-form .ddp-ui-error em.ddp-icon-error {display:none; position:relative; top:-1px; margin-right:5px; width:11px; height:11px; background:url(/resource/assets/images/icon_info.png) no-repeat; background-position:-16px 0; vertical-align:middle;}
+        .ddp-ui-input-form .ddp-input-check {position:relative; padding-right:20px; border-bottom:1px solid #ddd;}
+        .ddp-ui-input-form .ddp-input-check input {border-bottom:none;}
+        .ddp-ui-input-form .ddp-input-check em.ddp-icon-error {display:inline-block; position:absolute; top:50%; right:0; background:url(/resource/assets/images/icon_message.png) no-repeat;}
+        .ddp-ui-input-form .ddp-input-check em.ddp-icon-error {display:none; width:9px; height:9px; margin-top:-5px;}
+        .ddp-ui-input-form.ddp-type-error .ddp-input-check .ddp-icon-error {display:block;}
+
+        .ddp-ui-login-buttons {padding-bottom:15px;margin-top:55px;}
+        .ddp-ui-login-buttons a.ddp-btn {display:inline-block; width:100%; color:#fff; font-size:14px; text-align:center; line-height:38px; font-weight:bold;border-radius:3px; background-color:#272950;}
+        .ddp-ui-login-buttons a.ddp-btn:hover {background-color:#7575ea; }
+        .ddp-layout-footer {position:absolute; left:66px; bottom:80px; width:278px;text-align:center; z-index:1; overflow:hidden;}
+        .ddp-ui-footer {display:inline-block; position:relative; text-align:left;}
+        .ddp-ui-footer ul.ddp-list-footer li {float:left;}
+        .ddp-ui-footer ul.ddp-list-footer li a {display:block; position:relative; padding:0 7px 0 6px;  color:#272950; font-weight: 300;}
+        .ddp-ui-footer ul.ddp-list-footer li a:hover {text-decoration: underline;}
+        .ddp-ui-footer ul.ddp-list-footer li a em {display:none;}
+        .ddp-ui-footer ul.ddp-list-footer li:first-of-type a:after {display:none;}
+        .ddp-ui-footer ul.ddp-list-footer li a:after {display:inline-block; position:absolute; top:50%; left:0; margin-top:-7px; content:''; height:13px; border-right:1px solid #909090;}
+        .ddp-ui-footer ul.ddp-list-footer li:first-child a {padding-left:0;}
+        .ddp-ui-footer span.ddp-ui-copy {float:left; display:inline-block; padding:3px 0 0 0; color:rgba(39,41,80,0.6); font-size:12px; letter-spacing: -1px;}
+    </style>
+</head>
+<!-- login -->
+<body>
+<div class="ddp-wrap-login">
+    <em class="ddp-bg-login"></em>
+    <em class="ddp-blur2" style="position:absolute; left:50%; margin-left:-205px;"></em>
+    <!-- login -->
+    <div class="ddp-ui-login" style="position:absolute; top:0; left:50%; margin-left:-205px;">
+    <div class="ddp-box-login">
+        <div class="ddp-ui-logo">
+            <svg version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 514.6 67.2" style="enable-background:new 0 0 514.6 67.2;" xml:space="preserve">
+
+          <g>
+              <path class="st0" d="M114.2,28.5c-3.9,0-7.7,1.8-8.9,2.4c-1.4-1.7-3.4-2.4-6.7-2.4c-2.8,0-5.6,1.3-6.9,1.9V29h-4.8v26.4h4.8V34.6
+                  c0.8-0.4,3.4-1.7,6.3-1.7c4,0,4.8,1.6,4.8,8.9v13.6h4.8V41.7c0-1.3,0-5.2-0.6-7.2c1-0.5,3.7-1.6,6.5-1.6c3.9,0,4.8,1.6,4.8,8.7
+                  v13.8h4.8V41.5C123.3,32.9,121.9,28.5,114.2,28.5z"></path>
+              <path class="st0" d="M141.7,28.5c-7.4,0-11.1,4.7-11.1,13.9c0,9.5,3.2,13.6,10.6,13.6c4.1,0,9.9-0.8,10-0.8l0.5-0.1l-0.1-4l-0.5,0
+                  c-0.1,0-5.6,0.5-9.3,0.5c-4.2,0-6-2.1-6.1-7.3h16.7l0.2-3.4C152.4,32.6,148.9,28.5,141.7,28.5z M141.7,32.7c3.5,0,5.8,1.3,5.9,7.5
+                  h-12.2C135.5,35.1,137.5,32.7,141.7,32.7z"></path>
+              <path class="st0" d="M173.2,51.3c0,0-3.1,0.3-4.5,0.3c-2.7,0-3.1-0.9-3.1-6.6V33.4h8.1V29h-8.1v-7.8h-4.8V29h-3.6v4.3h3.6v12.9
+                  c0,7.4,1.8,9.8,7.5,9.8c1.8,0,5.1-0.5,5.3-0.6l0.5-0.1l-0.3-4.1L173.2,51.3z"></path>
+              <path class="st0" d="M198.5,50.2v-13c0-5.9-2.8-8.7-8.7-8.7c-4.4,0-9.8,1.1-10.1,1.1l-0.4,0.1l0.2,3.9l0.5-0.1
+                  c0.1,0,6.1-0.7,9.5-0.7c2.9,0,4.1,1.2,4.1,4.3v1.7l-7.5,0.7c-5.7,0.6-8.2,3-8.2,8c0,5.3,2.7,8.3,7.7,8.3c4,0,7.9-1.5,9-1.9
+                  c1.5,1.4,3.3,1.9,6.2,1.9h0.5l0.2-4L201,52C198.9,51.7,198.6,50.9,198.5,50.2z M186.2,51.7c-2.2,0-3.4-1.4-3.4-4.2
+                  c0-2.6,1.1-3.8,3.9-4.1l7-0.7v7.5C192.6,50.7,189.2,51.7,186.2,51.7z"></path>
+              <path class="st0" d="M221,51.3c0,0-3.1,0.3-4.5,0.3c-2.7,0-3.1-0.9-3.1-6.6V33.4h8.1V29h-8.1v-7.8h-4.8V29H205v4.3h3.6v12.9
+                  c0,7.4,1.8,9.8,7.5,9.8c1.8,0,5.1-0.5,5.3-0.6l0.5-0.1l-0.3-4.1L221,51.3z"></path>
+              <path class="st0" d="M232.2,32.1v-3h-4.8v26.4h4.8V36.6c1-0.5,4.8-2.5,8.8-3.3l0.4-0.1v-4.9l-0.6,0.1
+                  C237.1,29.2,233.7,31.1,232.2,32.1z"></path>
+              <path class="st0" d="M257,28.5c-8,0-11.4,4-11.4,13.4c0,8.7,1.9,14,11.4,14c9.5,0,11.4-5.4,11.4-14C268.4,32.5,265,28.5,257,28.5z
+                   M257,32.8c4.9,0,6.5,2.1,6.5,9.1c0,7.3-0.9,9.7-6.5,9.7c-5.5,0-6.5-2.5-6.5-9.7C250.6,35,252.1,32.8,257,32.8z"></path>
+              <path class="st0" d="M288,28.5c-2.9,0-6,1.3-7.4,2V29h-4.8v26.4h4.8V34.6c0.9-0.4,3.7-1.7,6.7-1.7c4,0,5,1.6,5,8.7v13.8h4.8V41.5
+                  C297.1,32.7,295.8,28.5,288,28.5z"></path>
+          </g>
+                <g>
+              <g>
+                  <path class="st1" d="M0.3,55.8c0.2,0.2,0.5,0.3,0.7,0.3h62.7c0.3,0,0.5-0.1,0.7-0.3L32.5,27.9L0.3,55.8z"></path>
+                  <path class="st2" d="M64.9,55V2c0-0.9-1.1-1.4-1.8-0.8L32.8,27.6l-0.3,0.3l32.1,27.9C64.8,55.6,64.9,55.3,64.9,55z"></path>
+                  <path class="st3" d="M32.1,27.6L1.8,1.2C1.1,0.6,0,1.1,0,2v52.6V55c0,0.3,0.1,0.6,0.3,0.8l32.1-27.9L32.1,27.6z"></path>
+              </g>
+          </g>
+                <g>
+              <path class="st3" d="M326.2,28.9c-1.3-0.2-3.9-0.6-5.8-0.6c-7.7,0-11.2,4.3-11.2,14c0,6.7,1.2,13.6,9.7,13.6c3,0,5.9-1.3,7.3-1.9
+                  v1.4h4.8V17.7h-4.8V28.9z M326.2,49.8c-0.9,0.4-3.9,1.7-6.8,1.7c-2.7,0-5.2-1.1-5.2-9.2c0-7,1.8-9.7,6.4-9.7c1.8,0,4.4,0.4,5.6,0.5
+                  V49.8z"></path>
+                    <rect x="337.9" y="18.7" class="st3" width="4.8" height="5.4"></rect>
+                    <rect x="337.9" y="28.9" class="st3" width="4.8" height="26.5"></rect>
+                    <path class="st3" d="M359.3,39.7c-5.5-0.9-6.2-1.5-6.2-3.5c0-2.3,1.6-3.4,5.1-3.4c3.2,0,8.8,0.8,8.9,0.8l0.6,0.1l0.1-4.3l-0.4-0.1
+                  c-0.2,0-5.5-1-9.3-1c-6.2,0-9.7,2.9-9.7,8c0,5.7,3.5,6.7,9,7.6c5.7,0.9,6.5,1.5,6.5,3.7c0,2.9-1.6,3.9-5.9,3.9
+                  c-2.5,0-8.3-0.9-8.4-0.9l-0.5-0.1l-0.3,4.3l0.4,0.1c0.2,0,5.8,1,9.1,1c7.1,0,10.4-2.7,10.4-8.5C368.5,42.1,365.7,40.7,359.3,39.7z"></path>
+                    <path class="st3" d="M390.7,51c0,0-4.1,0.5-6,0.5c-6,0-7-2.5-7-9.8c0-6.8,1.6-8.9,7-8.9c1.9,0,5.9,0.5,6,0.5l0.5,0.1l0.2-4.1
+                  l-0.4-0.1c-0.2,0-4.7-0.8-7-0.8c-7.9,0-11.1,3.9-11.1,13.3c0,10.6,2.8,14.2,11,14.2c2.4,0,7-0.7,7.2-0.7l0.4-0.1l-0.2-4.2L390.7,51
+                  z"></path>
+                    <path class="st3" d="M406.7,28.4c-8,0-11.4,4-11.4,13.5c0,8.7,1.9,14.1,11.4,14.1c9.5,0,11.4-5.4,11.4-14.1
+                  C418.1,32.4,414.7,28.4,406.7,28.4z M406.7,32.7c5,0,6.5,2.1,6.5,9.2c0,7.3-0.9,9.8-6.5,9.8c-5.5,0-6.5-2.6-6.5-9.8
+                  C400.2,34.8,401.7,32.7,406.7,32.7z"></path>
+                    <polygon class="st3" points="433,51.1 431.9,51.1 425.9,28.9 420.8,28.9 428.3,55.4 436.7,55.4 444.2,28.9 439.2,28.9 	"></polygon>
+                    <path class="st3" d="M458,28.4c-7.4,0-11.2,4.7-11.2,13.9c0,9.6,3.2,13.6,10.6,13.6c4.1,0,10-0.8,10-0.8l0.4-0.1l-0.1-4l-0.5,0
+                  c-0.1,0-5.6,0.5-9.4,0.5c-4.3,0-6.1-2.1-6.2-7.3h16.8l0.2-3.4C468.8,32.4,465.3,28.4,458,28.4z M458,32.6c3.6,0,5.8,1.3,5.9,7.6
+                  h-12.3C451.9,34.9,453.8,32.6,458,32.6z"></path>
+                    <path class="st3" d="M479.1,31.9v-3.1h-4.8v26.5h4.8V36.5c1-0.5,4.9-2.5,8.9-3.3l0.4-0.1v-4.9l-0.6,0.1
+                  C484,29.1,480.6,31,479.1,31.9z"></path>
+                    <polygon class="st3" points="508.5,28.9 502.1,51.1 501.2,51.1 494.8,28.9 489.9,28.9 497.4,55.4 500.9,55.4 497.6,66.8
+                  502.5,66.8 513.4,28.9 	"></polygon>
+          </g>
+          </svg>
+        </div>
+
+        <!-- login form -->
+        <div class="ddp-form-login">
+            <!-- ID 입력 -->
+            <div class="ddp-form-input ddp-ui-input-form" style="padding-bottom:0px;">
+                <label class="ddp-label-type" th:text="#{message.app.oauth.login.name.title}"></label>
+                <div class="ddp-input-check">
+            <span class="ddp-input-type">
+              <input type="text" name="username" th:placeholder="#{message.app.oauth.login.name.title.ph}" style="border-bottom:none;"/>
+            </span>
+                    <em class="ddp-icon-error" name="usernameErrorIcon" ></em>
+                </div>
+            </div>
+            <!-- // ID 입력 -->
+
+            <!-- Password 입력 -->
+            <div class="ddp-form-input ddp-ui-input-form" style="padding-bottom:0px;">
+                <label class="ddp-label-type" th:text="#{message.app.oauth.login.pw.title}"></label>
+                <div class="ddp-input-check">
+            <span class="ddp-input-type">
+              <input type="password" th:placeholder="#{message.app.oauth.login.pw.title.ph}" name="password" style="border-bottom:none;" />
+            </span>
+                    <em class="ddp-icon-error" name="passwordErrorIcon" ></em>
+                </div>
+                <!-- error 메시지 -->
+                <span class="ddp-ui-error" style="bottom:-45px;" name="loginFailMsg"></span>
+                <!-- //error 메시지 -->
+            </div>
+            <!-- // Password 입력 -->
+
+            <!-- button -->
+            <div class="ddp-ui-login-buttons">
+                <a href="javascript:" class="ddp-btn" name="loginBtn" th:text="#{message.app.oauth.login}"></a>
+            </div>
+            <!-- //button -->
+
+        </div>
+        <!-- //login form -->
+    </div>
+
+    <!-- footer -->
+    <div class="ddp-layout-footer">
+        <div class="ddp-ui-footer" >
+            <span class="ddp-ui-copy">Copyright © SK Telecom Co., Ltd. All rights reserved.</span>
+        </div>
+    </div>
+    <!-- // footer -->
+
+</div>
+<!-- //login -->
+
+</div>
+<script src="/resource/assets/js/jquery.min.js"></script>
+<script type="text/javascript" th:inline="javascript">
+    /* <![CDATA[ */
+    var oauthLogin = {
+        basicHeader : /*[[${basicHeader}]]*/,
+        bind : function(){
+            $("a[name=loginBtn]").bind('click', function(){
+                oauthLogin.login();
+            });
+
+            $("input[name=username], input[name=password]").bind('focus', function(){
+                oauthLogin.init();
+            });
+
+            $("input[name=password]").bind('keyup', function(e){
+                if(e.keyCode == '13'){
+                    oauthLogin.login();
+                }
+            });
+
+            $("em[name=usernameErrorIcon]").bind('click', function(){
+                $("input[name=username]").val('');
+                oauthLogin.init();
+            });
+
+            $("em[name=passwordErrorIcon]").bind('click', function(){
+                $("input[name=password]").val('');
+                oauthLogin.init();
+            });
+            $("input[name=username]").focus();
+        },
+        login : function(){
+            var method = 'POST';
+            var header = {Authorization : oauthLogin.basicHeader};
+            var url = '/oauth/token';
+            var param = {
+                username: $("input[name=username]").val(),
+                password: $("input[name=password]").val(),
+                grant_type : 'password',
+                scope : 'write'
+            };
+            var success = function(result){
+                document.cookie = 'LOGIN_TOKEN='+result.access_token+';path=/;domain='+location.hostname;
+                document.cookie = 'LOGIN_TOKEN_TYPE='+result.token_type+';path=/;domain='+location.hostname;
+                document.cookie = 'REFRESH_LOGIN_TOKEN='+result.refresh_token+';path=/;domain='+location.hostname;
+                document.cookie = 'LOGIN_USER_ID='+$("input[name=username]").val()+';path=/;domain='+location.hostname;
+                oauthLogin.permission(result.token_type + ' ' + result.access_token);
+            };
+            var error = function(err){
+                oauthLogin.loginFail(err.responseJSON.details);
+            }
+            oauthLogin.ajax(method, header, url, param, success, error);
+        },
+        permission : function(authHeader){
+            var method = 'GET';
+            var header = {Authorization : authHeader};
+            var url = '/api/auth/SYSTEM/permissions';
+            var success = function(result){
+                document.cookie = 'PERMISSION='+result.join('==')+';path=/;domain='+location.hostname;
+                location.replace(document.location.href);
+            };
+            var error = function(){
+                location.replace(document.location.href);
+            }
+            oauthLogin.ajax(method, header, url, null, success, error);
+        },
+        init : function() {
+            $('.ddp-ui-input-form').removeClass('ddp-type-error');
+            $('span[name=loginFailMsg]').text('');
+        },
+        loginFail : function(msg) {
+            $('.ddp-ui-input-form').addClass('ddp-type-error');
+            $('span[name=loginFailMsg]').text(msg);
+        },
+        ajax : function(method, header, url, param, success, error) {
+            $.ajax({
+                       type: method,
+                       url: url,
+                       data: param,
+                       headers: header,
+                       success: success,
+                       error: error
+                   })
+        }
+    };
+
+    /* ]]> */
+    $(document).ready(function(){
+        oauthLogin.bind();
+    });
+</script>
+</body>
+</html>

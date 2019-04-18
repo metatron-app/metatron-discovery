@@ -262,6 +262,7 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
         ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
         viewResolver.setViewClass(ThymeleafView.class);
         viewResolver.setTemplateEngine(templateEngine());
+        viewResolver.setCharacterEncoding("UTF-8");
 
         return viewResolver;
     }
