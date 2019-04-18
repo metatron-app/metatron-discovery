@@ -111,6 +111,8 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
   public fieldDataList;
 
+  public isSaveInvalid: boolean = false;
+
   /**
    * Code Table Preview Layer
    */
@@ -194,7 +196,6 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
         metadataColumn['typeListFl'] = false;
       }
       metadataColumn.checked = true;
-      metadataColumn.format.isShowTimestampValidPopup = true;
       this._datetimePopupComponentList.toArray()[ index ].init();
     }
   }
@@ -248,25 +249,22 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     });
   }
 
-  public isSaveInvalid: boolean = false;
 
   /**
    * Save changed fields click event
    */
   public onClickSave(): void {
 
-    // const datetimeValidPopupComponents: DatetimeValidPopupComponent[]
-    //   = this._datetimePopupComponentList
-    //   .filter(datetimePopupComponent => _.negate(_.isNil)(datetimePopupComponent.fieldFormat) && _.negate(_.isNil)(datetimePopupComponent.fieldFormat.isValidFormat))
-    //   .filter(datetimeValidPopupComponent => !datetimeValidPopupComponent.fieldFormat.isValidFormat);
-    //
-    // if (datetimeValidPopupComponents.length > 0) {
-    //   this.isSaveInvalid = true;
-    //   return;
-    // }
-    if (this.isSaveInvalid !== true) {
-      this._updateColumnSchema();
+    const datetimeValidPopupComponents: DatetimeValidPopupComponent[]
+      = this._datetimePopupComponentList
+      .filter(datetimePopupComponent => _.negate(_.isNil)(datetimePopupComponent.fieldFormat))
+      .filter(datetimeValidPopupComponent => !datetimeValidPopupComponent.fieldFormat.isValidFormat);
+
+    if (datetimeValidPopupComponents.length > 0) {
+      this.isSaveInvalid = true;
+      return;
     }
+    this._updateColumnSchema();
   }
 
   /**
@@ -443,7 +441,18 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    * Set exist error in field list flag
    */
   public setIsExistErrorInFieldListFlag(): void {
-    this.isSaveInvalid = this.columnList.some(field =>  field.role !== Type.Role.TIMESTAMP && (field.type === Type.Logical.TIMESTAMP && !field.format.isValidFormat));
+
+
+
+    const datetimeValidPopupComponents: DatetimeValidPopupComponent[]
+      = this._datetimePopupComponentList
+      .filter(datetimePopupComponent => _.negate(_.isNil)(datetimePopupComponent.fieldFormat))
+      .filter(datetimeValidPopupComponent => !datetimeValidPopupComponent.fieldFormat.isValidFormat);
+
+
+
+    // this.isSaveInvalid = this.columnList.some(field =>  field.role !== Type.Role.TIMESTAMP && (field.type === Type.Logical.TIMESTAMP && !field.format.isValidFormat));
+    this.isSaveInvalid = datetimeValidPopupComponents.length > 0;
   }
 
   public isLogicalTypesLayerActivation(metadataColumn: MetadataColumn) {
@@ -677,6 +686,12 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     return new Promise((resolve, reject) => {
       return this._metaDataService.getColumnSchemaListInMetaData(this.metaDataModelService.getMetadata().id)
         .then((result) => {
+          result.map((field) => {
+            if (MetadataColumn.isTypeIsTimestamp(field)) {
+              field.format.isValidFormat = true;
+            }
+            return field;
+          });
           this._hideCurrentTime(result);
           this._saveColumnDataOriginal();
           resolve();

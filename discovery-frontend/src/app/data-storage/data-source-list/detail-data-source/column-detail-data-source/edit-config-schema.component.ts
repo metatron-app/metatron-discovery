@@ -158,7 +158,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    */
   public save(): void {
     // if not exist error
-    if (!this.isExistErrorInFieldList) {
+    if (!this.fieldList.some(field =>  field.role !== FieldRole.TIMESTAMP && (field.logicalType === LogicalType.TIMESTAMP && !field.format.isValidFormat))) {
       // 로딩 show
       this.loadingShow();
       // 필드 업데이트
@@ -264,7 +264,6 @@ export class EditConfigSchemaComponent extends AbstractComponent {
       if (field.isShowTypeList) {
         field.isShowTypeList = false;
       }
-      field.format.isShowTimestampValidPopup = true;
       const index = this.filteredFieldList.filter(item => item.role !== FieldRole.TIMESTAMP && item.logicalType === LogicalType.TIMESTAMP).findIndex(item => item.name === field.name);
       // popup show
       this._datetimePopupComponentList.toArray()[index].init();

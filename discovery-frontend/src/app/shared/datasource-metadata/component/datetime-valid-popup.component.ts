@@ -14,7 +14,7 @@
  */
 
 import {AbstractComponent} from '../../../common/component/abstract.component';
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
 import {TimezoneService} from '../../../data-storage/service/timezone.service';
 import {FieldFormat, FieldFormatType, FieldFormatUnit} from '../../../domain/datasource/datasource';
 import {StringUtil} from '../../../common/util/string.util';
@@ -43,13 +43,14 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
   // format
   public prevFormat: string;
 
-  public isPopupShow: boolean;
-
   @Output()
   public readonly closed = new EventEmitter();
 
   @Output()
   public readonly changedFieldFormat = new EventEmitter();
+
+  @Output()
+  public readonly changedFieldFormatValid = new EventEmitter();
 
   public readonly formatUnitList: { label: string, value: FieldFormatUnit }[] = [
     {label: this.translateService.instant('msg.storage.ui.format.unit.milli-second'), value: FieldFormatUnit.MILLISECOND},
@@ -108,7 +109,8 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
       this.fieldFormat.isValidFormat = true;
     }
     // open
-    this.isPopupShow = true;
+    this.fieldFormat.isShowTimestampValidPopup = true;
+    this.changedFieldFormat.emit(this.fieldFormat);
   }
 
   /**
@@ -120,10 +122,10 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
       this.fieldFormat.isValidFormat = false;
       this.fieldFormat.formatValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.required.check');
     }
-    this.changedFieldFormat.emit(this.fieldFormat);
-    this.closed.emit();
     // close
-    this.isPopupShow = undefined;
+    this.fieldFormat.isShowTimestampValidPopup = false;
+    this.changedFieldFormatValid.emit();
+    this.closed.emit();
   }
 
 
@@ -133,6 +135,15 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
    */
   public getTimezoneLabel(): string {
     return this.timezoneService.getTimezoneObject(this.fieldFormat).label;
+  }
+
+  /**
+   * Changed format text
+   * @param value
+   */
+  public onChangedFormatText(value): void {
+    this.prevFormat = value;
+    this.fieldFormat.isValidFormat = undefined;
   }
 
   /**
@@ -208,6 +219,7 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
       this.loadingHide();
       // set default format
       this.defaultFormat = this.fieldFormat.format;
+      this.changedFieldFormatValid.emit();
     }).catch(() => {
       this.loadingHide();
     });

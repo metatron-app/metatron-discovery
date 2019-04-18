@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 <!-- box -->
-<div class="ddp-box-layout4 type-time" (clickOutside)="cancelPopup()" [delayClickOutsideInit]="true" *ngIf="isPopupShow">
+<div class="ddp-box-layout4 type-time" (clickOutside)="cancelPopup()" [delayClickOutsideInit]="true" *ngIf="fieldFormat?.isShowTimestampValidPopup">
   <div class="ddp-data-title" >
     {{'msg.storage.ui.schema.column.format.title' | translate}}
   </div>
@@ -27,7 +27,7 @@
           <div class="ddp-wrap-hover-info">
             <em class="ddp-icon-info3"></em>
             <!-- popup -->
-            <div class="ddp-box-layout4" >
+            <div class="ddp-box-layout4">
               <div class="ddp-data-title">
                 {{'msg.storage.ui.display.format.guide' | translate}}
               </div>
@@ -123,7 +123,7 @@
         <div class="ddp-type-apply" *ngIf="fieldFormat.type === FIELD_FORMAT_TYPE.DATE_TIME">
           <!-- input text 입력시 ddp-edit 추가 -->
           <div class="ddp-input-apply">
-            <input type="text" placeholder="Enter column delimiter" class="ddp-input-txt" [(ngModel)]="fieldFormat.format" (ngModelChange)="prevFormat = $event; fieldFormat.isValidFormat = undefined">
+            <input type="text" placeholder="Enter column delimiter" class="ddp-input-txt" [(ngModel)]="fieldFormat.format" (ngModelChange)="onChangedFormatText($event)">
             <em class="ddp-icon-apply" (click)="onClickFormatValidation()"></em>
           </div>
           <div class="ddp-txt-error" *ngIf="fieldFormat.isValidFormat === false">

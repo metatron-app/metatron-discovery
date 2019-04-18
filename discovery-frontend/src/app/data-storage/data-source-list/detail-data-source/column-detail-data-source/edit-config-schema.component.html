@@ -215,7 +215,7 @@
                                       [fieldDataList]="fieldDataList"
                                       [fieldName]="column.name"
                                       (changedFieldFormat)="column.format = $event"
-                                      (closed)="column.format.isShowTimestampValidPopup = undefined; setIsExistErrorInFieldListFlag()"></datetime-valid-popup>
+                                      (changedFieldFormatValid)="setIsExistErrorInFieldListFlag()"></datetime-valid-popup>
                 <!-- //format layer -->
               </div>
             </td>
