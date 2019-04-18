@@ -107,7 +107,7 @@ import app.metatron.discovery.domain.workbench.WorkbenchProperties;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
 import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
-import app.metatron.discovery.util.CsvProcessor;
+import app.metatron.discovery.util.CommonsCsvProcessor;
 import app.metatron.discovery.util.ExcelProcessor;
 import app.metatron.discovery.util.PolarisUtils;
 import app.metatron.discovery.util.ProjectionUtils;
@@ -449,7 +449,7 @@ public class DataSourceController {
     }
     request.setDataSource(defaultDataSource);
 
-    if(CollectionUtils.isEmpty(request.getProjections())) {
+    if (CollectionUtils.isEmpty(request.getProjections())) {
       request.setProjections(new ArrayList<>());
     }
 
@@ -850,7 +850,7 @@ public class DataSourceController {
         geometry = wktReader.read(value);
 
         LogicalType parsedType = findGeoType(geometry).orElseThrow(
-                () -> new RuntimeException("ERROR_NOT_SUPPORT_WKT_TYPE")
+            () -> new RuntimeException("ERROR_NOT_SUPPORT_WKT_TYPE")
         );
 
         if (type != parsedType) {
@@ -983,9 +983,17 @@ public class DataSourceController {
       if ("xlsx".equals(extensionType) || "xls".equals(extensionType)) {
         resultResponse = new ExcelProcessor(tempFile).getSheetData(sheetName, limit, firstHeaderRow);
       } else if ("csv".equals(extensionType)) {
-        CsvProcessor csvProcessor = new CsvProcessor(tempFile);
-        csvProcessor.setCsvMaxCharsPerColumn(metatronProperties.getCsvMaxCharsPerColumn());
-        resultResponse = csvProcessor.getData(lineSep, delimiter, limit, firstHeaderRow);
+        CommonsCsvProcessor commonsCsvProcessor = new CommonsCsvProcessor("file://" + tempFile)
+            .totalCount()
+            .maxRowCount(Integer.valueOf(limit).longValue())
+            .withHeader(firstHeaderRow)
+            .parse(delimiter);
+
+        resultResponse = commonsCsvProcessor.ingestionDataResultResponse();
+
+        //        CsvProcessor csvProcessor = new CsvProcessor(tempFile);
+        //        csvProcessor.setCsvMaxCharsPerColumn(metatronProperties.getCsvMaxCharsPerColumn());
+        //        resultResponse = csvProcessor.getData(lineSep, delimiter, limit, firstHeaderRow);
       } else {
         throw new BadRequestException("Invalid temporary file.");
       }
@@ -1006,9 +1014,10 @@ public class DataSourceController {
   }
 
   @RequestMapping(value = "/datasources/filter", method = RequestMethod.POST)
-  public @ResponseBody ResponseEntity<?> filterDataSources(@RequestBody DataSourceFilterRequest request,
-                                                           Pageable pageable,
-                                                           PersistentEntityResourceAssembler resourceAssembler) {
+  public @ResponseBody
+  ResponseEntity<?> filterDataSources(@RequestBody DataSourceFilterRequest request,
+                                      Pageable pageable,
+                                      PersistentEntityResourceAssembler resourceAssembler) {
 
     List<String> statuses = request == null ? null : request.getStatus();
     List<String> workspaces = request == null ? null : request.getWorkspace();
@@ -1041,19 +1050,19 @@ public class DataSourceController {
 
     // Validate status
     List<DataSource.Status> statusEnumList
-            = request.getEnumList(statuses, DataSource.Status.class, "status");
+        = request.getEnumList(statuses, DataSource.Status.class, "status");
 
     // Validate DataSourceType
     List<DataSource.DataSourceType> dataSourceTypeEnumList
-            = request.getEnumList(dataSourceTypes, DataSource.DataSourceType.class, "dataSourceType");
+        = request.getEnumList(dataSourceTypes, DataSource.DataSourceType.class, "dataSourceType");
 
     // Validate ConnectionType
     List<DataSource.ConnectionType> connectionTypeEnumList
-            = request.getEnumList(connectionTypes, DataSource.ConnectionType.class, "connectionType");
+        = request.getEnumList(connectionTypes, DataSource.ConnectionType.class, "connectionType");
 
     // Validate SourceType
     List<DataSource.SourceType> sourceTypeEnumList
-            = request.getEnumList(sourceTypes, DataSource.SourceType.class, "sourceType");
+        = request.getEnumList(sourceTypes, DataSource.SourceType.class, "sourceType");
 
     // Validate createdTimeFrom, createdTimeTo
     SearchParamValidator.range(null, createdTimeFrom, createdTimeTo);
@@ -1064,12 +1073,12 @@ public class DataSourceController {
     // 기본 정렬 조건 셋팅
     if (pageable.getSort() == null || !pageable.getSort().iterator().hasNext()) {
       pageable = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(),
-              new Sort(Sort.Direction.DESC, "createdTime", "name"));
+                                 new Sort(Sort.Direction.DESC, "createdTime", "name"));
     }
 
     Page<DataSource> dataSources = dataSourceService.findDataSourceListByFilter(
-            statusEnumList, workspaces, createdBys, userGroups, createdTimeFrom, createdTimeTo, modifiedTimeFrom,
-            modifiedTimeTo, containsText, dataSourceTypeEnumList, sourceTypeEnumList, connectionTypeEnumList, published, pageable
+        statusEnumList, workspaces, createdBys, userGroups, createdTimeFrom, createdTimeTo, modifiedTimeFrom,
+        modifiedTimeTo, containsText, dataSourceTypeEnumList, sourceTypeEnumList, connectionTypeEnumList, published, pageable
     );
 
     return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(dataSources, resourceAssembler));
@@ -1092,7 +1101,7 @@ public class DataSourceController {
 
     DataSourceListCriterionKey criterionKeyEnum = DataSourceListCriterionKey.valueOf(criterionKey);
 
-    if(criterionKeyEnum == null){
+    if (criterionKeyEnum == null) {
       throw new ResourceNotFoundException("Criterion(" + criterionKey + ") is not founded.");
     }
 
