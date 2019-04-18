@@ -27,7 +27,7 @@
         <module>discovery-server</module>
         <module>discovery-prep-parser</module>
         <module>discovery-common</module>
-        <!--<module>discovery-extensions</module>-->
+        <module>discovery-extensions</module>
         <module>discovery-distribution</module>
     </modules>
 
@@ -798,6 +798,12 @@
             <id>spring-repo</id>
             <name>Spring Repository</name>
             <url>https://repo.spring.io/release</url>
+        </repository>
+
+        <repository>
+            <id>metatron-public</id>
+            <name>Metatron Public Repository</name>
+            <url>http://52.231.187.35:9081/nexus/content/repositories/metatron-public/</url>
         </repository>
 
     </repositories>
