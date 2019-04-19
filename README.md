@@ -22,13 +22,14 @@ Metatron provides:
 - Geo data analysis with geospatial operations.
 - Job and data usage monitoring.
 - Metadata management.
-- Supports 3rd party data analytics tool integration(e.g. [Apache Zeppelin](https://zeppelin.apache.org/)).
+- 3rd party data analytics tool integration(e.g. [Apache Zeppelin](https://zeppelin.apache.org/)).
 - Fine grain access control of users and workspaces.
-- Overcomes Druid weaknesses (e.g. no data join function) without performance degradation using [Metatron optimized Druid](https://metatron.app/index.php/2018/06/15/skt-druid-features/)
-- Full API support, enabling easy integration into your environment/software
-- Available on AWS, Azure('19.3Q)
-- Docker support for distributed version deploy('19.3Q)
-- Monitoring Metatron engine performance('19.3Q)
+- Overcomes Druid weaknesses(e.g. no data join function) without performance degradation using [Metatron optimized Druid](https://metatron.app/index.php/2018/06/15/skt-druid-features/).
+- Full API support, enabling easy integration into your environment/software.
+- Multiple languages according to browser setting(Currently supporting English, Korean, Chinese).
+- Available on AWS, Azure('19.3Q).
+- Docker support for distributed version deploy('19.3Q).
+- Monitoring Metatron engine performance('19.3Q).
 
 Screenshots
 ------------------
@@ -61,9 +62,6 @@ Screenshots
 
 ### SQL in Druid
 <kbd><img title="query-monitoring" src="https://user-images.githubusercontent.com/8841220/53787073-f917af00-3f60-11e9-9e11-a9dfe82a99da.png"><br /></kbd>
-
-### Metatron in Chinese
-<kbd><img title="query-monitoring" src="https://user-images.githubusercontent.com/8841220/53789753-8f030800-3f68-11e9-9642-266243c7f3db.png"><br /></kbd>
 
 Installation
 ----------------------------
