@@ -2492,6 +2492,12 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     // Dimension 이라면
     if (isDimension) {
 
+      // map chart validation
+      if (targetField.logicalType.toString().indexOf('GEO') != -1 && !_.eq(this.selectChart, '')) {
+        Alert.warning(this.translateService.instant('msg.board.ui.invalid-pivot'));
+        return;
+      }
+
       // 열에 등록
       if (_.eq(this.selectChart, ChartType.BAR)
         || _.eq(this.selectChart, ChartType.LINE)

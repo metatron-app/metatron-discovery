@@ -1968,6 +1968,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         && feature.getProperties()['layerNum'] == -5)) {
       // Disable tooltip
       this.tooltipInfo.enable = false;
+      this.changeDetect.detectChanges();
       if (!_.isUndefined(this.tooltipLayer) && this.tooltipLayer.length > 0) {
         this.tooltipLayer.setPosition(undefined);
       }

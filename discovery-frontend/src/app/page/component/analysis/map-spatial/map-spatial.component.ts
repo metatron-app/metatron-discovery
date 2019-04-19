@@ -69,16 +69,17 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     {name: 'Meters', value: 'meters'}
     ,{name: 'Kilometers', value: 'kilometers'}
   ];
+  public unitIndex: number = 0;
+  public unitInput: string = '100';
+
+  // buffer
+  public isBufferOn: boolean = false;
   public bufferList: any = [
     {name: 'Meters', value: 'meters'}
     , {name: 'Kilometers', value: 'kilometers'}
   ];
-  public unitIndex: number = 0;
   public bufferIndex: number = 0;
-
-  public unitInput: string = '100';
   public bufferInput: string = '100';
-
   // choropleth 관련 사항 (Buffer를 선택시 choropleth를 true로 설정 후 백엔드에 호출)
   // public bufferList: any = [
   //   '100'
@@ -89,10 +90,6 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
   //   , '700'
   //   , '1000'
   // ];
-  // public bufferIndex: number;
-
-  // buffer
-  public isBufferOn: boolean = false;
 
   // 단계구분도 보기
   public isChoroplethOn: boolean = false;
@@ -200,7 +197,25 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
         if( !_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] ){
           let operation = this.uiOption.analysis.operation;
           this.isBufferOn = (operation.buffer == 0 ? false : true);
-          (this.isBufferOn ? this.bufferInput = String(operation.buffer) : this.bufferInput);
+          if (this.isBufferOn) {
+            this.isBufferOn = true;
+            // buffer unit 설정
+            let tempBufferIndex = 0;
+            this.bufferList.forEach(buffer => {
+              if (buffer.value == operation['bufferUnit']) {
+                this.bufferIndex = tempBufferIndex;
+              }
+              tempBufferIndex++;
+            });
+            if (this.bufferList[this.bufferIndex].value == 'kilometers') {
+              this.bufferInput = (Number(operation.buffer) / 1000).toString();
+            } else {
+              this.bufferInput = operation.buffer.toString();
+            }
+          } else {
+            this.isBufferOn = false;
+            this.bufferIndex = 0;
+          }
           this.isChoroplethOn = operation.choropleth;
           if( this.isChoroplethOn ){
             let measureList = this.fieldList.measureList;
@@ -274,16 +289,6 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     this.doEnableAnalysisBtn();
 
     this.bufferIndex = this.bufferList.findIndex((unitItem) => unitItem === value);
-    // let isNoneInBufferList = false;
-    // this.bufferList.forEach((buffer) => {
-    //   if (buffer.indexOf('Buffer') >= 0) {
-    //     isNoneInBufferList = true;
-    //   }
-    // });
-    // if (isNoneInBufferList == false) {
-    //   this.bufferList.unshift('Buffer');
-    // }
-    // this.bufferIndex = this.bufferList.findIndex((bufferItem) => bufferItem === value);
   }
 
   public choroplethBtn() {
@@ -505,6 +510,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     // compare layer index 를 찾기 위함 (layer 가 두개일 경우만 가능)
     let findCompareIndex = this.baseIndex == 0 ? 1 : 0;
     // buffer 설정
+    mapUIOption.analysis['operation']['bufferUnit'] = this.bufferList[this.bufferIndex].value;
     if (bufferDataValue > 0 && this.isBufferOn == true) {
       mapUIOption.analysis['operation']['buffer'] = bufferDataValue;
     } else if(this.uiOption.layers[findCompareIndex].type.toString().toLowerCase().indexOf('polygon') != -1 && this.isBufferOn == false) {
