@@ -89,6 +89,7 @@ import app.metatron.discovery.domain.mdm.MetadataService;
 import app.metatron.discovery.domain.workspace.Workspace;
 import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.PolarisUtils;
+import app.metatron.discovery.domain.mdm.Metadata;
 
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.ENGINE;
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.LINK;
@@ -486,6 +487,16 @@ public class DataSourceEventHandler {
         dataSourceQueryHistoryRepository.deleteQueryHistoryById(dataSource.getId());
       } catch (Exception e) {
         LOGGER.warn("Fail to remove history related datasource({}) : {} ", dataSource.getId(), e.getMessage());
+      }
+
+      // Delete Metadata
+      try{
+        Optional<Metadata> metadata = metadataService.findByDataSource(dataSource.getId());
+        if(metadata.isPresent()){
+          metadataService.delete(metadata.get().getId());
+        }
+      } catch (Exception e){
+        LOGGER.warn("Fail to remove metadata related datasource({}) : {} ", dataSource.getId(), e.getMessage());
       }
     }
 

@@ -162,6 +162,8 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   // range list for view
   public rangesViewList = [];
 
+  public resultData: Object;
+
   // constructor
   constructor(protected elementRef: ElementRef,
               protected injector: Injector,
@@ -189,7 +191,16 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   public pivot: Pivot;
 
   @Input('resultData')
-  public resultData: Object;
+  public set setResultData(resultData: Object) {
+    this.resultData = resultData;
+    if (resultData && resultData['data'] && resultData['data']['info'] && this.uiOption) {
+      const tmpInfo = resultData['data']['info'];
+      const tmpValFormat = this.uiOption.valueFormat;
+      const minValue = this.checkMinZero(tmpInfo['minValue'], tmpInfo['minValue']);
+      this.minValue = FormatOptionConverter.getDecimalValue(minValue, tmpValFormat.decimal, tmpValFormat.useThousandsSep);
+      this.maxValue = FormatOptionConverter.getDecimalValue(tmpInfo['maxValue'], tmpValFormat.decimal, tmpValFormat.useThousandsSep);
+    }
+  }
 
   @Input('uiOption')
   public set setUiOption(uiOption: UIOption) {
@@ -487,8 +498,24 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
    * 사용자 색상설정 show
    */
   public showUserColorSet() {
+    const colorObj:UIChartColorBySeries = <UIChartColorBySeries>this.uiOption.color;
     // color setting show / hide 값 반대로 설정
-    (<UIChartColorBySeries>this.uiOption.color).settingUseFl = !(<UIChartColorBySeries>this.uiOption.color).settingUseFl;
+    colorObj.settingUseFl = !colorObj.settingUseFl;
+    // if( !colorObj.settingUseFl ) {
+    //   const colorList = ChartColorList[colorObj.schema];
+    //
+    //   // 기존 컬러 리스트로 초기화
+    //   const currColorMapObj = colorObj.mapping;
+    //   const currColorMapList = colorObj.mappingArray;
+    //   currColorMapList.forEach((item,idx) => {
+    //     item['color'] = colorList[idx];
+    //     (currColorMapObj[item['alias']]) && (currColorMapObj[item['alias']] = colorList[idx]);
+    //   });
+    //
+    //   // 차트 업데이트
+    //   this.uiOption.color = colorObj;
+    //   this.update();
+    // }
   }
 
   /**
@@ -570,10 +597,10 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       // color by measure일때
     } else if (this.uiOption.color.type == ChartColorType.MEASURE) {
 
-      const index = this.rangesViewList.indexOf(item);
+      const index = this.rangesViewList.findIndex( rangeItem => rangeItem.color === item.color );
+
       // 선택된 색상으로 설정
       (<UIChartColorByValue>this.uiOption.color).ranges[index].color = colorCode;
-
 
       // 그리드라면
       if( _.eq(this.uiOption.type, ChartType.GRID) ) {

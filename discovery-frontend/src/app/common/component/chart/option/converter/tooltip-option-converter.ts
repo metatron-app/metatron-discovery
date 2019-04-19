@@ -135,10 +135,10 @@ export class TooltipOptionConverter {
   public static returnTooltipDataValue(layerItems: GeoField[]): GeoField[] {
     // if it's not custom field, exclude geo data
     layerItems = layerItems.filter((item) => {
-      // 공간연산 때 custom field를 ui에서 생성하기 때문에 우회해야함
-      if(_.isUndefined(item['isCustomField']) || (!_.isUndefined(item['isCustomField']) && item['isCustomField'] === false)) {
+      // map 공간연산 때 count 라는 custom field를 ui에서 생성하기 때문에 우회해야함
+      // if(_.isUndefined(item['isCustomField']) || (!_.isUndefined(item['isCustomField']) && item['isCustomField'] === false)) {
         return ('user_expr' == item.field.type || (item.field.logicalType && -1 == item.field.logicalType.toString().indexOf('GEO')));
-      }
+      // }
     });
     let groupList = _.groupBy(layerItems, {'type' : 'measure'});
     // remove the columns having same name in dimension

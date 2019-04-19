@@ -59,7 +59,7 @@ export class TimeUnitSelectComponent extends AbstractComponent implements OnInit
     { name: 'Year', unit: 'YEAR' }
   ];
   */
-  public dpContinuousList: string[] = ['Minute', 'Hour', 'Day', 'Week', 'Month', 'Year', 'None'];
+  public dpContinuousList: string[] = ['Second', 'Minute', 'Hour', 'Day', 'Week', 'Month', 'Year', 'None'];
   public dpDiscontinuousList: any[] = [
     { name: 'Day by week', unit: 'DAY', byUnit: 'WEEK' },
     { name: 'Day by month', unit: 'DAY', byUnit: 'MONTH' },

@@ -34,8 +34,6 @@ import {MetadataDetailComponent} from './metadata/metadata-detail.component';
 import {SelectCatalogComponent} from './metadata/component/select-catalog.component';
 import {SelectDatatypeComponent} from './metadata/create-metadata/select-datatype.component';
 import {CompleteCreateMetadataComponent} from './metadata/create-metadata/complete-create-metadata.component';
-import {MetadataDetailInformationComponent} from './metadata/metadata-detail-information.component';
-import {MetadataDetailColumnschemaComponent} from './metadata/metadata-detail-columnschema.component';
 import {DatasourceService} from '../datasource/service/datasource.service';
 import {DatasourceShareModule} from '../datasource/datasource-share.module';
 import {DsSelectDatasourceComponent} from './metadata/create-metadata/ds-select-datasource.component';
@@ -48,12 +46,15 @@ import {HiveSelectSchemaComponent} from './metadata/create-metadata/hive-select-
 import {ChooseColumnDictionaryComponent} from './component/choose-column-dictionary/choose-column-dictionary.component';
 import {CatalogComponent} from './catalog/catalog.component';
 import {MetadataManagementGuard} from '../common/gaurd/metadata-management.guard';
-import {TopInfoComponent} from './metadata/component/top-info.component';
+import {DetailModule} from './detail/detail.module';
+import {DatasourceMetadataSharedModule} from '../shared/datasource-metadata/datasource-metadata-shared.module';
 
 @NgModule({
   imports: [
     CommonModule,
+    DetailModule,
     DatasourceShareModule,
+    DatasourceMetadataSharedModule,
     RouterModule.forChild([
       {path: '', component: MetaDataManagementComponent, canActivate: [MetadataManagementGuard]},
       {path: ':tabId', component: MetaDataManagementComponent, canActivate: [MetadataManagementGuard]},
@@ -101,10 +102,7 @@ import {TopInfoComponent} from './metadata/component/top-info.component';
     ChooseColumnDictionaryComponent,
 
     SelectCatalogComponent,
-    MetadataDetailInformationComponent,
-    MetadataDetailColumnschemaComponent,
     CatalogComponent,
-    TopInfoComponent,
   ],
   providers: [
     // 코드 테이블 서비스

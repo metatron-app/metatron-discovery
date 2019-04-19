@@ -131,7 +131,7 @@ export class CreateDatasetDataTypeComponent extends AbstractPopupComponent imple
    * Check if staging db is enabled
    */
   public isStagingEnabled() : boolean {
-    return StorageService.isEnableStageDB
+    return StorageService.isEnableStageDB;
   }
 
 

@@ -1018,7 +1018,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (this.getPivotComp()) this.getPivotComp().onShelveAnimation(this.$element.find('.ddp-wrap-default'));
 
     // 차트 리사이즈
-    if (this.selectChart != 'map' || this.rnbMenu == '') this.chartResize();
+    if (this.selectChart == 'map' || this.rnbMenu == '') this.chartResize();
   }
 
   public isShowChartInfo(chartType: string) {
@@ -3319,14 +3319,19 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    */
   public changeDraw(value?: any) {
 
-    // 공간연산 analysis layer 관련 event 구현
+    // 공간연산 analysis 실행 여부
     if (!_.isUndefined(value) && value == 'removeAnalysisLayerEvent') {
+      // 공간연산 중지
       this.mapPivot.removeAnalysis();
       this.drawChart();
     } else if (!_.isUndefined(value)) {
+      // 공간 연산
       this.mapPivot.spatialAnalysisBtnClicked(value);
-      // 현재 화면이 벗어나면 짤리므로
-      this.drawChart({type: EventType.MAP_SPATIAL_ANALYSIS});
+      this.changeDetect.detectChanges();
+      this.onChangeShelf({
+        shelf: this.shelf,
+        eventType: EventType.MAP_SPATIAL_ANALYSIS
+      });
     } else {
       this.drawChart();
     }
@@ -4393,8 +4398,13 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * remove analysis layer
    * @param value
    */
-  public removeAnalysisLayer() {
-    this.changeDraw();
+  public removeAnalysisLayer(shelf) {
+    this.changeDetect.detectChanges();
+    // convert pivot to shelf or shelf to pivot
+    this.onChangeShelf({
+      shelf: shelf,
+      eventType: EventType.MAP_SPATIAL_ANALYSIS
+    });
   }
 
 }

@@ -41,6 +41,8 @@ public class CustomJdbcClientDetailsServiceBuilder extends ClientDetailsServiceB
 
   private PasswordEncoder passwordEncoder; // for writing client secrets
 
+  private JdbcClientDetailsService jdbcClientDetailsService;
+
   public CustomJdbcClientDetailsServiceBuilder dataSource(DataSource dataSource) {
     this.dataSource = dataSource;
     return this;
@@ -51,6 +53,11 @@ public class CustomJdbcClientDetailsServiceBuilder extends ClientDetailsServiceB
     return this;
   }
 
+  public CustomJdbcClientDetailsServiceBuilder jdbcClientDetailsService(JdbcClientDetailsService jdbcClientDetailsService) {
+    this.jdbcClientDetailsService = jdbcClientDetailsService;
+    return this;
+  }
+
   @Override
   protected void addClient(String clientId, ClientDetails value) {
     clientDetails.add(value);
@@ -58,21 +65,21 @@ public class CustomJdbcClientDetailsServiceBuilder extends ClientDetailsServiceB
 
   @Override
   protected ClientDetailsService performBuild() {
-    Assert.state(dataSource != null, "You need to provide a DataSource");
-    JdbcClientDetailsService clientDetailsService = new JdbcClientDetailsService(dataSource);
+    //Assert.state(dataSource != null, "You need to provide a DataSource");
+    Assert.state(jdbcClientDetailsService != null, "You need to provide a JdbcClientDetailsService");
     if (passwordEncoder != null) {
       // This is used to encode secrets as they are added to the database (if it isn't set then the user has top
       // pass in pre-encoded secrets)
-      clientDetailsService.setPasswordEncoder(passwordEncoder);
+      jdbcClientDetailsService.setPasswordEncoder(passwordEncoder);
     }
 
     for (ClientDetails client : clientDetails) {
       try {
-        clientDetailsService.updateClientDetails(client);
+        jdbcClientDetailsService.updateClientDetails(client);
       } catch (NoSuchClientException e) {
-        clientDetailsService.addClientDetails(client);
+        jdbcClientDetailsService.addClientDetails(client);
       }
     }
-    return clientDetailsService;
+    return jdbcClientDetailsService;
   }
 }

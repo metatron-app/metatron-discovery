@@ -17,7 +17,10 @@ package app.metatron.discovery.domain.auth;
 import com.google.common.collect.Maps;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.opensaml.ws.message.encoder.MessageEncodingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +34,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.codec.Base64;
+import org.springframework.security.oauth2.provider.client.BaseClientDetails;
+import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.saml.SAMLCredential;
 import org.springframework.security.saml.metadata.MetadataManager;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
@@ -40,9 +46,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,6 +61,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.common.saml.SAMLAuthenticationInfo;
 import app.metatron.discovery.domain.user.CachedUserService;
 import app.metatron.discovery.domain.user.User;
@@ -75,6 +85,9 @@ public class AuthenticationController {
 
   @Autowired
   CachedUserService userService;
+
+  @Autowired
+  JdbcClientDetailsService jdbcClientDetailsService;
 
   @RequestMapping(value = "/auth/{domain}/permissions", method = RequestMethod.GET)
   public ResponseEntity<Object> getPermissions(@PathVariable String domain) {
@@ -209,4 +222,74 @@ public class AuthenticationController {
 
     return ResponseEntity.noContent().build();
   }
+
+  @RequestMapping(value = "/oauth/{clientId}", method = RequestMethod.GET)
+  public ResponseEntity<?> getClient(@PathVariable("clientId") String clientId) {
+    return ResponseEntity.ok(jdbcClientDetailsService.loadClientByClientId(clientId));
+  }
+
+  @RequestMapping(value = "/oauth/generate")
+  public ResponseEntity<?> generateClient(@RequestParam("clientName") String clientName,
+                                          @RequestParam("redirectUri") String redirectUri,
+                                          HttpServletRequest request) {
+
+    String userName = "UNKNOWN";
+    Principal principal = request.getUserPrincipal();
+    if(principal != null){
+      userName = principal.getName();
+    }
+
+    String clientId = RandomStringUtils.randomAlphanumeric(6);
+    String clientSecret = RandomStringUtils.randomAlphanumeric(10);
+
+    LOGGER.info("userName : {} : clientId : {} & clientSecret : {}", userName, clientId, clientSecret);
+    BaseClientDetails baseClientDetails = new BaseClientDetails(clientId, "", "read,write",
+            "authorization_code,implicit,password,refresh_token,client_credentials", "ROLE_CLIENT", "");
+    baseClientDetails.setClientSecret(clientSecret);
+
+    Set redirectUris = org.springframework.util.StringUtils.commaDelimitedListToSet(redirectUri);
+    baseClientDetails.setRegisteredRedirectUri(redirectUris);
+
+    Set autoApproveScopeList = org.springframework.util.StringUtils.commaDelimitedListToSet("read,write");
+    baseClientDetails.setAutoApproveScopes(autoApproveScopeList);
+
+    Map<String, String> additionalInformation = new HashMap<String, String>();
+    additionalInformation.put("clientName", clientName);
+    additionalInformation.put("userName", userName);
+    additionalInformation.put("dateTime", DateTime.now(DateTimeZone.UTC).toString());
+    baseClientDetails.setAdditionalInformation(additionalInformation);
+
+    jdbcClientDetailsService.addClientDetails(baseClientDetails);
+
+    Map<String, String> result = new HashMap<String, String>();
+    try{
+      result.put("clientName", clientName);
+      result.put("clientId", clientId);
+      result.put("clientSecret", clientSecret);
+      String token = clientId + ":" + clientSecret;
+      result.put("basicHeader", new String(Base64.encode(token.getBytes("UTF-8")), "UTF-8"));
+    }catch (Exception e){
+      e.printStackTrace();
+    }
+
+    return ResponseEntity.ok(result);
+  }
+
+  @RequestMapping(value = "/oauth/client/login")
+  public ModelAndView oauthLogin(HttpServletRequest request) {
+    ModelAndView mav = new ModelAndView("oauth/login");
+    try {
+      String clientId = request.getParameter("client_id");
+      String clientSecret = jdbcClientDetailsService.loadClientByClientId(clientId).getClientSecret();
+      String token = clientId+":"+clientSecret;
+      String basicHeader = new String(Base64.encode(token.getBytes("UTF-8")), "UTF-8");
+      LOGGER.info("basicHeader {}", basicHeader);
+      mav.addObject("basicHeader", "Basic "+basicHeader);
+    } catch (Exception e) {
+      throw new MetatronException(e);
+    }
+
+    return mav;
+  }
+
 }

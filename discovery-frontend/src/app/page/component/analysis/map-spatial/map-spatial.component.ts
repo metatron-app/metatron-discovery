@@ -145,7 +145,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       && changes['uiOption']['currentValue']['analysis']['use'] == true
       && this.baseList.layers.length > 0) {
       return;
-    } else if (!_.isUndefined(changes) && !_.isUndefined(changes['uiOption']) && this.baseList.layers.length <= 0) {
+    } else if (!_.isUndefined(changes) && !_.isUndefined(changes['uiOption']) ) {
       this.uiOption = (<UIMapOption>changes['uiOption'].currentValue);
       this.mapSpatialChanges(this.uiOption, this.shelf);
     }
@@ -205,6 +205,10 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
           if( this.isChoroplethOn ){
             let measureList = this.fieldList.measureList;
             for (let index = 0; index < measureList.length; index++) {
+              if (_.isUndefined(operation.aggregation.type)) {
+                this.colorByIndex = 0;
+                break;
+              }
               if( measureList[index].name == operation.aggregation.column ) {
                 this.colorByIndex = index;
                 break;
@@ -576,7 +580,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       });
 
       measureList = getShelveReturnField(layers, [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
-      // dimensionList = getShelveReturnField(layers, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
+      dimensionList = getShelveReturnField(layers, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
       tempObj = {
         'measureList': measureList,
         'dimensionList': dimensionList

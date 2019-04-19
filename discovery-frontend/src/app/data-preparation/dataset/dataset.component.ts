@@ -15,7 +15,6 @@
 import { Component, ElementRef, HostListener, Injector, OnInit, ViewChild } from '@angular/core';
 import { DatasetService } from './service/dataset.service';
 import { AbstractComponent } from '../../common/component/abstract.component';
-//import { Dataset, DsType } from '../../domain/data-preparation/dataset';
 import { PrDataset, DsType, ImportType } from '../../domain/data-preparation/pr-dataset';
 import { SubscribeArg } from '../../common/domain/subscribe-arg';
 import { PopupService } from '../../common/service/popup.service';
@@ -55,12 +54,10 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
   public step: string;
 
   // dataset list
-  //public datasets: Dataset[] = [];
   public datasets: PrDataset[] = [];
 
   public selectedDeletedsId: string;
 
-  //public selectedItem : Dataset;
   public selectedItem : PrDataset;
 
   public selectedContentSort: Order = new Order();
@@ -73,6 +70,8 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
   public ImportType = ImportType;
 
   public prepCommonUtil = PreparationCommonUtil;
+
+  public datasetType = DsType; // [IMPORTED, WRANGLED]
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -154,7 +153,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
   /** 데이터셋 검색
    * @param event
    * */
-  public searchDataset(event : KeyboardEvent) {
+  public searchDataset(event : any) {
 
     if (13 === event.keyCode || 27 === event.keyCode) {
       event.keyCode === 27 ? this.searchText = '' : null;
@@ -197,23 +196,16 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
    * @param event
    * @param dataset 삭제할 데이터셋
    * */
-  public confirmDelete(event : Event, dataset : PrDataset) {
+  public confirmDelete(event : any, dataset : PrDataset) {
 
     event.stopPropagation();
-    // this.dataflowService.getDataset(dataset.dsId).then(() => {
+    const modal = new Modal();
+    modal.name = this.translateService.instant('msg.comm.ui.del.description');
+    modal.description = this.translateService.instant('msg.dp.alert.ds.del.description');
+    modal.btnName = this.translateService.instant('msg.comm.btn.modal.done');
 
-      const modal = new Modal();
-      modal.name = this.translateService.instant('msg.comm.ui.del.description');
-      modal.description = this.translateService.instant('msg.dp.alert.ds.del.description');
-      modal.btnName = this.translateService.instant('msg.comm.btn.modal.done');
-
-      this.selectedDeletedsId = dataset.dsId;
-      this.deleteModalComponent.init(modal);
-
-    // }).catch(() => {
-    //   Alert.warning(this.translateService.instant('msg.dp.alert.df.del.fail'));
-    //   return;
-    // })
+    this.selectedDeletedsId = dataset.dsId;
+    this.deleteModalComponent.init(modal);
 
   }
 
@@ -256,7 +248,6 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
   /** row click (상세화면)
    * @param selectedItem 선택된 데이터셋
    * */
-  //public itemRowClick(selectedItem: Dataset) {
   public itemRowClick(selectedItem: PrDataset) {
     this.router.navigate(['/management/datapreparation/dataset', selectedItem.dsId]);
   }

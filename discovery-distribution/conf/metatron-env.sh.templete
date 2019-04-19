@@ -2,7 +2,7 @@
 
 # export JAVA_HOME=
 # export METATRON_JAVA_OPTS      		# Additional jvm options. for example, export METATRON_JAVA_OPTS="-Dspark.executor.memory=8g -Dspark.cores.max=16"
-# export METATRON_MEM            		# metatron jvm mem options Default -Xms1024m -Xmx1024m -XX:MaxPermSize=512m
+# export METATRON_MEM            		# metatron jvm mem options Default -Xms1024m -Xmx1024m -XX:MaxMetaspaceSize=512m
 
 # export METATRON_ENV_MODE              # ENV mode, profile mode, default local
 # export METATRON_EXTRA_PROFILE         # Extra profile, comma seperated

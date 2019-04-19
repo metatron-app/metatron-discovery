@@ -18,7 +18,6 @@ import {
   ViewChildren
 } from '@angular/core';
 import { Stats } from '../../../../domain/datasource/stats';
-import { Alert } from '../../../../common/util/alert.util';
 import { DatasourceService } from '../../../../datasource/service/datasource.service';
 import * as _ from 'lodash';
 import { Covariance } from '../../../../domain/datasource/covariance';
@@ -34,10 +33,8 @@ import { MetadataColumn } from '../../../../domain/meta-data-management/metadata
 import { isUndefined } from 'util';
 import { AbstractComponent } from '../../../../common/component/abstract.component';
 import { EditFilterDataSourceComponent } from '../edit-filter-data-source.component';
-import { FilteringOptions, FilteringOptionType } from '../../../../domain/workbook/configurations/filter/filter';
 import { EditConfigSchemaComponent } from './edit-config-schema.component';
 import {TimezoneService} from "../../../service/timezone.service";
-import {FormatType} from "../../../../common/component/chart/option/define/common";
 import {StringUtil} from "../../../../common/util/string.util";
 import {DataSourceCreateService, TypeFilterObject} from "../../../service/data-source-create.service";
 
@@ -347,55 +344,6 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
       this.selectedLogicalTypeFilter = filter;
       // 컬럼 목록 갱신
       this._updateFilteredColumnList();
-    }
-  }
-
-  /**
-   * Physical type in selected column change event
-   * @param column
-   * @param type
-   */
-  public onChangeFieldPhysicalType(column: any, type: any): void {
-    // if different logicalType
-    if (column.logicalType !== type.value) {
-      // copy column data
-      const result = _.cloneDeep(column);
-      // change logicalType
-      result['logicalType'] = type.value;
-      result['op'] = 'replace';
-      // if logicalType is TIMESTAMP or type is TIMESTAMP
-      if (column.logicalType === 'TIMESTAMP' || type.value === 'TIMESTAMP') {
-        // if logical type is TIMESTAMP, delete format in column
-        if (column.logicalType === 'TIMESTAMP') {
-          delete result.format;
-        } else if (type.value === LogicalType.TIMESTAMP) {
-          // set default format
-          result['format'] = {
-            format: 'yyyy-MM-dd HH:mm:ss',
-            timeZone: this._timezoneService.getBrowserTimezone().momentName,
-            locale: this._timezoneService.browserLocale,
-            type: FieldFormatType.DATE_TIME
-          };
-        }
-        // if exist filtering and filteringOptions in column
-        if (column.filtering && column.filteringOptions) {
-          // new filteringOptions
-          result.filteringOptions = new FilteringOptions();
-          // if type is TIMESTAMP, add TIME filteringOptions
-          if (type.value === 'TIMESTAMP') {
-            result.filteringOptions.type = FilteringOptionType.TIME;
-            result.filteringOptions.defaultSelector = 'RANGE';
-            result.filteringOptions.allowSelectors = ['RANGE'];
-          } else {
-            // if type is not TIMESTAMP, add INCLUSION filteringOptions
-            result.filteringOptions.type = FilteringOptionType.INCLUSION;
-            result.filteringOptions.defaultSelector = 'SINGLE_LIST';
-            result.filteringOptions.allowSelectors = ['SINGLE_LIST'];
-          }
-        }
-      }
-      // update field
-      // this._updateField([result]);
     }
   }
 

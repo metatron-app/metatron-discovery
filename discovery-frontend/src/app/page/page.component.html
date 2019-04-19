@@ -807,7 +807,7 @@
             (customField)="openCustomFieldPopup($event)"
             (showPopup)="onShowPopup($event)"
             (changeLayer)="onChangeLayer(shelf)"
-            (removeAnalysisLayer)="removeAnalysisLayer()">
+            (removeAnalysisLayer)="removeAnalysisLayer($event)">
             <!--(selectLayer)="onSelectLayer($event)">-->
           </map-page-pivot>
           <!-- //선반 -->
@@ -1717,7 +1717,7 @@
           <map-tooltip-option #mapTooltipOption
                               *ngIf="isChartShow && 'mapTooltip' === rnbMenu"
                               [(uiOption)]="uiOption"
-                              [shelf]="shelf"
+                              [(shelf)]="shelf"
                               (drawChartParam)="onSetDrawChartParam($event)">
           </map-tooltip-option>
           <!-- //MapView -->
@@ -1925,7 +1925,9 @@
                 </a>
                 <!-- 공간연산 option -->
                 <a *ngIf="uiOption['analysis'] != null && uiOption['analysis']['use'] == true && index == shelf.layers.length-1"
-                   (click)="toggleMapLayer('mapLayer'+(index+1), index)">
+                   (click)="toggleMapLayer('mapLayer'+(index+1), index)"
+                   [class.ddp-selected]="isChartShow && rnbMenu=='mapLayer'+(index+1) && !setDisableShelf(index)"
+                   href="javascript:">
                   <em class="ddp-icon-menu-analysis"></em>
                   <!-- 툴팁 -->
                   <div class="ddp-ui-tooltip-info">

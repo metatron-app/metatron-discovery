@@ -571,7 +571,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     // 커넥션 대상 타입 조회
     this.connTargetImgUrl = this.getConnImplementorImgUrl(
       this.dataConnection.connectionInformation.implementor,
-      this.dataConnection.connectionInformation.iconResource2
+      this.dataConnection.connectionInformation.iconResource1
     );
     // 호출 횟수 증가
     this._getDatabaseListReconnectCount++;

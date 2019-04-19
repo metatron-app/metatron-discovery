@@ -189,6 +189,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   @Output('shelf')
   public shelfEvent: EventEmitter<any> = new EventEmitter();
 
+  // resize 이벤트
+  public isResize: boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -373,6 +376,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    */
   public draw(isKeepRange?: boolean): void {
 
+    this.isResize = false;
+
     // analysis
     if (!_.isUndefined(this.getUiMapOption().analysis) && !_.isUndefined(this.getUiMapOption().analysis['use']) && this.getUiMapOption().analysis['use'] == true
       && this.getUiMapOption().layerNum == this.getUiMapOption().layers.length - 1) {
@@ -450,7 +455,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.createMapOverLayEvent();
 
     // Chart resize
-    if( this.drawByType != null || !_.isEmpty(this.drawByType) )
+    if (this.drawByType != null || !_.isEmpty(this.drawByType))
       this.olmap.updateSize();
     ////////////////////////////////////////////////////////
     // Apply
@@ -476,6 +481,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   }
 
   public resize(): void {
+    this.isResize = true;
     this.onResize(null);
   }
 
@@ -933,7 +939,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.changeDetect.detectChanges();
 
     // Map data place fit
-    if (( (this.drawByType == EventType.CHART_TYPE || this.drawByType == EventType.CHANGE_PIVOT) && isLogicalType && this.shelf.layers[layerIndex].fields[this.shelf.layers[layerIndex].fields.length - 1].field.logicalType != null) && 'Infinity'.indexOf(source.getExtent()[0]) == -1 &&
+    if (((this.drawByType == EventType.CHART_TYPE || this.drawByType == EventType.CHANGE_PIVOT) && isLogicalType && this.shelf.layers[layerIndex].fields[this.shelf.layers[layerIndex].fields.length - 1].field.logicalType != null) && 'Infinity'.indexOf(source.getExtent()[0]) == -1 &&
       (_.isUndefined(this.uiOption['layers'][layerIndex]['changeCoverage']) || this.uiOption['layers'][layerIndex]['changeCoverage'])) {
       this.olmap.getView().fit(source.getExtent());
     } else {
@@ -975,7 +981,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       for (let i = 0; i < data.features.length; i++) {
         // geo type
         if (data.features[i].geometry.type.toString().toLowerCase().indexOf('point') != -1) {
-          // point
+          // point && heatmap
           let pointFeature = (new ol.format.GeoJSON()).readFeature(data.features[i]);
           if (_.eq(geomType, LogicalType.GEO_POINT)) {
             let featureCenter = pointFeature.getGeometry().getCoordinates();
@@ -2031,35 +2037,33 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         }
 
         ////////////////////////////////////////////////////////
-        // Field info (Data Value)
+        // tooltip Field info (Data Value)
         ////////////////////////////////////////////////////////
 
         this.tooltipInfo.fields = [];
-        let layerFieldList = [];
+        // let layerFieldList = [];
 
         // Properties (DATA_VALUE)
         if (this.getUiMapOption().toolTip.displayTypes != undefined && this.getUiMapOption().toolTip.displayTypes[19] !== null) {
           let aggregationKeys: any[] = [];
           // layer 에 올라간 field 값 조회
           let layerItems = [];
-          let itemIndex = 0;
-          let customField = {};
+          // let itemIndex = 0;
+          // let customField = {};
           if (!_.isUndefined(this.getUiMapOption().analysis) && !_.isUndefined(this.getUiMapOption().analysis['use']) && this.getUiMapOption().analysis['use'] === true) {
             // 공간연산 실행 시
-            layerItems = _.cloneDeep(
-              !_.isUndefined(this.shelf.layers[this.getUiMapOption().layerNum].fields) && this.shelf.layers[this.getUiMapOption().layerNum].fields.length > 0
-              ? this.shelf.layers[this.getUiMapOption().layerNum].fields : []
-            );
+            layerItems = _.cloneDeep(!_.isUndefined(this.shelf.layers[this.getUiMapOption().layerNum])
+            && !_.isUndefined(this.shelf.layers[this.getUiMapOption().layerNum].fields)
+            && this.shelf.layers[this.getUiMapOption().layerNum].fields.length > 0
+              ? this.shelf.layers[this.getUiMapOption().layerNum].fields : []);
           } else {
             this.shelf.layers[toolTipLayerNum].fields.forEach((field) => {
               layerItems.push(field);
             });
           }
-          // layer 에 올란간 dimension 와 measure list 조회
-          layerFieldList = TooltipOptionConverter.returnTooltipDataValue(layerItems);
-          // set tooltip displayColumns
-          this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(layerFieldList);
 
+          // layer 에 올란간 dimension 와 measure list 조회
+          // layerFieldList = TooltipOptionConverter.returnTooltipDataValue(layerItems);
 
           for (let key in feature.getProperties()) {
             _.each(this.getUiMapOption().toolTip.displayColumns, (field, idx) => {
@@ -2068,6 +2072,30 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
                 return false;
               }
             });
+          }
+
+          // 공간연산 실행 후 단계구분도(choropleth) 설정을 count로 custom하기 때문에 해당 부분 tooltip에 보여주기 위해 적용
+          // if (aggregationKeys.length == 0 && !_.isUndefined(this.getUiMapOption().analysis) && this.getUiMapOption().analysis['use'] === true) {
+          //   aggregationKeys.push({idx: 0, key: 'count'});
+          // }
+          // 공간연산시 단계구분도를 default 값(count)으로 하지 않을 경우 아래와 같이 count를 제외 시킴
+          if (aggregationKeys.length >= 2 && !_.isUndefined(this.getUiMapOption().analysis) && this.getUiMapOption().analysis['use'] === true
+            || (!_.isUndefined(this.getUiMapOption().analysis)
+              && !_.isUndefined(this.getUiMapOption().analysis.operation)
+              && !_.isUndefined(this.getUiMapOption().analysis.operation.aggregation)
+              && !_.isUndefined(this.getUiMapOption().analysis.operation.aggregation.type))) {
+            let aggregationKeyNum: number = 0;
+            let isAggregationKeyNeedToRemove: boolean = false;
+            for (let aggregationKeyIndex = 0; aggregationKeys.length > aggregationKeyIndex; aggregationKeyIndex++) {
+              if (aggregationKeys[aggregationKeyIndex].key == 'count') {
+                aggregationKeyNum = aggregationKeyIndex;
+                isAggregationKeyNeedToRemove = true;
+                break;
+              }
+            }
+            if (isAggregationKeyNeedToRemove) {
+              aggregationKeys.splice(aggregationKeyNum, 1);
+            }
           }
 
           _.each(_.orderBy(aggregationKeys, ['idx']), (aggregationKey) => {
@@ -2093,7 +2121,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         }
 
         ////////////////////////////////////////////////////////
-        // Apply
+        // tooltip enable/disable
         ////////////////////////////////////////////////////////
 
         // if required values are empty, enable false
@@ -2118,20 +2146,20 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
           // tooltip info 에 보여줄 양에 따라 height 구하기
           let sizeOfToolTipHeight = [];
-          if(!_.isUndefined(this.tooltipInfo.fields) && this.tooltipInfo.fields.length > 0) {
+          if (!_.isUndefined(this.tooltipInfo.fields) && this.tooltipInfo.fields.length > 0) {
             // column 이름은 있는데, column value가 없을 경우 사이즈 다를 수 있음
-            this.tooltipInfo.fields.forEach( (field) => {
-              if(field['name'] != null && !_.isUndefined(field['name'])) {
+            this.tooltipInfo.fields.forEach((field) => {
+              if (field['name'] != null && !_.isUndefined(field['name'])) {
                 sizeOfToolTipHeight.push(field['name']);
               }
-              if(field['value'] != null && !_.isUndefined(field['value'])) {
+              if (field['value'] != null && !_.isUndefined(field['value'])) {
                 sizeOfToolTipHeight.push(field['value']);
               }
             });
           }
           if (sizeOfToolTipHeight.length > 0) {
             // height 계산
-            yOffset = yOffset - (25 * (sizeOfToolTipHeight.length/1.2));
+            yOffset = yOffset - (25 * (sizeOfToolTipHeight.length / 1.2));
           }
           let offset = [-92, yOffset];
           this.tooltipLayer.setOffset(offset);
@@ -2412,9 +2440,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     let rangeList = [];
     let featureList = [];
-    _.each(data.features, (feature) => {
-      featureList.push(feature.properties)
-    });
+    if( data ) {
+      _.each(data.features, (feature) => {
+        featureList.push(feature.properties)
+      });
+    }
 
     let featuresGroup = _.groupBy(featureList, ChartUtil.getFieldAlias(layer.color.column, this.shelf.layers[this.getUiMapOption().layerNum].fields, layer.color.aggregationType));
     _.each(Object.keys(featuresGroup), (column, index) => {
@@ -2772,10 +2802,16 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // Tooltip
       ////////////////////////////////////////////////////////
       if (!uiOption.toolTip.displayColumns) uiOption.toolTip.displayColumns = [];
-
+      let itemsForTooltip = TooltipOptionConverter.returnTooltipDataValue(shelf);
       if (!isAnalysisUse) {
-        let fields = TooltipOptionConverter.returnTooltipDataValue(shelf);
-        this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(fields);
+        // multi layer 를 고려해야 함
+        let fieldsForTooltip = ChartUtil.returnNameFromField(itemsForTooltip);
+        fieldsForTooltip.forEach((field) => {
+          this.uiOption.toolTip.displayColumns.push(field);
+        });
+      } else {
+        // 공간연산 실행 시 보여줘야하는 tooltip
+        this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(itemsForTooltip);
       }
     }
   }
@@ -2813,9 +2849,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // zoom size
     mapUIOption.zoomSize = Math.round(event.frameState.viewState.zoom);
 
-    if ((_.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner)) || that.preZoomSize == 0) {
+    if ((_.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner)) || that.preZoomSize == 0 || that.isResize) {
       this.preZoomSize = mapUIOption.zoomSize;
       this.setUiExtent(event);
+      this.isResize = false;
       return;
     }
 
@@ -3318,7 +3355,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.createLegend(this.getUiMapOption().layerNum);
 
     // Chart resize
-    if( this.drawByType != null || !_.isEmpty(this.drawByType) )
+    if (this.drawByType != null || !_.isEmpty(this.drawByType))
       this.olmap.updateSize();
 
     this.loadingHide();
@@ -3346,7 +3383,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
       // data 에서 geometry 값을 추출, uiOption type에 적용
       if (!isChangedType) {
-        this.getUiMapOption().layers[this.getUiMapOption().layerNum].type = data.features[i].geometry.type.toString().toLowerCase() == 'point' ? 'symbol' : data.features[i].geometry.type.toString().toLowerCase();
+        const geometryType = data.features[i].geometry.type.toString().toLowerCase();
+        if( geometryType == 'point' ) {
+          this.getUiMapOption().layers[this.getUiMapOption().layerNum].type = MapLayerType.SYMBOL;
+        } else if( geometryType == 'multipolygon' ) {
+          this.getUiMapOption().layers[this.getUiMapOption().layerNum].type = MapLayerType.POLYGON;
+        } else {
+          this.getUiMapOption().layers[this.getUiMapOption().layerNum].type = geometryType;
+        }
         isChangedType = true;
       }
 
@@ -3359,7 +3403,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         features[i] = pointFeature;
         source.addFeature(features[i]);
       } else if (data.features[i].geometry.type.toString().toLowerCase().indexOf('polygon') != -1 || data.features[i].geometry.type.toString().toLowerCase().indexOf('multipolygon') != -1) {
-        // polygon
         let polygonFeature = (new ol.format.GeoJSON()).readFeature(data.features[i]);
         polygonFeature.set('layerNum', this.getUiMapOption().layerNum);
         features[i] = polygonFeature;
