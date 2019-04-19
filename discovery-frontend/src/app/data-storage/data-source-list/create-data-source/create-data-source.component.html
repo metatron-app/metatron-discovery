@@ -51,11 +51,8 @@
 <db-complete *ngIf="step=='db-complete'"
              [sourceData]="sourceData"
              [(step)]="step"
-             (dbComplete)="createComplete()"
              (close)="createClose()">
 </db-complete>
-
-
 
 
 <!-- file 선택 1/4 -->
@@ -82,7 +79,6 @@
 <file-complete *ngIf="step==='file-complete'"
                [sourceData]="sourceData"
                [(step)]="step"
-               (fileComplete)="createComplete()"
                (close)="createClose()">
 </file-complete>
 
@@ -112,7 +108,6 @@
 <staging-db-complete *ngIf="step==='staging-db-complete'"
                      [sourceData]="sourceData"
                      [(step)]="step"
-                     (stagingComplete)="createComplete()"
                      (close)="createClose()">
 
 </staging-db-complete>

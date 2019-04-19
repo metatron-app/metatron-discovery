@@ -146,13 +146,11 @@ export class CreateSnapshotSourceCompleteComponent extends AbstractPopupComponen
         // 워크스페이스 매핑
         this.datasourceService.addDatasourceWorkspaces(datasource.id, [workspace['id']])
           .then(() => {
-            this.loadingHide();
             this.broadCaster.broadcast('CREATED_DATASOURCE_SNAPSHOT');
             this.router.navigate(['/management/storage/datasource', datasource.id]);
             this.close();
           })
           .catch(() => {
-            this.loadingHide();
             // link datasource detail (#505)
             this.router.navigate(['/management/storage/datasource', datasource.id]);
             this.close();

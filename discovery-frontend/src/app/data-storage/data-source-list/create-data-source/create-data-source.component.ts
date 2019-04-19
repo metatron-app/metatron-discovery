@@ -69,8 +69,6 @@ export class CreateDataSourceComponent extends AbstractComponent implements OnIn
 
   public ngOnDestroy() {
     super.ngOnDestroy();
-
-    this.sourceData = null;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
