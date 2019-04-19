@@ -264,11 +264,11 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
    * Selection 필터 추가
    * @param {SelectionFilter[]} filters
    * @param {SelectionInfoData} selectInfoData
-   * @param {{engineName: string, widgetId: string}} params
+   * @param {{engineName: string, widgetId: string, selectType:string}} params
    * @private
    */
   private _addSelectionFilter(filters: SelectionFilter[], selectInfoData: SelectionInfoData,
-                              params: { engineName: string, widgetId: string }) {
+                              params: { engineName: string, widgetId: string, selectType:string }) {
 
     const filter: SelectionFilter = filters.find((filter: SelectionFilter) => filter.field === selectInfoData.name);
 
@@ -276,6 +276,7 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
     (typeof newValues === 'string') && (newValues = [newValues]);
 
     if (filter) {
+      ( 'MULTI' === params.selectType ) && ( filter.valueList = [] );
       // 필터가 있는 경우
       filter.valueList = _.uniq(filter.valueList.concat(newValues));
       this._setTimeRange(filter);
@@ -428,33 +429,37 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
    */
   private _addChartSelectionInfo(newItem: ChartSelectInfo): void {
     let savedList: ChartSelectInfo[] = this._chartSelectionList;
-    let isMergedWidget: boolean = savedList.some(savedItem => {
-      // 동일 위젯 정보를 찾는다
-      if (savedItem.params.widgetId === newItem.params.widgetId) {
-        newItem.data.forEach(newItemData => {
+    if( 'MULTI' === newItem.params.selectType ) {
+      savedList = savedList.filter( savedItem => savedItem.params.widgetId !== newItem.params.widgetId );
+      savedList.push( newItem );
+    } else {
+      let isMergedWidget: boolean = savedList.some(savedItem => {
+        // 동일 위젯 정보를 찾는다
+        if (savedItem.params.widgetId === newItem.params.widgetId) {
+          newItem.data.forEach(newItemData => {
 
-          // 필드 정보가 존재할 경우 필드 정보 내 데이터를 추가해준다.
-          let isMerged: boolean = savedItem.data.some(savedItemData => {
-            if (savedItemData.alias === newItemData.alias) {
-              savedItemData.data
-                = savedItemData.data
-                .concat(newItemData.data)
-                .filter((elem, pos, arr) => arr.indexOf(elem) == pos);
-              return true;
-            }
+            // 필드 정보가 존재할 경우 필드 정보 내 데이터를 추가해준다.
+            let isMerged: boolean = savedItem.data.some(savedItemData => {
+              if (savedItemData.alias === newItemData.alias) {
+                savedItemData.data
+                  = savedItemData.data
+                  .concat(newItemData.data)
+                  .filter((elem, pos, arr) => arr.indexOf(elem) == pos);
+                return true;
+              }
+            });
+
+            // 필드 정보가 없을 경우 새로운 필드를 추가해준다
+            (isMerged) || (savedItem.data.push(newItemData));
+
           });
+          return true;
+        }
+      });
 
-          // 필드 정보가 없을 경우 새로운 필드를 추가해준다
-          (isMerged) || (savedItem.data.push(newItemData));
-
-        });
-        return true;
-      }
-    });
-
-    // 동일 위젯이 없을 경우 정보를 추가해준다.
-    (isMergedWidget) || (savedList.push(newItem));
-
+      // 동일 위젯이 없을 경우 정보를 추가해준다.
+      (isMergedWidget) || (savedList.push(newItem));
+    }
   } // function - _addChartSelectionInfo
 
   /**

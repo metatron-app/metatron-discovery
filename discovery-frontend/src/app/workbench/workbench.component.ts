@@ -442,8 +442,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public ngOnDestroy() {
     super.ngOnDestroy();
 
-    this._splitVertical.destroy();
-    this._splitVertical = undefined;
+    if( this._splitVertical ) {
+      this._splitVertical.destroy();
+      this._splitVertical = undefined;
+    }
     this._deactiveHorizontalSlider();
 
     if (this._gridScrollEvtSub) {

@@ -1,4 +1,3 @@
-
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +16,8 @@
  * Created by juheeko on 2017. 11. 14..
  */
 
-import { Component, ElementRef, Injector, Input } from '@angular/core';
-import { BaseChart, ChartSelectInfo, PivotTableInfo } from '../../base-chart';
+import {Component, ElementRef, Injector, Input} from '@angular/core';
+import {BaseChart, ChartSelectInfo, PivotTableInfo} from '../../base-chart';
 import {
   CHART_STRING_DELIMITER,
   ChartColorList,
@@ -33,19 +32,19 @@ import {
   SymbolType,
   UIChartDataLabelDisplayType
 } from '../../option/define/common';
-import { OptionGenerator } from '../../option/util/option-generator';
-import { Series } from '../../option/define/series';
+import {OptionGenerator} from '../../option/util/option-generator';
+import {Series} from '../../option/define/series';
 import * as _ from 'lodash';
-import { Pivot } from '../../../../../domain/workbook/configurations/pivot';
-import { Alert } from '../../../../util/alert.util';
-import { BaseOption } from '../../option/base-option';
+import {Pivot} from '../../../../../domain/workbook/configurations/pivot';
+import {Alert} from '../../../../util/alert.util';
+import {BaseOption} from '../../option/base-option';
 import {UIChartColorByDimension, UIChartColorByValue, UIChartFormat, UIOption} from '../../option/ui-option';
-import { FormatOptionConverter } from '../../option/converter/format-option-converter';
-import { ColorRange, UIChartColor, UIChartColorBySeries } from '../../option/ui-option/ui-color';
-import { UIScatterChart } from '../../option/ui-option/ui-scatter-chart';
+import {FormatOptionConverter} from '../../option/converter/format-option-converter';
+import {ColorRange, UIChartColor, UIChartColorBySeries} from '../../option/ui-option/ui-color';
+import {UIScatterChart} from '../../option/ui-option/ui-scatter-chart';
 import optGen = OptionGenerator;
 import UI = OptionGenerator.UI;
-import { DIRECTION, Sort } from '../../../../../domain/workbook/configurations/sort';
+import {DIRECTION, Sort} from '../../../../../domain/workbook/configurations/sort';
 
 
 @Component({
@@ -76,7 +75,7 @@ export class GaugeChartComponent extends BaseChart {
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector ) {
+    protected injector: Injector) {
 
     super(elementRef, injector);
   }
@@ -204,7 +203,11 @@ export class GaugeChartComponent extends BaseChart {
         const seriesIndex = params.seriesIndex;
         const dataIndex = params.dataIndex;
         const seriesValueList = series[seriesIndex].data;
-        const isSelectMode = _.isUndefined(seriesValueList[dataIndex].itemStyle);
+        const tmpItemStyle = seriesValueList[dataIndex].itemStyle;
+        let isSelectMode = false;
+        if (_.isUndefined(tmpItemStyle) || _.isUndefined(tmpItemStyle.normal.opacity) ) {
+          isSelectMode = true;
+        }
 
         if (isSelectMode) {
           // 선택 처리
@@ -264,7 +267,7 @@ export class GaugeChartComponent extends BaseChart {
     let rowsListLength = rowsList.length;
 
     // if rows length is less than colorList length, set rows length instead 5(default)
-    let colorListLength = colorList.length > rowsListLength ? rowsListLength - 1: colorList.length - 1;
+    let colorListLength = colorList.length > rowsListLength ? rowsListLength - 1 : colorList.length - 1;
 
     // less than 0, set minValue
     const minValue = this.uiOption.minValue >= 0 ? 0 : _.cloneDeep(this.uiOption.minValue);
@@ -418,7 +421,7 @@ export class GaugeChartComponent extends BaseChart {
           // uiData가 없는경우
           if (!item['uiData']) {
 
-            item['uiData'] = _.find(this.data.columns[dataIndex], {'name' : item.name});
+            item['uiData'] = _.find(this.data.columns[dataIndex], {'name': item.name});
           }
         });
       }
@@ -439,7 +442,7 @@ export class GaugeChartComponent extends BaseChart {
     this.chartOption = super.convertSeries();
 
     // Gradient Color Change
-    if (_.eq(this.uiOption.color.type, ChartColorType.MEASURE ) && this.uiOption.color['customMode'] && ColorCustomMode.GRADIENT == this.uiOption.color['customMode']) {
+    if (_.eq(this.uiOption.color.type, ChartColorType.MEASURE) && this.uiOption.color['customMode'] && ColorCustomMode.GRADIENT == this.uiOption.color['customMode']) {
 
       _.each(this.data.columns, (column, columnIndex) => {
 
@@ -459,8 +462,7 @@ export class GaugeChartComponent extends BaseChart {
           let value: number = null;
           if (data && isNaN(data)) {
             value = data.value;
-          }
-          else {
+          } else {
             value = data;
           }
 
@@ -468,7 +470,7 @@ export class GaugeChartComponent extends BaseChart {
           let rangePercent: number = (maxValue / totalValue) * 100;
           let codes: string[] = _.cloneDeep(this.chartOption.visualMap.color).reverse();
           let index: number = Math.round(value / rangePercent * codes.length);
-          index = index == codes.length ? codes.length-1 : index;
+          index = index == codes.length ? codes.length - 1 : index;
           series.data[columnIndex].itemStyle = {
             normal: {
               color: codes[index]
@@ -480,7 +482,7 @@ export class GaugeChartComponent extends BaseChart {
       delete this.chartOption.visualMap;
     }
     // Default Color Change
-    else if( _.eq(this.uiOption.color.type, ChartColorType.MEASURE ) ) {
+    else if (_.eq(this.uiOption.color.type, ChartColorType.MEASURE)) {
 
       _.each(this.data.columns, (column, columnIndex) => {
 
@@ -500,8 +502,7 @@ export class GaugeChartComponent extends BaseChart {
           let value: number = null;
           if (data && isNaN(data)) {
             value = data.value;
-          }
-          else {
+          } else {
             value = data;
           }
 
@@ -511,7 +512,7 @@ export class GaugeChartComponent extends BaseChart {
           _.each(this.uiOption.color['ranges'], (range, rangeIndex) => {
             let min: number = range.fixMin != null ? range.fixMin : 0;
             let max: number = range.fixMax != null ? range.fixMax : min;
-            if( originalValue >= min && originalValue <= max ) {
+            if (originalValue >= min && originalValue <= max) {
               index = Number(rangeIndex);
               return false;
             }
@@ -608,7 +609,9 @@ export class GaugeChartComponent extends BaseChart {
     const axisFormat = FormatOptionConverter.getlabelAxisScaleFormatTooltip(this.uiOption);
     if (axisFormat) format = axisFormat;
 
-    if( _.isUndefined(this.chartOption.tooltip) ) { this.chartOption.tooltip = {}; }
+    if (_.isUndefined(this.chartOption.tooltip)) {
+      this.chartOption.tooltip = {};
+    }
     this.chartOption.tooltip.formatter = ((params): any => {
 
       let option = this.chartOption.series[params.seriesIndex];
@@ -781,7 +784,9 @@ export class GaugeChartComponent extends BaseChart {
       for (let key in (<UIChartColorByDimension>this.uiOption.color).mapping) {
 
         // const index = _.findIndex(gaugeDimensionList, key);
-        const index = _.findIndex(gaugeDimensionList, (data) => {return data == key});
+        const index = _.findIndex(gaugeDimensionList, (data) => {
+          return data == key
+        });
 
         // fieldMeasureList에서 없는 리스트이거나 이전의 값이 제거된경우 색상 초기화를 위해 제거
         if (-1 == index || colorChangedFl) {
@@ -806,7 +811,10 @@ export class GaugeChartComponent extends BaseChart {
 
       Object.keys((<UIChartColorByDimension>this.uiOption.color).mapping).forEach((key) => {
 
-        (<UIChartColorByDimension>this.uiOption.color).mappingArray.push({alias: key, color: (<UIChartColorByDimension>this.uiOption.color).mapping[key]});
+        (<UIChartColorByDimension>this.uiOption.color).mappingArray.push({
+          alias: key,
+          color: (<UIChartColorByDimension>this.uiOption.color).mapping[key]
+        });
       });
     }
 
@@ -820,7 +828,7 @@ export class GaugeChartComponent extends BaseChart {
   private convertLabelRotate(): BaseOption {
 
     // 가로 / 세로에 따라서 rotate값 설정
-    let rotate : number;
+    let rotate: number;
     if (!this.uiOption.dataLabel.enableRotation) {
       rotate = 0;
     } else if (this.uiOption.dataLabel.enableRotation) {
@@ -851,7 +859,9 @@ export class GaugeChartComponent extends BaseChart {
     const data = this.data;
 
     // 해당 dimension의 리스트 가져오기
-    const rowsList = shelve.rows.map((item) => {return item.alias});
+    const rowsList = shelve.rows.map((item) => {
+      return item.alias
+    });
 
     let value = [];
     let percentage = [];
@@ -886,13 +896,17 @@ export class GaugeChartComponent extends BaseChart {
           return sum + current
         });
 
-        let sumPercent = percentage.reduce((sum, current)=> {
+        let sumPercent = percentage.reduce((sum, current) => {
           return sum + current
         });
         sumData = Math.floor(sumData * 1000000) / 1000000;
 
         // column data 값 설정
-        return {name: rowData + CHART_STRING_DELIMITER + uniqRow + CHART_STRING_DELIMITER + data.columns[0].name, value: sumData, percentage: sumPercent};
+        return {
+          name: rowData + CHART_STRING_DELIMITER + uniqRow + CHART_STRING_DELIMITER + data.columns[0].name,
+          value: sumData,
+          percentage: sumPercent
+        };
       });
 
       // set sort by first sort
@@ -901,13 +915,13 @@ export class GaugeChartComponent extends BaseChart {
         let sort = new Sort();
         let sortFl: boolean = false;
         for (const sort of this.sorts) {
-          _.sortBy(column, (item)=> {
+          _.sortBy(column, (item) => {
 
             // sort by dimension
             if (item.name.split(CHART_STRING_DELIMITER)[0] === sort.field) {
               column = _.sortBy(column, 'name');
               sortFl = true;
-            // sort by measure
+              // sort by measure
             } else if (item.name.split(CHART_STRING_DELIMITER)[2] === sort.field) {
               column = _.sortBy(column, 'value');
               sortFl = true;
@@ -940,7 +954,10 @@ export class GaugeChartComponent extends BaseChart {
     if (this.data.info.minValue < 0) {
 
       // 선반에서 aggregation 측정값 제거
-      this.changePivotData.emit({'shelveTypeList' : [ShelveType.AGGREGATIONS], 'shelveFieldTypeList' : [String(ShelveFieldType.MEASURE), String(ShelveFieldType.CALCULATED)]});
+      this.changePivotData.emit({
+        'shelveTypeList': [ShelveType.AGGREGATIONS],
+        'shelveFieldTypeList': [String(ShelveFieldType.MEASURE), String(ShelveFieldType.CALCULATED)]
+      });
 
       // show guide 이벤트 발생
       this.showGuide.emit();
@@ -986,7 +1003,7 @@ export class GaugeChartComponent extends BaseChart {
       //////////////////////////////////////////////////
       // 공통포멧
       //////////////////////////////////////////////////
-      if( format && format.isAll ) {
+      if (format && format.isAll) {
 
         // 포맷 적용
         value = FormatOptionConverter.getFormatValue(value, format);
@@ -1053,7 +1070,9 @@ export class GaugeChartComponent extends BaseChart {
     ///////////////////////////
 
     let format: UIChartFormat = uiOption.valueFormat;
-    if (_.isUndefined(format)){ return chartOption }
+    if (_.isUndefined(format)) {
+      return chartOption
+    }
 
     // 축의 포멧이 있는경우 축의 포멧으로 설정
     const axisFormat = FormatOptionConverter.getlabelAxisScaleFormat(uiOption);
@@ -1070,8 +1089,12 @@ export class GaugeChartComponent extends BaseChart {
     // 적용
     _.each(series, (option) => {
 
-      if( _.isUndefined(option.label) ) { option.label = { normal: {} }; }
-      if( _.isUndefined(option.label.normal) ) { option.label.normal = {} }
+      if (_.isUndefined(option.label)) {
+        option.label = {normal: {}};
+      }
+      if (_.isUndefined(option.label.normal)) {
+        option.label.normal = {}
+      }
 
       // 적용
       option.label.normal.formatter = ((params): any => {
@@ -1098,58 +1121,57 @@ export class GaugeChartComponent extends BaseChart {
   private getFormatGaugeValueSeries(params: any, format: UIChartFormat, uiOption?: UIOption, series?: any, uiData?: any): string {
 
     // UI 데이터 정보가 있을경우
-    if( uiData ) {
+    if (uiData) {
 
       if (!uiOption.dataLabel || !uiOption.dataLabel.displayTypes) return '';
 
       // UI 데이터 가공
       let isUiData: boolean = false;
       let result: string[] = [];
-      if( this.pivot.rows.length > 1 && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME) ){
+      if (this.pivot.rows.length > 1 && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME)) {
 
         result.push(_.split(params.data.name, CHART_STRING_DELIMITER)[0]);
         isUiData = true;
       }
-      if( -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_VALUE) ){
+      if (-1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_VALUE)) {
         result.push(FormatOptionConverter.getFormatValue(uiData['categoryValue'], format));
         isUiData = true;
       }
-      if( -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_PERCENT) ){
+      if (-1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_PERCENT)) {
 
         let value = uiData['categoryPercent'];
         value = Math.floor(Number(value) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal);
-        result.push(value +'%');
+        result.push(value + '%');
         isUiData = true;
       }
       // 해당 dataIndex 데이터애로 뿌려줌
-      if( -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME) ){
+      if (-1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME)) {
 
         result.push(_.split(params.data.name, CHART_STRING_DELIMITER)[1]);
         isUiData = true;
       }
-      if( -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE) ){
+      if (-1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
 
         result.push(FormatOptionConverter.getFormatValue(uiData.value, format));
         isUiData = true;
       }
-      if( -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT) ){
+      if (-1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT)) {
         let percentValue = Math.floor(Number(uiData.percentage) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal);
-        result.push(percentValue +'%');
+        result.push(percentValue + '%');
         isUiData = true;
       }
 
       let label: string = "";
 
       // UI 데이터기반 레이블 반환
-      if( isUiData ) {
-        for( let num: number = 0 ; num < result.length ; num++ ) {
-          if( num > 0 ) {
+      if (isUiData) {
+        for (let num: number = 0; num < result.length; num++) {
+          if (num > 0) {
             label += "\n";
           }
-          if(series.label && series.label.normal && series.label.normal.rich) {
-            label += '{align|'+ result[num] +'}';
-          }
-          else {
+          if (series.label && series.label.normal && series.label.normal.rich) {
+            label += '{align|' + result[num] + '}';
+          } else {
             label += result[num];
           }
         }
@@ -1176,7 +1198,7 @@ export class GaugeChartComponent extends BaseChart {
   private getFormatGaugeValueSeriesTooltip(params: any, format: UIChartFormat, uiOption?: UIOption, series?: any, uiData?: any): string {
 
     // UI 데이터 정보가 있을경우
-    if( uiData ) {
+    if (uiData) {
 
       if (!uiOption.toolTip) uiOption.toolTip = {};
       if (!uiOption.toolTip.displayTypes) uiOption.toolTip.displayTypes = FormatOptionConverter.setDisplayTypes(uiOption.type);
@@ -1184,12 +1206,12 @@ export class GaugeChartComponent extends BaseChart {
       // UI 데이터 가공
       let result: string[] = [];
 
-      if( this.pivot.rows.length > 1 && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME) ){
+      if (this.pivot.rows.length > 1 && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME)) {
 
         let categoryNameList = _.split(params.data.name, CHART_STRING_DELIMITER);
         result.push(categoryNameList[0]);
       }
-      if( -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_VALUE) ){
+      if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_VALUE)) {
 
         let splitValue = _.split(params.data.name, CHART_STRING_DELIMITER);
         let name = splitValue[splitValue.length - 1];
@@ -1205,7 +1227,7 @@ export class GaugeChartComponent extends BaseChart {
 
         result.push(categoryValue);
       }
-      if( -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_PERCENT) ){
+      if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_PERCENT)) {
 
         // category value가 선택된지 않은경우
         if (-1 == uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_VALUE)) {
@@ -1221,12 +1243,12 @@ export class GaugeChartComponent extends BaseChart {
         }
       }
       // 해당 dataIndex 데이터애로 뿌려줌
-      if( -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME) ){
+      if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME)) {
 
         let categoryNameList = _.split(params.data.name, CHART_STRING_DELIMITER);
         result.push(categoryNameList[0] + ' : ' + categoryNameList[1]);
       }
-      if( -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE) ){
+      if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
 
         let splitValue = _.split(params.data.name, CHART_STRING_DELIMITER);
         let name = splitValue[splitValue.length - 1];
@@ -1241,7 +1263,7 @@ export class GaugeChartComponent extends BaseChart {
 
         result.push(seriesValue);
       }
-      if( -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT) ){
+      if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT)) {
 
         // series value가 선택된지 않은경우
         if (-1 == uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
