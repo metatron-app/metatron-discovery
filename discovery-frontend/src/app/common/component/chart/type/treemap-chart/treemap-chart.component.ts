@@ -137,6 +137,7 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
    */
   public addChartSelectEventListener(): void {
     this.chart.off('click');
+/*
     this.chart.on('click', (params) => {
 
       let selectMode: ChartSelectMode;
@@ -185,8 +186,10 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
       const selectData = this.setSelectData(params, selectedColValues, selectedRowValues);
 
       // 이벤트 데이터 전송
+      this.params['selectType'] = 'SINGLE';
       this.chartSelectInfo.emit(new ChartSelectInfo(selectMode, selectData, this.params));
     });
+*/
   }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method

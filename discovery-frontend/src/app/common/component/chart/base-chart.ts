@@ -1969,10 +1969,14 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       obj.data = _.cloneDeep(obj.originData);
 
       // 불투명도를 1로 변경
-      if (!_.isUndefined(obj.itemStyle) && !_.isUndefined(obj.itemStyle.normal)) obj.itemStyle.normal.opacity = 1;
+      if (!_.isUndefined(obj.itemStyle) && !_.isUndefined(obj.itemStyle.normal)) {
+        delete obj.itemStyle.normal.opacity;
+      }
 
       // 라인이 존재한다면 라인의 불투명도 1로 변경
-      if (!_.isUndefined(obj.lineStyle) && !_.isUndefined(obj.lineStyle.normal)) obj.lineStyle.normal.opacity = 1;
+      if (!_.isUndefined(obj.lineStyle) && !_.isUndefined(obj.lineStyle.normal)) {
+        delete obj.lineStyle.normal.opacity;
+      }
 
       // 현재 시리즈의 선택 여부 변경
       obj.existSelectData = false;
@@ -2009,9 +2013,10 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     }
 
     // 선택한 데이터 선택효과 처리
-    const setSeriesValue = ((series: Series, data: any, color: string, opacity: number = 1): any => {
+    const setSeriesValue = ((series: Series, dataIndex: number, data: any, color: string, opacity: number = 1): any => {
       return {
-        name: series.name,
+        // name: series.name,
+        name: series.uiData.seriesName[dataIndex],
         value: !_.isUndefined(data.value) ? data.value : data,
         itemStyle: {
           normal: {
@@ -2047,7 +2052,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         let opacity = 1;
 
         // 수치로 되어있는 데이터는 개별 itemStyle 을 지정하여 오브젝트로 재구성
-        selectedSeriesData[params.dataIndex] = setSeriesValue(selectedSeries, selectedData, params.color, opacity);
+        selectedSeriesData[params.dataIndex] = setSeriesValue(selectedSeries, params.dataIndex, selectedData, params.color, opacity);
       }
 
       // 라인 존재하는 경우 심볼 크기 변경
@@ -2063,7 +2068,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         // 선택한 시리즈의 데이터 리스트
         const selectedSeriesData = selectedSeries.data;
         // 선택한 series data index값
-        const selectedDataList = obj.dataIndex;
+        const selectedDataIndexList = obj.dataIndex;
 
         // 선택한 데이터 선택효과 처리
         if (selectedSeries.lineStyle && obj.dataIndex && obj.dataIndex.length > 0) {
@@ -2072,21 +2077,28 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         }
 
         // 시리즈 선택 처리
-        if (!_.isEmpty(selectedDataList)) {
+        if (!_.isEmpty(selectedDataIndexList)) {
 
-          // dataIndex 리스트 개수만큼 설정
-          selectedDataList.map((index) => {
-
-            // data.value가 있는지 없는지 데이터 형태에 따라 로직 설정
-            if (!_.isUndefined(selectedSeriesData[index].value)) {
-              // 오브젝트로 구성된 데이터는 opacity 만 조정
-              selectedSeriesData[index].itemStyle = OptionGenerator.ItemStyle.auto();
-              selectedSeriesData[index].itemStyle.normal.opacity = 1;
+          selectedSeriesData.forEach((dataItem, index) => {
+            if (-1 < selectedDataIndexList.indexOf(index)) {
+              // 선택된 경우
+              // data.value가 있는지 없는지 데이터 형태에 따라 로직 설정
+              if (_.isUndefined(selectedSeriesData[index].value)) {
+                // 수치로 되어있는 데이터는 개별 itemStyle 을 지정하여 오브젝트로 재구성
+                selectedSeriesData[index] = setSeriesValue(selectedSeries, index, dataItem, params.color);
+                (selectedSeries.lineStyle) && (dataItem.symbolSize = 10);
+              } else {
+                // 오브젝트로 구성된 데이터는 opacity 만 조정
+                dataItem.itemStyle = OptionGenerator.ItemStyle.auto();
+                dataItem.itemStyle.normal.opacity = 1;
+              }
             } else {
-              // 수치로 되어있는 데이터는 개별 itemStyle 을 지정하여 오브젝트로 재구성
-              selectedSeriesData[index] = setSeriesValue(selectedSeries, selectedSeriesData[index], params.color);
-              if (selectedSeries.lineStyle) selectedSeriesData[index].symbolSize = 10;
-
+              // 선택되지 않은 경우
+              if (!_.isUndefined(selectedSeriesData[index].value)) {
+                // 오브젝트로 구성된 데이터는 opacity 만 조정
+                (dataItem.itemStyle) || (dataItem.itemStyle = OptionGenerator.ItemStyle.auto());
+                dataItem.itemStyle.normal.opacity = 0.2;
+              }
             }
           });
 
@@ -2535,6 +2547,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       this.lastDrawSeries = _.cloneDeep(this.chartOption['series']);
 
       // 이벤트 데이터 전송
+      this.params['selectType'] = 'SINGLE';
       this.chartSelectInfo.emit(new ChartSelectInfo(selectMode, selectData, this.params));
     });
   }
@@ -2572,28 +2585,25 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       // 교차선반 데이터 요소 ( scatter )
       const aggs = this.pivotInfo.aggs;
 
-      const setData = ((colIdxList, data: Field[], shelveData: string[], dataAlter?: Field[], shelveAlterData?: string[]) => {
+      const setData = ((colIdxList, fields: Field[], shelveData: string[], dataAlter?: Field[], shelveAlterData?: string[]) => {
 
         let returnList = [];
 
-        colIdxList.map((colIdx) => {
+        colIdxList.forEach((colIdx) => {
           const dataName = !_.isEmpty(shelveData) ? shelveData[colIdx] : shelveAlterData[colIdx];
           _.split(dataName, CHART_STRING_DELIMITER).map((name, idx) => {
 
             // filter관련 데이터 변경
-            const shelveData = !_.isEmpty(data) ? data[idx] : dataAlter[idx];
+            const fieldItem = !_.isEmpty(fields) ? fields[idx] : dataAlter[idx];
 
-            // selectDataList에 해당 name의 값이 없을때
-            if (-1 === _.findIndex(returnList, (obj) => {
-              return obj.name === shelveData.name
-            })) {
-
-              // selectDataList에 추가
-              returnList.push(shelveData);
+            // selectDataList에 해당 name의 값이 없을때 selectDataList에 추가
+            if (-1 === returnList.findIndex(obj => obj.name === fieldItem.name)) {
+              const resultItem = _.cloneDeep(fieldItem);
+              resultItem['data'] = [];
+              returnList.push(resultItem);
             }
 
             // 기존데이터에 신규데이터 추가
-            // returnList[idx].data = _.union(returnList[idx].data, [name]);
             returnList[idx].data = _.union(returnList[idx].data, [name]);
           });
         });
@@ -2602,7 +2612,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       });
 
       // UI에 전송할 선택정보 설정
-      selectedBrushData.map((selected) => {
+      selectedBrushData.forEach((selected) => {
         // 해당 시리즈의 선택한 데이터 인덱스 모음
         const colIdxList = selected.dataIndex;
 
@@ -2616,13 +2626,14 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       });
 
       // 차트에서 선택한 데이터 존재 여부 설정
-      this.isSelected = selectDataList && selectDataList.length > 0 ? true : false;
+      this.isSelected = ( selectDataList && selectDataList.length > 0 );
 
       // 차트에 적용
       this.apply(false);
       this.lastDrawSeries = _.cloneDeep(this.chartOption['series']);
 
       // 이벤트 데이터 전송
+      this.params['selectType'] = 'MULTI';
       this.chartSelectInfo.emit(new ChartSelectInfo(ChartSelectMode.ADD, selectDataList, this.params));
     });
   }
