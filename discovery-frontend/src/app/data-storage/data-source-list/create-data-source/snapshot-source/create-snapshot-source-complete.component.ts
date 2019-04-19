@@ -13,7 +13,15 @@
  */
 
 
-import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output, ViewChild} from "@angular/core";
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  Output,
+  ViewChild
+} from "@angular/core";
 import {AbstractPopupComponent} from "../../../../common/component/abstract-popup.component";
 import {DatasourceInfo} from "../../../../domain/datasource/datasource";
 import {DatasourceService} from "../../../../datasource/service/datasource.service";
@@ -26,6 +34,7 @@ import {SsType} from "../../../../domain/data-preparation/pr-snapshot";
 import {Alert} from "../../../../common/util/alert.util";
 import {CookieConstant} from "../../../../common/constant/cookie.constant";
 import {Modal} from "../../../../common/domain/modal";
+import {EventBroadcaster} from "../../../../common/event/event.broadcaster";
 
 /**
  * Creating datasource with Snapshot - complete step
@@ -45,9 +54,6 @@ export class CreateSnapshotSourceCompleteComponent extends AbstractPopupComponen
   @Output('stepChange')
   private _stepChange: EventEmitter<string> = new EventEmitter();
 
-  @Output('completed')
-  private _completed: EventEmitter<any> = new EventEmitter();
-
   // partition list
   private _convertedPartitionList: any;
 
@@ -60,6 +66,7 @@ export class CreateSnapshotSourceCompleteComponent extends AbstractPopupComponen
 
   constructor(private datasourceService: DatasourceService,
               private datasourceCreateService: DataSourceCreateService,
+              private broadCaster: EventBroadcaster,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -139,18 +146,14 @@ export class CreateSnapshotSourceCompleteComponent extends AbstractPopupComponen
         // 워크스페이스 매핑
         this.datasourceService.addDatasourceWorkspaces(datasource.id, [workspace['id']])
           .then(() => {
-            // link datasource detail (#505)
+            this.broadCaster.broadcast('CREATED_DATASOURCE_SNAPSHOT');
             this.router.navigate(['/management/storage/datasource', datasource.id]);
-            // close
-            this._step = '';
-            this._completed.emit(this._step);
+            this.close();
           })
           .catch(() => {
             // link datasource detail (#505)
             this.router.navigate(['/management/storage/datasource', datasource.id]);
-            // close
-            this._step = '';
-            this._completed.emit(this._step);
+            this.close();
           });
       })
       .catch((error) => {

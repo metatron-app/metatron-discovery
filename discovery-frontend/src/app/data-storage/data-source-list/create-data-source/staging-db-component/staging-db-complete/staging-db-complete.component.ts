@@ -55,9 +55,6 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
   @Output()
   public stepChange: EventEmitter<string> = new EventEmitter();
 
-  @Output('stagingComplete')
-  public stagingComplete = new EventEmitter();
-
   // create complete data
   public createCompleteData: CreateSourceCompleteData;
 
@@ -192,15 +189,13 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
             // link datasource detail (#505)
             this.router.navigate(['/management/storage/datasource', result.id]);
             // close
-            this.step = '';
-            this.stagingComplete.emit(this.step);
+            this.close();
           })
           .catch(() => {
             // link datasource detail (#505)
             this.router.navigate(['/management/storage/datasource', result.id]);
             // close
-            this.step = '';
-            this.stagingComplete.emit(this.step);
+            this.close();
           });
       })
       .catch((error) => {

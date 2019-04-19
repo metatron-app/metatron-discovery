@@ -252,6 +252,14 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     // Init
     super.ngOnInit();
 
+    // 데이터소스 생성완료시 사용
+    this.subscriptions.push(
+      this.broadCaster.on<any>('CREATED_DATASOURCE_SNAPSHOT').subscribe(() => {
+        this.useUnloadConfirm =  true;
+      })
+    );
+
+
     // 필드 펼침/숨김에 대한 이벤트
     this.subscriptions.push(
       this.broadCaster.on<any>('EDIT_RULE_SHOW_HIDE_LAYER').subscribe((data: { id : string, isShow : boolean }) => {

@@ -87,8 +87,9 @@ export class FieldConfigService extends AbstractService {
       // if not exist srs name
       if (isNullOrUndefined(fieldFormat.originalSrsName)) {
         fieldFormat.geoCoordinateInitialize();
-        fieldFormat.type = this._getSrsName(targetType);
       }
+      // change GEO format type
+      fieldFormat.type = this._getSrsName(targetType);
       // if not exist data list
       if (isNullOrUndefined(dataList) || dataList.length < 1) {
         // set type valid FALSE
