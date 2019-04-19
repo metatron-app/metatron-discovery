@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.mdm;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -338,6 +339,14 @@ public class MetadataColumn implements MetatronDomain<Long>  {
 
   public void setMetadata(Metadata metadata) {
     this.metadata = metadata;
+  }
+
+  @JsonIgnore
+  public FieldFormat getFieldFormat() {
+    if(StringUtils.isNotEmpty(format)){
+      return GlobalObjectMapper.readValue(format, FieldFormat.class);
+    }
+    return null;
   }
 
   @Override

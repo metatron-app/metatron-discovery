@@ -82,10 +82,10 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   // 생성자
   constructor(
     protected element: ElementRef,
+    protected injector: Injector,
     protected metadataService: MetadataService,
     protected catalogService: CatalogService,
-    public sanitizer: DomSanitizer,
-    protected injector: Injector) {
+    public sanitizer: DomSanitizer) {
     super(element, injector);
   }
 

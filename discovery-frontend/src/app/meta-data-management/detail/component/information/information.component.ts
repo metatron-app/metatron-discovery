@@ -13,19 +13,19 @@
  */
 
 import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChild, ViewChildren} from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {MetadataService} from './service/metadata.service';
-import {Alert} from '../../common/util/alert.util';
-import {MetadataModelService} from './service/metadata.model.service';
-import {InputComponent} from '../../common/component/input/input.component';
 import * as _ from 'lodash';
-import {MetadataSourceType} from '../../domain/meta-data-management/metadata';
+import {AbstractComponent} from '../../../../common/component/abstract.component';
+import {InputComponent} from '../../../../common/component/input/input.component';
+import {MetadataService} from '../../../metadata/service/metadata.service';
+import {MetadataModelService} from '../../../metadata/service/metadata.model.service';
+import {Alert} from '../../../../common/util/alert.util';
+import {Metadata} from '../../../../domain/meta-data-management/metadata';
 
 @Component({
   selector: 'app-metadata-detail-information',
-  templateUrl: './metadata-detail-information.component.html',
+  templateUrl: './information.component.html'
 })
-export class MetadataDetailInformationComponent extends AbstractComponent implements OnInit, OnDestroy {
+export class InformationComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -137,7 +137,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
    * @param tag
    */
   public deleteTag(tag) {
-    this.metadataService.deleteTagFromMetadata(this.metadataModelService.getMetadata().id, [tag.name]).then(() => {
+    this.metadataService.deleteTagFromMetadata(this.metadataModelService.getMetadata().id, [ tag.name ]).then(() => {
       this.getMetadataDetail();
     }).catch((err) => {
       console.info('error -> ', err);
@@ -158,7 +158,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     }
     if (!this.tagFlag) {
       this.tagFlag = true;
-      this.metadataService.addTagToMetadata(this.metadataModelService.getMetadata().id, [this.tagValue]).then(() => {
+      this.metadataService.addTagToMetadata(this.metadataModelService.getMetadata().id, [ this.tagValue ]).then(() => {
         this.tagValue = '';
         this.isAddTag = false;
         this.getMetadataDetail();
@@ -216,17 +216,15 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     // Set
     this.editingDesc ? this.desc = this.editingDesc.trim() : this.desc = '';
 
-    this.metadataService.updateMetadata(this.metadataModelService.getMetadata().id, {description: this.desc}).
-      then((result) => {
-        this.loadingHide();
-        if (result) {
-          this.getMetadataDetail();
-        }
-      }).
-      catch((error) => {
-        this.loadingHide();
-        Alert.warning(error);
-      });
+    this.metadataService.updateMetadata(this.metadataModelService.getMetadata().id, { description: this.desc }).then((result) => {
+      this.loadingHide();
+      if (result) {
+        this.getMetadataDetail();
+      }
+    }).catch((error) => {
+      this.loadingHide();
+      Alert.warning(error);
+    });
   } // function - onDescChange
 
   /**
@@ -248,13 +246,11 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
    * @param catalogId
    */
   public deleteCatalogFromMetadata(catalogId) {
-    this.metadataService.deleteCatalogLinkFromMetadata(this.metadataModelService.getMetadata().id, catalogId).
-      then(() => {
-        this.getMetadataDetail();
-      }).
-      catch((error) => {
-        Alert.error(error);
-      });
+    this.metadataService.deleteCatalogLinkFromMetadata(this.metadataModelService.getMetadata().id, catalogId).then(() => {
+      this.getMetadataDetail();
+    }).catch((error) => {
+      Alert.error(error);
+    });
   }
 
   /**
@@ -295,7 +291,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     if (_.isNil(datasourceId)) {
       return;
     }
-    this.router.navigate([`/management/storage/datasource/${datasourceId}`]);
+    this.router.navigate([ `/management/storage/datasource/${datasourceId}` ]);
   }
 
   public isSourceTypeDatasource() {
@@ -303,7 +299,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   }
 
   public isMetadataSourceTypeIsEngine() {
-    return new MetadataSourceType(this.metadataModelService.getMetadata().sourceType).isEngine();
+    return Metadata.isSourceTypeIsEngine(this.metadataModelService.getMetadata().sourceType);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

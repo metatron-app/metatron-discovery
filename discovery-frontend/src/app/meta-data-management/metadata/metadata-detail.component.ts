@@ -23,7 +23,7 @@ import {ActivatedRoute} from '@angular/router';
 import {MetadataModelService} from './service/metadata.model.service';
 import {SelectCatalogComponent} from './component/select-catalog.component';
 import {ChooseCodeTableComponent} from '../component/choose-code-table/choose-code-table.component';
-import {MetadataDetailColumnschemaComponent} from './metadata-detail-columnschema.component';
+import {ColumnSchemaComponent} from '../detail/component/column-schema/column-schema.component';
 import {ChooseColumnDictionaryComponent} from '../component/choose-column-dictionary/choose-column-dictionary.component';
 import {ColumnDictionary} from '../../domain/meta-data-management/column-dictionary';
 import {CodeTable} from '../../domain/meta-data-management/code-table';
@@ -51,8 +51,8 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   @ViewChild(ChooseCodeTableComponent)
   private _chooseCodeTableComp: ChooseCodeTableComponent;
 
-  @ViewChild(MetadataDetailColumnschemaComponent)
-  private _detailColumnSchemaComp: MetadataDetailColumnschemaComponent;
+  @ViewChild(ColumnSchemaComponent)
+  private _detailColumnSchemaComp: ColumnSchemaComponent;
 
   // 컬럼사전 선택 컴포넌트
   @ViewChild(ChooseColumnDictionaryComponent)
