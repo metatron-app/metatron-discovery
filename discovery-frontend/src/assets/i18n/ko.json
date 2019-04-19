@@ -1600,6 +1600,7 @@
   "msg.board.ui.filter.add-edit.filter" : "필터 추가 및 수정",
   "msg.board.ui.select-data" : "<em>{{value}}</em> 에서 데이터를 선택해 주세요",
   "msg.board.ui.invalid-pivot" : "차트를 그릴 수 없습니다<br>선반 정보를 확인해 주세요",
+  "msg.board.ui.invalid-column" : "해당 차트에 사용할수 없는 컬럼입니다",
   "msg.board.th.chart-widget" : "Chart widget",
   "msg.board.th.chart-widget.description" : "대시보드 영역으로 차트 리스트를 Drag&Drop하여 차트 위젯을 대시보드에 배치할 수 있습니다",
   "msg.board.alert.remove-not-parent" : "상세 차트가 있는 경우 삭제할 수 없습니다",
