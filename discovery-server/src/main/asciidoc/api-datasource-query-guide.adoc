@@ -1,0 +1,361 @@
+
+[[resources-datasource-query]]
+== DataSource Query
+
+
+[[resources-datasource-query-representations]]
+=== Resource representations
+
+.SearchQueryRequest
+|===
+|Name |Type |Description |Note
+
+|dataSource
+|DataSource
+|질의할 데이터 소스 정보
+|
+
+|userFields[]
+|UserDefinedField
+|User-defined field
+|
+
+
+|filters[]
+|Filter
+|Filter 정보
+|
+
+|projections[]
+|Field
+|질의할 필드 정보
+|선언하는 MeasureField 내 aggregationType 이 null/NONE 인 경우 Select 구문 수행, 아닌 경우 GroupBy 구문 수행.
+이때, 모든 MeasureField 는 동일하게 aggregationType 이 존재하거나 없어야함, Validation 체크 필요
+
+|limits
+|Limit
+|질의할 최대 Row Count
+|
+
+|resultFormat
+|SearchResultFormat
+|질의 결과 포맷 지정
+|
+
+|resultForward
+|ResultForward
+|질의 결과
+|
+
+|===
+
+.CandidateQueryRequest
+|===
+|Name |Type |Description |Note
+
+|dataSource
+|DataSource
+|질의할 데이터 소스 정보
+|
+
+|filters[]
+|Filter
+|Filter 정보
+|
+
+|userFields
+|UserDefinedField
+|사용자 정의 필드 지정
+|
+
+|searchWord
+|String
+|search word
+|
+
+|targetField
+|Field
+|Target field
+|
+
+|sortBy
+|Enum
+|Sort criteria, "COUNT", "VALUE"
+|
+
+|limit
+|Integer
+|Limitation of candidated contents
+|
+
+|===
+
+.DataSource
+|===
+|Name |Type |Description |Note
+
+|type
+|Enum
+|Type of Datasource, "default", "mapping"
+|default 타입의 경우 string 형태로 데이터소스 명을 지정 가능합니다.
+
+|name
+|String
+|질의할 Main(Left) 데이터 소스 명
+|
+
+|keyPair
+|Map
+|(mapping) Join 대상이 되는 필드 명 쌍 , key 부분은 left 영역내 필드명이며, value 부분은 right 영역내 필드명임
+|
+
+|join
+|Object
+|(mapping) Join 대상(Right) Datasource 정보
+|
+
+|join.name
+|String
+|Join 대상 데이터 소스 명
+|
+
+|join.joinAlias
+|String
+|하위 조인 대상 존재시, naming 구분자, 기본값은 join.nam
+|
+
+|join.type
+|Enum
+|Join Type, "INNER", "LEFT_OUTER", "RIGHT_OUTER"
+|
+
+|join.join
+|Object
+|하위 조인 대상 존재시 Join 대상 DataSource 정보
+|
+
+|join.keyPair
+|Map
+|하위 조인 대상 존재시, Join 대상 필드명 쌍
+|
+
+|===
+
+.Filter
+|===
+|Name |Type |Description |Note
+
+|type
+|Enum
+|Type of Filter, "include", "like", "regexpr", "expression", "measure", "time_list", "time_relative", "time_range")
+|
+
+|field
+|String
+|field name
+|
+
+|ref
+|String
+|필드 참조 대상, 데이터 소스 명 또는 UserdefinedField 명
+|
+
+|valueList
+|Array
+|(include / time_list) 선택한 필드내 값 목록
+|
+
+|intervals
+|Array
+|(time_range) timeUnit 에 맞는 시간 포맷으로 지정, 'datetime/datetime', 'datetime/period', 'period/datetime', 'period/datetime/period' 형태로 입력가능.
+| ex. timeUnit 이 Day 인 경우, 2018-05-19/2018-05-20, "2018-05-20/P2D", ... +
+ ※ Time format by time unit  +
+   - SECOND: "yyyy-MM-dd HH:mm:ss"  +
+   -  MINUTE: "yyyy-MM-dd HH:mm"  +
+   -  HOUR: "yyyy-MM-dd HH"  +
+   -  DAY: "yyyy-MM-dd"  +
+   -  WEEK: "xxxx-ww"  +
+   -  MONTH: "yyyy-MM"  +
+   -  QUARTER: "yyyy-q"  +
+   -  YEAR: "yyyy"
+|timeUnit
+|Enum
+|(time_list / time_range / time_relative) Time units, "SECOND", "MINUTE", "HOUR", "DAY", "WEEK", "MONTH", "QUARTER", "YEAR", "NONE"
+|
+
+|byTimeUnit
+|Enum
+|(time_list) timeUnit 범위를 표현하는 시간 단위, "MINUTE", "HOUR", "DAY", "WEEK", "MONTH", "QUARTER", "YEAR"
+|
+
+|discontinuous
+|Boolean
+|(time_list) 불연속형 여부
+|
+
+|tense
+|Enum
+|(time_relative) 기준 시점, "PREVIOUS", "CURRENT", "NEXT"
+|
+
+|expr
+|String
+|(like) Wildcard 관련 문자('_', '%') 포함, scape 문자('\') 지원  +
+ (regexpr) Regular Expression +
+ (expression) 엔진내 지원하는 Expr 지정
+|
+
+|===
+
+.Field
+|===
+|Name |Type |Description |Note
+
+|type
+|Enum
+|Field role, "dimension", "measure", "timestamp"
+|
+
+|name
+|String
+|The name of field
+|
+
+|alias
+|String
+|Alias
+|
+
+|ref
+|String
+|필드 참조 대상, 데이터 소스 명 또는 UserDefinedField 일 경우 "user_defined" 지정
+|
+
+|granularity
+|Enum
+|(timestamp) timeserise aggregation unit, "SECOND", "MINUTE", "HOUR", "DAYOFWEEK", "WEEK", "MONTH", "QUARTER", "YEAR"
+|
+
+|timeUnit
+|Enum
+|(timestamp, dimension) display format "SECOND", "MINUTE", "HOUR", "DAYOFWEEK", "WEEK", "MONTH", "QUARTER", "YEAR"
+|
+
+|timeZone
+|String
+|(timestamp, dimension) timezone 지정, http://joda-time.sourceforge.net/timezones.html 의 timezone ID 를 따름, default 'UTC'
+|
+
+|locale
+|Enum
+|(timestamp, dimension) language locale, default 'en'
+|
+
+|aggregationType
+|Eumn
+|(measure) the type of aggregation, "NONE", "MIN", "MAX", "COUNT", "SUM", "AVG", "STDDEV", "MEDIAN", "AREA", "RANGE", "PERCENTILE"
+|
+
+|options
+|String
+|(measure) 집합 함수관련 옵션. key1=value1,key2=value2,.. 형태로 구성
+|Percentile 인 경우 0~1 사이의 값 필요 (ex. value=0.75)
+
+|===
+
+.UserDefinedField
+|===
+|Name |Type |Description |Note
+
+|type
+|Enum
+|Type of user-defined field, "user_expr", "user_param", "user_map"
+| "user_param", "user_map" 타입의 경우 추후 정리
+
+|name
+|String
+|The name of user-defined field
+|
+
+|ref
+|String
+|필드 참조 대상, 데이터 소스 명 또는 UserDefinedField 일 경우 "user_defined" 지정
+|
+
+|expr
+|String
+|(user_expr) Expression
+|
+
+|roleType
+|Enum
+|(user_expr) Field role, "MEASURE", "DIMENSION"
+|
+
+|===
+
+
+[[resources-datasource-query-methods]]
+=== Methods
+
+
+[[resources-datasource-query-methods-search]]
+==== Search
+
+Searches datasource on engine.
+
+===== HTTP request
+    (POST) /api/datasources/query/search
+
+===== Request Body
+
+.Request body structure
+[source,json]
+----
+aaa
+----
+
+===== Response
+If successful, this method returns list of result format in the response body.
+
+[[resources-datasource-search-methods-candidate]]
+==== Candidate
+Returns cadidated contents of field.
+
+===== HTTP request
+    (POST) /api/datasources/query/candidate
+
+===== Request Body
+
+.Request body structure
+[source,json]
+----
+{}
+----
+
+===== Response
+If successful, this method returns following structure in the response body.
+
+.Response body structure - for timestamp field
+[source,json]
+----
+{
+  "minTime": "yyyy-MM-ddTHH:mm:ss.SSSZ"
+  "maxTime": "yyyy-MM-ddTHH:mm:ss.SSSZ"
+  "minValue": "string"                 # Dimension Role 이며 DataType 이 Timestamp 인 경우 원본 포맷으로도 전달
+  "minValue": "string"                 # Dimension Role 이며 DataType 이 Timestamp 인 경우 원본 포맷으로도 전달
+}
+----
+
+.Response body structure - for dimension field
+[source,json]
+----
+[
+    {
+        "field": "string",
+        "count": 0
+    }
+    ...
+]
+
+----

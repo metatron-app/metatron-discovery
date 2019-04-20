@@ -146,420 +146,422 @@ import static java.util.Optional.ofNullable;
 @EnableWebMvc
 public class ApiResourceConfig extends WebMvcConfigurerAdapter {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(ApiResourceConfig.class);
+  private static Logger LOGGER = LoggerFactory.getLogger(ApiResourceConfig.class);
 
-    private static final String RESOURCE_PATH = "/resource/";
-    private static final String COMMON_JS = RESOURCE_PATH + "common.*.js";
-    private static final String RUNTIME_JS = RESOURCE_PATH + "runtime.*.js";
-    private static final String MAIN_JS = RESOURCE_PATH + "main.*.js";
-    private static final String POLYFILLS_JS = RESOURCE_PATH + "polyfills.*.js";
-    private static final String SCRIPTS_JS = RESOURCE_PATH + "scripts.*.js";
-    private static final String OTHER_JS = RESOURCE_PATH + "*.*.js";
+  private static final String RESOURCE_PATH = "/resource/";
+  private static final String COMMON_JS = RESOURCE_PATH + "common.*.js";
+  private static final String RUNTIME_JS = RESOURCE_PATH + "runtime.*.js";
+  private static final String MAIN_JS = RESOURCE_PATH + "main.*.js";
+  private static final String POLYFILLS_JS = RESOURCE_PATH + "polyfills.*.js";
+  private static final String SCRIPTS_JS = RESOURCE_PATH + "scripts.*.js";
+  private static final String OTHER_JS = RESOURCE_PATH + "*.*.js";
 
-    private static final String STYLES_CSS = RESOURCE_PATH + "styles.*.css";
+  private static final String STYLES_CSS = RESOURCE_PATH + "styles.*.css";
 
-    private static final String PNG = RESOURCE_PATH + "*.*.png";
-    private static final String JPG = RESOURCE_PATH + "*.*.jpg";
-    private static final String WOFF = RESOURCE_PATH + "*.*.woff";
-    private static final String EOF = RESOURCE_PATH + "*.*.eot";
-    private static final String TTF = RESOURCE_PATH + "*.*.ttf";
+  private static final String PNG = RESOURCE_PATH + "*.*.png";
+  private static final String JPG = RESOURCE_PATH + "*.*.jpg";
+  private static final String WOFF = RESOURCE_PATH + "*.*.woff";
+  private static final String EOF = RESOURCE_PATH + "*.*.eot";
+  private static final String TTF = RESOURCE_PATH + "*.*.ttf";
 
-    public final static String APP_UI_ROUTE_PREFIX = "/app/v2/";
-    public final static String API_PREFIX = "/api";
-    public final static String REDIRECT_URL = "redirect:" + APP_UI_ROUTE_PREFIX + "index.html";
-    public final static String REDIRECT_PATH_URL = REDIRECT_URL + "?path=";
+  public final static String APP_UI_ROUTE_PREFIX = "/app/v2/";
+  public final static String API_PREFIX = "/api";
+  public final static String REDIRECT_URL = "redirect:" + APP_UI_ROUTE_PREFIX + "index.html";
+  public final static String REDIRECT_PATH_URL = REDIRECT_URL + "?path=";
 
-    @Autowired
-    MetatronProperties metatronProperties;
+  @Autowired
+  MetatronProperties metatronProperties;
 
-    @Autowired
-    PluginManager pluginManager;
+  @Autowired
+  PluginManager pluginManager;
 
-    @Value("${polaris.resources.cache.cacheControl.max-age: 604800}")
-    private Integer cacheControlMaxAge;
+  @Value("${polaris.resources.cache.cacheControl.max-age: 604800}")
+  private Integer cacheControlMaxAge;
 
-    /**
-     * Maps all AngularJS routes to index so that they work with direct linking.
-     */
-    @Controller
-    static class Routes {
+  /**
+   * Maps all AngularJS routes to index so that they work with direct linking.
+   */
+  @Controller
+  static class Routes {
 
-        @RequestMapping({
-                "/"
-        })
-        public String index() {
-            return REDIRECT_URL;
-        }
+    @RequestMapping({
+        "/"
+    })
+    public String index() {
+      return REDIRECT_URL;
     }
+  }
 
-    /**
-     *
-     */
-    @Controller
-    @RequestMapping("/api")
-    static class ApiRoutes {
+  /**
+   *
+   */
+  @Controller
+  @RequestMapping("/api")
+  static class ApiRoutes {
 
-        @RequestMapping({
-                "/browser"
-        })
-        public String index() {
-            return "redirect:/api/browser/browser.html";
-        }
+    @RequestMapping({
+        "/browser"
+    })
+    public String index() {
+      return "redirect:/api/browser/browser.html";
     }
+  }
 
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+  @Override
+  public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
-        registry.addResourceHandler("/resource/**")
+    registry.addResourceHandler("/resource/**")
             .addResourceLocations("classpath:resource/");
 
-        ofNullable(cacheControlMaxAge).ifPresent(value -> {
-            try {
-                registry.addResourceHandler(COMMON_JS, RUNTIME_JS, MAIN_JS, POLYFILLS_JS, SCRIPTS_JS, OTHER_JS, STYLES_CSS, PNG, JPG, WOFF, EOF, TTF)
-                    .addResourceLocations("classpath:resource/")
-                    .setCacheControl(CacheControl.maxAge(value, TimeUnit.SECONDS).cachePublic());
-            } catch (Exception e) {
-                LOGGER.debug("Please check the value of \"polaris.resources.cache.cacheControl.max-age\" in application.yaml. Resource caching is not enabled.");
-            }
-        });
+    ofNullable(cacheControlMaxAge).ifPresent(value -> {
+      try {
+        registry.addResourceHandler(COMMON_JS, RUNTIME_JS, MAIN_JS, POLYFILLS_JS, SCRIPTS_JS, OTHER_JS, STYLES_CSS, PNG, JPG, WOFF, EOF, TTF)
+                .addResourceLocations("classpath:resource/")
+                .setCacheControl(CacheControl.maxAge(value, TimeUnit.SECONDS).cachePublic());
+      } catch (Exception e) {
+        LOGGER.debug("Please check the value of \"polaris.resources.cache.cacheControl.max-age\" in application.yaml. Resource caching is not enabled.");
+      }
+    });
 
-        registry.addResourceHandler("/assets/**")
+    registry.addResourceHandler("/docs/**")
+            .addResourceLocations("classpath:resource/docs/");
+    registry.addResourceHandler("/assets/**")
             .addResourceLocations("classpath:resource/assets/");
-        registry.addResourceHandler("/webjars/**")
+    registry.addResourceHandler("/webjars/**")
             .addResourceLocations("classpath:/META-INF/resources/webjars/");
 
-        //add resource for extension
-        // /plugins/plugin-id/**  -->  file:/plugin-path/classes/
-        for(PluginWrapper pluginWrapper : pluginManager.getResolvedPlugins()){
-            registry.addResourceHandler("/extensions/" + pluginWrapper.getPluginId() + "/**")
-                    .addResourceLocations("file:" + pluginWrapper.getPluginPath().toAbsolutePath().toString() + "/classes/");
+    //add resource for extension
+    // /plugins/plugin-id/**  -->  file:/plugin-path/classes/
+    for (PluginWrapper pluginWrapper : pluginManager.getResolvedPlugins()) {
+      registry.addResourceHandler("/extensions/" + pluginWrapper.getPluginId() + "/**")
+              .addResourceLocations("file:" + pluginWrapper.getPluginPath().toAbsolutePath().toString() + "/classes/");
+    }
+  }
+
+  @Override
+  public void addViewControllers(ViewControllerRegistry registry) {
+    registry.addViewController("/app/v2/assets/i18n/en.json").setViewName("forward:/resource/assets/i18n/en.json");
+    registry.addViewController("/app/v2/assets/i18n/ko.json").setViewName("forward:/resource/assets/i18n/ko.json");
+    registry.addViewController("/app/v2/assets/i18n/zh.json").setViewName("forward:/resource/assets/i18n/zh.json");
+    //        registry.addViewController("/app/v2/assets/images/img_photo.png").setViewName("forward:/resource/assets/images/img_photo.png");
+    //        registry.addViewController("/assets/**").setViewName("forward:/resource/index.html");
+    registry.addViewController("/app/**").setViewName("forward:/resource/index.html");
+    registry.addViewController("/app/v2/**").setViewName("forward:/resource/index.html");
+  }
+
+  @Bean
+  public ViewResolver setupViewResolver(ContentNegotiationManager manager) {
+    List<ViewResolver> viewResolvers = new ArrayList<>();
+    viewResolvers.add(thymeleafViewResolver());
+    ContentNegotiatingViewResolver resolver = new ContentNegotiatingViewResolver();
+    resolver.setViewResolvers(viewResolvers);
+    resolver.setContentNegotiationManager(manager);
+    return resolver;
+  }
+
+  @Bean
+  public ThymeleafViewResolver thymeleafViewResolver() {
+    ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
+    viewResolver.setViewClass(ThymeleafView.class);
+    viewResolver.setTemplateEngine(templateEngine());
+    viewResolver.setCharacterEncoding("UTF-8");
+
+    return viewResolver;
+  }
+
+  @Bean
+  public ITemplateResolver servletTemplateResolver() {
+    SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
+    resolver.setPrefix("/WEB-INF/classes/templates/");
+    resolver.setSuffix(".html");
+    resolver.setTemplateMode(TemplateMode.HTML);
+    resolver.setCharacterEncoding("UTF8");
+    resolver.setOrder(2);
+
+    return resolver;
+  }
+
+  @Bean
+  public ITemplateResolver classLoaderTemplateResolver() {
+    ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
+    resolver.setPrefix("templates/api/");
+    resolver.setSuffix(".html");
+    resolver.setTemplateMode(TemplateMode.HTML);
+    resolver.setCharacterEncoding("UTF8");
+    resolver.setOrder(1);
+
+    return resolver;
+  }
+
+  @Bean
+  public TemplateEngine templateEngine() {
+    SpringTemplateEngine templateEngine = new SpringTemplateEngine();
+    templateEngine.setEnableSpringELCompiler(true);
+    templateEngine.addTemplateResolver(classLoaderTemplateResolver());
+    templateEngine.addTemplateResolver(servletTemplateResolver());
+    return templateEngine;
+  }
+
+  @Override
+  public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+    configurer.enable("default");
+  }
+
+  @Override
+  public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+    converters.add(mappingJackson2HttpMessageConverter());
+    converters.add(stringHttpMessageConverter());
+    converters.add(byteArrayHttpMessageConverter());
+  }
+
+  @Bean("mappingJackson2HttpMessageConverter")
+  public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
+    final MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+    converter.setObjectMapper(jacksonBuilder().build());
+    return converter;
+  }
+
+  @Bean
+  public StringHttpMessageConverter stringHttpMessageConverter() {
+    final StringHttpMessageConverter stringConverter = new StringHttpMessageConverter(Charset.forName("UTF-8"));
+    stringConverter.setSupportedMediaTypes(
+        Arrays.asList(MediaType.TEXT_PLAIN, MediaType.TEXT_HTML, MediaType.APPLICATION_JSON));
+    return stringConverter;
+  }
+
+  @Bean
+  public ByteArrayHttpMessageConverter byteArrayHttpMessageConverter() {
+    final ByteArrayHttpMessageConverter byteArrayHttpMessageConverter = new ByteArrayHttpMessageConverter();
+    byteArrayHttpMessageConverter.setSupportedMediaTypes(Arrays.asList(
+        MediaType.IMAGE_JPEG, MediaType.IMAGE_PNG, MediaType.IMAGE_GIF, MediaType.APPLICATION_OCTET_STREAM, MediaType.ALL
+    ));
+
+    return byteArrayHttpMessageConverter;
+  }
+
+  @Bean
+  public Jackson2ObjectMapperBuilder jacksonBuilder() {
+    Jackson2ObjectMapperBuilder builder = Jackson2ObjectMapperBuilder.json();
+
+    //add deserializer for managements
+    SimpleModule simpleModule = new SimpleModule("SimpleModule", Version.unknownVersion());
+    simpleModule.addDeserializer(Application.class, new ApplicationDeserializer());
+
+    builder.indentOutput(false)
+           .dateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"))
+           .failOnUnknownProperties(false)
+           .featuresToEnable(ALLOW_NON_NUMERIC_NUMBERS)
+           .featuresToEnable(ALLOW_SINGLE_QUOTES)
+           .serializationInclusion(JsonInclude.Include.NON_NULL)
+           .modules(new JodaModule(), new Hibernate5Module(), simpleModule);
+    return builder;
+  }
+
+  // TODO: 향후 Spring data rest 관련 설정 파일 분리
+  @Bean
+  public SpelAwareProxyProjectionFactory projectionFactory() {
+    return new SpelAwareProxyProjectionFactory();
+  }
+
+  @Bean
+  public RepositoryRestConfigurer repositoryRestConfigurer() {
+
+    return new RepositoryRestConfigurerAdapter() {
+
+      @Override
+      public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
+        config.setBasePath(API_PREFIX);
+        config.setMaxPageSize(5000);
+
+        // 리턴되는 결과 값내 ID 항목을 표시할 Entity 정보 기록
+        config.exposeIdsFor(Workspace.class, WorkBook.class, DashBoard.class, Widget.class,
+                            DataSource.class, Field.class, DataSourceAlias.class, IngestionHistory.class,
+                            DataConnection.class,
+                            Notebook.class, Workbench.class, Folder.class, NotebookModel.class, NotebookModelHistory.class, NotebookAPI.class,
+                            Widget.class, PageWidget.class, TextWidget.class, FilterWidget.class,
+                            QueryEditor.class, QueryHistory.class,
+                            Comment.class,
+                            PrDataflow.class, PrDataset.class, PrTransformRule.class,
+                            NotebookConnector.class, ZeppelinConnector.class, JupyterConnector.class,
+                            User.class, Role.class, RoleSet.class,
+                            Metadata.class, Catalog.class,
+                            ColumnDictionary.class, CodeTable.class, CodeValuePair.class,
+                            Tag.class, TagDomain.class);
+      }
+
+      /**
+       *  Spring Data Rest 호출시 사용하는 ObjectMapper 설정 수행
+       *  기본설정은 RepositoryRestMvcConfiguration.basicObjectMapper() 참조
+       * @param objectMapper
+       */
+      @Override
+      public void configureJacksonObjectMapper(ObjectMapper objectMapper) {
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.configure(ALLOW_NON_NUMERIC_NUMBERS, true);
+        objectMapper.configure(ALLOW_SINGLE_QUOTES, true);
+        objectMapper.disable(SerializationFeature.INDENT_OUTPUT);
+        //                objectMapper.addMixIn(Object.class, IgnoreHibernatePropertiesInJackson.class);
+        objectMapper.registerModule(new JodaModule());
+        objectMapper.registerModule(new Hibernate5Module());
+
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+        provider.addIncludeFilter(new AnnotationTypeFilter(JsonTypeName.class));
+        for (BeanDefinition candidate : provider.findCandidateComponents(MetatronDiscoveryApplication.class.getPackage().getName())) {
+          objectMapper.registerSubtypes(ClassUtils.resolveClassName(candidate.getBeanClassName(), ClassUtils.getDefaultClassLoader()));
         }
-    }
 
-    @Override
-    public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/app/v2/assets/i18n/en.json").setViewName("forward:/resource/assets/i18n/en.json");
-        registry.addViewController("/app/v2/assets/i18n/ko.json").setViewName("forward:/resource/assets/i18n/ko.json");
-        registry.addViewController("/app/v2/assets/i18n/zh.json").setViewName("forward:/resource/assets/i18n/zh.json");
-//        registry.addViewController("/app/v2/assets/images/img_photo.png").setViewName("forward:/resource/assets/images/img_photo.png");
-//        registry.addViewController("/assets/**").setViewName("forward:/resource/index.html");
-        registry.addViewController("/app/**").setViewName("forward:/resource/index.html");
-        registry.addViewController("/app/v2/**").setViewName("forward:/resource/index.html");
-    }
+      }
 
-    @Bean
-    public ViewResolver setupViewResolver(ContentNegotiationManager manager){
-        List<ViewResolver> viewResolvers = new ArrayList<>();
-        viewResolvers.add(thymeleafViewResolver());
-        ContentNegotiatingViewResolver resolver = new ContentNegotiatingViewResolver();
-        resolver.setViewResolvers(viewResolvers);
-        resolver.setContentNegotiationManager(manager);
-        return resolver;
-    }
+      @Override
+      public void configureHttpMessageConverters(List<HttpMessageConverter<?>> messageConverters) {
+        messageConverters.add(mappingJackson2HttpMessageConverter());
+        messageConverters.add(stringHttpMessageConverter());
+        messageConverters.add(byteArrayHttpMessageConverter());
+      }
 
-    @Bean
-    public ThymeleafViewResolver thymeleafViewResolver() {
-        ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
-        viewResolver.setViewClass(ThymeleafView.class);
-        viewResolver.setTemplateEngine(templateEngine());
-        viewResolver.setCharacterEncoding("UTF-8");
+    };
+  }
 
-        return viewResolver;
-    }
+  //    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+  //    private abstract class IgnoreHibernatePropertiesInJackson{ }
 
-    @Bean
-    public ITemplateResolver servletTemplateResolver() {
-        SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
-        resolver.setPrefix("/WEB-INF/classes/templates/");
-        resolver.setSuffix(".html");
-        resolver.setTemplateMode(TemplateMode.HTML);
-        resolver.setCharacterEncoding("UTF8");
-        resolver.setOrder(2);
+  @Bean(autowire = Autowire.BY_TYPE)
+  public DataSourceEventHandler dataSourceEventHandler() {
+    return new DataSourceEventHandler();
+  }
 
-        return resolver;
-    }
+  @Bean(autowire = Autowire.BY_TYPE)
+  public DataConnectionEventHandler dataConnectionEventHandler() {
+    return new DataConnectionEventHandler();
+  }
 
-    @Bean
-    public ITemplateResolver classLoaderTemplateResolver() {
-        ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
-        resolver.setPrefix("templates/api/");
-        resolver.setSuffix(".html");
-        resolver.setTemplateMode(TemplateMode.HTML);
-        resolver.setCharacterEncoding("UTF8");
-        resolver.setOrder(1);
+  @Bean(autowire = Autowire.BY_TYPE)
+  public WorkspaceEventHandler workspaceEventHandler() {
+    return new WorkspaceEventHandler();
+  }
 
-        return resolver;
-    }
+  @Bean(autowire = Autowire.BY_TYPE)
+  public WorkBookEventHandler workBookEventHandler() {
+    return new WorkBookEventHandler();
+  }
 
-    @Bean
-    public TemplateEngine templateEngine() {
-        SpringTemplateEngine templateEngine = new SpringTemplateEngine();
-        templateEngine.setEnableSpringELCompiler(true);
-        templateEngine.addTemplateResolver(classLoaderTemplateResolver());
-        templateEngine.addTemplateResolver(servletTemplateResolver());
-        return templateEngine;
-    }
+  @Bean(autowire = Autowire.BY_TYPE)
+  public WorkbenchEventHandler workbenchEventHandler() {
+    return new WorkbenchEventHandler();
+  }
 
-    @Override
-    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
-        configurer.enable("default");
-    }
+  @Bean(autowire = Autowire.BY_TYPE)
+  public NotebookEventHandler notebookEventHandler() {
+    return new NotebookEventHandler();
+  }
 
-    @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        converters.add(mappingJackson2HttpMessageConverter());
-        converters.add(stringHttpMessageConverter());
-        converters.add(byteArrayHttpMessageConverter());
-    }
+  @Bean(autowire = Autowire.BY_TYPE)
+  public NotebookModelEventHandler notebookModelEventHandler() {
+    return new NotebookModelEventHandler();
+  }
 
-    @Bean("mappingJackson2HttpMessageConverter")
-    public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
-        final MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-        converter.setObjectMapper(jacksonBuilder().build());
-        return converter;
-    }
+  @Bean(autowire = Autowire.BY_TYPE)
+  public NotebookConnectorEventHandler notebookConnectorEventHandler() {
+    return new NotebookConnectorEventHandler();
+  }
 
-    @Bean
-    public StringHttpMessageConverter stringHttpMessageConverter() {
-        final StringHttpMessageConverter stringConverter = new StringHttpMessageConverter(Charset.forName("UTF-8"));
-        stringConverter.setSupportedMediaTypes(
-                Arrays.asList(MediaType.TEXT_PLAIN, MediaType.TEXT_HTML, MediaType.APPLICATION_JSON));
-        return stringConverter;
-    }
+  @Bean(autowire = Autowire.BY_TYPE)
+  public FolderEventHandler folderEventHandler() {
+    return new FolderEventHandler();
+  }
 
-    @Bean
-    public ByteArrayHttpMessageConverter byteArrayHttpMessageConverter() {
-        final ByteArrayHttpMessageConverter byteArrayHttpMessageConverter = new ByteArrayHttpMessageConverter();
-        byteArrayHttpMessageConverter.setSupportedMediaTypes(Arrays.asList(
-                MediaType.IMAGE_JPEG, MediaType.IMAGE_PNG, MediaType.IMAGE_GIF, MediaType.APPLICATION_OCTET_STREAM, MediaType.ALL
-        ));
+  @Bean(autowire = Autowire.BY_TYPE)
+  public WidgetEventHandler widgetEventHandler() {
+    return new WidgetEventHandler();
+  }
 
-        return byteArrayHttpMessageConverter;
-    }
+  @Bean(autowire = Autowire.BY_TYPE)
+  public DashBoardEventHandler dashBoardEventHandler() {
+    return new DashBoardEventHandler();
+  }
 
-    @Bean
-    public Jackson2ObjectMapperBuilder jacksonBuilder() {
-      Jackson2ObjectMapperBuilder builder = Jackson2ObjectMapperBuilder.json();
+  @Bean(autowire = Autowire.BY_TYPE)
+  public UserEventHandler userEventHandler() {
+    return new UserEventHandler();
+  }
 
-      //add deserializer for managements
-      SimpleModule simpleModule = new SimpleModule("SimpleModule", Version.unknownVersion());
-      simpleModule.addDeserializer(Application.class, new ApplicationDeserializer());
+  @Bean(autowire = Autowire.BY_TYPE)
+  public RoleEventHandler roleEventHandler() {
+    return new RoleEventHandler();
+  }
 
-      builder.indentOutput(false)
-              .dateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"))
-              .failOnUnknownProperties(false)
-              .featuresToEnable(ALLOW_NON_NUMERIC_NUMBERS)
-              .featuresToEnable(ALLOW_SINGLE_QUOTES)
-              .serializationInclusion(JsonInclude.Include.NON_NULL)
-              .modules(new JodaModule(), new Hibernate5Module(), simpleModule);
-      return builder;
-    }
+  @Bean(autowire = Autowire.BY_TYPE)
+  public RoleSetEventHandler roleSetEventHandler() {
+    return new RoleSetEventHandler();
+  }
 
-    // TODO: 향후 Spring data rest 관련 설정 파일 분리
-    @Bean
-    public SpelAwareProxyProjectionFactory projectionFactory() {
-        return new SpelAwareProxyProjectionFactory();
-    }
+  @Bean(autowire = Autowire.BY_TYPE)
+  public MetadataEventHandler metadataEventHandler() {
+    return new MetadataEventHandler();
+  }
 
-    @Bean
-    public RepositoryRestConfigurer repositoryRestConfigurer() {
+  @Bean(autowire = Autowire.BY_TYPE)
+  public CatalogEventHandler catalogEventHandler() {
+    return new CatalogEventHandler();
+  }
 
-        return new RepositoryRestConfigurerAdapter() {
+  @Bean(autowire = Autowire.BY_TYPE)
+  public PrDataflowEventHandler prepDataflowEventHandler() {
+    return new PrDataflowEventHandler();
+  }
 
-            @Override
-            public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
-                config.setBasePath(API_PREFIX);
-                config.setMaxPageSize(5000);
+  @Bean(autowire = Autowire.BY_TYPE)
+  public PrDatasetEventHandler prDatasetEventHandler() {
+    return new PrDatasetEventHandler();
+  }
 
-                // 리턴되는 결과 값내 ID 항목을 표시할 Entity 정보 기록
-                config.exposeIdsFor(Workspace.class, WorkBook.class, DashBoard.class, Widget.class,
-                                    DataSource.class, Field.class, DataSourceAlias.class, IngestionHistory.class,
-                                    DataConnection.class,
-                                    Notebook.class, Workbench.class, Folder.class, NotebookModel.class, NotebookModelHistory.class, NotebookAPI.class,
-                                    Widget.class, PageWidget.class, TextWidget.class, FilterWidget.class,
-                                    QueryEditor.class, QueryHistory.class,
-                                    Comment.class,
-                                    PrDataflow.class, PrDataset.class, PrTransformRule.class,
-                                    NotebookConnector.class, ZeppelinConnector.class, JupyterConnector.class,
-                                    User.class, Role.class, RoleSet.class,
-                                    Metadata.class, Catalog.class,
-                                    ColumnDictionary.class, CodeTable.class, CodeValuePair.class,
-                                    Tag.class, TagDomain.class);
-            }
+  //    @Override
+  //    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+  //        registry.addResourceHandler("/spread/**").addResourceLocations("classpath:spread/");
+  //        registry.addResourceHandler("/favicon.ico").addResourceLocations("classpath:static/favicon.ico");
+  //        registry.addResourceHandler(APP_UI_ROUTE_PREFIX + "**/*.*").addResourceLocations("classpath:static/");
+  //        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+  //        registry.addResourceHandler("/api/browser/**").addResourceLocations("classpath:/META-INF/resources/webjars/discovery-api-browser/");
+  //    }
 
-            /**
-             *  Spring Data Rest 호출시 사용하는 ObjectMapper 설정 수행
-             *  기본설정은 RepositoryRestMvcConfiguration.basicObjectMapper() 참조
-             * @param objectMapper
-             */
-            @Override
-            public void configureJacksonObjectMapper(ObjectMapper objectMapper) {
-                objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-                objectMapper.configure(ALLOW_NON_NUMERIC_NUMBERS, true);
-                objectMapper.configure(ALLOW_SINGLE_QUOTES, true);
-                objectMapper.disable(SerializationFeature.INDENT_OUTPUT);
-//                objectMapper.addMixIn(Object.class, IgnoreHibernatePropertiesInJackson.class);
-                objectMapper.registerModule(new JodaModule());
-                objectMapper.registerModule(new Hibernate5Module());
+  //    @Override
+  //    public void addViewControllers(ViewControllerRegistry registry) {
+  ////    registry.addViewController("/").setViewName("redirect:/app/station");
+  ////    registry.addViewController("/").setViewName("forward:/app/workspace");
+  //        super.addViewControllers(registry);
+  //    }
 
-                ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-                provider.addIncludeFilter(new AnnotationTypeFilter(JsonTypeName.class));
-                for(BeanDefinition candidate : provider.findCandidateComponents(MetatronDiscoveryApplication.class.getPackage().getName())) {
-                    objectMapper.registerSubtypes(ClassUtils.resolveClassName(candidate.getBeanClassName(), ClassUtils.getDefaultClassLoader()));
-                }
+  @Override
+  public void addCorsMappings(CorsRegistry registry) {
 
-            }
+    //        List<MetatronProperties.Cors> corss = metatronProperties.getCors();
+    //
+    //        if(corss.isEmpty()) {
+    //           registry.addMapping("/**");
+    //        } else {
+    //            for (MetatronProperties.Cors cors : corss) {
+    //                registry
+    //                    .addMapping(cors.getMapping())
+    //                    .allowedOrigins(cors.getAllowedOrigins())
+    //                    .allowedHeaders(cors.getAllowedHeaders())
+    //                    .exposedHeaders(cors.getExposedHeaders())
+    //                    .allowedMethods(cors.getAllowedMethods())
+    //                    .allowCredentials(cors.getAllowCredentials())
+    //                    .maxAge(cors.getMaxAge());
+    //            }
+    //        }
 
-            @Override
-            public void configureHttpMessageConverters(List<HttpMessageConverter<?>> messageConverters) {
-                messageConverters.add(mappingJackson2HttpMessageConverter());
-                messageConverters.add(stringHttpMessageConverter());
-                messageConverters.add(byteArrayHttpMessageConverter());
-            }
-
-        };
-    }
-
-//    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-//    private abstract class IgnoreHibernatePropertiesInJackson{ }
-
-    @Bean(autowire = Autowire.BY_TYPE)
-    public DataSourceEventHandler dataSourceEventHandler() {
-        return new DataSourceEventHandler();
-    }
-
-    @Bean(autowire = Autowire.BY_TYPE)
-    public DataConnectionEventHandler dataConnectionEventHandler() {
-        return new DataConnectionEventHandler();
-    }
-
-    @Bean(autowire = Autowire.BY_TYPE)
-    public WorkspaceEventHandler workspaceEventHandler() {
-        return new WorkspaceEventHandler();
-    }
-
-    @Bean(autowire = Autowire.BY_TYPE)
-    public WorkBookEventHandler workBookEventHandler() {
-        return new WorkBookEventHandler();
-    }
-
-    @Bean(autowire = Autowire.BY_TYPE)
-    public WorkbenchEventHandler workbenchEventHandler() {
-        return new WorkbenchEventHandler();
-    }
-
-    @Bean(autowire = Autowire.BY_TYPE)
-    public NotebookEventHandler notebookEventHandler() {
-        return new NotebookEventHandler();
-    }
-
-    @Bean(autowire = Autowire.BY_TYPE)
-    public NotebookModelEventHandler notebookModelEventHandler() {
-        return new NotebookModelEventHandler();
-    }
-
-    @Bean(autowire = Autowire.BY_TYPE)
-    public NotebookConnectorEventHandler notebookConnectorEventHandler() {
-        return new NotebookConnectorEventHandler();
-    }
-
-    @Bean(autowire = Autowire.BY_TYPE)
-    public FolderEventHandler folderEventHandler() {
-        return new FolderEventHandler();
-    }
-
-    @Bean(autowire = Autowire.BY_TYPE)
-    public WidgetEventHandler widgetEventHandler() {
-        return new WidgetEventHandler();
-    }
-
-    @Bean(autowire = Autowire.BY_TYPE)
-    public DashBoardEventHandler dashBoardEventHandler() {
-        return new DashBoardEventHandler();
-    }
-
-    @Bean(autowire = Autowire.BY_TYPE)
-    public UserEventHandler userEventHandler() {
-        return new UserEventHandler();
-    }
-
-    @Bean(autowire = Autowire.BY_TYPE)
-    public RoleEventHandler roleEventHandler() {
-        return new RoleEventHandler();
-    }
-
-    @Bean(autowire = Autowire.BY_TYPE)
-    public RoleSetEventHandler roleSetEventHandler() {
-        return new RoleSetEventHandler();
-    }
-
-    @Bean(autowire = Autowire.BY_TYPE)
-    public MetadataEventHandler metadataEventHandler() {
-        return new MetadataEventHandler();
-    }
-
-    @Bean(autowire = Autowire.BY_TYPE)
-    public CatalogEventHandler catalogEventHandler() {
-        return new CatalogEventHandler();
-    }
-
-    @Bean(autowire = Autowire.BY_TYPE)
-    public PrDataflowEventHandler prepDataflowEventHandler() {
-        return new PrDataflowEventHandler();
-    }
-
-    @Bean(autowire = Autowire.BY_TYPE)
-    public PrDatasetEventHandler prDatasetEventHandler() {
-        return new PrDatasetEventHandler();
-    }
-
-//    @Override
-//    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-//        registry.addResourceHandler("/spread/**").addResourceLocations("classpath:spread/");
-//        registry.addResourceHandler("/favicon.ico").addResourceLocations("classpath:static/favicon.ico");
-//        registry.addResourceHandler(APP_UI_ROUTE_PREFIX + "**/*.*").addResourceLocations("classpath:static/");
-//        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
-//        registry.addResourceHandler("/api/browser/**").addResourceLocations("classpath:/META-INF/resources/webjars/discovery-api-browser/");
-//    }
-
-//    @Override
-//    public void addViewControllers(ViewControllerRegistry registry) {
-////    registry.addViewController("/").setViewName("redirect:/app/station");
-////    registry.addViewController("/").setViewName("forward:/app/workspace");
-//        super.addViewControllers(registry);
-//    }
-
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-
-//        List<MetatronProperties.Cors> corss = metatronProperties.getCors();
-//
-//        if(corss.isEmpty()) {
-//           registry.addMapping("/**");
-//        } else {
-//            for (MetatronProperties.Cors cors : corss) {
-//                registry
-//                    .addMapping(cors.getMapping())
-//                    .allowedOrigins(cors.getAllowedOrigins())
-//                    .allowedHeaders(cors.getAllowedHeaders())
-//                    .exposedHeaders(cors.getExposedHeaders())
-//                    .allowedMethods(cors.getAllowedMethods())
-//                    .allowCredentials(cors.getAllowCredentials())
-//                    .maxAge(cors.getMaxAge());
-//            }
-//        }
-
-        registry
-            .addMapping("/**")
-            .allowedOrigins("*")
-            .allowedMethods("*")
-            .allowedHeaders("*")
-            .exposedHeaders("Access-Control-Allow-Origin",
-                            "Access-Control-Allow-Methods",
-                            "Access-Control-Allow-Headers",
-                            "Access-Control-Max-Age",
-                            "Access-Control-Request-Headers",
-                            "Access-Control-Request-Method");
-    }
+    registry
+        .addMapping("/**")
+        .allowedOrigins("*")
+        .allowedMethods("*")
+        .allowedHeaders("*")
+        .exposedHeaders("Access-Control-Allow-Origin",
+                        "Access-Control-Allow-Methods",
+                        "Access-Control-Allow-Headers",
+                        "Access-Control-Max-Age",
+                        "Access-Control-Request-Headers",
+                        "Access-Control-Request-Method");
+  }
 
 }

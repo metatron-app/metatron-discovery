@@ -1,27 +1,10 @@
-= RESTful Metatron API Guide
-Big Data Tech. Lab;
-:doctype: book
-:icons: font
-:source-highlighter: highlightjs
-:toc: left
-:toclevels: 4
-:sectlinks:
 
-[[overview]]
-= Overview
-
-[[resources]]
-= Resources
-
-[[resources-workspace]]
+[[resources-datasource]]
 == DataSource
 
 
-[[resources-datasource-overview]]
-=== 개요
-
-[[resources-workspace-overview-representations]]
-==== Resource representations
+[[resources-datasource-representations]]
+=== Resource representations
 
 .DataSource
 |===
@@ -29,12 +12,12 @@ Big Data Tech. Lab;
 
 |id
 |String
-|데이터 소스 Id, 생성시 부여 함, UUID
+|Datasource Id, Generated value, UUID
 |
 
 |name
 |String
-|데이터 소스 이름,
+|DataSource Name,
 ENGINE 타입인 경우 ENGINE 내 DataSource 중복 방지를 위해 내부 룰에 따라 이름 변경 postfix 로 Timestamp 를 추가
 하고 표시이름(alias)를 활용
 |writable (POST)
@@ -267,38 +250,495 @@ ENGINE 타입인 경우 ENGINE 내 DataSource 중복 방지를 위해 내부 룰
 
 |===
 
-[[resources-workspace-overview-projection]]
-==== Projection
-
-[[resources-workspaces-list]]
-=== Listing Datasource
-
-A `GET` request will list all of the service's datasource.
-
-==== Response structure
-
-TBD
+[[resources-datasource-representations-projections]]
+==== Projection Models
 
 
-[[resources-workspaces-create]]
-=== Creating a Datasource
-
-A `POST` request is used to create a DataSource
-
-==== Request structure
-TBD
-
-[[resources-workspaces-update]]
-=== Updating a Datasource
-
-A `PATCH` request is used to update a workspace
-
-==== Request structure
-
-TBD
+[[resources-datasource-methods]]
+=== Methods
 
 
-[[resources-workspaces-delete]]
-=== Deleting a workspace
+[[resources-datasource-methods-list]]
+==== List
 
-A `DELETE` request is used to update a workspace
+Returns datasources on the specified conditions.
+
+===== HTTP request
+    (GET) /api/datasources(?projection)
+
+===== Parameters
+.Optional query parameters
+|===
+|Parameter Name |Type |Description |Note
+
+|connType
+|string
+|The type of connection - ENGINE, LINK
+|
+
+|srcType
+|string
+|The type of origin source (FILE/JDBC/HDFS/HIVE/REALTIME)
+|
+
+|published
+|boolean
+|전체 공개 여부
+|
+
+|nameContains
+|string
+|데이터 소스명 내 포함되는 문자
+|
+
+|searchDateBy
+|string
+|생성일(CREATED)/수정일(MODIFIED) 기준 여부
+|
+
+|from
+|string
+|검색 시작일자, ISO DATE_TIME(yyyy-MM-ddTHH:mm:dd.SSSZ) 형식
+|
+
+|from
+|string
+|검색 종료일자, ISO DATE_TIME(yyyy-MM-ddTHH:mm:dd.SSSZ) 형식
+|
+
+|===
+
+===== Response
+If successful, this method returns list of [#resources-datasource-representations-projections]#projection model# in the response body.
+
+[[resources-datasource-methods-get]]
+==== Get
+Returns a datasource.
+
+===== HTTP request
+    (GET) /api/datasources/{datasourceId}(?projection)
+
+===== Parameters
+.Path parameters
+|===
+|Parameter Name |Type |Description |Note
+
+|datasoureId
+|string
+|datasource Id
+|
+
+|===
+
+===== Response
+If successful, this method returns [#resources-datasource-representations-projections]#projection model# in the response body.
+
+[[resources-datasource-methods-create]]
+==== Create
+
+Creates a DataSource
+
+===== HTTP request
+    (POST) /api/datasources
+
+===== Parameters
+None
+
+===== Request Body
+
+.Request body structure
+[source,json]
+----
+{
+  "name": "string",
+  "description": "string",
+  "dsType": "enum",
+  "connType": "enum",
+  "srcType": "enum",
+  "granularity": "enum",
+  "segGranularity": "enum",
+  "published": false,
+  "connection": "/api/connections/{connectionId}",
+  "fields": [
+    {
+      "seq": 0,
+      "name": "string",
+      "alias": "string",
+      "description": "string",
+      "type": "enum",
+      "role": "enum",
+      "aggrType": "enum",
+      "filtering": false,
+      "filteringSeq": 0
+    }
+  ],
+  "ingestion": {
+    "info": {
+      "type": "string",
+      "dataType": "enum",
+      "schema": "string",
+      "query": "string",
+      "path": "string",
+      "removeFirstRow": false,
+      "paths": ["string"],
+      "findRecursive": false,
+      "jobProperties": {"key": "value"},
+      "format": {
+        "type": "string",
+        "delimeter": "string",
+        "lineSeparator": "string",
+        "sheetIndex": 0
+      }
+    }
+  }
+}
+----
+
+.Request body sample - for JDBC
+[source,json]
+----
+{
+  "name": "JDBCIngestion",
+  "dsType": "MASTER",
+  "connType": "ENGINE",
+  "srcType": "JDBC",
+  "granularity": "DAY",
+  "segGranularity": "MONTH",
+  "connection": "/api/connections/mysql-connection",
+  "fields": [
+    {
+      "name": "time",
+      "type": "TIMESTAMP",
+      "role": "TIMESTAMP",
+      "seq": 0
+    },
+    {
+      "name": "d",
+      "type": "TEXT",
+      "role": "DIMENSION",
+      "seq": 1
+    },
+    {
+      "name": "m1",
+      "type": "DOUBLE",
+      "role": "MEASURE",
+      "aggrType": "SUM",
+      "seq": 2
+    }
+  ],
+  "ingestion": {
+    "info": {
+      "type": "single",
+      "schema": "polaris_datasources",
+      "dataType": "TABLE",
+      "query": "sample_ingestion"
+    }
+  }
+}
+----
+
+.Request body sample - for Local File
+[source,json]
+----
+{
+  "name": "localFileIngestion",
+  "alias": "localFileIngestion",
+  "dsType": "MASTER",
+  "connType": "ENGINE",
+  "srcType": "FILE",
+  "granularity": "DAY",
+  "segGranularity": "MONTH",
+  "fields": [
+    {
+      "name": "time",
+      "type": "TIMESTAMP",
+      "role": "TIMESTAMP",
+      "seq": 0
+    },
+    {
+      "name": "d",
+      "type": "TEXT",
+      "role": "DIMENSION",
+      "seq": 1
+    },
+    {
+      "name": "m1",
+      "type": "DOUBLE",
+      "role": "MEASURE",
+      "aggrType": "SUM",
+      "seq": 2
+    }
+  ],
+  "ingestion": {
+    "info": {
+      "type": "local",
+      "path": "/tmp/sample_ingestion.csv",
+      "removeFirstRow": false,
+      "format": {
+        "type": "csv"
+      }
+    }
+  }
+}
+----
+
+.Request body sample - for HDFS
+[source,json]
+----
+{
+  "name": "HdfsFileIngestion",
+  "alias": "HdfsFileIngestion",
+  "dsType": "MASTER",
+  "connType": "ENGINE",
+  "srcType": "HDFS",
+  "granularity": "DAY",
+  "segGranularity": "MONTH",
+  "fields": [
+    {
+      "name": "time",
+      "type": "TIMESTAMP",
+      "role": "TIMESTAMP",
+      "seq": 0
+    },
+    {
+      "name": "d",
+      "type": "TEXT",
+      "role": "DIMENSION",
+      "seq": 1
+    },
+    {
+      "name": "m1",
+      "type": "DOUBLE",
+      "role": "MEASURE",
+      "aggrType": "SUM",
+      "seq": 2
+    }
+  ],
+  "ingestion": {
+    "info": {
+      "type": "hdfs",
+      "paths": [
+        "/tmp/sample_ingestion.csv"
+      ],
+      "findRecursive": false,
+      "format": {
+        "type": "csv"
+      },
+      "jobProperties": {
+        "mapreduce.map.memory.mb": "1024",
+        "mapreduce.reduce.memory.mb": "1024",
+        "mapreduce.map.cpu.vcores": "1",
+        "mapreduce.reduce.cpu.vcores": "1"
+      }
+    }
+  }
+}
+----
+
+.Request body sample - for Hive
+[source,json]
+----
+{
+    "name": "Hive Ingestion orc partition bffcg",
+    "dsType": "MASTER",
+    "connType": "ENGINE",
+    "srcType": "HIVE",
+    "granularity": "DAY",
+    "segGranularity": "MONTH",
+    "linkedWorkspaces": 0,
+    "ingestion": {
+        "type": "hive",
+        "format": {
+            "type": "orc"
+        },
+        "source": "default.sample_ingestion_partition_parti_orc",
+        "partitions": [
+            {
+                "dd": "21",
+                "ym": "201704"
+            },
+            {
+                "ym": "201705"
+            }
+        ],
+        "intervals": [
+            "1979-12-12/2050-01-01"
+        ]
+    },
+    "fields": [
+        {
+            "name": "time",
+            "alias": "time",
+            "type": "TIMESTAMP",
+            "logicalType": "TIMESTAMP",
+            "role": "TIMESTAMP",
+            "aggrType": "NONE",
+            "seq": 0,
+            "biType": "TIMESTAMP"
+        },
+        {
+            "name": "d",
+            "alias": "d",
+            "type": "STRING",
+            "logicalType": "STRING",
+            "role": "DIMENSION",
+            "aggrType": "NONE",
+            "seq": 1,
+            "biType": "DIMENSION"
+        },
+        {
+            "name": "sd",
+            "alias": "sd",
+            "type": "STRING",
+            "logicalType": "STRING",
+            "role": "DIMENSION",
+            "aggrType": "NONE",
+            "seq": 2,
+            "biType": "DIMENSION"
+        },
+        {
+            "name": "m1",
+            "alias": "m1",
+            "type": "DOUBLE",
+            "logicalType": "DOUBLE",
+            "role": "MEASURE",
+            "aggrType": "NONE",
+            "seq": 3,
+            "biType": "MEASURE"
+        },
+        {
+            "name": "m2",
+            "alias": "m2",
+            "type": "DOUBLE",
+            "logicalType": "DOUBLE",
+            "role": "MEASURE",
+            "aggrType": "NONE",
+            "seq": 4,
+            "biType": "MEASURE"
+        }
+    ]
+}
+----
+
+.Request body sample - for real time
+[source,json]
+----
+{
+    "name": "RealTime Ingestion",
+    "dsType": "MASTER",
+    "connType": "ENGINE",
+    "srcType": "REALTIME",
+    "granularity": "SECOND",
+    "segGranularity": "HOUR",
+    "ingestion": {
+        "type": "realtime",
+        "topic": "test_topic",
+        "consumerType": "KAFKA",
+        "consumerProperties": {
+            "bootstrap.servers": "localhost:9092"
+        },
+        "format": {
+            "type": "json"
+        },
+        "rollup": false
+    },
+    "fields": [
+        {
+            "name": "event_time",
+            "type": "TIMESTAMP",
+            "role": "TIMESTAMP",
+            "seq": 0
+        },
+        {
+            "name": "d1",
+            "type": "STRING",
+            "role": "DIMENSION",
+            "seq": 1
+        },
+        {
+            "name": "d2",
+            "type": "STRING",
+            "role": "DIMENSION"
+            "seq": 2
+        },
+        {
+            "name": "m1",
+            "type": "DOUBLE",
+            "role": "MEASURE",
+            "seq": 3
+        },
+        {
+            "name": "m2",
+            "type": "DOUBLE",
+            "role": "MEASURE",
+            "seq": 4
+        }
+    ]
+}
+----
+
+===== Response
+
+If successful, this method returns a Datasource resource in the response body and `201` status.
+
+[[resources-datasource-methods-update]]
+==== Update
+
+Updates a datasource, This method supports patch semantics.
+The field values you specify replace the existing values.
+
+===== HTTP request
+    (PATCH) /api/datasources/{datasourceId}
+
+===== Parameters
+.Path parameters
+|===
+|Parameter Name |Type |Description |Note
+
+|datasoureId
+|string
+|datasource Id
+
+|
+|===
+
+===== Request Body
+
+.Request body structure
+[source,json]
+----
+{
+  "name": "string",
+  "description": "string",
+  "published": false
+}
+----
+
+===== Response
+If successful, this method returns a Datasource resource in the response body.
+
+[[resources-datasource-methods-delete]]
+==== Delete
+
+Deletes a datasource
+
+===== HTTP request
+    (DELETE) /api/datasources/{datasourceId}
+
+===== Parameters
+.Path parameters
+|===
+|Parameter Name |Type |Description |Note
+
+|datasoureId
+|string
+|datasource Id
+
+|===
+
+===== Request body
+Do not supply a request body with this method.
+
+===== Response
+
+If successful, this method returns an empty response body and `204` status.
