@@ -92,14 +92,11 @@ export class PaginationComponent extends AbstractComponent implements OnInit, On
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
    * 페이지 변경
    * @param {number} page
    */
-  protected changePage(page: number) {
+  public changePage(page: number) {
     if (this.info.number !== page) {
       this.changePageData.emit({page: page, size: this.info.size});
     }
@@ -109,7 +106,7 @@ export class PaginationComponent extends AbstractComponent implements OnInit, On
    * 페이지 사이즈 변경
    * @param {number} size
    */
-  protected changePageSize(size: number) {
+  public changePageSize(size: number) {
     if (this.info.size !== size) {
       this.changePageData.emit({page: this.info.number, size: size});
     }
@@ -118,7 +115,7 @@ export class PaginationComponent extends AbstractComponent implements OnInit, On
   /**
    * 이전 범위 페이지 네비게이션
    */
-  protected prevPagination() {
+  public prevPagination() {
     let startPage = this.range[0] - this._navigationSize;
     this._setRange(startPage);
   } // function - prevPagination
@@ -126,7 +123,7 @@ export class PaginationComponent extends AbstractComponent implements OnInit, On
   /**
    * 다음 범위 페이지 네비게이션
    */
-  protected nextPagination() {
+  public nextPagination() {
     let startPage = this.range[0] + this._navigationSize;
     (this.info.totalPages < startPage) && (startPage = this.range[0]);
     this._setRange(startPage);
