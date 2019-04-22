@@ -573,7 +573,7 @@ public class NativeProjection {
     switch (implementor){
       case "MSSQL": case "POSTGRESQL": case "PRESTO":
         return columnName;
-      case "ORACLE": case "TIBERO":
+      case "ORACLE": case "TIBERO": case "DRUID":
         return Arrays.stream(columnName.split("\\."))
                 .map(spliced -> "\"" + spliced + "\"")
                 .collect(Collectors.joining("."));
