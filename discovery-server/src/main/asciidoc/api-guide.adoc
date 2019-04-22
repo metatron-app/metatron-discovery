@@ -98,3 +98,4 @@ not create URIs themselves, instead they should use the above-described links to
 = Resources
 include::./api-datasource-guide.adoc[]
 include::./api-datasource-query-guide.adoc[]
+include::./api-workbook-guide.adoc[]

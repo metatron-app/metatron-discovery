@@ -1,0 +1,742 @@
+[[resources-dashboard]]
+== Dashboard
+
+[[resource-dashboard-representations]]
+=== Dashboard representations
+
+.Dashboard
+|===
+|Property Name | Type | Description | Note
+
+|id
+|string
+|Dashboard ID, Generated value, UUID
+|
+
+|name
+|string
+|Dashboard name
+|Max size = 150
+
+|description
+|string
+|Dashboard description
+|Max size is 1000 (bytes)
+
+|configuration
+|Object
+(BoardConfiguration)
+|Dashboard configuration
+|
+
+|temporaryId
+|string
+|Temporary Datsource ID
+|
+
+|tag
+|string
+|Dashboard Tag
+|
+
+|imageUrl
+|string
+|Dashboard (preview) image url
+|
+
+|hiding
+|boolean
+|if true, hide dashboard in workbook for viewer
+|
+
+|seq
+|int
+|Dashboard sequence in workbook
+|
+
+|workbook
+|Object
+(Workbook)
+|Workbook including this dashboard
+|
+
+|datasources
+|Object
+(Datasource)
+|Datasource set that used by this dashboard
+|
+
+|widgets
+|Object
+(Widget)
+|Widget information in this dashboard
+|
+
+|===
+
+[[resource-dashboard-projection]]
+==== Projection Models
+
+.'default' Projection
+|===
+|Name |Type |Description |Note
+
+|id
+|string
+|Asset identifier, Generated value, UUID
+|
+
+|name
+|string
+|Dashboard name
+|Max size = 150
+
+|description
+|string
+|Dashboard description
+|Max size is 1000 (bytes)
+
+|imageUrl
+|string
+|Dashboard (preview) image url
+|
+
+|tag
+|string
+|Dashboard Tag
+|
+
+|===
+
+.'forListView' Projection
+|===
+|Name |Type |Description |Note
+
+|id
+|string
+|Asset identifier, Generated value, UUID
+|
+
+|name
+|string
+|Dashboard name
+|Max size = 150
+
+|description
+|string
+|Dashboard description
+|Max size is 1000 (bytes)
+
+|imageUrl
+|string
+|Dashboard (preview) image url
+|
+
+|tag
+|string
+|Dashboard Tag
+|
+
+|hiding
+|boolean
+|if true, hide dashboard in workbook for viewer
+|
+
+|seq
+|int
+|Dashboard sequence in workbook
+|
+
+|===
+
+[[resource-dashboard-methods]]
+=== Methods
+
+[[resource-dashboard-list]]
+==== Get all dashboards
+Listing all dashboards
+
+===== HTTP request
+(GET) /api/dashboards
+
+===== Response
+Return values are determined by the <<resource-dashboard-projection>>
+
+.Example response
+[source, json]
+---
+{
+    "_embedded": {
+        "dashboards": [
+            {
+                "name": "asd",
+                "id": "13d3d6e0-6a26-464e-b1d7-42797ce72493",
+                "modifiedBy": {
+                    "type": "user",
+                    "username": "admin",
+                    "fullName": "Administrator",
+                    "email": "admin@metatron.com"
+                },
+                "modifiedTime": "2019-01-28T03:37:55.521Z",
+                "createdBy": {
+                    "type": "user",
+                    "username": "admin",
+                    "fullName": "Administrator",
+                    "email": "admin@metatron.com"
+                },
+                "createdTime": "2019-01-24T05:21:33.073Z",
+                "imageUrl": "metatron://images/page/13d3d6e0-6a26-464e-b1d7-42797ce72493",
+                "_links": {
+                    "self": {
+                        "href": "http://localhost:8180/api/dashboards/13d3d6e0-6a26-464e-b1d7-42797ce72493"
+                    },
+                    "dashboard": {
+                        "href": "http://localhost:8180/api/dashboards/13d3d6e0-6a26-464e-b1d7-42797ce72493{?projection}",
+                        "templated": true
+                    },
+                    "workBook": {
+                        "href": "http://localhost:8180/api/dashboards/13d3d6e0-6a26-464e-b1d7-42797ce72493/workbook"
+                    },
+                    "dataSources": {
+                        "href": "http://localhost:8180/api/dashboards/13d3d6e0-6a26-464e-b1d7-42797ce72493/datasources"
+                    },
+                    "widgets": {
+                        "href": "http://localhost:8180/api/dashboards/13d3d6e0-6a26-464e-b1d7-42797ce72493/widgets"
+                    }
+                }
+            },
+            {
+                "name": "sad",
+                "id": "ba8cb902-e183-4c9c-a94d-d9fd32735442",
+                "modifiedBy": {
+                    "type": "user",
+                    "username": "admin",
+                    "fullName": "Administrator",
+                    "email": "admin@metatron.com"
+                },
+                "modifiedTime": "2019-02-08T08:37:44.001Z",
+                "createdBy": {
+                    "type": "user",
+                    "username": "admin",
+                    "fullName": "Administrator",
+                    "email": "admin@metatron.com"
+                },
+                "createdTime": "2019-02-08T08:37:43.758Z",
+                "_links": {
+                    "self": {
+                        "href": "http://localhost:8180/api/dashboards/ba8cb902-e183-4c9c-a94d-d9fd32735442"
+                    },
+                    "dashboard": {
+                        "href": "http://localhost:8180/api/dashboards/ba8cb902-e183-4c9c-a94d-d9fd32735442{?projection}",
+                        "templated": true
+                    },
+                    "workBook": {
+                        "href": "http://localhost:8180/api/dashboards/ba8cb902-e183-4c9c-a94d-d9fd32735442/workbook"
+                    },
+                    "dataSources": {
+                        "href": "http://localhost:8180/api/dashboards/ba8cb902-e183-4c9c-a94d-d9fd32735442/datasources"
+                    },
+                    "widgets": {
+                        "href": "http://localhost:8180/api/dashboards/ba8cb902-e183-4c9c-a94d-d9fd32735442/widgets"
+                    }
+                }
+            },
+            {
+                "name": "asd",
+                "id": "b92f8465-8a5c-4901-81a9-0b015e369c63",
+                "modifiedBy": {
+                    "type": "user",
+                    "username": "admin",
+                    "fullName": "Administrator",
+                    "email": "admin@metatron.com"
+                },
+                "modifiedTime": "2019-03-26T08:53:41.011Z",
+                "createdBy": {
+                    "type": "user",
+                    "username": "admin",
+                    "fullName": "Administrator",
+                    "email": "admin@metatron.com"
+                },
+                "createdTime": "2019-03-26T08:53:40.950Z",
+                "_links": {
+                    "self": {
+                        "href": "http://localhost:8180/api/dashboards/b92f8465-8a5c-4901-81a9-0b015e369c63"
+                    },
+                    "dashboard": {
+                        "href": "http://localhost:8180/api/dashboards/b92f8465-8a5c-4901-81a9-0b015e369c63{?projection}",
+                        "templated": true
+                    },
+                    "workBook": {
+                        "href": "http://localhost:8180/api/dashboards/b92f8465-8a5c-4901-81a9-0b015e369c63/workbook"
+                    },
+                    "dataSources": {
+                        "href": "http://localhost:8180/api/dashboards/b92f8465-8a5c-4901-81a9-0b015e369c63/datasources"
+                    },
+                    "widgets": {
+                        "href": "http://localhost:8180/api/dashboards/b92f8465-8a5c-4901-81a9-0b015e369c63/widgets"
+                    }
+                }
+            }
+        ]
+    },
+    "_links": {
+        "self": {
+            "href": "http://localhost:8180/api/dashboards{?page,size,sort,projection}",
+            "templated": true
+        },
+        "profile": {
+            "href": "http://localhost:8180/api/profile/dashboards"
+        },
+        "search": {
+            "href": "http://localhost:8180/api/dashboards/search"
+        }
+    },
+    "page": {
+        "size": 20,
+        "totalElements": 3,
+        "totalPages": 1,
+        "number": 0
+    }
+}
+---
+
+[[resource-dashboard-detail]]
+==== Get a dashboard
+Get detail a dashboard
+
+===== HTTP request
+(GET) /api/dashboards/{dashboardId}
+
+===== Parameters
+.Path Variable
+|===
+
+|Name |Type |Description |Note
+
+|dashboardId
+|string
+|Dashboard identifier
+|
+
+|===
+
+===== Response
+Return values are determined by the <<resource-dashboard-projection>>
+
+.Example response
+[source, json]
+---
+{
+    "createdBy": "admin",
+    "createdTime": "2019-01-24T05:21:33.073Z",
+    "modifiedBy": "admin",
+    "modifiedTime": "2019-01-28T03:37:55.521Z",
+    "id": "13d3d6e0-6a26-464e-b1d7-42797ce72493",
+    "name": "asd",
+    "configuration": {
+        "options": {
+            "layout": {
+                "layoutType": "FIT_TO_SCREEN",
+                "widgetPadding": 5
+            },
+            "widget": {
+                "showTitle": "BY_WIDGET",
+                "showLegend": "BY_WIDGET",
+                "showMinimap": "BY_WIDGET"
+            }
+        },
+        "widgets": [
+            {
+                "id": "5db89c46-06a7-c36e-d9b4-d22203c3e986",
+                "type": "page",
+                "ref": "a7a89473-60a9-4986-9e3f-2bb6b50616c7",
+                "title": false
+            },
+            {
+                "id": "89b2abbf-4911-3840-eb32-92014f3dddf0",
+                "type": "page",
+                "ref": "ec796d6b-abff-437f-b141-5a325a711169",
+                "title": false
+            }
+        ],
+        "dataSource": {
+            "joins": [],
+            "temporary": false,
+            "id": "ds-gis-37",
+            "name": "sales_geo",
+            "uiDescription": "Sales data (2011~2014)",
+            "type": "default"
+        },
+        "filters": [],
+        "relations": [
+            {
+                "ref": "a7a89473-60a9-4986-9e3f-2bb6b50616c7"
+            },
+            {
+                "ref": "ec796d6b-abff-437f-b141-5a325a711169"
+            }
+        ],
+        "content": [
+            {
+                "type": "row",
+                "isClosable": true,
+                "reorderEnabled": true,
+                "title": "",
+                "content": [
+                    {
+                        "type": "stack",
+                        "width": 50,
+                        "isClosable": true,
+                        "reorderEnabled": true,
+                        "title": "",
+                        "activeItemIndex": 0,
+                        "content": [
+                            {
+                                "id": "5db89c46-06a7-c36e-d9b4-d22203c3e986",
+                                "title": "New Chart",
+                                "type": "component",
+                                "componentName": "widget",
+                                "componentState": {
+                                    "id": "5db89c46-06a7-c36e-d9b4-d22203c3e986",
+                                    "type": "page",
+                                    "imageUrl": ""
+                                },
+                                "isClosable": true,
+                                "reorderEnabled": true
+                            }
+                        ]
+                    },
+                    {
+                        "type": "stack",
+                        "width": 50,
+                        "isClosable": true,
+                        "reorderEnabled": true,
+                        "title": "",
+                        "activeItemIndex": 0,
+                        "content": [
+                            {
+                                "id": "89b2abbf-4911-3840-eb32-92014f3dddf0",
+                                "title": "New Chart",
+                                "type": "component",
+                                "componentName": "widget",
+                                "componentState": {
+                                    "id": "89b2abbf-4911-3840-eb32-92014f3dddf0",
+                                    "type": "page",
+                                    "imageUrl": ""
+                                },
+                                "isClosable": true,
+                                "reorderEnabled": true
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "userDefinedFields": [
+            {
+                "oriColumnName": "countd",
+                "useChart": false,
+                "useFilter": false,
+                "useChartFilter": false,
+                "type": "user_expr",
+                "role": "MEASURE",
+                "dataSource": "sales_geo",
+                "alias": "countd",
+                "name": "countd",
+                "expr": "countd",
+                "aggregated": false
+            },
+            {
+                "oriColumnName": "",
+                "useChart": false,
+                "useFilter": false,
+                "useChartFilter": false,
+                "type": "user_expr",
+                "role": "MEASURE",
+                "dataSource": "sales_geo",
+                "alias": "count",
+                "name": "count",
+                "expr": "count",
+                "aggregated": false
+            },
+            {
+                "oriColumnName": "",
+                "useChart": false,
+                "useFilter": false,
+                "useChartFilter": false,
+                "type": "user_expr",
+                "role": "MEASURE",
+                "dataSource": "sales_geo",
+                "alias": "cntd",
+                "name": "cntd",
+                "expr": "COUNTD( \"City\" \n )",
+                "aggregated": true
+            }
+        ]
+    },
+    "imageUrl": "metatron://images/page/13d3d6e0-6a26-464e-b1d7-42797ce72493",
+    "seq": 0,
+    "_embedded": {
+        "workBook": {
+            "name": "ㅁㄴㅇ",
+            "id": "c84a2d69-dbf5-4c96-ae49-ed9dd141f15b",
+            "type": "workbook",
+            "modifiedBy": {
+                "type": "user",
+                "username": "admin",
+                "fullName": "Administrator",
+                "email": "admin@metatron.com"
+            },
+            "modifiedTime": "2019-03-26T08:53:40.950Z",
+            "createdBy": {
+                "type": "user",
+                "username": "admin",
+                "fullName": "Administrator",
+                "email": "admin@metatron.com"
+            },
+            "createdTime": "2019-01-24T05:21:22.291Z",
+            "folderId": "ROOT",
+            "workspaceId": "ws-00",
+            "_links": {
+                "self": {
+                    "href": "http://localhost:8180/api/workbooks/c84a2d69-dbf5-4c96-ae49-ed9dd141f15b{?projection}",
+                    "templated": true
+                },
+                "dashBoards": {
+                    "href": "http://localhost:8180/api/workbooks/c84a2d69-dbf5-4c96-ae49-ed9dd141f15b/dashboards"
+                },
+                "workspace": {
+                    "href": "http://localhost:8180/api/workbooks/c84a2d69-dbf5-4c96-ae49-ed9dd141f15b/workspace"
+                }
+            }
+        },
+        "dataSources": [
+            {
+                "name": "sales",
+                "id": "ds-gis-37",
+                "modifiedBy": {
+                    "type": "user",
+                    "username": "polaris",
+                    "fullName": "Polaris",
+                    "email": "polaris@metatron.com"
+                },
+                "modifiedTime": "2019-01-24T01:56:12.605Z",
+                "status": "ENABLED",
+                "createdBy": {
+                    "type": "user",
+                    "username": "polaris",
+                    "fullName": "Polaris",
+                    "email": "polaris@metatron.com"
+                },
+                "published": true,
+                "dsType": "MASTER",
+                "createdTime": "2019-01-24T01:56:12.605Z",
+                "connType": "ENGINE",
+                "srcType": "IMPORT",
+                "engineName": "sales_geo",
+                "description": "Sales data (2011~2014)",
+                "_links": {
+                    "self": {
+                        "href": "http://localhost:8180/api/datasources/ds-gis-37{?projection}",
+                        "templated": true
+                    },
+                    "dashBoards": {
+                        "href": "http://localhost:8180/api/datasources/ds-gis-37/dashboards"
+                    },
+                    "workspaces": {
+                        "href": "http://localhost:8180/api/datasources/ds-gis-37/workspaces"
+                    },
+                    "connection": {
+                        "href": "http://localhost:8180/api/datasources/ds-gis-37/connection"
+                    },
+                    "snapshot": {
+                        "href": "http://localhost:8180/api/datasources/ds-gis-37/snapshot"
+                    }
+                }
+            }
+        ]
+    },
+    "_links": {
+        "self": {
+            "href": "http://localhost:8180/api/dashboards/13d3d6e0-6a26-464e-b1d7-42797ce72493"
+        },
+        "dashboard": {
+            "href": "http://localhost:8180/api/dashboards/13d3d6e0-6a26-464e-b1d7-42797ce72493{?projection}",
+            "templated": true
+        },
+        "workBook": {
+            "href": "http://localhost:8180/api/dashboards/13d3d6e0-6a26-464e-b1d7-42797ce72493/workbook"
+        },
+        "dataSources": {
+            "href": "http://localhost:8180/api/dashboards/13d3d6e0-6a26-464e-b1d7-42797ce72493/datasources"
+        },
+        "widgets": {
+            "href": "http://localhost:8180/api/dashboards/13d3d6e0-6a26-464e-b1d7-42797ce72493/widgets"
+        }
+    }
+}
+---
+
+[[resource-dashboard-embed]]
+==== Get widgets
+Get a embedding url and redirect the html page
+
+===== HTTP request
+(GET) /api/dashboards/{dashboardId}/embed +
+
+NOTE: Produce MediaType.TEXT_HTML_VALUE, so you have to set HTTP header *Accept: text/html*
+
+===== Parameters
+.Path Variable
+|===
+
+|Name |Type |Description |Note
+
+|dashboardId
+|string
+|Dashboard identifier
+|
+
+|===
+
+.Optional Parameter
+|===
+
+|Name |Type |Description |Note
+
+|widgetType
+|string
+|Searching type of widget
+|page, text, filter
+
+|===
+
+===== Response
+Return values are determined by the <<resource-dashboard-projection>>
+
+.Example response
+[source, json]
+---
+
+---
+
+[[resource-dashboard-widgets]]
+==== Get widgets
+Listing widgets in dashboard
+
+===== HTTP request
+(GET) /api/dashboards/{dashboardId}/widgets
+
+===== Parameters
+.Path Variable
+|===
+
+|Name |Type |Description |Note
+
+|dashboardId
+|string
+|Dashboard identifier
+|
+
+|===
+
+.Optional Parameter
+|===
+
+|Name |Type |Description |Note
+
+|widgetType
+|string
+|Searching type of widget
+|page, text, filter
+
+|===
+
+===== Response
+Return values are determined by the <<resource-dashboard-projection>>
+
+.Example response
+[source, json]
+---
+{
+    "_embedded": {
+        "widgets": [
+            {
+                "name": "New Chart",
+                "id": "a7a89473-60a9-4986-9e3f-2bb6b50616c7",
+                "type": "page",
+                "modifiedBy": {
+                    "type": "user",
+                    "username": "admin",
+                    "fullName": "Administrator",
+                    "email": "admin@metatron.com"
+                },
+                "modifiedTime": "2019-01-28T02:22:14.327Z",
+                "createdBy": {
+                    "type": "user",
+                    "username": "admin",
+                    "fullName": "Administrator",
+                    "email": "admin@metatron.com"
+                },
+                "createdTime": "2019-01-28T02:22:12.261Z",
+                "imageUrl": "metatron://images/page/a7a89473-60a9-4986-9e3f-2bb6b50616c7",
+                "_links": {
+                    "self": {
+                        "href": "http://localhost:8180/api/pageWidgets/a7a89473-60a9-4986-9e3f-2bb6b50616c7"
+                    },
+                    "widget": {
+                        "href": "http://localhost:8180/api/pageWidgets/a7a89473-60a9-4986-9e3f-2bb6b50616c7{?projection}",
+                        "templated": true
+                    },
+                    "dashBoard": {
+                        "href": "http://localhost:8180/api/pageWidgets/a7a89473-60a9-4986-9e3f-2bb6b50616c7/dashBoard"
+                    }
+                }
+            },
+            {
+                "name": "New Chart",
+                "id": "ec796d6b-abff-437f-b141-5a325a711169",
+                "type": "page",
+                "modifiedBy": {
+                    "type": "user",
+                    "username": "admin",
+                    "fullName": "Administrator",
+                    "email": "admin@metatron.com"
+                },
+                "modifiedTime": "2019-01-28T03:37:36.989Z",
+                "createdBy": {
+                    "type": "user",
+                    "username": "admin",
+                    "fullName": "Administrator",
+                    "email": "admin@metatron.com"
+                },
+                "createdTime": "2019-01-28T03:37:35.253Z",
+                "imageUrl": "metatron://images/page/ec796d6b-abff-437f-b141-5a325a711169",
+                "_links": {
+                    "self": {
+                        "href": "http://localhost:8180/api/pageWidgets/ec796d6b-abff-437f-b141-5a325a711169"
+                    },
+                    "widget": {
+                        "href": "http://localhost:8180/api/pageWidgets/ec796d6b-abff-437f-b141-5a325a711169{?projection}",
+                        "templated": true
+                    },
+                    "dashBoard": {
+                        "href": "http://localhost:8180/api/pageWidgets/ec796d6b-abff-437f-b141-5a325a711169/dashBoard"
+                    }
+                }
+            }
+        ]
+    },
+    "_links": {
+        "self": {
+            "href": "http://localhost:8180/api/dashboards/13d3d6e0-6a26-464e-b1d7-42797ce72493/widgets?page=0&size=20"
+        }
+    },
+    "page": {
+        "size": 20,
+        "totalElements": 2,
+        "totalPages": 1,
+        "number": 0
+    }
+}
+---
