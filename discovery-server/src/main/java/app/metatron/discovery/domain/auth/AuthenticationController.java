@@ -14,14 +14,19 @@
 
 package app.metatron.discovery.domain.auth;
 
+import app.metatron.discovery.common.exception.MetatronException;
+import app.metatron.discovery.common.saml.SAMLAuthenticationInfo;
+import app.metatron.discovery.domain.user.CachedUserService;
+import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.user.UserRepository;
 import app.metatron.discovery.domain.user.group.Group;
 import app.metatron.discovery.domain.user.group.GroupMember;
 import app.metatron.discovery.domain.user.group.GroupService;
+import app.metatron.discovery.domain.user.role.Permission;
 import app.metatron.discovery.domain.user.role.RoleService;
 import app.metatron.discovery.domain.workspace.WorkspaceService;
+import app.metatron.discovery.util.AuthUtils;
 import com.google.common.collect.Maps;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +42,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -48,42 +52,23 @@ import org.springframework.security.oauth2.provider.client.JdbcClientDetailsServ
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
-import org.springframework.security.oauth2.provider.endpoint.TokenEndpoint;
+import org.springframework.security.oauth2.provider.client.BaseClientDetails;
+import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
-import org.springframework.security.providers.ExpiringUsernameAuthenticationToken;
 import org.springframework.security.saml.SAMLCredential;
 import org.springframework.security.saml.metadata.MetadataManager;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-
-import java.io.IOException;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.security.Principal;
-import java.util.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import app.metatron.discovery.common.exception.MetatronException;
-import app.metatron.discovery.common.saml.SAMLAuthenticationInfo;
-import app.metatron.discovery.domain.user.CachedUserService;
-import app.metatron.discovery.domain.user.User;
-import app.metatron.discovery.domain.user.role.Permission;
-import app.metatron.discovery.util.AuthUtils;
+import java.io.IOException;
+import java.security.Principal;
+import java.util.*;
 
 /**
  * Created by kyungtaak on 2017. 6. 20..
