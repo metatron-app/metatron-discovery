@@ -17,7 +17,8 @@
      (clickOutside)="this.isShowSelectList=false;">
   <div class="ddp-type-selectbox" [ngClass]="{'ddp-selected' : isShowSelectList && isShowSelectListForOutSide, 'ddp-nowrap-r': noWrapFl, 'ddp-full' : isFull, 'ddp-flow':isDataprep}" (click)="toggleSelectList()" >
     <span class="ddp-txt-selectbox">{{selectedItem == null ? unselectedMessage :  isStringArray ? selectedItem : selectedItem[viewKey] }}</span>
-    <ul [ngClass]="{'ddp-selectdown': isUpSelect == false, 'ddp-pass' : isOptionToLeft, 'ddp-pass2' : !isOptionToLeft }"
+
+    <ul *ngIf="!isIconType" [ngClass]="{'ddp-selectdown': isUpSelect == false, 'ddp-pass' : isOptionToLeft, 'ddp-pass2' : !isOptionToLeft }"
         class="ddp-list-selectbox">
       <li *ngFor="let item of array">
         <a href="javascript:" (click)="selected(item);">{{isStringArray ? item : item[viewKey]}}</a>
@@ -26,6 +27,20 @@
         <span class="ddp-noresult">{{'msg.comm.ui.no.rslt' | translate}}</span>
       </li>
     </ul>
+
+    <div *ngIf="isIconType" class="ddp-wrap-popup2 ddp-types">
+      <ul class="ddp-list-popup">
+        <li *ngFor="let item of array">
+          <a href="javascript:" (click)="selected(item);">
+            <em class="{{getIconClass(item)}}"></em> {{isStringArray ? item : item[viewKey]}}
+          </a>
+        </li>
+        <li *ngIf="array?.length === 0">
+          <span class="ddp-noresult">{{'msg.comm.ui.no.rslt' | translate}}</span>
+        </li>
+      </ul>
+    </div>
+
   </div>
 </div>
 <!-- //Drop down -->

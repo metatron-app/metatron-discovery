@@ -17,6 +17,7 @@ import {
   Injector, Input, OnInit, Output
 } from '@angular/core';
 import { AbstractComponent } from '../abstract.component';
+import {isNullOrUndefined} from "util";
 
 @Component({
   selector: 'component-select',
@@ -105,6 +106,9 @@ export class SelectComponent extends AbstractComponent implements OnInit {
 
   // Select box width is longer when it's dataprep
   @Input() public isDataprep: boolean = false;
+
+  // select box icon 이 있는경우
+  @Input() public isIconType: boolean = false;
 
   // 선택 아이템
   public selectedItem: any;
@@ -196,6 +200,43 @@ export class SelectComponent extends AbstractComponent implements OnInit {
   public toggleSelectList() {
     this.isShowSelectList = !this.isShowSelectList;
     this.beforeShowSelectedList.emit(this.isShowSelectList);
+  }
+
+  // icon type class type
+  public getIconClass(item : any){
+
+    let iconClass : string = '';
+
+    if( isNullOrUndefined(item.field) ){
+      iconClass = 'ddp-icon-measure-sharp';
+      return iconClass;
+    }
+
+    switch (item.field.logicalType.toString()) {
+      case 'STRING' :
+        iconClass = 'ddp-icon-dimension-ab';
+        break;
+      case 'LNG' :
+        iconClass = 'ddp-icon-dimension-local';
+        break;
+      case 'TIMESTAMP' :
+        iconClass = 'ddp-icon-dimension-calen';
+        break;
+      case 'INTEGER' :
+        iconClass = 'ddp-icon-dimension-float';
+        break;
+      case 'BOOLEAN' :
+        iconClass = 'ddp-icon-dimension-tf';
+        break;
+      case 'STRING' :
+        iconClass = 'ddp-icon-dimension-ab';
+        break;
+      case 'DOUBLE' :
+        iconClass = 'ddp-icon-measure-sharp';
+        break;
+    }
+    return iconClass;
+
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
