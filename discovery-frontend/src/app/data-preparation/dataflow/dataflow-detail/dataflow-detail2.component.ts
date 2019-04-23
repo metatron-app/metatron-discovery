@@ -54,6 +54,12 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
   @ViewChild(CreateSnapshotPopup)
   private createSnapshotPopup : CreateSnapshotPopup;
 
+  @ViewChild('dfName')
+  private dfName: ElementRef;
+
+  @ViewChild('dfDesc')
+  private dfDesc: ElementRef;
+
   // 타입별 아이콘 정보
   private symbolInfo: any;
 
@@ -75,14 +81,8 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
   // 노드간 링크 리스트
   private chartLinks: any[] = [];
 
-  // Change Detect
-  public changeDetect: ChangeDetectorRef;
-
-  @ViewChild('dfName')
-  private dfName: ElementRef;
-  @ViewChild('dfDesc')
-  private dfDesc: ElementRef;
-
+  // 검색 파라메터
+  private _searchParams: { [key: string]: string };
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -98,6 +98,9 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
 
   @Input()
   public selectedDataSet: PrDataset;
+
+  // Change Detect
+  public changeDetect: ChangeDetectorRef;
 
   // 사용된 dataflow layer show/hide
   public isDataflowsShow: boolean = false;
@@ -199,6 +202,12 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
 
     });
 
+    // 쿼리 파라메터 저장
+    this.activatedRoute.queryParams.subscribe(params => {
+      console.info( '>>>>>>> detail param', params );
+      this._searchParams = params;
+    });
+
   } // function - ngOnInit
 
   /**
@@ -230,7 +239,9 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
    * 뒤로가기
    * */
   public close() {
-    this.router.navigate(['/management/datapreparation/dataflow']);
+    this.router.navigate(
+      ['/management/datapreparation/dataflow'],
+      {queryParams: this._searchParams});
   }
 
   // 다른 데이터 플로우로 이동

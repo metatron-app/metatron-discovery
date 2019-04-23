@@ -159,7 +159,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     ];
 
 
-// 쿼리 파라메터 저장
+    // 쿼리 파라메터 저장
     this.activatedRoute.queryParams.subscribe(params => {
       console.info( '>>>>>>> detail param', params );
       this._searchParams = params;
