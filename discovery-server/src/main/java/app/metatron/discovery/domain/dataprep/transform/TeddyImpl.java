@@ -267,7 +267,7 @@ public class TeddyImpl {
 
   public DataFrame loadFileDataset(String dsId, String strUri, String delimiter, Integer columnCount, String dsName) {
     DataFrame df = new DataFrame(dsName);   // join, union등에서 dataset 이름을 제공하기위해 dsName 추가
-    Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
+    Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
     int samplingRows = prepProperties.getSamplingLimitRows();
 
     String extensionType = FilenameUtils.getExtension(strUri);
