@@ -21,7 +21,6 @@ You can get a token by this method using your existing account,
 |scope|read write|
 |username|_your id_|
 |password|_your password_|
-[asd]
 
 
 #### Response
