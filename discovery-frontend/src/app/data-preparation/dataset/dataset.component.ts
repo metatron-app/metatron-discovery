@@ -12,21 +12,25 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, HostListener, Injector, OnInit, ViewChild } from '@angular/core';
-import { DatasetService } from './service/dataset.service';
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { PrDataset, DsType, ImportType } from '../../domain/data-preparation/pr-dataset';
-import { SubscribeArg } from '../../common/domain/subscribe-arg';
-import { PopupService } from '../../common/service/popup.service';
-import { Subscription } from 'rxjs/Subscription';
-import { Modal } from '../../common/domain/modal';
-import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
-import { Alert } from '../../common/util/alert.util';
-import { PreparationAlert } from '../util/preparation-alert.util';
-import { ActivatedRoute } from '@angular/router';
-import { DataflowService } from '../dataflow/service/dataflow.service';
-import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
+import {Component, ElementRef, HostListener, Injector, OnInit, ViewChild} from '@angular/core';
+import {DatasetService} from './service/dataset.service';
+import {AbstractComponent} from '../../common/component/abstract.component';
+import {DsType, ImportType, PrDataset} from '../../domain/data-preparation/pr-dataset';
+import {SubscribeArg} from '../../common/domain/subscribe-arg';
+import {PopupService} from '../../common/service/popup.service';
+import {Subscription} from 'rxjs/Subscription';
+import {Modal} from '../../common/domain/modal';
+import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
+import {Alert} from '../../common/util/alert.util';
+import {PreparationAlert} from '../util/preparation-alert.util';
+import {ActivatedRoute} from '@angular/router';
+import {DataflowService} from '../dataflow/service/dataflow.service';
+import {MomentDatePipe} from '../../common/pipe/moment.date.pipe';
 import {PreparationCommonUtil} from "../util/preparation-common.util";
+import {isNullOrUndefined} from "util";
+import {Page} from "../../domain/common/page";
+import {StringUtil} from "../../common/util/string.util";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-dataset',
@@ -40,6 +44,8 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   private popupSubscription: Subscription;
 
+  // 검색 파라메터
+  private _searchParams: { [key: string]: string };
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -54,7 +60,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
   public step: string;
 
   // dataset list
-  public datasets: PrDataset[] = [];
+  public datasets: PrDataset[];
 
   public selectedDeletedsId: string;
 
@@ -65,7 +71,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
   @ViewChild(DeleteModalComponent)
   public deleteModalComponent: DeleteModalComponent;
 
-  public datasetTypes : any;
+  public datasetTypes : {name: string, value: DsType, checked: boolean, class: string}[];
 
   public ImportType = ImportType;
 
@@ -91,22 +97,57 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
   public ngOnInit() {
     // Init
     super.ngOnInit();
-    // 뷰
-    this._initViewPage();
 
+    this._initView();
+
+    // After creating dataset
     this.popupSubscription = this.popupService.view$.subscribe((data: SubscribeArg) => {
-
       this.step = data.name;
       if (this.step === 'complete-dataset-create') {
-        this.page.page = 0;
+        this.page = new Page();
         this.getDatasets();
       }
     });
 
-    // 데이터플로우에서 데이터셋 생성으로 넘어왔을 때
-    if (sessionStorage.getItem('DATAFLOW_ID')) {
-      this.createDataSet();
-    }
+    // Get query param from url
+    this.activatedRoute.queryParams.subscribe((params) => {
+
+      if (!_.isEmpty(params)) {
+
+        if (!isNullOrUndefined(params['size'])) {
+          this.page.size = params['size'];
+        }
+
+        if (!isNullOrUndefined(params['page'])) {
+          this.page.page = params['page'];
+        }
+
+        if (params['dsType'] !== '') {
+          this.dsType = params['dsType'];
+          this.datasetTypes.forEach((item) => {
+            item.checked = item.value === this.dsType;
+          });
+        } else {
+          this.datasetTypes.forEach((item) => {
+            item.checked = true;
+          });
+          this.dsType = '';
+        }
+
+        if (!isNullOrUndefined(params['dsName'])) {
+          this.searchText = params['dsName'];
+        }
+
+        const sort = params['sort'];
+        if (!isNullOrUndefined(sort)) {
+          const sortInfo = decodeURIComponent(sort).split(',');
+          this.selectedContentSort.key = sortInfo[0];
+          this.selectedContentSort.sort = sortInfo[1];
+        }
+      }
+
+      this.getDatasets();
+    });
 
   }
 
@@ -121,26 +162,20 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
 
     this.loadingShow();
 
-    let params = {
-      searchText : this.searchText,
-      page : this.page,
-      dsType : this.dsType
-    };
+    this.datasets = [];
+
+    const params = this._getDsParams();
 
     this.datasetService.getDatasets(params)
       .then((data) => {
-        this.loadingHide();
+
+        this._searchParams = params;
+
         this.pageResult = data['page'];
-        const sorting = this.page.sort.split(',');
-        this.selectedContentSort.key = sorting[0];
-        this.selectedContentSort.sort = sorting[1];
 
-        if (this.page.page === 0) {
-          this.datasets = [];
-        }
+        this.datasets = data['_embedded'] ? this.datasets.concat(data['_embedded'].preparationdatasets) : [];
 
-        this.datasets = this.datasets.concat(data['_embedded'].preparationdatasets);
-        this.page.page += 1;
+        this.loadingHide();
 
       })
       .catch((error) => {
@@ -169,8 +204,6 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
   public changeStatus(status) {
 
     status.checked = !status.checked;
-    this.datasets = [];
-    this.page.page = 0;
 
     // this.datasetTypes 를 돌면서 전체선택 / 전체 해제 / 하나만인지 확인
     let items = this.datasetTypes.filter((item) => {
@@ -229,13 +262,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
         Alert.error(result.errorMsg);
         this.loadingHide();
       } else {
-        Alert.success(this.translateService.instant('msg.dp.alert.del.success'));
-        this.loadingHide();
-        let idx = this.datasets.findIndex((result) => {
-          return result.dsId === this.selectedDeletedsId;
-        });
-        this.datasets.splice(idx,1);
-        this.pageResult.totalElements = this.pageResult.totalElements-1
+        this.getDatasets();
       }
     }).catch((error) => {
       this.loadingHide();
@@ -249,39 +276,52 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
    * @param selectedItem 선택된 데이터셋
    * */
   public itemRowClick(selectedItem: PrDataset) {
-    this.router.navigate(['/management/datapreparation/dataset', selectedItem.dsId]);
+    this.router.navigate(['/management/datapreparation/dataset', selectedItem.dsId],
+      {queryParams: this._searchParams}).then();
   }
 
   /** 정렬
-   * @param column 소팅할 선택된 컬럼
+   * @param key 소팅할 선택된 컬럼
    * */
-  public changeOrder(column: string) {
-
-    this.page.page = 0;
+  public changeOrder(key: string) {
 
     // 초기화
-    this.selectedContentSort.sort = this.selectedContentSort.key !== column ? 'default' : this.selectedContentSort.sort;
+    this.selectedContentSort.sort = this.selectedContentSort.key !== key ? 'default' : this.selectedContentSort.sort;
+    // 정렬 정보 저장
+    this.selectedContentSort.key = key;
 
-    // asc, desc, default
-    switch (this.selectedContentSort.sort) {
-
-      case 'asc':
-        this.selectedContentSort.sort = 'desc';
-        break;
-      case 'desc':
-        this.selectedContentSort.sort = 'asc';
-        break;
-      case 'default':
-        this.selectedContentSort.sort = 'desc';
-        break;
+    if (this.selectedContentSort.key === key) {
+      // asc, desc
+      switch (this.selectedContentSort.sort) {
+        case 'asc':
+          this.selectedContentSort.sort = 'desc';
+          break;
+        case 'desc':
+          this.selectedContentSort.sort = 'asc';
+          break;
+        case 'default':
+          this.selectedContentSort.sort = 'desc';
+          break;
+      }
     }
-
-    this.page.sort = column + ',' + this.selectedContentSort.sort;
 
     // 데이터셋 리스트 조회
     this.getDatasets();
 
   }
+
+  /**
+   * 페이지 변경
+   * @param data
+   */
+  public changePage(data: { page: number, size: number }) {
+    if (data) {
+      this.page.page = data.page;
+      this.page.size = data.size;
+      // 워크스페이스 조회
+      this.getDatasets();
+    }
+  } // function - changePage
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
@@ -292,19 +332,6 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   *  View 초기화
-   */
-  private _initViewPage() {
-
-    this.datasetTypes = [
-      {name : 'IMPORTED', value : DsType.IMPORTED, checked : true, class : 'ddp-imported' },
-      {name : 'WRANGLED', value : DsType.WRANGLED, checked : false, class : 'ddp-wargled' }
-    ];
-    this.page.sort = 'createdTime,desc';
-    this.getDatasets();
-  }
-
-  /**
    * @param event Event
    */
   @HostListener('document:keydown.enter', ['$event'])
@@ -313,6 +340,44 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
       this.deleteModalComponent.done();
     }
   }
+
+  /**
+   * Returns parameter for dataset list
+   * @private
+   */
+  private _getDsParams(): any{
+
+    const params = {
+      page: this.page.page,
+      size: this.page.size,
+    };
+
+    if (!isNullOrUndefined(this.searchText) || StringUtil.isNotEmpty(this.searchText)) {
+      params['dsName'] = this.searchText;
+    }
+
+    if (this.dsType !== '' || !isNullOrUndefined(this.dsType)) {
+      params['dsType'] = this.dsType;
+    }
+
+    this.selectedContentSort.sort !== 'default' && (params['sort'] = this.selectedContentSort.key + ',' + this.selectedContentSort.sort);
+
+    return params;
+  }
+
+  private _initView() {
+
+    this.datasetTypes = [
+      {name : 'IMPORTED', value : DsType.IMPORTED, checked : true, class : 'ddp-imported' },
+      {name : 'WRANGLED', value : DsType.WRANGLED, checked : false, class : 'ddp-wargled' }
+      ];
+
+    this.datasets = [];
+    this.searchText = '';
+    this.selectedContentSort.sort = 'desc';
+    this.selectedContentSort.key = 'createdTime';
+  }
+
 
 }
 

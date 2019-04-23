@@ -162,15 +162,14 @@
     <!-- 더보기 -->
     <!-- 데이터 없음 -->
 
-    <div class="ddp-data-source-none" *ngIf="datasets.length === 0">
+    <div class="ddp-data-source-none" *ngIf="datasets.length === 0; else yesDs">
       {{'msg.dp.ui.no.ds.description' | translate}}
     </div>
     <!-- //데이터 없음 -->
 
-
-    <div class="ddp-box-add-link" *ngIf="datasets.length > 0 && page.page < pageResult.totalPages && pageResult" (click)="getDatasets()">
-      <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
-    </div>
+    <ng-template #yesDs>
+      <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+    </ng-template>
     <!-- //더보기 -->
   </div>
 </div>

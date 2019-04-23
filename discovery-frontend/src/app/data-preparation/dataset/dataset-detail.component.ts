@@ -54,6 +54,8 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   @ViewChild(CreateSnapshotPopup)
   private createSnapshotPopup : CreateSnapshotPopup;
 
+  // 검색 파라메터
+  private _searchParams: { [key: string]: string };
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -157,6 +159,11 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     ];
 
 
+// 쿼리 파라메터 저장
+    this.activatedRoute.queryParams.subscribe(params => {
+      console.info( '>>>>>>> detail param', params );
+      this._searchParams = params;
+    });
 
     // Router에서 파라미터 전달 받기
     this.activatedRoute.params.subscribe((params) => {
@@ -182,12 +189,18 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     this.snapshotLoadingComponent.init(data);
   }
 
-  /** 데이터셋 리스트로 돌아간다 */
+
+  /**
+   * Go back to dataset list
+   */
   public close() {
     clearInterval(this.interval);
     this.interval = undefined;
-    this.router.navigate(['/management/datapreparation/dataset']);
-  } // function - close
+    this.router.navigate(
+      ['/management/datapreparation/dataset'],
+      {queryParams: this._searchParams}
+      );
+  }
 
   /**
    * 데이터셋 옵션 레이어 toggle (우측상단)
