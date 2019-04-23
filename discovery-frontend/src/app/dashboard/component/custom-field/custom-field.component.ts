@@ -20,7 +20,7 @@ import {
 } from '@angular/core';
 import { DashboardService } from '../../service/dashboard.service';
 import { CommonCode } from '../../../domain/code/common-code';
-import { Field, FieldRole } from '../../../domain/datasource/datasource';
+import {ConnectionType, Field, FieldRole} from '../../../domain/datasource/datasource';
 import { AbstractComponent } from '../../../common/component/abstract.component';
 import { Alert } from '../../../common/util/alert.util';
 import { BoardDataSource } from '../../../domain/dashboard/dashboard';
@@ -29,6 +29,7 @@ import { ConfirmModalComponent } from '../../../common/component/modal/confirm/c
 import { Modal } from '../../../common/domain/modal';
 import { CustomField } from '../../../domain/workbook/configurations/field/custom-field';
 import { DashboardUtil } from '../../util/dashboard.util';
+import { isNullOrUndefined } from "util";
 
 declare let $: any;
 
@@ -82,7 +83,6 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
   public close = new EventEmitter();
   @Output()
   public updateColumn = new EventEmitter();
-
 
   // 팝업 on/off
   public isShow = false;
@@ -565,8 +565,10 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
       expr = StringUtil.trim(expr);
 
       const cloneDs:BoardDataSource = _.cloneDeep( this.dataSource );
+      if( ConnectionType.LINK.toString() === cloneDs.connType && !isNullOrUndefined(cloneDs.engineName) ) {
+        cloneDs.name = cloneDs.engineName;
+      }
       const param = { expr, dataSource: DashboardUtil.convertBoardDataSourceSpecToServer(cloneDs) };
-
       this.dashboardService.validate(param).then((result: any) => {
         this.aggregated = result.aggregated;
         this.isCalFuncSuccess = 'S';
