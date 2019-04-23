@@ -82,6 +82,16 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
     this.uiOption = uiOption;
 
+    // type 관련 변경 필요 (symbol & cluster) 이는 cluster 타입이 option panel에서 따로 분리된 이유임
+    if (!_.isUndefined(this.uiOption) && !_.isUndefined(this.uiOption['layers']) && this.uiOption['layers'].length > 0) {
+      for (let layerIndex = 0; this.uiOption['layers'].length > layerIndex; layerIndex++) {
+        if (this.uiOption['layers'][layerIndex]['type'] == MapLayerType.SYMBOL
+          && !_.isUndefined(this.uiOption['layers'][layerIndex]['clustering'])
+          && this.uiOption['layers'][layerIndex]['clustering']) {
+          this.uiOption['layers'][layerIndex]['type'] = MapLayerType.CLUSTER;
+        }
+      }
+    }
     // set ranges for view
     this.rangesViewList = this.setRangeViewByDecimal(this.uiOption.layers[this.index].color['ranges']);
 
