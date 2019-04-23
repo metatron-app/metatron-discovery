@@ -123,13 +123,13 @@ public class SelectQueryBuilder {
 
   }
 
-  public SelectQueryBuilder query(JdbcIngestionInfo ingestionInfo) {
+  public SelectQueryBuilder query(JdbcIngestionInfo ingestionInfo, JdbcConnectInformation connectInformation) {
 
     if (ingestionInfo.getDataType() == TABLE) {
       StringBuilder selectAllQuery = new StringBuilder();
       selectAllQuery.append("SELECT * FROM ");
-      selectAllQuery.append(jdbcDialect.getTableName(ingestionInfo.getConnection(),
-                                                     ingestionInfo.getConnection().getCatalog(),
+      selectAllQuery.append(jdbcDialect.getTableName(connectInformation,
+                                                     connectInformation.getCatalog(),
                                                      ingestionInfo.getDatabase(),
                                                      ingestionInfo.getQuery()));
       this.query = selectAllQuery.toString();
