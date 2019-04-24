@@ -108,6 +108,7 @@ export class PaginationComponent extends AbstractComponent implements OnInit, On
    */
   public changePageSize(size: number) {
     if (this.info.size !== size) {
+      this.info.number = 0;
       this.changePageData.emit({page: this.info.number, size: size});
     }
   } // function - changePageSize
