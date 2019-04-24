@@ -154,6 +154,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
   // dimension, measure List
   public fieldList = [];
+  public fieldMeasureList = [];
 
   // range list for view
   public rangesViewList = [];
