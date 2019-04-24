@@ -455,12 +455,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.createMapOverLayEvent();
 
     // Chart resize
-    if (this.drawByType != null || !_.isEmpty(this.drawByType))
+    if (this.drawByType != null || !_.isEmpty(this.drawByType)) {
       this.olmap.updateSize();
+    }
     ////////////////////////////////////////////////////////
     // Apply
     ////////////////////////////////////////////////////////
-
     // 완료
     this.drawFinished.emit();
 
@@ -782,7 +782,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       isLogicalType = true;
       let geomType = field.field.logicalType.toString();
 
-      if (_.eq(layer.type, MapLayerType.SYMBOL)) {
+      if (_.eq(layer.type, MapLayerType.SYMBOL) || _.eq(layer.type, MapLayerType.CLUSTER)) {
         /** 화면에서 하는 cluster */
           // let symbolLayer: UISymbolLayer = <UISymbolLayer>layer;
           //////////////////////////
@@ -1061,7 +1061,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       }
 
       // Symbol type
-      if (_.eq(layerType, MapLayerType.SYMBOL)) {
+      if (_.eq(layerType, MapLayerType.SYMBOL) || _.eq(layerType, MapLayerType.CLUSTER)) {
         let symbolLayer: UISymbolLayer = <UISymbolLayer>styleLayer;
         symbolType = symbolLayer.symbol;
         outlineType = symbolLayer.outline ? symbolLayer.outline.thickness : null;
@@ -1589,11 +1589,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             });
             break;
         }
-      }
-      ////////////////////////////////////////////////////////
-      // Cluster Style
-      ////////////////////////////////////////////////////////
-      else {
+      } else {
+        // Cluster Style
 
         // ////////////////////////////////////////////////////////
         // // Color
@@ -1700,20 +1697,19 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             img: canvas,
             imgSize: [canvas.width, canvas.height],
             opacity: 0.85
-          })
-          , text: new ol.style.Text({ // 클러스터링 되는 갯수 라벨링
+          }),
+          text: new ol.style.Text({ // 클러스터링 되는 갯수 라벨링
             text: size.toString(), // 클러스터링 갯수
             fill: new ol.style.Fill({
               color: '#fff'
             }),
             font: '10px sans-serif'
-          })
+          }),
         });
       }
-
       return style;
     }
-  }
+  };
 
   /**
    * Hexagon style function
@@ -2000,7 +1996,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         }
         feature = features[0];
       }
-      if (tooltipTypeToShow == null || this.getUiMapOption().layers[toolTipLayerNum].type == MapLayerType.SYMBOL) {
+      if (tooltipTypeToShow == null || this.getUiMapOption().layers[toolTipLayerNum].type == MapLayerType.SYMBOL || this.getUiMapOption().layers[toolTipLayerNum].type == MapLayerType.CLUSTER) {
         // Layer num & name
         if (this.getUiMapOption().toolTip.displayTypes != undefined && this.getUiMapOption().toolTip.displayTypes[17] !== null) {
           tooltipTypeToShow = this.getUiMapOption().layers[toolTipLayerNum].type;
@@ -2251,7 +2247,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     legendInfo.name = layer.name;
 
     // when layer type is symbol, layer symbol exists, set point type by symbols
-    if (MapLayerType.SYMBOL === layer.type && (<UISymbolLayer>layer).symbol) {
+    if ((MapLayerType.SYMBOL === layer.type && (<UISymbolLayer>layer).symbol)
+      || (MapLayerType.CLUSTER === layer.type && (<UISymbolLayer>layer).symbol)) {
       legendInfo.pointType = (<UISymbolLayer>layer).symbol.toString();
       // set circle by default
     } else {
@@ -2262,7 +2259,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     legendInfo.color = [];
 
     // convert symbol, tile to point, hexagon
-    let layerType = MapLayerType.SYMBOL === layer.type ? 'Point' : MapLayerType.TILE === layer.type ? 'Hexagon' : layer.type.toString();
+    let layerType = MapLayerType.SYMBOL === layer.type || MapLayerType.CLUSTER === layer.type ? 'Point' : MapLayerType.TILE === layer.type ? 'Hexagon' : layer.type.toString();
 
     // Layer color type
     legendInfo.type = _.startCase(layerType) + ' Color';
@@ -2271,7 +2268,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // Size by measure (Symbol layer only)
     ////////////////////////////////////////////////////////
 
-    if (MapLayerType.SYMBOL === layer.type && _.eq((<UISymbolLayer>layer).size.by, MapBy.MEASURE)) {
+    if ((MapLayerType.SYMBOL === layer.type && _.eq((<UISymbolLayer>layer).size.by, MapBy.MEASURE)) || (MapLayerType.CLUSTER === layer.type && _.eq((<UISymbolLayer>layer).size.by, MapBy.MEASURE))) {
       legendInfo.radiusColumn = 'By ' + ChartUtil.getFieldAlias((<UISymbolLayer>layer).size.column, this.shelf.layers[layerIndex].fields);
     }
 
@@ -2516,9 +2513,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       ////////////////////////////////////////////////////////
       // Cluster check
       ////////////////////////////////////////////////////////
-
       if (_.eq(layerType, MapLayerType.SYMBOL)) {
-
+        let symbolLayer: UISymbolLayer = <UISymbolLayer>layer;
+        if (_.isUndefined(symbolLayer.clustering) || symbolLayer.clustering == null) {
+          // default 설정이 off 임
+          symbolLayer.clustering = false;
+        }
+      } else if (_.eq(layerType, MapLayerType.CLUSTER)) {
         let symbolLayer: UISymbolLayer = <UISymbolLayer>layer;
         if (_.isUndefined(symbolLayer.clustering) || symbolLayer.clustering == null) {
           symbolLayer.clustering = true;
@@ -2637,7 +2638,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         if (layerType == MapLayerType.HEATMAP) {
           (_.isUndefined(layer.color.heatMapSchema) || layer.color.heatMapSchema.indexOf('HC') == -1 ? layer.color.heatMapSchema = 'HC1' : layer.color.heatMapSchema);
           layer.color.schema = layer.color.heatMapSchema;
-        } else if (layerType == MapLayerType.SYMBOL) {
+        } else if (layerType == MapLayerType.SYMBOL || layerType == MapLayerType.CLUSTER) {
           (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema.indexOf('#') == -1 ? layer.color.symbolSchema = '#6344ad' : layer.color.symbolSchema);
           layer.color.schema = layer.color.symbolSchema;
         } else if (layerType == MapLayerType.TILE) {
@@ -2661,7 +2662,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         if (layerType == MapLayerType.HEATMAP) {
           (_.isUndefined(layer.color.heatMapSchema) || layer.color.heatMapSchema.indexOf('HC') == -1 ? layer.color.heatMapSchema = 'HC1' : layer.color.heatMapSchema);
           layer.color.schema = layer.color.heatMapSchema;
-        } else if (layerType == MapLayerType.SYMBOL) {
+        } else if (layerType == MapLayerType.SYMBOL || layerType == MapLayerType.CLUSTER) {
           (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema.indexOf('VC') == -1 ? layer.color.symbolSchema = 'VC1' : layer.color.symbolSchema);
           layer.color.schema = layer.color.symbolSchema;
         } else if (layerType == MapLayerType.TILE) {
@@ -2703,7 +2704,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         layer.color.aggregationType = null;
       } else if (isDimension) {
         layer.color.by = MapBy.DIMENSION;
-        if (layerType == MapLayerType.SYMBOL) {
+        if (layerType == MapLayerType.SYMBOL || layerType == MapLayerType.CLUSTER) {
           (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema.indexOf('SC') == -1 ? layer.color.symbolSchema = 'SC1' : layer.color.symbolSchema);
           layer.color.schema = layer.color.symbolSchema;
         } else if (layerType == MapLayerType.TILE) {
@@ -2723,7 +2724,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       ////////////////////////////////////////////////////////
       // Symbol
       ////////////////////////////////////////////////////////
-      if (_.eq(layer.type, MapLayerType.SYMBOL)) {
+      if ((_.eq(layer.type, MapLayerType.SYMBOL)) || (layerType == MapLayerType.CLUSTER)) {
 
         // Symbol layer
         let symbolLayer: UISymbolLayer = <UISymbolLayer>layer;
@@ -3160,7 +3161,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
         let alias = ChartUtil.getFieldAlias(layer.color.column, shelf, layer.color.aggregationType);
         // symbol 타입 , cluster 사용일 경우
-        if (layer.type == MapLayerType.SYMBOL && layer['clustering']) {
+        // if (layer.type == MapLayerType.SYMBOL && layer['clustering']) {
+        if (layer.type == MapLayerType.CLUSTER && layer['clustering']) {
           alias = 'count';
         }
 
@@ -3386,7 +3388,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       if (!isChangedType) {
         const geometryType = data.features[i].geometry.type.toString().toLowerCase();
         if( geometryType == 'point' ) {
-          this.getUiMapOption().layers[this.getUiMapOption().layerNum].type = MapLayerType.SYMBOL;
+          if (!_.isUndefined(this.getUiMapOption().layers[this.getUiMapOption().layerNum]['clustering']) && this.getUiMapOption().layers[this.getUiMapOption().layerNum]['clustering']) {
+            this.getUiMapOption().layers[this.getUiMapOption().layerNum].type = MapLayerType.CLUSTER;
+          } else {
+            this.getUiMapOption().layers[this.getUiMapOption().layerNum].type = MapLayerType.SYMBOL;
+          }
         } else if( geometryType == 'multipolygon' ) {
           this.getUiMapOption().layers[this.getUiMapOption().layerNum].type = MapLayerType.POLYGON;
         } else {
@@ -3432,7 +3438,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // Layer
     let layer: UILayers = this.getUiMapOption().layers[this.getUiMapOption().layerNum];
 
-    if (_.eq(layer.type, MapLayerType.SYMBOL)) {
+    if ((_.eq(layer.type, MapLayerType.SYMBOL)) || (_.eq(layer.type, MapLayerType.CLUSTER))) {
       //////////////////////////
       // Point layer
       //////////////////////////

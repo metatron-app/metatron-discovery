@@ -2605,6 +2605,7 @@
   "msg.page.layer.map.type.polygon": "多边形",
   "msg.page.layer.map.type.heatmap": "热图",
   "msg.page.layer.map.type.tile": "六角形",
+  "msg.page.layer.map.type.cluster": "Cluster",
   "msg.page.layer.map.point": "点类型",
   "msg.page.layer.map.point.circle": "圆形",
   "msg.page.layer.map.point.square": "四角形",

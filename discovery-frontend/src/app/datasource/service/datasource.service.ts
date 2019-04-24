@@ -16,20 +16,26 @@ import {Injectable, Injector} from '@angular/core';
 import {AbstractService} from '../../common/service/abstract.service';
 import {Page} from '../../domain/common/page';
 import {CommonUtil} from '../../common/util/common.util';
-import {MapDataSource, SearchQueryRequest} from '../../domain/datasource/data/search-query-request';
+import {SearchQueryRequest} from '../../domain/datasource/data/search-query-request';
 
 import * as _ from 'lodash';
 import {PageWidgetConfiguration} from '../../domain/dashboard/widget/page-widget';
 import {
-  ChartType, ShelveFieldType, GridViewType, LineMode, ShelfType, FormatType, LayerViewType
+  ChartType,
+  FormatType,
+  GridViewType,
+  LayerViewType,
+  LineMode,
+  ShelfType,
+  ShelveFieldType
 } from '../../common/component/chart/option/define/common';
 import {Filter} from '../../domain/workbook/configurations/filter/filter';
 import {UILineChart} from '../../common/component/chart/option/ui-option/ui-line-chart';
 import {UIGridChart} from '../../common/component/chart/option/ui-option/ui-grid-chart';
 import {FilterUtil} from '../../dashboard/util/filter.util';
 import {InclusionFilter} from '../../domain/workbook/configurations/filter/inclusion-filter';
-import {BoardDataSource, Dashboard} from '../../domain/dashboard/dashboard';
-import {Datasource, Field, FieldFormat, FieldFormatType, LogicalType} from '../../domain/datasource/datasource';
+import {Dashboard} from '../../domain/dashboard/dashboard';
+import {Field, FieldFormat, LogicalType} from '../../domain/datasource/datasource';
 import {MeasureInequalityFilter} from '../../domain/workbook/configurations/filter/measure-inequality-filter';
 import {AdvancedFilter} from '../../domain/workbook/configurations/filter/advanced-filter';
 import {MeasurePositionFilter} from '../../domain/workbook/configurations/filter/measure-position-filter';
@@ -40,7 +46,7 @@ import {FilteringType} from '../../domain/workbook/configurations/field/timestam
 import {TimeCompareRequest} from '../../domain/datasource/data/time-compare-request';
 import {isNullOrUndefined} from 'util';
 import {DashboardUtil} from '../../dashboard/util/dashboard.util';
-import {GeoBoundaryFormat, GeoField, GeoHashFormat} from '../../domain/workbook/configurations/field/geo-field';
+import {GeoBoundaryFormat, GeoHashFormat} from '../../domain/workbook/configurations/field/geo-field';
 import {UIMapOption} from '../../common/component/chart/option/ui-option/map/ui-map-chart';
 import {ChartUtil} from '../../common/component/chart/option/util/chart-util';
 import {CriterionKey, ListCriterion} from '../../domain/datasource/listCriterion';
@@ -51,7 +57,6 @@ import {MapLayerType} from '../../common/component/chart/option/define/map/map-c
 import {Pivot} from "../../domain/workbook/configurations/pivot";
 import {TimezoneService} from "../../data-storage/service/timezone.service";
 import {Shelf} from "../../domain/workbook/configurations/shelf/shelf";
-import {TypeFilterObject} from "../../data-storage/service/data-source-create.service";
 import {RegExprFilter} from "../../domain/workbook/configurations/filter/reg-expr-filter";
 import {SpatialFilter} from "../../domain/workbook/configurations/filter/spatial-filter";
 import {TranslateService} from "@ngx-translate/core";
@@ -584,8 +589,8 @@ export class DatasourceService extends AbstractService {
 
                 // clustering
                 let chart = (<UIMapOption>pageConf.chart);
-                if( chart.layers[idx].type == MapLayerType.SYMBOL && chart.layers[idx]['clustering'] ) {
-
+                if ((chart.layers[idx].type == MapLayerType.SYMBOL && chart.layers[idx]['clustering'])
+                  || (chart.layers[idx].type == MapLayerType.CLUSTER && chart.layers[idx]['clustering'])) {
                   // cluster 값 변경
                   let clusterPrecision : number = 6;
                   if(chart['layers'][idx]['changeCoverage']){
@@ -606,6 +611,8 @@ export class DatasourceService extends AbstractService {
                     // 0~99 퍼센트 값을 1~12값으로 변환
                     precision: (_.isNaN(clusterPrecision) ? 6 : clusterPrecision)
                   };
+                  // cluster를 map-option 에서 type으로 분리를 해서 CLUSTER 로 이용하고 api request 할 때는 symbol로 변경
+                  chart.layers[idx].type = MapLayerType.SYMBOL;
                 }
 
                 let spatialFilter = new SpatialFilter();

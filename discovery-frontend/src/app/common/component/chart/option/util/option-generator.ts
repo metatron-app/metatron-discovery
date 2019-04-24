@@ -2046,7 +2046,7 @@ export namespace OptionGenerator {
               "max": 10
             },
             outline: null,
-            clustering: true,
+            clustering: false,
             coverage: 50,
             thickness: {
               by: "NONE",

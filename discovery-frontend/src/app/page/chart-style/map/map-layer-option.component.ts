@@ -52,7 +52,6 @@ import { ColorOptionConverter } from '../../../common/component/chart/option/con
 import { OptionGenerator } from '../../../common/component/chart/option/util/option-generator';
 import UI = OptionGenerator.UI;
 import {MapChartComponent} from "../../../common/component/chart/type/map-chart/map-chart.component";
-import {DimensionField} from "../../../domain/workbook/configurations/field/dimension-field";
 
 @Component({
   selector: 'map-layer-option',
@@ -86,6 +85,16 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
     this.uiOption = uiOption;
 
+    // type 관련 변경 필요 (symbol & cluster) 이는 cluster 타입이 option panel에서 따로 분리된 이유임
+    if (!_.isUndefined(this.uiOption) && !_.isUndefined(this.uiOption['layers']) && this.uiOption['layers'].length > 0) {
+      for (let layerIndex = 0; this.uiOption['layers'].length > layerIndex; layerIndex++) {
+        if (this.uiOption['layers'][layerIndex]['type'] == MapLayerType.SYMBOL
+          && !_.isUndefined(this.uiOption['layers'][layerIndex]['clustering'])
+          && this.uiOption['layers'][layerIndex]['clustering']) {
+          this.uiOption['layers'][layerIndex]['type'] = MapLayerType.CLUSTER;
+        }
+      }
+    }
     // set ranges for view
     this.rangesViewList = this.setRangeViewByDecimal(this.uiOption.layers[this.index].color['ranges']);
 
@@ -120,7 +129,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   // symbol layer - type list
   public symbolLayerTypes = [{name : this.translateService.instant('msg.page.layer.map.type.point'), value: MapLayerType.SYMBOL},
                              {name : this.translateService.instant('msg.page.layer.map.type.heatmap'), value: MapLayerType.HEATMAP},
-                             {name : this.translateService.instant('msg.page.layer.map.type.tile'), value: MapLayerType.TILE}];
+    {name: this.translateService.instant('msg.page.layer.map.type.tile'), value: MapLayerType.TILE},
+    {name: this.translateService.instant('msg.page.layer.map.type.cluster'), value: MapLayerType.CLUSTER}];
 
   // symbol layer - symbol list
   public symbolLayerSymbols = [{name : this.translateService.instant('msg.page.layer.map.point.circle'), value : MapSymbolType.CIRCLE},
@@ -213,10 +223,22 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     } else if (MapLayerType.POLYGON === preLayerType) {
       layer.color.polygonSchema = cloneLayer.color.schema;
       layer.color.tranTransparency = cloneLayer.color.transparency;
+    } else if (MapLayerType.CLUSTER === preLayerType) {
+      layer.color.polygonSchema = cloneLayer.color.schema;
+      layer.color.tranTransparency = cloneLayer.color.transparency;
     }
 
     // change layer type
     this.uiOption.layers[layerIndex].type = layerType;
+
+    // cluster 설정 (cluster 경우 point 타입에서 cluster on / off 기능으로 구현됨)
+    if (layerType === MapLayerType.CLUSTER) {
+      // 클러스터 설정 on
+      this.uiOption.layers[layerIndex]['clustering'] = true;
+    } else {
+      // disable cluster
+      this.uiOption.layers[layerIndex]['clustering'] = false;
+    }
 
     // init color, legend
     this.initOptionSymbolLayer(layerIndex);
@@ -250,7 +272,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       // remove measure aggregation type in shelf
       this.removeAggregationType();
 
-    } else if (MapLayerType.SYMBOL === layerType) {
+    } else if (MapLayerType.SYMBOL === layerType || MapLayerType.CLUSTER === layerType) {
       // set color by shelf
       layer = this.setColorByShelf(false, layerIndex);
       if( isNullOrUndefined(layer.color.symbolTransparency) ) {

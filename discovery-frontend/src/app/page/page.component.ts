@@ -744,11 +744,16 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     // 차트가 없거나 차트가 그려지지 않은경우 return
     if (!this.chart || !this.isChartShow) {
-
       return;
     }
-
     this.loadingShow();
+
+    // type 관련 변경 필요 (symbol & cluster) 이는 cluster 타입이 option panel에서 따로 분리된 이유임
+    if (this.uiOption['layers'][this.uiOption['layerNum']]['type'] == MapLayerType.CLUSTER
+      && !_.isUndefined(this.uiOption['layers'][this.uiOption['layerNum']]['clustering'])
+      && this.uiOption['layers'][this.uiOption['layerNum']]['clustering']) {
+      this.uiOption['layers'][this.uiOption['layerNum']]['type'] = MapLayerType.SYMBOL;
+    }
 
     if (this.isNewWidget()) {
       // 위젯 생성
@@ -756,14 +761,10 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       if (StringUtil.isEmpty(this.widget.name)) {
         this.widget.name = 'New Chart';
       }
-
       let param;
-
       // map - set shelf layers
       if (_.eq(this.selectChart, ChartType.MAP)) {
-
         param = _.extend({}, this.widget, {shelf: this.shelf});
-
       } else {
         param = _.extend({}, this.widget, {pivot: this.pivot});
       }
@@ -4054,6 +4055,12 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
             }, 300);
           }
         } else if (this.selectChart == 'map') {
+          // type 관련 설정 필요 (symbol & cluster) 이는 cluster 타입이 option panel에서 따로 분리된 이유임
+          if (this.uiOption['layers'][this.uiOption['layerNum']]['type'] == MapLayerType.SYMBOL
+            && !_.isUndefined(this.uiOption['layers'][this.uiOption['layerNum']]['clustering'])
+            && this.uiOption['layers'][this.uiOption['layerNum']]['clustering']) {
+            this.uiOption['layers'][this.uiOption['layerNum']]['type'] = MapLayerType.CLUSTER;
+          }
           // map chart 일 경우 aggregation type 변경시 min/max 재설정 필요
           if (!_.isUndefined(params) && !_.isUndefined(params.type) && params.type == EventType.AGGREGATION) {
             this.uiOption['layers'][this.uiOption['layerNum']]['isColorOptionChanged'] = true;

@@ -231,7 +231,11 @@ export class MapPagePivotComponent extends PagePivotComponent {
     } else if (targetField.logicalType == LogicalType.GEO_POLYGON) {
       this.uiOption.layers[this.uiOption.layerNum].type = MapLayerType.POLYGON;
     } else if (targetField.logicalType == LogicalType.GEO_POINT) {
-      this.uiOption.layers[this.uiOption.layerNum].type = MapLayerType.SYMBOL;
+      if (!_.isUndefined(this.uiOption.layers[this.uiOption.layerNum]['clustering']) && this.uiOption.layers[this.uiOption.layerNum]['clustering']) {
+        this.uiOption.layers[this.uiOption.layerNum].type = MapLayerType.CLUSTER;
+      } else {
+        this.uiOption.layers[this.uiOption.layerNum].type = MapLayerType.SYMBOL;
+      }
     }
 
     const idx = shelf.findIndex((field) => {
@@ -783,6 +787,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
       // symbol, heatmap => no aggregation type
       if (MapLayerType.SYMBOL === this.uiOption.layers[this.uiOption.layerNum].type ||
+        MapLayerType.CLUSTER === this.uiOption.layers[this.uiOption.layerNum].type ||
         MapLayerType.HEATMAP === this.uiOption.layers[this.uiOption.layerNum].type) {
 
         shelf.splice(idx, 1);
