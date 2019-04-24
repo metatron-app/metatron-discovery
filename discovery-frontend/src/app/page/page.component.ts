@@ -4336,8 +4336,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
           }
 
           // when it's point or heatmap, add aggregation type
-          if (MapLayerType.SYMBOL === (<UIMapOption>uiOption).layers[layerNum].type ||
-            MapLayerType.HEATMAP === (<UIMapOption>uiOption).layers[layerNum].type) {
+          if (MapLayerType.SYMBOL === (<UIMapOption>uiOption).layers[layerNum].type
+            || MapLayerType.CLUSTER === (<UIMapOption>uiOption).layers[layerNum].type
+            || MapLayerType.HEATMAP === (<UIMapOption>uiOption).layers[layerNum].type) {
             this.pagePivot.distinctPivotItems(layers, item, index, layers, 'layer' + layerNum);
           }
 
