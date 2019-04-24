@@ -140,11 +140,11 @@ public class PrepDatasetFileService {
                         throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
                             PrepMessageKey.MSG_DP_ALERT_UNKOWN_ERROR, "Excel files should have converted as CSV");
                     case "json":
-                        Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
+                        Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
                         result = PrepJsonUtil.countJson(storedUri, limitRows, conf);
                         break;
                     default:
-                        conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
+                        conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
                         String delimiterCol = dataset.getDelimiter();
                         result = PrepCsvUtil.countCsv(storedUri, delimiterCol, limitRows, conf);
                 }
@@ -470,7 +470,7 @@ public class PrepDatasetFileService {
     private Map<String, Object> getResponseMapFromJson(String storedUri, int limitRows, Integer columnCount, boolean autoTyping) throws TeddyException {
         Map<String, Object> responseMap = Maps.newHashMap();
         List<DataFrame> gridResponses = Lists.newArrayList();
-        Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
+        Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
 
         DataFrame df = new DataFrame("df_for_preview");
         df.setByGridWithJson(PrepJsonUtil.parseJson(storedUri, limitRows, columnCount, hadoopConf));
@@ -488,7 +488,7 @@ public class PrepDatasetFileService {
     private Map<String, Object> getResponseMapFromCsv(String storedUri, int limitRows, String delimiterCol, Integer columnCount, boolean autoTyping) throws TeddyException {
         Map<String, Object> responseMap = Maps.newHashMap();
         List<DataFrame> gridResponses = Lists.newArrayList();
-        Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
+        Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
 
         DataFrame df = new DataFrame("df_for_preview");
         df.setByGrid(PrepCsvUtil.parse(storedUri, delimiterCol, limitRows, columnCount, hadoopConf));
