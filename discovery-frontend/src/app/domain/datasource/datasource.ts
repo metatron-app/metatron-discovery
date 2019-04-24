@@ -25,6 +25,7 @@ import {
 import {PrDataSnapshot} from "../data-preparation/pr-snapshot";
 import {isNullOrUndefined} from "util";
 import {TimezoneService} from "../../data-storage/service/timezone.service";
+import {AggregationType} from "../workbook/configurations/field/measure-field";
 
 export class Datasource extends AbstractHistoryEntity {
   id: string;             // ID
@@ -144,12 +145,14 @@ export class Field {
   // 필수 필터링 순서 지정
   filteringSeq: number;
   // 필터링 옵션
-  filteringOptions: any;
+  filteringOptions;
 
-  // is create field (optional)
-  derived?: boolean;
+  aggrType?: AggregationType;
   // Whether to exclude what to load to engine
   unloaded?: boolean;
+  seq: number;
+  // is create field (optional)
+  derived?: boolean;
   // derivationRule
   derivationRule?: DerivationRule;
   // IngestionRule
@@ -167,7 +170,6 @@ export class Field {
   alias: string;
 
   // for UI
-  seq: number;
   useFilter: boolean = false;
   useChartFilter: boolean = false;
   useChart: boolean = false;
@@ -211,6 +213,14 @@ export class Field {
   removeUIproperties?() {
     delete this.isShowTypeList;
     delete this.isValidType;
+  }
+
+  public static getSlicedColumnName?(field: Field): string {
+    if (field.name.length > 50) {
+      return field.name.slice(0,50);
+    } else {
+      return field.name;
+    }
   }
 
   /**

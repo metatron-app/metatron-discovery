@@ -352,7 +352,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent {
         const headerWidth:number = Math.floor(pixelWidth(field.name, { size: 12 })) + 62;
         return new SlickGridHeader()
           .Id(field.name)
-          .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.logicalType.toString()) + '"></em>' + field.name + '</span>')
+          .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.logicalType.toString()) + '"></em>' + Field.getSlicedColumnName(field) + '</span>')
           .Field(field.name)
           .Behavior('select')
           .Selectable(false)

@@ -127,6 +127,14 @@ export class SchemaConfigComponent extends AbstractComponent {
   }
 
   /**
+   * Get sliced column name
+   * @param field
+   */
+  public getSlicedColumnName(field: Field): string {
+    return Field.getSlicedColumnName(field);
+  }
+
+  /**
    * Get logical type icon class
    * @param {Field} field
    * @returns {string}

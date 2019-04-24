@@ -16,7 +16,7 @@
     </li>
     <ng-container *ngIf="isShowPreview">
       <li *ngFor="let data of dataList">
-        {{data}}
+        {{getSlicedDataContent(data)}}
       </li>
       <li class="ddp-data-none">
         {{'msg.storage.ui.schema.column.rows.desc' | translate}}

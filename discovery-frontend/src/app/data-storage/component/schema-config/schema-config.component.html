@@ -144,7 +144,7 @@
                         <em class="{{getLogicalTypeIconClass(field)}}"></em>
                       </div>
                       <div class="ddp-form-name">
-                        <span class="ddp-data-name" title="{{field.name}}">{{field.name}}
+                        <span class="ddp-data-name" title="{{field.name}}">{{getSlicedColumnName(field)}}
                           <em class="ddp-icon-error2" *ngIf="isErrorField(field)"></em>
                         </span>
                       </div>
@@ -203,14 +203,14 @@
              [class.ddp-selected]="timestampFieldListShowFlag"
              [class.ddp-disabled]="timestampFieldList.length === 0"
              (click)="onChangeTimestampFieldListShowFlag()" (clickOutside)="timestampFieldListShowFlag = false">
-          <span class="ddp-txt-selectbox">{{selectedTimestampField ? selectedTimestampField.name : ('msg.storage.ui.ph.timestamp.column' | translate)}}</span>
+          <span class="ddp-txt-selectbox">{{selectedTimestampField ? getSlicedColumnName(selectedTimestampField) : ('msg.storage.ui.ph.timestamp.column' | translate)}}</span>
           <ul class="ddp-list-selectbox ddp-selectdown">
             <li *ngIf="timestampFieldList.length === 0">
               <span class="ddp-noresult">{{'msg.comm.ui.no.rslt' | translate}}</span>
             </li>
             <li *ngFor="let field of timestampFieldList" (click)="onChangeSelectedTimestampField(field)">
               <a href="javascript:">
-                {{field.name}}
+                {{getSlicedColumnName(field)}}
               </a>
             </li>
           </ul>

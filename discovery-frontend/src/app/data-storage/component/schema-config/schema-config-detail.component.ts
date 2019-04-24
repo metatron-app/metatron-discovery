@@ -328,6 +328,14 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
   }
 
   /**
+   * Get sliced column name
+   * @param field
+   */
+  public getSlicedColumnName(field: Field): string {
+    return Field.getSlicedColumnName(field);
+  }
+
+  /**
    * Get selected timezone label
    * @param {FieldFormat} format
    * @return {string}
