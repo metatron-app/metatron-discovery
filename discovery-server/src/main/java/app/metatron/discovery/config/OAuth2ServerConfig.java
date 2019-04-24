@@ -271,6 +271,8 @@ public class OAuth2ServerConfig {
       defaultTokenServices.setTokenStore(tokenStore());
       defaultTokenServices.setTokenEnhancer(accessTokenConverter());
       defaultTokenServices.setSupportRefreshToken(true);
+      // accessToken, refreshToken time 설정
+      //defaultTokenServices.setClientDetailsService(jdbcClientDetailsService());
       return defaultTokenServices;
     }
 
