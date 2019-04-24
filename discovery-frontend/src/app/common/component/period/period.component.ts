@@ -271,6 +271,24 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
    */
   public done() {
 
+    const returnData = this.getReturnData();
+
+    this.changeDate.emit(returnData);
+  } // function - done
+
+
+  /**
+   * Returns
+   * {
+      startDate : this._startDate,
+      endDate : this._endDate,
+      type: this.selectedType.toString(),
+      startDateStr: startDateStr,
+      endDateStr: endDateStr
+    } this data
+   */
+  public getReturnData() {
+
     let startDateStr:string;
     if( this._startDate ) {
       startDateStr = moment(this._startDate).format(this.returnFormat)
@@ -299,11 +317,8 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
       returnData['dateType'] = this.selectedDate;
     }
 
-    // console.log(returnData);
-
-    this.changeDate.emit(returnData);
-  } // function - done
-
+    return returnData;
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
