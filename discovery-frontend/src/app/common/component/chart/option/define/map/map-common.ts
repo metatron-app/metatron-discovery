@@ -38,6 +38,7 @@ export enum MapLayerType {
   MULTIPOLYGON = <any>'multipolygon',
   HEATMAP = <any>'heatmap',
   TILE = <any>'tile',
+  // cluster => UI Only
   CLUSTER = <any>'cluster'
 }
 

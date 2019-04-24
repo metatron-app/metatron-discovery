@@ -96,4 +96,7 @@ interface SymbolColor {
 
   polygonSchema? : string;
 
+  // cluster => UI Only
+  clusterSchema?: string;
+  clusterTransparency?: number;
 }
