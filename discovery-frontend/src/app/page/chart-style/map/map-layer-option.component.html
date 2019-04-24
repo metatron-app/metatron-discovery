@@ -92,47 +92,38 @@
                     <div class="ddp-divide2 ">
                       <div class="ddp-list-label">{{'msg.page.layer.map.color' | translate}}</div>
                       <div [ngClass]="{'ddp-list-sub2' : 'heatmap' !== uiOption.layers[layerIndex].type.toString()}">
-                        <div
-                          [ngClass]="{'ddp-wrap-disabled' : 'MEASURE' === uiOption.layers[layerIndex].color.by.toString() && uiOption.layers[layerIndex].color['settingUseFl']}">
-                          <div *ngIf="'heatmap' !== uiOption.layers[layerIndex].type.toString()" class="ddp-divide2">
+                        <div [ngClass]="{'ddp-wrap-disabled' : 'MEASURE' === uiOption.layers[layerIndex].color.by.toString() && uiOption.layers[layerIndex].color['settingUseFl']}">
+
+                          <div *ngIf="'heatmap' !== uiOption.layers[layerIndex].type.toString() && 'tile' !== uiOption.layers[layerIndex].type.toString() && ('DIMENSION' === uiOption.layers[layerIndex].color.by.toString() || 'NONE' === uiOption.layers[layerIndex].color.by.toString())" class="ddp-divide2">
                             <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
-                            <!-- SELECTBOX -->
                             <component-select
-                              [array]="colorByList"
-                              [defaultIndex]="findIndex(colorByList, 'value', uiOption.layers[layerIndex].color.by)"
-                              [viewKey]="'name'"
+                              [array]="fieldList[layerIndex]"
+                              [defaultIndex]="findIndex(fieldList[layerIndex], 'name', uiOption.layers[layerIndex].color.column, 'color')"
+                              [viewKey]="'alias'"
+                              [isIconType]="true"
                               (onSelected)="changeColorBy($event, layerIndex)">
                             </component-select>
-                            <!-- //SELECTBOX -->
                           </div>
-                          <!-- color by dimension column -->
-                          <div
-                            *ngIf="'heatmap' !== uiOption.layers[layerIndex].type.toString() && 'DIMENSION' === uiOption.layers[layerIndex].color.by.toString()"
-                            class="ddp-divide2">
-                            <!-- SELECTBOX -->
+                          <div *ngIf="'heatmap' !== uiOption.layers[layerIndex].type.toString() && 'tile' !== uiOption.layers[layerIndex].type.toString() && 'MEASURE' === uiOption.layers[layerIndex].color.by.toString()" class="ddp-divide2">
+                            <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
                             <component-select
-                              [array]="fieldList[layerIndex].dimensionList"
-                              [defaultIndex]="findIndex(fieldList[layerIndex].dimensionList, 'name', uiOption.layers[layerIndex].color.column)"
+                              [array]="fieldList[layerIndex]"
+                              [defaultIndex]="findIndex(fieldList[layerIndex], 'name', uiOption.layers[layerIndex].color.column, 'color', 'aggregationType', uiOption.layers[layerIndex].color.aggregationType)"
                               [viewKey]="'alias'"
-                              (onSelected)="changeColorColumn($event, layerIndex)">
+                              [isIconType]="true"
+                              (onSelected)="changeColorBy($event, layerIndex)">
                             </component-select>
-                            <!-- //SELECTBOX -->
                           </div>
-                          <!-- //color by dimension column -->
-                          <!-- color by measure column -->
-                          <div
-                            *ngIf="'heatmap' !== uiOption.layers[layerIndex].type.toString() && 'MEASURE' === uiOption.layers[layerIndex].color.by.toString()"
-                            class="ddp-divide2">
-                            <!-- SELECTBOX -->
+                          <div *ngIf="'tile' == uiOption.layers[layerIndex].type.toString()" class="ddp-divide2">
+                            <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
                             <component-select
-                              [array]="fieldList[layerIndex].measureList"
-                              [defaultIndex]="findIndex(fieldList[layerIndex].measureList, 'name', uiOption.layers[layerIndex].color.column, 'aggregationType', uiOption.layers[layerIndex].color.aggregationType)"
+                              [array]="fieldMeasureList"
+                              [defaultIndex]="findIndex(fieldMeasureList, 'name', uiOption.layers[layerIndex].color.column, 'color', 'aggregationType', uiOption.layers[layerIndex].color.aggregationType)"
                               [viewKey]="'alias'"
-                              (onSelected)="changeColorColumn($event, layerIndex)">
+                              [isIconType]="true"
+                              (onSelected)="changeColorBy($event, layerIndex)">
                             </component-select>
-                            <!-- //SELECTBOX -->
                           </div>
-                          <!-- //color by measure column -->
 
                           <div class="ddp-divide2">
                             <!-- color by none -->
@@ -330,27 +321,14 @@
                       <div class="ddp-list-sub2">
                         <div class="ddp-divide2">
                           <div class="ddp-list-label">{{'msg.page.layer.map.size.by' | translate}}</div>
-                          <!-- SELECTBOX -->
                           <component-select
-                            [array]="byList"
-                            [defaultIndex]="findIndex(byList, 'value', uiOption.layers[layerIndex].size.by)"
-                            [viewKey]="'name'"
+                            [array]="fieldMeasureList"
+                            [isIconType]="true"
+                            [defaultIndex]="findIndex(fieldMeasureList, 'name', uiOption.layers[layerIndex].size.column, 'size', 'aggregationType')"
+                            [viewKey]="'alias'"
                             (onSelected)="changeSizeBy($event, layerIndex)"
                           ></component-select>
-                          <!-- //SELECTBOX -->
                         </div>
-
-                        <div *ngIf="'NONE' !== uiOption.layers[layerIndex].size.by.toString()" class="ddp-divide2">
-                          <!-- SELECTBOX -->
-                          <component-select
-                            [array]="fieldList[layerIndex].measureList"
-                            [defaultIndex]="findIndex(fieldList[layerIndex].measureList, 'name', uiOption.layers[layerIndex].size.column)"
-                            [viewKey]="'alias'"
-                            (onSelected)="changeSizeColumn($event, layerIndex)"
-                          ></component-select>
-                          <!-- //SELECTBOX -->
-                        </div>
-
                         <!-- TODO radius range by none -->
                         <!--<div *ngIf="false && uiOption.layers[layerIndex].size.radiusRange?.length > 0" class="ddp-divide2">-->
                         <!--<div class="ddp-form-slider">-->
@@ -656,25 +634,13 @@
                         <div class="ddp-list-sub2">
                           <div class="ddp-divide2">
                             <div class="ddp-list-label">{{'msg.page.layer.map.stroke.by' | translate}}</div>
-                            <!-- SELECTBOX -->
                             <component-select
-                              [array]="byList"
-                              [defaultIndex]="findIndex(byList, 'value', uiOption.layers[layerIndex].thickness?.by)"
-                              [viewKey]="'name'"
+                              [array]="fieldList[layerIndex]"
+                              [defaultIndex]="findIndex(fieldList[layerIndex], 'name', uiOption.layers[layerIndex].thickness.column, 'thickness', 'aggregationType', uiOption.layers[layerIndex].thickness.aggregationType)"
+                              [isIconType]="true"
+                              [viewKey]="'alias'"
                               (onSelected)="changeStrokeBy($event, layerIndex)"
                             ></component-select>
-                            <!-- //SELECTBOX -->
-                          </div>
-                          <div *ngIf="'MEASURE' === uiOption.layers[layerIndex].thickness?.by?.toString()"
-                               class="ddp-divide2">
-                            <!-- SELECTBOX -->
-                            <component-select
-                              [array]="fieldList[layerIndex].measureList"
-                              [defaultIndex]="findIndex(fieldList[layerIndex].measureList, 'name', uiOption.layers[layerIndex].thickness.column, 'aggregationType', uiOption.layers[layerIndex].thickness.aggregationType)"
-                              [viewKey]="'alias'"
-                              (onSelected)="changeStrokeColumn($event, layerIndex)"
-                            ></component-select>
-                            <!-- //SELECTBOX -->
                           </div>
                           <div class="ddp-divide2">
                             <div class="ddp-wrap-option-multy ddp-clear">

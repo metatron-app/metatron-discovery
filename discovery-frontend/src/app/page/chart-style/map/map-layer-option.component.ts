@@ -52,6 +52,7 @@ import { ColorOptionConverter } from '../../../common/component/chart/option/con
 import { OptionGenerator } from '../../../common/component/chart/option/util/option-generator';
 import UI = OptionGenerator.UI;
 import {MapChartComponent} from "../../../common/component/chart/type/map-chart/map-chart.component";
+import {DimensionField} from "../../../domain/workbook/configurations/field/dimension-field";
 
 @Component({
   selector: 'map-layer-option',
@@ -146,6 +147,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
   // dimension, measure List
   public fieldList = [];
+  public fieldMeasureList = [];
 
   // range list for view
   public rangesViewList = [];
@@ -189,8 +191,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     // deep copy layer type
     let cloneLayerType = _.cloneDeep(this.uiOption.layers[layerIndex].type);
 
-    let dimensionList = this.fieldList[layerIndex].dimensionList;
-    let measureList = this.fieldList[layerIndex].measureList;
+    let dimensionList = this.findFieldList(this.fieldList[layerIndex], ShelveFieldType.DIMENSION.toString());
+    let measureList = this.findFieldList(this.fieldList[layerIndex], ShelveFieldType.MEASURE.toString());
 
     let layer : UILayers = this.uiOption.layers[layerIndex];
 
@@ -235,7 +237,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       }
       layer['radius'] = layer.heatMapRadius;
 
-      measureList = this.fieldList[layerIndex]['measureList'];
+      measureList = this.findFieldList(this.fieldList[layerIndex], ShelveFieldType.MEASURE.toString());
 
       // when measure doesn't exist, hide/disable legend
       if (!measureList || 0 === measureList.length) {
@@ -431,36 +433,89 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * @param value
    * @returns {number}
    */
-  public findIndex(list: Object[], key: string, value: any, optionalKey?: string, optionalValue?: any) {
+  public findIndex(list: Object[], key: string, value: any, type: string, optionalKey?: string, optionalValue?: any) {
 
+    if( list.length == 1 ) return list.length-1;
+
+    const fieldType : string = 'type';
+    // aggregationType 있는경우
     if (optionalKey && optionalValue) {
-      return _.findIndex(list, {[key] : value, [optionalKey]: optionalValue});
+      return _.findIndex(list, {[key] : value, [optionalKey]: optionalValue, [fieldType] : ShelveFieldType.MEASURE});
     }
-    return _.findIndex(list, {[key] : value});
+
+    let standardType = this.uiOption.layers[this.index].color.by;
+    if( type == 'thickness' ) {
+      standardType = (<UILineLayer>this.uiOption.layers[this.index]).thickness.by;
+    } else if( type == 'size' ) {
+      standardType = (<UISymbolLayer>this.uiOption.layers[this.index]).size.by;
+    }
+
+    switch (standardType) {
+      case MapBy.NONE :
+        return _.findIndex(list, {[key] : value});
+      case MapBy.DIMENSION :
+        return _.findIndex(list, {[key] : value, [fieldType] : ShelveFieldType.DIMENSION});
+      case MapBy.MEASURE :
+        return _.findIndex(list, {[key] : value, [fieldType] : ShelveFieldType.MEASURE});
+      default :
+        return _.findIndex(list, {[key] : value});
+    }
+
+  }
+
+  /**
+   * return same type field list
+   * @param list
+   * @param fieldTypeValue
+   * @returns {T[]}
+   */
+  public findFieldList(list: Object[], fieldTypeValue : string, isDefaultValue? : boolean) {
+    const fieldType : string = 'type';
+
+    if( isDefaultValue ){
+      let resultFieldList : any = _.filter(list, {[fieldType] : fieldTypeValue});
+      resultFieldList.unshift({name : this.translateService.instant('msg.page.layer.map.stroke.none'), alias : this.translateService.instant('msg.page.layer.map.stroke.none'), value : MapBy.NONE});
+      return resultFieldList;
+    }
+
+    return _.filter(list, {[fieldType] : fieldTypeValue});
   }
 
   /**
    * all layers - set color by
    * @param {Object} data
    */
-  public changeColorBy(data: Object, layerIndex : number) {
+  public changeColorBy(data: Field, layerIndex : number) {
 
-    if (this.uiOption.layers[layerIndex].color.by === data['value']) return;
+    // if (this.uiOption.layers[layerIndex].color.by === data.type) return;
 
     // init color ranges
     this.uiOption.layers[layerIndex].color.ranges = undefined;
     // hide custom color
     this.uiOption.layers[layerIndex].color['settingUseFl'] = false;
 
-    this.uiOption.layers[layerIndex].color.by = data['value'];
+    switch (data.type) {
+      case 'none' :
+        this.uiOption.layers[layerIndex].color.by = MapBy.NONE;
+        break;
+      case 'dimension' :
+        this.uiOption.layers[layerIndex].color.by = MapBy.DIMENSION;
+        break;
+      case 'measure' :
+        this.uiOption.layers[layerIndex].color.by = MapBy.MEASURE;
+        break;
+      default :
+        this.uiOption.layers[layerIndex].color.by = MapBy.NONE;
+        break;
+    }
 
     this.uiOption.layers[layerIndex].color.aggregationType = undefined;
 
-    let dimensionList = this.fieldList[layerIndex].dimensionList;
-    let measureList = this.fieldList[layerIndex].measureList;
+    let dimensionList = this.findFieldList(this.fieldList[layerIndex], ShelveFieldType.DIMENSION.toString());
+    let measureList = this.findFieldList(this.fieldList[layerIndex], ShelveFieldType.MEASURE.toString());
 
     // set schema by color type
-    if (MapBy.DIMENSION === data['value']) {
+    if ('dimension' === data.type) {
       this.uiOption.layers[layerIndex].color.schema = 'SC1';
 
       // only set column when dimension column exsists
@@ -470,7 +525,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
         this.uiOption.layers[layerIndex].color.column = '';
       }
 
-    } else if (MapBy.MEASURE === data['value']) {
+    } else if ('measure' === data.type) {
       this.uiOption.layers[layerIndex].color.schema = 'VC1';
 
       // only set column when measure column exsists
@@ -500,12 +555,13 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
         }
       }
 
-    } else if (MapBy.NONE === data['value']) {
+    } else {
       this.uiOption.layers[layerIndex].color.schema = '#6344ad';
       this.uiOption.layers[layerIndex].color.column = '';
     }
 
-    this.applyLayers();
+    this.changeColorColumn(data, layerIndex);
+
   }
 
   /**
@@ -552,15 +608,29 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * line layer - stroke by
    * @param {Object} data
    */
-  public changeStrokeBy(data: Object, layerIndex : number) {
+  public changeStrokeBy(data: Field, layerIndex : number) {
 
-    (<UILineLayer>this.uiOption.layers[layerIndex]).thickness.by = data['value'];
+    // (<UILineLayer>this.uiOption.layers[layerIndex]).thickness.by = data['value'];
+    switch (data.type) {
+      case 'none' :
+        (<UILineLayer>this.uiOption.layers[layerIndex]).thickness.by = MapBy.NONE;
+        break;
+      case 'dimension' :
+        (<UILineLayer>this.uiOption.layers[layerIndex]).thickness.by = MapBy.DIMENSION;
+        break;
+      case 'measure' :
+        (<UILineLayer>this.uiOption.layers[layerIndex]).thickness.by = MapBy.MEASURE;
+        break;
+      default :
+        (<UILineLayer>this.uiOption.layers[layerIndex]).thickness.by = MapBy.NONE;
+        break;
+    }
 
     (<UILineLayer>this.uiOption.layers[layerIndex]).thickness.aggregationType = undefined;
 
-    if (MapBy.MEASURE === data['value']) {
+    if ('measure' === data.type) {
 
-      let measureList = this.fieldList[layerIndex].measureList;
+      let measureList = this.findFieldList(this.fieldList[layerIndex], ShelveFieldType.MEASURE.toString());
 
       // only set column when measure column exsists
       if (measureList && measureList.length > 0) {
@@ -573,17 +643,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       (<UILineLayer>this.uiOption.layers[layerIndex]).thickness.column = '';
     }
 
-    this.applyLayers();
+    this.changeStrokeColumn(data, layerIndex);
   }
 
   /**
    * line layer - stroke column
    * @param {Object} data
    */
-  public changeStrokeColumn(data: Object, layerIndex : number) {
+  public changeStrokeColumn(data: Field, layerIndex : number) {
 
-    (<UILineLayer>this.uiOption.layers[layerIndex]).thickness.column = data['name'];
-    (<UILineLayer>this.uiOption.layers[layerIndex]).thickness.aggregationType = data['aggregationType'];
+    (<UILineLayer>this.uiOption.layers[layerIndex]).thickness.column = data.name;
+    (<UILineLayer>this.uiOption.layers[layerIndex]).thickness.aggregationType = data.aggregationType;
 
     this.applyLayers();
   }
@@ -611,14 +681,28 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * symbol layer - change size by
    * @param {Object} data
    */
-  public changeSizeBy(data: Object, layerIndex : number) {
+  public changeSizeBy(data: Field, layerIndex : number) {
 
-    (<UISymbolLayer>this.uiOption.layers[layerIndex]).size.by = data['value'];
+    // (<UISymbolLayer>this.uiOption.layers[layerIndex]).size.by = data['value'];
+    switch (data.type) {
+      case 'none' :
+        (<UISymbolLayer>this.uiOption.layers[layerIndex]).size.by = MapBy.NONE;
+        break;
+      case 'dimension' :
+        (<UISymbolLayer>this.uiOption.layers[layerIndex]).size.by = MapBy.DIMENSION;
+        break;
+      case 'measure' :
+        (<UISymbolLayer>this.uiOption.layers[layerIndex]).size.by = MapBy.MEASURE;
+        break;
+      default :
+        (<UISymbolLayer>this.uiOption.layers[layerIndex]).size.by = MapBy.NONE;
+        break;
+    }
 
     // set column when size by is measure
-    if (MapBy.MEASURE === data['value']) {
+    if ('measure' === data.type) {
 
-      let measureList = this.fieldList[layerIndex].measureList;
+      let measureList =  this.findFieldList(this.fieldList[layerIndex], ShelveFieldType.MEASURE.toString());
 
       if (measureList && measureList.length > 0) {
         (<UISymbolLayer>this.uiOption.layers[layerIndex]).size.column = measureList[0]['name'];
@@ -629,7 +713,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       (<UISymbolLayer>this.uiOption.layers[layerIndex]).size.column = '';
     }
 
-    this.applyLayers();
+    this.changeSizeColumn(data, layerIndex);
+
   }
 
   /**
@@ -1331,16 +1416,15 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     if(shelf.layers[this.index] == null) return;
 
     this.fieldList = [];
-    let tempObj : object = {};
-    let measureList: Field[];
-    let dimensionList: Field[];
+    let tempList = [];
 
     for(let index=0; index < shelf.layers.length; index++) {
 
       let layers = _.cloneDeep(shelf.layers[index].fields);
 
-      const getShelveReturnField = ((shelve: any, typeList: ShelveFieldType[]): AbstractField[] => {
-        const resultList: AbstractField[] = [];
+      const getShelveReturnField = ((shelve: any, typeList?: ShelveFieldType[]): AbstractField[] => {
+        const resultList: any[] = [];
+        resultList.push({name:this.translateService.instant('msg.page.layer.map.stroke.none'), alias:this.translateService.instant('msg.page.layer.map.stroke.none'), value:MapBy.NONE});
 
         let uiOption = this.uiOption;
         let analysisCountAlias : string;
@@ -1353,13 +1437,13 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
         }
 
         shelve.map((item) => {
-          if( !_.isUndefined(analysisCountAlias) && _.eq(item.type, typeList[0]) && _.eq(item.type, ShelveFieldType.MEASURE) ){
+          if( !_.isUndefined(analysisCountAlias) && _.eq(item.type, ShelveFieldType.MEASURE) ){
             if( (!_.isUndefined(item['isCustomField']) && item['isCustomField'] ) || ( !isUndefinedAggregationType && analysisCountAlias == item.name) ){
               item['alias'] = ChartUtil.getAlias(item);
               resultList.push(item);
             }
           } else {
-            if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO'))) ) {
+            if ( item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO')) ) {
               item['alias'] = ChartUtil.getAlias(item);
               resultList.push(item);
             }
@@ -1368,13 +1452,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
         return resultList;
       });
 
-      measureList = getShelveReturnField(layers, [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
-      dimensionList = getShelveReturnField(layers, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
-      tempObj = {
-          'measureList'    : measureList,
-          'dimensionList'  : dimensionList
-      };
-      this.fieldList.push(tempObj);
+      tempList = getShelveReturnField(layers);
+      this.fieldList.push(tempList);
+      this.fieldMeasureList = this.findFieldList(this.fieldList[this.index], 'measure', true);
 
     }
 
@@ -1389,15 +1469,15 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     this.colorByList = [{name : this.translateService.instant('msg.page.layer.map.stroke.none'), value : MapBy.NONE}];
 
     // when dimension exists, not hexagon layer, set dimension type
-    if (this.fieldList[this.index].dimensionList.length > 0 && MapLayerType.TILE !== this.uiOption.layers[this.index].type) {
-      this.colorByList.push({name : this.translateService.instant('msg.page.li.color.dimension'), value : MapBy.DIMENSION});
-    }
-
-    // when measure exists, set measure type
-    if (this.fieldList[this.index].measureList.length > 0) {
-      this.byList.push({name : this.translateService.instant('msg.page.layer.map.stroke.measure'), value : MapBy.MEASURE});
-      this.colorByList.push({name : this.translateService.instant('msg.page.layer.map.stroke.measure'), value : MapBy.MEASURE});
-    }
+    // if (this.fieldList[this.index].dimensionList.length > 0 && MapLayerType.TILE !== this.uiOption.layers[this.index].type) {
+    //   this.colorByList.push({name : this.translateService.instant('msg.page.li.color.dimension'), value : MapBy.DIMENSION});
+    // }
+    //
+    // // when measure exists, set measure type
+    // if (this.fieldList[this.index].measureList.length > 0) {
+    //   this.byList.push({name : this.translateService.instant('msg.page.layer.map.stroke.measure'), value : MapBy.MEASURE});
+    //   this.colorByList.push({name : this.translateService.instant('msg.page.layer.map.stroke.measure'), value : MapBy.MEASURE});
+    // }
   }
 
   /**
@@ -1453,8 +1533,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     let layer: UILayers = this.uiOption.layers[layerIndex];
     let layerType = layer.type;
 
-    let dimensionList = this.fieldList[layerIndex].dimensionList;
-    let measureList = this.fieldList[layerIndex].measureList;
+    let dimensionList = this.findFieldList(this.fieldList[layerIndex], ShelveFieldType.DIMENSION.toString());
+    let measureList = this.findFieldList(this.fieldList[layerIndex], ShelveFieldType.MEASURE.toString());
+
 
     ///////////////////////////
     // Color by None

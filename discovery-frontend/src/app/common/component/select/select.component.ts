@@ -208,7 +208,6 @@ export class SelectComponent extends AbstractComponent implements OnInit {
     let iconClass : string = '';
 
     if( isNullOrUndefined(item.field) ){
-      iconClass = 'ddp-icon-measure-sharp';
       return iconClass;
     }
 
