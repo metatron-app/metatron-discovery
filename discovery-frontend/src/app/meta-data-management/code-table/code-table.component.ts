@@ -14,14 +14,17 @@
 
 import {AbstractComponent} from '../../common/component/abstract.component';
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {isUndefined} from 'util';
 import {Modal} from '../../common/domain/modal';
 import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
 import {CodeTableService} from './service/code-table.service';
 import {CodeTable} from '../../domain/meta-data-management/code-table';
-import {PeriodComponent} from '../../common/component/period/period.component';
+import {PeriodComponent, PeriodType} from '../../common/component/period/period.component';
 import {Alert} from '../../common/util/alert.util';
 import {CreateCodeTableComponent} from './create-code-table/create-code-table.component';
+import {ActivatedRoute} from "@angular/router";
+import {isNullOrUndefined} from "util";
+import * as _ from 'lodash';
+import {Page} from "../../domain/common/page";
 
 declare let moment: any;
 
@@ -46,6 +49,8 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
   // date
   private _selectedDate: Date;
 
+  // 검색 파라메터
+  private _searchParams: { [key: string]: string };
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -58,20 +63,23 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
   @ViewChild(PeriodComponent)
   public periodComponent: PeriodComponent;
 
-  // 코드 테이블 목록
-  public codeTableList: CodeTable[] = [];
-  // 검색어
-  public searchText: string = '';
-  // 정렬
+  public codeTableList: CodeTable[];
+
+  public searchText: string;
+
   public selectedContentSort: Order = new Order();
+
+  public defaultStartDate: string;
+  public defaultEndDate: string;
+
+  public selectedType:PeriodType;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(
     private _codeTableService: CodeTableService,
+    private _activatedRoute: ActivatedRoute,
     protected element: ElementRef,
     protected injector: Injector) {
     super(element, injector);
@@ -80,54 +88,83 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // Init
   public ngOnInit() {
-    // Init
+
     super.ngOnInit();
-    // ui init
+
     this._initView();
-    // 목록 조회
-    this._getCodeTableList();
+
+    // Get query param from url
+    this._activatedRoute.queryParams.subscribe((params) => {
+
+      if (!_.isEmpty(params)) {
+
+        if (!isNullOrUndefined(params['size'])) {
+          this.page.size = params['size'];
+        }
+
+        if (!isNullOrUndefined(params['page'])) {
+          this.page.page = params['page'];
+        }
+
+
+        if (!isNullOrUndefined(params['nameContains'])) {
+          this.searchText = params['nameContains'];
+        }
+
+        const sort = params['sort'];
+        if (!isNullOrUndefined(sort)) {
+          const sortInfo = decodeURIComponent(sort).split(',');
+          this.selectedContentSort.key = sortInfo[0];
+          this.selectedContentSort.sort = sortInfo[1];
+        }
+
+        if (params['type'] !== 'ALL') {
+          this.defaultStartDate = params['from'];
+          this.defaultEndDate = params['to'];
+          this.safelyDetectChanges();
+          this.periodComponent.selectedType = params['type'];
+          this._selectedDate = this.periodComponent.getReturnData();
+        } else {
+          this.periodComponent.selectedType = params['type'];
+        }
+
+      }
+
+      this._getCodeTableList();
+    });
+
   }
 
-  // Destory
   public ngOnDestroy() {
 
-    // Destory
     super.ngOnDestroy();
+
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 더 조회할 컨텐츠가 있는지
-   * @returns {boolean}
-   */
-  public isMoreContents(): boolean {
-    return (this.pageResult.number < this.pageResult.totalPages - 1);
-  }
-
   /**
    * 코드 테이블 제거
    * @param {Modal} modal
    */
   public deleteCodeTable(modal: Modal): void {
-    // 로딩 show
+
     this.loadingShow();
-    // 코드 테이블 제거
+
     this._codeTableService.deleteCodeTable(modal['codeTableId']).then((result) => {
-      // alert
-      Alert.success(
-        this.translateService.instant('msg.metadata.ui.codetable.delete.success', {value: modal['codeTableName']}));
-      // 재조회
-      this.getCodeTableListPageInit();
+
+      Alert.success(this.translateService.instant('msg.metadata.ui.codetable.delete.success',
+        {value: modal['codeTableName']}));
+      this._getCodeTableList();
+
     }).catch((error) => {
 
-      // 로딩 hide
       this.loadingHide();
+      this.commonExceptionHandler(error);
+
+
     });
   }
 
@@ -137,16 +174,6 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
    */
   public get getTotalContentsCount(): number {
     return this.pageResult.totalElements;
-  }
-
-  /**
-   * 페이지 초기화 후 코드 테이블 리스트 재조회
-   */
-  public getCodeTableListPageInit(): void {
-    // 페이지 초기화
-    this.pageResult.number = 0;
-    // 재조회
-    this._getCodeTableList();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -166,7 +193,8 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
    */
   public onClickDetailCodeTable(codeTableId: string): void {
     // 상세화면으로 이동
-    this.router.navigate(['management/metadata/code-table', codeTableId]);
+    this.router.navigate(['management/metadata/code-table', codeTableId],
+      {queryParams: this._searchParams}).then();
   }
 
   /**
@@ -219,9 +247,12 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
    * @param {string} key
    */
   public onClickSort(key: string): void {
+
+    // 초기화
+    this.selectedContentSort.sort = this.selectedContentSort.key !== key ? 'default' : this.selectedContentSort.sort;
     // 정렬 정보 저장
     this.selectedContentSort.key = key;
-    // 정렬 key와 일치하면
+
     if (this.selectedContentSort.key === key) {
       // asc, desc
       switch (this.selectedContentSort.sort) {
@@ -236,8 +267,9 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
           break;
       }
     }
+
     // 페이지 초기화 후 재조회
-    this.getCodeTableListPageInit();
+    this._getCodeTableList();
   }
 
   /**
@@ -261,9 +293,24 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
   public onChangeData(event): void {
     // 선택한 날짜
     this._selectedDate = event;
+
+    this.page.page = 0;
     // 재조회
-    this.getCodeTableListPageInit();
+    this._getCodeTableList();
   }
+
+  /**
+   * 페이지 변경
+   * @param data
+   */
+  public changePage(data: { page: number, size: number }) {
+    if (data) {
+      this.page.page = data.page;
+      this.page.size = data.size;
+
+      this._getCodeTableList();
+    }
+  } // function - changePage
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
@@ -284,9 +331,6 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
     this.searchText = '';
     // 정렬 초기화
     this.selectedContentSort = new Order();
-    // page 초기화
-    this.pageResult.size = 20;
-    this.pageResult.number = 0;
   }
 
   /**
@@ -295,10 +339,27 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
    * @private
    */
   private _searchText(keyword: string): void {
-    // key word
+
     this.searchText = keyword;
+
+    this.page.page = 0;
+
     // 페이지 초기화 후 재조회
-    this.getCodeTableListPageInit();
+    this._getCodeTableList();
+  }
+
+  /**
+   * After creating code table
+   */
+  public onCreateComplete() {
+    this._initView();
+    this.page = new Page();
+    this.periodComponent.selectedType = PeriodType.ALL;
+    this.defaultStartDate = undefined;
+    this.defaultEndDate = undefined;
+    this.safelyDetectChanges();
+
+    this._getCodeTableList();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -310,22 +371,29 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
    * @private
    */
   private _getCodeTableList(): void {
-    // 로딩 show
+
     this.loadingShow();
-    // 코드 테이블 리스트 조회
-    this._codeTableService.getCodeTableList(this._getCodeTableListParams()).then((result) => {
-      // 전달 받은 page number가 0 이면 코드 테이블 리스트 초기화
-      this.pageResult.number === 0 && (this.codeTableList = []);
-      // page 객체
+
+    const params = this._getCodeTableListParams();
+
+    this.codeTableList = [];
+
+    this._codeTableService.getCodeTableList(params).then((result) => {
+
+      this._searchParams = params;
+
       this.pageResult = result.page;
-      // 코드 테이블 리스트
+
       this.codeTableList = result['_embedded'] ? this.codeTableList.concat(result['_embedded'].codetables) : [];
-      // 로딩 hide
+
       this.loadingHide();
+
     }).catch((error) => {
 
-      // 로딩 hide
       this.loadingHide();
+
+      this.commonExceptionHandler(error);
+
     });
   }
 
@@ -334,26 +402,31 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
    * @returns {Object}
    * @private
    */
-  private _getCodeTableListParams(): object {
+  private _getCodeTableListParams(): any {
     const params = {
-      size: this.pageResult.size,
-      page: this.pageResult.number,
-      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort,
+      size: this.page.size,
+      page: this.page.page,
     };
     // 검색어
-    if (!isUndefined(this.searchText) && this.searchText.trim() !== '') {
+    if (!isNullOrUndefined(this.searchText) && this.searchText.trim() !== '') {
       params['nameContains'] = this.searchText.trim();
     }
     // date
     if (this._selectedDate && this._selectedDate.type !== 'ALL') {
       params['searchDateBy'] = 'CREATED';
+      params['type'] = this._selectedDate.type;
       if (this._selectedDate.startDateStr) {
         params['from'] = moment(this._selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
       if (this._selectedDate.endDateStr) {
         params['to'] = moment(this._selectedDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
+    } else {
+      params['type'] = 'ALL';
     }
+
+    this.selectedContentSort.sort !== 'default' && (params['sort'] = this.selectedContentSort.key + ',' + this.selectedContentSort.sort);
+
     return params;
   }
 }
@@ -364,7 +437,7 @@ class Order {
 }
 
 class Date {
-  dateType: string;
+  dateType?: string;
   endDateStr: string;
   startDateStr: string;
   type: string;
