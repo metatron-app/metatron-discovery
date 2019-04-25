@@ -292,6 +292,8 @@
   "msg.comm.btn.edit": "편집",
   "msg.comm.btn.search": "검색",
   "msg.comm.btn.new": "새로만들기",
+  "msg.comm.ui.failed": "실패",
+  "msg.comm.ui.complete": "완료",
 
   "msg.lnb.btn.manual" : "매뉴얼",
   "msg.lnb.btn.manual.web" : "홈페이지",

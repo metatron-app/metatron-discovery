@@ -292,6 +292,8 @@
   "msg.comm.btn.edit": "Edit",
   "msg.comm.btn.search": "Search",
   "msg.comm.btn.new": "New",
+  "msg.comm.ui.failed": "Failed",
+  "msg.comm.ui.complete": "Complete",
 
   "msg.lnb.btn.manual" : "Manuals",
   "msg.lnb.btn.manual.web" : "Web",
