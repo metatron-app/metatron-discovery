@@ -81,8 +81,6 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
   // 노드간 링크 리스트
   private chartLinks: any[] = [];
 
-  // 검색 파라메터
-  private _searchParams: { [key: string]: string };
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -160,6 +158,7 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
     private dfModelService : DataflowModelService,
     private commonLocation: Location,
     private activatedRoute: ActivatedRoute,
+    private _location: Location,
     protected elementRef: ElementRef,
     protected injector: Injector) {
 
@@ -202,12 +201,6 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
 
     });
 
-    // 쿼리 파라메터 저장
-    this.activatedRoute.queryParams.subscribe(params => {
-      console.info( '>>>>>>> detail param', params );
-      this._searchParams = params;
-    });
-
   } // function - ngOnInit
 
   /**
@@ -239,9 +232,7 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
    * 뒤로가기
    * */
   public close() {
-    this.router.navigate(
-      ['/management/datapreparation/dataflow'],
-      {queryParams: this._searchParams});
+    this._location.back();
   }
 
   // 다른 데이터 플로우로 이동

@@ -123,6 +123,21 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
+   * 페이지를 새로 불러온다.
+   * @param {boolean} isFirstPage
+   */
+  public reloadPage(isFirstPage: boolean = true) {
+    (isFirstPage) && (this.page.page = 0);
+    this._searchParams = this._getDfParams();
+    this.router.navigate(
+      [this.router.url.replace(/\?.*/gi, '')],
+      {queryParams: this._searchParams, replaceUrl: true}
+    ).then();
+  } // function - reloadPage
+
+
+
+  /**
    * Create new dataflow
    */
   public createDataflow() {
@@ -136,8 +151,7 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
    */
   public goToDfDetail(dfId) {
     this.router.navigate(
-      ['/management/datapreparation/dataflow',dfId],
-      {queryParams: this._searchParams})
+      ['/management/datapreparation/dataflow',dfId])
       .then();
   }
 
@@ -148,13 +162,11 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
    */
   public searchDataflows(event) {
 
-    if (13 === event.keyCode) {
-      this.page.page = 0;
-      this.getDataflows();
-    } else if (27 === event.keyCode) {
-      this.searchText = '';
-      this.page.page = 0;
-      this.getDataflows();
+    if (13 === event.keyCode || 27 === event.keyCode) {
+      if (event.keyCode === 27) {
+        this.searchText = '';
+      }
+      this.reloadPage();
     }
   }
 
@@ -188,7 +200,7 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
       Alert.success(this.translateService.instant('msg.dp.alert.del.success'));
 
       // Get dataflow list again
-      this.getDataflows();
+      this.reloadPage(false);
 
     }).catch((error) => {
       Alert.error(this.translateService.instant('msg.dp.alert.del.fail'));
@@ -260,7 +272,7 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
     }
 
     // Get dataflow list
-    this.getDataflows();
+    this.reloadPage(false);
 
   }
 
@@ -274,7 +286,7 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
       this.page.page = data.page;
       this.page.size = data.size;
       // 워크스페이스 조회
-      this.getDataflows();
+      this.reloadPage(false);
     }
   } // function - changePage
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
