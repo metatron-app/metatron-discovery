@@ -91,6 +91,8 @@ Running options are provided as well.
 <pre><code>$ bin/metatron.sh [--config=directory] [--init] [--management] [--debug=port] {start|stop|restart|status}</code></pre>
 To access Metatron Discovery, go to [http://localhost:8180](http://localhost:8180). (The default admin user account is provided as Username: admin, PW: admin.)
 
+### Using REST API
+Metatron support RESTful APIs. Please refer to the following details [how to using the REST API](.github/USE_REST_API.md)
 
 Problems & Suggestions
 ----------------------------

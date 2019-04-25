@@ -52,9 +52,6 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
   @Output()
   public stepChange: EventEmitter<string> = new EventEmitter();
 
-  @Output('fileComplete')
-  public fileComplete = new EventEmitter();
-
   // create complete data
   public createCompleteData: CreateSourceCompleteData;
 
@@ -171,15 +168,13 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
             // link datasource detail (#505)
             this.router.navigate(['/management/storage/datasource', result.id]);
             // close
-            this.step = '';
-            this.fileComplete.emit(this.step);
+            this.close();
           })
           .catch(() => {
             // link datasource detail (#505)
             this.router.navigate(['/management/storage/datasource', result.id]);
             // close
-            this.step = '';
-            this.fileComplete.emit(this.step);
+            this.close();
           });
       })
       .catch((error) => {

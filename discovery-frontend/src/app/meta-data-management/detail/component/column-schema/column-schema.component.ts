@@ -132,9 +132,9 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   @ViewChildren(DatetimeValidPopupComponent)
   private readonly _datetimePopupComponentList: QueryList<DatetimeValidPopupComponent>;
 
-  @Output()
+  @Output('chooseCodeTableEvent')
   private readonly _chooseCodeTableEvent = new EventEmitter();
-  @Output()
+  @Output('chooseDictionaryEvent')
   private readonly _chooseDictionaryEvent = new EventEmitter();
 
   /**

@@ -33,6 +33,7 @@ import {
 import {DashboardUtil} from '../../util/dashboard.util';
 import {Datasource} from '../../../domain/datasource/datasource';
 import {isNullOrUndefined} from "util";
+import {CommonConstant} from "../../../common/constant/common.constant";
 
 @Component({
   selector: 'dashboard-widget-header',
@@ -112,16 +113,18 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
     setTimeout(() => {
 
       if (this.isPageWidget && this.widget) {
-        const pageWidgetConf:PageWidgetConfiguration = (<PageWidgetConfiguration>this.widget.configuration);
+        const pageWidgetConf: PageWidgetConfiguration = (<PageWidgetConfiguration>this.widget.configuration);
         if (ChartType.MAP === pageWidgetConf.chart.type) {
-          if( pageWidgetConf.shelf.layers.some( layer => {
-            return isNullOrUndefined(this.widget.dashBoard.dataSources.find( item => item.engineName === layer.ref ));
-          }) ) {
+          if (pageWidgetConf.shelf.layers
+            .filter(layer => layer.name !== CommonConstant.MAP_ANALYSIS_LAYER_NAME)
+            .some(layer => {
+              return isNullOrUndefined(this.widget.dashBoard.dataSources.find(item => item.engineName === layer.ref));
+            })) {
             this.isMissingDataSource = true;
           }
         } else {
           const widgetDataSource: Datasource
-            = DashboardUtil.getDataSourceFromBoardDataSource( this.widget.dashBoard, pageWidgetConf.dataSource );
+            = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, pageWidgetConf.dataSource);
           this.isMissingDataSource = !widgetDataSource;
         }
       } else {
@@ -173,7 +176,7 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
       if (ChartType.MAP === widgetConf.chart.type && widgetConf.shelf.layers) {
         strName = widgetConf.shelf.layers.reduce((acc, currVal) => {
           const dsInfo: Datasource = this.widget.dashBoard.dataSources.find(item => item.engineName === currVal.ref);
-          if( dsInfo ) {
+          if (dsInfo) {
             acc = ('' === acc) ? acc + dsInfo.name : acc + ',' + dsInfo.name;
           }
           return acc;

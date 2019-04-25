@@ -850,7 +850,7 @@ public class JdbcConnectionService {
     // 증분 Query 작성
     String queryString = new SelectQueryBuilder(realConnection, jdbcDataAccessor.getDialect())
         .projection(fields)
-        .query(batchIngestionInfo)
+        .query(batchIngestionInfo, connectInformation)
         .incremental(timestampField, incrementalTime.toString(JdbcDialect.CURRENT_DATE_FORMAT))
         .limit(0, maxLimit)
         .build();
@@ -937,7 +937,7 @@ public class JdbcConnectionService {
     JdbcDialect jdbcDialect = DataConnectionHelper.lookupDialect(connectInformation);
     String queryString = new SelectQueryBuilder(connectInformation, jdbcDialect)
         .countProjection()
-        .query(jdbcInfo)
+        .query(jdbcInfo, connectInformation)
         .build();
 
     int count = 0;

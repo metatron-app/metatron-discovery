@@ -207,7 +207,7 @@ public class PrSnapshotController {
                     }
 
                     // We generated JSON snapshots to have ".json" at the end of the URI.
-                    Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
+                    Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
                     if (storedUri.endsWith(".json")) {
                         PrepJsonParseResult result = PrepJsonUtil.parseJson(snapshot.getStoredUri(), 10000, null, hadoopConf);
                         gridResponse.setByGridWithJson(result);

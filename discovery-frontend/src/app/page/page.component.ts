@@ -1822,7 +1822,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    */
   public deleteFilter(filter: Filter) {
     // if (filter.ui.widgetId || !this.isDashboard) {
-    if (filter.ui.widgetId ) {
+    if (filter.ui.widgetId) {
       // 차트필터 또는 워크벤치인경우 제거
       const idx = _.findIndex(this.widgetConfiguration.filters, {field: filter.field});
       if (idx < 0) {
@@ -2457,6 +2457,13 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     }
 
+    // geo column validation 체크
+    if (!_.eq(this.selectChart, ChartType.MAP) && !_.eq(this.selectChart, '')
+      && (targetField.logicalType && targetField.logicalType.toString().indexOf('GEO') != -1)) {
+      Alert.warning(this.translateService.instant('msg.board.ui.invalid-column'));
+      return;
+    }
+
     // 이미 들어가있는 선반을 찾는다.
     for (let num: number = 0; num < this.pivot.columns.length; num++) {
       let field: AbstractField = this.pivot.columns[num];
@@ -2491,6 +2498,13 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     // Dimension 이라면
     if (isDimension) {
+
+      // map chart validation
+      if ( ( targetField.logicalType && targetField.logicalType.toString().indexOf('GEO') != -1 )
+        && !_.eq(this.selectChart, '')) {
+        Alert.warning(this.translateService.instant('msg.board.ui.invalid-pivot'));
+        return;
+      }
 
       // 열에 등록
       if (_.eq(this.selectChart, ChartType.BAR)
@@ -3434,6 +3448,19 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
           // 가이드가 아닌 직접 선반에 넣은 경우
           if (targetField) {
+            // geo column validation 체크
+            if (!_.eq(this.selectChart, ChartType.MAP) && !_.eq(this.selectChart, '')
+              && ( targetField.logicalType && targetField.logicalType.toString().indexOf('GEO') != -1 ) ) {
+              if (info.target === 'column') {
+                this.invalidGeoData(this.pivot.columns);
+              } else if (info.target === 'row') {
+                this.invalidGeoData(this.pivot.rows);
+              } else if (info.target === 'aggregation') {
+                this.invalidGeoData(this.pivot.aggregations);
+              }
+              Alert.warning(this.translateService.instant('msg.board.ui.invalid-column'));
+              return;
+            }
             this.getPivotComp().convertField(targetField, info.target);
           } else if (info.target) {
 
@@ -4378,6 +4405,18 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         return this.geoType = item.logicalType;
       }
     }
+  }
+
+  /**
+   * invalid pivot - geo column
+   * @param targetPivot
+   * @returns {any}
+   */
+  private invalidGeoData(targetPivot: AbstractField[]) {
+    _.remove(targetPivot, function (item: any) {
+      return !_.isUndefined(item.logicalType) && item.logicalType.toString().indexOf('GEO') != -1;
+    });
+    return targetPivot;
   }
 
   public onChangeLayer(shelf) {

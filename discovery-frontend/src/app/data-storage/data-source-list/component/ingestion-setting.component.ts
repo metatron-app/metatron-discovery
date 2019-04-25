@@ -648,7 +648,7 @@ export class IngestionSettingComponent extends AbstractComponent {
       { label: this.translateService.instant('msg.storage.ui.set.true'), value: true },
       { label: this.translateService.instant('msg.storage.ui.set.false'), value: false },
     ];
-    this.selectedRollUpType = this.rollUpTypeList[0];
+    this.selectedRollUpType = this.rollUpTypeList[1];
     // init partition type list
     this.partitionTypeList = [
       { label: this.translateService.instant('msg.storage.ui.set.disable'), value: 'DISABLE' },

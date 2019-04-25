@@ -1605,6 +1605,7 @@
   "msg.board.ui.filter.add-edit.filter" : "Add & edit filters",
   "msg.board.ui.select-data" : "Please select data from <em>{{value}}</em>",
   "msg.board.ui.invalid-pivot" : "Can not draw chart<br>Please check shelves",
+  "msg.board.ui.invalid-column" : "this column is not valid for this chart",
   "msg.board.th.chart-widget" : "Chart widget",
   "msg.board.th.chart-widget.description" : "Drag and drop the chart list into the dashboard area to place the chart widget on the dashboard.",
   "msg.board.alert.remove-not-parent" : "If you have a detailed chart, you cannot delete it",
