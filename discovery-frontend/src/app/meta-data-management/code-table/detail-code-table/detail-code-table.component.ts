@@ -14,6 +14,7 @@
 
 import {AbstractComponent} from '../../../common/component/abstract.component';
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Location} from '@angular/common';
 import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';
 import {CodeTableService} from '../service/code-table.service';
 import {ActivatedRoute} from '@angular/router';
@@ -53,8 +54,6 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
   @ViewChild(LinkedColumnDictionaryComponent)
   private _linkedColumnDictionaryComp: LinkedColumnDictionaryComponent;
 
-  // 검색 파라메터
-  private _searchParams: { [key: string]: string };
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -93,6 +92,7 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
 
   // 생성자
   constructor(
+    private _location: Location,
     private _codeTableService: CodeTableService,
     private _activatedRoute: ActivatedRoute,
     protected element: ElementRef,
@@ -108,11 +108,6 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
   public ngOnInit() {
     // Init
     super.ngOnInit();
-
-    // 쿼리 파라메터 저장
-    this._activatedRoute.queryParams.subscribe(params => {
-      this._searchParams = params;
-    });
 
     this._activatedRoute.params.subscribe((params) => {
       // ui init
@@ -195,7 +190,7 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
    */
   public onClickPrevButton(): void {
     // 코드 테이블 목록 화면으로 이동
-    this.router.navigate(['/management/metadata/code-table'],{queryParams: this._searchParams}).then();
+    this._location.back();
   }
 
   /**

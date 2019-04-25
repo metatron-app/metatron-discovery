@@ -27,6 +27,7 @@ import {FieldFormatType, LogicalType} from '../../../domain/datasource/datasourc
 import * as _ from 'lodash';
 import {LinkedMetadataComponent} from '../../component/linked-metadata-columns/linked-metadata.component';
 import {LinkedMetaDataColumn} from '../../../domain/meta-data-management/metadata-column';
+import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-detail-column-dictionary',
@@ -115,6 +116,7 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
   constructor(
     private _columnDictionaryService: ColumnDictionaryService,
     private _activatedRoute: ActivatedRoute,
+    private _location: Location,
     protected element: ElementRef,
     protected injector: Injector) {
     super(element, injector);
@@ -212,7 +214,7 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
    */
   public onClickPrevButton(): void {
     // 컬럼 사전 목록 화면으로 이동
-    this.router.navigate(['/management/metadata/column-dictionary']);
+    this._location.back();
   }
 
   /**

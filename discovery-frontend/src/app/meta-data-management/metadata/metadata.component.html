@@ -24,6 +24,7 @@
           <!-- selectbox -->
           <!-- 선택시 : ddp-selected 추가 -->
           <component-select
+            [defaultIndex]="typeDefaultIndex"
             [array]="sourceTypeList"
             [viewKey]="'label'"
             (onSelected)="onSourceTypeListChange($event)">
@@ -41,6 +42,7 @@
           <!-- selectbox -->
           <!-- 선택시 : ddp-selected 추가 -->
           <component-select
+            [defaultIndex]="tagDefaultIndex"
             [array]="tagsList"
             [viewKey]="'name'"
             (onSelected)="onTagsListChange($event)">
@@ -167,14 +169,17 @@
     </tr>
     </tbody>
   </table>
-  <div class="ddp-data-source-none" *ngIf="metadatas && metadatas.length === 0">
-    {{'msg.metadata.ui.no.metadata' | translate }}
+
+  <div class="ddp-data-source-none" *ngIf="metadatas && metadatas.length === 0; else yesMd">
+    {{'msg.metadata.ui.no.metadata' | translate}}
   </div>
-  <div class="ddp-box-add-link" *ngIf="isMoreContents()" (click)="onClickGetMoreList()">
-    <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
-  </div>
+  <!-- //데이터 없음 -->
+
+  <ng-template #yesMd>
+    <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+  </ng-template>
 </div>
 
-<app-select-datatype (createdEmit)="init()"></app-select-datatype>
+<app-select-datatype (createdEmit)="onCreateEmit()"></app-select-datatype>
 <app-select-catalog></app-select-catalog>
 <app-delete-modal (deleteConfirm)="deleteMetadata()"></app-delete-modal>

@@ -157,7 +157,8 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
 
       Alert.success(this.translateService.instant('msg.metadata.ui.codetable.delete.success',
         {value: modal['codeTableName']}));
-      this._getCodeTableList();
+      // TODO :
+      this.reloadPage(false);
 
     }).catch((error) => {
 
@@ -193,8 +194,7 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
    */
   public onClickDetailCodeTable(codeTableId: string): void {
     // 상세화면으로 이동
-    this.router.navigate(['management/metadata/code-table', codeTableId],
-      {queryParams: this._searchParams}).then();
+    this.router.navigate(['management/metadata/code-table', codeTableId]).then();
   }
 
   /**
@@ -230,17 +230,10 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
     this.pageResult.number = 0;
     // date 필터 init
     this.periodComponent.setAll();
+
+    this.reloadPage();
   }
 
-  /**
-   * 더보기 버튼 클릭
-   */
-  public onClickMoreList(): void {
-    // page 증가
-    this.pageResult.number++;
-    // 리스트 조회
-    this._getCodeTableList();
-  }
 
   /**
    * 정렬 버튼 클릭
@@ -269,7 +262,7 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
     }
 
     // 페이지 초기화 후 재조회
-    this._getCodeTableList();
+    this.reloadPage(false);
   }
 
   /**
@@ -294,9 +287,8 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
     // 선택한 날짜
     this._selectedDate = event;
 
-    this.page.page = 0;
     // 재조회
-    this._getCodeTableList();
+    this.reloadPage();
   }
 
   /**
@@ -308,10 +300,22 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
       this.page.page = data.page;
       this.page.size = data.size;
 
-      this._getCodeTableList();
+      this.reloadPage(false);
     }
   } // function - changePage
 
+  /**
+   * 페이지를 새로 불러온다.
+   * @param {boolean} isFirstPage
+   */
+  public reloadPage(isFirstPage: boolean = true) {
+    (isFirstPage) && (this.page.page = 0);
+    this._searchParams = this._getCodeTableListParams();
+    this.router.navigate(
+      [this.router.url.replace(/\?.*/gi, '')],
+      {queryParams: this._searchParams, replaceUrl: true}
+    ).then();
+  } // function - reloadPage
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -342,24 +346,15 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
 
     this.searchText = keyword;
 
-    this.page.page = 0;
-
     // 페이지 초기화 후 재조회
-    this._getCodeTableList();
+    this.reloadPage();
   }
 
   /**
    * After creating code table
    */
   public onCreateComplete() {
-    this._initView();
-    this.page = new Page();
-    this.periodComponent.selectedType = PeriodType.ALL;
-    this.defaultStartDate = undefined;
-    this.defaultEndDate = undefined;
-    this.safelyDetectChanges();
-
-    this._getCodeTableList();
+    this.reloadPage(false);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
