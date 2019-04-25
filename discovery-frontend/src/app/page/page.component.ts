@@ -4055,15 +4055,18 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
             }, 300);
           }
         } else if (this.selectChart == 'map') {
+          let mapUiOption = <UIMapOption>this.uiOption;
           // type 관련 설정 필요 (symbol & cluster) 이는 cluster 타입이 option panel에서 따로 분리된 이유임
-          if (this.uiOption['layers'][this.uiOption['layerNum']]['type'] == MapLayerType.SYMBOL
-            && !_.isUndefined(this.uiOption['layers'][this.uiOption['layerNum']]['clustering'])
-            && this.uiOption['layers'][this.uiOption['layerNum']]['clustering']) {
-            this.uiOption['layers'][this.uiOption['layerNum']]['type'] = MapLayerType.CLUSTER;
-          }
-          // map chart 일 경우 aggregation type 변경시 min/max 재설정 필요
-          if (!_.isUndefined(params) && !_.isUndefined(params.type) && params.type == EventType.AGGREGATION) {
-            this.uiOption['layers'][this.uiOption['layerNum']]['isColorOptionChanged'] = true;
+          for (let mapIndex = 0; mapUiOption.layers.length > mapIndex; mapIndex++) {
+            if (mapUiOption.layers[mapIndex].type == MapLayerType.SYMBOL
+              && !_.isUndefined(mapUiOption.layers[mapIndex]['clustering'])
+              && mapUiOption.layers[mapIndex]['clustering']) {
+              mapUiOption.layers[mapIndex].type = MapLayerType.CLUSTER;
+            }
+            // map chart 일 경우 aggregation type 변경시 min/max 재설정 필요
+            if (!_.isUndefined(params) && !_.isUndefined(params.type) && params.type == EventType.AGGREGATION) {
+              mapUiOption.layers[mapIndex]['isColorOptionChanged'] = true;
+            }
           }
           setTimeout(() => {
             this.chart.resultData = resultData;
