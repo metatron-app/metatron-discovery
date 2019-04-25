@@ -20,6 +20,7 @@ import {HiveFileFormat, PrDataSnapshot, SsType} from "../../domain/data-preparat
 import * as _ from "lodash";
 import {CommonConstant} from "../../common/constant/common.constant";
 import {ConnectionParam} from "./data-connection-create.service";
+import {Pluploader} from "../../common/component/pluploader/pluploader";
 
 @Injectable()
 export class DataSourceCreateService {
@@ -468,7 +469,7 @@ export interface TypeFilterObject {
 export interface FileResult {
   filePath: string;
   fileKey: string;
-  fileSize: string;
+  fileSize: number;
   fileName: string;
   sheets?: Sheet[];
   selectedSheet?: Sheet;
@@ -482,11 +483,10 @@ export interface Sheet {
 }
 
 export interface UploadResult {
-  success: boolean;
-  item: FileItem;
-  response: any;
-  status: number;
-  headers: ParsedResponseHeaders;
+  file: Pluploader.File.IFile;
+  response?: string;
+  status?: number;
+  headers?: string;
 }
 
 export interface FileDetail {

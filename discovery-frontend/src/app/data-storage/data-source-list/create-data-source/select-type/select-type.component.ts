@@ -62,7 +62,7 @@ export class SelectTypeComponent extends AbstractPopupComponent implements OnIni
     switch (selectType) {
       case 'file':
         this._sourceData.type = SourceType.FILE;
-        this.step = 'file-select';
+        this.step = 'file-upload';
         break;
       case 'database':
         this._sourceData.type = SourceType.JDBC;
