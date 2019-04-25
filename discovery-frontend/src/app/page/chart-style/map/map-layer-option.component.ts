@@ -125,7 +125,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
   // symbol layer - type list
   public symbolLayerTypes = [{name : this.translateService.instant('msg.page.layer.map.type.point'), value: MapLayerType.SYMBOL},
-                             {name : this.translateService.instant('msg.page.layer.map.type.heatmap'), value: MapLayerType.HEATMAP},
+    {name: this.translateService.instant('msg.page.layer.map.type.heatmap'), value: MapLayerType.HEATMAP},
     {name: this.translateService.instant('msg.page.layer.map.type.tile'), value: MapLayerType.TILE},
     {name: this.translateService.instant('msg.page.layer.map.type.cluster'), value: MapLayerType.CLUSTER}];
 
@@ -195,7 +195,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
     if (this.uiOption.layers[layerIndex].type === layerType) return;
 
-    let dimensionList = this.fieldList[layerIndex].dimensionList;
+    // let dimensionList = this.fieldList[layerIndex].dimensionList;
     let measureList = this.fieldList[layerIndex].measureList;
     let layer: UILayers = this.uiOption.layers[layerIndex];
 
@@ -273,16 +273,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       }
       layer.color.transparency = layer.color.symbolTransparency;
 
-      // add color by dimension list
-      if (dimensionList.length > 0 && -1 === _.findIndex(this.colorByList, (item) => {
-        return item.value === MapBy.DIMENSION;
-      })) {
-        this.colorByList.splice(1, 0, {
-          name: this.translateService.instant('msg.page.li.color.dimension'),
-          value: MapBy.DIMENSION
-        });
-      }
-
       // remove measure aggregation type in shelf
       this.removeAggregationType();
 
@@ -293,16 +283,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
         layer.color.clusterTransparency = 10;
       }
       layer.color.transparency = layer.color.clusterTransparency;
-
-      // add color by dimension list
-      if (dimensionList.length > 0 && -1 === _.findIndex(this.colorByList, (item) => {
-        return item.value === MapBy.DIMENSION;
-      })) {
-        this.colorByList.splice(1, 0, {
-          name: this.translateService.instant('msg.page.li.color.dimension'),
-          value: MapBy.DIMENSION
-        });
-      }
 
       // remove measure aggregation type in shelf
       this.removeAggregationType();
