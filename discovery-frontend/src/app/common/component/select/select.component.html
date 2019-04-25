@@ -17,7 +17,7 @@
      (clickOutside)="this.isShowSelectList=false;">
   <div class="ddp-type-selectbox" [ngClass]="{'ddp-selected' : isShowSelectList && isShowSelectListForOutSide, 'ddp-nowrap-r': noWrapFl, 'ddp-full' : isFull, 'ddp-flow':isDataprep}" (click)="toggleSelectList()" >
     <span class="ddp-txt-selectbox">
-      <span *ngIf="isIconType && selectedItem != null" class="ddp-icons">
+      <span *ngIf="isIconType && (selectedItem != null && selectedItem.name != 'None')" class="ddp-icons">
           <em class="{{getIconClass(selectedItem)}}"></em>
       </span>
       {{selectedItem == null ? unselectedMessage :  isStringArray ? selectedItem : selectedItem[viewKey] }}

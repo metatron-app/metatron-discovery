@@ -2638,7 +2638,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         if (layerType == MapLayerType.HEATMAP) {
           (_.isUndefined(layer.color.heatMapSchema) || layer.color.heatMapSchema.indexOf('HC') == -1 ? layer.color.heatMapSchema = 'HC1' : layer.color.heatMapSchema);
           layer.color.schema = layer.color.heatMapSchema;
-        } else if (layerType == MapLayerType.SYMBOL || layerType == MapLayerType.CLUSTER) {
+        } else if (layerType == MapLayerType.SYMBOL) {
           (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema.indexOf('#') == -1 ? layer.color.symbolSchema = '#6344ad' : layer.color.symbolSchema);
           layer.color.schema = layer.color.symbolSchema;
         } else if (layerType == MapLayerType.TILE) {
@@ -2647,6 +2647,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         } else if (layerType == MapLayerType.POLYGON) {
           (_.isUndefined(layer.color.tileSchema) || layer.color.polygonSchema.indexOf('#') == -1 ? layer.color.polygonSchema = '#6344ad' : layer.color.polygonSchema);
           layer.color.schema = layer.color.polygonSchema;
+        } else if (layerType == MapLayerType.CLUSTER) {
+          (_.isUndefined(layer.color.clusterSchema) || layer.color.clusterSchema.indexOf('#') == -1 ? layer.color.clusterSchema = '#6344ad' : layer.color.clusterSchema);
+          layer.color.schema = layer.color.clusterSchema;
         } else {
           layer.color.schema = '#6344ad';
         }
@@ -2662,7 +2665,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         if (layerType == MapLayerType.HEATMAP) {
           (_.isUndefined(layer.color.heatMapSchema) || layer.color.heatMapSchema.indexOf('HC') == -1 ? layer.color.heatMapSchema = 'HC1' : layer.color.heatMapSchema);
           layer.color.schema = layer.color.heatMapSchema;
-        } else if (layerType == MapLayerType.SYMBOL || layerType == MapLayerType.CLUSTER) {
+        } else if (layerType == MapLayerType.SYMBOL) {
           (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema.indexOf('VC') == -1 ? layer.color.symbolSchema = 'VC1' : layer.color.symbolSchema);
           layer.color.schema = layer.color.symbolSchema;
         } else if (layerType == MapLayerType.TILE) {
@@ -2671,6 +2674,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         } else if (layerType == MapLayerType.POLYGON) {
           (_.isUndefined(layer.color.polygonSchema) || layer.color.polygonSchema.indexOf('VC') == -1 ? layer.color.polygonSchema = 'VC1' : layer.color.polygonSchema);
           layer.color.schema = layer.color.polygonSchema;
+        } else if (layerType == MapLayerType.CLUSTER) {
+          (_.isUndefined(layer.color.clusterSchema) || layer.color.clusterSchema.indexOf('VC') == -1 ? layer.color.clusterSchema = 'VC1' : layer.color.clusterSchema);
+          layer.color.schema = layer.color.clusterSchema;
         } else {
           layer.color.schema = 'VC1';
         }
@@ -2704,7 +2710,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         layer.color.aggregationType = null;
       } else if (isDimension) {
         layer.color.by = MapBy.DIMENSION;
-        if (layerType == MapLayerType.SYMBOL || layerType == MapLayerType.CLUSTER) {
+        if (layerType == MapLayerType.SYMBOL) {
           (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema.indexOf('SC') == -1 ? layer.color.symbolSchema = 'SC1' : layer.color.symbolSchema);
           layer.color.schema = layer.color.symbolSchema;
         } else if (layerType == MapLayerType.TILE) {
@@ -2713,6 +2719,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         } else if (layerType == MapLayerType.POLYGON) {
           (_.isUndefined(layer.color.polygonSchema) || layer.color.polygonSchema.indexOf('SC') == -1 ? layer.color.polygonSchema = 'SC1' : layer.color.polygonSchema);
           layer.color.schema = layer.color.polygonSchema;
+        } else if (layerType == MapLayerType.CLUSTER) {
+          (_.isUndefined(layer.color.clusterSchema) || layer.color.clusterSchema.indexOf('SC') == -1 ? layer.color.clusterSchema = 'SC1' : layer.color.clusterSchema);
+          layer.color.schema = layer.color.clusterSchema;
         } else {
           layer.color.schema = 'SC1';
         }
@@ -3166,10 +3175,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           alias = 'count';
         }
 
-        if (_.isUndefined(this.data[this.getUiMapOption().layerNum])) {
+        if (_.isUndefined(this.data[idx])) {
           continue;
         }
-        valueRange = _.cloneDeep(this.data[this.getUiMapOption().layerNum]['valueRange'][alias]);
+        valueRange = _.cloneDeep(this.data[idx]['valueRange'][alias]);
 
         if (valueRange) {
           // layer type 이 변경될 경우 변경, 아닐경우 최대 최소 값으로 변경

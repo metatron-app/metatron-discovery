@@ -12,8 +12,9 @@
  * limitations under the License.
  */
 
-import { MapBy, MapLayerType } from '../../define/map/map-common';
+import {MapBy, MapLayerType, MapSymbolType} from '../../define/map/map-common';
 import { ColorRange } from '../ui-color';
+import {MapOutline} from "./ui-outline";
 
 /**
  * map chart layer
@@ -36,6 +37,12 @@ export interface UILayers {
 
   // tile radius
   tileRadius? : number;
+
+  symbolPointType? : MapSymbolType;
+  symbolOutline? : MapOutline;
+
+  clusterPointType? : MapSymbolType;
+  clusterOutline? : MapOutline;
 }
 
 /**

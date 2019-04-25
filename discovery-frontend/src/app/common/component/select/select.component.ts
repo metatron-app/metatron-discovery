@@ -211,6 +211,11 @@ export class SelectComponent extends AbstractComponent implements OnInit {
       return iconClass;
     }
 
+    // map chart custom field check
+    if( !isNullOrUndefined(item.isCustomField) && item.isCustomField ){
+      return iconClass;
+    }
+
     switch (item.field.logicalType.toString()) {
       case 'STRING' :
         iconClass = 'ddp-icon-dimension-ab';
