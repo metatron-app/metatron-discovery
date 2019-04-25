@@ -30,6 +30,7 @@ import {PrDataflow} from '../../domain/data-preparation/pr-dataflow';
 import {CreateSnapshotPopup} from '../component/create-snapshot-popup.component';
 import {SnapshotLoadingComponent} from '../component/snapshot-loading.component';
 import {PreparationCommonUtil} from "../util/preparation-common.util";
+import {Location} from "@angular/common";
 
 import {isNull, isNullOrUndefined} from "util";
 import * as pixelWidth from 'string-pixel-width';
@@ -54,8 +55,6 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   @ViewChild(CreateSnapshotPopup)
   private createSnapshotPopup : CreateSnapshotPopup;
 
-  // 검색 파라메터
-  private _searchParams: { [key: string]: string };
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -118,6 +117,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
               private dataflowService: DataflowService,
               private dataflowModelService: DataflowModelService,
               private activatedRoute: ActivatedRoute,
+              private _location:Location,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -158,13 +158,6 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       { command: 'setformat', alias: 'Sf'}
     ];
 
-
-    // 쿼리 파라메터 저장
-    this.activatedRoute.queryParams.subscribe(params => {
-      console.info( '>>>>>>> detail param', params );
-      this._searchParams = params;
-    });
-
     // Router에서 파라미터 전달 받기
     this.activatedRoute.params.subscribe((params) => {
       if (params['id']) {
@@ -196,10 +189,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   public close() {
     clearInterval(this.interval);
     this.interval = undefined;
-    this.router.navigate(
-      ['/management/datapreparation/dataset'],
-      {queryParams: this._searchParams}
-      );
+    this._location.back();
   }
 
   /**

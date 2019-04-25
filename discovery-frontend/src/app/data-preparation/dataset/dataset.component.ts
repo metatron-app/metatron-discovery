@@ -54,7 +54,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public searchText: string = '';
-  public dsType : DsType | string  = DsType.IMPORTED ;
+  public dsType : DsType | string = DsType.IMPORTED ;
 
   // popup status
   public step: string;
@@ -122,6 +122,8 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
           this.page.page = params['page'];
         }
 
+
+        // TODO : type
         if (params['dsType'] !== '') {
           this.dsType = params['dsType'];
           this.datasetTypes.forEach((item) => {
@@ -193,7 +195,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
     if (13 === event.keyCode || 27 === event.keyCode) {
       event.keyCode === 27 ? this.searchText = '' : null;
       this.page.page = 0;
-      this.getDatasets();
+      this.reloadPage();
     }
 
   }
@@ -248,7 +250,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
   public clearSearch() {
     this.searchText = '';
     this.page.page = 0;
-    this.getDatasets();
+    this.reloadPage();
   }
 
   /**
@@ -276,8 +278,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
    * @param selectedItem 선택된 데이터셋
    * */
   public itemRowClick(selectedItem: PrDataset) {
-    this.router.navigate(['/management/datapreparation/dataset', selectedItem.dsId],
-      {queryParams: this._searchParams}).then();
+    this.router.navigate(['/management/datapreparation/dataset', selectedItem.dsId]).then();
   }
 
   /** 정렬
@@ -306,7 +307,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
     }
 
     // 데이터셋 리스트 조회
-    this.getDatasets();
+    this.reloadPage();
 
   }
 
@@ -319,9 +320,22 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
       this.page.page = data.page;
       this.page.size = data.size;
       // 워크스페이스 조회
-      this.getDatasets();
+      this.reloadPage(false);
     }
   } // function - changePage
+
+  /**
+   * 페이지를 새로 불러온다.
+   * @param {boolean} isFirstPage
+   */
+  public reloadPage(isFirstPage: boolean = true) {
+    (isFirstPage) && (this.page.page = 0);
+    this._searchParams = this._getDsParams();
+    this.router.navigate(
+      [this.router.url.replace(/\?.*/gi, '')],
+      {queryParams: this._searchParams, replaceUrl: true}
+    ).then();
+  } // function - reloadPage
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
@@ -356,9 +370,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
       params['dsName'] = this.searchText;
     }
 
-    if (this.dsType !== '' || !isNullOrUndefined(this.dsType)) {
-      params['dsType'] = this.dsType;
-    }
+    params['dsType'] = isNullOrUndefined(this.dsType) ? '' : this.dsType;
 
     this.selectedContentSort.sort !== 'default' && (params['sort'] = this.selectedContentSort.key + ',' + this.selectedContentSort.sort);
 
