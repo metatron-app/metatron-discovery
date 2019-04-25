@@ -21,10 +21,12 @@ import {Modal} from '../../common/domain/modal';
 import {Alert} from '../../common/util/alert.util';
 import {PreparationAlert} from '../util/preparation-alert.util';
 import {MomentDatePipe} from '../../common/pipe/moment.date.pipe';
-import {isUndefined} from 'util';
+import {isUndefined,isNullOrUndefined} from 'util';
 import {DataSnapshotDetailComponent} from './data-snapshot-detail.component';
 import {PreparationCommonUtil} from "../util/preparation-common.util";
 import {StorageService} from "../../data-storage/service/storage.service";
+import {ActivatedRoute} from "@angular/router";
+import * as _ from 'lodash'
 
 @Component({
   selector: 'app-data-snapshot',
@@ -75,6 +77,7 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   constructor(private dataSnapshotService: DataSnapshotService,
+              private _activatedRoute: ActivatedRoute,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
@@ -90,8 +93,43 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
 
     this._initView();
 
-    // Get snapshot list
-    this.getSnapshots();
+    // Get query param from url
+    this._activatedRoute.queryParams.subscribe((params) => {
+
+      if (!_.isEmpty(params)) {
+
+        if (!isNullOrUndefined(params['size'])) {
+          this.page.size = params['size'];
+        }
+
+        if (!isNullOrUndefined(params['page'])) {
+          this.page.page = params['page'];
+        }
+
+        if (!isNullOrUndefined(params['ssName'])) {
+          this.searchText = params['ssName'];
+        }
+
+        if (!isNullOrUndefined(params['status'])) {
+          this.ssStatus = params['status'];
+        }
+
+        if (!isNullOrUndefined(params['type'])) {
+          this.ssType = params['type'];
+        }
+
+
+        const sort = params['sort'];
+        if (!isNullOrUndefined(sort)) {
+          const sortInfo = decodeURIComponent(sort).split(',');
+          this.selectedContentSort.key = sortInfo[0];
+          this.selectedContentSort.sort = sortInfo[1];
+        }
+      }
+
+      this.getSnapshots();
+    });
+
   }
 
   public ngOnDestroy() {
@@ -138,19 +176,13 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
   /**
    * Fetch snapshot list
    */
-  public getSnapshots(isInitial: boolean = true) {
-
-    if (isInitial) {
-      this.loadingShow();
-    }
+  public getSnapshots() {
 
     const params = this._getSsParams();
 
     this.datasnapshots = [];
 
     this.dataSnapshotService.getSnapshots(params).then((data) => {
-
-      this.loadingHide();
 
       this._searchParams = params;
 
@@ -180,7 +212,7 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
       });
       if (idx > -1 && !this.ssDetailComponent.isShow) {
         setTimeout(() => {
-          this.getSnapshots(false);
+          this.getSnapshots();
         }, 5000)
       }
 
@@ -204,7 +236,7 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
     if (27 === event.keyCode || 13 === event.keyCode) {
       event.keyCode === 27 ? this.searchText = '' : null;
       this.page.page = 0;
-      this.getSnapshots();
+      this.reloadPage();
     }
 
   }
@@ -235,17 +267,10 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
    */
   public deleteDataSnapshot() {
 
-    const isOnlyOne: boolean = this.datasnapshots.length === 1;
-
     this.dataSnapshotService.deleteDataSnapshot(this.selectedDeletessId).then(() => {
       Alert.success(this.translateService.instant('msg.dp.alert.del.success'));
 
-      // TODO : 마지막 페이지에서 리스트에 하나 남았을떄 그걸 지운다면 그 전 페이지를 로드해야한다
-      if (isOnlyOne) {
-        this.page.page = this.page.page - 1;
-      }
-
-      this.getSnapshots();
+      this.reloadPage(false);
 
     }).catch(() => {
       Alert.error(this.translateService.instant('msg.dp.alert.del.fail'));
@@ -291,7 +316,7 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
       }
     }
 
-    this.getSnapshots();
+    this.reloadPage(false);
   }
 
 
@@ -300,7 +325,7 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
    */
   public closeDetail(){
     this.step = 'close-detail';
-    this.getSnapshots();
+    this.reloadPage(false);
   }
 
 
@@ -311,7 +336,8 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
   public onChangeStatus(status: string) {
 
     this.ssStatus = status;
-    this.getSnapshots();
+
+    this.reloadPage();
   }
 
 
@@ -323,7 +349,7 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
 
     this.ssType = data.value;
 
-    this.getSnapshots();
+    this.reloadPage();
   }
 
 
@@ -336,7 +362,7 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
       this.page.page = data.page;
       this.page.size = data.size;
 
-      this.getSnapshots();
+      this.reloadPage(false);
     }
   } // function - changePage
 
@@ -359,6 +385,19 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
     return csv;
   }
 
+
+  /**
+   * 페이지를 새로 불러온다.
+   * @param {boolean} isFirstPage
+   */
+  public reloadPage(isFirstPage: boolean = true) {
+    (isFirstPage) && (this.page.page = 0);
+    this._searchParams = this._getSsParams();
+    this.router.navigate(
+      [this.router.url.replace(/\?.*/gi, '')],
+      {queryParams: this._searchParams, replaceUrl: true}
+    ).then();
+  } // function - reloadPage
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
