@@ -22,7 +22,10 @@
         <a (mouseover)="setEditingFieldAlias( editingField );" href="javascript:">
           {{'msg.page.th.alias-this-chart' | translate}}
           <div class="ddp-data-result">
-            {{getDisplayEditingPivotAlias( editingField )}} <em class="ddp-icon-view"></em>
+            <span class="ddp-txt-result" title="{{getDisplayEditingPivotAlias( editingField )}}">
+              {{getDisplayEditingPivotAlias( editingField )}}
+              <em class="ddp-icon-view"></em>
+            </span>
           </div>
         </a>
         <!-- 2depth (알라ㅣ아스 있을 경우) -->
