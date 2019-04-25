@@ -345,7 +345,7 @@ export class StagingDbSelectDataComponent extends AbstractPopupComponent impleme
 
         return new SlickGridHeader()
           .Id(field.name)
-          .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.logicalType.toString()) + '"></em>' + field.name + '</span>')
+          .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.logicalType.toString()) + '"></em>' + Field.getSlicedColumnName(field) + '</span>')
           .Field(field.name)
           .Behavior('select')
           .Selectable(false)
@@ -355,6 +355,18 @@ export class StagingDbSelectDataComponent extends AbstractPopupComponent impleme
           .Resizable(true)
           .Unselectable(true)
           .Sortable(true)
+          .Formatter((row, cell, value) => {
+            let content = value;
+            // trans to string
+            if (typeof value === "number") {
+              content = value + '';
+            }
+            if (content && content.length > 50) {
+              return content.slice(0,50);
+            } else {
+              return content;
+            }
+          })
           .build();
       }
     );

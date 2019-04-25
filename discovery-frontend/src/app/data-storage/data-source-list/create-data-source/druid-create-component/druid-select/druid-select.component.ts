@@ -17,7 +17,7 @@ import {
   Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
-import { DatasourceInfo } from '../../../../../domain/datasource/datasource';
+import {DatasourceInfo, Field} from '../../../../../domain/datasource/datasource';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
 import { GridComponent } from '../../../../../common/component/grid/grid.component';
 import { header, SlickGridHeader } from '../../../../../common/component/grid/grid.header';
@@ -444,7 +444,7 @@ export class DruidSelectComponent extends AbstractPopupComponent implements OnIn
 
         return new SlickGridHeader()
           .Id(field.name)
-          .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.logicalType.toString()) + '"></em>' + field.name + '</span>')
+          .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.logicalType.toString()) + '"></em>' + Field.getSlicedColumnName(field) + '</span>')
           .Field(field.name)
           .Behavior('select')
           .Selectable(false)
@@ -454,6 +454,18 @@ export class DruidSelectComponent extends AbstractPopupComponent implements OnIn
           .Resizable(true)
           .Unselectable(true)
           .Sortable(true)
+          .Formatter((row, cell, value) => {
+            let content = value;
+            // trans to string
+            if (typeof value === "number") {
+              content = value + '';
+            }
+            if (content && content.length > 50) {
+              return content.slice(0,50);
+            } else {
+              return content;
+            }
+          })
           .build();
       }
     );

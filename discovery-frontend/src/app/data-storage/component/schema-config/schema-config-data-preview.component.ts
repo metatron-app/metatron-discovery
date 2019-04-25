@@ -26,10 +26,15 @@ export class SchemaConfigDataPreviewComponent extends AbstractComponent {
    * @param data
    */
   public getSlicedDataContent(data: string) {
-    if (!_.isNil(data) && data.length > 50) {
-      return data.slice(0, 50);
+    let content = data;
+    // trans to string
+    if (typeof data === "number") {
+      content = data + '';
+    }
+    if (!_.isNil(content)  && content.length > 50) {
+      return content.slice(0,50);
     } else {
-      return data;
+      return content;
     }
   }
 

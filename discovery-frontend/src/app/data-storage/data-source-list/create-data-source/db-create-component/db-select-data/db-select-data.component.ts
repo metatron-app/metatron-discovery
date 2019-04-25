@@ -362,10 +362,24 @@ export class DbSelectDataComponent extends AbstractPopupComponent {
           .Resizable(true)
           .Unselectable(true)
           .Sortable(true)
+          .Formatter((row, cell, value) => {
+            let content = value;
+            // trans to string
+            if (typeof value === "number") {
+              content = value + '';
+            }
+            if (content && content.length > 50) {
+              return content.slice(0,50);
+            } else {
+              return content;
+            }
+          })
           .build();
       }
     );
   }
+
+
 
   /**
    * Get grid rows
