@@ -65,7 +65,7 @@ export class SharedWorkspacesComponent extends AbstractComponent {
   @ViewChild(PeriodComponent)
   public periodComponent: PeriodComponent;
 
-  public initialPeriodData:PeriodData;
+  public initialPeriodData: PeriodData;
 
   // 정렬
   public selectedContentSort: Order = new Order();
@@ -114,7 +114,7 @@ export class SharedWorkspacesComponent extends AbstractComponent {
     // 파라메터 조회
     this.activatedRoute.queryParams.subscribe(params => {
 
-      console.info( '>>>>>>> list param', params );
+      console.info('>>>>>>> list param', params);
 
       const size = params['size'];
       (isNullOrUndefined(size)) || (this.page.size = size);
@@ -279,10 +279,7 @@ export class SharedWorkspacesComponent extends AbstractComponent {
   public onOpenWorkspaceDetail(workspaceId: string): void {
     // 기존에 저장된 라우트 삭제
     this.cookieService.delete('PREV_ROUTER_URL');
-    this.router.navigate(
-      ['/admin/workspaces/shared', workspaceId],
-      {queryParams: this._searchParams}
-    ).then();
+    this.router.navigate(['/admin/workspaces/shared', workspaceId]).then();
   }
 
   /**
@@ -367,8 +364,8 @@ export class SharedWorkspacesComponent extends AbstractComponent {
     event.preventDefault();
     // status 변경
     this._filterStatus = state.value;
-    // 워크스페이스 재조회
-    this._getWorkspaceInit();
+    // 페이지 새로고침
+    this.reloadPage();
   }
 
   /**
@@ -378,8 +375,8 @@ export class SharedWorkspacesComponent extends AbstractComponent {
   public onFilterDate(event): void {
     // 선택한 날짜
     this._filterDate = event;
-    // 워크스페이스 재조회
-    this._getWorkspaceInit();
+    // 페이지 새로고침
+    this.reloadPage();
   }
 
   /**
@@ -391,8 +388,8 @@ export class SharedWorkspacesComponent extends AbstractComponent {
     event.preventDefault();
     // filtering
     this.filterAllowance = !allowanceFl;
-    // 워크스페이스 재조회
-    this._getWorkspaceInit();
+    // 페이지 새로고침
+    this.reloadPage();
   }
 
   /**
@@ -419,8 +416,8 @@ export class SharedWorkspacesComponent extends AbstractComponent {
           break;
       }
     }
-    // 워크스페이스 조회
-    this._getWorkspaceInit();
+    // 페이지 새로고침
+    this.reloadPage();
   }
 
   /**
@@ -444,8 +441,8 @@ export class SharedWorkspacesComponent extends AbstractComponent {
     event.preventDefault();
     // WorkspaceType 변경
     this._filterWorkspaceType = type;
-    // 워크스페이스 재조회
-    this._getWorkspaceInit();
+    // 페이지 새로고침
+    this.reloadPage();
   }
 
   /**
@@ -456,8 +453,7 @@ export class SharedWorkspacesComponent extends AbstractComponent {
     if (data) {
       this.page.page = data.page;
       this.page.size = data.size;
-      // 워크스페이스 조회
-      this._getWorkspaceListInServer();
+      this.reloadPage(false);
     }
   } // function - changePage
 
@@ -468,6 +464,18 @@ export class SharedWorkspacesComponent extends AbstractComponent {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * 페이지를 새로 불러온다.
+   * @param {boolean} isFirstPage
+   */
+  public reloadPage(isFirstPage: boolean = true) {
+    (isFirstPage) && (this.page.page = 0);
+    this._searchParams = this._getWorkspaceParams();
+    this.router.navigate(
+      [this.router.url.replace(/\?.*/gi, '')],
+      {queryParams: this._searchParams, replaceUrl: true}
+    ).then();
+  } // function - reloadPage
 
   /**
    * 검색어로 공유워크스페이스 검색
@@ -477,8 +485,8 @@ export class SharedWorkspacesComponent extends AbstractComponent {
   private _searchText(keyword: string): void {
     // key word
     this.searchText = keyword;
-    // 재조회
-    this._getWorkspaceInit();
+    // 페이지 새로고침
+    this.reloadPage();
   }
 
   /**
@@ -494,8 +502,8 @@ export class SharedWorkspacesComponent extends AbstractComponent {
       .then(() => {
         // alert
         Alert.success(this.translateService.instant('msg.spaces.shared.alert.delete'));
-        // 재조회
-        this._getWorkspaceInit();
+        // 페이지 새로고침
+        this.reloadPage();
       })
       .catch((error) => {
         // alert
@@ -519,8 +527,8 @@ export class SharedWorkspacesComponent extends AbstractComponent {
       .then(() => {
         // alert
         Alert.success(status === 'active' ? this.translateService.instant('msg.spaces.shared.alert.status.active') : this.translateService.instant('msg.spaces.shared.alert.status.inactive'));
-        // 재조회
-        this._getWorkspaceInit();
+        // 페이지 새로고침
+        this.reloadPage();
       })
       .catch((error) => {
         // alert
@@ -562,16 +570,6 @@ export class SharedWorkspacesComponent extends AbstractComponent {
         // 로딩 hide
         this.loadingHide();
       });
-  }
-
-  /**
-   * 워크스페이스 초기화 재조회
-   */
-  private _getWorkspaceInit(): void {
-    // 페이지 초기화
-    this.page.page = 0;
-    // 재조회
-    this._getWorkspaceListInServer();
   }
 
   /**

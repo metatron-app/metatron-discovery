@@ -14,6 +14,7 @@
 
 import {AbstractComponent} from '../../../../../common/component/abstract.component';
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Location} from "@angular/common";
 import {ActivatedRoute} from '@angular/router';
 import {Modal} from '../../../../../common/domain/modal';
 import {ConfirmModalComponent} from '../../../../../common/component/modal/confirm/confirm.component';
@@ -35,9 +36,6 @@ export class DetailWorkspaceComponent extends AbstractComponent implements OnIni
 
   // 워크스페이스 아이디
   private _workspaceId: string;
-
-  // 검색 파라메터
-  private _listSearchParams: { [key: string]: string };
 
   // 공통 팝업 모달
   @ViewChild(ConfirmModalComponent)
@@ -70,6 +68,7 @@ export class DetailWorkspaceComponent extends AbstractComponent implements OnIni
   // 생성자
   constructor(private workspaceService: WorkspaceService,
               private activatedRoute: ActivatedRoute,
+              private _location:Location,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -84,12 +83,6 @@ export class DetailWorkspaceComponent extends AbstractComponent implements OnIni
 
     // Init
     super.ngOnInit();
-
-    // 쿼리 파라메터 저장
-    this.activatedRoute.queryParams.subscribe(params => {
-      console.info( '>>>>>>> detail param', params );
-      this._listSearchParams = params;
-    });
 
     // url에서 workspaceId 받아오기
     this.activatedRoute.params.subscribe((params) => {
@@ -158,10 +151,7 @@ export class DetailWorkspaceComponent extends AbstractComponent implements OnIni
       this.cookieService.delete('PREV_ROUTER_URL');
       this.router.navigate([url]).then();
     } else {
-      this.router.navigate(
-        ['/admin/workspaces/shared'],
-        {queryParams: this._listSearchParams}
-      ).then();
+      this._location.back();
     }
   }
 

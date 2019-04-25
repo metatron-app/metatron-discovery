@@ -13,23 +13,23 @@
  */
 
 import * as moment from 'moment';
-import { APP_BASE_HREF } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { BrowserModule } from '@angular/platform-browser';
-import { ModuleWithProviders, NgModule } from '@angular/core';
-import { AppComponent } from './app.component';
-import { RouterModule, Routes } from '@angular/router';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { environment } from '../environments/environment';
-import { PopupService } from './common/service/popup.service';
-import { EventBroadcaster } from './common/event/event.broadcaster';
-import { UnloadConfirmService } from './common/service/unload.confirm.service';
-import { CanDeactivateGuard } from './common/gaurd/can.deactivate.guard';
-import { SsoGuard } from './common/gaurd/sso.guard';
-import { UserService } from './user/service/user.service';
-import { CookieService } from 'ng2-cookies';
-import { ClipboardModule } from 'ngx-clipboard';
+import {APP_BASE_HREF} from '@angular/common';
+import {HttpClient, HttpClientModule} from '@angular/common/http';
+import {BrowserModule} from '@angular/platform-browser';
+import {ModuleWithProviders, NgModule} from '@angular/core';
+import {AppComponent} from './app.component';
+import {RouterModule, Routes} from '@angular/router';
+import {TranslateModule, TranslateLoader} from '@ngx-translate/core';
+import {TranslateHttpLoader} from '@ngx-translate/http-loader';
+import {environment} from '../environments/environment';
+import {PopupService} from './common/service/popup.service';
+import {EventBroadcaster} from './common/event/event.broadcaster';
+import {UnloadConfirmService} from './common/service/unload.confirm.service';
+import {CanDeactivateGuard} from './common/gaurd/can.deactivate.guard';
+import {SsoGuard} from './common/gaurd/sso.guard';
+import {UserService} from './user/service/user.service';
+import {CookieService} from 'ng2-cookies';
+import {ClipboardModule} from 'ngx-clipboard';
 
 // 다국어 파일 경로 지정
 export function createTranslateLoader(http: HttpClient) {
@@ -47,14 +47,14 @@ export const appTranslateModule: ModuleWithProviders = TranslateModule.forRoot({
 
 
 const appRoutes: Routes = [
-  { path: 'sso', loadChildren: 'app/sso/sso.module#SsoModule' },
-  { path: 'user', loadChildren: 'app/layout/none-layout/none-layout.module#NoneLayoutModule' },
-  { path: 'dashboard', loadChildren: 'app/embedded/embedded-view.module#EmbeddedViewModule' },
-  { path: 'embedded', loadChildren: 'app/embedded/embedded-view.module#EmbeddedViewModule' },
-  { path: 'chart', loadChildren: 'app/chart-test/chart-test.module#ChartTestModule' },
-  { path: '', loadChildren: 'app/layout/layout/layout.module#LayoutModule', canActivate:[SsoGuard] },
+  {path: 'sso', loadChildren: 'app/sso/sso.module#SsoModule'},
+  {path: 'user', loadChildren: 'app/layout/none-layout/none-layout.module#NoneLayoutModule'},
+  {path: 'dashboard', loadChildren: 'app/embedded/embedded-view.module#EmbeddedViewModule'},
+  {path: 'embedded', loadChildren: 'app/embedded/embedded-view.module#EmbeddedViewModule'},
+  {path: 'chart', loadChildren: 'app/chart-test/chart-test.module#ChartTestModule'},
+  {path: '', loadChildren: 'app/layout/layout/layout.module#LayoutModule', canActivate: [SsoGuard]},
   // 존재하지 않는 URL
-  { path: '**', redirectTo: '/user/login', pathMatch: 'full' }
+  {path: '**', redirectTo: '/user/login', pathMatch: 'full'}
 ];
 
 @NgModule({
@@ -63,13 +63,13 @@ const appRoutes: Routes = [
   ],
   imports: [
     BrowserModule,
-    RouterModule.forRoot(appRoutes),
+    RouterModule.forRoot(appRoutes, {onSameUrlNavigation: 'reload'}),
     appTranslateModule,
     HttpClientModule,
     ClipboardModule
   ],
   providers: [
-    { provide: APP_BASE_HREF, useValue: environment.baseHref },
+    {provide: APP_BASE_HREF, useValue: environment.baseHref},
     PopupService,
     SsoGuard,
     UserService,
