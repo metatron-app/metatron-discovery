@@ -996,15 +996,6 @@ public class PrepTransformService {
     } catch (IllegalColumnNameForHiveException e) {
       throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_ILLEGAL_COLUMN_NAME_FOR_HIVE, e.getMessage());
     }
-
-    List<String> upstreamDsIds = getUpstreamDsIds(dsId);
-    for (String upsteramDsId : upstreamDsIds) {
-      PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(upsteramDsId));
-      if (dataset.getDsType() == IMPORTED) {
-        continue;
-      }
-      checkHiveNamingRule(upsteramDsId);
-    }
   }
 
   // FIXME: What is this functions for?
