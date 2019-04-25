@@ -1,5 +1,4 @@
 import {Injectable, Injector} from "@angular/core";
-import {FileItem, ParsedResponseHeaders} from "ng2-file-upload";
 import {TranslateService} from '@ngx-translate/core';
 import {StringUtil} from "../../common/util/string.util";
 import {GranularityType} from "../../domain/workbook/configurations/field/timestamp-field";
@@ -20,7 +19,6 @@ import {HiveFileFormat, PrDataSnapshot, SsType} from "../../domain/data-preparat
 import * as _ from "lodash";
 import {CommonConstant} from "../../common/constant/common.constant";
 import {ConnectionParam} from "./data-connection-create.service";
-import {Pluploader} from "../../common/component/pluploader/pluploader";
 
 @Injectable()
 export class DataSourceCreateService {
@@ -35,17 +33,6 @@ export class DataSourceCreateService {
   constructor(injector: Injector) {
     this._translateService = injector.get(TranslateService);
     this._granularityService = injector.get(GranularityService);
-  }
-
-  /**
-   * Get convert sheets
-   * @param {object} sheets
-   * @return {Sheet[]}
-   */
-  public getConvertSheets(sheets: object): Sheet[] {
-    return Object.keys(sheets).map(key => {
-      return sheets[key].valid ? {sheetName: key, valid: sheets[key].valid, warning: sheets[key].warning} : {sheetName: key, valid: sheets[key].valid, warning: sheets[key].warning, errorMessage: this.getFileErrorMessage(sheets[key].warning)};
-    });
   }
 
   /**
@@ -480,13 +467,6 @@ export interface Sheet {
   valid: boolean;
   warning?: string;
   errorMessage?: string;
-}
-
-export interface UploadResult {
-  file: Pluploader.File.IFile;
-  response?: string;
-  status?: number;
-  headers?: string;
 }
 
 export interface FileDetail {

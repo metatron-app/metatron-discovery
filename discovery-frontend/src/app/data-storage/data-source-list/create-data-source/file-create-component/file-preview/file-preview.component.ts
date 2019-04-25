@@ -37,8 +37,7 @@ import {
   DataSourceCreateService,
   FileDetail,
   FileResult,
-  Sheet,
-  UploadResult
+  Sheet
 } from "../../../../service/data-source-create.service";
 
 @Component({
@@ -187,7 +186,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
    * @return {boolean}
    */
   public isExcelFile(): boolean {
-    return this.fileResult.hasOwnProperty('sheets');
+    return _.isNil(this.fileResult.sheets);
   }
 
   /**

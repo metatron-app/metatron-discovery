@@ -26,9 +26,9 @@ import {AbstractPopupComponent} from '../../../../../common/component/abstract-p
 import {DatasourceInfo} from '../../../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import {
-  DataSourceCreateService,
-  FileResult, UploadResult,
+  FileResult, Sheet,
 } from "../../../../service/data-source-create.service";
+import {Pluploader} from "../../../../../common/component/pluploader/pluploader";
 
 @Component({
   selector: 'file-upload',
@@ -45,7 +45,7 @@ export class FileUploadComponent extends AbstractPopupComponent implements OnIni
   private readonly sourceData: DatasourceInfo;
 
   // upload result
-  public uploadResult: UploadResult;
+  public uploadedFile: Pluploader.File;
   // file results
   public fileResult: FileResult;
 
@@ -56,8 +56,7 @@ export class FileUploadComponent extends AbstractPopupComponent implements OnIni
   public readonly stepChange: EventEmitter<string> = new EventEmitter();
 
   // 생성자
-  constructor(private dataSourceCreateService: DataSourceCreateService,
-              protected elementRef: ElementRef,
+  constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
 
     super(elementRef, injector);
@@ -111,28 +110,50 @@ export class FileUploadComponent extends AbstractPopupComponent implements OnIni
     return !_.isNil(this.fileResult);
   }
 
+  /**
+   * Started file upload
+   */
   public onStartedFileUpload() {
     this.fileResult = undefined;
   }
 
-  public onCompletedFileUpload(uploadResult: UploadResult) {
-    this.uploadResult = uploadResult;
+  /**
+   * Complete file upload
+   * @param {Pluploader.File} uploadedFile
+   */
+  public onCompletedFileUpload(uploadedFile: Pluploader.File) {
+    this.uploadedFile = uploadedFile;
     // response 데이터
-    const response: any = JSON.parse(uploadResult.response);
-    this.fileResult = {
+    const response: any = JSON.parse(uploadedFile.response);
+    const fileResult = {
       fileKey: response.filekey,
       filePath: response.filePath,
-      fileSize: uploadResult.file.size,
-      fileName:  uploadResult.file.name
+      fileSize: uploadedFile.size,
+      fileName: uploadedFile.name,
+      sheets: undefined,
+      selectedSheet: undefined,
     };
     // sheet 가 존재한다면
     if (response.sheets && response.sheets.length !== 0) {
       // sheet
-      this.fileResult.sheets = this.dataSourceCreateService.getConvertSheets(response.sheets);
+      fileResult.sheets = this._getConvertSheets(response.sheets);
       // initial selected sheet
-      this.fileResult.selectedSheet = this.fileResult.sheets[0];
+      fileResult.selectedSheet = fileResult.sheets[0];
     }
+    this.fileResult = fileResult;
   }
+
+  /**
+   * Get convert sheets
+   * @param {object} sheets
+   * @return {Sheet[]}
+   */
+  private _getConvertSheets(sheets: object): Sheet[] {
+    return Object.keys(sheets).map(key => {
+      return sheets[key].valid ? {sheetName: key, valid: sheets[key].valid, warning: sheets[key].warning} : {sheetName: key, valid: sheets[key].valid, warning: sheets[key].warning, errorMessage: this.translateService.instant(`msg.storage.ui.file.result.${sheets[key].warning}`)};
+    });
+  }
+
 
   /**
    * 데이터가 변경이 일어났는지 확인
@@ -140,9 +161,9 @@ export class FileUploadComponent extends AbstractPopupComponent implements OnIni
    * @private
    */
   private _isChangeData(): boolean {
-    if (this.sourceData.fileData) {
+    if (this.sourceData.uploadData) {
       // 파일 key 가 변경된 경우
-      if (this.sourceData.fileData.fileResult.fileKey !== this.fileResult.fileKey) {
+      if (this.sourceData.uploadData.fileResult.fileKey !== this.fileResult.fileKey) {
         return true;
       }
     }
@@ -169,7 +190,7 @@ export class FileUploadComponent extends AbstractPopupComponent implements OnIni
    */
   private _saveUploadData(sourceData: DatasourceInfo) {
     const uploadData = {
-      uploadResult: this.uploadResult,
+      uploadedFile: this.uploadedFile,
       // file results
       fileResult: this.fileResult
     };
@@ -182,7 +203,7 @@ export class FileUploadComponent extends AbstractPopupComponent implements OnIni
    * @private
    */
   private _initData(uploadData) {
-    this.uploadResult = uploadData.uploadResult;
+    this.uploadedFile = uploadData.uploadedFile;
     this.fileResult = uploadData.fileResult;
   }
 }
