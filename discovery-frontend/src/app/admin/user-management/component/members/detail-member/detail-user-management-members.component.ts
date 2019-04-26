@@ -12,18 +12,19 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {User} from '../../../../../domain/user/user';
-import {ActivatedRoute} from '@angular/router';
-import {ConfirmModalComponent} from '../../../../../common/component/modal/confirm/confirm.component';
-import {Modal} from '../../../../../common/domain/modal';
-import {AbstractUserManagementComponent} from '../../../abstract.user-management.component';
-import {Alert} from '../../../../../common/util/alert.util';
-import {UpdateUserManagementMembersComponent} from '../update-member/update-user-management-members.component';
-import {PermissionService} from '../../../../../user/service/permission.service';
-import {CommonUtil} from '../../../../../common/util/common.util';
-import {Group} from '../../../../../domain/user/group';
-import {ChangeWorkspaceOwnerModalComponent} from '../change-workspace-owner-modal/change-workspace-owner-modal.component';
+import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { User } from '../../../../../domain/user/user';
+import { ActivatedRoute } from '@angular/router';
+import { ConfirmModalComponent } from '../../../../../common/component/modal/confirm/confirm.component';
+import { Modal } from '../../../../../common/domain/modal';
+import { AbstractUserManagementComponent } from '../../../abstract.user-management.component';
+import { Alert } from '../../../../../common/util/alert.util';
+import { UpdateUserManagementMembersComponent } from '../update-member/update-user-management-members.component';
+import { PermissionService } from '../../../../../user/service/permission.service';
+import { CommonUtil } from '../../../../../common/util/common.util';
+import { Group } from '../../../../../domain/user/group';
+import { ChangeWorkspaceOwnerModalComponent } from '../change-workspace-owner-modal/change-workspace-owner-modal.component';
+import { Location } from "@angular/common";
 
 @Component({
   selector: 'app-member-detail',
@@ -97,6 +98,7 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
   constructor(
     private permissionService: PermissionService,
     private activatedRoute: ActivatedRoute,
+    private _location:Location,
     protected element: ElementRef,
     protected injector: Injector) {
     super(element, injector);
@@ -110,6 +112,7 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
   public ngOnInit() {
     // Init
     super.ngOnInit();
+
     // url에서 memberId 받아오기
     this.activatedRoute.params.subscribe((params) => {
       // memberId
@@ -325,7 +328,7 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
       this.cookieService.delete('PREV_ROUTER_URL');
       this.router.navigate([url]);
     } else {
-      this.router.navigate(['/admin/user/members']);
+      this._location.back();
     }
   }
 

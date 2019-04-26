@@ -19,6 +19,7 @@ import { PermissionService } from '../../../../user/service/permission.service';
 import { RoleSet } from '../../../../domain/user/role/roleSet';
 import { Alert } from '../../../../common/util/alert.util';
 import { Modal } from '../../../../common/domain/modal';
+import { Location } from "@angular/common";
 import { ConfirmModalComponent } from '../../../../common/component/modal/confirm/confirm.component';
 import { isUndefined } from 'util';
 import { CommonUtil } from '../../../../common/util/common.util';
@@ -83,6 +84,7 @@ export class DetailPermissionSchemaComponent extends AbstractComponent implement
   // 생성자
   constructor(private permissionService: PermissionService,
               private activatedRoute: ActivatedRoute,
+              private _location:Location,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -259,7 +261,7 @@ export class DetailPermissionSchemaComponent extends AbstractComponent implement
    * 뒤로가기 버튼 클릭
    */
   public onClickPrev(): void {
-    this.router.navigate(['/admin/workspaces/permission']).then();
+    this._location.back();
   }
 
   /**

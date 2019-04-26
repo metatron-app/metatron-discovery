@@ -22,6 +22,8 @@ import { Modal } from '../../../../common/domain/modal';
 import { Alert } from '../../../../common/util/alert.util';
 import { MomentDatePipe } from '../../../../common/pipe/moment.date.pipe';
 import { Group } from '../../../../domain/user/group';
+import { ActivatedRoute } from "@angular/router";
+import { isNullOrUndefined } from "util";
 
 declare let moment: any;
 
@@ -57,8 +59,16 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
   // date
   public selectedDate : PeriodData;
 
+  // 검색 파라메터
+  private _searchParams: { [key: string]: string };
+
   // 노트 필터링
   public noteFilterFl: boolean = false;
+
+  // date
+  private _filterDate: PeriodData;
+
+  public initialPeriodData:PeriodData;
 
   // period component
   @ViewChild(PeriodComponent)
@@ -81,6 +91,7 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
 
   // 생성자
   constructor(protected elementRef: ElementRef,
+              private activatedRoute: ActivatedRoute,
               protected injector: Injector) {
 
     super(elementRef, injector);
@@ -96,8 +107,47 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
     super.ngOnInit();
     // ui init
     this._initView();
-    // group 리스트 조회
-    this._getGroupList();
+
+    // 파라메터 조회
+    this.subscriptions.push(
+      this.activatedRoute.queryParams.subscribe(params => {
+
+        console.info( '>>>>>>> list param', params );
+
+        const size = params['size'];
+        (isNullOrUndefined(size)) || (this.page.size = size);
+
+        const page = params['page'];
+        (isNullOrUndefined(page)) || (this.page.page = page);
+
+        const sort = params['sort'];
+        if (!isNullOrUndefined(sort)) {
+          const sortInfo = decodeURIComponent(sort).split(',');
+          this.selectedContentSort.key = sortInfo[0];
+          this.selectedContentSort.sort = sortInfo[1];
+        }
+
+        // 검색어
+        const searchText = params['nameContains'];
+        (isNullOrUndefined(searchText)) || (this.searchKeyword = searchText);
+
+        this._filterDate = new PeriodData();
+        this._filterDate.type = 'ALL';
+        const from = params['from'];
+        const to = params['to'];
+        if (!isNullOrUndefined(from) && !isNullOrUndefined(to)) {
+          // TODO Filter Type ALL TODAY SevenDAYS
+          this._filterDate.type = 'NOT';
+          this._filterDate.startDateStr = decodeURIComponent(from);
+          this._filterDate.endDateStr = decodeURIComponent(to);
+          this.initialPeriodData = this._filterDate;
+        }
+
+        // group 리스트 조회
+        this._getGroupList();
+      })
+    );
+
   }
 
   // Destory
@@ -141,22 +191,12 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
       // alert
       Alert.success(this.translateService.instant('msg.groups.alert.grp.del.success'));
       // 그룹 조회
-      this.getGroupListInit();
+      this.reloadPage();
     })
       .catch(() => {
         // 로딩 hide
         this.loadingHide();
       });
-  }
-
-  /**
-   * 그룹 리스트 초기화 후 재조회
-   */
-  public getGroupListInit(): void {
-    // 페이지 초기화
-    this.pageResult.number = 0;
-    // 그룹 리스트 조회
-    this._getGroupList();
   }
 
   /**
@@ -166,7 +206,7 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
   public showDetailGroup(group: Group) {
     // 기존에 저장된 라우트 삭제
     this.cookieService.delete('PREV_ROUTER_URL');
-    this.router.navigate(['/admin/user/groups', group.id]);
+    this.router.navigate(['/admin/user/groups', group.id], {queryParams: this._searchParams});
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -195,23 +235,13 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * note filtering
-   */
-  public onClickNoteFilter(): void {
-    // 필터링 flag
-    this.noteFilterFl = !this.noteFilterFl;
-    // 재조회
-    this.getGroupListInit();
-  }
-
-  /**
    * 가입 요청일자 변경시
    */
   public onChangeDate(data: PeriodData) {
     // 선택한 날짜
     this.selectedDate = data;
     // group 리스트 조회
-    this.getGroupListInit();
+    this.reloadPage();
   }
 
   /**
@@ -230,14 +260,18 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
   }
 
   /**
-   * 더보기 버튼 클릭
+   * 페이지 변경
+   * @param data
    */
-  public onClickMoreContents(): void {
-    // 페이지 넘버 증가
-    this.pageResult.number += 1;
-    // group 조회
-    this._getGroupList();
-  }
+  public changePage(data: { page: number, size: number }) {
+    if (data) {
+      this.page.page = data.page;
+      this.page.size = data.size;
+      // 재조회
+      this.reloadPage(false);
+    }
+  } // function - changePag
+
 
   /**
    * 목록 정렬 필터링
@@ -264,7 +298,7 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
       }
     }
     // group 조회
-    this.getGroupListInit();
+    this.reloadPage();
   }
 
   /**
@@ -302,6 +336,19 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
+   * 페이지를 새로 불러온다.
+   * @param {boolean} isFirstPage
+   */
+  public reloadPage(isFirstPage: boolean = true) {
+    (isFirstPage) && (this.page.page = 0);
+    this._searchParams = this._getGroupParams();
+    this.router.navigate(
+      [this.router.url.replace(/\?.*/gi, '')],
+      {queryParams: this._searchParams, replaceUrl: true}
+    ).then();
+  } // function - reloadPage
+
+  /**
    * ui 초기화
    * @private
    */
@@ -322,7 +369,7 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
     // key word
     this.searchKeyword = keyword;
     // 재조회
-    this.getGroupListInit();
+    this.reloadPage();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -337,8 +384,13 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
     // 로딩 show
     this.loadingShow();
     // group 리스트 조회
-    this.groupsService.getGroupList(this._getGroupParams())
+    const params = this._getGroupParams();
+    this.groupsService.getGroupList(params)
       .then((result) => {
+
+        // 검색 파라메터 정보 저장
+        this._searchParams = params;
+
         // 페이지
         this.pageResult = result.page;
         // 페이지가 첫번째면 초기화
@@ -346,7 +398,7 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
           this.groupList = [];
         }
         // 데이터 있다면
-        this.groupList = result._embedded ? this.groupList.concat(result._embedded.groups) : [];
+        this.groupList = result._embedded ? result._embedded.groups : [];
         // 로딩 hide
         this.loadingHide();
       })
@@ -362,10 +414,10 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
    * @returns {Object}
    * @private
    */
-  private _getGroupParams(): object {
+  private _getGroupParams(): any {
     const params = {
-      size: this.pageResult.size,
-      page: this.pageResult.number
+      size: this.page.size,
+      page: this.page.page
     };
     // 정렬
     if (this.selectedContentSort.sort !== 'default') {

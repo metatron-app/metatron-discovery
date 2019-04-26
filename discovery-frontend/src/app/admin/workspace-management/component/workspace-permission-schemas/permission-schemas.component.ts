@@ -23,6 +23,8 @@ import { RoleSet, RoleSetScope } from '../../../../domain/user/role/roleSet';
 import { Alert } from '../../../../common/util/alert.util';
 import { CreatePermissionSchemaComponent } from './create-permission-schema.component';
 import { Page } from '../../../../domain/common/page';
+import { ActivatedRoute } from "@angular/router";
+import { isNullOrUndefined } from "util";
 
 declare let moment: any;
 
@@ -46,6 +48,9 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
   // date
   private _filterDate: PeriodData;
 
+  // 검색 파라메터
+  private _searchParams: { [key: string]: string };
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -61,6 +66,8 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
   @ViewChild(PeriodComponent)
   public periodComponent: PeriodComponent;
 
+  public initialPeriodData:PeriodData;
+
   // 검색 키워드
   public searchText: string = '';
 
@@ -74,6 +81,7 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
   // 생성자
   constructor(private permissionService: PermissionService,
               protected element: ElementRef,
+              private activatedRoute: ActivatedRoute,
               protected injector: Injector) {
     super(element, injector);
   }
@@ -89,8 +97,50 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
     super.ngOnInit();
     // ui 초기화
     this._initView();
-    // 퍼미션 스키마 조회
-    this._getRoleSetList();
+
+    // 파라메터 조회
+    this.subscriptions.push(
+      this.activatedRoute.queryParams.subscribe(params => {
+
+        // TODO selected date
+
+        console.info( '>>>>>>> list param', params );
+
+        const page = params['page'];
+        (isNullOrUndefined(page)) || (this.page.page = page);
+
+        const sort = params['sort'];
+        if (!isNullOrUndefined(sort)) {
+          const sortInfo = decodeURIComponent(sort).split(',');
+          this.selectedContentSort.key = sortInfo[0];
+          this.selectedContentSort.sort = sortInfo[1];
+        }
+
+        const size = params['size'];
+        (isNullOrUndefined(size)) || (this.page.size = size);
+
+        // 검색어
+        const searchText = params['nameContains'];
+        (isNullOrUndefined(searchText)) || (this.searchText = searchText);
+
+        const from = params['from'];
+        const to = params['to'];
+
+        this._filterDate = new PeriodData();
+
+        this._filterDate.type = 'ALL';
+        if (!isNullOrUndefined(from) && !isNullOrUndefined(to)) {
+          // TODO FILTER DATE
+          this._filterDate.type = 'NOT';
+          this._filterDate.dateType = 'CREATED';
+          this._filterDate.startDateStr = decodeURIComponent(from);
+          this._filterDate.endDateStr = decodeURIComponent(to);
+          this.initialPeriodData = this._filterDate;
+        }
+        // 퍼미션 스키마 조회
+        this._getRoleSetList();
+      })
+    );
   }
 
   /**
@@ -143,13 +193,14 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
   /**
    * 스키마 리스트 초기화 후 재조회
    */
-  public getPermissionSchemaInit(): void {
-    // 페이지 초기화
-    this.pageResult.number = 0;
-    // 스키마 리스트 초기화
-    this.roleSetList = [];
-    // 스키마 리스트 조회
-    this._getRoleSetList();
+  public reloadPage(isFirstPage: boolean = true) {
+
+    (isFirstPage) && (this.page.page = 0);
+    this._searchParams = this._getPermissionSchemaParams();
+    this.router.navigate(
+      [this.router.url.replace(/\?.*/gi, '')],
+      {queryParams: this._searchParams, replaceUrl: true}
+    ).then();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -242,17 +293,7 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
     // 선택한 날짜
     this._filterDate = event;
     // permission 리스트 재조회
-    this.getPermissionSchemaInit();
-  }
-
-  /**
-   * 더보기 버튼 클릭
-   */
-  public onClickMoreContents(): void {
-    // 페이지 넘버 증가
-    this.pageResult.number += 1;
-    // 퍼미션 스키마 조회
-    this._getRoleSetList();
+    this.reloadPage();
   }
 
   /**
@@ -275,6 +316,10 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
    * @param {string} key
    */
   public onFilterSort(key: string): void {
+
+    // 페이지 초기화
+    this.page.page = 0;
+
     // 초기화
     this.selectedContentSort.sort = this.selectedContentSort.key !== key ? 'default' : this.selectedContentSort.sort;
     // 정렬 정보 저장
@@ -295,8 +340,20 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
       }
     }
     // 퍼미션 스키마 재조회
-    this.getPermissionSchemaInit();
+    this.reloadPage();
   }
+
+  /**
+   * 페이지 변경
+   * @param data
+   */
+  public changePage(data: { page: number, size: number }) {
+    if (data) {
+      this.page.page = data.page;
+      this.page.size = data.size;
+      this.reloadPage(false);
+    }
+  } // function - changePage
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
@@ -327,7 +384,7 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
     // key word
     this.searchText = keyword;
     // 퍼미션 스키마 재조회
-    this.getPermissionSchemaInit();
+    this.reloadPage();
   }
 
   /**
@@ -344,7 +401,7 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
         // alert
         Alert.success(`'${result.name}' 스키마가 생성되었습니다`);
         // 재조회
-        this.getPermissionSchemaInit();
+        this.reloadPage();
       })
       .catch((error) => this.commonExceptionHandler(error));
   }
@@ -363,7 +420,7 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
         // alert
         Alert.success('스키마가 삭제되었습니다');
         // 재조회
-        this.getPermissionSchemaInit();
+        this.reloadPage();
       })
       .catch((error) => this.commonExceptionHandler(error));
   }
@@ -378,13 +435,22 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
    */
   private _getRoleSetList(): void {
     this.loadingShow();
-    this.permissionService.getRolesets(this._getPermissionSchemaParams())
+
+    this.roleSetList = [];
+
+    const params = this._getPermissionSchemaParams();
+    this.permissionService.getRolesets(params)
       .then((result) => {
+
+        // 검색 파라메터 정보 저장
+        this._searchParams = params;
+
         // 페이지
         this.pageResult = result.page;
+
         // 데이터 있다면
         if (result._embedded) {
-          this.roleSetList = this.roleSetList.length === 0 ? result._embedded.roleSets : this.roleSetList.concat(result._embedded.roleSets);
+          this.roleSetList = result._embedded.roleSets;
         }
         // 로딩 hide
         this.loadingHide();
@@ -397,10 +463,10 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
    * @returns {Object}
    * @private
    */
-  private _getPermissionSchemaParams(): object {
+  private _getPermissionSchemaParams(): any {
     const params = {
-      size: this.pageResult.size,
-      page: this.pageResult.number,
+      size: this.page.size,
+      page: this.page.page,
       scope : RoleSetScope.PUBLIC
     };
     // 정렬
@@ -413,7 +479,7 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
     }
 
     // date
-    if (this._filterDate && this._filterDate.type !== 'ALL') {
+    if ((!isNullOrUndefined(this._filterDate)) && this._filterDate.type !== 'ALL') {
       params['searchDateBy'] = 'CREATED';
       if (this._filterDate.startDateStr) {
         params['from'] = moment(this._filterDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
