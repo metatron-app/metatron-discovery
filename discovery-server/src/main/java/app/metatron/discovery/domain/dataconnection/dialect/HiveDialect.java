@@ -296,7 +296,6 @@ public class HiveDialect implements JdbcDialect {
    */
   @Override
   public String getTableName(JdbcConnectInformation connectInfo, String catalog, String schema, String table) {
-
     if(StringUtils.isEmpty(schema) || schema.equals(connectInfo.getDatabase())) {
       return table;
     }
