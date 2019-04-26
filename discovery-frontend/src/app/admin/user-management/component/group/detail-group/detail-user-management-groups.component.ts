@@ -44,6 +44,9 @@ export class DetailUserManagementGroupsComponent extends AbstractUserManagementC
   @ViewChild(UpdateUserManagementGroupsComponent)
   private _setMembersComponent: UpdateUserManagementGroupsComponent;
 
+  // 검색 파라메터
+  private _listSearchParams: { [key: string]: string };
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -86,6 +89,12 @@ export class DetailUserManagementGroupsComponent extends AbstractUserManagementC
   public ngOnInit() {
     // Init
     super.ngOnInit();
+    // 쿼리 파라메터 저장
+    this.activatedRoute.queryParams.subscribe(params => {
+      console.info( '>>>>>>> permission detail param', params );
+      this._listSearchParams = params;
+    });
+
     // url에서 groupId 받아오기
     this.activatedRoute.params.subscribe((params) => {
       // groupId
@@ -275,9 +284,9 @@ export class DetailUserManagementGroupsComponent extends AbstractUserManagementC
     const url = this.cookieService.get('PREV_ROUTER_URL');
     if (url) {
       this.cookieService.delete('PREV_ROUTER_URL');
-      this.router.navigate([url]);
+      this.router.navigate([url], {queryParams: this._listSearchParams});
     } else {
-      this.router.navigate(['/admin/user/groups']);
+      this.router.navigate(['/admin/user/groups'], {queryParams: this._listSearchParams});
     }
   }
 

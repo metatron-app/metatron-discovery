@@ -17,7 +17,8 @@ import { PeriodData } from '../../../../common/value/period.data.value';
 import { PeriodComponent } from '../../../../common/component/period/period.component';
 import { AbstractUserManagementComponent } from '../../abstract.user-management.component';
 import { Alert } from '../../../../common/util/alert.util';
-import { isUndefined } from "util";
+import { isNullOrUndefined, isUndefined } from "util";
+import { ActivatedRoute } from "@angular/router";
 declare let moment: any;
 const defaultSort = 'createdTime,desc';
 
@@ -31,6 +32,9 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // date
+  private _filterDate: PeriodData;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -74,12 +78,18 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
   @ViewChild(PeriodComponent)
   public periodComponent: PeriodComponent;
 
+  public initialPeriodData:PeriodData;
+
+  // 검색 파라메터
+  private _searchParams: { [key: string]: string };
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
   constructor(protected elementRef: ElementRef,
+              private activatedRoute: ActivatedRoute,
               protected injector: Injector,
               ) {
 
@@ -95,7 +105,50 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
 
     // Init
     super.ngOnInit();
-    this.init();
+
+    // 파라메터 조회
+    this.subscriptions.push(
+      this.activatedRoute.queryParams.subscribe(params => {
+
+        console.info( '>>>>>>> list param', params );
+
+        const page = params['page'];
+        (isNullOrUndefined(page)) || (this.page.page = page);
+
+        const sort = params['sort'];
+        if (!isNullOrUndefined(sort)) {
+          const sortInfo = decodeURIComponent(sort).split(',');
+          this.selectedContentSort.key = sortInfo[0];
+          this.selectedContentSort.sort = sortInfo[1];
+        }
+
+        const size = params['size'];
+        (isNullOrUndefined(size)) || (this.page.size = size);
+
+        // Status
+        const status = params['status'];
+        (isNullOrUndefined(status)) || (this.statusId = status);
+
+        // 검색어
+        const searchText = params['nameContains'];
+        (isNullOrUndefined(searchText)) || (this.searchKeyword = searchText);
+
+        const from = params['from'];
+        const to = params['to'];
+
+        this._filterDate = new PeriodData();
+        this._filterDate.type = 'ALL';
+        if (!isNullOrUndefined(from) && !isNullOrUndefined(to)) {
+          // TODO Filter Type ALL TODAY SevenDAYS
+          this._filterDate.type = 'NOT';
+          this._filterDate.startDateStr = decodeURIComponent(from);
+          this._filterDate.endDateStr = decodeURIComponent(to);
+          this.initialPeriodData = this._filterDate;
+        }
+        // 퍼미션 스키마 조회
+        this.init();
+      })
+    );
   }
 
   // Destory
@@ -124,14 +177,15 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
    * 가입 요청일자 변경시
    * @param data 날짜
    */
-  public onChangeDate(data: PeriodData) {
+  public onFilterDate(data: PeriodData) {
 
     // 페이지 초기화
     this.page.page = 0;
 
     this.selectedDate = data;
 
-    this.getUsers();
+    // 페이지 재 조회
+    this.reloadPage();
   }
 
   /**
@@ -153,6 +207,7 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
       if (isAppend) {
           this.userList = this.userList.concat(result._embedded ? result._embedded.users : []);
         } else {
+          this.userList = [];
           this.userList = result._embedded ? result._embedded.users : [];
         }
     }).catch((error) => {
@@ -177,19 +232,20 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
   }
 
   /**
-   * 더보기 클릭시
+   * 페이지 변경
+   * @param data
    */
-  public loadMore() {
+  public changePage(data: { page: number, size: number }) {
+    if (data) {
+      this.page.page = data.page;
+      this.page.size = data.size;
 
-    // 더 보여줄 데이터가 있다면
-    if (this.page.page < this.pageResult.totalPages) {
-
-      this.page.page += 1;
-
-      // 기존 리스트에 추가하기
-      this.getUsers(true);
+      // 재조회
+      this.reloadPage(false);
     }
-  }
+  } // function - changePag
+
+
 
   /**
    * 검색하기
@@ -334,10 +390,28 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
     this.getUsers();
   }
 
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Private Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 페이지를 새로 불러온다.
+   * @param {boolean} isFirstPage
+   */
+  public reloadPage(isFirstPage: boolean = true) {
+    (isFirstPage) && (this.page.page = 0);
+    this._searchParams = this.setParam();
+    this.router.navigate(
+      [this.router.url.replace(/\?.*/gi, '')],
+      {queryParams: this._searchParams, replaceUrl: true}
+    ).then();
+  } // function - reloadPage
+
+
   /**
    * Set parameter for api
    */
-  private setParam(): Object {
+  private setParam(): any {
 
     let result : Object;
 

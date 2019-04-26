@@ -48,6 +48,9 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
 
   private defaultPhotoSrc = '/assets/images/img_photo.png';
 
+  // 검색 파라메터
+  private _listSearchParams: { [key: string]: string };
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -110,6 +113,13 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
   public ngOnInit() {
     // Init
     super.ngOnInit();
+
+    // 쿼리 파라메터 저장
+    this.activatedRoute.queryParams.subscribe(params => {
+      console.info( '>>>>>>> permission detail param', params );
+      this._listSearchParams = params;
+    });
+
     // url에서 memberId 받아오기
     this.activatedRoute.params.subscribe((params) => {
       // memberId
@@ -323,9 +333,9 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
     const url = this.cookieService.get('PREV_ROUTER_URL');
     if (url) {
       this.cookieService.delete('PREV_ROUTER_URL');
-      this.router.navigate([url]);
+      this.router.navigate([url], {queryParams: this._listSearchParams});
     } else {
-      this.router.navigate(['/admin/user/members']);
+      this.router.navigate(['/admin/user/members'], {queryParams: this._listSearchParams});
     }
   }
 

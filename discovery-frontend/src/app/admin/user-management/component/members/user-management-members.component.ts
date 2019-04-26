@@ -22,7 +22,9 @@ import { CreateUserManagementMembersComponent } from './create-member/create-use
 import { ConfirmModalComponent } from '../../../../common/component/modal/confirm/confirm.component';
 import { Modal } from '../../../../common/domain/modal';
 import { Alert } from '../../../../common/util/alert.util';
-import {ChangeWorkspaceOwnerModalComponent} from './change-workspace-owner-modal/change-workspace-owner-modal.component';
+import { ChangeWorkspaceOwnerModalComponent } from './change-workspace-owner-modal/change-workspace-owner-modal.component';
+import { ActivatedRoute } from "@angular/router";
+import { isNullOrUndefined } from "util";
 
 declare let moment: any;
 
@@ -65,6 +67,14 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
   // 검색 키워드
   public searchKeyword: string = '';
 
+  // 검색 파라메터
+  private _searchParams: { [key: string]: string };
+
+  public initialPeriodData:PeriodData;
+
+  // date
+  private _filterDate: PeriodData;
+
   // date
   public selectedDate : PeriodData;
 
@@ -81,6 +91,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
 
   // 생성자
   constructor(protected elementRef: ElementRef,
+              private activatedRoute: ActivatedRoute,
               protected injector: Injector) {
 
     super(elementRef, injector);
@@ -96,8 +107,52 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
     super.ngOnInit();
     // ui init
     this._initView();
-    // members list 조회
-    this._getMemberList();
+
+    // 파라메터 조회
+    this.subscriptions.push(
+      this.activatedRoute.queryParams.subscribe(params => {
+
+        // TODO selected type
+        console.info( '>>>>>>> list param', params );
+
+        const size = params['size'];
+        (isNullOrUndefined(size)) || (this.page.size = size);
+
+        const page = params['page'];
+        (isNullOrUndefined(page)) || (this.page.page = page);
+
+        const sort = params['sort'];
+        if (!isNullOrUndefined(sort)) {
+          const sortInfo = decodeURIComponent(sort).split(',');
+          this.selectedContentSort.key = sortInfo[0];
+          this.selectedContentSort.sort = sortInfo[1];
+        }
+
+        // 검색어
+        const searchText = params['nameContains'];
+        (isNullOrUndefined(searchText)) || (this.searchKeyword = searchText);
+
+        // Status
+        const active = params['active'];
+        if (!isNullOrUndefined(active)) {
+          this.statusId = ('true' === active) ? 'ACTIVE' : 'INACTIVE';
+        }
+
+        this._filterDate = new PeriodData();
+        this._filterDate.type = 'ALL';
+        const from = params['from'];
+        const to = params['to'];
+        if (!isNullOrUndefined(from) && !isNullOrUndefined(to)) {
+          this._filterDate.type = 'NOT';
+          this._filterDate.startDateStr = decodeURIComponent(from);
+          this._filterDate.endDateStr = decodeURIComponent(to);
+          this.initialPeriodData = this._filterDate;
+        }
+
+        // members list 조회
+        this._getMemberList();
+      })
+    );
   }
 
   // Destory
@@ -155,6 +210,10 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
    * @private
    */
   public getMemberListInit(): void {
+
+    // 페이지 초기화
+    this.page.page = 0;
+
     // 페이지 초기화
     this.pageResult.number = 0;
     // 멤버 리스트 조회
@@ -357,8 +416,23 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
   public showDetailUser(user: User): void {
     // 기존에 저장된 라우트 삭제
     this.cookieService.delete('PREV_ROUTER_URL');
-    this.router.navigate(['/admin/user/members', user.id]);
+    this.router.navigate(['/admin/user/members', user.id], {queryParams: this._searchParams});
   }
+
+  /**
+   * 페이지 변경
+   * @param data
+   */
+  public changePage(data: { page: number, size: number }) {
+    if (data) {
+      this.page.page = data.page;
+      this.page.size = data.size;
+
+      // 멤버 리스트 조회
+      this.reloadPage(false);
+    }
+  } // function - changePage
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
@@ -367,6 +441,20 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 페이지를 새로 불러온다.
+   * @param {boolean} isFirstPage
+   */
+  public reloadPage(isFirstPage: boolean = true) {
+    (isFirstPage) && (this.page.page = 0);
+    this._searchParams = this._getMemberParams();
+    this.router.navigate(
+      [this.router.url.replace(/\?.*/gi, '')],
+      {queryParams: this._searchParams, replaceUrl: true}
+    ).then();
+  } // function - reloadPage
+
 
   /**
    * 유저 삭제
@@ -459,8 +547,14 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
     // 로딩 show
     this.loadingShow();
     // group 리스트 조회
-    this.membersService.getRequestedUser(this._getMemberParams())
+    this.membersList = [];
+    const params = this._getMemberParams();
+    this.membersService.getRequestedUser(params)
       .then((result) => {
+
+        // 검색 파라메터 정보 저장
+        this._searchParams = params;
+
         // 페이지
         this.pageResult = result.page;
         // 페이지가 첫번째면 초기화
@@ -468,7 +562,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
           this.membersList = [];
         }
         // 데이터 있다면
-        this.membersList = result._embedded ? this.membersList.concat(result._embedded.users) : [];
+        this.membersList = result._embedded ? result._embedded.users : [];
         // 로딩 hide
         this.loadingHide();
       })
@@ -484,10 +578,10 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
    * @returns {Object}
    * @private
    */
-  private _getMemberParams(): object {
+  private _getMemberParams(): any {
     const params = {
-      size: this.pageResult.size,
-      page: this.pageResult.number
+      size: this.page.size,
+      page: this.page.page
     };
     // 정렬
     if (this.selectedContentSort.sort !== 'default') {
