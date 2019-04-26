@@ -208,14 +208,18 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
     ResultSet rs = null;
     try {
       conn = this.getConnection();
-      rs = conn.getMetaData().getSchemas();
+
+      String schemaPatternParam = schemaPattern;
+      if(StringUtils.isNotEmpty(schemaPattern)){
+        schemaPatternParam = "%" + schemaPattern + "%";
+      }
+      rs = conn.getMetaData().getSchemas(catalog, schemaPatternParam);
 
       // 1. TABLE_SCHEM String => schema name
       // 2. TABLE_CATALOG String => catalog name (may be null)
       while (rs.next()) {
         dataBaseNames.add(rs.getString(1));
       }
-
     } catch (Exception e) {
       LOGGER.error("Fail to get list of schema : {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
