@@ -100,7 +100,7 @@
                (keypress)="onSearchText($event)"
                (keyup.esc)="onSearchTextInit()"
                [ngModel]="searchText">
-        <em class="ddp-btn-search-close" (click)="onSearchTextInit()" *ngIf="searchText"></em>
+        <em class="ddp-btn-search-close" (click)="onSearchTextInit()" *ngIf="searchText !== ''"></em>
       </div>
       <!-- //검색 -->
       <!-- total -->

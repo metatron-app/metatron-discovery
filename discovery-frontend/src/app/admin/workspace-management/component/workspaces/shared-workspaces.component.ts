@@ -12,18 +12,18 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../../../common/component/abstract.component';
-import {Component, ElementRef, Injector, ViewChild} from '@angular/core';
-import {WorkspaceService} from '../../../../workspace/service/workspace.service';
-import {Alert} from '../../../../common/util/alert.util';
-import {PublicType, WorkspaceAdmin} from '../../../../domain/workspace/workspace';
-import {PeriodComponent} from '../../../../common/component/period/period.component';
-import {Modal} from '../../../../common/domain/modal';
-import {ConfirmModalComponent} from '../../../../common/component/modal/confirm/confirm.component';
-import {PeriodData} from '../../../../common/value/period.data.value';
-import {Page} from "../../../../domain/common/page";
-import {ActivatedRoute} from "@angular/router";
-import {isNullOrUndefined} from "util";
+import { AbstractComponent } from '../../../../common/component/abstract.component';
+import { Component, ElementRef, Injector, ViewChild } from '@angular/core';
+import { WorkspaceService } from '../../../../workspace/service/workspace.service';
+import { Alert } from '../../../../common/util/alert.util';
+import { PublicType, WorkspaceAdmin } from '../../../../domain/workspace/workspace';
+import { PeriodComponent } from '../../../../common/component/period/period.component';
+import { Modal } from '../../../../common/domain/modal';
+import { ConfirmModalComponent } from '../../../../common/component/modal/confirm/confirm.component';
+import { PeriodData } from '../../../../common/value/period.data.value';
+import { Page } from "../../../../domain/common/page";
+import { ActivatedRoute } from "@angular/router";
+import { isNullOrUndefined } from "util";
 
 declare let moment: any;
 
@@ -111,8 +111,9 @@ export class SharedWorkspacesComponent extends AbstractComponent {
     // ui 초기화
     this._initView();
 
-    // 파라메터 조회
-    this.activatedRoute.queryParams.subscribe(params => {
+    this.subscriptions.push(
+      // 파라메터 조회
+      this.activatedRoute.queryParams.subscribe(params => {
 
       console.info('>>>>>>> list param', params);
 
@@ -150,10 +151,10 @@ export class SharedWorkspacesComponent extends AbstractComponent {
         this._filterDate.endDateStr = decodeURIComponent(to);
         this.initialPeriodData = this._filterDate;
       }
-
       // 워크스페이스 리스트 조회
       this._getWorkspaceListInServer();
-    });
+      })
+    );
   }
 
   /**
