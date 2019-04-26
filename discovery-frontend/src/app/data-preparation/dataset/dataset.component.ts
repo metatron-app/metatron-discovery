@@ -54,7 +54,6 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public searchText: string = '';
-  public dsType : DsType | string = DsType.IMPORTED ;
 
   // popup status
   public step: string;
@@ -71,13 +70,15 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
   @ViewChild(DeleteModalComponent)
   public deleteModalComponent: DeleteModalComponent;
 
-  public datasetTypes : {name: string, value: DsType, checked: boolean, class: string}[];
+  public datasetTypes : TypeStruct[];
 
   public ImportType = ImportType;
 
   public prepCommonUtil = PreparationCommonUtil;
 
-  public datasetType = DsType; // [IMPORTED, WRANGLED]
+  public DsType = DsType; // [IMPORTED, WRANGLED]
+
+  public selectedTypes : TypeStruct[];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -122,22 +123,27 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
           this.page.page = params['page'];
         }
 
+        if (!isNullOrUndefined(params['dsName'])) {
+          this.searchText = params['dsName'];
+        }
 
-        // TODO : type
-        if (params['dsType'] !== '') {
-          this.dsType = params['dsType'];
+        this.selectedTypes = [];
+        if (params['dsType'] === '') {
           this.datasetTypes.forEach((item) => {
-            item.checked = item.value === this.dsType;
+            item.checked = false;
+          });
+        } else if (params['dsType'].indexOf(',') > -1) {
+          this.datasetTypes.forEach((item) => {
+            item.checked = true;
+            this.selectedTypes.push(item);
           });
         } else {
           this.datasetTypes.forEach((item) => {
-            item.checked = true;
+            if (item.value.toString() === params['dsType']) {
+              item.checked = true;
+              this.selectedTypes.push(item);
+            }
           });
-          this.dsType = '';
-        }
-
-        if (!isNullOrUndefined(params['dsName'])) {
-          this.searchText = params['dsName'];
         }
 
         const sort = params['sort'];
@@ -205,21 +211,36 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
    * */
   public changeStatus(status) {
 
+    event.stopImmediatePropagation();
+
     status.checked = !status.checked;
 
-    // this.datasetTypes 를 돌면서 전체선택 / 전체 해제 / 하나만인지 확인
-    let items = this.datasetTypes.filter((item) => {
-      return item.checked;
-    });
+    -1 === _.findIndex(this.selectedTypes, {name: status.name}) ?
+      this._addSelectedItem(status) : this._deleteSelectedItem(status);
 
-    if (items.length === 1) {
-      this.dsType = items[0].value;
-    } else {
-      this.dsType = '';
+    this.reloadPage();
+
+  }
+
+  /**
+   * Add selected item
+   * @param val
+   * @private
+   */
+  private _addSelectedItem(val) {
+    this.selectedTypes.push(val);
+  }
+
+  /**
+   * Delete selected item
+   * @param val
+   * @private
+   */
+  private _deleteSelectedItem(val) {
+    const index = _.findIndex(this.selectedTypes, {name: val.name});
+    if (-1 !== index) {
+      this.selectedTypes.splice(index,1);
     }
-
-    this.getDatasets();
-
   }
 
   /** 데이터 셋 생성 */
@@ -307,7 +328,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
     }
 
     // 데이터셋 리스트 조회
-    this.reloadPage();
+    this.reloadPage(false);
 
   }
 
@@ -363,20 +384,31 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
 
     const params = {
       page: this.page.page,
-      size: this.page.size,
+      size: this.page.size
     };
 
     if (!isNullOrUndefined(this.searchText) || StringUtil.isNotEmpty(this.searchText)) {
       params['dsName'] = this.searchText;
     }
 
-    params['dsType'] = isNullOrUndefined(this.dsType) ? '' : this.dsType;
+    params['dsType'] = '';
+    if (this.selectedTypes.length !== 0) {
+      const list = this.selectedTypes.map((item) =>{
+        return item.value;
+      });
+      params['dsType'] = list.toString();
+    }
 
     this.selectedContentSort.sort !== 'default' && (params['sort'] = this.selectedContentSort.key + ',' + this.selectedContentSort.sort);
 
     return params;
   }
 
+
+  /**
+   * Initialise values
+   * @private
+   */
   private _initView() {
 
     this.datasetTypes = [
@@ -384,7 +416,11 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
       {name : 'WRANGLED', value : DsType.WRANGLED, checked : false, class : 'ddp-wargled' }
       ];
 
-    this.datasets = [];
+    this.selectedTypes = [];
+
+    // Default = imported dataset
+    this.selectedTypes.push(this.datasetTypes[0]);
+
     this.searchText = '';
     this.selectedContentSort.sort = 'desc';
     this.selectedContentSort.key = 'createdTime';
@@ -396,4 +432,11 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
 class Order {
   key: string = 'createdTime';
   sort: string = 'default';
+}
+
+class TypeStruct {
+    name: string;
+    value: DsType;
+    checked: boolean;
+    class: string
 }
