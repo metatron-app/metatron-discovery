@@ -55,7 +55,12 @@ export class DatasetService extends AbstractService {
 
     let url = this.API_URL + `preparationdatasets/search/`;
 
-    if (clonedParam.dsType !== '') {
+    let dsType = '';
+    if (clonedParam.dsType.indexOf(',') === -1) {
+      dsType = clonedParam.dsType;
+    }
+
+    if (dsType !== '') {
 
       if (sort[0] === 'refDfCount') {
         url += `findByDsNameContainingAndDsTypeOrderByRefDfCount${sortStr}?dsType=${clonedParam.dsType}&`;

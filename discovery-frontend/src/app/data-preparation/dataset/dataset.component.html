@@ -113,7 +113,7 @@
       <tr *ngFor="let item of datasets; let i = index" [attr.data-index]="i" (click)="itemRowClick(item)">
         <td>
           <span class="ddp-box-tag"
-                [ngClass]="{'ddp-wargled' : item.dsType === datasetType.WRANGLED , 'ddp-imported' : item.dsType === datasetType.IMPORTED}">
+                [ngClass]="{'ddp-wargled' : item.dsType === DsType.WRANGLED , 'ddp-imported' : item.dsType === DsType.IMPORTED}">
             {{item.dsType}}
           </span>
         </td>
@@ -129,7 +129,7 @@
           {{item.refDfCount}}
         </td>
         <td>
-          <span class="ddp-data-source" *ngIf="item.dsType === datasetType.IMPORTED; else wrangled">
+          <span class="ddp-data-source" *ngIf="item.dsType === DsType.IMPORTED; else wrangled">
               <em class="ddp-icon-svg">
                 <svg-icon-component [name]="prepCommonUtil.getNameForSvgWithDataset(item)" [isBlackAndWhite]="false"></svg-icon-component>
               </em>
