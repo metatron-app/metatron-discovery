@@ -141,6 +141,7 @@ export class FileUploadComponent extends AbstractPopupComponent implements OnIni
       fileResult.selectedSheet = fileResult.sheets[0];
     }
     this.fileResult = fileResult;
+    this.safelyDetectChanges();
   }
 
   /**

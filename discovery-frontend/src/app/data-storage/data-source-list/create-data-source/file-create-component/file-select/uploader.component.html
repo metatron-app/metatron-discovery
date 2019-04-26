@@ -1,6 +1,6 @@
 <div class="ddp-box-file-create ddp-file-single" [class.type-upload]="isExistUploadFile()">
   <!-- progress (uploading OR complete) -->
-  <div class="ddp-file-progress" [class.ddp-disabled]="isFileUploadComplete() || isFileUploadCancel()" *ngIf="isFileUploading() || isFileUploadComplete() || isFileUploadFail() || isFileUploadCancel()">
+  <div class="ddp-file-progress" [class.ddp-disabled]="isFileUploadCancel()" *ngIf="isFileUploading() || isFileUploadComplete() || isFileUploadFail() || isFileUploadCancel()">
     <div class="ddp-data-name">
       {{uploadedFile.name}}
     </div>
