@@ -227,7 +227,7 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
       // 페이지 초기화
       this.page.page = 0;
       this.statusId = status;
-      this.getUsers();
+      this.reloadPage();
     }
   }
 
@@ -256,12 +256,12 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
     if (13 === event.keyCode) {
 
       this.page.page = 0;
-      this.getUsers();
+      this.reloadPage();
     } else if ( 27 === event.keyCode ) {
 
       this.page.page = 0;
       this.searchKeyword = '';
-      this.getUsers();
+      this.reloadPage();
     }
 
   }
@@ -328,7 +328,7 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
         console.info('rejected --> ', result);
         this.isRejectModalOpen = false;
         this.loadingHide();
-        this.getUsers();
+        this.reloadPage();
       }).catch((err) => {
         this.selectedUser = '';
         this.loadingHide();
@@ -349,7 +349,7 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
     this.membersService.approveUser(this.selectedUser).then((result) => {
       this.isApproveModalOpen = false;
       this.loadingHide();
-      this.getUsers();
+      this.reloadPage();
       Alert.success(this.translateService.instant('msg.approval.alert.approved'));
 
     }).catch((err) => {
@@ -387,7 +387,7 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
     this.page.sort = column + ',' + this.selectedContentSort.sort;
 
     // 데이터소스 리스트 조회
-    this.getUsers();
+    this.reloadPage();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

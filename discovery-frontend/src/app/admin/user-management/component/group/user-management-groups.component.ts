@@ -191,23 +191,12 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
       // alert
       Alert.success(this.translateService.instant('msg.groups.alert.grp.del.success'));
       // 그룹 조회
-      this.getGroupListInit();
+      this.reloadPage();
     })
       .catch(() => {
         // 로딩 hide
         this.loadingHide();
       });
-  }
-
-  /**
-   * 그룹 리스트 초기화 후 재조회
-   */
-  public getGroupListInit(): void {
-    // 페이지 초기화
-    this.page.page = 0;
-    this.pageResult.number = 0;
-    // 그룹 리스트 조회
-    this._getGroupList();
   }
 
   /**
@@ -246,23 +235,13 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * note filtering
-   */
-  public onClickNoteFilter(): void {
-    // 필터링 flag
-    this.noteFilterFl = !this.noteFilterFl;
-    // 재조회
-    this.getGroupListInit();
-  }
-
-  /**
    * 가입 요청일자 변경시
    */
   public onChangeDate(data: PeriodData) {
     // 선택한 날짜
     this.selectedDate = data;
     // group 리스트 조회
-    this.getGroupListInit();
+    this.reloadPage();
   }
 
   /**
@@ -319,7 +298,7 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
       }
     }
     // group 조회
-    this.getGroupListInit();
+    this.reloadPage();
   }
 
   /**
@@ -390,7 +369,7 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
     // key word
     this.searchKeyword = keyword;
     // 재조회
-    this.getGroupListInit();
+    this.reloadPage();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

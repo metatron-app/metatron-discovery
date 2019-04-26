@@ -23,6 +23,7 @@ import { isUndefined } from 'util';
 import { CommonUtil } from '../../../../../common/util/common.util';
 import { Group } from '../../../../../domain/user/group';
 import { GroupMember } from '../../../../../domain/user/group-member';
+import { Location } from "@angular/common";
 
 @Component({
   selector: 'app-group-detail',
@@ -43,9 +44,6 @@ export class DetailUserManagementGroupsComponent extends AbstractUserManagementC
 
   @ViewChild(UpdateUserManagementGroupsComponent)
   private _setMembersComponent: UpdateUserManagementGroupsComponent;
-
-  // 검색 파라메터
-  private _listSearchParams: { [key: string]: string };
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -77,6 +75,7 @@ export class DetailUserManagementGroupsComponent extends AbstractUserManagementC
   // 생성자
   constructor(private activatedRoute: ActivatedRoute,
               protected element: ElementRef,
+              private _location:Location,
               protected injector: Injector) {
     super(element, injector);
   }
@@ -90,10 +89,6 @@ export class DetailUserManagementGroupsComponent extends AbstractUserManagementC
     // Init
     super.ngOnInit();
     // 쿼리 파라메터 저장
-    this.activatedRoute.queryParams.subscribe(params => {
-      console.info( '>>>>>>> permission detail param', params );
-      this._listSearchParams = params;
-    });
 
     // url에서 groupId 받아오기
     this.activatedRoute.params.subscribe((params) => {
@@ -284,9 +279,9 @@ export class DetailUserManagementGroupsComponent extends AbstractUserManagementC
     const url = this.cookieService.get('PREV_ROUTER_URL');
     if (url) {
       this.cookieService.delete('PREV_ROUTER_URL');
-      this.router.navigate([url], {queryParams: this._listSearchParams});
+      this.router.navigate([url]);
     } else {
-      this.router.navigate(['/admin/user/groups'], {queryParams: this._listSearchParams});
+      this._location.back();
     }
   }
 

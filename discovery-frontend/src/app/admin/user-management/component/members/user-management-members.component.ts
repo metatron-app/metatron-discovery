@@ -206,21 +206,6 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 멤버 리스트 초기화 후 재조회
-   * @private
-   */
-  public getMemberListInit(): void {
-
-    // 페이지 초기화
-    this.page.page = 0;
-
-    // 페이지 초기화
-    this.pageResult.number = 0;
-    // 멤버 리스트 조회
-    this._getMemberList();
-  }
-
-  /**
    * 사용자의 현재 상태
    * @param {Status} status
    * @returns {any}
@@ -333,7 +318,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
     // 선택한 날짜
     this.selectedDate = data;
     // members 리스트 조회
-    this.getMemberListInit();
+    this.reloadPage();
   }
 
   /**
@@ -343,7 +328,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
     // 상태값 아이디 설정
     this.statusId = statusId;
     // members 리스트 조회
-    this.getMemberListInit();
+    this.reloadPage();
   }
 
   /**
@@ -359,16 +344,6 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
    */
   public onSearchTextInit(): void {
     this._searchText('');
-  }
-
-  /**
-   * 더보기 버튼 클릭
-   */
-  public onClickMoreContents(): void {
-    // 페이지 넘버 증가
-    this.pageResult.number += 1;
-    // 멤버 조회
-    this._getMemberList();
   }
 
   /**
@@ -396,7 +371,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
       }
     }
     // 멤버 조회
-    this.getMemberListInit();
+    this.reloadPage();
   }
 
 
@@ -470,7 +445,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
         // alert
         Alert.success(this.translateService.instant('msg.mem.alert.delete.usr.success'));
         // 재조회
-        this.getMemberListInit();
+        this.reloadPage();
       })
       .catch((error)=> {
         // alert
@@ -497,7 +472,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
           ? this.translateService.instant('msg.mem.alert.change.usr.status.inactive.success', {value: userName})
           : this.translateService.instant('msg.mem.alert.change.usr.status.active.success', {value: userName}));
         // 재조회
-        this.getMemberListInit();
+        this.reloadPage();
       })
       .catch((error) => {
         // alert
@@ -532,7 +507,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
     // key word
     this.searchKeyword = keyword;
     // 재조회
-    this.getMemberListInit();
+    this.reloadPage();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
