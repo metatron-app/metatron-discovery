@@ -636,6 +636,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       this.uiOption.layers[layerIndex].color.aggregationType = null;
     }
 
+    this.uiOption.layers[layerIndex]['isColorOptionChanged'] = true;
     this.applyLayers();
   }
 

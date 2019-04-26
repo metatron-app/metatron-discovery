@@ -400,15 +400,16 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     }
 
     ////////////////////////////////////////////////////////
-    // set min / max
-    ////////////////////////////////////////////////////////
-    this.setMinMax();
-
-    ////////////////////////////////////////////////////////
     // Check option (spec)
     ////////////////////////////////////////////////////////
 
     this.checkOption(this.getUiMapOption());
+
+    ////////////////////////////////////////////////////////
+    // set min / max
+    ////////////////////////////////////////////////////////
+
+    this.setMinMax();
 
     ////////////////////////////////////////////////////////
     // Creation map & layer
@@ -3192,17 +3193,24 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         }
       }
 
-      // _.each(shelf, (field) => {
-      //   if (_.eq(field.type, ShelveFieldType.MEASURE)) {
-      //     if( !_.isUndefined(layer.color.ranges) ) {
-      //       if( isAnalysisUse ){
-      //         layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[uiOption.analysis['layerNum']], this.getColorList(layer), idx, shelf);
-      //       } else {
-      //         layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[idx], this.getColorList(layer), idx, shelf);
-      //       }
-      //     }
-      //   }
-      // });
+      _.each(shelf, (field) => {
+        if (_.eq(field.type, ShelveFieldType.MEASURE)) {
+          if( !_.isUndefined(layer.color.ranges) && _.eq(field.name, layer.color.column)) {
+            if( isAnalysisUse ){
+              // 비교 레이어 영역 설정 여부
+              if(!_.isUndefined(uiOption.analysis['includeCompareLayer']) && uiOption.analysis['includeCompareLayer'] == true) {
+                // map chart 일 경우 aggregation type 변경시 min/max 재설정 필요
+                uiOption['layers'][uiOption['layerNum']]['isColorOptionChanged'] = true;
+                layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[uiOption.analysis['layerNum']+1], this.getColorList(layer), idx, shelf, []);
+              } else {
+                layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[uiOption.analysis['layerNum']], this.getColorList(layer), idx, shelf, []);
+              }
+            } else {
+              layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[idx], this.getColorList(layer), idx, shelf);
+            }
+          }
+        }
+      });
 
     }
   }
@@ -3335,9 +3343,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     this.loadingShow();
 
-    this.setMinMax();
-
     this.checkOption(this.getUiMapOption());
+
+    this.setMinMax();
 
     let isMapCreation: boolean = this.createMap();
 
