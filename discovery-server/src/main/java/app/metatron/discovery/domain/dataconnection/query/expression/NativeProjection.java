@@ -19,6 +19,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,6 +35,7 @@ import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionException;
 
 public class NativeProjection {
+  private static final Logger LOGGER = LoggerFactory.getLogger(NativeProjection.class);
 
   /**
    * Projection list
@@ -578,7 +581,9 @@ public class NativeProjection {
       if(jdbcDialect != null){
         return jdbcDialect.getQuotedFieldName(null, columnName);
       }
-    } catch (JdbcDataConnectionException e){}
+    } catch (JdbcDataConnectionException e){
+      LOGGER.debug("no suitable dialect for quote : {}", implementor);
+    }
 
     return Arrays.stream(columnName.split("\\."))
             .map(spliced -> "`" + spliced + "`")
