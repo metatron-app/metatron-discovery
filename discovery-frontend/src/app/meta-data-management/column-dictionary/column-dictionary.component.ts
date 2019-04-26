@@ -70,6 +70,8 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
   // 정렬
   public selectedContentSort: Order = new Order();
 
+  public defaultDate: Date;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -90,7 +92,6 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
 
     this._initView();
 
-
     this.subscriptions.push(
       // Get query param from url
       this._activatedRoute.queryParams.subscribe((params) => {
@@ -105,7 +106,6 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
             this.page.page = params['page'];
           }
 
-
           if (!isNullOrUndefined(params['logicalNameContains'])) {
             this.searchText = params['logicalNameContains'];
           }
@@ -117,11 +117,18 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
             this.selectedContentSort.sort = sortInfo[1];
           }
 
-          if (params['type'] !== 'ALL') {
+          const from = params['from'];
+          const to = params['to'];
 
-            this.safelyDetectChanges();
-            this._selectedDate = this.periodComponent.getReturnData();
-          }
+          this._selectedDate = new Date;
+          this._selectedDate.startDate = from;
+          this._selectedDate.endDate = to;
+
+          this._selectedDate.startDateStr = decodeURIComponent(from);
+          this._selectedDate.endDateStr = decodeURIComponent(to);
+          this._selectedDate.type = params['type'];
+          this.defaultDate = this._selectedDate;
+          this.safelyDetectChanges();
 
         }
 
@@ -436,6 +443,8 @@ class Order {
 
 class Date {
   dateType?: string;
+  startDate?:Date;
+  endDate?: Date;
   endDateStr: string;
   startDateStr: string;
   type: string;

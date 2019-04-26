@@ -68,10 +68,9 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
 
   public selectedContentSort: Order = new Order();
 
-  public defaultStartDate: string;
-  public defaultEndDate: string;
-
   public selectedType:PeriodType;
+
+  public defaultDate: Date;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -119,15 +118,18 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
             this.selectedContentSort.sort = sortInfo[1];
           }
 
-          if (params['type'] !== 'ALL') {
-            this.defaultStartDate = params['from'];
-            this.defaultEndDate = params['to'];
-            this.safelyDetectChanges();
-            this.periodComponent.selectedType = params['type'];
-            this._selectedDate = this.periodComponent.getReturnData();
-          } else {
-            this.periodComponent.selectedType = params['type'];
-          }
+          const from = params['from'];
+          const to = params['to'];
+
+          this._selectedDate = new Date();
+          this._selectedDate.startDate = from;
+          this._selectedDate.endDate = to;
+
+          this._selectedDate.startDateStr = decodeURIComponent(from);
+          this._selectedDate.endDateStr = decodeURIComponent(to);
+          this._selectedDate.type = params['type'];
+          this.defaultDate = this._selectedDate;
+          this.safelyDetectChanges();
 
         }
 
@@ -154,7 +156,7 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
 
     this.loadingShow();
 
-    this._codeTableService.deleteCodeTable(modal['codeTableId']).then((result) => {
+    this._codeTableService.deleteCodeTable(modal['codeTableId']).then(() => {
 
       Alert.success(this.translateService.instant('msg.metadata.ui.codetable.delete.success',
         {value: modal['codeTableName']}));
@@ -437,4 +439,6 @@ class Date {
   endDateStr: string;
   startDateStr: string;
   type: string;
+  startDate?:Date;
+  endDate?:Date;
 }

@@ -148,7 +148,15 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
       endInitialValue = moment();
     }
 
+    // Default 값이 있는지 체크 (paging처리 하면서 추가)
+    let isDefaultValue: boolean;
+    isDefaultValue = false;
+
     if (this.startDateDefault && this.endDateDefault) {
+
+      // startDateDefault & endDateDefault 있다면 this.defaultType 사용
+      isDefaultValue = true;
+
       startInitialValue = moment(this.startDateDefault);
       endInitialValue = moment(this.endDateDefault);
     }
@@ -186,6 +194,9 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
     );
     this._endPicker = $(this._endPickerInput.nativeElement).datepicker(endPickerSettings).data('datepicker');
     ( '-' !== endInitialValue ) && ( this._endPicker.selectDate(endInitialValue.toDate()) );
+
+    // defaultType이 있다면 All/Today/Last7days 를 set 한다. (paging처리 하면서 추가)
+    this.selectedType = this.defaultType ? this.defaultType : !isDefaultValue? PeriodType.ALL : PeriodType.NOT;
 
     if ( !this.useAllButton ) {
       this.selectedType = PeriodType.TODAY;

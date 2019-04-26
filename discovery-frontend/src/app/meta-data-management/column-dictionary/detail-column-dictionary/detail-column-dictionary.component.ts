@@ -522,7 +522,8 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
     // 로딩 show
     this.loadingShow();
     // 코드 테이블 조회
-    this._columnDictionaryService.getCodeTableInColumnDictionary(this._columnDictionaryId).then((result) => {
+    this._columnDictionaryService.getCodeTableInColumnDictionary(this._columnDictionaryId)
+      .then((result) => {
       // 코드테이블
       this.columnDictionary.codeTable = result;
       // 로딩 hide
