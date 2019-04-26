@@ -26,8 +26,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
 import app.metatron.discovery.domain.dataconnection.query.NativeCriteria;
 import app.metatron.discovery.domain.dataconnection.query.utils.VarGenerator;
+import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
+import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionException;
 
 public class NativeProjection {
 
@@ -570,17 +573,15 @@ public class NativeProjection {
   }
 
   public static String getQuotedColumnName(String implementor, String columnName){
-    switch (implementor){
-      case "MSSQL": case "POSTGRESQL": case "PRESTO":
-        return columnName;
-      case "ORACLE": case "TIBERO": case "DRUID":
-        return Arrays.stream(columnName.split("\\."))
-                .map(spliced -> "\"" + spliced + "\"")
-                .collect(Collectors.joining("."));
-      default :
-        return Arrays.stream(columnName.split("\\."))
-                .map(spliced -> "`" + spliced + "`")
-                .collect(Collectors.joining("."));
-    }
+    try{
+      JdbcDialect jdbcDialect = DataConnectionHelper.lookupDialect(implementor);
+      if(jdbcDialect != null){
+        return jdbcDialect.getQuotedFieldName(null, columnName);
+      }
+    } catch (JdbcDataConnectionException e){}
+
+    return Arrays.stream(columnName.split("\\."))
+            .map(spliced -> "`" + spliced + "`")
+            .collect(Collectors.joining("."));
   }
 }

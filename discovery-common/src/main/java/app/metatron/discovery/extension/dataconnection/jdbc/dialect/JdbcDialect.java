@@ -198,7 +198,7 @@ public interface JdbcDialect extends ExtensionPoint {
   /**
    * Connection
    */
-  boolean isSupportImplementor(JdbcConnectInformation connectInfo, String implementor);
+  boolean isSupportImplementor(String implementor);
   String getDriverClass(JdbcConnectInformation connectInfo);
   String getConnectorClass(JdbcConnectInformation connectInfo);
   String getDataAccessorClass(JdbcConnectInformation connectInfo);

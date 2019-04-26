@@ -91,7 +91,7 @@ public class PrestoDialect implements JdbcDialect {
    * Connection
    */
   @Override
-  public boolean isSupportImplementor(JdbcConnectInformation connectInfo, String implementor) {
+  public boolean isSupportImplementor(String implementor) {
     return implementor.toUpperCase().equals(this.getImplementor().toUpperCase());
   }
 
