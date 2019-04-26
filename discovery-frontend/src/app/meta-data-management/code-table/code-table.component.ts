@@ -24,7 +24,6 @@ import {CreateCodeTableComponent} from './create-code-table/create-code-table.co
 import {ActivatedRoute} from "@angular/router";
 import {isNullOrUndefined} from "util";
 import * as _ from 'lodash';
-import {Page} from "../../domain/common/page";
 
 declare let moment: any;
 
@@ -95,44 +94,46 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
     this._initView();
 
     // Get query param from url
-    this._activatedRoute.queryParams.subscribe((params) => {
+    this.subscriptions.push(
+      this._activatedRoute.queryParams.subscribe((params) => {
 
-      if (!_.isEmpty(params)) {
+        if (!_.isEmpty(params)) {
 
-        if (!isNullOrUndefined(params['size'])) {
-          this.page.size = params['size'];
+          if (!isNullOrUndefined(params['size'])) {
+            this.page.size = params['size'];
+          }
+
+          if (!isNullOrUndefined(params['page'])) {
+            this.page.page = params['page'];
+          }
+
+
+          if (!isNullOrUndefined(params['nameContains'])) {
+            this.searchText = params['nameContains'];
+          }
+
+          const sort = params['sort'];
+          if (!isNullOrUndefined(sort)) {
+            const sortInfo = decodeURIComponent(sort).split(',');
+            this.selectedContentSort.key = sortInfo[0];
+            this.selectedContentSort.sort = sortInfo[1];
+          }
+
+          if (params['type'] !== 'ALL') {
+            this.defaultStartDate = params['from'];
+            this.defaultEndDate = params['to'];
+            this.safelyDetectChanges();
+            this.periodComponent.selectedType = params['type'];
+            this._selectedDate = this.periodComponent.getReturnData();
+          } else {
+            this.periodComponent.selectedType = params['type'];
+          }
+
         }
 
-        if (!isNullOrUndefined(params['page'])) {
-          this.page.page = params['page'];
-        }
-
-
-        if (!isNullOrUndefined(params['nameContains'])) {
-          this.searchText = params['nameContains'];
-        }
-
-        const sort = params['sort'];
-        if (!isNullOrUndefined(sort)) {
-          const sortInfo = decodeURIComponent(sort).split(',');
-          this.selectedContentSort.key = sortInfo[0];
-          this.selectedContentSort.sort = sortInfo[1];
-        }
-
-        if (params['type'] !== 'ALL') {
-          this.defaultStartDate = params['from'];
-          this.defaultEndDate = params['to'];
-          this.safelyDetectChanges();
-          this.periodComponent.selectedType = params['type'];
-          this._selectedDate = this.periodComponent.getReturnData();
-        } else {
-          this.periodComponent.selectedType = params['type'];
-        }
-
-      }
-
-      this._getCodeTableList();
-    });
+        this._getCodeTableList();
+      })
+    );
 
   }
 

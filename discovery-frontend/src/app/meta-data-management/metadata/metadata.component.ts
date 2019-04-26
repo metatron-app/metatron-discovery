@@ -106,63 +106,68 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
 
     this._initView();
 
-    // Get query param from url
-    this._activatedRoute.queryParams.subscribe((params) => {
+    this.subscriptions.push(
+      // Get query param from url
+      this._activatedRoute.queryParams.subscribe((params) => {
 
-      if (!_.isEmpty(params)) {
+        if (!_.isEmpty(params)) {
 
-        if (!isNullOrUndefined(params['size'])) {
-          this.page.size = params['size'];
-        }
 
-        if (!isNullOrUndefined(params['page'])) {
-          this.page.page = params['page'];
-        }
+          if (!isNullOrUndefined(params['size'])) {
+            this.page.size = params['size'];
+          }
 
-        if (!isNullOrUndefined(params['nameContains'])) {
-          this.listSearchText = params['nameContains'];
-        }
+          if (!isNullOrUndefined(params['page'])) {
+            this.page.page = params['page'];
+          }
 
-        if (!isNullOrUndefined(params['sourceType'])) {
-          this.sourceType = params['sourceType'];
-          this.typeDefaultIndex = this.sourceTypeList.findIndex((item) => {
-            return item.value.toString() === this.sourceType;
-          });
-        }
+          if (!isNullOrUndefined(params['nameContains'])) {
+            this.listSearchText = params['nameContains'];
+          }
 
-        const sort = params['sort'];
-        if (!isNullOrUndefined(sort)) {
-          const sortInfo = decodeURIComponent(sort).split(',');
-          this.selectedContentSort.key = sortInfo[0];
-          this.selectedContentSort.sort = sortInfo[1];
-        }
-
-        if (!isNullOrUndefined(params['tag'])) {
-          this.getMetadataTags().then(() => {
-            this.tag = params['tag'];
-            this.tagDefaultIndex = this.tagsList.findIndex((item) => {
-              return item.name === this.tag;
+          if (!isNullOrUndefined(params['sourceType'])) {
+            this.sourceType = params['sourceType'];
+            this.typeDefaultIndex = this.sourceTypeList.findIndex((item) => {
+              return item.value.toString() === this.sourceType;
             });
-            this.getMetadataList();
-          });
+          }
+
+          const sort = params['sort'];
+          if (!isNullOrUndefined(sort)) {
+            const sortInfo = decodeURIComponent(sort).split(',');
+            this.selectedContentSort.key = sortInfo[0];
+            this.selectedContentSort.sort = sortInfo[1];
+          }
+
         }
 
-      } else {
-        this.getMetadataTags().then();
-        this.getMetadataList();
-      }
+        // first fetch metadata tag list
+        this.getMetadataTags()
+          .then((result) => {
+            this.tagsList = this.tagsList.concat(result);
+            if (!isNullOrUndefined(params['tag'])) {
+              this.tag = params['tag'];
+              this.tagDefaultIndex = this.tagsList.findIndex((item) => {
+                return item.name === this.tag;
+              });
+            } else {
+              this.tagDefaultIndex = 0;
+            }
+            this.getMetadataList();
+          })
+          .catch(error => {
+            console.error(error);
+            this.getMetadataList();
+          })
 
 
-
-    });
+      })
+    );
 
 
   }
 
-  // Destory
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
   }
 
@@ -470,12 +475,11 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   //   this.refreshFilter(,true);
   // }
 
-  public getMetadataTags() : Promise<any>{
-    return new Promise<any>((resolve, reject) => {
-      this.metadataService.getMetadataTags().then((result) => {
-        this.tagsList = this.tagsList.concat(result);
-        resolve(this.tagsList);
-      });
+  public getMetadataTags(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.metadataService.getMetadataTags()
+        .then(resolve)
+        .catch(reject);
     })
   }
 
@@ -529,7 +533,6 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
    * ui init
-   * @param getCatalogList 카달로그 리스트 다시 불러올지 여부
    * @private
    */
   private _initView() {
@@ -548,18 +551,16 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
 
     this.sourceType = '';
     this.listSearchText = '';
-    this.tag = '';
 
     // 정렬 초기화
     this.selectedContentSort = new Order();
-    // page 초기화
-    this.pageResult.size = 15;
-    this.pageResult.number = 0;
     this.selectedContentSort.key = 'createdTime';
     this.selectedContentSort.sort = 'desc';
+
     this.tagsList = [{name: 'All', id: ''}];
     this.tagDefaultIndex = 0;
     this.typeDefaultIndex = 0;
+    this.tag = '';
 
     // 카달로그를 다시 불러오기
     // if (getCatalogList !== false) {
@@ -738,7 +739,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    * @returns object
    * @private
    */
-  private _getMetadataParams(): any{
+  private _getMetadataParams(): any {
 
     const params = {
       page: this.page.page,

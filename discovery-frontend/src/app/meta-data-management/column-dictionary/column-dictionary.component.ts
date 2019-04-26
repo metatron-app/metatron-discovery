@@ -90,43 +90,45 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
 
     this._initView();
 
-    // Get query param from url
-    this._activatedRoute.queryParams.subscribe((params) => {
 
-      if (!_.isEmpty(params)) {
+    this.subscriptions.push(
+      // Get query param from url
+      this._activatedRoute.queryParams.subscribe((params) => {
 
-        if (!isNullOrUndefined(params['size'])) {
-          this.page.size = params['size'];
+        if (!_.isEmpty(params)) {
+
+          if (!isNullOrUndefined(params['size'])) {
+            this.page.size = params['size'];
+          }
+
+          if (!isNullOrUndefined(params['page'])) {
+            this.page.page = params['page'];
+          }
+
+
+          if (!isNullOrUndefined(params['logicalNameContains'])) {
+            this.searchText = params['logicalNameContains'];
+          }
+
+          const sort = params['sort'];
+          if (!isNullOrUndefined(sort)) {
+            const sortInfo = decodeURIComponent(sort).split(',');
+            this.selectedContentSort.key = sortInfo[0];
+            this.selectedContentSort.sort = sortInfo[1];
+          }
+
+          if (params['type'] !== 'ALL') {
+
+            this.safelyDetectChanges();
+            this._selectedDate = this.periodComponent.getReturnData();
+          }
+
         }
 
-        if (!isNullOrUndefined(params['page'])) {
-          this.page.page = params['page'];
-        }
+        this._getColumnDictionaryList();
 
-
-        if (!isNullOrUndefined(params['logicalNameContains'])) {
-          this.searchText = params['logicalNameContains'];
-        }
-
-        const sort = params['sort'];
-        if (!isNullOrUndefined(sort)) {
-          const sortInfo = decodeURIComponent(sort).split(',');
-          this.selectedContentSort.key = sortInfo[0];
-          this.selectedContentSort.sort = sortInfo[1];
-        }
-
-        if (params['type'] !== 'ALL') {
-
-          this.safelyDetectChanges();
-          this._selectedDate = this.periodComponent.getReturnData();
-        }
-
-      }
-
-      this._getColumnDictionaryList();
-
-    });
-
+      })
+    )
   }
 
   public ngOnDestroy() {
