@@ -522,7 +522,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    */
   public changeColorBy(data: Field, layerIndex : number) {
 
-    // if (this.uiOption.layers[layerIndex].color.by === data.type) return;
+    if (this.uiOption.layers[layerIndex].color.column === data.name ) return;
 
     // init color ranges
     this.uiOption.layers[layerIndex].color.ranges = undefined;

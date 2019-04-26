@@ -1051,13 +1051,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       let alias = ChartUtil.getFieldAlias(styleLayer.color.column, scope.shelf.layers[layerNum], styleLayer.color.aggregationType);
 
       if (!_.isUndefined(styleOption['analysis']) && !_.isUndefined(styleOption['analysis']['use']) && styleOption['analysis']['use']) {
-        if (!_.isUndefined(styleOption['analysis']['operation']['aggregation']) && !_.isUndefined(styleOption['analysis']['operation']['aggregation']['column'])
-          && styleOption['analysis']['operation']['aggregation']['column'] == 'count') {
-          alias = styleOption['analysis']['operation']['aggregation']['column'];
-        } else {
-          if (!_.isUndefined(styleLayer.color.aggregationType)) {
-            alias = styleLayer.color.aggregationType + "(" + alias + ")";
-          }
+        if ( !isNullOrUndefined(styleLayer.color.aggregationType)) {
+          alias = styleLayer.color.aggregationType + "(" + alias + ")";
         }
       }
 
