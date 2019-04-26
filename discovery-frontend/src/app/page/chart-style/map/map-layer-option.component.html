@@ -677,8 +677,8 @@
                           <div class="ddp-divide2">
                             <div class="ddp-list-label">{{'msg.page.layer.map.stroke.by' | translate}}</div>
                             <component-select
-                              [array]="fieldList[layerIndex]"
-                              [defaultIndex]="findIndex(fieldList[layerIndex], 'name', uiOption.layers[layerIndex].thickness.column, 'thickness', 'aggregationType', uiOption.layers[layerIndex].thickness.aggregationType)"
+                              [array]="fieldMeasureList"
+                              [defaultIndex]="findIndex(fieldMeasureList, 'name', uiOption.layers[layerIndex].thickness.column, 'thickness', 'aggregationType', uiOption.layers[layerIndex].thickness.aggregationType)"
                               [isIconType]="true"
                               [viewKey]="'alias'"
                               (onSelected)="changeStrokeBy($event, layerIndex)"
