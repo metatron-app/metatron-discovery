@@ -259,11 +259,9 @@ polaris:
       password: hive
       metastoreUri: thrift://localhost:9083
   dataprep:
-    localBaseDir: /Development/Hadoop/dataprep
-    hadoopConfDir: /Development/Hadoop/hadoop/etc/hadoop
-    stagingBaseDir: hdfs://localhost:9000/user/hive/dataprep
-    hive:
-      hostname: localhost
+    localBaseDir: ${user.home}/dataprep
+#    hadoopConfDir: /etc/hadoop
+#    stagingBaseDir: hdfs://localhost:9000/user/hive/dataprep
 #    sampling:
 #      timeout: 20
 #    etl:
@@ -281,7 +279,7 @@ spring:
   datasource:
     platform: mysql
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/polaris?useUnicode=true&amp;characterEncoding=utf8
+    url: jdbc:mysql://localhost:3306/polaris_v2?useUnicode=true&amp;characterEncoding=utf8
     username: polaris
     password: polaris
     max-active: 50
