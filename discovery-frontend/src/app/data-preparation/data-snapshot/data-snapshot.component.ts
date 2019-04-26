@@ -93,42 +93,44 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
 
     this._initView();
 
-    // Get query param from url
-    this._activatedRoute.queryParams.subscribe((params) => {
+    this.subscriptions.push(
+      // Get query param from url
+      this._activatedRoute.queryParams.subscribe((params) => {
 
-      if (!_.isEmpty(params)) {
+        if (!_.isEmpty(params)) {
 
-        if (!isNullOrUndefined(params['size'])) {
-          this.page.size = params['size'];
+          if (!isNullOrUndefined(params['size'])) {
+            this.page.size = params['size'];
+          }
+
+          if (!isNullOrUndefined(params['page'])) {
+            this.page.page = params['page'];
+          }
+
+          if (!isNullOrUndefined(params['ssName'])) {
+            this.searchText = params['ssName'];
+          }
+
+          if (!isNullOrUndefined(params['status'])) {
+            this.ssStatus = params['status'];
+          }
+
+          if (!isNullOrUndefined(params['type'])) {
+            this.ssType = params['type'];
+          }
+
+
+          const sort = params['sort'];
+          if (!isNullOrUndefined(sort)) {
+            const sortInfo = decodeURIComponent(sort).split(',');
+            this.selectedContentSort.key = sortInfo[0];
+            this.selectedContentSort.sort = sortInfo[1];
+          }
         }
 
-        if (!isNullOrUndefined(params['page'])) {
-          this.page.page = params['page'];
-        }
-
-        if (!isNullOrUndefined(params['ssName'])) {
-          this.searchText = params['ssName'];
-        }
-
-        if (!isNullOrUndefined(params['status'])) {
-          this.ssStatus = params['status'];
-        }
-
-        if (!isNullOrUndefined(params['type'])) {
-          this.ssType = params['type'];
-        }
-
-
-        const sort = params['sort'];
-        if (!isNullOrUndefined(sort)) {
-          const sortInfo = decodeURIComponent(sort).split(',');
-          this.selectedContentSort.key = sortInfo[0];
-          this.selectedContentSort.sort = sortInfo[1];
-        }
-      }
-
-      this.getSnapshots();
-    });
+        this.getSnapshots();
+      })
+    );
 
   }
 

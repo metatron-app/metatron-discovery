@@ -83,34 +83,36 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
 
     this._initView();
 
-    // Get query param from url
-    this.activatedRoute.queryParams.subscribe((params) => {
+    this.subscriptions.push(
+      // Get query param from url
+      this.activatedRoute.queryParams.subscribe((params) => {
 
-      if (!_.isEmpty(params)) {
+        if (!_.isEmpty(params)) {
 
-        if (!isNullOrUndefined(params['size'])) {
-          this.page.size = params['size'];
+          if (!isNullOrUndefined(params['size'])) {
+            this.page.size = params['size'];
+          }
+
+          if (!isNullOrUndefined(params['page'])) {
+            this.page.page = params['page'];
+          }
+
+
+          if (!isNullOrUndefined(params['dfName'])) {
+            this.searchText = params['dfName'];
+          }
+
+          const sort = params['sort'];
+          if (!isNullOrUndefined(sort)) {
+            const sortInfo = decodeURIComponent(sort).split(',');
+            this.selectedContentSort.key = sortInfo[0];
+            this.selectedContentSort.sort = sortInfo[1];
+          }
         }
 
-        if (!isNullOrUndefined(params['page'])) {
-          this.page.page = params['page'];
-        }
-
-
-        if (!isNullOrUndefined(params['dfName'])) {
-          this.searchText = params['dfName'];
-        }
-
-        const sort = params['sort'];
-        if (!isNullOrUndefined(sort)) {
-          const sortInfo = decodeURIComponent(sort).split(',');
-          this.selectedContentSort.key = sortInfo[0];
-          this.selectedContentSort.sort = sortInfo[1];
-        }
-      }
-
-      this.getDataflows();
-    });
+        this.getDataflows();
+      })
+    );
 
   }
 

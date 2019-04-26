@@ -110,53 +110,54 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
       }
     });
 
-    // Get query param from url
-    this.activatedRoute.queryParams.subscribe((params) => {
+    this.subscriptions.push(
+      // Get query param from url
+      this.activatedRoute.queryParams.subscribe((params) => {
 
-      if (!_.isEmpty(params)) {
+        if (!_.isEmpty(params)) {
 
-        if (!isNullOrUndefined(params['size'])) {
-          this.page.size = params['size'];
-        }
+          if (!isNullOrUndefined(params['size'])) {
+            this.page.size = params['size'];
+          }
 
-        if (!isNullOrUndefined(params['page'])) {
-          this.page.page = params['page'];
-        }
+          if (!isNullOrUndefined(params['page'])) {
+            this.page.page = params['page'];
+          }
 
-        if (!isNullOrUndefined(params['dsName'])) {
-          this.searchText = params['dsName'];
-        }
+          if (!isNullOrUndefined(params['dsName'])) {
+            this.searchText = params['dsName'];
+          }
 
-        this.selectedTypes = [];
-        if (params['dsType'] === '') {
-          this.datasetTypes.forEach((item) => {
-            item.checked = false;
-          });
-        } else if (params['dsType'].indexOf(',') > -1) {
-          this.datasetTypes.forEach((item) => {
-            item.checked = true;
-            this.selectedTypes.push(item);
-          });
-        } else {
-          this.datasetTypes.forEach((item) => {
-            if (item.value.toString() === params['dsType']) {
+          this.selectedTypes = [];
+          if (params['dsType'] === '') {
+            this.datasetTypes.forEach((item) => {
+              item.checked = false;
+            });
+          } else if (params['dsType'].indexOf(',') > -1) {
+            this.datasetTypes.forEach((item) => {
               item.checked = true;
               this.selectedTypes.push(item);
-            }
-          });
+            });
+          } else {
+            this.datasetTypes.forEach((item) => {
+              if (item.value.toString() === params['dsType']) {
+                item.checked = true;
+                this.selectedTypes.push(item);
+              }
+            });
+          }
+
+          const sort = params['sort'];
+          if (!isNullOrUndefined(sort)) {
+            const sortInfo = decodeURIComponent(sort).split(',');
+            this.selectedContentSort.key = sortInfo[0];
+            this.selectedContentSort.sort = sortInfo[1];
+          }
         }
 
-        const sort = params['sort'];
-        if (!isNullOrUndefined(sort)) {
-          const sortInfo = decodeURIComponent(sort).split(',');
-          this.selectedContentSort.key = sortInfo[0];
-          this.selectedContentSort.sort = sortInfo[1];
-        }
-      }
-
-      this.getDatasets();
-    });
-
+        this.getDatasets();
+      })
+    )
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -187,9 +188,9 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
 
       })
       .catch((error) => {
-          this.loadingHide();
-          let prep_error = this.dataprepExceptionHandler(error);
-          PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        this.loadingHide();
+        let prep_error = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
   }
 
@@ -414,7 +415,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
     this.datasetTypes = [
       {name : 'IMPORTED', value : DsType.IMPORTED, checked : true, class : 'ddp-imported' },
       {name : 'WRANGLED', value : DsType.WRANGLED, checked : false, class : 'ddp-wargled' }
-      ];
+    ];
 
     this.selectedTypes = [];
 
@@ -435,8 +436,8 @@ class Order {
 }
 
 class TypeStruct {
-    name: string;
-    value: DsType;
-    checked: boolean;
-    class: string
+  name: string;
+  value: DsType;
+  checked: boolean;
+  class: string
 }
