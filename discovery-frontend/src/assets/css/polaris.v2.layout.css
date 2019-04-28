@@ -643,6 +643,8 @@ ul.ddp-list-folder-nav li a:hover {background-color:#e7e7ea}
 .ddp-type-contents.ddp-resize2.ddp-type .ddp-type-contents-in {padding-top:270px;}
 .ddp-type-contents.ddp-resize2.ddp-type .ddp-type-contents-in.ddp-type {padding-top:177px;}
 .ddp-type-contents.ddp-resize2 .ddp-box-popupcontents {height:100%;}
+.ddp-type-contents.ddp-resize2 .ddp-box-popupcontents.type-info {padding-bottom:40px;box-sizing:border-box;}
+.ddp-type-contents.ddp-resize2 .ddp-box-popupcontents.type-info .ddp-box-synch {position:absolute; bottom:0; left:0; right:0;}
 .ddp-type-contents.ddp-resize2 .ddp-box-source-create.ddp-box-type .ddp-wrap-edit3:first-of-type {margin-top:0;}
 
 /* 가변 */

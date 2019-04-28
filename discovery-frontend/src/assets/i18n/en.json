@@ -292,6 +292,9 @@
   "msg.comm.btn.edit": "Edit",
   "msg.comm.btn.search": "Search",
   "msg.comm.btn.new": "New",
+  "msg.comm.ui.failed": "Failed",
+  "msg.comm.ui.complete": "Complete",
+  "msg.comm.ui.canceled": "Canceled",
 
   "msg.lnb.btn.manual" : "Manuals",
   "msg.lnb.btn.manual.web" : "Web",
@@ -2203,6 +2206,9 @@
   "msg.storage.ui.linked.source.preview.include.geo": "Linked data does not support preview for Geo type.",
   "msg.storage.ui.linked.source.preview": "This data grid is source data, not ingested data. This may differ from the temporarily ingested data value when creating a dashboard.",
   "msg.storage.ph.search.timezone": "Search Time zone",
+  "msg.storage.ui.file.uploading": "File uploading. Please wait.",
+  "msg.storage.ui.file.failed": "File upload failed. Please import a file again.",
+  "msg.storage.ui.file.canceled": "File upload canceled. Please import a file again.",
 
   "msg.storage.ui.timezone.country.zimbabwe": "Zimbabwe",
   "msg.storage.ui.timezone.country.zambia": "Zambia",

@@ -296,6 +296,8 @@ export class DatasourceInfo {
 
   // 1step 커넥션 정보
   public connectionData: CreateConnectionData;
+  // 1step 업로드 정보
+  public uploadData;
 
   // 2step 데이터베이스 정보
   public databaseData: any;
