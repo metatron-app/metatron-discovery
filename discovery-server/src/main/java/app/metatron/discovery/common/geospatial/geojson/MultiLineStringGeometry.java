@@ -14,12 +14,12 @@
 
 package app.metatron.discovery.common.geospatial.geojson;
 
-public class LineGeometry extends ShapeGeometry implements GeoJsonGeometry {
+public class MultiLineStringGeometry extends MultiShapeGeometry implements GeoJsonGeometry {
 
-  public LineGeometry() {
+  public MultiLineStringGeometry() {
   }
 
-  public LineGeometry(double[][] coordinates) {
+  public MultiLineStringGeometry(double[][][] coordinates) {
     super(coordinates);
   }
 

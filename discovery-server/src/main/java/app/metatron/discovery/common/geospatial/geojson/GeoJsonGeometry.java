@@ -21,8 +21,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonSubTypes({
     @JsonSubTypes.Type(value = PointGeometry.class, name = "Point"),
     @JsonSubTypes.Type(value = MultiPointGeometry.class, name = "MultiPoint"),
-    @JsonSubTypes.Type(value = LineGeometry.class, name = "Line"),
-    @JsonSubTypes.Type(value = MultiLineGeometry.class, name = "MultiLine"),
+    @JsonSubTypes.Type(value = LineStringGeometry.class, name = "LineString"),
+    @JsonSubTypes.Type(value = MultiLineStringGeometry.class, name = "MultiLineString"),
     @JsonSubTypes.Type(value = PolygonGeometry.class, name = "Polygon"),
     @JsonSubTypes.Type(value = MultiPolygonGeometry.class, name = "MultiPolygon")
 })
