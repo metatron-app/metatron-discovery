@@ -11,26 +11,35 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<div class="ddp-type-contents ddp-resize2 ddp-type2 popup-datastore-schema">
+
+<div class="ddp-type-contents ddp-resize2 ddp-type2">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- //닫기 버튼 -->
   <div class="ddp-icon-name">
     <div class="ddp-ui-name2 ddp-type3">
       {{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.ui.dsource.create.file.title' | translate}})
-      <span class="ddp-txt-info ddp-type">{{'msg.storage.ui.configure.schema' | translate}}</span>
-      <em class="ddp-bg-order-line5-type3"></em>
+      <span class="ddp-txt-info ddp-type">{{'msg.storage.create-dsource-sel.sub.title' | translate}}</span>
+      <em class="ddp-bg-order-line5-type"></em>
     </div>
   </div>
   <!-- contents in  -->
-  <schema-config-component [sourceData]="sourceData"
-                           (changedStep)="onChangedStep($event)">
-  </schema-config-component>
+  <div class="ddp-type-contents-in ddp-full">
+    <div class="ddp-box-popupcontents type-info">
+      <uploader [uploadedFile]="uploadedFile"
+                (uploadStarted)="onStartedFileUpload()"
+                (uploadComplete)="onCompletedFileUpload($event)">
+      </uploader>
+    </div>
+    <!-- //파일 선택한 후 -->
+  </div>
   <!-- //contents in  -->
   <!-- buttons -->
   <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="onClickPageChange('prev')">{{'msg.comm.btn.previous' | translate}}</a>
-    <a href="javascript:" class="ddp-btn-type-popup  ddp-bg-black" (click)="onClickPageChange('next')">{{'msg.comm.btn.next' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+    <!-- disabled 시 ddp-disabled 추가 -->
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [class.ddp-disabled]="!isEnableNext()" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
   </div>
   <!-- //buttons -->
+
 </div>

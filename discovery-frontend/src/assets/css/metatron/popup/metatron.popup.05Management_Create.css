@@ -5,7 +5,7 @@
 **************************************************************/
 .popup-datasource .ddp-view-sheet .ddp-data-name .ddp-icon-error2 {position:relative; top:-1px; vertical-align:middle;}
 .popup-datasource .ddp-wrap-sheet .ddp-ui-sheet-list ul.ddp-list-sheet li span.ddp-txt-radio .ddp-icon-error2 {position:relative; top:-1px; margin-left:4px; vertical-align:middle;}
-.popup-datasource .ddp-wrap-edit-form .ddp-wrap-edit3 .ddp-data-error {display:inline-block; min-width:100%; margin-top:20px;}
+.ddp-wrap-edit-form .ddp-wrap-edit3 .ddp-data-error {display:inline-block; min-width:100%; margin-top:20px;}
 
 /**************************************************************
   popup : 05_매니지먼트_00데이터저장소_01생성_03StringDb_03

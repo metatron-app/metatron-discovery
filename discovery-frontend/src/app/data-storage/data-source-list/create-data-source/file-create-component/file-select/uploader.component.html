@@ -1,0 +1,109 @@
+<div class="ddp-box-file-create ddp-file-single" [class.type-upload]="isExistUploadFile()">
+  <!-- progress (uploading OR complete) -->
+  <div class="ddp-file-progress" [class.ddp-disabled]="isFileUploadCancel()" *ngIf="isFileUploading() || isFileUploadComplete() || isFileUploadFail() || isFileUploadCancel()">
+    <div class="ddp-data-name">
+      {{uploadedFile.name}}
+    </div>
+    <div class="ddp-data-size">{{getFileSize(uploadedFile.size, 1)}}</div>
+    <div class="ddp-icon-file">
+      <svg class="icon-file-csv-big" viewBox="0 0 24 24" *ngIf="isFileType(uploadedFile, 'csv')">
+        <g>
+          <rect x="10" y="13" class="st0" width="3" height="1"/>
+          <rect x="10" y="11" class="st0" width="4" height="1"/>
+          <rect x="9" y="12" class="st0" width="1" height="1"/>
+          <rect x="4" y="12" class="st0" width="1" height="4"/>
+          <rect x="5" y="11" class="st0" width="3" height="1"/>
+          <path class="st0" d="M19,7h-3.5C15.2,7,15,6.8,15,6.5V3H5.3C5.1,3,5,3.1,5,3.3V9h14V7z"/>
+          <polygon class="st0" points="16,3.4 16,6 18.5,6 	"/>
+          <rect x="13" y="14" class="st0" width="1" height="2"/>
+          <rect x="9" y="16" class="st0" width="4" height="1"/>
+          <rect x="19" y="11" class="st0" width="1" height="2"/>
+          <rect x="18" y="13" class="st0" width="1" height="2"/>
+          <rect x="5" y="16" class="st0" width="3" height="1"/>
+          <rect x="15" y="11" class="st0" width="1" height="2"/>
+          <rect x="17" y="15" class="st0" width="1" height="2"/>
+          <rect x="16" y="13" class="st0" width="1" height="2"/>
+          <path class="st0" d="M5,20.7C5,20.9,5.1,21,5.3,21h13.4c0.2,0,0.3-0.1,0.3-0.3V19H5V20.7z"/>
+          <path class="st1" d="M21.5,9H20V6.5c0-0.4-0.2-0.6-0.4-0.8l-3.2-3.3C16.2,2.2,15.8,2,15.5,2H5.3C4.6,2,4,2.6,4,3.3V9H2.6
+                                    C1.7,9,1,9.7,1,10.5v7C1,18.4,1.7,19,2.6,19h1.5v1.7c0,0.7,0.6,1.3,1.3,1.3h13.4c0.7,0,1.3-0.6,1.3-1.3V19h1.4
+                                    c0.9,0,1.5-0.7,1.5-1.5v-7C23,9.7,22.3,9,21.5,9z M16,3.4L18.5,6H16V3.4z M5,3.3C5,3.1,5.1,3,5.3,3H15v3.5C15,6.8,15.2,7,15.5,7H19
+                                    v2H5V3.3z M13,13v1h1v2h-1v1H9v-1h4v-2h-3v-1H9v-1h1v-1h4v1h-4v1H13z M4,16v-4h1v-1h3v1H5v4h3v1H5v-1H4z M19,20.7
+                                    c0,0.2-0.1,0.3-0.3,0.3H5.3C5.1,21,5,20.9,5,20.7V19h14V20.7z M20,13h-1v2h-1v2h-1v-2h-1v-2h-1v-2h1v2h1v2h1v-2h1v-2h1V13z"/>
+        </g>
+      </svg>
+      <svg class="icon-file-xls" viewBox="0 0 24 24" *ngIf="isFileType(uploadedFile, 'xls')">
+
+        <g>
+          <g>
+            <path class="st0" d="M21.5,9H20V6.5c0-0.4-0.2-0.6-0.4-0.8l-3.2-3.3C16.2,2.1,15.8,2,15.5,2H5.3C4.6,2,4,2.6,4,3.3V9H2.6
+                                        C1.7,9,1,9.7,1,10.5v6.9C1,18.3,1.7,19,2.6,19H4v1.7C4,21.4,4.6,22,5.3,22h13.4c0.7,0,1.3-0.6,1.3-1.3V19h1.5
+                                        c0.9,0,1.5-0.7,1.5-1.5v-6.9C23,9.7,22.3,9,21.5,9z M18.5,6H16V3.4L18.5,6z M5,3.3C5,3.1,5.1,3,5.3,3H15v3.5C15,6.8,15.2,7,15.5,7
+                                        H19v2H5V3.3z M14,16v1h-4v-6h1v5H14z M5,17H4v-2h1v-2H4v-2h1v2h2v-2h1v2H7v2h1v2H7v-2H5V17z M19,20.7c0,0.2-0.1,0.3-0.3,0.3H5.3
+                                        C5.1,21,5,20.9,5,20.7V19h14V20.7z M19,12h-3v1h2v1h1v2h-1v1h-3v-1h3v-2h-2v-1h-1v-1h1v-1h3V12z"/>
+          </g>
+        </g>
+      </svg>
+      <svg class="icon-file-xlsx" viewBox="0 0 24 24" *ngIf="isFileType(uploadedFile, 'xlsx')">
+        <g>
+          <g>
+            <path class="st0" d="M21.5,9H20V6.5c0-0.4-0.2-0.6-0.4-0.8l-3.2-3.3C16.2,2.1,15.8,2,15.5,2H5.3C4.6,2,4,2.6,4,3.3V9H2.6
+                                        C1.7,9,1,9.7,1,10.5v6.9C1,18.3,1.7,19,2.6,19H4v1.7C4,21.4,4.6,22,5.3,22h13.4c0.7,0,1.3-0.6,1.3-1.3V19h1.5
+                                        c0.9,0,1.5-0.7,1.5-1.5v-6.9C23,9.7,22.3,9,21.5,9z M18.5,6H16V3.4L18.5,6z M5,3.3C5,3.1,5.1,3,5.3,3H15v3.5C15,6.8,15.2,7,15.5,7
+                                        H19v2H5V3.3z M15,13v1h1v2h-1v1h-3v-1h3v-2h-2v-1h-1v-1h1v-1h3v1h-3v1H15z M11,16v1H8v-6h1v5H11z M4,15v2H3v-2H4v-2H3v-2h1v2h2v-2
+                                        h1v2H6v2h1v2H6v-2H4z M19,20.7c0,0.2-0.1,0.3-0.3,0.3H5.3C5.1,21,5,20.9,5,20.7V19h14V20.7z M21,13h-1v2h1v2h-1v-2h-2v2h-1v-2h1
+                                        v-2h-1v-2h1v2h2v-2h1V13z"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <!-- condition -->
+    <div class="ddp-ui-condition" [class.type-failed]="isFileUploadFail()">
+      <span class="ddp-data-per">{{getUploadPercent(uploadedFile)}}%</span>
+      <!-- bar -->
+      <div class="ddp-type-progressbar2">
+        <em class="ddp-data-progressbar" [style.width]="getUploadPercent(uploadedFile) + '%'"></em>
+      </div>
+      <!-- //bar -->
+      <div class="ddp-data-condition">
+        <span *ngIf="isFileUploadComplete()">
+          {{'msg.comm.ui.complete' | translate}}
+        </span>
+        <span *ngIf="isFileUploadCancel()">
+          {{'msg.comm.ui.canceled' | translate}}
+        </span>
+        <a href="javascript:" class="ddp-btn-selection ddp-line" *ngIf="isFileUploading()" (click)="cancelUpload(uploadedFile)">{{'msg.comm.btn.cancl' | translate}}</a>
+        <span class="ddp-txt-error" *ngIf="isFileUploadFail()"><em class="ddp-icon-error"></em>{{'msg.comm.ui.failed' | translate}}
+          <div class="ddp-box-layout4">
+            <div class="ddp-data-det">
+               {{uploadedFile.errorMessage}}
+            </div>
+          </div>
+         </span>
+      </div>
+    </div>
+    <!-- //condition -->
+  </div>
+  <!-- //progress (uploading OR complete) -->
+  <!-- upload box -->
+  <div class="ddp-box-default" [class.ddp-disabled]="isFileUploading()" #drop_container>
+    <div class="ddp-txt-file-info">
+      <div class="ddp-link-file">
+        <input type="file" #pickfiles/>
+        {{'msg.storage.ui.dsource.create.file.import' | translate}}
+      </div>
+      {{'msg.storage.ui.dsource.create.file.drop.file.description' | translate}}
+    </div>
+    <div class="ddp-txt-file-info2">
+      {{'msg.storage.ui.dsource.create.file.import.description' | translate}}
+    </div>
+  </div>
+  <!-- //upload box -->
+</div>
+<!-- guide -->
+<div class="ddp-box-synch" [class.type-warning]="isFileUploadCancel() || isFileUploading()" [class.type-error]="isFileUploadFail()" *ngIf="isFileUploadCancel() || isFileUploading() || isFileUploadFail()">
+  <div class="ddp-txt-synch">
+    <em class="ddp-icon-info"></em>
+    {{uploadGuideMessage}}
+  </div>
+</div>
+<!-- //guide -->

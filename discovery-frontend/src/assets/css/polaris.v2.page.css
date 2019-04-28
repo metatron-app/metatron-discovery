@@ -5814,7 +5814,36 @@ table.ddp-table-union tr td .ddp-data-dropped strong {color:#666eb2; font-weight
 **********************************************************************************/
 .ddp-box-file-create {display:table; width:100%; height:100%; border:1px solid #d0d1d8; background-color:#f6f6f7;}
 .ddp-box-file-create .ddp-box-default {display:table-cell; width:100%; height:100%; text-align:center; vertical-align:middle;}
+.ddp-box-file-create .ddp-box-default.ddp-disabled {opacity:0.3;}
 .ddp-box-file-create .ddp-txt-file-info {display:inline-block; padding-bottom:15px; color:#90969f; font-size:18px; }
+.ddp-box-file-create.ddp-file-single {}
+/*.ddp-box-file-create.ddp-file-single.type-upload .ddp-import-file {display:block;}*/
+.ddp-box-file-create.ddp-file-single.type-upload {padding-bottom:100px;}
+.ddp-box-file-create.ddp-file-single.type-upload .ddp-box-default  {position:absolute !important; bottom:0; left:0; right:0; padding:28px 29px 27px 29px; height:auto; width:auto; text-align:left; border-top:1px solid #d0d1d8; background-color:#f6f6f7;}
+.ddp-box-file-create.ddp-file-single.type-upload .ddp-box-default .ddp-txt-file-info {padding-bottom:5px;}
+
+.ddp-box-file-create.ddp-file-single .ddp-file-progress {display:none; position:relative; width:100%; height:100%; vertical-align:middle; text-align:center; background-color:#fff;}
+.ddp-box-file-create.ddp-file-single.type-upload .ddp-file-progress {display:table-cell;}
+.ddp-box-file-create.ddp-file-single .ddp-file-progress.ddp-disabled:before {display:inline-block; position:absolute; top:0; left:0; right:0; bottom:0; content:''; z-index:1; background-color:rgba(255,255,255,0.7);}
+.ddp-box-file-create.ddp-file-single .ddp-file-progress .ddp-data-name {padding-bottom:7px; font-size:14px; color:#4b515b; font-weight:bold;}
+
+.ddp-box-file-create.ddp-file-single .ddp-file-progress .ddp-icon-file {display:inline-block; width:56px; height:56px;}
+.ddp-box-file-create.ddp-file-single.type-upload .ddp-icon-file {display:inline-block; margin:30px 0; width:60px; height:60px;}
+.ddp-box-file-create.ddp-file-single.type-upload .ddp-icon-file svg {width:100%; height:100%;}
+.ddp-box-file-create.ddp-file-single .ddp-file-progress .ddp-data-size {color:#91969e; font-size:12px;}
+
+.ddp-box-file-create.ddp-file-single .ddp-file-progress .ddp-ui-condition { box-sizing:border-box;}
+.ddp-box-file-create.ddp-file-single .ddp-file-progress .ddp-ui-condition .ddp-type-progressbar2 {width:200px;}
+.ddp-box-file-create.ddp-file-single .ddp-file-progress .ddp-ui-condition.type-failed .ddp-type-progressbar2 .ddp-data-progressbar {background-color:#cd5454;}
+.ddp-box-file-create.ddp-file-single .ddp-file-progress .ddp-ui-condition .ddp-data-per {display:inline-block; width:48px; padding-right:8px; text-align:right; color:#666eb2; font-weight:bold; vertical-align:middle;}
+.ddp-box-file-create.ddp-file-single .ddp-file-progress .ddp-ui-condition.type-failed .ddp-data-per {color:#cd5454;}
+.ddp-box-file-create.ddp-file-single .ddp-file-progress .ddp-ui-condition .ddp-data-condition {display:inline-block; width:65px;padding-left:7px; text-align:center; color:#90969f; vertical-align:middle; }
+.ddp-box-file-create.ddp-file-single .ddp-file-progress .ddp-ui-condition .ddp-data-condition .ddp-line {width:65px; margin:-12px 0; box-sizing:Border-box;}
+.ddp-box-file-create.ddp-file-single .ddp-file-progress .ddp-ui-condition .ddp-data-condition .ddp-txt-error {position:relative; font-style:normal; cursor:pointer;}
+.ddp-box-file-create.ddp-file-single .ddp-file-progress .ddp-ui-condition .ddp-data-condition .ddp-txt-error .ddp-box-layout4 {display:none; position:absolute; top:100%; right:0; margin-top:4px; width:275px; text-align:left; z-index:2;}
+.ddp-box-file-create.ddp-file-single .ddp-file-progress .ddp-ui-condition .ddp-data-condition .ddp-txt-error:hover .ddp-box-layout4 {display:block;}
+.ddp-box-file-create.ddp-file-single .ddp-file-progress .ddp-ui-condition .ddp-data-condition .ddp-txt-error .ddp-box-layout4 .ddp-data-det { font-weight:normal; color:#4b515b;}
+
 .ddp-txt-file-info .ddp-link-file {display:inline-block; position:relative; color:#4b515b; font-size:18px; text-decoration: underline; cursor: pointer;}
 .ddp-txt-file-info .ddp-link-file:hover {font-weight:bold;}
 .ddp-txt-file-info input[type="file"] {position:absolute; top:0; left:0; right:0; bottom:0; width:100%; height:100%; opacity:0; cursor: pointer;}
@@ -8930,6 +8959,10 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 .icon-file-csv-b {display:inline-block; width:24px; height:24px;}
 .icon-file-csv-b .st0{fill:none;}
 .icon-file-csv-b .st1{fill:#6E727B;}
+
+.icon-file-csv-big {display:inline-block; width:24px; height:24px; enable-background:new 0 0 24 24;}
+.icon-file-csv-big .st0{fill:none;}
+.icon-file-csv-big .st1{fill:#4a515b;}
 
 .icon-dataset-another-focus {display:inline-block; width:56px; height:56px;}
 .icon-dataset-another-focus .st0{display:none;}
