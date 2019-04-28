@@ -10,7 +10,7 @@ INSERT INTO workspace_member(id, member_id, member_type, member_role, ws_id) VAL
 
 INSERT INTO datasource(id, ds_name, ds_engine_name, ds_owner_id, ds_desc, ds_type, ds_conn_type, ds_granularity, ds_src_type, ds_status, ds_published, ds_linked_workspaces, version, created_time, created_by, modified_time, modified_by) values
 ('ds-test-01', 'test1', 'test1', 'polaris', 'test1 data', 'MASTER', 'ENGINE', 'DAY', 'IMPORT', 'ENABLED', TRUE, 0, 1.0, NOW(), 'polaris',  NOW(), 'polaris'),
-('ds-test-02', 'test2', 'test2', 'polaris', 'test2 data', 'MASTER', 'ENGINE', 'DAY', 'IMPORT', 'ENABLED', FALSE, 2, 1.0, NOW(), 'polaris',  NOW(), 'polaris');
+('ds-test-02', 'test2', 'test2', 'polaris', 'test2 data', 'MASTER', 'ENGINE', 'DAY', 'IMPORT', 'ENABLED', NULL, 2, 1.0, NOW(), 'polaris',  NOW(), 'polaris');
 
 INSERT INTO datasource_workspace(ws_id, ds_id) VALUES
 ('ws-0001', 'ds-test-01'),
@@ -34,8 +34,8 @@ INSERT INTO PUBLIC.DASHBOARD(ID, CREATED_BY, CREATED_TIME, MODIFIED_BY, MODIFIED
 ('db-003', 'polaris', now(), 'polaris', now(), 0, '{"dataSource":{"type": "default", "name": "test2"}}', NULL, NULL, 'dashboard-test3', NULL, 2, NULL, 'wb-002'),
 ('db-004', 'polaris', now(), 'polaris', now(), 0, '{"dataSource":{"type": "default", "name": "test2"}}', NULL, NULL, 'dashboard-test4', NULL, 3, NULL, 'wb-002');
 INSERT INTO PUBLIC.DATASOURCE_DASHBOARD(DASHBOARD_ID, DS_ID) VALUES
-('db-001', 'ds-37'),
-('db-002', 'ds-37'),
+('db-001', 'ds-gis-37'),
+('db-002', 'ds-gis-37'),
 ('db-003', 'ds-test-01'),
 ('db-004', 'ds-test-02');
 

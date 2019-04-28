@@ -18,6 +18,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import com.querydsl.core.types.SubQueryExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 
@@ -126,10 +127,13 @@ public class DataSourceRepositoryImpl extends QueryDslRepositorySupport implemen
   @Override
   public List<String> findIdsByWorkbookInNotPublic(String workbookId) {
     QDashBoard qDashBoard = QDashBoard.dashBoard;
+    QDataSource qDataSource = qDashBoard.dataSources.any();
 
-    JPQLQuery query = from(qDashBoard).select(qDashBoard.dataSources.any().id).distinct()
+    // FixMe: Query generation is complicated by null processing of "published" columns
+    JPQLQuery query = from(qDashBoard).select(qDataSource.id).distinct()
                                       .where(qDashBoard.workBook.id.eq(workbookId),
-                                             qDashBoard.dataSources.any().published.ne(true));
+                                             Expressions.anyOf(qDataSource.published.isNull(),
+                                                               qDataSource.published.isFalse()));
 
     return query.fetch();
 

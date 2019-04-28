@@ -372,16 +372,13 @@ public class WorkspaceRestIntegrationTest extends AbstractRestIntegrationTest {
   @Sql({"/sql/test_import_workspace_list.sql"})
   public void workspaceListImportAvailable() throws JsonProcessingException {
 
-    String workbookId = "wb-001";
-//    String workbookId = "wb-002";
+    //    String workbookId = "wb-001";
+    String workbookId = "wb-002";
 
     // @formatter:off
     given()
       .auth().oauth2(oauth_token)
       .contentType(ContentType.JSON)
-//      .accept("application/x-spring-data-verbose+json")
-//      .param("publicType", "private")
-//      .param("nameContains", "test")
 //      .param("excludes", "ws-02")
       .param("projection", "forTreeView")
 //      .param("size", "10")
@@ -391,8 +388,7 @@ public class WorkspaceRestIntegrationTest extends AbstractRestIntegrationTest {
     .when()
       .get("/api/workspaces/import/books/{workbookId}/available", workbookId)
     .then()
-//      .statusCode(HttpStatus.SC_OK)
-//      .body("_embedded.workspaces.length", greaterThan(0))
+      .statusCode(HttpStatus.SC_OK)
       .log().all();
     // @formatter:on
   }
