@@ -2316,7 +2316,7 @@ ul.ddp-list-form2 li:hover .ddp-btn-control {display:block;}
 
 .ddp-ui-top-info .ddp-wrap-info-summary .ddp-data-info-left .ddp-ui-info-tab .ddp-ui-number:hover:after{display:inline-block; content:''; position:absolute; bottom:10px; left:50%; margin-left:-8px; width:14px; height:8px; background:url(../images/icon_selecview.png) no-repeat; background-position:left -42px;}
 .ddp-ui-top-info .ddp-wrap-info-summary .ddp-data-info-left .ddp-ui-info-tab .ddp-ui-number:before {display:inline-block; content:''; position:absolute; top:8px; left:0; height:12px; border-left:1px solid #dbdce0;}
-.ddp-ui-top-info .ddp-wrap-info-summary .ddp-data-info-left .ddp-ui-info-tab .ddp-ui-number.ddp-selected {background-color:#4b515b; border-radius:2px 2px 0 0; color:#fff;}
+.ddp-ui-top-info .ddp-wrap-info-summary .ddp-data-info-left .ddp-ui-info-tab .ddp-ui-number.ddp-selected {background-color:#4b515b; border-radius:2px 2px 0 0; height:48px; color:#fff; box-sizing:border-box;}
 .ddp-ui-top-info .ddp-wrap-info-summary .ddp-data-info-left .ddp-ui-info-tab .ddp-ui-number.ddp-selected span.ddp-data-num {color:#fff;}
 .ddp-ui-top-info .ddp-wrap-info-summary .ddp-data-info-left .ddp-ui-info-tab .ddp-ui-number.ddp-selected em.ddp-icon-result-source {background-position:-24px top;}
 .ddp-ui-top-info .ddp-wrap-info-summary .ddp-data-info-left .ddp-ui-info-tab .ddp-ui-number.ddp-selected em.ddp-icon-result-users {background-position:-15px -44px;}
