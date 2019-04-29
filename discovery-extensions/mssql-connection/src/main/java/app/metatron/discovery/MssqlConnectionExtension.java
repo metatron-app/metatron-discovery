@@ -95,7 +95,7 @@ public class MssqlConnectionExtension extends Plugin {
     }
 
     @Override
-    public boolean isSupportImplementor(JdbcConnectInformation connectInfo, String implementor) {
+    public boolean isSupportImplementor(String implementor) {
       return implementor.toUpperCase().equals(getImplementor().toUpperCase());
     }
 
