@@ -29,6 +29,7 @@ import {Metadata} from '../../../domain/meta-data-management/metadata';
 import {CookieConstant} from '../../../common/constant/cookie.constant';
 import {CommonConstant} from '../../../common/constant/common.constant';
 import { Message } from '@stomp/stompjs';
+import {Location} from "@angular/common";
 
 @Component({
   selector: 'app-detail-datasource',
@@ -122,7 +123,6 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
   public ngOnInit() {
     // Init
     super.ngOnInit();
-
     this.activatedRoute.params.subscribe((params) => {
       // sourceId
       this.datasourceId = params['sourceId'];
@@ -353,7 +353,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
 
   // 뒤로가기
   public prevDatasourceList(): void {
-    this.router.navigate(['/management/storage/datasource']);
+    this.location.back();
   }
 
   // mode

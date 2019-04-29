@@ -55,6 +55,7 @@ import {TypeFilterObject} from "../../data-storage/service/data-source-create.se
 import {RegExprFilter} from "../../domain/workbook/configurations/filter/reg-expr-filter";
 import {SpatialFilter} from "../../domain/workbook/configurations/filter/spatial-filter";
 import {TranslateService} from "@ngx-translate/core";
+import {Criteria} from "../../domain/datasource/criteria";
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -1051,11 +1052,12 @@ export class DatasourceService extends AbstractService {
     }
   }
 
+
   /**
    * Get criterion list in datasource
    * @returns {Promise<CriteriaFilter>}
    */
-  public getCriterionListInDatasource(): Promise<CriteriaFilter> {
+  public getCriterionListInDatasource(): Promise<{criteria: Criteria.ListCriterion[], defaultFilters: Criteria.ListFilter[]}> {
     return this.get(this.API_URL + 'datasources/criteria');
   }
 
@@ -1064,8 +1066,12 @@ export class DatasourceService extends AbstractService {
    * @param {CriterionKey} criterionKey
    * @returns {Promise<ListCriterion>}
    */
-  public getCriterionInDatasource(criterionKey: CriterionKey): Promise<ListCriterion> {
-    return this.get(this.API_URL + `datasources/criteria/${criterionKey}`);
+  public getCriterionInDatasource(criterionKey?: CriterionKey) {
+    if (criterionKey) {
+      return this.get(this.API_URL + `datasources/criteria/${criterionKey}`);
+    } else {
+      return this.get(this.API_URL + `datasources/criteria`);
+    }
   }
 
   /**
