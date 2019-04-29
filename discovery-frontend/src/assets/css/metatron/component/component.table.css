@@ -95,7 +95,7 @@ table.ddp-table-form tbody tr td .ddp-link-delete:hover em.ddp-icon-delete {back
 .ddp-ui-grid .ddp-ui-empty {padding:20px; color:#b7b9c3; font-size:12px;}
 .ddp-ui-gridbody {position:absolute; top:28px; left:0; right:0; bottom:0; overflow-y:scroll;}
 .ddp-box-viewtable .ddp-ui-gridhead {height:33px;border-top:none;}
-.ddp-box-viewtable .ddp-ui-gridhead table {padding-right:18px;}
+.ddp-box-viewtable .ddp-ui-gridhead table {padding-right:18px; box-sizing:border-box;}
 .ddp-box-viewtable .ddp-ui-gridhead tr th {height:33px; box-sizing:border-box;}
 .ddp-box-viewtable .ddp-ui-gridbody {top:34px;}
 
