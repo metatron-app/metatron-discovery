@@ -167,7 +167,7 @@
 .ddp-checkbox-slide.ddp-middle label:after {display:inline-block; top:-5px; content:'ON'; color:#9c9c9c; font-size:11px;}
 
 .ddp-checkbox-slide.ddp-slide-text {position:relative;}
-.ddp-checkbox-slide.ddp-slide-text .ddp-txt-slide {display:inline-block; position:relative; top:1px; color:#9c9c9c; font-size:11px; vertical-align:middle;}
+.ddp-checkbox-slide.ddp-slide-text .ddp-txt-slide {display:inline-block; position:relative; top:2px; margin-right:5px; color:#9c9c9c; font-size:11px; vertical-align:middle;}
 .ddp-checkbox-slide.ddp-slide-text label{display:inline-block;}
 .ddp-checkbox-slide.ddp-slide-text.ddp-middle label:after {display:none;}
 
