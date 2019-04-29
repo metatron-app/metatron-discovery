@@ -345,7 +345,9 @@ export class DataSourceListComponent extends AbstractComponent {
     const searchParams = this.criterionComponent.getUrlQueryParams();
     // set criterion
     searchParams && Object.keys(searchParams).forEach((key) => {
-      params[key] = searchParams[key].join(',');
+      if (searchParams[key].length > 0) {
+        params[key] = searchParams[key].join(',');
+      }
     });
     // if search keyword not empty
     if (StringUtil.isNotEmpty(this.searchKeyword)) {

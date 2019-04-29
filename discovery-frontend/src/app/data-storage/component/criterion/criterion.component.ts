@@ -17,6 +17,7 @@ import {Criteria} from "../../../domain/datasource/criteria";
 import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
 import {AbstractComponent} from "../../../common/component/abstract.component";
 import * as _ from 'lodash';
+import {StringUtil} from "../../../common/util/string.util";
 
 declare let moment: any;
 
@@ -127,7 +128,7 @@ export class CriterionComponent extends AbstractComponent {
     // remove criterion in used criterion list
     this.usedCriterionList.splice(this.usedCriterionList.findIndex(usedCriterion => usedCriterion.criterionKey === criterion.criterionKey),1);
     // remove criterion in search params
-    this.queryParams[this.KEY_EXTENSIONS].splice(this.queryParams[this.KEY_EXTENSIONS].findIndex(usedCriterion => usedCriterion.criterionKey === criterion.criterionKey), 1);
+    this.queryParams[this.KEY_EXTENSIONS].splice(this.queryParams[this.KEY_EXTENSIONS].findIndex(paramItem => paramItem === criterion.criterionKey), 1);
     Object.keys(this.queryParams).forEach((key) => {
       // if exist search param
       if (key.indexOf(criterion.criterionKey) !== -1) {
@@ -261,7 +262,9 @@ export class CriterionComponent extends AbstractComponent {
     }
     // others
     Object.keys(param).filter(key => key !== this.KEY_EXTENSIONS && key.indexOf(Criteria.ListCriterionKey.MODIFIED_TIME) === -1 && key.indexOf(Criteria.ListCriterionKey.CREATED_TIME) === -1).forEach((key) => {
-      searchParams[key.slice(key.indexOf(this.QUERY_DELIMITER) + 1)] = param[key];
+      if (!_.isNil(param[key]) && param[key].length > 0 && param[key].every(value => StringUtil.isNotEmpty(value))) {
+        searchParams[key.slice(key.indexOf(this.QUERY_DELIMITER) + 1)] = param[key];
+      }
     });
     return searchParams;
   }
