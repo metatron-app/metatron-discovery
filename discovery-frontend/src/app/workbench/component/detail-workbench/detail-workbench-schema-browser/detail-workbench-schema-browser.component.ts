@@ -193,9 +193,9 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     this._websocketId = param['websocketId'];
     this.textList = param['textList'];
     // 데이터 커넥션 정보
-    this.dataConnection = this.workbench.dataConnection;
+    this.dataConnection = _.cloneDeep(this.workbench.dataConnection);
     // 현재 선택된 데이터베이스 이름
-    this.selectedDatabaseName = this.workbench.dataConnection.database;
+    this.selectedDatabaseName = this.dataConnection.database;
     // 선택된 테이블 초기화
     this.selectedSchemaTable = '';
     // 초기 선택 탭 초기화
@@ -830,12 +830,12 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
   private _getSingleQueryForServer(): void {
 
     // 스키마 브라우저에서 사용하는 데이터베이스 변경 - init 시점에서 넣어준 부분을 재반환
-    this.workbench.dataConnection.database = this.selectedDatabaseName;
+    this.dataConnection.database = this.selectedDatabaseName;
     // no data 초기화
     this.isDataListNoData = false;
     // 호출 횟수 증가
     this._getSingleQueryReconnectCount++;
-    this.workbenchService.getSchemaInfoTableData(this.selectedSchemaTable, this.workbench.dataConnection)
+    this.workbenchService.getSchemaInfoTableData(this.selectedSchemaTable, this.dataConnection)
       .then((result) => {
         // 호출 횟수 초기화
         this._getSingleQueryReconnectCount = 0;
@@ -912,7 +912,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
       this._websocketId = param.websocketId;
       this.textList = param.textList;
       // 데이터 커넥션 정보
-      this.dataConnection = this.workbench.dataConnection;
+      this.dataConnection = _.cloneDeep(this.workbench.dataConnection);
       // 현재 선택된 데이터베이스 이름
       this.selectedDatabaseName = this.dataConnection.database;
       // 데이터베이스 리스트 조회
