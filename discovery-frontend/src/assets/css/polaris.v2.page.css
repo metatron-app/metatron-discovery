@@ -7514,6 +7514,7 @@ table.ddp-table-base thead tr:last-of-type th {background-color:#fdfdfd;}
 table.ddp-table-base thead tr th .ddp-data-name {display:inline-block; float:left; width:33.333%; text-align:center; box-sizing:border-box;}
 table.ddp-table-base thead tr th .ddp-data-name2 {display:inline-block; float:left; width:50%; text-align:center; box-sizing:border-box;}
 table.ddp-table-base tr td {padding:5px 10px; width:156px; border:1px solid #fff; box-sizing:border-box;}
+table.ddp-table-base tr td .ddp-txt-edit.ddp-selected .ddp-wrap-input {margin-top:0;}
 .ddp-ui-popup-contents table.ddp-table-base tr td:first-of-type {width:140px;}
 table.ddp-table-base tr td:first-of-type {width:161px;}
 table.ddp-table-base tr td:nth-child(2) {width:95px;}
