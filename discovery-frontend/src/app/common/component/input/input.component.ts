@@ -134,7 +134,7 @@ export class InputComponent implements OnInit, OnDestroy {
     }
 
     if ('' !== this.optionalStyle) {
-      this._styleElm.nativeElement.style = this.optionalStyle;
+      this._styleElm.nativeElement.setAttribute( 'style', this.optionalStyle );
     }
     if ('' === this.inputClass) {
       switch (this.compType) {

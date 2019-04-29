@@ -2301,18 +2301,31 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   /**
    * 데이터패널에서 선택된 dimension /measure 개수 return
    */
-  public getSelectedDataItemsCnt(items: Field[]): number {
+  public getCntShelfItem(type: 'DIMENSION' | 'MEASURE'): number {
 
-    // 선택된 아이템 변수
-    let selectedItems = [];
-
-    // pivot 정보가 있는 아이템만 설정
-    selectedItems = items.filter((item) => {
-      if (item.pivot && item.pivot.length > 0) return item;
-    });
-
-    return selectedItems.length;
-  }
+    let cntShelfItems = 0;
+    const strType:string = type.toLowerCase();
+    if( ChartType.MAP === this.widgetConfiguration.chart.type ) {
+      // 선택된 아이템 변수 - shelf 정보가 있는 아이템만 설정
+      this.shelf.layers.forEach( layer => {
+        cntShelfItems = cntShelfItems + layer.fields.filter( field => {
+          return strType === field.type && field.field.dataSource === this.dataSource.engineName;
+        }).length;
+      });
+    } else {
+      // 선택된 아이템 변수 - pivot 정보가 있는 아이템만 설정
+      cntShelfItems = cntShelfItems + this.pivot.rows.filter(row => {
+        return strType === row.type && row.field.dataSource === this.dataSource.engineName;
+      }).length;
+      cntShelfItems = cntShelfItems + this.pivot.columns.filter(col => {
+        return strType === col.type && col.field.dataSource === this.dataSource.engineName;
+      }).length;
+      cntShelfItems = cntShelfItems + this.pivot.aggregations.filter(aggr => {
+        return strType === aggr.type && aggr.field.dataSource === this.dataSource.engineName;
+      }).length;
+    }
+    return cntShelfItems;
+  } // function - getCntShelfItem
 
   /**
    * 차트 데이터가 없을시 No Data 노출
@@ -2500,7 +2513,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (isDimension) {
 
       // map chart validation
-      if ( ( targetField.logicalType && targetField.logicalType.toString().indexOf('GEO') != -1 )
+      if ((targetField.logicalType && targetField.logicalType.toString().indexOf('GEO') != -1)
         && !_.eq(this.selectChart, '')) {
         Alert.warning(this.translateService.instant('msg.board.ui.invalid-pivot'));
         return;
@@ -3450,7 +3463,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
           if (targetField) {
             // geo column validation 체크
             if (!_.eq(this.selectChart, ChartType.MAP) && !_.eq(this.selectChart, '')
-              && ( targetField.logicalType && targetField.logicalType.toString().indexOf('GEO') != -1 ) ) {
+              && (targetField.logicalType && targetField.logicalType.toString().indexOf('GEO') != -1)) {
               if (info.target === 'column') {
                 this.invalidGeoData(this.pivot.columns);
               } else if (info.target === 'row') {
