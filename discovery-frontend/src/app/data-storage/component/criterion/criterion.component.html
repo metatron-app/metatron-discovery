@@ -11,14 +11,14 @@
     <!-- //if extension box -->
     <!-- TODO 추후 checkbox와 radio 분리-->
     <!-- if checkbox filter box -->
-    <criterion-filter-box2 *ngIf="!isExtensionCriterionBox(criterion)"
+    <criterion-filter-box *ngIf="!isExtensionCriterionBox(criterion)"
                            [criterion]="criterion"
                            [criterionApiFunc]="criterionApiFunc"
                            [searchParams]="queryParams"
                            [enableRemove]="isExtensionCriterion(criterion)"
                            (removedCriterion)="removeExtensionCriterion($event)"
                            (changedCriteria)="onChangeFilter($event)">
-    </criterion-filter-box2>
+    </criterion-filter-box>
     <!-- //if checkbox filter box -->
     <!-- if radio filter box -->
     <!-- //if radio filter box -->

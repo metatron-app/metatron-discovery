@@ -113,6 +113,17 @@ export class DataSourceListComponent extends AbstractComponent {
     ).then();
   } // function - reloadPage
 
+  /**
+   * More datasource click event
+   */
+  public changePage(data: { page: number, size: number }): void {
+    // if more datasource list
+    if (data) {
+      this.page.page = data.page;
+      this.page.size = data.size;
+      this.reloadPage(false);
+    }
+  }
 
   /**
    * 모드 변경
@@ -204,17 +215,6 @@ export class DataSourceListComponent extends AbstractComponent {
     this.reloadPage(true);
   }
 
-  /**
-   * More datasource click event
-   */
-  public changePage(data: { page: number, size: number }): void {
-    // if more datasource list
-    if (data) {
-      this.page.page = data.page;
-      this.page.size = data.size;
-      this.reloadPage(false);
-    }
-  }
 
   /**
    * Search connection keypress event

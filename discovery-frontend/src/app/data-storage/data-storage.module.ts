@@ -35,9 +35,7 @@ import { EditConfigSchemaComponent } from './data-source-list/detail-data-source
 import { MetadataService } from '../meta-data-management/metadata/service/metadata.service';
 import { EditFilterDataSourceComponent } from './data-source-list/detail-data-source/edit-filter-data-source.component';
 import { IngestionLogComponent } from './data-source-list/detail-data-source/information-dats-source/component/ingestion-log/ingestion-log.component';
-import { CriterionFilterBoxComponent } from './component/criterion/criterion-filter-box.component';
 import { CriterionCheckboxListComponent } from './component/criterion/criterion-checkbox-list.component';
-import { CriterionTimeRadioboxComponent } from './component/criterion/criterion-time-radiobox.component';
 import {DataConnectionCreateService} from "./service/data-connection-create.service";
 import {DataSourceCreateModule} from "./data-source-list/create-data-source/data-source-create.module";
 import {FieldConfigService} from "./service/field-config.service";
@@ -47,7 +45,7 @@ import {DataStorageShareModule} from "./data-storage-share.module";
 import {ConstantService} from "../shared/datasource-metadata/service/constant.service";
 import {CriterionComponent} from "./component/criterion/criterion.component";
 import {CriterionExtensionBoxComponent} from "./component/criterion/criterion-extension-box.component";
-import {CriterionFilterBoxComponent2} from "./component/criterion/criterion-filter-box.component2";
+import {CriterionFilterBoxComponent} from "./component/criterion/criterion-filter-box.component";
 import {CriterionTimeRadioboxListComponent} from "./component/criterion/criterion-time-radiobox-list.component";
 
 const storageRoutes: Routes = [
@@ -92,11 +90,6 @@ const storageRoutes: Routes = [
     CriterionFilterBoxComponent,
     CriterionCheckboxListComponent,
     CriterionTimeRadioboxListComponent,
-
-
-    CriterionTimeRadioboxComponent,
-    CriterionFilterBoxComponent2,
-
   ],
   exports: [
     // 워크벤치에서 사용하기 위해
