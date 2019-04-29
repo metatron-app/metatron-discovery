@@ -7725,7 +7725,8 @@ table.ddp-table-type3.ddp-popup tr td {padding:10px 10px 11px 10px;}
 .ddp-ui-preview-contents table.ddp-table-form.ddp-table-details tbody tr td.ddp-selected,
 .ddp-ui-preview-contents table.ddp-table-form.ddp-table-details tbody tr td.ddp-selected:hover {background-color:#f2f1f8 !important;}
 /*.ddp-ui-preview-contents table.ddp-table-form.ddp-table-details tbody tr td.ddp-selected:after {display:inline-block; position:absolute; top:0; right:0; bottom:0; left:0; border:1px solid #9ca2cc; content:'';}*/
-.ddp-ui-preview-contents table.ddp-table-form.ddp-table-details tbody tr td.ddp-selected {border:1px solid #9ca2cc;}
+.ddp-ui-preview-contents table.ddp-table-form.ddp-table-details tbody tr td.ddp-selected {border:1px solid #9ca2cc; padding:12px 9px 13px 9px}
+.ddp-ui-preview-contents table.ddp-table-form.ddp-table-details tbody tr td.ddp-selected.ddp-info {padding-right:29px;}
 .ddp-ui-preview-contents table.ddp-table-type2 tbody tr td.ddp-selected .ddp-input-form input.ddp-txt-input {display:inline-block; position:absolute; top:0; right:0; bottom:0; left:0; padding:12px 9px 13px 9px; content:'';}
 
 
