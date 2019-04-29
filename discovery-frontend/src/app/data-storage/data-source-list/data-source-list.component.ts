@@ -67,7 +67,7 @@ export class DataSourceListComponent extends AbstractComponent {
     this.loadingShow();
     // get criterion list
     this.datasourceService.getCriterionListInDatasource()
-      .then((result: {criteria: Criteria.ListCriterion[], defaultFilters: Criteria.ListFilter[]}) => {
+      .then((result: Criteria.Criterion) => {
         // init criterion list
         this.criterionComponent.initCriterionList(result);
         this.subscriptions.push(this.activatedRoute.queryParams.subscribe(params => {
@@ -92,8 +92,6 @@ export class DataSourceListComponent extends AbstractComponent {
               }
             });
           }
-          // http://localhost:4200/app/v2/management/storage/datasource?page=0&size=2&sort=createdTime,desc&CONNECTION_TYPE%5EconnectionType=ENGINE,LINK&CREATOR%5EcreatedBy=polaris,admin&CREATOR%5EuserGroup=ID_GROUP_ADMIN&MODIFIED_TIME%5ETYPE=BETWEEN&MODIFIED_TIME%5EmodifiedTimeFrom=2019-04-11T00:00:00.000%2B09:00&MODIFIED_TIME%5EmodifiedTimeTo=2019-04-28T23:59:00.000%2B09:00&extensions=MODIFIED_TIME,CONNECTION_TYPE
-
           // init criterion search param
           this.criterionComponent.initSearchParams(searchParams);
           // set datasource list
@@ -130,8 +128,8 @@ export class DataSourceListComponent extends AbstractComponent {
    */
   public createComplete(): void {
     this.changeMode( '' );
-    // set datasource list
-    this._setDatasourceList();
+    // true
+    this.reloadPage();
   }
 
   /**
@@ -145,8 +143,8 @@ export class DataSourceListComponent extends AbstractComponent {
     this.datasourceService.deleteDatasource(modalData.data)
       .then((result) => {
         Alert.success(this.translateService.instant('msg.storage.alert.dsource.del.success'));
-        // set datasource list
-        this._setDatasourceList();
+        // reload
+        this.reloadPage(true);
       })
       .catch(error => this.commonExceptionHandler(error));
   }

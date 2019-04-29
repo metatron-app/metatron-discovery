@@ -29,7 +29,6 @@ import {Metadata} from '../../../domain/meta-data-management/metadata';
 import {CookieConstant} from '../../../common/constant/cookie.constant';
 import {CommonConstant} from '../../../common/constant/common.constant';
 import { Message } from '@stomp/stompjs';
-import {Location} from "@angular/common";
 
 @Component({
   selector: 'app-detail-datasource',
