@@ -102,8 +102,6 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
     this.subscriptions.push(
       this.activatedRoute.queryParams.subscribe(params => {
 
-        // TODO selected date
-
         console.info( '>>>>>>> list param', params );
 
         const page = params['page'];
@@ -130,12 +128,15 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
 
         this._filterDate.type = 'ALL';
         if (!isNullOrUndefined(from) && !isNullOrUndefined(to)) {
-          // TODO FILTER DATE
-          this._filterDate.type = 'NOT';
+          this._filterDate.startDate = from;
+          this._filterDate.endDate = to;
+
           this._filterDate.dateType = 'CREATED';
           this._filterDate.startDateStr = decodeURIComponent(from);
           this._filterDate.endDateStr = decodeURIComponent(to);
+          this._filterDate.type = params['type'];
           this.initialPeriodData = this._filterDate;
+          this.safelyDetectChanges();
         }
         // 퍼미션 스키마 조회
         this._getRoleSetList();
@@ -479,8 +480,10 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
     }
 
     // date
+    params['type'] = 'ALL';
     if ((!isNullOrUndefined(this._filterDate)) && this._filterDate.type !== 'ALL') {
       params['searchDateBy'] = 'CREATED';
+      params['type'] = this._filterDate.type;
       if (this._filterDate.startDateStr) {
         params['from'] = moment(this._filterDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }

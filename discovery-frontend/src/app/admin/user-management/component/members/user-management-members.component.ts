@@ -143,10 +143,13 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
         const from = params['from'];
         const to = params['to'];
         if (!isNullOrUndefined(from) && !isNullOrUndefined(to)) {
-          this._filterDate.type = 'NOT';
+          this._filterDate.startDate = from;
+          this._filterDate.endDate = to;
           this._filterDate.startDateStr = decodeURIComponent(from);
           this._filterDate.endDateStr = decodeURIComponent(to);
+          this._filterDate.type = params['type'];
           this.initialPeriodData = this._filterDate;
+          this.safelyDetectChanges();
         }
 
         // members list 조회
@@ -571,8 +574,10 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
       params['nameContains'] = this.searchKeyword.trim();
     }
     // date
+    params['type'] = 'ALL';
     if (this.selectedDate && this.selectedDate.type !== 'ALL') {
       params['searchDateBy'] = "CREATED";
+      params['type'] = this.selectedDate.type;
       if (this.selectedDate.startDateStr) {
         params['from'] = moment(this.selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }

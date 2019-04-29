@@ -17,10 +17,9 @@
     <!-- option -->
     <div class="ddp-ui-option ddp-clear">
       <component-period
+        [startDateDefault]="initialPeriodData?.startDate"
+        [endDateDefault]="initialPeriodData?.endDate"
         [defaultType]="initialPeriodData?.type"
-        [selectedDate]="initialPeriodData?.dateType"
-        [startDateDefault]="initialPeriodData?.startDateStr"
-        [endDateDefault]="initialPeriodData?.endDateStr"
         [title]="'msg.groups.th.create.date' | translate"
         [roundSecond]="true"
         (changeDate)="onFilterDate($event)"

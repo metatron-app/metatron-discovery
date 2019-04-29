@@ -77,10 +77,9 @@
     <div class="ddp-ui-option ddp-clear">
       <!-- edit -->
       <component-period
+        [startDateDefault]="initialPeriodData?.startDate"
+        [endDateDefault]="initialPeriodData?.endDate"
         [defaultType]="initialPeriodData?.type"
-        [selectedDate]="initialPeriodData?.dateType"
-        [startDateDefault]="initialPeriodData?.startDateStr"
-        [endDateDefault]="initialPeriodData?.endDateStr"
         [usedCustomDateType]="true"
         [customDateTypeList]="customDateTypeList"
         [roundSecond]="true"

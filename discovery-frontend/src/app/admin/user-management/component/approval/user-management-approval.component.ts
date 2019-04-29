@@ -139,11 +139,14 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
         this._filterDate = new PeriodData();
         this._filterDate.type = 'ALL';
         if (!isNullOrUndefined(from) && !isNullOrUndefined(to)) {
-          // TODO Filter Type ALL TODAY SevenDAYS
-          this._filterDate.type = 'NOT';
+          this._filterDate.startDate = from;
+          this._filterDate.endDate = to;
+          this._filterDate.type = params['type'];
+
           this._filterDate.startDateStr = decodeURIComponent(from);
           this._filterDate.endDateStr = decodeURIComponent(to);
           this.initialPeriodData = this._filterDate;
+          this.safelyDetectChanges();
         }
         // 퍼미션 스키마 조회
         this.init();
@@ -431,10 +434,11 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
     }
 
     // date
+    result['type'] = 'ALL';
     if (this.selectedDate && this.selectedDate.type !== 'ALL') {
 
       result['searchDateBy'] = this.selectedDate.dateType;
-
+      result['type'] = this.selectedDate.type;
       if (this.selectedDate.startDateStr) {
         result['from'] = moment(this.selectedDate.startDateStr).subtract(9,'hours').format('YYYY-MM-DDTHH:mm:ss.sss')+'Z';
       }

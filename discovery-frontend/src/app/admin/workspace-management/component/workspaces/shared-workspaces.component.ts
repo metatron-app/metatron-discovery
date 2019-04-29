@@ -145,11 +145,15 @@ export class SharedWorkspacesComponent extends AbstractComponent {
       const from = params['from'];
       const to = params['to'];
       if (!isNullOrUndefined(searchDateBy) && !isNullOrUndefined(from) && !isNullOrUndefined(to)) {
-        this._filterDate.type = 'NOT';
-        this._filterDate.dateType = searchDateBy;
-        this._filterDate.startDateStr = decodeURIComponent(from);
-        this._filterDate.endDateStr = decodeURIComponent(to);
-        this.initialPeriodData = this._filterDate;
+      this._filterDate.startDate = from;
+      this._filterDate.endDate = to;
+      this._filterDate.type = params['type'];
+
+      this._filterDate.dateType = searchDateBy;
+      this._filterDate.startDateStr = decodeURIComponent(from);
+      this._filterDate.endDateStr = decodeURIComponent(to);
+      this.initialPeriodData = this._filterDate;
+      this.safelyDetectChanges();
       }
       // 워크스페이스 리스트 조회
       this._getWorkspaceListInServer();
@@ -595,8 +599,10 @@ export class SharedWorkspacesComponent extends AbstractComponent {
     // status
     this._filterStatus !== 'all' && (params['active'] = (this._filterStatus === 'active'));
     // date
+    params['type'] = 'ALL';
     if (this._filterDate && this._filterDate.type !== 'ALL') {
       params['searchDateBy'] = this._filterDate.dateType;
+      params['type'] = this._filterDate.type;
       if (this._filterDate.startDateStr) {
         params['from'] = moment(this._filterDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
