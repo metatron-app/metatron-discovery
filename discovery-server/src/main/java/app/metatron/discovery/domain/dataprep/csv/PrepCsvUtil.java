@@ -51,7 +51,7 @@ public class PrepCsvUtil {
     InputStreamReader reader;
     String charset = null;
 
-    BOMInputStream bis = new BOMInputStream(is, true, ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
+    BOMInputStream bis = new BOMInputStream(is, false, ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
 
     try {
       if (bis.hasBOM() == false || bis.hasBOM(ByteOrderMark.UTF_8)) {
