@@ -48,17 +48,6 @@
       </div>
       <!-- //filter search -->
       <!-- filters -->
-<!--      <div class="ddp-wrap-form-filtering">-->
-<!--        <criterion-filter-box *ngFor="let criterion of datasourceFilterList"-->
-<!--                              [criterion]="criterion"-->
-<!--                              [defaultSelectedItemList]="defaultSelectedFilterList[criterion.criterionKey]"-->
-<!--                              [removeCriterionKey]="removedCriterionKey"-->
-<!--                              [enableRemove]="isAdvancedCriterion(criterion)"-->
-<!--                              [criterionApiFunc]="criterionApiFunc"-->
-<!--                              (changedCriteria)="onChangedCriteriaFilter($event)"-->
-<!--                              (removedCriterion)="removeCriterionFilterInDatasourceFilterList($event)">-->
-<!--        </criterion-filter-box>-->
-<!--      </div>-->
       <component-criterion [criterionApiFunc]="criterionApiFunc"
                            (changedFilter)="onChangedFilter($event)">
       </component-criterion>
@@ -135,9 +124,7 @@
 <!--    </div>-->
     <!-- //no result -->
     <!-- Pagination -->
-    <ng-template #yesCt>
-     <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
-    </ng-template>
+    <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
     <!-- // Pagination -->
   </div>
 </div>

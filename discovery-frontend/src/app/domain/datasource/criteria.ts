@@ -1,4 +1,9 @@
 export namespace Criteria {
+
+  export const KEY_EXTENSIONS = 'extensions';
+  export const KEY_DATETIME_TYPE_SUFFIX = 'TYPE';
+  export const QUERY_DELIMITER = '^';
+
   export class ListCriterion {
     criterionKey: ListCriterionKey;
     criterionType: ListCriterionType;
@@ -15,6 +20,7 @@ export namespace Criteria {
     filterSubKey?: string;
     filterSubValue?: string;
   }
+
   export interface Criterion {
     criteria: ListCriterion[];
     defaultFilters: ListFilter[];
@@ -42,5 +48,13 @@ export namespace Criteria {
     AUTH_TYPE = 'AUTH_TYPE',
     CREATED_TIME = 'CREATED_TIME',
     MODIFIED_TIME = 'MODIFIED_TIME'
+  }
+
+  // ONLY USE UI
+  export enum DateTimeType {
+    ALL = 'ALL',
+    TODAY = 'TODAY',
+    SEVEN_DAYS = 'SEVEN_DAYS',
+    BETWEEN = 'BETWEEN'
   }
 }

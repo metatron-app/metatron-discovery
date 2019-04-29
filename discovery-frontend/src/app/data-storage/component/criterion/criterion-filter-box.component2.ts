@@ -39,11 +39,6 @@ export class CriterionFilterBoxComponent2 extends AbstractComponent {
   // selected item default label
   private readonly _defaultSelectedItemLabel: string = this.translateService.instant('msg.storage.ui.criterion.all');
 
-  // constant
-  private readonly QUERY_DELIMITER = '^';
-  private readonly KEY_DATETIME_TYPE = 'TYPE';
-  private readonly KEY_EXTENSIONS = 'extensions';
-
   // criterion api (required: true)
   @Input()
   public readonly criterionApiFunc: Function;
@@ -108,10 +103,10 @@ export class CriterionFilterBoxComponent2 extends AbstractComponent {
     const param = {};
     Object.keys(this.searchParams).forEach((key) => {
       if (key.indexOf(this.criterion.criterionKey) !== -1) {
-        param[key.slice(key.indexOf(this.QUERY_DELIMITER)+ 1)] = this.searchParams[key];
+        param[key.slice(key.indexOf(Criteria.QUERY_DELIMITER)+ 1)] = this.searchParams[key];
         // if
         if (this.isRangeDateTimeType() || this.isDateTimeType()) {
-          this.defaultSelectedItemList[key.slice(key.indexOf(this.QUERY_DELIMITER)+ 1)] = this.searchParams[key];
+          this.defaultSelectedItemList[key.slice(key.indexOf(Criteria.QUERY_DELIMITER)+ 1)] = this.searchParams[key];
         }
       }
     });
@@ -245,9 +240,9 @@ export class CriterionFilterBoxComponent2 extends AbstractComponent {
     let temp: string = '';
     // is type DATETIME
     if (this.isRangeDateTimeType() || this.isDateTimeType()) {
-      const isNotAllType = selectedItemList[this.KEY_DATETIME_TYPE] && selectedItemList[this.KEY_DATETIME_TYPE][0] !== 'ALL';
+      const isNotAllType = selectedItemList[Criteria.KEY_DATETIME_TYPE_SUFFIX] && selectedItemList[Criteria.KEY_DATETIME_TYPE_SUFFIX][0] !== Criteria.DateTimeType.ALL;
       Object.keys(selectedItemList).forEach(key => {
-        if (isNotAllType && (key !== this.KEY_DATETIME_TYPE)) {
+        if (isNotAllType && (key !== Criteria.KEY_DATETIME_TYPE_SUFFIX)) {
           temp += StringUtil.isEmpty(temp) ? (selectedItemList[key][0].filterName || this.translateService.instant('msg.storage.ui.criterion.time.past')) : ` ~ ${(selectedItemList[key][0].filterName || this.translateService.instant('msg.storage.ui.criterion.time.current'))}`;
         }
       });

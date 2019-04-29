@@ -40,11 +40,6 @@ export class CriterionComponent extends AbstractComponent {
   @Output()
   public readonly changedFilter = new EventEmitter();
 
-  // constant
-  private readonly QUERY_DELIMITER = '^';
-  private readonly KEY_DATETIME_TYPE = 'TYPE';
-  private readonly KEY_EXTENSIONS = 'extensions';
-
   // constructor
   constructor(protected element: ElementRef,
               protected injector: Injector) {
@@ -59,7 +54,7 @@ export class CriterionComponent extends AbstractComponent {
    * Init criterion list
    * @param {{criteria: Criteria.ListCriterion[]; defaultFilters: Criteria.ListFilter[]}} criterionResult
    */
-  public initCriterionList(criterionResult: {criteria: Criteria.ListCriterion[], defaultFilters: Criteria.ListFilter[]}): void {
+  public initCriterionList(criterionResult: Criteria.Criterion): void {
     // set used criterion list
     this.usedCriterionList = _.cloneDeep(criterionResult.criteria);
     const extensionCriterion = this.usedCriterionList.find(filter => filter.criterionKey === Criteria.ListCriterionKey.MORE && !_.isNil(filter.subCriteria));
@@ -72,10 +67,10 @@ export class CriterionComponent extends AbstractComponent {
       // set default selected filter list
       criterionResult.defaultFilters.forEach((filter: Criteria.ListFilter) => {
         // if exist filter property in search params
-        if (this.queryParams[filter.criterionKey + this.QUERY_DELIMITER + filter.filterKey]) {
-          this.queryParams[filter.criterionKey + this.QUERY_DELIMITER + filter.filterKey].push(filter.filterValue);
+        if (this.queryParams[filter.criterionKey + Criteria.QUERY_DELIMITER + filter.filterKey]) {
+          this.queryParams[filter.criterionKey + Criteria.QUERY_DELIMITER + filter.filterKey].push(filter.filterValue);
         } else {  // if not exist filter property in search params
-          this.queryParams[filter.criterionKey + this.QUERY_DELIMITER + filter.filterKey] = [filter.filterValue];
+          this.queryParams[filter.criterionKey + Criteria.QUERY_DELIMITER + filter.filterKey] = [filter.filterValue];
         }
       });
     }
@@ -90,9 +85,9 @@ export class CriterionComponent extends AbstractComponent {
     // if not exist search params
     this.queryParams = _.cloneDeep(searchParams);
     // if exist criterion list
-    if (!_.isNil(this.queryParams[this.KEY_EXTENSIONS])) {
+    if (!_.isNil(this.queryParams[Criteria.KEY_EXTENSIONS])) {
       // loop
-      this.queryParams[this.KEY_EXTENSIONS].forEach((criterionKey: Criteria.ListCriterionKey) => {
+      this.queryParams[Criteria.KEY_EXTENSIONS].forEach((criterionKey: Criteria.ListCriterionKey) => {
         const criterion = this._extensionCriterionList.find(criterion => criterion.criterionKey === criterionKey);
         // if exist criterion in extension criterion list
         if (!_.isNil(criterion) && this.isNotExistExtensionCriterionInUsedCriterionList(criterion)) {
@@ -111,11 +106,11 @@ export class CriterionComponent extends AbstractComponent {
     // add criterion in used criterion list
     this.usedCriterionList.push(criterion);
     // if not exist extensions
-    if (_.isNil(this.queryParams[this.KEY_EXTENSIONS])) {
-      this.queryParams[this.KEY_EXTENSIONS] = [];
+    if (_.isNil(this.queryParams[Criteria.KEY_EXTENSIONS])) {
+      this.queryParams[Criteria.KEY_EXTENSIONS] = [];
     }
     // add criterion key in search params
-    this.queryParams[this.KEY_EXTENSIONS].push(criterion.criterionKey);
+    this.queryParams[Criteria.KEY_EXTENSIONS].push(criterion.criterionKey);
     // changed filter
     this.changedFilter.emit();
   }
@@ -128,7 +123,7 @@ export class CriterionComponent extends AbstractComponent {
     // remove criterion in used criterion list
     this.usedCriterionList.splice(this.usedCriterionList.findIndex(usedCriterion => usedCriterion.criterionKey === criterion.criterionKey),1);
     // remove criterion in search params
-    this.queryParams[this.KEY_EXTENSIONS].splice(this.queryParams[this.KEY_EXTENSIONS].findIndex(paramItem => paramItem === criterion.criterionKey), 1);
+    this.queryParams[Criteria.KEY_EXTENSIONS].splice(this.queryParams[Criteria.KEY_EXTENSIONS].findIndex(paramItem => paramItem === criterion.criterionKey), 1);
     Object.keys(this.queryParams).forEach((key) => {
       // if exist search param
       if (key.indexOf(criterion.criterionKey) !== -1) {
@@ -176,24 +171,24 @@ export class CriterionComponent extends AbstractComponent {
     // remove prev DATETIME property
     if (data.label === Criteria.ListCriterionKey.MODIFIED_TIME || data.label === Criteria.ListCriterionKey.CREATED_TIME) {
       // DATETIME type
-      const type = data.value[this.KEY_DATETIME_TYPE][0];
+      const type = data.value[Criteria.KEY_DATETIME_TYPE_SUFFIX][0];
       filters.forEach((key) => {
-        if (key === this.KEY_DATETIME_TYPE) {
-          this.queryParams[data.label + this.QUERY_DELIMITER + this.KEY_DATETIME_TYPE] = data.value[this.KEY_DATETIME_TYPE];
-        } else if (key !== this.KEY_DATETIME_TYPE && type === 'BETWEEN') {
-          this.queryParams[data.label + this.QUERY_DELIMITER + key] =  data.value[key].map(value => value.filterValue);
+        if (key === Criteria.KEY_DATETIME_TYPE_SUFFIX) {
+          this.queryParams[data.label + Criteria.QUERY_DELIMITER + Criteria.KEY_DATETIME_TYPE_SUFFIX] = data.value[Criteria.KEY_DATETIME_TYPE_SUFFIX];
+        } else if (key !== Criteria.KEY_DATETIME_TYPE_SUFFIX && type === Criteria.DateTimeType.BETWEEN) {
+          this.queryParams[data.label + Criteria.QUERY_DELIMITER + key] =  data.value[key].map(value => value.filterValue);
         }
       });
     } else {
       filters.forEach((key) => {
-        this.queryParams[data.label + this.QUERY_DELIMITER + key] =  data.value[key].map(value => value.filterValue);
+        this.queryParams[data.label + Criteria.QUERY_DELIMITER + key] =  data.value[key].map(value => value.filterValue);
       });
     }
     this.changedFilter.emit();
   }
 
   /**
-   * Get datetime start used TODAY type
+   * Get datetime start used Criteria.DateTimeType.TODAY type
    * @return {any}
    */
   public getDateTimeStartParamInToday() {
@@ -201,7 +196,7 @@ export class CriterionComponent extends AbstractComponent {
   }
 
   /**
-   * Get datetime end used TODAY or SEVEN_DAY type
+   * Get datetime end used Criteria.DateTimeType.TODAY or Criteria.DateTimeType.SEVEN_DAYS type
    * @return {any}
    */
   public getDateTimeEndParamInToday() {
@@ -209,7 +204,7 @@ export class CriterionComponent extends AbstractComponent {
   }
 
   /**
-   * Get datetime start used SEVEN_DAY type
+   * Get datetime start used Criteria.DateTimeType.SEVEN_DAYS type
    * @return {any}
    */
   public getDateTimeStartParamInSevenDay() {
@@ -233,37 +228,37 @@ export class CriterionComponent extends AbstractComponent {
     const searchParams = {};
     const param = _.cloneDeep(this.queryParams);
     // created time
-    if (!_.isNil(param[Criteria.ListCriterionKey.CREATED_TIME + this.QUERY_DELIMITER + this.KEY_DATETIME_TYPE])) {
-      const type = param[Criteria.ListCriterionKey.CREATED_TIME + this.QUERY_DELIMITER + this.KEY_DATETIME_TYPE][0];
-      if (type === 'BETWEEN') {
-        searchParams['createdTimeFrom'] = param[Criteria.ListCriterionKey.CREATED_TIME + this.QUERY_DELIMITER + 'createdTimeFrom'] ? param[Criteria.ListCriterionKey.CREATED_TIME + this.QUERY_DELIMITER + 'createdTimeFrom'][0] : undefined;
-        searchParams['createdTimeTo'] = param[Criteria.ListCriterionKey.CREATED_TIME + this.QUERY_DELIMITER + 'createdTimeTo'] ? param[Criteria.ListCriterionKey.CREATED_TIME + this.QUERY_DELIMITER + 'createdTimeTo'][0] : undefined;
-      } else if (type === 'TODAY') {
+    if (!_.isNil(param[Criteria.ListCriterionKey.CREATED_TIME + Criteria.QUERY_DELIMITER + Criteria.KEY_DATETIME_TYPE_SUFFIX])) {
+      const type = param[Criteria.ListCriterionKey.CREATED_TIME + Criteria.QUERY_DELIMITER + Criteria.KEY_DATETIME_TYPE_SUFFIX][0];
+      if (type === Criteria.DateTimeType.BETWEEN) {
+        searchParams['createdTimeFrom'] = param[Criteria.ListCriterionKey.CREATED_TIME + Criteria.QUERY_DELIMITER + 'createdTimeFrom'] ? param[Criteria.ListCriterionKey.CREATED_TIME + Criteria.QUERY_DELIMITER + 'createdTimeFrom'][0] : undefined;
+        searchParams['createdTimeTo'] = param[Criteria.ListCriterionKey.CREATED_TIME + Criteria.QUERY_DELIMITER + 'createdTimeTo'] ? param[Criteria.ListCriterionKey.CREATED_TIME + Criteria.QUERY_DELIMITER + 'createdTimeTo'][0] : undefined;
+      } else if (type === Criteria.DateTimeType.TODAY) {
         searchParams['createdTimeFrom'] = this.getDateTimeStartParamInToday();
         searchParams['createdTimeTo'] = this.getDateTimeEndParamInToday();
-      } else if (type === 'SEVEN_DAYS') {
+      } else if (type === Criteria.DateTimeType.SEVEN_DAYS) {
         searchParams['createdTimeFrom'] = this.getDateTimeStartParamInSevenDay();
           searchParams['createdTimeTo'] = this.getDateTimeEndParamInToday();
       }
     }
     // modified time
-    if (!_.isNil(param[Criteria.ListCriterionKey.MODIFIED_TIME + this.QUERY_DELIMITER + this.KEY_DATETIME_TYPE])) {
-      const type = param[Criteria.ListCriterionKey.MODIFIED_TIME + this.QUERY_DELIMITER + this.KEY_DATETIME_TYPE][0];
-      if (type === 'BETWEEN') {
-        searchParams['modifiedTimeFrom'] = param[Criteria.ListCriterionKey.MODIFIED_TIME + this.QUERY_DELIMITER + 'modifiedTimeFrom'][0];
-        searchParams['modifiedTimeTo'] = param[Criteria.ListCriterionKey.MODIFIED_TIME + this.QUERY_DELIMITER + 'modifiedTimeTo'][0];
-      } else if (type === 'TODAY') {
+    if (!_.isNil(param[Criteria.ListCriterionKey.MODIFIED_TIME + Criteria.QUERY_DELIMITER + Criteria.KEY_DATETIME_TYPE_SUFFIX])) {
+      const type = param[Criteria.ListCriterionKey.MODIFIED_TIME + Criteria.QUERY_DELIMITER + Criteria.KEY_DATETIME_TYPE_SUFFIX][0];
+      if (type === Criteria.DateTimeType.BETWEEN) {
+        searchParams['modifiedTimeFrom'] = param[Criteria.ListCriterionKey.MODIFIED_TIME + Criteria.QUERY_DELIMITER + 'modifiedTimeFrom'][0];
+        searchParams['modifiedTimeTo'] = param[Criteria.ListCriterionKey.MODIFIED_TIME + Criteria.QUERY_DELIMITER + 'modifiedTimeTo'][0];
+      } else if (type === Criteria.DateTimeType.TODAY) {
         searchParams['modifiedTimeFrom'] = this.getDateTimeStartParamInToday();
         searchParams['modifiedTimeTo'] = this.getDateTimeEndParamInToday();
-      } else if (type === 'SEVEN_DAYS') {
+      } else if (type === Criteria.DateTimeType.SEVEN_DAYS) {
         searchParams['modifiedTimeFrom'] = this.getDateTimeStartParamInSevenDay();
         searchParams['modifiedTimeTo'] = this.getDateTimeEndParamInToday();
       }
     }
     // others
-    Object.keys(param).filter(key => key !== this.KEY_EXTENSIONS && key.indexOf(Criteria.ListCriterionKey.MODIFIED_TIME) === -1 && key.indexOf(Criteria.ListCriterionKey.CREATED_TIME) === -1).forEach((key) => {
+    Object.keys(param).filter(key => key !== Criteria.KEY_EXTENSIONS && key.indexOf(Criteria.ListCriterionKey.MODIFIED_TIME) === -1 && key.indexOf(Criteria.ListCriterionKey.CREATED_TIME) === -1).forEach((key) => {
       if (!_.isNil(param[key]) && param[key].length > 0 && param[key].every(value => StringUtil.isNotEmpty(value))) {
-        searchParams[key.slice(key.indexOf(this.QUERY_DELIMITER) + 1)] = param[key];
+        searchParams[key.slice(key.indexOf(Criteria.QUERY_DELIMITER) + 1)] = param[key];
       }
     });
     return searchParams;
