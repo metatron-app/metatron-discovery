@@ -5819,7 +5819,7 @@ table.ddp-table-union tr td .ddp-data-dropped strong {color:#666eb2; font-weight
 .ddp-box-file-create.ddp-file-single {}
 /*.ddp-box-file-create.ddp-file-single.type-upload .ddp-import-file {display:block;}*/
 .ddp-box-file-create.ddp-file-single.type-upload {padding-bottom:100px;}
-.ddp-box-file-create.ddp-file-single.type-upload .ddp-box-default  {position:absolute !important; bottom:0; left:0; right:0; padding:28px 29px 27px 29px; height:auto; width:auto; text-align:left; border-top:1px solid #d0d1d8; background-color:#f6f6f7;}
+.ddp-box-file-create.ddp-file-single.type-upload .ddp-box-default  {position:absolute !important; bottom:0; left:0; right:0; padding:28px 29px 27px 29px; height:auto; width:auto; text-align:left; border-top:1px solid #d0d1d8;}
 .ddp-box-file-create.ddp-file-single.type-upload .ddp-box-default .ddp-txt-file-info {padding-bottom:5px;}
 
 .ddp-box-file-create.ddp-file-single .ddp-file-progress {display:none; position:relative; width:100%; height:100%; vertical-align:middle; text-align:center; background-color:#fff;}
