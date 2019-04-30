@@ -281,6 +281,8 @@ public class AbstractSpecBuilder {
           parseSpec.setDimensionsSpec(dimensionsSpec);
           parseSpec.setColumns(columns);
 
+          parseSpec.setListDelimiter(csvFormat.getLineSeparator());
+
           parser = new StringParser(parseSpec);
         } else {
           TsvParseSpec parseSpec = new TsvParseSpec();
