@@ -29,8 +29,8 @@
                   {{'msg.page.ui.panel.title' | translate}}
                   <span class="ddp-data-det">
                 {{'msg.page.ui.num.dimensions.measures' | translate : {
-                    dimensions: getSelectedDataItemsCnt(dimensions),
-                    measures: getSelectedDataItemsCnt(measures)
+                    dimensions: getCntShelfItem('DIMENSION'),
+                    measures: getCntShelfItem('MEASURE')
                   } }}
                 </span>
                   <em class="ddp-icon-drop-view"></em>
