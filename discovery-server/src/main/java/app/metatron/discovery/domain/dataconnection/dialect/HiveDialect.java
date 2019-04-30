@@ -317,16 +317,15 @@ public class HiveDialect implements JdbcDialect {
   @Override
   public String getCharToDateStmt(JdbcConnectInformation connectInfo, String timeStr, String timeFormat) {
     StringBuilder builder = new StringBuilder();
-    builder.append("cast(").append(timeStr).append(" as date) ");
-
-//    builder.append("'");
-//    if(DEFAULT_FORMAT.equals(timeFormat)) {
-//      builder.append(getDefaultTimeFormat(connectInfo));
-//    } else {
-//      builder.append(timeFormat).append("'");
-//    }
-//    builder.append("'");
-//    builder.append(") ");
+    builder.append("from_unixtime(unix_timestamp(" + timeStr + ", ");
+    builder.append("'");
+    if(DEFAULT_FORMAT.equals(timeFormat)) {
+      builder.append(getDefaultTimeFormat(connectInfo));
+    } else {
+      builder.append(timeFormat);
+    }
+    builder.append("'");
+    builder.append(")) ");
 
     return builder.toString();
   }
