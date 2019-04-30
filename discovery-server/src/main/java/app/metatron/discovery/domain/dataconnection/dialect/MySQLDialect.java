@@ -343,23 +343,13 @@ public class MySQLDialect implements JdbcDialect {
   @Override
   public String getCharToDateStmt(JdbcConnectInformation connectInfo, String timeStr, String timeFormat) {
     StringBuilder builder = new StringBuilder();
-    builder.append("STR_TO_DATE('").append(timeStr).append("', ");
-
-    builder.append("'");
-    if(DEFAULT_FORMAT.equals(timeFormat)) {
-      builder.append(getDefaultTimeFormat(connectInfo));
-    } else {
-      builder.append(timeFormat).append("'");
-    }
-    builder.append("'");
-    builder.append(") ");
-
+    builder.append("CAST(").append(timeStr).append(" AS DATETIME) ");
     return builder.toString();
   }
 
   @Override
-  public String getCurrentTimeStamp(JdbcConnectInformation connectInfo) {
-    return "DATE_FORMAT(NOW(),'" + getDefaultTimeFormat(connectInfo) + "') AS TIMESTAMP";
+  public String getCharToUnixTimeStmt(JdbcConnectInformation connectInfo, String timeStr) {
+    return "UNIX_TIMESTAMP(CAST(" + timeStr + " AS DATE))";
   }
 
   /**

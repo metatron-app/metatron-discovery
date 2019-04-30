@@ -1,22 +1,18 @@
 package app.metatron.discovery;
 
+import org.apache.commons.lang3.StringUtils;
 import org.pf4j.Extension;
 import org.pf4j.Plugin;
 import org.pf4j.PluginWrapper;
-import org.apache.commons.lang3.StringUtils;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import app.metatron.discovery.common.exception.FunctionWithException;
 import app.metatron.discovery.extension.dataconnection.jdbc.JdbcConnectInformation;
 import app.metatron.discovery.extension.dataconnection.jdbc.accessor.AbstractJdbcDataAccessor;
 import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
-import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionErrorCodes;
-import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionException;
 
 /**
  *
@@ -415,23 +411,13 @@ public class MssqlConnectionExtension extends Plugin {
     @Override
     public String getCharToDateStmt(JdbcConnectInformation connectInfo, String timeStr, String timeFormat) {
       StringBuilder builder = new StringBuilder();
-      builder.append("TO_DATE('").append(timeStr).append("', ");
-
-      builder.append("'");
-      if(DEFAULT_FORMAT.equals(timeFormat)) {
-        builder.append(getDefaultTimeFormat(connectInfo));
-      } else {
-        builder.append(timeFormat).append("'");
-      }
-      builder.append("'");
-      builder.append(") ");
-
+      builder.append("CAST(").append(timeStr).append(" as DATETIME) ");
       return builder.toString();
     }
 
     @Override
-    public String getCurrentTimeStamp(JdbcConnectInformation connectInfo) {
-      return "TO_CHAR(NOW(), '" + getDefaultTimeFormat(connectInfo) + "') AS TIMESTAMP";
+    public String getCharToUnixTimeStmt(JdbcConnectInformation connectInfo, String timeStr) {
+      return "CAST(DATEDIFF(s, '1970-01-01', CAST(" + timeStr + " as DATETIME)) as BIGINT)";
     }
   }
 }
