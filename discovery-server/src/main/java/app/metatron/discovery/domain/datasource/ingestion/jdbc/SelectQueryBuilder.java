@@ -137,7 +137,6 @@ public class SelectQueryBuilder {
   }
 
   public SelectQueryBuilder query(JdbcIngestionInfo ingestionInfo, JdbcConnectInformation connectInformation) {
-
     if (ingestionInfo.getDataType() == TABLE) {
       StringBuilder selectAllQuery = new StringBuilder();
       selectAllQuery.append("SELECT * FROM ");
@@ -149,6 +148,19 @@ public class SelectQueryBuilder {
     } else {
       this.query = getRefinedQuery(ingestionInfo.getQuery());
     }
+    return this;
+  }
+
+  public SelectQueryBuilder query(String schema, JdbcIngestionInfo.DataType dataType, String value) {
+    if (dataType == JdbcIngestionInfo.DataType.TABLE) {
+      StringBuilder selectAllQuery = new StringBuilder();
+      selectAllQuery.append("SELECT * FROM ");
+      selectAllQuery.append(jdbcDialect.getTableName(connectInformation, connectInformation.getCatalog(), schema, value));
+      this.query = selectAllQuery.toString();
+    } else {
+      this.query = value;
+    }
+
     return this;
   }
 
@@ -189,20 +201,6 @@ public class SelectQueryBuilder {
       return targetStrIndex;
     }
     return -1;
-  }
-
-  public SelectQueryBuilder query(String schema, JdbcIngestionInfo.DataType dataType, String value) {
-
-    if (dataType == JdbcIngestionInfo.DataType.TABLE) {
-      StringBuilder selectAllQuery = new StringBuilder();
-      selectAllQuery.append("SELECT * FROM ");
-      selectAllQuery.append(jdbcDialect.getTableName(connectInformation, connectInformation.getCatalog(), schema, value));
-      this.query = selectAllQuery.toString();
-    } else {
-      this.query = value;
-    }
-
-    return this;
   }
 
   public SelectQueryBuilder limit(int initial, int limit) {

@@ -22,7 +22,9 @@ import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import app.metatron.discovery.common.exception.FunctionWithException;
 import app.metatron.discovery.extension.dataconnection.jdbc.JdbcConnectInformation;
@@ -350,7 +352,9 @@ public class PrestoDialect implements JdbcDialect {
 
   @Override
   public String getQuotedFieldName(JdbcConnectInformation connectInfo, String fieldName) {
-    return fieldName;
+    return Arrays.stream(fieldName.split("\\."))
+                 .map(spliced -> "\"" + spliced + "\"")
+                 .collect(Collectors.joining("."));
   }
 
   @Override

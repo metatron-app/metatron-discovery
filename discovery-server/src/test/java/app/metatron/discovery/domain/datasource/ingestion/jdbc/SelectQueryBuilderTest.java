@@ -452,11 +452,9 @@ public class SelectQueryBuilderTest
       case "MYSQL" : return new MySQLDialect();
       case "POSTGRESQL" : return new PostgresqlDialect();
       case "DRUID" : return new DruidDialect();
-      case "MSSQL" : case "TIBERO" : case "ORACLE" :
+      case "MSSQL" : case "TIBERO" : case "ORACLE" : default :
         return DataConnectionHelper.lookupDialect(implementor);
     }
-
-    return null;
   }
 
   @Test
