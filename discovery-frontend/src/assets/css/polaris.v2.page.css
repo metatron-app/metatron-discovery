@@ -1804,10 +1804,13 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 .ddp-wrap-editboard .ddp-wrap-datasource .ddp-wrap-list-source ul.ddp-list-source {position:relative;}
 .ddp-wrap-editboard .ddp-wrap-datasource .ddp-label-datasorce {position:relative; padding:15px 20px; color:#4b515b; font-size:16px; border-top:1px solid #d0d1d8; background-color:#e7e7ea; cursor:pointer;}
 .ddp-wrap-editboard .ddp-wrap-datasource.ddp-selected .ddp-label-datasorce {color:#e7e7ea; background-color:#626872;}
-.ddp-wrap-editboard .ddp-wrap-datasource .ddp-label-datasorce:before {display:inline-block; position:relative; top:-2px;width:21px; height:22px; margin-right:10px; background:url(../images/icon_database.png) no-repeat; background-position:-22px -46px; content:''; vertical-align:middle;}
+.ddp-wrap-editboard .ddp-wrap-datasource .ddp-label-datasorce:before {display:inline-block; position:relative; top:0;width:21px; height:22px; margin-right:10px; background:url(../images/icon_database.png) no-repeat; background-position:-22px -46px; content:''; vertical-align:middle;}
 .ddp-wrap-editboard .ddp-wrap-datasource.ddp-selected .ddp-label-datasorce:before {background-position-x:0;}
 .ddp-wrap-editboard .ddp-wrap-datasource .ddp-label-datasorce:after {display:inline-block; position:absolute; top:50%; right:21px; margin-top:-3px; width:9px; height:5px;  background:url(../images/icon_dropdown.png) no-repeat; background-position:0px -6px; content:'';}
 .ddp-wrap-editboard .ddp-wrap-datasource.ddp-selected .ddp-label-datasorce:after {background-position:-30px 0px;}
+.ddp-wrap-editboard .ddp-wrap-datasource.ddp-selected .ddp-ui-drop-contents {position:absolute; top:54px; left:0; right:0; bottom:0; overflow:auto;}
+.ddp-wrap-editboard .ddp-wrap-datasource.ddp-selected .ddp-ui-drop-contents::-webkit-scrollbar-track {background:#3f4349 ;}
+.ddp-wrap-editboard .ddp-wrap-datasource.ddp-selected .ddp-ui-drop-contents::-webkit-scrollbar-thumb {border:4px solid #3f4349 ; background-color:#6d7179}
 
 .ddp-ui-contents-source {position:absolute; top:42px; left:0; right:0; bottom:0; }
 .ddp-ui-contents-source .ddp-ui-top-option {position:relative; padding:0 39px 0 20px;}
@@ -8025,11 +8028,12 @@ em.ddp-icon-mt-data {width:13px; height:14px; background-position:left -59px;}
 /**********************************************************************************
         모니터링 jobstatistics detail
 **********************************************************************************/
-table.ddp-table-type3 tbody tr td.ddp-logdetail {padding-right:23px;}
-.ddp-logdetail .ddp-data-logdet {display:inline-block; white-space:nowrap;}
+.ddp-logdetail {text-align:left;}
+.ddp-logdetail .ddp-data-logdet {display:block; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
+.ddp-logdetail .ddp-data-logdet span {display:inline-block;}
 .ddp-logdetail .ddp-data-logdet.ddp-long {display:block; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
-.ddp-logdetail .ddp-wrap-logdetail {display:none;}
-.ddp-logdetail .ddp-wrap-logdetail .ddp-btn-detail {display:inline-block; position:absolute; top:50%; right:0; margin-top:-10px; width:19px; height:19px; }
+.ddp-logdetail .ddp-wrap-logdetail {float:right; margin-top:-3px; display:none;}
+.ddp-logdetail .ddp-wrap-logdetail .ddp-btn-detail {position:relative; display:inline-block; margin-left:5px; width:19px; height:19px; }
 .ddp-logdetail .ddp-wrap-logdetail .ddp-btn-detail:hover {background-color:#e7e7ea;}
 .ddp-logdetail .ddp-wrap-logdetail.ddp-selected .ddp-btn-detail {background-color:#e7e7ea;}
 .ddp-logdetail .ddp-wrap-logdetail .ddp-btn-detail:before {display:inline-block; position:absolute; top:50%; left:50%; margin:-6px 0 0 -6px; width:11px; height:11px; background:url(../images/icon_detail.png) no-repeat; content:''; opacity:0.6;}
