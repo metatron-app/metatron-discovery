@@ -121,7 +121,7 @@ public class Mailer {
   }
 
   @Async
-  public void sendSignUpApprovedMail(User user, boolean isAdmin) {
+  public void sendSignUpApprovedMail(User user, boolean isAdmin, String password) {
     LOGGER.debug("Sending sign up approved e-mail to '{}'", user.getEmail());
     Context context = new Context();
     context.setVariable("user", user);
@@ -131,7 +131,8 @@ public class Mailer {
     String templateName, subject;
     if(isAdmin) {
       templateName = "email/user_signup_approved_by_admin";
-      subject = this.getUpperCaseTitle() + " subscription is complete";
+      subject = this.getUpperCaseTitle() + " added your account";
+      context.setVariable("temporaryPassword", password);
     } else {
       templateName = "email/user_signup_approved";
       subject = this.getUpperCaseTitle() + " approved your request";
