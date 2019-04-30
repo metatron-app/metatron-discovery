@@ -722,8 +722,24 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     (0 < cntWidgetComps) && (this.resizeToFitScreenForSave());
 
     // 위젯 업데이트 후 작동
-    CommonUtil.waterfallPromise(promises).then(() => {
+    if( 0 < promises.length ) {
+      CommonUtil.waterfallPromise(promises).then(() => {
 
+        if (0 < cntWidgetComps) {
+          // 이미지 업로드 - 임시적으로 채운 화면인 인식되기 위해
+          this._uploadDashboardImage(this.dashboard)
+            .then(result => this._callUpdateDashboardService(result['imageUrl']))
+            .catch(() => this._callUpdateDashboardService(null));
+        } else {
+          this._callUpdateDashboardService(null);
+        }
+
+      }).catch((error) => {
+        console.error(error);
+        Alert.error(this.translateService.instant('msg.board.alert.widget.apply.error'));
+        this.hideBoardLoading();     // 로딩 hide
+      });
+    } else {
       if (0 < cntWidgetComps) {
         // 이미지 업로드 - 임시적으로 채운 화면인 인식되기 위해
         this._uploadDashboardImage(this.dashboard)
@@ -732,12 +748,8 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       } else {
         this._callUpdateDashboardService(null);
       }
+    }
 
-    }).catch((error) => {
-      console.error(error);
-      Alert.error(this.translateService.instant('msg.board.alert.widget.apply.error'));
-      this.hideBoardLoading();     // 로딩 hide
-    });
   } // function - updateDashboard
 
   /**
