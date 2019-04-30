@@ -717,7 +717,7 @@ ul.ddp-list-folder-nav li a:hover {background-color:#e7e7ea}
 .ddp-ui-naviarea .ddp-wrap-naviname .ddp-wrap-popup2 {display:none; position:absolute; top:100%; left:-15px;}
 .ddp-wrap-naviname.ddp-selected .ddp-wrap-popup2 {display:block;}
 .ddp-ui-naviarea .ddp-wrap-naviname .ddp-wrap-popup2.ddp-type {width:245px;}
-.ddp-ui-naviarea .ddp-wrap-naviname span.ddp-data-naviname {display:inline-block; position:relative; width:100%; padding:5px 18px 0px 5px; cursor:pointer; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; word-wrap:normal; box-sizing:border-box; font-family:sans-serif;}
+.ddp-ui-naviarea .ddp-wrap-naviname span.ddp-data-naviname {display:inline-block; position:relative; width:100%; padding:5px 18px 0px 5px; cursor:pointer; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; word-wrap:normal; box-sizing:border-box; font-family:sans-serif; line-height:1em;}
 .ddp-ui-naviarea .ddp-wrap-naviname span.ddp-data-naviname em.ddp-icon-menuview {display:none;}
 .ddp-ui-naviarea .ddp-wrap-naviname span.ddp-data-naviname.ddp-readonly {padding-right:10px; cursor:default;}
 .ddp-ui-naviarea .ddp-wrap-naviname-txt span.ddp-data-naviname  {display:inline-block; position:relative; width:100%; padding:2px 18px 2px 5px; cursor:pointer; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; word-wrap:normal; box-sizing:border-box;}
