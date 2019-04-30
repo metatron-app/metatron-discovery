@@ -95,7 +95,7 @@ table.ddp-table-form tbody tr td .ddp-link-delete:hover em.ddp-icon-delete {back
 .ddp-ui-grid .ddp-ui-empty {padding:20px; color:#b7b9c3; font-size:12px;}
 .ddp-ui-gridbody {position:absolute; top:28px; left:0; right:0; bottom:0; overflow-y:scroll;}
 .ddp-box-viewtable .ddp-ui-gridhead {height:33px;border-top:none;}
-.ddp-box-viewtable .ddp-ui-gridhead table {padding-right:18px;}
+.ddp-box-viewtable .ddp-ui-gridhead table {padding-right:18px; box-sizing:border-box;}
 .ddp-box-viewtable .ddp-ui-gridhead tr th {height:33px; box-sizing:border-box;}
 .ddp-box-viewtable .ddp-ui-gridbody {top:34px;}
 
@@ -145,6 +145,7 @@ table.ddp-table-type2 thead tr th .ddp-th-long {display:inline-block;   position
 table.ddp-table-type2 thead tr th .ddp-th-long .ddp-th-txt {display:block; overflow:hidden; white-space:nowrap;text-overflow:ellipsis; line-height:19px;}
 
 table.ddp-table-type2 tbody tr > td {position:relative; padding:13px 10px 14px 10px; font-size:13px; border:none;}
+table.ddp-table-type2 tbody tr > td.ddp-disabled {cursor:no-drop !important;}
 table.ddp-table-type2 tbody tr > td.ddp-disabled:hover {background:none;}
 table.ddp-table-type2 tbody tr > td.ddp-disabled:before {position:absolute; top:0; right:0; bottom:0; left:0; z-index:15; content:''; cursor:no-drop;}
 table.ddp-table-type2 tbody tr > td.ddp-disabled em.ddp-bg-select {display:none !important;}
@@ -155,13 +156,14 @@ table.ddp-table-type2 tbody tr.ddp-selected > td:last-of-type {padding-right:9px
 
 table.ddp-table-type2 tbody tr td .ddp-ui-checkbox {position:relative; display:inline-block; width:12px; height:12px; vertical-align:middle;}
 
-table.ddp-table-type2 tbody tr td .ddp-input-form {position:absolute; top:0; left:0; right:0; bottom:0; cursor:pointer;}
+table.ddp-table-type2 tbody tr td .ddp-input-form { cursor:pointer;}
 table.ddp-table-type2 tbody tr td .ddp-input-form:hover:before {position:absolute; top:0; left:0; right:0; bottom:0;background:#f1f1f3; content:'';}
 table.ddp-table-type2 tbody tr td.ddp-selected .ddp-input-form:hover:before {display:none;}
 
 table.ddp-table-type2 tbody tr td.ddp-disabled > div {opacity:0.3;}
-table.ddp-table-type2 tbody tr td .ddp-input-form input.ddp-txt-input {display:block; position:relative; width:100%; height:100%; padding:13px 10px 14px 10px; border:none; background:none; font-size:13px; box-sizing:border-box; z-index:10; cursor:pointer;}
-table.ddp-table-type2 tbody tr td .ddp-input-form input.ddp-txt-input:focus + em.ddp-bg-select {display:inline-block; position:absolute; top:0; right:0; bottom:0; left:0; border:1px solid #9ca2cc; background-color:#f2f1f8;}
+table.ddp-table-type2 tbody tr td.ddp-input-form {cursor:pointer;}
+table.ddp-table-type2 tbody tr td.ddp-input-form:hover {background-color:#f1f1f3 !important;}
+table.ddp-table-type2 tbody tr td.ddp-input-form input.ddp-txt-input {display:block; position:relative; width:100%; height:100%; border:none; background:none; font-size:13px; box-sizing:border-box; z-index:10; cursor:pointer;}
 table.ddp-table-type2 tbody tr td .ddp-input-form.ddp-edit input.ddp-txt-input {padding-right:34px;}
 table.ddp-table-type2 tbody tr td .ddp-input-form.ddp-edit .ddp-icon-edit {display:none; position:absolute; top:50%; right:10px; margin-top:-6px;width:12px; height:12px; background:url(../../../images/icon_edit.png) no-repeat; }
 table.ddp-table-type2 tbody tr td .ddp-input-form.ddp-edit:hover .ddp-icon-edit {display:block;}
