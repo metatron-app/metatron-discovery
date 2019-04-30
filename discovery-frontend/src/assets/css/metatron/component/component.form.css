@@ -102,7 +102,8 @@
 .ddp-wrap-edit2 .ddp-radio-inline {display:inline-block;}
 .ddp-wrap-edit2 .ddp-radio-inline li {display:inline-block; padding-right:30px;}
 .ddp-wrap-edit2 .ddp-radio-inline li .ddp-label-radio {display:inline-block; position:relative;}
-.ddp-wrap-edit2 .ddp-radio-inline li .ddp-type-selectbox {display:inline-block; margin-left:5px;}
+.ddp-wrap-edit2 .ddp-radio-inline li .ddp-type-selectbox {display:inline-block; min-width:160px; margin-left:5px; vertical-align:middle;}
+.ddp-wrap-edit2 .ddp-radio-inline li .ddp-type-selectbox .ddp-list-selectbox {right:initial; min-width:100%; white-space:nowrap;}
 .ddp-wrap-edit2 .ddp-radio-inline li .ddp-list-selectbox li {display:block; padding-right:0;}
 .ddp-wrap-edit2 .ddp-list-checktype li {padding:5px 0;}
 .ddp-wrap-edit2 .ddp-list-checktype li .ddp-txt-det {color:#808dcd; font-size:12px; font-style:italic; vertical-align:top;}
