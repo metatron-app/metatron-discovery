@@ -21,6 +21,7 @@ import { Dataconnection } from '../../../../domain/dataconnection/dataconnection
 import { Workbench } from '../../../../domain/workbench/workbench';
 import { PageResult } from '../../../../domain/common/page';
 import { WorkspaceService } from '../../../../workspace/service/workspace.service';
+import {StorageService} from "../../../../data-storage/service/storage.service";
 
 @Component({
   selector: 'app-create-workbench-select',
@@ -79,6 +80,7 @@ export class CreateWorkbenchSelectComponent extends AbstractPopupComponent imple
   // 생성자
   constructor(protected popupService: PopupService,
               protected workspaceService: WorkspaceService,
+              protected storageService: StorageService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -271,7 +273,7 @@ export class CreateWorkbenchSelectComponent extends AbstractPopupComponent imple
    */
   public get getDefaultIndexDbType() {
     return this.dbTypes.findIndex((item) => {
-      return item.value === this.selectedDbType.value;
+      return item.name === this.selectedDbType.name;
     });
   }
 
@@ -362,8 +364,8 @@ export class CreateWorkbenchSelectComponent extends AbstractPopupComponent imple
     };
 
     // 데이터베이스 타입
-    if (this.selectedDbType.value !== 'all') {
-      params['implementor'] = this.selectedDbType.value;
+    if (this.selectedDbType.name !== 'all') {
+      params['implementor'] = this.selectedDbType.name;
     }
     // 계정타입
     if (this.selectedAccountType.value !== 'all') {
@@ -459,7 +461,9 @@ export class CreateWorkbenchSelectComponent extends AbstractPopupComponent imple
     this.searchText = '';
 
     // database types
-    this.dbTypes = this.getEnabledConnectionTypes();
+    this.dbTypes = this.storageService.getConnectionTypeList();
+    this.dbTypes.unshift({label: this.translateService.instant('msg.storage.ui.list.all'), name: 'all', value: 'all'});
+
     this.selectedDbType = this.dbTypes[0];
 
     // 계정 타입
