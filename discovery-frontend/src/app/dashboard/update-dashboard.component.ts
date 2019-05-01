@@ -289,7 +289,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     this.subscriptions.push(
       this.broadCaster.on<any>('CHANGE_FILTER_SELECTOR').subscribe(data => {
         this.dashboard = DashboardUtil.updateWidget(this.dashboard, data.widget);
-        this.dashboard = DashboardUtil.updateBoardFilter(this.dashboard, data.filter);
+        this.dashboard = DashboardUtil.updateBoardFilter(this.dashboard, data.filter)[0];
       })
     );
 
@@ -1222,10 +1222,16 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     this._changeChartFilterToGlobalFilter(filter);
 
     // 대시보드 필터 업데이트
-    this.dashboard = DashboardUtil.updateBoardFilter(this.dashboard, filter, true);
+    const updateResult:[Dashboard, boolean] = DashboardUtil.updateBoardFilter(this.dashboard, filter, true);
+    this.dashboard = updateResult[0];
 
     this._organizeAllFilters(true).then(() => {
       this._syncFilterWidget();
+
+      if( updateResult[1] ) {
+        // append New Filter
+        this.openIndexFilterPanel = DashboardUtil.getFilterWidgets(this.dashboard).length - 1;
+      }
 
       this._configFilterComp.close();
       this.hideBoardLoading();

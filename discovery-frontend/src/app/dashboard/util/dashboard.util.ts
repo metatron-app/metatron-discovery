@@ -221,7 +221,7 @@ export class DashboardUtil {
     }
 
     // 필터 설정
-    if( configuration.filters ) {
+    if (configuration.filters) {
       for (let filter of configuration.filters) {
         filter = FilterUtil.convertToServerSpecForDashboard(filter);
       }
@@ -428,7 +428,7 @@ export class DashboardUtil {
    * Current Date Time 인지 확인
    * @param field
    */
-  public static isCurrentDateTime(field:Field) {
+  public static isCurrentDateTime(field: Field) {
     return CommonConstant.COL_NAME_CURRENT_DATETIME === field.name
       && field.role === FieldRole.TIMESTAMP && field.format && field.format.type === FieldFormatType.TEMPORARY_TIME;
   } // function - isCurrentDateTime
@@ -441,8 +441,8 @@ export class DashboardUtil {
    */
   public static getFieldsForMainDataSource(boardConf: BoardConfiguration, engineName: string) {
     return (boardConf.fields) ? boardConf.fields.filter(item => {
-      if( item.dataSource === engineName ) {
-        return !DashboardUtil.isCurrentDateTime( item );
+      if (item.dataSource === engineName) {
+        return !DashboardUtil.isCurrentDateTime(item);
       } else {
         return false;
       }
@@ -490,7 +490,7 @@ export class DashboardUtil {
    */
   public static getLayoutWidgetInfos(board: Dashboard): LayoutWidgetInfo[] {
     if (board.configuration.widgets) {
-      return board.configuration.widgets.filter(item => board.widgets.some(widget => widget.id === item.ref));
+      return board.configuration.widgets.filter(item => item.isInLayout && board.widgets.some(widget => widget.id === item.ref));
     } else {
       return [];
     }
@@ -571,7 +571,9 @@ export class DashboardUtil {
     if (field) {
       return field;
     } else {
-      idx = _.findIndex(customFields, (obj) => { return obj.name === fieldName});
+      idx = _.findIndex(customFields, (obj) => {
+        return obj.name === fieldName
+      });
       return customFields[idx];
     }
   } // function - getFieldByName
@@ -668,11 +670,13 @@ export class DashboardUtil {
    * @param {Dashboard} board
    * @param {Filter} filter
    * @param {boolean} isOverwrite
-   * @returns {Dashboard}
+   * @returns {[Dashboard, boolean]}
    */
-  public static updateBoardFilter(board: Dashboard, filter: Filter, isOverwrite: boolean = false): Dashboard {
+  public static updateBoardFilter(board: Dashboard, filter: Filter, isOverwrite: boolean = false): [Dashboard, boolean] {
     const idx: number = board.configuration.filters.findIndex(item => item.dataSource === filter.dataSource && item.field === filter.field);
+    let isNewFilter: boolean = false;
     if (-1 === idx) {
+      isNewFilter = true;
       this.addBoardFilter(board, filter);
     } else {
       if (isOverwrite) {
@@ -683,11 +687,11 @@ export class DashboardUtil {
     }
 
     // for presentation mode
-    const targetWidget:FilterWidget
-      = <FilterWidget>board.widgets.find( item => this.isSameFilterAndWidget( board, filter, item ) );
-    ( targetWidget ) && ( targetWidget.configuration.filter = filter );
+    const targetWidget: FilterWidget
+      = <FilterWidget>board.widgets.find(item => this.isSameFilterAndWidget(board, filter, item));
+    (targetWidget) && (targetWidget.configuration.filter = filter);
 
-    return board;
+    return [board, isNewFilter];
   } // function - updateBoardFilter
 
   /**
@@ -1007,26 +1011,27 @@ export class DashboardUtil {
    * @param data
    */
   public static getChartLimitInfo(widgetId: string, type: ChartType, data: { rows: any[], info: any, columns: any[] }): ChartLimitInfo {
-    let limitInfo:ChartLimitInfo = {
+    let limitInfo: ChartLimitInfo = {
       id: widgetId,
       isShow: false,
       currentCnt: 0,
       maxCnt: 0
     };
-    if( ChartUtil.isUsingLimitOption(type) && data.info ) {
+    if (ChartUtil.isUsingLimitOption(type) && data.info) {
       limitInfo.maxCnt = data.info.totalCategory;
-      if( ChartType.PIE === type || ChartType.LABEL === type || ChartType.WORDCLOUD === type ) {
-        if( data.columns && 0 < data.columns.length ) {
+      if (ChartType.PIE === type || ChartType.LABEL === type || ChartType.WORDCLOUD === type) {
+        if (data.columns && 0 < data.columns.length) {
           limitInfo.currentCnt = data.columns[0].value.length;
         }
-      } if( ChartType.GRID === type || ChartType.HEATMAP === type ) {
-        if( data.rows && 0 < data.rows.length ) {
+      }
+      if (ChartType.GRID === type || ChartType.HEATMAP === type) {
+        if (data.rows && 0 < data.rows.length) {
           limitInfo.currentCnt = data.rows.length;
         } else {
           limitInfo.currentCnt = data.columns.length;
         }
       } else {
-        if( data.rows && 0 < data.rows.length ) {
+        if (data.rows && 0 < data.rows.length) {
           limitInfo.currentCnt = data.rows.length;
         }
       }
