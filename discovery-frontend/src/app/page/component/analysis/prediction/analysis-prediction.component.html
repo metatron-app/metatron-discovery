@@ -70,19 +70,14 @@
                     <span class="ddp-txt-label">{{LABEL.INTERVAL}}</span>
 
                     <div class="ddp-box-multy ddp-clear">
-                        <input type="text"
-                               class="ddp-input-typebasic"
-                               #predictionInterval
-                               input-mask="number"
-                               [ngModel]="data.analysis.analysis.interval + ''"
-                               (blur)="blurPredictionInterval(predictionInterval);"
-                               (keyup.enter)="keyupEnterPredictionInterval(predictionInterval.value);">
-                        <!-- selectbox -->
-                        <!-- 클릭시 ddp-selected 추가 -->
-                        <div class="ddp-type-selectbox ddp-non-select">
-                            <span class="ddp-txt-selectbox">{{data.analysis.analysis.timeUnit}}</span>
-                        </div>
-                        <!-- //selectbox -->
+                      <component-input
+                        [value]="data.analysis.analysis.interval"
+                        [valueType]="'number'"
+                        [inputClass]="'ddp-input-typebasic'"
+                        (changeValue)="keyupEnterPredictionInterval($event)"></component-input>
+                      <div class="ddp-type-selectbox ddp-non-select">
+                          <span class="ddp-txt-selectbox">{{data.analysis.analysis.timeUnit}}</span>
+                      </div>
                     </div>
 
                 </div>
@@ -154,18 +149,14 @@
                                 </label>
                             </div>
                             <div class="ddp-col-4">
-
-                                <!--(blur)="changeSelectedForecastParameter();"-->
-                                <input type="text" class="ddp-input-typebasic ddp-text-right"
-                                       placeholder="0.000"
-                                       input-mask="float"
-                                       #selectedForecastParameterAlpha
-                                       [disabled]="selectedForecastParameter.isAlphaDisabled || !selectedForecastParameter.isAlphaSelected"
-                                       [ngModel]="selectedForecastParameter.alpha + ''"
-                                       (blur)="blurSelectedForecastParameterAlpha(selectedForecastParameterAlpha);"
-                                       (keyup.enter)="keyupEnterSelectedForecastParameterAlpha(selectedForecastParameterAlpha)"
-                                       maxlength="5"
-                                       max="5">
+                              <component-input
+                                [value]="selectedForecastParameter.alpha"
+                                [valueType]="'number'"
+                                [inputClass]="'ddp-input-typebasic ddp-text-right'"
+                                [placeHolder]="'0.000'"
+                                [disabled]="selectedForecastParameter.isAlphaDisabled || !selectedForecastParameter.isAlphaSelected"
+                                [beforeChangeValue]="validateForecastParameterAlpha()"
+                                (changeValue)="setForecastParameterAlpha($event)"></component-input>
                             </div>
                         </div>
                         <!-- //option checkbox -->
@@ -185,17 +176,14 @@
                                 </label>
                             </div>
                             <div class="ddp-col-4">
-                                <!--(blur)="changeSelectedForecastParameter();"-->
-                                <input type="text" class="ddp-input-typebasic ddp-text-right"
-                                       placeholder="0.000"
-                                       input-mask="float"
-                                       #selectedForecastParameterBeta
-                                       [disabled]="selectedForecastParameter.isBetaDisabled || !selectedForecastParameter.isBetaSelected"
-                                       [ngModel]="selectedForecastParameter.beta + ''"
-                                       (blur)="blurSelectedForecastParameterBeta(selectedForecastParameterBeta);"
-                                       (keyup.enter)="keyupEnterSelectedForecastParameterBeta(selectedForecastParameterBeta);"
-                                       maxlength="5"
-                                       max="5">
+                              <component-input
+                                [value]="selectedForecastParameter.beta"
+                                [valueType]="'number'"
+                                [inputClass]="'ddp-input-typebasic ddp-text-right'"
+                                [placeHolder]="'0.000'"
+                                [disabled]="selectedForecastParameter.isBetaDisabled || !selectedForecastParameter.isBetaSelected"
+                                [beforeChangeValue]="validateForecastParameterBeta()"
+                                (changeValue)="setForecastParameterBeta($event)"></component-input>
                             </div>
                         </div>
                         <!-- //option checkbox -->
@@ -216,18 +204,14 @@
                                 </label>
                             </div>
                             <div class="ddp-col-4">
-                                <!--(blur)="changeSelectedForecastParameter();"-->
-                                <!--#alpha="ngModel"-->
-                                <input type="text" class="ddp-input-typebasic ddp-text-right"
-                                       placeholder="0.000"
-                                       input-mask="float"
-                                       #selectedForecastParameterGamma
-                                       [disabled]="selectedForecastParameter.isGammaDisabled || !selectedForecastParameter.isGammaSelected"
-                                       [ngModel]="selectedForecastParameter.gamma + ''"
-                                       (blur)="blurSelectedForecastParameterGamma(selectedForecastParameterGamma);"
-                                       (keyup.enter)="keyupEnterSelectedForecastParameterGamma(selectedForecastParameterGamma);"
-                                       maxlength="5"
-                                       max="5">
+                              <component-input
+                                [value]="selectedForecastParameter.gamma"
+                                [valueType]="'number'"
+                                [inputClass]="'ddp-input-typebasic ddp-text-right'"
+                                [placeHolder]="'0.000'"
+                                [disabled]="selectedForecastParameter.isGammaDisabled || !selectedForecastParameter.isGammaSelected"
+                                [beforeChangeValue]="validateForecastParameterGamma()"
+                                (changeValue)="setForecastParameterGamma($event)"></component-input>
                             </div>
                         </div>
                         <!-- //option checkbox -->
@@ -245,13 +229,13 @@
                             </label>
                           </div>
                           <div class="ddp-col-4">
-                            <input type="number" class="ddp-input-typebasic ddp-text-right"
-                                   #advancedPeriod
-                                   placeholder="0.000"
-                                   input-mask="number"
-                                   [disabled]="selectedForecastParameter.isAuto || !selectedForecastParameter.isPeriodSelected"
-                                   [ngModel]="selectedForecastParameter.period + ''"
-                                   (keyup.enter)="changeAdvancedPeriod(advancedPeriod)">
+                            <component-input
+                              [value]="selectedForecastParameter.period"
+                              [valueType]="'number'"
+                              [inputClass]="'ddp-input-typebasic ddp-text-right'"
+                              [placeHolder]="'0.000'"
+                              [disabled]="selectedForecastParameter.isAuto || !selectedForecastParameter.isPeriodSelected"
+                              (changeValue)="changeAdvancedPeriod($event)"></component-input>
                           </div>
                         </div>
                         <!-- //option checkbox -->
@@ -412,16 +396,14 @@
                             </div>
                         </div>
                         <div class="ddp-col-4">
-                            <div class="ddp-box-option-input">
-                                <!--(blur)="changeConfidenceTransparency();"-->
-                                <input type="text"
-                                       #confidenceTransparency
-                                       input-mask="number"
-                                       [ngModel]="data.analysis.analysis.confidence.style.transparency + ''"
-                                       (blur)="blurConfidenceTransparency(confidenceTransparency);"
-                                       (keyup.enter)="keyupConfidenceTransparency(confidenceTransparency);">
-                                <span class="ddp-txt-input ddp-dark">{{LABEL.PROCENT}}</span>
-                            </div>
+                          <div class="ddp-box-option-input">
+                            <component-input
+                              [value]="data.analysis.analysis.confidence.style.transparency"
+                              [valueType]="'number'"
+                              [beforeChangeValue]="validateConfidenceTransparency()"
+                              (changeValue)="setConfidenceTransparency($event)"></component-input>
+                            <span class="ddp-txt-input ddp-dark">{{LABEL.PROCENT}}</span>
+                          </div>
                         </div>
                     </div>
                 </div>

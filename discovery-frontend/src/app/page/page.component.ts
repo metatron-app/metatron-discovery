@@ -1386,7 +1386,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.analysisPredictionService
         .changeAnalysisPredictionLine(this.widgetConfiguration, this.widget, this.lineChartComponent, null)
         .then((result) => {
-          this.widgetConfiguration.analysis.forecast.parameters.map((parameter) => {
+          this.widgetConfiguration.analysis.forecast.parameters.forEach((parameter) => {
             const resultHyperParameter: HyperParameter = result.info.analysis[`${parameter.field}.params`];
             parameter.alpha = resultHyperParameter[0];
             parameter.beta = resultHyperParameter[1];
