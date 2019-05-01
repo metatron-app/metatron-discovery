@@ -353,7 +353,7 @@ public class UserController {
     userRepository.save(user);
 
     if (!user.getPassMailer()) {
-      mailer.sendSignUpApprovedMail(user, true);
+      mailer.sendSignUpApprovedMail(user, true, user.getPassword());
     }
 
     Map<String, Object> responseMap = Maps.newHashMap();
@@ -513,7 +513,7 @@ public class UserController {
     // 워크스페이스 생성(등록된 워크스페이스가 없을 경우 생성)
     workspaceService.createWorkspaceByUserCreation(user, false);
 
-    mailer.sendSignUpApprovedMail(user, false);
+    mailer.sendSignUpApprovedMail(user, false, null);
 
     return ResponseEntity.noContent().build();
   }

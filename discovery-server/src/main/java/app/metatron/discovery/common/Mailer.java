@@ -83,8 +83,7 @@ public class Mailer {
   public void sendPasswordResetMail(User user, String temporaryPassword, boolean isAdmin) {
     LOGGER.debug("Sending password reset e-mail to '{}'", user.getEmail());
 
-    Locale locale = Locale.KOREA;
-    Context context = new Context(locale);
+    Context context = new Context();
     context.setVariable("user", user);
     context.setVariable("temporaryPassword", temporaryPassword);
     context.setVariable("title", this.getUpperCaseTitle());
@@ -98,23 +97,20 @@ public class Mailer {
     }
 
     String content = templateEngine.process(templateName, context);
-//    String subject = messageSource.getMessage(("email.reset.title", null, locale);
-    String subject = this.getUpperCaseTitle() + " 임시비밀번호 발급 안내";
-//    String subject = "Metatron 임시비밀번호 발급 안내";
+    String subject = this.getUpperCaseTitle() + " temporary password information";
     sendEmail(Lists.newArrayList(user.getEmail()), subject, content, false, true);
   }
 
   @Async
   public void sendSignUpRequestMail(User user, boolean isAdmin) {
     LOGGER.debug("Sending sign up request e-mail to '{}'", user.getEmail());
-    Locale locale = Locale.KOREA;
-    Context context = new Context(locale);
+    Context context = new Context();
     context.setVariable("user", user);
     context.setVariable("title", this.getUpperCaseTitle());
     context.setVariable("baseUrl", metatronProperties.getMail().getBaseUrl());
 
     String content = templateEngine.process("email/user_signup_request", context);
-    String subject = this.getUpperCaseTitle() + " 사용자 등록 요청";
+    String subject = this.getUpperCaseTitle() + " User registration request";
 
 
     List<String> toList = Lists.newArrayList();
@@ -125,10 +121,9 @@ public class Mailer {
   }
 
   @Async
-  public void sendSignUpApprovedMail(User user, boolean isAdmin) {
+  public void sendSignUpApprovedMail(User user, boolean isAdmin, String password) {
     LOGGER.debug("Sending sign up approved e-mail to '{}'", user.getEmail());
-    Locale locale = Locale.KOREA;
-    Context context = new Context(locale);
+    Context context = new Context();
     context.setVariable("user", user);
     context.setVariable("title", this.getUpperCaseTitle());
     context.setVariable("baseUrl", metatronProperties.getMail().getBaseUrl());
@@ -136,10 +131,11 @@ public class Mailer {
     String templateName, subject;
     if(isAdmin) {
       templateName = "email/user_signup_approved_by_admin";
-      subject = this.getUpperCaseTitle() + " 가입 완료 안내";
+      subject = this.getUpperCaseTitle() + " added your account";
+      context.setVariable("temporaryPassword", password);
     } else {
       templateName = "email/user_signup_approved";
-      subject = this.getUpperCaseTitle() + " 가입 요청 승인 안내";
+      subject = this.getUpperCaseTitle() + " approved your request";
     }
 
     String content = templateEngine.process(templateName, context);
@@ -149,14 +145,13 @@ public class Mailer {
   @Async
   public void sendSignUpDeniedMail(User user) {
     LOGGER.debug("Sending sign up denied e-mail to '{}'", user.getEmail());
-    Locale locale = Locale.KOREA;
-    Context context = new Context(locale);
+    Context context = new Context();
     context.setVariable("user", user);
     context.setVariable("title", this.getUpperCaseTitle());
     context.setVariable("baseUrl", metatronProperties.getMail().getBaseUrl());
 
     String content = templateEngine.process("email/user_signup_denied", context);
-    String subject = this.getUpperCaseTitle() + " 가입 요청 반려";
+    String subject = this.getUpperCaseTitle() + " rejected your request";
 
     // TODO: 관리자 목록 가져올 것!
     sendEmail(Lists.newArrayList(user.getEmail()), subject, content, false, true);
