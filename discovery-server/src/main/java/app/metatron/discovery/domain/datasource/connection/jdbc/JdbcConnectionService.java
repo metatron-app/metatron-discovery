@@ -928,7 +928,7 @@ public class JdbcConnectionService {
 
     // 결과 셋이 없는 경우 처리
     File file = new File(resultFileName);
-    if (!file.exists() && file.length() == 0) {
+    if (!file.exists() || file.length() == 0) {
       return null;
     }
 
