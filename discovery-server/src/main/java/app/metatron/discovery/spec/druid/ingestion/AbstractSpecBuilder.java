@@ -275,13 +275,17 @@ public class AbstractSpecBuilder {
       if (hadoopIngestion) {
         CsvFileFormat csvFormat = (CsvFileFormat) fileFormat;
 
-        // CsvParseSpec with Default CSV has an error on the druid. So all ingestion with hadoop use TsvParseSpec.
         TsvParseSpec parseSpec = new TsvParseSpec();
         parseSpec.setTimestampSpec(timestampSpec);
         parseSpec.setDimensionsSpec(dimensionsSpec);
         parseSpec.setColumns(columns);
 
-        parseSpec.setDelimiter(csvFormat.getDelimiter());
+        // Hive's default delimiter is not a comma
+        if (ingestionInfo instanceof HiveIngestionInfo && csvFormat.isDefaultCsvMode()) {
+          parseSpec.setDelimiter("\u0001");
+        } else {
+          parseSpec.setDelimiter(csvFormat.getDelimiter());
+        }
         parseSpec.setListDelimiter(csvFormat.getLineSeparator());
 
         parser = new StringParser(parseSpec);
