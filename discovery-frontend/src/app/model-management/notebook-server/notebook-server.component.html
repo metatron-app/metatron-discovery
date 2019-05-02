@@ -124,10 +124,10 @@
       </tr>
       </thead>
       <tbody>
-      <tr *ngFor="let item of resultData" (click)="connectorItemRowClick(item);">
+      <tr *ngFor="let item of resultData; let index = index" (click)="connectorItemRowClick(item);">
         <td class="ddp-txt-center" (click)="checkColumn($event)">
           <div class="ddp-ui-checkbox" >
-            <input type="checkbox" class="ddp-checkbox-form" value="{{item.id}}" (click)="checkClick($event)">
+            <input type="checkbox" class="ddp-checkbox-form" value="{{item.id}}" (click)="checkClick($event, index)">
             <i class="ddp-icon-checkbox"></i>
           </div>
         </td>
