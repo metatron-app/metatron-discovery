@@ -367,7 +367,7 @@ export class CreateWorkbenchSelectComponent extends AbstractPopupComponent imple
 
     // 데이터베이스 타입
     if (this.selectedDbType.name !== allDBType) {
-      params['implementor'] = this.selectedDbType.name;
+      params['implementor'] = this.selectedDbType.implementor;
     }
     // 계정타입
     if (this.selectedAccountType.value !== 'all') {
