@@ -13,34 +13,38 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
   ViewChild
 } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
-import { DatasourceInfo, Field } from '../../../../../domain/datasource/datasource';
-import { FileLikeObject, FileUploader} from 'ng2-file-upload';
-import { Alert } from '../../../../../common/util/alert.util';
-import { CookieConstant } from '../../../../../common/constant/cookie.constant';
-import { CommonConstant } from '../../../../../common/constant/common.constant';
-import { DatasourceService } from '../../../../../datasource/service/datasource.service';
-import { header, SlickGridHeader } from '../../../../../common/component/grid/grid.header';
-import { GridOption } from '../../../../../common/component/grid/grid.option';
-import { GridComponent } from '../../../../../common/component/grid/grid.component';
+import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
+import {DatasourceInfo, Field} from '../../../../../domain/datasource/datasource';
+import {Alert} from '../../../../../common/util/alert.util';
+import {DatasourceService} from '../../../../../datasource/service/datasource.service';
+import {header, SlickGridHeader} from '../../../../../common/component/grid/grid.header';
+import {GridOption} from '../../../../../common/component/grid/grid.option';
+import {GridComponent} from '../../../../../common/component/grid/grid.component';
 import {isNullOrUndefined} from 'util';
 import * as pixelWidth from 'string-pixel-width';
 import * as _ from 'lodash';
 import {
   DataSourceCreateService,
   FileDetail,
-  FileResult, Sheet,
-  UploadResult
+  FileResult,
+  Sheet
 } from "../../../../service/data-source-create.service";
 
 @Component({
-  selector: 'file-select',
-  templateUrl: './file-select.component.html',
+  selector: 'file-preview',
+  templateUrl: './file-preview.component.html',
 })
-export class FileSelectComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
+export class FilePreviewComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -51,9 +55,6 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
 
   @ViewChild(GridComponent)
   private readonly gridComponent: GridComponent;
-
-  // file uploaded results
-  private _uploadResult: UploadResult;
 
   // file results
   public fileResult: FileResult;
@@ -66,9 +67,6 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
 
   @Output()
   public readonly stepChange: EventEmitter<string> = new EventEmitter();
-
-  // 파일 업로드
-  public uploader: FileUploader;
 
   // 그리드 row
   public rowNum: number;
@@ -100,75 +98,20 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
               protected injector: Injector) {
 
     super(elementRef, injector);
-
-    this.uploader = new FileUploader(
-      {
-        url: CommonConstant.API_CONSTANT.API_URL + 'datasources/file/upload',
-      }
-    );
-    // post
-    this.uploader.onBeforeUploadItem = (item) => {
-      item.method = 'POST';
-    };
-    // set uploader option
-    this.uploader.setOptions({
-      url: CommonConstant.API_CONSTANT.API_URL + 'datasources/file/upload',
-      headers: [
-        { name: 'Accept', value: 'application/json, text/plain, */*' },
-        { name: 'Authorization', value: `${this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)} ${this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)}` }
-      ],
-    });
-    // 지원하지 않는 파일 형식일 경우
-    this.uploader.onWhenAddingFileFailed = (item: FileLikeObject, filter: any, options: any) => {
-      Alert.error(this.translateService.instant('msg.storage.alert.file.import.error'));
-    };
-
-    // 업로드 성공
-    this.uploader.onSuccessItem = (item, response, status, headers) => {
-      const success = true;
-      this._uploadResult = { success, item, response, status, headers };
-      // loading hide
-      this.loadingHide();
-    };
-    // 업로드 완료후 작동
-    this.uploader.onCompleteAll = () => {
-      if (this._uploadResult && this._uploadResult.success) {
-        // 업로드한 파일 정보 세팅
-        this._setFileResult(this._uploadResult);
-        // set file detail data
-        this._setFileDetail(true);
-      }
-    };
-
-    // 에러 처리
-    this.uploader.onErrorItem = (item, response, status, headers) => {
-      // response 데이터
-      const result: any = JSON.parse(response);
-      // 데이터 초기화
-      this.fileResult = undefined;
-      // init upload result
-      this._uploadResult = undefined;
-      // 파일 업로드 에러 처리
-      Alert.error(result.details);
-      // loading hide
-      this.loadingHide();
-    };
-
-    this.uploader.onAfterAddingFile = (item) => {
-      this.loadingShow();
-      this.uploader.uploadAll();
-    };
-
   }
 
   // Init
   public ngOnInit() {
     // Init
     super.ngOnInit();
+    // set file result
+    this.fileResult = this.sourceData.uploadData.fileResult;
     // 현재 페이지 데이터소스 파일보가 있다면
     if (this.sourceData.hasOwnProperty('fileData')) {
       // init data
       this._initData(_.cloneDeep(this.sourceData.fileData));
+    } else {
+      this._setFileDetail(true);
     }
   }
 
@@ -177,6 +120,13 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
 
     // Destory
     super.ngOnDestroy();
+  }
+
+  public prev() {
+    // 기존 파일 데이터 삭제후 생성
+    this._deleteAndSaveFileData();
+    this.step = 'file-upload';
+    this.stepChange.emit(this.step);
   }
 
   /**
@@ -236,7 +186,7 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
    * @return {boolean}
    */
   public isExcelFile(): boolean {
-    return this.fileResult.hasOwnProperty('sheets');
+    return _.isNil(this.fileResult.sheets);
   }
 
   /**
@@ -413,7 +363,7 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
         const headerWidth:number = Math.floor(pixelWidth(field.name, { size: 12 })) + 70;
         return new SlickGridHeader()
           .Id(field.name)
-          .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.logicalType.toString()) + '"></em>' + field.name + '</span>')
+          .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.logicalType.toString()) + '"></em>' + Field.getSlicedColumnName(field) + '</span>')
           .Field(field.name)
           .Behavior('select')
           .Selectable(false)
@@ -423,6 +373,18 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
           .Resizable(true)
           .Unselectable(true)
           .Sortable(true)
+          .Formatter((row, cell, value) => {
+            let content = value;
+            // trans to string
+            if (typeof value === "number") {
+              content = value + '';
+            }
+            if (content && content.length > 50) {
+              return content.slice(0,50);
+            } else {
+              return content;
+            }
+          })
           .build();
       }
     );
@@ -545,28 +507,7 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
   }
 
 
-  /**
-   * Set file result
-   * @param {UploadResult} uploadResult
-   * @private
-   */
-  private _setFileResult(uploadResult: UploadResult) {
-    // response 데이터
-    const response: any = JSON.parse(uploadResult.response);
-    this.fileResult = {
-      fileKey: response.filekey,
-      filePath: response.filePath,
-      fileSize: uploadResult.item.file.size,
-      fileName:  uploadResult.item.file.name
-    };
-    // sheet 가 존재한다면
-    if (response.sheets && response.sheets.length !== 0) {
-      // sheet
-      this.fileResult.sheets = this._dataSourceCreateService.getConvertSheets(response.sheets);
-      // initial selected sheet
-      this.fileResult.selectedSheet = this.fileResult.sheets[0];
-    }
-  }
+
 
   /**
    * init source file data
@@ -595,4 +536,5 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
     // grid 출력
     this._updateGrid(this.selectedFileDetailData.data, this.selectedFileDetailData.fields);
   }
+
 }

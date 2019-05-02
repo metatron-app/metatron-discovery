@@ -1,55 +1,67 @@
 <img title="logo-metatron" src="https://user-images.githubusercontent.com/6300003/44013820-f7647c96-9f02-11e8-8066-1c97f8b1662c.png" alt="metatron-discovery-logo" width="400px">
 
 **Metatron Discovery** is an end-to-end big data self discovery solution.
-To learn more about metatron discovery, visit our web site [https://metatron.app](https://metatron.app)
+To learn more about it, visit our [web site](https://metatron.app). Check [our blog](https://metatron.app/index.php/blog/) for upcoming events and development news.
+
 
 Strengths
 ------------------
-- Able to process HUGE data sets super FAST, powered by (optimized) [Apache Druid](http://druid.io/)
-- Easy data analytics for everyone
-- Intuitive UI with full API support
+
+- Able to process HUGE data sets super FAST, powered by (optimized) [Apache Druid](http://druid.io/).
+- Single solution for data analytics from easy data preparation to fast visualization.
+- Easy data analytics for everyone.
+
 
 Key Features
 ------------------
 
 Metatron provides:
 - Interactive dashboards with numerous preloaded charts.
-- Supports query(SQL) based data exploration and GUI based data wrangling.
-- Supports various data sources (e.g. DBs, HIVE, or Kafka streams).
+- Query(SQL) based data exploration and GUI based data wrangling.
+- Various data source connections (e.g. DBs, HIVE, or Kafka streams).
+- Geo data analysis with geospatial operations.
 - Job and data usage monitoring.
 - Metadata management.
-- Supports 3rd party data analytics tool integration(e.g. [Apache Zeppelin](https://zeppelin.apache.org/)).
+- 3rd party data analytics tool integration(e.g. [Apache Zeppelin](https://zeppelin.apache.org/)).
 - Fine grain access control of users and workspaces.
-- Overcomes Druid weaknesses (e.g. no data join function) without performance degradation using [Metatron optimized Druid](https://metatron.app/index.php/2018/06/15/skt-druid-features/)
-- Full API support, enabling easy integration into your environment/software
+- Overcomes Druid weaknesses(e.g. no data join function) without performance degradation using [Metatron optimized Druid](https://metatron.app/index.php/2018/06/15/skt-druid-features/).
+- Full API support, enabling easy integration into your environment/software.
+- Multiple languages according to browser setting(Currently supporting English, Korean, Chinese).
 - Available on AWS, Azure('19.3Q).
 - Docker support for distributed version deploy('19.3Q).
+- Monitoring Metatron engine performance('19.3Q).
 
 Screenshots
 ------------------
 ### Create Dashboards
-<kbd><img title="Dashboard" src="https://user-images.githubusercontent.com/6300003/44020367-a32bf09a-9f1c-11e8-9915-f62a789b3d07.png"></kbd><br />
+<kbd><img title="Metatron-dashboard" src="https://user-images.githubusercontent.com/8841220/56104113-598f0880-5f71-11e9-8dbc-930703fe9b92.png"></kbd><br />
 
 ### Create Charts
-<kbd><img title="Chart" src="https://user-images.githubusercontent.com/6300003/44201180-98bb4e80-a183-11e8-81da-54dd59d14330.png"></kbd><br />
+<kbd><img title="Metatron-chart" src="https://user-images.githubusercontent.com/6300003/44201180-98bb4e80-a183-11e8-81da-54dd59d14330.png"></kbd><br />
 
-### Map Analysis
-<kbd><img title="Map" src="https://metatron.app/wp-content/uploads/2018/10/map.png"></kbd><br />
+### Analyze with Geospatial Data
+<kbd><img title="Metatron-Geospatial-analysis" src="https://user-images.githubusercontent.com/8841220/55847737-641e5c00-5b85-11e9-84ed-ea1194c3710a.png"></kbd><br />
 
 ### Use Datasources
-<kbd><img title="Use-Datasource" src="https://user-images.githubusercontent.com/6300003/44200744-51808e00-a182-11e8-8fc6-d30d56b4ab26.png"></kbd><br />
+<kbd><img title="Use-datasource" src="https://user-images.githubusercontent.com/6300003/44200744-51808e00-a182-11e8-8fc6-d30d56b4ab26.png"></kbd><br />
 
 ### Manage Datasources
 <kbd><img title="Datasource-detail" src="https://user-images.githubusercontent.com/6300003/44200028-95729380-a180-11e8-95fb-070d7ed0d260.png"></kbd><br />
+
+### Manage Engine Performance (Comming Soon)
+<kbd><img title="Metatron-engine-monitoring" src="https://user-images.githubusercontent.com/6300003/53152270-73a70d00-35f8-11e9-8412-096e6099adab.png"></kbd><br />
 
 ### Connect Database
 <kbd><img title="Create-connection" src="https://user-images.githubusercontent.com/6300003/44200666-1bdba500-a182-11e8-8b2b-43dfdfe30bf4.png"></kbd><br />
 
 ### Prepare Origin Data
-<kbd><img title="Data-preparation" src="https://user-images.githubusercontent.com/6300003/44019798-d02e8348-9f1a-11e8-958e-4e95802bd5de.png"></kbd><br />
+<kbd><img title="Data-preparation" src="https://user-images.githubusercontent.com/8841220/53787835-688e9e00-3f63-11e9-94db-078dc5add109.png"></kbd><br />
 
 ### Query Monitoring
 <kbd><img title="query-monitoring" src="https://metatron.app/wp-content/uploads/2018/10/screencapture-discovery-metatron-app-app-v2-management-monitoring-statistics-2018-10-29-15_38_15-1.png"><br /></kbd>
+
+### SQL in Druid
+<kbd><img title="query-monitoring" src="https://user-images.githubusercontent.com/8841220/53787073-f917af00-3f60-11e9-9e11-a9dfe82a99da.png"><br /></kbd>
 
 Installation
 ----------------------------
@@ -64,11 +76,6 @@ Installation
 
 To install the Metatron distributed Druid, simply untar the downloaded archive. And start | stop the druid with the following commands.
 <pre><code> $ start-single.sh | stop-single.sh </code></pre>
-
-### (Optional) Install the GEO server
-We introduced map view since 3.1.0.
-If you want to using this feature, download [this archive](https://sktmetatronkrsouthshared.blob.core.windows.net/metatron-public/discovery-dist/latest/geoserver-metatron-latest.tar.gz) and run the geo server with the following commands.
-<pre><code> $ bin/startup.sh | bin/shutdown.sh </code></pre>
 
 ### Build from source
 Git clone this project.
@@ -91,14 +98,16 @@ Running options are provided as well.
 <pre><code>$ bin/metatron.sh [--config=directory] [--init] [--management] [--debug=port] {start|stop|restart|status}</code></pre>
 To access Metatron Discovery, go to [http://localhost:8180](http://localhost:8180). (The default admin user account is provided as Username: admin, PW: admin.)
 
+### Using REST API
+Metatron support RESTful APIs. Please refer to the following details [how to using the REST API](.github/USE_REST_API.md)
 
 Problems & Suggestions
 ----------------------------
-This project welcomes contributions and suggestions. If you encounter any bugs or want to request new features, feel free to open an [GitHub Issue](https://github.com/metatron-app/metatron-discovery/issues) in the repo so that the community can find resolutions for it. Although, please check before you raise an issue. That is, please make sure someone else hasn’t already created an issue for the same topic.
+This project welcomes contributions and suggestions. If you encounter any bugs or want to request new features, feel free to open an [GitHub Issue](https://github.com/metatron-app/metatron-discovery/issues) in the repo so that the community can find resolutions for it. Or reports bug to our [discussion forum](https://metatron.app/discussion/). Although, please check before you raise an issue. That is please make sure someone else hasn’t already created an issue for the same topic.
 
 Question
 ----------------------------
-Need help using Metatron Discovery? Ask away on our [Metatron Discovery User Group](https://groups.google.com/forum/#!forum/metatron-discovery)! Our fellow community member or our engineers will be glad to help you out! Or maybe you might want to check out our user manual on our website as well.
+Need help using Metatron Discovery? Check our [FAQs](https://metatron.app/discussion) or ask away on our [discussion forum](https://groups.google.com/d/forum/metatron-discovery)! Our fellow community members will be glad to help you out! Or you can check out our [user manual on our website](https://metatron.app/documents/) as well.
 
 License
 ----------------------------

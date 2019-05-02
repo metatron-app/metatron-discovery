@@ -1387,7 +1387,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.analysisPredictionService
         .changeAnalysisPredictionLine(this.widgetConfiguration, this.widget, this.lineChartComponent, null)
         .then((result) => {
-          this.widgetConfiguration.analysis.forecast.parameters.map((parameter) => {
+          this.widgetConfiguration.analysis.forecast.parameters.forEach((parameter) => {
             const resultHyperParameter: HyperParameter = result.info.analysis[`${parameter.field}.params`];
             parameter.alpha = resultHyperParameter[0];
             parameter.beta = resultHyperParameter[1];
@@ -1823,7 +1823,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    */
   public deleteFilter(filter: Filter) {
     // if (filter.ui.widgetId || !this.isDashboard) {
-    if (filter.ui.widgetId ) {
+    if (filter.ui.widgetId) {
       // 차트필터 또는 워크벤치인경우 제거
       const idx = _.findIndex(this.widgetConfiguration.filters, {field: filter.field});
       if (idx < 0) {
@@ -2302,18 +2302,31 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   /**
    * 데이터패널에서 선택된 dimension /measure 개수 return
    */
-  public getSelectedDataItemsCnt(items: Field[]): number {
+  public getCntShelfItem(type: 'DIMENSION' | 'MEASURE'): number {
 
-    // 선택된 아이템 변수
-    let selectedItems = [];
-
-    // pivot 정보가 있는 아이템만 설정
-    selectedItems = items.filter((item) => {
-      if (item.pivot && item.pivot.length > 0) return item;
-    });
-
-    return selectedItems.length;
-  }
+    let cntShelfItems = 0;
+    const strType:string = type.toLowerCase();
+    if( ChartType.MAP === this.widgetConfiguration.chart.type ) {
+      // 선택된 아이템 변수 - shelf 정보가 있는 아이템만 설정
+      this.shelf.layers.forEach( layer => {
+        cntShelfItems = cntShelfItems + layer.fields.filter( field => {
+          return strType === field.type && field.field.dataSource === this.dataSource.engineName;
+        }).length;
+      });
+    } else {
+      // 선택된 아이템 변수 - pivot 정보가 있는 아이템만 설정
+      cntShelfItems = cntShelfItems + this.pivot.rows.filter(row => {
+        return strType === row.type && row.field.dataSource === this.dataSource.engineName;
+      }).length;
+      cntShelfItems = cntShelfItems + this.pivot.columns.filter(col => {
+        return strType === col.type && col.field.dataSource === this.dataSource.engineName;
+      }).length;
+      cntShelfItems = cntShelfItems + this.pivot.aggregations.filter(aggr => {
+        return strType === aggr.type && aggr.field.dataSource === this.dataSource.engineName;
+      }).length;
+    }
+    return cntShelfItems;
+  } // function - getCntShelfItem
 
   /**
    * 차트 데이터가 없을시 No Data 노출
@@ -2459,7 +2472,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     }
 
     // geo column validation 체크
-    if (!_.eq(this.selectChart, ChartType.MAP) && !_.eq(this.selectChart, '') && targetField.logicalType.toString().indexOf('GEO') != -1 ) {
+    if (!_.eq(this.selectChart, ChartType.MAP) && !_.eq(this.selectChart, '')
+      && (targetField.logicalType && targetField.logicalType.toString().indexOf('GEO') != -1)) {
       Alert.warning(this.translateService.instant('msg.board.ui.invalid-column'));
       return;
     }
@@ -2500,7 +2514,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (isDimension) {
 
       // map chart validation
-      if (targetField.logicalType.toString().indexOf('GEO') != -1 && !_.eq(this.selectChart, '')) {
+      if ((targetField.logicalType && targetField.logicalType.toString().indexOf('GEO') != -1)
+        && !_.eq(this.selectChart, '')) {
         Alert.warning(this.translateService.instant('msg.board.ui.invalid-pivot'));
         return;
       }
@@ -3448,7 +3463,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
           // 가이드가 아닌 직접 선반에 넣은 경우
           if (targetField) {
             // geo column validation 체크
-            if (!_.eq(this.selectChart, ChartType.MAP) && !_.eq(this.selectChart, '') && targetField.logicalType.toString().indexOf('GEO') != -1 ) {
+            if (!_.eq(this.selectChart, ChartType.MAP) && !_.eq(this.selectChart, '')
+              && (targetField.logicalType && targetField.logicalType.toString().indexOf('GEO') != -1)) {
               if (info.target === 'column') {
                 this.invalidGeoData(this.pivot.columns);
               } else if (info.target === 'row') {
@@ -4420,8 +4436,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @param targetPivot
    * @returns {any}
    */
-  private invalidGeoData(targetPivot : AbstractField[]) {
-    _.remove(targetPivot, function (item : any) {
+  private invalidGeoData(targetPivot: AbstractField[]) {
+    _.remove(targetPivot, function (item: any) {
       return !_.isUndefined(item.logicalType) && item.logicalType.toString().indexOf('GEO') != -1;
     });
     return targetPivot;

@@ -89,13 +89,7 @@
             <ul class="ddp-list-typebasic ddp-typeicon">
               <li *ngFor="let field of pagedFields" (click)="selecteColumn(field)">
                 <a href="javascript:">
-                  <em class="ddp-icon-type-ab"  *ngIf="field.logicalType?.toString() === 'STRING' || field.type === 'USER_DEFINED' || field.type === 'TEXT'"></em>
-                  <em class="ddp-icon-type-local" *ngIf="field.type === 'LNG' || field.type === 'LNT'"></em>
-                  <em class="ddp-icon-type-calen" *ngIf="field.type === 'TIMESTAMP'"></em>
-                  <em class="ddp-icon-type-sharp" *ngIf="field.type === 'LONG' || field.type === 'INTEGER' || field.type === 'DOUBLE' || field.type === 'CALCULATED'"></em>
-                  <em class="ddp-icon-type-point" *ngIf="field.logicalType?.toString() === 'GEO_POINT'"></em>
-                  <em class="ddp-icon-type-line" *ngIf="field.logicalType?.toString() === 'GEO_LINE'"></em>
-                  <em class="ddp-icon-type-polygon" *ngIf="field.logicalType?.toString() === 'GEO_POLYGON'"></em>
+                  <em ngClass="{{DashboardUtil.getFieldIconClass(findNameForIcon(field.type, field.logicalType?.toString()))}}"></em>
                   <span class="ddp-data-name" *ngIf="field.ref">{{field.ref}}.</span>
                   {{field.name}}
                   <em class="ddp-icon-plus"></em>

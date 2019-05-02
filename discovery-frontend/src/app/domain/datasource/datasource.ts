@@ -25,6 +25,7 @@ import {
 import {PrDataSnapshot} from "../data-preparation/pr-snapshot";
 import {isNullOrUndefined} from "util";
 import {TimezoneService} from "../../data-storage/service/timezone.service";
+import {AggregationType} from "../workbook/configurations/field/measure-field";
 
 export class Datasource extends AbstractHistoryEntity {
   id: string;             // ID
@@ -144,12 +145,14 @@ export class Field {
   // 필수 필터링 순서 지정
   filteringSeq: number;
   // 필터링 옵션
-  filteringOptions: any;
+  filteringOptions;
 
-  // is create field (optional)
-  derived?: boolean;
+  aggrType?: AggregationType;
   // Whether to exclude what to load to engine
   unloaded?: boolean;
+  seq: number;
+  // is create field (optional)
+  derived?: boolean;
   // derivationRule
   derivationRule?: DerivationRule;
   // IngestionRule
@@ -167,7 +170,6 @@ export class Field {
   alias: string;
 
   // for UI
-  seq: number;
   useFilter: boolean = false;
   useChartFilter: boolean = false;
   useChart: boolean = false;
@@ -213,6 +215,14 @@ export class Field {
     delete this.isValidType;
   }
 
+  public static getSlicedColumnName?(field: Field): string {
+    if (field.name.length > 50) {
+      return field.name.slice(0,50);
+    } else {
+      return field.name;
+    }
+  }
+
   /**
    * 차원값의 타입 아이콘 클래스 반환
    * @param {Field} field
@@ -223,8 +233,10 @@ export class Field {
     const logicalType: string = (field.logicalType) ? field.logicalType.toString() : '';
     if ('STRING' === logicalType || 'user_expr' === field.type) {
       return 'ddp-icon-dimension-ab';
-    } else if ('LNG' === logicalType || 'LNT' === logicalType) {
-      return 'ddp-icon-dimension-local';
+    } else if ('LNG' === logicalType) {
+      return 'ddp-icon-dimension-longitude';
+    } else if ('LNT' === logicalType) {
+      return 'ddp-icon-dimension-latitude';
     } else if ('TIMESTAMP' === logicalType) {
       return 'ddp-icon-dimension-calen';
     } else if ('DOUBLE' === logicalType) {
@@ -286,6 +298,8 @@ export class DatasourceInfo {
 
   // 1step 커넥션 정보
   public connectionData: CreateConnectionData;
+  // 1step 업로드 정보
+  public uploadData;
 
   // 2step 데이터베이스 정보
   public databaseData: any;

@@ -1498,14 +1498,11 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
    * @param value
    */
   private isNumberRegex(value: any): boolean {
-    // 숫자 정규식 (범위는 : -000.000 ~ 000.000)
-    const regex: RegExp = /^(?!-0?(\.0+)?$)-?(0|[1-9]\d*)?(\.\d+)?(?<=\d)$/;
     // comma 빼기
     if( value.indexOf(',') != -1) {
       value = value.replace(/,/g, '');
     }
-    const isValueNumber: boolean = regex.test(value);
-    return isValueNumber;
+    return Number( value ) !== NaN;
   }
 
   private removeInputRangeStatus() {

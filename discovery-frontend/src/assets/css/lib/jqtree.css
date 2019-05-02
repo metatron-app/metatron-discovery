@@ -1,18 +1,20 @@
-ul.jqtree-tree {list-style: none outside;margin-left: 0; margin-bottom: 0; padding: 12px 0; }
-ul.jqtree-tree ul.jqtree_common {list-style: none outside;margin-left: 12px;margin-right: 0;margin-bottom: 0;padding: 0;display: block; }
+ul.jqtree-tree {list-style: none outside;margin-left: 0; margin-bottom: 0; padding: 12px 0;}
+ul.jqtree-tree > li {}
+ul.jqtree-tree > li > ul.jqtree_common {margin-left:12px;}
+ul.jqtree-tree ul.jqtree_common {list-style: none outside;margin-left: 37px;margin-right: 0;margin-bottom: 0;padding: 0;display: block; }
+.jqtree-element + ul.jqtree_common {margin-left:12px;}
 ul.jqtree-tree li.jqtree-closed > ul.jqtree_common {display: none; }
 ul.jqtree-tree li.jqtree_common.ddp-drag-enable > .jqtree_common > .node-content-wrapper { border : 1px solid #666db7; background-color: rgb(102, 109, 183, 0.2); }
 ul.jqtree-tree li.jqtree_common.ddp-drag-disable > .jqtree_common > .node-content-wrapper { border : 1px solid #d7d7df; background-color: rgb(186, 186, 194, 0.2); }
 ul.jqtree-tree li.jqtree_common.ddp-drag-disable > .jqtree_common > .node-content-wrapper span { color : #d7d7df; }
-ul.jqtree-tree li.jqtree_common div.jqtree_common {clear: both;list-style-type: none; display:table; padding:4px 0; width:100%; table-layout:fixed; cursor: pointer;}
+ul.jqtree-tree li.jqtree_common div.jqtree_common {clear: both;list-style-type: none; padding:4px 0; width:100%; table-layout:fixed; cursor: pointer;}
 ul.jqtree-tree li.jqtree_common div.jqtree_common:hover {background-color:#f6f6f7;}
-ul.jqtree-tree li.jqtree_common em.ddp-data-num {display:table-cell; width:48px; text-align:center; vertical-align: middle;}
-ul.jqtree-tree li.jqtree_common ul.jqtree_common[role=group] em.ddp-node-depth { position: relative; }
+ul.jqtree-tree li.jqtree_common em.ddp-data-num {display:inline-block; float:left; width:48px; text-align:center; vertical-align: middle; left:0 !important;}
+ul.jqtree-tree li.jqtree_common ul.jqtree_common[role=group] em.ddp-node-depth { position: relative; float:left; width:21px;}
 ul.jqtree-tree li.jqtree_common ul.jqtree_common[role=group] em.ddp-node-depth:before {
+  position:relative;
+  top:-9px;
   display: inline-block;
-  position: absolute;
-  top: -10px;
-  right: 0;
   width: 13px;
   height: 23px;
   background: url(../../images/icon_depth.png) no-repeat;

@@ -72,7 +72,7 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
    * @param {string} route
    */
   public onChangedStep(route: string): void {
-    this._step = route === 'prev' ? 'file-select' : 'file-ingestion';
+    this._step = route === 'prev' ? 'file-preview' : 'file-ingestion';
     this._stepChange.emit(this._step);
   }
 }

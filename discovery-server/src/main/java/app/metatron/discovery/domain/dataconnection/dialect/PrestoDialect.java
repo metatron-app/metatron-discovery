@@ -22,7 +22,9 @@ import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import app.metatron.discovery.common.exception.FunctionWithException;
 import app.metatron.discovery.extension.dataconnection.jdbc.JdbcConnectInformation;
@@ -91,7 +93,7 @@ public class PrestoDialect implements JdbcDialect {
    * Connection
    */
   @Override
-  public boolean isSupportImplementor(JdbcConnectInformation connectInfo, String implementor) {
+  public boolean isSupportImplementor(String implementor) {
     return implementor.toUpperCase().equals(this.getImplementor().toUpperCase());
   }
 
@@ -177,7 +179,10 @@ public class PrestoDialect implements JdbcDialect {
       builder.append(" FROM ( ");
       builder.append("   SELECT schema_name, ROW_NUMBER() OVER (PARTITION BY CURRENT_DATE ORDER BY schema_name) ROWNUM ");
       builder.append("   FROM information_schema.schemata ");
-      builder.append("   WHERE catalog_name = '" + catalog + "' ");
+      builder.append("   WHERE 1=1 ");
+      if(StringUtils.isNotEmpty(catalog)){
+        builder.append("     AND catalog_name = '" + catalog + "' ");
+      }
 
       if(excludeSchemas != null){
         builder.append(" AND schema_name NOT IN ( ");
@@ -194,7 +199,10 @@ public class PrestoDialect implements JdbcDialect {
 
       builder.append(" SELECT schema_name ");
       builder.append(" FROM information_schema.schemata ");
-      builder.append(" WHERE catalog_name = '" + catalog + "' ");
+      builder.append(" WHERE 1=1 ");
+      if(StringUtils.isNotEmpty(catalog)){
+        builder.append("   AND catalog_name = '" + catalog + "' ");
+      }
 
       if(excludeSchemas != null){
         builder.append(" AND schema_name NOT IN ( ");
@@ -217,7 +225,10 @@ public class PrestoDialect implements JdbcDialect {
 
     builder.append(" SELECT COUNT(schema_name) ");
     builder.append(" FROM information_schema.schemata ");
-    builder.append(" WHERE catalog_name = '" + catalog + "' ");
+    builder.append(" WHERE 1=1 ");
+    if(StringUtils.isNotEmpty(catalog)){
+      builder.append(" AND catalog_name = '" + catalog + "' ");
+    }
     if(StringUtils.isNotEmpty(schemaNamePattern)){
       builder.append(" AND schema_name LIKE '%" + schemaNamePattern + "%' ");
     }
@@ -249,7 +260,10 @@ public class PrestoDialect implements JdbcDialect {
       builder.append(" FROM ( ");
       builder.append("   SELECT table_name, table_type, ROW_NUMBER() OVER (PARTITION BY CURRENT_DATE ORDER BY table_name) ROWNUM ");
       builder.append("   FROM information_schema.tables ");
-      builder.append("   WHERE table_catalog = '" + catalog + "' ");
+      builder.append("   WHERE 1=1 ");
+      if(StringUtils.isNotEmpty(catalog)){
+        builder.append("     AND table_catalog = '" + catalog + "' ");
+      }
       builder.append("     AND table_schema LIKE '%" + schema + "%' ");
       if(StringUtils.isNotEmpty(tableNamePattern)){
         builder.append("   AND table_name LIKE '%" + tableNamePattern + "%' ");
@@ -260,7 +274,10 @@ public class PrestoDialect implements JdbcDialect {
 
       builder.append(" SELECT table_name name, table_type type ");
       builder.append(" FROM information_schema.tables ");
-      builder.append(" WHERE catalog_name = '" + catalog + "' ");
+      builder.append(" WHERE 1=1 ");
+      if(StringUtils.isNotEmpty(catalog)){
+        builder.append("  AND table_catalog = '" + catalog + "' ");
+      }
       builder.append("   AND table_schema LIKE '%" + schema + "%' ");
       if(StringUtils.isNotEmpty(tableNamePattern)){
         builder.append(" AND table_name LIKE '%" + tableNamePattern + "%' ");
@@ -282,7 +299,10 @@ public class PrestoDialect implements JdbcDialect {
 
     builder.append(" SELECT COUNT(table_name) ");
     builder.append(" FROM information_schema.tables ");
-    builder.append(" WHERE catalog_name = '" + catalog + "' ");
+    builder.append(" WHERE 1=1 ");
+    if(StringUtils.isNotEmpty(catalog)){
+      builder.append("   AND table_catalog = '" + catalog + "' ");
+    }
     builder.append("   AND table_schema LIKE '%" + schema + "%' ");
     if(StringUtils.isNotEmpty(tableNamePattern)){
       builder.append(" AND table_name LIKE '%" + tableNamePattern + "%' ");
@@ -322,12 +342,19 @@ public class PrestoDialect implements JdbcDialect {
     if(StringUtils.isEmpty(schema)) {
       return table;
     }
+
+    if(StringUtils.isEmpty(catalog)){
+      return schema + "." + table;
+    }
+
     return catalog + "." + schema + "." + table;
   }
 
   @Override
   public String getQuotedFieldName(JdbcConnectInformation connectInfo, String fieldName) {
-    return fieldName;
+    return Arrays.stream(fieldName.split("\\."))
+                 .map(spliced -> "\"" + spliced + "\"")
+                 .collect(Collectors.joining("."));
   }
 
   @Override
@@ -338,13 +365,13 @@ public class PrestoDialect implements JdbcDialect {
   @Override
   public String getCharToDateStmt(JdbcConnectInformation connectInfo, String timeStr, String timeFormat) {
     StringBuilder builder = new StringBuilder();
-    builder.append("unix_timestamp('").append(timeStr).append("', ");
 
+    builder.append("parse_datetime(").append(timeStr).append(", ");
     builder.append("'");
     if(DEFAULT_FORMAT.equals(timeFormat)) {
       builder.append(getDefaultTimeFormat(connectInfo));
     } else {
-      builder.append(timeFormat).append("'");
+      builder.append(timeFormat);
     }
     builder.append("'");
     builder.append(") ");
@@ -353,8 +380,8 @@ public class PrestoDialect implements JdbcDialect {
   }
 
   @Override
-  public String getCurrentTimeStamp(JdbcConnectInformation connectInfo) {
-    return "format_datetime(current_timestamp,'" + getDefaultTimeFormat(connectInfo) + "') AS TIMESTAMP1";
+  public String getCharToUnixTimeStmt(JdbcConnectInformation connectInfo, String timeStr) {
+    return "to_unixtime(cast(" + timeStr + " as timestamp))";
   }
 
   /**
