@@ -689,10 +689,10 @@
 <!-- //삭제 -->
 
 <app-create-data-source *ngIf="mode=='db-configure-schema'"
-                        (sourceCreateClose)="mainViewShow = true; mode=''"
                         [step]="mode"
                         [sourceData]="setDatasource"
-                        (sourceCreateComplete)="createDatasourceComplete()">
+                        (sourceCreateComplete)="createDatasourceComplete()"
+                        (sourceCreateClose)="closeCreateDatasource()" >
 </app-create-data-source>
 <!--<app-page #page *ngIf="isShowPage" [widget]="selectedPageWidget" (close)="isShowPage=false"></app-page>-->
 <app-page #page *ngIf="isShowPage" [widget]="selectedPageWidget" [dashboard]="false"
