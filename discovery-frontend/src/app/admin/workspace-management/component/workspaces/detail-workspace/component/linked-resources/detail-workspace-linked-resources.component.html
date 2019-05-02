@@ -46,10 +46,12 @@
           </tr>
           <tr *ngFor="let source of getDatasourceList()">
             <td>
-              <div class="ddp-txt-long ddp-global">
-                {{source.name}}
-                <span class="ddp-txt-colortype" *ngIf="source.description">-{{source.description}}</span>
-                <em class="ddp-tag-global" *ngIf="source.published">{{'msg.comm.ui.list.ds.opendata' | translate}}</em>
+              <div class="ddp-txt-long">
+                <em class="ddp-tag-global type-tag" *ngIf="source.published">{{'msg.comm.ui.list.ds.opendata' | translate}}</em>
+                <span class="ddp-data-long">
+                  {{source.name}}
+                  <span class="ddp-txt-colortype" *ngIf="source.description">-{{source.description}}</span>
+                </span>
               </div>
             </td>
             <td>
@@ -91,9 +93,11 @@
           </tr>
           <tr *ngFor="let connection of getConnectionList()">
             <td>
-              <div class=" ddp-txt-long ddp-global" [class.ddp-connection]="translateService.getBrowserLang() == 'en'">
-                {{connection.name}}
-                <em class="ddp-tag-global" *ngIf="connection.published">{{'msg.spaces.shared.detail.connection.open' | translate}}</em>
+              <div class="ddp-txt-long">
+                <em class="ddp-tag-global type-tag" *ngIf="connection.published">{{'msg.spaces.shared.detail.connection.open' | translate}}</em>
+                <span class="ddp-data-long">
+                  {{connection.name}}
+                </span>
               </div>
             </td>
             <td>
