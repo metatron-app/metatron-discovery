@@ -1035,6 +1035,37 @@ export class DashboardUtil {
     return limitInfo;
   } // function - getChartLimitInfo
 
+
+  /**
+   * Returns icon class for field
+   * @param name
+   */
+  public static getFieldIconClass(name: string): string {
+
+    const fieldIconClasses = [
+      {name: 'STRING', class: 'ddp-icon-type-ab'},
+      {name: 'TIMESTAMP', class: 'ddp-icon-type-calen'},
+      {name: 'LONG', class: 'ddp-icon-type-sharp'},
+      {name: 'LNG', class: 'ddp-icon-type-longitude'},
+      {name: 'LNT', class: 'ddp-icon-type-latitude'},
+      {name: 'GEO_POINT', class: 'ddp-icon-type-point'},
+      {name: 'GEO_LINE', class: 'ddp-icon-type-line'},
+      {name: 'GEO_POLYGON', class: 'ddp-icon-type-polygon'},
+    ];
+
+    if (_.isNil(name)) { // is it necessary?
+      return 'ddp-icon-type-ab'
+    }
+
+    // find index using name
+    const idx = fieldIconClasses.findIndex((item) => {
+      return item.name === name
+    });
+
+    // return string class if name doesn't exist in list
+    return idx !== -1 ? fieldIconClasses[idx].class : 'ddp-icon-type-ab'
+
+  }
 } // class - DashboardUtil
 
 export class ChartLimitInfo {

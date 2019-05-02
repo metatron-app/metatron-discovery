@@ -223,8 +223,10 @@ export class Field {
     const logicalType: string = (field.logicalType) ? field.logicalType.toString() : '';
     if ('STRING' === logicalType || 'user_expr' === field.type) {
       return 'ddp-icon-dimension-ab';
-    } else if ('LNG' === logicalType || 'LNT' === logicalType) {
-      return 'ddp-icon-dimension-local';
+    } else if ('LNG' === logicalType) {
+      return 'ddp-icon-dimension-longitude';
+    } else if ('LNT' === logicalType) {
+      return 'ddp-icon-dimension-latitude';
     } else if ('TIMESTAMP' === logicalType) {
       return 'ddp-icon-dimension-calen';
     } else if ('DOUBLE' === logicalType) {

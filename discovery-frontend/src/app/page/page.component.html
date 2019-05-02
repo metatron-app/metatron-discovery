@@ -111,8 +111,12 @@
                           <!--*ngIf="field.type === 'TEXT' || field.type === 'STRING' || field.type === 'USER_DEFINED'"></em>-->
                           <!-- //문자열 -->
                           <!-- 위도 / 경도 -->
-                          <em class="ddp-icon-dimension-local"
-                              *ngIf="field.logicalType?.toString() === 'LNG' || field.logicalType?.toString() === 'LNT'"></em>
+                          <em class="ddp-icon-dimension-latitude"
+                              *ngIf="field.logicalType?.toString() === 'LNT'"></em>
+                          <em class="ddp-icon-dimension-longitude"
+                              *ngIf="field.logicalType?.toString() === 'LNG'"></em>
+                          <!--<em class="ddp-icon-dimension-local"-->
+                              <!--*ngIf="field.logicalType?.toString() === 'LNG' || field.logicalType?.toString() === 'LNT'"></em>-->
                           <!-- //위도 / 경도 -->
                           <!-- 시간 -->
                           <em class="ddp-icon-dimension-calen"
