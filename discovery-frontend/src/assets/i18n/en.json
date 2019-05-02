@@ -1559,7 +1559,6 @@
   "msg.board.alert.global-filter.edit.error" :"Failed to edit the global filter.",
   "msg.board.alert.update.board.error" : "Error occurred while updating the dashboard",
   "msg.board.ui.fit-to-height.tooltip" : "Min:900 ~ Max:2400",
-  "msg.board.alert.timestamp.del.error" : "Timestamps cannot be deleted.",
   "msg.board.alert.recomm-filter.del.error" : "Recommended filter cannot be deleted.",
   "msg.board.alert.dashboard.update.fail": "There was an error updating the dashboard",
   "msg.board.alert.dashboard.sort.success": "Dashboard order changed",
