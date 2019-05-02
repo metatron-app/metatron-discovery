@@ -51,6 +51,7 @@
 <db-complete *ngIf="step=='db-complete'"
              [sourceData]="sourceData"
              [(step)]="step"
+             (onComplete)="createComplete()"
              (close)="createClose()">
 </db-complete>
 
