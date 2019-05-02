@@ -32,10 +32,7 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  //
   protected defaultPhotoSrc = '/assets/images/img_photo.png';
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
@@ -96,10 +93,13 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
 
   /**
    * 사용자 정보 수정 완료
-   * @param event
+   * @param userData
    */
-  public updatedUser(event): void {
-    this.user = event;
+  public updatedUser(userData): void {
+    this.user.imageUrl = '';
+    this.safelyDetectChanges();
+    this.user = userData;
+    this.safelyDetectChanges();
   }
 
   /**
