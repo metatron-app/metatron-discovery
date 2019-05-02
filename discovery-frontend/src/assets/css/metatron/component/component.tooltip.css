@@ -15,7 +15,7 @@
 .ddp-ui-tooltip-info em.ddp-icon-view-right {display:inline-block; position:absolute; top:50%; right:-4px; width:4px; height:8px; margin-top:-4px; background:url(../../../images/icon_tagview.png) no-repeat; transform:rotate(180deg);}
 .ddp-ui-tooltip.ddp-selected .ddp-ui-tooltip-info {display:block;}
 .ddp-ui-tooltip-info.ddp-down {position:absolute; top:100%; left:inherit; right:-10px; margin-top:6px; font-weight:normal;}
-.ddp-ui-tooltip-info.ddp-down em.ddp-icon-view-top {left:initial; right:15px;}
+.ddp-ui-tooltip-info.ddp-down em.ddp-icon-view-top {left:inherit; right:15px;}
 
 .ddp-ui-tooltip-info.ddp-top {position:absolute; bottom:100%; top:inherit; left:25px; }
 .ddp-ui-tooltip-info.ddp-top .ddp-icon-view-top {top:100%; transform:rotate(-90deg); margin-top:-2px;}
@@ -28,3 +28,4 @@
 .ddp-ui-tooltip-info .ddp-dl-info + .ddp-dl-info {padding-top:6px;}
 .ddp-ui-tooltip-info .ddp-dl-info dt {font-size:12px; color:#f6f6f7; font-weight:300;}
 .ddp-ui-tooltip-info .ddp-dl-info dd {font-size:12px; color:#f6f6f7;}
+

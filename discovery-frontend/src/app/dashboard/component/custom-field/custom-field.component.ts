@@ -168,6 +168,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
   public aggregated: boolean = false;
 
 
+  public DashboardUtil = DashboardUtil;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -638,6 +639,28 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
     } else {
       return;
     }
+  }
+
+
+  /**
+   * Returns name for finding icon class
+   * @param type
+   * @param logicalType
+   */
+  public findNameForIcon(type: string, logicalType?: string) {
+
+    if (type === 'USER_DEFINED' || type === 'TEXT' ) {
+      return 'STRING'
+    }
+
+    if (type === 'LONG' || type === 'INTEGER' || type === 'DOUBLE' || type === 'CALCULATED') {
+      return 'LONG'
+    }
+
+    if (logicalType) {
+      return logicalType
+    }
+
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
