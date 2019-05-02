@@ -6486,14 +6486,14 @@ ul.ddp-ui-tab.ddp-type li .ddp-box-layout4.ddp-information a {padding:0px; borde
 
 
 .ddp-wrap-workbench .ddp-layout-table {display:table; width:100%; height:100%;}
-.ddp-wrap-workbench .ddp-ui-benchlnb {display:table-cell; min-width:455px; position:relative;height:100%; background-color:#35393f; vertical-align: top; z-index:20;}
+.ddp-wrap-workbench .ddp-ui-benchlnb {display:table-cell; position:relative; width:455px; min-width:455px;  height:100%; background-color:#35393f; vertical-align: top; z-index:20;}
 .ddp-wrap-workbench .ddp-ui-benchlnb.ddp-fold {width:280px; min-width:260px;}
 .ddp-wrap-workbench .ddp-ui-benchlnb.ddp-fold .ddp-view-benchlnb {width:100%;}
 .ddp-wrap-workbench .ddp-ui-benchlnb.ddp-fold .ddp-ui-benchtable {display:none;}
 .ddp-wrap-workbench .ddp-ui-benchlnb .ddp-view-benchlnb {position:relative; float:left; height:100%; width:55%;}
 .ddp-ui-benchlnb.ddp-close {width:9px; min-width:9px;}
 .ddp-ui-benchlnb.ddp-none {display:none;}
-.ddp-ui-benchlnb.ddp-close .ddp-view-benchlnb {width:9px;}
+.ddp-ui-benchlnb.ddp-close .ddp-view-benchlnb {width:9px; min-width:auto;}
 .ddp-ui-benchlnb.ddp-close .ddp-box-benchlnb {display:none;}
 .ddp-ui-benchlnb.ddp-close .ddp-ui-benchtable {display:none;}
 .ddp-box-benchlnb {width:100%; height:100%;}
@@ -6778,9 +6778,9 @@ table.ddp-table-simple tr td .ddp-ui-action {font-size:13px;white-space:nowrap; 
 table.ddp-table-simple tr td .ddp-ui-time {width:100%; color:#90969f; font-size:12px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 .ddp-wrap-table-simple .ddp-table-tbody a.ddp-btn-more {display:inline-block; margin:10px 22px;color:#4b515b; font-size:12px; text-decoration: underline;}
 
-.ddp-ui-query {display:table-cell; position:relative; padding:0 13px 11px 2px; z-index:5; vertical-align:top; box-sizing:border-box;}
-/*.ddp-ui-query.ddp-tablepop {left:500px}*/
-/*.ddp-ui-query.ddp-full {left:13px;}*/
+.ddp-ui-query {display:table-cell; width:100%; height:100%; padding:0 13px 11px 2px;z-index:5; vertical-align:top; box-sizing:border-box;}
+.ddp-ui-query-in {position:relative; width:100%; height:100%;}
+
 .ddp-box-editer.ddp-full {position:fixed !important; left:13px !important; right:64px !important; bottom:2px !important; top:101px !important; height:auto !important; background-color:#fff; z-index:15;}
 .ddp-box-editer.ddp-full .ddp-box-full {display:none;}
 .ddp-box-editer.ddp-full .ddp-box-reduce {display:block;}
