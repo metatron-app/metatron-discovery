@@ -363,7 +363,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
         const headerWidth:number = Math.floor(pixelWidth(field.name, { size: 12 })) + 70;
         return new SlickGridHeader()
           .Id(field.name)
-          .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.logicalType.toString()) + '"></em>' + field.name + '</span>')
+          .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.logicalType.toString()) + '"></em>' + Field.getSlicedColumnName(field) + '</span>')
           .Field(field.name)
           .Behavior('select')
           .Selectable(false)
@@ -373,6 +373,18 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
           .Resizable(true)
           .Unselectable(true)
           .Sortable(true)
+          .Formatter((row, cell, value) => {
+            let content = value;
+            // trans to string
+            if (typeof value === "number") {
+              content = value + '';
+            }
+            if (content && content.length > 50) {
+              return content.slice(0,50);
+            } else {
+              return content;
+            }
+          })
           .build();
       }
     );

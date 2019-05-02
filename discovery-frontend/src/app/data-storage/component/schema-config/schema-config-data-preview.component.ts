@@ -1,6 +1,7 @@
 import {AbstractComponent} from "../../../common/component/abstract.component";
 import {Component, ElementRef, Injector, Input} from "@angular/core";
 import {ConnectionType, Field} from "../../../domain/datasource/datasource";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'schema-config-data-preview',
@@ -18,6 +19,23 @@ export class SchemaConfigDataPreviewComponent extends AbstractComponent {
   constructor(protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
+  }
+
+  /**
+   * Get sliced data content
+   * @param data
+   */
+  public getSlicedDataContent(data: string) {
+    let content = data;
+    // trans to string
+    if (typeof data === "number") {
+      content = data + '';
+    }
+    if (!_.isNil(content)  && content.length > 50) {
+      return content.slice(0,50);
+    } else {
+      return content;
+    }
   }
 
   /**
