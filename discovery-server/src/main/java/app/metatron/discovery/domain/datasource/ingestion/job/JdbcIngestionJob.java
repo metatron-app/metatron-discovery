@@ -56,6 +56,7 @@ import app.metatron.discovery.spec.druid.ingestion.IngestionSpec;
 import app.metatron.discovery.spec.druid.ingestion.IngestionSpecBuilder;
 
 import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_COMMON_ERROR;
+import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_JDBC_EMPTY_RESULT_ERROR;
 import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_JDBC_FETCH_RESULT_ERROR;
 import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_JDBC_QUERY_EXECUTION_ERROR;
 import static app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo.IngestionScope.INCREMENTAL;
@@ -134,7 +135,7 @@ public class JdbcIngestionJob extends AbstractIngestionJob implements IngestionJ
     }
 
     if (CollectionUtils.isEmpty(csvFiles)) {
-      throw new DataSourceIngestionException(INGESTION_JDBC_FETCH_RESULT_ERROR, "Empty result of query.");
+      throw new DataSourceIngestionException(INGESTION_JDBC_EMPTY_RESULT_ERROR, "Empty result of query.");
     }
 
     File tempFile = new File(csvFiles.get(0));

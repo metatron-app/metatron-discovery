@@ -280,17 +280,29 @@ public class DruidDialect implements JdbcDialect {
 
   @Override
   public String getDefaultTimeFormat(JdbcConnectInformation connectInfo) {
-    return "%Y-%m-%d %T";
+    return "yyyy-MM-dd HH:mm:ss";
   }
 
   @Override
   public String getCharToDateStmt(JdbcConnectInformation connectInfo, String timeStr, String timeFormat) {
-    throw new RuntimeException("Druid data connection is not support 'getCharToDateStmt'");
+    StringBuilder builder = new StringBuilder();
+    builder.append("TIME_PARSE(");
+    builder.append(timeStr);
+    builder.append(", '");
+
+    if(DEFAULT_FORMAT.equals(timeFormat)) {
+      builder.append(getDefaultTimeFormat(connectInfo));
+    } else {
+      builder.append(timeFormat);
+    }
+    builder.append("') ");
+
+    return builder.toString();
   }
 
   @Override
-  public String getCurrentTimeStamp(JdbcConnectInformation connectInfo) {
-    throw new RuntimeException("Druid data connection is not support 'getCurrentTimeStamp'");
+  public String getCharToUnixTimeStmt(JdbcConnectInformation connectInfo, String timeStr) {
+    return "TIMESTAMP_TO_MILLIS(TIME_PARSE(" + timeStr + ")) / 1000";
   }
 
   /**

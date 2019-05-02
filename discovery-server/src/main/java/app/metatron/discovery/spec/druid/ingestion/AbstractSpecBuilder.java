@@ -233,6 +233,7 @@ public class AbstractSpecBuilder {
         case TIMESTAMP:
         case STRING:
         case TEXT:
+        case BOOLEAN:
           dimenstionSchemas.add(dimensionfield.getName());
           break;
         case INTEGER:
