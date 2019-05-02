@@ -352,11 +352,6 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
     }
 
     if (field.useFilter) {  // 제거
-      // 필수필터이면 제거 불가능
-      if (field.role === FieldRole.TIMESTAMP && field.logicalType === LogicalType.TIMESTAMP) {
-        Alert.warning(this.translateService.instant('msg.board.alert.timestamp.del.error'));
-        return;
-      }
 
       // 추천필터 제거 볼가
       if (field.filtering) {
