@@ -396,6 +396,11 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
     } else {
       $headerCheck.checked = false;
     }
+
+    if (0 == this.resultData.length) {
+      $headerCheck.checked = false;
+    }
+
   }
 
   /**
