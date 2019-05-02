@@ -275,26 +275,16 @@ public class AbstractSpecBuilder {
       if (hadoopIngestion) {
         CsvFileFormat csvFormat = (CsvFileFormat) fileFormat;
 
-        if (csvFormat.isDefaultCsvMode()) {
-          CsvParseSpec parseSpec = new CsvParseSpec();
-          parseSpec.setTimestampSpec(timestampSpec);
-          parseSpec.setDimensionsSpec(dimensionsSpec);
-          parseSpec.setColumns(columns);
+        // CsvParseSpec with Default CSV has an error on the druid. So all ingestion with hadoop use TsvParseSpec.
+        TsvParseSpec parseSpec = new TsvParseSpec();
+        parseSpec.setTimestampSpec(timestampSpec);
+        parseSpec.setDimensionsSpec(dimensionsSpec);
+        parseSpec.setColumns(columns);
 
-          parseSpec.setListDelimiter(csvFormat.getLineSeparator());
+        parseSpec.setDelimiter(csvFormat.getDelimiter());
+        parseSpec.setListDelimiter(csvFormat.getLineSeparator());
 
-          parser = new StringParser(parseSpec);
-        } else {
-          TsvParseSpec parseSpec = new TsvParseSpec();
-          parseSpec.setTimestampSpec(timestampSpec);
-          parseSpec.setDimensionsSpec(dimensionsSpec);
-          parseSpec.setColumns(columns);
-
-          parseSpec.setDelimiter(csvFormat.getDelimiter());
-          parseSpec.setListDelimiter(csvFormat.getLineSeparator());
-
-          parser = new StringParser(parseSpec);
-        }
+        parser = new StringParser(parseSpec);
       } else {
 
         CsvStreamParser csvStreamParser = new CsvStreamParser();
