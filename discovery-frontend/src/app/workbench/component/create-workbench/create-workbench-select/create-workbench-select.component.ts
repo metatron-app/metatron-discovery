@@ -363,8 +363,10 @@ export class CreateWorkbenchSelectComponent extends AbstractPopupComponent imple
       sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort
     };
 
+    const allDBType = this.translateService.instant('msg.storage.ui.list.all');
+
     // 데이터베이스 타입
-    if (this.selectedDbType.name !== 'all') {
+    if (this.selectedDbType.name !== allDBType) {
       params['implementor'] = this.selectedDbType.name;
     }
     // 계정타입
@@ -462,7 +464,7 @@ export class CreateWorkbenchSelectComponent extends AbstractPopupComponent imple
 
     // database types
     this.dbTypes = this.storageService.getConnectionTypeList();
-    this.dbTypes.unshift({label: this.translateService.instant('msg.storage.ui.list.all'), name: 'all', value: 'all'});
+    this.dbTypes.unshift({name: this.translateService.instant('msg.storage.ui.list.all'), value: 'all'});
 
     this.selectedDbType = this.dbTypes[0];
 
