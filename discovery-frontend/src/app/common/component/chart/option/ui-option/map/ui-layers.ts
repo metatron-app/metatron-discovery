@@ -38,6 +38,9 @@ export interface UILayers {
   // tile radius
   tileRadius? : number;
 
+  // point radius
+  pointRadius?: number;
+
   symbolPointType? : MapSymbolType;
   symbolOutline? : MapOutline;
 

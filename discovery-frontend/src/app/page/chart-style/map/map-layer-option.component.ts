@@ -79,16 +79,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
     this.uiOption = uiOption;
 
-    // type 관련 변경 필요 (symbol & cluster) 이는 cluster 타입이 option panel에서 따로 분리된 이유임
-    if (!_.isUndefined(this.uiOption) && !_.isUndefined(this.uiOption['layers']) && this.uiOption['layers'].length > 0) {
-      for (let layerIndex = 0; this.uiOption['layers'].length > layerIndex; layerIndex++) {
-        if (this.uiOption['layers'][layerIndex]['type'] == MapLayerType.SYMBOL
-          && !_.isUndefined(this.uiOption['layers'][layerIndex]['clustering'])
-          && this.uiOption['layers'][layerIndex]['clustering']) {
-          this.uiOption['layers'][layerIndex]['type'] = MapLayerType.CLUSTER;
-        }
-      }
-    }
+    this.setPointAndClusterOption(true);
+
     // set ranges for view
     this.rangesViewList = this.setRangeViewByDecimal(this.uiOption.layers[this.index].color['ranges']);
 
@@ -106,6 +98,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     this.setByType(shelf);
 
     this.shelf = shelf;
+
+    this.setPointAndClusterOption(false);
+
+    this.changeDetect.detectChanges();
   }
 
   // color template popup
@@ -459,6 +455,45 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       (<UIMapOption>this.uiOption).layers[index]['changeCoverage'] = true;
       this.applyLayers({type: EventType.MAP_CHANGE_OPTION});
     }
+  }
+
+  /**
+   * change point size
+   */
+  public changePointSize(obj: any, $event: any, index: number, isSingle: boolean) {
+    (<UIMapOption>this.uiOption).layers[index]['isChangePointRadius'] = true;
+    this.uiOption['isChangeStyle'] = true;
+
+    let fromValue = parseFloat($event.from);
+    if (isSingle) {
+      this.uiOption.layers[index]['pointRadiusFrom'] = fromValue;
+      this.uiOption.layers[index].pointRadius = fromValue;
+      delete this.uiOption.layers[index]['pointRadiusTo'];
+    } else {
+      let toValue = parseFloat($event.to);
+      this.uiOption.layers[index]['pointRadiusFrom'] = fromValue;
+      this.uiOption.layers[index]['pointRadiusTo'] = toValue;
+      let pointRadiusCal = (fromValue / toValue) * 100;
+      this.uiOption.layers[index].pointRadius = pointRadiusCal;
+    }
+    this.applyLayers();
+  }
+
+  public changePointSizeText($event: any, index: number, rangeValue: string) {
+    let inputValue = $event.target.value;
+    if (_.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue < 0) {
+      $event.target.value = this.uiOption.layers[index][rangeValue];
+      return;
+    }
+    let pointRadiusCal = parseFloat(inputValue);
+    this.uiOption.layers[index][rangeValue] = pointRadiusCal;
+    if (!isNullOrUndefined(this.uiOption.layers[index]['pointRadiusTo'])) {
+      pointRadiusCal = (this.uiOption.layers[index]['pointRadiusFrom'] / this.uiOption.layers[index]['pointRadiusTo']) * 100;
+    }
+    this.uiOption.layers[index].pointRadius = pointRadiusCal;
+    (<UIMapOption>this.uiOption).layers[index]['isChangePointRadius'] = true;
+    this.uiOption['isChangeStyle'] = true;
+    this.applyLayers();
   }
 
   /**
@@ -1762,6 +1797,39 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
         if (uiItem['minInputShow']) delete uiItem['minInputShow'];
         if (uiItem['maxInputShow']) delete uiItem['maxInputShow'];
       });
+    }
+  }
+
+  /**
+   * 크기반경 & cluster type 설정
+   */
+  private setPointAndClusterOption(isUiOption: boolean) {
+    if (!_.isUndefined(this.uiOption) && !_.isUndefined(this.uiOption['layers']) && this.uiOption['layers'].length > 0) {
+      for (let layerIndex = 0; this.uiOption['layers'].length > layerIndex; layerIndex++) {
+        if (isUiOption) {
+          // type 관련 설정
+          if (this.uiOption['layers'][layerIndex]['type'] == MapLayerType.SYMBOL
+            && !_.isUndefined(this.uiOption['layers'][layerIndex]['clustering'])
+            && this.uiOption['layers'][layerIndex]['clustering']) {
+            this.uiOption['layers'][layerIndex]['type'] = MapLayerType.CLUSTER;
+          }
+        } else {
+          // 크기 반경 관련 설정
+          if (this.uiOption['layers'][layerIndex]['type'] == MapLayerType.SYMBOL || this.uiOption['layers'][layerIndex]['type'] == MapLayerType.CLUSTER) {
+            if (this.shelf['layers'][layerIndex].fields.length <= 1) {
+              if (isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusFrom'])) {
+                this.uiOption.layers[layerIndex]['pointRadiusFrom'] = 1;
+                this.uiOption.layers[layerIndex].pointRadius = this.uiOption.layers[layerIndex]['pointRadiusFrom'];
+              }
+              delete this.uiOption.layers[layerIndex]['pointRadiusTo'];
+            }
+            if (this.shelf['layers'][layerIndex].fields.length > 1 && isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusTo'])) {
+              this.uiOption.layers[layerIndex]['pointRadiusTo'] = 100;
+              this.uiOption.layers[layerIndex].pointRadius = (this.uiOption.layers[layerIndex]['pointRadiusFrom'] / this.uiOption.layers[layerIndex]['pointRadiusTo']) * 100;
+            }
+          }
+        }
+      }
     }
   }
 
