@@ -293,7 +293,8 @@ public class DataSourceEventHandler {
           .forJob(jobKey)
           .usingJobData(map)
           .withSchedule(CronScheduleBuilder
-                            .cronSchedule(((BatchIngestionInfo) info).getPeriod().getCronExpr()))
+                            .cronSchedule(((BatchIngestionInfo) info).getPeriod().getCronExpr())
+                            .withMisfireHandlingInstructionDoNothing())
           .build();
       // @formatter:on
 
