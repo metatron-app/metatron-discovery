@@ -96,10 +96,12 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
    * @param userData
    */
   public updatedUser(userData): void {
-    this.user.imageUrl = '';
+    delete this.user.imageUrl;
     this.safelyDetectChanges();
-    this.user = userData;
-    this.safelyDetectChanges();
+    setTimeout(() => {
+      this.user = userData;
+      this.safelyDetectChanges();
+    }, 250 );
   }
 
   /**

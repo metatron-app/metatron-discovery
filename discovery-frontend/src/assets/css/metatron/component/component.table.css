@@ -48,7 +48,7 @@ table.ddp-table-form tbody tr td .ddp-txt-long .ddp-icon-global:before {display:
 
 
 table.ddp-table-form tbody tr td .ddp-txt-long2 {display:inline-block; position:relative;max-width:100%; line-height:21px; height:21px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; word-wrap:normal; box-sizing:border-box;}
-table.ddp-table-form tbody tr td .ddp-txt-long {display:inline-block; position:relative; max-width:100%; line-height:21px; height:21px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; word-wrap:normal; box-sizing:border-box; vertical-align:top;}
+table.ddp-table-form tbody tr td .ddp-txt-long {display:inline-block; position:relative; padding-top:1px; margin-top:-2px; margin-bottom:-2px; max-width:100%; line-height:21px; height:21px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; word-wrap:normal; box-sizing:border-box; vertical-align:top;}
 
 table.ddp-table-form tbody tr td .ddp-txt-long.ddp-global {padding-right:66px;}
 table.ddp-table-form tbody tr td .ddp-txt-long.ddp-global.ddp-new {padding-right:100px;}
@@ -58,6 +58,10 @@ table.ddp-table-form tbody tr td .ddp-txt-long.ddp-global.ddp-en-connection .ddp
 table.ddp-table-form tbody tr td .ddp-txt-long em.ddp-tag-global {position:absolute; top:0; right:0; height:20px; width:60px; padding:2px 2px 3px 2px; color:#666eb2; font-size:11px; text-align:center; border:1px solid #666eb2; border-radius:2px; background:#eff0f7; box-sizing:border-box;}
 
 table.ddp-table-form tbody tr td .ddp-txt-long.ddp-global .ddp-icon-global {display:block;}
+
+table.ddp-table-form tbody tr td .ddp-txt-long .ddp-tag-global.type-tag {float:right; position:relative; margin-top:-1px; right:0; margin-left:5px; width:auto; min-width:60px;}
+table.ddp-table-form tbody tr td .ddp-txt-long .ddp-data-long {display:block; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
+
 table.ddp-table-form tr td .ddp-wrap-long .ddp-box-tag {position:relative; top:3px; margin-right:13px;}
 
 
