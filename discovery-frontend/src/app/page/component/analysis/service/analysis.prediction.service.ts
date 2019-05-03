@@ -207,6 +207,7 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
     param.limits = _.cloneDeep(widgetConfiguration.limit);
     param.resultFormat = { 'type': 'chart', 'mode': 'line', 'columnDelimeter': '―' };
     param['pivot'] = _.cloneDeep(widgetConfiguration.pivot);
+    param.userFields = _.cloneDeep(widgetConfiguration.customFields);
 
     if (widget && widget.dashBoard && widget.dashBoard.configuration) param['filters'] = _.cloneDeep(widget.dashBoard.configuration['filters']);
     // 고급분석 API 시 사용하는 예측선 데이터
