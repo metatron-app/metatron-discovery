@@ -1897,12 +1897,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (selectedField.useFilter) {
       // 제거
 
-      // 필수필터이면 제거 불가능
-      if (selectedField.role === FieldRole.TIMESTAMP && selectedField.type === 'TIMESTAMP') {
-        Alert.warning(this.translateService.instant('msg.board.alert.timestamp.del.error'));
-        return;
-      }
-
       if (selectedField.filtering) {
         Alert.warning(this.translateService.instant('msg.board.alert.recomm-filter.del.error'));
         return;

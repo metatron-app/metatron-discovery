@@ -576,7 +576,7 @@ ul.ddp-list-order li .ddp-data-name .ddp-chart-img {display:inline-block; float:
 .ddp-lnb-dashboard.ddp-close .ddp-wrap-tab2 {display:none;}
 .ddp-lnb-dashboard.ddp-close:hover {z-index:126;}
 .ddp-lnb-dashboard.ddp-close .ddp-ui-toptitle {position:absolute;left:0; }
-.ddp-lnb-dashboard.ddp-close .ddp-btn-folding .ddp-ui-tooltip-info.ddp-down {top:64px; right:inherit; left:100%; margin-left:6px; margin-top:0; width:max-content; white-space:nowrap;;}
+.ddp-lnb-dashboard.ddp-close .ddp-btn-folding .ddp-ui-tooltip-info.ddp-down {position:fixed; top:119px; right:auto; left:30px; margin-top:0; width:max-content; white-space:nowrap;}
 .ddp-lnb-dashboard.ddp-close .ddp-ui-tooltip-info.ddp-down em.ddp-icon-view-top {left:0; transform:rotate(0deg); right:inherit; top:50%; margin-top:-4px;}
 
 .ddp-lnb-dashboard.ddp-close .ddp-btn-folding {width:inherit; height:inherit; top:0; left:0; right:0; bottom:0;}
@@ -5381,7 +5381,11 @@ table.ddp-table-detail table.ddp-table-solid tbody tr td.ddp-nolist {color:#b7b9
 table.ddp-table-detail table.ddp-table-solid tbody tr:hover td.ddp-nolist {background:none;}
 table.ddp-table-detail table.ddp-table-solid tbody tr:hover td {background-color:#f2f1f8;}
 table.ddp-table-solid tbody tr:first-of-type tbody tr td  {border-top:none;}
-table.ddp-table-solid tbody tr td .ddp-txt-long {display:inline-block; position:relative; max-width:100%; line-height:21px; font-size:14px; height:21px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; word-wrap:normal; box-sizing:border-box;}
+table.ddp-table-solid tbody tr td .ddp-txt-long {display:inline-block; position:relative; padding-top:1px; margin-top:-1px; max-width:100%; line-height:21px; font-size:14px; height:21px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; word-wrap:normal; box-sizing:border-box;}
+
+table.ddp-table-solid tbody tr td .ddp-txt-long .ddp-data-long {display:block; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
+
+table.ddp-table-solid tbody tr td .ddp-txt-long .ddp-tag-global.type-tag {float:right; position:relative; margin-top:-1px; right:0; margin-left:5px; width:auto;}
 table.ddp-table-solid tbody tr td span.ddp-txt-colortype {color:#b7b9c2; font-size:14px;}
 table.ddp-table-solid tbody tr td .ddp-txt-long.ddp-global {padding-right:66px;}
 table.ddp-table-solid tbody tr td .ddp-txt-long.ddp-connection {padding-right:101px;}

@@ -93,13 +93,6 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
    */
   public onChangeFilter($event): void {
 
-    // 필수필터이면 제거 불가능
-    if (this.editingField.field.role === FieldRole.TIMESTAMP && this.editingField.field.type === 'TIMESTAMP') {
-      $event.target ? $event.target.checked = true : $event.currentTarget.checked = true;
-      Alert.warning(this.translateService.instant('msg.board.alert.timestamp.del.error'));
-      return;
-    }
-
     if (this.editingField.field.filtering) {
       $event.target ? $event.target.checked = true : $event.currentTarget.checked = true;
       Alert.warning(this.translateService.instant('msg.board.alert.recomm-filter.del.error'));

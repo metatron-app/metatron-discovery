@@ -506,4 +506,33 @@ public class UserRestIntegrationTest extends AbstractRestIntegrationTest {
     // @formatter:on
   }
 
+  @Test
+  @OAuthRequest(username = "admin", value = {"PERM_SYSTEM_MANAGE_USER"})
+  @Sql("/sql/test_user_delete.sql")
+  public void removeUserById() {
+
+    // @formatter:off
+    given()
+        .auth().oauth2(oauth_token)
+        .accept(ContentType.JSON)
+        .contentType(ContentType.JSON)
+    .when()
+        .delete("/api/users/{username}", "al.lee")
+    .then()
+        .statusCode(HttpStatus.SC_NO_CONTENT);
+
+    // @formatter:on
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+    .when()
+      .get("/api/users/{username}", "al.lee")
+    .then()
+      .statusCode(HttpStatus.SC_NOT_FOUND)
+      .log().all();
+    // @formatter:on
+  }
+
 }

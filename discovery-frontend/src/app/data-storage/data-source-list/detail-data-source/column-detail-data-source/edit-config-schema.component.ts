@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Output, QueryList, ViewChildren} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Output, QueryList, Renderer, ViewChildren} from '@angular/core';
 import {
   ConnectionType,
   Datasource,
@@ -41,6 +41,7 @@ import {StorageService} from "../../../service/storage.service";
 import {DatetimeValidPopupComponent} from "../../../../shared/datasource-metadata/component/datetime-valid-popup.component";
 import Role = Type.Role;
 import {CommonUtil} from "../../../../common/util/common.util";
+import {MetadataColumn} from "../../../../domain/meta-data-management/metadata-column";
 
 @Component({
   selector: 'edit-config-schema',
@@ -106,6 +107,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
               private connectionService: DataconnectionService,
               private storageService: StorageService,
               public constant: ConstantService,
+              public renderer: Renderer,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -526,5 +528,37 @@ export class EditConfigSchemaComponent extends AbstractComponent {
         })
         .catch(error => this.commonExceptionHandler(error));
     }
+  }
+
+
+  @ViewChildren('descriptionInputs')
+  private descriptionInputs: QueryList<ElementRef>;
+
+  @ViewChildren('descriptionTds')
+  private descriptionTds: QueryList<ElementRef>;
+
+  public focusDescriptionInput(index: number) {
+
+    this.descriptionInputs.toArray()[ index ].nativeElement.focus();
+    this.renderer.setElementClass(this.descriptionTds.toArray()[ index ].nativeElement, 'ddp-selected', true);
+  }
+
+  public blurDescriptionInput(index: number) {
+    this.renderer.setElementClass(this.descriptionTds.toArray()[ index ].nativeElement, 'ddp-selected', false);
+  }
+
+  @ViewChildren('nameInputs')
+  private nameInputs: QueryList<ElementRef>;
+
+  @ViewChildren('nameTds')
+  private nameTds: QueryList<ElementRef>;
+
+  public focusNameInput(index: number) {
+    this.nameInputs.toArray()[ index ].nativeElement.focus();
+    this.renderer.setElementClass(this.nameTds.toArray()[ index ].nativeElement, 'ddp-selected', true);
+  }
+
+  public blurNameInput(index: number) {
+    this.renderer.setElementClass(this.nameTds.toArray()[ index ].nativeElement, 'ddp-selected', false);
   }
 }

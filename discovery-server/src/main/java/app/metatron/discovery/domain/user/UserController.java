@@ -185,7 +185,7 @@ public class UserController {
    */
   @Transactional
   @PreAuthorize("authentication.name == #username or hasAuthority('PERM_SYSTEM_MANAGE_USER')")
-  @RequestMapping(path = "/users/{username}", method = RequestMethod.DELETE)
+  @RequestMapping(path = "/users/{username:.+}", method = RequestMethod.DELETE)
   public ResponseEntity<?> deleteUser(@PathVariable("username") String username) {
 
     User user = userRepository.findByUsername(username);
@@ -217,7 +217,7 @@ public class UserController {
    */
   @Transactional
   @PreAuthorize("authentication.name == #username")
-  @RequestMapping(path = "/users/{username}", method = RequestMethod.PATCH)
+  @RequestMapping(path = "/users/{username:.+}", method = RequestMethod.PATCH)
   public ResponseEntity<?> updateUser(@PathVariable("username") String username, @RequestBody User user) {
 
     User updatedUser = userRepository.findByUsername(username);
