@@ -762,6 +762,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
 
             // alias가 있는경우
             if (agg.alias) hyperParameter.field = agg.alias;
+            else if ( 'user_defined' === agg.ref ) hyperParameter.field = agg.ref + '.' + agg.name;
             // alias가 없는경우
             else hyperParameter.field = `${agg.aggregationType + '(' + agg.name + ')'}`;
 
@@ -794,6 +795,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
           let alias: string;
           // alias가 있는경우
           if (agg.alias) alias = agg.alias;
+          else if ( 'user_defined' === agg.ref ) alias = agg.ref + '.' + agg.name;
           // alias가 없는경우
           else alias = `${agg.aggregationType + '(' + agg.name + ')'}`;
 
@@ -1649,6 +1651,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
 
         // alias가 있는경우
         if (agg.alias) hyperParameter.field = agg.alias;
+        else if ( 'user_defined' === agg.ref ) hyperParameter.field = agg.ref + '.' + agg.name;
         // alias가 없는경우
         else hyperParameter.field = `${agg.aggregationType + '(' + agg.name + ')'}`;
 
