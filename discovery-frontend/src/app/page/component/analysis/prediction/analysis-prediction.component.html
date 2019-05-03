@@ -327,8 +327,10 @@
 
                 <!-- checkbox -->
                 <label class="ddp-label-checkbox ddp-type3">
-                    <input type="checkbox" [checked]="data.isSelectedForecast"
-                           [(ngModel)]="data.isSelectedForecast">
+                    <input type="checkbox"
+                           [(ngModel)]="data.isSelectedForecast" [checked]="data.isSelectedForecast"
+                           [disabled]="data.isSelectedForecast && !data.isSelectedConfidence"
+                           (change)="changeUseForecast()">
                     <i class="ddp-icon-checkbox"></i>
 
                     <!-- label : Forecast -->
@@ -373,8 +375,9 @@
                 <label *ngIf="data.isPredictionLineActive"
                        class="ddp-label-checkbox ddp-type3">
                     <input type="checkbox"
-                           [checked]="data.isSelectedConfidence"
-                           [(ngModel)]="data.isSelectedConfidence">
+                           [checked]="data.isSelectedConfidence" [(ngModel)]="data.isSelectedConfidence"
+                           [disabled]="data.isSelectedConfidence && !data.isSelectedForecast"
+                           (change)="changeUseConfidence()">
                     <i class="ddp-icon-checkbox"></i>
 
                     <!-- label : Confidence -->
