@@ -1391,9 +1391,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
             parameter.alpha = resultHyperParameter[0];
             parameter.beta = resultHyperParameter[1];
             parameter.gamma = resultHyperParameter[2];
-            return parameter
           });
-
         })
         .catch((error) => {
           this.isError = true;
