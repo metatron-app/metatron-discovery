@@ -364,20 +364,32 @@ public class PivotResultFormat extends SearchResultFormat {
           for (String parameterName : parameterNames) {
             List<List<Double>> paramValues = result.get(parameterName);
             JsonNode paramNode = itemNode.get(parameterName);
-            paramValues.get(0).add(paramNode.get(0).asDouble());
-            paramValues.get(1).add(paramNode.get(1).asDouble());
-            paramValues.get(2).add(paramNode.get(2).asDouble());
+            if (paramNode == null) {
+              paramValues.get(0).add(0.0);
+              paramValues.get(1).add(0.0);
+              paramValues.get(2).add(0.0);
+            } else {
+              paramValues.get(0).add(paramNode.get(0).asDouble());
+              paramValues.get(1).add(paramNode.get(1).asDouble());
+              paramValues.get(2).add(paramNode.get(2).asDouble());
+            }
+
           }
 
           // 파라미터 정보 가져오기
           if (first) {
             for (String parameterName : parameterNames) {
               String paramNamePlus = parameterName + ".params";  // .param postfix 로 [alpha, beta, gamma] 값이 포함됨
-              List<Double> infoValues = Lists.newArrayList();
-
               // Array node 파싱
               JsonNode paramNode = itemNode.get(paramNamePlus);
-              paramNode.forEach(arrayItem -> infoValues.add(arrayItem.asDouble()));
+
+              List<Double> infoValues;
+              if (paramNode == null) {
+                infoValues = Lists.newArrayList(0.0, 0.0, 0.0);
+              } else {
+                infoValues = Lists.newArrayList();
+                paramNode.forEach(arrayItem -> infoValues.add(arrayItem.asDouble()));
+              }
 
               result.put(paramNamePlus, infoValues);
             }

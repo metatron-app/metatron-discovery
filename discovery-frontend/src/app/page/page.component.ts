@@ -1391,9 +1391,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
             parameter.alpha = resultHyperParameter[0];
             parameter.beta = resultHyperParameter[1];
             parameter.gamma = resultHyperParameter[2];
-            return parameter
           });
-
         })
         .catch((error) => {
           this.isError = true;
@@ -2298,11 +2296,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   public getCntShelfItem(type: 'DIMENSION' | 'MEASURE'): number {
 
     let cntShelfItems = 0;
-    const strType:string = type.toLowerCase();
-    if( ChartType.MAP === this.widgetConfiguration.chart.type ) {
+    const strType: string = type.toLowerCase();
+    if (ChartType.MAP === this.widgetConfiguration.chart.type) {
       // 선택된 아이템 변수 - shelf 정보가 있는 아이템만 설정
-      this.shelf.layers.forEach( layer => {
-        cntShelfItems = cntShelfItems + layer.fields.filter( field => {
+      this.shelf.layers.forEach(layer => {
+        cntShelfItems = cntShelfItems + layer.fields.filter(field => {
           return strType === field.type && field.field.dataSource === this.dataSource.engineName;
         }).length;
       });
@@ -4329,22 +4327,26 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       _.each(this.shelf.layers, (layer, layerNum) => {
         let layers = layer['fields'];
         _.each(layers, (item, index) => {
+          if (item.field
+            && LogicalType.GEO_POINT !== item.field.logicalType
+            && LogicalType.GEO_LINE !== item.field.logicalType
+            && LogicalType.GEO_POLYGON !== item.field.logicalType) {
 
-          // convert pivot type(agg, column, row) to shelf type (MAP_LAYER0 ..)
-          if (item.field && item.field.pivot) {
-            item.field.pivot = _.map(item.field.pivot, (pivotItem) => {
-              pivotItem = FieldPivot.AGGREGATIONS;
-              return pivotItem;
-            });
+            if (item.field.pivot) {
+              item.field.pivot = _.map(item.field.pivot, (pivotItem) => {
+                pivotItem = FieldPivot.AGGREGATIONS;
+                return pivotItem;
+              });
+            }
+
+            // when it's point or heatmap, add aggregation type
+            if (MapLayerType.SYMBOL === (<UIMapOption>uiOption).layers[layerNum].type ||
+              MapLayerType.HEATMAP === (<UIMapOption>uiOption).layers[layerNum].type) {
+              this.pagePivot.distinctPivotItems(layers, item, index, layers, 'layer' + layerNum);
+            }
+
+            pivot.aggregations.push(item);
           }
-
-          // when it's point or heatmap, add aggregation type
-          if (MapLayerType.SYMBOL === (<UIMapOption>uiOption).layers[layerNum].type ||
-            MapLayerType.HEATMAP === (<UIMapOption>uiOption).layers[layerNum].type) {
-            this.pagePivot.distinctPivotItems(layers, item, index, layers, 'layer' + layerNum);
-          }
-
-          pivot.aggregations.push(item);
         });
       });
     }
