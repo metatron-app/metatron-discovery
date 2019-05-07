@@ -8849,6 +8849,10 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 .icon-db-tibero-w .st0{fill:#B8B8B8;}
 .icon-db-tibero-w .st1{fill:#EBEBEB;}
 
+.icon-db-mssql-w,
+.icon-db-mssql,
+.icon-db-mssql-b {display:inline-block; width:24px; height:24px;}
+
 .icon-db-druid-w {display:inline-block; width:24px; height:24px;}
 .icon-db-druid-w .st0{fill:none;stroke:#ECECEC;stroke-miterlimit:10;}
 
