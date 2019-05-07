@@ -842,7 +842,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             this.olmap.removeLayer(symbolLayer);
           }
         }
-      } else if (_.eq(layer.type, MapLayerType.LINE) || _.eq(layer.type, MapLayerType.POLYGON)) {
+      } else if (_.eq(layer.type, MapLayerType.LINE) || _.eq(layer.type, MapLayerType.MULTILINESTRING) || _.eq(layer.type, MapLayerType.POLYGON)) {
         ////////////////////////////////////////////////////////
         // Line, Polygon layer
         ////////////////////////////////////////////////////////
@@ -1009,7 +1009,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           features[i] = polygonFeature;
           source.addFeature(features[i]);
         } else if (data != null && data.features[i] != null && data.features[i].geometry != null && data.features[i].geometry.type.toString().toLowerCase().indexOf('line') != -1) {
-          let line = new ol.geom.LineString(data.features[i].geometry.coordinates);
+          let line;
+          if( data.features[i].geometry.type.toString().toLowerCase().indexOf('multi') != -1 ){
+            line = new ol.geom.MultiLineString(data.features[i].geometry.coordinates);
+          } else {
+            line = new ol.geom.LineString(data.features[i].geometry.coordinates);
+          }
           let lineFeature = new ol.Feature({geometry: line});
           if (!_.isNull(this.getUiMapOption().layers[layerIndex].color.column)) {
             const alias = ChartUtil.getFieldAlias(this.getUiMapOption().layers[layerIndex].color.column, this.shelf.layers[layerIndex].fields, this.getUiMapOption().layers[layerIndex].color.aggregationType);
@@ -1070,7 +1075,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       }
 
       // Line type
-      if (_.eq(layerType, MapLayerType.LINE)) {
+      if (_.eq(layerType, MapLayerType.LINE) || _.eq(layerType, MapLayerType.MULTILINESTRING)) {
         let lineLayer: UILineLayer = <UILineLayer>styleLayer;
         lineDashType = lineLayer.lineStyle;
         featureThicknessType = lineLayer.thickness.by;
@@ -1203,7 +1208,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
       let lineThickness = 2;
 
-      if (_.eq(layerType, MapLayerType.LINE)) {
+      if (_.eq(layerType, MapLayerType.LINE) || _.eq(layerType, MapLayerType.MULTILINESTRING)) {
         try {
           let lineLayer: UILineLayer = <UILineLayer>styleLayer;
           const lineAlias = ChartUtil.getFieldAlias(lineLayer.thickness.column, scope.shelf.layers[layerNum], lineLayer.thickness.aggregationType);
@@ -1252,7 +1257,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
       let style = new ol.style.Style();
 
-      if (_.eq(layerType, MapLayerType.LINE)) {
+      if (_.eq(layerType, MapLayerType.LINE) || _.eq(layerType, MapLayerType.MULTILINESTRING)) {
         style = new ol.style.Style({
           stroke: new ol.style.Stroke({
             color: featureColor,
@@ -2773,7 +2778,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       ////////////////////////////////////////////////////////
       // Line
       ////////////////////////////////////////////////////////
-      else if (_.eq(layer.type, MapLayerType.LINE)) {
+      else if (_.eq(layer.type, MapLayerType.LINE) || _.eq(layer.type, MapLayerType.MULTILINESTRING)) {
 
         // line layer
         let lineLayer: UILineLayer = <UILineLayer>layer;
@@ -3409,7 +3414,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         features[i] = polygonFeature;
         source.addFeature(features[i]);
       } else if (data != null && data.features[i] != null && data.features[i].geometry != null && data.features[i].geometry.type.toString().toLowerCase().indexOf('line') != -1) {
-        let line = new ol.geom.LineString(data.features[i].geometry.coordinates);
+        let line;
+        if( data.features[i].geometry.type.toString().toLowerCase().indexOf('multi') != -1 ){
+          line = new ol.geom.MultiLineString(data.features[i].geometry.coordinates);
+        } else {
+          line = new ol.geom.LineString(data.features[i].geometry.coordinates);
+        }
         let lineFeature = new ol.Feature({geometry: line});
         if (!_.isNull(this.getUiMapOption().layers[this.getUiMapOption().layerNum].color.column)) {
           const alias = ChartUtil.getFieldAlias(this.getUiMapOption().layers[this.getUiMapOption().layerNum].color.column, this.shelf.layers[this.getUiMapOption().layerNum].fields, this.getUiMapOption().layers[this.getUiMapOption().layerNum].color.aggregationType);
@@ -3458,7 +3468,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           this.olmap.removeLayer(symbolLayer);
         }
       }
-    } else if (_.eq(layer.type, MapLayerType.LINE) || _.eq(layer.type, MapLayerType.POLYGON) || _.eq(layer.type, MapLayerType.MULTIPOLYGON)) {
+    } else if (_.eq(layer.type, MapLayerType.LINE) || _.eq(layer.type, MapLayerType.MULTILINESTRING) || _.eq(layer.type, MapLayerType.POLYGON) || _.eq(layer.type, MapLayerType.MULTIPOLYGON)) {
       ////////////////////////////////////////////////////////
       // Line, Polygon layer
       ////////////////////////////////////////////////////////
