@@ -1,4 +1,4 @@
-<div id="editFieldLayer" class="ddp-ui-layer-box" [style.display]="editingField == null ? 'none' : 'block'" (clickOutside)="clickOutside()" [excludeBeforeClick]="true" [exclude]="'.ddp-icon-layer'">
+<div id="editFieldLayer" class="ddp-ui-layer-box ddp-layer-shelf" [style.display]="editingField == null ? 'none' : 'block'" (clickOutside)="clickOutside()" [excludeBeforeClick]="true" [exclude]="'.ddp-icon-layer'">
   <div *ngIf="editingField">
     <div class="ddp-ui-layer-title" title="{{editingField.name}}">
       {{editingField.name}}
