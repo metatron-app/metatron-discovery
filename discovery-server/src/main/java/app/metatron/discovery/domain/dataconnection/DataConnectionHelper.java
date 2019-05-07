@@ -87,20 +87,6 @@ public class DataConnectionHelper {
     jdbcConnectors = this.jdbcConnectors0;
     defaultConnector = this.defaultConnector0;
     pluginManager = this.pluginManager0;
-
-
-    //add JdbcDialect bean
-    //if dialect is null, look up in extension
-//    try{
-//      List<Class<JdbcDialect>> dialectClass = pluginManager.getExtensionClasses(JdbcDialect.class);
-//      for(Class<JdbcDialect> cls : dialectClass){
-//        AutowireCapableBeanFactory factory = applicationContext.getAutowireCapableBeanFactory();
-//        BeanDefinitionRegistry registry = (BeanDefinitionRegistry) factory;
-//        registry.registerBeanDefinition(cls.getSimpleName(), cls.newInstance());
-//      }
-//    } catch (InstantiationException | IllegalAccessException e){
-//      e.printStackTrace();
-//    }
   }
 
   public static JdbcAccessor getAccessor(JdbcConnectInformation connectInformation){
@@ -115,11 +101,15 @@ public class DataConnectionHelper {
   }
 
   public static JdbcDialect lookupDialect(JdbcConnectInformation connectInformation){
+    return lookupDialect(connectInformation.getImplementor());
+  }
+
+  public static JdbcDialect lookupDialect(String implementor){
     JdbcDialect matchedDialect = null;
 
     //look up in bean list
     for(JdbcDialect dialect : jdbcDialects){
-      if(dialect.isSupportImplementor(connectInformation, connectInformation.getImplementor())){
+      if(dialect.isSupportImplementor(implementor)){
         matchedDialect = dialect;
         break;
       }
@@ -127,7 +117,7 @@ public class DataConnectionHelper {
 
     if(matchedDialect == null){
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.NOT_FOUND_SUITABLE_DIALECT,
-                                            "not found suitable JdbcDialect for " + connectInformation.getImplementor());
+                                            "not found suitable JdbcDialect for " + implementor);
     }
 
     return matchedDialect;

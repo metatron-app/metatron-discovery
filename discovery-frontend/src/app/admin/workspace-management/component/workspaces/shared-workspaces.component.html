@@ -168,11 +168,10 @@
       </td>
       <td>
         <!-- ddp-tag ddp-info -->
-        <div class="ddp-type-txt" [class.ddp-tag]="workspace.published">
-          <span class="ddp-txt-long">{{workspace.name}}</span>
-          <!-- only all allowance -->
-          <em class="ddp-tag-annoymous" *ngIf="workspace.published">{{'msg.spaces.spaces.ui.allowance.tag' | translate}}</em>
-          <!-- //only all allowance -->
+        <div class="ddp-txt-long">
+          <em class="ddp-tag-global type-tag" *ngIf="workspace.published">{{'msg.spaces.spaces.ui.allowance.tag' | translate}}</em>
+          <span class="ddp-data-long" [class.ddp-global]="workspace.published">{{workspace.name}}
+          </span>
         </div>
       </td>
       <td>

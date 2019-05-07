@@ -185,7 +185,7 @@ public class UserController {
    */
   @Transactional
   @PreAuthorize("authentication.name == #username or hasAuthority('PERM_SYSTEM_MANAGE_USER')")
-  @RequestMapping(path = "/users/{username}", method = RequestMethod.DELETE)
+  @RequestMapping(path = "/users/{username:.+}", method = RequestMethod.DELETE)
   public ResponseEntity<?> deleteUser(@PathVariable("username") String username) {
 
     User user = userRepository.findByUsername(username);
@@ -217,7 +217,7 @@ public class UserController {
    */
   @Transactional
   @PreAuthorize("authentication.name == #username")
-  @RequestMapping(path = "/users/{username}", method = RequestMethod.PATCH)
+  @RequestMapping(path = "/users/{username:.+}", method = RequestMethod.PATCH)
   public ResponseEntity<?> updateUser(@PathVariable("username") String username, @RequestBody User user) {
 
     User updatedUser = userRepository.findByUsername(username);
@@ -353,7 +353,7 @@ public class UserController {
     userRepository.save(user);
 
     if (!user.getPassMailer()) {
-      mailer.sendSignUpApprovedMail(user, true);
+      mailer.sendSignUpApprovedMail(user, true, user.getPassword());
     }
 
     Map<String, Object> responseMap = Maps.newHashMap();
@@ -513,7 +513,7 @@ public class UserController {
     // 워크스페이스 생성(등록된 워크스페이스가 없을 경우 생성)
     workspaceService.createWorkspaceByUserCreation(user, false);
 
-    mailer.sendSignUpApprovedMail(user, false);
+    mailer.sendSignUpApprovedMail(user, false, null);
 
     return ResponseEntity.noContent().build();
   }

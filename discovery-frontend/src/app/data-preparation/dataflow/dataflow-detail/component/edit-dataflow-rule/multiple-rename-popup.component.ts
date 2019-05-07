@@ -30,7 +30,6 @@ import {GridOption} from "../../../../../common/component/grid/grid.option";
 import {ScrollLoadingGridComponent} from "./edit-rule-grid/scroll-loading-grid.component";
 import {ScrollLoadingGridModel} from "./edit-rule-grid/scroll-loading-grid.model";
 import {isNullOrUndefined} from "util";
-import * as Aromanize from 'aromanize';
 import {DatasetService} from "../../../../dataset/service/dataset.service";
 
 declare const moment: any;
@@ -50,6 +49,271 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
   @ViewChild(ScrollLoadingGridComponent)
   private _gridComp: ScrollLoadingGridComponent;
 
+  private _korToEngRules = {
+    hangul: {
+      /**
+       * Revised Romanization Transcription
+       */
+      'rr': {
+        // Note: giyeok (0x1100) for middle moeum is different than giyeok (0x3131) for standalone jamo
+        cho: {
+          'ᄀ': 'g', 'ᄁ': 'kk',
+          'ᄂ': 'n',
+          'ᄃ': 'd', 'ᄄ': 'tt',
+          'ᄅ': 'r',
+          'ᄆ': 'm',
+          'ᄇ': 'b', 'ᄈ': 'pp',
+          'ᄉ': 's', 'ᄊ': 'ss',
+          'ᄋ': '',
+          'ᄌ': 'j', 'ᄍ': 'jj',
+          'ᄎ': 'ch',
+          'ᄏ': 'k',
+          'ᄐ': 't',
+          'ᄑ': 'p',
+          'ᄒ': 'h'
+        },
+
+        // Note: ᅡ (0x1161) for middle moeum is different than ㅏ (0x314F) for standalone jamo
+        jung: {
+          'ᅡ': 'a', 'ᅢ': 'ae', 'ᅣ': 'ya', 'ᅤ': 'yae',
+          'ᅥ': 'eo', 'ᅦ': 'e', 'ᅧ': 'yeo', 'ᅨ': 'ye',
+          'ᅩ': 'o', 'ᅪ': 'wa', 'ᅫ': 'wae', 'ᅬ': 'oe', 'ᅭ': 'yo',
+          'ᅮ': 'u', 'ᅯ': 'wo', 'ᅰ': 'we', 'ᅱ': 'wi', 'ᅲ': 'yu',
+          'ᅳ': 'eu', 'ᅴ': 'eui', 'ᅵ': 'i'
+        },
+
+        // Note: ᆨ (0x11A8) for last jaeum (batchim) is different than ᄀ (0x1100) for first jaeum
+        // also different than ㄱ (0x3131) for standalone jamo
+        jong: {
+          'ᆨ': 'k', 'ᆨᄋ': 'g', 'ᆨᄂ': 'ngn', 'ᆨᄅ': 'ngn', 'ᆨᄆ': 'ngm', 'ᆨᄒ': 'kh',
+          'ᆩ': 'kk', 'ᆩᄋ': 'kg', 'ᆩᄂ': 'ngn', 'ᆩᄅ': 'ngn', 'ᆩᄆ': 'ngm', 'ᆩᄒ': 'kh',
+          'ᆪ': 'k', 'ᆪᄋ': 'ks', 'ᆪᄂ': 'ngn', 'ᆪᄅ': 'ngn', 'ᆪᄆ': 'ngm', 'ᆪᄒ': 'kch',
+          'ᆫ': 'n', 'ᆫᄅ': 'll',
+          'ᆬ': 'n', 'ᆬᄋ': 'nj', 'ᆬᄂ': 'nn', 'ᆬᄅ': 'nn', 'ᆬᄆ': 'nm', 'ᆬㅎ': 'nch',
+          'ᆭ': 'n', 'ᆭᄋ': 'nh', 'ᆭᄅ': 'nn',
+          'ᆮ': 't', 'ᆮᄋ': 'd', 'ᆮᄂ': 'nn', 'ᆮᄅ': 'nn', 'ᆮᄆ': 'nm', 'ᆮᄒ': 'th',
+          'ᆯ': 'l', 'ᆯᄋ': 'r', 'ᆯᄂ': 'll',
+          'ᆰ': 'k', 'ᆰᄋ': 'lg', 'ᆰᄂ': 'ngn', 'ᆰᄅ': 'ngn', 'ᆰᄆ': 'ngm', 'ᆰᄒ': 'lkh',
+          'ᆱ': 'm', 'ᆱᄋ': 'lm', 'ᆱᄂ': 'mn', 'ᆱᄅ': 'mn', 'ᆱᄆ': 'mm', 'ᆱᄒ': 'lmh',
+          'ᆲ': 'p', 'ᆲᄋ': 'lb', 'ᆲᄂ': 'mn', 'ᆲᄅ': 'mn', 'ᆲᄆ': 'mm', 'ᆲᄒ': 'lph',
+          'ᆳ': 't', 'ᆳᄋ': 'ls', 'ᆳᄂ': 'nn', 'ᆳᄅ': 'nn', 'ᆳᄆ': 'nm', 'ᆳᄒ': 'lsh',
+          'ᆴ': 't', 'ᆴᄋ': 'lt', 'ᆴᄂ': 'nn', 'ᆴᄅ': 'nn', 'ᆴᄆ': 'nm', 'ᆴᄒ': 'lth',
+          'ᆵ': 'p', 'ᆵᄋ': 'lp', 'ᆵᄂ': 'mn', 'ᆵᄅ': 'mn', 'ᆵᄆ': 'mm', 'ᆵᄒ': 'lph',
+          'ᆶ': 'l', 'ᆶᄋ': 'lh', 'ᆶᄂ': 'll', 'ᆶᄅ': 'll', 'ᆶᄆ': 'lm', 'ᆶᄒ': 'lh',
+          'ᆷ': 'm', 'ᆷᄅ': 'mn',
+          'ᆸ': 'p', 'ᆸᄋ': 'b', 'ᆸᄂ': 'mn', 'ᆸᄅ': 'mn', 'ᆸᄆ': 'mm', 'ᆸᄒ': 'ph',
+          'ᆹ': 'p', 'ᆹᄋ': 'ps', 'ᆹᄂ': 'mn', 'ᆹᄅ': 'mn', 'ᆹᄆ': 'mm', 'ᆹᄒ': 'psh',
+          'ᆺ': 't', 'ᆺᄋ': 's', 'ᆺᄂ': 'nn', 'ᆺᄅ': 'nn', 'ᆺᄆ': 'nm', 'ᆺᄒ': 'sh',
+          'ᆻ': 't', 'ᆻᄋ': 'ss', 'ᆻᄂ': 'tn', 'ᆻᄅ': 'tn', 'ᆻᄆ': 'nm', 'ᆻᄒ': 'th',
+          'ᆼ': 'ng',
+          'ᆽ': 't', 'ᆽᄋ': 'j', 'ᆽᄂ': 'nn', 'ᆽᄅ': 'nn', 'ᆽᄆ': 'nm', 'ᆽᄒ': 'ch',
+          'ᆾ': 't', 'ᆾᄋ': 'ch', 'ᆾᄂ': 'nn', 'ᆾᄅ': 'nn', 'ᆾᄆ': 'nm', 'ᆾᄒ': 'ch',
+          'ᆿ': 'k', 'ᆿᄋ': 'k', 'ᆿᄂ': 'ngn', 'ᆿᄅ': 'ngn', 'ᆿᄆ': 'ngm', 'ᆿᄒ': 'kh',
+          'ᇀ': 't', 'ᇀᄋ': 't', 'ᇀᄂ': 'nn', 'ᇀᄅ': 'nn', 'ᇀᄆ': 'nm', 'ᇀᄒ': 'th',
+          'ᇁ': 'p', 'ᇁᄋ': 'p', 'ᇁᄂ': 'mn', 'ᇁᄅ': 'mn', 'ᇁᄆ': 'mm', 'ᇁᄒ': 'ph',
+          'ᇂ': 't', 'ᇂᄋ': 'h', 'ᇂᄂ': 'nn', 'ᇂᄅ': 'nn', 'ᇂᄆ': 'mm', 'ᇂᄒ': 't'
+        }
+      },
+
+      /**
+       * Revised Romanization Transliteration
+       */
+      'rr-translit': {
+        // Note: giyeok (0x1100) for middle moeum is different than giyeok (0x3131) for standalone jamo
+        cho: {
+          'ᄀ': 'g', 'ᄁ': 'kk',
+          'ᄂ': 'n',
+          'ᄃ': 'd', 'ᄄ': 'tt',
+          'ᄅ': 'l',
+          'ᄆ': 'm',
+          'ᄇ': 'b', 'ᄈ': 'pp',
+          'ᄉ': 's', 'ᄊ': 'ss',
+          'ᄋ': '',
+          'ᄌ': 'j', 'ᄍ': 'jj',
+          'ᄎ': 'ch',
+          'ᄏ': 'k',
+          'ᄐ': 't',
+          'ᄑ': 'p',
+          'ᄒ': 'h'
+        },
+
+        // Note: ᅡ (0x1161) for middle moeum is different than ㅏ (0x314F) for standalone jamo
+        jung: {
+          'ᅡ': 'a', 'ᅢ': 'ae', 'ᅣ': 'ya', 'ᅤ': 'yae',
+          'ᅥ': 'eo', 'ᅦ': 'e', 'ᅧ': 'yeo', 'ᅨ': 'ye',
+          'ᅩ': 'o', 'ᅪ': 'oa', 'ᅫ': 'oae', 'ᅬ': 'oi', 'ᅭ': 'yo',
+          'ᅮ': 'u', 'ᅯ': 'ueo', 'ᅰ': 'ue', 'ᅱ': 'ui', 'ᅲ': 'yu',
+          'ᅳ': 'eu', 'ᅴ': 'eui', 'ᅵ': 'i'
+        },
+
+        // Note: ᆨ (0x11A8) for last jaeum (batchim) is different than ᄀ (0x1100) for first jaeum
+        // also different than ㄱ (0x3131) for standalone jamo
+        jong: {
+          'ᆨ': 'g', 'ᆨᄋ': 'g-',
+          'ᆩ': 'kk', 'ᆩᄋ': 'kk-',
+          'ᆪ': 'gs', 'ᆪᄋ': 'gs-', 'ᆪᄉ': 'gs-s',
+          'ᆫ': 'n', 'ᆫᄋ': 'n-',
+          'ᆬ': 'nj', 'ᆬᄋ': 'nj-', 'ᆬᄌ': 'nj-j',
+          'ᆭ': 'nh', 'ᆭᄋ': 'nh-',
+          'ᆮ': 'd', 'ᆮᄋ': 'd-',
+          'ᆯ': 'l', 'ᆯᄋ': 'l-',
+          'ᆰ': 'lg', 'ᆰᄋ': 'lg-',
+          'ᆱ': 'lm', 'ᆱᄋ': 'lm-',
+          'ᆲ': 'lb', 'ᆲᄋ': 'lb-',
+          'ᆳ': 'ls', 'ᆳᄋ': 'ls-', 'ᆳᄉ': 'ls-s',
+          'ᆴ': 'lt', 'ᆴᄋ': 'lt-',
+          'ᆵ': 'lp', 'ᆵᄋ': 'lp-',
+          'ᆶ': 'lh', 'ᆶᄋ': 'lh-',
+          'ᆷ': 'm', 'ᆷᄋ': 'm-',
+          'ᆸ': 'b', 'ᆸᄋ': 'b-',
+          'ᆹ': 'bs', 'ᆹᄋ': 'bs-', 'ᆹᄉ': 'bs-s',
+          'ᆺ': 's', 'ᆺᄋ': 's-', 'ᆺᄊ': 's-ss',
+          'ᆻ': 'ss', 'ᆻᄋ': 'ss-', 'ᆻᄉ': 'ss-s',
+          'ᆼ': 'ng', 'ᆼᄋ': 'ng-',
+          'ᆽ': 'j', 'ᆽᄋ': 'j-', 'ᆽᄌ': 'j-j',
+          'ᆾ': 'ch', 'ᆾᄋ': 'ch-',
+          'ᆿ': 'k', 'ᆿᄋ': 'k-',
+          'ᇀ': 't', 'ᇀᄋ': 't-',
+          'ᇁ': 'p', 'ᇁᄋ': 'p-',
+          'ᇂ': 'h', 'ᇂᄋ': 'h-'
+        }
+      },
+
+      'skats': {
+        hyphen: ' ',
+
+        // Note: giyeok (0x1100) for middle moeum is different than giyeok (0x3131) for standalone jamo
+        cho: {
+          'ᄀ': 'L', 'ᄁ': 'LL',
+          'ᄂ': 'F',
+          'ᄃ': 'B', 'ᄄ': 'BB',
+          'ᄅ': 'V',
+          'ᄆ': 'M',
+          'ᄇ': 'W', 'ᄈ': 'WW',
+          'ᄉ': 'G', 'ᄊ': 'GG',
+          'ᄋ': 'K',
+          'ᄌ': 'P', 'ᄍ': 'PP',
+          'ᄎ': 'C',
+          'ᄏ': 'X',
+          'ᄐ': 'Z',
+          'ᄑ': 'O',
+          'ᄒ': 'J',
+          ' ': '  '
+        },
+
+        // Note: ᅡ (0x1161) for middle moeum is different than ㅏ (0x314F) for standalone jamo
+        jung: {
+          'ᅡ': 'E', 'ᅢ': 'EU', 'ᅣ': 'I', 'ᅤ': 'IU',
+          'ᅥ': 'T', 'ᅦ': 'TU', 'ᅧ': 'S', 'ᅨ': 'SU',
+          'ᅩ': 'A', 'ᅪ': 'AE', 'ᅫ': 'AEU', 'ᅬ': 'AU', 'ᅭ': 'N',
+          'ᅮ': 'H', 'ᅯ': 'HT', 'ᅰ': 'HTU', 'ᅱ': 'HU', 'ᅲ': 'R',
+          'ᅳ': 'D', 'ᅴ': 'DU', 'ᅵ': 'U'
+        },
+
+        // Note: ᆨ (0x11A8) for last jaeum (batchim) is different than ᄀ (0x1100) for first jaeum
+        // also different than ㄱ (0x3131) for standalone jamo
+        jong: {
+          'ᆨ': 'L', 'ᆩ': 'LL', 'ᆪ': 'LG',
+          'ᆫ': 'F', 'ᆬ': 'FP', 'ᆭ': 'FJ',
+          'ᆮ': 'B',
+          'ᆯ': 'V', 'ᆰ': 'VL', 'ᆱ': 'VM', 'ᆲ': 'VW', 'ᆳ': 'VG', 'ᆴ': 'VZ', 'ᆵ': 'VO', 'ᆶ': 'VJ',
+          'ᆷ': 'M',
+          'ᆸ': 'W', 'ᆹ': 'WG',
+          'ᆺ': 'G', 'ᆻ': 'GG',
+          'ᆼ': 'K',
+          'ᆽ': 'P',
+          'ᆾ': 'C',
+          'ᆿ': 'X',
+          'ᇀ': 'Z',
+          'ᇁ': 'O',
+          'ᇂ': 'J'
+        }
+      },
+
+      /**
+       * Indonesian Transcription
+       */
+      'ebi': {
+        // Note: giyeok (0x1100) for middle moeum is different than giyeok (0x3131) for standalone jamo
+        cho: {
+          'ᄀ': 'gh', 'ᄁ': 'k',
+          'ᄂ': 'n',
+          'ᄃ': 'dh', 'ᄄ': 't',
+          'ᄅ': 'r',
+          'ᄆ': 'm',
+          'ᄇ': 'bh', 'ᄈ': 'p',
+          'ᄉ': 's', 'ᄊ': 's',
+          'ᄋ': '',
+          'ᄌ': 'jh', 'ᄍ': 'c',
+          'ᄎ': 'ch',
+          'ᄏ': 'kh',
+          'ᄐ': 'th',
+          'ᄑ': 'ph',
+          'ᄒ': 'h'
+        },
+
+        // Note: giyeok (0x1100) for middle moeum is different than giyeok (0x3131) for standalone jamo
+        cho2: {
+          'ᄀ': 'g', 'ᄁ': 'k',
+          'ᄂ': 'n',
+          'ᄃ': 'd', 'ᄄ': 't',
+          'ᄅ': 'r',
+          'ᄆ': 'm',
+          'ᄇ': 'b', 'ᄈ': 'p',
+          'ᄉ': 's', 'ᄊ': 's',
+          'ᄋ': '',
+          'ᄌ': 'j', 'ᄍ': 'c',
+          'ᄎ': 'ch',
+          'ᄏ': 'kh',
+          'ᄐ': 'th',
+          'ᄑ': 'ph',
+          'ᄒ': 'h'
+        },
+
+        // Note: ᅡ (0x1161) for middle moeum is different than ㅏ (0x314F) for standalone jamo
+        jung: {
+          'ᅡ': 'a', 'ᅢ': 'è', 'ᅣ': 'ya', 'ᅤ': 'yè',
+          'ᅥ': 'ö', 'ᅦ': 'é', 'ᅧ': 'yö', 'ᅨ': 'yé',
+          'ᅩ': 'o', 'ᅪ': 'wa', 'ᅫ': 'wè', 'ᅬ': 'wé', 'ᅭ': 'yo',
+          'ᅮ': 'u', 'ᅯ': 'wo', 'ᅰ': 'wé', 'ᅱ': 'wi', 'ᅲ': 'yu',
+          'ᅳ': 'eu', 'ᅴ': 'eui', 'ᅵ': 'i'
+        },
+
+        // Note: ᆨ (0x11A8) for last jaeum (batchim) is different than ᄀ (0x1100) for first jaeum
+        // also different than ㄱ (0x3131) for standalone jamo
+        jong: {
+          'ᆨ': 'k', 'ᆨᄋ': 'g', 'ᆨᄂ': 'ngn', 'ᆨᄅ': 'ngn', 'ᆨᄆ': 'ngm', 'ᆨᄒ': 'kh',
+          'ᆩ': 'k', 'ᆩᄋ': 'kg', 'ᆩᄂ': 'ngn', 'ᆩᄅ': 'ngn', 'ᆩᄆ': 'ngm', 'ᆩᄒ': 'kh',
+          'ᆪ': 'k', 'ᆪᄋ': 'ks', 'ᆪᄂ': 'ngn', 'ᆪᄅ': 'ngn', 'ᆪᄆ': 'ngm', 'ᆪᄒ': 'kch',
+          'ᆫ': 'n', 'ᆫᄅ': 'll',
+          'ᆬ': 'n', 'ᆬᄋ': 'nj', 'ᆬᄂ': 'nn', 'ᆬᄅ': 'nn', 'ᆬᄆ': 'nm', 'ᆬㅎ': 'nch',
+          'ᆭ': 'n', 'ᆭᄋ': 'nh', 'ᆭᄅ': 'nn',
+          'ᆮ': 't', 'ᆮᄋ': 'd', 'ᆮᄂ': 'nn', 'ᆮᄅ': 'nn', 'ᆮᄆ': 'nm', 'ᆮᄒ': 'th',
+          'ᆯ': 'l', 'ᆯᄋ': 'r', 'ᆯᄂ': 'll',
+          'ᆰ': 'k', 'ᆰᄋ': 'lg', 'ᆰᄂ': 'ngn', 'ᆰᄅ': 'ngn', 'ᆰᄆ': 'ngm', 'ᆰᄒ': 'lkh',
+          'ᆱ': 'm', 'ᆱᄋ': 'lm', 'ᆱᄂ': 'mn', 'ᆱᄅ': 'mn', 'ᆱᄆ': 'mm', 'ᆱᄒ': 'lmh',
+          'ᆲ': 'p', 'ᆲᄋ': 'lb', 'ᆲᄂ': 'mn', 'ᆲᄅ': 'mn', 'ᆲᄆ': 'mm', 'ᆲᄒ': 'lph',
+          'ᆳ': 't', 'ᆳᄋ': 'ls', 'ᆳᄂ': 'nn', 'ᆳᄅ': 'nn', 'ᆳᄆ': 'nm', 'ᆳᄒ': 'lsh',
+          'ᆴ': 't', 'ᆴᄋ': 'lt', 'ᆴᄂ': 'nn', 'ᆴᄅ': 'nn', 'ᆴᄆ': 'nm', 'ᆴᄒ': 'lth',
+          'ᆵ': 'p', 'ᆵᄋ': 'lp', 'ᆵᄂ': 'mn', 'ᆵᄅ': 'mn', 'ᆵᄆ': 'mm', 'ᆵᄒ': 'lph',
+          'ᆶ': 'l', 'ᆶᄋ': 'lh', 'ᆶᄂ': 'll', 'ᆶᄅ': 'll', 'ᆶᄆ': 'lm', 'ᆶᄒ': 'lh',
+          'ᆷ': 'm', 'ᆷᄅ': 'mn',
+          'ᆸ': 'p', 'ᆸᄋ': 'b', 'ᆸᄂ': 'mn', 'ᆸᄅ': 'mn', 'ᆸᄆ': 'mm', 'ᆸᄒ': 'ph',
+          'ᆹ': 'p', 'ᆹᄋ': 'ps', 'ᆹᄂ': 'mn', 'ᆹᄅ': 'mn', 'ᆹᄆ': 'mm', 'ᆹᄒ': 'psh',
+          'ᆺ': 't', 'ᆺᄋ': 'sh', 'ᆺᄂ': 'nn', 'ᆺᄅ': 'nn', 'ᆺᄆ': 'nm', 'ᆺᄒ': 'sh',
+          'ᆻ': 't', 'ᆻᄋ': 's', 'ᆻᄂ': 'nn', 'ᆻᄅ': 'nn', 'ᆻᄆ': 'nm', 'ᆻᄒ': 'th',
+          'ᆼ': 'ng',
+          'ᆽ': 't', 'ᆽᄋ': 'j', 'ᆽᄂ': 'nn', 'ᆽᄅ': 'nn', 'ᆽᄆ': 'nm', 'ᆽᄒ': 'ch',
+          'ᆾ': 't', 'ᆾᄋ': 'ch', 'ᆾᄂ': 'nn', 'ᆾᄅ': 'nn', 'ᆾᄆ': 'nm', 'ᆾᄒ': 'ch',
+          'ᆿ': 'k', 'ᆿᄋ': 'k', 'ᆿᄂ': 'ngn', 'ᆿᄅ': 'ngn', 'ᆿᄆ': 'ngm', 'ᆿᄒ': 'kh',
+          'ᇀ': 't', 'ᇀᄋ': 't', 'ᇀᄂ': 'nn', 'ᇀᄅ': 'nn', 'ᇀᄆ': 'nm', 'ᇀᄒ': 'th', 'ᇀ이': 'ch',
+          'ᇁ': 'p', 'ᇁᄋ': 'p', 'ᇁᄂ': 'mn', 'ᇁᄅ': 'mn', 'ᇁᄆ': 'mm', 'ᇁᄒ': 'ph',
+          'ᇂ': 't', 'ᇂᄋ': 'h', 'ᇂᄂ': 'nn', 'ᇂᄅ': 'nn', 'ᇂᄆ': 'mm', 'ᇂᄒ': 't'
+        }
+      }
+    }
+  };
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -62,7 +326,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
 
   public columns: Column[] = [];
 
-  public gridData: {data : any, fields: any};
+  public gridData: { data: any, fields: any };
 
   public errorEsg: string;
 
@@ -108,13 +372,14 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
    * Open rename component with init
    * @param dsInfo
    */
-  public init(dsInfo : {
-    gridData : {data: any, fields: any},
-    dsName : string,
+  public init(dsInfo: {
+    gridData: { data: any, fields: any },
+    dsName: string,
     typeDesc: any,
-    editInfo? : {ruleCurIdx : number, cols: string[], to : string[]},
-    isFromSnapshot?:boolean,
-    dsId?: string}) {
+    editInfo?: { ruleCurIdx: number, cols: string[], to: string[] },
+    isFromSnapshot?: boolean,
+    dsId?: string
+  }) {
 
     this.datasetName = dsInfo.dsName;
 
@@ -124,10 +389,10 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
 
       this._getGridData(dsInfo.dsId).then((result) => {
         this.gridData = this._getGridDataFromGridResponse(result.gridResponse);
-        this.gridData.data = this.gridData.data.splice(0,50);
+        this.gridData.data = this.gridData.data.splice(0, 50);
         this.typeDesc = result.gridResponse.colDescs;
         this._setColumns(this.gridData.fields);
-        this.currentIdx = result.transformRules.length-1;
+        this.currentIdx = result.transformRules.length - 1;
 
         // open popup
         this.isPopupOpen = true;
@@ -167,8 +432,6 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
       this._updateGrid(this.gridData.fields, this.gridData.data);
 
 
-
-
     }
 
   }
@@ -206,7 +469,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
       fields: []
     };
 
-    for ( let idx = 0; idx < colCnt; idx++ ) {
+    for (let idx = 0; idx < colCnt; idx++) {
       gridData.fields.push({
         name: colNames[idx],
         type: colTypes[idx].type,
@@ -216,17 +479,14 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
 
     gridResponse.rows.forEach((row) => {
       const obj = {};
-      for ( let idx = 0;idx < colCnt; idx++ ) {
-        obj[ colNames[idx] ] = row.objCols[idx];
+      for (let idx = 0; idx < colCnt; idx++) {
+        obj[colNames[idx]] = row.objCols[idx];
       }
       gridData.data.push(obj);
     });
 
     return gridData;
   } // function - getGridDataFromGridResponse
-
-
-
 
 
   /**
@@ -250,7 +510,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
    * @param index
    * @param input
    */
-  public editItem(column : Column, index: number, input: HTMLInputElement) {
+  public editItem(column: Column, index: number, input: HTMLInputElement) {
 
     // 에러가 있을떄는 에러가 해결돼야 다른 컬럼을 수정할 수 있다
     if (isNullOrUndefined(this.errorEsg)) {
@@ -282,8 +542,8 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
   public applyRename() {
 
     // Validation check
-    this.columns.forEach((item,index) => {
-      this.focusOut(item,index);
+    this.columns.forEach((item, index) => {
+      this.focusOut(item, index);
     });
 
     // If error return
@@ -327,7 +587,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
       param = {
         op: this.op,
         ruleString: `rename col: ${originalsWithBackTick.toString()} to: ${renamedWithQuote.toString()}`,
-        uiRuleString: {name: 'rename', col:originals, to: renamed, isBuilder: true}
+        uiRuleString: {name: 'rename', col: originals, to: renamed, isBuilder: true}
       };
 
       if (this.subTitle !== '') {
@@ -362,7 +622,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
       }
     } else { // 아무 키를 눌렀다면 에러 메시지 삭제
       column.isError = false;
-      this.errorEsg=null
+      this.errorEsg = null
     }
 
   }
@@ -373,7 +633,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
    * @param column
    * returns trues if column name has quote (`)
    */
-  public hasBackTick(column: Column) : boolean {
+  public hasBackTick(column: Column): boolean {
 
     let result: boolean = false;
     if (-1 !== column.renamedAs.indexOf('`')) {
@@ -388,7 +648,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
    * Returns true if column name is empty
    * @param column
    */
-  public isRenameInputEmpty(column: Column) : boolean {
+  public isRenameInputEmpty(column: Column): boolean {
     let result: boolean = false;
     if (column.renamedAs.trim() === '' || isNullOrUndefined(column.renamedAs)) {
       this.errorEsg = this.translateService.instant('msg.dp.alert.empty.column');
@@ -426,7 +686,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
    * @param event
    * @param input
    */
-  public focusOut(column: Column, index: number, event?:FocusEvent, input?:HTMLInputElement) {
+  public focusOut(column: Column, index: number, event?: FocusEvent, input?: HTMLInputElement) {
 
     // 편집중이면
     if (column.isEditing) {
@@ -458,7 +718,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
    * when update : edit
    * when append : done
    */
-  public getButtonLabel() : string {
+  public getButtonLabel(): string {
     if (this.op === 'UPDATE') {
       return this.translateService.instant('msg.comm.ui.edit')
     } else {
@@ -472,7 +732,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
    * Returns true if item is editing
    * @param column
    */
-  public isEditing(column: Column) : boolean {
+  public isEditing(column: Column): boolean {
     return column.isEditing;
   }
 
@@ -496,7 +756,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
    * column1 from cols is renamed to col1, column2 from cols is renamed to col2
    * @private
    */
-  private _setColumns(fields : any, cols?:string[], tos?: string[]) {
+  private _setColumns(fields: any, cols?: string[], tos?: string[]) {
     this.columns = [];
     fields.forEach((item) => {
       if (cols) {
@@ -504,21 +764,21 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
         let idx = cols.indexOf(item.name);
         this.columns.push({
           editOriginalName: idx === -1 ? item.name : tos[idx],
-          original : item.name, renamedAs: idx === -1 ? item.name : tos[idx],
+          original: item.name, renamedAs: idx === -1 ? item.name : tos[idx],
           isError: false,
           isEditing: false
         });
       } else {
         if (this.subTitle !== '') { // Came from snapshot popup
           this.columns.push({
-            original : item.name,
-            renamedAs: this._replaceWhiteSpace(this._aromanizeKorean(item.name),'_').toLowerCase(),
+            original: item.name,
+            renamedAs: this._replaceWhiteSpace(this._korToEng(item.name), '_').toLowerCase(),
             isError: false,
             isEditing: false
           });
         } else {
           this.columns.push({
-            original : item.name,
+            original: item.name,
             renamedAs: item.name,
             isError: false,
             isEditing: false
@@ -566,25 +826,14 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
       const renamedAs = this.columns.map((item) => item.renamedAs);
 
       if (!isNullOrUndefined(koMatched) || !otherMatched) {
-        while(-1 !== renamedAs.indexOf('column' + this.indexForName)) {
-          this.indexForName+=1;
+        while (-1 !== renamedAs.indexOf('column' + this.indexForName)) {
+          this.indexForName += 1;
         }
         this.columns[index].renamedAs = 'column' + this.indexForName;
       }
     })
 
   }
-
-
-  /**
-   * Change korean to english 안녕 --> annyeong
-   * @param name
-   * @private
-   */
-  private _aromanizeKorean(name: string): string {
-    return Aromanize.romanize(name);
-  }
-
 
   /**
    * Update grid
@@ -593,7 +842,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
   private _updateGrid(fields, rows) {
 
     // 헤더정보 생성
-    const headers: header[] = fields.map((field: Field,index) => {
+    const headers: header[] = fields.map((field: Field, index) => {
       return new SlickGridHeader()
         .Id('_idProperty_')
         .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.type) + '"></em>' + this.columns[index].renamedAs + '</span>')
@@ -620,8 +869,10 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
     this._gridComp.create(
       headers,
       new ScrollLoadingGridModel(
-        () => {},
-        () => {},
+        () => {
+        },
+        () => {
+        },
         rows
       ),
       new GridOption()
@@ -739,11 +990,152 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
   }
 
 
+  /**
+   * Change korean to english 안녕 --> annyeong
+   * @param argText
+   * @param argRule
+   * @param argHyphen
+   * @private
+   */
+  private _korToEng(argText: string, argRule?: string, argHyphen?: string) {
+
+    // Helper functions
+    // Check if it's letter or numbers
+    let isChoseong = (char) => {
+      if (char.charCodeAt(0) >= 0x1100 && char.charCodeAt(0) <= 0x1112) {
+        return true;
+      } else {
+        return false;
+      }
+    };
+
+    // Options mapping
+    let args = {text: argText, rule: argRule, hyphen: argHyphen};
+    if (args.hyphen == null) {
+      args.hyphen = '';
+    }
+
+    let rulemap = this._korToEngRules.hangul.rr;
+    if (args.rule != null && this._korToEngRules.hangul[args.rule] != null) {
+      rulemap = this._korToEngRules.hangul[args.rule];
+    } else if (args.rule != null) {
+      throw 'Invalid rule ' + args.rule;
+    }
+
+    let rom = '';
+    let curr = null, next;
+    let skipJaeum = false; // Indicates jaeum of current iteration to be skipped
+    for (let i = 0; i <= args.text.length; i++) {
+      // If next is hangul syllable, separate it into jamo
+      // 0xAC00 is the first hangul syllable in unicode table
+      // 0x1100 is the first hangul jaeum in unicode table
+      // 0x1161 is the first hangul moeum in unicode table
+      // 0x11A8 is the first hangul batchim in unicode table
+      let nextIdx = args.text.charCodeAt(i) - 0xAC00;
+      if (!isNaN(nextIdx) && nextIdx >= 0 && nextIdx <= 11171) {
+        next = String.fromCharCode(Math.floor(nextIdx / 588) + 0x1100)
+          + String.fromCharCode(Math.floor(nextIdx % 588 / 28) + 0x1161)
+          + (nextIdx % 28 == 0 ? '' : String.fromCharCode(nextIdx % 28 + 0x11A7)); // Index 0 is reserved for nothing
+      } else {
+        next = args.text.charAt(i);
+      }
+
+      // Except for first iteration (curr is null),
+      // Curr and next contains 2 or 3 jamo, or 1 non-hangul letter
+      if (curr != null) {
+
+        var res = '';
+
+        // Choseong Jaeum
+        if (!skipJaeum) {
+          // If not the first syllable, try cho2 if defined
+          if (i > 0 && !/\s/.test(args.text.charAt(i - 2)) &&
+            rulemap['cho2'] != undefined &&
+            rulemap['cho2'][curr.charAt(0)] != undefined
+          ) {
+            res += rulemap['cho2'][curr.charAt(0)];
+          } else if (rulemap.cho[curr.charAt(0)] != undefined) {
+            res += rulemap.cho[curr.charAt(0)];
+          } else {
+            res += curr.charAt(0);
+          }
+        }
+        skipJaeum = false;
+
+        // Jungseong Moeum
+        if (curr.length > 1) {
+          if (rulemap.jung[curr.charAt(1)] != undefined) {
+            res += rulemap.jung[curr.charAt(1)];
+          } else {
+            res += curr.charAt(1);
+          }
+
+          // Add hyphen if no batchim
+          if (curr.length == 2 && isChoseong(next.charAt(0))) {
+            res += ' ';
+          }
+        }
+
+        // Jongseong Jaeum (Batchim)
+        if (curr.length > 2) {
+          // Changing sound with next jaeum + moeum
+          if (rulemap.jong[curr.charAt(2) + next.charAt(0) + next.charAt(1)] != undefined) {
+            res += rulemap.jong[curr.charAt(2) + next.charAt(0) + next.charAt(1)];
+            skipJaeum = true;
+
+            // No need to add hyphen here as it's already defined
+          }
+          // Changing sound with next jaeum
+          else if (rulemap.jong[curr.charAt(2) + next.charAt(0)] != undefined) {
+            res += rulemap.jong[curr.charAt(2) + next.charAt(0)];
+            skipJaeum = true;
+
+            // No need to add hyphen here as it's already defined
+          }
+          // Unchanging sound
+          else if (rulemap.jong[curr.charAt(2)] != undefined) {
+            res += rulemap.jong[curr.charAt(2)];
+
+            // Add hyphen
+            if (isChoseong(next.charAt(0))) {
+              res += ' ';
+            }
+          } else {
+            res += curr.charAt(2);
+
+            // Add hyphen
+            if (isChoseong(next.charAt(0))) {
+              res += ' ';
+            }
+          }
+        }
+
+        // Replace hyphen (if this is hangeul word)
+        if (curr.length > 1) {
+          if (args.hyphen == '' && rulemap['hyphen'] != null) {
+            res = res.replace(' ', rulemap['hyphen']);
+          } else {
+            // Soft hyphen
+            res = res.replace(' ', args.hyphen);
+            // Hard hyphen
+            if (args.hyphen != '') {
+              res = res.replace('-', args.hyphen);
+            }
+          }
+        }
+        rom += res;
+      }
+
+      curr = next;
+    }
+    return rom;
+  } // function - _korToEng
+
 }
 
 class Column {
   public original: string;
-  public renamedAs : string;
+  public renamedAs: string;
   public editOriginalName?: string;
   public isError: boolean;
   public isEditing: boolean;

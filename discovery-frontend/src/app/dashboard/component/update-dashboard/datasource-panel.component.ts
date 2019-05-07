@@ -256,7 +256,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
 
     // 페이징 목록
     let start: number = (this.dimPage - 1) * this.DIM_PAGE_SIZE;
-    let end: number = (this.dimPage * this.DIM_PAGE_SIZE) - 1;
+    let end: number = (this.dimPage * this.DIM_PAGE_SIZE);
     this.displayDimensions = this.dimensionFields.slice(start, end);
   } // function - prevDimPage
 
@@ -272,7 +272,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
 
     // 페이징 목록
     let start: number = (this.dimPage - 1) * this.DIM_PAGE_SIZE;
-    let end: number = (this.dimPage * this.DIM_PAGE_SIZE) - 1;
+    let end: number = (this.dimPage * this.DIM_PAGE_SIZE);
     this.displayDimensions = this.dimensionFields.slice(start, end);
   } // function - nextDimPage
 
@@ -288,7 +288,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
 
     // 페이징 목록
     let start: number = (this.meaPage - 1) * this.MEA_PAGE_SIZE;
-    let end: number = (this.meaPage * this.MEA_PAGE_SIZE) - 1;
+    let end: number = (this.meaPage * this.MEA_PAGE_SIZE);
     this.displayMeasures = this.measureFields.slice(start, end);
   } // function - prevMeaPage
 
@@ -304,7 +304,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
 
     // 페이징 목록
     let start: number = (this.meaPage - 1) * this.MEA_PAGE_SIZE;
-    let end: number = (this.meaPage * this.MEA_PAGE_SIZE) - 1;
+    let end: number = (this.meaPage * this.MEA_PAGE_SIZE);
     this.displayMeasures = this.measureFields.slice(start, end);
   } // function - nextMeaPage
 
@@ -352,11 +352,6 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
     }
 
     if (field.useFilter) {  // 제거
-      // 필수필터이면 제거 불가능
-      if (field.role === FieldRole.TIMESTAMP && field.logicalType === LogicalType.TIMESTAMP) {
-        Alert.warning(this.translateService.instant('msg.board.alert.timestamp.del.error'));
-        return;
-      }
 
       // 추천필터 제거 볼가
       if (field.filtering) {
@@ -495,7 +490,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
       if (this.DIM_PAGE_SIZE < dimensionFields.length) {
         this.dimPage = 1;
         this.dimTotalPage = Math.ceil(dimensionFields.length / this.DIM_PAGE_SIZE);
-        this.displayDimensions = dimensionFields.slice(0, this.DIM_PAGE_SIZE - 1);
+        this.displayDimensions = dimensionFields.slice(0, this.DIM_PAGE_SIZE);
       } else {
         this.dimPage = 1;
         this.dimTotalPage = 1;
@@ -505,7 +500,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
       if (this.MEA_PAGE_SIZE < measureFields.length) {
         this.meaPage = 1;
         this.meaTotalPage = Math.ceil(measureFields.length / this.MEA_PAGE_SIZE);
-        this.displayMeasures = measureFields.slice(0, this.MEA_PAGE_SIZE - 1);
+        this.displayMeasures = measureFields.slice(0, this.MEA_PAGE_SIZE);
       } else {
         this.meaPage = 1;
         this.meaTotalPage = 1;

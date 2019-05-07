@@ -974,7 +974,7 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
     }
 
     // userCodes가 있는경우 codes대신 userCodes를 설정한다
-    if((<UIChartColorBySeries>this.uiOption.color).mapping) list = _.cloneDeep((<UIChartColorBySeries>this.uiOption.color).mapping);
+    // if((<UIChartColorBySeries>this.uiOption.color).mapping) list = _.cloneDeep((<UIChartColorBySeries>this.uiOption.color).mapping);
 
     // subType이 value가 아닌경우visualMap 존재한다면 삭제
     if (this.uiOption.color.type !== ChartColorType.MEASURE) delete this.chartOption.visualMap;
@@ -990,22 +990,35 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
         .map((obj) => {
           // 시리즈명을 delimiter 로 분리, 현재 시리즈의 측정값 필드명 추출, 라인차트의 dimension때에는 name을 그대로 가져오기
           const aggName = _.last(_.split(obj.name, CHART_STRING_DELIMITER));
-          // 측정값 필드명의 인덱스
-          const fieldIdx = _.indexOf(this.fieldInfo.aggs, aggName);
-          // 측정값 필드명의 인덱스에 맵핑되는 컬러인덱스
-          const colorIdx = fieldIdx >= list.length ? fieldIdx % list.length : fieldIdx;
+          const mappingInfo = (<UIChartColorBySeries>this.uiOption.color).mapping;
           // 기존 스타일이 존재 하지 않을 경우 기본스타일 생성 후 적용
           if (_.isUndefined(obj.itemStyle)) obj.itemStyle = optGen.ItemStyle.auto();
-          // 현재 시리즈에 컬러 적용
-          // border 가 존재한다면 border 에 컬러 적용
-          if (!_.isUndefined(obj.itemStyle.normal.borderWidth) && obj.itemStyle.normal.borderWidth > 0) {
-            obj.itemStyle.normal.borderColor = list[colorIdx];
-            delete obj.itemStyle.normal.color;
+
+          if( mappingInfo && mappingInfo[aggName] ) {
+            // 현재 시리즈에 컬러 적용 - border 가 존재한다면 border 에 컬러 적용
+            if (!_.isUndefined(obj.itemStyle.normal.borderWidth) && obj.itemStyle.normal.borderWidth > 0) {
+              obj.itemStyle.normal.borderColor = mappingInfo[aggName];
+              delete obj.itemStyle.normal.color;
+            } else {
+              obj.itemStyle.normal.color = mappingInfo[aggName];
+            }
+            // 텍스트로 구성되는 차트일 경우
+            if (!_.isUndefined(obj.textStyle)) obj.textStyle.normal.color = mappingInfo[aggName];
           } else {
-            obj.itemStyle.normal.color = list[parameterIdx];
+            // 측정값 필드명의 인덱스
+            const fieldIdx = _.indexOf(this.fieldInfo.aggs, aggName);
+            // 측정값 필드명의 인덱스에 맵핑되는 컬러인덱스
+            const colorIdx = fieldIdx >= list.length ? fieldIdx % list.length : fieldIdx;
+            // 현재 시리즈에 컬러 적용 - border 가 존재한다면 border 에 컬러 적용
+            if (!_.isUndefined(obj.itemStyle.normal.borderWidth) && obj.itemStyle.normal.borderWidth > 0) {
+              obj.itemStyle.normal.borderColor = list[colorIdx];
+              delete obj.itemStyle.normal.color;
+            } else {
+              obj.itemStyle.normal.color = list[parameterIdx];
+            }
+            // 텍스트로 구성되는 차트일 경우
+            if (!_.isUndefined(obj.textStyle)) obj.textStyle.normal.color = list[colorIdx];
           }
-          // 텍스트로 구성되는 차트일 경우
-          if (!_.isUndefined(obj.textStyle)) obj.textStyle.normal.color = list[colorIdx];
         });
     });
 
@@ -1052,7 +1065,6 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
         // userCodes가 있는경우 codes대신 userCodes를 설정한다
         if ((<UIChartColorBySeries>color).mapping) {
           Object.keys((<UIChartColorBySeries>color).mapping).forEach((key, index) => {
-
             colorCodes[index] = (<UIChartColorBySeries>color).mapping[key];
           });
         }
@@ -1072,6 +1084,12 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
       case ChartColorType.DIMENSION: {
 
         this.chartOption = this.convertLineColorByDimension();
+        if (!this.isAnalysisPredictionLineEmpty()) {
+          this.chartOption = this.exceptPredictionLineColorBySeries();
+          this.chartOption = this.predictionLineLineStyleColorBySeries();
+          this.chartOption = this.predictionLineAreaStyleColorBySeries();
+        }
+
         break;
       }
       case ChartColorType.MEASURE: {

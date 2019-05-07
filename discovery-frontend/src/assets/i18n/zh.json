@@ -1460,7 +1460,6 @@
   "msg.board.alert.global-filter.edit.error": "全局过滤器修改失败",
   "msg.board.alert.update.board.error": "看板更新时发生错误",
   "msg.board.ui.fit-to-height.tooltip": "min:900 ~ max:2400",
-  "msg.board.alert.timestamp.del.error": "不能删除时间戳",
   "msg.board.alert.recomm-filter.del.error": "不能删除推荐过滤器",
   "msg.board.alert.dashboard.update.fail": "看板更新时发生错误",
   "msg.board.alert.dashboard.sort.success": "看板顺序已变更",

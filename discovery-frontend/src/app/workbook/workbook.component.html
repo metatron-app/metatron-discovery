@@ -96,7 +96,7 @@
 
             <!-- 데이터 베이스 수 -->
             <div class="ddp-wrap-selectbox" [class.ddp-selected]="isShowDatasourceMenu" *ngIf="datasources">
-              <div class="ddp-data-selectbox" (click)="isShowDatasourceMenu = !isShowDatasourceMenu" >
+              <div class="ddp-data-selectbox" (click)="toggleDatasourceLayer()" >
                 <em class="ddp-icon-database3"></em>
                 {{'msg.board.th.datasource' | translate}}
               </div>

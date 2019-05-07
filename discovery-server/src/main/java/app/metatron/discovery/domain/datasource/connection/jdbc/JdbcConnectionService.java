@@ -418,6 +418,7 @@ public class JdbcConnectionService {
     Preconditions.checkNotNull(realConnection, "connection info. required.");
 
     JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(realConnection);
+    JdbcDialect jdbcDialect = jdbcDataAccessor.getDialect();
     Connection connection = jdbcDataAccessor.getConnection();
 
     List<String> tempCsvFiles = Lists.newArrayList();
@@ -428,8 +429,9 @@ public class JdbcConnectionService {
     if (ingestionInfo.getDataType() == JdbcIngestionInfo.DataType.TABLE) {
       String database = ingestionInfo.getDatabase();
       String table = ingestionInfo.getQuery();
-      String tableName = (!table.contains(".") && database != null) ? database + "." + table : table;
-      nativeCriteria.addTable(tableName, table);
+      String tableName = jdbcDialect.getTableName(realConnection, realConnection.getCatalog(), database, table);
+      String tableAlias = jdbcDialect.getTableName(realConnection, realConnection.getCatalog(), null, table);
+      nativeCriteria.addTable(tableName, tableAlias);
     } else {
       nativeCriteria.addSubQuery(StringUtils.replaceAll(ingestionInfo.getQuery(), ";", ""));
     }
@@ -557,6 +559,7 @@ public class JdbcConnectionService {
     Preconditions.checkNotNull(realConnection, "connection info. required.");
 
     JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(realConnection);
+    JdbcDialect jdbcDialect = jdbcDataAccessor.getDialect();
     Connection connection = jdbcDataAccessor.getConnection();
 
     List<String> tempCsvFiles = Lists.newArrayList();
@@ -567,8 +570,9 @@ public class JdbcConnectionService {
     if (ingestionInfo.getDataType() == JdbcIngestionInfo.DataType.TABLE) {
       String database = ingestionInfo.getDatabase();
       String table = ingestionInfo.getQuery();
-      String tableName = (!table.contains(".") && database != null) ? database + "." + table : table;
-      nativeCriteria.addTable(tableName, table);
+      String tableName = jdbcDialect.getTableName(realConnection, realConnection.getCatalog(), database, table);
+      String tableAlias = jdbcDialect.getTableName(realConnection, realConnection.getCatalog(), null, table);
+      nativeCriteria.addTable(tableName, tableAlias);
       queryString = nativeCriteria.toSQL();
     } else {
       queryString = ingestionInfo.getQuery();
@@ -765,6 +769,7 @@ public class JdbcConnectionService {
     Preconditions.checkNotNull(realConnection, "connection info. required.");
 
     JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(realConnection);
+    JdbcDialect jdbcDialect = jdbcDataAccessor.getDialect();
     Connection connection = jdbcDataAccessor.getConnection(ingestionInfo.getDatabase(),true);
 
     NativeCriteria nativeCriteria = new NativeCriteria(jdbcDataConnection.getImplementor());
@@ -780,7 +785,11 @@ public class JdbcConnectionService {
       nativeProjection.addAggregateProjection(targetFieldName, "maxTime", NativeProjection.AggregateProjection.MAX);
       nativeCriteria.setProjection(nativeProjection);
       if (ingestionInfo.getDataType() == JdbcIngestionInfo.DataType.TABLE) {
-        nativeCriteria.addTable(ingestionInfo.getQuery(), ingestionInfo.getQuery());
+        String database = ingestionInfo.getDatabase();
+        String table = ingestionInfo.getQuery();
+        String tableName = jdbcDialect.getTableName(realConnection, realConnection.getCatalog(), database, table);
+        String tableAlias = jdbcDialect.getTableName(realConnection, realConnection.getCatalog(), null, table);
+        nativeCriteria.addTable(tableName, tableAlias);
       } else {
         nativeCriteria.addSubQuery(ingestionInfo.getQuery());
       }
@@ -789,7 +798,11 @@ public class JdbcConnectionService {
       nativeProjection.addAggregateProjection(targetFieldName, "count", NativeProjection.AggregateProjection.COUNT);
       nativeCriteria.setProjection(nativeProjection);
       if (ingestionInfo.getDataType() == JdbcIngestionInfo.DataType.TABLE) {
-        nativeCriteria.addTable(ingestionInfo.getQuery(), ingestionInfo.getQuery());
+        String database = ingestionInfo.getDatabase();
+        String table = ingestionInfo.getQuery();
+        String tableName = jdbcDialect.getTableName(realConnection, realConnection.getCatalog(), database, table);
+        String tableAlias = jdbcDialect.getTableName(realConnection, realConnection.getCatalog(), null, table);
+        nativeCriteria.addTable(tableName, tableAlias);
       } else {
         nativeCriteria.addSubQuery(ingestionInfo.getQuery());
       }
@@ -850,7 +863,7 @@ public class JdbcConnectionService {
     // 증분 Query 작성
     String queryString = new SelectQueryBuilder(realConnection, jdbcDataAccessor.getDialect())
         .projection(fields)
-        .query(batchIngestionInfo)
+        .query(batchIngestionInfo, connectInformation)
         .incremental(timestampField, incrementalTime.toString(JdbcDialect.CURRENT_DATE_FORMAT))
         .limit(0, maxLimit)
         .build();
@@ -915,7 +928,7 @@ public class JdbcConnectionService {
 
     // 결과 셋이 없는 경우 처리
     File file = new File(resultFileName);
-    if (!file.exists() && file.length() == 0) {
+    if (!file.exists() || file.length() == 0) {
       return null;
     }
 
@@ -937,7 +950,7 @@ public class JdbcConnectionService {
     JdbcDialect jdbcDialect = DataConnectionHelper.lookupDialect(connectInformation);
     String queryString = new SelectQueryBuilder(connectInformation, jdbcDialect)
         .countProjection()
-        .query(jdbcInfo)
+        .query(jdbcInfo, connectInformation)
         .build();
 
     int count = 0;

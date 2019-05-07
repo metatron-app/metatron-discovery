@@ -102,16 +102,14 @@
 /**************************************************************
     popup : 99_데이터프리퍼레이션_02데이터셋_01생성_file1_popup
 **************************************************************/
-.popup-prep-create .ddp-box-file-create {position:relative; overflow:auto;}
-.popup-prep-create .ddp-box-file-create .ddp-wrap-upload {display:inline-block; position:relative; padding:23px 0 0 0;width:323px; text-align:left;}
-.popup-prep-create .ddp-box-file-create .ddp-wrap-upload .ddp-box-upload-type {padding:15px 20px 15px 17px;border-radius:5px; background-color:#ececef;}
-.popup-prep-create .ddp-box-file-create .ddp-wrap-upload .ddp-box-upload-type  .ddp-wrap-edit3 .ddp-ui-edit-option.ddp-type {padding-bottom:0;}
-.popup-prep-create .ddp-box-file-create .ddp-wrap-upload .ddp-box-upload-type .ddp-wrap-edit3.ddp-type .ddp-type-selectbox {width:100%;}
-.popup-prep-create .ddp-box-file-create .ddp-wrap-upload .ddp-box-upload-type  .ddp-wrap-edit3.ddp-type .ddp-label-type {padding:7px 0; font-size:13px;}
-.popup-prep-create .ddp-box-popupcontents.type-info {padding-bottom:40px;box-sizing:border-box;}
-.popup-prep-create .ddp-box-popupcontents.type-info .ddp-box-synch {position:absolute; bottom:0; left:0; right:0;}
+.ddp-box-popupcontents .ddp-box-file-create {position:relative; overflow:auto; box-sizing:border-box;}
+.ddp-box-popupcontents .ddp-box-file-create .ddp-wrap-upload {display:inline-block; position:relative; padding:23px 0 0 0;width:323px; text-align:left;}
+.ddp-box-popupcontents .ddp-box-file-create .ddp-wrap-upload .ddp-box-upload-type {padding:15px 20px 15px 17px;border-radius:5px; background-color:#ececef;}
+.ddp-box-popupcontents .ddp-box-file-create .ddp-wrap-upload .ddp-box-upload-type  .ddp-wrap-edit3 .ddp-ui-edit-option.ddp-type {padding-bottom:0;}
+.ddp-box-popupcontents .ddp-box-file-create .ddp-wrap-upload .ddp-box-upload-type .ddp-wrap-edit3.ddp-type .ddp-type-selectbox {width:100%;}
+.ddp-box-popupcontents .ddp-box-file-create .ddp-wrap-upload .ddp-box-upload-type  .ddp-wrap-edit3.ddp-type .ddp-label-type {padding:7px 0; font-size:13px;}
 
-.popup-prep-create .ddp-box-file-create .ddp-box-file-progress {position:absolute; top:0; left:0; right:0; bottom:0; background-color:#fff; z-index:10;}
+.ddp-box-popupcontents .ddp-box-file-create .ddp-box-file-progress {position:absolute; top:0; left:0; right:0; bottom:0; background-color:#fff; z-index:10;}
 
 .ddp-box-file-progress .ddp-import-file {position:absolute; left:-1px; right:-1px; bottom:-1px; padding:27px 0 0 30px; height:100px; border:1px solid #d0d1d8; background-color:#f6f6f7; box-sizing:border-box;}
 .ddp-box-file-progress .ddp-import-file.ddp-disabled {opacity:0.3;}

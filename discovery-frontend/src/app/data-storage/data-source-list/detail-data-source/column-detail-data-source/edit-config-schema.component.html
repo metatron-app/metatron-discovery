@@ -88,44 +88,44 @@
               클릭시 ddp-selected 추가
           -->
           <!--<div class="ddp-ui-setbtn ddp-selected ">-->
-            <!--<a href="javascript:" class="ddp-btn-setting"></a>-->
-            <!--<div class="ddp-wrap-popup2">-->
-                                <!--<span class="ddp-txt-label2">-->
-                                    <!--Column order setting-->
-                                <!--</span>-->
-              <!--<ul class="ddp-list-popup">-->
-                <!--<li class="ddp-selected">-->
-                  <!--<a href="javascript:">-->
-                    <!--In order of data-->
-                    <!--<em class="ddp-icon-check"></em>-->
-                  <!--</a>-->
-                <!--</li>-->
-                <!--<li>-->
-                  <!--<a href="javascript:">-->
-                    <!--A-Z-->
-                    <!--<em class="ddp-icon-check"></em>-->
-                  <!--</a>-->
-                <!--</li>-->
-                <!--<li>-->
-                  <!--<a href="javascript:">-->
-                    <!--Z-A-->
-                    <!--<em class="ddp-icon-check"></em>-->
-                  <!--</a>-->
-                <!--</li>-->
-                <!--<li>-->
-                  <!--<a href="javascript:">-->
-                    <!--High Frequency → low-->
-                    <!--<em class="ddp-icon-check"></em>-->
-                  <!--</a>-->
-                <!--</li>-->
-                <!--<li>-->
-                  <!--<a href="javascript:">-->
-                    <!--Low Frequency → high-->
-                    <!--<em class="ddp-icon-check"></em>-->
-                  <!--</a>-->
-                <!--</li>-->
-              <!--</ul>-->
-            <!--</div>-->
+          <!--<a href="javascript:" class="ddp-btn-setting"></a>-->
+          <!--<div class="ddp-wrap-popup2">-->
+          <!--<span class="ddp-txt-label2">-->
+          <!--Column order setting-->
+          <!--</span>-->
+          <!--<ul class="ddp-list-popup">-->
+          <!--<li class="ddp-selected">-->
+          <!--<a href="javascript:">-->
+          <!--In order of data-->
+          <!--<em class="ddp-icon-check"></em>-->
+          <!--</a>-->
+          <!--</li>-->
+          <!--<li>-->
+          <!--<a href="javascript:">-->
+          <!--A-Z-->
+          <!--<em class="ddp-icon-check"></em>-->
+          <!--</a>-->
+          <!--</li>-->
+          <!--<li>-->
+          <!--<a href="javascript:">-->
+          <!--Z-A-->
+          <!--<em class="ddp-icon-check"></em>-->
+          <!--</a>-->
+          <!--</li>-->
+          <!--<li>-->
+          <!--<a href="javascript:">-->
+          <!--High Frequency → low-->
+          <!--<em class="ddp-icon-check"></em>-->
+          <!--</a>-->
+          <!--</li>-->
+          <!--<li>-->
+          <!--<a href="javascript:">-->
+          <!--Low Frequency → high-->
+          <!--<em class="ddp-icon-check"></em>-->
+          <!--</a>-->
+          <!--</li>-->
+          <!--</ul>-->
+          <!--</div>-->
           <!--</div>-->
           <!--&lt;!&ndash; //setting 버튼 &ndash;&gt;-->
           <!--<a href="javascript:" class="ddp-btn-selection ddp-gray"><em class="ddp-icon-plus"></em>Add column</a>-->
@@ -164,7 +164,7 @@
           </tr>
           </thead>
           <tbody>
-          <tr *ngFor="let column of filteredFieldList">
+          <tr *ngFor="let column of filteredFieldList; let index = index;">
             <td class="ddp-txt-center">
               <span class="ddp-box-tag-value"
                     [class.ddp-measure]="column.role === FIELD_ROLE.MEASURE"
@@ -177,11 +177,14 @@
                 {{column.name}}
               </span>
             </td>
-            <td>
-              <div class="ddp-input-form">
-                <input type="text" class="ddp-txt-input" [(ngModel)]="column.logicalName">
-                <em class="ddp-bg-select"></em>
-              </div>
+            <td [ngClass]="['ddp-input-form']"
+                #nameTds
+                (click)="focusNameInput(index)">
+              <input type="text" class="ddp-txt-input"
+                     #nameInputs
+                     (blur)="blurNameInput(index)"
+                     [ngModel]="column.logicalName"
+                     (ngModelChange)="column.logicalName = $event;">
             </td>
             <td class="ddp-inherit ddp-info" [class.ddp-selected]="column.isShowTypeList || column.format?.isShowTimestampValidPopup" [ngClass]="TYPE_SELECT_LIST_WRAP_ELEMENT"
                 (click)="onChangeTypeListShowFlag(column, $event)" (clickOutside)="column.isShowTypeList = false;">
@@ -220,12 +223,14 @@
               </div>
             </td>
             <!-- description -->
-            <td>
-              <div class="ddp-input-form">
-                <input type="text" class="ddp-txt-input"
-                       [(ngModel)]="column.description">
-                <em class="ddp-bg-select"></em>
-              </div>
+            <td [ngClass]="['ddp-input-form']"
+                #descriptionTds
+                (click)="focusDescriptionInput(index)">
+              <input type="text" class="ddp-txt-input"
+                     #descriptionInputs
+                     (blur)="blurDescriptionInput(index)"
+                     [ngModel]="column.description"
+                     (ngModelChange)="column.description = $event;">
             </td>
             <!-- //description -->
           </tr>

@@ -20,7 +20,9 @@ import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import app.metatron.discovery.common.exception.FunctionWithException;
 import app.metatron.discovery.extension.dataconnection.jdbc.JdbcConnectInformation;
@@ -88,7 +90,7 @@ public class DruidDialect implements JdbcDialect {
    * Connection
    */
   @Override
-  public boolean isSupportImplementor(JdbcConnectInformation connectInfo, String implementor) {
+  public boolean isSupportImplementor(String implementor) {
     return implementor.toUpperCase().equals(this.getImplementor().toUpperCase());
   }
 
@@ -271,22 +273,36 @@ public class DruidDialect implements JdbcDialect {
 
   @Override
   public String getQuotedFieldName(JdbcConnectInformation connectInfo, String fieldName) {
-    return "`" + fieldName + "`";
+    return Arrays.stream(fieldName.split("\\."))
+                 .map(spliced -> "\"" + spliced + "\"")
+                 .collect(Collectors.joining("."));
   }
 
   @Override
   public String getDefaultTimeFormat(JdbcConnectInformation connectInfo) {
-    return "%Y-%m-%d %T";
+    return "yyyy-MM-dd HH:mm:ss";
   }
 
   @Override
   public String getCharToDateStmt(JdbcConnectInformation connectInfo, String timeStr, String timeFormat) {
-    throw new RuntimeException("Druid data connection is not support 'getCharToDateStmt'");
+    StringBuilder builder = new StringBuilder();
+    builder.append("TIME_PARSE(");
+    builder.append(timeStr);
+    builder.append(", '");
+
+    if(DEFAULT_FORMAT.equals(timeFormat)) {
+      builder.append(getDefaultTimeFormat(connectInfo));
+    } else {
+      builder.append(timeFormat);
+    }
+    builder.append("') ");
+
+    return builder.toString();
   }
 
   @Override
-  public String getCurrentTimeStamp(JdbcConnectInformation connectInfo) {
-    throw new RuntimeException("Druid data connection is not support 'getCurrentTimeStamp'");
+  public String getCharToUnixTimeStmt(JdbcConnectInformation connectInfo, String timeStr) {
+    return "TIMESTAMP_TO_MILLIS(TIME_PARSE(" + timeStr + ")) / 1000";
   }
 
   /**

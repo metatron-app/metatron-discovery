@@ -74,10 +74,12 @@
         <tr *ngFor="let data of dataList">
           <td>
             <!-- tag global 있을 경우에만 ddp-global 추가 -->
-            <div class=" ddp-txt-long ddp-global" [class.ddp-en-connection]="data.published && isBrowserLangEng()">
-              {{data.name}}
-              <span class="ddp-txt-colortype" *ngIf="data.description">-{{data.description}}</span>
-              <em class="ddp-tag-global" *ngIf="data.published">{{getOpenLabel()}}</em>
+            <div class="ddp-txt-long">
+              <em class="ddp-tag-global type-tag" *ngIf="data.published">{{getOpenLabel()}}</em>
+              <span class="ddp-data-long">
+                {{data.name}}
+                <span class="ddp-txt-colortype" *ngIf="data.description">-{{data.description}}</span>
+              </span>
             </div>
           </td>
           <td>

@@ -55,6 +55,10 @@ public class PrepUtil {
   }
 
   public static Configuration getHadoopConf(String hadoopConfDir) {
+    if (hadoopConfDir == null) {
+      return null;
+    }
+
     String coreSite = hadoopConfDir + File.separator + "core-site.xml";
     String hdfsSite = hadoopConfDir + File.separator + "hdfs-site.xml";
 

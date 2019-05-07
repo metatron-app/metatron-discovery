@@ -30,6 +30,7 @@ public enum DataSourceErrorCodes implements ErrorCodes {
   INGESTION_FILE_EXCEL_CONVERSION_ERROR("error.datasource.ingestion.file.excel.conversion"), // Failed to convert Excel file. Please check if the format is supported by metatron.
   INGESTION_JDBC_QUERY_EXECUTION_ERROR("error.datasource.ingestion.jdbc.query.execution"), // An error occurred while querying the data. Please check the query syntax or constraints in the DB Server.
   INGESTION_JDBC_FETCH_RESULT_ERROR("error.datasource.ingestion.jdbc.fetch.result"), // An error occurred in processing the result.
+  INGESTION_JDBC_EMPTY_RESULT_ERROR("error.datasource.ingestion.jdbc.empty.result"), // Result is empty.
   INGESTION_JDBC_INCREMENTAL_TIME_ERROR("error.datasource.ingestion.jdbc.incremental.time"), // No time information to use for incremental ingestion job
   INGESTION_ENGINE_ACCESS_ERROR("error.datasource.ingestion.engine.access"), // Failed to access to the engine. Please contact your system administrator.
   INGESTION_ENGINE_TASK_CREATION_ERROR("error.datasource.ingestion.engine.creation.task"), // No ingestion task was created on the engine for an unknown reason.

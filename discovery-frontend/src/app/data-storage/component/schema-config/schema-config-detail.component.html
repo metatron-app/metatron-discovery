@@ -16,7 +16,7 @@
   <!-- setting -->
   <div class="ddp-box-setting">
     <div class="ddp-data-top-title">
-      <span class="ddp-data-name" title="{{selectedField.name}}">{{selectedField.name}}</span>
+      <span class="ddp-data-name" title="{{selectedField.name}}">{{getSlicedColumnName(selectedField)}}</span>
     </div>
     <!-- is removed field -->
     <div class="ddp-data-delete" *ngIf="isRemovedField(selectedField)">
