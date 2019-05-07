@@ -175,10 +175,17 @@ export class CriterionComponent extends AbstractComponent {
       // DATETIME type
       const type = data.value[Criteria.KEY_DATETIME_TYPE_SUFFIX][0];
       filters.forEach((key) => {
+        // if KEY_DATETIME_TYPE_SUFFIX
         if (key === Criteria.KEY_DATETIME_TYPE_SUFFIX) {
           this.queryParams[data.label + Criteria.QUERY_DELIMITER + Criteria.KEY_DATETIME_TYPE_SUFFIX] = data.value[Criteria.KEY_DATETIME_TYPE_SUFFIX];
-        } else if (key !== Criteria.KEY_DATETIME_TYPE_SUFFIX && type === Criteria.DateTimeType.BETWEEN) {
-          this.queryParams[data.label + Criteria.QUERY_DELIMITER + key] =  data.value[key].map(value => value.filterValue);
+        } else {
+          // if BETWEEN
+          if (type === Criteria.DateTimeType.BETWEEN) {
+            this.queryParams[data.label + Criteria.QUERY_DELIMITER + key] =  data.value[key].map(value => value.filterValue);
+          } else { // if ALL, TODAY, SEVEN_DAYS
+            // remove property
+            delete this.queryParams[data.label + Criteria.QUERY_DELIMITER + key];
+          }
         }
       });
     } else {

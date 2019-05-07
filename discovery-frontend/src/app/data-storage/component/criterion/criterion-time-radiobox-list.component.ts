@@ -223,11 +223,13 @@ export class CriterionTimeRadioboxListComponent extends AbstractComponent {
         this._startPickerDate = date;
         // picker date validation
         this._pickerDateValidation(true);
-        // TODO init시 이벤트를 탐
-        // TODO 초기에는 타면 안됨
-        this._changeSelectItemEvent.emit(this._getSelectedTimeData());
       },
-      () => {}
+      // if hide picker
+      (inst, completed: boolean) => {
+        if (completed === false) {
+          this._changeSelectItemEvent.emit(this._getSelectedTimeData());
+        }
+      }
     );
     // startPickerSettings.position = 'left top';
     this._startPicker = $(this._startPickerInput.nativeElement).datepicker(startPickerSettings).data('datepicker');
@@ -241,11 +243,13 @@ export class CriterionTimeRadioboxListComponent extends AbstractComponent {
         this._endPickerDate = date;
         // picker date validation
         this._pickerDateValidation(false);
-        // TODO init시 이벤트를 탐
-        // TODO 초기에는 타면 안됨
-        this._changeSelectItemEvent.emit(this._getSelectedTimeData());
       },
-      () => {}
+      (inst, completed: boolean) => {
+        // if hide picker
+        if (completed === false) {
+          this._changeSelectItemEvent.emit(this._getSelectedTimeData());
+        }
+      }
     );
     // endPickerSettings.position = 'left top';
     this._endPicker = $(this._endPickerInput.nativeElement).datepicker(endPickerSettings).data('datepicker');

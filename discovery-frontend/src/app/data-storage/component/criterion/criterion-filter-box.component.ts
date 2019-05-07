@@ -206,7 +206,7 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
     this._selectedItemList = selectedItemList;
     // set selected item label
     this.selectedItemsLabel = this._makeItemsLabel(selectedItemList);
-    //
+    // change detect
     this.safelyDetectChanges();
     // change event
     isOutputEvent && this._changedCriteriaEvent.emit({
