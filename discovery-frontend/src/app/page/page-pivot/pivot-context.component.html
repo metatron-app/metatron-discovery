@@ -1,6 +1,6 @@
 <div id="editFieldLayer" class="ddp-ui-layer-box" [style.display]="editingField == null ? 'none' : 'block'" (clickOutside)="clickOutside()" [excludeBeforeClick]="true" [exclude]="'.ddp-icon-layer'">
   <div *ngIf="editingField">
-    <div class="ddp-ui-layer-title">
+    <div class="ddp-ui-layer-title" title="{{editingField.name}}">
       {{editingField.name}}
     </div>
     <ul class="ddp-list-layer-option ddp-list-radio">
