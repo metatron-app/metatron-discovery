@@ -1,5 +1,4 @@
 import {Injectable, Injector} from "@angular/core";
-import {FileItem, ParsedResponseHeaders} from "ng2-file-upload";
 import {TranslateService} from '@ngx-translate/core';
 import {StringUtil} from "../../common/util/string.util";
 import {GranularityType} from "../../domain/workbook/configurations/field/timestamp-field";
@@ -34,17 +33,6 @@ export class DataSourceCreateService {
   constructor(injector: Injector) {
     this._translateService = injector.get(TranslateService);
     this._granularityService = injector.get(GranularityService);
-  }
-
-  /**
-   * Get convert sheets
-   * @param {object} sheets
-   * @return {Sheet[]}
-   */
-  public getConvertSheets(sheets: object): Sheet[] {
-    return Object.keys(sheets).map(key => {
-      return sheets[key].valid ? {sheetName: key, valid: sheets[key].valid, warning: sheets[key].warning} : {sheetName: key, valid: sheets[key].valid, warning: sheets[key].warning, errorMessage: this.getFileErrorMessage(sheets[key].warning)};
-    });
   }
 
   /**
@@ -468,7 +456,7 @@ export interface TypeFilterObject {
 export interface FileResult {
   filePath: string;
   fileKey: string;
-  fileSize: string;
+  fileSize: number;
   fileName: string;
   sheets?: Sheet[];
   selectedSheet?: Sheet;
@@ -479,14 +467,6 @@ export interface Sheet {
   valid: boolean;
   warning?: string;
   errorMessage?: string;
-}
-
-export interface UploadResult {
-  success: boolean;
-  item: FileItem;
-  response: any;
-  status: number;
-  headers: ParsedResponseHeaders;
 }
 
 export interface FileDetail {

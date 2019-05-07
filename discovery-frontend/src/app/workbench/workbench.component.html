@@ -107,7 +107,7 @@
          'ddp-close':!isLeftMenuOpen,
          'ddp-none':isQueryEditorFull,
          'ddp-fold' : !isOpenTableSchema && isLeftMenuOpen && !isQueryEditorFull }"
-         style="width:20%;">
+         style="width:350px;">
       <div class="ddp-view-benchlnb" >
         <a href="javascript:" class="ddp-btn-folding" (click)="leftMenuOpen()"></a>
         <div class="ddp-box-benchlnb">
@@ -170,483 +170,485 @@
     <!-- // lnb --->
 
     <!-- 쿼리 contents -->
-    <div id="workbenchQuery" class="sys-workbench-content-panel ddp-ui-query"
-         [ngStyle]="isLeftMenuOpen ? {} : {'padding-left':'20px'}"
-         [ngClass]="{'ddp-full':!isLeftMenuOpen}" >
-      <div class="sys-workbench-top-panel" style="height:100%;">
-        <!-- query editor -->
-        <!-- full size 일때 ddp-full 추가 -->
-        <div class="ddp-box-editer" [ngClass]="{'ddp-full':isQueryEditorFull}"
-             style="position:relative;top:0; left:0; right:0; bottom:0; height:100%; padding-bottom:0;">
-          <!-- tab -->
-          <div class="ddp-wrap-tabs-edit" #editorListMax>
-            <div class="ddp-wrap-btn">
-              <!-- //초기화 -->
-              <!-- 스크린 사이즈 버튼 -->
-              <div class="ddp-btn-size"
-                   #editorListSizeBtn
-                   (click)="resizeQueryEditor()">
-                <!-- full size -->
-                <div class="ddp-box-full">
-                  <em class="ddp-icon-fullsize"></em>
-                  <!-- 툴팁 -->
-                  <div class="ddp-ui-tooltip-info">
-                    <em class="ddp-icon-view-top"></em>
-                    {{'msg.bench.btn.maximize' | translate}}
+    <div  id="workbenchQuery" class="sys-workbench-content-panel ddp-ui-query"
+          [ngStyle]="isLeftMenuOpen ? {} : {'padding-left':'20px'}"
+          [ngClass]="{'ddp-full':!isLeftMenuOpen}">
+      <div class="ddp-ui-query-in">
+        <div class="sys-workbench-top-panel" style="height:100%;">
+          <!-- query editor -->
+          <!-- full size 일때 ddp-full 추가 -->
+          <div class="ddp-box-editer" [ngClass]="{'ddp-full':isQueryEditorFull}"
+               style="position:relative;top:0; left:0; right:0; bottom:0; height:100%; padding-bottom:0;">
+            <!-- tab -->
+            <div class="ddp-wrap-tabs-edit" #editorListMax>
+              <div class="ddp-wrap-btn">
+                <!-- //초기화 -->
+                <!-- 스크린 사이즈 버튼 -->
+                <div class="ddp-btn-size"
+                     #editorListSizeBtn
+                     (click)="resizeQueryEditor()">
+                  <!-- full size -->
+                  <div class="ddp-box-full">
+                    <em class="ddp-icon-fullsize"></em>
+                    <!-- 툴팁 -->
+                    <div class="ddp-ui-tooltip-info">
+                      <em class="ddp-icon-view-top"></em>
+                      {{'msg.bench.btn.maximize' | translate}}
+                    </div>
+                    <!-- //툴팁 -->
                   </div>
-                  <!-- //툴팁 -->
-                </div>
-                <!-- //full size -->
-                <!-- full size -->
-                <div class="ddp-box-reduce">
-                  <em class="ddp-icon-reducesize"></em>
-                  <!-- 툴팁 -->
-                  <div class="ddp-ui-tooltip-info">
-                    <em class="ddp-icon-view-top"></em>
-                    {{'msg.bench.btn.minimize' | translate}}
+                  <!-- //full size -->
+                  <!-- full size -->
+                  <div class="ddp-box-reduce">
+                    <em class="ddp-icon-reducesize"></em>
+                    <!-- 툴팁 -->
+                    <div class="ddp-ui-tooltip-info">
+                      <em class="ddp-icon-view-top"></em>
+                      {{'msg.bench.btn.minimize' | translate}}
+                    </div>
+                    <!-- //툴팁 -->
                   </div>
-                  <!-- //툴팁 -->
-                </div>
-                <!-- //full size -->
+                  <!-- //full size -->
 
+                </div>
+                <!-- //스크린 사이즈 버튼 -->
               </div>
               <!-- //스크린 사이즈 버튼 -->
-            </div>
-            <!-- //스크린 사이즈 버튼 -->
-            <!-- list 가 있을 때 ddp-slide 추가 -->
-            <div class="ddp-ui-tabs"
-                 #editorListTabs
-                 [class.ddp-slide]="editorListObj.showBtnFl">
-              <div class="ddp-btn-listslider">
-                <a href="javascript:" class="ddp-btn-sliderprev" (click)="onClickPrevSlideBtn(editorListObj)"></a>
-                <a href="javascript:" class="ddp-btn-slidernext" (click)="onClickNextSlideBtn(editorListObj)"></a>
-              </div>
-              <ul class="ddp-list-tabs">
-                <li *ngFor="let item of getFilteringList(textList, editorListObj)"
-                    (click)="tabChangeHandler(findIndexInList(textList, item), false, item )"
-                    [ngClass]="{'ddp-selected': item['selected'],'ddp-edit': item['editorMode']}">
-                  <div class="ddp-data-tab">
-                    {{item['name']}}
-                    <!-- more -->
-                    <div class="ddp-wrap-morebutton">
-                      <em class="ddp-icon-more" id="tabLayer{{findIndexInList(textList, item)}}"
-                          (click)="setTabLayer($event, findIndexInList(textList, item));tabChangeHandler(findIndexInList(textList, item), false);">
-                      </em>
-                    </div>
-                    <!-- //more -->
-                  </div>
-                  <input type="text" class="ddp-input-edit" value="{{item['name']}}"
-                         (keyup.Enter)="tabLayerEnter($event)" (blur)="tabLayerBlur(item, $event)" maxlength="50"/>
-                </li>
-              </ul>
-
-              <a href="javascript:" class="ddp-btn-plus" (click)="createNewEditor('', true)">
-                <em class="ddp-icon-plus"></em>
-              </a>
-            </div>
-          </div>
-          <!-- //tab -->
-
-          <div class="ddp-wrap-editor">
-            <codemirror [config]="config" (keyup)="editorKeyEvent($event)"
-                        (click)="isFootAreaPopupCheck = true"
-                        (textChanged)="editorTextChange($event)"></codemirror>
-
-            <!-- history popup -->
-            <detail-workbench-history *ngIf="isQueryHistoryMenuShow" [editorId]="selectedEditorId" [(deleteHistory)]="isQueryHistoryDelete"
-                                      (sqlIntoEditorEvent)="sqlIntoEditorEvent($event)"
-                                      (sqlQueryPopupEvent)="sqlQueryPopupEvent($event)"
-                                      (queryHistoryDeleteEvent)="isQueryHistoryDeletePopup = true"
-                                      (historyCloseEvent)="isQueryHistoryMenuShow = false" (click)="isFootAreaPopupCheck = true"></detail-workbench-history>
-            <!-- //history popup -->
-
-            <!-- shortcut popup -->
-            <div class="ddp-box-layout4 ddp-shortcuts" *ngIf="shortcutsFl" (click)="isFootAreaPopupCheck = true">
-              <a href="javascript:" class="ddp-btn-close" (click)="shortcutsFl = false;"></a>
-              <div class="ddp-data-title">
-                {{'msg.bench.ui.editor.shortcut.title' | translate}}
-              </div>
-              <div class="ddp-wrap-data-detail ddp-padt0">
-                <table class="ddp-table-pop">
-                  <colgroup>
-                    <col width="136px">
-                    <col width="*">
-                  </colgroup>
-                  <tbody>
-                  <tr *ngIf="!isAgentUserMacOs">
-                    <th>{{'msg.bench.ui.editor.shortcut.all.select' | translate}}</th>
-                    <td>Ctrl-A </td>
-                  </tr>
-                  <tr *ngIf="isAgentUserMacOs">
-                    <th>{{'msg.bench.ui.editor.shortcut.all.select' | translate}}</th>
-                    <td>Cmd-A </td>
-                  </tr>
-                  <tr *ngIf="!isAgentUserMacOs">
-                    <th>{{'msg.bench.ui.editor.shortcut.row.delete' | translate}}</th>
-                    <td>Ctrl-D </td>
-                  </tr>
-                  <tr *ngIf="isAgentUserMacOs">
-                    <th>{{'msg.bench.ui.editor.shortcut.row.delete' | translate}}</th>
-                    <td>Cmd-D </td>
-                  </tr>
-                  <tr>
-                    <th>{{'msg.bench.ui.editor.shortcut.all.delete' | translate}}</th>
-                    <td>CTRL + Q</td>
-                  </tr>
-                  <tr>
-                    <th>{{'msg.bench.ui.editor.shortcut.indent' | translate}}</th>
-                    <td> Tab</td>
-                  </tr>
-                  <tr>
-                    <th>{{'msg.bench.ui.editor.shortcut.outdent' | translate}}</th>
-                    <td>Shift-Tab</td>
-                  </tr>
-                  <tr>
-                    <th>{{'msg.bench.ui.editor.shortcut.comment' | translate}}</th>
-                    <td>CTRL + /</td>
-                  </tr>
-                  <tr>
-                    <th>{{'msg.bench.ui.editor.shortcut.align' | translate}}</th>
-                    <td>CTRL + .</td>
-                  </tr>
-                  <tr *ngIf="!isAgentUserMacOs">
-                    <th>{{'msg.bench.ui.editor.shortcut.cancl' | translate}}</th>
-                    <td>Ctrl-Z</td>
-                  </tr>
-                  <tr *ngIf="isAgentUserMacOs">
-                    <th>{{'msg.bench.ui.editor.shortcut.cancl' | translate}}</th>
-                    <td>Cmd-Z</td>
-                  </tr>
-                  <tr *ngIf="!isAgentUserMacOs">
-                    <th>{{'msg.bench.ui.editor.shortcut.auto.completion' | translate}}</th>
-                    <td>Ctrl+Spacebar</td>
-                  </tr>
-                  <tr *ngIf="isAgentUserMacOs">
-                    <th>{{'msg.bench.ui.editor.shortcut.auto.completion' | translate}}</th>
-                    <td>Ctrl+Shift+Spacebar</td>
-                  </tr>
-                  </tbody>
-                </table>
-            </div>
-            <!-- //shortcut popup -->
-          </div>
-
-          </div>
-
-          <!-- foot button -->
-          <div class="ddp-wrap-foot-button">
-
-            <!-- link button -->
-            <div class="ddp-link-button">
-              <a href="javascript:" class="ddp-link-query" (click)="setExecuteSql('ALL')"><em class="ddp-icon-query-full"></em>{{'msg.bench.ui.execute.full' | translate}}</a>
-              <a href="javascript:" class="ddp-link-query" (click)="setExecuteSql('SELECTED')"><em class="ddp-icon-query-partial"></em>{{'msg.bench.ui.execute.partial' | translate}}</a>
-            </div>
-            <!-- //link button -->
-
-            <div class="ddp-icon-button"  (clickOutside)="checkFooterPopup()">
-              <!-- clear sql -->
-              <div class="ddp-btn-query">
-                <a href="javascript:" class="ddp-icon-query-clear" (click)="clearSql()" title=""></a>
-                <div class="ddp-ui-tooltip-info ddp-top">
-                  <em class="ddp-icon-view-down"></em>
-                  CLEAR SQL
-                </div>
-              </div>
-              <!-- //clear sql -->
-              <!-- SQL BEAUTIFIER -->
-              <div class="ddp-btn-query">
-                <a href="javascript:" class="ddp-icon-query-beautifier" (click)="setSqlFormatter()"></a>
-                <div class="ddp-ui-tooltip-info ddp-top">
-                  <em class="ddp-icon-view-down"></em>
-                  SQL BEAUTIFIER
-                </div>
-              </div>
-              <!-- //SQL BEAUTIFIER -->
-              <!-- query history -->
-              <div class="ddp-btn-query">
-                <!-- 클릭시 ddp-selected 추가 -->
-                <a href="javascript:" class="ddp-icon-query-history" [ngClass]="{'ddp-selected':isQueryHistoryMenuShow}" (click)="openQueryHistoryMenu()"></a>
-                <div class="ddp-ui-tooltip-info ddp-top" >
-                  <em class="ddp-icon-view-top"></em>
-                  History
-                </div>
-              </div>
-              <!-- //query history -->
-
-              <!-- Shortcuts -->
-              <div class="ddp-btn-query">
-                <!-- 클릭시 ddp-selected 추가 -->
-                <a href="javascript:" class="ddp-icon-query-shortcuts" [ngClass]="{'ddp-selected':shortcutsFl}" (click)="openShowShortcutsMenu()"></a>
-                <div class="ddp-ui-tooltip-info ddp-top" >
-                  <em class="ddp-icon-view-down"></em>
-                  Shortcuts
-                </div>
-
-              </div>
-              <!-- //Shortcuts -->
-            </div>
-          </div>
-          <!-- //foot button -->
-
-       </div>
-      </div>
-      <div class="sys-workbench-bottom-panel" style="height:100%;">
-        <!-- query result -->
-        <div [hidden]="isQueryEditorFull" class="ddp-box-query-result" style="position:relative;top:0; left:0; right:0; bottom:0; height:100%;">
-          <div class="ddp-box-in">
-            <!-- tab -->
-            <div class="ddp-wrap-tabs-query" #editorResultListMax>
-              <!-- empty -->
-              <div *ngIf="visibleResultTabs.length == 0" class="ddp-ui-result-none">{{'msg.bench.ui.result.empty.description' | translate}}</div>
-              <!-- //empty -->
-              <!-- list 있을때 ddp-slide 추가 -->
+              <!-- list 가 있을 때 ddp-slide 추가 -->
               <div class="ddp-ui-tabs"
-                   #editorResultListTabs
-                   [class.ddp-slide]="visibleResultTabs.length > 0 && editorResultListObj.showBtnFl">
+                   #editorListTabs
+                   [class.ddp-slide]="editorListObj.showBtnFl">
                 <div class="ddp-btn-listslider">
-                  <a href="javascript:" class="ddp-btn-sliderprev" (click)="onClickPrevSlideBtn(editorResultListObj)"></a>
-                  <a href="javascript:" class="ddp-btn-slidernext" (click)="onClickNextSlideBtn(editorResultListObj)"></a>
+                  <a href="javascript:" class="ddp-btn-sliderprev" (click)="onClickPrevSlideBtn(editorListObj)"></a>
+                  <a href="javascript:" class="ddp-btn-slidernext" (click)="onClickNextSlideBtn(editorListObj)"></a>
                 </div>
-                <!-- li 클릭시 ddp-selected 추가 -->
                 <ul class="ddp-list-tabs">
-                  <!-- ddp-selected -->
-                  <li *ngFor="let item of getFilteringList(visibleResultTabs, editorResultListObj); let index = index"
-                      [ngClass]="{'ddp-selected': item.selected}" (click)="changeResultTabHandler(item.id)"
-                      (mouseover)="showResultTabTooltip($event, index)" (mouseout)="hideResultTabTooltip($event)">
-                    <div [ngStyle]="{'color': ( 'FAIL' === item.resultStatus || 'CANCEL' === item.resultStatus ) ? 'red' : 'black' }"
-                         class="ddp-data-tab ddp-data-loading" >
-                      <em *ngIf="item.name.startsWith('Loading')" class="ddp-icon-tabloading"></em>
-                      <!--Loading<em class="ddp-icon-dot">...</em>-->
-                      {{item.name}}
-                      <a *ngIf="!isExecutingQuery"  href="javascript:" class="ddp-btn-close-s"
-                         (mouseover)="hideResultTabTooltip($event)"
-                         (click)="closeResultTab(item.id)"></a>
+                  <li *ngFor="let item of getFilteringList(textList, editorListObj)"
+                      (click)="tabChangeHandler(findIndexInList(textList, item), false, item )"
+                      [ngClass]="{'ddp-selected': item['selected'],'ddp-edit': item['editorMode']}">
+                    <div class="ddp-data-tab">
+                      {{item['name']}}
+                      <!-- more -->
+                      <div class="ddp-wrap-morebutton">
+                        <em class="ddp-icon-more" id="tabLayer{{findIndexInList(textList, item)}}"
+                            (click)="setTabLayer($event, findIndexInList(textList, item));tabChangeHandler(findIndexInList(textList, item), false);">
+                        </em>
+                      </div>
+                      <!-- //more -->
                     </div>
-                    <!-- popup -->
-                    <div (mouseover)="isFocusResultTooltip = true" (mouseout)="isFocusResultTooltip = false"
-                         class="ddp-box-tabs-popup ddp-retry" >
-                      <div class="ddp-txt-query"> {{item.sql}} </div>
-                      <a *ngIf="!isExecutingQuery" href="javascript:" class="ddp-btn-log-status ddp-retry2" (click)="retryQuery(item)">Retry</a>
-                    </div>
-                    <!-- //popup -->
+                    <input type="text" class="ddp-input-edit" value="{{item['name']}}"
+                           (keyup.Enter)="tabLayerEnter($event)" (blur)="tabLayerBlur(item, $event)" maxlength="50"/>
                   </li>
                 </ul>
+
+                <a href="javascript:" class="ddp-btn-plus" (click)="createNewEditor('', true)">
+                  <em class="ddp-icon-plus"></em>
+                </a>
               </div>
             </div>
-            <!-- tab -->
-            <!-- 결과 -->
-            <div class="ddp-view-result">
-              <div loading #loading [visible]="true"
-                   [canceling]="isCanceling" (cancel)="cancelRunningQuery()" class="ddp-loading-part"></div>
+            <!-- //tab -->
 
-              <!-- Hive Log 표시 영역 -->
-              <div *ngIf="visibleResultTab && visibleResultTab.showLog"
-                   [ngClass]="{'ddp-ing': (isExecutingQuery && !visibleResultTab.result) || ('FAIL' === visibleResultTab.resultStatus)}" class="ddp-wrap-log" >
+            <div class="ddp-wrap-editor">
+              <codemirror [config]="config" (keyup)="editorKeyEvent($event)"
+                          (click)="isFootAreaPopupCheck = true"
+                          (textChanged)="editorTextChange($event)"></codemirror>
 
-                <div id="workbenchLogText" class="ddp-box-log ddp-ing"
-                     [innerHTML]="visibleResultTab.log.join('<br>')">
+              <!-- history popup -->
+              <detail-workbench-history *ngIf="isQueryHistoryMenuShow" [editorId]="selectedEditorId" [(deleteHistory)]="isQueryHistoryDelete"
+                                        (sqlIntoEditorEvent)="sqlIntoEditorEvent($event)"
+                                        (sqlQueryPopupEvent)="sqlQueryPopupEvent($event)"
+                                        (queryHistoryDeleteEvent)="isQueryHistoryDeletePopup = true"
+                                        (historyCloseEvent)="isQueryHistoryMenuShow = false" (click)="isFootAreaPopupCheck = true"></detail-workbench-history>
+              <!-- //history popup -->
+
+              <!-- shortcut popup -->
+              <div class="ddp-box-layout4 ddp-shortcuts" *ngIf="shortcutsFl" (click)="isFootAreaPopupCheck = true">
+                <a href="javascript:" class="ddp-btn-close" (click)="shortcutsFl = false;"></a>
+                <div class="ddp-data-title">
+                  {{'msg.bench.ui.editor.shortcut.title' | translate}}
                 </div>
-
-                <!-- box status -->
-                <div *ngIf="isExecutingQuery && !visibleResultTab.result" class="ddp-box-status-button">
-
-                  <a href="javascript:" class="ddp-btn-log-status" (click)="cancelRunningQuery(true)">Cancel</a>
-                  <span class="ddp-txt-log-status">
-                    <span > {{currentRunningTab?.getExecuteStatusMsg()}} </span>
-                    ({{currentRunningIndex+1}}/{{executeTabIds.length}})
-                  </span>
-
-                </div>
-                <div *ngIf="!isExecutingQuery && 'NONE' !== visibleResultTab.resultStatus && 'SUCCESS' !== visibleResultTab.resultStatus"
-                     class="ddp-box-status-button">
-                  <a href="javascript:" class="ddp-btn-log-status ddp-retry" (click)="retryQuery(visibleResultTab)">Retry</a>
-                  <span *ngIf="'FAIL' === visibleResultTab.resultStatus" class="ddp-txt-log-status ddp-fail">
-                    Sorry, it’s failed while {{ visibleResultTab.getExecuteStatusMsg( visibleResultTab.errorStatus ) }}
-                  </span>
-                  <span *ngIf="'CANCEL' === visibleResultTab.resultStatus" class="ddp-txt-log-status ddp-fail">
-                    {{ 'msg.bench.ui.query.cancel.message' | translate }}
-                  </span>
-                </div>
-                <!-- //box status -->
-
+                <div class="ddp-wrap-data-detail ddp-padt0">
+                  <table class="ddp-table-pop">
+                    <colgroup>
+                      <col width="136px">
+                      <col width="*">
+                    </colgroup>
+                    <tbody>
+                    <tr *ngIf="!isAgentUserMacOs">
+                      <th>{{'msg.bench.ui.editor.shortcut.all.select' | translate}}</th>
+                      <td>Ctrl-A </td>
+                    </tr>
+                    <tr *ngIf="isAgentUserMacOs">
+                      <th>{{'msg.bench.ui.editor.shortcut.all.select' | translate}}</th>
+                      <td>Cmd-A </td>
+                    </tr>
+                    <tr *ngIf="!isAgentUserMacOs">
+                      <th>{{'msg.bench.ui.editor.shortcut.row.delete' | translate}}</th>
+                      <td>Ctrl-D </td>
+                    </tr>
+                    <tr *ngIf="isAgentUserMacOs">
+                      <th>{{'msg.bench.ui.editor.shortcut.row.delete' | translate}}</th>
+                      <td>Cmd-D </td>
+                    </tr>
+                    <tr>
+                      <th>{{'msg.bench.ui.editor.shortcut.all.delete' | translate}}</th>
+                      <td>CTRL + Q</td>
+                    </tr>
+                    <tr>
+                      <th>{{'msg.bench.ui.editor.shortcut.indent' | translate}}</th>
+                      <td> Tab</td>
+                    </tr>
+                    <tr>
+                      <th>{{'msg.bench.ui.editor.shortcut.outdent' | translate}}</th>
+                      <td>Shift-Tab</td>
+                    </tr>
+                    <tr>
+                      <th>{{'msg.bench.ui.editor.shortcut.comment' | translate}}</th>
+                      <td>CTRL + /</td>
+                    </tr>
+                    <tr>
+                      <th>{{'msg.bench.ui.editor.shortcut.align' | translate}}</th>
+                      <td>CTRL + .</td>
+                    </tr>
+                    <tr *ngIf="!isAgentUserMacOs">
+                      <th>{{'msg.bench.ui.editor.shortcut.cancl' | translate}}</th>
+                      <td>Ctrl-Z</td>
+                    </tr>
+                    <tr *ngIf="isAgentUserMacOs">
+                      <th>{{'msg.bench.ui.editor.shortcut.cancl' | translate}}</th>
+                      <td>Cmd-Z</td>
+                    </tr>
+                    <tr *ngIf="!isAgentUserMacOs">
+                      <th>{{'msg.bench.ui.editor.shortcut.auto.completion' | translate}}</th>
+                      <td>Ctrl+Spacebar</td>
+                    </tr>
+                    <tr *ngIf="isAgentUserMacOs">
+                      <th>{{'msg.bench.ui.editor.shortcut.auto.completion' | translate}}</th>
+                      <td>Ctrl+Shift+Spacebar</td>
+                    </tr>
+                    </tbody>
+                  </table>
               </div>
-              <!-- // Hive Log 표시 영역 -->
+              <!-- //shortcut popup -->
+            </div>
 
-              <div *ngIf="visibleResultTab && !visibleResultTab.showLog"
-                   [ngStyle]="{'visibility': visibleResultTabs.length !== 0 ? 'visible':'hidden'}"
-                   class="ddp-wrap-result">
+            </div>
 
-                <div class="ddp-box-grid" #gridWrapElement
-                     [ngStyle]="{'display': 'SUCCESS' === visibleResultTab.resultStatus ? '':'none'}" style="padding:0px;">
-                  <div grid-component #main style="width:100%; height: 100%;"></div>
-                </div>
-                <div [ngStyle]="{'display': 'SUCCESS' !== visibleResultTab.resultStatus ? '':'none'}"
-                     class="ddp-box-grid" style="overflow-y:auto;" >
-                  <div class="ddp-text-result" style="color:red; ">
-                    {{visibleResultTab.message}}
+            <!-- foot button -->
+            <div class="ddp-wrap-foot-button">
+
+              <!-- link button -->
+              <div class="ddp-link-button">
+                <a href="javascript:" class="ddp-link-query" (click)="setExecuteSql('ALL')"><em class="ddp-icon-query-full"></em>{{'msg.bench.ui.execute.full' | translate}}</a>
+                <a href="javascript:" class="ddp-link-query" (click)="setExecuteSql('SELECTED')"><em class="ddp-icon-query-partial"></em>{{'msg.bench.ui.execute.partial' | translate}}</a>
+              </div>
+              <!-- //link button -->
+
+              <div class="ddp-icon-button"  (clickOutside)="checkFooterPopup()">
+                <!-- clear sql -->
+                <div class="ddp-btn-query">
+                  <a href="javascript:" class="ddp-icon-query-clear" (click)="clearSql()" title=""></a>
+                  <div class="ddp-ui-tooltip-info ddp-top">
+                    <em class="ddp-icon-view-down"></em>
+                    CLEAR SQL
                   </div>
                 </div>
-
-                <!-- buttons -->
-                <div *ngIf="visibleResultTab.result && visibleResultTab.result.fields"
-                     class="ddp-ui-buttons" >
-                  <!-- Paging -->
-                  <div [class.type-opacity]="hideResultButtons" [hidden]="visibleResultTab.message"
-                       class="ddp-wrap-btn-link" >
-                    <a *ngIf="visibleResultTab.isShowPrevBtn()"
-                       (click)="changeResultPage( visibleResultTab, 'PREV' )"
-                       href="javascript:" class="ddp-box-page" >
-                      <em class="ddp-icon-prev"></em>PREV
-                    </a>
-                    <a *ngIf="visibleResultTab.isShowNextBtn( visibleResultTab.result.defaultNumRows )"
-                       (click)="changeResultPage( visibleResultTab, 'NEXT' )"
-                       href="javascript:" class="ddp-box-page ddp-next" >
-                      NEXT<em class="ddp-icon-next"></em>
-                    </a>
+                <!-- //clear sql -->
+                <!-- SQL BEAUTIFIER -->
+                <div class="ddp-btn-query">
+                  <a href="javascript:" class="ddp-icon-query-beautifier" (click)="setSqlFormatter()"></a>
+                  <div class="ddp-ui-tooltip-info ddp-top">
+                    <em class="ddp-icon-view-down"></em>
+                    SQL BEAUTIFIER
                   </div>
-                  <!-- // Paging -->
+                </div>
+                <!-- //SQL BEAUTIFIER -->
+                <!-- query history -->
+                <div class="ddp-btn-query">
+                  <!-- 클릭시 ddp-selected 추가 -->
+                  <a href="javascript:" class="ddp-icon-query-history" [ngClass]="{'ddp-selected':isQueryHistoryMenuShow}" (click)="openQueryHistoryMenu()"></a>
+                  <div class="ddp-ui-tooltip-info ddp-top" >
+                    <em class="ddp-icon-view-top"></em>
+                    History
+                  </div>
+                </div>
+                <!-- //query history -->
 
-                  <!-- Result Search -->
-                  <div [class.type-opacity]="hideResultButtons" class="ddp-wrap-btn-link">
-                    <!-- search link -->
-                    <a (click)="toggleResultSearchLayer($event)"
-                       [ngClass]="{'ddp-selected':isSearchLink, 'ddp-value': searchText.trim() != '' }"
-                       [hidden]="visibleResultTab.message"
-                       href="javascript:" class="ddp-btn-link " >
-                      <em class="ddp-icon-query-search" ></em>
-                      <div class="ddp-ui-tooltip-info ">
-                        <em class="ddp-icon-view-down"></em>
-                        search
-                      </div>
-                      <!-- box -->
-                      <div class="ddp-box-searching">
-                        <!-- search -->
-                        <div class="ddp-form-search">
-                          <em class="ddp-icon-search"></em>
-                          <input type="text"
-                                 placeholder="{{'msg.comm.search.col' | translate}}"
-                                 #gridSearchInput
-                                 [(ngModel)]="searchText"
-                                 (keyup)="gridSearch($event)" [disabled]="visibleResultTabs.length === 0">
-                          <em class="ddp-btn-search-close" *ngIf="searchText" (click)="gridSearchClear()"></em>
-                        </div>
-                        <!-- //search -->
-                      </div>
-                      <!-- //box -->
-                    </a>
-                    <!-- // Result Search -->
-
-                    <!-- Preview ( Chart ) -->
-                    <a (click)="resultPreview()" [hidden]="visibleResultTab.message"
-                       href="javascript:" class="ddp-btn-link" >
-                      <em class="ddp-icon-chart"></em>
-                      <div class="ddp-ui-tooltip-info">
-                        <em class="ddp-icon-view-down"></em>
-                        {{'msg.bench.btn.chart.preview' | translate}}
-                      </div>
-                    </a>
-                    <!-- // Preview ( Chart ) -->
-
-                    <div class="ddp-ui-link" [ngClass]="{'ddp-selected':saveAsLayer}" *ngIf="isDataManager || supportSaveAsHiveTable">
-                      <a href="javascript:" class="ddp-btn-link" (click)="saveAsLayer = true" (clickOutside)="saveAsLayer = false">
-                        <em class="ddp-icon-save"></em>
-                        <div class="ddp-ui-tooltip-info">
-                          <em class="ddp-icon-view-down"></em>
-                          {{'msg.bench.btn.save.as' | translate}}
-                        </div>
-                      </a>
-                      <div class="ddp-wrap-popup2" *ngIf="saveAsLayer === true">
-                        <ul class="ddp-list-popup">
-                          <li *ngIf="isDataManager">
-                            <a href="javascript:" (click)="createDatasource()" [hidden]="visibleResultTab.message">
-                              {{'msg.bench.btn.save.as.datasource' | translate}}
-                            </a>
-                          </li>
-                          <li *ngIf="supportSaveAsHiveTable">
-                            <a href="javascript:" (click)="saveAsHiveTable()">
-                              {{'msg.bench.btn.save.as.hive-table' | translate}}
-                            </a>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-
-                    <!-- Download Data -->
-                    <div [hidden]="visibleResultTab.message" class="ddp-ui-link" >
-                      <a (click)="downloadExcel()" href="javascript:" class="ddp-btn-link" >
-                        <em class="ddp-icon-export"></em>
-                        <div class="ddp-ui-tooltip-info">
-                          <em class="ddp-icon-view-down"></em>
-                          {{'msg.bench.btn.export.file' | translate}}
-                        </div>
-                      </a>
-                    </div>
-                    <!-- // Download Data -->
-
+                <!-- Shortcuts -->
+                <div class="ddp-btn-query">
+                  <!-- 클릭시 ddp-selected 추가 -->
+                  <a href="javascript:" class="ddp-icon-query-shortcuts" [ngClass]="{'ddp-selected':shortcutsFl}" (click)="openShowShortcutsMenu()"></a>
+                  <div class="ddp-ui-tooltip-info ddp-top" >
+                    <em class="ddp-icon-view-down"></em>
+                    Shortcuts
                   </div>
 
                 </div>
-                <!-- // buttons -->
-
+                <!-- //Shortcuts -->
               </div>
             </div>
-            <!-- //결과 -->
+            <!-- //foot button -->
 
-            <!-- info bar -->
-            <div class="ddp-box-infobar" *ngIf="visibleResultTabs.length != 0">
-              <!-- tab -->
-              <div *ngIf="visibleResultTab" class="ddp-ui-bottom-tab">
-                <ul class="ddp-list-bottom-tab">
-                  <li [class.ddp-selected]="visibleResultTab.showLog" ><a href="javascript:" (click)="toggleLogPanel(true)">Output</a></li>
-                  <li [class.ddp-selected]="!visibleResultTab.showLog"><a href="javascript:" (click)="toggleLogPanel(false)">Result</a></li>
-                </ul>
-              </div>
-              <!-- //tab -->
-
-              <!-- fail 일때 ddp-fail 추가 -->
-              <div *ngIf="visibleResultTab && visibleResultTab.showLog"
-                   [ngClass]="{'ddp-fail': 'FAIL' === visibleResultTab.resultStatus || 'CANCEL' === visibleResultTab.resultStatus }"
-                   class="ddp-view-status" style="padding-left:6px;">
-                <!-- 상태 메세지 (상태메세지, 상태 묶음) -->
-                <div *ngIf="'DONE' !== visibleResultTab.executeStatus && 'NONE' === visibleResultTab.resultStatus"
-                     class="ddp-info-status" >
-                  {{'msg.bench.ui.query.running.message' | translate}}
-                </div>
-                <div *ngIf="'FAIL' === visibleResultTab.resultStatus" class="ddp-info-status ddp-fail">
-                  {{'msg.bench.ui.query.fail.message' | translate}}
-                </div>
-                <div *ngIf="'CANCEL' === visibleResultTab.resultStatus" class="ddp-info-status ddp-fail">
-                  {{'msg.bench.ui.query.cancel.message' | translate}}
-                </div>
-                <!--//상태 메세지 -->
-              </div>
-
-              <!-- time -->
-              <div class="ddp-list-time" *ngIf="visibleResultTab && ( 'NONE' === visibleResultTab.resultStatus || 'SUCCESS' === visibleResultTab.resultStatus )">
-                <span class="ddp-data-time">
-                  <span class="ddp-data-label">{{'msg.bench.ui.query.start.date' | translate}}</span>
-                  <span class="ddp-data-txt">{{visibleResultTab.startDate}}</span>
-                </span>
-                <span *ngIf="visibleResultTab.finishDate" class="ddp-data-time">
-                  <span class="ddp-data-label">{{'msg.bench.ui.query.finish.date' | translate}}</span>
-                  <span class="ddp-data-txt">{{visibleResultTab.finishDate}}</span>
-                </span>
-                <span class="ddp-data-time">
-                  <span class="ddp-data-label">{{'msg.bench.ui.query.running.time' | translate}}</span>
-                  <span class="ddp-data-txt">{{ setNumberFormat( visibleResultTab.executeTime, 2 ) }} Secs.</span>
-                </span>
-                <span class="ddp-data-time" *ngIf="'SUCCESS' === visibleResultTab.resultStatus && visibleResultTab.result && -1 < visibleResultTab.result.numRows">
-                  <span class="ddp-data-txt"> {{setNumberFormat(visibleResultTab.result.data.length + (visibleResultTab.pageNum * visibleResultTab.result.defaultNumRows) )}} / {{ (visibleResultTab.result.numRows == visibleResultTab.result.maxNumRows) ? setNumberFormat(visibleResultTab.result.maxNumRows) + '+' : setNumberFormat(visibleResultTab.result.numRows) }} {{'msg.comm.detail.rows'|translate}}</span>
-                </span>
-              </div>
-              <!-- //time -->
-
-            </div>
-            <!-- //info bar -->
-
-          </div>
+         </div>
         </div>
-        <!-- //query result -->
+        <div class="sys-workbench-bottom-panel" style="height:100%;">
+          <!-- query result -->
+          <div [hidden]="isQueryEditorFull" class="ddp-box-query-result" style="position:relative;top:0; left:0; right:0; bottom:0; height:100%;">
+            <div class="ddp-box-in">
+              <!-- tab -->
+              <div class="ddp-wrap-tabs-query" #editorResultListMax>
+                <!-- empty -->
+                <div *ngIf="visibleResultTabs.length == 0" class="ddp-ui-result-none">{{'msg.bench.ui.result.empty.description' | translate}}</div>
+                <!-- //empty -->
+                <!-- list 있을때 ddp-slide 추가 -->
+                <div class="ddp-ui-tabs"
+                     #editorResultListTabs
+                     [class.ddp-slide]="visibleResultTabs.length > 0 && editorResultListObj.showBtnFl">
+                  <div class="ddp-btn-listslider">
+                    <a href="javascript:" class="ddp-btn-sliderprev" (click)="onClickPrevSlideBtn(editorResultListObj)"></a>
+                    <a href="javascript:" class="ddp-btn-slidernext" (click)="onClickNextSlideBtn(editorResultListObj)"></a>
+                  </div>
+                  <!-- li 클릭시 ddp-selected 추가 -->
+                  <ul class="ddp-list-tabs">
+                    <!-- ddp-selected -->
+                    <li *ngFor="let item of getFilteringList(visibleResultTabs, editorResultListObj); let index = index"
+                        [ngClass]="{'ddp-selected': item.selected}" (click)="changeResultTabHandler(item.id)"
+                        (mouseover)="showResultTabTooltip($event, index)" (mouseout)="hideResultTabTooltip($event)">
+                      <div [ngStyle]="{'color': ( 'FAIL' === item.resultStatus || 'CANCEL' === item.resultStatus ) ? 'red' : 'black' }"
+                           class="ddp-data-tab ddp-data-loading" >
+                        <em *ngIf="item.name.startsWith('Loading')" class="ddp-icon-tabloading"></em>
+                        <!--Loading<em class="ddp-icon-dot">...</em>-->
+                        {{item.name}}
+                        <a *ngIf="!isExecutingQuery"  href="javascript:" class="ddp-btn-close-s"
+                           (mouseover)="hideResultTabTooltip($event)"
+                           (click)="closeResultTab(item.id)"></a>
+                      </div>
+                      <!-- popup -->
+                      <div (mouseover)="isFocusResultTooltip = true" (mouseout)="isFocusResultTooltip = false"
+                           class="ddp-box-tabs-popup ddp-retry" >
+                        <div class="ddp-txt-query"> {{item.sql}} </div>
+                        <a *ngIf="!isExecutingQuery" href="javascript:" class="ddp-btn-log-status ddp-retry2" (click)="retryQuery(item)">Retry</a>
+                      </div>
+                      <!-- //popup -->
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <!-- tab -->
+              <!-- 결과 -->
+              <div class="ddp-view-result">
+                <div loading #loading [visible]="true"
+                     [canceling]="isCanceling" (cancel)="cancelRunningQuery()" class="ddp-loading-part"></div>
+
+                <!-- Hive Log 표시 영역 -->
+                <div *ngIf="visibleResultTab && visibleResultTab.showLog"
+                     [ngClass]="{'ddp-ing': (isExecutingQuery && !visibleResultTab.result) || ('FAIL' === visibleResultTab.resultStatus)}" class="ddp-wrap-log" >
+
+                  <div id="workbenchLogText" class="ddp-box-log ddp-ing"
+                       [innerHTML]="visibleResultTab.log.join('<br>')">
+                  </div>
+
+                  <!-- box status -->
+                  <div *ngIf="isExecutingQuery && !visibleResultTab.result" class="ddp-box-status-button">
+
+                    <a href="javascript:" class="ddp-btn-log-status" (click)="cancelRunningQuery(true)">Cancel</a>
+                    <span class="ddp-txt-log-status">
+                      <span > {{currentRunningTab?.getExecuteStatusMsg()}} </span>
+                      ({{currentRunningIndex+1}}/{{executeTabIds.length}})
+                    </span>
+
+                  </div>
+                  <div *ngIf="!isExecutingQuery && 'NONE' !== visibleResultTab.resultStatus && 'SUCCESS' !== visibleResultTab.resultStatus"
+                       class="ddp-box-status-button">
+                    <a href="javascript:" class="ddp-btn-log-status ddp-retry" (click)="retryQuery(visibleResultTab)">Retry</a>
+                    <span *ngIf="'FAIL' === visibleResultTab.resultStatus" class="ddp-txt-log-status ddp-fail">
+                      Sorry, it’s failed while {{ visibleResultTab.getExecuteStatusMsg( visibleResultTab.errorStatus ) }}
+                    </span>
+                    <span *ngIf="'CANCEL' === visibleResultTab.resultStatus" class="ddp-txt-log-status ddp-fail">
+                      {{ 'msg.bench.ui.query.cancel.message' | translate }}
+                    </span>
+                  </div>
+                  <!-- //box status -->
+
+                </div>
+                <!-- // Hive Log 표시 영역 -->
+
+                <div *ngIf="visibleResultTab && !visibleResultTab.showLog"
+                     [ngStyle]="{'visibility': visibleResultTabs.length !== 0 ? 'visible':'hidden'}"
+                     class="ddp-wrap-result">
+
+                  <div class="ddp-box-grid" #gridWrapElement
+                       [ngStyle]="{'display': 'SUCCESS' === visibleResultTab.resultStatus ? '':'none'}" style="padding:0px;">
+                    <div grid-component #main style="width:100%; height: 100%;"></div>
+                  </div>
+                  <div [ngStyle]="{'display': 'SUCCESS' !== visibleResultTab.resultStatus ? '':'none'}"
+                       class="ddp-box-grid" style="overflow-y:auto;" >
+                    <div class="ddp-text-result" style="color:red; ">
+                      {{visibleResultTab.message}}
+                    </div>
+                  </div>
+
+                  <!-- buttons -->
+                  <div *ngIf="visibleResultTab.result && visibleResultTab.result.fields"
+                       class="ddp-ui-buttons" >
+                    <!-- Paging -->
+                    <div [class.type-opacity]="hideResultButtons" [hidden]="visibleResultTab.message"
+                         class="ddp-wrap-btn-link" >
+                      <a *ngIf="visibleResultTab.isShowPrevBtn()"
+                         (click)="changeResultPage( visibleResultTab, 'PREV' )"
+                         href="javascript:" class="ddp-box-page" >
+                        <em class="ddp-icon-prev"></em>PREV
+                      </a>
+                      <a *ngIf="visibleResultTab.isShowNextBtn( visibleResultTab.result.defaultNumRows )"
+                         (click)="changeResultPage( visibleResultTab, 'NEXT' )"
+                         href="javascript:" class="ddp-box-page ddp-next" >
+                        NEXT<em class="ddp-icon-next"></em>
+                      </a>
+                    </div>
+                    <!-- // Paging -->
+
+                    <!-- Result Search -->
+                    <div [class.type-opacity]="hideResultButtons" class="ddp-wrap-btn-link">
+                      <!-- search link -->
+                      <a (click)="toggleResultSearchLayer($event)"
+                         [ngClass]="{'ddp-selected':isSearchLink, 'ddp-value': searchText.trim() != '' }"
+                         [hidden]="visibleResultTab.message"
+                         href="javascript:" class="ddp-btn-link " >
+                        <em class="ddp-icon-query-search" ></em>
+                        <div class="ddp-ui-tooltip-info ">
+                          <em class="ddp-icon-view-down"></em>
+                          search
+                        </div>
+                        <!-- box -->
+                        <div class="ddp-box-searching">
+                          <!-- search -->
+                          <div class="ddp-form-search">
+                            <em class="ddp-icon-search"></em>
+                            <input type="text"
+                                   placeholder="{{'msg.comm.search.col' | translate}}"
+                                   #gridSearchInput
+                                   [(ngModel)]="searchText"
+                                   (keyup)="gridSearch($event)" [disabled]="visibleResultTabs.length === 0">
+                            <em class="ddp-btn-search-close" *ngIf="searchText" (click)="gridSearchClear()"></em>
+                          </div>
+                          <!-- //search -->
+                        </div>
+                        <!-- //box -->
+                      </a>
+                      <!-- // Result Search -->
+
+                      <!-- Preview ( Chart ) -->
+                      <a (click)="resultPreview()" [hidden]="visibleResultTab.message"
+                         href="javascript:" class="ddp-btn-link" >
+                        <em class="ddp-icon-chart"></em>
+                        <div class="ddp-ui-tooltip-info">
+                          <em class="ddp-icon-view-down"></em>
+                          {{'msg.bench.btn.chart.preview' | translate}}
+                        </div>
+                      </a>
+                      <!-- // Preview ( Chart ) -->
+
+                      <div class="ddp-ui-link" [ngClass]="{'ddp-selected':saveAsLayer}" *ngIf="isDataManager || supportSaveAsHiveTable">
+                        <a href="javascript:" class="ddp-btn-link" (click)="saveAsLayer = true" (clickOutside)="saveAsLayer = false">
+                          <em class="ddp-icon-save"></em>
+                          <div class="ddp-ui-tooltip-info">
+                            <em class="ddp-icon-view-down"></em>
+                            {{'msg.bench.btn.save.as' | translate}}
+                          </div>
+                        </a>
+                        <div class="ddp-wrap-popup2" *ngIf="saveAsLayer === true">
+                          <ul class="ddp-list-popup">
+                            <li *ngIf="isDataManager">
+                              <a href="javascript:" (click)="createDatasource()" [hidden]="visibleResultTab.message">
+                                {{'msg.bench.btn.save.as.datasource' | translate}}
+                              </a>
+                            </li>
+                            <li *ngIf="supportSaveAsHiveTable">
+                              <a href="javascript:" (click)="saveAsHiveTable()">
+                                {{'msg.bench.btn.save.as.hive-table' | translate}}
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+
+                      <!-- Download Data -->
+                      <div [hidden]="visibleResultTab.message" class="ddp-ui-link" >
+                        <a (click)="downloadExcel()" href="javascript:" class="ddp-btn-link" >
+                          <em class="ddp-icon-export"></em>
+                          <div class="ddp-ui-tooltip-info">
+                            <em class="ddp-icon-view-down"></em>
+                            {{'msg.bench.btn.export.file' | translate}}
+                          </div>
+                        </a>
+                      </div>
+                      <!-- // Download Data -->
+
+                    </div>
+
+                  </div>
+                  <!-- // buttons -->
+
+                </div>
+              </div>
+              <!-- //결과 -->
+
+              <!-- info bar -->
+              <div class="ddp-box-infobar" *ngIf="visibleResultTabs.length != 0">
+                <!-- tab -->
+                <div *ngIf="visibleResultTab" class="ddp-ui-bottom-tab">
+                  <ul class="ddp-list-bottom-tab">
+                    <li [class.ddp-selected]="visibleResultTab.showLog" ><a href="javascript:" (click)="toggleLogPanel(true)">Output</a></li>
+                    <li [class.ddp-selected]="!visibleResultTab.showLog"><a href="javascript:" (click)="toggleLogPanel(false)">Result</a></li>
+                  </ul>
+                </div>
+                <!-- //tab -->
+
+                <!-- fail 일때 ddp-fail 추가 -->
+                <div *ngIf="visibleResultTab && visibleResultTab.showLog"
+                     [ngClass]="{'ddp-fail': 'FAIL' === visibleResultTab.resultStatus || 'CANCEL' === visibleResultTab.resultStatus }"
+                     class="ddp-view-status" style="padding-left:6px;">
+                  <!-- 상태 메세지 (상태메세지, 상태 묶음) -->
+                  <div *ngIf="'DONE' !== visibleResultTab.executeStatus && 'NONE' === visibleResultTab.resultStatus"
+                       class="ddp-info-status" >
+                    {{'msg.bench.ui.query.running.message' | translate}}
+                  </div>
+                  <div *ngIf="'FAIL' === visibleResultTab.resultStatus" class="ddp-info-status ddp-fail">
+                    {{'msg.bench.ui.query.fail.message' | translate}}
+                  </div>
+                  <div *ngIf="'CANCEL' === visibleResultTab.resultStatus" class="ddp-info-status ddp-fail">
+                    {{'msg.bench.ui.query.cancel.message' | translate}}
+                  </div>
+                  <!--//상태 메세지 -->
+                </div>
+
+                <!-- time -->
+                <div class="ddp-list-time" *ngIf="visibleResultTab && ( 'NONE' === visibleResultTab.resultStatus || 'SUCCESS' === visibleResultTab.resultStatus )">
+                  <span class="ddp-data-time">
+                    <span class="ddp-data-label">{{'msg.bench.ui.query.start.date' | translate}}</span>
+                    <span class="ddp-data-txt">{{visibleResultTab.startDate}}</span>
+                  </span>
+                  <span *ngIf="visibleResultTab.finishDate" class="ddp-data-time">
+                    <span class="ddp-data-label">{{'msg.bench.ui.query.finish.date' | translate}}</span>
+                    <span class="ddp-data-txt">{{visibleResultTab.finishDate}}</span>
+                  </span>
+                  <span class="ddp-data-time">
+                    <span class="ddp-data-label">{{'msg.bench.ui.query.running.time' | translate}}</span>
+                    <span class="ddp-data-txt">{{ setNumberFormat( visibleResultTab.executeTime, 2 ) }} Secs.</span>
+                  </span>
+                  <span class="ddp-data-time" *ngIf="'SUCCESS' === visibleResultTab.resultStatus && visibleResultTab.result && -1 < visibleResultTab.result.numRows">
+                    <span class="ddp-data-txt"> {{setNumberFormat(visibleResultTab.result.data.length + (visibleResultTab.pageNum * visibleResultTab.result.defaultNumRows) )}} / {{ (visibleResultTab.result.numRows == visibleResultTab.result.maxNumRows) ? setNumberFormat(visibleResultTab.result.maxNumRows) + '+' : setNumberFormat(visibleResultTab.result.numRows) }} {{'msg.comm.detail.rows'|translate}}</span>
+                  </span>
+                </div>
+                <!-- //time -->
+
+              </div>
+              <!-- //info bar -->
+
+            </div>
+          </div>
+          <!-- //query result -->
+        </div>
       </div>
     </div>
     <!-- //쿼리 contents -->
@@ -689,10 +691,10 @@
 <!-- //삭제 -->
 
 <app-create-data-source *ngIf="mode=='db-configure-schema'"
-                        (sourceCreateClose)="mainViewShow = true; mode=''"
                         [step]="mode"
                         [sourceData]="setDatasource"
-                        (sourceCreateComplete)="createDatasourceComplete()">
+                        (sourceCreateComplete)="createDatasourceComplete()"
+                        (sourceCreateClose)="closeCreateDatasource()" >
 </app-create-data-source>
 <!--<app-page #page *ngIf="isShowPage" [widget]="selectedPageWidget" (close)="isShowPage=false"></app-page>-->
 <app-page #page *ngIf="isShowPage" [widget]="selectedPageWidget" [dashboard]="false"

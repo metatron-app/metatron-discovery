@@ -17,25 +17,25 @@ import {
   AfterViewInit, Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, OnInit, Output,
   SimpleChange, SimpleChanges, ViewChild
 } from '@angular/core';
-import { RangeSliderComponent } from '../slider/range-slider.component';
-import { Pivot } from '../../../../domain/workbook/configurations/pivot';
+import {RangeSliderComponent} from '../slider/range-slider.component';
+import {Pivot} from '../../../../domain/workbook/configurations/pivot';
 import {
-  ChartColorList, EventType, GraphicType, ShelveFieldType,
+  ChartColorList, GraphicType, ShelveFieldType,
   ShelveType
 } from '../../../../common/component/chart/option/define/common';
-import { PageWidgetConfiguration } from '../../../../domain/dashboard/widget/page-widget';
-import { Analysis, analysis, Confidence, Forecast, HyperParameter, Style } from '../../value/analysis';
-import { ColorPickerLayerComponent } from '../color.picker/color.picker.layer.component';
+import {PageWidgetConfiguration} from '../../../../domain/dashboard/widget/page-widget';
+import {Analysis, analysis, Confidence, Forecast, HyperParameter, Style} from '../../value/analysis';
+import {ColorPickerLayerComponent} from '../color.picker/color.picker.layer.component';
 import * as $ from 'jquery';
-import { SelectComponent } from '../../../../common/component/select/select.component';
-import { Subject } from 'rxjs/Subject';
-import { Subscription } from 'rxjs/Subscription';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { Alert } from '../../../../common/util/alert.util';
-import { TimeUnit } from '../../../../domain/workbook/configurations/field/timestamp-field';
-import { UIOption } from '../../../../common/component/chart/option/ui-option';
-import { Field } from '../../../../domain/workbook/configurations/field/field';
-import { UIChartColorBySeries } from '../../../../common/component/chart/option/ui-option/ui-color';
+import {SelectComponent} from '../../../../common/component/select/select.component';
+import {Subject} from 'rxjs/Subject';
+import {Subscription} from 'rxjs/Subscription';
+import {AbstractComponent} from '../../../../common/component/abstract.component';
+import {Alert} from '../../../../common/util/alert.util';
+import {TimeUnit} from '../../../../domain/workbook/configurations/field/timestamp-field';
+import {UIOption} from '../../../../common/component/chart/option/ui-option';
+import {Field} from '../../../../domain/workbook/configurations/field/field';
+import {UIChartColorBySeries} from '../../../../common/component/chart/option/ui-option/ui-color';
 
 @Component({
   selector: 'analysis-prediction',
@@ -762,8 +762,9 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
 
             // alias가 있는경우
             if (agg.alias) hyperParameter.field = agg.alias;
+            else if ( 'user_defined' === agg.ref ) hyperParameter.field = agg.ref + '.' + agg.name;
             // alias가 없는경우
-            else hyperParameter.field = `${agg.aggregationType + '(' + agg.field.alias + ')'}`;
+            else hyperParameter.field = `${agg.aggregationType + '(' + agg.name + ')'}`;
 
             hyperParameter.alpha = resultData[`${hyperParameter.field}.params`][0];
             hyperParameter.beta = resultData[`${hyperParameter.field}.params`][1];
@@ -794,8 +795,9 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
           let alias: string;
           // alias가 있는경우
           if (agg.alias) alias = agg.alias;
+          else if ( 'user_defined' === agg.ref ) alias = agg.ref + '.' + agg.name;
           // alias가 없는경우
-          else alias = `${agg.aggregationType + '(' + agg.field.alias + ')'}`;
+          else alias = `${agg.aggregationType + '(' + agg.name + ')'}`;
 
           const parameter = this.data.analysis.analysis.forecast.parameters
             .filter((param) => {
@@ -890,7 +892,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
     this.loadingHide();
   }
 
-  public changePredictionLineDisabled() : void {
+  public changePredictionLineDisabled(): void {
     this.data.isPredictionLineDisabled = true;
   }
 
@@ -954,13 +956,6 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
   // -------------------------------------------------------------------------------------------------------------------
   // 예측기간 관련
   // -------------------------------------------------------------------------------------------------------------------
-
-  /**
-   * 예측기간 Blur 이벤트 발생시
-   */
-  public blurPredictionInterval(predictionIntervalElement: HTMLInputElement): void {
-    predictionIntervalElement.value = this.data.analysis.analysis.interval.toString();
-  }
 
   /**
    * 예측기간 Keyup enter 이벤트 발생시
@@ -1074,76 +1069,57 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
   // ---------------------------------------
   // Alpha text input
   // ---------------------------------------
+  public validateForecastParameterAlpha():Function {
+    const messages = this.MESSAGE;
+    const isKorLang = ( this.currentLang === 'ko' );
+    return ( alphaValue:string ) => {
 
-  /**
-   * 선택된 Forecast parameter alpha text input
-   *  - Blur 이벤트
-   *
-   * @param {HTMLInputElement} selectedForecastParameterAlpha
-   */
-  public blurSelectedForecastParameterAlpha(selectedForecastParameterAlpha: HTMLInputElement): void {
+      if (_.isUndefined(alphaValue)) {
+        let msg: string = '';
+        if (isKorLang) {
+          msg = `${messages.ALPHA} ${messages.PLEASE_VALUE}`;
+        } else {
+          msg = `${messages.PLEASE_VALUE.replace('xxx', messages.ALPHA.toLowerCase())}`;
+        }
+        Alert.warning(msg);
+        return false;
+      }
 
-    if (this.selectedForecastParameter.isAuto) {
-      return;
-    }
+      if ('' === alphaValue ) {
+        let msg: string = '';
+        if (isKorLang) {
+          msg = `${messages.ALPHA} ${messages.PLEASE_VALUE}`;
+        } else {
+          msg = `${messages.PLEASE_VALUE.replace('xxx', messages.ALPHA.toLowerCase())}`;
+        }
+        Alert.warning(msg);
+        return false;
+      }
 
-    selectedForecastParameterAlpha.value = this.selectedForecastParameter.alpha.toString();
-  }
+      const alpha: number = Number(alphaValue);
+
+      if (_.isNaN(alpha)) {
+        Alert.warning(`${messages.ALPHA} ${messages.VALUES_ONLY_NUMERIC}`);
+        return false;
+      }
+
+      if (_.isFinite(alpha) === false) {
+        Alert.warning(`${messages.ALPHA} ${messages.VALUES_ONLY_NUMERIC}`);
+        return false;
+      }
+
+      return true;
+    };
+  } // function - validateForecastParameterAlpha
 
   /**
    * 선택된 Forecast parameter alpha text input
    *  - Keyup 이벤트
    *
-   * @param {HTMLInputElement} selectedForecastParameterAlpha
+   * @param {number} alphaValue
    */
-  public keyupEnterSelectedForecastParameterAlpha(selectedForecastParameterAlpha: HTMLInputElement): void {
-
-    if (_.isUndefined(selectedForecastParameterAlpha.value)) {
-
-      let msg: string = '';
-
-      if (this.currentLang === 'ko') {
-        msg = `${this.MESSAGE.ALPHA} ${this.MESSAGE.PLEASE_VALUE}`;
-      } else {
-        msg = `${this.MESSAGE.PLEASE_VALUE.replace('xxx', this.MESSAGE.ALPHA.toLowerCase())}`;
-      }
-
-      Alert.warning(msg);
-
-      return;
-    }
-
-    if (selectedForecastParameterAlpha.value === '') {
-
-
-      let msg: string = '';
-
-      if (this.currentLang === 'ko') {
-        msg = `${this.MESSAGE.ALPHA} ${this.MESSAGE.PLEASE_VALUE}`;
-      } else {
-        msg = `${this.MESSAGE.PLEASE_VALUE.replace('xxx', this.MESSAGE.ALPHA.toLowerCase())}`;
-      }
-
-      Alert.warning(msg);
-
-      return;
-    }
-
-    const alpha: number = Number(selectedForecastParameterAlpha.value);
-
-    if (_.isNaN(alpha)) {
-      Alert.warning(`${this.MESSAGE.ALPHA} ${this.MESSAGE.VALUES_ONLY_NUMERIC}`);
-      return;
-    }
-
-    selectedForecastParameterAlpha.value = alpha.toString();
-
-    if (_.isFinite(Number(selectedForecastParameterAlpha.value)) === false) {
-      Alert.warning(`${this.MESSAGE.ALPHA} ${this.MESSAGE.VALUES_ONLY_NUMERIC}`);
-      return;
-    }
-
-    this.selectedForecastParameter.alpha = selectedForecastParameterAlpha.value;
+  public setForecastParameterAlpha(alphaValue:number): void {
+    this.selectedForecastParameter.alpha = alphaValue;
 
     // 선택되어 있는 Forecast parameter 데이터 업데이트
     // @param {number} index : Select Component 의 선택되어 있는 아이템 인덱스
@@ -1151,80 +1127,61 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
 
     // 예측선 데이터 변경 알림
     this.predictionLineDataChangeNotification();
-  }
+  } // function - setForecastParameterAlpha
 
   // ---------------------------------------
   // Beta text input
   // ---------------------------------------
+  public validateForecastParameterBeta():Function {
+    const messages = this.MESSAGE;
+    const isKorLang = (this.currentLang === 'ko');
+    return (betaValue: string) => {
 
-  /**
-   * 선택된 Forecast parameter beta text input
-   *  - Blur 이벤트
-   *
-   * @param {HTMLInputElement} selectedForecastParameterBeta
-   */
-  public blurSelectedForecastParameterBeta(selectedForecastParameterBeta: HTMLInputElement): void {
+      if (_.isUndefined(betaValue)) {
+        let msg: string = '';
+        if (isKorLang) {
+          msg = `${messages.BETA} ${messages.PLEASE_VALUE}`;
+        } else {
+          msg = `${messages.PLEASE_VALUE.replace('xxx', messages.BETA.toLowerCase())}`;
+        }
+        Alert.warning(msg);
+        return false;
+      }
 
-    if (this.selectedForecastParameter.isAuto) {
-      return;
-    }
+      if (betaValue === '') {
+        let msg: string = '';
+        if (isKorLang) {
+          msg = `${messages.BETA} ${messages.PLEASE_VALUE}`;
+        } else {
+          msg = `${messages.PLEASE_VALUE.replace('xxx', messages.BETA.toLowerCase())}`;
+        }
+        Alert.warning(msg);
+        return false;
+      }
 
-    selectedForecastParameterBeta.value = this.selectedForecastParameter.beta.toString();
-  }
+      const beta: number = Number(betaValue);
+
+      if (_.isNaN(beta)) {
+        Alert.warning(`${messages.BETA} ${messages.VALUES_ONLY_NUMERIC}`);
+        return false;
+      }
+
+      if (_.isFinite(beta) === false) {
+        Alert.warning(`${messages.BETA} ${messages.VALUES_ONLY_NUMERIC}`);
+        return false;
+      }
+      return true;
+    };
+  } // function - validateForecastParameterBeta
 
   /**
    * 선택된 Forecast parameter beta text input
    *  - Keyup 이벤트
    *
-   * @param {number | string} selectedForecastParameterBeta
+   * @param {number} betaValue
    */
-  public keyupEnterSelectedForecastParameterBeta(selectedForecastParameterBeta: HTMLInputElement): void {
-
-    if (_.isUndefined(selectedForecastParameterBeta.value)) {
-
-      let msg: string = '';
-
-      if (this.currentLang === 'ko') {
-        msg = `${this.MESSAGE.BETA} ${this.MESSAGE.PLEASE_VALUE}`;
-      } else {
-        msg = `${this.MESSAGE.PLEASE_VALUE.replace('xxx', this.MESSAGE.BETA.toLowerCase())}`;
-      }
-
-      Alert.warning(msg);
-
-      return;
-    }
-
-    if (selectedForecastParameterBeta.value === '') {
-
-      let msg: string = '';
-
-      if (this.currentLang === 'ko') {
-        msg = `${this.MESSAGE.BETA} ${this.MESSAGE.PLEASE_VALUE}`;
-      } else {
-        msg = `${this.MESSAGE.PLEASE_VALUE.replace('xxx', this.MESSAGE.BETA.toLowerCase())}`;
-      }
-
-      Alert.warning(msg);
-
-      return;
-    }
-
-    const beta: number = Number(selectedForecastParameterBeta.value);
-
-    if (_.isNaN(beta)) {
-      Alert.warning(`${this.MESSAGE.BETA} ${this.MESSAGE.VALUES_ONLY_NUMERIC}`);
-      return;
-    }
-
-    selectedForecastParameterBeta.value = beta.toString();
-
-    if (_.isFinite(Number(selectedForecastParameterBeta.value)) === false) {
-      Alert.warning(`${this.MESSAGE.BETA} ${this.MESSAGE.VALUES_ONLY_NUMERIC}`);
-      return;
-    }
-
-    this.selectedForecastParameter.beta = selectedForecastParameterBeta.value;
+  public setForecastParameterBeta(betaValue: number): void {
+    this.selectedForecastParameter.beta = betaValue;
 
     // 선택되어 있는 Forecast parameter 데이터 업데이트
     // @param {number} index : Select Component 의 선택되어 있는 아이템 인덱스
@@ -1232,80 +1189,60 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
 
     // 예측선 데이터 변경 알림
     this.predictionLineDataChangeNotification();
-  }
+  } // function - setForecastParameterBeta
 
   // ---------------------------------------
   // Gamma text input
   // ---------------------------------------
+  public validateForecastParameterGamma():Function {
+    const messages = this.MESSAGE;
+    const isKorLang = (this.currentLang === 'ko');
+    return (gammaValue: string) => {
+      if (_.isUndefined(gammaValue)) {
+        let msg: string = '';
+        if (isKorLang) {
+          msg = `${messages.GAMMA} ${messages.PLEASE_VALUE}`;
+        } else {
+          msg = `${messages.PLEASE_VALUE.replace('xxx', messages.GAMMA.toLowerCase())}`;
+        }
+        Alert.warning(msg);
+        return false;
+      }
 
-  /**
-   * 선택된 Forecast parameter gamma text input
-   *  - Blur 이벤트
-   *
-   * @param {HTMLInputElement} selectedForecastParameterGamma
-   */
-  public blurSelectedForecastParameterGamma(selectedForecastParameterGamma: HTMLInputElement): void {
+      if (gammaValue === '') {
+        let msg: string = '';
+        if (isKorLang) {
+          msg = `${messages.GAMMA} ${messages.PLEASE_VALUE}`;
+        } else {
+          msg = `${messages.PLEASE_VALUE.replace('xxx', messages.GAMMA.toLowerCase())}`;
+        }
+        Alert.warning(msg);
+        return false;
+      }
 
-    if (this.selectedForecastParameter.isAuto) {
-      return;
-    }
+      const gamma: number = Number(gammaValue);
 
-    selectedForecastParameterGamma.value = this.selectedForecastParameter.gamma.toString();
-  }
+      if (_.isNaN(gamma)) {
+        Alert.warning(`${messages.GAMMA} ${messages.VALUES_ONLY_NUMERIC}`);
+        return false;
+      }
+
+      if (_.isFinite(gamma) === false) {
+        Alert.warning(`${messages.GAMMA} ${messages.VALUES_ONLY_NUMERIC}`);
+        return false;
+      }
+      return true;
+    };
+  } // function - validateForecastParameterGamma
 
   /**
    * 선택된 Forecast parameter alpha text input
    *  - Keyup 이벤트
    *
-   * @param {number | string} selectedForecastParameterGamma
+   * @param {number} gammaValue
    */
-  public keyupEnterSelectedForecastParameterGamma(selectedForecastParameterGamma: HTMLInputElement): void {
-
-    if (_.isUndefined(selectedForecastParameterGamma.value)) {
-
-      let msg: string = '';
-
-      if (this.currentLang === 'ko') {
-        msg = `${this.MESSAGE.GAMMA} ${this.MESSAGE.PLEASE_VALUE}`;
-      } else {
-        msg = `${this.MESSAGE.PLEASE_VALUE.replace('xxx', this.MESSAGE.GAMMA.toLowerCase())}`;
-      }
-
-      Alert.warning(msg);
-
-      return;
-    }
-
-    if (selectedForecastParameterGamma.value === '') {
-
-      let msg: string = '';
-
-      if (this.currentLang === 'ko') {
-        msg = `${this.MESSAGE.GAMMA} ${this.MESSAGE.PLEASE_VALUE}`;
-      } else {
-        msg = `${this.MESSAGE.PLEASE_VALUE.replace('xxx', this.MESSAGE.GAMMA.toLowerCase())}`;
-      }
-
-      Alert.warning(msg);
-
-      return;
-    }
-
-    const gamma: number = Number(selectedForecastParameterGamma.value);
-
-    if (_.isNaN(gamma)) {
-      Alert.warning(`${this.MESSAGE.GAMMA} ${this.MESSAGE.VALUES_ONLY_NUMERIC}`);
-      return;
-    }
-
-    selectedForecastParameterGamma.value = gamma.toString();
-
-    if (_.isFinite(Number(selectedForecastParameterGamma.value)) === false) {
-      Alert.warning(`${this.MESSAGE.GAMMA} ${this.MESSAGE.VALUES_ONLY_NUMERIC}`);
-      return;
-    }
-
-    this.selectedForecastParameter.gamma = selectedForecastParameterGamma.value;
+  public setForecastParameterGamma(gammaValue: number): void {
+    this.selectedForecastParameter.gamma = gammaValue;
 
     // 선택되어 있는 Forecast parameter 데이터 업데이트
     // @param {number} index : Select Component 의 선택되어 있는 아이템 인덱스
@@ -1313,20 +1250,18 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
 
     // 예측선 데이터 변경 알림
     this.predictionLineDataChangeNotification();
-  }
+  } // function - setForecastParameterGamma
 
   /**
    * advanced 세팅의 period값 변경시
    */
-  public changeAdvancedPeriod(period) {
-
-    if (_.isEmpty(period.value)) return;
-
-    this.selectedForecastParameter.period = parseInt(period.value);
+  public changeAdvancedPeriod(periodValue:string) {
+    if (_.isEmpty(periodValue)) return;
+    this.selectedForecastParameter.period = parseInt(periodValue);
 
     // 예측선 데이터 변경 알림
     this.predictionLineDataChangeNotification();
-  }
+  } // function - changeAdvancedPeriod
 
   /**
    * Forecast parameter gamma 체크박스 변경에 대한 처리
@@ -1406,6 +1341,21 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
       });
   }
 
+  /**
+   * 예측선 사용 여부
+   */
+  public changeUseForecast() {
+    if( this.data.isSelectedForecast ) {
+      this.data.analysis.analysis.forecast.style.lineType = 'SOLID';
+      this.data.analysis.analysis.forecast.style.lineThickness = 2.0;
+      this.predictionLineForecastDataChangeNotification();
+    } else {
+      this.data.analysis.analysis.forecast.style.lineType = 'SOLID';
+      this.data.analysis.analysis.forecast.style.lineThickness = 0;
+      this.predictionLineForecastDataChangeNotification();
+    }
+  } // function - changeUseForecast
+
   // -------------------------------------------------------------------------------------------------------------------
   // Confidence 관련
   // -------------------------------------------------------------------------------------------------------------------
@@ -1439,48 +1389,47 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
   }
 
   /**
-   * Confidence transparency text input
-   *  - Blur 이벤트
-   *
-   * @param {HTMLInputElement} confidenceTransparency
+   * validation Confidence transparency text input
    */
-  public blurConfidenceTransparency(confidenceTransparency: HTMLInputElement): void {
-    confidenceTransparency.value = this.data.analysis.analysis.confidence.style.transparency.toString();
-  }
+  public validateConfidenceTransparency():Function {
+    const messages = this.MESSAGE;
+    return ( transparencyValue:number ) => {
+      if (_.isUndefined(transparencyValue)) {
+        Alert.warning(messages.PLEASE_TRANSPARENCY);
+        return false;
+      }
+
+      if (Number(transparencyValue) < 0) {
+        Alert.warning(messages.VALUES_LESS_THAN_0_CAN_NOT_BE_ENTERED);
+        return false;
+      }
+
+      if (Number(transparencyValue) > 100) {
+        Alert.warning(messages.VALUES_GREATER_THAN_100_CAN_NOT_BE_ENTERED);
+        return false;
+      }
+
+      return true;
+    };
+  } // function - validateConfidenceTransparency
 
   /**
-   * Confidence transparency text input
-   *  - Keyup enter 이벤트
-   *
-   * @param {HTMLInputElement} confidenceTransparency
+   * 투명도 설정
+   * @param transparencyValue
    */
-  public keyupConfidenceTransparency(confidenceTransparency: HTMLInputElement): void {
-
-    if (_.isUndefined(confidenceTransparency.value)) {
-      Alert.warning(this.MESSAGE.PLEASE_TRANSPARENCY);
-      return;
-    }
-
-    if (confidenceTransparency.value === '') {
-      Alert.warning(this.MESSAGE.PLEASE_TRANSPARENCY);
-      return;
-    }
-
-    if (Number(confidenceTransparency.value) < 0) {
-      Alert.warning(this.MESSAGE.VALUES_LESS_THAN_0_CAN_NOT_BE_ENTERED);
-      return;
-    }
-
-    if (Number(confidenceTransparency.value) > 100) {
-      Alert.warning(this.MESSAGE.VALUES_GREATER_THAN_100_CAN_NOT_BE_ENTERED);
-      return;
-    }
-
-    this.data.analysis.analysis.confidence.style.transparency = Number(confidenceTransparency.value);
+  public setConfidenceTransparency( transparencyValue:number ) {
+    this.data.analysis.analysis.confidence.style.transparency = Number(transparencyValue);
 
     // 예측선 Confidence 데이터 변경 알림
     this.predictionLineConfidenceDataChangeNotification();
-  }
+  } // function - setConfidenceTransparency
+
+  /**
+   * 투명도 사용 여부 변경
+   */
+  public changeUseConfidence() {
+    this.setConfidenceTransparency( this.data.isSelectedConfidence ? 10 : 0 );
+  } // function - changeUseConfidence
 
   // -------------------------------------------------------------------------------------------------------------------
   // 셀렉트 박스 콜백 관련
@@ -1692,7 +1641,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
 
     analysisInAnalysis.forecast = new Forecast();
     analysisInAnalysis.forecast.style = new Style();
-    analysisInAnalysis.forecast.style.color  = colorCodes[0];
+    analysisInAnalysis.forecast.style.color = colorCodes[0];
     analysisInAnalysis.forecast.style.lineType = this.LINE_TYPE_LIST[0];
     analysisInAnalysis.forecast.style.lineThickness = Number(this.LINE_WIDTH_LIST[0]);
 
@@ -1702,8 +1651,9 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
 
         // alias가 있는경우
         if (agg.alias) hyperParameter.field = agg.alias;
+        else if ( 'user_defined' === agg.ref ) hyperParameter.field = agg.ref + '.' + agg.name;
         // alias가 없는경우
-        else hyperParameter.field = `${agg.aggregationType + '(' + agg.field.alias + ')'}`;
+        else hyperParameter.field = `${agg.aggregationType + '(' + agg.name + ')'}`;
 
         // 고급분석 제외
         analysisInAnalysis.forecast.parameters.push(_.cloneDeep(hyperParameter));

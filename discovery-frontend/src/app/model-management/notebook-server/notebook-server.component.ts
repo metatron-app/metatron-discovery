@@ -21,6 +21,7 @@ import { isUndefined } from 'util';
 import { Modal } from '../../common/domain/modal';
 import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
 import { NoteBook } from '../../domain/notebook/notebook';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-notebook-server',
@@ -73,6 +74,9 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
   // checkbox 카운트
   public checkBoxCnt: number = 0;
 
+  // check box flag
+  public tempCheckData : any[] = [];
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -94,6 +98,9 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
 
     // Init
     super.ngOnInit();
+
+    // temp check list init
+    this.tempCheckData = [];
 
     // 로딩시 데이터 조회
     this.getNotebookServerList();
@@ -142,6 +149,11 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
     for (let index = 1; index < checkList.length; index += 1) {
       const temp: any = checkList[index];
       temp.checked = flag;
+      const cloneData = _.cloneDeep(this.resultData[index-1]);
+      this.removeTempData(cloneData);
+      if( temp.checked ) {
+        this.tempCheckData.push( cloneData );
+      }
     }
     if (flag === true) {
       this.checkBoxCnt = 1;
@@ -151,8 +163,10 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
   }
 
   // 한행 체크 박스 클릭
-  public checkClick($event) {
+  public checkClick($event, idx) {
 
+    const cloneData = _.cloneDeep(this.resultData[idx]);
+    this.removeTempData(cloneData);
     const checkList = $('.ddp-checkbox-form');
     if ($event.srcElement.checked === false) {
       const $headerCheck: any = checkList[0];
@@ -169,6 +183,7 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
         const $headerCheck: any = checkList[0];
         $headerCheck.checked = true;
       }
+      this.tempCheckData.push( cloneData );
     }
 
     this.checkBoxCnt = 0;
@@ -319,6 +334,7 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
             this.pageResult = data['page'];
           }
           this.page.page += 1;
+          this.checkBoxTypeCheck();
         })
         .catch((error) => {
           this.loadingHide();
@@ -341,6 +357,7 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
             this.pageResult = data['page'];
           }
           this.page.page += 1;
+          this.checkBoxTypeCheck();
         })
         .catch((error) => {
           this.loadingHide();
@@ -348,6 +365,56 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
         });
     }
 
+  }
+
+  /**
+   * checkbox type checked
+   */
+  private checkBoxTypeCheck() {
+    this.changeDetect.detectChanges();
+    const checkList = $('.ddp-checkbox-form');
+    let cnt : number = 0;
+    for (let index = 1; index < checkList.length; index += 1) {
+      const temp: any = checkList[index];
+      for (let tempIndex = 0; tempIndex < this.tempCheckData.length; tempIndex += 1) {
+        const idx = index-1;
+        if( _.eq(this.resultData[idx].type, this.tempCheckData[tempIndex].type)
+          && _.eq(this.resultData[idx].hostname, this.tempCheckData[tempIndex].hostname)
+          && _.eq(this.resultData[idx].port, this.tempCheckData[tempIndex].port)
+          && _.eq(this.resultData[idx].createdTime, this.tempCheckData[tempIndex].createdTime)
+          && _.eq(this.resultData[idx].name, this.tempCheckData[tempIndex].name) ) {
+          temp.checked = true;
+          this.checkBoxCnt = 1;
+          cnt++;
+        }
+      }
+    }
+
+    const $headerCheck: any = checkList[0];
+    if (cnt == this.resultData.length) {
+      $headerCheck.checked = true;
+    } else {
+      $headerCheck.checked = false;
+    }
+
+    if (0 == this.resultData.length) {
+      $headerCheck.checked = false;
+    }
+
+  }
+
+  /**
+   * remove temp data
+   * @param cloneData
+   */
+  private removeTempData(cloneData) {
+    _.remove(this.tempCheckData, {
+      type : cloneData.type,
+      hostname : cloneData.hostname,
+      port : cloneData.port,
+      createdTime : cloneData.createdTime,
+      name : cloneData.name,
+    });
   }
 
 }

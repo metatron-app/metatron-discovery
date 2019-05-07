@@ -12,13 +12,13 @@
  * limitations under the License.
  */
 
-import { Injectable, Injector } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import * as $ from 'jquery';
-import { FileUploader } from 'ng2-file-upload';
-import { CommonConstant } from '../constant/common.constant';
-import { CookieConstant } from 'app/common/constant/cookie.constant';
-import { CookieService } from 'ng2-cookies';
+import {Injectable, Injector} from '@angular/core';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {FileUploader} from 'ng2-file-upload';
+import {CommonConstant} from '../constant/common.constant';
+import {CookieConstant} from 'app/common/constant/cookie.constant';
+import {CookieService} from 'ng2-cookies';
 
 declare const html2canvas: any;
 
@@ -59,8 +59,8 @@ export class ImageService {
         reject('element not found.');
       }
 
-      setTimeout( () => {
-        html2canvas($element.get(0), { useCORS:true, allowTaint: true, logging: false }).then((result) => {
+      setTimeout(() => {
+        html2canvas($element.get(0), {useCORS: true, allowTaint: true, logging: false}).then((result) => {
           const dataUrl = result.toDataURL('image/jpeg');
           const byteString = atob(dataUrl.split(',')[1]);
 
@@ -72,10 +72,15 @@ export class ImageService {
             ia[i] = byteString.charCodeAt(i);
           }
 
-          const blobData = new Blob([ab], { 'type': mimeString });
+          console.info( '>>>>>>> mimeString' );
+
+          const blobData = new Blob([ab], {'type': mimeString});
+
+          console.info( '>>>>>>> blobData' );
+
           resolve(blobData);
         }).catch(err => reject(err));
-      }, 500 );
+      }, 500);
 
     });
   } // function - getBlob
@@ -99,7 +104,7 @@ export class ImageService {
         reject('element not found.');
       }
 
-      html2canvas($element.get(0)).then((result) => {
+      html2canvas($element.get(0), {useCORS: true, allowTaint: true, logging: false}).then((result) => {
         const dataUrl = result.toDataURL('image/jpeg');
         resolve(dataUrl);
       }).catch(err => reject(err));
@@ -125,26 +130,37 @@ export class ImageService {
       throw new Error('element not found.');
     }
 
-    setTimeout( () => {
-      this.getBase64(element).then((data) => {
-        // a 태그 만들기
-        const link = document.createElement('a');
-        // 해당 태그에 url 설정
-        link.href = data;
+    setTimeout(() => {
 
-        // 파일 이름 설정
-        link.download = fileName;
+      const agent = navigator.userAgent.toLowerCase();
+      if ( (navigator.appName == 'Netscape' && agent.indexOf('trident') != -1) || (agent.indexOf("msie") != -1)) {
+        // is IE
+        this.getBlob(element).then((data) => {
+          window.navigator.msSaveBlob(data, fileName);
+        });
+      } else {
+        // Other browser
+        this.getBase64(element).then((data) => {
 
-        // 해당 차트 링크를 설정
-        document.body.appendChild(link);
+          // a 태그 만들기
+          const link = document.createElement('a');
+          // 해당 태그에 url 설정
+          link.href = data;
 
-        // 다운로드 trigger
-        link.click();
+          // 파일 이름 설정
+          link.download = fileName;
 
-        // 해당 링크 제거
-        document.body.removeChild(link);
-      });
-    }, 500 );
+          // 해당 차트 링크를 설정
+          document.body.appendChild(link);
+
+          // 다운로드 trigger
+          link.click();
+
+          // 해당 링크 제거
+          document.body.removeChild(link);
+        });
+      }
+    }, 500);
   } // function - downloadFromElement
 
 
@@ -163,9 +179,9 @@ export class ImageService {
       'Accept': 'image/webp,image/apng,image/*,*/*;',
       'Content-Type': 'application/octet-binary',
       'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
-      + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
+        + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
     });
-    return this._http.get(imgUrl, { headers: headers, responseType: 'blob' }).toPromise();
+    return this._http.get(imgUrl, {headers: headers, responseType: 'blob'}).toPromise();
   } // function - downloadImageFromUrl
 
   /**

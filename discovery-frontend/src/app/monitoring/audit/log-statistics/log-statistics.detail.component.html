@@ -47,43 +47,22 @@
     </table>
     </div>
     <div class="ddp-ui-gridbody2">
-      <table class="ddp-table-form ddp-table-type3" [ngClass]="{'ddp-cursor-none': statisticsData.value === 'resource' || statisticsData.value === 'success' || statisticsData.value === 'fail'}">
+      <table class="ddp-table-form ddp-table-type3" style="table-layout:fixed;"
+             [ngClass]="{'ddp-cursor-none': statisticsData.value === 'resource' || statisticsData.value === 'success' || statisticsData.value === 'fail'}">
         <colgroup class="tableColgroup">
         </colgroup>
       <tbody>
-      <tr *ngFor="let data of statisticsData.data; let idx=index" (click)="getDetail(data)" (click)="auditDetailOpen(data)">
+      <tr *ngFor="let data of statisticsData.data; let idx=index" (click)="auditDetailOpen(data)">
         <td *ngFor="let field of statisticsData.fields; let index = index" [class.ddp-logdetail]="index === 0" [ngSwitch]="field.key">
-
-          <span class="ddp-data-state" *ngSwitchCase="'status'"
-                [ngClass]="{'ddp-fail' : (data[field.key] && data[field.key] === 'FAIL')
-              , 'ddp-success' : (data[field.key] && data[field.key] === 'SUCCESS')
-              , 'ddp-cancelled' : (data[field.key] && data[field.key] === 'CANCELLED')
-              , 'ddp-running' : (data[field.key] && data[field.key] === 'RUNNING')}">
-
-            {{data[field.key]}}</span>
-
-          <span *ngSwitchCase="'startTime'">
-            {{data[field.key] | mdate: 'YYYY-MM-DD HH:mm'}}
-          </span>
-
-          <span *ngSwitchCase="'elapsedTime'">
-            {{convertMilliseconds(data[field.key])}}
-          </span>
-
-          <span *ngSwitchDefault>
-            <span class="ddp-data-logdet" [ngClass]="{'ddp-long':isDataLongEnough(field.key, idx + field.key)}" *ngIf="statisticsData.value !== 'resource' && index === 0; else other">
-              <span id="{{idx + field.key}}">{{data[field.key] || '-' }}</span>
-            </span>
-            <!--<span #other>{{data[field.key]}}</span>-->
-            <ng-template #other>{{thousandSeparator(data[field.key],field.key) || '-'}}</ng-template>
-          </span>
 
           <div class="ddp-wrap-logdetail"
                style="display: block;"
                (clickOutside)="closePopup()" [excludeBeforeClick]="true" [exclude]="'.ddp-pop-logdetail'"
                *ngIf="statisticsData.value !== 'resource' && index === 0"
                [ngClass]="{'ddp-selected':isQueryDetailShow && currentNumber===idx}">
-            <a href="javascript:" class="ddp-btn-detail" (click)="openQueryDetail($event,idx)" *ngIf="isDataLongEnough(field.key,idx + field.key)"></a>
+            <a href="javascript:" class="ddp-btn-detail"
+               (click)="openQueryDetail($event,idx)"
+               *ngIf="isDataLongEnough1(field.key, idx)"></a>
             <div class="ddp-pop-logdetail">
               <div class="ddp-logdetal-contents">
                 {{data[field.key]}}
@@ -98,6 +77,29 @@
               <!-- //buttons -->
             </div>
           </div>
+
+          <span class="ddp-data-state" *ngSwitchCase="'status'"
+                [ngClass]="{'ddp-fail' : (data[field.key] && data[field.key] === 'FAIL')
+              , 'ddp-success' : (data[field.key] && data[field.key] === 'SUCCESS')
+              , 'ddp-cancelled' : (data[field.key] && data[field.key] === 'CANCELLED')
+              , 'ddp-running' : (data[field.key] && data[field.key] === 'RUNNING')}">
+
+            {{data[field.key]}}</span>
+          <span *ngSwitchCase="'startTime'">
+            {{data[field.key] | mdate: 'YYYY-MM-DD HH:mm'}}
+          </span>
+
+          <span *ngSwitchCase="'elapsedTime'">
+            {{CommonUtil.convertMilliseconds(data[field.key])}}
+          </span>
+
+          <span *ngSwitchDefault>
+            <span class="ddp-data-logdet" [ngClass]="{'ddp-long':isDataLongEnough1(field.key, idx + field.key)}" *ngIf="statisticsData.value !== 'resource' && index === 0; else other">
+              <span id="{{idx + field.key}}">{{data[field.key] || '-' }}</span>
+            </span>
+            <!--<span #other>{{data[field.key]}}</span>-->
+            <ng-template #other>{{thousandSeparator(data[field.key],field.key) || '-'}}</ng-template>
+          </span>
         </td>
       </tr>
       </tbody>

@@ -148,6 +148,11 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public get isImageChanged(): boolean {
+    const userImage = isNullOrUndefined(this.user.imageUrl) ? '' : this.user.imageUrl.trim();
+    return this._imageUrl !== userImage;
+  } // function - isImageChanged
+
   /**
    * Phone 변경 여부
    */
@@ -189,7 +194,7 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
    */
   public done(): void {
     // 프로필 수정이 가능하다면
-    if ((this.isPhoneChanged || this.isEmailChanged || this.isFullNameChanged) && this.doneValidation()) {
+    if ((this.isPhoneChanged || this.isEmailChanged || this.isFullNameChanged || this.isImageChanged) && this.doneValidation()) {
       // 로딩 show
       this.loadingShow();
       // 프로필 사진이 있으면 프로필사진 업로드부터 시행
@@ -227,6 +232,7 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
 
         reader.onload = (event: any) => {
           this.profileImage.nativeElement.src = event.target.result;
+          this._imageUrl = event.target.result;   // 이미지 변경을 인식하기 위한 임시 적용
         };
         reader.readAsDataURL($event.target.files[0]);
       } else {

@@ -64,11 +64,9 @@ export class MetadataColumn {
    * because it should not be exposed to the screen.
    */
   public static isCurrentDatetime(metadataColumn: MetadataColumn) {
-    // return _.negate(_.isNil)(metadataColumn.format)
-    //   && _.negate(_.isNil)(metadataColumn.format.type)
-    //   && metadataColumn.format.type === FieldFormatType.TEMPORARY_TIME
-    //   && metadataColumn.role === Type.Role.TIMESTAMP;
-    return metadataColumn.type === Type.Logical.TIMESTAMP
+    return _.negate(_.isNil)(metadataColumn.format)
+      && _.negate(_.isNil)(metadataColumn.format.type)
+      && metadataColumn.format.type === FieldFormatType.TEMPORARY_TIME
       && metadataColumn.role === Type.Role.TIMESTAMP;
   }
 

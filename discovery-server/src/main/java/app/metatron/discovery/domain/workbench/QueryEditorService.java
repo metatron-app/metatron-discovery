@@ -46,7 +46,6 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -203,11 +202,49 @@ public class QueryEditorService {
     return queryResults;
   }
 
+  public List<String> multiLineQuerySplitter(String query){
+    List<String> queryList = new ArrayList<>();
+    String[] strByLine = StringUtils.split(query, System.lineSeparator());
+
+    StringBuilder stringBuilder = new StringBuilder();
+    int lineCount = strByLine.length;
+    for(int i = 0; i < lineCount; ++i){
+      String byLine = strByLine[i];
+
+      stringBuilder.append(byLine);
+
+      int semiColonIndex = StringUtils.indexOf(byLine, ";");
+      int hyphenIndex = StringUtils.indexOf(byLine, "--");
+      int sharpIndex = StringUtils.indexOf(byLine, "#");
+      int commentIndex = (hyphenIndex >= 0 && sharpIndex >= 0)
+          ? Math.min(hyphenIndex, sharpIndex)
+          : Math.max(hyphenIndex, sharpIndex);
+
+      //semicolon before comment
+      if(semiColonIndex > -1 && commentIndex > -1 && semiColonIndex < commentIndex){
+        queryList.add(stringBuilder.toString());
+        stringBuilder = new StringBuilder();
+      } else if(semiColonIndex > -1 && commentIndex < 0){
+        queryList.add(stringBuilder.toString());
+        stringBuilder = new StringBuilder();
+      } else if(i < lineCount - 1){
+        stringBuilder.append(System.lineSeparator());
+      }
+    }
+
+    if(StringUtils.isNotEmpty(stringBuilder.toString())){
+      queryList.add(stringBuilder.toString());
+    }
+
+    return queryList;
+  }
+
   public List<String> getSubstitutedQueryList(String queryStr, Workbench workbench) {
     List<String> returnList = new ArrayList<>();
 
     //1. semicolon split
-    List<String> queryList = Arrays.asList(queryStr.split(";"));
+//    List<String> queryList = Arrays.asList(queryStr.split(";"));
+    List<String> queryList = multiLineQuerySplitter(queryStr);
 
 
     //2. GlobalVar replace
