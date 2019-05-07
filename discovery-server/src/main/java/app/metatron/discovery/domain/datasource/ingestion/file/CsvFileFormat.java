@@ -27,7 +27,7 @@ public class CsvFileFormat implements FileFormat {
 
   public static final String DEFAULT_LINE_SEPARATOR = "\n";
 
-  String delimiter = DEFAULT_DELIMITER;
+  String delimiter;
 
   String lineSeparator = DEFAULT_LINE_SEPARATOR;
 

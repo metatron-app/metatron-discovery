@@ -379,7 +379,6 @@ public class PivotResultFormat extends SearchResultFormat {
           if (first) {
             for (String parameterName : parameterNames) {
               String paramNamePlus = parameterName + ".params";  // .param postfix 로 [alpha, beta, gamma] 값이 포함됨
-
               // Array node 파싱
               JsonNode paramNode = itemNode.get(paramNamePlus);
 

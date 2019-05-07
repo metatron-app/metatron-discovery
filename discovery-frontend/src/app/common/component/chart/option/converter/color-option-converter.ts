@@ -135,7 +135,7 @@ export class ColorOptionConverter {
     // visualMap 존재한다면 삭제
     if (!_.isUndefined(option.visualMap)) delete option.visualMap;
 
-    _.each(series, (obj) => {
+    series.forEach((obj) => {
 
       // 시리즈명을 delimiter 로 분리, 현재 시리즈의 측정값 필드명 추출
       const aggName = _.last(_.split(obj.name, CHART_STRING_DELIMITER));
