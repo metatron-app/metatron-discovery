@@ -79,7 +79,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
     this.uiOption = uiOption;
 
-    this.setPointAndClusterOption(true);
+    this.setClusterOption();
 
     // set ranges for view
     this.rangesViewList = this.setRangeViewByDecimal(this.uiOption.layers[this.index].color['ranges']);
@@ -98,8 +98,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     this.setByType(shelf);
 
     this.shelf = shelf;
-
-    this.setPointAndClusterOption(false);
 
     this.changeDetect.detectChanges();
   }
@@ -1798,33 +1796,16 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   }
 
   /**
-   * 크기반경 & cluster type 설정
+   * cluster type 설정
    */
-  private setPointAndClusterOption(isUiOption: boolean) {
+  private setClusterOption() {
     if (!_.isUndefined(this.uiOption) && !_.isUndefined(this.uiOption['layers']) && this.uiOption['layers'].length > 0) {
       for (let layerIndex = 0; this.uiOption['layers'].length > layerIndex; layerIndex++) {
-        if (isUiOption) {
-          // type 관련 설정
-          if (this.uiOption['layers'][layerIndex]['type'] == MapLayerType.SYMBOL
-            && !_.isUndefined(this.uiOption['layers'][layerIndex]['clustering'])
-            && this.uiOption['layers'][layerIndex]['clustering']) {
-            this.uiOption['layers'][layerIndex]['type'] = MapLayerType.CLUSTER;
-          }
-        } else {
-          // 크기 반경 관련 설정
-          if (this.uiOption['layers'][layerIndex]['type'] == MapLayerType.SYMBOL || this.uiOption['layers'][layerIndex]['type'] == MapLayerType.CLUSTER) {
-            if (this.shelf['layers'][layerIndex].fields.length <= 1) {
-              if (isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusFrom'])) {
-                this.uiOption.layers[layerIndex]['pointRadiusFrom'] = 1;
-                this.uiOption.layers[layerIndex].pointRadius = this.uiOption.layers[layerIndex]['pointRadiusFrom'];
-              }
-              delete this.uiOption.layers[layerIndex]['pointRadiusTo'];
-            }
-            if (this.shelf['layers'][layerIndex].fields.length > 1 && isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusTo'])) {
-              this.uiOption.layers[layerIndex]['pointRadiusTo'] = 100;
-              this.uiOption.layers[layerIndex].pointRadius = (this.uiOption.layers[layerIndex]['pointRadiusFrom'] / this.uiOption.layers[layerIndex]['pointRadiusTo']) * 100;
-            }
-          }
+        // type 관련 설정
+        if (this.uiOption['layers'][layerIndex]['type'] == MapLayerType.SYMBOL
+          && !_.isUndefined(this.uiOption['layers'][layerIndex]['clustering'])
+          && this.uiOption['layers'][layerIndex]['clustering']) {
+          this.uiOption['layers'][layerIndex]['type'] = MapLayerType.CLUSTER;
         }
       }
     }

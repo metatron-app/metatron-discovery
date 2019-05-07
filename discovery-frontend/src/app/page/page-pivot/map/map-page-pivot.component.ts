@@ -442,6 +442,9 @@ export class MapPagePivotComponent extends PagePivotComponent {
     // set layer alias
     this.shelf.layers[this.uiOption.layerNum].fields = this.shelf.layers[this.uiOption.layerNum].fields.map(this.checkAlias);
 
+    // 크기 반경
+    this.setPointOption();
+
     // emit
     this.changeShelfEvent.emit({shelf: this.shelf, eventType: eventType});
   }
@@ -722,7 +725,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
     targetContainer = 'layer' + this.uiOption.layerNum;
 
     if (targetField) {
-      shelf.push(targetField);
+      shelf.fields.push(targetField);
       this.convertField(targetField, targetContainer);
     }
   }
@@ -904,4 +907,56 @@ export class MapPagePivotComponent extends PagePivotComponent {
       this.removeAnalysisLayerEvent.emit(this.shelf);
     }
   }
+
+  /**
+   * 크기반경 & cluster type 설정
+   */
+  private setPointOption() {
+    if (!_.isUndefined(this.uiOption) && !_.isUndefined(this.uiOption['layers']) && this.uiOption['layers'].length > 0) {
+      for (let layerIndex = 0; this.uiOption['layers'].length > layerIndex; layerIndex++) {
+        // 크기 반경 관련 설정
+        if (this.uiOption['layers'][layerIndex]['type'] == MapLayerType.SYMBOL) {
+          // 크기 설정
+          if (isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusFrom'])) {
+            // default size of points are 5 pixel
+            this.uiOption.layers[layerIndex]['pointRadiusFrom'] = 5;
+            this.uiOption.layers[layerIndex].pointRadius = 5;
+          }
+          let hasMeasure = this.shelf.layers[layerIndex].fields.find((field) => {
+            return field.type == 'measure';
+          });
+          // Measure 값이 없을 경우
+          if (this.shelf['layers'][layerIndex].fields.length <= 1
+            || (this.shelf['layers'][layerIndex].fields.length > 1
+              && isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusTo'])
+              && isNullOrUndefined(hasMeasure))) {
+            delete this.uiOption.layers[layerIndex]['needToCalPointRadius'];
+            delete this.uiOption.layers[layerIndex]['pointRadiusTo'];
+            delete this.uiOption.layers[layerIndex]['pointRadiusCal'];
+            this.uiOption.layers[layerIndex].pointRadius = this.uiOption.layers[layerIndex]['pointRadiusFrom'];
+          } else if (this.shelf['layers'][layerIndex].fields.length > 1 && hasMeasure) {
+            if (isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusTo'])) {
+              if (this.uiOption.layers[layerIndex]['pointRadiusFrom'] < 100) {
+                this.uiOption.layers[layerIndex]['pointRadiusTo'] = 100;
+              } else {
+                this.uiOption.layers[layerIndex]['pointRadiusTo'] = 200;
+              }
+            }
+            this.uiOption.layers[layerIndex]['needToCalPointRadius'] = true;
+          }
+        }
+      }
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
 }

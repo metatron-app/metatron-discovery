@@ -1435,18 +1435,30 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
         // 크기 반경
         if (symbolType == MapSymbolType.CIRCLE || symbolType == MapSymbolType.SQUARE || symbolType == MapSymbolType.TRIANGLE) {
-          if (isNullOrUndefined(styleLayer.pointRadius)) {
+          if (isNullOrUndefined(styleLayer.pointRadius) || isNaN(styleLayer.pointRadius)) {
             styleLayer.pointRadius = featureSize;
           } else {
-            let tempPointRadiusSize: number = _.cloneDeep(styleLayer.pointRadius);
-            let tempFeatureSize: number = _.cloneDeep(featureSize);
-            if (tempPointRadiusSize > 3) {
-              tempPointRadiusSize = parseInt((tempPointRadiusSize * 0.3).toString());
+            if (!isNullOrUndefined(styleLayer['needToCalPointRadius']) && styleLayer['needToCalPointRadius']) {
+              let maxValue: number = _.cloneDeep(styleLayer.color.maxValue);
+              if (maxValue > 0 && maxValue < 1) {
+                // 소수점 자리 찾기
+                let countDecimals: number = maxValue.toString().split(".")[1].length;
+                maxValue = maxValue * countDecimals;
+              } else if (maxValue == 0) {
+                maxValue = 1;
+              } else if (maxValue < 0) {
+                maxValue = -maxValue;
+              }
+              let calFeatureSize = featureSize * (styleLayer['pointRadiusTo'] / maxValue);
+              if (calFeatureSize < styleLayer['pointRadiusFrom']) {
+                // featureSize 계산 값이 크기 반경 보다 작을 경우, 크기 반경 최소 값 유지
+                calFeatureSize = styleLayer['pointRadiusFrom'];
+              } else if (calFeatureSize > styleLayer['pointRadiusTo']) {
+                // featureSize 계산 값이 크기 반경 보다 큰 경우, 크기 반경 최대 값 유지
+                calFeatureSize = styleLayer['pointRadiusTo'];
+              }
+              styleLayer.pointRadius = calFeatureSize;
             }
-            if (tempFeatureSize > 3) {
-              tempFeatureSize = parseInt((tempFeatureSize * 0.3).toString());
-            }
-            styleLayer.pointRadius = parseInt((tempPointRadiusSize * tempFeatureSize).toString());
           }
         }
         switch (symbolType) {
