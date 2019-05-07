@@ -909,7 +909,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
   }
 
   /**
-   * 크기반경 & cluster type 설정
+   * 크기반경 설정
    */
   private setPointOption() {
     if (!_.isUndefined(this.uiOption) && !_.isUndefined(this.uiOption['layers']) && this.uiOption['layers'].length > 0) {

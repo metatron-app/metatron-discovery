@@ -611,8 +611,6 @@ export class DatasourceService extends AbstractService {
                     // 0~99 퍼센트 값을 1~12값으로 변환
                     precision: (_.isNaN(clusterPrecision) ? 6 : clusterPrecision)
                   };
-                  // cluster를 map-option 에서 type으로 분리를 해서 CLUSTER 로 이용하고 api request 할 때는 symbol로 변경
-                  chart.layers[idx].type = MapLayerType.SYMBOL;
                 }
 
                 let spatialFilter = new SpatialFilter();

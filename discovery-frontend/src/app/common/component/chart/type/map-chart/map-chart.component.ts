@@ -1443,7 +1443,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
               if (maxValue > 0 && maxValue < 1) {
                 // 소수점 자리 찾기
                 let countDecimals: number = maxValue.toString().split(".")[1].length;
-                maxValue = maxValue * countDecimals;
+                let decimalNum = Math.pow(10, countDecimals);
+                maxValue = maxValue * decimalNum;
               } else if (maxValue == 0) {
                 maxValue = 1;
               } else if (maxValue < 0) {

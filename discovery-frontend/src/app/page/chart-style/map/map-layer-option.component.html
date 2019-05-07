@@ -392,69 +392,72 @@
                         <!--</div>-->
                         <!-- //radius range by measure -->
                       </div>
+
+                      <!-- 크기반경 -->
+                      <div class="ddp-list-sub2"
+                           *ngIf="uiOption.layers[layerIndex]['pointRadiusTo'] == null && uiOption.layers[layerIndex]['type'] == 'symbol'">
+                        <div class="ddp-divide2">
+                          <div class="ddp-list-label type-label">크기</div>
+                          <div class="ddp-form-slider">
+                            <div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">
+                              <range-slider-component [hideFromTo]="false"
+                                                      [hideMinMax]="true"
+                                                      [keyboard]="false"
+                                                      [min]="1"
+                                                      [max]="200"
+                                                      [from]="uiOption.layers[layerIndex]['pointRadiusFrom']"
+                                                      [type]="'single'"
+                                                      [step]="1"
+                                                      (onFinish)="changePointSize({}, $event, layerIndex, true)">
+                              </range-slider-component>
+                            </div>
+                            <div class="ddp-box-option-input ddp-type ddp-inline">
+                              <span class="ddp-txt-input">px</span>
+                              <input type="text" [ngModel]="uiOption.layers[layerIndex]['pointRadiusFrom']"
+                                     (keyup.enter)="changePointSizeText($event, layerIndex, 'pointRadiusFrom');">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="ddp-list-sub2"
+                           *ngIf="uiOption.layers[layerIndex]['pointRadiusTo'] != null && uiOption.layers[layerIndex]['type'] == 'symbol'">
+                        <div class="ddp-divide2">
+                          <div class="ddp-list-label">크기 반경</div>
+                          <div class="ddp-wrap-range">
+                            <div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">
+                              <range-slider-component [hideFromTo]="false"
+                                                      [hideMinMax]="true"
+                                                      [keyboard]="false"
+                                                      [min]="1"
+                                                      [max]="200"
+                                                      [from]="uiOption.layers[layerIndex]['pointRadiusFrom']"
+                                                      [to]="uiOption.layers[layerIndex]['pointRadiusTo']"
+                                                      [type]="'double'"
+                                                      [step]="1"
+                                                      (onFinish)="changePointSize({}, $event, layerIndex, false)">
+                              </range-slider-component>
+                            </div>
+                            <div class="ddp-data-range ddp-clear">
+                              <div class="ddp-box-option-input ddp-type">
+                                <span class="ddp-txt-input">px</span>
+                                <input type="text" [ngModel]="uiOption.layers[layerIndex]['pointRadiusFrom']"
+                                       (keyup.enter)="changePointSizeText($event, layerIndex, 'pointRadiusFrom');">
+                              </div>
+                              <div class="ddp-bar">
+                                ~
+                              </div>
+                              <div class="ddp-box-option-input ddp-type">
+                                <span class="ddp-txt-input">px</span>
+                                <input type="text" [ngModel]="uiOption.layers[layerIndex]['pointRadiusTo']"
+                                       (keyup.enter)="changePointSizeText($event, layerIndex, 'pointRadiusTo');">
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- // 크기반경 -->
                     </div>
                     <!-- //divide -->
-                    <!-- divide -->
-                    <div class="ddp-divide2"
-                         *ngIf="uiOption.layers[layerIndex]['pointRadiusTo'] == null && uiOption.layers[layerIndex]['type'] == 'symbol'">
-                      <div class="ddp-list-label type-label">크기</div>
-                      <div class="ddp-form-slider">
-                        <div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">
-                          <range-slider-component [hideFromTo]="false"
-                                                  [hideMinMax]="true"
-                                                  [keyboard]="false"
-                                                  [min]="1"
-                                                  [max]="200"
-                                                  [from]="uiOption.layers[layerIndex]['pointRadiusFrom']"
-                                                  [type]="'single'"
-                                                  [step]="1"
-                                                  (onFinish)="changePointSize({}, $event, layerIndex, true)">
-                          </range-slider-component>
-                        </div>
-                        <div class="ddp-box-option-input ddp-type ddp-inline">
-                          <span class="ddp-txt-input">px</span>
-                          <input type="text" [ngModel]="uiOption.layers[layerIndex]['pointRadiusFrom']"
-                                 (keyup.enter)="changePointSizeText($event, layerIndex, 'pointRadiusFrom');">
-                        </div>
-                      </div>
-                    </div>
-                    <!-- // divide -->
-                    <!-- // divide -->
-                    <div class="ddp-divide2"
-                         *ngIf="uiOption.layers[layerIndex]['pointRadiusTo'] != null && uiOption.layers[layerIndex]['type'] == 'symbol'">
-                      <div class="ddp-list-label">크기 반경</div>
-                      <div class="ddp-wrap-range">
-                        <div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">
-                          <range-slider-component [hideFromTo]="false"
-                                                  [hideMinMax]="true"
-                                                  [keyboard]="false"
-                                                  [min]="1"
-                                                  [max]="200"
-                                                  [from]="uiOption.layers[layerIndex]['pointRadiusFrom']"
-                                                  [to]="uiOption.layers[layerIndex]['pointRadiusTo']"
-                                                  [type]="'double'"
-                                                  [step]="1"
-                                                  (onFinish)="changePointSize({}, $event, layerIndex, false)">
-                          </range-slider-component>
-                        </div>
-                        <div class="ddp-data-range ddp-clear">
-                          <div class="ddp-box-option-input ddp-type">
-                            <span class="ddp-txt-input">px</span>
-                            <input type="text" [ngModel]="uiOption.layers[layerIndex]['pointRadiusFrom']"
-                                   (keyup.enter)="changePointSizeText($event, layerIndex, 'pointRadiusFrom');">
-                          </div>
-                          <div class="ddp-bar">
-                            ~
-                          </div>
-                          <div class="ddp-box-option-input ddp-type">
-                            <span class="ddp-txt-input">px</span>
-                            <input type="text" [ngModel]="uiOption.layers[layerIndex]['pointRadiusTo']"
-                                   (keyup.enter)="changePointSizeText($event, layerIndex, 'pointRadiusTo');">
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <!-- // divide -->
                   </div>
                   <!-- symbol : size -->
 
