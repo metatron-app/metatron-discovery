@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
-import { UserProfile } from '../user/user-profile';
-import { Book } from './book';
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
-import { NotebookConnector } from '../notebook/notebookConnector';
-import { WORKSPACE_PERMISSION } from '../../common/permission/permission';
-import { RoleSet } from '../user/role/roleSet';
-import { WorkspaceMember } from './workspace-member';
-import { CommonUtil } from '../../common/util/common.util';
+import {UserProfile} from '../user/user-profile';
+import {Book} from './book';
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
+import {NotebookConnector} from '../notebook/notebookConnector';
+import {WORKSPACE_PERMISSION} from '../../common/permission/permission';
+import {RoleSet} from '../user/role/roleSet';
+import {WorkspaceMember} from './workspace-member';
+import {CommonUtil} from '../../common/util/common.util';
 
 export class Workspace extends AbstractHistoryEntity {
   public id: string;
@@ -105,6 +105,7 @@ export class PermissionChecker {
   private readonly _isAvailableNotebook: boolean = false;
   private readonly _isAvailableWorkbench: boolean = false;
   private readonly _loginUserId: string;
+  private readonly _isPublished: boolean = false;
 
   constructor(workspace: Workspace) {
     if (workspace) {
@@ -126,6 +127,7 @@ export class PermissionChecker {
           break;
       }
 
+      (workspace.published) && (this._isPublished = workspace.published);
       (workspace.permissions) && (this._permissions = workspace.permissions);
     }
     this._loginUserId = CommonUtil.getLoginUserId();
@@ -161,7 +163,7 @@ export class PermissionChecker {
    */
   public isViewWorkbook(): boolean {
     return this._isAvailableWorkbook
-      && -1 !== this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_VIEW_WORKBOOK);
+      && (this._isPublished || -1 !== this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_VIEW_WORKBOOK));
   } // function - isViewWorkbook
 
   /**
@@ -182,9 +184,7 @@ export class PermissionChecker {
    */
   public isEditWorkbook(userId: string): boolean {
     return this._isAvailableWorkbook
-      && (-1 !== this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_EDIT_WORKBOOK)
-        && this._loginUserId === userId
-      );
+      && (-1 !== this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_EDIT_WORKBOOK) && this._loginUserId === userId);
   } // function - isEditWorkbook
 
   /**
@@ -202,7 +202,7 @@ export class PermissionChecker {
    */
   public isViewNotebook(): boolean {
     return this._isAvailableNotebook
-      && -1 !== this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_VIEW_NOTEBOOK);
+      && (this._isPublished || -1 !== this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_VIEW_NOTEBOOK));
   } // function - isViewNotebook
 
   /**
@@ -222,9 +222,7 @@ export class PermissionChecker {
    */
   public isEditNotebook(userId: string): boolean {
     return this._isAvailableNotebook
-      && (-1 !== this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_EDIT_NOTEBOOK)
-        && this._loginUserId === userId
-      );
+      && (-1 !== this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_EDIT_NOTEBOOK) && this._loginUserId === userId);
   } // function - isEditNotebook
 
   /**
@@ -242,7 +240,7 @@ export class PermissionChecker {
    */
   public isViewWorkbench(): boolean {
     return this._isAvailableWorkbench
-      && -1 !== this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_VIEW_WORKBENCH);
+      && (this._isPublished || -1 !== this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_VIEW_WORKBENCH));
   } // function - isViewWorkbench
 
   /**
@@ -262,9 +260,7 @@ export class PermissionChecker {
    */
   public isEditWorkbench(userId: string): boolean {
     return this._isAvailableWorkbench
-      && (-1 !== this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_EDIT_WORKBENCH)
-        && this._loginUserId === userId
-      );
+      && (-1 !== this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_EDIT_WORKBENCH) && this._loginUserId === userId);
   } // function - isEditWorkbench
 
   /**
