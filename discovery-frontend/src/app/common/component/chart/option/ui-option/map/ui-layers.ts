@@ -109,4 +109,6 @@ interface SymbolColor {
   // cluster => UI Only
   clusterSchema?: string;
   clusterTransparency?: number;
+
+  changeRange? : boolean;
 }

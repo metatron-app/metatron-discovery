@@ -1179,6 +1179,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     // set changed range in list
     rangeList[index] = range;
     this.uiOption.layers[layerIndex].color.ranges = rangeList;
+    this.uiOption.layers[layerIndex].color.changeRange = false;
 
     this.applyLayers();
   }
@@ -1248,6 +1249,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     // set changed range in list
     rangeList[index] = range;
     this.uiOption.layers[layerIndex].color.ranges = rangeList;
+    this.uiOption.layers[layerIndex].color.changeRange = false;
 
     this.applyLayers();
   }

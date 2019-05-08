@@ -3070,7 +3070,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
       _.each(shelf, (field) => {
         if (_.eq(field.type, ShelveFieldType.MEASURE)) {
-          if( !_.isUndefined(layer.color.ranges) && _.eq(field.name, layer.color.column)) {
+          if( !_.isUndefined(layer.color.ranges) && _.eq(field.name, layer.color.column) && (_.isUndefined(layer.color.changeRange) || layer.color.changeRange ) ) {
             let colorList = this.getColorList(layer);
             let rangeList = uiOption.layers[idx].color.ranges;
             // rangeList 에서의 색상을 색상리스트에 설정
@@ -3090,6 +3090,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
               layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[idx], colorList, idx, shelf, rangeList);
             }
           }
+          layer.color.changeRange = true;
         }
       });
 

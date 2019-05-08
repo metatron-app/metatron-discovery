@@ -530,7 +530,7 @@ export class ColorOptionConverter {
     }
 
     // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
-    const addValue = (maxValue - minValue) / (colorListLength + 1);
+    const addValue = (maxValue - minValue) / (colorListLength);
 
     let shape;
 
