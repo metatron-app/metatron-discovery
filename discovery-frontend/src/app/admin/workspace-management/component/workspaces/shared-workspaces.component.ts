@@ -124,6 +124,9 @@ export class SharedWorkspacesComponent extends AbstractComponent {
         const publicType = params['publicType'];
         (isNullOrUndefined(publicType)) || (this._filterWorkspaceType = publicType);
 
+        const searchText = params['nameContains'];
+        (isNullOrUndefined(searchText)) || (this.searchText = searchText);
+
         const sort = params['sort'];
         if (!isNullOrUndefined(sort)) {
           const sortInfo = decodeURIComponent(sort).split(',');
