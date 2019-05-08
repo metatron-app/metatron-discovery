@@ -65,9 +65,6 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
   // 노트 필터링
   public noteFilterFl: boolean = false;
 
-  // date
-  private _filterDate: PeriodData;
-
   public initialPeriodData:PeriodData;
 
   // period component
@@ -112,7 +109,6 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
     this.subscriptions.push(
       this.activatedRoute.queryParams.subscribe(params => {
 
-        console.info( '>>>>>>> list param', params );
 
         const size = params['size'];
         (isNullOrUndefined(size)) || (this.page.size = size);
@@ -131,18 +127,18 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
         const searchText = params['nameContains'];
         (isNullOrUndefined(searchText)) || (this.searchKeyword = searchText);
 
-        this._filterDate = new PeriodData();
-        this._filterDate.type = 'ALL';
+        this.selectedDate = new PeriodData();
+        this.selectedDate.type = 'ALL';
         const from = params['from'];
         const to = params['to'];
         if (!isNullOrUndefined(from) && !isNullOrUndefined(to)) {
-          this._filterDate.startDate = from;
-          this._filterDate.endDate = to;
+          this.selectedDate.startDate = from;
+          this.selectedDate.endDate = to;
 
-          this._filterDate.startDateStr = decodeURIComponent(from);
-          this._filterDate.endDateStr = decodeURIComponent(to);
-          this._filterDate.type = params['type'];
-          this.initialPeriodData = this._filterDate;
+          this.selectedDate.startDateStr = decodeURIComponent(from);
+          this.selectedDate.endDateStr = decodeURIComponent(to);
+          this.selectedDate.type = params['type'];
+          this.initialPeriodData = this.selectedDate;
           this.safelyDetectChanges();
         }
 
@@ -449,4 +445,13 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
 class Order {
   key: string = 'name';
   sort: string = 'asc';
+}
+
+class Date {
+  dateType?: string;
+  endDateStr: string;
+  startDateStr: string;
+  type: string;
+  startDate?:Date;
+  endDate?:Date;
 }
