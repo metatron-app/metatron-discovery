@@ -3060,17 +3060,23 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       _.each(shelf, (field) => {
         if (_.eq(field.type, ShelveFieldType.MEASURE)) {
           if( !_.isUndefined(layer.color.ranges) && _.eq(field.name, layer.color.column)) {
+            let colorList = this.getColorList(layer);
+            let rangeList = uiOption.layers[idx].color.ranges;
+            // rangeList 에서의 색상을 색상리스트에 설정
+            rangeList.reverse().forEach((item, index) => {
+              colorList[index] = item.color;
+            });
             if( isAnalysisUse ){
               // 비교 레이어 영역 설정 여부
               if(!_.isUndefined(uiOption.analysis['includeCompareLayer']) && uiOption.analysis['includeCompareLayer'] == true) {
                 // map chart 일 경우 aggregation type 변경시 min/max 재설정 필요
                 uiOption['layers'][uiOption['layerNum']]['isColorOptionChanged'] = true;
-                layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[uiOption.analysis['layerNum']+1], this.getColorList(layer), idx, shelf, []);
+                layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[uiOption.analysis['layerNum']+1], colorList, idx, shelf, rangeList);
               } else {
-                layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[uiOption.analysis['layerNum']], this.getColorList(layer), idx, shelf, []);
+                layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[uiOption.analysis['layerNum']], colorList, idx, shelf, rangeList);
               }
             } else {
-              layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[idx], this.getColorList(layer), idx, shelf);
+              layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[idx], colorList, idx, shelf, rangeList);
             }
           }
         }
