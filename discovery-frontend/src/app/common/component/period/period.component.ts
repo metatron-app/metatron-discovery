@@ -109,7 +109,7 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
 
   // label, value 로 이루어진 date type list
   @Input()
-  public customDateTypeList: any[];
+  public customDateTypeList: {label: string, value: string}[];
 
   // 변경 이벤트
   @Output() public changeDate = new EventEmitter();
@@ -329,6 +329,16 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
     }
 
     return returnData;
+  }
+
+
+  /**
+   * When radio button is clicked [last access / created] (custom)
+   * @param data
+   */
+  public onChangeSelectedDateType(data: {label: string, value: string}) {
+    this.selectedDate = data.value;
+    this.changeDate.emit(this.getReturnData());
   }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method

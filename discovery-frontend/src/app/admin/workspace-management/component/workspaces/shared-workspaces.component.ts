@@ -81,7 +81,7 @@ export class SharedWorkspacesComponent extends AbstractComponent {
   public filterAllowance: boolean;
 
   // 사용자 정의 커스텀 Date 필터링
-  public customDateTypeList = [
+  public customDateTypeList: {label: string, value: string}[] = [
     {label: this.translateService.instant('msg.spaces.spaces.th.last.access'), value: 'LASTACCESSED'},
     {label: this.translateService.instant('msg.spaces.spaces.th.created'), value: 'CREATED'},
   ];
@@ -115,48 +115,46 @@ export class SharedWorkspacesComponent extends AbstractComponent {
       // 파라메터 조회
       this.activatedRoute.queryParams.subscribe(params => {
 
-      console.info('>>>>>>> list param', params);
+        const size = params['size'];
+        (isNullOrUndefined(size)) || (this.page.size = size);
 
-      const size = params['size'];
-      (isNullOrUndefined(size)) || (this.page.size = size);
+        const page = params['page'];
+        (isNullOrUndefined(page)) || (this.page.page = page);
 
-      const page = params['page'];
-      (isNullOrUndefined(page)) || (this.page.page = page);
+        const publicType = params['publicType'];
+        (isNullOrUndefined(publicType)) || (this._filterWorkspaceType = publicType);
 
-      const publicType = params['publicType'];
-      (isNullOrUndefined(publicType)) || (this._filterWorkspaceType = publicType);
+        const sort = params['sort'];
+        if (!isNullOrUndefined(sort)) {
+          const sortInfo = decodeURIComponent(sort).split(',');
+          this.selectedContentSort.key = sortInfo[0];
+          this.selectedContentSort.sort = sortInfo[1];
+        }
+        const published = params['published'];
+        (isNullOrUndefined(published)) || (this.filterAllowance = published);
+        const active = params['active'];
+        if (!isNullOrUndefined(active)) {
+          this._filterStatus = ('true' === active) ? 'active' : 'inactive';
+        }
 
-      const sort = params['sort'];
-      if (!isNullOrUndefined(sort)) {
-        const sortInfo = decodeURIComponent(sort).split(',');
-        this.selectedContentSort.key = sortInfo[0];
-        this.selectedContentSort.sort = sortInfo[1];
-      }
-      const published = params['published'];
-      (isNullOrUndefined(published)) || (this.filterAllowance = published);
-      const active = params['active'];
-      if (!isNullOrUndefined(active)) {
-        this._filterStatus = ('true' === active) ? 'active' : 'inactive';
-      }
+        this._filterDate = new PeriodData();
+        this._filterDate.type = 'ALL';
+        const searchDateBy = params['searchDateBy'] ? params['searchDateBy']:'CREATED';
+        this._filterDate.dateType = searchDateBy;
+        const from = params['from'];
+        const to = params['to'];
+        if (!isNullOrUndefined(searchDateBy) && !isNullOrUndefined(from) && !isNullOrUndefined(to)) {
+          this._filterDate.startDate = from;
+          this._filterDate.endDate = to;
+          this._filterDate.type = params['type'];
+          this._filterDate.startDateStr = decodeURIComponent(from);
+          this._filterDate.endDateStr = decodeURIComponent(to);
+          this.initialPeriodData = this._filterDate;
+          this.safelyDetectChanges();
+        }
 
-      this._filterDate = new PeriodData();
-      this._filterDate.type = 'ALL';
-      const searchDateBy = params['searchDateBy'];
-      const from = params['from'];
-      const to = params['to'];
-      if (!isNullOrUndefined(searchDateBy) && !isNullOrUndefined(from) && !isNullOrUndefined(to)) {
-      this._filterDate.startDate = from;
-      this._filterDate.endDate = to;
-      this._filterDate.type = params['type'];
-
-      this._filterDate.dateType = searchDateBy;
-      this._filterDate.startDateStr = decodeURIComponent(from);
-      this._filterDate.endDateStr = decodeURIComponent(to);
-      this.initialPeriodData = this._filterDate;
-      this.safelyDetectChanges();
-      }
-      // 워크스페이스 리스트 조회
-      this._getWorkspaceListInServer();
+        // 워크스페이스 리스트 조회
+        this._getWorkspaceListInServer();
       })
     );
   }
@@ -559,6 +557,10 @@ export class SharedWorkspacesComponent extends AbstractComponent {
 
     // 전체 워크스페이스 조회
     const params = this._getWorkspaceParams();
+
+    // all 이면 'CREATED' or 'LASTACCESSED' 를 보내지 않음
+    params.type === 'ALL' ? delete params.searchDateBy : null;
+
     this.workspaceService.getWorkspaceByAdmin(params)
       .then((result) => {
         // 검색 파라메터 정보 저장
@@ -600,8 +602,8 @@ export class SharedWorkspacesComponent extends AbstractComponent {
     this._filterStatus !== 'all' && (params['active'] = (this._filterStatus === 'active'));
     // date
     params['type'] = 'ALL';
+    params['searchDateBy'] = this._filterDate.dateType;
     if (this._filterDate && this._filterDate.type !== 'ALL') {
-      params['searchDateBy'] = this._filterDate.dateType;
       params['type'] = this._filterDate.type;
       if (this._filterDate.startDateStr) {
         params['from'] = moment(this._filterDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
