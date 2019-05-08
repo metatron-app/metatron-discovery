@@ -172,8 +172,7 @@ export class PermissionChecker {
    */
   public isWriteWorkbook(): boolean {
     return this._isAvailableWorkbook
-      && (this._isPublished
-        || -1 < this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_MANAGE_WORKBOOK)
+      && (-1 < this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_MANAGE_WORKBOOK)
         || -1 < this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_EDIT_WORKBOOK)
       );
   } // function - isWriteWorkbook
@@ -185,9 +184,7 @@ export class PermissionChecker {
    */
   public isEditWorkbook(userId: string): boolean {
     return this._isAvailableWorkbook
-      && (this._isPublished
-        || (-1 !== this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_EDIT_WORKBOOK) && this._loginUserId === userId)
-      );
+      && (-1 !== this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_EDIT_WORKBOOK) && this._loginUserId === userId);
   } // function - isEditWorkbook
 
   /**
@@ -196,7 +193,7 @@ export class PermissionChecker {
    */
   public isManageWorkbook(): boolean {
     return this._isAvailableWorkbook
-      && (this._isPublished || -1 !== this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_MANAGE_WORKBOOK));
+      && -1 !== this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_MANAGE_WORKBOOK);
   } // function - isManageWorkbook
 
   /**
@@ -214,8 +211,7 @@ export class PermissionChecker {
    */
   public isWriteNotebook(): boolean {
     return this._isAvailableNotebook
-      && (this._isPublished
-        || -1 < this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_MANAGE_NOTEBOOK)
+      && (-1 < this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_MANAGE_NOTEBOOK)
         || -1 < this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_EDIT_NOTEBOOK)
       );
   } // function - isWriteNotebook
@@ -226,9 +222,7 @@ export class PermissionChecker {
    */
   public isEditNotebook(userId: string): boolean {
     return this._isAvailableNotebook
-      && (this._isPublished
-        || (-1 !== this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_EDIT_NOTEBOOK) && this._loginUserId === userId)
-      );
+      && (-1 !== this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_EDIT_NOTEBOOK) && this._loginUserId === userId);
   } // function - isEditNotebook
 
   /**
@@ -237,7 +231,7 @@ export class PermissionChecker {
    */
   public isManageNotebook(): boolean {
     return this._isAvailableNotebook
-      && (this._isPublished || -1 !== this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_MANAGE_NOTEBOOK));
+      && -1 !== this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_MANAGE_NOTEBOOK);
   } // function - isManageNotebook
 
   /**
@@ -255,8 +249,7 @@ export class PermissionChecker {
    */
   public isWriteWorkbench(): boolean {
     return this._isAvailableWorkbench
-      && (this._isPublished
-        || -1 < this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_MANAGE_WORKBENCH)
+      && (-1 < this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_MANAGE_WORKBENCH)
         || -1 < this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_EDIT_WORKBENCH)
       );
   } // function - isWriteWorkbench
@@ -267,9 +260,7 @@ export class PermissionChecker {
    */
   public isEditWorkbench(userId: string): boolean {
     return this._isAvailableWorkbench
-      && (this._isPublished
-        || (-1 !== this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_EDIT_WORKBENCH) && this._loginUserId === userId)
-      );
+      && (-1 !== this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_EDIT_WORKBENCH) && this._loginUserId === userId);
   } // function - isEditWorkbench
 
   /**
@@ -278,7 +269,7 @@ export class PermissionChecker {
    */
   public isManageWorkbench(): boolean {
     return this._isAvailableWorkbench
-      && ( this._isPublished || -1 !== this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_MANAGE_WORKBENCH) );
+      && -1 !== this._permissions.indexOf(WORKSPACE_PERMISSION.PERM_WORKSPACE_MANAGE_WORKBENCH);
   } // function - isManageWorkbench
 }
 
