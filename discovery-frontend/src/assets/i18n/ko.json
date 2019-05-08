@@ -3035,6 +3035,7 @@
   "msg.log.btn.download.csv" : "다운로드",
   "msg.log.btn.over.num.ms" : "{{value}} ms 이상",
   "msg.log.ui.use.record" : "동일 커넥션의 최근 사용 기록",
+  "msg.log.ui.no.log": "잡 로그가 없습니다",
 
   "msg.statistics.ui.daily.query.success-fail" : "쿼리 성공/실패률",
   "msg.statistics.ui.daily.query.frequency" : "사용자 별 쿼리 빈도 수",

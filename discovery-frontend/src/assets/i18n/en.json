@@ -3036,6 +3036,7 @@
   "msg.log.btn.download.csv" : "Download CSV",
   "msg.log.btn.over.num.ms" : "Over {{value}} ms",
   "msg.log.ui.use.record" : "Recent history of the same connection",
+  "msg.log.ui.no.log": "No job log",
 
   "msg.statistics.ui.daily.query.success-fail" : "Daily query success / failure rate",
   "msg.statistics.ui.daily.query.frequency" : "Daily query frequency by user",
