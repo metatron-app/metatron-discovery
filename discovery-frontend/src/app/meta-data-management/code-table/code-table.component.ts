@@ -265,7 +265,7 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
     }
 
     // 페이지 초기화 후 재조회
-    this.reloadPage(false);
+    this.reloadPage();
   }
 
   /**

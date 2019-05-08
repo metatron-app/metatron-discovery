@@ -264,7 +264,7 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
       }
     }
     // 페이지 초기화 후 재조회
-    this.reloadPage(false);
+    this.reloadPage();
   }
 
   /**

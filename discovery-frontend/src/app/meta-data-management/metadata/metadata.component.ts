@@ -267,7 +267,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     }
 
     // 페이지 초기화 후 재조회
-    this.reloadPage(false);
+    this.reloadPage();
   }
 
   /**
