@@ -73,9 +73,6 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
   public initialPeriodData:PeriodData;
 
   // date
-  private _filterDate: PeriodData;
-
-  // date
   public selectedDate : PeriodData;
 
   // period component
@@ -113,7 +110,6 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
       this.activatedRoute.queryParams.subscribe(params => {
 
         // TODO selected type
-        console.info( '>>>>>>> list param', params );
 
         const size = params['size'];
         (isNullOrUndefined(size)) || (this.page.size = size);
@@ -138,17 +134,17 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
           this.statusId = ('true' === active) ? 'ACTIVE' : 'INACTIVE';
         }
 
-        this._filterDate = new PeriodData();
-        this._filterDate.type = 'ALL';
+        this.selectedDate = new PeriodData();
+        this.selectedDate.type = 'ALL';
         const from = params['from'];
         const to = params['to'];
         if (!isNullOrUndefined(from) && !isNullOrUndefined(to)) {
-          this._filterDate.startDate = from;
-          this._filterDate.endDate = to;
-          this._filterDate.startDateStr = decodeURIComponent(from);
-          this._filterDate.endDateStr = decodeURIComponent(to);
-          this._filterDate.type = params['type'];
-          this.initialPeriodData = this._filterDate;
+          this.selectedDate.startDate = from;
+          this.selectedDate.endDate = to;
+          this.selectedDate.startDateStr = decodeURIComponent(from);
+          this.selectedDate.endDateStr = decodeURIComponent(to);
+          this.selectedDate.type = params['type'];
+          this.initialPeriodData = this.selectedDate;
           this.safelyDetectChanges();
         }
 
