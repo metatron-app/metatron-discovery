@@ -358,15 +358,18 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     let valid: boolean = false;
 
-    let fields: Field[] = shelf.layers[this.getUiMapOption().layerNum].fields;
-
-    if (fields) {
-      for (let layer of fields) {
-        if (layer.field && layer.field.logicalType && -1 !== layer.field.logicalType.toString().indexOf('GEO')) {
-          valid = true;
+    for (let layerIndex = 0; shelf.layers.length > layerIndex; layerIndex++) {
+      let fields: Field[] = shelf.layers[layerIndex].fields;
+      if (fields) {
+        for (let layer of fields) {
+          if (layer.field && layer.field.logicalType && -1 !== layer.field.logicalType.toString().indexOf('GEO')) {
+            valid = true;
+            break;
+          }
         }
       }
     }
+
     return valid;
   }
 
