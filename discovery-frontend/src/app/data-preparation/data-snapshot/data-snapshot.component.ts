@@ -318,7 +318,7 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
       }
     }
 
-    this.reloadPage(false);
+    this.reloadPage();
   }
 
 

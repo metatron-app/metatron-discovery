@@ -329,7 +329,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
     }
 
     // 데이터셋 리스트 조회
-    this.reloadPage(false);
+    this.reloadPage();
 
   }
 

@@ -274,7 +274,7 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
     }
 
     // Get dataflow list
-    this.reloadPage(false);
+    this.reloadPage();
 
   }
 
