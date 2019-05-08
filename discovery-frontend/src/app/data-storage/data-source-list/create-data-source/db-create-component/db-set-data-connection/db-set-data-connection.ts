@@ -261,8 +261,9 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
       // #1990 scroll into invalid input
       this._connectionComponent.scrollIntoConnectionInvalidInput();
       return false;
+    } else {
+      return true;
     }
-    return this._connectionComponent.isEnableConnection();
   }
 
   /**

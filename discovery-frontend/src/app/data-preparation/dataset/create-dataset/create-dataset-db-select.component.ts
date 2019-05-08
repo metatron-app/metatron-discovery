@@ -162,7 +162,14 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
    * @returns {boolean}
    */
   public isEnableNext(): boolean {
-    return this._connectionComponent.isEnableConnection();
+    // check valid connection
+    if (!this._connectionComponent.isEnableConnection()) {
+      // #1990 scroll into invalid input
+      this._connectionComponent.scrollIntoConnectionInvalidInput();
+      return false;
+    } else {
+      return true;
+    }
   }
 
 
