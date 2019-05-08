@@ -274,11 +274,11 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
    */
   public refreshFilters() {
     this.page.page = 0;
+    this.changeStatus('requested,rejected');
     this.page.sort = defaultSort;
     this.searchKeyword = '';
     this.selectedDate = null;
     this.periodComponent.setAll();
-    this.statusId = 'requested,rejected';
     this.getUsers();
   }
 
