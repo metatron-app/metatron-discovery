@@ -755,6 +755,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    */
   public changeSizeBy(data: Field, layerIndex : number) {
 
+    this.resetPointRadius(layerIndex);
+    this.setMinMaxMeasureValue(this.shelf, data, this.data, layerIndex, false);
+
     switch (data.type) {
       case 'none' :
         (<UISymbolLayer>this.uiOption.layers[layerIndex]).size.by = MapBy.NONE;
@@ -764,6 +767,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
         break;
       case 'measure' :
         (<UISymbolLayer>this.uiOption.layers[layerIndex]).size.by = MapBy.MEASURE;
+        this.setPointOption();
+        this.setMinMaxMeasureValue(this.shelf, data, this.data, layerIndex, true);
         break;
       default :
         (<UISymbolLayer>this.uiOption.layers[layerIndex]).size.by = MapBy.NONE;
@@ -1816,7 +1821,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   }
 
   /**
-   * 크기반경 & cluster type 설정
+   * 크기반경 설정
    */
   private setPointOption() {
     if (!_.isUndefined(this.uiOption) && !_.isUndefined(this.uiOption['layers']) && this.uiOption['layers'].length > 0) {
@@ -1851,8 +1856,43 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
             }
             this.uiOption.layers[layerIndex]['needToCalPointRadius'] = true;
           }
+        } else {
+          this.resetPointRadius(layerIndex);
         }
       }
+    }
+  }
+
+  private resetPointRadius(layerIndex: number) {
+    this.uiOption.layers[layerIndex].pointRadius = 5;
+    delete this.uiOption.layers[layerIndex]['needToCalPointRadius'];
+    delete this.uiOption.layers[layerIndex]['pointRadiusFrom'];
+    delete this.uiOption.layers[layerIndex]['pointRadiusTo'];
+    delete this.uiOption.layers[layerIndex]['pointRadiusCal'];
+  }
+
+  private setMinMaxMeasureValue(shelf: Shelf, selectedField: Field, data: any, layerIndex: number, isSet: boolean) {
+    if (isSet) {
+      let alias = null;
+      shelf.layers.forEach((layer) => {
+        layer.fields.forEach((field) => {
+          if (field.field.id == selectedField.field.id) {
+            alias = selectedField.field.name;
+          }
+        });
+      });
+      let minValue = 0;
+      let maxValue = 0;
+      if (!_.isUndefined(data[layerIndex].valueRange[alias])) {
+        // less than 0, set minValue
+        minValue = _.cloneDeep(data[layerIndex].valueRange[alias].minValue);
+        maxValue = _.cloneDeep(data[layerIndex].valueRange[alias].maxValue);
+      }
+      this.uiOption.layers[layerIndex]['size'].minValue = minValue;
+      this.uiOption.layers[layerIndex]['size'].maxValue = maxValue;
+    } else {
+      delete this.uiOption.layers[layerIndex]['size'].minValue;
+      delete this.uiOption.layers[layerIndex]['size'].maxValue;
     }
   }
 

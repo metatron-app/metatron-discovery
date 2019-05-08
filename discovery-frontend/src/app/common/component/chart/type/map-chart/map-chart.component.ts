@@ -1438,8 +1438,18 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           if (isNullOrUndefined(styleLayer.pointRadius) || isNaN(styleLayer.pointRadius)) {
             styleLayer.pointRadius = featureSize;
           } else {
-            if (!isNullOrUndefined(styleLayer['needToCalPointRadius']) && styleLayer['needToCalPointRadius']) {
-              let maxValue: number = _.cloneDeep(styleLayer.color.maxValue);
+            if (!isNullOrUndefined(styleLayer['needToCalPointRadius']) && styleLayer['needToCalPointRadius']
+              && !isNullOrUndefined(styleLayer['pointRadiusTo'])) {
+
+              // 처음에는 정의된 값이 없음, color 에서 첫번째 measure min/max 가져옴
+              let maxValue: number = !isNullOrUndefined(styleLayer['size'].maxValue) ? parseFloat(_.cloneDeep(styleLayer['size'].maxValue)) : _.cloneDeep(styleLayer.color.maxValue);
+              let minValue: number = !isNullOrUndefined(styleLayer['size'].minValue) ? parseFloat(_.cloneDeep(styleLayer['size'].minValue)) : _.cloneDeep(styleLayer.color.minValue);
+
+              // 마이너스 값은 지도에 표시 할 수 없기 때문에 플러스로 치환
+              if (minValue < 0) {
+                maxValue = maxValue + (-minValue);
+              }
+
               if (maxValue > 0 && maxValue < 1) {
                 // 소수점 자리 찾기
                 let countDecimals: number = maxValue.toString().split(".")[1].length;
