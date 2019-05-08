@@ -1873,7 +1873,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
   private setMinMaxMeasureValue(shelf: Shelf, selectedField: Field, data: any, layerIndex: number, isSet: boolean) {
     if (isSet) {
-      let alias = null;
+      let alias: string = null;
       shelf.layers.forEach((layer) => {
         layer.fields.forEach((field) => {
           if (field.field.id == selectedField.field.id) {

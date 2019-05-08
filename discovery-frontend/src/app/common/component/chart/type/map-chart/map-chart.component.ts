@@ -1440,16 +1440,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           } else {
             if (!isNullOrUndefined(styleLayer['needToCalPointRadius']) && styleLayer['needToCalPointRadius']
               && !isNullOrUndefined(styleLayer['pointRadiusTo'])) {
-
               // 처음에는 정의된 값이 없음, color 에서 첫번째 measure min/max 가져옴
               let maxValue: number = !isNullOrUndefined(styleLayer['size'].maxValue) ? parseFloat(_.cloneDeep(styleLayer['size'].maxValue)) : _.cloneDeep(styleLayer.color.maxValue);
               let minValue: number = !isNullOrUndefined(styleLayer['size'].minValue) ? parseFloat(_.cloneDeep(styleLayer['size'].minValue)) : _.cloneDeep(styleLayer.color.minValue);
-
               // 마이너스 값은 지도에 표시 할 수 없기 때문에 플러스로 치환
               if (minValue < 0) {
                 maxValue = maxValue + (-minValue);
               }
-
               if (maxValue > 0 && maxValue < 1) {
                 // 소수점 자리 찾기
                 let countDecimals: number = maxValue.toString().split(".")[1].length;
@@ -1460,7 +1457,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
               } else if (maxValue < 0) {
                 maxValue = -maxValue;
               }
-              let calFeatureSize = featureSize * (styleLayer['pointRadiusTo'] / maxValue);
+              let calFeatureSize = featureSize;
+              if (!isNullOrUndefined(feature.getProperties()[styleLayer['size'].column])) {
+                // 최대 pixel 값은 200으로 기획에서 정의됨
+                calFeatureSize = feature.getProperties()[styleLayer['size'].column] * (200 / maxValue);
+              }
               if (calFeatureSize < styleLayer['pointRadiusFrom']) {
                 // featureSize 계산 값이 크기 반경 보다 작을 경우, 크기 반경 최소 값 유지
                 calFeatureSize = styleLayer['pointRadiusFrom'];
