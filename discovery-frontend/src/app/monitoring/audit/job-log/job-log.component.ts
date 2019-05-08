@@ -156,7 +156,7 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
 
           // elapsed time
           if (!isNullOrUndefined(params['elapsedTime'])) {
-            const sec = ["30", "60", "90"];
+            const sec = ["10", "30", "60"];
             this.selectedElapsedTime = Number(params['elapsedTime']);
             if (sec.indexOf(params['elapsedTime']) === -1) {
               this.elapsedTime.nativeElement.value = this.selectedElapsedTime;
