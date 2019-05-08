@@ -180,7 +180,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    */
   // Todo : doesn't refresh
   public onCreateEmit() {
-    this.reloadPage(false);
+    this.reloadPage();
   }
 
   /**

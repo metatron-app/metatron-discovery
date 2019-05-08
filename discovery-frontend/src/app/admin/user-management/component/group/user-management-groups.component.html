@@ -155,7 +155,7 @@
 </div>
 
 <!-- 그룹 생성 팝업 -->
-<app-create-user-management-groups (createComplete)="reloadPage(false)"></app-create-user-management-groups>
+<app-create-user-management-groups (createComplete)="reloadPage()"></app-create-user-management-groups>
 <!-- //그룹 생성 팝업 -->
 <!-- 삭제확인 공통팝업 -->
 <app-confirm-modal (confirm)="confirmDeleteGroup($event)"></app-confirm-modal>

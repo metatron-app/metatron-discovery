@@ -326,7 +326,7 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
    */
   public onCreateComplete() {
 
-    this.reloadPage(false);
+    this.reloadPage();
 
   }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
