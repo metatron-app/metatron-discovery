@@ -1438,8 +1438,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
         // 크기 반경
         if (symbolType == MapSymbolType.CIRCLE || symbolType == MapSymbolType.SQUARE || symbolType == MapSymbolType.TRIANGLE) {
-          if (isNullOrUndefined(styleLayer.pointRadius) || isNaN(styleLayer.pointRadius)) {
+          if (isNullOrUndefined(styleLayer.pointRadius) || isNaN(styleLayer.pointRadius)
+            || isNullOrUndefined(styleLayer['pointRadiusFrom'])) {
             styleLayer.pointRadius = featureSize;
+            styleLayer['pointRadiusFrom'] = featureSize;
           } else {
             if (!isNullOrUndefined(styleLayer['needToCalPointRadius']) && styleLayer['needToCalPointRadius']
               && !isNullOrUndefined(styleLayer['pointRadiusTo'])) {
