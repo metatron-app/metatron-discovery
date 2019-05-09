@@ -941,18 +941,12 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
    * @param {string} errMessage
    */
   protected commonExceptionHandler(err: any, errMessage?: string) {
-    console.error(err);
-    const url: string = this.router.url;
-    if (-1 < url.indexOf('/management') || -1 < url.indexOf('/admin') || -1 < url.indexOf('/workbook')) {
+    if (err && err.details) {
       Alert.errorDetail(err.message, err.details);
+    } else if (errMessage) {
+      Alert.error(errMessage);
     } else {
-      if (err && err.details) {
-        Alert.error(err.details);
-      } else if (errMessage) {
-        Alert.error(errMessage);
-      } else {
-        Alert.error(this.translateService.instant('msg.alert.retrieve.fail'));
-      }
+      Alert.error(this.translateService.instant('msg.alert.retrieve.fail'));
     }
     this.loadingHide();
   } // function - commonExceptionHandler

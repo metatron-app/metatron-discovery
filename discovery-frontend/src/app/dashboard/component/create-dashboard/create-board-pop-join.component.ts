@@ -309,7 +309,11 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
         this._similarity = similarity;
         this._setSimilarity();
         this.changeDetect.detectChanges();
-      }).catch(err => this.commonExceptionHandler(err));
+
+      }).catch(err => {
+        err.message = this.translateService.instant('msg.space.alert.similarity.msg');
+        this.commonExceptionHandler(err);
+      });
 
     }).catch(err => this.commonExceptionHandler(err));
   } // function - loadDataToRightJoinGrid

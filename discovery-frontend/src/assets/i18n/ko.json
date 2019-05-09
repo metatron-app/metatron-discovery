@@ -295,6 +295,8 @@
   "msg.comm.ui.failed": "실패",
   "msg.comm.ui.complete": "완료됨",
   "msg.comm.ui.canceled": "취소됨",
+  "msg.comm.alert.error.msg": "문제가 있습니다 <br> 다음 메시지를 확인하십시오",
+  "msg.comm.alert.error.btn": "자세한 내용을 보려면 여기를 클릭하십시오.",
 
   "msg.lnb.btn.manual" : "매뉴얼",
   "msg.lnb.btn.manual.web" : "홈페이지",
@@ -405,6 +407,7 @@
   "msg.space.create.notebook.title" : "소스 타입을 선택해 주세요",
   "msg.space.warning.can-not-create-11depth-folder" : "하위 폴더는 10 Depth 까지만 만들 수 있습니다.",
   "msg.space.ui.list.search.placeholder" : "서버명을 검색해 주세요",
+  "msg.space.alert.similarity.msg" : "문제가 발생했습니다. 자세한 내용은 시스템 관리자에게 문의하십시오.",
 
   "msg.alert.retrieve.fail" : "조회에 실패하였습니다",
   "msg.alert.del.success" : "을(를) 삭제하였습니다",
