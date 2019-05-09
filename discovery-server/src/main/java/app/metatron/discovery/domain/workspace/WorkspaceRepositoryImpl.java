@@ -115,7 +115,7 @@ public class WorkspaceRepositoryImpl extends QueryDslRepositorySupport implement
     if(CollectionUtils.isNotEmpty(memberIds)) {
 
       List<String> joinedWorkspaceId = from(member).select(member.workspace.id)
-                                                   .where(member.memberId.in(memberIds)).fetch();
+                                                   .where(member.memberId.in(memberIds), member.role.in("Manager", "Editor")).fetch();
 
       for (String workspaceId : joinedWorkspaceId) {
         SubQueryExpression roleNameExpr = JPAExpressions.selectFrom(member).select(member.role)
