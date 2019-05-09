@@ -7179,6 +7179,9 @@ table.ddp-table-form tbody tr td .ddp-wrap-value-icon {position:relative; float:
 table.ddp-table-form tbody tr td .ddp-wrap-value-icon [class*="ddp-icon-"] {float:left; margin-left:8px;}
 table.ddp-table-form tbody tr td .ddp-wrap-value-icon .ddp-wrap-datarecommend {float:left; margin-left:10px;}
 table.ddp-table-form tbody tr td .ddp-wrap-value-icon.ddp-type {padding-right:15px;}
+table.ddp-table-form tbody tr td .ddp-wrap-value-icon .ddp-btn-revival {float:left; position:relative; top:-2px; padding: 3px 4px; margin-left:8px; background-color:#e7e7ea; border-radius:2px; color:#4b515b; font-size:12px; vertical-align:middle; line-height:1em;}
+table.ddp-table-form tbody tr td .ddp-wrap-value-icon .ddp-btn-revival:hover {background-color:#d0d1d8;}
+table.ddp-table-form tbody tr td .ddp-wrap-value-icon .ddp-btn-revival .ddp-icon-time-s {display:inline-block; width:14px; height:13px; margin-right:5px; margin-left:0; background:url(../images/icon_return.png) no-repeat; background-position:left -20px; vertical-align:middle;}
 table.ddp-table-form tbody tr td .ddp-td-schema a.ddp-btn-box {display:inline-block; position:absolute; top:50%; right:0; margin-top:-10px; padding:3px 4px; border-radius:2px; background-color:#e7e7ea; color:#4b515b; font-size:12px; font-style:italic; z-index:3;}
 table.ddp-table-form tbody tr td .ddp-td-schema a.ddp-btn-box:hover {background-color:#d0d1d8;}
 
@@ -7222,7 +7225,7 @@ table.ddp-table-form tbody tr td .ddp-td-schema + .ddp-ui-tooltip-info.ddp-left 
 table.ddp-table-form tbody tr td .ddp-td-schema + .ddp-ui-tooltip-info.ddp-type {left:20px;}
 table.ddp-table-form tbody tr td .ddp-td-schema + .ddp-ui-tooltip-info.ddp-left2 {max-width:400px;}
 table.ddp-table-form tbody tr td .ddp-td-schema + .ddp-ui-tooltip-info.ddp-left2 em.ddp-icon-view-top {left:42px}
-table.ddp-table-form tbody tr td .ddp-txt-edit {float:left; position:relative;}
+table.ddp-table-form tbody tr td .ddp-txt-edit {float:left; margin-left:0; position:relative;}
 table.ddp-table-form tbody tr td .ddp-txt-edit a.ddp-icon-edit {display:inline-block; width:13px; height:13px; background:url(../images/icon_edit2.png) no-repeat; background-position:left -34px;}
 table.ddp-table-form tbody tr td .ddp-txt-edit .ddp-wrap-input {display:none; position:absolute; top:100%; right:0; left:inherit; margin-top:7px; min-width:390px; z-index:10;}
 table.ddp-table-form tbody tr td .ddp-txt-edit .ddp-wrap-input.ddp-type {bottom:100%; margin-top:0; margin-bottom:7px; top:inherit;}
