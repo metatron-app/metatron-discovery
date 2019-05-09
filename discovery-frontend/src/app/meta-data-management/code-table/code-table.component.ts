@@ -158,6 +158,8 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
 
     this._codeTableService.deleteCodeTable(modal['codeTableId']).then(() => {
 
+      this.loadingHide();
+
       Alert.success(this.translateService.instant('msg.metadata.ui.codetable.delete.success',
         {value: modal['codeTableName']}));
       // TODO :

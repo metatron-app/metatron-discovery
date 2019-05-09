@@ -157,6 +157,8 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
     this._columnDictionaryService.deleteColumnDictionary(modal['dictionaryId'])
       .then((result) => {
 
+        this.loadingHide();
+
         // alert
         Alert.success(this.translateService.instant(
           'msg.metadata.ui.dictionary.delete.success',
