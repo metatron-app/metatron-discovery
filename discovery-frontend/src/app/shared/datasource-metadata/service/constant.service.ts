@@ -55,7 +55,7 @@ export class ConstantService {
 
   public getTypeFiltersInCreateStep() {
     const filters = _.cloneDeep(this.typeFilters);
-    filters.push(new Filter.Logical(this.translateService.instant('msg.storage.ui.list.user'), Type.Logical.USER_DEFINED, 'ddp-icon-type-expression'));
+    filters.push(new Filter.Logical(this.translateService.instant('msg.storage.ui.list.expression'), Type.Logical.USER_DEFINED, 'ddp-icon-type-expression'));
     return filters;
   }
 

@@ -26,6 +26,7 @@ import {PrDataSnapshot} from "../data-preparation/pr-snapshot";
 import {isNullOrUndefined} from "util";
 import {TimezoneService} from "../../data-storage/service/timezone.service";
 import {AggregationType} from "../workbook/configurations/field/measure-field";
+import {Type} from "../../shared/datasource-metadata/domain/type";
 
 export class Datasource extends AbstractHistoryEntity {
   id: string;             // ID
@@ -213,6 +214,38 @@ export class Field {
   removeUIproperties?() {
     delete this.isShowTypeList;
     delete this.isValidType;
+    delete this.useFilter;
+    delete this.useChartFilter;
+    delete this.useChart;
+  }
+
+  // TODO 추후 Type.Logical으로 변경시 제거 필요
+  setLogicalType?(type) {
+    this.logicalType = type;
+  }
+
+  public static isDimensionField(field): boolean {
+    return field.role === FieldRole.DIMENSION;
+  }
+
+  public static isMeasureField(field): boolean {
+    return field.role === FieldRole.MEASURE;
+  }
+
+  public static isCheckedField(field): boolean {
+    return field.checked === true;
+  }
+
+  public static isRemovedField(field): boolean {
+    return field.unloaded === true;
+  }
+
+  public static isCreatedField(field): boolean {
+    return field.derived === true;
+  }
+
+  public static isGeoField(field): boolean {
+    return field.logicalType === LogicalType.GEO_LINE || field.logicalType === LogicalType.GEO_POINT || field.logicalType === LogicalType.GEO_POLYGON;
   }
 
   public static getSlicedColumnName?(field: Field): string {
@@ -220,6 +253,34 @@ export class Field {
       return field.name.slice(0,50);
     } else {
       return field.name;
+    }
+  }
+
+  public static getFieldTypeIconClass(field): string {
+    switch (field.logicalType) {
+      case LogicalType.TIMESTAMP:
+        return 'ddp-icon-type-calen';
+      case LogicalType.BOOLEAN:
+        return 'ddp-icon-type-tf';
+      case LogicalType.STRING:
+        return Field.isCreatedField(field) ? 'ddp-icon-type-expression' : 'ddp-icon-type-ab';
+      case LogicalType.INTEGER:
+        return 'ddp-icon-type-int';
+      case LogicalType.FLOAT:
+      case LogicalType.DOUBLE:
+        return 'ddp-icon-type-float';
+      case LogicalType.LNG:
+        return 'ddp-icon-type-longitude';
+      case LogicalType.LNT:
+        return 'ddp-icon-type-latitude';
+      case LogicalType.GEO_POINT:
+        return 'ddp-icon-type-point';
+      case LogicalType.GEO_LINE:
+        return 'ddp-icon-type-line';
+      case LogicalType.GEO_POLYGON:
+        return 'ddp-icon-type-polygon';
+      default:
+        return '';
     }
   }
 
