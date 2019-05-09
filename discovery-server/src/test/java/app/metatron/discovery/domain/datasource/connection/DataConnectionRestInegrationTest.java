@@ -14,33 +14,34 @@
 
 package app.metatron.discovery.domain.datasource.connection;
 
-import app.metatron.discovery.fixture.HiveTestFixture;
+import app.metatron.discovery.AbstractRestIntegrationTest;
 import app.metatron.discovery.TestJdbcUtils;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
-import com.google.common.collect.Maps;
-
+import app.metatron.discovery.TestUtils;
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.core.oauth.OAuthRequest;
+import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
+import app.metatron.discovery.domain.dataconnection.ConnectionRequest;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceManager;
+import app.metatron.discovery.extension.dataconnection.jdbc.JdbcConnectInformation;
+import app.metatron.discovery.fixture.HiveTestFixture;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.Maps;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hive.jdbc.HiveDriver;
 import org.apache.http.HttpStatus;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.jdbc.datasource.init.ScriptUtils;
-import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.util.Assert;
 
-import java.io.ByteArrayInputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -49,19 +50,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import app.metatron.discovery.AbstractRestIntegrationTest;
-import app.metatron.discovery.TestUtils;
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.core.oauth.OAuthRequest;
-import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
-import app.metatron.discovery.domain.dataconnection.ConnectionRequest;
-import app.metatron.discovery.domain.dataconnection.DataConnection;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
-import app.metatron.discovery.extension.dataconnection.jdbc.JdbcConnectInformation;
-
+import static app.metatron.discovery.domain.dataconnection.dialect.HiveDialect.PROPERTY_KEY_ADMIN_NAME;
+import static app.metatron.discovery.domain.dataconnection.dialect.HiveDialect.PROPERTY_KEY_ADMIN_PASSWORD;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 
@@ -70,6 +62,9 @@ import static org.hamcrest.Matchers.hasSize;
  */
 @TestExecutionListeners(value = OAuthTestExecutionListener.class, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
   public class DataConnectionRestInegrationTest extends AbstractRestIntegrationTest {
+
+  @Autowired
+  public WorkbenchDataSourceManager workbenchDataSourceManager;
 
   @Before
   public void setUp() {
@@ -2492,27 +2487,16 @@ import static org.hamcrest.Matchers.hasSize;
   public void deleteTableInDatabase() throws SQLException, ClassNotFoundException {
     // given
     final String webSocketId = "test-ws";
-    final String hdfsConfPath = "/tmp/hdfs-conf";
     final String loginUserId = "polaris";
     final String personalDatabasePrefix = "private";
 
-    HiveConnection hiveConnection = new HiveConnection();
-    hiveConnection.setUsername("read_only");
-    hiveConnection.setPassword("1111");
-    hiveConnection.setHostname("localhost");
-    hiveConnection.setPort(10000);
-    hiveConnection.setProperties("{" +
-        "  \"metatron.hdfs.conf.path\": \"" + hdfsConfPath + "\"," +
-        "  \"metatron.hive.admin.name\": \"hive_admin\"," +
-        "  \"metatron.hive.admin.password\": \"1111\"," +
-        "  \"metatron.personal.database.prefix\": \"" + personalDatabasePrefix + "\"" +
-        "}");
-    WorkbenchDataSourceUtils.createDataSourceInfo(hiveConnection, webSocketId, hiveConnection.getUsername(), hiveConnection.getPassword(), false);
+    DataConnection dataConnection = getHiveConnection();
 
+    workbenchDataSourceManager.createDataSourceInfo(dataConnection, webSocketId);
     final String personalDatabase = String.format("%s_%s", personalDatabasePrefix, loginUserId);
 
-    cleanUpHivePersonalDatabaseTestFixture(createHiveJdbcConnection(hiveConnection), personalDatabase);
-    createDummyTableHivePersonalDatabase(createHiveJdbcConnection(hiveConnection), personalDatabase);
+    cleanUpHivePersonalDatabaseTestFixture(createHiveJdbcConnection(dataConnection), personalDatabase);
+    createDummyTableHivePersonalDatabase(createHiveJdbcConnection(dataConnection), personalDatabase);
 
     final String connectionId = "hive-local-enable-personal-database";
     final String table = "dummy";
@@ -2530,12 +2514,12 @@ import static org.hamcrest.Matchers.hasSize;
 
   }
 
-  private Connection createHiveJdbcConnection(HiveConnection hiveConnection) throws SQLException, ClassNotFoundException {
+  private Connection createHiveJdbcConnection(DataConnection hiveConnection) throws SQLException, ClassNotFoundException {
     final String URL = String.format("jdbc:hive2://%s:%s", hiveConnection.getHostname(), hiveConnection.getPort());
     Class.forName(HiveDriver.class.getName());
     return DriverManager.getConnection(URL,
-        hiveConnection.getPropertiesMap().get(HiveConnection.PROPERTY_KEY_ADMIN_NAME),
-        hiveConnection.getPropertiesMap().get(HiveConnection.PROPERTY_KEY_ADMIN_PASSWORD));
+        hiveConnection.getPropertiesMap().get(PROPERTY_KEY_ADMIN_NAME),
+        hiveConnection.getPropertiesMap().get(PROPERTY_KEY_ADMIN_PASSWORD));
   }
 
   private void cleanUpHivePersonalDatabaseTestFixture(Connection conn, String personalDatabase) {
@@ -2559,27 +2543,16 @@ import static org.hamcrest.Matchers.hasSize;
   public void renameTableInDatabase() throws SQLException, ClassNotFoundException {
     // given
     final String webSocketId = "test-ws";
-    final String hdfsConfPath = "/tmp/hdfs-conf";
     final String loginUserId = "polaris";
     final String personalDatabasePrefix = "private";
 
-    HiveConnection hiveConnection = new HiveConnection();
-    hiveConnection.setUsername("read_only");
-    hiveConnection.setPassword("1111");
-    hiveConnection.setHostname("localhost");
-    hiveConnection.setPort(10000);
-    hiveConnection.setProperties("{" +
-        "  \"metatron.hdfs.conf.path\": \"" + hdfsConfPath + "\"," +
-        "  \"metatron.hive.admin.name\": \"hive_admin\"," +
-        "  \"metatron.hive.admin.password\": \"1111\"," +
-        "  \"metatron.personal.database.prefix\": \"" + personalDatabasePrefix + "\"" +
-        "}");
-    WorkbenchDataSourceUtils.createDataSourceInfo(hiveConnection, webSocketId, hiveConnection.getUsername(), hiveConnection.getPassword(), false);
+    DataConnection dataConnection = getHiveConnection();
+    workbenchDataSourceManager.createDataSourceInfo(dataConnection, webSocketId);
 
     final String personalDatabase = String.format("%s_%s", personalDatabasePrefix, loginUserId);
 
-    cleanUpHivePersonalDatabaseTestFixture(createHiveJdbcConnection(hiveConnection), personalDatabase);
-    createDummyTableHivePersonalDatabase(createHiveJdbcConnection(hiveConnection), personalDatabase);
+    cleanUpHivePersonalDatabaseTestFixture(createHiveJdbcConnection(dataConnection), personalDatabase);
+    createDummyTableHivePersonalDatabase(createHiveJdbcConnection(dataConnection), personalDatabase);
 
     final String connectionId = "hive-local-enable-personal-database";
     final String table = "dummy";
@@ -2600,5 +2573,21 @@ import static org.hamcrest.Matchers.hasSize;
     .then()
         .statusCode(HttpStatus.SC_NO_CONTENT)
         .log().all();
+  }
+
+  private DataConnection getHiveConnection() {
+    DataConnection hiveConnection = new DataConnection("HIVE");
+    hiveConnection.setUsername("read_only");
+    hiveConnection.setPassword("1111");
+    hiveConnection.setHostname("localhost");
+    hiveConnection.setPort(10000);
+    hiveConnection.setProperties("{" +
+        "  \"metatron.hdfs.conf.path\": \"/tmp/hdfs-conf\"," +
+        "  \"metatron.hive.admin.name\": \"hive_admin\"," +
+        "  \"metatron.hive.admin.password\": \"1111\"," +
+        "  \"metatron.personal.database.prefix\": \"private\"" +
+        "}");
+
+    return hiveConnection;
   }
 }

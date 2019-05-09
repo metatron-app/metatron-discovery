@@ -14,7 +14,7 @@
 
 import {Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {AbstractPopupComponent} from '../../../../common/component/abstract-popup.component';
-import {Datasource, DatasourceInfo, Field, FieldRole, LogicalType} from '../../../../domain/datasource/datasource';
+import {Datasource, Field, FieldRole, LogicalType} from '../../../../domain/datasource/datasource';
 import {FileLikeObject, FileUploader} from 'ng2-file-upload';
 import {Alert} from '../../../../common/util/alert.util';
 import {CookieConstant} from '../../../../common/constant/cookie.constant';
@@ -24,13 +24,8 @@ import {header, SlickGridHeader} from '../../../../common/component/grid/grid.he
 import {GridOption} from '../../../../common/component/grid/grid.option';
 import {GridComponent} from '../../../../common/component/grid/grid.component';
 import * as pixelWidth from 'string-pixel-width';
-import {
-  DataSourceCreateService,
-  FileDetail,
-  FileResult,
-  Sheet,
-  UploadResult
-} from "../../../service/data-source-create.service";
+import {DataSourceCreateService, FileDetail, FileResult, Sheet} from "../../../service/data-source-create.service";
+import {TranslateService} from "@ngx-translate/core";
 
 
 @Component({
@@ -45,8 +40,10 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
   @ViewChild(GridComponent)
   private gridComponent: GridComponent;
 
+  private _translateService: TranslateService;
+
   // file uploaded results
-  private _uploadResult: UploadResult;
+  private _uploadResult;
 
   // file results
   public fileResult: FileResult;
@@ -80,10 +77,6 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Constructor
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   // 생성자
   constructor(private datasourceService: DatasourceService,
               private _dataSourceCreateService: DataSourceCreateService,
@@ -91,6 +84,9 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
               protected injector: Injector) {
 
     super(elementRef, injector);
+
+    this._translateService = injector.get(TranslateService);
+
 
     this.uploader = new FileUploader(
       {
@@ -448,7 +444,7 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
    * @param {UploadResult} uploadResult
    * @private
    */
-  private _setFileResult(uploadResult: UploadResult) {
+  private _setFileResult(uploadResult) {
     // response 데이터
     const response: any = JSON.parse(uploadResult.response);
     this.fileResult = {
@@ -460,11 +456,27 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
     // sheet 가 존재한다면
     if (response.sheets && response.sheets.length !== 0) {
       // sheet
-      this.fileResult.sheets = this._dataSourceCreateService.getConvertSheets(response.sheets);
+      this.fileResult.sheets = this.getConvertSheets(response.sheets);
       // initial selected sheet
       this.fileResult.selectedSheet = this.fileResult.sheets[0];
     }
   }
+
+  /**
+   * Get convert sheets
+   * @param {object} sheets
+   * @return {Sheet[]}
+   */
+  private getConvertSheets(sheets: object): Sheet[] {
+    return Object.keys(sheets).map(key => {
+      return sheets[key].valid ? {sheetName: key, valid: sheets[key].valid, warning: sheets[key].warning} : {sheetName: key, valid: sheets[key].valid, warning: sheets[key].warning, errorMessage: this.getFileErrorMessage(sheets[key].warning)};
+    });
+  }
+
+  private getFileErrorMessage(errorCode: string): string {
+    return this._translateService.instant(`msg.storage.ui.file.result.${errorCode}`);
+  }
+
 
   private checkCompatibilityOfUploadFileFieldsAndDatasouceFields() {
     this.datasource.fields.forEach(datasourceField => {
