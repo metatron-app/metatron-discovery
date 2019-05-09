@@ -209,6 +209,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       layer.clusterOutline = (<UIPolygonLayer>cloneLayer).outline;
     }
 
+    delete this.uiOption.layers[layerIndex].noneColor;
+    delete this.uiOption.layers[layerIndex].dimensionColor
+    delete this.uiOption.layers[layerIndex].measureColor
+
     // change layer type
     this.uiOption.layers[layerIndex].type = layerType;
 
@@ -824,6 +828,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     }
 
     this.uiOption.layers[layerIndex].color.schema = colorCode;
+    this.uiOption.layers[layerIndex].noneColor = _.cloneDeep(colorCode);
 
     this.applyLayers();
   }
@@ -951,6 +956,25 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       this.uiOption.layers[layerIndex].color['clusterSchema'] = data.colorNum;
     }
     this.uiOption.layers[layerIndex].color.schema = data.colorNum;
+
+    let isDimension: boolean = false;
+    let isMeasure: boolean = false;
+    _.each(this.shelf.layers[layerIndex].fields, (field) => {
+      // when logical type is not geo, type is dimension
+      if (('user_expr' === field.field.type || (field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') == -1)) && _.eq(field.type, ShelveFieldType.DIMENSION)) {
+        isDimension = true;
+      }
+      if (_.eq(field.type, ShelveFieldType.MEASURE)) {
+        isMeasure = true;
+      }
+    });
+
+    if( isDimension ){
+      this.uiOption.layers[layerIndex].dimensionColor = _.cloneDeep(data.colorNum);
+    }
+    if( isMeasure ){
+      this.uiOption.layers[layerIndex].measureColor = _.cloneDeep(data.colorNum);
+    }
 
     const colorList = <any>_.cloneDeep(ChartColorList[this.uiOption.layers[layerIndex].color['schema']]);
 
@@ -1507,8 +1531,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
         let uiOption = this.uiOption;
         let analysisCountAlias : string;
+        let analysisUse : boolean = false;
         let isUndefinedAggregationType : boolean = false;
         if( !_.isUndefined(uiOption['analysis']) && !_.isUndefined(uiOption['analysis']['use']) && uiOption['analysis']['use'] ) {
+          analysisUse = true;
           if( uiOption['analysis']['operation']['choropleth'] ) {
             analysisCountAlias = uiOption['analysis']['operation']['aggregation']['column'];
             (_.isUndefined(uiOption['analysis']['operation']['aggregation']['type']) ? isUndefinedAggregationType = true : isUndefinedAggregationType = false );
@@ -1516,10 +1542,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
         }
 
         shelve.map((item) => {
-          if( !_.isUndefined(analysisCountAlias) && _.eq(item.type, ShelveFieldType.MEASURE) ){
-            if( (!_.isUndefined(item['isCustomField']) && item['isCustomField'] ) || ( !isUndefinedAggregationType && analysisCountAlias == item.name) ){
-              item['alias'] = ChartUtil.getAlias(item);
-              resultList.push(item);
+          if( analysisUse ){
+            if( !_.isUndefined(analysisCountAlias) && _.eq(item.type, ShelveFieldType.MEASURE) ){
+              if( (!_.isUndefined(item['isCustomField']) && item['isCustomField'] ) || ( !isUndefinedAggregationType && analysisCountAlias == item.name) ){
+                item['alias'] = ChartUtil.getAlias(item);
+                resultList.push(item);
+              }
+            } else if( _.eq(item.type, ShelveFieldType.MEASURE) ) {
+              if ( item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO')) ) {
+                item['alias'] = ChartUtil.getAlias(item);
+                resultList.push(item);
+              }
             }
           } else {
             if ( item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO')) ) {

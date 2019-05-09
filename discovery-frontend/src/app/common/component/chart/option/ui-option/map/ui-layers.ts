@@ -46,6 +46,11 @@ export interface UILayers {
 
   clusterPointType? : MapSymbolType;
   clusterOutline? : MapOutline;
+
+  // color type 관련
+  noneColor? : string;
+  dimensionColor? : string;
+  measureColor? : string;
 }
 
 /**

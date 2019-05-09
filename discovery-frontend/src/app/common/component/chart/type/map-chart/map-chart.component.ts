@@ -2563,6 +2563,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         }
         layer.color.column = null;
         layer.color.aggregationType = null;
+        if ( !_.isUndefined(layer.noneColor) ) {
+          layer.color.schema = layer.noneColor;
+        }
       }
       ///////////////////////////
       // Color by Measure
@@ -2598,6 +2601,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             }
           });
         }
+        if ( !_.isUndefined(layer.measureColor) ) {
+          layer.color.schema = layer.measureColor;
+        }
         if (isAnalysisUse) {
           let dataIndex = 0;
           (this.data.length > 1 ? dataIndex = this.data.length - 1 : dataIndex = 0);
@@ -2605,7 +2611,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         } else {
           layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(uiOption, this.data[index], this.getColorList(layer), index, shelf);
         }
-
       }
       ///////////////////////////
       // Color by Dimension
@@ -2616,6 +2621,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('#') == -1 ? layer.color.tileSchema = '#6344ad' : layer.color.tileSchema);
         layer.color.column = null;
         layer.color.aggregationType = null;
+        if ( !_.isUndefined(layer.noneColor) ) {
+          layer.color.schema = layer.noneColor;
+        }
       } else if (isDimension) {
         layer.color.by = MapBy.DIMENSION;
         if (layerType == MapLayerType.SYMBOL) {
@@ -2635,6 +2643,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         }
         layer.color.column = uiOption.fielDimensionList[0]['name'];
         layer.color.aggregationType = null;
+        if ( !_.isUndefined(layer.dimensionColor) ) {
+          layer.color.schema = layer.dimensionColor;
+        }
         if (uiOption.fielDimensionList[0]['format']) layer.color.granularity = uiOption.fielDimensionList[0]['format']['unit'].toString();
       }
 
