@@ -348,10 +348,6 @@ public class AbstractSpecBuilder {
       parseSpec.setDimensionsSpec(dimensionsSpec);
 
       OrcParser orcParser = new OrcParser(parseSpec);
-
-      if (ingestionInfo instanceof HiveIngestionInfo) {
-        orcParser.setTypeString(((HiveIngestionInfo) ingestionInfo).getTypeString());
-      }
       parser = orcParser;
 
     } else if (fileFormat instanceof ParquetFileFormat) {

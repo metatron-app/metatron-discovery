@@ -144,6 +144,27 @@ export class UploaderComponent extends AbstractComponent {
   }
 
   /**
+   * Disable event
+   * @param event
+   */
+  public disableEvent(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+  }
+
+  /**
+   * Disable DragDrop
+   * @param event
+   */
+  public disableDragDrop(event) {
+    // if file uploading status
+    if (this.isFileUploading()) {
+      this.disableEvent(event);
+    }
+  }
+
+  /**
    * Get created uploader
    * @param dropElement
    * @param buttonElement
@@ -214,7 +235,7 @@ export class UploaderComponent extends AbstractComponent {
           this.uploadedFile.response = result.response;
           this.uploadedFile.responseHeaders = result.responseHeaders;
         },
-
+        // complete upload
         UploadComplete: (up, files) => {
           // enable upload
           up.disableBrowse(false);
@@ -225,7 +246,7 @@ export class UploaderComponent extends AbstractComponent {
             this.uploadComplete.emit(this.uploadedFile);
           }
         },
-
+        // error
         Error: (up, err: {code: number, file: Pluploader.File, message: string}) => {
           // enable upload
           up.disableBrowse(false);
