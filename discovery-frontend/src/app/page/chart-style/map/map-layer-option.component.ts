@@ -497,6 +497,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     }
     let value = parseFloat(inputValue);
     this.uiOption.layers[index][sizeValue] = value;
+    if (sizeValue == 'pointRadiusFrom') {
+      this.uiOption.layers[index].pointRadius = value;
+    }
     (<UIMapOption>this.uiOption).layers[index]['isChangePointRadius'] = true;
     this.uiOption['isChangeStyle'] = true;
     this.applyLayers();
@@ -1900,8 +1903,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
   private resetPointRadius(layerIndex: number) {
     this.uiOption.layers[layerIndex].pointRadius = 5;
+    this.uiOption.layers[layerIndex]['pointRadiusFrom'] = 5;
     delete this.uiOption.layers[layerIndex]['needToCalPointRadius'];
-    delete this.uiOption.layers[layerIndex]['pointRadiusFrom'];
     delete this.uiOption.layers[layerIndex]['pointRadiusTo'];
     delete this.uiOption.layers[layerIndex]['pointRadiusCal'];
   }

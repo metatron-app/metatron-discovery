@@ -2641,6 +2641,7 @@
   "msg.page.layer.map.radius": "半径值",
   "msg.page.layer.map.coverage": "适用范围",
   "msg.page.layer.map.clustering": "聚类",
+  "msg.page.layer.map.cluster.distance": "Cluster Distance",
   "msg.page.layer.map.stroke.max.width": "粗细最大值",
   "msg.page.layer.map.view": "查看原件",
   "msg.page.format.format.title": "表示形式",

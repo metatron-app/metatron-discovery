@@ -397,7 +397,7 @@
                       <div class="ddp-list-sub2"
                            *ngIf="uiOption.layers[layerIndex]['pointRadiusTo'] == null && uiOption.layers[layerIndex]['type'] == 'symbol'">
                         <div class="ddp-divide2">
-                          <div class="ddp-list-label type-label">크기</div>
+                          <div class="ddp-list-label type-label">{{'msg.page.layer.map.size' | translate}}</div>
                           <div class="ddp-form-slider">
                             <div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">
                               <range-slider-component [hideFromTo]="false"
@@ -422,7 +422,7 @@
                       <div class="ddp-list-sub2"
                            *ngIf="uiOption.layers[layerIndex]['pointRadiusTo'] != null && uiOption.layers[layerIndex]['type'] == 'symbol'">
                         <div class="ddp-divide2">
-                          <div class="ddp-list-label">크기 반경</div>
+                          <div class="ddp-list-label">{{'msg.page.layer.map.size.by.radius.range' | translate}}</div>
                           <div class="ddp-wrap-range">
                             <div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">
                               <range-slider-component [hideFromTo]="false"
@@ -579,7 +579,7 @@
                        *ngIf="((uiOption['analysis'] == null || uiOption['analysis']['use'] == false) && 'cluster' === uiOption.layers[layerIndex].type.toString())">
                     <!-- divide -->
                     <div class="ddp-divide2 ">
-                      <div class="ddp-list-label type-label">클러스터 거리</div>
+                      <div class="ddp-list-label type-label">{{'msg.page.layer.map.cluster.distance' | translate}}</div>
                       <div class="ddp-form-slider">
                         <div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">
                           <range-slider-component [hideFromTo]="false"
