@@ -14,7 +14,7 @@
 
 import { AbstractComponent } from '../../../common/component/abstract.component';
 import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, Renderer2 } from '@angular/core';
-import { ConnectionType, Datasource } from '../../../domain/datasource/datasource';
+import {ConnectionType, Datasource, Status} from '../../../domain/datasource/datasource';
 import { WorkspaceService } from '../../service/workspace.service';
 import { Page } from '../../../domain/common/page';
 import { Alert } from '../../../common/util/alert.util';
@@ -74,8 +74,7 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
   // Page
   public page: Page = new Page();
 
-  // 컴포넌트 Top 위치 ( 스크롤에 따른 위치 보정 )
-  public compTopPosition:number = 0;
+  public dsStatus = Status;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Component
@@ -117,9 +116,6 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
 
     // 초기 hidden 처리
     this.renderer.setStyle(document.body, 'overflow', 'hidden');
-
-    // 컴포넌트 Top 위치 설정
-    this.compTopPosition = 186 - $(document).scrollTop();
 
     // 초기화
     this.initViewPage();
@@ -260,8 +256,7 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
 
     const params = {
       size: this.page.size,
-      page: this.page.page,
-      status : 'enabled'
+      page: this.page.page
     };
 
     // 토글 정렬

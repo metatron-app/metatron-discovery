@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-wrap-tab-popup" *ngIf="isShow" [ngStyle]="{'top' : compTopPosition + 'px' }">
+<div class="ddp-wrap-tab-popup" *ngIf="isShow" >
   <div class="ddp-ui-tab-popup">
     <!-- Title -->
     <div class="ddp-ui-title">
@@ -106,7 +106,8 @@
                 <col width="13%">
               </colgroup>
               <tbody>
-                <tr *ngFor="let datasource of datasourceList; let i = index" [ngClass]="{'ddp-selected' : datasourceId == datasource.id}"
+                <tr *ngFor="let datasource of datasourceList; let i = index"
+                    [ngClass]="{'ddp-selected' : datasourceId == datasource.id, 'type-disabled' : dsStatus.DISABLED === datasource.status}"
                     (click)="selectDatasource(datasource)">
                   <td>
                     <div class=" ddp-txt-long" [ngClass]="{' ddp-global': datasource.published}">
@@ -136,7 +137,9 @@
         </div>
       </div>
       </div>
-      <app-datasource-summary *ngIf="datasourceId !== ''" [datasource]="datasourceId" (close)="onCloseSummary()"></app-datasource-summary>
+      <app-datasource-summary *ngIf="datasourceId !== ''"
+                              [datasource]="datasourceId" [showMetadataName]="false"
+                              (close)="onCloseSummary()"></app-datasource-summary>
       <!-- //스키마 리스트 -->
     </div>
 

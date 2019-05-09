@@ -212,12 +212,10 @@ table.ddp-table-select tbody tr.ddp-selected td:last-of-type {border-right:1px s
 table.ddp-table-select tbody tr td .ddp-box-tag {position:relative; top:2px;}
 table.ddp-table-type2.ddp-table-select tbody tr.ddp-selected > td {padding:12px 10px 13px 10px}
 table.ddp-table-type2.ddp-table-select tbody tr.ddp-selected > td:first-of-type {padding-left:9px;}
-table.ddp-table-select tbody tr td:last-of-type {padding-right:29px !important;}
 
 table.ddp-table-select tr td:last-of-type {padding-right:35px;}
 table.ddp-table-select tbody tr.ddp-selected td:first-child:before {border-left:1px solid #666eb2;}
 table.ddp-table-select tbody tr.ddp-selected td:last-child:before {border-right:1px solid #666eb2; }
-table.ddp-table-select tbody tr.ddp-selected td:last-of-type:after {display:inline-block; position:absolute; top:50%; right:10px; width:11px; height:8px; margin-top:-6px; background:url(../../../images/icon_select2.png) no-repeat; background-position:-15px top; content:'';}
 
 table.ddp-table-select tbody tr.ddp-selected td .ddp-box-tag {position:relative; top:2px;}
 
