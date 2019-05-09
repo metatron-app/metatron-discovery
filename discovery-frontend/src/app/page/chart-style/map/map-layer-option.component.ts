@@ -489,11 +489,14 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       return;
     }
     // validation
-    if (!isNullOrUndefined(this.uiOption.layers[index]['pointRadiusTo'])
-      && sizeValue == 'pointRadiusFrom'
-      && inputValue > this.uiOption.layers[index]['pointRadiusTo']) {
-      $event.target.value = this.uiOption.layers[index][sizeValue];
-      return;
+    if (!isNullOrUndefined(this.uiOption.layers[index]['pointRadiusTo'])) {
+      if (sizeValue == 'pointRadiusFrom' && inputValue > this.uiOption.layers[index]['pointRadiusTo']) {
+        $event.target.value = this.uiOption.layers[index][sizeValue];
+        return;
+      } else if (sizeValue == 'pointRadiusTo' && inputValue < this.uiOption.layers[index]['pointRadiusFrom']) {
+        $event.target.value = this.uiOption.layers[index][sizeValue];
+        return;
+      }
     }
     let value = parseFloat(inputValue);
     this.uiOption.layers[index][sizeValue] = value;
