@@ -13,7 +13,7 @@
   -->
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" th:with="lang=${#locale.language}" th:lang="${lang}">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title th:text="${title}">metatron</title>
@@ -22,25 +22,27 @@
 <body>
 <table style="width:780px; margin:auto; line-height:1em;border-spacing:0px; border-collapse:separate;">
     <tr>
-        <td style="height:220px; background:url('/app/images/mail/bg_header.png') no-repeat; background-size:100% 100%;  vertical-align:top;"
-            th:style="'height:220px; background:url(' + ${baseUrl} + '/app/images/mail/bg_header.png) no-repeat; background-size:100% 100%;  vertical-align:top;'">
+        <td style="height:220px; background:url('/assets/images/mail/bg_header.png') no-repeat; background-size:100% 100%;  vertical-align:top;"
+            th:style="'height:220px; background:url(' + ${baseUrl} + '/assets/images/mail/bg_header.png) no-repeat; background-size:100% 100%;  vertical-align:top;'">
             <!-- header -->
             <table style="width:100%;border-spacing:0px; border-collapse:separate;">
                 <tr>
                     <td style="padding:26px 0 0 33px;  vertical-align:top;">
                         <!--<img src='/app/images/mail/icon_logo.png' th:src="${baseUrl} + '/app/images/mail/icon_logo.png'" />-->
-                        <img src='/app/images/mail/icon_logo.png' th:src="${title} == 'DEURON' ? ${baseUrl} + '/app/images/mail/icon_logo2.png' : ${baseUrl} + '/app/images/mail/icon_logo.png'" />
+                        <img src='/assets/images/mail/icon_logo.png' th:src="${title} == 'DEURON' ? ${baseUrl} + '/assets/images/mail/icon_logo2.png' : ${baseUrl} + '/assets/images/mail/icon_logo.png'" />
                     </td>
                 </tr>
                 <tr>
-                    <td style="padding:38px 0 25px 0; text-align:center; color:#fff; font-size:28px; font-family:Malgun Gothic,'돋움',dotum,sans-serif">
-                        환영합니다.
+                    <td style="padding:38px 0 25px 0; text-align:center; color:#fff; font-size:28px; font-family:Malgun Gothic,'돋움',dotum,sans-serif"
+                        th:text="#{message.app.mail.welcome}">
+                        Welcome
                     </td>
                 </tr>
                 <tr>
-                    <td style="font-size:13px; color:#fff; line-height:20px; text-align:center;">
-                        <span th:text="${title}">Metatron</span>과 함께 하시게 된 것을 환영합니다.<br />
-                        아래와 같이 사용자 가입이 완료되었습니다. 지금 바로 <span th:text="${title}">Metatron</span>에 로그인하실 수 있습니다.
+                    <td style="font-size:13px; color:#fff; line-height:20px; text-align:center;"
+                        th:utext="#{message.app.mail.welcome.msg(${title})}">
+                        to join the <span th:text="${title}">Metatron</span><br />
+                        User subscription is completed as shown below. You can now log in to <span th:text="${title}">Metatron</span>
                     </td>
                 </tr>
             </table>
@@ -52,12 +54,13 @@
             <!-- box -->
             <table style="position:relative; width:100%; margin-top:49px; border:1px solid #ddd; background-color:#f6f6f7; text-align:center;border-spacing:0px; border-collapse:separate;">
                 <tr>
-                    <td style="padding:50px 0 5px 0; color:#444; font-size:13px; font-weight:bold;">
-                        임시 비밀번호
+                    <td style="padding:50px 0 5px 0; color:#444; font-size:13px; font-weight:bold;"
+                        th:text="#{message.app.mail.temp.pwd}">
+                        Temporary password
                     </td>
                 </tr>
                 <tr>
-                    <td style="display:inline-block; padding:5px 5px; margin-bottom:57px; border:1px solid #d5d6d8; color:#707b81; font-size:18px; border-radius:2px; background-color:#e6e7e9; font-weight:bold;" id="copyText" th:text="${user.password}">
+                    <td style="display:inline-block; padding:5px 5px; margin-bottom:57px; border:1px solid #d5d6d8; color:#707b81; font-size:18px; border-radius:2px; background-color:#e6e7e9; font-weight:bold;" id="copyText" th:text="${temporaryPassword}">
                         Password
                     </td>
                 </tr>
@@ -71,40 +74,45 @@
         </td>
     </tr>
     <tr>
-        <td style="padding:56px 90px 0 100px; color:#444; font-size:13px; font-weight:bold;">
-            사용자 정보
+        <td style="padding:56px 90px 0 100px; color:#444; font-size:13px; font-weight:bold;"
+            th:text="#{message.app.mail.userinfo}">
+            User information
         </td>
     </tr>
     <tr>
         <td style="padding:5px 90px 0 90px;">
             <table style="table-layout:fixed; width:100%; border-top:1px solid #a4aab0; border-spacing:0px; border-collapse:separate;">
                 <tr>
-                    <th style="width:188px; padding:10px 13px; color:#444; font-size:13px; text-align:left; border-bottom:1px solid #ddd; background-color:#f9f9f9; font-weight:normal;">
-                        아이디
+                    <th style="width:188px; padding:10px 13px; color:#444; font-size:13px; text-align:left; border-bottom:1px solid #ddd; background-color:#f9f9f9; font-weight:normal;"
+                        th:text="#{message.app.mail.username}">
+                        User Name
                     </th>
                     <td style="padding:10px 13px; color:#444; font-size:13px; text-align:left; border-bottom:1px solid #ddd; " th:text="${user.username}">
                         ID
                     </td>
                 </tr>
                 <tr>
-                    <th style="width:188px; padding:10px 13px; color:#444; font-size:13px; text-align:left; border-bottom:1px solid #ddd; background-color:#f9f9f9; font-weight:normal;">
-                        이메일
+                    <th style="width:188px; padding:10px 13px; color:#444; font-size:13px; text-align:left; border-bottom:1px solid #ddd; background-color:#f9f9f9; font-weight:normal;"
+                        th:text="#{message.app.mail.email}">
+                        E-Mail
                     </th>
                     <td style="padding:10px 13px; color:#444; font-size:13px; text-align:left; border-bottom:1px solid #ddd; " th:text="${user.email}">
                         E-Mail
                     </td>
                 </tr>
                 <tr>
-                    <th style="width:188px; padding:10px 13px; color:#444; font-size:13px; text-align:left; border-bottom:1px solid #ddd; background-color:#f9f9f9; font-weight:normal;">
-                        이름
+                    <th style="width:188px; padding:10px 13px; color:#444; font-size:13px; text-align:left; border-bottom:1px solid #ddd; background-color:#f9f9f9; font-weight:normal;"
+                        th:text="#{message.app.mail.fullname}">
+                        Full Name
                     </th>
                     <td style="padding:10px 13px; color:#444; font-size:13px; text-align:left; border-bottom:1px solid #ddd; " th:text="${user.fullName}">
                         Name
                     </td>
                 </tr>
                 <tr>
-                    <th style="width:188px; padding:10px 13px; color:#444; font-size:13px; text-align:left; border-bottom:1px solid #ddd; background-color:#f9f9f9; font-weight:normal;">
-                        연락처
+                    <th style="width:188px; padding:10px 13px; color:#444; font-size:13px; text-align:left; border-bottom:1px solid #ddd; background-color:#f9f9f9; font-weight:normal;"
+                        th:text="#{message.app.mail.phone}">
+                        Phone
                     </th>
                     <td style="padding:10px 13px; color:#444; font-size:13px; text-align:left; border-bottom:1px solid #ddd; " th:text="${user.tel}">
                         Tel.
@@ -115,13 +123,11 @@
     </tr>
     <tr>
         <td style="padding:66px 0 70px 0; text-align:center;">
-            <a href="/app/user/login" th:href="${baseUrl}" style="display:inline-block; padding:10px 0; width:228px; border-radius:3px; background-color:#ff8b00; color:#fff; font-size:14px; text-decoration:none; text-align:center;"><span th:text="${title}">Metatron</span>으로 이동</a>
+            <a href="/app/user/login" th:href="${baseUrl}" style="display:inline-block; padding:10px 0; width:228px; border-radius:3px; background-color:#ff8b00; color:#fff; font-size:14px; text-decoration:none; text-align:center;" th:utext="#{message.app.mail.home(${title})}">Go to <span th:text="${title}">Metatron</span></a>
         </td>
     </tr>
     <tr>
         <td style="padding:44px 0 44px 0; background-color:#ddd; text-align:center; color:#707070; font-size:12px;">
-            <a href="/app/terms" th:href="${baseUrl} + '/app/terms'" style="color:#909090; font-size:12px; text-decoration:none;">이용약관</a>
-            <a href="/app/privacy" th:href="${baseUrl} + '/app/privacy'" style="margin-left:10px; margin-right:38px; color:#909090; font-size:12px; text-decoration:none;"><em style="display:inline-block; position:relative; top:2px; margin-right:10px; height:11px; border-left:1px solid #909090;"></em>개인정보 보호정책</a>
             COPYRIGHT © <span th:text="${title}">Metatron</span>. All Right Reserved.
         </td>
     </tr>

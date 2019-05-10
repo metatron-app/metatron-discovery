@@ -284,15 +284,15 @@
         <td class="ddp-disabled">
           {{column.physicalName}}
         </td>
-        <td [ngClass]="['ddp-padding-none']">
-          <div class="ddp-input-form">
-            <!--suppress HtmlFormInputWithoutLabel -->
-            <input type="text"
-                   class="ddp-txt-input"
-                   [ngModel]="column.name"
-                   (ngModelChange)="column.name = $event; column.nameChangeFl = true; column.replaceFl = true">
-            <em class="ddp-bg-select"></em>
-          </div>
+        <td [ngClass]="['ddp-input-form']"
+            #metadataColumnSchemaNameTds
+            (click)="focusMetadataColumnSchemaNameInput(index)">
+          <input type="text"
+                 class="ddp-txt-input"
+                 #metadataColumnSchemaNameInputs
+                 (blur)="blurMetadataColumnSchemaNameInput(index)"
+                 [ngModel]="column.name"
+                 (ngModelChange)="column.name = $event; column.nameChangeFl = true; column.replaceFl = true">
         </td>
         <td>
           <div class="ddp-select-search ddp-hover-tooltip">
@@ -488,20 +488,18 @@
             {{column.codeTable.name}}
           </div>
         </td>
-        <td [class.ddp-padding-none]="!isSelectedMetadataColumnInColumnDictionaryDefined(column)"
-            [class.ddp-disabled]="isSelectedMetadataColumnInColumnDictionaryDefined(column)">
-          <span *ngIf="isSelectedMetadataColumnInColumnDictionaryDefined(column)">
-            {{column.description}}
-          </span>
-          <div class="ddp-input-form"
-               *ngIf="!isSelectedMetadataColumnInColumnDictionaryDefined(column)">
-            <!--suppress HtmlFormInputWithoutLabel -->
-            <input type="text"
-                   class="ddp-txt-input"
-                   [ngModel]="column.description"
-                   (ngModelChange)="column.description = $event; column.replaceFl = true">
-            <em class="ddp-bg-select"></em>
-          </div>
+        <td [ngClass]="['ddp-input-form']"
+            #metadataColumnSchemaDescriptionTds
+            [class.ddp-padding-none]="!isSelectedMetadataColumnInColumnDictionaryDefined(column)"
+            [class.ddp-disabled]="isSelectedMetadataColumnInColumnDictionaryDefined(column)"
+            (click)="focusMetadataColumnSchemaDescriptionInput(index, column)">
+          <input type="text"
+                 class="ddp-txt-input"
+                 #metadataColumnSchemaDescriptionInputs
+                 (blur)="blurMetadataColumnSchemaDescriptionInput(index)"
+                 [readOnly]="isSelectedMetadataColumnInColumnDictionaryDefined(column)"
+                 [ngModel]="column.description"
+                 (ngModelChange)="column.description = $event; column.replaceFl = true">
         </td>
       </tr>
       </tbody>

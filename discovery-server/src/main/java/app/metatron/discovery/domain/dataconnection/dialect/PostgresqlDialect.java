@@ -89,7 +89,7 @@ public class PostgresqlDialect implements JdbcDialect {
    * Connection
    */
   @Override
-  public boolean isSupportImplementor(JdbcConnectInformation connectInfo, String implementor) {
+  public boolean isSupportImplementor(String implementor) {
     return implementor.toUpperCase().equals(this.getImplementor().toUpperCase());
   }
 
@@ -375,23 +375,18 @@ public class PostgresqlDialect implements JdbcDialect {
   @Override
   public String getCharToDateStmt(JdbcConnectInformation connectInfo, String timeStr, String timeFormat) {
     StringBuilder builder = new StringBuilder();
-    builder.append("TO_DATE('").append(timeStr).append("', ");
+    builder.append("TO_DATE(").append(timeStr).append(", ");
 
     builder.append("'");
     if(DEFAULT_FORMAT.equals(timeFormat)) {
       builder.append(getDefaultTimeFormat(connectInfo));
     } else {
-      builder.append(timeFormat).append("'");
+      builder.append(timeFormat);
     }
     builder.append("'");
     builder.append(") ");
 
     return builder.toString();
-  }
-
-  @Override
-  public String getCurrentTimeStamp(JdbcConnectInformation connectInfo) {
-    return "TO_CHAR(NOW(), '" + getDefaultTimeFormat(connectInfo) + "') AS TIMESTAMP";
   }
 
   @Override
@@ -405,6 +400,11 @@ public class PostgresqlDialect implements JdbcDialect {
   @Override
   public String getQuotedFieldName(JdbcConnectInformation connectInfo, String fieldName) {
     return fieldName;
+  }
+
+  @Override
+  public String getCharToUnixTimeStmt(JdbcConnectInformation connectInfo, String timeStr) {
+    return "extract(epoch from to_date(" + timeStr + ", 'YYYY-MM-DD HH24:MI:SS'))";
   }
 
   /**

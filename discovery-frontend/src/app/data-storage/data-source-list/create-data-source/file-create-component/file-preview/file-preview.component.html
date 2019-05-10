@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2 popup-datasource">
+<div class="ddp-type-contents ddp-resize2 ddp-type2">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- //닫기 버튼 -->
@@ -20,52 +20,12 @@
     <div class="ddp-ui-name2 ddp-type3">
       {{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.ui.dsource.create.file.title' | translate}})
       <span class="ddp-txt-info ddp-type">{{'msg.storage.create-dsource-sel.sub.title' | translate}}</span>
-      <em class="ddp-bg-order-line4-type"></em>
+      <em class="ddp-bg-order-line5-type2"></em>
     </div>
   </div>
   <!-- contents in  -->
-  <div class="ddp-type-contents-in" [class.ddp-full]="!fileResult" [class.ddp-sheet-resize]="fileResult">
-    <!-- 파일 선택하기전 -->
-    <div class="ddp-box-popupcontents" *ngIf="!fileResult">
-      <!-- file create -->
-      <div class="ddp-box-file-create" ng2FileDrop [uploader]="uploader">
-        <!-- default -->
-        <div class="ddp-box-default">
-          <div class="ddp-txt-file-info">
-            <div class="ddp-link-file">
-              <input type="file" ng2FileSelect [uploader]="uploader">
-              {{'msg.storage.ui.dsource.create.file.import' | translate}}
-            </div>
-            {{'msg.storage.ui.dsource.create.file.drop.file.description' | translate}}
-          </div>
-          <div class="ddp-txt-file-info2">
-            {{'msg.storage.ui.dsource.create.file.import.description' | translate}}
-          </div>
-        </div>
-        <!-- //default -->
-      </div>
-      <!-- //file create -->
-    </div>
-    <!-- //파일 선택하기전 -->
-    <!-- 파일 선택한 후 -->
-    <div class="ddp-box-popupcontents ddp-wrap-file-create" *ngIf="fileResult">
-
-      <!-- upload box -->
-      <div class="ddp-box-upload" ng2FileDrop [uploader]="uploader">
-        <!-- name -->
-        <div class="ddp-data-load-name">
-          <em class="ddp-icon-file2"></em>{{fileResult.fileName}}
-        </div>
-        <!-- //name -->
-        <div class="ddp-txt-file-info">
-          <div class="ddp-link-file">
-            <input type="file" ng2FileSelect [uploader]="uploader">
-            {{'msg.storage.ui.dsource.create.file.import' | translate}}
-          </div>
-          {{'msg.storage.ui.dsource.create.file.drop.file.description' | translate}}
-        </div>
-      </div>
-      <!-- //upload box -->
+  <div class="ddp-type-contents-in ddp-sheet-resize">
+    <div class="ddp-box-popupcontents ddp-wrap-file-create">
       <div class="ddp-wrap-variable" [class.ddp-type]="!isCsvFile()">
         <!-- wrap sheet -->
         <div class="ddp-wrap-sheet">
@@ -205,9 +165,9 @@
         </div>
         <!-- //헤드컬럼 설정 -->
         <!--<div class="ddp-wrap-edit3 ddp-type">-->
-          <!--<div class="ddp-ui-info-det2">-->
-            <!--<em class="ddp-icon-sinfo2"></em>{{'msg.storage.ui.dsource.create.file.column.head.description' | translate}}-->
-          <!--</div>-->
+        <!--<div class="ddp-ui-info-det2">-->
+        <!--<em class="ddp-icon-sinfo2"></em>{{'msg.storage.ui.dsource.create.file.column.head.description' | translate}}-->
+        <!--</div>-->
         <!--</div>-->
       </div>
     </div>
@@ -216,7 +176,7 @@
   <!-- //contents in  -->
   <!-- buttons -->
   <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
     <!-- disabled 시 ddp-disabled 추가 -->
     <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
   </div>

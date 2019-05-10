@@ -16,13 +16,13 @@
   <em class="ddp-bg-popup"></em>
   <div class="ddp-ui-popup">
     <div class="ddp-ui-popup-title">
-            <span class="ddp-txt-title-name">
-              {{'msg.comm.ui.profile.title' | translate}}
-            </span>
+      <span class="ddp-txt-title-name">
+        {{'msg.comm.ui.profile.title' | translate}}
+      </span>
 
       <div class="ddp-ui-pop-buttons">
         <a (click)="close()" href="javascript:" class="ddp-btn-pop" >{{'msg.comm.btn.close' | translate}}</a>
-        <a (click)="done()" [class.ddp-disabled]="!isPhoneChanged && !isEmailChanged && !isFullNameChanged"
+        <a (click)="done()" [class.ddp-disabled]="!isPhoneChanged && !isEmailChanged && !isFullNameChanged && !isImageChanged"
            href="javascript:" class="ddp-btn-pop ddp-bg-black" >{{'msg.comm.btn.save' | translate}}</a>
       </div>
     </div>
@@ -46,9 +46,9 @@
           </label>
           <!-- photo -->
           <div class="ddp-wrap-photo">
-                        <span class="ddp-data-user-photo">
-                            <img src="{{getProfileImage()}}" #profileImage>
-                        </span>
+            <span class="ddp-data-user-photo">
+                <img src="{{getProfileImage()}}" #profileImage>
+            </span>
             <div class="ddp-ui-file-button" fileHover>
               <a href="javascript:" class="ddp-btn-small">
                 <input type="file"

@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.web.util.WebUtils;
 
@@ -55,14 +56,21 @@ public class OauthFilter implements Filter {
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
     HttpServletRequest req = (HttpServletRequest) request;
+
     String requestUrl = req.getRequestURL().toString();
     if (requestUrl.endsWith("/oauth/authorize")) {
       Cookie loginToken = WebUtils.getCookie(req, "LOGIN_TOKEN");
       if (loginToken != null) {
         LOGGER.debug("loginToken.getValue() : {}", loginToken.getValue());
-        Authentication authentication = authenticationManager.authenticate(new PreAuthenticatedAuthenticationToken(loginToken.getValue(), ""));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        LOGGER.info("authentication is {}", authentication);
+        try {
+          Authentication authentication = authenticationManager.authenticate(new PreAuthenticatedAuthenticationToken(loginToken.getValue(), ""));
+          SecurityContextHolder.getContext().setAuthentication(authentication);
+          LOGGER.info("authentication is {}", authentication);
+        } catch (OAuth2Exception e) {
+          LOGGER.error(e.getSummary());
+          req.getRequestDispatcher("/api/oauth/client/login").forward(request, response);
+          return;
+        }
       } else {
         req.getRequestDispatcher("/api/oauth/client/login").forward(request, response);
         return;

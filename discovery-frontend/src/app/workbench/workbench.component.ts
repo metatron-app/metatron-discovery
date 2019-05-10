@@ -2772,12 +2772,19 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   } // function - createDatasource
 
   /**
-   * 데이터 소스 생성 후 처리
+   * 데이터소스 생성 완료
    */
   public createDatasourceComplete() {
+    this.useUnloadConfirm = false;
+  } // function - createDatasourceComplete
+
+  /**
+   * 데이터소스 생성 팝업 닫기
+   */
+  public closeCreateDatasource() {
     this.mainViewShow = true;
     this.mode = '';
-  } // function - createDatasourceComplete
+  } // function - closeCreateDatasource
 
   /**
    * 결과 검색 레이어를 On/Off 한다.

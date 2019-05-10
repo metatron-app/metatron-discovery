@@ -2497,6 +2497,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
       // Option panel change cancel, not current shelf change
       if (!this.drawByType || String(this.drawByType) == "" || (EventType.CHANGE_PIVOT == this.drawByType && uiOption.layerNum != index)
+        || EventType.FILTER == this.drawByType
         || isNullOrUndefined(field)) {
         continue;
       }

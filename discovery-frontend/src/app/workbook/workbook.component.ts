@@ -544,6 +544,15 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   } // function - getBoardImage
 
   /**
+   * Toggle datasource layer
+   */
+  public toggleDatasourceLayer() {
+    if( this.datasources && 0 < this.datasources.length ) {
+      this.isShowDatasourceMenu = !this.isShowDatasourceMenu;
+    }
+  } // function - toggleDatasourceLayer
+
+  /**
    * 데이터소스 선택
    * @param dsId
    */

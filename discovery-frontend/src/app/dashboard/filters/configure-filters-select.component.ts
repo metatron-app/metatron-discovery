@@ -456,7 +456,9 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
 
     // 필드 설정
     fields.forEach((field: Field) => {
-      let boardFilter: Filter = boardFilters.find(filter => field.name === filter.field);
+      let boardFilter: Filter = boardFilters.find( filter => {
+        return field.name === filter.field && filter.dataSource === field.dataSource;
+      });
 
       // 타임스탬프 필드 여부
       field['isTimestamp'] = ('user_expr' !== field.type && (<Field>field).logicalType === LogicalType.TIMESTAMP);

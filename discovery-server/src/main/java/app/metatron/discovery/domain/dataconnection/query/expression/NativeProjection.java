@@ -19,6 +19,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,10 +28,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
 import app.metatron.discovery.domain.dataconnection.query.NativeCriteria;
 import app.metatron.discovery.domain.dataconnection.query.utils.VarGenerator;
+import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
+import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionException;
 
 public class NativeProjection {
+  private static final Logger LOGGER = LoggerFactory.getLogger(NativeProjection.class);
 
   /**
    * Projection list
@@ -570,17 +576,17 @@ public class NativeProjection {
   }
 
   public static String getQuotedColumnName(String implementor, String columnName){
-    switch (implementor){
-      case "MSSQL": case "POSTGRESQL": case "PRESTO":
-        return columnName;
-      case "ORACLE": case "TIBERO":
-        return Arrays.stream(columnName.split("\\."))
-                .map(spliced -> "\"" + spliced + "\"")
-                .collect(Collectors.joining("."));
-      default :
-        return Arrays.stream(columnName.split("\\."))
-                .map(spliced -> "`" + spliced + "`")
-                .collect(Collectors.joining("."));
+    try{
+      JdbcDialect jdbcDialect = DataConnectionHelper.lookupDialect(implementor);
+      if(jdbcDialect != null){
+        return jdbcDialect.getQuotedFieldName(null, columnName);
+      }
+    } catch (JdbcDataConnectionException e){
+      LOGGER.debug("no suitable dialect for quote : {}", implementor);
     }
+
+    return Arrays.stream(columnName.split("\\."))
+            .map(spliced -> "`" + spliced + "`")
+            .collect(Collectors.joining("."));
   }
 }

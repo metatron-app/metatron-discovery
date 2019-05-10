@@ -198,7 +198,7 @@ public interface JdbcDialect extends ExtensionPoint {
   /**
    * Connection
    */
-  boolean isSupportImplementor(JdbcConnectInformation connectInfo, String implementor);
+  boolean isSupportImplementor(String implementor);
   String getDriverClass(JdbcConnectInformation connectInfo);
   String getConnectorClass(JdbcConnectInformation connectInfo);
   String getDataAccessorClass(JdbcConnectInformation connectInfo);
@@ -244,5 +244,5 @@ public interface JdbcDialect extends ExtensionPoint {
   String getQuotedFieldName(JdbcConnectInformation connectInfo, String fieldName);
   String getDefaultTimeFormat(JdbcConnectInformation connectInfo);
   String getCharToDateStmt(JdbcConnectInformation connectInfo, String timeStr, String timeFormat);
-  String getCurrentTimeStamp(JdbcConnectInformation connectInfo);
+  String getCharToUnixTimeStmt(JdbcConnectInformation connectInfo, String timeStr);
 }

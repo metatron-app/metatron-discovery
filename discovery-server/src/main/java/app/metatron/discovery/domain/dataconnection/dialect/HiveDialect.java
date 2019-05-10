@@ -22,10 +22,12 @@ import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import app.metatron.discovery.common.exception.FunctionWithException;
 import app.metatron.discovery.extension.dataconnection.jdbc.JdbcConnectInformation;
@@ -116,7 +118,7 @@ public class HiveDialect implements JdbcDialect {
    * Connection
    */
   @Override
-  public boolean isSupportImplementor(JdbcConnectInformation connectInfo, String implementor) {
+  public boolean isSupportImplementor(String implementor) {
     return implementor.toUpperCase().equals(this.getImplementor().toUpperCase());
   }
 
@@ -294,7 +296,6 @@ public class HiveDialect implements JdbcDialect {
    */
   @Override
   public String getTableName(JdbcConnectInformation connectInfo, String catalog, String schema, String table) {
-
     if(StringUtils.isEmpty(schema) || schema.equals(connectInfo.getDatabase())) {
       return table;
     }
@@ -303,7 +304,9 @@ public class HiveDialect implements JdbcDialect {
 
   @Override
   public String getQuotedFieldName(JdbcConnectInformation connectInfo, String fieldName) {
-    return "`" + fieldName + "`";
+    return Arrays.stream(fieldName.split("\\."))
+          .map(spliced -> "`" + spliced + "`")
+          .collect(Collectors.joining("."));
   }
 
   @Override
@@ -314,23 +317,22 @@ public class HiveDialect implements JdbcDialect {
   @Override
   public String getCharToDateStmt(JdbcConnectInformation connectInfo, String timeStr, String timeFormat) {
     StringBuilder builder = new StringBuilder();
-    builder.append("unix_timestamp('").append(timeStr).append("', ");
-
+    builder.append("from_unixtime(unix_timestamp(" + timeStr + ", ");
     builder.append("'");
     if(DEFAULT_FORMAT.equals(timeFormat)) {
       builder.append(getDefaultTimeFormat(connectInfo));
     } else {
-      builder.append(timeFormat).append("'");
+      builder.append(timeFormat);
     }
     builder.append("'");
-    builder.append(") ");
+    builder.append(")) ");
 
     return builder.toString();
   }
 
   @Override
-  public String getCurrentTimeStamp(JdbcConnectInformation connectInfo) {
-    return "DATE_FORMAT(current_timestamp,'" + getDefaultTimeFormat(connectInfo) + "') AS TIMESTAMP1";
+  public String getCharToUnixTimeStmt(JdbcConnectInformation connectInfo, String timeStr) {
+    return "unix_timestamp(" + timeStr +", '" + getDefaultTimeFormat(connectInfo) + "')";
   }
 
   /**

@@ -30,7 +30,7 @@ import {StagingDbSelectDataComponent} from "./staging-db-component/staging-db-se
 import {StagingDbIngestionComponent} from "./staging-db-component/staging-db-ingestion/staging-db-ingestion.component";
 import {StagingDbConfigureSchemaComponent} from "./staging-db-component/staging-db-configure-schema/staging-db-configure-schema.component";
 import {StagingDbCompleteComponent} from "./staging-db-component/staging-db-complete/staging-db-complete.component";
-import {FileSelectComponent} from "./file-create-component/file-select/file-select.component";
+import {FileUploadComponent} from "./file-create-component/file-select/file-upload.component";
 import {FileIngestionComponent} from "./file-create-component/file-ingestion/file-ingestion.component";
 import {FileConfigureSchemaComponent} from "./file-create-component/file-configure-schema/file-configure-schema.component";
 import {FileCompleteComponent} from "./file-create-component/file-complete/file-complete.component";
@@ -57,6 +57,8 @@ import {DataflowModelService} from "../../../data-preparation/dataflow/service/d
 import {DataStorageCommonModule} from "../../data-storage-common.module";
 import {DataStorageShareModule} from "../../data-storage-share.module";
 import {FieldConfigService} from "../../service/field-config.service";
+import {UploaderComponent} from "./file-create-component/file-select/uploader.component";
+import {FilePreviewComponent} from "./file-create-component/file-preview/file-preview.component";
 
 
 @NgModule({
@@ -93,7 +95,9 @@ import {FieldConfigService} from "../../service/field-config.service";
     StagingDbConfigureSchemaComponent,
     StagingDbCompleteComponent,
     // data source - create_file
-    FileSelectComponent,
+    UploaderComponent,
+    FileUploadComponent,
+    FilePreviewComponent,
     FileIngestionComponent,
     FileConfigureSchemaComponent,
     FileCompleteComponent,
@@ -139,7 +143,9 @@ import {FieldConfigService} from "../../service/field-config.service";
     StagingDbConfigureSchemaComponent,
     StagingDbCompleteComponent,
     // data source - create_file
-    FileSelectComponent,
+    UploaderComponent,
+    FileUploadComponent,
+    FilePreviewComponent,
     FileIngestionComponent,
     FileConfigureSchemaComponent,
     FileCompleteComponent,

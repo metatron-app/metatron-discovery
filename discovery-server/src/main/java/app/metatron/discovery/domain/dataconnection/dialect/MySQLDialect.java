@@ -20,8 +20,10 @@ import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import app.metatron.discovery.common.exception.FunctionWithException;
 import app.metatron.discovery.extension.dataconnection.jdbc.JdbcConnectInformation;
@@ -88,7 +90,7 @@ public class MySQLDialect implements JdbcDialect {
    * Connection
    */
   @Override
-  public boolean isSupportImplementor(JdbcConnectInformation connectInfo, String implementor) {
+  public boolean isSupportImplementor(String implementor) {
     return implementor.toUpperCase().equals(this.getImplementor().toUpperCase());
   }
 
@@ -328,7 +330,9 @@ public class MySQLDialect implements JdbcDialect {
 
   @Override
   public String getQuotedFieldName(JdbcConnectInformation connectInfo, String fieldName) {
-    return "`" + fieldName + "`";
+    return Arrays.stream(fieldName.split("\\."))
+                 .map(spliced -> "`" + spliced + "`")
+                 .collect(Collectors.joining("."));
   }
 
   @Override
@@ -339,23 +343,13 @@ public class MySQLDialect implements JdbcDialect {
   @Override
   public String getCharToDateStmt(JdbcConnectInformation connectInfo, String timeStr, String timeFormat) {
     StringBuilder builder = new StringBuilder();
-    builder.append("STR_TO_DATE('").append(timeStr).append("', ");
-
-    builder.append("'");
-    if(DEFAULT_FORMAT.equals(timeFormat)) {
-      builder.append(getDefaultTimeFormat(connectInfo));
-    } else {
-      builder.append(timeFormat).append("'");
-    }
-    builder.append("'");
-    builder.append(") ");
-
+    builder.append("CAST(").append(timeStr).append(" AS DATETIME) ");
     return builder.toString();
   }
 
   @Override
-  public String getCurrentTimeStamp(JdbcConnectInformation connectInfo) {
-    return "DATE_FORMAT(NOW(),'" + getDefaultTimeFormat(connectInfo) + "') AS TIMESTAMP";
+  public String getCharToUnixTimeStmt(JdbcConnectInformation connectInfo, String timeStr) {
+    return "UNIX_TIMESTAMP(CAST(" + timeStr + " AS DATE))";
   }
 
   /**

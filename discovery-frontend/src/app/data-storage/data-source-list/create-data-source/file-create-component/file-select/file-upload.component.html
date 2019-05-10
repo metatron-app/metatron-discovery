@@ -1,0 +1,45 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-contents ddp-resize2 ddp-type2">
+  <!-- 닫기 버튼 -->
+  <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+  <!-- //닫기 버튼 -->
+  <div class="ddp-icon-name">
+    <div class="ddp-ui-name2 ddp-type3">
+      {{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.ui.dsource.create.file.title' | translate}})
+      <span class="ddp-txt-info ddp-type">{{'msg.storage.create-dsource-sel.sub.title' | translate}}</span>
+      <em class="ddp-bg-order-line5-type"></em>
+    </div>
+  </div>
+  <!-- contents in  -->
+  <div class="ddp-type-contents-in ddp-full">
+    <div class="ddp-box-popupcontents type-info">
+      <uploader [uploadedFile]="uploadedFile"
+                (uploadStarted)="onStartedFileUpload()"
+                (uploadComplete)="onCompletedFileUpload($event)">
+      </uploader>
+    </div>
+    <!-- //파일 선택한 후 -->
+  </div>
+  <!-- //contents in  -->
+  <!-- buttons -->
+  <div class="ddp-ui-buttons">
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+    <!-- disabled 시 ddp-disabled 추가 -->
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [class.ddp-disabled]="!isEnableNext()" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+  </div>
+  <!-- //buttons -->
+
+</div>
