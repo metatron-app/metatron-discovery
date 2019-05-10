@@ -182,12 +182,14 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
                 && this.uiOption.layers.length > 0
                 && !_.isUndefined(this.uiOption.layers[shelfIndex].name)) {
                 this.baseList.layers.push(this.uiOption.layers[shelfIndex].name);
-                if (!isChanged && isNullOrUndefined(this.uiOption.analysis.selectedLayerNum)) {
-                  this.baseList['selectedNum'] = shelfIndex;
-                } else {
+                if (!isNullOrUndefined(this.uiOption) && !isNullOrUndefined(this.uiOption.analysis) && !isNullOrUndefined(this.uiOption.analysis.selectedLayerNum)) {
                   this.baseList['selectedNum'] = this.uiOption.analysis.selectedLayerNum;
+                } else {
+                  if (!isChanged) {
+                    this.baseList['selectedNum'] = shelfIndex;
+                    isChanged = true;
+                  }
                 }
-                isChanged = true;
               }
             }
           });
