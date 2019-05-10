@@ -59,6 +59,13 @@ import {DataStorageShareModule} from "../../data-storage-share.module";
 import {FieldConfigService} from "../../service/field-config.service";
 import {UploaderComponent} from "./file-create-component/file-select/uploader.component";
 import {FilePreviewComponent} from "./file-create-component/file-preview/file-preview.component";
+import {SchemaConfigureMainComponent} from "../../component/schema-configure/schema-configure-main.component";
+import {SchemaConfigureCreateFieldComponent} from "../../component/schema-configure/schema-configure-create-field.component";
+import {SchemaConfigureFilterComponent} from "../../component/schema-configure/schema-configure-filter.component";
+import {SchemaConfigureFieldListComponent} from "../../component/schema-configure/schema-configure-field-list.component";
+import {SchemaConfigureDeletePopupComponent} from "../../component/schema-configure/schema-configure-delete-popup.component";
+import {SchemaConfigureTimestampComponent} from "../../component/schema-configure/schema-configure-timestamp.component";
+import {SchemaConfigureChangeTypePopupComponent} from "../../component/schema-configure/schema-configure-change-type-popup.component";
 
 
 @NgModule({
@@ -73,6 +80,14 @@ import {FilePreviewComponent} from "./file-create-component/file-preview/file-pr
     TimeComponent,
     // snapshot detail view
     DataSnapshotDetailComponent,
+    // schema config refactoring
+    SchemaConfigureMainComponent,
+    SchemaConfigureFilterComponent,
+    SchemaConfigureCreateFieldComponent,
+    SchemaConfigureFieldListComponent,
+    SchemaConfigureDeletePopupComponent,
+    SchemaConfigureTimestampComponent,
+    SchemaConfigureChangeTypePopupComponent,
     // schema config component
     SchemaConfigComponent,
     // schema config detail component
@@ -116,7 +131,7 @@ import {FilePreviewComponent} from "./file-create-component/file-preview/file-pr
     // configuration - add column
     AddColumnComponent,
     // column select box
-    ColumnSelectBoxComponent,
+    ColumnSelectBoxComponent
   ],
   exports: [
     TimeComponent,

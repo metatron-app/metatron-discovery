@@ -19,6 +19,7 @@ import {
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
 import { DatasourceInfo } from '../../../../../domain/datasource/datasource';
 import { SchemaConfigComponent } from '../../../../component/schema-config/schema-config.component';
+import {SchemaConfigureMainComponent} from "../../../../component/schema-configure/schema-configure-main.component";
 
 
 @Component({
@@ -29,6 +30,9 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
 
   @ViewChild(SchemaConfigComponent)
   private _schemaConfigComponent: SchemaConfigComponent;
+
+  @ViewChild(SchemaConfigureMainComponent)
+  private readonly _schemaConfigureMainComponent: SchemaConfigureMainComponent;
 
   // 생성될 데이터소스 정보
   @Input('sourceData')
@@ -50,6 +54,8 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
   public ngOnInit() {
     // Init
     super.ngOnInit();
+
+    this._schemaConfigureMainComponent.init(this.sourceData.fieldList);
   }
 
   // Destory

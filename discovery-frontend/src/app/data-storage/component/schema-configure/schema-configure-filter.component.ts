@@ -13,19 +13,23 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector} from "@angular/core";
+import {Component, ElementRef, Injector, ViewChild} from "@angular/core";
 import {Filter} from "../../../shared/datasource-metadata/domain/filter";
 import {ConstantService} from "../../../shared/datasource-metadata/service/constant.service";
 import {AbstractComponent} from "../../../common/component/abstract.component";
 import {EventBroadcaster} from "../../../common/event/event.broadcaster";
 import {DataStorageConstant} from "../../constant/data-storage-constant";
 import * as _ from 'lodash';
+import {SchemaConfigureCreateFieldComponent} from "./schema-configure-create-field.component";
 
 @Component({
   selector: 'schema-configure-filter',
   templateUrl: 'schema-configure-filter.component.html'
 })
 export class SchemaConfigureFilterComponent extends AbstractComponent {
+
+  @ViewChild(SchemaConfigureCreateFieldComponent)
+  private _createFieldComponent: SchemaConfigureCreateFieldComponent;
 
   // filter list
   public readonly roleFilterList: Filter.Role[] = this.constant.getRoleTypeFilters();
@@ -41,6 +45,10 @@ export class SchemaConfigureFilterComponent extends AbstractComponent {
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
+  }
+
+  public init(fieldList) {
+    this._createFieldComponent.init(fieldList);
   }
 
   /**
