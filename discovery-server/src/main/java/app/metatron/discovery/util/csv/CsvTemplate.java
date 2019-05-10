@@ -30,6 +30,7 @@ public class CsvTemplate {
   Integer csvMaxCharsPerColumn;
 
   private static int MAX_CSV_COLUMNS = 2048;
+  private static int MAX_CHAR_PER_COLUMNS = 10240;
 
   public CsvTemplate(File targetFile) {
     this.targetFile = targetFile;
@@ -55,6 +56,7 @@ public class CsvTemplate {
       settings.setMaxCharsPerColumn(csvMaxCharsPerColumn);
     }
     settings.setMaxColumns(MAX_CSV_COLUMNS);
+    settings.setMaxCharsPerColumn(MAX_CHAR_PER_COLUMNS);
 
     RowListProcessor rowProcessor = new RowListProcessor();
     settings.setProcessor(rowProcessor);
