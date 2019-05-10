@@ -479,7 +479,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       unitInputData = unitInputData * 1000;
     }
 
-    let tempReAnalysis = !isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) ? this.uiOption.analysis['isReAnalysis'] : false;
+    let tempReAnalysis = !isNullOrUndefined(this.uiOption.analysis) && !isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) ? this.uiOption.analysis['isReAnalysis'] : false;
 
     mapUIOption.analysis = {
       use: true,
@@ -517,7 +517,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       bufferDataValue = bufferDataValue * 1000;
     }
 
-    let tempReAnalysis = !isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) ? this.uiOption.analysis['isReAnalysis'] : false;
+    let tempReAnalysis = !isNullOrUndefined(this.uiOption.analysis) && !isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) ? this.uiOption.analysis['isReAnalysis'] : false;
 
     mapUIOption.analysis = {
       use: true,
@@ -566,7 +566,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
    */
   private symmetricalSetData(baseData: string, compareData: string, spatialDataValue: string, mapUIOption: UIMapOption): UIMapOption {
 
-    let tempReAnalysis = !isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) ? this.uiOption.analysis['isReAnalysis'] : false;
+    let tempReAnalysis = !isNullOrUndefined(this.uiOption.analysis) && !isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) ? this.uiOption.analysis['isReAnalysis'] : false;
 
     mapUIOption.analysis = {
       use: true,
