@@ -1929,7 +1929,7 @@
   "msg.storage.ui.dsource.synchronization.modal.btn": "同步",
   "msg.storage.ui.dsource.synchronization.success": "数据源同步完成",
   "msg.storage.th.start.time": "开始时间",
-  "msg.storage.ui.revival": "更新",
+  "msg.storage.ui.revival": "Undo",
   "msg.storage.ui.dsource.num.lists": "有<strong>{{value}}</strong>个数据",
   "msg.storage.ui.conn.num.lists": "有<strong>{{value}}</strong>个数据",
   "msg.storage.th.rollup.settings": "rollup",
