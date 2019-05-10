@@ -66,7 +66,7 @@
                   <span class="ddp-icon-layer" [class.ddp-selected]="editingField == field" (click)="openFieldSetting($event, field)"><em></em></span>
                   <span class="ddp-icon-close" (click)="removeField($event, 'COLUMNS', pivot.columns, i)"><em></em></span>
                 </div>
-                <span class="ddp-data">{{getDisplayPivotName(field)}}</span>
+                <span class="ddp-data" title="{{getDisplayPivotName(field)}}">{{getDisplayPivotName(field)}}</span>
               </div>
             </a>
           </div>
@@ -137,7 +137,7 @@
                   <span class="ddp-icon-layer" [class.ddp-selected]="editingField == field" (click)="openFieldSetting($event, field)"><em></em></span>
                   <span class="ddp-icon-close" (click)="removeField($event, 'ROWS', pivot.rows, i)"><em></em></span>
                 </div>
-                <span class="ddp-data">{{getDisplayPivotName(field)}}</span>
+                <span class="ddp-data" title="{{getDisplayPivotName(field)}}">{{getDisplayPivotName(field)}}</span>
               </div>
             </a>
           </div>
@@ -208,7 +208,7 @@
                   <span class="ddp-icon-layer" [class.ddp-selected]="editingField == field" (click)="openFieldSetting($event, field)"><em></em></span>
                   <span class="ddp-icon-close" (click)="removeField($event, 'AGGREGATIONS', pivot.aggregations, i)"><em></em></span>
                 </div>
-                <span class="ddp-data">{{getDisplayPivotName(field)}}</span>
+                <span class="ddp-data" title="{{getDisplayPivotName(field)}}">{{getDisplayPivotName(field)}}</span>
               </div>
             </a>
           </div>

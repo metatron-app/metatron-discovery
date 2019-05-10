@@ -56,7 +56,7 @@
           </div>
         </a>
       </li>
-      <li *ngIf="['timestamp'].indexOf(editingField.type) == -1 && 'map' !== uiOption.type.toString()" (mouseover)="fix2DepthContext = false;">
+      <li *ngIf="['timestamp'].indexOf(editingField?.type) == -1 && 'map' !== uiOption.type?.toString()" (mouseover)="fix2DepthContext = false;">
         <a href="javascript:">
           {{'msg.page.th.align' | translate}}
           <div class="ddp-data-result ddp-type">
