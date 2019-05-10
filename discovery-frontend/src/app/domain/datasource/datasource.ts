@@ -224,6 +224,26 @@ export class Field {
     this.logicalType = type;
   }
 
+  public static setRemoveField(field): void {
+    field.unloaded = true;
+  }
+
+  public static setUndoRemoveField(field): void {
+    field.unloaded = false;
+  }
+
+  public static setCheckField(field): void {
+    field.checked = true;
+  }
+
+  public static setUndoCheckField(field): void {
+    field.checked = false;
+  }
+
+  public static isTimestampTypeField(field): boolean {
+    return field.logicalType === LogicalType.TIMESTAMP;
+  }
+
   public static isDimensionField(field): boolean {
     return field.role === FieldRole.DIMENSION;
   }
