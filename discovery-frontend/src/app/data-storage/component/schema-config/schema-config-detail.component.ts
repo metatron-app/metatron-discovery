@@ -17,7 +17,7 @@ import {AbstractComponent} from '../../../common/component/abstract.component';
 import {
   Component,
   ElementRef,
-  EventEmitter,
+  EventEmitter, HostListener,
   Injector,
   Input,
   OnChanges,
@@ -244,18 +244,29 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
   }
 
   /**
+   * Window resize
+   * @param event
+   */
+  @HostListener('window:resize', ['$event'])
+  protected onResize(event) {
+    // #1925
+    this.closeSelectBoxes();
+  }
+
+
+  /**
    * Close select box
    */
   public closeSelectBoxes() {
     // if open logical type list
-    if (this.logicalTypeListShowFlag) {
+    if (this.logicalTypeListShowFlag === true) {
       this.logicalTypeListShowFlag = false;
     }
     // if open timezone list
-    if (this.isShowTimezoneList) {
+    if (this.isShowTimezoneList === true) {
       this.isShowTimezoneList = false;
     }
-    if (this._geoCoordinateComponent && this._geoCoordinateComponent.isListShow) {
+    if (this._geoCoordinateComponent && this._geoCoordinateComponent.isListShow === true) {
       this._geoCoordinateComponent.isListShow = false;
     }
   }
