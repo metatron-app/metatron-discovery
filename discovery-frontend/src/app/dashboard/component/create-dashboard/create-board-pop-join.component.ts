@@ -366,10 +366,15 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
    * @param {number} rowNum
    */
   public setRowPreviewGrid(rowNum: number) {
-    // Row 설정
-    this.editingJoin.rowNum = rowNum;
-    // 조회
-    this._loadDataToPreviewGrid().then();
+
+    // 숫자가 변경 됐을때만 실행
+    if (Number(rowNum) !== this.editingJoin.rowNum) {
+      // Row 설정
+      this.editingJoin.rowNum = rowNum;
+      // 조회
+      this._loadDataToPreviewGrid().then();
+    }
+
   } // function - setRowPreviewGrid
 
   /**
