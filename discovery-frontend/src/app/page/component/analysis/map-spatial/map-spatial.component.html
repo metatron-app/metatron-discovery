@@ -174,7 +174,10 @@
     <!--AnalysisBtn-->
     <div class="ddp-form-buttons ddp-clear" (click)="spatialAnalysisBtn()">
       <a href="javascript:" class="ddp-btn-blue"
-         [ngClass]="{'ddp-disabled' : uiOption['analysis'] != null && uiOption['analysis']['use'] != null && uiOption['analysis']['use'] == true}">Analysis</a>
+         [ngClass]="{'ddp-disabled' : uiOption['analysis'] != null && uiOption['analysis']['use'] != null && uiOption['analysis']['use'] == true
+                                      && (this.uiOption.analysis['isReAnalysis'] == null
+                                          || (this.uiOption.analysis['isReAnalysis'] != null
+                                          && this.uiOption.analysis['isReAnalysis'] == false))}">Analysis</a>
     </div>
     <!-- // AnalysisBtn-->
   </div>

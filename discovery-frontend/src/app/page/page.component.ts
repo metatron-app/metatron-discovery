@@ -3340,20 +3340,27 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * redraw chart
    */
   public changeDraw(value?: any) {
-
-    // 공간연산 analysis 실행 여부
-    if (!_.isUndefined(value) && value == 'removeAnalysisLayerEvent') {
-      // 공간연산 중지
-      this.mapPivot.removeAnalysis();
-      this.drawChart();
-    } else if (!_.isUndefined(value)) {
-      // 공간 연산
-      this.mapPivot.spatialAnalysisBtnClicked(value);
-      this.changeDetect.detectChanges();
-      this.onChangeShelf({
-        shelf: this.shelf,
-        eventType: EventType.MAP_SPATIAL_ANALYSIS
-      });
+    // 공간연산
+    if (!isNullOrUndefined(value) && value.action.toString().toLowerCase().indexOf('analysis') != -1) {
+      if (value.action.toString().toLowerCase().indexOf('remove') != -1) {
+        // 공간연산 중지
+        this.mapPivot.removeAnalysis();
+        this.drawChart();
+      } else {
+        // 공간연산 (analysis) 실행 여부
+        if (value.action == 'reAnalysis') {
+          // 공간연산 재실행 시 layer 삭제
+          this.shelf.layers.pop();
+          value.uiOption.layers.pop();
+        }
+        // 공간 연산 수행
+        this.mapPivot.spatialAnalysisBtnClicked(value.uiOption);
+        this.changeDetect.detectChanges();
+        this.onChangeShelf({
+          shelf: this.shelf,
+          eventType: value.action == 'analysis' ? EventType.MAP_SPATIAL_ANALYSIS : EventType.MAP_SPATIAL_REANALYSIS
+        });
+      }
     } else {
       this.drawChart();
     }

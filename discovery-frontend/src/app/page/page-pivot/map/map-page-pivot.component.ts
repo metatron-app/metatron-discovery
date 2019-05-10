@@ -866,6 +866,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
         }
       });
     }
+    this.setPointOption();
   }
 
   /**

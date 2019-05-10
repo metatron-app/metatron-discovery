@@ -99,6 +99,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
     this.shelf = shelf;
 
+    this.setPointOption();
+
     this.changeDetect.detectChanges();
   }
 
@@ -1924,10 +1926,12 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       });
       let minValue = 0;
       let maxValue = 0;
-      if (!_.isUndefined(data[layerIndex].valueRange[alias])) {
+      // 공간연산으로 인한 data index 설정
+      let dataIndex = !isNullOrUndefined(this.uiOption.analysis) && this.uiOption.analysis.use == true ? this.uiOption.analysis.layerNum : layerIndex;
+      if (!_.isUndefined(data[dataIndex].valueRange) && !_.isUndefined(data[dataIndex].valueRange[alias])) {
         // less than 0, set minValue
-        minValue = _.cloneDeep(data[layerIndex].valueRange[alias].minValue);
-        maxValue = _.cloneDeep(data[layerIndex].valueRange[alias].maxValue);
+        minValue = _.cloneDeep(data[dataIndex].valueRange[alias].minValue);
+        maxValue = _.cloneDeep(data[dataIndex].valueRange[alias].maxValue);
       }
       this.uiOption.layers[layerIndex]['size'].minValue = minValue;
       this.uiOption.layers[layerIndex]['size'].maxValue = maxValue;

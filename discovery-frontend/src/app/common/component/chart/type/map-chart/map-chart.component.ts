@@ -391,6 +391,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // analysis
     if (!_.isUndefined(this.getUiMapOption().analysis) && !_.isUndefined(this.getUiMapOption().analysis['use']) && this.getUiMapOption().analysis['use'] == true
       && this.getUiMapOption().layerNum == this.getUiMapOption().layers.length - 1) {
+      // 공간연산 재실행 여부
+      if (this.drawByType == EventType.MAP_SPATIAL_REANALYSIS) {
+        this.layerMap.forEach((item) => {
+          if (item.id == this.getUiMapOption().layerNum) {
+            this.olmap.removeLayer(item.layerValue)
+          }
+        });
+      }
       this.drawAnalysis();
       return;
     }
@@ -3534,23 +3542,28 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    * 크기 반경 변경
    */
   public changePointSize() {
-    let uiOptionLayerIndex = 0;
+    let uiLayerIndex = 0;
     for (let uiOptionForLoopLayerIndex = 0; this.getUiMapOption().layers.length > uiOptionForLoopLayerIndex; uiOptionForLoopLayerIndex++) {
       if (this.getUiMapOption().layers[uiOptionForLoopLayerIndex]['isChangePointRadius'] == true) {
-        uiOptionLayerIndex = uiOptionForLoopLayerIndex;
+        uiLayerIndex = uiOptionForLoopLayerIndex;
         delete this.uiOption['layers'][uiOptionForLoopLayerIndex]['isChangePointRadius'];
       }
     }
     // 공간연산 사용 여부 체크
     if (!_.isUndefined(this.getUiMapOption().analysis) && this.getUiMapOption().analysis['use'] === true) {
-      uiOptionLayerIndex = this.getUiMapOption().analysis.layerNum;
+      uiLayerIndex = this.getUiMapOption().analysis.layerNum;
     }
     for (let olmapForLoopLayerIndex = 0; this.olmap.getLayers().getArray().length > olmapForLoopLayerIndex; olmapForLoopLayerIndex++) {
-      if (this.layerMap[uiOptionLayerIndex].layerValue == this.olmap.getLayers().getArray()[olmapForLoopLayerIndex]) {
+      if (this.layerMap[uiLayerIndex].layerValue == this.olmap.getLayers().getArray()[olmapForLoopLayerIndex]) {
         this.olmap.getLayers().getArray()[olmapForLoopLayerIndex].getSource().getFeatures().forEach(feature => {
-          feature.setStyle(this.pointStyleFunction(uiOptionLayerIndex, this.data));
+          // 공간연산 사용 여부 체크
+          if (!_.isUndefined(this.getUiMapOption().analysis) && this.getUiMapOption().analysis['use'] === true) {
+            feature.setStyle(this.pointStyleFunction(this.getUiMapOption().layerNum, this.data, null, this.getUiMapOption().analysis['layerNum']));
+          } else {
+            feature.setStyle(this.pointStyleFunction(uiLayerIndex, this.data));
+          }
         });
-        this.layerMap[uiOptionLayerIndex].layerValue = this.olmap.getLayers().getArray()[olmapForLoopLayerIndex];
+        this.layerMap[uiLayerIndex].layerValue = this.olmap.getLayers().getArray()[olmapForLoopLayerIndex];
       }
     }
     this.changeDetect.detectChanges();
