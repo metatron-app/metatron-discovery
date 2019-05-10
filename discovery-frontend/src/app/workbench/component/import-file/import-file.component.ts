@@ -564,7 +564,6 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
         }
 
         this.importFile = new ImportFile();
-        this.importFile.fileType = this.uploadResult.item.file.type;
         this.importFile.filename = this.uploadResult.item.file.name;
         this.importFile.fileSize = this.uploadResult.item.file.size;
         this.importFile.filepath = JSON.parse(this.uploadResult.response).filePath;
@@ -574,10 +573,13 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
         this.importFile.totalRows = result.totalRecords;
 
         if(result.sheets) {
+          this.importFile.fileType = 'text/excel';
           this.importFile.sheets = result.sheets;
           if(this.selectedSheetName === '') {
             this.selectedSheetName = result.sheets[0];
           }
+        } else {
+          this.importFile.fileType = 'text/csv';
         }
 
         this.clearGrid = false;
