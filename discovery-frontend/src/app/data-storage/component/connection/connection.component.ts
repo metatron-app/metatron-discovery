@@ -150,18 +150,15 @@ export class ConnectionComponent extends AbstractComponent {
    * Scroll into connection invalid input
    */
   public scrollIntoConnectionInvalidInput(): void {
-    // if require check connection
-    if (this.isRequireCheckConnection() || this.isDisableConnection()) {
+    // if invalid HOST or PORT or URL
+    if (this.isUrlError || this.isHostnameError || this.isPortError || (this.isCatalogError || this.isDatabaseError || this.isSidError)) {
+      this.HOST_PORT_ELEMENT.nativeElement.scrollIntoView();
+    }
+    // if invalid username or password
+    else if (this.isShowUsernameAndPasswordInput() && (this.isUsernameError || this.isPasswordError)) {
+      this.USERNAME_PASS_ELEMENT.nativeElement.scrollIntoView();
+    } else if (this.isRequireCheckConnection() || this.isDisableConnection()) {  // if require check connection
       this.CHECK_ELEMENT.nativeElement.scrollIntoView();
-    } else { // if clicked check connection
-      // if invalid HOST or PORT or URL
-      if (this.isUrlError || this.isHostnameError || this.isPortError || (this.isCatalogError || this.isDatabaseError || this.isSidError)) {
-        this.HOST_PORT_ELEMENT.nativeElement.scrollIntoView();
-      }
-      // if invalid username or password
-      else if (this.isShowUsernameAndPasswordInput() && (this.isUsernameError || this.isPasswordError)) {
-        this.USERNAME_PASS_ELEMENT.nativeElement.scrollIntoView();
-      }
     }
   }
 
