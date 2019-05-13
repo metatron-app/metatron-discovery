@@ -216,28 +216,39 @@ export class SelectComponent extends AbstractComponent implements OnInit {
       return iconClass;
     }
 
-    switch (item.field.logicalType.toString()) {
-      case 'STRING' :
-        iconClass = 'ddp-icon-dimension-ab';
-        break;
-      case 'LNG' :
-        iconClass = 'ddp-icon-dimension-local';
-        break;
-      case 'TIMESTAMP' :
-        iconClass = 'ddp-icon-dimension-calen';
-        break;
-      case 'INTEGER' :
-        iconClass = 'ddp-icon-dimension-float';
-        break;
-      case 'BOOLEAN' :
-        iconClass = 'ddp-icon-dimension-tf';
-        break;
-      case 'STRING' :
-        iconClass = 'ddp-icon-dimension-ab';
-        break;
-      case 'DOUBLE' :
-        iconClass = 'ddp-icon-measure-sharp';
-        break;
+    if (item.field.role.toString() == 'DIMENSION') {
+      switch (item.field.logicalType.toString()) {
+        case 'STRING' :
+          iconClass = 'ddp-icon-dimension-ab';
+          break;
+        case 'LNG' :
+          iconClass = 'ddp-icon-dimension-local';
+          break;
+        case 'TIMESTAMP' :
+          iconClass = 'ddp-icon-dimension-calen';
+          break;
+        case 'INTEGER' :
+          iconClass = 'ddp-icon-dimension-float';
+          break;
+        case 'BOOLEAN' :
+          iconClass = 'ddp-icon-dimension-tf';
+          break;
+        case 'DOUBLE' :
+          iconClass = 'ddp-icon-dimension-float';
+          break;
+      }
+    } else {
+      switch (item.field.logicalType.toString()) {
+        case 'INTEGER' :
+          iconClass = 'ddp-icon-measure-sharp';
+          break;
+        case 'DOUBLE' :
+          iconClass = 'ddp-icon-measure-sharp';
+          break;
+        default :
+          iconClass = 'ddp-icon-measure-sharp';
+          break;
+      }
     }
     return iconClass;
 

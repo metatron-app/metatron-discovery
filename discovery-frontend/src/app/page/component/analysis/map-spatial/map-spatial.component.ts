@@ -403,10 +403,12 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       uiOption: mapUIOption
     };
 
-    if (!isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) && this.uiOption.analysis['isReAnalysis'] == true) {
-      delete this.uiOption.analysis['isReAnalysis'];
+    if (!isNullOrUndefined(this.uiOption.analysis['isReAnalysis'])
+      && this.uiOption.analysis['isReAnalysis'] == true
+      && this.uiOption.layers.length >= 3) {
       value.action = 'reAnalysis';
     }
+    delete this.uiOption.analysis['isReAnalysis'];
 
     this.changeAnalysis.emit(value);
   }
