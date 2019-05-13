@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-selectbox" [class.ddp-selected]="isListShow" [class.ddp-disabled]="isDisableList" (click)="onChangeListShow()" >
+<div class="ddp-type-selectbox" [class.ddp-selected]="isListShow" [class.ddp-disabled]="isDisableList" (click)="onChangeListShow($event)" #wrapElement>
   <span class="ddp-txt-selectbox" *ngIf="!isEnableIcon">{{isOnlyStringList ? selectedFilter : selectedFilter.label}}</span>
   <span class="ddp-txt-selectbox" *ngIf="isEnableIcon">
     <span class="ddp-type-txt">
@@ -20,14 +20,14 @@
       {{selectedFilter.label}}
     </span>
   </span>
-  <ul class="ddp-list-selectbox ddp-selectdown" *ngIf="!isEnableIcon">
+  <ul class="ddp-list-selectbox ddp-selectdown" *ngIf="!isEnableIcon" #listElement>
     <li *ngFor="let filter of filterList">
       <a href="javascript:" (click)="onChangedFilter(filter)">
         {{isOnlyStringList ? filter : filter.label}}
       </a>
     </li>
   </ul>
-  <div class="ddp-wrap-popup2 ddp-types" *ngIf="isEnableIcon">
+  <div class="ddp-wrap-popup2 ddp-types" *ngIf="isEnableIcon" #listElement>
     <ul class="ddp-list-popup">
       <li [class.ddp-selected]="selectedFilter.value === filter.value" *ngFor="let filter of filterList">
         <a href="javascript:" (click)="onChangedFilter(filter)">

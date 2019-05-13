@@ -30,7 +30,7 @@
       <!-- //value -->
 
       <!-- setting -->
-      <div class="ddp-wrap-value-setting">
+      <div class="ddp-wrap-value-setting" (scroll)="closeSelectBoxes()">
         <div class="ddp-ui-value-setting">
           <div class="ddp-ui-title">
             {{'msg.storage.ui.setting' | translate}}
@@ -67,17 +67,15 @@
               <div class="ddp-ui-option-in">
                 <!-- seletbox -->
                 <!-- 선택시 ddp-selected 추가 -->
-                <div class="ddp-type-selectbox"
-                     [class.ddp-disabled]="isDisabledTypeChangeInField(selectedField)"
-                     [class.ddp-selected]="logicalTypeListShowFlag"
-                     (click)="onChangeLogicalTypeListShowFlag()" (clickOutside)="logicalTypeListShowFlag = false">
+                <div class="ddp-type-selectbox" [class.ddp-disabled]="isDisabledTypeChangeInField(selectedField)" [class.ddp-selected]="logicalTypeListShowFlag"
+                     (click)="onChangeLogicalTypeListShowFlag($event)" (clickOutside)="logicalTypeListShowFlag = false" #logicalElement>
                   <span class="ddp-txt-selectbox">
                       <span class="ddp-type-txt">
                           <em class="{{getLogicalTypeIconClass(selectedField)}}"></em>
                         {{getSelectedFieldLogicalTypeLabel(selectedField)}}
                       </span>
                   </span>
-                  <div class="ddp-wrap-popup2 ddp-types">
+                  <div class="ddp-wrap-popup2 ddp-types" #logicalPopupElement>
                     <ul class="ddp-list-popup">
                       <!-- ddp-selected -->
                       <li *ngFor="let type of logicalTypeList" [class.ddp-selected]="selectedField.logicalType === type.value"
@@ -107,6 +105,7 @@
                 <storage-filter-select-box [filterList]="geoCoordinateList"
                                            [isOnlyStringList]="true"
                                            [isDisableList]="!selectedField.derived && !selectedField.format.isValidFormat"
+                                           [isEnableFloating]="true"
                                            [selectedFilter]="selectedField.format.originalSrsName"
                                            (changedFilter)="onChangeGeoCoordinateInField(selectedField, $event)">
                 </storage-filter-select-box>
@@ -245,11 +244,12 @@
                     클릭할때 : ddp-selected 추가
                     결과 보여질때 : ddp-result 추가
                 -->
-                <div class="ddp-type-selectbox ddp-type-search-select ddp-result" [class.ddp-selected]="isShowTimezoneList" (click)="onChangeTimezoneSelectBoxShowFlag($event)" (clickOutside)="isShowTimezoneList = false">
+                <div class="ddp-type-selectbox ddp-type-search-select ddp-result" [class.ddp-selected]="isShowTimezoneList"
+                     (click)="onChangeTimezoneSelectBoxShowFlag($event)" (clickOutside)="isShowTimezoneList = false" #timezoneElement>
                   <!-- 선택시 자동 input display:block; -->
                   <input type="text" class="ddp-input-selectbox" placeholder="{{'msg.storage.ph.search.timezone' | translate}}" [ngModel]="searchTimezoneKeyword" (ngModelChange)="onChangeSearchTimezoneKeyword($event)">
                   <span class="ddp-txt-selectbox">{{getSelectedTimezoneLabel(selectedField.format)}}</span>
-                  <div class="ddp-wrap-popup2">
+                  <div class="ddp-wrap-popup2" #timezonePopupElement>
                     <ul class="ddp-list-popup ddp-focus-hover">
                       <li *ngIf="filteredTimezoneList && filteredTimezoneList.length === 0">
                         <span class="ddp-noresult">{{'msg.comm.ui.no.rslt' | translate}}</span>

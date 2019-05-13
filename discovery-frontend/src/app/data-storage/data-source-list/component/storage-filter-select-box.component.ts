@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
+import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from "@angular/core";
 import {AbstractComponent} from "../../../common/component/abstract.component";
 
 @Component({
@@ -26,13 +26,18 @@ import {AbstractComponent} from "../../../common/component/abstract.component";
 export class StorageFilterSelectBoxComponent extends AbstractComponent {
 
   @Output('changedFilter')
-  private readonly _changedFilter: EventEmitter<any> = new EventEmitter();
+  private readonly _changedFilter = new EventEmitter();
+
+  @ViewChild('wrapElement')
+  private readonly WRAP_ELEMENT: ElementRef;
+  @ViewChild('listElement')
+  private readonly LIST_ELEMENT: ElementRef;
 
   /**
    * Only {label: string, value: any} array
    */
   @Input()
-  public readonly filterList: any;
+  public readonly filterList;
 
   @Input()
   public readonly isEnableIcon: boolean;
@@ -42,6 +47,9 @@ export class StorageFilterSelectBoxComponent extends AbstractComponent {
 
   @Input()
   public readonly isOnlyStringList: boolean;
+
+  @Input()
+  public readonly isEnableFloating: boolean;
 
   @Input()
   public selectedFilter: any;
@@ -57,7 +65,7 @@ export class StorageFilterSelectBoxComponent extends AbstractComponent {
 
   /**
    * 컴포넌트 내부  host 클릭이벤트 처리
-   * @param event
+   * @param {MouseEvent} event
    */
   public onClickHost(event: MouseEvent) {
     // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
@@ -71,7 +79,7 @@ export class StorageFilterSelectBoxComponent extends AbstractComponent {
    * Change filter
    * @param filter
    */
-  public onChangedFilter(filter: any): void {
+  public onChangedFilter(filter): void {
     // change filter
     this.selectedFilter = filter;
     // event emit
@@ -80,10 +88,20 @@ export class StorageFilterSelectBoxComponent extends AbstractComponent {
 
   /**
    * Change list show
+   * @param {MouseEvent} event
    */
-  public onChangeListShow(): void {
+  public onChangeListShow(event: MouseEvent): void {
     if (!this.isDisableList) {
-      this.isListShow = !this.isListShow
+      this.isListShow = !this.isListShow;
+      // if open list and is enable floating option
+      if (this.isListShow && this.isEnableFloating) {
+        $(this.LIST_ELEMENT.nativeElement).css({
+          'position' : 'fixed',
+          'top': $(event.currentTarget).offset().top + 35,
+          'left' : $(event.currentTarget).offset().left,
+          'width' : $(event.currentTarget).outerWidth()
+        });
+      }
     }
   }
 }

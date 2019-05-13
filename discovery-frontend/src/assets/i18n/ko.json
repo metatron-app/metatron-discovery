@@ -296,12 +296,12 @@
   "msg.comm.ui.complete": "완료됨",
   "msg.comm.ui.canceled": "취소됨",
 
-  "msg.lnb.btn.manual" : "매뉴얼",
-  "msg.lnb.btn.manual.web" : "홈페이지",
+  "msg.lnb.btn.manual" : "다운로드",
+  "msg.lnb.btn.manual.web" : "온라인",
   "msg.lnb.btn.workspace-list" : "워크스페이스 목록 >>",
   "msg.lnb.label.set-favorite-workspace" : "즐겨찾는 공용 워크스페이스 설정",
   "msg.lnb.label.help" : "사용 가이드",
-  "msg.lnb.label.contact" : "연락처",
+  "msg.lnb.label.contact" : "문의",
   "msg.lnb.label.admin" : "관리자",
 
   "msg.space.alert.folder.del.success" : "폴더가 삭제되었습니다",

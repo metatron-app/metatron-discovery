@@ -296,8 +296,8 @@
   "msg.comm.ui.complete": "Complete",
   "msg.comm.ui.canceled": "Canceled",
 
-  "msg.lnb.btn.manual" : "Manuals",
-  "msg.lnb.btn.manual.web" : "Web",
+  "msg.lnb.btn.manual" : "Download",
+  "msg.lnb.btn.manual.web" : "Online",
   "msg.lnb.btn.workspace-list" : "Workspace list >>",
   "msg.lnb.label.set-favorite-workspace" : "Set favorite public workspaces.",
   "msg.lnb.label.help" : "User guide",
