@@ -256,8 +256,7 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
 
     const params = {
       size: this.page.size,
-      page: this.page.page,
-      status : 'enabled'
+      page: this.page.page
     };
 
     // 토글 정렬
