@@ -257,7 +257,12 @@ polaris:
       port: 10000
       username: hive
       password: hive
-      metastoreUri: thrift://localhost:9083
+      metastore:
+        uri: thrift://localhost:9083
+        jdbc:
+          url:
+          username:
+          password:
   dataprep:
     localBaseDir: ${user.home}/dataprep
 #    hadoopConfDir: /etc/hadoop
