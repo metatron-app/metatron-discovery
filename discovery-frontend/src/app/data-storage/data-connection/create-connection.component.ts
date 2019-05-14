@@ -12,18 +12,16 @@
  * limitations under the License.
  */
 
-import {
-  Component, ElementRef, EventEmitter, Injector, Output, ViewChild
-} from '@angular/core';
-import { DataconnectionService } from '../../dataconnection/service/dataconnection.service';
-import { Alert } from '../../common/util/alert.util';
-import { SetWorkspacePublishedComponent } from '../component/set-workspace-published/set-workspace-published.component';
-import { CommonUtil } from '../../common/util/common.util';
-import { CookieConstant } from '../../common/constant/cookie.constant';
-import { StringUtil } from '../../common/util/string.util';
+import {Component, ElementRef, EventEmitter, Injector, Output, ViewChild} from '@angular/core';
+import {DataconnectionService} from '../../dataconnection/service/dataconnection.service';
+import {Alert} from '../../common/util/alert.util';
+import {SetWorkspacePublishedComponent} from '../component/set-workspace-published/set-workspace-published.component';
+import {CommonUtil} from '../../common/util/common.util';
+import {CookieConstant} from '../../common/constant/cookie.constant';
+import {StringUtil} from '../../common/util/string.util';
 import {AbstractComponent} from "../../common/component/abstract.component";
-import {ConnectionComponent} from "../component/connection/connection.component";
-import {AuthenticationType} from "../../domain/dataconnection/dataconnection";
+import {ConnectionComponent, ConnectionValid} from "../component/connection/connection.component";
+import * as _ from 'lodash';
 
 /**
  * Data connection create component
@@ -33,6 +31,9 @@ import {AuthenticationType} from "../../domain/dataconnection/dataconnection";
   templateUrl: './create-connection.component.html'
 })
 export class CreateConnectionComponent extends AbstractComponent {
+
+  @ViewChild('connection_name_element')
+  private readonly CONNECTION_NAME_ELEMENT: ElementRef;
 
   // workspace set component
   @ViewChild(SetWorkspacePublishedComponent)
@@ -90,9 +91,14 @@ export class CreateConnectionComponent extends AbstractComponent {
    */
   public done(): void {
     // set click flag
-    this._connectionComponent.isConnectionCheckRequire = true;
-    // if enable create connection, create connection
-    this._isEnableCreateConnection() && this._createConnection();
+    if (this._connectionComponent.isEmptyConnectionValidation()) {
+      this._connectionComponent.setRequireCheckConnection();
+    }
+    // if enable create connection
+    if (this._isEnableCreateConnection()) {
+      // create connection
+      this._createConnection();
+    }
   }
 
   /**
@@ -116,26 +122,42 @@ export class CreateConnectionComponent extends AbstractComponent {
    */
   private _isEnableCreateConnection(): boolean {
     // check valid connection
-    if (!this._connectionComponent.isValidConnection) {
+    if (!this._connectionComponent.isEnableConnection()) {
+      // #1990 scroll into invalid input
+      this._connectionComponent.scrollIntoConnectionInvalidInput();
       return false;
     }
     // if empty connection name
     if (StringUtil.isEmpty(this.connectionName)) {
       this.isShowConnectionNameRequired = true;
       this.nameErrorMsg = this.translateService.instant('msg.storage.dconn.name.error');
+      // #1990 scroll into invalid input
+      this._scrollIntoConnectionNameInput();
       return false;
     }
     // if connection name over 150 byte
     else if (CommonUtil.getByte(this.connectionName.trim()) > 150) {
       this.isShowConnectionNameRequired = true;
       this.nameErrorMsg = this.translateService.instant('msg.alert.edit.name.len');
+      // #1990 scroll into invalid input
+      this._scrollIntoConnectionNameInput();
       return false;
     }
-    // if exist properties
-    if (this._connectionComponent.isExistProperties()) {
-      return this._connectionComponent.isValidProperties();
+    // if exist properties and invalid property
+    if (this._connectionComponent.isExistProperties() && !this._connectionComponent.isValidProperties()) {
+      // #1990 scroll into invalid input
+      this._connectionComponent.scrollIntoPropertyInvalidInput();
+      return false;
     }
     return true;
+  }
+
+  /**
+   * Scroll into connection name input
+   * @private
+   */
+  private _scrollIntoConnectionNameInput() {
+    this.CONNECTION_NAME_ELEMENT.nativeElement.scrollIntoView();
   }
 
   /**
