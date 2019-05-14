@@ -82,7 +82,7 @@ Git clone this project.
 <pre><code>$ git clone https://github.com/metatron-app/metatron-discovery.git</code></pre>
 Build through Maven 3.3+.
 <pre><code>$ mvn clean install -DskipTests</code></pre>
-Buidling the whole project takes some time especially for the "discovery-frontend". Please wait a few minutes.
+Building the whole project takes some time especially for the "discovery-frontend". Please wait a few minutes.
 
 If the build succeeds, you can find an archive file under "discovery-distribution/target"
 
