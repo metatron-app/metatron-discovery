@@ -416,7 +416,8 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
   private _getGroupParams(): any {
     const params = {
       size: this.page.size,
-      page: this.page.page
+      page: this.page.page,
+      pseudoParam : (new Date()).getTime()
     };
     // 정렬
     if (this.selectedContentSort.sort !== 'default') {
@@ -445,13 +446,4 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
 class Order {
   key: string = 'name';
   sort: string = 'asc';
-}
-
-class Date {
-  dateType?: string;
-  endDateStr: string;
-  startDateStr: string;
-  type: string;
-  startDate?:Date;
-  endDate?:Date;
 }

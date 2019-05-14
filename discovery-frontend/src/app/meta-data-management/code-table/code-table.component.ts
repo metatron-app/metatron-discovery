@@ -24,6 +24,7 @@ import {CreateCodeTableComponent} from './create-code-table/create-code-table.co
 import {ActivatedRoute} from "@angular/router";
 import {isNullOrUndefined} from "util";
 import * as _ from 'lodash';
+import {PeriodData} from "../../common/value/period.data.value";
 
 declare let moment: any;
 
@@ -46,7 +47,7 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
   private _deleteComp: DeleteModalComponent;
 
   // date
-  private _selectedDate: Date;
+  private _selectedDate: PeriodData;
 
   // 검색 파라메터
   private _searchParams: { [key: string]: string };
@@ -70,7 +71,7 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
 
   public selectedType:PeriodType;
 
-  public defaultDate: Date;
+  public defaultDate: PeriodData;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -121,7 +122,7 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
           const from = params['from'];
           const to = params['to'];
 
-          this._selectedDate = new Date();
+          this._selectedDate = new PeriodData();
           this._selectedDate.startDate = from;
           this._selectedDate.endDate = to;
 
@@ -435,13 +436,4 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
 class Order {
   key: string = 'name';
   sort: string = 'asc';
-}
-
-class Date {
-  dateType?: string;
-  endDateStr: string;
-  startDateStr: string;
-  type: string;
-  startDate?:Date;
-  endDate?:Date;
 }

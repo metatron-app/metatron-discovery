@@ -24,6 +24,7 @@ import {Alert} from '../../common/util/alert.util';
 import {CreateColumnDictionaryComponent} from './create-column-dictionary/create-column-dictionary.component';
 import {ActivatedRoute} from "@angular/router";
 import * as _ from 'lodash';
+import {PeriodData} from "../../common/value/period.data.value";
 
 declare let moment: any;
 
@@ -46,7 +47,7 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
   private _deleteComp: DeleteModalComponent;
 
   // date
-  private _selectedDate: Date;
+  private _selectedDate: PeriodData;
 
   // 검색 파라메터
   private _searchParams: { [key: string]: string };
@@ -70,7 +71,7 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
   // 정렬
   public selectedContentSort: Order = new Order();
 
-  public defaultDate: Date;
+  public defaultDate: PeriodData;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -120,7 +121,7 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
           const from = params['from'];
           const to = params['to'];
 
-          this._selectedDate = new Date;
+          this._selectedDate = new PeriodData;
           this._selectedDate.startDate = from;
           this._selectedDate.endDate = to;
 
@@ -441,13 +442,4 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
 class Order {
   key: string = 'logicalName';
   sort: string = 'asc';
-}
-
-class Date {
-  dateType?: string;
-  startDate?:Date;
-  endDate?: Date;
-  endDateStr: string;
-  startDateStr: string;
-  type: string;
 }

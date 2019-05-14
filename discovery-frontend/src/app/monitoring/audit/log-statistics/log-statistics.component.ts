@@ -26,6 +26,7 @@ import { Alert } from '../../../common/util/alert.util';
 import { PageResult } from '../../../domain/common/page';
 import { isUndefined } from 'util';
 import { CommonUtil } from '../../../common/util/common.util';
+import {PeriodData} from "../../../common/value/period.data.value";
 
 declare let echarts: any;
 
@@ -81,7 +82,7 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
   public selectedType : string;
 
   // 선택된 날짜
-  private selectedDate: Date;
+  private selectedDate: PeriodData;
 
   // Change Detect
   public changeDetect: ChangeDetectorRef;
@@ -795,12 +796,6 @@ class StatisticsList {
 
   // User List
   public userList : any[] = [];
-}
-
-class Date {
-  endDateStr: string;
-  startDateStr: string;
-  type: string;
 }
 
 
