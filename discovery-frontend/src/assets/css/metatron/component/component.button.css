@@ -291,7 +291,7 @@ ul.ddp-list-tab2 li:first-of-type a:before {display:none;}
 .ddp-wrap-morebutton.ddp-selected em.ddp-icon-more:before {background-position:-3px top;}
 
 .ddp-wrap-morebutton .ddp-wrap-popup2 {display:none; position:absolute; top:20px; right:0; white-space:nowrap;}
-.ddp-wrap-morebutton.ddp-selected .ddp-wrap-popup2 {display:block;}
+.ddp-wrap-morebutton.ddp-selected .ddp-wrap-popup2 {display:block; z-index:20;}
 .ddp-wrap-morebutton .ddp-wrap-popup2 .ddp-label {display:block; padding:10px 14px 5px 14px; color:#b7b9c2; font-size:12px; cursor:default}
 .ddp-wrap-morebutton.ddp-selected .ddp-ui-tooltip-info {display:none;}
 .ddp-wrap-morebutton .ddp-ui-tooltip-info.ddp-down em.ddp-icon-view-top {right:14px;}

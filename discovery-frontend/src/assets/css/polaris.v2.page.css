@@ -1273,10 +1273,19 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 .ddp-ui-values .ddp-label-check-value {display:inline-block; margin-right:3px; vertical-align:middle;}
 .ddp-ui-values .ddp-ui-page {float:right; position:relative; top:-3px;}
 
-.ddp-itemtype-title {min-height:50px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
+.ddp-area-boardside .ddp-ui-down-title2.ddp-flex {display:flex;
+  align-items: center;}
+.ddp-area-boardside .ddp-ui-down-title2.ddp-flex .ddp-itemtype-title {flex: 1 1 auto;}
+.ddp-area-boardside .ddp-ui-down-title2.ddp-flex .ddp-data-itemtype .ddp-txt-itemtype {display:block;}
+.ddp-area-boardside .ddp-ui-down-title2.ddp-flex .ddp-flex-button {margin-left:auto; display:flex; align-items:center;}
+.ddp-area-boardside .ddp-ui-down-title2.ddp-flex .ddp-flex-button .ddp-icon-boardside-lock,
+.ddp-area-boardside .ddp-ui-down-title2.ddp-flex .ddp-flex-button .ddp-wrap-morebutton,
+.ddp-area-boardside .ddp-ui-down-title2.ddp-flex .ddp-flex-button .ddp-icon-global-s {margin-left:7px; min-width:13px;}
+
+.ddp-itemtype-title {min-height:50px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
 .ddp-data-itemtype {display:table; table-layout:fixed;position:relative; width:100%; min-height:50px; padding:10px 0 10px 40px; box-sizing:border-box; font-size:0px;}
 .ddp-data-itemtype.ddp-type .ddp-txt-itemtype {white-space:normal;}
-.ddp-data-itemtype .ddp-icon-box {display:inline-block; position:absolute; top:50%; left:0; margin-top:-13px; width:26px; height:26px; text-align:center; border:1px solid #439fe5;}
+.ddp-data-itemtype .ddp-icon-box {display:inline-block; position:absolute; top:50%; left:0; margin-top:-14px; width:26px; height:26px; text-align:center; border:1px solid #439fe5;}
 .ddp-data-itemtype .ddp-icon-box.ddp-measure {float:left; border:1px solid #5fd7a5;}
 .ddp-data-itemtype .ddp-icon-box [class*="ddp-icon-"] {position:relative; top:8px;}
 .ddp-data-itemtype .ddp-icon-box .ddp-icon-dimension-point,
@@ -1292,12 +1301,14 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 .ddp-data-itemtype .ddp-txt-itemtype .ddp-data-name {display:block; font-size:13px; color:#4b515b; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
 
 .ddp-data-itemtype .ddp-txt-itemtype .ddp-data-sub {display:block; max-height:29px; font-size:11px; color:#b7b9c2;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	display: -webkit-box;
-	-webkit-line-clamp: 2; /* 라인수 */
-	-webkit-box-orient: vertical;
-	word-wrap:break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 라인수 */
+  /* autoprefixer: off */
+  -webkit-box-orient: vertical;
+  /* autoprefixer: on */
+  word-wrap:break-word;
 }
 
 .ddp-data-itemtype .ddp-txt-itemtype .ddp-txt-chartname {display:block; width:100%; color:#b7b9c2; font-size:12px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
