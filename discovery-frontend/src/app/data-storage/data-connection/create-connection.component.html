@@ -55,7 +55,7 @@
       </div>
       <!-- //permission -->
       <!-- name -->
-      <div class="ddp-wrap-edit2" [class.ddp-error]="isShowConnectionNameRequired">
+      <div class="ddp-wrap-edit2" [class.ddp-error]="isShowConnectionNameRequired" #connection_name_element>
         <label class="ddp-label-type ddp-bold">{{'msg.storage.th.conn.name' | translate}}</label>
         <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.dconn.name.ph' | translate}}"
                [ngModel]="connectionName" (ngModelChange)="connectionName = $event; isShowConnectionNameRequired = false">
