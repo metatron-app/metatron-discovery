@@ -407,7 +407,7 @@
   "msg.space.create.notebook.title": "Select source type",
   "msg.space.warning.can-not-create-11depth-folder" : "You can only create subfolders to 10 depths.",
   "msg.space.ui.list.search.placeholder" : "Search by sever name",
-  "msg.space.alert.similarity.msg" : "Something went wrong. Please contact with system administrator for details.",
+  "msg.space.alert.join.msg" : "Something went wrong. Please contact with system administrator for details.",
 
   "msg.alert.retrieve.fail" : "Failed to retrieve data",
   "msg.alert.del.success": " deleted",

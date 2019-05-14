@@ -123,7 +123,7 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
     this._queryData(this.editingJoin.left.engineName, this.editingJoin.left.temporary).then(data => {
       this.updateGrid(data[0], this.editingJoin.left.uiFields, 'left');
       this.changeDetect.detectChanges();
-    }).catch(err => this.commonExceptionHandler(err));
+    }).catch(err => this.showErrorMsgForJoin(err));
     this.isShowJoinPopup = true;
   } // function - addJoin
 
@@ -310,11 +310,10 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
         this._setSimilarity();
         this.changeDetect.detectChanges();
       }).catch(err => {
-        err.message = this.translateService.instant('msg.space.alert.similarity.msg');
-        this.commonExceptionHandler(err);
+        this.showErrorMsgForJoin(err);
       });
 
-    }).catch(err => this.commonExceptionHandler(err));
+    }).catch(err => this.showErrorMsgForJoin(err));
   } // function - loadDataToRightJoinGrid
 
   /**
@@ -680,6 +679,16 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
     }
 
   } // function - updateGrid
+
+
+  /**
+   * Show detail Error msg alert
+   * @param err
+   */
+  private showErrorMsgForJoin(err) {
+    err.message = this.translateService.instant('msg.space.alert.join.msg');
+    this.commonExceptionHandler(err);
+  }
 
 }
 
