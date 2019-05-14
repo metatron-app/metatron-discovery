@@ -2038,7 +2038,7 @@ export namespace OptionGenerator {
               by: "NONE",            // NONE, MEASURE, DIMENSION
               column: "NONE",
               schema: "#6344ad",
-              transparency: 10
+              transparency: 50
             },
             size: {
               "by": "NONE",

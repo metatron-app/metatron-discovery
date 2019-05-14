@@ -938,7 +938,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
           } else if (this.shelf['layers'][layerIndex].fields.length > 1 && hasMeasure) {
             if (isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusTo'])) {
               if (this.uiOption.layers[layerIndex]['pointRadiusFrom'] < 100) {
-                this.uiOption.layers[layerIndex]['pointRadiusTo'] = 100;
+                this.uiOption.layers[layerIndex]['pointRadiusTo'] = 20;
               } else {
                 this.uiOption.layers[layerIndex]['pointRadiusTo'] = 200;
               }

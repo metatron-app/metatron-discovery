@@ -263,7 +263,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       // set color by shelf
       layer = this.setColorByShelf(false, layerIndex);
       if (isNullOrUndefined(layer.color.symbolTransparency)) {
-        layer.color.symbolTransparency = 10;
+        layer.color.symbolTransparency = 50;
       }
       layer.color.transparency = layer.color.symbolTransparency;
       if (isNullOrUndefined(layer.symbolPointType)) {
@@ -1892,7 +1892,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
           } else if (this.shelf['layers'][layerIndex].fields.length > 1 && hasMeasure) {
             if (isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusTo'])) {
               if (this.uiOption.layers[layerIndex]['pointRadiusFrom'] < 100) {
-                this.uiOption.layers[layerIndex]['pointRadiusTo'] = 100;
+                this.uiOption.layers[layerIndex]['pointRadiusTo'] = 20;
               } else {
                 this.uiOption.layers[layerIndex]['pointRadiusTo'] = 200;
               }
