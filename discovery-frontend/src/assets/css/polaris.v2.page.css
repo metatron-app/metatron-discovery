@@ -7179,7 +7179,7 @@ table.ddp-table-form tbody tr td .ddp-wrap-value-icon {position:relative; float:
 table.ddp-table-form tbody tr td .ddp-wrap-value-icon [class*="ddp-icon-"] {float:left; margin-left:8px;}
 table.ddp-table-form tbody tr td .ddp-wrap-value-icon .ddp-wrap-datarecommend {float:left; margin-left:10px;}
 table.ddp-table-form tbody tr td .ddp-wrap-value-icon.ddp-type {padding-right:15px;}
-table.ddp-table-form tbody tr td .ddp-wrap-value-icon .ddp-btn-revival {float:left; position:relative; top:-2px; padding: 3px 4px; margin-left:8px; background-color:#e7e7ea; border-radius:2px; color:#4b515b; font-size:12px; vertical-align:middle; line-height:1em;}
+table.ddp-table-form tbody tr td .ddp-wrap-value-icon .ddp-btn-revival {float:left; position:relative; top:-2px; padding: 3px 4px; margin-left:8px; background-color:#e7e7ea; border-radius:2px; color:#4b515b; font-size:12px; vertical-align:middle; line-height:1em; z-index:10;}
 table.ddp-table-form tbody tr td .ddp-wrap-value-icon .ddp-btn-revival:hover {background-color:#d0d1d8;}
 table.ddp-table-form tbody tr td .ddp-wrap-value-icon .ddp-btn-revival .ddp-icon-time-s {display:inline-block; width:14px; height:13px; margin-right:5px; margin-left:0; background:url(../images/icon_return.png) no-repeat; background-position:left -20px; vertical-align:middle;}
 table.ddp-table-form tbody tr td .ddp-td-schema a.ddp-btn-box {display:inline-block; position:absolute; top:50%; right:0; margin-top:-10px; padding:3px 4px; border-radius:2px; background-color:#e7e7ea; color:#4b515b; font-size:12px; font-style:italic; z-index:3;}
@@ -7409,7 +7409,7 @@ ul.ddp-list-value li.ddp-total {color:#b7b9c2;}
 .ddp-box-action.ddp-type .ddp-change-type .ddp-box-layout4.ddp-change .ddp-change-select {float:Left;}
 .ddp-box-action.ddp-type .ddp-change-type .ddp-box-layout4.ddp-change .ddp-change-select .ddp-type-selectbox  {display:inline-block; float:left; width:158px;}
 .ddp-box-action.ddp-type .ddp-change-type .ddp-box-layout4.ddp-change .ddp-change-select .ddp-type-selectbox + .ddp-type-selectbox {margin-left:3px;}
-.ddp-box-action.ddp-type .ddp-change-type.ddp-selected .ddp-box-layout4.ddp-change {display:block;}
+.ddp-box-action.ddp-type .ddp-change-type.ddp-selected .ddp-box-layout4.ddp-change {display:block; z-index:10;}
 .ddp-box-action.ddp-type .ddp-delete-type {float:left; position:relative;}
 .ddp-box-action.ddp-type .ddp-delete-type .ddp-btn-delete {display:inline-block;padding:13px 12px 15px 12px; margin-left:2px; height:43px;color:#4b515b; font-size:13px; box-sizing:border-box;}
 .ddp-box-action.ddp-type .ddp-delete-type.ddp-selected .ddp-btn-delete,
