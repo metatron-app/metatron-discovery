@@ -385,7 +385,8 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
 
     const params = {
       page: this.page.page,
-      size: this.page.size
+      size: this.page.size,
+      pseudoParam : (new Date()).getTime()
     };
 
     if (!isNullOrUndefined(this.searchText) || StringUtil.isNotEmpty(this.searchText)) {

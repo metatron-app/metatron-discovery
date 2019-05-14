@@ -421,7 +421,8 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
     // 페이지, 사이즈 설정
     result =  {
       size: this.page.size,
-      page: this.page.page
+      page: this.page.page,
+      pseudoParam : (new Date()).getTime()
     };
 
     result['status'] = this.statusId;

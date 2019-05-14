@@ -555,7 +555,8 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
   private _getMemberParams(): any {
     const params = {
       size: this.page.size,
-      page: this.page.page
+      page: this.page.page,
+      pseudoParam : (new Date()).getTime()
     };
     // 정렬
     if (this.selectedContentSort.sort !== 'default') {

@@ -319,7 +319,8 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
     const params = {
       page: this.page.page,
       size: this.page.size,
-      projection: 'forListView'
+      projection: 'forListView',
+      pseudoParam : (new Date()).getTime()
     };
 
     if (!isNullOrUndefined(this.searchText) || StringUtil.isNotEmpty(this.searchText)) {

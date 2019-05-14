@@ -468,7 +468,8 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
     const params = {
       size: this.page.size,
       page: this.page.page,
-      scope : RoleSetScope.PUBLIC
+      scope : RoleSetScope.PUBLIC,
+      pseudoParam : (new Date()).getTime(),
     };
     // 정렬
     if (this.selectedContentSort.sort !== 'default') {

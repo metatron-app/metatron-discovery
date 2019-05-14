@@ -92,6 +92,8 @@ export class DataSourceListComponent extends AbstractComponent {
               }
             });
           }
+          // TODO 추후 criterion component로 이동
+          delete searchParams['pseudoParam'];
           // init criterion search param
           this.criterionComponent.initSearchParams(searchParams);
           // set datasource list
@@ -338,6 +340,7 @@ export class DataSourceListComponent extends AbstractComponent {
     const params = {
       page: this.page.page,
       size: this.page.size,
+      pseudoParam : (new Date()).getTime(),
       sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort
     };
     const searchParams = this.criterionComponent.getUrlQueryParams();

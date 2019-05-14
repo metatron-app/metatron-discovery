@@ -458,7 +458,8 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
   private getAuditRequestParams() : any{
     const params = {
       page: this.page.page,
-      size: this.page.size
+      size: this.page.size,
+      pseudoParam : (new Date()).getTime()
     };
     // 이름
     if (this.searchText !== '') {

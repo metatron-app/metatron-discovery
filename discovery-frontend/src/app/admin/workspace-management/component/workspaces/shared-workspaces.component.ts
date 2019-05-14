@@ -590,7 +590,8 @@ export class SharedWorkspacesComponent extends AbstractComponent {
   private _getWorkspaceParams(): any {
     const params = {
       size: this.page.size,
-      page: this.page.page
+      page: this.page.page,
+      pseudoParam : (new Date()).getTime(),
     };
 
     // 타입

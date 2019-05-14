@@ -100,6 +100,9 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
               }
             });
           }
+
+          // TODO 추후 criterion component로 이동
+          delete searchParams['pseudoParam'];
           // init criterion search param
           this.criterionComponent.initSearchParams(searchParams);
           // set connection list
@@ -313,6 +316,7 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
     const params = {
       page: this.page.page,
       size: this.page.size,
+      pseudoParam : (new Date()).getTime(),
       sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort
     };
     const searchParams = this.criterionComponent.getUrlQueryParams();

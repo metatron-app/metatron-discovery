@@ -408,6 +408,7 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
     const params = {
       size: this.page.size,
       page: this.page.page,
+      pseudoParam : (new Date()).getTime()
     };
     // 검색어
     if (!isNullOrUndefined(this.searchText) && this.searchText.trim() !== '') {

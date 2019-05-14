@@ -440,7 +440,8 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
       status : this.ssStatus,
       type: this.ssType,
       projection:'listing',
-      ssName: this.searchText
+      ssName: this.searchText,
+      pseudoParam : (new Date()).getTime()
     };
 
     this.selectedContentSort.sort !== 'default' && (params['sort'] = this.selectedContentSort.key + ',' + this.selectedContentSort.sort);

@@ -413,6 +413,7 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
     const params = {
       size: this.page.size,
       page: this.page.page,
+      pseudoParam : (new Date()).getTime()
     };
     // 검색어
     if (!isUndefined(this.searchText) && this.searchText.trim() !== '') {
