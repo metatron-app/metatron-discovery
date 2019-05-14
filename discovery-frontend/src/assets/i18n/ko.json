@@ -407,7 +407,7 @@
   "msg.space.create.notebook.title" : "소스 타입을 선택해 주세요",
   "msg.space.warning.can-not-create-11depth-folder" : "하위 폴더는 10 Depth 까지만 만들 수 있습니다.",
   "msg.space.ui.list.search.placeholder" : "서버명을 검색해 주세요",
-  "msg.space.alert.join.msg" : "문제가 발생했습니다. 자세한 내용은 시스템 관리자에게 문의하십시오.",
+  "msg.space.alert.join.msg" : "엔진 호출중 오류가 발생하였습니다",
 
   "msg.alert.retrieve.fail" : "조회에 실패하였습니다",
   "msg.alert.del.success" : "을(를) 삭제하였습니다",
