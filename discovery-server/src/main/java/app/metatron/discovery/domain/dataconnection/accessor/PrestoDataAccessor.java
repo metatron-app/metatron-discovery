@@ -68,7 +68,8 @@ public class PrestoDataAccessor extends AbstractJdbcDataAccessor {
           }
         }
       } else {
-        connected = true;
+        connected = false;
+        resultMap.put("message", "Please set a catalog name.");
       }
 
       resultMap.put("connected", connected);
