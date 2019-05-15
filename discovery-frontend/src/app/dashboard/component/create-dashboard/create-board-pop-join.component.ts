@@ -123,7 +123,7 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
     this._queryData(this.editingJoin.left.engineName, this.editingJoin.left.temporary).then(data => {
       this.updateGrid(data[0], this.editingJoin.left.uiFields, 'left');
       this.changeDetect.detectChanges();
-    }).catch(err => this.commonExceptionHandler(err));
+    }).catch(err => this.showErrorMsgForJoin(err));
     this.isShowJoinPopup = true;
   } // function - addJoin
 
@@ -309,9 +309,11 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
         this._similarity = similarity;
         this._setSimilarity();
         this.changeDetect.detectChanges();
-      }).catch(err => this.commonExceptionHandler(err));
+      }).catch(err => {
+        this.showErrorMsgForJoin(err);
+      });
 
-    }).catch(err => this.commonExceptionHandler(err));
+    }).catch(err => this.showErrorMsgForJoin(err));
   } // function - loadDataToRightJoinGrid
 
   /**
@@ -363,10 +365,15 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
    * @param {number} rowNum
    */
   public setRowPreviewGrid(rowNum: number) {
-    // Row 설정
-    this.editingJoin.rowNum = rowNum;
-    // 조회
-    this._loadDataToPreviewGrid().then();
+
+    // 숫자가 변경 됐을때만 실행
+    if (Number(rowNum) !== this.editingJoin.rowNum) {
+      // Row 설정
+      this.editingJoin.rowNum = rowNum;
+      // 조회
+      this._loadDataToPreviewGrid().then();
+    }
+
   } // function - setRowPreviewGrid
 
   /**
@@ -672,6 +679,16 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
     }
 
   } // function - updateGrid
+
+
+  /**
+   * Show detail Error msg alert
+   * @param err
+   */
+  private showErrorMsgForJoin(err) {
+    err.message = this.translateService.instant('msg.space.alert.join.msg');
+    this.commonExceptionHandler(err);
+  }
 
 }
 

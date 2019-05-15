@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-layout-popuptype" *ngIf="isShowJoinPopup">
+<div class="ddp-layout-popuptype popup-dashboard-join" *ngIf="isShowJoinPopup" >
   <em class="ddp-bg-popup" ></em>
   <div class="ddp-ui-popup ddp-ui-popup-join" >
     <!-- title -->
@@ -102,7 +102,7 @@
           <div class="ddp-wrap-drop-search" [class.ddp-selected]="editingJoin.isJoinDatasourceFl"
                (click)="openOptionsJoinDatasources()">
             <div class="ddp-type-selectbox2">
-              <span class="ddp-txt-selectbox ddp-result">{{editingJoin.right ? editingJoin.right.name : 'Please choose a datasource'}}</span>
+              <span class="ddp-txt-selectbox ddp-result">{{editingJoin.right ? editingJoin.right.name : 'msg.board.ui.please.choose.dsource' | translate }}</span>
             </div>
             <!-- drop search -->
             <div class="ddp-ui-drop-search">
