@@ -156,8 +156,13 @@ export class DataSourceListComponent extends AbstractComponent {
     this.datasourceService.deleteDatasource(modalData.data)
       .then((result) => {
         Alert.success(this.translateService.instant('msg.storage.alert.dsource.del.success'));
+
+        if (this.page.page > 0 && this.datasourceList.length === 1) {
+          this.page.page -= 1;
+        }
+
         // reload
-        this.reloadPage(true);
+        this.reloadPage(false);
       })
       .catch(error => this.commonExceptionHandler(error));
   }

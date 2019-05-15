@@ -147,8 +147,13 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
     this.dataconnectionService.deleteConnection(modalData.data)
       .then((result) => {
         Alert.success(this.translateService.instant('msg.storage.alert.dsource.del.success'));
+
+        if (this.page.page > 0 && this.connectionList.length === 1) {
+          this.page.page -=1;
+        }
+
         // reload
-        this.reloadPage(true);
+        this.reloadPage(false);
       })
       .catch(error => this.commonExceptionHandler(error));
   }
