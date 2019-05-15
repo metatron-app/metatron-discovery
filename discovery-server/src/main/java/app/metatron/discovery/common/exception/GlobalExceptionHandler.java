@@ -88,7 +88,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
       response = new ErrorResponse(ex.getCode(), MetatronException.DEFAULT_GLOBAL_MESSAGE, details);
     }
 
-    LOGGER.error("[API:{}] {} {}: {}, {}", ((ServletWebRequest) request).getRequest().getRequestURI(),
+    LOGGER.error("[API:{}] {} {}: {}", ((ServletWebRequest) request).getRequest().getRequestURI(),
                  response.getCode() == null ? "" : response.getCode(),
                  response.getMessage(),
                  response.getDetails());
@@ -116,7 +116,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
       response = new ErrorResponse(ex.getCode(), MetatronException.DEFAULT_GLOBAL_MESSAGE, ex.getMessage());
     }
 
-    LOGGER.error("[API:{}] {} {}: {}, {}", ((ServletWebRequest) request).getRequest().getRequestURI(),
+    LOGGER.error("[API:{}] {} {}: {}", ((ServletWebRequest) request).getRequest().getRequestURI(),
             response.getCode() == null ? "" : response.getCode(),
             response.getMessage(),
             response.getDetails());
