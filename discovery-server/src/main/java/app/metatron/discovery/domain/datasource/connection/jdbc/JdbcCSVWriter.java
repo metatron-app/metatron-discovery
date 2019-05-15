@@ -14,8 +14,6 @@
 
 package app.metatron.discovery.domain.datasource.connection.jdbc;
 
-import com.facebook.presto.jdbc.PrestoArray;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -160,11 +158,7 @@ public class JdbcCSVWriter extends CsvResultSetWriter implements ICsvResultSetWr
       // thrown before writing occurs
       objects.clear();
       for( int columnIndex = 1; columnIndex <= numberOfColumns; columnIndex++ ) {
-        if(resultSet.getObject(columnIndex) instanceof PrestoArray) {
-          objects.add(resultSet.getString(columnIndex));
-        } else {
-          objects.add(resultSet.getObject(columnIndex));
-        }
+        objects.add(resultSet.getString(columnIndex));
       }
       super.writeRow(objects);
     }
