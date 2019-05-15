@@ -189,8 +189,12 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
     this.groupsService.deleteGroup(event['groupId']).then(() => {
       // alert
       Alert.success(this.translateService.instant('msg.groups.alert.grp.del.success'));
+
+      if (this.page.page > 0 && this.groupList.length === 1) {
+        this.page.page = this.page.page - 1;
+      }
       // 그룹 조회
-      this.reloadPage();
+      this.reloadPage(false);
     })
       .catch(() => {
         // 로딩 hide
@@ -382,6 +386,9 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
   private _getGroupList(): void {
     // 로딩 show
     this.loadingShow();
+
+    this.groupList = [];
+
     // group 리스트 조회
     const params = this._getGroupParams();
     this.groupsService.getGroupList(params)
@@ -392,12 +399,9 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
 
         // 페이지
         this.pageResult = result.page;
-        // 페이지가 첫번째면 초기화
-        if (this.pageResult.number === 0) {
-          this.groupList = [];
-        }
-        // 데이터 있다면
-        this.groupList = result._embedded ? result._embedded.groups : [];
+
+        this.groupList = result._embedded ? this.groupList.concat(result._embedded.groups) : [];
+
         // 로딩 hide
         this.loadingHide();
       })

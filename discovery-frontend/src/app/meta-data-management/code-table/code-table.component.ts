@@ -163,7 +163,9 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
 
       Alert.success(this.translateService.instant('msg.metadata.ui.codetable.delete.success',
         {value: modal['codeTableName']}));
-      // TODO :
+      if (this.page.page > 0 && this.codeTableList.length === 1) {
+        this.page.page = this.page.page - 1;
+      }
       this.reloadPage(false);
 
     }).catch((error) => {

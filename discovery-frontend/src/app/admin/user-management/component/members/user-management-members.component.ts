@@ -443,6 +443,10 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
       .then((result) => {
         // alert
         Alert.success(this.translateService.instant('msg.mem.alert.delete.usr.success'));
+
+        if (this.page.page > 0 && this.membersList.length === 1) {
+          this.page.page = this.page.page - 1;
+        }
         // 재조회
         this.reloadPage();
       })

@@ -165,6 +165,9 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
           'msg.metadata.ui.dictionary.delete.success',
           modal['dictionaryName']));
 
+        if (this.page.page !== 0 && this.columnDictionaryList.length === 1) {
+          this.page.page = this.page.page - 1;
+        }
         // 재조회
         this.reloadPage(false);
       }).catch((error) => {

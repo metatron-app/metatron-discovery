@@ -272,6 +272,9 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
     this.dataSnapshotService.deleteDataSnapshot(this.selectedDeletessId).then(() => {
       Alert.success(this.translateService.instant('msg.dp.alert.del.success'));
 
+      if (this.page.page > 0 && this.datasnapshots.length === 1) {
+        this.page.page = this.page.page - 1;
+      }
       this.reloadPage(false);
 
     }).catch(() => {

@@ -695,6 +695,7 @@
   "msg.nbook.ui.host.ph" : "Please enter a host address",
   "msg.nbook.ui.port.ph" : "Please enter a port number",
   "msg.nbook.ui.not.used" : "not used",
+  "msg.nbook.ui.no.nb" : "There is no notebook",
 
   "msg.dp.alert.check.formula": "Check formula",
   "msg.dp.alert.check.expression": "Please check expression",

@@ -201,6 +201,9 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
     this.dataflowService.deleteDataflow(this.selectedDeletedfId).then(() => {
       Alert.success(this.translateService.instant('msg.dp.alert.del.success'));
 
+      if (this.page.page !== 0 && this.dataflows.length === 1) {
+        this.page.page = this.page.page - 1;
+      }
       // Get dataflow list again
       this.reloadPage(false);
 

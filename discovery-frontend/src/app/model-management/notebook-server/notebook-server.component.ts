@@ -17,11 +17,12 @@ import { AbstractComponent } from '../../common/component/abstract.component';
 import { AddNotebookServerComponent } from './add-notebook-server/add-notebook-server.component';
 import { NotebookServerService } from './service/notebook-server.service';
 import { Alert } from '../../common/util/alert.util';
-import { isUndefined } from 'util';
+import {isNullOrUndefined, isUndefined} from 'util';
 import { Modal } from '../../common/domain/modal';
 import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
 import { NoteBook } from '../../domain/notebook/notebook';
 import * as _ from 'lodash';
+import {ActivatedRoute} from "@angular/router";
 
 @Component({
   selector: 'app-notebook-server',
@@ -33,14 +34,12 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  // 검색 파라메터
+  private _searchParams: { [key: string]: string };
 
   // Server 추가
   @ViewChild(AddNotebookServerComponent)
   private addNotebookServerComponent: AddNotebookServerComponent;
-
-  @ViewChild(DeleteModalComponent)
-  public deleteModalComponent: DeleteModalComponent;
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -49,6 +48,8 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @ViewChild(DeleteModalComponent)
+  public deleteModalComponent: DeleteModalComponent;
 
   // notebook server 리스트
   public notebookServerType: any[] = ['ALL', 'jupyter', 'zeppelin'];
@@ -65,9 +66,6 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
   // 총페이지 수
   public totalElements: number = 0;
 
-  // 정렬 순서
-  public sort: string = 'desc';
-
   // 삭제 아이템.
   public selectedDeleteItemIndex: string;
 
@@ -77,11 +75,15 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
   // check box flag
   public tempCheckData : any[] = [];
 
+  public selectedContentSort: Order = new Order();
+
+  public typeDefaultIndex: number = 0;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   constructor(private notebookService: NotebookServerService,
+              private _activatedRoute: ActivatedRoute,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -102,8 +104,45 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
     // temp check list init
     this.tempCheckData = [];
 
-    // 로딩시 데이터 조회
-    this.getNotebookServerList();
+    this.subscriptions.push(
+      // Get query param from url
+      this._activatedRoute.queryParams.subscribe((params) => {
+
+        if (!_.isEmpty(params)) {
+
+
+          if (!isNullOrUndefined(params['size'])) {
+            this.page.size = params['size'];
+          }
+
+          if (!isNullOrUndefined(params['page'])) {
+            this.page.page = params['page'];
+          }
+
+          if (!isNullOrUndefined(params['name'])) {
+            this.searchText = params['name'];
+          }
+
+          if (!isNullOrUndefined(params['type'])) {
+            this.selectedNotebookServerType = params['type'];
+            this.typeDefaultIndex = this.notebookServerType.findIndex((item) => {
+              return item === this.selectedNotebookServerType;
+            });
+          }
+
+          const sort = params['sort'];
+          if (!isNullOrUndefined(sort)) {
+            const sortInfo = decodeURIComponent(sort).split(',');
+            this.selectedContentSort.key = sortInfo[0];
+            this.selectedContentSort.sort = sortInfo[1];
+          }
+
+        }
+
+        this.getNotebookServerList();
+
+      })
+    );
 
   }
 
@@ -118,34 +157,34 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // select box 선택시 이벤트
+  /**
+   * On select type
+   * @param $event
+   */
   public selectedLanguage($event) {
     this.selectedNotebookServerType = $event;
-    this.getInitialNotebookServer();
+    this.reloadPage();
   }
 
-  // 데이터 소팅.
-  public sortingToggle(param: string) {
-    this.sort = param;
-    this.getInitialNotebookServer();
-  }
 
-  // 행 클릭시 - 수정모드로
+  /**
+   * Open notebook detail popup
+   * @param notebook
+   */
   public connectorItemRowClick(notebook: NoteBook) {
     this.addNotebookServerComponent.update(notebook);
   }
 
-  // 전체 선택 체크 박스
-  public allCheckClick($event) {
+
+  /**
+   * All checkbox click
+   */
+  public allCheckClick() {
     const checkList = $('.ddp-checkbox-form');
     const $headerCheck: any = checkList[0];
 
-    let flag = false;
-    if ($headerCheck.checked === false) {
-      flag = false;
-    } else {
-      flag = true;
-    }
+    let flag;
+    flag = $headerCheck.checked !== false;
     for (let index = 1; index < checkList.length; index += 1) {
       const temp: any = checkList[index];
       temp.checked = flag;
@@ -155,14 +194,15 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
         this.tempCheckData.push( cloneData );
       }
     }
-    if (flag === true) {
-      this.checkBoxCnt = 1;
-    } else {
-      this.checkBoxCnt = 0;
-    }
+    this.checkBoxCnt = flag === true? 1 : 0;
   }
 
-  // 한행 체크 박스 클릭
+
+  /**
+   * Check one item
+   * @param $event
+   * @param idx
+   */
   public checkClick($event, idx) {
 
     const cloneData = _.cloneDeep(this.resultData[idx]);
@@ -215,28 +255,27 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
     }
   }
 
-  // 노트북 서버 검색
-  public searchNotebookServer(event : KeyboardEvent) {
 
-    if (13 === event.keyCode) {
-      this.page.page = 0;
-      this.getNotebookServerList();
-    } else if (27 === event.keyCode) {
-      this.searchText = '';
-      this.page.page = 0;
-      this.getNotebookServerList();
+  /**
+   * Search notebook server
+   * @param event
+   */
+  public searchNotebookServer(event : any) {
+
+    if (13 === event.keyCode || 27 === event.keyCode) {
+      if (27 === event.keyCode) {
+        this.searchText = '';
+      }
+      this.reloadPage();
     }
 
   }
 
-  // 노트북 서버 리스트 불러오기 (no search, type)
-  public getInitialNotebookServer() {
-    this.searchText = '';
-    this.page.page = 0;
-    this.getNotebookServerList();
-  }
 
-  // 삭제하기
+  /**
+   * Delete notebook server
+   * @param isLoad
+   */
   public deleteNotebookServer(isLoad?) {
     if (isLoad) this.loadingShow();
     const multiCnt = this.selectedDeleteItemIndex.split(',').length;
@@ -244,8 +283,12 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
     if (multiCnt === 1) {
       this.notebookService.deleteNotebookServer(this.selectedDeleteItemIndex).then(() => {
         this.loadingHide();
+
+        if (this.page.page > 0 && this.resultData.length === 1) {
+          this.page.page -= 1;
+        }
         Alert.success(this.translateService.instant('msg.comm.alert.delete.success'));
-        this.getInitialNotebookServer();
+        this.reloadPage(false);
       }).catch((error) => {
         this.loadingHide();
         Alert.error(this.translateService.instant('msg.comm.alert.delete.fail'));
@@ -254,8 +297,12 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
       this.selectedDeleteItemIndex = this.selectedDeleteItemIndex.substring(0, this.selectedDeleteItemIndex.length - 1);
       this.notebookService.deleteAllNotebookServer(this.selectedDeleteItemIndex).then(() => {
         this.loadingHide();
+
+        if (this.page.page > 0 && this.resultData.length === this.checkBoxCnt) {
+          this.page.page -= 1;
+        }
         Alert.success(this.translateService.instant('msg.comm.alert.delete.success'));
-        this.getInitialNotebookServer();
+        this.reloadPage(false);
       }).catch((error) => {
         this.loadingHide();
         Alert.error(this.translateService.instant('msg.comm.alert.delete.fail'));
@@ -291,6 +338,73 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
   }
 
 
+  /**
+   * 페이지 변경
+   * @param data
+   */
+  public changePage(data: { page: number, size: number }) {
+    if (data) {
+      this.page.page = data.page;
+      this.page.size = data.size;
+      // 워크스페이스 조회
+      this.reloadPage(false);
+    }
+  } // function - changePage
+
+
+  /**
+   * 페이지를 새로 불러온다.
+   * @param {boolean} isFirstPage
+   */
+  public reloadPage(isFirstPage: boolean = true) {
+    (isFirstPage) && (this.page.page = 0);
+    this._searchParams = this._getNotebookParams(this.selectedNotebookServerType === 'ALL');
+    this.router.navigate(
+      [this.router.url.replace(/\?.*/gi, '')],
+      {queryParams: this._searchParams, replaceUrl: true}
+    ).then();
+  } // function - reloadPage
+
+
+  /**
+   * 정렬 버튼 클릭
+   * @param {string} key
+   */
+  public onClickSort(key: string): void {
+
+    // 초기화
+    this.selectedContentSort.sort = this.selectedContentSort.key !== key ? 'default' : this.selectedContentSort.sort;
+    // 정렬 정보 저장
+    this.selectedContentSort.key = key;
+
+    if (this.selectedContentSort.key === key) {
+      // asc, desc
+      switch (this.selectedContentSort.sort) {
+        case 'asc':
+          this.selectedContentSort.sort = 'desc';
+          break;
+        case 'desc':
+          this.selectedContentSort.sort = 'asc';
+          break;
+        case 'default':
+          this.selectedContentSort.sort = 'desc';
+          break;
+      }
+    }
+
+    // 페이지 초기화 후 재조회
+    this.reloadPage();
+  }
+
+
+  /**
+   * Refresh search text
+   */
+  public refreshSearch() {
+    this.searchText = '';
+    this.reloadPage();
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -317,53 +431,36 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
 
   // 페이지 첫 로딩시 처리 - 노트북 서버 리스트 불러오기
   private getNotebookServerList() {
+
     this.loadingShow();
-    if (this.selectedNotebookServerType === 'ALL') {
-      this.page.sort = 'modifiedTime,' + this.sort;
-      this.notebookService.getNotebookServerAllList(this.searchText, this.page, 'default')
-        .then((data) => {
-          this.loadingHide();
-          if (this.page.page === 0) {
-            this.resultData = [];
+
+    this.resultData = [];
+
+    const isAll = this.selectedNotebookServerType === 'ALL';
+    const params = this._getNotebookParams(isAll);
+
+    this.notebookService.getNotebookList(isAll, params)
+      .then((data) => {
+
+        this.loadingHide();
+
+        this._searchParams = params;
+
+        this.pageResult = data.page;
+
+        if (!isUndefined(data._embedded)) {
+          this.resultData = this.resultData.concat(data._embedded.connectors);
+
+          if (data._embedded.connectors.length > 0) {
+            this.checkBoxTypeCheck();
           }
-          if (!isUndefined(data._embedded)) {
-            this.resultData = this.resultData.concat(data._embedded.connectors);
-          }
-          if (!isUndefined(data.page)) {
-            this.totalElements = data.page.totalElements;
-            this.pageResult = data['page'];
-          }
-          this.page.page += 1;
-          this.checkBoxTypeCheck();
-        })
-        .catch((error) => {
-          this.loadingHide();
-          Alert.error(error.message);
-        });
-    } else {
-      // ALL 아닐 경우.
-      this.page.sort = 'modifiedTime,' + this.sort;
-      this.notebookService.getNotebookServerTypeList(this.searchText, this.selectedNotebookServerType, this.page, 'default')
-        .then((data) => {
-          this.loadingHide();
-          if (this.page.page === 0) {
-            this.resultData = [];
-          }
-          if (!isUndefined(data._embedded)) {
-            this.resultData = this.resultData.concat(data._embedded.connectors);
-          }
-          if (!isUndefined(data.page)) {
-            this.totalElements = data.page.totalElements;
-            this.pageResult = data['page'];
-          }
-          this.page.page += 1;
-          this.checkBoxTypeCheck();
-        })
-        .catch((error) => {
-          this.loadingHide();
-          Alert.error(error.message);
-        });
-    }
+        }
+
+      })
+      .catch((error) => {
+        this.loadingHide();
+        Alert.error(error.message);
+      });
 
   }
 
@@ -417,4 +514,43 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
     });
   }
 
+
+  /**
+   * Returns parameter for notebook list API
+   * @private
+   */
+  private _getNotebookParams(isAll: boolean): any{
+
+    const params = {
+      page: this.page.page,
+      size: this.page.size,
+      projection: 'default',
+      pseudoParam : (new Date()).getTime(),
+    };
+
+    // 검색어
+    if (!isUndefined(this.searchText) && this.searchText.trim() !== '') {
+      params['name'] = this.searchText.trim();
+    } else {
+      params['name'] = '';
+    }
+
+
+    // 타입이 all 이 아니라면 타입 정보가 필요하다
+    if (!isAll) {
+      params['type'] = this.selectedNotebookServerType
+    }
+
+
+    this.selectedContentSort.sort !== 'default' && (params['sort'] = this.selectedContentSort.key + ',' + this.selectedContentSort.sort);
+
+    return params
+
+  }
+
+}
+
+class Order {
+  key: string = 'modifiedTime';
+  sort: string = 'desc';
 }

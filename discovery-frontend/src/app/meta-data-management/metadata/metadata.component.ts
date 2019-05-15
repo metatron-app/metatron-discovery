@@ -392,6 +392,9 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     this.metadataService.deleteMetaData(this.selectedMetadata.id).then((result) => {
       Alert.success(
         this.translateService.instant('msg.metadata.alert.md-deleted', {value: this.selectedMetadata.name}));
+      if (this.page.page > 0 && this.metadatas.length === 1) {
+        this.page.page = this.page.page - 1;
+      }
       this.reloadPage(false);
     }).catch((error) => {
       Alert.fail(this.translateService.instant('msg.metadata.alert.md-delete.fail'));

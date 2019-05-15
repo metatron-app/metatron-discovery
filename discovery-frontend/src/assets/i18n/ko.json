@@ -695,6 +695,7 @@
   "msg.nbook.ui.host.ph" : "Host 주소를 입력해 주세요",
   "msg.nbook.ui.port.ph" : "Port를 입력해 주세요",
   "msg.nbook.ui.not.used" : "사용하지 않음",
+  "msg.nbook.ui.no.nb" : "노트북이 없습니다",
 
   "msg.dp.alert.check.formula": "수식을 확인해 주세요",
   "msg.dp.alert.check.expression": "수식을 확인해 주세요",

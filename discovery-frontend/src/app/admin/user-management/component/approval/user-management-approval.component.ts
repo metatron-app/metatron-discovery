@@ -19,6 +19,7 @@ import { AbstractUserManagementComponent } from '../../abstract.user-management.
 import { Alert } from '../../../../common/util/alert.util';
 import { isNullOrUndefined, isUndefined } from "util";
 import { ActivatedRoute } from "@angular/router";
+import * as _ from "lodash";
 declare let moment: any;
 const defaultSort = 'createdTime,desc';
 
@@ -106,50 +107,54 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
     // Init
     super.ngOnInit();
 
+    this.init();
+
     // 파라메터 조회
     this.subscriptions.push(
       this.activatedRoute.queryParams.subscribe(params => {
 
-        console.info( '>>>>>>> list param', params );
+        if (!_.isEmpty(params)) {
 
-        const page = params['page'];
-        (isNullOrUndefined(page)) || (this.page.page = page);
+          const page = params['page'];
+          (isNullOrUndefined(page)) || (this.page.page = page);
 
-        const sort = params['sort'];
-        if (!isNullOrUndefined(sort)) {
-          const sortInfo = decodeURIComponent(sort).split(',');
-          this.selectedContentSort.key = sortInfo[0];
-          this.selectedContentSort.sort = sortInfo[1];
+          const sort = params['sort'];
+          if (!isNullOrUndefined(sort)) {
+            const sortInfo = decodeURIComponent(sort).split(',');
+            this.selectedContentSort.key = sortInfo[0];
+            this.selectedContentSort.sort = sortInfo[1];
+          }
+
+          const size = params['size'];
+          (isNullOrUndefined(size)) || (this.page.size = size);
+
+          // Status
+          const status = params['status'];
+          (isNullOrUndefined(status)) || (this.statusId = status);
+
+          // 검색어
+          const searchText = params['nameContains'];
+          (isNullOrUndefined(searchText)) || (this.searchKeyword = searchText);
+
+          const from = params['from'];
+          const to = params['to'];
+
+          this._filterDate = new PeriodData();
+          this._filterDate.type = 'ALL';
+          if (!isNullOrUndefined(from) && !isNullOrUndefined(to)) {
+            this._filterDate.startDate = from;
+            this._filterDate.endDate = to;
+            this._filterDate.type = params['type'];
+
+            this._filterDate.startDateStr = decodeURIComponent(from);
+            this._filterDate.endDateStr = decodeURIComponent(to);
+            this.initialPeriodData = this._filterDate;
+            this.safelyDetectChanges();
+          }
         }
 
-        const size = params['size'];
-        (isNullOrUndefined(size)) || (this.page.size = size);
-
-        // Status
-        const status = params['status'];
-        (isNullOrUndefined(status)) || (this.statusId = status);
-
-        // 검색어
-        const searchText = params['nameContains'];
-        (isNullOrUndefined(searchText)) || (this.searchKeyword = searchText);
-
-        const from = params['from'];
-        const to = params['to'];
-
-        this._filterDate = new PeriodData();
-        this._filterDate.type = 'ALL';
-        if (!isNullOrUndefined(from) && !isNullOrUndefined(to)) {
-          this._filterDate.startDate = from;
-          this._filterDate.endDate = to;
-          this._filterDate.type = params['type'];
-
-          this._filterDate.startDateStr = decodeURIComponent(from);
-          this._filterDate.endDateStr = decodeURIComponent(to);
-          this.initialPeriodData = this._filterDate;
-          this.safelyDetectChanges();
-        }
         // 퍼미션 스키마 조회
-        this.init();
+        this.getUsers();
       })
     );
   }
@@ -170,10 +175,11 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
    */
   public init() {
 
-    // default sort
-    this.page.sort = defaultSort;
+    // 정렬 초기화
+    this.selectedContentSort = new Order();
+    this.selectedContentSort.key = 'createdTime';
+    this.selectedContentSort.sort = 'desc';
 
-    this.getUsers();
   }
 
   /**
@@ -193,26 +199,24 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
 
   /**
    * 가입 요청자 리스트 불러오기
-   * @param isAppend 기존 리스트에 추가 하는 경우 true else false
    */
-  public getUsers(isAppend?) {
+  public getUsers(): void {
 
     this.loadingShow();
 
-    this.membersService.getMemberApprovalList(this.setParam()).then((result) => {
+    this.userList = [];
+
+    const params = this.setParam();
+    this.membersService.getMemberApprovalList(params).then((result) => {
+
       this.loadingHide();
+
+      this._searchParams = params;
+
       this.pageResult = result.page;
-      const sorting = this.page.sort.split(',');
-      this.selectedContentSort.key = sorting[0];
-      this.selectedContentSort.sort = sorting[1];
 
+      this.userList = result['_embedded'] ? this.userList.concat(result['_embedded'].users) : [];
 
-      if (isAppend) {
-          this.userList = this.userList.concat(result._embedded ? result._embedded.users : []);
-        } else {
-          this.userList = [];
-          this.userList = result._embedded ? result._embedded.users : [];
-        }
     }).catch((error) => {
       this.loadingHide();
       Alert.warning(error.details);
@@ -226,9 +230,7 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
    */
   public changeStatus(status? : string) {
     if (status) {
-
       // 페이지 초기화
-      this.page.page = 0;
       this.statusId = status;
       this.reloadPage();
     }
@@ -256,14 +258,10 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
    */
   public searchUser(event) {
 
-    if (13 === event.keyCode) {
-
-      this.page.page = 0;
-      this.reloadPage();
-    } else if ( 27 === event.keyCode ) {
-
-      this.page.page = 0;
-      this.searchKeyword = '';
+    if (13 === event.keyCode || 27 === event.keyCode) {
+      if ( 27 === event.keyCode ) {
+        this.searchKeyword = '';
+      }
       this.reloadPage();
     }
 
@@ -273,13 +271,12 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
    * Refresh filters
    */
   public refreshFilters() {
-    this.page.page = 0;
     this.changeStatus('requested,rejected');
     this.page.sort = defaultSort;
     this.searchKeyword = '';
     this.selectedDate = null;
     this.periodComponent.setAll();
-    this.getUsers();
+    this.reloadPage();
   }
 
 
@@ -365,29 +362,28 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
 
   /**
    * 정렬 바꿈
-   * @param column 어떤 컬럼을 정렬 할 지
+   * @param key 어떤 컬럼을 정렬 할 지
    */
-  public sortList(column : string) {
-    this.page.page = 0;
-
+  public sortList(key : string) {
     // 초기화
-    this.selectedContentSort.sort = this.selectedContentSort.key !== column ? 'default' : this.selectedContentSort.sort;
+    this.selectedContentSort.sort = this.selectedContentSort.key !== key ? 'default' : this.selectedContentSort.sort;
+    // 정렬 정보 저장
+    this.selectedContentSort.key = key;
 
-    // asc, desc, default
-    switch (this.selectedContentSort.sort) {
-
-      case 'asc':
-        this.selectedContentSort.sort = 'desc';
-        break;
-      case 'desc':
-        this.selectedContentSort.sort = 'asc';
-        break;
-      case 'default':
-        this.selectedContentSort.sort = 'desc';
-        break;
+    if (this.selectedContentSort.key === key) {
+      // asc, desc
+      switch (this.selectedContentSort.sort) {
+        case 'asc':
+          this.selectedContentSort.sort = 'desc';
+          break;
+        case 'desc':
+          this.selectedContentSort.sort = 'asc';
+          break;
+        case 'default':
+          this.selectedContentSort.sort = 'desc';
+          break;
+      }
     }
-
-    this.page.sort = column + ',' + this.selectedContentSort.sort;
 
     // 데이터소스 리스트 조회
     this.reloadPage();
@@ -426,8 +422,11 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
     };
 
     result['status'] = this.statusId;
+
     // 정렬
-    result['sort'] = this.page.sort;
+    if (this.selectedContentSort.sort !== 'default') {
+      result['sort'] = this.selectedContentSort.key + ',' + this.selectedContentSort.sort;
+    }
 
     // nameContains
     if (this.searchKeyword) {

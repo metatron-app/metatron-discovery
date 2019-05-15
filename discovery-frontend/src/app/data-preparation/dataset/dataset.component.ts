@@ -286,7 +286,10 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
         Alert.error(result.errorMsg);
         this.loadingHide();
       } else {
-        this.getDatasets();
+        if (this.page.page > 0 && this.datasets.length === 1) {
+          this.page.page = this.page.page - 1;
+        }
+        this.reloadPage(false);
       }
     }).catch((error) => {
       this.loadingHide();
