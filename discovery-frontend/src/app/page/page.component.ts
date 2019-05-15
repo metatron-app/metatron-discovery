@@ -3918,6 +3918,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       if (!this.uiOption.version || this.uiOption.version < SPEC_VERSION) {
         // 옵션 초기화
         this.uiOption = OptionGenerator.initUiOption(this.uiOption);
+
+        if( this.selectChart == 'map' ){
+          this._setDefaultAreaForBBox(this.dataSource);
+        }
+
       }
 
       // 버전 체크완료
