@@ -76,7 +76,7 @@ export class PaginationComponent extends AbstractComponent implements OnInit, On
   public ngOnChanges(changes: SimpleChanges) {
     const infoChanges: SimpleChange = changes.info;
     if (infoChanges && infoChanges.currentValue) {
-      let startPage = (Math.floor(this.info.number / this._navigationSize) * this._navigationSize) - 1;
+      let startPage = (Math.floor(this.info.number / this._navigationSize) * this._navigationSize);
       this._setRange(startPage);
     }
   } // function - ngOnChanges
@@ -126,7 +126,7 @@ export class PaginationComponent extends AbstractComponent implements OnInit, On
    */
   public nextPagination() {
     let startPage = this.range[0] + this._navigationSize;
-    (this.info.totalPages < startPage) && (startPage = this.range[0]);
+    (this.info.totalPages <= startPage) && (startPage = this.range[0]);
     this._setRange(startPage);
   } // function - nextPagination
 

@@ -422,7 +422,8 @@ export class DetailPermissionSchemaComponent extends AbstractComponent implement
     this.permissionService.copyRoleset(schemaId)
       .then((result) => {
         // alert
-        Alert.success(`'${result.name}' 스키마가 생성되었습니다`);
+        Alert.success(this.translateService.instant('msg.permission.alert.create.ok', {value: result.name}));
+
         // 복제한 스키마 상세페이지로 이동
         this.router.navigate(['/admin/workspaces/permission', result.id]).then();
       })
@@ -440,9 +441,10 @@ export class DetailPermissionSchemaComponent extends AbstractComponent implement
     // 퍼미션 스키마 삭제
     this.permissionService.deleteRoleset(schemaId).then(() => {
       // alert
-      Alert.success('스키마가 삭제되었습니다');
+      Alert.success(this.translateService.instant('msg.permission.alert.delete.ok'));
       // 나가기
       this.onClickPrev();
+
     }).catch((error) => this.commonExceptionHandler(error));
   }
 

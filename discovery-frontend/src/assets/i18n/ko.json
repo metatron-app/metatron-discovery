@@ -3255,6 +3255,9 @@
   "msg.permission.ui.sys-perm.system-setting.desc" : "사용자를 직접 등록하거나 회원가입 요청을 승인하여 사용자를 등록하고 관리할 수 있습니다. 시스템에서 제공하는 워크스페이스 스키마 퍼미션을 정의할 수 있습니다",
   "msg.permission.ui.sys-perm.ws-manager.desc" : "사용자가 소유하고 있는 워크스페이스에 커스텀 스키마를 생성하고 관리할 수 있습니다",
   "msg.permission.ui.sys-perm.guest.desc" : "게스트",
+  "msg.permission.alert.delete.ok" : "스키마가 삭제되었습니다",
+  "msg.permission.alert.create.ok" : "'{{value}}' 스키마가 생성되었습니다",
+
 
   "msg.page.pivot.layout.condition.dimension.over.desc": "{{value}}개 이상의 차원값",
   "msg.page.pivot.layout.condition.dimension.desc": "{{value}}개의 차원값",

@@ -3254,6 +3254,8 @@
   "msg.permission.ui.sys-perm.system-setting.desc" : "Register and manage users by registering or approving membership requests. Users with this permission can define the workspace schema permissions of the system-provided.",
   "msg.permission.ui.sys-perm.ws-manager.desc" : "Create and manage custom schemas in owner workspaces.",
   "msg.permission.ui.sys-perm.guest.desc" : "Guest",
+  "msg.permission.alert.delete.ok" : "Schema deleted",
+  "msg.permission.alert.create.ok" : "'{{value}}' schema created",
 
   "msg.page.pivot.layout.condition.dimension.over.desc": "More than {{value}} dimensions",
   "msg.page.pivot.layout.condition.dimension.desc": "{{value}} dimension",

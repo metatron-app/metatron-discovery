@@ -102,8 +102,6 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
     this.subscriptions.push(
       this.activatedRoute.queryParams.subscribe(params => {
 
-        console.info( '>>>>>>> list param', params );
-
         const page = params['page'];
         (isNullOrUndefined(page)) || (this.page.page = page);
 
@@ -400,7 +398,8 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
     this.permissionService.copyRoleset(schemaId)
       .then((result) => {
         // alert
-        Alert.success(`'${result.name}' 스키마가 생성되었습니다`);
+        Alert.success(this.translateService.instant('msg.permission.alert.create.ok', {value: result.name}));
+
         // 재조회
         this.reloadPage();
       })
@@ -419,9 +418,15 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
     this.permissionService.deleteRoleset(schemaId)
       .then(() => {
         // alert
-        Alert.success('스키마가 삭제되었습니다');
+        Alert.success(this.translateService.instant('msg.permission.alert.delete.ok'));
+
+        if (this.page.page > 0 && this.roleSetList.length === 1) {
+          this.page.page -= 1;
+        }
+
         // 재조회
-        this.reloadPage();
+        this.reloadPage(false);
+
       })
       .catch((error) => this.commonExceptionHandler(error));
   }

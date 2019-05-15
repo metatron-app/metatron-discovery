@@ -65,7 +65,7 @@
           <div class="ddp-ui-edit-option ddp-inline">
             <label class="ddp-label-radio"
                    *ngFor="let status of statusTypes"
-                   (click)="onChangeStatus(status)">
+                   (change)="onChangeStatus(status)">
               <input type="radio" [checked]="selectedStatus.value === status.value">
               <i class="ddp-icon-radio"></i>
               <span class="ddp-txt-radio">{{status.label}}</span>
