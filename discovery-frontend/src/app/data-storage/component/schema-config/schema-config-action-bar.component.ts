@@ -13,7 +13,17 @@
  * limitations under the License.
  */
 import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Component, ElementRef, EventEmitter, Injector, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges
+} from '@angular/core';
 import { Field, FieldRole, LogicalType } from '../../../domain/datasource/datasource';
 
 @Component({
@@ -178,6 +188,32 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
 
   ngOnDestroy() {
     super.ngOnDestroy();
+  }
+
+
+  /**
+   * Window resize
+   * @param event
+   */
+  @HostListener('window:resize', ['$event'])
+  protected onResize(event) {
+    // #1925
+    this.closeSelectBoxes();
+  }
+
+  /**
+   * Close select box
+   */
+  public closeSelectBoxes(): void {
+    if (this.actionTypeListShowFlag === true) {
+      this.actionTypeListShowFlag = false;
+    }
+    if (this.roleTypeListShowFlag === true) {
+      this.roleTypeListShowFlag = false;
+    }
+    if (this.logicalTypeListShowFlag === true) {
+      this.logicalTypeListShowFlag = false;
+    }
   }
 
   /**

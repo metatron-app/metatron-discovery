@@ -1,6 +1,7 @@
 <div class="ddp-box-file-create ddp-file-single" [class.type-upload]="isExistUploadFile()">
   <!-- progress (uploading OR complete) -->
-  <div class="ddp-file-progress" [class.ddp-disabled]="isFileUploadCancel()" *ngIf="isFileUploading() || isFileUploadComplete() || isFileUploadFail() || isFileUploadCancel()">
+  <div class="ddp-file-progress" [class.ddp-disabled]="isFileUploadCancel()" *ngIf="isFileUploading() || isFileUploadComplete() || isFileUploadFail() || isFileUploadCancel()"
+       (dragenter)="disableEvent($event)" (dragover)="disableEvent($event)" (drop)="disableEvent($event)">
     <div class="ddp-data-name">
       {{uploadedFile.name}}
     </div>
@@ -85,7 +86,8 @@
   </div>
   <!-- //progress (uploading OR complete) -->
   <!-- upload box -->
-  <div class="ddp-box-default" [class.ddp-disabled]="isFileUploading()" #drop_container>
+  <div class="ddp-box-default" [class.ddp-disabled]="isFileUploading()" #drop_container
+       (dragenter)="disableDragDrop($event)" (dragover)="disableDragDrop($event)" (drop)="disableDragDrop($event)">
     <div class="ddp-txt-file-info">
       <div class="ddp-link-file">
         <input type="file" #pickfiles/>

@@ -41,7 +41,7 @@ public class ActivityWebSocketController {
   public void addActivity(SimpMessageHeaderAccessor accessor,
                                ActivityStreamV2 activity) throws Exception {
 
-    LOGGER.debug("User({}, {}) activity recevied : {}",
+    LOGGER.debug("User({}, {}) activity type : {}, activity recevied : {}",
                  accessor.getUser().getName(), accessor.getSessionId(), activity.getType(), activity.getObject());
 
     activityStreamService.addActivity(activity, accessor.getUser());

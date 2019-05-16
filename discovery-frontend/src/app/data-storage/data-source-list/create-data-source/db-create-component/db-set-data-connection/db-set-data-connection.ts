@@ -24,7 +24,7 @@ import { DataconnectionService } from '../../../../../dataconnection/service/dat
 import * as _ from 'lodash';
 import { PageResult } from '../../../../../domain/common/page';
 import { StringUtil } from '../../../../../common/util/string.util';
-import {ConnectionComponent} from "../../../../component/connection/connection.component";
+import {ConnectionComponent, ConnectionValid} from "../../../../component/connection/connection.component";
 import {CommonUtil} from "../../../../../common/util/common.util";
 import {Dataconnection} from "../../../../../domain/dataconnection/dataconnection";
 
@@ -105,7 +105,9 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
    */
   public next(): void {
     // set click flag
-    this._connectionComponent.isConnectionCheckRequire = true;
+    if (this._connectionComponent.isEmptyConnectionValidation()) {
+      this._connectionComponent.setRequireCheckConnection();
+    }
     // next enable validation
     if (this._isEnableConnection()) {
       // if exist connectionData
@@ -254,7 +256,14 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
    * @private
    */
   private _isEnableConnection(): boolean {
-    return this._connectionComponent.isValidConnection;
+    // check valid connection
+    if (!this._connectionComponent.isEnableConnection()) {
+      // #1990 scroll into invalid input
+      this._connectionComponent.scrollIntoConnectionInvalidInput();
+      return false;
+    } else {
+      return true;
+    }
   }
 
   /**
@@ -358,6 +367,6 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
     this.pageResult = connectionData.pageResult;
     // input init
     this._connectionComponent.init(connectionData.connection);
-    this._connectionComponent.isValidConnection = true;
+    this._connectionComponent.connectionValidation = ConnectionValid.ENABLE_CONNECTION;
   }
 }

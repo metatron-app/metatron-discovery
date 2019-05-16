@@ -152,6 +152,7 @@ ul.ddp-list-selectbox2.ddp-hover-none li:hover {background:none !important;}
 
 .ddp-type-selectbox.ddp-disabled:hover {border:1px solid #d0d1d9;}
 .ddp-type-selectbox ul.ddp-list-selectbox.ddp-selectdown {bottom:inherit; top:34px; z-index:50}
+.ddp-type-selectbox ul.ddp-list-selectbox.ddp-selectdown.ddp-ellipsis li a {white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 .ddp-type-selectbox ul.ddp-list-selectbox.ddp-selectdown.ddp-pass {left:inherit; min-width:100%; white-space:nowrap;}
 .ddp-type-selectbox ul.ddp-list-selectbox.ddp-selectdown.ddp-pass2{left:0; right:inherit; min-width:100%; white-space:nowrap; }
 .ddp-type-selectbox ul.ddp-list-selectbox li a span.ddp-txt-search {color:#666eb2;}

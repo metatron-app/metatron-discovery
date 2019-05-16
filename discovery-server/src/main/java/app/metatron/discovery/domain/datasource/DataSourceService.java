@@ -266,7 +266,7 @@ public class DataSourceService {
 
     DataSource dataSource;
     if (dataSourceId.indexOf(ID_PREFIX) == 0) {
-      LOGGER.debug("Find temporary datasource : {}" + dataSourceId);
+      LOGGER.debug("Find temporary datasource : {}", dataSourceId);
 
       DataSourceTemporary temporary = temporaryRepository.findOne(dataSourceId);
       if (temporary == null) {

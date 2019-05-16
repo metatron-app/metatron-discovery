@@ -645,7 +645,7 @@ public class WorkspaceController {
     Page<Workspace> results;
     if(CollectionUtils.isEmpty(dataSourceIds) && CollectionUtils.isEmpty(joinedWorkspaceIds)) {
       // dataSourceIds, joinedWorkspaceIds 둘다 0 인 케이스는 질의 불필요
-      results = new PageImpl(Lists.newArrayList());
+      results = new PageImpl(Collections.emptyList(), pageable, 0);
     } else {
       results = workspaceRepository.findAll(
           WorkspacePredicate.searchWorkbookImportAvailable(dataSourceIds, joinedWorkspaceIds, pubType, nameContains), pageable);

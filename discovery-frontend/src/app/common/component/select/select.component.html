@@ -15,12 +15,16 @@
 <!-- 선택시 ddp-selected 추가 -->
 <div [ngClass]="{'ddp-selectbox-disabled': disabled, 'ddp-inline':inline}"
      (clickOutside)="this.isShowSelectList=false;">
-  <div class="ddp-type-selectbox" [ngClass]="{'ddp-selected' : isShowSelectList && isShowSelectListForOutSide, 'ddp-nowrap-r': noWrapFl, 'ddp-full' : isFull, 'ddp-flow':isDataprep}" (click)="toggleSelectList()" >
+  <div class="ddp-type-selectbox"
+       (click)="toggleSelectList()"
+       [ngClass]="{'ddp-selected' : isShowSelectList && isShowSelectListForOutSide, 'ddp-nowrap-r': noWrapFl, 'ddp-full' : isFull, 'ddp-flow':isDataprep}">
     <span class="ddp-txt-selectbox">{{selectedItem == null ? unselectedMessage :  isStringArray ? selectedItem : selectedItem[viewKey] }}</span>
-    <ul [ngClass]="{'ddp-selectdown': isUpSelect == false, 'ddp-pass' : isOptionToLeft, 'ddp-pass2' : !isOptionToLeft }"
+    <ul [ngClass]="{'ddp-selectdown': isUpSelect == false, 'ddp-ellipsis' : isEllipsis}"
         class="ddp-list-selectbox">
       <li *ngFor="let item of array">
-        <a href="javascript:" (click)="selected(item);">{{isStringArray ? item : item[viewKey]}}</a>
+        <a href="javascript:" (click)="selected(item);" title="{{isStringArray ? item : item[viewKey]}}">
+          {{isStringArray ? item : item[viewKey]}}
+        </a>
       </li>
       <li *ngIf="array?.length === 0">
         <span class="ddp-noresult">{{'msg.comm.ui.no.rslt' | translate}}</span>

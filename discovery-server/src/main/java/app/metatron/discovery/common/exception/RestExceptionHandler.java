@@ -191,7 +191,7 @@ public class RestExceptionHandler extends AbstractExceptionHandler {
         message = MetatronException.DEFAULT_GLOBAL_MESSAGE;
       }
 
-      LOGGER.error("[API:{}] {} {}: {}, {}", ((ServletWebRequest) webRequest).getRequest().getRequestURI(),
+      LOGGER.error("[API:{}] {} {}: {}", ((ServletWebRequest) webRequest).getRequest().getRequestURI(),
                    code == null ? "" : code.getCode(), message, details);
       if(printStackTrace) {
         exception.printStackTrace();
