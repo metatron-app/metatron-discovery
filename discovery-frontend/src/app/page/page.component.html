@@ -180,7 +180,7 @@
                           <span class="ddp-data-in">
                             {{field.name}}
                             <em *ngIf="field['nameAlias'] && field['nameAlias']['nameAlias'] != field.name"
-                                class="ddp-icon-alias">
+                                class="ddp-icon-alias" title="{{field['nameAlias']['nameAlias']}}">
                               ({{field['nameAlias']['nameAlias']}})
                             </em>
                           </span>

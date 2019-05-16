@@ -1,6 +1,6 @@
-<div id="editFieldLayer" class="ddp-ui-layer-box" [style.display]="editingField == null ? 'none' : 'block'" (clickOutside)="clickOutside()" [excludeBeforeClick]="true" [exclude]="'.ddp-icon-layer'">
+<div id="editFieldLayer" class="ddp-ui-layer-box ddp-layer-shelf" [style.display]="editingField == null ? 'none' : 'block'" (clickOutside)="clickOutside()" [excludeBeforeClick]="true" [exclude]="'.ddp-icon-layer'">
   <div *ngIf="editingField">
-    <div class="ddp-ui-layer-title">
+    <div class="ddp-ui-layer-title" title="{{editingField.name}}">
       {{editingField.name}}
     </div>
     <ul class="ddp-list-layer-option ddp-list-radio">
@@ -22,7 +22,10 @@
         <a (mouseover)="setEditingFieldAlias( editingField );" href="javascript:">
           {{'msg.page.th.alias-this-chart' | translate}}
           <div class="ddp-data-result">
-            {{getDisplayEditingPivotAlias( editingField )}} <em class="ddp-icon-view"></em>
+            <span class="ddp-txt-result" title="{{getDisplayEditingPivotAlias( editingField )}}">
+              {{getDisplayEditingPivotAlias( editingField )}}
+              <em class="ddp-icon-view"></em>
+            </span>
           </div>
         </a>
         <!-- 2depth (알라ㅣ아스 있을 경우) -->
@@ -53,7 +56,7 @@
           </div>
         </a>
       </li>
-      <li *ngIf="['timestamp'].indexOf(editingField.type) == -1 && 'map' !== uiOption.type.toString()" (mouseover)="fix2DepthContext = false;">
+      <li *ngIf="['timestamp'].indexOf(editingField?.type) == -1 && 'map' !== uiOption.type?.toString()" (mouseover)="fix2DepthContext = false;">
         <a href="javascript:">
           {{'msg.page.th.align' | translate}}
           <div class="ddp-data-result ddp-type">
