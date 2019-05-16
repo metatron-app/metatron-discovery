@@ -15,11 +15,16 @@
 package app.metatron.discovery.domain.dataconnection.accessor;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
+import org.apache.commons.lang3.StringUtils;
 import org.pf4j.Extension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +40,49 @@ public class PrestoDataAccessor extends AbstractJdbcDataAccessor {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PrestoDataAccessor.class);
   private static final String TABLE_NAME_COLUMN = "Table";
+  private static final String SHOW_CATALOGS = "SHOW CATALOGS";
+
+  @Override
+  public Map<String, Object> checkConnection() {
+    Map<String, Object> resultMap = Maps.newHashMap();
+    //resultMap.put("connected", true);
+    boolean connected = false;
+
+    Connection conn = null;
+    Statement stmt = null;
+    ResultSet rs = null;
+    try {
+      conn = this.getConnection();
+      stmt = conn.createStatement();
+      stmt.execute(dialect.getTestQuery(connectionInfo));
+
+      // Perform additional catalog validation checks
+      String connectionCatalog = conn.getCatalog();
+      if(StringUtils.isNotEmpty(connectionCatalog)) {
+        List<String> catalogs = this.executeQueryForList(this.getConnection(), SHOW_CATALOGS, (resultSet, i) -> resultSet.getString(1));
+        for(String catalog : catalogs){
+          LOGGER.debug("check catalog : {}", catalog);
+          if(connectionCatalog.equals(catalog)){
+            connected = true;
+            break;
+          }
+        }
+      } else {
+        connected = false;
+        resultMap.put("message", "Please set a catalog name.");
+      }
+
+      resultMap.put("connected", connected);
+    } catch (Exception e) {
+      LOGGER.warn("Fail to check query : {}", e.getMessage());
+      resultMap.put("connected", false);
+      resultMap.put("message", e.getMessage());
+      return resultMap;
+    } finally {
+      connector.closeConnection(conn, stmt, rs);
+    }
+    return resultMap;
+  }
 
   @Override
   public Map<String, Object> getDatabases(String catalog, String schemaPattern, Integer pageSize, Integer pageNumber) {
