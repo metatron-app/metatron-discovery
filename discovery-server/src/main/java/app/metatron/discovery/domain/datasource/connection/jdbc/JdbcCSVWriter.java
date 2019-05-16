@@ -158,7 +158,7 @@ public class JdbcCSVWriter extends CsvResultSetWriter implements ICsvResultSetWr
       // thrown before writing occurs
       objects.clear();
       for( int columnIndex = 1; columnIndex <= numberOfColumns; columnIndex++ ) {
-        objects.add(resultSet.getObject(columnIndex));
+        objects.add(resultSet.getString(columnIndex));
       }
       super.writeRow(objects);
     }
