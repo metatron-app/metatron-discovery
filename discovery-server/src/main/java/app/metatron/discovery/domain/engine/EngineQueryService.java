@@ -550,7 +550,7 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
         }
       }
       stopWatch.stop();
-      LOGGER.debug("[{}] Result Processing Time : ", CommonLocalVariable.getQueryId(), stopWatch.getLastTaskTimeMillis());
+      LOGGER.debug("[{}] Result Processing Time : {}", CommonLocalVariable.getQueryId(), stopWatch.getLastTaskTimeMillis());
 
       return result;
     }

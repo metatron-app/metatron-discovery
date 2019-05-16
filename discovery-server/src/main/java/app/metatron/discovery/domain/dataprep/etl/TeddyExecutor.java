@@ -242,7 +242,7 @@ public class TeddyExecutor {
             throw e;
         }
 
-        LOGGER.info("run(): success from run_internal(): ", result.toString());
+        LOGGER.info("run(): success from run_internal(): {}", result.toString());
         return result;
     }
 

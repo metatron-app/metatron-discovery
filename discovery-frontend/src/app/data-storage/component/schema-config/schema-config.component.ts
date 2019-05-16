@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, HostListener, Injector, Input, Output, ViewChild} from '@angular/core';
 import {
   ConnectionType,
   DatasourceInfo,
@@ -119,6 +119,25 @@ export class SchemaConfigComponent extends AbstractComponent {
     // if action bar open
     if (this.getCheckedFieldList().length !== 0) {
       this._actionBarComponent.init(this.getCheckedFieldList(), this.selectedTimestampField, this.selectedTimestampType, this.selectedAction);
+    }
+  }
+
+  /**
+   * Window resize
+   * @param event
+   */
+  @HostListener('window:resize', ['$event'])
+  protected onResize(event) {
+    // #1925
+    this.closeSelectBoxes();
+  }
+
+  /**
+   * Close select box
+   */
+  public closeSelectBoxes(): void {
+    if (this.logicalTypeFilterListShowFlag === true) {
+      this.logicalTypeFilterListShowFlag = false;
     }
   }
 

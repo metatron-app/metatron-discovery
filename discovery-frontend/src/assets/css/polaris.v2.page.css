@@ -6026,7 +6026,7 @@ table.ddp-table-column tr td .ddp-txt-column {line-height:30px;}
 .ddp-view-joinkeys {display:inline-block; }
 .ddp-view-joinkeys .ddp-btn-solid  {margin-left:3px;}
 .ddp-form-join {display:inline-block; width:360px; border:1px solid #d0d1d8; border-radius:2px; background-color:#fff; vertical-align: middle; text-align:left; box-sizing:border-box;}
-.ddp-form-join .ddp-data-column {float:left; width:46%; padding:7px 10px; color:#4b515b; font-size:12px; box-sizing:border-box;}
+.ddp-form-join .ddp-data-column {float:left; width:46%; padding:7px 10px; color:#4b515b; font-size:12px; box-sizing:border-box; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 .ddp-form-join .ddp-wrap-drop-search  {float:left; width:46%; box-sizing:border-box;}
 .ddp-form-join .ddp-wrap-drop-search .ddp-type-selectbox2 {border:none;}
 .ddp-form-join .ddp-type-selectbox {float:left; width:46%; border:none; box-sizing:border-box;}

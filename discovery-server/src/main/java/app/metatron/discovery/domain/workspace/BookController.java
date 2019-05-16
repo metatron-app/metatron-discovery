@@ -158,7 +158,7 @@ public class BookController {
     for(String bookId : bookIds) {
       Book book = bookRepository.findOne(bookId);
       if(book == null) {
-        LOGGER.warn("Fail to find book : {}" + bookId);
+        LOGGER.warn("Fail to find book : {}", bookId);
         continue;
       } else if(book.getType().equals("notebook")) {
         Notebook notebook = notebookRepository.findOne(bookId);

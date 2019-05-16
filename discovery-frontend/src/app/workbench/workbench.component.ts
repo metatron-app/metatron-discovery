@@ -157,6 +157,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   private _splitHorizontal: any;
 
   private _workspaceId: string;
+
+  private _initialTimer: any;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -402,21 +404,24 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.sendViewActivityStream(this.workbenchId, 'WORKBENCH');
 
     // 초기 데이터 조회 - 화면이 표시되기 전에 로딩을 호출하여 표시되지 않는 문제로 지연 코드 추가
-    setTimeout(() => {
+    this._initialTimer
+      = setTimeout(() => {
       this.loadingBar.hide(); // 초기에 표시되는 문제로 숨김
       this.loadingShow();
       this._loadInitData(() => {
         this.webSocketCheck(() => this.loadingHide());
 
-        this._splitVertical = Split(['.sys-workbench-top-panel', '.sys-workbench-bottom-panel'], {
-          direction: 'vertical',
-          onDragEnd: () => {
-            this.isFootAreaPopupCheck = true;
-            this.onEndedResizing();
-          }
-        });
-        this.onEndedResizing();
-        this._activeHorizontalSlider();
+        if( 0 < $('.sys-workbench-top-panel').length && 0 < $( '.sys-workbench-bottom-panel').length ) {
+          this._splitVertical = Split(['.sys-workbench-top-panel', '.sys-workbench-bottom-panel'], {
+            direction: 'vertical',
+            onDragEnd: () => {
+              this.isFootAreaPopupCheck = true;
+              this.onEndedResizing();
+            }
+          });
+          this.onEndedResizing();
+          this._activeHorizontalSlider();
+        }
       });
     }, 500);
   } // function - ngAfterViewInit
@@ -442,7 +447,12 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public ngOnDestroy() {
     super.ngOnDestroy();
 
-    if( this._splitVertical ) {
+    if (this._initialTimer) {
+      clearTimeout(this._initialTimer);
+      this._initialTimer = undefined;
+    }
+
+    if (this._splitVertical) {
       this._splitVertical.destroy();
       this._splitVertical = undefined;
     }
@@ -459,7 +469,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // (this.timer) && (clearInterval(this.timer));
 
     // save info
-    if (this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) !== '') {
+    if (this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) !== '' && CommonConstant.stomp) {
       CommonConstant.stomp.publish(
         {
           destination: '/message/workbench/' + this.workbenchId + '/dataconnections/' + this.workbench.dataConnection.id + '/disconnect',
@@ -2000,7 +2010,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // 길이 계산은 index가 0일 경우에만 계산한다
     if (this.editorListObj.index === 0) {
       // 변경이 다 일어났을 때
-      this.changeDetect.detectChanges();
+      this.safelyDetectChanges();
       // 아이콘 버튼 show flag
       this.editorListObj.showBtnFl = this._isEditorMaxWidth();
     }
@@ -2023,7 +2033,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // 길이 계산은 index가 0일 경우에만 계산한다
     if (this.editorResultListObj.index === 0) {
       // 변경이 다 일어났을 때
-      this.changeDetect.detectChanges();
+      this.safelyDetectChanges();
       // 아이콘 버튼 show flag
       this.editorResultListObj.showBtnFl = this._isEditorResultMaxWidth();
     }
@@ -2502,10 +2512,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       const $gridCanvas = $('.grid-canvas');
       this._gridScrollEvtSub
         = this.gridComponent.grid.onScroll.subscribe((data1, data2) => {
-        if ( 0 < data2.scrollTop ) {
-          this.hideResultButtons = (data2.scrollTop > ($gridCanvas.height() - $gridViewport.height() - 10 ));
+        if (0 < data2.scrollTop) {
+          this.hideResultButtons = (data2.scrollTop > ($gridCanvas.height() - $gridViewport.height() - 10));
           this.safelyDetectChanges();
-        } else if( 0 === data2.scrollTop ) {
+        } else if (0 === data2.scrollTop) {
           this.hideResultButtons = false;
         }
       });
@@ -2727,31 +2737,31 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           fieldData: currentResultTab.result.data
         };
 
-        if( StringUtil.isNotEmpty(this.workbench.dataConnection.hostname) ) {
+        if (StringUtil.isNotEmpty(this.workbench.dataConnection.hostname)) {
           this.setDatasource.connectionData.connection.hostname = this.workbench.dataConnection.hostname;
         }
-        if( 0 < this.workbench.dataConnection.port ) {
+        if (0 < this.workbench.dataConnection.port) {
           this.setDatasource.connectionData.connection.port = this.workbench.dataConnection.port;
         }
-        if( StringUtil.isNotEmpty(this.workbench.dataConnection.url) ) {
+        if (StringUtil.isNotEmpty(this.workbench.dataConnection.url)) {
           this.setDatasource.connectionData.connection.url = this.workbench.dataConnection.url;
         }
 
-        const inputSpec:InputSpec = this.workbench.dataConnection.connectionInformation.inputSpec;
-        if( InputMandatory.NONE !== inputSpec.catalog && StringUtil.isNotEmpty(this.workbench.dataConnection.catalog) ) {
+        const inputSpec: InputSpec = this.workbench.dataConnection.connectionInformation.inputSpec;
+        if (InputMandatory.NONE !== inputSpec.catalog && StringUtil.isNotEmpty(this.workbench.dataConnection.catalog)) {
           this.setDatasource.connectionData.connection.catalog = this.workbench.dataConnection.catalog;
         }
-        if( InputMandatory.NONE !== inputSpec.sid && StringUtil.isNotEmpty(this.workbench.dataConnection.sid) ) {
+        if (InputMandatory.NONE !== inputSpec.sid && StringUtil.isNotEmpty(this.workbench.dataConnection.sid)) {
           this.setDatasource.connectionData.connection.sid = this.workbench.dataConnection.sid;
         }
-        if( InputMandatory.NONE !== inputSpec.database && StringUtil.isNotEmpty(this.workbench.dataConnection.database) ) {
+        if (InputMandatory.NONE !== inputSpec.database && StringUtil.isNotEmpty(this.workbench.dataConnection.database)) {
           this.setDatasource.connectionData.connection.database = this.workbench.dataConnection.database;
         }
-        if( InputMandatory.NONE !== inputSpec.username ) {
+        if (InputMandatory.NONE !== inputSpec.username) {
           this.setDatasource.connectionData.connection.username
             = selectedSecurityType.value === AuthenticationType.DIALOG ? this.webSocketLoginId : connection.username;
         }
-        if( InputMandatory.NONE !== inputSpec.password ) {
+        if (InputMandatory.NONE !== inputSpec.password) {
           this.setDatasource.connectionData.connection.password
             = selectedSecurityType.value === AuthenticationType.DIALOG ? this.webSocketLoginPw : connection.password;
         }
@@ -2975,7 +2985,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         this.workbenchDesc = this.workbenchTemp.description;
       }
 
-      this.changeDetect.detectChanges();
+      this.safelyDetectChanges();
       this.wbName.nativeElement.focus();
     }
   }
@@ -2996,7 +3006,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         this.workbenchName = this.workbenchTemp.name;
       }
 
-      this.changeDetect.detectChanges();
+      this.safelyDetectChanges();
       this.wbDesc.nativeElement.focus();
     }
   }

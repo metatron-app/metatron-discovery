@@ -62,7 +62,7 @@
         <!-- latitude column -->
         <div class="ddp-col-6 ddp-form-error">
           <!-- select box -->
-          <column-select-box
+          <column-select-box #latitude_select
             [columnList]="latitudeColumnList"
             [selectedColumn]="selectedLatitudeColumn"
             [placeholder]="'msg.storage.ui.latitude.column' | translate"
@@ -75,7 +75,7 @@
         <!-- longitude column -->
         <div class="ddp-col-6 ddp-form-error">
           <!-- select box -->
-          <column-select-box
+          <column-select-box #longitude_select
             [columnList]="longitudeColumnList"
             [selectedColumn]="selectedLongitudeColumn"
             [placeholder]="'msg.storage.ui.longitude.column' | translate"

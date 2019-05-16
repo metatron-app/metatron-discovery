@@ -388,14 +388,14 @@ public class QueryEditorService {
         }
       }
     } catch(SQLException e){
-      LOGGER.error("Query Execute SQLException : {}", e);
+      LOGGER.error("Query Execute SQLException : ", e);
       queryResult
               = createMessageResult("An error occurred during query execution.  \n" +
               "Please contact your system administrator.  \n" +
               "(SQLException (" + e.getSQLState() + ") (" + e.getErrorCode() + ") : \n" +
               e.getMessage() + ")", query, QueryResult.QueryResultStatus.FAIL);
     } catch(Exception e){
-      LOGGER.error("Query Execute Exception : {}", e);
+      LOGGER.error("Query Execute Exception : ", e);
       queryResult = createMessageResult(e.getMessage(), query, QueryResult.QueryResultStatus.FAIL);
     } finally {
       if (logThread != null) {
