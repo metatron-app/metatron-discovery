@@ -38,7 +38,7 @@
   <!-- Server -->
   <div class="ddp-wrap-edit2 ">
     <div class="ddp-box-sub">
-      <div class="ddp-clear ddp-db-url">
+      <div class="ddp-clear ddp-db-url" #host_port_element>
         <!-- URL -->
         <div class="ddp-wrap-edit2 ddp-col-12" *ngIf="isUsedUrl" [class.ddp-error]="isUrlError">
           <label class="ddp-label-type">{{'msg.storage.ui.conn.url' | translate}}</label>
@@ -82,7 +82,7 @@
           </div>
           <!-- //SID -->
           <!-- DATABASE -->
-          <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isDatabaseError" *ngIf="!isDisableDatabase()">
+          <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isDatabaseError" *ngIf="!isDisableDatabase()" >
             <label class="ddp-label-type">{{'msg.storage.th.db_name' | translate}}</label>
             <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.th.db_name.ph' | translate}}" [readOnly]="isDisableChangeConnectionInfo"
                    [ngModel]="database" (ngModelChange)="database = $event; isDatabaseError = undefined; connectionValidInitialize()">
@@ -114,7 +114,7 @@
       </div>
       <!-- //URL (disable) -->
       <!-- only not used in USERINFO -->
-      <div class="ddp-clear" *ngIf="selectedAuthenticationType.value !== AUTHENTICATION_TYPE.USERINFO">
+      <div class="ddp-clear" *ngIf="isShowUsernameAndPasswordInput()" #username_pass_element>
         <!-- username -->
         <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isUsernameError" *ngIf="!isDisableUsername()">
           <label class="ddp-label-type">{{'msg.storage.th.user_name' | translate}} <span class="ddp-sub" *ngIf="selectedAuthenticationType.value === AUTHENTICATION_TYPE.DIALOG">{{'msg.storage.ui.for.test' | translate}}</span></label>
@@ -137,7 +137,7 @@
         <!-- //Password -->
       </div>
       <!-- //only not used in USERINFO -->
-      <!-- Security -->
+      <!-- Access method -->
       <div class="ddp-wrap-edit2 ">
         <ng-container *ngIf="!isDisableAuthenticationType()">
           <label class="ddp-label-type" >{{'msg.storage.ui.security' | translate}}</label>
@@ -152,13 +152,13 @@
             </li>
           </ul>
         </ng-container>
-        <div class="ddp-ui-buttons ddp-inline">
+        <div class="ddp-ui-buttons ddp-inline" #check_element>
           <a href="javascript:" class="ddp-btn-pop ddp-bg-gray"
              (click)="checkConnection()">{{'msg.storage.btn.test' | translate}}</a>
           <div class="ddp-ui-message ddp-ui-info ">
-            <span class="ddp-data-error2" *ngIf="isConnectionCheckRequire && !isValidConnection">{{'msg.storage.ui.required' | translate}}</span>
-            <span class="ddp-data-error" *ngIf="isValidConnection === false"><em class="ddp-icon-error"></em>{{'msg.storage.ui.invalid.conn' | translate}}</span>
-            <span class="ddp-data-ok" *ngIf="isValidConnection"><em class="ddp-icon-ok"></em>{{'msg.storage.ui.valid.conn' | translate}}</span>
+            <span class="ddp-data-error2" *ngIf="isRequireCheckConnection()">{{'msg.storage.ui.required' | translate}}</span>
+            <span class="ddp-data-error" *ngIf="isDisableConnection()"><em class="ddp-icon-error"></em>{{'msg.storage.ui.invalid.conn' | translate}}</span>
+            <span class="ddp-data-ok" *ngIf="isEnableConnection()"><em class="ddp-icon-ok"></em>{{'msg.storage.ui.valid.conn' | translate}}</span>
           </div>
         </div>
         <!-- advanced settings -->
@@ -170,7 +170,7 @@
           <div class="ddp-ui-sub-folding">
             <div class="ddp-wrap-edit2 ">
               <div class="ddp-label-type ddp-info-inline">{{'msg.storage.ui.custom.property' | translate}}</div>
-              <div class="ddp-box-code">
+              <div class="ddp-box-code" #properties_element>
                 <!-- clear -->
                 <div class="ddp-clear ddp-list-code" *ngFor="let property of properties; let i = index">
                   <div class="ddp-col-5">
@@ -194,7 +194,7 @@
         </div>
         <!-- //advanced settings -->
       </div>
-      <!-- //Security -->
+      <!--// Access method -->
     </div>
   </div>
   <!-- //Server -->

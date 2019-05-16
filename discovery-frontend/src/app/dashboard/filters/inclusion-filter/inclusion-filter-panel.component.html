@@ -14,10 +14,29 @@
 
 <!-- 상단 영역 -->
 <div class="ddp-ui-divide">
-  <div class="ddp-ui-down-title2" [attr.data-gl-dragsource]="isDraggable ? 'enable' : 'disable'"
+  <div class="ddp-ui-down-title2 ddp-flex" [attr.data-gl-dragsource]="isDraggable ? 'enable' : 'disable'"
        [ngStyle]="!isDashboardMode ? { cursor : 'default' } : {}">
+
+    <!-- 필드 이름 표시 영역 -->
+    <div *ngIf="filter" class="ddp-itemtype-title">
+      <div class="ddp-data-itemtype ddp-type">
+        <span class="ddp-icon-box">
+          <em *ngIf="field" class="{{getDimensionTypeIconClass(field)}}" ></em>
+          <em class="ddp-icon-use3" *ngIf="isWidgetInLayout"></em>
+        </span>
+        <span class="ddp-txt-itemtype">
+          <span class="ddp-data-name">{{filter.field}}</span>
+          <span class="ddp-data-sub">{{dataSource?.name}}</span>
+          <span *ngIf="!isBoardFilter" class="ddp-txt-chartname ">
+            {{ 'msg.board.ui.filter.used-this-chart' | translate }}
+          </span>
+        </span>
+      </div>
+    </div>
+    <!-- // 필드 이름 표시 영역 -->
+
     <!-- 필터 속성 표시 영역 -->
-    <div *ngIf="filter" class="ddp-ui-buttons">
+    <div *ngIf="filter" class="ddp-flex-button">
       <em class="ddp-icon-global-s" *ngIf="isBoardFilter"></em>
       <!-- 추천/필수 필터 경우 -->
       <div *ngIf="filter.ui.filteringSeq > 0" class="ddp-wrap-datarecommend">
@@ -72,7 +91,7 @@
               </a>
             </li>
             <li *ngIf="false" >
-            <!--<li *ngIf="!isDashboardMode && !isBoardFilter && isChangeable">-->
+              <!--<li *ngIf="!isDashboardMode && !isBoardFilter && isChangeable">-->
               <a href="javascript:" (click)="changeChartToGlobal(filter)">
                 <em class="ddp-icon-drop-global"></em>
                 {{'msg.board.filter.ui.turn.global' | translate}}
@@ -104,23 +123,6 @@
       <!-- // 더보기 버튼 영역 -->
     </div>
     <!-- // 필터 속성 표시 영역 -->
-    <!-- 필드 이름 표시 영역 -->
-    <div *ngIf="filter" class="ddp-itemtype-title">
-      <div class="ddp-data-itemtype ddp-type">
-        <span class="ddp-icon-box">
-          <em *ngIf="field" class="{{getDimensionTypeIconClass(field)}}" ></em>
-          <em class="ddp-icon-use3" *ngIf="isWidgetInLayout"></em>
-        </span>
-        <span class="ddp-txt-itemtype">
-          <span class="ddp-data-name">{{filter.field}}</span>
-          <span class="ddp-data-sub">{{dataSource?.name}}</span>
-          <span *ngIf="!isBoardFilter" class="ddp-txt-chartname ">
-            {{ 'msg.board.ui.filter.used-this-chart' | translate }}
-          </span>
-        </span>
-      </div>
-    </div>
-    <!-- // 필드 이름 표시 영역 -->
   </div>
 </div>
 <!-- // 상단 영역 -->

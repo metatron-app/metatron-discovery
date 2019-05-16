@@ -274,7 +274,7 @@ public class EngineLoadService {
     Map<String, Object> result = engineRepository.load(specStr, paramMap, Map.class)
                                                  .orElseThrow(() -> new DataSourceIngestionException("Result empty"));
 
-    LOGGER.info("Successfully load. Result is ", result);
+    LOGGER.info("Successfully load. Result is {}", result);
 
     if (temporary == null) {
       temporary =

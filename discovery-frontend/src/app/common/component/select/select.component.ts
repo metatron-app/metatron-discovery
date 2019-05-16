@@ -106,6 +106,9 @@ export class SelectComponent extends AbstractComponent implements OnInit {
   // Select box width is longer when it's dataprep
   @Input() public isDataprep: boolean = false;
 
+  // 길어지면 말줄임 여부 true ? ... : 밑으로 길어짐
+  @Input() public isEllipsis?: boolean = true;
+
   // 선택 아이템
   public selectedItem: any;
 
