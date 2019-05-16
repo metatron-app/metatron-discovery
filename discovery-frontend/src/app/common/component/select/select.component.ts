@@ -110,6 +110,10 @@ export class SelectComponent extends AbstractComponent implements OnInit {
   // select box icon 이 있는경우
   @Input() public isIconType: boolean = false;
 
+  // 길어지면 말줄임 여부 true ? ... : 밑으로 길어짐
+  @Input() public isEllipsis?: boolean = true;
+
+
   // 선택 아이템
   public selectedItem: any;
 

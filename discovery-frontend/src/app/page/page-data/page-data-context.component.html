@@ -21,7 +21,7 @@
   <div *ngIf="isShowLayer" class="ddp-detail-more">
     <dl class="ddp-dl-more">
       <dt>{{ 'msg.page.dt.column.name' | translate }}</dt>
-      <dd>{{selectedField.uiMetaData?.name}}</dd>
+      <dd title="{{selectedField.uiMetaData?.name}}">{{selectedField.uiMetaData?.name}}</dd>
     </dl>
     <dl class="ddp-dl-more">
       <dt>{{ 'msg.page.dt.type' | translate }}</dt>
@@ -46,8 +46,16 @@
       <a href="javascript:">
         Alias
         <div class="ddp-data-result">
-          {{selectedField.nameAlias ? selectedField.nameAlias.nameAlias : 'NONE'}}
-          <em class="ddp-icon-view"></em>
+          <span class="ddp-txt-result" *ngIf="selectedField.nameAlias; else noAlias" title="{{selectedField.nameAlias.nameAlias}}">
+            {{selectedField.nameAlias.nameAlias}}
+            <em class="ddp-icon-view"></em>
+          </span>
+          <ng-template #noAlias>
+            <span  class="ddp-txt-result">
+              {{'NONE'}}
+              <em class="ddp-icon-view"></em>
+            </span>
+          </ng-template>
         </div>
       </a>
       <!-- 2depth (알라ㅣ아스 있을 경우) -->

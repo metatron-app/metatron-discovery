@@ -295,6 +295,8 @@
   "msg.comm.ui.failed": "Failed",
   "msg.comm.ui.complete": "Complete",
   "msg.comm.ui.canceled": "Canceled",
+  "msg.comm.alert.error.msg": "There were problems<br>Please check the following messages:",
+  "msg.comm.alert.error.btn": "Click here for details",
 
   "msg.lnb.btn.manual" : "Download",
   "msg.lnb.btn.manual.web" : "Online",
@@ -405,6 +407,7 @@
   "msg.space.create.notebook.title": "Select source type",
   "msg.space.warning.can-not-create-11depth-folder" : "You can only create subfolders to 10 depths.",
   "msg.space.ui.list.search.placeholder" : "Search by sever name",
+  "msg.space.alert.join.msg" : "An error occurred while calling the engine",
 
   "msg.alert.retrieve.fail" : "Failed to retrieve data",
   "msg.alert.del.success": " deleted",

@@ -6,7 +6,7 @@
 **************************************************************/
 .ddp-label-radio {display:inline-block; position:relative; padding-left:19px;  cursor:pointer;}
 .ddp-label-radio span.ddp-txt-radio,
-.ddp-label-radio span.ddp-txt-checkbox {font-size:13px; color:#4b515b; vertical-align:bottom;}
+.ddp-label-radio span.ddp-txt-checkbox {display:inline-block; font-size:13px; color:#4b515b; vertical-align:bottom; word-break:break-all;}
 .ddp-label-radio span.ddp-txt-radio span.ddp-data-valuenum,
 .ddp-label-radio span.ddp-txt-checkbox span.ddp-data-valuenum {position:relative; top:-1px; margin-left:5px; color:#90969f; font-size:12px;}
 .ddp-label-radio span.ddp-txt-radio span.ddp-txt-det {color:#808dcd; font-style:italic;}

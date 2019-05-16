@@ -14,8 +14,13 @@
 
 package app.metatron.discovery.domain.datasource.connection.jdbc;
 
+import com.mockrunner.mock.jdbc.MockResultSet;
+
+import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.supercsv.prefs.CsvPreference;
+import org.supercsv.util.Util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -24,9 +29,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import app.metatron.discovery.domain.dataconnection.DataConnection;
@@ -130,5 +138,28 @@ public class JdbcCSVWriterTest {
 
     pw.close();
     System.out.println("done!");
+  }
+
+  @Test
+  public void getStringFromResultSetTest() throws SQLException {
+    MockResultSet resultSet = new MockResultSet("mock_rs");
+
+    List<Object> objects = new LinkedList<Object>();
+    List<Object> strings = new LinkedList<Object>();
+
+    resultSet.addColumn("string", new String[]{"a","b","c"});
+    resultSet.addColumn("int", new Integer[]{1, 2, 3});
+
+    while( resultSet.next() ) {
+      objects.clear();
+      strings.clear();
+      for( int columnIndex = 1; columnIndex < 3; columnIndex++ ) {
+        objects.add(resultSet.getObject(columnIndex));
+        strings.add(resultSet.getString(columnIndex));
+      }
+      Assert.assertArrayEquals("The two arrays are identical.", Util.objectListToStringArray(objects), Util.objectListToStringArray(strings));
+    }
+
+
   }
 }
