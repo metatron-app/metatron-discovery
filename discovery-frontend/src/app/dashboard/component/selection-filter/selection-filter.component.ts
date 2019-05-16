@@ -133,6 +133,7 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
     }
 
     this._broadcastSelection({ filters: this._getApiFilters(), chartSelectInfo: select });
+    this.safelyDetectChanges();
   }
 
   /**
