@@ -24,7 +24,7 @@
                  [(ngModel)]="searchText"
                  (keypress)="searchDatasourceEvent($event);"
                  (keyup.esc)="searchEvent(false);">
-          <a *ngIf="'' !== searchText" (click)="searchText=''"
+          <a *ngIf="'' !== searchText" (click)="searchText='';searchEvent(true);"
              href="javascript:" class="ddp-btn-delete" style="display: block;"></a>
         </div>
         <!-- // 검색 -->
@@ -65,7 +65,7 @@
             <table class="ddp-table-form ddp-table-type2">
               <colgroup>
                 <col width="*">
-                <col width="8%">
+                <col width="130px">
                 <col width="10%">
                 <col width="13%">
               </colgroup>
@@ -101,7 +101,7 @@
             <table class="ddp-table-form ddp-table-type2 ddp-table-select">
               <colgroup>
                 <col width="*">
-                <col width="8%">
+                <col width="130px">
                 <col width="10%">
                 <col width="13%">
               </colgroup>
@@ -117,13 +117,20 @@
                     </div>
                   </td>
                   <td>
-                    {{datasource.connType.toString() == 'ENGINE' ? ('msg.comm.ui.list.ds.type.engine' | translate) : ('msg.comm.ui.list.ds.type.link' | translate)}}
+                    {{datasource.connType.toString() == 'ENGINE' ? typeFilter[1].label : typeFilter[2].label}}
                   </td>
                   <td>
                     <span *ngIf="datasource.summary">{{datasource.summary.size | fileSize:2}}</span>
                   </td>
                   <td>
                     {{datasource.modifiedTime | mdate: 'YYYY-MM-DD'}}
+                    <div class="ddp-ui-disabled">
+                      <em class="ddp-icon-disabled"></em>
+                      <div class="ddp-ui-tooltip-info ddp-down">
+                        <em class="ddp-icon-view-top"></em>
+                        {{'msg.storage.ui.list.disabled' | translate}}
+                      </div>
+                    </div>
                   </td>
                 </tr>
               </tbody>

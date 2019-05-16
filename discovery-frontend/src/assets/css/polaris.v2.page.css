@@ -2617,7 +2617,7 @@ ul.ddp-list-workspace.ddp-select li a {padding-left:89px;}
 .ddp-wrap-tab-popup .ddp-ui-title .ddp-ui-rightoption .ddp-label-checkbox,
 .ddp-wrap-tab-popup .ddp-ui-title .ddp-ui-rightoption .ddp-form-label2
 {float:left;}
-.ddp-wrap-tab-popup .ddp-ui-title .ddp-ui-rightoption .ddp-type-search {width:220px;}
+.ddp-wrap-tab-popup .ddp-ui-title .ddp-ui-rightoption .ddp-type-search {position:relative; top:2px; width:165px; }
 .ddp-wrap-tab-popup .ddp-ui-title .ddp-ui-rightoption .ddp-label-checkbox {position:relative; top:8px;}
 .ddp-wrap-tab-popup .ddp-ui-title .ddp-ui-rightoption .ddp-form-label2 {margin-left:28px;}
 .ddp-wrap-tab-popup .ddp-ui-title .ddp-ui-rightoption .ddp-form-label2 .ddp-wrap-dropdown {width:168px;}

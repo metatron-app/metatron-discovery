@@ -181,8 +181,6 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
     ( 13 === event.keyCode ) && (this.searchEvent(true));
   }
 
-
-
   // public 토글 버튼
   public togglePublished() {
     if (this.searchPublished === 'all') {
@@ -334,11 +332,11 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
         connType: 'all'
       },
       {
-        label: this.translateService.instant('msg.comm.ui.list.ds.type.engine'),
+        label: this.translateService.instant('msg.comm.ui.ds.engine'),
         connType: ConnectionType.ENGINE.toString()
       },
       {
-        label: this.translateService.instant('msg.comm.ui.list.ds.type.link'),
+        label: this.translateService.instant('msg.comm.ui.ds.link'),
         connType: ConnectionType.LINK.toString()
       }
     ];
