@@ -29,31 +29,32 @@ import {
   ShelveType,
   UIChartDataLabelDisplayType,
   UIPosition
-} from '../../option/define/common';
-import { OptionGenerator } from '../../option/util/option-generator';
+} from '../option/define/common';
+import { OptionGenerator } from '../option/util/option-generator';
 import * as _ from 'lodash';
-import { Pivot } from '../../../../../domain/workbook/configurations/pivot';
-import { BaseOption } from '../../option/base-option';
-import { BaseChart, ChartSelectInfo, PivotTableInfo } from '../../base-chart';
-import { UIChartFormat } from '../../option/ui-option/ui-format';
-import { UIChartColorBySeries, UIOption } from '../../option/ui-option';
-import { FormatOptionConverter } from '../../option/converter/format-option-converter';
-import { Series } from '../../option/define/series';
-import { UIChartDataLabel } from '../../option/ui-option/ui-datalabel';
-import { Field } from '../../../../../domain/workbook/configurations/field/field';
-import { UIChartColor, UIChartColorByValue, UIChartColorGradationByValue } from '../../option/ui-option/ui-color';
-import { ColorOptionConverter } from '../../option/converter/color-option-converter';
+import { Pivot } from '../../../../domain/workbook/configurations/pivot';
+import { BaseOption } from '../option/base-option';
+import { BaseChart, ChartSelectInfo, PivotTableInfo } from '../base-chart';
+import { UIChartFormat } from '../option/ui-option/ui-format';
+import { UIChartColorBySeries, UIOption } from '../option/ui-option';
+import { FormatOptionConverter } from '../option/converter/format-option-converter';
+import { Series } from '../option/define/series';
+import { UIChartDataLabel } from '../option/ui-option/ui-datalabel';
+import { Field } from '../../../../domain/workbook/configurations/field/field';
+import { UIChartColor, UIChartColorByValue, UIChartColorGradationByValue } from '../option/ui-option/ui-color';
+import { ColorOptionConverter } from '../option/converter/color-option-converter';
 import Tooltip = OptionGenerator.Tooltip;
 
 @Component({
   selector: 'treemap-chart',
-  templateUrl: 'treemap-chart.component.html',
+  template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
 export class TreeMapChartComponent extends BaseChart implements OnInit, AfterViewInit {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  private _prevTreePath:string[] = [];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -137,59 +138,60 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
    */
   public addChartSelectEventListener(): void {
     this.chart.off('click');
-/*
     this.chart.on('click', (params) => {
 
       let selectMode: ChartSelectMode;
-      let selectedColValues: string[];
-      let selectedRowValues: string[];
+      let selectedColValues: string[] = [];
+      let selectedRowValues: string[] = [];
 
       // 데이터가 아닌 빈 공백을 클릭했다면
       // 모든 데이터 선택효과를 해제하며 필터에서 제거.
-      if ((this.isSelected && _.isNull(params)) || !params.data) {
+      if (_.isNull(params)) {
         selectMode = ChartSelectMode.CLEAR;
-
-        // 차트에서 선택한 데이터가 없음을 설정
-        this.isSelected = false;
-      } else if (params != null) {
-
-        // 파라미터의 데이터
-        const paramsData = params.data;
-
-        // 차트를 클릭시 select mode, 하위 라벨 클릭시 unselect mode
-        const isSelectMode = !_.isUndefined(paramsData);
-
-        if (isSelectMode) {
-          // 선택 처리 (하위 데이터가 있는경우 drill down이 되어버리면 소용이 없으므로 설정 x)
-          selectMode = ChartSelectMode.ADD;
-        } else {
-          // 선택 해제 (하위 데이터가 있는경우 drill down이 되어버리면 소용이 없으므로 설정 x)
-          selectMode = ChartSelectMode.SUBTRACT;
-        }
-
-        // 차트에서 선택한 데이터 존재 여부 설정
-        this.isSelected = isSelectMode;
-
+      } else if (params !== null) {
         // UI에 전송할 선택정보 설정
-        if (1 === paramsData.depth) {
-
-          selectedColValues = _.split(params.name, CHART_STRING_DELIMITER);
+        const currTreePath = params.treePathInfo.map( item => item.name );
+        if (this._prevTreePath.length < currTreePath.length) {
+          // 선택 처리
+          selectMode = ChartSelectMode.ADD;
+          currTreePath.forEach( (item,idx) => {
+            if( idx >= this._prevTreePath.length ) {
+              if( 1 === idx ) {
+                selectedColValues = [item];
+              } else if( 2 === idx ) {
+                selectedRowValues = [item];
+              }
+            }
+          });
         } else {
-          selectedRowValues = [params.name];
+          // 선택 해제 처리
+          selectMode = ChartSelectMode.SUBTRACT;
+          this._prevTreePath.forEach( (item,idx) => {
+            if( idx >= currTreePath.length ) {
+              if( 1 === idx ) {
+                selectedColValues = [item];
+              } else if( 2 === idx ) {
+                selectedRowValues = [item];
+              }
+            }
+          });
         }
 
+        this._prevTreePath = currTreePath;
       } else {
         return;
       }
+
+      // 자기자신을 선택시 externalFilters는 false로 설정
+      if (this.params.externalFilters) this.params.externalFilters = false;
 
       // UI에 전송할 선택정보 설정
       const selectData = this.setSelectData(params, selectedColValues, selectedRowValues);
 
       // 이벤트 데이터 전송
-      this.params['selectType'] = 'SINGLE';
       this.chartSelectInfo.emit(new ChartSelectInfo(selectMode, selectData, this.params));
+
     });
-*/
   }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method

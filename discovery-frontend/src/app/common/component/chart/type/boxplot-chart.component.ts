@@ -18,29 +18,27 @@
 
 import { AfterViewInit, Component, ElementRef, Injector, OnInit } from '@angular/core';
 import {
-  AxisType, CHART_STRING_DELIMITER, ChartSelectMode, ChartType, EventType, LineType, Position, SeriesType,
+  AxisType, CHART_STRING_DELIMITER, ChartSelectMode, ChartType, LineType, Position, SeriesType,
   ShelveFieldType,
   ShelveType, UIChartDataLabelDisplayType
-} from '../../option/define/common';
-import { OptionGenerator } from '../../option/util/option-generator';
-import { Series } from '../../option/define/series';
+} from '../option/define/common';
+import { OptionGenerator } from '../option/util/option-generator';
+import { Series } from '../option/define/series';
 import * as _ from 'lodash';
 
 import optGen = OptionGenerator;
 import { Pivot } from 'app/domain/workbook/configurations/pivot';
-import { UIChartColorByValue, UIOption } from '../../option/ui-option';
-import { BaseChart, ChartSelectInfo, PivotTableInfo } from '../../base-chart';
-import { BaseOption } from '../../option/base-option';
-import { FormatOptionConverter } from '../../option/converter/format-option-converter';
-import { UIChartFormat } from '../../option/ui-option/ui-format';
-import { AxisOptionConverter } from '../../option/converter/axis-option-converter';
-
+import { BaseChart, ChartSelectInfo, PivotTableInfo } from '../base-chart';
+import { BaseOption } from '../option/base-option';
+import { FormatOptionConverter } from '../option/converter/format-option-converter';
+import { UIChartFormat } from '../option/ui-option/ui-format';
+import { AxisOptionConverter } from '../option/converter/axis-option-converter';
 
 declare let echarts: any;
 
 @Component({
   selector: 'boxplot-chart',
-  templateUrl: 'boxplot-chart.component.html'
+  template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
 export class BoxPlotChartComponent extends BaseChart implements OnInit, AfterViewInit {
 
@@ -78,15 +76,11 @@ export class BoxPlotChartComponent extends BaseChart implements OnInit, AfterVie
 
   // Init
   public ngOnInit() {
-
-    // Init
     super.ngOnInit();
   }
 
-  // Destory
+  // Destroy
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
   }
 
@@ -129,74 +123,38 @@ export class BoxPlotChartComponent extends BaseChart implements OnInit, AfterVie
   }
 
   /**
-   * Chart Select(Click) Event Listener
-   *
+   * 시리즈 데이터 선택 - 차트별 재설정
+   * @param seriesData
    */
-  public addChartSelectEventListener(): void {
-    this.chart.off('click');
-    this.chart.on('click', (params) => {
-
-      let selectMode: ChartSelectMode;
-      let selectedColValues: string[];
-
-      // 현재 차트의 시리즈
-      const series = this.chartOption.series;
-      // 데이터가 아닌 빈 공백을 클릭했다면
-      // 모든 데이터 선택효과를 해제하며 필터에서 제거.
-      if (this.isSelected && _.isNull(params)) {
-        selectMode = ChartSelectMode.CLEAR;
-        this.chartOption = this.selectionClear(this.chartOption);
-
-        // 차트에서 선택한 데이터가 없음을 설정
-        this.isSelected = false;
-        // return;
-      } else if (params != null) {
-
-        // outlier(scatter) 영역은 필터에 해당하지 않으므로 취소
-        if (_.eq(params.seriesType, SeriesType.SCATTER)) return;
-
-        // parameter 정보를 기반으로 시리즈정보 설정
-        const seriesIndex = params.seriesIndex;
-        const dataIndex = params.dataIndex;
-        const seriesValueList = series[seriesIndex].data;
-        // 이미 선택이 되어있는지 여부
-        const isSelectMode = _.isUndefined(seriesValueList[dataIndex].itemStyle);
-
-        if (_.isUndefined(series[seriesIndex].data[dataIndex].itemStyle)) {
-          series[seriesIndex].data[dataIndex].itemStyle = optGen.ItemStyle.auto();
+  protected selectSeriesData( seriesData ) {
+    this.chartOption.series.forEach( seriesItem => {
+      seriesItem.data.forEach( dataItem => {
+        if( dataItem.name === seriesData.name ) {
+          dataItem.itemStyle.normal.opacity = 1;
+          dataItem.selected = true;
+          return true;
         }
-
-        if (isSelectMode) {
-          // 선택 처리
-          selectMode = ChartSelectMode.ADD;
-        } else {
-          // 선택 해제
-          selectMode = ChartSelectMode.SUBTRACT;
-        }
-
-        // 차트에서 선택한 데이터 존재 여부 설정
-        this.isSelected = isSelectMode;
-
-        // UI에 전송할 선택정보 설정
-        selectedColValues = _.split(params.name, CHART_STRING_DELIMITER);
-      } else {
-        return;
-      }
-
-      // 자기자신을 선택시 externalFilters는 false로 설정
-      if (this.params.externalFilters) this.params.externalFilters = false;
-
-      // UI에 전송할 선택정보 설정
-      const selectData = this.setSelectData(params, selectedColValues, []);
-
-      // 차트에 적용
-      this.apply(false);
-      this.lastDrawSeries = _.cloneDeep(this.chartOption['series']);
-
-      // 이벤트 데이터 전송
-      this.chartSelectInfo.emit(new ChartSelectInfo(selectMode, selectData, this.params));
+        return false;
+      });
     });
-  }
+  } // function - selectSeriesData
+
+  /**
+   * 시리즈 데이터 선택 해제 - 차트별 재설정
+   * @param seriesData
+   */
+  protected unselectSeriesData( seriesData ) {
+    this.chartOption.series.forEach( seriesItem => {
+      seriesItem.data.forEach( dataItem => {
+        if( dataItem.name === seriesData.name ) {
+          dataItem.itemStyle.normal.opacity = 0.2;
+          dataItem.selected = false;
+          return true;
+        }
+        return false;
+      });
+    });
+  } // function - unselectSeriesData
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
@@ -228,16 +186,25 @@ export class BoxPlotChartComponent extends BaseChart implements OnInit, AfterVie
 
     let boxItem: Series;
     let outlierItem: Series;
+    let columns = this.data.columns;
 
-    let boxPlotData = this.data.columns.map((column) => {
+    let boxPlotData = columns.map((column) => {
       return column.value;
     });
     boxPlotData = echarts.dataTool.prepareBoxplotData(boxPlotData);
+
     // Box 데이터 구성
     boxItem = {
       type: SeriesType.BOXPLOT,
       name: this.fieldInfo.aggs[0],
-      data: boxPlotData.boxData,
+      data: boxPlotData.boxData.map( (val,idx) => {
+        return {
+          name : columns[idx].name,
+          value : val,
+          selected : false,
+          itemStyle : OptionGenerator.ItemStyle.opacity1()
+        }
+      }),
       originData: _.cloneDeep(boxPlotData.boxData),
       hoverAnimation: false,
       itemStyle: {
@@ -255,7 +222,14 @@ export class BoxPlotChartComponent extends BaseChart implements OnInit, AfterVie
       type: SeriesType.SCATTER,
       symbolSize: 8,
       itemStyle: optGen.ItemStyle.auto(),
-      data: boxPlotData.outliers,
+      data: boxPlotData.outliers.map( (val,idx) => {
+        return {
+          name : columns[val[0]].name,
+          value : val,
+          selected : false,
+          itemStyle : OptionGenerator.ItemStyle.opacity1()
+        }
+      }),
       originData: _.cloneDeep(boxPlotData.outliers),
       tooltip: {
         formatter: (param) => {

@@ -3287,7 +3287,6 @@
   "msg.page.ui.heat-map" : "히트맵",
   "msg.page.ui.pie" : "원형 차트",
   "msg.page.ui.map" : "맵",
-  "msg.page.ui.control-chart" : "콘트롤 차트",
   "msg.page.ui.kpi" : "핵심지표",
   "msg.page.ui.box-plot" : "박스플롯",
   "msg.page.ui.water-fall" : "폭포 차트",

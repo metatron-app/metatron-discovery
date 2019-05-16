@@ -27,19 +27,19 @@ import {
   ShelveType,
   SymbolType,
   UIChartDataLabelDisplayType,
-} from '../../option/define/common';
-import { OptionGenerator } from '../../option/util/option-generator';
+} from '../option/define/common';
+import { OptionGenerator } from '../option/util/option-generator';
 import * as _ from 'lodash';
-import { Pivot } from '../../../../../domain/workbook/configurations/pivot';
-import { UIOption } from '../../option/ui-option';
-import { BaseChart, ChartSelectInfo, PivotTableInfo } from '../../base-chart';
-import { BaseOption } from '../../option/base-option';
-import { UIChartFormat } from '../../option/ui-option/ui-format';
-import { FormatOptionConverter } from '../../option/converter/format-option-converter';
+import { Pivot } from '../../../../domain/workbook/configurations/pivot';
+import { UIOption } from '../option/ui-option';
+import { BaseChart, ChartSelectInfo, PivotTableInfo } from '../base-chart';
+import { BaseOption } from '../option/base-option';
+import { UIChartFormat } from '../option/ui-option/ui-format';
+import { FormatOptionConverter } from '../option/converter/format-option-converter';
 
 @Component({
   selector: 'heatmap-chart',
-  templateUrl: 'heatmap-chart.component.html'
+  template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
 export class HeatMapChartComponent extends BaseChart implements OnInit, AfterViewInit {
 
@@ -73,15 +73,11 @@ export class HeatMapChartComponent extends BaseChart implements OnInit, AfterVie
 
   // Init
   public ngOnInit() {
-
-    // Init
     super.ngOnInit();
   }
 
-  // Destory
+  // Destroy
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
   }
 
@@ -136,75 +132,6 @@ export class HeatMapChartComponent extends BaseChart implements OnInit, AfterVie
     super.draw(isKeepRange);
   }
 
-  /**
-   * Chart Select(Click) Event Listener
-   *
-   */
-  public addChartSelectEventListener(): void {
-    this.chart.off('click');
-    this.chart.on('click', (params) => {
-
-      let selectMode: ChartSelectMode;
-      let selectedColValues: string[];
-      let selectedRowValues: string[];
-
-      // 현재 차트의 시리즈
-      const series = this.chartOption.series;
-      // 데이터가 아닌 빈 공백을 클릭했다면
-      // 모든 데이터 선택효과를 해제하며 필터에서 제거.
-      if (this.isSelected && _.isNull(params)) {
-        selectMode = ChartSelectMode.CLEAR;
-        this.chartOption = this.selectionClear(this.chartOption);
-
-        // 차트에서 선택한 데이터가 없음을 설정
-        this.isSelected = false;
-        // return;
-      } else if (params != null) {
-
-        // parameter 정보를 기반으로 시리즈정보 설정
-        const seriesIndex = params.seriesIndex;
-        const dataIndex = params.dataIndex;
-        const seriesValueList = series[seriesIndex].data;
-
-        // 이미 선택이 되어있는지 여부
-        const isSelectMode = _.isUndefined(seriesValueList[dataIndex].itemStyle);
-
-        if (isSelectMode) {
-          // 선택 처리
-          selectMode = ChartSelectMode.ADD;
-          this.chartOption = this.selectionAdd(this.chartOption, params);
-        } else {
-          // 선택 해제
-          selectMode = ChartSelectMode.SUBTRACT;
-          this.chartOption = this.selectionSubstract(this.chartOption, params);
-        }
-
-        // 차트에서 선택한 데이터 존재 여부 설정
-        this.isSelected = isSelectMode;
-
-        // UI에 전송할 선택정보 설정
-        selectedColValues = [_.split(params.data.name, CHART_STRING_DELIMITER)[0]];
-        selectedRowValues = [_.split(params.data.name, CHART_STRING_DELIMITER)[1]];
-
-      } else {
-        return;
-      }
-
-      // UI에 전송할 선택정보 설정
-      const selectData = this.setSelectData(params, selectedColValues, selectedRowValues);
-
-      // 자기자신을 선택시 externalFilters는 false로 설정
-      if (this.params.externalFilters) this.params.externalFilters = false;
-
-      // 차트에 적용
-      this.apply(false);
-      this.lastDrawSeries = _.cloneDeep(this.chartOption['series']);
-
-      // 이벤트 데이터 전송
-      this.chartSelectInfo.emit(new ChartSelectInfo(selectMode, selectData, this.params));
-    });
-  }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -246,7 +173,11 @@ export class HeatMapChartComponent extends BaseChart implements OnInit, AfterVie
     }];
 
     // 시리즈 데이터 설정
-    this.chartOption.series[0].data = this.data.columns;
+    this.chartOption.series[0].data = this.data.columns.map( item => {
+      item.selected = false;
+      item.itemStyle = OptionGenerator.ItemStyle.opacity1();
+      return item;
+    });;
 
     // uiData 설정
     this.chartOption.series[0].uiData = this.data.columns;

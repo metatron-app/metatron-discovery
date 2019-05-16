@@ -3286,7 +3286,6 @@
   "msg.page.ui.heat-map" : "Heatmap",
   "msg.page.ui.pie" : "Pie Chart",
   "msg.page.ui.map" : "Map",
-  "msg.page.ui.control-chart" : "Control Chart",
   "msg.page.ui.kpi" : "KPI",
   "msg.page.ui.box-plot" : "Boxplot",
   "msg.page.ui.water-fall" : "Waterfall Chart",

@@ -19,38 +19,33 @@
 import { AfterViewInit, Component, ElementRef, Injector, OnInit } from '@angular/core';
 import {
   AxisType,
-  CHART_STRING_DELIMITER, ChartColorType, ChartPivotType, ChartSelectMode, ChartType, EventType, PointShape, Position,
-  SeriesConvertType,
+  CHART_STRING_DELIMITER, ChartColorType, ChartPivotType, ChartSelectMode, ChartType, PointShape, Position,
   SeriesType,
   ShelveFieldType,
   ShelveType,
-  SymbolFill, SymbolType, UIChartDataLabelDisplayType
-} from '../../option/define/common';
-import { OptionGenerator } from '../../option/util/option-generator';
+  SymbolType, UIChartDataLabelDisplayType
+} from '../option/define/common';
+import { OptionGenerator } from '../option/util/option-generator';
 import * as _ from 'lodash';
 import optGen = OptionGenerator;
 import {
   UIChartAxis, UIChartAxisLabelValue,
-  UIChartColorByDimension, UIChartColorByValue, UIOption
-} from '../../option/ui-option';
+  UIChartColorByDimension, UIOption
+} from '../option/ui-option';
 import { Pivot } from 'app/domain/workbook/configurations/pivot';
-import { BaseChart, ChartSelectInfo, PivotTableInfo } from '../../base-chart';
-import { BaseOption } from '../../option/base-option';
-import { Grid } from '../../option/define/grid';
-import Legend = OptionGenerator.Legend;
-import { UIScatterChart } from '../../option/ui-option/ui-scatter-chart';
-import { LabelOptionConverter } from '../../option/converter/label-option-converter';
-import { Series } from '../../option/define/series';
-import { FormatOptionConverter } from '../../option/converter/format-option-converter';
-import { UIChartFormat } from '../../option/ui-option/ui-format';
-import {UIChartAxisGrid} from "../../option/ui-option/ui-axis";
-import {AxisOptionConverter} from "../../option/converter/axis-option-converter";
-import {Axis} from "../../option/define/axis";
-import {DataZoomType} from '../../option/define/datazoom';
+import { BaseChart, ChartSelectInfo, PivotTableInfo } from '../base-chart';
+import { BaseOption } from '../option/base-option';
+import { UIScatterChart } from '../option/ui-option/ui-scatter-chart';
+import { FormatOptionConverter } from '../option/converter/format-option-converter';
+import { UIChartFormat } from '../option/ui-option/ui-format';
+import {UIChartAxisGrid} from "../option/ui-option/ui-axis";
+import {AxisOptionConverter} from "../option/converter/axis-option-converter";
+import {Axis} from "../option/define/axis";
+import {DataZoomType} from '../option/define/datazoom';
 
 @Component({
   selector: 'scatter-chart',
-  templateUrl: 'scatter-chart.component.html'
+  template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
 export class ScatterChartComponent extends BaseChart implements OnInit, AfterViewInit {
 
@@ -152,8 +147,7 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
       const selectedBrushData: any = params.brushSelectData[0].selected;
 
       // 선택된값이 없는경우
-      if (!selectedBrushData[0].dataIndex || 0 == selectedBrushData[0].dataIndex.length) {
-
+      if (!selectedBrushData.some(item => item.dataIndex && 0 < item.dataIndex.length)) {
         // 브러쉬 영역 삭제
         this.chart.clearBrush();
         return;
@@ -163,7 +157,7 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
       this.chart.clearBrush();
 
       // 선택효과 처리
-      this.chartOption = this.selectionAdd(this.chartOption, params);
+      this.chartOption = this.selectionAdd(this.chartOption, selectedBrushData, true);
 
       // 열 선반 데이터 요소
       const cols = this.pivotInfo.cols;
@@ -197,9 +191,6 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
 
       });
 
-      // 차트에서 선택한 데이터 존재 여부 설정
-      this.isSelected = selectDataList && selectDataList.length > 0 ? true : false;
-
       // 자기자신을 선택시 externalFilters는 false로 설정
       if (this.params.externalFilters) this.params.externalFilters = false;
 
@@ -208,6 +199,7 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
       this.lastDrawSeries = _.cloneDeep(this.chartOption['series']);
 
       // 이벤트 데이터 전송
+      this.params['selectType'] = 'MULTI';
       this.chartSelectInfo.emit(new ChartSelectInfo(ChartSelectMode.ADD, selectDataList, this.params));
     });
   }
@@ -320,7 +312,11 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
     }];
 
     // 시리즈 데이터 설정
-    this.chartOption.series[0].data = this.data.columns;
+    this.chartOption.series[0].data = this.data.columns.map( item => {
+      item.selected = false;
+      item.itemStyle = optGen.ItemStyle.opacity1();
+      return item;
+    });
 
     // uiData 설정
     this.chartOption.series[0].uiData = this.data.columns;

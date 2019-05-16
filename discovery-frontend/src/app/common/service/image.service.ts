@@ -72,11 +72,7 @@ export class ImageService {
             ia[i] = byteString.charCodeAt(i);
           }
 
-          console.info( '>>>>>>> mimeString' );
-
           const blobData = new Blob([ab], {'type': mimeString});
-
-          console.info( '>>>>>>> blobData' );
 
           resolve(blobData);
         }).catch(err => reject(err));

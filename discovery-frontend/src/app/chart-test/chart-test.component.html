@@ -35,7 +35,6 @@
     <div class="chartCanvas" style="width: 100%; height: 100%;">
       <bar-chart #chart [resultData]="testData" [uiOption]="uiOption" (chartSelectInfo)="chartSelectInfo($event)" *ngIf="currentChart === 'bar'"></bar-chart>
       <line-chart #chart [resultData]="testData" [uiOption]="uiOption" (chartSelectInfo)="chartSelectInfo($event)" *ngIf="currentChart === 'line'"></line-chart>
-      <!--<control-chart #chart [resultData]="testData" [uiOption]="uiOption" (uiOptionUpdated)="updateUIOption($event)" (chartSelectInfo)="chartSelectInfo($event)" *ngIf="currentChart === 'control'"></control-chart>-->
       <!--<scatter-chart #chart [resultData]="testData" [uiOption]="uiOption" (uiOptionUpdated)="updateUIOption($event)" (chartSelectInfo)="chartSelectInfo($event)" *ngIf="currentChart === 'scatter'"></scatter-chart>-->
       <!--<heatmap-chart #chart [resultData]="testData" [uiOption]="uiOption" (uiOptionUpdated)="updateUIOption($event)" (chartSelectInfo)="chartSelectInfo($event)" *ngIf="currentChart === 'heatmap'"></heatmap-chart>-->
       <grid-chart #chart [resultData]="testData" [uiOption]="uiOption" (uiOptionUpdated)="updateUIOption($event)" (chartSelectInfo)="chartSelectInfo($event)" *ngIf="currentChart === 'grid'"></grid-chart>

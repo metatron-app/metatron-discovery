@@ -23,7 +23,7 @@ import {
   ChartColorList,
   ChartColorType,
   ChartType,
-  ColorCustomMode, EventType,
+  ColorCustomMode,
   LineCornerType,
   LineStyle,
   LineType,
@@ -31,19 +31,18 @@ import {
   SeriesType,
   ShelveFieldType,
   ShelveType,
-  SymbolType,
-  UIChartDataLabelDisplayType
-} from '../../option/define/common';
-import { OptionGenerator } from '../../option/util/option-generator';
-import { UIChartColorBySeries, UILineChart, UIOption } from '../../option/ui-option';
-import { Series } from '../../option/define/series';
+  SymbolType
+} from '../option/define/common';
+import { OptionGenerator } from '../option/util/option-generator';
+import { UIChartColorBySeries, UILineChart, UIOption } from '../option/ui-option';
+import { Series } from '../option/define/series';
 import * as _ from 'lodash';
-import { Pivot } from '../../../../../domain/workbook/configurations/pivot';
-import { BaseOption } from '../../option/base-option';
+import { Pivot } from '../../../../domain/workbook/configurations/pivot';
+import { BaseOption } from '../option/base-option';
 import { LineChartSplit } from './line-chart.split';
-import { BaseChart } from '../../base-chart';
-import { ColorOptionConverter } from '../../option/converter/color-option-converter';
-import { AnalysisPredictionService } from '../../../../../page/component/analysis/service/analysis.prediction.service';
+import { BaseChart } from '../base-chart';
+import { ColorOptionConverter } from '../option/converter/color-option-converter';
+import { AnalysisPredictionService } from '../../../../page/component/analysis/service/analysis.prediction.service';
 import optGen = OptionGenerator;
 import Legend = OptionGenerator.Legend;
 import Grid = OptionGenerator.Grid;
@@ -52,18 +51,16 @@ import DataZoom = OptionGenerator.DataZoom;
 import Tooltip = OptionGenerator.Tooltip;
 import Brush = OptionGenerator.Brush;
 import Toolbox = OptionGenerator.Toolbox;
-import {UIChartAxis, UIChartAxisGrid, UIChartAxisLabelValue} from "../../option/ui-option/ui-axis";
-import {AxisOptionConverter} from "../../option/converter/axis-option-converter";
-import {Axis as AxisDefine} from "../../option/define/axis";
-import {DataZoomType} from '../../option/define/datazoom';
-import { LabelOptionConverter } from '../../option/converter/label-option-converter';
-import { TooltipOptionConverter } from '../../option/converter/tooltip-option-converter';
+import {UIChartAxis, UIChartAxisGrid, UIChartAxisLabelValue} from "../option/ui-option/ui-axis";
+import {AxisOptionConverter} from "../option/converter/axis-option-converter";
+import {Axis as AxisDefine} from "../option/define/axis";
+import {DataZoomType} from '../option/define/datazoom';
 
 const transparentSymbolImage: string = 'image://' + window.location.origin + '/assets/images/icon_transparent_symbol.png';
 
 @Component({
   selector: 'line-chart',
-  templateUrl: 'line-chart.component.html'
+  template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
 export class LineChartComponent extends BaseChart implements OnInit, AfterViewInit {
 
@@ -235,7 +232,14 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
       return {
         type: SeriesType.LINE,
         name: column.name,
-        data: column.value,
+        data: column.value.map( ( val, idx ) => {
+          return {
+            name : column.seriesName[idx],
+            value : val,
+            selected : false,
+            itemStyle : optGen.ItemStyle.opacity1()
+          }
+        }),
         originData: _.cloneDeep(column.value),
         connectNulls: true,
         showAllSymbol: true,
@@ -524,6 +528,36 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
       });
     });
   }
+
+  /**
+   * 시리즈 데이터 선택 - 차트별 재설정
+   * @param seriesData
+   */
+  protected selectSeriesData( seriesData ) {
+    seriesData.itemStyle.normal.opacity = 1;
+    seriesData.symbolSize = 10;
+    seriesData.selected = true;
+  } // function - selectSeriesData
+
+  /**
+   * 시리즈 데이터 선택 해제 - 차트별 재설정
+   * @param seriesData
+   */
+  protected unselectSeriesData( seriesData ) {
+    seriesData.itemStyle.normal.opacity = 0.2;
+    seriesData.symbolSize = 4;
+    seriesData.selected = false;
+  } // function - unselectSeriesData
+
+  /**
+   * 전체 선택 해제 처리 - 차트별 재설정
+   * @param seriesData
+   */
+  protected clearSelectSeriesData( seriesData ) {
+    seriesData.itemStyle.normal.opacity = 1;
+    seriesData.symbolSize = 4;
+    seriesData.selectType = false;
+  } // function - clearSelectSeriesData
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method

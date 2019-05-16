@@ -19,20 +19,19 @@
 import {
   AfterViewInit, Component, ElementRef, Injector, OnInit, OnDestroy
 } from '@angular/core';
-import {BaseChart, PivotTableInfo} from '../../base-chart';
-import {BaseOption} from "../../option/base-option";
+import {BaseChart, PivotTableInfo} from '../base-chart';
+import {BaseOption} from "../option/base-option";
 import {
   ChartType, SymbolType, ShelveType, ShelveFieldType, SeriesType
-} from '../../option/define/common';
-import {OptionGenerator} from '../../option/util/option-generator';
-import {Position} from '../../option/define/common';
-import {Pivot} from "../../../../../domain/workbook/configurations/pivot";
+} from '../option/define/common';
+import {OptionGenerator} from '../option/util/option-generator';
+import {Pivot} from "../../../../domain/workbook/configurations/pivot";
+import {ColorOptionConverter} from "../option/converter/color-option-converter";
 import * as _ from 'lodash';
-import {ColorOptionConverter} from "../../option/converter/color-option-converter";
 
 @Component({
   selector: 'wordcloud-chart',
-  templateUrl: 'wordcloud-chart.component.html'
+  template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
 export class WordCloudChartComponent extends BaseChart implements OnInit, OnDestroy, AfterViewInit {
 
@@ -66,15 +65,11 @@ export class WordCloudChartComponent extends BaseChart implements OnInit, OnDest
 
   // Init
   public ngOnInit() {
-
-    // Init
     super.ngOnInit();
   }
 
-  // Destory
+  // Destroy
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
   }
 
@@ -130,7 +125,11 @@ export class WordCloudChartComponent extends BaseChart implements OnInit, OnDest
       rotationStep: 45,
       animation: false,
       textStyle: { normal: OptionGenerator.TextStyle.auto(), emphasis: {} },
-      data: this.data.columns[0].value,
+      data: this.data.columns[0].value.map( item => {
+        item.selected = false;
+        item.textStyle = OptionGenerator.ItemStyle.auto();
+        return item;
+      }),
       originData: _.clone(this.data.columns[0].value)
     }];
 
@@ -182,6 +181,35 @@ export class WordCloudChartComponent extends BaseChart implements OnInit, OnDest
   protected convertTooltip(): BaseOption {
     return this.chartOption;
   }
+
+
+  /**
+   * 시리즈 데이터 선택 - 차트별 재설정
+   * @param seriesData
+   */
+  protected selectSeriesData( seriesData ) {
+    delete seriesData.textStyle.normal.color;
+    seriesData.selected = true;
+  } // function - selectSeriesData
+
+  /**
+   * 시리즈 데이터 선택 해제 - 차트별 재설정
+   * @param seriesData
+   */
+  protected unselectSeriesData( seriesData ) {
+    seriesData.textStyle.normal.color = '#aaaaaa';
+    seriesData.selected = false;
+  } // function - unselectSeriesData
+
+  /**
+   * 전체 선택 해제 처리 - 차트별 재설정
+   * @param seriesData
+   */
+  protected clearSelectSeriesData( seriesData ) {
+    delete seriesData.textStyle.normal.color;
+    seriesData.selected = false;
+  } // function - clearSelectSeriesData
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -189,8 +217,6 @@ export class WordCloudChartComponent extends BaseChart implements OnInit, OnDest
   /**
    * @override 차트 색상 변경
    *
-   * @param {UIChartColor} color
-   * @param {boolean} convertTooltip
    */
   private convertColor(): BaseOption {
 

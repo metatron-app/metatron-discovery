@@ -17,8 +17,8 @@
  */
 
 import { AfterViewInit, Component, ElementRef, Injector, Input, OnDestroy, OnInit } from '@angular/core';
-import { BaseChart, ChartSelectInfo } from '../../base-chart';
-import { BaseOption } from '../../option/base-option';
+import { BaseChart, ChartSelectInfo } from '../base-chart';
+import { BaseOption } from '../option/base-option';
 import {
   CellColorTarget,
   CHART_STRING_DELIMITER,
@@ -31,20 +31,18 @@ import {
   ShelveType,
   UIOrient,
   UIPosition
-} from '../../option/define/common';
-import { OptionGenerator } from '../../option/util/option-generator';
-import { Pivot } from '../../../../../domain/workbook/configurations/pivot';
+} from '../option/define/common';
+import { Pivot } from '../../../../domain/workbook/configurations/pivot';
 import * as _ from 'lodash';
-import { UIChartColorByCell, UIOption } from '../../option/ui-option';
-import { UIGridChart } from '../../option/ui-option/ui-grid-chart';
-import { UIChartColorGradationByCell } from '../../option/ui-option/ui-color';
-import UI = OptionGenerator.UI;
+import { UIChartColorByCell, UIOption } from '../option/ui-option';
+import { UIGridChart } from '../option/ui-option/ui-grid-chart';
+import { UIChartColorGradationByCell } from '../option/ui-option/ui-color';
 
 declare let pivot: any;
 
 @Component({
   selector: 'grid-chart',
-  templateUrl: 'grid-chart.component.html'
+  template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
 export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, AfterViewInit {
 

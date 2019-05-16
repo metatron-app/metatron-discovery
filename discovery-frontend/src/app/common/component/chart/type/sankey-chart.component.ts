@@ -16,9 +16,9 @@
  * Created by Dolkkok on 2017. 7. 18..
  */
 
-import { AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import { BaseChart, ChartSelectInfo, PivotTableInfo } from '../../base-chart';
-import { BaseOption } from '../../option/base-option';
+import {AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
+import {BaseChart, ChartSelectInfo, PivotTableInfo} from '../base-chart';
+import {BaseOption} from '../option/base-option';
 import {
   CHART_STRING_DELIMITER,
   ChartColorList,
@@ -29,18 +29,18 @@ import {
   ShelveFieldType,
   ShelveType,
   UIChartDataLabelDisplayType
-} from '../../option/define/common';
-import { OptionGenerator } from '../../option/util/option-generator';
-import { Pivot } from '../../../../../domain/workbook/configurations/pivot';
+} from '../option/define/common';
+import {OptionGenerator} from '../option/util/option-generator';
+import {Pivot} from '../../../../domain/workbook/configurations/pivot';
 import * as _ from 'lodash';
-import { UIChartColorByDimension, UIChartFormat, UIChartFormatItem, UIOption } from '../../option/ui-option';
-import { FormatOptionConverter } from '../../option/converter/format-option-converter';
-import { LabelOptionConverter } from '../../option/converter/label-option-converter';
-import { Series } from '../../option/define/series';
+import {UIChartColorByDimension, UIChartFormat, UIChartFormatItem, UIOption} from '../option/ui-option';
+import {FormatOptionConverter} from '../option/converter/format-option-converter';
+import {LabelOptionConverter} from '../option/converter/label-option-converter';
+import {Series} from '../option/define/series';
 
 @Component({
   selector: 'sankey-chart',
-  templateUrl: 'sankey-chart.component.html'
+  template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
 export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy, AfterViewInit {
 
@@ -67,7 +67,7 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector ) {
+    protected injector: Injector) {
 
     super(elementRef, injector);
   }
@@ -125,7 +125,7 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
     // Valid 체크
     ////////////////////////////////////////////////////////
 
-    if( !this.isValid(this.pivot) ) {
+    if (!this.isValid(this.pivot)) {
 
       // No Data 이벤트 발생
       this.noData.emit();
@@ -233,8 +233,12 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
     ////////////////////////////////////////////////////////
 
     // 하위 호환을위해 Label정보 없이 저장된 데이터는 Show를 true로 변경해준다.
-    if( !this.uiOption.dataLabel ) { this.uiOption.dataLabel = {showValue: true}; }
-    if( _.eq(typeof this.uiOption.dataLabel.showValue, "undefined") ) { this.uiOption.dataLabel.showValue = true; }
+    if (!this.uiOption.dataLabel) {
+      this.uiOption.dataLabel = {showValue: true};
+    }
+    if (_.eq(typeof this.uiOption.dataLabel.showValue, "undefined")) {
+      this.uiOption.dataLabel.showValue = true;
+    }
 
     // 레이블 설정
     this.chartOption = LabelOptionConverter.convertLabel(this.chartOption, this.uiOption);
@@ -259,13 +263,13 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
 
     // 노드 데이터 개수제한
     let nodes = [];
-    let counter: number[] = [0,0,0];
+    let counter: number[] = [0, 0, 0];
     let isNotAll: boolean = false;
-    for( let num: number = 0 ; num < this.pivot.columns.length ; num++ ) {
+    for (let num: number = 0; num < this.pivot.columns.length; num++) {
       let field = this.pivot.columns[num];
-      for( let node of this.data.nodes ) {
-        if( _.eq(field.alias, node.field) ) {
-          if( counter[num] >= 50 ) {
+      for (let node of this.data.nodes) {
+        if (_.eq(field.alias, node.field)) {
+          if (counter[num] >= 50) {
             isNotAll = true;
             break;
           }
@@ -280,22 +284,22 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
 
     // 개수제한으로 제거된 노드가 있는 링크제거
     let links = [];
-    for( let link of this.data.links ) {
+    for (let link of this.data.links) {
 
       // 링크의 노드정보가 모두 존재하는지 체크
       let isSource: boolean = false;
       let isTarget: boolean = false;
-      for( let node of nodes ) {
-        if( link.source == node.name ) {
+      for (let node of nodes) {
+        if (link.source == node.name) {
           isSource = true;
         }
-        if( link.target == node.name ) {
+        if (link.target == node.name) {
           isTarget = true;
         }
       }
 
       // 모두 존재할때만 링크에 추가
-      if( isSource && isTarget ) {
+      if (isSource && isTarget) {
         links.push(link);
       }
     }
@@ -307,7 +311,7 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
 
     // 노드를 루프돌면서 색상정보 등록
     let totalColorIndex: number = 0;
-    for( let item of this.data.nodes ) {
+    for (let item of this.data.nodes) {
       const colorIndex: number = totalColorIndex >= colorCodes.length ? totalColorIndex - colorCodes.length : totalColorIndex;
       totalColorIndex++;
       //item.alias = item.alias ? item.alias : item.name;
@@ -317,14 +321,14 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
     }
 
     // 링크를 루프돌면서 라인정보 등록
-    for( let item of this.data.links ) {
+    for (let item of this.data.links) {
       item.lineStyle = {
         opacity: 0.2
       };
     }
 
     // 링크정보 가공
-    for( let item of this.data.links ) {
+    for (let item of this.data.links) {
       // item.sourceValue = item.source.split(CHART_STRING_DELIMITER)[1];
       // item.targetValue = item.target.split(CHART_STRING_DELIMITER)[1];
       item.sourceValue = item.originalSource;
@@ -353,13 +357,13 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
     // 필드정보
     let cols: string[] = [];
     let aggs: string[] = [];
-    for( let node of this.data.nodes ) {
+    for (let node of this.data.nodes) {
       //cols.push(node.value);
       cols.push(node.name);
     }
 
     this.uiOption.fieldList = [];
-    for( let field of this.pivot.columns ) {
+    for (let field of this.pivot.columns) {
       let fieldName: string = !_.isEmpty(field.alias) ? field.alias : field.name;
       this.uiOption.fieldList.push(fieldName);
       aggs.push(fieldName);
@@ -386,13 +390,13 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
   protected setUIData(): any {
 
     // 노드명 가공
-    for( let node of this.data.nodes ) {
+    for (let node of this.data.nodes) {
       node.originalName = node.name;
       node.name = node.field + CHART_STRING_DELIMITER + node.name;
     }
 
     // 링크명 가공
-    for( let link of this.data.links ) {
+    for (let link of this.data.links) {
       link.originalSource = link.source;
       link.originalTarget = link.target;
       link.source = link.sourceField + CHART_STRING_DELIMITER + link.source;
@@ -400,7 +404,7 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
     }
 
 
-    _.each(this.data.nodes, (node, index) => {
+    _.each(this.data.nodes, (node) => {
 
       node.categoryName = _.cloneDeep(node.field);
       //node.nodeName = _.cloneDeep(node.value);
@@ -408,18 +412,18 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
       let sumValue;
 
       // 첫번째에 위치한 값은 source에서 값을 더하기, 그이후에는 target에서 값을 찾아 더하기
-      if (0 == _.findIndex(this.pivot.columns, {alias : node.field})) {
+      if (0 == _.findIndex(this.pivot.columns, {alias: node.field})) {
 
         sumValue = _.sumBy(_.filter(this.data.links, (data) => {
           // if (-1 !== data.source.indexOf(node.value)){
-          if (-1 !== data.source.indexOf(node.name)){
+          if (-1 !== data.source.indexOf(node.name)) {
             return data.value;
           }
         }), 'value');
       } else {
         sumValue = _.sumBy(_.filter(this.data.links, (data) => {
           // if (-1 !== data.target.indexOf(node.value)){
-          if (-1 !== data.target.indexOf(node.name)){
+          if (-1 !== data.target.indexOf(node.name)) {
             return data.value;
           }
         }), 'value');
@@ -442,7 +446,9 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
 
     let format: UIChartFormat = this.uiOption.valueFormat;
 
-    if( _.isUndefined(this.chartOption.tooltip) ) { this.chartOption.tooltip = {}; }
+    if (_.isUndefined(this.chartOption.tooltip)) {
+      this.chartOption.tooltip = {};
+    }
     this.chartOption.tooltip.formatter = ((params): any => {
 
       let option = this.chartOption.series[params.seriesIndex];
@@ -469,7 +475,7 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
     if (!params.data.sourceValue || !params.data.targetValue) return '';
 
     // UI 데이터 정보가 있을경우
-    if( uiData ) {
+    if (uiData) {
 
       if (!uiOption.toolTip) uiOption.toolTip = {};
       if (!uiOption.toolTip.displayTypes) uiOption.toolTip.displayTypes = FormatOptionConverter.setDisplayTypes(uiOption.type);
@@ -479,20 +485,20 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
 
       let targetColumn;
       // set source tooltip
-      if( -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME) ){
+      if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME)) {
 
-        targetColumn = _.find(this.pivot.columns, {'alias' : params.data.sourceField});
+        targetColumn = _.find(this.pivot.columns, {'alias': params.data.sourceField});
 
         result = FormatOptionConverter.getTooltipName([params.data.sourceValue], this.pivot.columns, result, true);
       }
       // set target tooltip
-      if ( -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.NODE_NAME) ) {
+      if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.NODE_NAME)) {
 
-        targetColumn = _.find(this.pivot.columns, {'alias' : params.data.targetField});
+        targetColumn = _.find(this.pivot.columns, {'alias': params.data.targetField});
 
         result = FormatOptionConverter.getTooltipName([params.data.targetValue], [targetColumn], result, true);
       }
-      if ( -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.NODE_VALUE) ) {
+      if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.NODE_VALUE)) {
 
         let name = this.pivot.aggregations[0].alias;
 
@@ -509,20 +515,15 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
    */
   public addChartSelectEventListener(): void {
     this.chart.off('click');
-
-    console.info("CLICK - ON");
     this.chart.on('click', (params) => {
 
-      console.info("CLICK!!");
+      if(params.dataType == 'node') {
+        // 의사 결정될때까지 사용
+        return;
+      }
 
       let selectMode: ChartSelectMode;
-      let selectedRowValues: string[] = [];
       let selectDataList = [];
-      // parameter 정보를 기반으로 시리즈정보 설정
-      let seriesValueList = [];
-      let seriesEdgeList = [];
-      let targetDataIndex;
-      let dataIndex;
 
       // 현재 차트의 시리즈
       const series = this.chartOption.series;
@@ -532,18 +533,16 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
 
         selectMode = ChartSelectMode.CLEAR;
 
-        // parameter 정보를 기반으로 시리즈정보 설정
-        seriesValueList = series[0].data;
-        seriesEdgeList = series[0].links;
-
-        // 선택값 스타일 초기화
-        _.map(seriesEdgeList, (item) => {
-          item['lineStyle']['opacity'] = 0.2;
-        });
-
-        // 선택값 제거
-        _.map(seriesValueList, (item) => {
-          delete item['selected'];
+        series.forEach(seriesItem => {
+          // 노드의 선택값 제거 및 스타일 초기화
+          seriesItem.data.forEach((item) => {
+            item['itemStyle']['opacity'] = 1;
+            delete item['selected'];
+          });
+          // 라인 스타일 초기화
+          seriesItem.links.forEach((item) => {
+            item['lineStyle']['opacity'] = 0.2;
+          });
         });
 
         // 차트에서 선택한 데이터가 없음을 설정
@@ -551,131 +550,121 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
 
       } else if (params != null) {
 
+        const isSelectedNode = (params.dataType == 'node');
         // parameter 정보를 기반으로 시리즈정보 설정
         const seriesIndex = params.seriesIndex;
-        seriesValueList = series[seriesIndex].data;
-        seriesEdgeList = series[seriesIndex].links;
+        // parameter 정보를 기반으로 시리즈정보 설정
+        let seriesNodeList = series[seriesIndex].data;
+        let seriesEdgeList = series[seriesIndex].links;
+
+        let selectedRowValues: string[] = [];
+        let sourceDataIndex;
+        let targetDataIndex;
 
         // 이미 선택이 되어있는지 여부
         let isSelectMode;
 
         // 노드를 선택했을경우
-        if (params.dataType == 'node') {
+        if (isSelectedNode) {
+          sourceDataIndex = params.dataIndex;
+          // 이미 선택이 되어있는지 여부
+          isSelectMode = _.isUndefined(seriesNodeList[params.dataIndex].selected);
 
-          dataIndex = params.dataIndex;
+          const sourceName = seriesNodeList[params.dataIndex].name;
+          if (isSelectMode) {
+            // 선택 처리
+            selectMode = ChartSelectMode.ADD;
+            seriesNodeList[params.dataIndex].selected = true;
+            seriesEdgeList.forEach(item => {
+              if (item.source === sourceName) {
+                item.selected = true;
+              }
+            });
+          } else {
+            // 비선택 처리
+            selectMode = ChartSelectMode.SUBTRACT;
+            delete seriesNodeList[params.dataIndex].selected;
+            seriesEdgeList.forEach(item => {
+              if (item.source === sourceName) {
+                delete item.selected;
+              }
+            });
+          }
         }
         // 엣지(선)을 선택했을 경우
         else {
 
-          // find end point
-          const target: string = seriesEdgeList[params.dataIndex]['target'];
-          targetDataIndex = _.findIndex(seriesValueList, (item) => {
-            return item.name == target;
-          });
-
           // find start point
           const source: string = seriesEdgeList[params.dataIndex]['source'];
-          dataIndex = _.findIndex(seriesValueList, (item) => {
-            return item.name == source;
-          });
+          sourceDataIndex = seriesNodeList.findIndex(item => item.name == source);
+
+          // find end point
+          const target: string = seriesEdgeList[params.dataIndex]['target'];
+          targetDataIndex = seriesNodeList.findIndex(item => item.name == target);
+
+          // 이미 선택이 되어있는지 여부
+          isSelectMode = _.isUndefined(seriesEdgeList[params.dataIndex].selected);
+
+          if (isSelectMode) {
+            // 선택 처리
+            selectMode = ChartSelectMode.ADD;
+            // 엣지 선택
+            seriesEdgeList[params.dataIndex].selected = true;
+
+            // 노드 선택
+            seriesNodeList[sourceDataIndex].selected = true;
+            seriesNodeList[targetDataIndex].selected = true;
+          } else {
+            // 비선택 처리
+            selectMode = ChartSelectMode.SUBTRACT;
+            delete seriesEdgeList[params.dataIndex].selected;
+
+            if (!seriesEdgeList.some(item => ((item.source === source || item.target === source) && item.selected))) {
+              delete seriesNodeList[sourceDataIndex].selected;
+            }
+
+            if (!seriesEdgeList.some(item => ((item.source === target || item.target === target) && item.selected))) {
+              delete seriesNodeList[targetDataIndex].selected;
+            }
+
+          }
         }
 
-        // 이미 선택이 되어있는지 여부
-        isSelectMode = _.isUndefined(seriesEdgeList[params.dataIndex].selected);
-
-        // check node type
-        let nodeFl: boolean;
-
-        if (isSelectMode) {
-
-          // 선택 처리
-          selectMode = ChartSelectMode.ADD;
-          seriesEdgeList[params.dataIndex].selected = true;
-          // add select count
-          seriesValueList[dataIndex].selectCnt = undefined == seriesValueList[dataIndex].selectCnt ? 1 : seriesValueList[dataIndex].selectCnt + 1;
-
-          // set target data
-          if (undefined !== targetDataIndex) {
-            // add select count
-            seriesValueList[targetDataIndex].selectCnt = undefined == seriesValueList[targetDataIndex].selectCnt ? 1 : seriesValueList[targetDataIndex].selectCnt + 1;
+        // 스타일 적용 - 엣지
+        let isEdgeSelected = false;
+        seriesEdgeList.forEach((item) => {
+          if (item.selected) {
+            item['lineStyle']['opacity'] = 0.6;
+            isEdgeSelected = true;
+          } else {
+            item['lineStyle']['opacity'] = 0.2;
           }
+        });
 
-          // change selected series style
-          _.map(seriesEdgeList, (item) => {
-
-            // when it's node type, check target
-            nodeFl = params.dataType !== 'node' ? (undefined !== targetDataIndex && item.target == seriesValueList[targetDataIndex].name) : true;
-            // when it's not node type
-            if( item.source == seriesValueList[dataIndex].name && nodeFl ) {
-              item['lineStyle']['opacity'] = 0.6;
-            } else {
-              if( item['lineStyle']['opacity'] != 0.6 ) {
-                item['lineStyle']['opacity'] = 0.2;
-              }
-            }
-          });
-
-        } else {
-
-          // 선택 해제
-          selectMode = ChartSelectMode.SUBTRACT;
-
-          delete seriesEdgeList[params.dataIndex].selected;
-
-          // subtract select count of source
-          seriesValueList[dataIndex].selectCnt -= 1;
-          // if the last target is subtracted, the source connecting with the last target is subtracted
-          if (0 == seriesValueList[dataIndex].selectCnt) delete seriesValueList[dataIndex].selected;
-
-          // set target data
-          if (undefined !== targetDataIndex) {
-
-            seriesValueList[targetDataIndex].selectCnt -= 1;
-
-            // if the last source is subtracted, the source connecting with the last source is subtracted
-            if (0 == seriesValueList[targetDataIndex].selectCnt) {
-              delete seriesValueList[targetDataIndex].selected;
-            }
+        // 스타일 적용 - 노드
+        seriesNodeList.forEach((item) => {
+          if (isEdgeSelected) {
+            item['itemStyle']['opacity'] = (item.selected ? 1 : 0.2);
+          } else {
+            item['itemStyle']['opacity'] = 1;
           }
-
-          _.map(seriesEdgeList, (item) => {
-
-            // when it's node type, check target
-            nodeFl = params.dataType !== 'node' ? (undefined !== targetDataIndex && item.target == seriesValueList[targetDataIndex].name) : true;
-
-            // when it's not node type
-            if( item.source == seriesValueList[dataIndex].name && nodeFl) {
-              item['lineStyle']['opacity'] = 0.2;
-            }
-          });
-        }
+        });
 
         // 차트에서 선택한 데이터 존재 여부 설정
         this.isSelected = isSelectMode;
 
         // UI에 전송할 선택정보 설정
         let data: any[] = this.setSelectData(params, params.name, selectedRowValues);
-        let value: any = seriesValueList[dataIndex];
-        let targetValue: any = seriesValueList[targetDataIndex];
-        if( data.length > 0 && value ) {
-          for( let item of data ) {
-
-            // set source value, selected count is 0 (last value)
-            if( item.name == value.field ) {
-
-              // when source is the last, subtract the target
-              if (this.isSelected || (!this.isSelected && 0 == value.selectCnt)) {
-                item.data = [value.originalName];
-                selectDataList.push(item);
-              }
-            // if targetValue exists
-            } else if ( targetValue && targetValue.field == item.name ) {
-
-              // when target is the last, subtract the source
-              if (this.isSelected || (!this.isSelected && 0 == targetValue.selectCnt)) {
-                item.data = [targetValue.originalName];
-                selectDataList.push(item);
-              }
+        let sourceValue: any = seriesNodeList[sourceDataIndex];
+        let targetValue: any = seriesNodeList[targetDataIndex];
+        if (data.length > 0 && sourceValue) {
+          for (let item of data) {
+            if (item.name == sourceValue.field && (this.isSelected ? sourceValue.selected : !sourceValue.selected)) {
+              item.data = [sourceValue.originalName];
+              selectDataList.push(item);
+            } else if (targetValue && targetValue.field == item.name && (this.isSelected ? targetValue.selected : !targetValue.selected)) {
+              item.data = [targetValue.originalName];
+              selectDataList.push(item);
             }
           }
         }
@@ -710,7 +699,9 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
     ///////////////////////////
 
     let format: UIChartFormat = uiOption.valueFormat;
-    if (_.isUndefined(format)){ return chartOption };
+    if (_.isUndefined(format)) {
+      return chartOption
+    }
 
     // 축의 포멧이 있는경우 축의 포멧으로 설정
     const axisFormat = FormatOptionConverter.getlabelAxisScaleFormat(uiOption);
@@ -725,10 +716,14 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
     let series: Series[] = chartOption.series;
 
     // 적용
-    _.each(series, (option, index) => {
+    _.each(series, (option) => {
 
-      if( _.isUndefined(option.label) ) { option.label = { normal: {} }; }
-      if( _.isUndefined(option.label.normal) ) { option.label.normal = {} }
+      if (_.isUndefined(option.label)) {
+        option.label = {normal: {}};
+      }
+      if (_.isUndefined(option.label.normal)) {
+        option.label.normal = {}
+      }
 
       option.label.normal.formatter = ((item) => {
 
@@ -753,23 +748,23 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
   private getFormatSankeyValueSeries(params: any, format: UIChartFormat, uiOption?: UIOption, series?: any, uiData?: any): string {
 
     // UI 데이터 정보가 있을경우
-    if( uiData ) {
+    if (uiData) {
 
       if (!uiOption.dataLabel || !uiOption.dataLabel.displayTypes) return '';
 
       // UI 데이터 가공
       let isUiData: boolean = false;
       let result: string[] = [];
-      if( -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME) ){
+      if (-1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME)) {
 
         result.push(params.data.categoryName);
         isUiData = true;
       }
-      if ( -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.NODE_NAME) ) {
+      if (-1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.NODE_NAME)) {
         result.push(params.data.nodeName);
         isUiData = true;
       }
-      if ( -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.NODE_VALUE) ) {
+      if (-1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.NODE_VALUE)) {
         result.push(FormatOptionConverter.getFormatValue(params.data.nodeValue, format));
         isUiData = true;
       }
@@ -777,15 +772,14 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
       let label: string = "";
 
       // UI 데이터기반 레이블 반환
-      if( isUiData ) {
-        for( let num: number = 0 ; num < result.length ; num++ ) {
-          if( num > 0 ) {
+      if (isUiData) {
+        for (let num: number = 0; num < result.length; num++) {
+          if (num > 0) {
             label += "\n";
           }
-          if(series.label && series.label.normal && series.label.normal.rich) {
-            label += '{align|'+ result[num] +'}';
-          }
-          else {
+          if (series.label && series.label.normal && series.label.normal.rich) {
+            label += '{align|' + result[num] + '}';
+          } else {
             label += result[num];
           }
         }
