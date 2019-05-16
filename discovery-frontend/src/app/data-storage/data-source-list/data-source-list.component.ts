@@ -80,7 +80,7 @@ export class DataSourceListComponent extends AbstractComponent {
               if (key === 'size') {
                 this.page.size = params['size'];
               } else if (key === 'page') {
-                this.page.size = params['page'];
+                this.page.page = params['page'];
               } else if (key === 'sort') {
                 const sortParam = params['sort'].split(',');
                 this.selectedContentSort.key = sortParam[0];
