@@ -17,7 +17,7 @@ import {AbstractComponent} from '../../../common/component/abstract.component';
 import {
   Component,
   ElementRef,
-  EventEmitter,
+  EventEmitter, HostListener,
   Injector,
   Input,
   OnChanges,
@@ -42,6 +42,7 @@ import {TimeZoneObject, TimezoneService} from "../../service/timezone.service";
 import {SchemaConfigDataPreviewComponent} from "./schema-config-data-preview.component";
 import {isNullOrUndefined} from "util";
 import {FieldConfigService} from "../../service/field-config.service";
+import {StorageFilterSelectBoxComponent} from "../../data-source-list/component/storage-filter-select-box.component";
 
 declare let moment: any;
 
@@ -197,6 +198,17 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
   @ViewChild(SchemaConfigDataPreviewComponent)
   private _previewComponent: SchemaConfigDataPreviewComponent;
 
+  @ViewChild('logicalElement')
+  private readonly LOGICAL_ELEMENT: ElementRef;
+  @ViewChild('logicalPopupElement')
+  private readonly LOGICAL_POPUP_ELEMENT: ElementRef;
+  @ViewChild('timezoneElement')
+  private readonly TIMEZONE_ELEMENT: ElementRef;
+  @ViewChild('timezonePopupElement')
+  private readonly TIMEZONE_POPUP_ELEMENT: ElementRef;
+  @ViewChild(StorageFilterSelectBoxComponent)
+  private readonly _geoCoordinateComponent: StorageFilterSelectBoxComponent;
+
   // 생성자
   constructor(private _datasourceService: DatasourceService,
               private _timezoneService: TimezoneService,
@@ -228,6 +240,34 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
       this.searchTimezoneKeyword = undefined;
       // set searched timezone list
       this._setSearchedTimezoneList(this.searchTimezoneKeyword);
+    }
+  }
+
+  /**
+   * Window resize
+   * @param event
+   */
+  @HostListener('window:resize', ['$event'])
+  protected onResize(event) {
+    // #1925
+    this.closeSelectBoxes();
+  }
+
+
+  /**
+   * Close select box
+   */
+  public closeSelectBoxes() {
+    // if open logical type list
+    if (this.logicalTypeListShowFlag === true) {
+      this.logicalTypeListShowFlag = false;
+    }
+    // if open timezone list
+    if (this.isShowTimezoneList === true) {
+      this.isShowTimezoneList = false;
+    }
+    if (this._geoCoordinateComponent && this._geoCoordinateComponent.isListShow === true) {
+      this._geoCoordinateComponent.isListShow = false;
     }
   }
 
@@ -521,12 +561,41 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
 
   /**
    * Logical type list show flag change event
+   * @param {MouseEvent} event
    */
-  public onChangeLogicalTypeListShowFlag(): void {
+  public onChangeLogicalTypeListShowFlag(event: MouseEvent): void {
     // if enable type change
     if (!this.isDisabledTypeChangeInField(this.selectedField)) {
       // change logical type list show / hide flag
       this.logicalTypeListShowFlag = !this.logicalTypeListShowFlag;
+      // if open show flag
+      if (this.logicalTypeListShowFlag) {
+        $(this.LOGICAL_POPUP_ELEMENT.nativeElement).css({
+          'position' : 'fixed',
+          'top': $(event.currentTarget).offset().top + 35,
+          'left' : $(event.currentTarget).offset().left,
+          'width' : $(event.currentTarget).outerWidth()
+        });
+      }
+    }
+  }
+
+  /**
+   * Change timezone selectbox show flag
+   * @param {MouseEvent} event
+   */
+  public onChangeTimezoneSelectBoxShowFlag(event: MouseEvent): void {
+    if ($(event.target).hasClass('ddp-type-selectbox ddp-type-search-select') || $(event.target).hasClass('ddp-txt-selectbox')) {
+      this.isShowTimezoneList = !this.isShowTimezoneList;
+      // if open show flag
+      if (this.isShowTimezoneList) {
+        $(this.TIMEZONE_POPUP_ELEMENT.nativeElement).css({
+          'position' : 'fixed',
+          'top': $(event.currentTarget).offset().top + 35,
+          'left' : $(event.currentTarget).offset().left,
+          'width' : $(event.currentTarget).outerWidth()
+        });
+      }
     }
   }
 
@@ -755,16 +824,6 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
     this.searchTimezoneKeyword = searchKeyword;
     // set searched timezone list
     this._setSearchedTimezoneList(this.searchTimezoneKeyword);
-  }
-
-  /**
-   * Change timezone selectbox show flag
-   * @param {MouseEvent} event
-   */
-  public onChangeTimezoneSelectBoxShowFlag(event: MouseEvent): void {
-    if ($(event.target).hasClass('ddp-type-selectbox ddp-type-search-select') || $(event.target).hasClass('ddp-txt-selectbox')) {
-      this.isShowTimezoneList = !this.isShowTimezoneList
-    }
   }
 
   /**

@@ -13,17 +13,24 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@angular/core';
+import {Component, ElementRef, EventEmitter, HostListener, Injector, Input, Output, ViewChild} from '@angular/core';
 import { StringUtil } from '../../../common/util/string.util';
 import * as _ from 'lodash';
 import { AbstractComponent } from '../../../common/component/abstract.component';
 import { FieldRole, IngestionRuleType, LogicalType } from '../../../domain/datasource/datasource';
+import {ColumnSelectBoxComponent} from "./column-select-box.component";
 
 @Component({
   selector: 'add-column-component',
   templateUrl: './add-column.component.html'
 })
 export class AddColumnComponent extends AbstractComponent {
+
+  @ViewChild('latitude_select')
+  private readonly _latitudeSelectComponent: ColumnSelectBoxComponent;
+
+  @ViewChild('longitude_select')
+  private readonly _longitudeSelectComponent: ColumnSelectBoxComponent;
 
   // column list
   private _columnList: any;
@@ -87,6 +94,33 @@ export class AddColumnComponent extends AbstractComponent {
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
+  }
+
+
+  /**
+   * Window resize
+   * @param event
+   */
+  @HostListener('window:resize', ['$event'])
+  protected onResize(event) {
+    // #1925
+    this.closeSelectBoxes();
+  }
+
+  /**
+   * Close select box
+   */
+  public closeSelectBoxes(): void {
+    if (this.isMethodTypeListShow === true) {
+      this.isMethodTypeListShow = false;
+    }
+    if (this.selectedMethodType.value !== 'user_defined') {
+      if (this._latitudeSelectComponent && this._latitudeSelectComponent.isListShow === true) {
+        this._latitudeSelectComponent.isListShow = false;
+      } else if (this._longitudeSelectComponent && this._longitudeSelectComponent.isListShow === true) {
+        this._longitudeSelectComponent.isListShow = false;
+      }
+    }
   }
 
 

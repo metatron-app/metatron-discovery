@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
 import {AbstractComponent} from "../../../common/component/abstract.component";
 import {isNullOrUndefined} from "util";
 import {
@@ -26,6 +26,13 @@ import {ConnectionParam, DataConnectionCreateService} from "../../service/data-c
 import {StringUtil} from "../../../common/util/string.util";
 import {DataconnectionService} from "../../../dataconnection/service/dataconnection.service";
 import {StorageService} from "../../service/storage.service";
+import * as _ from 'lodash';
+
+export enum ConnectionValid {
+  ENABLE_CONNECTION = 0,
+  DISABLE_CONNECTION = 1,
+  REQUIRE_CONNECTION_CHECK = 2
+}
 
 @Component({
   selector: 'app-connection',
@@ -35,6 +42,16 @@ export class ConnectionComponent extends AbstractComponent {
 
   // TODO
   private _validConnectionList;
+
+  @ViewChild('host_port_element')
+  private readonly HOST_PORT_ELEMENT: ElementRef;
+  @ViewChild('username_pass_element')
+  private readonly USERNAME_PASS_ELEMENT: ElementRef;
+  @ViewChild('check_element')
+  private readonly CHECK_ELEMENT: ElementRef;
+  @ViewChild('properties_element')
+  private readonly PROPERTIES_ELEMENT: ElementRef;
+
 
   @Input()
   public readonly isDisableChangeConnectionType: boolean;
@@ -76,11 +93,10 @@ export class ConnectionComponent extends AbstractComponent {
   public properties: {key: string, value: string, keyError?: boolean, valueError?: boolean, keyValidMessage?: string, valueValidMessage?: string}[];
 
   // flag
+  public connectionValidation: ConnectionValid;
   public isShow: boolean;
   public isUsedUrl: boolean;
   public isShowAdvancedSettings: boolean;
-  public isValidConnection: boolean;
-  public isConnectionCheckRequire: boolean;
   // input error
   public isUrlError: boolean;
   public isHostnameError: boolean;
@@ -131,6 +147,38 @@ export class ConnectionComponent extends AbstractComponent {
   }
 
   /**
+   * Scroll into connection invalid input
+   */
+  public scrollIntoConnectionInvalidInput(): void {
+    // if invalid HOST or PORT or URL
+    if (this.isUrlError || this.isHostnameError || this.isPortError || (this.isCatalogError || this.isDatabaseError || this.isSidError)) {
+      this.HOST_PORT_ELEMENT.nativeElement.scrollIntoView();
+    }
+    // if invalid username or password
+    else if (this.isShowUsernameAndPasswordInput() && (this.isUsernameError || this.isPasswordError)) {
+      this.USERNAME_PASS_ELEMENT.nativeElement.scrollIntoView();
+    } else if (this.isRequireCheckConnection() || this.isDisableConnection()) {  // if require check connection
+      this.CHECK_ELEMENT.nativeElement.scrollIntoView();
+    }
+  }
+
+  /**
+   * Scroll into preperties
+   */
+  public scrollIntoPropertyInvalidInput(): void {
+    if (!this.isDisableProperties) {
+      // if close advanced settings
+      if (!this.isShowAdvancedSettings) {
+        // open
+        this.isShowAdvancedSettings = true;
+        this.safelyDetectChanges();
+      }
+      // scroll into invalid property
+      this.PROPERTIES_ELEMENT.nativeElement.scrollIntoView();
+    }
+  }
+
+  /**
    * Set connection input
    * @param {Dataconnection} connection
    */
@@ -153,23 +201,26 @@ export class ConnectionComponent extends AbstractComponent {
    * Initial connection valid
    */
   public connectionValidInitialize(): void {
-    this.isValidConnection = undefined;
-    this.isConnectionCheckRequire = undefined;
+    this.connectionValidation = undefined;
   }
 
   /**
    * Check valid connection
    */
   public checkConnection(): void {
+    // init connection validation
+    this.connectionValidation = undefined;
+    // check valid connection input
     if (this.isValidConnectionInput()) {
-
       // loading show
       this.loadingShow();
       // check connection
       this.connectionService.checkConnection({connection: this.getConnectionParams()})
         .then((result: {connected: boolean}) => {
           // set connection validation result
-          this.isValidConnection = result.connected;
+          this.connectionValidation = result.connected ? ConnectionValid.ENABLE_CONNECTION : ConnectionValid.DISABLE_CONNECTION;
+          // scroll into connection invalid input
+          this.scrollIntoConnectionInvalidInput();
           // loading hide
           this.loadingHide();
           // if used name initial
@@ -179,18 +230,23 @@ export class ConnectionComponent extends AbstractComponent {
         })
         .catch((error) => {
           // set connection result fail
-          this.isValidConnection = false;
+          this.connectionValidation = ConnectionValid.DISABLE_CONNECTION;
+          // scroll into connection invalid input
+          this.scrollIntoConnectionInvalidInput();
           // loading hide
           this.commonExceptionHandler(error);
         });
+    } else {
+      // scroll into connection invalid input
+      this.scrollIntoConnectionInvalidInput();
     }
   }
 
   /**
    * Property key validation
-   * @param {{key: string; keyValidMessage: string; keyError: boolean}} property
+   * @param {{key: string, value: string, keyError?: boolean, valueError?: boolean, keyValidMessage?: string, valueValidMessage?: string}} property
    */
-  public propertyKeyValidation(property: {key: string, keyValidMessage: string, keyError: boolean}): void {
+  public propertyKeyValidation(property: {key: string, value: string, keyError?: boolean, valueError?: boolean, keyValidMessage?: string, valueValidMessage?: string}): void {
     // check empty
     if (StringUtil.isEmpty(property.key)) {
       // set empty message
@@ -214,6 +270,44 @@ export class ConnectionComponent extends AbstractComponent {
     }
   }
 
+  /**
+   * Set require check connection
+   */
+  public setRequireCheckConnection(): void {
+    this.connectionValidation = ConnectionValid.REQUIRE_CONNECTION_CHECK;
+  }
+
+  /**
+   * Is enable connection
+   * @return {boolean}
+   */
+  public isEnableConnection(): boolean {
+    return this.connectionValidation === ConnectionValid.ENABLE_CONNECTION;
+  }
+
+  /**
+   * Is disable connection
+   * @return {boolean}
+   */
+  public isDisableConnection(): boolean {
+    return this.connectionValidation === ConnectionValid.DISABLE_CONNECTION;
+  }
+
+  /**
+   * Is require check connection
+   * @return {boolean}
+   */
+  public isRequireCheckConnection(): boolean {
+    return this.connectionValidation === ConnectionValid.REQUIRE_CONNECTION_CHECK;
+  }
+
+  /**
+   * Is empty connection validation
+   * @return {boolean}
+   */
+  public isEmptyConnectionValidation(): boolean {
+    return _.isNil(this.connectionValidation);
+  }
 
   /**
    * Is disable SID
@@ -362,12 +456,19 @@ export class ConnectionComponent extends AbstractComponent {
   }
 
   /**
+   * Is show username and password input
+   */
+  public isShowUsernameAndPasswordInput(): boolean {
+    return this.selectedAuthenticationType.value !== this.AUTHENTICATION_TYPE.USERINFO;
+  }
+
+  /**
    * Get properties (key-value object)
    * @return {{}}
    */
   public getProperties() {
     return this.properties.reduce((acc, property) => {
-      acc[property.key.trim()] = property.value.trim();
+      acc[property.key.trim()] = _.isNil(property.value) ? '' : property.value.trim();
       return acc;
     }, {});
   }

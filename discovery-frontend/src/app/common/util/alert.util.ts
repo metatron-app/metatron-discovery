@@ -21,6 +21,10 @@ declare let toastr;
 
 export class Alert {
 
+  public static ERROR_NAME: string;
+  public static MORE_BTN_DESC: string;
+  public static CLOSE_BTN: string;
+
   private static _setDefaultOpts() {
     toastr.options = {
       closeButton: true,
@@ -103,15 +107,15 @@ export class Alert {
     toastr.options.escapeHtml = false;
     toastr.options.onCustomAction = () => {
       const modal = new Modal();
-      modal.name = 'There were problems<br>Please check the following messages:';
+      modal.name = this.ERROR_NAME;
       modal.description = detailMsg;
       modal.isShowCancel = false;
       modal.isScroll = true;
-      modal.btnName = 'close';
+      modal.btnName = this.CLOSE_BTN;
       CommonUtil.confirm(modal);
     };
     setTimeout(() => {
-      toastr.error(message + '<br/><a class="toast-custom-action-button" href="javascript:" >Click here for details</a>', 'Error');
+      toastr.error(message + `<br/><a class="toast-custom-action-button" href="javascript:" >` + this.MORE_BTN_DESC + `</a>`, 'Error');
     }, Math.random() * 1000);
   } // function - error
 

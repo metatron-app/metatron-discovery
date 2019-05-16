@@ -118,7 +118,7 @@ public class TemporaryCleanJob extends QuartzJobBean {
     // delete votile info.
     if(dataSourceIds != null) {
       dataSourceRepository.deleteInBatch(dataSourceRepository.findByIdIn(dataSourceIds));
-      LOGGER.info("Successfully deleting {} volatiled datasources - {}", dataSourceIds.size());
+      LOGGER.info("Successfully deleting {} volatiled datasources", dataSourceIds.size());
     }
 
   }

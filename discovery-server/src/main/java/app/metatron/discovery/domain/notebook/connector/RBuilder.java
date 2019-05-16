@@ -113,7 +113,7 @@ public class RBuilder extends JupyterBuilder {
         try {
             if (htmlFile.exists() && htmlFile.length() != 0) {
                 content = FileUtils.readFileToString(htmlFile);
-                LOGGER.debug("HTML content is\n", content);
+                LOGGER.debug("HTML content is\n {}", content);
             } else {
                 throw new RuntimeException("HTML does not exist or empty.");
             }
