@@ -295,6 +295,7 @@
   "msg.comm.ui.failed": "Failed",
   "msg.comm.ui.complete": "Complete",
   "msg.comm.ui.canceled": "Canceled",
+  "msg.comm.ui.num.item.list" : "Show up to",
 
   "msg.lnb.btn.manual" : "Manuals",
   "msg.lnb.btn.manual.web" : "Web",
