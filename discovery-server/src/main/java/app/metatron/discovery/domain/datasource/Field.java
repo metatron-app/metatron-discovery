@@ -132,6 +132,12 @@ public class Field implements MetatronDomain<Long> {
   private String logicalName;
 
   /**
+   * Original field name, column name of source data before ingestion
+   */
+  @Column(name = "field_original_name")
+  private String originalName;
+
+  /**
    * Field description
    */
   @Column(name = "field_desc", length = 1000)
@@ -255,9 +261,6 @@ public class Field implements MetatronDomain<Long> {
   private Set<Field> mappedField;
 
   @Transient
-  private String originalName;
-
-  @Transient
   private String originalType;
 
   public Field() {
@@ -329,6 +332,18 @@ public class Field implements MetatronDomain<Long> {
     this.seq = column.getSeq();
   }
 
+  public boolean changedName() {
+    if (StringUtils.isEmpty(name)) {
+      return false;
+    }
+
+    if (!name.equals(getOriginalName())) {
+      return true;
+    }
+
+    return false;
+  }
+
   /**
    * for backward compatibility of timezone
    */
@@ -345,31 +360,31 @@ public class Field implements MetatronDomain<Long> {
   public Aggregation getAggregation(boolean isRelay) {
 
     if (isRelay) {
-      return new RelayAggregation(name, logicalType.toEngineMetricType());
+      return new RelayAggregation(name, getOriginalName(), logicalType.toEngineMetricType());
     }
 
     if (aggrType == null) {
-      return new GenericSumAggregation(name, name, "double");
+      return new GenericSumAggregation(name, getOriginalName(), "double");
     }
 
     // TODO: SUM/MIN/MAX 타입도 체크해야하는지 확인 해볼것
     switch (aggrType) {
       case SUM:
-        return new GenericSumAggregation(name, name, "double");
+        return new GenericSumAggregation(name, getOriginalName(), "double");
       case MIN:
-        return new GenericMinAggregation(name, name, "double");
+        return new GenericMinAggregation(name, getOriginalName(), "double");
       case MAX:
-        return new GenericMaxAggregation(name, name, "double");
+        return new GenericMaxAggregation(name, getOriginalName(), "double");
       case AREA:
-        return new AreaAggregation(name, name);
+        return new AreaAggregation(name, getOriginalName());
       case RANGE:
-        return new RangeAggregation(name, name);
+        return new RangeAggregation(name, getOriginalName());
       case VARIATION:
-        return new VarianceAggregation(name, name);
+        return new VarianceAggregation(name, getOriginalName());
       case APPROX:
-        return new ApproxHistogramFoldAggregation(name, name);
+        return new ApproxHistogramFoldAggregation(name, getOriginalName());
       default:
-        return new GenericSumAggregation(name, name, "double");
+        return new GenericSumAggregation(name, getOriginalName(), "double");
     }
   }
 
@@ -449,7 +464,7 @@ public class Field implements MetatronDomain<Long> {
   public TimestampSpec createTimestampSpec() {
 
     TimestampSpec timestampSpec = new TimestampSpec();
-    timestampSpec.setColumn(this.getName());
+    timestampSpec.setColumn(this.getOriginalName());
     timestampSpec.setReplaceWrongColumn(true);
 
     FieldFormat fieldFormat = GlobalObjectMapper.readValue(this.format, FieldFormat.class);
@@ -716,6 +731,9 @@ public class Field implements MetatronDomain<Long> {
   }
 
   public String getOriginalName() {
+    if (StringUtils.isEmpty(originalName)) {
+      return name;
+    }
     return originalName;
   }
 
