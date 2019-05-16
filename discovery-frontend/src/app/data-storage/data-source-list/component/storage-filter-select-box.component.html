@@ -12,11 +12,11 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-selectbox" [class.ddp-selected]="isListShow" [class.ddp-disabled]="isDisableList" (click)="onChangeListShow($event)" #wrapElement>
-  <span class="ddp-txt-selectbox" *ngIf="!isEnableIcon">{{isOnlyStringList ? selectedFilter : selectedFilter.label}}</span>
-  <span class="ddp-txt-selectbox" *ngIf="isEnableIcon">
-    <span class="ddp-type-txt">
-        <em class="{{selectedFilter.icon}}"></em>
+<div class="ddp-type-selectbox" [class.ddp-selected]="isListShow" [class.ddp-disabled]="isDisableList" [ngClass]="SELECT_BOX_WRAP_ELEMENT" (click)="onChangeListShow($event)" #wrapElement>
+  <span class="ddp-txt-selectbox" [ngClass]="SELECT_BOX_LABEL_ELEMENT"  *ngIf="!isEnableIcon">{{isOnlyStringList ? selectedFilter : selectedFilter.label}}</span>
+  <span class="ddp-txt-selectbox" [ngClass]="SELECT_BOX_LABEL_ELEMENT" *ngIf="isEnableIcon">
+    <span class="ddp-type-txt" [ngClass]="SELECT_BOX_ICON_WRAP_ELEMENT">
+        <em class="{{selectedFilter.icon}}" [ngClass]="SELECT_BOX_ICON_ELEMENT"></em>
       {{selectedFilter.label}}
     </span>
   </span>

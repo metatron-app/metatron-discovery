@@ -30,6 +30,7 @@
           <div class="ddp-col-4">
             <!-- selectbox -->
             <storage-filter-select-box
+              #typeSelectBox
               [isEnableIcon]="true"
               [filterList]="typeList"
               [selectedFilter]="selectedType"
@@ -51,6 +52,7 @@
           <div class="ddp-col-6 ddp-form-error">
             <!-- select box -->
             <column-select-box
+              #latitudeSelectBox
               [columnList]="latitudeFieldList"
               [selectedColumn]="selectedLatitudeField"
               [placeholder]="'msg.storage.ui.latitude.column' | translate"
@@ -64,6 +66,7 @@
           <div class="ddp-col-6 ddp-form-error">
             <!-- select box -->
             <column-select-box
+              #longitudeSelectBox
               [columnList]="longitudeFieldList"
               [selectedColumn]="selectedLongitudeField"
               [placeholder]="'msg.storage.ui.longitude.column' | translate"

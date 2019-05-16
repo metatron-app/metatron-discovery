@@ -1,0 +1,36 @@
+<div class="ddp-box-layout4 ddp-change" style="width:355px;" *ngIf="isShowPopup" (clickOutside)="closePopup()" [delayClickOutsideInit]="true" >
+  <a href="javascript:" class="ddp-btn-close" (click)="closePopup()"></a>
+  <div class="ddp-wrap-data-detail">
+    <div class="ddp-ui-top-title">
+     {{'msg.storage.ui.action.data.detail' | translate}}
+    </div>
+    <div class="ddp-change-select">
+      <!-- selectbox -->
+      <storage-filter-select-box
+        #roleSelectBox
+        [isEnableIcon]="false"
+        [filterList]="roleList"
+        [selectedFilter]="selectedRole"
+        [isDisableList]="isDisableChangeType()"
+        (changedFilter)="onChangeSelectedRole($event)">
+      </storage-filter-select-box>
+      <!-- //selectbox -->
+      <!-- selectbox -->
+      <storage-filter-select-box
+        #typeSelectBox
+        [isEnableIcon]="true"
+        [filterList]="typeList"
+        [selectedFilter]="selectedType"
+        [isDisableList]="isDisableChangeType()"
+        (changedFilter)="onChangeSelectedType($event)">
+      </storage-filter-select-box>
+      <!-- //selectbox -->
+      <div class="ddp-info" *ngIf="isExistCreatedFieldInCheckedFieldList">{{'msg.storage.ui.configure.schema.logical.change.derived' | translate}}</div>
+      <div class="ddp-info" *ngIf="!isExistCreatedFieldInCheckedFieldList && isExistTimestampFieldInCheckedFieldList">{{'msg.storage.ui.configure.schema.logical.change.timestamp' | translate}}</div>
+    </div>
+  </div>
+  <div class="ddp-box-button">
+    <a href="javascript:" class="ddp-btn-line" (click)="closePopup()">{{'msg.comm.btn.cancl' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-solid ddp-bg-black" (click)="changeFieldList()">{{'msg.comm.btn.done' | translate}}</a>
+  </div>
+</div>

@@ -13,26 +13,37 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {Component, ElementRef, Injector} from "@angular/core";
-import {StringUtil} from "../../../common/util/string.util";
-import {Type} from "../../../shared/datasource-metadata/domain/type";
+import {AbstractComponent} from "../../../../common/component/abstract.component";
+import {Component, ElementRef, HostListener, Injector, ViewChild} from "@angular/core";
+import {StringUtil} from "../../../../common/util/string.util";
+import {Type} from "../../../../shared/datasource-metadata/domain/type";
 import {
   DerivationRule,
   Field, FieldFormat,
   FieldRole,
   IngestionRule,
   LogicalType
-} from "../../../domain/datasource/datasource";
-import {EventBroadcaster} from "../../../common/event/event.broadcaster";
+} from "../../../../domain/datasource/datasource";
+import {EventBroadcaster} from "../../../../common/event/event.broadcaster";
 import * as _ from 'lodash';
-import {DataStorageConstant} from "../../constant/data-storage-constant";
+import {DataStorageConstant} from "../../../constant/data-storage-constant";
+import {StorageFilterSelectBoxComponent} from "../../../data-source-list/component/storage-filter-select-box.component";
+import {ColumnSelectBoxComponent} from "../../../data-source-list/component/column-select-box.component";
 
 @Component({
   selector: 'schema-configure-create-field',
   templateUrl: 'schema-configure-create-field.component.html'
 })
 export class SchemaConfigureCreateFieldComponent extends AbstractComponent {
+
+  @ViewChild('typeSelectBox')
+  private readonly _typeSelectBox: StorageFilterSelectBoxComponent;
+
+  @ViewChild('latitudeSelectBox')
+  private readonly _latitudeSelectBox: ColumnSelectBoxComponent;
+
+  @ViewChild('longitudeSelectBox')
+  private readonly _longitudeSelectBox: ColumnSelectBoxComponent;
 
   private _originFieldList;
 
@@ -96,9 +107,20 @@ export class SchemaConfigureCreateFieldComponent extends AbstractComponent {
     }
   }
 
-  public init(fieldList) {
-    // change field list
-    this.changeFieldList(fieldList);
+  /**
+   * Window resize
+   * @param event
+   */
+  @HostListener('window:resize', ['$event'])
+  protected onResize(event) {
+    // #1925
+    if (this._typeSelectBox && this._typeSelectBox.isListShow) {
+      this._typeSelectBox.isListShow = false;
+    } else if (this._latitudeSelectBox && this._latitudeSelectBox.isListShow) {
+      this._latitudeSelectBox.isListShow = false;
+    } else if (this._longitudeSelectBox && this._longitudeSelectBox.isListShow) {
+      this._longitudeSelectBox.isListShow = false;
+    }
   }
 
   /**
@@ -107,11 +129,11 @@ export class SchemaConfigureCreateFieldComponent extends AbstractComponent {
    */
   public changeFieldList(fieldList): void {
     // set origin field list
-    this._originFieldList = this._cloneValue(fieldList.filter(field => !Field.isRemovedField(field) && !Field.isCreatedField(field)));
+    this._originFieldList = this._cloneValue(fieldList);
     // if empty selected latitude field
     if (this._isEmptyValue(this.selectedLatitudeField)) {
       // set longitude field list
-      this.longitudeFieldList = this._cloneValue(this._originFieldList);
+      this.longitudeFieldList = this._cloneValue(this._originFieldList.filter(field => !Field.isRemovedField(field) && !Field.isCreatedField(field)));
     } else { // if not empty selected latitude field
       // set longitude field list
       this._changeLongitudeFieldListExceptField(this.selectedLatitudeField);
@@ -123,7 +145,7 @@ export class SchemaConfigureCreateFieldComponent extends AbstractComponent {
     // if empty selected longitude field
     if (this._isEmptyValue(this.selectedLongitudeField)) {
       // set latitude field list
-      this.latitudeFieldList = this._cloneValue(this._originFieldList);
+      this.latitudeFieldList = this._cloneValue(this._originFieldList.filter(field => !Field.isRemovedField(field) && !Field.isCreatedField(field)));
     } else {  // if not empty selected longitude field
       // set latitude field list
       this._changeLatitudeFieldListExceptField(this.selectedLongitudeField);
@@ -397,7 +419,7 @@ export class SchemaConfigureCreateFieldComponent extends AbstractComponent {
       field.format.geoCoordinateInitialize();
       field.format.type = this.selectedType.value.toString().toLowerCase()
     }
-    // broadcast to
+    // broadcast to DATASOURCE_CREATED_FIELD
     this.broadCaster.broadcast(DataStorageConstant.Datasource.BroadcastKey.DATASOURCE_CREATED_FIELD, field);
   }
 

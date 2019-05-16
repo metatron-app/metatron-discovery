@@ -29,10 +29,12 @@
       <label class="ddp-label-type">{{'msg.comm.th.role' | translate}}</label>
       <div class="ddp-wrap-dropdown">
         <!-- select box -->
-        <storage-filter-select-box [isEnableIcon]="false"
-                                   [filterList]="roleFilterList"
-                                   [selectedFilter]="selectedRoleFilter"
-                                   (changedFilter)="changeRoleFilter($event)">
+        <storage-filter-select-box
+          #roleFilterSelectBox
+          [isEnableIcon]="false"
+          [filterList]="roleFilterList"
+          [selectedFilter]="selectedRoleFilter"
+          (changedFilter)="changeRoleFilter($event)">
         </storage-filter-select-box>
         <!-- //select box -->
       </div>
@@ -43,10 +45,12 @@
       <label class="ddp-label-type">{{'msg.comm.th.type' | translate}}</label>
       <div class="ddp-wrap-dropdown">
         <!-- select box -->
-        <storage-filter-select-box [isEnableIcon]="true"
-                                   [filterList]="typeFilterList"
-                                   [selectedFilter]="selectedTypeFilter"
-                                   (changedFilter)="changeTypeFilter($event)">
+        <storage-filter-select-box
+          #typeFilterSelectBox
+          [isEnableIcon]="true"
+          [filterList]="typeFilterList"
+          [selectedFilter]="selectedTypeFilter"
+          (changedFilter)="changeTypeFilter($event)">
         </storage-filter-select-box>
         <!-- //select box -->
       </div>

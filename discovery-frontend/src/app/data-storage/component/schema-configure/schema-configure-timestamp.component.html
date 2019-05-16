@@ -5,7 +5,7 @@
   </span>
   <div class="ddp-ui-setting">
     <label class="ddp-label-radio" *ngFor="let type of timestampTypeList" (change)="onChangeSelectedTimestampType(type)">
-      <input type="radio" [checked]="selectedTimestampType.value === type.value" [disabled]="isFieldTimestampType(type) && isEmptyTimestampFieldList()">
+      <input type="radio" [checked]="selectedTimestampType === type.value" [disabled]="isFieldTimestampType(type) && isEmptyTimestampFieldList()">
       <i class="ddp-icon-radio"></i>
       <span class="ddp-txt-radio">{{type.label}}</span>
     </label>
