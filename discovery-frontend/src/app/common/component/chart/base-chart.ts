@@ -71,7 +71,6 @@ import {Shelf} from '../../../domain/workbook/configurations/shelf/shelf';
 import {fromEvent} from 'rxjs';
 import {debounceTime, map} from 'rxjs/operators';
 import UI = OptionGenerator.UI;
-import {isNullOrUndefined} from "util";
 
 declare let echarts: any;
 
@@ -907,8 +906,6 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   /**
    * 차트 기본설정 정보를 변환한다.
    * - 필요시 각 차트에서 Override
-   * @param chartOption
-   * @param option
    * @returns {BaseOption}
    */
   protected convertBasic(): BaseOption {
@@ -942,8 +939,6 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   /**
    * X축 정보를 변환한다.
    * - 필요시 각 차트에서 Override
-   * @param chartOption
-   * @param option
    * @returns {BaseOption}
    */
   protected convertXAxis(): BaseOption {
@@ -1402,6 +1397,8 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       this.chart = this.echarts.init(this.$element.find('.chartCanvas')[0], 'exntu');
     }
 
+    console.info(this.chartOption);
+
     // Apply!
     // chart.setOption(option, notMerge, lazyUpdate);
     this.chart.setOption(this.chartOption, false, false);
@@ -1611,7 +1608,6 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    * - 필요시 각 차트에서 Override
    */
   protected selection(): void {
-
   }
 
   /**
@@ -1619,10 +1615,8 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    * - 필요시 각 차트에서 Override
    */
   protected datazoom(): void {
-
     this.addChartDatazoomEventListener();
   }
-
 
   ////////////////////////////////////////////////////////
   // Support Method
@@ -1964,148 +1958,107 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       delete item['data'];
     });
 
-    series.map((obj) => {
-
-      obj.data = _.cloneDeep(obj.originData);
-
-      // 불투명도를 1로 변경
-      if (!_.isUndefined(obj.itemStyle) && !_.isUndefined(obj.itemStyle.normal)) {
-        delete obj.itemStyle.normal.opacity;
-      }
-
-      // 라인이 존재한다면 라인의 불투명도 1로 변경
-      if (!_.isUndefined(obj.lineStyle) && !_.isUndefined(obj.lineStyle.normal)) {
-        delete obj.lineStyle.normal.opacity;
-      }
-
-      // 현재 시리즈의 선택 여부 변경
-      obj.existSelectData = false;
+    series.forEach((obj) => {
+      obj.data.forEach(item => {
+        this.clearSelectSeriesData(item);
+      });
     });
     return option;
   }
 
   /**
+   * 시리즈 데이터 선택 - 차트별 재설정
+   * @param seriesData
+   */
+  protected selectSeriesData(seriesData) {
+    if (seriesData.itemStyle) {
+      seriesData.itemStyle.normal.opacity = 1;
+      seriesData.selected = true;
+    }
+  } // function - selectSeriesData
+
+  /**
+   * 시리즈 데이터 선택 해제 - 차트별 재설정
+   * @param seriesData
+   */
+  protected unselectSeriesData(seriesData) {
+    if (seriesData.itemStyle) {
+      seriesData.itemStyle.normal.opacity = 0.2;
+      seriesData.selected = false;
+    }
+  } // function - unselectSeriesData
+
+  /**
+   * 전체 선택 해제 처리 - 차트별 재설정
+   * @param seriesData
+   */
+  protected clearSelectSeriesData(seriesData) {
+    if (seriesData.itemStyle) {
+      seriesData.itemStyle.normal.opacity = 1;
+      seriesData.selected = false;
+    }
+  } // function - clearSelectSeriesData
+
+  /**
    * 차트 선택 효과 설정(단일/리스트)
    *
    * @param option
-   * @param params
+   * @param targetData
+   * @param {boolean} isMulti
    * @returns {BaseOption}
    */
-  protected selectionAdd(option: BaseOption, params: any): BaseOption {
+  protected selectionAdd(option: BaseOption, targetData: any, isMulti: boolean = false): BaseOption {
 
     // 현재 차트 시리즈 리스트
     const series = option.series;
 
-    // 이미 선택된 다른 데이터가 존재하는지 확인
-    const selectedSeriesList = series.filter((obj) => {
-      return obj.existSelectData;
-    });
-
-    // 이미 선택된 다른 데이터가 없다면 모든 데이터 dimmed 처리
-    if (_.isEmpty(selectedSeriesList)) {
-      series.map((obj, index) => {
-
-        if (!_.isUndefined(obj.itemStyle) && !_.isUndefined(obj.itemStyle.normal)) obj.itemStyle.normal.opacity = 0.2;
-        if (!_.isUndefined(obj.lineStyle) && !_.isUndefined(obj.lineStyle.normal)) obj.lineStyle.normal.opacity = 0.2;
-        if (!_.isUndefined(obj.textStyle) && !_.isUndefined(obj.textStyle.normal)) obj.textStyle.normal.opacity = 0.2;
-        return obj;
-      });
-    }
-
-    // 선택한 데이터 선택효과 처리
-    const setSeriesValue = ((series: Series, dataIndex: number, data: any, color: string, opacity: number = 1): any => {
-      return {
-        // name: series.name,
-        name: series.uiData.seriesName[dataIndex],
-        value: !_.isUndefined(data.value) ? data.value : data,
-        itemStyle: {
-          normal: {
-            color,
-            opacity: opacity
+    const selectSameSeries: Function = (seriesData) => {
+      series.forEach(seriesItem => {
+        seriesItem.data.some(dataItem => {
+          if (dataItem.name === seriesData.name) {
+            this.selectSeriesData(dataItem);
+            return true;
           }
-        }
-      };
-    });
+          return false;
+        });
+      });
+    };
+    const unselectSameSeries: Function = (seriesData) => {
+      series.forEach(seriesItem => {
+        seriesItem.data.some(dataItem => {
+          if (dataItem.name === seriesData.name) {
+            this.unselectSeriesData(dataItem);
+            return true;
+          }
+          return false;
+        });
+      });
+    };
 
     // 단일/리스트 선택에 따라 처리
-    if (_.isUndefined(params.brushSelectData)) {
-      // 선택한 시리즈
-      const selectedSeries = series[params.seriesIndex];
-      // 선택한 시리즈의 데이터 리스트
-      const selectedSeriesData = selectedSeries.data;
-      // 선택한 데이터
-      const selectedData = selectedSeriesData[params.dataIndex];
-
-      // 시리즈 라인 선택효과 처리
-      if (!_.isUndefined(selectedSeries.lineStyle)) selectedSeries.lineStyle.normal.opacity = 1;
-
-      // 선택한 데이터만 선택효과 처리
-      if (!_.isUndefined(selectedData.value)) {
-        // 오브젝트로 구성된 데이터는 opacity 만 조정
-        selectedSeriesData[params.dataIndex].itemStyle = OptionGenerator.ItemStyle.auto();
-        selectedSeriesData[params.dataIndex].itemStyle.normal.opacity = 1;
-        selectedSeriesData[params.dataIndex].textStyle = OptionGenerator.TextStyle.auto();
-        selectedSeriesData[params.dataIndex].textStyle = {normal: {opacity: 1}};
-        selectedSeriesData[params.dataIndex].selected = true;
-      } else {
-
-        let opacity = 1;
-
-        // 수치로 되어있는 데이터는 개별 itemStyle 을 지정하여 오브젝트로 재구성
-        selectedSeriesData[params.dataIndex] = setSeriesValue(selectedSeries, params.dataIndex, selectedData, params.color, opacity);
-      }
-
-      // 라인 존재하는 경우 심볼 크기 변경
-      if (!_.isUndefined(selectedSeries.lineStyle)) selectedSeriesData[params.dataIndex].symbolSize = 10;
-      // 선택된 시리즈로 처리
-      selectedSeries.existSelectData = true;
-    } else {
-      const selectedBrushData = params.brushSelectData[0].selected;
-      selectedBrushData.map((obj) => {
-
-        // 선택한 시리즈
-        const selectedSeries = series[obj.seriesIndex];
-        // 선택한 시리즈의 데이터 리스트
-        const selectedSeriesData = selectedSeries.data;
-        // 선택한 series data index값
-        const selectedDataIndexList = obj.dataIndex;
-
-        // 선택한 데이터 선택효과 처리
-        if (selectedSeries.lineStyle && obj.dataIndex && obj.dataIndex.length > 0) {
-          selectedSeries.itemStyle.normal.opacity = 1;
-          if (selectedSeries.lineStyle) selectedSeries.lineStyle.normal.opacity = 1;
-        }
-
-        // 시리즈 선택 처리
-        if (!_.isEmpty(selectedDataIndexList)) {
-
-          selectedSeriesData.forEach((dataItem, index) => {
-            if (-1 < selectedDataIndexList.indexOf(index)) {
-              // 선택된 경우
-              // data.value가 있는지 없는지 데이터 형태에 따라 로직 설정
-              if (_.isUndefined(selectedSeriesData[index].value)) {
-                // 수치로 되어있는 데이터는 개별 itemStyle 을 지정하여 오브젝트로 재구성
-                selectedSeriesData[index] = setSeriesValue(selectedSeries, index, dataItem, params.color);
-                (selectedSeries.lineStyle) && (dataItem.symbolSize = 10);
-              } else {
-                // 오브젝트로 구성된 데이터는 opacity 만 조정
-                dataItem.itemStyle = OptionGenerator.ItemStyle.auto();
-                dataItem.itemStyle.normal.opacity = 1;
-              }
-            } else {
-              // 선택되지 않은 경우
-              if (!_.isUndefined(selectedSeriesData[index].value)) {
-                // 오브젝트로 구성된 데이터는 opacity 만 조정
-                (dataItem.itemStyle) || (dataItem.itemStyle = OptionGenerator.ItemStyle.auto());
-                dataItem.itemStyle.normal.opacity = 0.2;
-              }
-            }
-          });
-
-          // 선택된 시리즈로 처리
-          selectedSeries.existSelectData = true;
+    if (isMulti) {
+      let selectedIndexs: number[] = targetData.reduce((acc, val) => acc.concat(val.dataIndex), []);
+      selectedIndexs = _.uniq(selectedIndexs);
+      series[0].data.forEach((dataItem, idx) => {
+        if (-1 < selectedIndexs.indexOf(idx)) {
+          // 선택된 경우
+          selectSameSeries(dataItem);
+        } else {
+          unselectSameSeries(dataItem);
         }
       });
+    } else {
+      // 이미 선택된 다른 데이터가 없다면 모든 데이터 dimmed 처리
+      series.forEach((sObj) => {
+        sObj.data.forEach(item => {
+          if (isMulti || !item.selected) {
+            unselectSameSeries(item);
+          }
+        });
+      });
+
+      // 선택한 데이터
+      selectSameSeries(targetData);
     }
     return option;
   }
@@ -2114,53 +2067,42 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    * 차트 선택 해제
    *
    * @param option
-   * @param params
+   * @param targetData
    * @returns {BaseOption}
    */
-  protected selectionSubstract(option: BaseOption, params: any): BaseOption {
+  protected selectionSubstract(option: BaseOption, targetData: any): BaseOption {
 
     // 현재 차트 시리즈 리스트
     const series = option.series;
-    // 선택한 시리즈
-    const selectedSeries = series[params.seriesIndex];
-    // 선택한 시리즈의 데이터 리스트
-    const selectedSeriesData = selectedSeries.data;
+
     // 선택한 데이터
-    const selectedData = selectedSeriesData[params.dataIndex];
-
-    // 선택한 데이터 선택해제 처리
-    if (!_.isUndefined(selectedData.itemStyle)) {
-      delete selectedSeriesData[params.dataIndex].itemStyle;
-      delete selectedSeriesData[params.dataIndex].selected;
-      delete selectedSeriesData[params.dataIndex].symbolSize;
-    } else selectedSeriesData[params.dataIndex] = selectedData.value;
-
-    // 동일 시리즈내에 선택된 데이터가 있는지 확인
-    const selectedDataArr = selectedSeriesData.filter((data) => {
-      return !_.isNull(data) && !_.isUndefined(data.itemStyle);
-
-    });
-    // 동일 시리즈 내에 선택된 데이터 여부로 시리즈선택여부 설정
-    selectedSeries.existSelectData = !_.isEmpty(selectedDataArr);
-
-    // 동일 시리즈 내에 선택된 데이터가 없다면 라인스타일 선택효과 해제
-    if (!selectedSeries.existSelectData && !_.isUndefined(selectedSeries.lineStyle) && !_.isUndefined(selectedSeries.lineStyle.normal)) {
-      selectedSeries.lineStyle.normal.opacity = 0.2;
-    }
-
-    // 선택상태인 데이터가 없을 경우에는 원상태로 복원
-    const selectedSeriesList = series.filter((obj) => {
-      return obj.existSelectData;
-    });
-    if (_.isEmpty(selectedSeriesList)) {
-      series.map((obj, index) => {
-
-        if (!_.isUndefined(obj.itemStyle) && !_.isUndefined(obj.itemStyle.normal)) obj.itemStyle.normal.opacity = 1;
-        if (!_.isUndefined(obj.lineStyle) && !_.isUndefined(obj.lineStyle.normal)) obj.lineStyle.normal.opacity = 1;
-
-        return obj;
+    const unselectSameSeries: Function = (seriesData) => {
+      series.forEach(seriesItem => {
+        seriesItem.data.some(dataItem => {
+          if (dataItem.name === seriesData.name) {
+            this.unselectSeriesData(dataItem);
+            return true;
+          }
+          return false;
+        });
       });
+    };
+    unselectSameSeries(targetData);
+
+    // 모든 항목이 선택 해제 되었는지 확인한다.
+    let isSelected: boolean = false;
+    series.some(sItem => {
+      if (sItem.data.some(dItem => dItem.selected)) {
+        isSelected = true;
+        return;
+      } else {
+        return false;
+      }
+    });
+    if (!isSelected) {
+      option = this.selectionClear(option);
     }
+
     return option;
   }
 
@@ -2498,40 +2440,50 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       const series = this.chartOption.series;
       // 데이터가 아닌 빈 공백을 클릭했다면
       // 모든 데이터 선택효과를 해제하며 필터에서 제거.
-      if (this.isSelected && _.isNull(params)) {
+      if (_.isNull(params)) {
         selectMode = ChartSelectMode.CLEAR;
         this.chartOption = this.selectionClear(this.chartOption);
-
-        // 차트에서 선택한 데이터가 없음을 설정
-        this.isSelected = false;
         // return;
       } else if (params != null) {
 
-        // parameter 정보를 기반으로 시리즈정보 설정
-        const seriesIndex = params.seriesIndex;
-        const dataIndex = params.dataIndex;
-        const seriesValueList = series[seriesIndex].data;
-
-        // 이미 선택이 되어있는지 여부
-        const isSelectMode = _.isUndefined(seriesValueList[dataIndex].itemStyle);
-
-        if (isSelectMode) {
-          // 선택 처리
-          selectMode = ChartSelectMode.ADD;
-          this.chartOption = this.selectionAdd(this.chartOption, params);
-        } else {
-          // 선택 해제
-          selectMode = ChartSelectMode.SUBTRACT;
-          this.chartOption = this.selectionSubstract(this.chartOption, params);
+        if (ChartType.WATERFALL === this.uiOption.type && params && params.seriesIndex === 0) {
+          return;
         }
 
-        // 차트에서 선택한 데이터 존재 여부 설정
-        this.isSelected = isSelectMode;
+        // 대상 데이터
+        const targetData = series[params.seriesIndex].data[params.dataIndex];
+        // 이미 선택이 되어있는지 여부
+        const isSelected = targetData.selected;
 
-        // UI에 전송할 선택정보 설정
-        selectedColValues = _.split(params.name, CHART_STRING_DELIMITER);
-        selectedRowValues = _.dropRight(_.split(params.seriesName, CHART_STRING_DELIMITER));
+        if (isSelected) {
+          // 선택 해제
+          selectMode = ChartSelectMode.SUBTRACT;
+          this.chartOption = this.selectionSubstract(this.chartOption, targetData);
+        } else {
+          // 선택 처리
+          selectMode = ChartSelectMode.ADD;
+          this.chartOption = this.selectionAdd(this.chartOption, targetData, false);
+        }
 
+        // UI에 전송할 선택정보 설정 - Heatmap/Gauge 별도 구현
+        switch (this.uiOption.type) {
+          case ChartType.BOXPLOT :
+            selectedColValues = _.split(params.name, CHART_STRING_DELIMITER);
+            selectedRowValues = [];
+            break;
+          case ChartType.GAUGE :
+            selectedRowValues = [_.split(params.data.name, CHART_STRING_DELIMITER)[1]];
+            selectedColValues = selectedRowValues ? [] : null;
+            break;
+          case ChartType.HEATMAP :
+            selectedColValues = [_.split(params.data.name, CHART_STRING_DELIMITER)[0]];
+            selectedRowValues = [_.split(params.data.name, CHART_STRING_DELIMITER)[1]];
+            break;
+          default :
+            selectedColValues = _.split(params.name, CHART_STRING_DELIMITER);
+            selectedRowValues = _.dropRight(_.split(params.seriesName, CHART_STRING_DELIMITER));
+            break;
+        }
       } else {
         return;
       }
@@ -2550,7 +2502,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       this.params['selectType'] = 'SINGLE';
       this.chartSelectInfo.emit(new ChartSelectInfo(selectMode, selectData, this.params));
     });
-  }
+  } // function - addChartSelectEventListener
 
   /**
    * Chart Multi Select Event Listener
@@ -2565,8 +2517,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       const selectedBrushData: any = params.brushSelectData[0].selected;
 
       // 선택된값이 없는경우
-      if (!selectedBrushData[0].dataIndex || 0 == selectedBrushData[0].dataIndex.length) {
-
+      if (!selectedBrushData.some(item => item.dataIndex && 0 < item.dataIndex.length)) {
         // 브러쉬 영역 삭제
         this.chart.clearBrush();
         return;
@@ -2576,7 +2527,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       this.chart.clearBrush();
 
       // 선택효과 처리
-      this.chartOption = this.selectionAdd(this.chartOption, params);
+      this.chartOption = this.selectionAdd(this.chartOption, selectedBrushData, true);
 
       // 열 선반 데이터 요소
       const cols = this.pivotInfo.cols;
@@ -2625,8 +2576,8 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         }
       });
 
-      // 차트에서 선택한 데이터 존재 여부 설정
-      this.isSelected = ( selectDataList && selectDataList.length > 0 );
+      // 자기자신을 선택시 externalFilters는 false로 설정
+      if (this.params.externalFilters) this.params.externalFilters = false;
 
       // 차트에 적용
       this.apply(false);

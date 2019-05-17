@@ -50,7 +50,7 @@ import {SearchQueryRequest} from '../domain/datasource/data/search-query-request
 import {DatasourceService} from '../datasource/service/datasource.service';
 import {BaseChart, ChartSelectInfo} from '../common/component/chart/base-chart';
 import {UIOption} from '../common/component/chart/option/ui-option';
-import {GridChartComponent} from '../common/component/chart/type/grid-chart/grid-chart.component';
+import {GridChartComponent} from '../common/component/chart/type/grid-chart.component';
 import {Subject} from 'rxjs/Subject';
 import {DIRECTION, Sort} from '../domain/workbook/configurations/sort';
 import {Filter} from '../domain/workbook/configurations/filter/filter';
@@ -74,9 +74,9 @@ import {AnalysisPredictionService} from './component/analysis/service/analysis.p
 import {CustomField} from '../domain/workbook/configurations/field/custom-field';
 import {CommonOptionComponent} from './chart-style/common-option.component';
 import {FormatOptionComponent} from './chart-style/format-option.component';
-import {BarChartComponent} from '../common/component/chart/type/bar-chart/bar-chart.component';
-import {LineChartComponent} from '../common/component/chart/type/line-chart/line-chart.component';
-import {NetworkChartComponent} from '../common/component/chart/type/network-chart/network-chart.component';
+import {BarChartComponent} from '../common/component/chart/type/bar-chart.component';
+import {LineChartComponent} from '../common/component/chart/type/line-chart.component';
+import {NetworkChartComponent} from '../common/component/chart/type/network-chart.component';
 import {HyperParameter} from './component/value/analysis';
 import {ColorOptionComponent} from './chart-style/color-option.component';
 import {ConfigureFiltersComponent} from '../dashboard/filters/configure-filters.component';
@@ -3147,8 +3147,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         return this.translateService.instant('msg.page.ui.heat-map');
       case ChartType.PIE :
         return this.translateService.instant('msg.page.ui.pie');
-      case ChartType.CONTROL :
-        return this.translateService.instant('msg.page.ui.control-chart');
       case ChartType.LABEL :
         return this.translateService.instant('msg.page.ui.kpi');
       case ChartType.BOXPLOT :

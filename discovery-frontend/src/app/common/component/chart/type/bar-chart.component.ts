@@ -17,8 +17,8 @@
  */
 
 import { AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import { BaseChart } from '../../base-chart';
-import { BaseOption } from '../../option/base-option';
+import { BaseChart } from '../base-chart';
+import { BaseOption } from '../option/base-option';
 import {
   AxisType,
   BarMarkType, CHART_STRING_DELIMITER,
@@ -30,21 +30,21 @@ import {
   ShelveType,
   SymbolType,
   UIChartDataLabelDisplayType
-} from '../../option/define/common';
-import { OptionGenerator } from '../../option/util/option-generator';
-import { Pivot } from '../../../../../domain/workbook/configurations/pivot';
+} from '../option/define/common';
+import { OptionGenerator } from '../option/util/option-generator';
+import { Pivot } from '../../../../domain/workbook/configurations/pivot';
 import * as _ from 'lodash';
-import {UIChartAxis, UIChartAxisLabelValue, UIOption} from '../../option/ui-option';
-import { DataZoomType } from '../../option/define/datazoom';
-import {UIChartAxisGrid} from '../../option/ui-option/ui-axis';
-import {Axis} from '../../option/define/axis';
-import {AxisOptionConverter} from '../../option/converter/axis-option-converter';
-import { LabelOptionConverter } from '../../option/converter/label-option-converter';
-import { TooltipOptionConverter } from '../../option/converter/tooltip-option-converter';
+import {UIChartAxis, UIChartAxisLabelValue, UIOption} from '../option/ui-option';
+import { DataZoomType } from '../option/define/datazoom';
+import {UIChartAxisGrid} from '../option/ui-option/ui-axis';
+import {Axis} from '../option/define/axis';
+import {AxisOptionConverter} from '../option/converter/axis-option-converter';
+import { LabelOptionConverter } from '../option/converter/label-option-converter';
+import { TooltipOptionConverter } from '../option/converter/tooltip-option-converter';
 
 @Component({
   selector: 'bar-chart',
-  templateUrl: 'bar-chart.component.html'
+  template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
 export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, AfterViewInit {
 
@@ -198,7 +198,14 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
       return {
         type: SeriesType.BAR,
         name: column.name,
-        data: column.value,
+        data: column.value.map( ( val, idx ) => {
+          return {
+            name : column.seriesName[idx],
+            value : val,
+            selected : false,
+            itemStyle : OptionGenerator.ItemStyle.opacity1()
+          }
+        }),
         uiData: column,
         originData: _.cloneDeep(column.value),
         itemStyle: OptionGenerator.ItemStyle.auto(),

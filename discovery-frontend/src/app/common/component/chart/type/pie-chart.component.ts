@@ -15,7 +15,7 @@
 /**
  * pie chart component
  */
-import { AfterViewInit, Component, ElementRef, Injector, OnInit } from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Injector, OnInit} from '@angular/core';
 import {
   CHART_STRING_DELIMITER,
   ChartColorList,
@@ -29,29 +29,29 @@ import {
   ShelveType,
   SymbolType,
   UIChartDataLabelDisplayType
-} from '../../option/define/common';
-import { OptionGenerator } from '../../option/util/option-generator';
-import { Series } from '../../option/define/series';
+} from '../option/define/common';
+import {OptionGenerator} from '../option/util/option-generator';
+import {Series} from '../option/define/series';
 import * as _ from 'lodash';
-import { Pivot } from '../../../../../domain/workbook/configurations/pivot';
-import { BaseChart, PivotTableInfo } from '../../base-chart';
-import { BaseOption } from '../../option/base-option';
-import { FormatOptionConverter } from '../../option/converter/format-option-converter';
-import { UIPieChart } from '../../option/ui-option/ui-pie-chart';
-import { UIOption } from '../../option/ui-option';
-import { UIChartFormat } from '../../option/ui-option/ui-format';
-import { LegendOptionConverter } from '../../option/converter/legend-option-converter';
+import {Pivot} from '../../../../domain/workbook/configurations/pivot';
+import {BaseChart, PivotTableInfo} from '../base-chart';
+import {BaseOption} from '../option/base-option';
+import {FormatOptionConverter} from '../option/converter/format-option-converter';
+import {UIPieChart} from '../option/ui-option/ui-pie-chart';
+import {UIOption} from '../option/ui-option';
+import {UIChartFormat} from '../option/ui-option/ui-format';
+import {LegendOptionConverter} from '../option/converter/legend-option-converter';
 import optGen = OptionGenerator;
 
 @Component({
   selector: 'pie-chart',
-  templateUrl: 'pie-chart.component.html'
+  template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
 export class PieChartComponent extends BaseChart implements OnInit, AfterViewInit {
 
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector ) {
+    protected injector: Injector) {
 
     super(elementRef, injector);
   }
@@ -139,8 +139,8 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
     _.each(this.data.columns, (column, idx) => {
 
       // convert Null String data to No Name
-      for( let item of column.value ) {
-        if( item['name'].trim() == '' ) {
+      for (let item of column.value) {
+        if (item['name'].trim() == '') {
           item['name'] = 'EMPTY';
         }
       }
@@ -152,7 +152,11 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
         name: seriesName,
         radius: !_.isEmpty(pieSizeInfo) ? pieSizeInfo.radius[idx] : ['0%', '60%'],
         center: !_.isEmpty(pieSizeInfo) ? pieSizeInfo.center[idx] : ['50%', '50%'],
-        data: column.value,
+        data: column.value.map(val => {
+          val.selected = false;
+          val.itemStyle = optGen.ItemStyle.opacity1();
+          return val;
+        }),
         selectedMode: true,
         hoverAnimation: false,
         itemStyle: optGen.ItemStyle.auto(),
@@ -169,23 +173,27 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
         // convert values which is bigger than maxCategory to others
         let isOtherValue = null != (<UIPieChart>this.uiOption).maxCategory && undefined != (<UIPieChart>this.uiOption).maxCategory ?
           (<UIPieChart>this.uiOption).maxCategory <= index : false;
-        if( isOtherValue ) {
+        if (isOtherValue) {
           otherList.push(dataObj.name);
         }
         return isOtherValue;
       }).map((dataObj) => {
-        return {value : dataObj.value, percentage : dataObj.percentage};
+        return {value: dataObj.value, percentage: dataObj.percentage};
       });
 
       resultSeries.data = resultSeries.data.filter((dataObj, index) => {
         return null != (<UIPieChart>this.uiOption).maxCategory && undefined != (<UIPieChart>this.uiOption).maxCategory ?
-              (<UIPieChart>this.uiOption).maxCategory > index : true;
+          (<UIPieChart>this.uiOption).maxCategory > index : true;
       });
 
       // when otherList exists
       if (otherValueList.length > 0) {
         existEtcData = true;
-        resultSeries.data.push({ value: _.sumBy(otherValueList, 'value'), percentage : _.sumBy(otherValueList, 'percentage'), name: 'OTHER' });
+        resultSeries.data.push({
+          value: _.sumBy(otherValueList, 'value'),
+          percentage: _.sumBy(otherValueList, 'percentage'),
+          name: 'OTHER'
+        });
       }
       resultSeries.originData = _.cloneDeep(resultSeries.data);
 
@@ -286,7 +294,7 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
   private getFormatPieValueSeries(params, format: UIChartFormat, uiOption: UIOption, series?: any, uiData?: any): string {
 
     // UI 데이터 정보가 있을경우
-    if( uiData ) {
+    if (uiData) {
 
       if (!uiOption.dataLabel || !uiOption.dataLabel.displayTypes) return '';
 
@@ -294,39 +302,40 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
       let isUiData: boolean = false;
       let result: string[] = [];
       // 해당 dataIndex 데이터애로 뿌려줌
-      if( -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME) ){
+      if (-1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME)) {
 
         let categoryNameList = _.split(uiData.name, CHART_STRING_DELIMITER);
-        let dimensionPivotList = this.pivot.aggregations.filter((item) => {if ('dimension' == item.type) return item});
+        let dimensionPivotList = this.pivot.aggregations.filter((item) => {
+          if ('dimension' == item.type) return item
+        });
         result = FormatOptionConverter.getTooltipName(categoryNameList, dimensionPivotList, result);
         isUiData = true;
       }
-      if(  -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE) ){
+      if (-1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
 
         const seriesValue = typeof uiData.value === 'undefined' ? uiData.value : uiData.value;
         result.push(FormatOptionConverter.getFormatValue(seriesValue, format));
         isUiData = true;
       }
-      if(  -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT) ){
+      if (-1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT)) {
         let value = params.data.percentage;
         value = (Math.floor(Number(value) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal)).toFixed(format.decimal);
-        result.push( '(' + value +'%' + ')' );
+        result.push('(' + value + '%' + ')');
         isUiData = true;
       }
 
       let label: string = "";
 
       // UI 데이터기반 레이블 반환
-      if( isUiData ) {
-        for( let num: number = 0 ; num < result.length ; num++ ) {
-          if( num > 0 ) {
+      if (isUiData) {
+        for (let num: number = 0; num < result.length; num++) {
+          if (num > 0) {
             // label += "\n";
             label += " ";
           }
-          if(series.label && series.label.normal && series.label.normal.rich) {
-            label += '{align|'+ result[num] +'}';
-          }
-          else {
+          if (series.label && series.label.normal && series.label.normal.rich) {
+            label += '{align|' + result[num] + '}';
+          } else {
             label += result[num];
           }
         }
@@ -347,7 +356,6 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
    * add selection event
    */
   protected selection(): void {
-
     this.addChartSelectEventListener();
     this.addLegendSelectEventListener();
   }
@@ -407,7 +415,7 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
     // 범례 설정이 없다면 패스
     ////////////////////////////////////////////////////////
 
-    if( !this.chartOption.legend ) {
+    if (!this.chartOption.legend) {
       return this.chartOption;
     }
 
@@ -497,7 +505,7 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
       }
     });
 
-    return { radius: radiusList, center: centerList, title: titleList };
+    return {radius: radiusList, center: centerList, title: titleList};
 
   }
 
@@ -551,8 +559,8 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
       column.value.filter((dataObj, index) => {
         // maxCategory보다 큰값들을 others로 지정
         let isOtherValue = null != (<UIPieChart>this.uiOption).maxCategory && undefined != (<UIPieChart>this.uiOption).maxCategory ?
-                          (<UIPieChart>this.uiOption).maxCategory <= index : false;
-        if( isOtherValue ) {
+          (<UIPieChart>this.uiOption).maxCategory <= index : false;
+        if (isOtherValue) {
           otherList.push(dataObj.name);
           otherFl = true;
         }
@@ -566,9 +574,9 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
         return dataObj.name;
       });
       // remove Other list in aggs
-      for( let num: number = aggs.length-1 ; num >= 0 ; num-- ){
-        for( let item of otherList ) {
-          if( item == aggs[num] ) {
+      for (let num: number = aggs.length - 1; num >= 0; num--) {
+        for (let item of otherList) {
+          if (item == aggs[num]) {
             aggs.splice(num, 1);
           }
         }
@@ -607,7 +615,7 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
    * @param {Pivot} pivot
    * @returns {any}
    */
-  private tooltipFormatter(params, pivot:Pivot): any {
+  private tooltipFormatter(params, pivot: Pivot): any {
 
     if (!this.uiOption.toolTip) this.uiOption.toolTip = {};
     if (!this.uiOption.toolTip.displayTypes) this.uiOption.toolTip.displayTypes = FormatOptionConverter.setDisplayTypes(this.uiOption.type);
@@ -616,14 +624,16 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
     // tooltip data
     let result: string[] = [];
 
-    if( -1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME) ){
+    if (-1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME)) {
 
       const nameList = _.split(params.data.name, CHART_STRING_DELIMITER);
-      const dimensionList = pivot.aggregations.filter((item) => {if ('dimension' == item.type) return item});
+      const dimensionList = pivot.aggregations.filter((item) => {
+        if ('dimension' == item.type) return item
+      });
 
       result = FormatOptionConverter.getTooltipName(nameList, dimensionList, result, true);
     }
-    if( -1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE) ){
+    if (-1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
 
       let seriesValue = FormatOptionConverter.getTooltipValue(params.seriesName, pivot.aggregations, this.uiOption.valueFormat, params.data.value);
 
@@ -636,7 +646,7 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
 
       result.push(seriesValue);
     }
-    if( -1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT) ){
+    if (-1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT)) {
 
       // when series value is not selected
       if (-1 == this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {

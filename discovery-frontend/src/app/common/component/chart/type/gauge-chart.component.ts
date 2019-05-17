@@ -17,7 +17,7 @@
  */
 
 import {Component, ElementRef, Injector, Input} from '@angular/core';
-import {BaseChart, ChartSelectInfo, PivotTableInfo} from '../../base-chart';
+import {BaseChart, ChartSelectInfo, PivotTableInfo} from '../base-chart';
 import {
   CHART_STRING_DELIMITER,
   ChartColorList,
@@ -31,25 +31,24 @@ import {
   ShelveType,
   SymbolType,
   UIChartDataLabelDisplayType
-} from '../../option/define/common';
-import {OptionGenerator} from '../../option/util/option-generator';
-import {Series} from '../../option/define/series';
+} from '../option/define/common';
+import {OptionGenerator} from '../option/util/option-generator';
+import {Series} from '../option/define/series';
 import * as _ from 'lodash';
-import {Pivot} from '../../../../../domain/workbook/configurations/pivot';
-import {Alert} from '../../../../util/alert.util';
-import {BaseOption} from '../../option/base-option';
-import {UIChartColorByDimension, UIChartColorByValue, UIChartFormat, UIOption} from '../../option/ui-option';
-import {FormatOptionConverter} from '../../option/converter/format-option-converter';
-import {ColorRange, UIChartColor, UIChartColorBySeries} from '../../option/ui-option/ui-color';
-import {UIScatterChart} from '../../option/ui-option/ui-scatter-chart';
+import {Pivot} from '../../../../domain/workbook/configurations/pivot';
+import {Alert} from '../../../util/alert.util';
+import {BaseOption} from '../option/base-option';
+import {UIChartColorByDimension, UIChartColorByValue, UIChartFormat, UIOption} from '../option/ui-option';
+import {FormatOptionConverter} from '../option/converter/format-option-converter';
+import {ColorRange, UIChartColor, UIChartColorBySeries} from '../option/ui-option/ui-color';
+import {UIScatterChart} from '../option/ui-option/ui-scatter-chart';
 import optGen = OptionGenerator;
 import UI = OptionGenerator.UI;
-import {DIRECTION, Sort} from '../../../../../domain/workbook/configurations/sort';
-
+import {DIRECTION, Sort} from '../../../../domain/workbook/configurations/sort';
 
 @Component({
   selector: 'gauge-chart',
-  templateUrl: 'gauge-chart.component.html'
+  template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
 export class GaugeChartComponent extends BaseChart {
 
@@ -86,15 +85,11 @@ export class GaugeChartComponent extends BaseChart {
 
   // Init
   public ngOnInit() {
-
-    // Init
     super.ngOnInit();
   }
 
-  // Destory
+  // Destroy
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
   }
 
@@ -167,82 +162,9 @@ export class GaugeChartComponent extends BaseChart {
     this.pivotInfo = new PivotTableInfo([], rows, this.fieldInfo.aggs);
 
     // gauge차트의 mapping값 설정
-    this.uiOption.color = this.gaugeSetMapping(rows);
+    // this.uiOption.color = this.gaugeSetMapping(rows);
 
     super.draw(isKeepRange);
-  }
-
-
-  /**
-   * Chart Select(Click) Event Listener
-   *
-   */
-  public addChartSelectEventListener(): void {
-
-    this.chart.off('click');
-    this.chart.on('click', (params) => {
-
-      let selectMode: ChartSelectMode;
-      let selectedColValues: string[];
-      let selectedRowValues: string[];
-
-      // 현재 차트의 시리즈
-      const series = this.chartOption.series;
-      // 데이터가 아닌 빈 공백을 클릭했다면
-      // 모든 데이터 선택효과를 해제하며 필터에서 제거.
-      if (this.isSelected && _.isNull(params)) {
-        selectMode = ChartSelectMode.CLEAR;
-        this.chartOption = this.selectionClear(this.chartOption);
-
-        // 차트에서 선택한 데이터가 없음을 설정
-        this.isSelected = false;
-        // return;
-      } else if (params != null) {
-
-        // parameter 정보를 기반으로 시리즈정보 설정
-        const seriesIndex = params.seriesIndex;
-        const dataIndex = params.dataIndex;
-        const seriesValueList = series[seriesIndex].data;
-        const tmpItemStyle = seriesValueList[dataIndex].itemStyle;
-        let isSelectMode = false;
-        if (_.isUndefined(tmpItemStyle) || _.isUndefined(tmpItemStyle.normal.opacity) ) {
-          isSelectMode = true;
-        }
-
-        if (isSelectMode) {
-          // 선택 처리
-          selectMode = ChartSelectMode.ADD;
-          this.chartOption = this.selectionAdd(this.chartOption, params);
-        } else {
-          // 선택 해제
-          selectMode = ChartSelectMode.SUBTRACT;
-          this.chartOption = this.selectionSubstract(this.chartOption, params);
-        }
-
-        // 차트에서 선택한 데이터 존재 여부 설정
-        this.isSelected = isSelectMode;
-
-        // UI에 전송할 선택정보 설정
-        selectedRowValues = [_.split(params.data.name, CHART_STRING_DELIMITER)[1]];
-        selectedColValues = selectedRowValues ? [] : null;
-
-      } else {
-        return;
-      }
-
-      // UI에 전송할 선택정보 설정
-      const selectData = this.setSelectData(params, selectedColValues, selectedRowValues);
-
-      // 자기자신을 선택시 externalFilters는 false로 설정
-      if (this.params.externalFilters) this.params.externalFilters = false;
-
-      // 차트에 적용
-      this.apply(false);
-      this.lastDrawSeries = _.cloneDeep(this.chartOption['series']);
-
-      // 이벤트 데이터 전송
-      this.chartSelectInfo.emit(new ChartSelectInfo(selectMode, selectData, this.params));
-    });
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -293,7 +215,7 @@ export class GaugeChartComponent extends BaseChart {
 
       } else {
         // if it's the last value, set null in min(gt)
-        var min = 0 == index ? null : parseFloat((maxValue - addValue).toFixed(1));
+        let min = 0 == index ? null : parseFloat((maxValue - addValue).toFixed(1));
 
         // if value if lower than minValue, set it as minValue
         if (min < this.uiOption.minValue && min < 0) min = _.cloneDeep(parseInt(this.uiOption.minValue.toFixed(1)));
@@ -314,16 +236,16 @@ export class GaugeChartComponent extends BaseChart {
    */
   protected convertSeriesData(): BaseOption {
 
-    const data = this.data;
+    const objData = this.data;
     // pivot cols, rows 초기화
     const rows: string[] = [];
 
-    let columnLength = _.max(this.data.columns)['length'];
+    let columnLength = _.max(objData.columns)['length'];
     // series 초기화
     this.chartOption.series = [];
 
     // series 배열값
-    _.each(this.data.columns, (series) => {
+    _.each(objData.columns, (series) => {
 
       // 시리즈 설정
       const seriesData = series.map((column) => {
@@ -344,6 +266,8 @@ export class GaugeChartComponent extends BaseChart {
           data: [{
             value: column.percentage,
             name: column.name,
+            selected : false,
+            itemStyle : optGen.ItemStyle.opacity1()
           }],
           uiData: column,
           originData: [],
@@ -420,8 +344,7 @@ export class GaugeChartComponent extends BaseChart {
 
           // uiData가 없는경우
           if (!item['uiData']) {
-
-            item['uiData'] = _.find(this.data.columns[dataIndex], {'name': item.name});
+            item['uiData'] = _.find(objData.columns[dataIndex], {'name': item.name});
           }
         });
       }
@@ -840,7 +763,7 @@ export class GaugeChartComponent extends BaseChart {
     // series의 label normal 값에 rotate 설정
     series.map((item) => {
       if (item.label && item.label.normal) item.label.normal.rotate = rotate;
-    })
+    });
 
     return this.chartOption;
   }
@@ -912,7 +835,6 @@ export class GaugeChartComponent extends BaseChart {
       // set sort by first sort
       if (this.sorts && this.sorts.length > 0) {
 
-        let sort = new Sort();
         let sortFl: boolean = false;
         for (const sort of this.sorts) {
           _.sortBy(column, (item) => {

@@ -133,6 +133,7 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
     }
 
     this._broadcastSelection({ filters: this._getApiFilters(), chartSelectInfo: select });
+    this.safelyDetectChanges();
   }
 
   /**
@@ -206,8 +207,8 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
    * @return {boolean}
    */
   public isTimeRangeFilter(filter: SelectionFilter): boolean {
-    return 'timestamp' === filter.type && !filter.format.discontinuous;
-    // return false;
+    // return 'timestamp' === filter.type && !filter.format.discontinuous;
+    return false;
   } // function - isTimeRangeFilter
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -233,18 +234,7 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
         // for MeasureFilter
         return item;
       } else {
-        if (item.format.discontinuous) {
-          // for TimeListFilter
-          return {
-            type: 'time_list',
-            field: item.field,
-            dataSource: item.dataSource,
-            timeUnit: TimeUnit[item.format.unit],
-            discontinuous: item.format.discontinuous,
-            valueList: item.valueList,
-            selectedWidgetId: item.selectedWidgetId
-          };
-        } else {
+        if (this.isTimeRangeFilter(item)) {
           // for TimeRangeFilter
           return {
             type: 'time_range',
@@ -253,6 +243,17 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
             timeUnit: TimeUnit[item.format.unit],
             discontinuous: item.format.discontinuous,
             intervals: [item.minTime + '/' + item.maxTime],
+            selectedWidgetId: item.selectedWidgetId
+          };
+        } else {
+          // for TimeListFilter
+          return {
+            type: 'time_list',
+            field: item.field,
+            dataSource: item.dataSource,
+            timeUnit: TimeUnit[item.format.unit],
+            discontinuous: item.format.discontinuous,
+            valueList: item.valueList,
             selectedWidgetId: item.selectedWidgetId
           };
         }

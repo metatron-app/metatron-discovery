@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-import {BaseOption} from "../../option/base-option";
-import {UIOption, UISplit} from "../../option/ui-option";
-import {CHART_STRING_DELIMITER, ShelveFieldType} from "../../option/define/common";
-
 import * as _ from 'lodash';
-import {Pivot} from "../../../../../domain/workbook/configurations/pivot";
+import {BaseOption} from "../option/base-option";
+import {UIOption, UISplit} from "../option/ui-option";
+import {CHART_STRING_DELIMITER, ShelveFieldType} from "../option/define/common";
+import {Pivot} from "../../../../domain/workbook/configurations/pivot";
+
 declare let echarts: any;
 
 export class LineChartSplit {

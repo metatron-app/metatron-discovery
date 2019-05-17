@@ -17,25 +17,25 @@
  */
 
 import {AfterViewInit, Component, ElementRef, Injector, OnInit, OnDestroy} from '@angular/core';
-import {BaseChart, PivotTableInfo} from '../../base-chart';
-import {BaseOption} from "../../option/base-option";
+import {BaseChart, PivotTableInfo} from '../base-chart';
+import {BaseOption} from "../option/base-option";
 import {
   ChartType, SymbolType, ShelveType, ShelveFieldType, SeriesType, LineMarkType, FontSize, UIChartDataLabelDisplayType
-} from '../../option/define/common';
-import {OptionGenerator} from '../../option/util/option-generator';
-import {Position} from '../../option/define/common';
-import {Pivot} from "../../../../../domain/workbook/configurations/pivot";
+} from '../option/define/common';
+import {OptionGenerator} from '../option/util/option-generator';
+import {Position} from '../option/define/common';
+import {Pivot} from "../../../../domain/workbook/configurations/pivot";
 import * as _ from 'lodash';
-import {ColorOptionConverter} from "../../option/converter/color-option-converter";
-import {Series} from "../../option/define/series";
-import {LabelOptionConverter} from "../../option/converter/label-option-converter";
-import {FormatOptionConverter} from "../../option/converter/format-option-converter";
-import { UIChartFormat } from '../../option/ui-option/ui-format';
-import { UIOption } from '../../option/ui-option';
+import {ColorOptionConverter} from "../option/converter/color-option-converter";
+import {Series} from "../option/define/series";
+import {LabelOptionConverter} from "../option/converter/label-option-converter";
+import {FormatOptionConverter} from "../option/converter/format-option-converter";
+import { UIChartFormat } from '../option/ui-option/ui-format';
+import { UIOption } from '../option/ui-option';
 
 @Component({
   selector: 'radar-chart',
-  templateUrl: 'radar-chart.component.html'
+  template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
 export class RadarChartComponent extends BaseChart implements OnInit, OnDestroy, AfterViewInit {
 

@@ -27,8 +27,8 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import {BaseChart} from '../../base-chart';
-import {BaseOption} from "../../option/base-option";
+import {BaseChart} from '../base-chart';
+import {BaseOption} from "../option/base-option";
 import {
   ChartType,
   LabelLayoutType,
@@ -37,26 +37,25 @@ import {
   LabelSecondaryIndicatorType,
   ShelveFieldType,
   ShelveType
-} from '../../option/define/common';
-import {OptionGenerator} from '../../option/util/option-generator';
-import {Pivot} from "../../../../../domain/workbook/configurations/pivot";
+} from '../option/define/common';
+import {Pivot} from "../../../../domain/workbook/configurations/pivot";
 import * as _ from 'lodash';
-import {UIChartFormatItem} from '../../option/ui-option';
-import {FormatOptionConverter} from "../../option/converter/format-option-converter";
+import {UIChartFormatItem} from '../option/ui-option';
+import {FormatOptionConverter} from "../option/converter/format-option-converter";
 import {
   UILabelAnnotation,
   UILabelChart,
   UILabelChartSeries,
   UILabelIcon,
   UILabelSecondaryIndicator
-} from "../../option/ui-option/ui-label-chart";
-import {DatasourceService} from "../../../../../datasource/service/datasource.service";
-import {TimeCompareRequest} from "../../../../../domain/datasource/data/time-compare-request";
-import {SearchQueryRequest} from "../../../../../domain/datasource/data/search-query-request";
-import {PageWidget} from "../../../../../domain/dashboard/widget/page-widget";
-import {Field, FieldRole, LogicalType} from "../../../../../domain/datasource/datasource";
-import {Field as AbstractField} from '../../../../../domain/workbook/configurations/field/field';
-import {TimestampField} from "../../../../../domain/workbook/configurations/field/timestamp-field";
+} from "../option/ui-option/ui-label-chart";
+import {DatasourceService} from "../../../../datasource/service/datasource.service";
+import {TimeCompareRequest} from "../../../../domain/datasource/data/time-compare-request";
+import {SearchQueryRequest} from "../../../../domain/datasource/data/search-query-request";
+import {PageWidget} from "../../../../domain/dashboard/widget/page-widget";
+import {Field, FieldRole, LogicalType} from "../../../../domain/datasource/datasource";
+import {Field as AbstractField} from '../../../../domain/workbook/configurations/field/field';
+import {TimestampField} from "../../../../domain/workbook/configurations/field/timestamp-field";
 
 export class KPI {
   public show: boolean;
@@ -737,15 +736,6 @@ export class LabelChartComponent extends BaseChart implements OnInit, OnDestroy,
 
     // KPI 차트는 엘리먼트로 구성되지 않기 때문에 chartOption을 쓰지 않지만 override를 위해 반환
     return this.chartOption;
-  }
-
-  /**
-   * 셀렉션 이벤트를 등록한다.
-   * - 필요시 각 차트에서 Override
-   */
-  protected selection(): void {
-    this.addChartSelectEventListener();
-    this.addChartMultiSelectEventListener();
   }
 
   /**

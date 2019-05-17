@@ -17,8 +17,8 @@
  */
 
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { BaseChart, ChartSelectInfo, PivotTableInfo } from '../../base-chart';
-import { BaseOption } from '../../option/base-option';
+import { BaseChart, ChartSelectInfo, PivotTableInfo } from '../base-chart';
+import { BaseOption } from '../option/base-option';
 import {
   CHART_STRING_DELIMITER,
   ChartColorList,
@@ -32,23 +32,23 @@ import {
   SymbolType,
   TriggerType,
   UIChartDataLabelDisplayType
-} from '../../option/define/common';
-import { Pivot } from '../../../../../domain/workbook/configurations/pivot';
+} from '../option/define/common';
+import { Pivot } from '../../../../domain/workbook/configurations/pivot';
 import * as _ from 'lodash';
-import { OptionGenerator } from '../../option/util/option-generator';
-import { Legend } from '../../option/define/legend';
-import { Field } from '../../../../../domain/workbook/configurations/field/field';
-import { FormatOptionConverter } from '../../option/converter/format-option-converter';
-import { ColorOptionConverter } from '../../option/converter/color-option-converter';
-import { UIChartColorByDimension, UIChartFormat, UIChartFormatItem, UIOption } from '../../option/ui-option';
-import { LegendOptionConverter } from '../../option/converter/legend-option-converter';
-import { LabelOptionConverter } from '../../option/converter/label-option-converter';
+import { OptionGenerator } from '../option/util/option-generator';
+import { Legend } from '../option/define/legend';
+import { Field } from '../../../../domain/workbook/configurations/field/field';
+import { FormatOptionConverter } from '../option/converter/format-option-converter';
+import { ColorOptionConverter } from '../option/converter/color-option-converter';
+import { UIChartColorByDimension, UIChartFormat, UIChartFormatItem, UIOption } from '../option/ui-option';
+import { LegendOptionConverter } from '../option/converter/legend-option-converter';
+import { LabelOptionConverter } from '../option/converter/label-option-converter';
 
 declare let echarts: any;
 
 @Component({
   selector: 'network-chart',
-  templateUrl: 'network-chart.component.html'
+  template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
 export class NetworkChartComponent extends BaseChart implements OnInit, OnDestroy, AfterViewInit {
 
@@ -606,7 +606,6 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
    * add selection event
    */
   protected selection(): void {
-
     this.addChartSelectEventListener();
   }
 
