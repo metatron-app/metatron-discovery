@@ -373,7 +373,6 @@ public class PivotResultFormat extends SearchResultFormat {
               paramValues.get(1).add(paramNode.get(1).asDouble());
               paramValues.get(2).add(paramNode.get(2).asDouble());
             }
-
           }
 
           // 파라미터 정보 가져오기

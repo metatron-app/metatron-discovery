@@ -2623,19 +2623,29 @@ ul.ddp-list-workspace.ddp-select li a {padding-left:89px;}
 .ddp-wrap-tab-popup .ddp-ui-title {position:relative; padding:20px 0 16px 0;font-size:18px; color:#4b515b; font-weight:bold;}
 .ddp-wrap-tab-popup .ddp-ui-title .ddp-label-checkbox  {font-size:0px; margin-left:20px; vertical-align: middle;}
 .ddp-wrap-tab-popup .ddp-ui-title a.ddp-link-setting {position:absolute; top:25px; right:0;}
-.ddp-wrap-tab-popup .ddp-popup-dashboard {width:inherit; position:absolute; top:118px; left:33px; bottom:94px; right:33px; min-width:1074px;}
+.ddp-wrap-tab-popup .ddp-ui-title .ddp-ui-rightoption {float:right;}
+.ddp-wrap-tab-popup .ddp-ui-title .ddp-ui-rightoption .ddp-type-search,
+.ddp-wrap-tab-popup .ddp-ui-title .ddp-ui-rightoption .ddp-label-checkbox,
+.ddp-wrap-tab-popup .ddp-ui-title .ddp-ui-rightoption .ddp-form-label2
+{float:left;}
+.ddp-wrap-tab-popup .ddp-ui-title .ddp-ui-rightoption .ddp-type-search {position:relative; top:2px; width:165px; }
+.ddp-wrap-tab-popup .ddp-ui-title .ddp-ui-rightoption .ddp-label-checkbox {position:relative; top:8px;}
+.ddp-wrap-tab-popup .ddp-ui-title .ddp-ui-rightoption .ddp-form-label2 {margin-left:28px;}
+.ddp-wrap-tab-popup .ddp-ui-title .ddp-ui-rightoption .ddp-form-label2 .ddp-wrap-dropdown {width:168px;}
+.ddp-wrap-tab-popup .ddp-popup-dashboard {width:inherit; position:absolute; top:59px; left:33px; bottom:69px; right:33px; min-width:1074px;}
+
 .ddp-wrap-tab-popup .ddp-popup-dashboard table.ddp-table-form tbody tr td .ddp-txt-long.ddp-global {padding-right:66px;}
 .ddp-wrap-tab-popup .ddp-popup-dashboard .ddp-wrap-grid {height:100%;}
 .ddp-wrap-tab-popup .ddp-popup-dashboard .ddp-wrap-grid .ddp-wrap-viewtable {padding-bottom:43px; height:100%; box-sizing:border-box;}
 .ddp-wrap-tab-popup .ddp-popup-dashboard .ddp-wrap-grid .ddp-box-viewtable {min-height:100%;}
 .ddp-wrap-tab-popup .ddp-box-grid-detail {top:0;}
 
-.ddp-popup-tabbottom {position:absolute; bottom:0; left:0; right:0; padding-bottom:30px; text-align:center;}
+.ddp-popup-tabbottom {position:absolute; bottom:0; left:0; right:0; padding-bottom:15px; text-align:center;}
 
 /**********************************************************************************
 	PAGE : 워크스페이스 공유
 **********************************************************************************/
-.ddp-box-tab-popup {position:absolute; top:59px; left:34px; right:34px; bottom:94px; border:1px solid #d5d6dc;}
+.ddp-box-tab-popup {position:absolute; top:59px; left:34px; right:34px; bottom:70px; border:1px solid #d5d6dc;}
 .ddp-box-tab-popup .ddp-ui-left {position:relative; float:left; width:50%; height:100%; border-right:1px solid #ddd; box-sizing:border-box;}
 .ddp-box-tab-popup .ddp-ui-left ul.ddp-ui-tab li {height:40px; width:50%; border-bottom:1px solid #ddd;}
 .ddp-box-tab-popup .ddp-ui-left ul.ddp-ui-tab li.ddp-selected {border-bottom:1px solid #fff;}
