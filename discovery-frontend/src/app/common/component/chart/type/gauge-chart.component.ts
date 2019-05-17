@@ -162,7 +162,7 @@ export class GaugeChartComponent extends BaseChart {
     this.pivotInfo = new PivotTableInfo([], rows, this.fieldInfo.aggs);
 
     // gauge차트의 mapping값 설정
-    this.uiOption.color = this.gaugeSetMapping(rows);
+    // this.uiOption.color = this.gaugeSetMapping(rows);
 
     super.draw(isKeepRange);
   }
