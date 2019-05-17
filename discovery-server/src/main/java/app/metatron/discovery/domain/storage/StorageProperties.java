@@ -14,12 +14,16 @@
 
 package app.metatron.discovery.domain.storage;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.annotation.PostConstruct;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
@@ -38,6 +42,23 @@ public class StorageProperties {
   S3Connection s3;
 
   public StorageProperties() {
+  }
+
+  @PostConstruct
+  public void init() {
+    // 설정 하위 호환을 위하여 처리
+    if(stagedb.getMetastore() == null) {
+      stagedb.setMetastore(new MetaStoreProperties(stagedb.getMetastoreUri(),
+                                                   stagedb.getMetastoreHost(),
+                                                   stagedb.getMetastorePort(),
+                                                   stagedb.getMetastoreSchema(),
+                                                   stagedb.getMetastoreUserName(),
+                                                   stagedb.getMetastorePassword()));
+    }
+
+    if(stagedb.getMetastoreUri() == null) {
+      stagedb.setMetastoreUri(stagedb.getMetastore().getUri());
+    }
   }
 
   public StageDBConnection getStagedb() {
@@ -61,6 +82,8 @@ public class StorageProperties {
     String metastoreSchema;
     String metastoreUserName;
     String metastorePassword;
+
+    MetaStoreProperties metastore;
 
     public String getHostname() {
       return hostname;
@@ -166,15 +189,39 @@ public class StorageProperties {
       stageJdbcConnection.setUsername(this.getUsername());
       stageJdbcConnection.setPassword(this.getPassword());
 
+      String host = null;
+      String port = null;
+      String schema = null;
+      String username = null;
+      String password = null;
+      String jdbcUrl = this.getMetastore().includeJdbc() ? this.getMetastore().getJdbc().getUrl() : null;
+      if(StringUtils.isNotEmpty(jdbcUrl) && jdbcUrl.length() > 5) {
+        URI uri = URI.create(jdbcUrl.substring(5));
+        host = uri.getHost();
+        port = String.valueOf(uri.getPort());
+        schema = uri.getPath() != null && uri.getPath().length() > 1 ? uri.getPath().substring(1) : null;
+        username = this.getMetastore().getJdbc().getUsername();
+        password = this.getMetastore().getJdbc().getPassword();
+      }
+
       Map<String, String> propMap = new HashMap<>();
-      propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_HOST, this.getMetastoreHost());
-      propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_PORT, this.getMetastorePort());
-      propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_SCHEMA, this.getMetastoreSchema());
-      propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_USERNAME, this.getMetastoreUserName());
-      propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_PASSWORD, this.getMetastorePassword());
+      propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_HOST, host);
+      propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_PORT, port);
+      propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_SCHEMA, schema);
+      propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_USERNAME, username);
+      propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_PASSWORD, password);
       stageJdbcConnection.setProperties(GlobalObjectMapper.writeValueAsString(propMap));
       return stageJdbcConnection;
     }
+
+    public MetaStoreProperties getMetastore() {
+      return metastore;
+    }
+
+    public void setMetastore(MetaStoreProperties metastore) {
+      this.metastore = metastore;
+    }
+
   }
 
   public S3Connection getS3() {
