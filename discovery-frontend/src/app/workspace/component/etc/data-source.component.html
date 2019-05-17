@@ -107,7 +107,8 @@
               </colgroup>
               <tbody>
                 <tr *ngFor="let datasource of datasourceList; let i = index"
-                    [ngClass]="{'ddp-selected' : datasourceId == datasource.id, 'type-disabled' : dsStatus.DISABLED === datasource.status}"
+                    [ngClass]="{'ddp-selected' : datasourceId == datasource.id,
+                    'type-disabled' : ( dsStatus.DISABLED === datasource.status || dsStatus.FAILED === datasource.status ) }"
                     (click)="selectDatasource(datasource)">
                   <td>
                     <div class=" ddp-txt-long" [ngClass]="{' ddp-global': datasource.published}">
@@ -126,9 +127,13 @@
                     {{datasource.modifiedTime | mdate: 'YYYY-MM-DD'}}
                     <div class="ddp-ui-disabled">
                       <em class="ddp-icon-disabled"></em>
-                      <div class="ddp-ui-tooltip-info ddp-down">
+                      <div *ngIf="dsStatus.DISABLED === datasource.status" class="ddp-ui-tooltip-info ddp-down">
                         <em class="ddp-icon-view-top"></em>
                         {{'msg.storage.ui.list.disabled' | translate}}
+                      </div>
+                      <div *ngIf="dsStatus.FAILED === datasource.status" class="ddp-ui-tooltip-info ddp-down">
+                        <em class="ddp-icon-view-top"></em>
+                        {{'msg.storage.ui.ingestion.failed' | translate}}
                       </div>
                     </div>
                   </td>

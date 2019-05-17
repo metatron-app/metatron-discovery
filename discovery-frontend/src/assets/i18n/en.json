@@ -2214,6 +2214,7 @@
   "msg.storage.ui.file.uploading": "File uploading. Please wait.",
   "msg.storage.ui.file.failed": "File upload failed. Please import a file again.",
   "msg.storage.ui.file.canceled": "File upload canceled. Please import a file again.",
+  "msg.storage.ui.ingestion.failed": "Ingestion failed",
 
   "msg.storage.ui.timezone.country.zimbabwe": "Zimbabwe",
   "msg.storage.ui.timezone.country.zambia": "Zambia",

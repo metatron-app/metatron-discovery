@@ -2111,6 +2111,10 @@
   "msg.storage.ui.linked.source.preview.include.geo": "Linked data does not support preview for Geo type.",
   "msg.storage.ui.linked.source.preview": " This data grid is source data, not ingested data. This may differ from the temporarily ingested data value when creating a dashboard.",
   "msg.storage.ph.search.timezone": "Search Time zone",
+  "msg.storage.ui.file.uploading": "File uploading. Please wait.",
+  "msg.storage.ui.file.failed": "File upload failed. Please import a file again.",
+  "msg.storage.ui.file.canceled": "File upload canceled. Please import a file again.",
+  "msg.storage.ui.ingestion.failed": "Ingestion failed",
 
   "msg.log.th.status": "状态",
   "msg.log.ui.search.description": "请按job名或应用程序ID进行搜索",
