@@ -225,6 +225,17 @@ export class MapPagePivotComponent extends PagePivotComponent {
     //   fieldPivot = FieldPivot.MAP_LAYER2;
     // }
 
+    let currentMapLayer = this.shelf.layers[this.uiOption.layerNum].fields;
+    // check is different database on the same shelf (do not need to loop because database checking)
+    if (!isNullOrUndefined(currentMapLayer) && !isNullOrUndefined(currentMapLayer[0]) && !isNullOrUndefined(currentMapLayer[0]['field'])
+      && targetField.dataSource != currentMapLayer[0].field.dataSource) {
+      this.shelf.layers[this.uiOption.layerNum].fields = this.shelf.layers[this.uiOption.layerNum].fields.filter((field) => {
+        return (field.name != targetField.name && field.ref != targetField.ref)
+      });
+      Alert.warning(this.translateService.instant('msg.page.layer.multi.datasource.same.shelf'));
+      return;
+    }
+
     // change logical type
     if (targetField.logicalType == LogicalType.GEO_LINE) {
       this.uiOption.layers[this.uiOption.layerNum].type = MapLayerType.LINE;
