@@ -1066,6 +1066,7 @@ public class JdbcConnectionService {
 
       Field field = new Field();
       field.setName(uniqueFieldName);
+      field.setOriginalName(uniqueFieldName);
       field.setLogicalName(fieldName);
       field.setType(DataType.jdbcToFieldType((metaData.getColumnType(i))));
       field.setRole(field.getType().toRole());
