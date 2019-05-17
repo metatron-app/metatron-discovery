@@ -18,6 +18,9 @@
     <div class="ddp-ui-option ddp-clear">
       <!-- edit -->
       <component-period
+        [startDateDefault]="defaultDate?.startDate"
+        [endDateDefault]="defaultDate?.endDate"
+        [defaultType]="defaultDate?.type"
         [dateType]="false"
         [roundSecond]="true"
         (changeDate)="onChangeData($event)"
@@ -52,7 +55,7 @@
     </div>
     <!-- //option -->
   </div>
-  <table class="ddp-table-form ddp-table-type3">
+  <table class="ddp-table-form ddp-table-type3" *ngIf="columnDictionaryList.length > 0">
     <colgroup>
       <col width="*">
       <col width="15%">
@@ -62,9 +65,9 @@
     <tr>
       <th class="ddp-cursor" (click)="onClickSort('logicalName')">
         {{'msg.metadata.th.dictionary.column.name' | translate}}
-        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'name' || selectedContentSort.sort === 'default'"></em>
-        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'asc'"></em>
-        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'desc'"></em>
+        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'logicalName' || selectedContentSort.sort === 'default'"></em>
+        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'logicalName' && selectedContentSort.sort === 'asc'"></em>
+        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'logicalName' && selectedContentSort.sort === 'desc'"></em>
       </th>
       <th>
         {{'msg.metadata.ui.dictionary.create.type' | translate}}
@@ -97,13 +100,19 @@
     </tr>
     </tbody>
   </table>
-  <div class="ddp-box-add-link" *ngIf="isMoreContents()" (click)="onClickMoreList()">
-    <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+
+  <div class="ddp-data-source-none" *ngIf="columnDictionaryList.length === 0; else yesCd">
+    {{'msg.metadata.ui.no.col.dic' | translate}}
   </div>
+  <!-- //데이터 없음 -->
+
+  <ng-template #yesCd>
+    <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+  </ng-template>
 </div>
 
 <!-- 컬럼 사전 생성 컴포넌트 -->
-<app-create-column-dictionary (createComplete)="getColumnDictionaryListPageInit()"></app-create-column-dictionary>
+<app-create-column-dictionary (createComplete)="onCreateComplete()"></app-create-column-dictionary>
 <!-- //컬럼 사전 생성 컴포넌트 -->
 
 <!-- 컬럼 사전 삭제 모달 -->

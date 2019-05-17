@@ -19,6 +19,7 @@ import { PermissionService } from '../../../../user/service/permission.service';
 import { RoleSet } from '../../../../domain/user/role/roleSet';
 import { Alert } from '../../../../common/util/alert.util';
 import { Modal } from '../../../../common/domain/modal';
+import { Location } from "@angular/common";
 import { ConfirmModalComponent } from '../../../../common/component/modal/confirm/confirm.component';
 import { isUndefined } from 'util';
 import { CommonUtil } from '../../../../common/util/common.util';
@@ -83,6 +84,7 @@ export class DetailPermissionSchemaComponent extends AbstractComponent implement
   // 생성자
   constructor(private permissionService: PermissionService,
               private activatedRoute: ActivatedRoute,
+              private _location:Location,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -259,7 +261,7 @@ export class DetailPermissionSchemaComponent extends AbstractComponent implement
    * 뒤로가기 버튼 클릭
    */
   public onClickPrev(): void {
-    this.router.navigate(['/admin/workspaces/permission']).then();
+    this._location.back();
   }
 
   /**
@@ -420,7 +422,8 @@ export class DetailPermissionSchemaComponent extends AbstractComponent implement
     this.permissionService.copyRoleset(schemaId)
       .then((result) => {
         // alert
-        Alert.success(`'${result.name}' 스키마가 생성되었습니다`);
+        Alert.success(this.translateService.instant('msg.permission.alert.create.ok', {value: result.name}));
+
         // 복제한 스키마 상세페이지로 이동
         this.router.navigate(['/admin/workspaces/permission', result.id]).then();
       })
@@ -438,9 +441,10 @@ export class DetailPermissionSchemaComponent extends AbstractComponent implement
     // 퍼미션 스키마 삭제
     this.permissionService.deleteRoleset(schemaId).then(() => {
       // alert
-      Alert.success('스키마가 삭제되었습니다');
+      Alert.success(this.translateService.instant('msg.permission.alert.delete.ok'));
       // 나가기
       this.onClickPrev();
+
     }).catch((error) => this.commonExceptionHandler(error));
   }
 

@@ -51,6 +51,10 @@
 
       <!-- edit -->
       <component-period
+        [defaultType]="initialPeriodData?.type"
+        [selectedDate]="initialPeriodData?.dateType"
+        [startDateDefault]="initialPeriodData?.startDateStr"
+        [endDateDefault]="initialPeriodData?.endDateStr"
         [title]="'msg.mem.th.join.date' | translate"
         [roundSecond]="true"
         (changeDate)="onChangeDate($event)"
@@ -66,15 +70,15 @@
       <div class="ddp-form-search ddp-fleft">
         <em class="ddp-icon-search"></em>
         <input type="text" placeholder="{{'msg.mem.search.description' | translate}}"
-               [ngModel]="searchKeyword"
+               [(ngModel)]="searchKeyword"
                (keypress)="onSearchText($event)"
                (keyup.esc)="onSearchTextInit()">
-        <em (click)="onSearchTextInit()" class="ddp-btn-search-close" *ngIf="searchKeyword"></em>
+        <em (click)="onSearchTextInit()" class="ddp-btn-search-close" *ngIf="searchKeyword !== ''"></em>
       </div>
       <!-- //검색 -->
       <!-- right -->
       <div class="ddp-ui-rightoption">
-        <span class="ddp-data-total ddp-only">{{'msg.log.ui.num.lists' | translate : { value : membersList.length} }}</span>
+        <span class="ddp-data-total ddp-only">{{'msg.log.ui.num.lists' | translate : { value : pageResult.totalElements} }}</span>
         <a href="javascript:" class="ddp-btn-link" (click)="showCreateUser()"><em class="ddp-icon-link-add"></em>{{'msg.mem.btn.create.member' | translate}}</a>
       </div>
       <!-- //right -->
@@ -164,13 +168,12 @@
     </tr>
     </tbody>
   </table>
-
-  <div class="ddp-box-add-link" *ngIf="isMoreContents()" (click)="onClickMoreContents()">
-    <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
-  </div>
+  <!-- Pagination -->
+  <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+  <!-- // Pagination -->
 </div>
 <!-- create user -->
-<app-create-user-management-members (createComplete)="getMemberListInit()"></app-create-user-management-members>
+<app-create-user-management-members (createComplete)="reloadPage()"></app-create-user-management-members>
 <!-- //create user -->
 <!-- confirm modal -->
 <app-confirm-modal (confirm)="confirmHandler($event)"></app-confirm-modal>

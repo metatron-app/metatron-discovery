@@ -509,9 +509,11 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
     this.page.size = 10000;
 
     let params = {
-      searchText : '',
-      page : this.page,
-      dsType : this.dsType
+      dsName : '',
+      sort : 'modifiedTime,desc',
+      dsType : this.dsType,
+      page: this.page.page,
+      size: this.page.size,
     };
 
     this.datasetService.getDatasets(params)

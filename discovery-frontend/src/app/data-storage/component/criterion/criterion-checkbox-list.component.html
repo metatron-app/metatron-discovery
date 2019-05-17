@@ -45,12 +45,12 @@
       <span class="ddp-txt-label2" *ngIf="list.criterionName">{{isRequireTranslate(list.criterionName) ? (list.criterionName | translate) : list.criterionName}}</span>
       <!-- item list -->
       <ul class="ddp-list-popup">
-        <li *ngFor="let item of list.filters">
-          <a href="javascript:" (click)="onCheckItem(item); $event.preventDefault()">
+        <li *ngFor="let filter of list.filters">
+          <a href="javascript:" (click)="onCheckItem(filter); $event.preventDefault()">
             <label class="ddp-label-checkbox">
-              <input type="checkbox" [checked]="isCheckedItem(item)">
+              <input type="checkbox" [checked]="isCheckedItem(filter)">
               <i class="ddp-icon-checkbox"></i>
-              <span class="ddp-txt-checkbox">{{getTranslateFilterName(item)}}</span>
+              <span class="ddp-txt-checkbox">{{getTranslateFilterName(filter)}}</span>
             </label>
           </a>
         </li>

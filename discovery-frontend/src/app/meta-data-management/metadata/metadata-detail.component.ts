@@ -13,6 +13,7 @@
  */
 
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Location} from '@angular/common';
 import {AbstractComponent} from '../../common/component/abstract.component';
 import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
 import {Modal} from '../../common/domain/modal';
@@ -93,11 +94,12 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   constructor(
+    private _location: Location,
     protected element: ElementRef,
     protected metadataService: MetadataService,
-    public metadataModelService: MetadataModelService,
     protected activatedRoute: ActivatedRoute,
-    protected injector: Injector) {
+    protected injector: Injector,
+    public metadataModelService: MetadataModelService) {
     super(element, injector);
 
     // path variable
@@ -127,7 +129,7 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
    * Go back
    */
   public goBack() {
-    this.router.navigateByUrl('/management/metadata/metadata');
+    this._location.back();
   } // function - goBack
 
   /**

@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { StringUtil } from '../../../common/util/string.util';
-import { CriterionKey, CriterionType, ListCriterion } from '../../../domain/datasource/listCriterion';
-import { ListFilter } from '../../../domain/datasource/listFilter';
-import { ConnectionType, DataSourceType, SourceType, Status } from '../../../domain/datasource/datasource';
+import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {StringUtil} from '../../../common/util/string.util';
+import {ConnectionType, DataSourceType, SourceType, Status} from '../../../domain/datasource/datasource';
+import * as _ from "lodash";
+import {Criteria} from "../../../domain/datasource/criteria";
 
 @Component({
   selector: 'criterion-filter-box',
@@ -29,32 +29,29 @@ import { ConnectionType, DataSourceType, SourceType, Status } from '../../../dom
 })
 export class CriterionFilterBoxComponent extends AbstractComponent {
 
+  // search params
+  @Input()
+  public readonly searchParams;
+
   // selected item list
   private _selectedItemList : any = {};
 
   // selected item default label
-  private _defaultSelectedItemLabel: string = this.translateService.instant('msg.storage.ui.criterion.all');
+  private readonly _defaultSelectedItemLabel: string = this.translateService.instant('msg.storage.ui.criterion.all');
 
   // criterion api (required: true)
-  @Input('criterionApiFunc')
-  private _getCriterionFunc: Function;
-
+  @Input()
+  public readonly criterionApiFunc: Function;
   // criterion (required: true)
   @Input('criterion')
-  public criterion: ListCriterion;
-
+  public readonly criterion: Criteria.ListCriterion;
   // is enable criterion filter remove button
   @Input('enableRemove')
-  public isEnableRemoveButton: boolean;
+  public readonly isEnableRemoveButton: boolean;
 
   // default selected item list
-  @Input('defaultSelectedItemList')
-  public defaultSelectedItemList: any;
+  public readonly defaultSelectedItemList = {};
 
-  // criterion key
-  public criterionKey: CriterionKey;
-  // criterion type
-  public criterionType: CriterionType;
   // criterion name
   public criterionName: string;
 
@@ -69,7 +66,7 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
   public isEnableAllOption: boolean = false;
 
   // criterion data
-  public criterionData: ListCriterion;
+  public criterionData: Criteria.ListCriterion;
 
   // list show/hide flag
   public isShowList = false;
@@ -82,16 +79,6 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
   @Output('removedCriterion')
   private _removedCriterionEvent: EventEmitter<any> = new EventEmitter();
 
-  @Input('removeCriterionKey')
-  private set _removeCriterionKey(key: CriterionKey) {
-    // if criterion key MORE, exist key
-    if (this.criterionKey === CriterionKey.MORE && key) {
-      // remove criterion in selected criterion list
-      this._selectedItemList[key] = [];
-      // change selected item
-      this.onChangedSelectItem(this._selectedItemList);
-    }
-  };
 
   // constructor
   constructor(protected element: ElementRef,
@@ -104,42 +91,53 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
    */
   public ngOnInit() {
     super.ngOnInit();
-    // set criterion key
-    this.criterionKey = this.criterion.criterionKey;
     // set criterion name
     this.criterionName = this.criterion.criterionName;
-    // set criterion type
-    this.criterionType = this.criterion.criterionType;
-    // if criterion key is More, and exist subCriteria data
-    if (this.criterionKey === CriterionKey.MORE && this.criterion.subCriteria) {
-      // create new criterion used translate
-      const temp = new ListCriterion();
-      // set criterion name
-      temp.criterionName = this.translateService.instant('msg.storage.ui.criterion.criteria');
-      // create new filters
-      temp.filters = [];
-      // loop
-      this.criterion.subCriteria.forEach(item => temp.filters.push(new ListFilter(item.criterionKey.toString(), this.translateService.instant(item.criterionName), null)));
-      // init subCriteria
-      this.criterion.subCriteria = [];
-      // push translated criterion
-      this.criterion.subCriteria.push(temp);
-      // set criterionData
-      this.criterionData = this.criterion;
-    }
     // set filter title
-    this.filterTitle = this.translateService.instant(this.criterionName);
+    if (!_.isNil(this.criterion.criterionName)) {
+      this.filterTitle = this.translateService.instant(this.criterion.criterionName);
+    }
     // set search placeholder
     this.searchPlaceHolder = this.translateService.instant('msg.storage.ui.criterion.search', {value: this.translateService.instant(this.criterionName)});
-    // set selected item label
-    this.selectedItemsLabel = this._defaultSelectedItemLabel;
-    // if exist default selected item list
-    if (this.defaultSelectedItemList) {
+    // set search params
+    const param = {};
+    Object.keys(this.searchParams).forEach((key) => {
+      if (key.indexOf(this.criterion.criterionKey) !== -1) {
+        param[key.slice(key.indexOf(Criteria.QUERY_DELIMITER)+ 1)] = this.searchParams[key];
+        // if
+        if (this.isRangeDateTimeType() || this.isDateTimeType()) {
+          this.defaultSelectedItemList[key.slice(key.indexOf(Criteria.QUERY_DELIMITER)+ 1)] = this.searchParams[key];
+        }
+      }
+    });
+    this._setCriterionData().then(() => {
+      // set selected item label
+      if (!this.isRangeDateTimeType() && !this.isDateTimeType()) {
+        Object.keys(this.searchParams).forEach((key) => {
+          if (key.indexOf(this.criterion.criterionKey) !== -1) {
+            this.searchParams[key].forEach((value) => {
+              this.criterionData.subCriteria.forEach((criterion) => {
+                const criterionFilter = criterion.filters.find(filter => filter.filterValue === value);
+                if (!_.isNil(criterionFilter)) {
+                  // not exist default
+                  if (_.isNil(this.defaultSelectedItemList[criterionFilter.filterKey])) {
+                    this.defaultSelectedItemList[criterionFilter.filterKey] = [];
+                  }
+                  this.defaultSelectedItemList[criterionFilter.filterKey].push(criterionFilter);
+                }
+              });
+            });
+          }
+        });
+      }
+
       // set selected item list
       this._selectedItemList = this.defaultSelectedItemList;
       // set selected item label
-      this.selectedItemsLabel = this._makeItemsLabel(this._selectedItemList);
-    }
+      if (!this.isRangeDateTimeType() && !this.isDateTimeType()) {
+        this.selectedItemsLabel = this._makeItemsLabel(this._selectedItemList);
+      }
+    });
   }
 
   /**
@@ -147,6 +145,18 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
+  }
+
+  public isCheckboxType(): boolean {
+    return this.criterion.criterionType === Criteria.ListCriterionType.CHECKBOX;
+  }
+
+  public isRangeDateTimeType(): boolean {
+    return this.criterion.criterionType === Criteria.ListCriterionType.RANGE_DATETIME;
+  }
+
+  public isDateTimeType(): boolean {
+    return this.criterion.criterionType === Criteria.ListCriterionType.DATETIME;
   }
 
   /**
@@ -167,24 +177,23 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
    * @param {MouseEvent} event
    */
   public onClickShowList(event: MouseEvent) {
-    if (this.criterionKey !== CriterionKey.MORE &&
-      ($(event.target).hasClass('ddp-result-filtering')
+    if ($(event.target).hasClass('ddp-result-filtering')
         || $(event.target).hasClass('ddp-txt-label')
         || $(event.target).hasClass('ddp-ui-result')
         || $(event.target).hasClass('ddp-box-result')
-        || $(event.target).hasClass('ddp-txt-result'))) {
-        // if list not show
-        if (!this.isShowList) {
-          // set criterion list
-          this._setCriterionData()
-            .then(() => {
-              // show list
-              this.isShowList = true;
-            }).catch(error => this.commonExceptionHandler(error));
-        } else {
-          // close list
-          this.isShowList = false;
-        }
+        || $(event.target).hasClass('ddp-txt-result')) {
+      // if list not show
+      if (!this.isShowList) {
+        // set criterion list
+        this._setCriterionData()
+          .then(() => {
+            // show list
+            this.isShowList = true;
+          }).catch(error => this.commonExceptionHandler(error));
+      } else {
+        // close list
+        this.isShowList = false;
+      }
     }
   }
 
@@ -192,17 +201,16 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
    * Change selected item
    * @param selectedItemList
    */
-  public onChangedSelectItem(selectedItemList: any): void {
+  public onChangedSelectItem(selectedItemList: any, isOutputEvent: boolean = true): void {
     // set selected item list
     this._selectedItemList = selectedItemList;
-    // if criterion key is not More
-    if (this.criterionKey !== CriterionKey.MORE) {
-      // set selected item label
-      this.selectedItemsLabel = this._makeItemsLabel(selectedItemList);
-    }
+    // set selected item label
+    this.selectedItemsLabel = this._makeItemsLabel(selectedItemList);
+    // change detect
+    this.safelyDetectChanges();
     // change event
-    this._changedCriteriaEvent.emit({
-      label: this.criterionKey,
+    isOutputEvent && this._changedCriteriaEvent.emit({
+      label: this.criterion.criterionKey,
       value: selectedItemList
     });
   }
@@ -219,8 +227,7 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
    * @returns {boolean}
    */
   public isEnableFilterTitle(): boolean {
-    // only show not MORE
-    return this.criterionKey !== CriterionKey.MORE && this.selectedItemsLabel === this._defaultSelectedItemLabel;
+    return this.selectedItemsLabel === this._defaultSelectedItemLabel;
   }
 
   /**
@@ -232,19 +239,24 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
   private _makeItemsLabel(selectedItemList: any): string {
     let temp: string = '';
     // is type DATETIME
-    if (this.criterionType.toString().indexOf('DATETIME') !== -1) {
-      Object.keys(selectedItemList).forEach(key =>
-        key !== 'ALL' && selectedItemList[key].forEach((item) => {
-          temp += StringUtil.isEmpty(temp) ? (item.filterName || this.translateService.instant('msg.storage.ui.criterion.time.past')) : ` ~ ${(item.filterName || this.translateService.instant('msg.storage.ui.criterion.time.current'))}`;
-        }));
-    } else {
+    if (this.isRangeDateTimeType() || this.isDateTimeType()) {
+      const isNotAllType = selectedItemList[Criteria.KEY_DATETIME_TYPE_SUFFIX] && selectedItemList[Criteria.KEY_DATETIME_TYPE_SUFFIX][0] !== Criteria.DateTimeType.ALL;
+      Object.keys(selectedItemList).forEach(key => {
+        if (isNotAllType && (key !== Criteria.KEY_DATETIME_TYPE_SUFFIX)) {
+          temp += StringUtil.isEmpty(temp) ? (selectedItemList[key][0].filterName || this.translateService.instant('msg.storage.ui.criterion.time.past')) : ` ~ ${(selectedItemList[key][0].filterName || this.translateService.instant('msg.storage.ui.criterion.time.current'))}`;
+        }
+      });
+      if (isNotAllType) {
+
+      }
+    } else {  // NOT DATETIME
       Object.keys(selectedItemList).forEach(key =>
         selectedItemList[key].forEach((item) => {
-            if (StringUtil.isEmpty(temp)) {
-              temp += this._getTranslateFilterName(item);
-            } else {
-              temp += `, ${this._getTranslateFilterName(item)}`;
-            }
+          if (StringUtil.isEmpty(temp)) {
+            temp += this._getTranslateFilterName(item);
+          } else {
+            temp += `, ${this._getTranslateFilterName(item)}`;
+          }
         }));
     }
 
@@ -253,11 +265,11 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
 
   /**
    * Criterion fit a spec
-   * @param {ListCriterion} criterion
-   * @returns {ListCriterion}
+   * @param {Criteria.ListCriterion} criterion
+   * @return {Criteria.ListCriterion}
    * @private
    */
-  private _transCriterion(criterion: ListCriterion): ListCriterion {
+  private _transCriterion(criterion: Criteria.ListCriterion): Criteria.ListCriterion {
     /**
      * fit spec
      * {
@@ -278,7 +290,7 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
     // if exist filters in result
     if (criterion.filters) {
       criterion.subCriteria = [];
-      const temp = new ListCriterion();
+      const temp = new Criteria.ListCriterion();
       temp.filters = criterion.filters;
       criterion.subCriteria.push(temp);
     }
@@ -295,7 +307,7 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
       // loading show
       this.loadingShow();
       // get criterion list
-      this._getCriterionFunc(this.criterionKey)
+      this.criterionApiFunc(this.criterion.criterionKey)
         .then((result) => {
           // translate criterion data (fit spec)
           this.criterionData = this._transCriterion(result);
@@ -325,15 +337,15 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
    * @returns {string}
    * @private
    */
-  private _getTranslateFilterName(filter: ListFilter): string {
+  private _getTranslateFilterName(filter: Criteria.ListFilter): string {
     switch (filter.criterionKey) {
-      case CriterionKey.STATUS:
+      case Criteria.ListCriterionKey.STATUS:
         return this._getDatasourceStatusTranslate(filter.filterName);
-      case CriterionKey.DATASOURCE_TYPE:
+      case Criteria.ListCriterionKey.DATASOURCE_TYPE:
         return this._getDataSourceTypeTranslate(filter.filterName);
-      case CriterionKey.SOURCE_TYPE:
+      case Criteria.ListCriterionKey.SOURCE_TYPE:
         return this._getSourceTypeTranslate(filter.filterName);
-      case CriterionKey.CONNECTION_TYPE:
+      case Criteria.ListCriterionKey.CONNECTION_TYPE:
         return this._getConnectionTypeTranslate(filter.filterName);
       default:
         return this._isRequireTranslate(filter.filterName) ? this.translateService.instant(filter.filterName): filter.filterName;

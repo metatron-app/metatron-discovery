@@ -23,6 +23,7 @@ import { isUndefined } from 'util';
 import { CommonUtil } from '../../../../../common/util/common.util';
 import { Group } from '../../../../../domain/user/group';
 import { GroupMember } from '../../../../../domain/user/group-member';
+import { Location } from "@angular/common";
 
 @Component({
   selector: 'app-group-detail',
@@ -74,6 +75,7 @@ export class DetailUserManagementGroupsComponent extends AbstractUserManagementC
   // 생성자
   constructor(private activatedRoute: ActivatedRoute,
               protected element: ElementRef,
+              private _location:Location,
               protected injector: Injector) {
     super(element, injector);
   }
@@ -86,6 +88,8 @@ export class DetailUserManagementGroupsComponent extends AbstractUserManagementC
   public ngOnInit() {
     // Init
     super.ngOnInit();
+    // 쿼리 파라메터 저장
+
     // url에서 groupId 받아오기
     this.activatedRoute.params.subscribe((params) => {
       // groupId
@@ -277,7 +281,7 @@ export class DetailUserManagementGroupsComponent extends AbstractUserManagementC
       this.cookieService.delete('PREV_ROUTER_URL');
       this.router.navigate([url]);
     } else {
-      this.router.navigate(['/admin/user/groups']);
+      this._location.back();
     }
   }
 

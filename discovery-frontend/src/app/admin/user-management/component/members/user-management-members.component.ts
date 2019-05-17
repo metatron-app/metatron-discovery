@@ -22,7 +22,9 @@ import { CreateUserManagementMembersComponent } from './create-member/create-use
 import { ConfirmModalComponent } from '../../../../common/component/modal/confirm/confirm.component';
 import { Modal } from '../../../../common/domain/modal';
 import { Alert } from '../../../../common/util/alert.util';
-import {ChangeWorkspaceOwnerModalComponent} from './change-workspace-owner-modal/change-workspace-owner-modal.component';
+import { ChangeWorkspaceOwnerModalComponent } from './change-workspace-owner-modal/change-workspace-owner-modal.component';
+import { ActivatedRoute } from "@angular/router";
+import { isNullOrUndefined } from "util";
 
 declare let moment: any;
 
@@ -65,6 +67,11 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
   // 검색 키워드
   public searchKeyword: string = '';
 
+  // 검색 파라메터
+  private _searchParams: { [key: string]: string };
+
+  public initialPeriodData:PeriodData;
+
   // date
   public selectedDate : PeriodData;
 
@@ -81,6 +88,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
 
   // 생성자
   constructor(protected elementRef: ElementRef,
+              private activatedRoute: ActivatedRoute,
               protected injector: Injector) {
 
     super(elementRef, injector);
@@ -96,8 +104,54 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
     super.ngOnInit();
     // ui init
     this._initView();
-    // members list 조회
-    this._getMemberList();
+
+    // 파라메터 조회
+    this.subscriptions.push(
+      this.activatedRoute.queryParams.subscribe(params => {
+
+        // TODO selected type
+
+        const size = params['size'];
+        (isNullOrUndefined(size)) || (this.page.size = size);
+
+        const page = params['page'];
+        (isNullOrUndefined(page)) || (this.page.page = page);
+
+        const sort = params['sort'];
+        if (!isNullOrUndefined(sort)) {
+          const sortInfo = decodeURIComponent(sort).split(',');
+          this.selectedContentSort.key = sortInfo[0];
+          this.selectedContentSort.sort = sortInfo[1];
+        }
+
+        // 검색어
+        const searchText = params['nameContains'];
+        (isNullOrUndefined(searchText)) || (this.searchKeyword = searchText);
+
+        // Status
+        const active = params['active'];
+        if (!isNullOrUndefined(active)) {
+          this.statusId = ('true' === active) ? 'ACTIVE' : 'INACTIVE';
+        }
+
+        this.selectedDate = new PeriodData();
+        this.selectedDate.type = 'ALL';
+        const from = params['from'];
+        const to = params['to'];
+        if (!isNullOrUndefined(from) && !isNullOrUndefined(to)) {
+          this.selectedDate.startDate = from;
+          this.selectedDate.endDate = to;
+          this.selectedDate.startDateStr = decodeURIComponent(from);
+          this.selectedDate.endDateStr = decodeURIComponent(to);
+          this.selectedDate.type = params['type'];
+          this.initialPeriodData = this.selectedDate;
+          this.safelyDetectChanges();
+        }
+
+        // members list 조회
+        this._getMemberList();
+      })
+    );
   }
 
   // Destory
@@ -149,17 +203,6 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - getter
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 멤버 리스트 초기화 후 재조회
-   * @private
-   */
-  public getMemberListInit(): void {
-    // 페이지 초기화
-    this.pageResult.number = 0;
-    // 멤버 리스트 조회
-    this._getMemberList();
-  }
 
   /**
    * 사용자의 현재 상태
@@ -274,7 +317,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
     // 선택한 날짜
     this.selectedDate = data;
     // members 리스트 조회
-    this.getMemberListInit();
+    this.reloadPage();
   }
 
   /**
@@ -284,7 +327,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
     // 상태값 아이디 설정
     this.statusId = statusId;
     // members 리스트 조회
-    this.getMemberListInit();
+    this.reloadPage();
   }
 
   /**
@@ -300,16 +343,6 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
    */
   public onSearchTextInit(): void {
     this._searchText('');
-  }
-
-  /**
-   * 더보기 버튼 클릭
-   */
-  public onClickMoreContents(): void {
-    // 페이지 넘버 증가
-    this.pageResult.number += 1;
-    // 멤버 조회
-    this._getMemberList();
   }
 
   /**
@@ -337,7 +370,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
       }
     }
     // 멤버 조회
-    this.getMemberListInit();
+    this.reloadPage();
   }
 
 
@@ -357,8 +390,23 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
   public showDetailUser(user: User): void {
     // 기존에 저장된 라우트 삭제
     this.cookieService.delete('PREV_ROUTER_URL');
-    this.router.navigate(['/admin/user/members', user.id]);
+    this.router.navigate(['/admin/user/members', user.id], {queryParams: this._searchParams});
   }
+
+  /**
+   * 페이지 변경
+   * @param data
+   */
+  public changePage(data: { page: number, size: number }) {
+    if (data) {
+      this.page.page = data.page;
+      this.page.size = data.size;
+
+      // 멤버 리스트 조회
+      this.reloadPage(false);
+    }
+  } // function - changePage
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
@@ -367,6 +415,20 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 페이지를 새로 불러온다.
+   * @param {boolean} isFirstPage
+   */
+  public reloadPage(isFirstPage: boolean = true) {
+    (isFirstPage) && (this.page.page = 0);
+    this._searchParams = this._getMemberParams();
+    this.router.navigate(
+      [this.router.url.replace(/\?.*/gi, '')],
+      {queryParams: this._searchParams, replaceUrl: true}
+    ).then();
+  } // function - reloadPage
+
 
   /**
    * 유저 삭제
@@ -381,8 +443,12 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
       .then((result) => {
         // alert
         Alert.success(this.translateService.instant('msg.mem.alert.delete.usr.success'));
+
+        if (this.page.page > 0 && this.membersList.length === 1) {
+          this.page.page = this.page.page - 1;
+        }
         // 재조회
-        this.getMemberListInit();
+        this.reloadPage();
       })
       .catch((error)=> {
         // alert
@@ -409,7 +475,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
           ? this.translateService.instant('msg.mem.alert.change.usr.status.inactive.success', {value: userName})
           : this.translateService.instant('msg.mem.alert.change.usr.status.active.success', {value: userName}));
         // 재조회
-        this.getMemberListInit();
+        this.reloadPage();
       })
       .catch((error) => {
         // alert
@@ -444,7 +510,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
     // key word
     this.searchKeyword = keyword;
     // 재조회
-    this.getMemberListInit();
+    this.reloadPage();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -459,8 +525,14 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
     // 로딩 show
     this.loadingShow();
     // group 리스트 조회
-    this.membersService.getRequestedUser(this._getMemberParams())
+    this.membersList = [];
+    const params = this._getMemberParams();
+    this.membersService.getRequestedUser(params)
       .then((result) => {
+
+        // 검색 파라메터 정보 저장
+        this._searchParams = params;
+
         // 페이지
         this.pageResult = result.page;
         // 페이지가 첫번째면 초기화
@@ -468,7 +540,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
           this.membersList = [];
         }
         // 데이터 있다면
-        this.membersList = result._embedded ? this.membersList.concat(result._embedded.users) : [];
+        this.membersList = result._embedded ? result._embedded.users : [];
         // 로딩 hide
         this.loadingHide();
       })
@@ -484,10 +556,11 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
    * @returns {Object}
    * @private
    */
-  private _getMemberParams(): object {
+  private _getMemberParams(): any {
     const params = {
-      size: this.pageResult.size,
-      page: this.pageResult.number
+      size: this.page.size,
+      page: this.page.page,
+      pseudoParam : (new Date()).getTime()
     };
     // 정렬
     if (this.selectedContentSort.sort !== 'default') {
@@ -502,8 +575,10 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
       params['nameContains'] = this.searchKeyword.trim();
     }
     // date
+    params['type'] = 'ALL';
     if (this.selectedDate && this.selectedDate.type !== 'ALL') {
       params['searchDateBy'] = "CREATED";
+      params['type'] = this.selectedDate.type;
       if (this.selectedDate.startDateStr) {
         params['from'] = moment(this.selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }

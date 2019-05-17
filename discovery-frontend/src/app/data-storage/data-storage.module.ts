@@ -35,9 +35,7 @@ import { EditConfigSchemaComponent } from './data-source-list/detail-data-source
 import { MetadataService } from '../meta-data-management/metadata/service/metadata.service';
 import { EditFilterDataSourceComponent } from './data-source-list/detail-data-source/edit-filter-data-source.component';
 import { IngestionLogComponent } from './data-source-list/detail-data-source/information-dats-source/component/ingestion-log/ingestion-log.component';
-import { CriterionFilterBoxComponent } from './component/criterion/criterion-filter-box.component';
-import { CriterionCheckboxComponent } from './component/criterion/criterion-checkbox.component';
-import { CriterionTimeRadioboxComponent } from './component/criterion/criterion-time-radiobox.component';
+import { CriterionCheckboxListComponent } from './component/criterion/criterion-checkbox-list.component';
 import {DataConnectionCreateService} from "./service/data-connection-create.service";
 import {DataSourceCreateModule} from "./data-source-list/create-data-source/data-source-create.module";
 import {FieldConfigService} from "./service/field-config.service";
@@ -45,6 +43,10 @@ import {DatasourceMetadataSharedModule} from "../shared/datasource-metadata/data
 import {DataStorageCommonModule} from "./data-storage-common.module";
 import {DataStorageShareModule} from "./data-storage-share.module";
 import {ConstantService} from "../shared/datasource-metadata/service/constant.service";
+import {CriterionComponent} from "./component/criterion/criterion.component";
+import {CriterionExtensionBoxComponent} from "./component/criterion/criterion-extension-box.component";
+import {CriterionFilterBoxComponent} from "./component/criterion/criterion-filter-box.component";
+import {CriterionTimeRadioboxListComponent} from "./component/criterion/criterion-time-radiobox-list.component";
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -83,9 +85,11 @@ const storageRoutes: Routes = [
     CreateConnectionComponent,
     UpdateConnectionComponent,
     // criterion
+    CriterionComponent,
+    CriterionExtensionBoxComponent,
     CriterionFilterBoxComponent,
-    CriterionCheckboxComponent,
-    CriterionTimeRadioboxComponent,
+    CriterionCheckboxListComponent,
+    CriterionTimeRadioboxListComponent,
   ],
   exports: [
     // 워크벤치에서 사용하기 위해

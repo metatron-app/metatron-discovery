@@ -17,6 +17,9 @@
     <!-- option -->
     <div class="ddp-ui-option ddp-clear">
       <component-period
+        [startDateDefault]="initialPeriodData?.startDate"
+        [endDateDefault]="initialPeriodData?.endDate"
+        [defaultType]="initialPeriodData?.type"
         [title]="'msg.groups.th.create.date' | translate"
         [roundSecond]="true"
         (changeDate)="onFilterDate($event)"
@@ -36,8 +39,8 @@
         <input type="text" placeholder="{{'msg.permission.ui.search-schema' | translate}}"
                (keypress)="onSearchText($event)"
                (keyup.esc)="onSearchTextInit()"
-               [ngModel]="searchText">
-        <em class="ddp-btn-search-close" *ngIf="searchText" (click)="onSearchTextInit()"></em>
+               [(ngModel)]="searchText">
+        <em class="ddp-btn-search-close" *ngIf="searchText !== ''" (click)="onSearchTextInit()"></em>
       </div>
       <!-- //검색 -->
       <!-- right -->
@@ -120,12 +123,11 @@
   </table>
   <!-- // 목록 영역 -->
 
-  <!-- 더보기 버튼 -->
-  <div *ngIf="isMoreContents()" (click)="onClickMoreContents()" class="ddp-box-add-link" >
-    <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
-  </div>
-  <!-- // 더보기 버튼 -->
+  <!-- Pagination -->
+  <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+  <!-- // Pagination -->
+
 </div>
 
 <app-confirm-modal (confirm)="confirmHandler($event)"></app-confirm-modal>
-<app-create-permission-schema (afterCreate)="getPermissionSchemaInit()" ></app-create-permission-schema>
+<app-create-permission-schema (afterCreate)="reloadPage()" ></app-create-permission-schema>

@@ -44,6 +44,7 @@
             <!-- selectbox -->
             <!-- 선택시 : ddp-selected 추가 -->
             <component-select [array]="notebookServerType"
+                              [defaultIndex]="typeDefaultIndex"
                               [viewKey]="'value'"
                               (onSelected)="selectedLanguage($event)">
             </component-select>
@@ -61,13 +62,14 @@
         <!-- 검색 -->
         <div class="ddp-form-search ddp-fleft">
           <em class="ddp-icon-search"></em>
-          <input type="text" placeholder="{{'msg.nbook.ui.search.server.ph' | translate}}" [(ngModel)]="searchText" (keypress)="searchNotebookServer($event)">
-          <em class="ddp-btn-search-close" (click)="getInitialNotebookServer();"></em>
+          <input type="text" placeholder="{{'msg.nbook.ui.search.server.ph' | translate}}"
+                 [(ngModel)]="searchText" (keypress)="searchNotebookServer($event)">
+          <em *ngIf="searchText !== ''" class="ddp-btn-search-close" (click)="refreshSearch();"></em>
         </div>
         <!-- //검색 -->
         <!-- right -->
         <div class="ddp-ui-rightoption">
-          <span class="ddp-data-total">{{'msg.nbook.ui.num.lists' | translate : {value : totalElements} }}</span>
+          <span class="ddp-data-total">{{'msg.nbook.ui.num.lists' | translate : {value : pageResult.totalElements} }}</span>
           <a href="javascript:" class="ddp-btn-link" (click)="addServer()"><em class="ddp-icon-link-add" ></em>{{'msg.nbook.btn.add.server' | translate}}</a>
           <a href="javascript:" class="ddp-btn-link" (click)="confirmDeleteAll()" [ngClass]="{'ddp-disabled': deleteAvailable()}" ><em class="ddp-icon-link-cut"></em>{{'msg.comm.ui.sel.del' | translate}}</a>
         </div>
@@ -77,7 +79,7 @@
     </div>
 
 
-    <table class="ddp-table-form ddp-table-type3">
+    <table class="ddp-table-form ddp-table-type3" *ngIf="resultData.length > 0">
       <colgroup>
         <col width="51px">
         <col width="*">
@@ -91,7 +93,7 @@
       <tr>
         <th class="ddp-txt-center" >
           <div class="ddp-ui-checkbox">
-            <input type="checkbox" class="ddp-checkbox-form" (click)="allCheckClick($event)">
+            <input type="checkbox" class="ddp-checkbox-form" (click)="allCheckClick()">
             <i class="ddp-icon-checkbox"></i>
           </div>
         </th>
@@ -114,12 +116,11 @@
           <!--<em class="ddp-icon-array-des2" style="display:none;"></em>-->
         </th>
 
-        <th>
+        <th (click)="onClickSort('modifiedTime')">
           {{'msg.nbook.th.last.updated' | translate}}
-
-          <!--<em class="ddp-icon-array-default2"></em>-->
-          <em class="ddp-icon-array-asc2" *ngIf="sort == 'asc'" (click)="sortingToggle('desc')"></em>
-          <em class="ddp-icon-array-des2" *ngIf="sort == 'desc'" (click)="sortingToggle('asc')"></em>
+          <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'modifiedTime' || selectedContentSort.sort === 'default'"></em>
+          <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'asc'"></em>
+          <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'desc'"></em>
         </th>
       </tr>
       </thead>
@@ -166,13 +167,18 @@
 
     </table>
 
-    <div class="ddp-box-add-link" *ngIf="page.page < pageResult.totalPages && pageResult" (click)="getNotebookServerList()">
-      <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+    <div class="ddp-data-source-none" *ngIf="resultData && resultData.length === 0; else yesNb">
+      {{'msg.nbook.ui.no.nb' | translate}}
     </div>
+    <!-- //데이터 없음 -->
+
+    <ng-template #yesNb>
+      <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+    </ng-template>
   </div>
 
 
 </div>
 
-<app-add-notebook-server (createComplete)="getInitialNotebookServer()"></app-add-notebook-server>
+<app-add-notebook-server (createComplete)="reloadPage()"></app-add-notebook-server>
 <app-delete-modal (deleteConfirm)="deleteNotebookServer()"></app-delete-modal>

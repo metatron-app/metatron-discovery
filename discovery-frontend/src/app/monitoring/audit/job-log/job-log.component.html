@@ -22,10 +22,14 @@
     <!-- tab -->
     <ul class="ddp-list-top-tab">
       <li>
-        <a [routerLink]="['/management/monitoring/statistics']">{{'msg.comm.menu.manage.monitoring.statistics' | translate}}</a>
+        <a [routerLink]="['/management/monitoring/statistics']">
+          {{'msg.comm.menu.manage.monitoring.statistics' | translate}}
+        </a>
       </li>
       <li class="ddp-selected">
-        <a [routerLink]="['/management/monitoring/audit']">{{'msg.comm.menu.manage.monitoring.audit' | translate}}</a>
+        <a [routerLink]="['/management/monitoring/audit']">
+          {{'msg.comm.menu.manage.monitoring.audit' | translate}}
+        </a>
       </li>
     </ul>
     <!-- //tab -->
@@ -45,6 +49,7 @@
             <component-select
               [array]="types"
               [viewKey]="'label'"
+              [defaultIndex]="logTypeDefaultIndex"
               (onSelected)="onChangeType($event)">
             </component-select>
             <!-- //select box -->
@@ -58,7 +63,9 @@
           <label class="ddp-label-type">{{'msg.log.th.status' | translate}}</label>
           <!-- edit option -->
           <div class="ddp-ui-edit-option ddp-inline">
-            <label class="ddp-label-radio" *ngFor="let status of statusTypes" (click)="onChangeStatus(status)">
+            <label class="ddp-label-radio"
+                   *ngFor="let status of statusTypes"
+                   (change)="onChangeStatus(status)">
               <input type="radio" [checked]="selectedStatus.value === status.value">
               <i class="ddp-icon-radio"></i>
               <span class="ddp-txt-radio">{{status.label}}</span>
@@ -73,25 +80,50 @@
 
           <!-- edit option -->
           <div class="ddp-ui-edit-option">
-            <a href="javascript:" class="ddp-btn-toggle ddp-all"  [ngClass]="{'ddp-selected' : 'ALL' === selectedElapsedTime}" (click)="applyElapsedTime('ALL')">{{'msg.comm.ui.list.all' | translate}}</a>
-            <a href="javascript:" class="ddp-btn-toggle ddp-today"[ngClass]="{'ddp-selected' : 10 === selectedElapsedTime}" (click)="applyElapsedTime(10)">{{'msg.log.btn.over.num.ms' | translate :{ value : 10} }}</a>
-            <a href="javascript:" class="ddp-btn-toggle ddp-last" [ngClass]="{'ddp-selected' : 30 === selectedElapsedTime}" (click)="applyElapsedTime(30)">{{'msg.log.btn.over.num.ms' | translate :{ value : 30} }}</a>
-            <a href="javascript:" class="ddp-btn-toggle ddp-last" [ngClass]="{'ddp-selected' : 60 === selectedElapsedTime}" (click)="applyElapsedTime(60)">{{'msg.log.btn.over.num.ms' | translate :{ value : 60} }}</a>
+            <a href="javascript:" class="ddp-btn-toggle ddp-all"
+               [ngClass]="{'ddp-selected' : 'ALL' === selectedElapsedTime}"
+               (click)="onClickElapsedTime('ALL')">
+              {{'msg.comm.ui.list.all' | translate}}
+            </a>
+            <a href="javascript:"
+               class="ddp-btn-toggle ddp-today"
+               [ngClass]="{'ddp-selected' : 10 === selectedElapsedTime}"
+               (click)="onClickElapsedTime(10)">
+              {{'msg.log.btn.over.num.ms' | translate :{ value : 10} }}
+            </a>
+            <a href="javascript:" class="ddp-btn-toggle ddp-last"
+               [ngClass]="{'ddp-selected' : 30 === selectedElapsedTime}"
+               (click)="onClickElapsedTime(30)">
+              {{'msg.log.btn.over.num.ms' | translate :{ value : 30} }}
+            </a>
+            <a href="javascript:" class="ddp-btn-toggle ddp-last"
+               [ngClass]="{'ddp-selected' : 60 === selectedElapsedTime}"
+               (click)="onClickElapsedTime(60)">
+              {{'msg.log.btn.over.num.ms' | translate :{ value : 60} }}
+            </a>
 
             <div class="ddp-ui-time">
               <div class="ddp-box-calen">
-                <input class="ddp-input-typebasic" (keyup)="elapsedTimeKeyup($event)" input-mask="number" #elapsedTime>
+                <input class="ddp-input-typebasic"
+                       (keyup)="elapsedTimeKeyup()"
+                       input-mask="number" #elapsedTime>
               </div>
 
             </div>
-            <a href="javascript:" class="ddp-btn-line-s" (click)="applyElapsedTime()">{{'msg.comm.ui.apply' | translate}}</a>
+            <a href="javascript:" class="ddp-btn-line-s"
+               (click)="onClickElapsedTime()">{{'msg.comm.ui.apply' | translate}}
+            </a>
 
           </div>
           <!-- //edit option -->
 
         </div>
         <div class="ddp-ui-rightoption">
-          <!--<a href="#" class="ddp-link-reset"><em class="ddp-btn-reset3"></em>초기화</a>-->
+          <a href="javascript:" (click)="refreshFilters()"
+             class="ddp-link-reset">
+            <em class="ddp-btn-reset3"></em>
+            {{'msg.mem.btn.refresh' | translate}}
+          </a>
         </div>
       </div>
       <!-- //option -->
@@ -102,6 +134,9 @@
           [title]= "'msg.statistics.th.start.time' | translate"
           [roundSecond]="true"
           (changeDate)="onChangeDate($event)"
+          [startDateDefault]="selectedDate?.startDate"
+          [endDateDefault]="selectedDate?.endDate"
+          [defaultType]="selectedDate?.type"
         ></component-period>
         <!-- //edit -->
       </div>
@@ -140,7 +175,7 @@
       <!-- //option -->
     </div>
 
-    <table class="ddp-table-form ddp-table-type3">
+    <table class="ddp-table-form ddp-table-type3" *ngIf="auditList.length > 0">
       <colgroup>
         <col width="100px">
         <col width="*">
@@ -208,21 +243,29 @@
           {{audit.startTime | mdate:'YYYY-MM-DD HH:mm'}}
         </td>
         <td>
-          {{convertMilliseconds(audit.elapsedTime)}}
+          {{CommonUtil.convertMilliseconds(audit.elapsedTime)}}
         </td>
       </tr>
       </tbody>
     </table>
-    <div class="ddp-box-add-link" *ngIf="checkMoreContents" (click)="moreAuditList()">
-      <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}}<em class="ddp-icon-view"></em></span>
+
+    <div class="ddp-data-source-none" *ngIf="auditList.length === 0; else yesAl">
+      {{'msg.log.ui.no.log' | translate}}
     </div>
+    <!-- //데이터 없음 -->
+
+    <ng-template #yesAl>
+      <component-pagination [info]="pageResult"
+                            (changePageData)="changePage($event)">
+      </component-pagination>
+    </ng-template>
   </div>
 </div>
 
 <!--&lt;!&ndash; audit 디테일 페이지 &ndash;&gt;-->
 <!--<app-job-detail *ngIf="mode==='detail-job-log'"-->
-                <!--[setAuditId]="selectedId"-->
-                <!--(close)="mode=''"></app-job-detail>-->
+<!--[setAuditId]="selectedId"-->
+<!--(close)="mode=''"></app-job-detail>-->
 
 <iframe id="downloadCsvIframe" name="downloadCsvIframe" frameborder="0" marginwidth="0" marginheight="0" scrolling="" style="display: none">
 </iframe>

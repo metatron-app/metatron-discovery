@@ -44,7 +44,7 @@
         <div class="ddp-form-search ddp-fleft">
           <em class="ddp-icon-search"></em>
           <input type="text" placeholder="{{'msg.dp.ui.df.search.description' | translate}}" [(ngModel)]="searchText" (keypress)="searchDataflows($event);">
-          <em class="ddp-btn-search-close" *ngIf="searchText" (click)="searchText = ''; page.page = 0; getDataflows();"></em>
+          <em class="ddp-btn-search-close" *ngIf="searchText" (click)="searchText = ''; reloadPage();"></em>
         </div>
         <!-- //검색 -->
         <div class="ddp-ui-rightoption">
@@ -54,12 +54,6 @@
 
       </div>
     </div>
-
-    <!-- 데이터 없음 -->
-    <div class="ddp-data-source-none" *ngIf="dataflows.length === 0">
-      {{'msg.dp.ui.no.df.description' | translate}}
-    </div>
-    <!-- //데이터 없음 -->
 
     <table class="ddp-table-form ddp-table-type3" *ngIf="dataflows.length > 0">
       <colgroup>
@@ -88,14 +82,12 @@
       </tr>
       </thead>
       <tbody>
-      <tr *ngFor="let item of dataflows; let i = index" [attr.data-index]="i" (click)="updateDataflow(item.dfId)">
+      <tr *ngFor="let item of dataflows; let i = index" [attr.data-index]="i" (click)="goToDfDetail(item.dfId)">
         <td>
           <div class=" ddp-txt-long">
             {{item.dfName}}
             <span class="ddp-txt-colortype" *ngIf="item.dfDesc">- {{item.dfDesc}}</span>
-            <!--<em class="ddp-icon-global"></em>-->
           </div>
-          <!--<em class="ddp-icon-new" *ngIf="item.createdTime | moment: 'isNew'">{{'msg.common.ui.new' | translate}}</em>-->
         </td>
         <td>
           <span class="ddp-data-num"><em class="ddp-icon-db-s"></em>{{item.importedDsCount}}</span>
@@ -114,10 +106,17 @@
 
 
     </table>
-    <!-- 더보기 -->
-    <div class="ddp-box-add-link" *ngIf="page.page < pageResult.totalPages" (click)="getDataflows();">
-      <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+
+    <!-- 데이터 없음 -->
+    <div class="ddp-data-source-none" *ngIf="dataflows.length === 0; else yesDf">
+      {{'msg.dp.ui.no.df.description' | translate}}
     </div>
+    <!-- //데이터 없음 -->
+
+    <!-- 더보기 -->
+    <ng-template #yesDf>
+      <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+    </ng-template>
     <!-- //더보기 -->
   </div>
 

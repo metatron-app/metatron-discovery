@@ -46,14 +46,15 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 기준
-  public selectedDate: string = 'CREATED';
-
   // 기간타입
   public periodType = PeriodType;
 
   // 선택 타입
   public selectedType = PeriodType.ALL;
+
+  // 기준
+  @Input()
+  public selectedDate: string = 'CREATED';
 
   @Input()
   public containerClass:string = '';
@@ -108,7 +109,7 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
 
   // label, value 로 이루어진 date type list
   @Input()
-  public customDateTypeList: any[];
+  public customDateTypeList: {label: string, value: string}[];
 
   // 변경 이벤트
   @Output() public changeDate = new EventEmitter();
@@ -147,7 +148,15 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
       endInitialValue = moment();
     }
 
+    // Default 값이 있는지 체크 (paging처리 하면서 추가)
+    let isDefaultValue: boolean;
+    isDefaultValue = false;
+
     if (this.startDateDefault && this.endDateDefault) {
+
+      // startDateDefault & endDateDefault 있다면 this.defaultType 사용
+      isDefaultValue = true;
+
       startInitialValue = moment(this.startDateDefault);
       endInitialValue = moment(this.endDateDefault);
     }
@@ -185,6 +194,9 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
     );
     this._endPicker = $(this._endPickerInput.nativeElement).datepicker(endPickerSettings).data('datepicker');
     ( '-' !== endInitialValue ) && ( this._endPicker.selectDate(endInitialValue.toDate()) );
+
+    // defaultType이 있다면 All/Today/Last7days 를 set 한다. (paging처리 하면서 추가)
+    this.selectedType = this.defaultType ? this.defaultType : !isDefaultValue? PeriodType.ALL : PeriodType.NOT;
 
     if ( !this.useAllButton ) {
       this.selectedType = PeriodType.TODAY;
@@ -270,6 +282,24 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
    */
   public done() {
 
+    const returnData = this.getReturnData();
+
+    this.changeDate.emit(returnData);
+  } // function - done
+
+
+  /**
+   * Returns
+   * {
+      startDate : this._startDate,
+      endDate : this._endDate,
+      type: this.selectedType.toString(),
+      startDateStr: startDateStr,
+      endDateStr: endDateStr
+    } this data
+   */
+  public getReturnData() {
+
     let startDateStr:string;
     if( this._startDate ) {
       startDateStr = moment(this._startDate).format(this.returnFormat)
@@ -298,11 +328,18 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
       returnData['dateType'] = this.selectedDate;
     }
 
-    // console.log(returnData);
+    return returnData;
+  }
 
-    this.changeDate.emit(returnData);
-  } // function - done
 
+  /**
+   * When radio button is clicked [last access / created] (custom)
+   * @param data
+   */
+  public onChangeSelectedDateType(data: {label: string, value: string}) {
+    this.selectedDate = data.value;
+    this.changeDate.emit(this.getReturnData());
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

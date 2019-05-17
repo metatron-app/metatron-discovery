@@ -35,7 +35,7 @@
   <!-- edit option -->
   <div class="ddp-ui-edit-option ddp-inline" *ngIf="usedCustomDateType">
     <label class="ddp-label-radio" *ngFor="let date of customDateTypeList"
-           (change)="selectedDate = date.value">
+           (change)="onChangeSelectedDateType(date)">
       <input type="radio" [checked]="selectedDate === date.value">
       <i class="ddp-icon-radio"></i>
       <span class="ddp-txt-radio">{{date.label}}</span>

@@ -23,5 +23,7 @@ export class PeriodData {
   dateType : string;
   endDateStr : string;
   startDateStr : string;
-  type: string;
+  startDate?:Date;
+  endDate?:Date;
+  type?: string;
 }

@@ -18,6 +18,9 @@
     <div class="ddp-ui-option ddp-clear">
       <!-- edit -->
       <component-period
+        [startDateDefault]="defaultDate?.startDate"
+        [endDateDefault]="defaultDate?.endDate"
+        [defaultType]="defaultDate?.type"
         [dateType]="false"
         [roundSecond]="true"
         (changeDate)="onChangeData($event)"
@@ -52,7 +55,7 @@
     </div>
     <!-- //option -->
   </div>
-  <table class="ddp-table-form ddp-table-type3">
+  <table class="ddp-table-form ddp-table-type3" *ngIf="codeTableList.length > 0">
     <colgroup>
       <col width="20%">
       <col width="*">
@@ -94,12 +97,18 @@
     </tr>
     </tbody>
   </table>
-  <div class="ddp-box-add-link" *ngIf="isMoreContents()" (click)="onClickMoreList()">
-    <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+
+  <div class="ddp-data-source-none" *ngIf="codeTableList.length === 0; else yesCt">
+    {{'msg.metadata.ui.no.code.table' | translate}}
   </div>
+  <!-- //데이터 없음 -->
+
+  <ng-template #yesCt>
+    <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+  </ng-template>
 </div>
 <!-- 코드 테이블 생성 컴포넌트 -->
-<app-create-code-table (createComplete)="getCodeTableListPageInit()"></app-create-code-table>
+<app-create-code-table (createComplete)="onCreateComplete()"></app-create-code-table>
 <!-- //코드 테이블 생성 컴포넌트 -->
 <!-- 코드 테이블 삭제 모달 -->
 <app-delete-modal (deleteConfirm)="deleteCodeTable($event)"></app-delete-modal>

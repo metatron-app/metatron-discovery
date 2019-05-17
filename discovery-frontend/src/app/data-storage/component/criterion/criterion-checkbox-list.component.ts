@@ -17,35 +17,34 @@ import { AbstractComponent } from '../../../common/component/abstract.component'
 import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@angular/core';
 import { StringUtil } from '../../../common/util/string.util';
 import * as _ from 'lodash';
-import { CriterionKey, ListCriterion } from '../../../domain/datasource/listCriterion';
-import { ListFilter } from '../../../domain/datasource/listFilter';
 import { ConnectionType, DataSourceType, SourceType, Status } from '../../../domain/datasource/datasource';
+import {Criteria} from "../../../domain/datasource/criteria";
 
 @Component({
   selector: 'criterion-checkbox-component',
-  templateUrl: 'criterion-checkbox.component.html'
+  templateUrl: 'criterion-checkbox-list.component.html'
 })
-export class CriterionCheckboxComponent extends AbstractComponent {
+export class CriterionCheckboxListComponent extends AbstractComponent {
 
   // selected item list
   private _selectedItemList: any = {};
 
-  // default selected item list
-  @Input('defaultSelectedItemList')
-  private _defaultSelectedItemList: any;
+  // default selected item list (Only used first init)
+  @Input()
+  public readonly defaultSelectedItemList: any;
 
   @Output('changedSelectItem')
   private _changeSelectItemEvent: EventEmitter<any> = new EventEmitter();
 
   // criterion list (UI)
-  public criterionList: ListCriterion[] = [];
+  public criterionList: Criteria.ListCriterion[] = [];
 
   // search keyword
   public searchKeyword: string;
 
   // origin criterion
   @Input('criterion')
-  public criterion: ListCriterion;
+  public criterion: Criteria.ListCriterion;
 
   // search place holder
   @Input('searchPlaceHolder')
@@ -55,11 +54,13 @@ export class CriterionCheckboxComponent extends AbstractComponent {
   @Input('enableAllOption')
   public isEnableAllOption: boolean;
 
+
   // constructor
   constructor(protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
   }
+
 
   /**
    * ngAfterViewInit
@@ -68,9 +69,9 @@ export class CriterionCheckboxComponent extends AbstractComponent {
     // set criterion list
     this.criterionList = _.cloneDeep(this.criterion.subCriteria);
     // if exist default selected item list
-    if (this._defaultSelectedItemList) {
+    if (this.defaultSelectedItemList) {
       // set selected item list
-      this._selectedItemList = this._defaultSelectedItemList;
+      this._selectedItemList = this.defaultSelectedItemList;
     }
     // change detect
     this.safelyDetectChanges();
@@ -108,15 +109,15 @@ export class CriterionCheckboxComponent extends AbstractComponent {
    * @param {ListFilter} filter
    * @returns {string}
    */
-  public getTranslateFilterName(filter: ListFilter): string {
+  public getTranslateFilterName(filter: Criteria.ListFilter): string {
     switch (filter.criterionKey) {
-      case CriterionKey.STATUS:
+      case Criteria.ListCriterionKey.STATUS:
         return this._getDatasourceStatusTranslate(filter.filterName);
-      case CriterionKey.DATASOURCE_TYPE:
+      case Criteria.ListCriterionKey.DATASOURCE_TYPE:
         return this._getDataSourceTypeTranslate(filter.filterName);
-      case CriterionKey.SOURCE_TYPE:
+      case Criteria.ListCriterionKey.SOURCE_TYPE:
         return this._getSourceTypeTranslate(filter.filterName);
-      case CriterionKey.CONNECTION_TYPE:
+      case Criteria.ListCriterionKey.CONNECTION_TYPE:
         return this._getConnectionTypeTranslate(filter.filterName);
       default:
         return this.isRequireTranslate(filter.filterName) ? this.translateService.instant(filter.filterName): filter.filterName;
@@ -127,19 +128,18 @@ export class CriterionCheckboxComponent extends AbstractComponent {
    * Item check event
    * @param item
    */
-  public onCheckItem(item: any): void {
+  public onCheckItem(filter: Criteria.ListFilter): void {
     // if checked item
-    if (this.isCheckedItem(item)) {
+    if (this.isCheckedItem(filter)) {
       // remove item in selected item list
-      this._selectedItemList[item.filterKey].splice(this._selectedItemList[item.filterKey].findIndex(list => list.filterValue === item.filterValue),1);
-    } else if (this._selectedItemList[item.filterKey]) {  // if exist item key property in selected item list
+      this._selectedItemList[filter.filterKey].splice(this._selectedItemList[filter.filterKey].findIndex(list => list.filterValue === filter.filterValue), 1);
+    } else {
+      if (!this._selectedItemList[filter.filterKey]) {
+        // add item key property in selected item list
+        this._selectedItemList[filter.filterKey] = [];
+      }
       // add item in selected item list
-      this._selectedItemList[item.filterKey].push(item);
-    } else {  // if not exist item key property in selected item list
-      // add item key property in selected item list
-      this._selectedItemList[item.filterKey] = [];
-      // add item in selected item list
-      this._selectedItemList[item.filterKey].push(item);
+      this._selectedItemList[filter.filterKey].push(filter);
     }
     // change event emit
     this._changeSelectItemEvent.emit(this._selectedItemList);

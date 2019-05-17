@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, ElementRef, Injector, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Injector, ViewChild } from '@angular/core';
 import { AbstractComponent } from '../../common/component/abstract.component';
 import { DatasourceService } from '../../datasource/service/datasource.service';
 import { Datasource, SourceType, Status } from '../../domain/datasource/datasource';
@@ -20,25 +20,19 @@ import { Modal } from '../../common/domain/modal';
 import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
 import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
 import { StringUtil } from '../../common/util/string.util';
-import { CriterionKey, ListCriterion } from '../../domain/datasource/listCriterion';
-import { CriteriaFilter } from '../../domain/datasource/criteriaFilter';
-import { ListFilter } from '../../domain/datasource/listFilter';
+import {ActivatedRoute} from "@angular/router";
+import {CriterionComponent} from "../component/criterion/criterion.component";
+import {Criteria} from "../../domain/datasource/criteria";
 
 @Component({
   selector: 'app-data-source',
   templateUrl: './data-source-list.component.html',
   providers: [MomentDatePipe]
 })
-export class DataSourceListComponent extends AbstractComponent implements OnInit {
+export class DataSourceListComponent extends AbstractComponent {
 
-  // criterion data object
-  private _criterionDataObject: any = {};
-
-  // origin criterion filter list
-  private _originCriterionList: ListCriterion[] = [];
-
-  // origin more criterion filter more list
-  private _originMoreCriterionList: ListCriterion[] = [];
+  @ViewChild(CriterionComponent)
+  private readonly criterionComponent: CriterionComponent;
 
   // 공통 삭제 팝업 모달
   @ViewChild(DeleteModalComponent)
@@ -53,20 +47,12 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   // search
   public searchKeyword: string;
 
-  // datasource filter list (for UI)
-  public datasourceFilterList: ListCriterion[] = [];
-
-  // removed criterion key
-  public removedCriterionKey: CriterionKey;
-
-  // init selected filter list
-  public defaultSelectedFilterList: any = {};
-
   // selected sort
   public selectedContentSort: Order = new Order();
 
   // 생성자
   constructor(private datasourceService: DatasourceService,
+              private activatedRoute: ActivatedRoute,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -77,27 +63,68 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   public ngOnInit() {
     // Init
     super.ngOnInit();
-    // ui 초기화
-    this._initView();
     // loading show
     this.loadingShow();
     // get criterion list
     this.datasourceService.getCriterionListInDatasource()
-      .then((result: CriteriaFilter) => {
-        // set origin criterion list
-        this._originCriterionList = result.criteria;
-        // set datasource filter list
-        this.datasourceFilterList = result.criteria;
-        // set origin more criterion list
-        this._originMoreCriterionList = result.criteria.find(criterion => criterion.criterionKey === CriterionKey.MORE).subCriteria;
-        // if exist default filter in result
-        if (result.defaultFilters) {
-          // set default selected filter list
-          this._setDefaultSelectedFilterList(result.defaultFilters);
-        }
-        // set datasource list
-        this._setDatasourceList();
-      }).catch(reason => this.commonExceptionHandler(reason));
+      .then((result: Criteria.Criterion) => {
+        // init criterion list
+        this.criterionComponent.initCriterionList(result);
+        this.subscriptions.push(this.activatedRoute.queryParams.subscribe(params => {
+          const paramKeys = Object.keys(params);
+          const isExistSearchParams = paramKeys.length > 0;
+          const searchParams = {};
+          // if exist search param in URL
+          if (isExistSearchParams) {
+            paramKeys.forEach((key) => {
+              if (key === 'size') {
+                this.page.size = params['size'];
+              } else if (key === 'page') {
+                this.page.page = params['page'];
+              } else if (key === 'sort') {
+                const sortParam = params['sort'].split(',');
+                this.selectedContentSort.key = sortParam[0];
+                this.selectedContentSort.sort = sortParam[1];
+              } else if (key === 'containsText') {
+                this.searchKeyword = params['containsText'];
+              } else {
+                searchParams[key] = params[key].split(',');
+              }
+            });
+          }
+          // TODO 추후 criterion component로 이동
+          delete searchParams['pseudoParam'];
+          // init criterion search param
+          this.criterionComponent.initSearchParams(searchParams);
+          // set datasource list
+          this._setDatasourceList();
+        }));
+      })
+      .catch(error => this.commonExceptionHandler(error));
+  }
+
+  /**
+   * 페이지를 새로 불러온다.
+   * @param {boolean} isFirstPage
+   */
+  public reloadPage(isFirstPage: boolean = true) {
+    (isFirstPage) && (this.page.page = 0);
+    this.router.navigate(
+      [this.router.url.replace(/\?.*/gi, '')],
+      {queryParams: this._getQueryParams(), replaceUrl: true}
+    ).then();
+  } // function - reloadPage
+
+  /**
+   * More datasource click event
+   */
+  public changePage(data: { page: number, size: number }): void {
+    // if more datasource list
+    if (data) {
+      this.page.page = data.page;
+      this.page.size = data.size;
+      this.reloadPage(false);
+    }
   }
 
   /**
@@ -114,8 +141,8 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
    */
   public createComplete(): void {
     this.changeMode( '' );
-    // set datasource list
-    this._setDatasourceList();
+    // true
+    this.reloadPage();
   }
 
   /**
@@ -129,31 +156,15 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
     this.datasourceService.deleteDatasource(modalData.data)
       .then((result) => {
         Alert.success(this.translateService.instant('msg.storage.alert.dsource.del.success'));
-        // set datasource list
-        this._setDatasourceList();
+
+        if (this.page.page > 0 && this.datasourceList.length === 1) {
+          this.page.page -= 1;
+        }
+
+        // reload
+        this.reloadPage(false);
       })
       .catch(error => this.commonExceptionHandler(error));
-  }
-
-  /**
-   * Remove criterion filter in datasource criterion filter list
-   * @param {ListCriterion} criterion
-   */
-  public removeCriterionFilterInDatasourceFilterList(criterion: ListCriterion): void {
-    // remove criterion in criterion object data
-    delete this._criterionDataObject[criterion.criterionKey];
-    // set removed key
-    this.removedCriterionKey = criterion.criterionKey;
-  }
-
-  /**
-   * Search datasource
-   */
-  public searchDatasource(): void {
-    // 페이지 초기화
-    this.page.page = 0;
-    // set datasource list
-    this._setDatasourceList();
   }
 
   /**
@@ -163,7 +174,6 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   public sortDatasourceList(key: string): void {
     // set selected sort
     this.selectedContentSort.key = key;
-
     if (this.selectedContentSort.key === key) {
       // asc, desc
       switch (this.selectedContentSort.sort) {
@@ -175,8 +185,8 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
           break;
       }
     }
-    // search datasource
-    this.searchDatasource();
+    // reload page
+    this.reloadPage(true);
   }
 
   /**
@@ -200,58 +210,18 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
    */
   public onClickDatasource(sourceId: string): void {
     // open datasource detail
-    this.router.navigate(['/management/storage/datasource', sourceId]);
+    this.router.navigate(['/management/storage/datasource', sourceId]).then();
   }
 
   /**
-   * More datasource click event
+   * Changed filter
+   * @param searchParams
    */
-  public onClickMoreDatasourceList(): void {
-    // if more datasource list
-    if (this.isMoreContents()) {
-      // add page number
-      this.page.page += 1;
-      // set datasource list
-      this._setDatasourceList();
-    }
+  public onChangedFilter(searchParams): void {
+    // reload page
+    this.reloadPage(true);
   }
 
-  /**
-   * Criteria filter change event
-   * @param {{label: CriterionKey; value: any}} criteriaObject
-   */
-  public onChangedCriteriaFilter(criteriaObject: {label: CriterionKey, value: any}): void {
-    // if changed criteria filter key is MORE
-    if (criteriaObject.label === CriterionKey.MORE) {
-      // selected criterion filters
-      Object.keys(criteriaObject.value).forEach((key) => {
-        // if not exist criterion in selected criterion filters
-        if (criteriaObject.value[key].length === 0) {
-          // loop
-          this.datasourceFilterList.forEach((criterion, index, array) => {
-            // if exist criterion in filter list
-            if (criterion.criterionKey.toString() === key) {
-              // remove criterion in criterion object data
-              delete this._criterionDataObject[key];
-              // remove filter
-              array.splice(index, 1);
-              // search datasource
-              this.searchDatasource();
-            }
-          });
-        } else if (this.datasourceFilterList.every(criterion => criterion.criterionKey.toString() !== key)){ // if not exist criterion in filter list
-          // add filter
-          this.datasourceFilterList.push(this._originMoreCriterionList.find(originCriterion => originCriterion.criterionKey.toString() === key));
-          // init removed key
-          this.removedCriterionKey && (this.removedCriterionKey = null);
-        }
-      });
-    } else {
-      this._criterionDataObject[criteriaObject.label] = criteriaObject.value;
-      // search datasource
-      this.searchDatasource();
-    }
-  }
 
   /**
    * Search connection keypress event
@@ -260,8 +230,8 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   public onChangedSearchKeyword(keyword: string): void {
     // set search keyword
     this.searchKeyword = keyword;
-    // search
-    this.searchDatasource();
+    // reload page
+    this.reloadPage(true);
   }
 
   /**
@@ -337,20 +307,11 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   }
 
   /**
-   * Is criterion in origin more criterion list
-   * @param {ListCriterion} criterion
-   * @returns {boolean}
-   */
-  public isAdvancedCriterion(criterion: ListCriterion): boolean {
-    return -1 !== this._findCriterionIndexInCriterionList(this._originMoreCriterionList, criterion);
-  }
-
-  /**
    * criterion api function
    * @param criterionKey
-   * @returns {Promise<ListCriterion>}
+   * @return {Promise<any>}
    */
-  public criterionApiFunc(criterionKey: any): Promise<ListCriterion> {
+  public criterionApiFunc(criterionKey: any) {
     // require injector in constructor
     return this.injector.get(DatasourceService).getCriterionInDatasource(criterionKey);
   }
@@ -367,13 +328,8 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
       .then((result) => {
         // set page result
         this.pageResult = result['page'];
-        // if page number is 0
-        if (this.page.page === 0) {
-          // init datasource list
-          this.datasourceList = [];
-        }
         // set datasource list
-        this.datasourceList = result['_embedded'] ? this.datasourceList.concat(result['_embedded'].datasources) : [];
+        this.datasourceList = result['_embedded'] ? result['_embedded'].datasources : [];
         // loading hide
         this.loadingHide();
       })
@@ -381,40 +337,23 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   }
 
   /**
-   * Init UI
+   * Get search query params
+   * @return {{size: number; page: number; sort: string}}
    * @private
    */
-  private _initView(): void {
-    // init page
-    this.page.page = 0;
-    this.page.size = 20;
-  }
-
-  /**
-   * Get datasource params
-   * @returns {Object}
-   * @private
-   */
-  private _getDatasourceParams(): object {
-    // params
-    const params = {};
-    // criterion filter list
-    Object.keys(this._criterionDataObject).forEach((key: any) => {
-      // key loop
-      Object.keys(this._criterionDataObject[key]).forEach((criterionKey) => {
-        if (this._criterionDataObject[key][criterionKey].length !== 0) {
-          // if CREATED_TIME, MODIFIED_TIME
-          if ((key === CriterionKey.CREATED_TIME || key === CriterionKey.MODIFIED_TIME)) {
-            // if not ALL, set value
-            criterionKey !== 'ALL' && this._criterionDataObject[key][criterionKey].forEach(item => params[item.filterKey] = item.filterValue);
-          } else {
-            // set key
-            params[criterionKey] = [];
-            // set value
-            this._criterionDataObject[key][criterionKey].forEach(item => params[criterionKey].push(item.filterValue));
-          }
-        }
-      });
+  private _getQueryParams() {
+    const params = {
+      page: this.page.page,
+      size: this.page.size,
+      pseudoParam : (new Date()).getTime(),
+      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort
+    };
+    const searchParams = this.criterionComponent.getUrlQueryParams();
+    // set criterion
+    searchParams && Object.keys(searchParams).forEach((key) => {
+      if (searchParams[key].length > 0) {
+        params[key] = searchParams[key].join(',');
+      }
     });
     // if search keyword not empty
     if (StringUtil.isNotEmpty(this.searchKeyword)) {
@@ -424,52 +363,18 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   }
 
   /**
-   * Find criterion index in criterion list
-   * @param {ListCriterion[]} criterionList
-   * @param {ListCriterion} criterion
-   * @returns {number}
+   * Get datasource params
+   * @returns {Object}
    * @private
    */
-  private _findCriterionIndexInCriterionList(criterionList: ListCriterion[], criterion: ListCriterion): number {
-    return criterionList.findIndex(item => item.criterionKey === criterion.criterionKey);
-  }
-
-  /**
-   * Set default selected filter list
-   * @param {ListFilter[]} defaultFilters
-   * @private
-   */
-  private _setDefaultSelectedFilterList(defaultFilters: ListFilter[]): void {
-    // set criterion data object
-    defaultFilters.forEach(filter => this._setCriterionDataObjectProperty(filter));
-    // set default selected filter list
-    this.defaultSelectedFilterList = this._criterionDataObject;
-  }
-
-  /**
-   * Set criterion data object property
-   * @param {ListFilter} filter
-   * @private
-   */
-  private _setCriterionDataObjectProperty(filter: ListFilter): void {
-    // if exist criterion in criterion data object
-    if (this._criterionDataObject[filter.criterionKey]) {
-      // if exist filterKey in criterion
-      if (this._criterionDataObject[filter.criterionKey][filter.filterKey]) {
-        // set criterion data object
-        this._criterionDataObject[filter.criterionKey][filter.filterKey].push(filter);
-      } else { // if not exist filterKey in criterion
-        // set criterion data object
-        this._criterionDataObject[filter.criterionKey][filter.filterKey] = [filter];
-      }
-      // set criterion data object
-      this._criterionDataObject[filter.criterionKey][filter.filterKey].push(filter);
-    } else {  // if not exist criterion in criterion data object
-      // create object
-      this._criterionDataObject[filter.criterionKey] = {};
-      // set criterion data object
-      this._criterionDataObject[filter.criterionKey][filter.filterKey] = [filter];
+  private _getDatasourceParams(): object {
+    // params
+    const params = this.criterionComponent.getSearchParams();
+    // if search keyword not empty
+    if (StringUtil.isNotEmpty(this.searchKeyword)) {
+      params['containsText'] = this.searchKeyword.trim();
     }
+    return params;
   }
 }
 

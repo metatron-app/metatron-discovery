@@ -22,7 +22,7 @@
           <span class="ddp-txt-checkbox">{{timeType.label}}</span>
         </label>
         <!-- dateinfo -->
-        <div class="ddp-wrap-dateinfo" *ngIf="isEnableFromToOption && timeType.value === 'BETWEEN' && selectedTimeType.value === 'BETWEEN'">
+        <div class="ddp-wrap-dateinfo" *ngIf="isEnableFromToOption && timeType.value === DATE_TYPE.BETWEEN && selectedTimeType.value === DATE_TYPE.BETWEEN">
           <div class="ddp-ui-dateinfo">
             <span class="ddp-txt-date">{{'msg.storage.ui.criterion.time.from' | translate}}</span>
             <div class="ddp-box-dateinfo ddp-clear">

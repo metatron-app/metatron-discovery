@@ -43,18 +43,16 @@ import {DashboardUtil} from '../../dashboard/util/dashboard.util';
 import {GeoBoundaryFormat, GeoField, GeoHashFormat} from '../../domain/workbook/configurations/field/geo-field';
 import {UIMapOption} from '../../common/component/chart/option/ui-option/map/ui-map-chart';
 import {ChartUtil} from '../../common/component/chart/option/util/chart-util';
-import {CriterionKey, ListCriterion} from '../../domain/datasource/listCriterion';
 import {CommonConstant} from "../../common/constant/common.constant";
-import {CriteriaFilter} from '../../domain/datasource/criteriaFilter';
 import {UITileLayer} from '../../common/component/chart/option/ui-option/map/ui-tile-layer';
 import {MapLayerType} from '../../common/component/chart/option/define/map/map-common';
 import {Pivot} from "../../domain/workbook/configurations/pivot";
 import {TimezoneService} from "../../data-storage/service/timezone.service";
 import {Shelf} from "../../domain/workbook/configurations/shelf/shelf";
-import {TypeFilterObject} from "../../data-storage/service/data-source-create.service";
 import {RegExprFilter} from "../../domain/workbook/configurations/filter/reg-expr-filter";
 import {SpatialFilter} from "../../domain/workbook/configurations/filter/spatial-filter";
 import {TranslateService} from "@ngx-translate/core";
+import {Criteria} from "../../domain/datasource/criteria";
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -1051,20 +1049,21 @@ export class DatasourceService extends AbstractService {
     }
   }
 
+
   /**
    * Get criterion list in datasource
-   * @returns {Promise<CriteriaFilter>}
+   * @return {Promise<any>}
    */
-  public getCriterionListInDatasource(): Promise<CriteriaFilter> {
+  public getCriterionListInDatasource() {
     return this.get(this.API_URL + 'datasources/criteria');
   }
 
   /**
-   * Get criterion in datasource
-   * @param {CriterionKey} criterionKey
-   * @returns {Promise<ListCriterion>}
+   *  Get criterion in datasource
+   * @param {Criteria.ListCriterionKey} criterionKey
+   * @return {Promise<any>}
    */
-  public getCriterionInDatasource(criterionKey: CriterionKey): Promise<ListCriterion> {
+  public getCriterionInDatasource(criterionKey: Criteria.ListCriterionKey) {
     return this.get(this.API_URL + `datasources/criteria/${criterionKey}`);
   }
 
