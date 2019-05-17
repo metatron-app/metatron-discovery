@@ -66,8 +66,6 @@ export class SharedMemberComponent extends AbstractComponent implements OnInit, 
   // 워크스페이스 정보
   public workspace: Workspace;
 
-  // 컴포넌트 Top 위치 ( 스크롤에 따른 위치 보정 )
-  public compTopPosition:number = 0;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Component
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -107,9 +105,6 @@ export class SharedMemberComponent extends AbstractComponent implements OnInit, 
 
     // 초기 hidden 처리
     this.renderer.setStyle(document.body, 'overflow', 'hidden');
-
-    // 컴포넌트 Top 위치 설정
-    this.compTopPosition = 186 - $(document).scrollTop();
 
     // 초기화
     this._reset();

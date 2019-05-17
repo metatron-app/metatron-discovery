@@ -14,7 +14,7 @@
 
 import { AbstractComponent } from '../../../common/component/abstract.component';
 import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, Renderer2 } from '@angular/core';
-import { ConnectionType, Datasource } from '../../../domain/datasource/datasource';
+import {ConnectionType, Datasource, Status} from '../../../domain/datasource/datasource';
 import { WorkspaceService } from '../../service/workspace.service';
 import { Page } from '../../../domain/common/page';
 import { Alert } from '../../../common/util/alert.util';
@@ -74,8 +74,7 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
   // Page
   public page: Page = new Page();
 
-  // 컴포넌트 Top 위치 ( 스크롤에 따른 위치 보정 )
-  public compTopPosition:number = 0;
+  public dsStatus = Status;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Component
@@ -117,9 +116,6 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
 
     // 초기 hidden 처리
     this.renderer.setStyle(document.body, 'overflow', 'hidden');
-
-    // 컴포넌트 Top 위치 설정
-    this.compTopPosition = 186 - $(document).scrollTop();
 
     // 초기화
     this.initViewPage();
@@ -184,8 +180,6 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
   public searchDatasourceEvent(event: KeyboardEvent) {
     ( 13 === event.keyCode ) && (this.searchEvent(true));
   }
-
-
 
   // public 토글 버튼
   public togglePublished() {
@@ -338,11 +332,11 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
         connType: 'all'
       },
       {
-        label: this.translateService.instant('msg.comm.ui.list.ds.type.engine'),
+        label: this.translateService.instant('msg.comm.ui.ds.engine'),
         connType: ConnectionType.ENGINE.toString()
       },
       {
-        label: this.translateService.instant('msg.comm.ui.list.ds.type.link'),
+        label: this.translateService.instant('msg.comm.ui.ds.link'),
         connType: ConnectionType.LINK.toString()
       }
     ];

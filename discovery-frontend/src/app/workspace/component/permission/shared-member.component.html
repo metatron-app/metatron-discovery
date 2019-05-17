@@ -13,7 +13,7 @@
   -->
 
 <!-- tab info popup -->
-<div class="ddp-wrap-tab-popup" *ngIf="isShow" [ngStyle]="{'top' : compTopPosition + 'px' }">
+<div class="ddp-wrap-tab-popup" *ngIf="isShow">
   <div class="ddp-ui-tab-popup">
     <div class="ddp-ui-title">
       {{'msg.space.ui.shared.member.title' | translate}}
@@ -32,13 +32,7 @@
       <div class="ddp-ui-left">
         <!-- share member -->
         <div class="ddp-ui-member-table" >
-
-          <div *ngIf="!isGuest" class="ddp-ui-toptitle">
-            <span class="ddp-ui-name">{{'msg.space.ui.shared.member' | translate}}
-              <em class="ddp-data-num">{{totalUser}}</em>
-            </span>
-          </div>
-          <div *ngIf="!isGuest" class="ddp-box-viewtable2">
+          <div *ngIf="!isGuest" class="ddp-box-viewtable2" style="top:0px">
             <!-- head -->
             <div class="ddp-ui-gridhead2">
               <table class="ddp-table-form2">
@@ -96,13 +90,7 @@
 
         <!-- share member -->
         <div class="ddp-ui-member-table" >
-
-          <div *ngIf="!isGuest" class="ddp-ui-toptitle">
-            <span class="ddp-ui-name">{{'msg.space.ui.shared.group' | translate}}
-              <em class="ddp-data-num">{{totalGroup}}</em>
-            </span>
-          </div>
-          <div *ngIf="!isGuest" class="ddp-box-viewtable2">
+          <div *ngIf="!isGuest" class="ddp-box-viewtable2" style="top:0px">
             <!-- head -->
             <div class="ddp-ui-gridhead2">
               <table class="ddp-table-form2">
@@ -158,9 +146,7 @@
     </div>
     <!-- //box -->
     <div class="ddp-popup-tabbottom">
-      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="close(false)">
-        {{'msg.comm.btn.close' | translate}}
-      </a>
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="close(false)"> {{'msg.comm.btn.close' | translate}} </a>
     </div>
   </div>
 </div>
