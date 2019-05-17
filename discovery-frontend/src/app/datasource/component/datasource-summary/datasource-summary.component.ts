@@ -16,7 +16,7 @@ import {
   Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output
 } from '@angular/core';
 import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Datasource, FieldFormatType, FieldRole } from '../../../domain/datasource/datasource';
+import {Datasource, FieldFormatType, FieldRole, Status} from '../../../domain/datasource/datasource';
 import { DatasourceService } from '../../service/datasource.service';
 import { MomentDatePipe } from '../../../common/pipe/moment.date.pipe';
 import { MetadataService } from '../../../meta-data-management/metadata/service/metadata.service';
@@ -53,7 +53,6 @@ export class DatasourceSummaryComponent extends AbstractComponent implements OnI
   @Input()
   public showMetadataName: boolean = true;
 
-
   // 변경 이벤트
   @Output('close')
   public closeEvent = new EventEmitter();
@@ -63,6 +62,7 @@ export class DatasourceSummaryComponent extends AbstractComponent implements OnI
 
   public hasHeader: boolean = true;
   public isShowDataPreview: boolean = false;
+  public isEnabled: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -73,7 +73,6 @@ export class DatasourceSummaryComponent extends AbstractComponent implements OnI
               private metadataService: MetadataService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
-
     super(elementRef, injector);
   }
 
@@ -83,21 +82,18 @@ export class DatasourceSummaryComponent extends AbstractComponent implements OnI
 
   // Init
   ngOnInit() {
-
-    // Init
     super.ngOnInit();
   }
 
-  // Destory
+  // Destroy
   ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
 
   @Input('datasource')
   public set setDatasource(datasourceId: string) {
@@ -110,6 +106,7 @@ export class DatasourceSummaryComponent extends AbstractComponent implements OnI
       this.datasourceService.getDatasourceSummary(this.datasourceId)
         .then((datasource) => {
           this.datasource = datasource;
+          this.isEnabled = Status.ENABLED === datasource.status;
           // field loop
           this.datasource.fields.forEach((field, index, object) => {
             //  if current time in fields, hide

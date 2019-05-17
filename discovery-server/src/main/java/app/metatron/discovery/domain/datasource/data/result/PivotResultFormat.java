@@ -364,9 +364,15 @@ public class PivotResultFormat extends SearchResultFormat {
           for (String parameterName : parameterNames) {
             List<List<Double>> paramValues = result.get(parameterName);
             JsonNode paramNode = itemNode.get(parameterName);
-            paramValues.get(0).add(paramNode.get(0).asDouble());
-            paramValues.get(1).add(paramNode.get(1).asDouble());
-            paramValues.get(2).add(paramNode.get(2).asDouble());
+            if (paramNode == null) {
+              paramValues.get(0).add(0.0);
+              paramValues.get(1).add(0.0);
+              paramValues.get(2).add(0.0);
+            } else {
+              paramValues.get(0).add(paramNode.get(0).asDouble());
+              paramValues.get(1).add(paramNode.get(1).asDouble());
+              paramValues.get(2).add(paramNode.get(2).asDouble());
+            }
           }
 
           // 파라미터 정보 가져오기

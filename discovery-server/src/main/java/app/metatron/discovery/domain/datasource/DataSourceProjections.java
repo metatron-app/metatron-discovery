@@ -28,7 +28,7 @@ import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
 import app.metatron.discovery.domain.user.UserProfile;
 
 /**
- * Created by kyungtaak on 2017. 1. 18..
+ *
  */
 public class DataSourceProjections extends BaseProjections {
 
@@ -130,6 +130,8 @@ public class DataSourceProjections extends BaseProjections {
     DataSource.ConnectionType getConnType();
 
     Boolean getPublished();
+
+    DataSource.Status getStatus();
 
     Integer getLinkedWorkspaces();
 
