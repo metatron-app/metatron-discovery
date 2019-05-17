@@ -17,8 +17,8 @@ import {AbstractService} from '../../common/service/abstract.service';
 import {CommonUtil} from '../../common/util/common.util';
 import {Page} from '../../domain/common/page';
 import {isNullOrUndefined} from "util";
-import { CriterionKey, ListCriterion } from '../../domain/datasource/listCriterion';
-import { CriteriaFilter } from '../../domain/datasource/criteriaFilter';
+import {CriterionKey, ListCriterion} from '../../domain/datasource/listCriterion';
+import {CriteriaFilter} from '../../domain/datasource/criteriaFilter';
 import {Observable} from "rxjs/Observable";
 
 @Injectable()
@@ -327,7 +327,8 @@ export class DataconnectionService extends AbstractService {
    * @returns {Promise<any>}
    */
   public isStrictModeForStagingDB(): Promise<any> {
-    return this.get(this.URL_CONNECTIONS + '/query/hive/strict');
+    //return this.get(this.URL_CONNECTIONS + '/query/hive/strict');
+    return this.get(this.URL_CONNECTIONS + '/query/hive/partitions/enable');
   }
 
   /**
