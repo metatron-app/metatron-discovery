@@ -2212,7 +2212,8 @@
   "msg.storage.ui.file.uploading": "파일을 업로드 중입니다. 조금만 기다려주세요.",
   "msg.storage.ui.file.failed": "파일 업로드가 실패하였습니다. 다시 파일을 등록해주세요.",
   "msg.storage.ui.file.canceled": "파일 업로드를 취소하였습니다. 다시 파일을 등록해주세요.",
-  "msg.storage.ui.ingestion.failed": "적재 실패",
+  "msg.storage.ui.ds.failed": "Ingestion Failed",
+  "msg.storage.ui.ds.disabled": " Temporary Disabled",
 
   "msg.storage.ui.timezone.country.zimbabwe": "짐바브웨",
   "msg.storage.ui.timezone.country.zambia": "잠비아",
