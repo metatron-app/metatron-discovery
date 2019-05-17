@@ -23,12 +23,12 @@
     </div>
   </div>
   <!-- contents in  -->
-  <schema-configure-main></schema-configure-main>
+  <schema-configure-main [connType]="sourceData.connType"></schema-configure-main>
   <!-- //contents in  -->
   <!-- buttons -->
   <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="onClickPageChange('prev')">{{'msg.comm.btn.previous' | translate}}</a>
-    <a href="javascript:" class="ddp-btn-type-popup  ddp-bg-black" (click)="onClickPageChange('next')">{{'msg.comm.btn.next' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup"  (click)="onClickPrev()">{{'msg.comm.btn.previous' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup  ddp-bg-black" (click)="onClickNext()">{{'msg.comm.btn.next' | translate}}</a>
   </div>
   <!-- //buttons -->
 </div>

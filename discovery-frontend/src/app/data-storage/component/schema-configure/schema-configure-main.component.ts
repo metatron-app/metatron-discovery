@@ -1,13 +1,27 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import {AbstractComponent} from "../../../common/component/abstract.component";
-import {Component, ElementRef, Injector, ViewChild} from "@angular/core";
+import {Component, ElementRef, Injector, Input, ViewChild} from "@angular/core";
 import {ConstantService} from "../../../shared/datasource-metadata/service/constant.service";
-import {EventBroadcaster} from "../../../common/event/event.broadcaster";
 import {SchemaConfigureFilterComponent} from "./schema-configure-filter.component";
 import {SchemaConfigureFieldComponent} from "./schema-configure-field.component";
 import {Filter} from "../../../shared/datasource-metadata/domain/filter";
 import {SchemaConfigureTimestampComponent} from "./schema-configure-timestamp.component";
 import {DataStorageConstant} from "../../constant/data-storage-constant";
 import {Alert} from "../../../common/util/alert.util";
+import {ConnectionType} from "../../../domain/datasource/datasource";
 
 @Component({
   selector: 'schema-configure-main',
@@ -29,9 +43,11 @@ export class SchemaConfigureMainComponent extends AbstractComponent {
   @ViewChild(SchemaConfigureTimestampComponent)
   private readonly _timestampComponent: SchemaConfigureTimestampComponent;
 
+  @Input()
+  public connType: ConnectionType;
+
 
   constructor(private constant: ConstantService,
-              private broadCaster: EventBroadcaster,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -49,6 +65,8 @@ export class SchemaConfigureMainComponent extends AbstractComponent {
     // init field list
     this._fieldComponent.initField(fieldList);
     this._fieldComponent.initDataList(dataList);
+    // init timestamp
+    this._fieldComponent.initTimeFormatInTimestampFieldList();
     // ready
     this._fieldComponent.ready();
   }

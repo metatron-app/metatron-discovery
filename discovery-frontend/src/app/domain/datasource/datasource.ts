@@ -219,6 +219,10 @@ export class Field {
     delete this.useChart;
   }
 
+  removeIngestionRule?() {
+    delete this.ingestionRule;
+  }
+
   // TODO 추후 Type.Logical으로 변경시 제거 필요
   setLogicalType?(type) {
     this.logicalType = type;
@@ -252,6 +256,10 @@ export class Field {
     return field.role === FieldRole.MEASURE;
   }
 
+  public static isTimestampField(field): boolean {
+    return field.role === FieldRole.TIMESTAMP;
+  }
+
   public static isCheckedField(field): boolean {
     return field.checked === true;
   }
@@ -264,8 +272,25 @@ export class Field {
     return field.derived === true;
   }
 
-  public static isGeoField(field): boolean {
+  public static isGeoType(field): boolean {
     return field.logicalType === LogicalType.GEO_LINE || field.logicalType === LogicalType.GEO_POINT || field.logicalType === LogicalType.GEO_POLYGON;
+  }
+
+  public static isStringBaseType(field): boolean {
+    return field.type === Type.Logical.STRING;
+  }
+
+  public static isExpressionField(field): boolean {
+    return this.isCreatedField(field) && field.logicalType === LogicalType.STRING;
+  }
+
+
+  public static isEmptyFormat(field): boolean {
+    return isNullOrUndefined(field.format);
+  }
+
+  public static isEmptyIngestionRule(field): boolean {
+    return isNullOrUndefined(field.ingestionRule);
   }
 
   public static getSlicedColumnName?(field: Field): string {
@@ -413,9 +438,30 @@ export class IngestionRule {
   // value
   public value: string;
 
+  // Only use UI
+  public isValidReplaceValue: boolean;
+  public replaceValidationMessage: string;
+
   // constructor
   constructor() {
     this.type = IngestionRuleType.DEFAULT;
+  }
+
+  initType() {
+    this.type = IngestionRuleType.DEFAULT;
+  }
+
+  removeUIProperties() {
+    delete this.isValidReplaceValue;
+    delete this.replaceValidationMessage;
+  }
+
+  isDefaultType() {
+    return this.type === IngestionRuleType.DEFAULT;
+  }
+
+  isReplaceType() {
+    return this.type === IngestionRuleType.REPLACE;
   }
 }
 
@@ -613,6 +659,18 @@ export class FieldFormat {
     delete this.isShowTimestampValidPopup;
   }
 
+  isDateTime() {
+    return this.type === FieldFormatType.DATE_TIME;
+  }
+
+  isEnableTimezone() {
+    return this.format.toUpperCase().indexOf('H') !== -1;
+  }
+
+  isEmptyFormat() {
+    return isNullOrUndefined(this.format);
+  }
+
   constructor() {
     this.type = FieldFormatType.DATE_TIME;
     // TODO 타임스탬프 개선시 제거
@@ -643,6 +701,23 @@ export class FieldFormat {
     }
     return resultFieldFormat;
   }
+
+  public changeType(format: string): void {
+    if (this.type === FieldFormatType.DATE_TIME) {
+      this.removeDateTypeProperties();
+      this.disableTimezone();
+      this.unitInitialize();
+      this.removeUIProperties();
+      // TODO
+      this.isValidFormat = true;
+      this.type = FieldFormatType.UNIX_TIME;
+    } else if (this.type === FieldFormatType.UNIX_TIME) {
+      this.removeUnixTypeProperties();
+      this.format;
+      this.formatValidMessage;
+      this.type = FieldFormatType.DATE_TIME;
+    }
+  }
 }
 
 export enum FieldFormatType {
@@ -662,8 +737,8 @@ export enum FieldFormatUnit {
 }
 
 export enum IngestionRuleType {
-  DISCARD = <any>'discard',
-  REPLACE = <any>'replace',
+  DISCARD = 'discard',
+  REPLACE = 'replace',
   // only used in UI
-  DEFAULT = <any>'default'
+  DEFAULT = 'default'
 }

@@ -1,3 +1,17 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import {Component, ElementRef, HostListener, Injector, Input, OnChanges, SimpleChanges, ViewChild} from "@angular/core";
 import {ConstantService} from "../../../shared/datasource-metadata/service/constant.service";
 import {EventBroadcaster} from "../../../common/event/event.broadcaster";
@@ -20,7 +34,6 @@ import {Filter} from "../../../shared/datasource-metadata/domain/filter";
 import {FieldConfigService} from "../../service/field-config.service";
 import {StringUtil} from "../../../common/util/string.util";
 import {DatasourceService} from "../../../datasource/service/datasource.service";
-import {SchemaConfigDataPreviewComponent} from "../schema-config/schema-config-data-preview.component";
 import {TimeZoneObject, TimezoneService} from "../../service/timezone.service";
 
 declare const moment;
@@ -30,9 +43,6 @@ declare const moment;
   templateUrl: 'schema-configure-field-detail.component.html'
 })
 export class SchemaConfigureFieldDetailComponent extends AbstractComponent implements OnChanges {
-
-  @ViewChild(SchemaConfigDataPreviewComponent)
-  private readonly _previewComponent: SchemaConfigDataPreviewComponent;
 
   @ViewChild('geoCoordinateSelectBox')
   private readonly _geoCoordinateSelectBox: StorageFilterSelectBoxComponent;
@@ -160,15 +170,15 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
   }
 
   public isTimestampField(): boolean {
-    return this._selectedTimestampType === DataStorageConstant.Datasource.TimestampType.FIELD && Field.isDimensionField(this.selectedField) && this.isTimestampTypeField() && this.selectedField.name === this._selectedTimestampField.name;
-  }
-
-  public isTimestampFormatError(field): boolean {
-    return this.isTimestampTypeField() && (!this.isEmptyFormat() && field.format.type === FieldFormatType.DATE_TIME) && this.isFormatError();
+    return this._selectedTimestampType === DataStorageConstant.Datasource.TimestampType.FIELD && Field.isDimensionField(this.selectedField) && this.isTimestampTypeField() && !this.isEmptySelectedTimestampField() && this.selectedField.name === this._selectedTimestampField.name;
   }
 
   public isGeoFormatError(): boolean {
     return this.isGeoField() && !this.isEmptyFormat() && this.isFormatError();
+  }
+
+  public isEmptySelectedTimestampField() {
+    return _.isNil(this._selectedTimestampField);
   }
 
   public isEmptyFormat(): boolean {
@@ -463,7 +473,7 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
    * Init ingestion rule replace valid in field
    */
   public initIngestionRuleReplaceValid(): void {
-    delete this.selectedField.isValidReplaceValue;
+    delete this.selectedField.ingestionRule.isValidReplaceValue;
   }
 
   public removeField(): void {
@@ -495,16 +505,16 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
   public ingestionRuleValidation(): void {
     // if empty replace value
     if (StringUtil.isEmpty(this.selectedField.ingestionRule.value)) {
-      this.selectedField.isValidReplaceValue = true;
+      this.selectedField.ingestionRule.isValidReplaceValue = true;
       return;
     }
     // 타입으로 검사
     switch (this.selectedField.logicalType) {
       case LogicalType.BOOLEAN:
-        this.selectedField.isValidReplaceValue = this.selectedField.ingestionRule.value.toLowerCase() === 'false' || this.selectedField.ingestionRule.value.toLowerCase() === 'true';
+        this.selectedField.ingestionRule.isValidReplaceValue = this.selectedField.ingestionRule.value.toLowerCase() === 'false' || this.selectedField.ingestionRule.value.toLowerCase() === 'true';
         // validation fail
-        if (!this.selectedField.isValidReplaceValue) {
-          this.selectedField.replaceValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.boolean');
+        if (!this.selectedField.ingestionRule.isValidReplaceValue) {
+          this.selectedField.ingestionRule.replaceValidationMessage = this.translateService.instant('msg.storage.ui.schema.valid.boolean');
         }
         break;
       case LogicalType.TEXT:
@@ -512,13 +522,13 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
       case LogicalType.GEO_POINT:
       case LogicalType.GEO_LINE:
       case LogicalType.GEO_POLYGON:
-        this.selectedField.isValidReplaceValue = true;
+        this.selectedField.ingestionRule.isValidReplaceValue = true;
         break;
       case LogicalType.TIMESTAMP:
         // if not pass format validation
         if (!this.selectedField.format.isValidFormat) {
-          this.selectedField.replaceValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.timestamp.pre.valid');
-          this.selectedField.isValidReplaceValue = false;
+          this.selectedField.ingestionRule.replaceValidationMessage = this.translateService.instant('msg.storage.ui.schema.valid.timestamp.pre.valid');
+          this.selectedField.ingestionRule.isValidReplaceValue = false;
           return;
         }
         // params
@@ -537,34 +547,34 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
             // 로딩 hide
             this.loadingHide();
             if (result.valid) {
-              this.selectedField.isValidReplaceValue = true;
+              this.selectedField.ingestionRule.isValidReplaceValue = true;
             } else {
-              this.selectedField.isValidReplaceValue = false;
-              this.selectedField.replaceValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.timestamp');
+              this.selectedField.ingestionRule.isValidReplaceValue = false;
+              this.selectedField.ingestionRule.replaceValidationMessage = this.translateService.instant('msg.storage.ui.schema.valid.timestamp');
             }
           })
           .catch((error) => {
             // 로딩 hide
             this.loadingHide();
-            this.selectedField.isValidReplaceValue = false;
-            this.selectedField.replaceValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.timestamp');
+            this.selectedField.ingestionRule.isValidReplaceValue = false;
+            this.selectedField.ingestionRule.replaceValidationMessage = this.translateService.instant('msg.storage.ui.schema.valid.timestamp');
           });
         break;
       case LogicalType.INTEGER:
-        this.selectedField.isValidReplaceValue = (/^[0-9]*$/g).test(this.selectedField.ingestionRule.value);
+        this.selectedField.ingestionRule.isValidReplaceValue = (/^[0-9]*$/g).test(this.selectedField.ingestionRule.value);
         // validation fail
-        if (!this.selectedField.isValidReplaceValue) {
-          this.selectedField.replaceValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.integer');
+        if (!this.selectedField.ingestionRule.isValidReplaceValue) {
+          this.selectedField.ingestionRule.replaceValidationMessage = this.translateService.instant('msg.storage.ui.schema.valid.integer');
         }
         break;
       case LogicalType.DOUBLE:
       case LogicalType.FLOAT:
       case LogicalType.LNT:
       case LogicalType.LNG:
-        this.selectedField.isValidReplaceValue = (/^[0-9]+([.][0-9]+)$/g).test(this.selectedField.ingestionRule.value);
+        this.selectedField.ingestionRule.isValidReplaceValue = (/^[0-9]+([.][0-9]+)$/g).test(this.selectedField.ingestionRule.value);
         // validation fail
-        if (!this.selectedField.isValidReplaceValue) {
-          this.selectedField.replaceValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.decimal');
+        if (!this.selectedField.ingestionRule.isValidReplaceValue) {
+          this.selectedField.ingestionRule.replaceValidationMessage = this.translateService.instant('msg.storage.ui.schema.valid.decimal');
         }
         break;
       default:

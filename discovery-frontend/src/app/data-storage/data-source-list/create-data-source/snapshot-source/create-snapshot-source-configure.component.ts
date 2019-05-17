@@ -16,9 +16,9 @@ import {
   Component, ElementRef, EventEmitter, Injector, Input,
   Output, ViewChild
 } from '@angular/core';
-import {SchemaConfigComponent} from "../../../component/schema-config/schema-config.component";
 import {AbstractPopupComponent} from "../../../../common/component/abstract-popup.component";
-import {DatasourceInfo} from "../../../../domain/datasource/datasource";
+import {DatasourceInfo, FieldFormatType} from "../../../../domain/datasource/datasource";
+import {SchemaConfigureMainComponent} from "../../../component/schema-configure/schema-configure-main.component";
 
 /**
  * Creating datasource with Snapshot - configure step
@@ -29,8 +29,8 @@ import {DatasourceInfo} from "../../../../domain/datasource/datasource";
 })
 export class CreateSnapshotSourceConfigureComponent extends AbstractPopupComponent {
 
-  @ViewChild(SchemaConfigComponent)
-  private _schemaConfigComponent: SchemaConfigComponent;
+  @ViewChild(SchemaConfigureMainComponent)
+  private readonly _schemaConfigureMainComponent: SchemaConfigureMainComponent;
 
   // 생성될 데이터소스 정보
   @Input('sourceData')
@@ -48,20 +48,50 @@ export class CreateSnapshotSourceConfigureComponent extends AbstractPopupCompone
     super(element, injector);
   }
 
-  /**
-   * Step change click event
-   * @param {string} route
-   */
-  public onClickPageChange(route: string): void {
-    route === 'prev' ? this._schemaConfigComponent.onClickPrev() : this._schemaConfigComponent.onClickNext();
+  ngOnInit() {
+    super.ngOnInit();
+    if (this.sourceData.schemaData) {
+      this._schemaConfigureMainComponent.initLoadedConfigureData(this.sourceData.schemaData);
+    } else {
+      this._schemaConfigureMainComponent.init(this.sourceData.fieldList, this.sourceData.fieldData);
+    }
   }
 
-  /**
-   * Changed step
-   * @param {string} route
-   */
-  public onChangedStep(route: string): void {
-    this._step = route === 'prev' ? 'snapshot-select' : 'snapshot-ingestion';
+  public onClickPrev() {
+    this._saveSchemaConfigureData();
+    this._step = 'snapshot-select';
     this._stepChange.emit(this._step);
+  }
+
+  public onClickNext() {
+    if (this._isEnableNext()) {
+      this._saveSchemaConfigureData();
+      this._step = 'snapshot-ingestion';
+      this._stepChange.emit(this._step);
+    }
+  }
+
+  private _isEnableNext(): boolean {
+    return this._schemaConfigureMainComponent.isExistFieldError();
+  }
+
+  private _isChangedTimestamp(configureData): boolean {
+    // if exist schema data in source data
+    if (this.sourceData.schemaData) {
+      // if changed timestamp field
+      return (configureData.selectedTimestampType !== this.sourceData.schemaData.selectedTimestampType) ||
+        configureData.selectedTimestampField &&
+        (configureData.selectedTimestampField.name !== this.sourceData.schemaData.selectedTimestampField.name
+          || configureData.selectedTimestampField.format.type !== this.sourceData.schemaData.selectedTimestampField.format.type
+          || configureData.selectedTimestampField.format.type === FieldFormatType.UNIX_TIME && this.sourceData.schemaData.selectedTimestampField.format.type === FieldFormatType.UNIX_TIME && configureData.selectedTimestampField.format.unit !== this.sourceData.schemaData.selectedTimestampField.format.unit);
+    } else { // if not exist schema data
+      return false;
+    }
+  }
+
+  private _saveSchemaConfigureData() {
+    const configureData = this._schemaConfigureMainComponent.getConfigureData();
+    configureData['isChangedTimestampField'] = this._isChangedTimestamp(configureData);
+    this.sourceData.schemaData = configureData;
   }
 }

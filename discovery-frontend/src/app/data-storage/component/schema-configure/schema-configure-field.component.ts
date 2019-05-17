@@ -1,10 +1,28 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import {AbstractComponent} from "../../../common/component/abstract.component";
-import {Component, ElementRef, Injector, ViewChild} from "@angular/core";
+import {Component, ElementRef, Injector, Input, ViewChild} from "@angular/core";
 import {EventBroadcaster} from "../../../common/event/event.broadcaster";
 import {DataStorageConstant} from "../../constant/data-storage-constant";
 import {Filter} from "../../../shared/datasource-metadata/domain/filter";
 import {Type} from "../../../shared/datasource-metadata/domain/type";
-import {Field, FieldFormatType, IngestionRuleType, LogicalType} from "../../../domain/datasource/datasource";
+import {
+  ConnectionType,
+  Field,
+  FieldFormat,
+  FieldFormatType} from "../../../domain/datasource/datasource";
 import {StringUtil} from "../../../common/util/string.util";
 import {ConstantService} from "../../../shared/datasource-metadata/service/constant.service";
 import {SchemaConfigureDeletePopupComponent} from "./check-action-layer/schema-configure-delete-popup.component";
@@ -12,6 +30,7 @@ import {SchemaConfigureChangeTypePopupComponent} from "./check-action-layer/sche
 
 import * as _ from "lodash";
 import {SchemaConfigureTimestampComponent} from "./schema-configure-timestamp.component";
+import {FieldConfigService} from "../../service/field-config.service";
 
 @Component({
   selector: 'schema-configure-field',
@@ -28,13 +47,16 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
   @ViewChild(SchemaConfigureTimestampComponent)
   private readonly _timestampComponent: SchemaConfigureTimestampComponent;
 
+  @Input()
+  public readonly connType: ConnectionType;
+
   // data
   public fieldList: Field[];
   public selectedField: Field;
   public dataList;
   public selectedDataList: string[];
   // timestamp data
-  public selectedTimestampType: DataStorageConstant.Datasource.TimestampType;
+  public selectedTimestampType: DataStorageConstant.Datasource.TimestampType = DataStorageConstant.Datasource.TimestampType.CURRENT;
   public selectedTimestampField: Field;
 
   // only used component
@@ -47,7 +69,8 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
   public selectedTypeFilter: Filter.Logical = this.constant.getTypeFiltersFirst();
 
   // constructor
-  constructor(private constant: ConstantService,
+  constructor(private fieldConfigService: FieldConfigService,
+              private constant: ConstantService,
               private broadCaster: EventBroadcaster,
               protected element: ElementRef,
               protected injector: Injector) {
@@ -103,10 +126,14 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
       // changed timestamp type
       this.broadCaster.on(DataStorageConstant.Datasource.BroadcastKey.DATASOURCE_CHANGED_SELECTED_TIMESTAMP_TYPE).subscribe((type: DataStorageConstant.Datasource.TimestampType) => {
         this.selectedTimestampType = type;
+        // change detect
+        this.safelyDetectChanges();
       }),
       // changed timestamp field
       this.broadCaster.on(DataStorageConstant.Datasource.BroadcastKey.DATASOURCE_CHANGED_SELECTED_TIMESTAMP_FIELD).subscribe((field: Field) => {
         this.selectedTimestampField = field;
+        // change detect
+        this.safelyDetectChanges();
       })
     );
   }
@@ -125,6 +152,28 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
     this._broadCastChangedFieldList();
     // broadcast changed data list
     this._broadcastChangedDataList();
+  }
+
+  /**
+   * Init time format in timestamp field list
+   * @param {Field[]} timestampFieldList
+   * @private
+   */
+  public initTimeFormatInTimestampFieldList(): void {
+    const callStack = [];
+    // timestamp field loop
+    this.fieldList.forEach((field: Field) => {
+      if (Field.isTimestampTypeField(field)) {
+        // init format
+        field.format = new FieldFormat();
+        callStack.push(this.fieldConfigService.checkEnableDateTimeFormatAndSetValidationResultInField(field.format, this._getFieldDataList(field), true).then((format: FieldFormat) => {}));
+      }
+    });
+    // if not empty callStack
+    if (callStack.length > 0) {
+      this.loadingShow();
+      Promise.all(callStack).then(() => this.loadingHide()).catch(() => this.loadingHide());
+    }
   }
 
   /**
@@ -317,7 +366,7 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
   }
 
   public isTimestampField(field): boolean {
-    return this.isDimensionField(field) && Field.isTimestampTypeField(field) && this.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.FIELD && this.selectedTimestampField.name === field.name;
+    return this.isDimensionField(field) && Field.isTimestampTypeField(field) && this.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.FIELD && (!_.isNil(this.selectedTimestampField) && this.selectedTimestampField.name === field.name);
   }
 
   public isErrorField(field) {
@@ -386,9 +435,9 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
         acc = true;
       }
       // if exist ingestion rule, ingestion rule type is REPLACE, not check replace value
-      if (field.ingestionRule && field.ingestionRule.type === IngestionRuleType.REPLACE && !field.isValidReplaceValue) {
-        field.isValidReplaceValue = false;
-        field.replaceValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
+      if (!Field.isEmptyIngestionRule(field) && field.ingestionRule.isReplaceType() && !field.ingestionRule.isValidReplaceValue) {
+        field.ingestionRule.isValidReplaceValue = false;
+        field.ingestionRule.replaceValidationMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
         acc = true;
       }
       if (this.isGeoFormatError(field)) {
@@ -414,6 +463,15 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
    */
   private _isNotEmptyValue(value): boolean {
     return !_.isNil(value);
+  }
+
+  /**
+   * Get field data list
+   * @param {Field} field
+   * @private
+   */
+  private _getFieldDataList(field: Field): string[] {
+    return this.dataList.map(data => data[field.name]);
   }
 
   /**
@@ -466,8 +524,12 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
     this.checkedFieldList = this.fieldList.filter(field => this.isCheckedField(field));
   }
 
+  /**
+   * Change selected data list
+   * @private
+   */
   private _changeSelectedDataList(): void {
-    this.selectedDataList = this.dataList.map(data => data[this.selectedField.name]);
+    this.selectedDataList = this._getFieldDataList(this.selectedField);
   }
 
   /**

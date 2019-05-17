@@ -16,9 +16,6 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '../../../common/common.module';
 import {DataSnapshotDetailComponent} from "../../../data-preparation/data-snapshot/data-snapshot-detail.component";
 import {TimeComponent} from "../../component/time-compoent/time.component";
-import {SchemaConfigComponent} from "../../component/schema-config/schema-config.component";
-import {SchemaConfigDetailComponent} from "../../component/schema-config/schema-config-detail.component";
-import {SchemaConfigActionBarComponent} from "../../component/schema-config/schema-config-action-bar.component";
 import {CreateDataSourceComponent} from "./create-data-source.component";
 import {SelectTypeComponent} from "./select-type/select-type.component";
 import {DbSetDataConnection} from "./db-create-component/db-set-data-connection/db-set-data-connection";
@@ -52,7 +49,6 @@ import {DatasourceService} from "../../../datasource/service/datasource.service"
 import {TimezoneService} from "../../service/timezone.service";
 import {DataSnapshotService} from "../../../data-preparation/data-snapshot/service/data-snapshot.service";
 import {DataconnectionService} from "../../../dataconnection/service/dataconnection.service";
-import {SchemaConfigDataPreviewComponent} from "../../component/schema-config/schema-config-data-preview.component";
 import {DataflowModelService} from "../../../data-preparation/dataflow/service/dataflow.model.service";
 import {DataStorageCommonModule} from "../../data-storage-common.module";
 import {DataStorageShareModule} from "../../data-storage-share.module";
@@ -60,12 +56,14 @@ import {FieldConfigService} from "../../service/field-config.service";
 import {UploaderComponent} from "./file-create-component/file-select/uploader.component";
 import {FilePreviewComponent} from "./file-create-component/file-preview/file-preview.component";
 import {SchemaConfigureMainComponent} from "../../component/schema-configure/schema-configure-main.component";
-import {SchemaConfigureCreateFieldComponent} from "../../component/schema-configure/schema-configure-create-field.component";
+import {SchemaConfigureCreateFieldComponent} from "../../component/schema-configure/check-action-layer/schema-configure-create-field.component";
 import {SchemaConfigureFilterComponent} from "../../component/schema-configure/schema-configure-filter.component";
-import {SchemaConfigureFieldListComponent} from "../../component/schema-configure/schema-configure-field-list.component";
-import {SchemaConfigureDeletePopupComponent} from "../../component/schema-configure/schema-configure-delete-popup.component";
+import {SchemaConfigureFieldComponent} from "../../component/schema-configure/schema-configure-field.component";
+import {SchemaConfigureDeletePopupComponent} from "../../component/schema-configure/check-action-layer/schema-configure-delete-popup.component";
 import {SchemaConfigureTimestampComponent} from "../../component/schema-configure/schema-configure-timestamp.component";
-import {SchemaConfigureChangeTypePopupComponent} from "../../component/schema-configure/schema-configure-change-type-popup.component";
+import {SchemaConfigureChangeTypePopupComponent} from "../../component/schema-configure/check-action-layer/schema-configure-change-type-popup.component";
+import {SchemaConfigureFieldDetailComponent} from "../../component/schema-configure/schema-configure-field-detail.component";
+import {ConstantService} from "../../../shared/datasource-metadata/service/constant.service";
 
 
 @NgModule({
@@ -80,21 +78,14 @@ import {SchemaConfigureChangeTypePopupComponent} from "../../component/schema-co
     TimeComponent,
     // snapshot detail view
     DataSnapshotDetailComponent,
-    // schema config refactoring
+    // schema configure
     SchemaConfigureMainComponent,
     SchemaConfigureFilterComponent,
     SchemaConfigureCreateFieldComponent,
-    SchemaConfigureFieldListComponent,
+    SchemaConfigureFieldComponent,
     SchemaConfigureDeletePopupComponent,
     SchemaConfigureTimestampComponent,
     SchemaConfigureChangeTypePopupComponent,
-    // schema config component
-    SchemaConfigComponent,
-    // schema config detail component
-    SchemaConfigDetailComponent,
-    // schema config action bar component
-    SchemaConfigActionBarComponent,
-    SchemaConfigDataPreviewComponent,
     // data source - create
     CreateDataSourceComponent,
     SelectTypeComponent,
@@ -131,18 +122,13 @@ import {SchemaConfigureChangeTypePopupComponent} from "../../component/schema-co
     // configuration - add column
     AddColumnComponent,
     // column select box
-    ColumnSelectBoxComponent
+    ColumnSelectBoxComponent,
+    SchemaConfigureFieldDetailComponent
   ],
   exports: [
     TimeComponent,
     // snapshot view
     DataSnapshotDetailComponent,
-    // schema config component
-    SchemaConfigComponent,
-    // schema config detail component
-    SchemaConfigDetailComponent,
-    // schema config action bar component
-    SchemaConfigActionBarComponent,
     // data source - create
     CreateDataSourceComponent,
     SelectTypeComponent,
@@ -189,7 +175,8 @@ import {SchemaConfigureChangeTypePopupComponent} from "../../component/schema-co
     TimezoneService,
     DataSnapshotService,
     DataflowModelService,
-    FieldConfigService
+    FieldConfigService,
+    ConstantService
   ]
 })
 export class DataSourceCreateModule {
