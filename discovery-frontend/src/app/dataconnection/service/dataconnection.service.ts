@@ -17,8 +17,6 @@ import {AbstractService} from '../../common/service/abstract.service';
 import {CommonUtil} from '../../common/util/common.util';
 import {Page} from '../../domain/common/page';
 import {isNullOrUndefined} from "util";
-import {CriterionKey, ListCriterion} from '../../domain/datasource/listCriterion';
-import {CriteriaFilter} from '../../domain/datasource/criteriaFilter';
 import {Observable} from "rxjs/Observable";
 import {Criteria} from "../../domain/datasource/criteria";
 
