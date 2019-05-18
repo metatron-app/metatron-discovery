@@ -940,6 +940,7 @@ ul.ddp-list-board-thumbview li.ddp-selected a span.ddp-data-name {color:#4b515b;
 .ddp-dateinfo-view.ddp-inline {width:auto;}
 .ddp-dateinfo-view.ddp-inline .ddp-filter-calen {}
 .ddp-dateinfo-view.ddp-inline .ddp-filter-calen .ddp-ui-dateinfo {display:inline-block; width:280px; margin-top:5px;}
+.ddp-dateinfo-view.ddp-inline .ddp-filter-calen .ddp-ui-button {display:inline-block; min-width:85px; padding:6px 9px; border-radius:2px; text-align:center; color:#4b515b; font-size:13px; box-sizing:border-box; background-color:  #e7e7ea;}
 
 .ddp-dateinfo-view.ddp-inline .ddp-filter-calen .ddp-ui-dateinfo.ddp-to {}
 .ddp-ui-widget-contents .ddp-filter-dateinfo .ddp-ui-dateinfo .ddp-box-rome {width:100%;}
