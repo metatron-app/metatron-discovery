@@ -1,0 +1,50 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<!-- page -->
+<div class="ddp-box-page">
+  <!-- num -->
+  <div class="ddp-page-num">
+    <a (click)="prevPagination()" href="javascript:" class="ddp-btn-prev"></a>
+    <a *ngFor="let item of range"
+       (click)="changePage(item)"
+       [ngClass]="{'ddp-selected' : item === info.number }"
+       href="javascript:" class="ddp-selected">
+      {{item + 1}}
+    </a>
+    <a (click)="nextPagination()" href="javascript:" class="ddp-btn-next"></a>
+  </div>
+  <!-- // num -->
+  <!-- setting -->
+  <div class="ddp-page-setting">
+    <!-- edit -->
+    <div class="ddp-wrap-edit">
+      <label class="ddp-label-type">{{'msg.comm.ui.num.item.list' | translate }}</label>
+      <div (click)="isOpenOpts = !isOpenOpts" (clickOutside)="isOpenOpts = false" class="ddp-ui-edit-option ddp-inline">
+        <div [class.ddp-selected]="isOpenOpts" class="ddp-type-selectbox">
+          <span class="ddp-txt-selectbox">{{info.size}}</span>
+          <ul class="ddp-list-selectbox">
+            <li *ngFor="let item of pageSizes"
+                (click)="changePageSize(item)"
+                [class.ddp-selected]="item === info.size" >
+              <a href="javascript:"> {{item}} </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- //edit -->
+  </div>
+  <!-- //setting -->
+</div>
+<!-- //page -->

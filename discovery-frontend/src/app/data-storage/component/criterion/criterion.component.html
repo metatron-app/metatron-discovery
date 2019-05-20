@@ -1,0 +1,26 @@
+<div class="ddp-wrap-form-filtering">
+  <ng-container *ngFor="let criterion of usedCriterionList">
+    <!-- if extension box -->
+    <!-- TODO 추구 ng-container 밖으로 뺄것 (만약 extension 목록이 하나만 존재한다면) -->
+    <criterion-extension-box *ngIf="isExtensionCriterionBox(criterion)"
+                             [criterionList]="criterion.subCriteria"
+                             [usedCriterionList]="usedCriterionList"
+                             (addCriterionEvent)="addExtensionCriterion($event)"
+                             (removeCriterionEvent)="removeExtensionCriterion($event)">
+    </criterion-extension-box>
+    <!-- //if extension box -->
+    <!-- TODO 추후 checkbox와 radio 분리-->
+    <!-- if checkbox filter box -->
+    <criterion-filter-box *ngIf="!isExtensionCriterionBox(criterion)"
+                           [criterion]="criterion"
+                           [criterionApiFunc]="criterionApiFunc"
+                           [searchParams]="queryParams"
+                           [enableRemove]="isExtensionCriterion(criterion)"
+                           (removedCriterion)="removeExtensionCriterion($event)"
+                           (changedCriteria)="onChangeFilter($event)">
+    </criterion-filter-box>
+    <!-- //if checkbox filter box -->
+    <!-- if radio filter box -->
+    <!-- //if radio filter box -->
+  </ng-container>
+</div>

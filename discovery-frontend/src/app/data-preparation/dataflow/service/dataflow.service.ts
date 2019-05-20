@@ -45,6 +45,13 @@ export class DataflowService extends AbstractService {
     return this.get(url);
   }
 
+  public getDataflowList(param) {
+    let url = this.API_URL + `preparationdataflows/search/findByDfNameContaining?`;
+    url += CommonUtil.objectToUrlString(param);
+    return this.get(url);
+
+  }
+
   // 데이터 플로우 상세조회
   public getDataflow(dfId: string): Promise<PrDataflow> {
     const url = this.API_URL + 'preparationdataflows/' + dfId + '?projection=detail';

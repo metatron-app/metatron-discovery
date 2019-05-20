@@ -43,21 +43,13 @@
           </component-input>
         </div>
         <!-- form -->
-        <a href="javascript:" class="ddp-btn-selection" (click)="searchConnection()">{{'msg.comm.btn.search' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-selection" (click)="reloadPage(true)">{{'msg.comm.btn.search' | translate}}</a>
       </div>
       <!-- //filter search -->
       <!-- filters -->
-      <div class="ddp-wrap-form-filtering">
-        <criterion-filter-box *ngFor="let criterion of connectionFilterList"
-                              [criterion]="criterion"
-                              [defaultSelectedItemList]="defaultSelectedFilterList[criterion.criterionKey]"
-                              [removeCriterionKey]="removedCriterionKey"
-                              [enableRemove]="isAdvancedCriterion(criterion)"
-                              [criterionApiFunc]="criterionApiFunc"
-                              (changedCriteria)="onChangedCriteriaFilter($event)"
-                              (removedCriterion)="removeCriterionFilterInConnectionFilterList($event)">
-        </criterion-filter-box>
-      </div>
+      <component-criterion [criterionApiFunc]="criterionApiFunc"
+                           (changedFilter)="onChangedFilter($event)">
+      </component-criterion>
       <!-- //filters -->
     </div>
     <!-- create connection -->
@@ -113,16 +105,14 @@
       </tr>
       </tbody>
     </table>
-    <!-- 더보기 -->
-    <div class="ddp-box-add-link" *ngIf="isMoreContents()" (click)="onClickMoreConnectionList()">
-      <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
-    </div>
-    <!-- //더보기 -->
+    <!-- Pagination -->
+    <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+    <!-- // Pagination -->
   </div>
 </div>
 <!-- 커넥션 생성 팝업 -->
-<app-create-connection (createdConnection)="searchConnection()"></app-create-connection>
+<app-create-connection (createdConnection)="reloadPage(true)"></app-create-connection>
 <!-- 커넥션 상세 팝업 -->
-<app-update-connection (updatedConnection)="searchConnection()"></app-update-connection>
+<app-update-connection (updatedConnection)="reloadPage(true)"></app-update-connection>
 <!-- 삭제 모달 -->
 <app-delete-modal (deleteConfirm)="removeConnection($event)"></app-delete-modal>

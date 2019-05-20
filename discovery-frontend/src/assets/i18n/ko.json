@@ -298,6 +298,7 @@
   "msg.comm.ui.failed": "실패",
   "msg.comm.ui.complete": "완료됨",
   "msg.comm.ui.canceled": "취소됨",
+  "msg.comm.ui.num.item.list" : "한 페이지당 목록",
   "msg.comm.alert.error.msg": "문제가 있습니다 <br> 다음 메시지를 확인하십시오",
   "msg.comm.alert.error.btn": "자세한 내용을 보려면 여기를 클릭하십시오.",
 
@@ -701,6 +702,7 @@
   "msg.nbook.ui.host.ph" : "Host 주소를 입력해 주세요",
   "msg.nbook.ui.port.ph" : "Port를 입력해 주세요",
   "msg.nbook.ui.not.used" : "사용하지 않음",
+  "msg.nbook.ui.no.nb" : "노트북이 없습니다",
 
   "msg.dp.alert.check.formula": "수식을 확인해 주세요",
   "msg.dp.alert.check.expression": "수식을 확인해 주세요",
@@ -3043,6 +3045,7 @@
   "msg.log.btn.download.csv" : "다운로드",
   "msg.log.btn.over.num.ms" : "{{value}} ms 이상",
   "msg.log.ui.use.record" : "동일 커넥션의 최근 사용 기록",
+  "msg.log.ui.no.log": "잡 로그가 없습니다",
 
   "msg.statistics.ui.daily.query.success-fail" : "쿼리 성공/실패률",
   "msg.statistics.ui.daily.query.frequency" : "사용자 별 쿼리 빈도 수",
@@ -3261,6 +3264,9 @@
   "msg.permission.ui.sys-perm.system-setting.desc" : "사용자를 직접 등록하거나 회원가입 요청을 승인하여 사용자를 등록하고 관리할 수 있습니다. 시스템에서 제공하는 워크스페이스 스키마 퍼미션을 정의할 수 있습니다",
   "msg.permission.ui.sys-perm.ws-manager.desc" : "사용자가 소유하고 있는 워크스페이스에 커스텀 스키마를 생성하고 관리할 수 있습니다",
   "msg.permission.ui.sys-perm.guest.desc" : "게스트",
+  "msg.permission.alert.delete.ok" : "스키마가 삭제되었습니다",
+  "msg.permission.alert.create.ok" : "'{{value}}' 스키마가 생성되었습니다",
+
 
   "msg.page.pivot.layout.condition.dimension.over.desc": "{{value}}개 이상의 차원값",
   "msg.page.pivot.layout.condition.dimension.desc": "{{value}}개의 차원값",
@@ -3292,7 +3298,6 @@
   "msg.page.ui.heat-map" : "히트맵",
   "msg.page.ui.pie" : "원형 차트",
   "msg.page.ui.map" : "맵",
-  "msg.page.ui.control-chart" : "콘트롤 차트",
   "msg.page.ui.kpi" : "핵심지표",
   "msg.page.ui.box-plot" : "박스플롯",
   "msg.page.ui.water-fall" : "폭포 차트",
@@ -3874,6 +3879,8 @@
   "msg.cluster.ui.create.explanation.description" : "Metatron은 Zookeeper, MariaDB, Druid 및 Metatron Discovery를 다루고 있습니다",
   "msg.cluster.ui.create.add.btn" : "추가",
 
+  "msg.metadata.ui.no.col.dic" : "컬럼 사전이 없습니다",
+  "msg.metadata.ui.no.code.table" : "코드 테이블이 없습니다",
   "msg.metadata.ui.title" : "메타 데이터",
   "msg.metadata.ui.codetable.title" : "코드 테이블",
   "msg.metadata.ui.dictionary.title" : "용어 사전",

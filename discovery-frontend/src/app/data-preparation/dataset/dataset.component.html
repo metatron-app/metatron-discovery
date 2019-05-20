@@ -113,7 +113,7 @@
       <tr *ngFor="let item of datasets; let i = index" [attr.data-index]="i" (click)="itemRowClick(item)">
         <td>
           <span class="ddp-box-tag"
-                [ngClass]="{'ddp-wargled' : item.dsType === datasetType.WRANGLED , 'ddp-imported' : item.dsType === datasetType.IMPORTED}">
+                [ngClass]="{'ddp-wargled' : item.dsType === DsType.WRANGLED , 'ddp-imported' : item.dsType === DsType.IMPORTED}">
             {{item.dsType}}
           </span>
         </td>
@@ -129,7 +129,7 @@
           {{item.refDfCount}}
         </td>
         <td>
-          <span class="ddp-data-source" *ngIf="item.dsType === datasetType.IMPORTED; else wrangled">
+          <span class="ddp-data-source" *ngIf="item.dsType === DsType.IMPORTED; else wrangled">
               <em class="ddp-icon-svg">
                 <svg-icon-component [name]="prepCommonUtil.getNameForSvgWithDataset(item)" [isBlackAndWhite]="false"></svg-icon-component>
               </em>
@@ -162,15 +162,14 @@
     <!-- 더보기 -->
     <!-- 데이터 없음 -->
 
-    <div class="ddp-data-source-none" *ngIf="datasets.length === 0">
+    <div class="ddp-data-source-none" *ngIf="datasets.length === 0; else yesDs">
       {{'msg.dp.ui.no.ds.description' | translate}}
     </div>
     <!-- //데이터 없음 -->
 
-
-    <div class="ddp-box-add-link" *ngIf="datasets.length > 0 && page.page < pageResult.totalPages && pageResult" (click)="getDatasets()">
-      <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
-    </div>
+    <ng-template #yesDs>
+      <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+    </ng-template>
     <!-- //더보기 -->
   </div>
 </div>

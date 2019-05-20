@@ -49,9 +49,7 @@ import {DashboardUtil} from '../../dashboard/util/dashboard.util';
 import {GeoBoundaryFormat, GeoHashFormat} from '../../domain/workbook/configurations/field/geo-field';
 import {UIMapOption} from '../../common/component/chart/option/ui-option/map/ui-map-chart';
 import {ChartUtil} from '../../common/component/chart/option/util/chart-util';
-import {CriterionKey, ListCriterion} from '../../domain/datasource/listCriterion';
 import {CommonConstant} from "../../common/constant/common.constant";
-import {CriteriaFilter} from '../../domain/datasource/criteriaFilter';
 import {UITileLayer} from '../../common/component/chart/option/ui-option/map/ui-tile-layer';
 import {MapLayerType} from '../../common/component/chart/option/define/map/map-common';
 import {Pivot} from "../../domain/workbook/configurations/pivot";
@@ -60,6 +58,7 @@ import {Shelf} from "../../domain/workbook/configurations/shelf/shelf";
 import {RegExprFilter} from "../../domain/workbook/configurations/filter/reg-expr-filter";
 import {SpatialFilter} from "../../domain/workbook/configurations/filter/spatial-filter";
 import {TranslateService} from "@ngx-translate/core";
+import {Criteria} from "../../domain/datasource/criteria";
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -613,14 +612,18 @@ export class DatasourceService extends AbstractService {
                   };
                 }
 
-                let spatialFilter = new SpatialFilter();
-                spatialFilter.dataSource = query.shelf.layers[idx].ref;
-                // spatialFilter.ref = query.shelf.layers[idx].ref;
-                spatialFilter.field = layer.field.name;
-                // 최초 default 값 sales-geo 초기값으로 고정 (빈값일 경우 에러리턴)
-                spatialFilter.lowerCorner = _.isUndefined(chart['lowerCorner']) ? '-123.0998 25.4766' : chart['lowerCorner'];
-                spatialFilter.upperCorner = _.isUndefined(chart['upperCorner']) ? '-68.7918 48.7974' : chart['upperCorner'];
-                query.filters.push( spatialFilter );
+                if ( !_.isUndefined(chart['lowerCorner']) && !_.isUndefined(chart['upperCorner'])
+                  && chart['lowerCorner'].indexOf('NaN') == -1 && chart['upperCorner'].indexOf('NaN') == -1 ) {
+                  let spatialFilter = new SpatialFilter();
+                  spatialFilter.dataSource = query.shelf.layers[idx].ref;
+                  // spatialFilter.ref = query.shelf.layers[idx].ref;
+                  spatialFilter.field = layer.field.name;
+                  // 최초 default 값 sales-geo 초기값으로 고정 (빈값일 경우 에러리턴)
+                  spatialFilter.lowerCorner = chart['lowerCorner'];
+                  spatialFilter.upperCorner = chart['upperCorner'];
+                  query.filters.push( spatialFilter );
+                }
+
               }
 
               // when logicalType => geo point
@@ -1056,20 +1059,21 @@ export class DatasourceService extends AbstractService {
     }
   }
 
+
   /**
    * Get criterion list in datasource
-   * @returns {Promise<CriteriaFilter>}
+   * @return {Promise<any>}
    */
-  public getCriterionListInDatasource(): Promise<CriteriaFilter> {
+  public getCriterionListInDatasource() {
     return this.get(this.API_URL + 'datasources/criteria');
   }
 
   /**
-   * Get criterion in datasource
-   * @param {CriterionKey} criterionKey
-   * @returns {Promise<ListCriterion>}
+   *  Get criterion in datasource
+   * @param {Criteria.ListCriterionKey} criterionKey
+   * @return {Promise<any>}
    */
-  public getCriterionInDatasource(criterionKey: CriterionKey): Promise<ListCriterion> {
+  public getCriterionInDatasource(criterionKey: Criteria.ListCriterionKey) {
     return this.get(this.API_URL + `datasources/criteria/${criterionKey}`);
   }
 

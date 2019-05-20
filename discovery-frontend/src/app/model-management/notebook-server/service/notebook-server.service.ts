@@ -25,27 +25,6 @@ export class NotebookServerService extends AbstractService {
     super(injector);
   }
 
-  /**
-   * notebook 검색 ( ALL 일떄만 )
-   * option name => 이름으로 검색하기
-   * option type => type : jupyter OR zeppelin
-   * @param page
-   * @param projection
-   * @param options
-   * @returns {Promise<any>}
-   */
-  public getNotebookServerAllList(searchName: string, page: Page, projection: string = 'default', options?: Object): Promise<any> {
-    let url = this.API_URL + `connectors/search/name?name=` + encodeURIComponent(searchName) + `&projection=${projection}`;
-
-    url += '&' + CommonUtil.objectToUrlString(page);
-
-    if (options) {
-      url += '&' + CommonUtil.objectToUrlString(options);
-    }
-
-    return this.get(url);
-  }
-
 
   /**
    * 이름 and type 검색.
@@ -67,6 +46,21 @@ export class NotebookServerService extends AbstractService {
 
     return this.get(url);
   }
+
+
+  /**
+   * 노트북 리스트 API
+   * @param isAll
+   * @param params
+   */
+  public getNotebookList(isAll: boolean, params: any) {
+    let url = this.API_URL + `connectors/search/` + (isAll? 'name' : 'nametype');
+    if (params) {
+      url += '?' + CommonUtil.objectToUrlString(params);
+    }
+    return this.get(url);
+  }
+
 
   /**
    * note connection 생성

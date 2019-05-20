@@ -44,21 +44,13 @@
           </component-input>
         </div>
         <!-- form -->
-        <a href="javascript:" class="ddp-btn-selection" (click)="searchDatasource()">{{'msg.comm.btn.search' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-selection" (click)="reloadPage(true)">{{'msg.comm.btn.search' | translate}}</a>
       </div>
       <!-- //filter search -->
       <!-- filters -->
-      <div class="ddp-wrap-form-filtering">
-        <criterion-filter-box *ngFor="let criterion of datasourceFilterList"
-                              [criterion]="criterion"
-                              [defaultSelectedItemList]="defaultSelectedFilterList[criterion.criterionKey]"
-                              [removeCriterionKey]="removedCriterionKey"
-                              [enableRemove]="isAdvancedCriterion(criterion)"
-                              [criterionApiFunc]="criterionApiFunc"
-                              (changedCriteria)="onChangedCriteriaFilter($event)"
-                              (removedCriterion)="removeCriterionFilterInDatasourceFilterList($event)">
-        </criterion-filter-box>
-      </div>
+      <component-criterion [criterionApiFunc]="criterionApiFunc"
+                           (changedFilter)="onChangedFilter($event)">
+      </component-criterion>
       <!-- //filters -->
     </div>
     <!-- create datasource -->
@@ -126,11 +118,14 @@
       </tr>
       </tbody>
     </table>
-    <!-- 더보기 -->
-    <div class="ddp-box-add-link" *ngIf="isMoreContents()" (click)="onClickMoreDatasourceList()">
-      <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
-    </div>
-    <!-- //더보기 -->
+    <!-- no result -->
+<!--    <div class="ddp-data-source-none" *ngIf="datasourceList.length === 0; else yesCt">-->
+<!--      데이터가 없습니다-->
+<!--    </div>-->
+    <!-- //no result -->
+    <!-- Pagination -->
+    <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+    <!-- // Pagination -->
   </div>
 </div>
 <!-- 데이터소스 생성 -->

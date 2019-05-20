@@ -50,8 +50,8 @@ class APIConstant {
   public TIMEOUT = 5000;
 
   // Page Size
-  public PAGE_SIZE = 30;
-
+  public PAGE_SIZE = 20;
+  
   // Page Sort
   public PAGE_SORT_MODIFIED_TIME_DESC = 'modifiedTime,desc';
 

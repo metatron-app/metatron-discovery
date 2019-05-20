@@ -25,6 +25,7 @@ import * as _ from 'lodash';
 import { Log } from '../../../../common/domain/modal';
 import { MomentDatePipe } from '../../../../common/pipe/moment.date.pipe';
 import { CommonUtil } from '../../../../common/util/common.util';
+import {PeriodData} from "../../../../common/value/period.data.value";
 
 declare let echarts;
 declare let moment;
@@ -59,7 +60,7 @@ export class MonitoringDataSourceComponent extends AbstractPopupComponent implem
   private pieOption: any = {};
 
   // date
-  private selectedDate : Date;
+  private selectedDate : PeriodData;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -612,9 +613,3 @@ class Order {
   sort: string = 'desc';
 }
 
-class Date {
-  dateType : string;
-  endDateStr : string;
-  startDateStr : string;
-  type: string;
-}

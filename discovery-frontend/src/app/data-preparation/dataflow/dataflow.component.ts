@@ -15,14 +15,16 @@
 import { Component, ElementRef, OnInit, Injector, ViewChild, OnDestroy, HostListener } from '@angular/core';
 import { AbstractComponent } from '../../common/component/abstract.component';
 import { DataflowService } from './service/dataflow.service';
-//import { Dataflow } from '../../domain/data-preparation/dataflow';
 import { PrDataflow } from '../../domain/data-preparation/pr-dataflow';
-import { Subscription } from 'rxjs/Subscription';
 import { Modal } from '../../common/domain/modal';
 import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
 import { Alert } from '../../common/util/alert.util';
 import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
 import { CreateDataflowNameDescComponent } from './create-dataflow-name-desc.component';
+import {isNullOrUndefined} from "util";
+import {StringUtil} from "../../common/util/string.util";
+import {ActivatedRoute} from "@angular/router";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-dataflow',
@@ -34,8 +36,8 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  private popupSubscription: Subscription;
-
+  // 검색 파라메터
+  private _searchParams: { [key: string]: string };
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -49,21 +51,15 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
   @ViewChild(CreateDataflowNameDescComponent)
   public createDataflowComponent : CreateDataflowNameDescComponent;
 
-  // 데이터플로우 리스트
-  //public dataflows : Dataflow[] = [];
-  public dataflows : PrDataflow[] = [];
+  public dataflows : PrDataflow[];
 
-  // 상세 조회 할 데이터 플로우 아이디
   public dfId: string;
-
-  // popup status
-  public step: string;
 
   // Selected dataflow that you want to delete
   public selectedDeletedfId: string;
 
   // search text
-  public searchText: string = '';
+  public searchText: string;
 
   // 정렬
   public selectedContentSort: Order = new Order();
@@ -71,8 +67,8 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   constructor(private dataflowService: DataflowService,
+              private activatedRoute: ActivatedRoute,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
@@ -82,12 +78,41 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
    | Override Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public ngOnInit() {
-    // Init
+
     super.ngOnInit();
 
-    this.page.sort = 'createdTime,desc';
-    this.getDataflows();
+    this._initView();
 
+    this.subscriptions.push(
+      // Get query param from url
+      this.activatedRoute.queryParams.subscribe((params) => {
+
+        if (!_.isEmpty(params)) {
+
+          if (!isNullOrUndefined(params['size'])) {
+            this.page.size = params['size'];
+          }
+
+          if (!isNullOrUndefined(params['page'])) {
+            this.page.page = params['page'];
+          }
+
+
+          if (!isNullOrUndefined(params['dfName'])) {
+            this.searchText = params['dfName'];
+          }
+
+          const sort = params['sort'];
+          if (!isNullOrUndefined(sort)) {
+            const sortInfo = decodeURIComponent(sort).split(',');
+            this.selectedContentSort.key = sortInfo[0];
+            this.selectedContentSort.sort = sortInfo[1];
+          }
+        }
+
+        this.getDataflows();
+      })
+    );
 
   }
 
@@ -99,31 +124,60 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * 페이지를 새로 불러온다.
+   * @param {boolean} isFirstPage
+   */
+  public reloadPage(isFirstPage: boolean = true) {
+    (isFirstPage) && (this.page.page = 0);
+    this._searchParams = this._getDfParams();
+    this.router.navigate(
+      [this.router.url.replace(/\?.*/gi, '')],
+      {queryParams: this._searchParams, replaceUrl: true}
+    ).then();
+  } // function - reloadPage
 
-  // 데이터 플로우 생성
+
+
+  /**
+   * Create new dataflow
+   */
   public createDataflow() {
     this.createDataflowComponent.init();
   }
 
 
-  // 데이터 플로우 수정
-  public updateDataflow(dfId) {
-    this.router.navigate(['/management/datapreparation/dataflow',dfId]);
+  /**
+   * Move to dataflow detail
+   * @param dfId
+   */
+  public goToDfDetail(dfId) {
+    this.router.navigate(
+      ['/management/datapreparation/dataflow',dfId])
+      .then();
   }
 
-  // 데이터 플로우 검색
+
+  /**
+   * Search dataflow
+   * @param event
+   */
   public searchDataflows(event) {
 
-    if (13 === event.keyCode) {
-      this.page.page = 0;
-      this.getDataflows();
-    } else if (27 === event.keyCode) {
-      this.searchText = '';
-      this.page.page = 0;
-      this.getDataflows();
+    if (13 === event.keyCode || 27 === event.keyCode) {
+      if (event.keyCode === 27) {
+        this.searchText = '';
+      }
+      this.reloadPage();
     }
   }
 
+
+  /**
+   * Confirm dataflow delete
+   * @param event
+   * @param id
+   */
   public confirmDelete(event,id) {
 
     event.stopPropagation();
@@ -138,17 +192,20 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
 
   }
 
+
+  /**
+   * Delete dataflow
+   */
   public deleteDataflow() {
     this.loadingShow();
     this.dataflowService.deleteDataflow(this.selectedDeletedfId).then(() => {
       Alert.success(this.translateService.instant('msg.dp.alert.del.success'));
-      this.loadingHide();
 
-      let idx = this.dataflows.findIndex((result) => {
-        return result.dfId === this.selectedDeletedfId;
-      });
-      this.dataflows.splice(idx,1);
-      this.pageResult.totalElements = this.pageResult.totalElements-1
+      if (this.page.page !== 0 && this.dataflows.length === 1) {
+        this.page.page = this.page.page - 1;
+      }
+      // Get dataflow list again
+      this.reloadPage(false);
 
     }).catch((error) => {
       Alert.error(this.translateService.instant('msg.dp.alert.del.fail'));
@@ -157,67 +214,86 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
 
   }
 
-  // 데이터 플로우 목록 조회
+
+  /**
+   * Fetch dataflow list
+   */
   public getDataflows() {
 
     this.loadingShow();
 
-    this.dataflowService.getDataflows(this.searchText, this.page, 'forListView')
-      .then((data) => {
+    this.dataflows = [];
 
-        this.loadingHide();
+    const params = this._getDfParams();
 
-        this.pageResult = data['page'];
-        const sorting = this.page.sort.split(',');
-        this.selectedContentSort.key = sorting[0];
-        this.selectedContentSort.sort = sorting[1];
+    this.dataflowService.getDataflowList(params).then((data) => {
 
-        if (this.page.page === 0) {
-          this.dataflows = [];
-        }
+      this._searchParams = params;
 
-        this.dataflows = this.dataflows.concat(data['_embedded']['preparationdataflows']);
-        this.page.page += 1;
-      })
-      .catch((error) => {
-        if(error.status && error.status===500) {
-          Alert.error(error.message);
-        } else {
-          Alert.warning(error.message);
-        }
-        this.loadingHide();
-      });
+      this.pageResult = data['page'];
+
+      this.dataflows = data['_embedded']? this.dataflows.concat(data['_embedded']['preparationdataflows']) : [];
+
+      this.loadingHide();
+
+    }).catch((error) => {
+
+      this.loadingHide();
+
+      if(error.status && error.status===500) {
+        Alert.error(error.message);
+      } else {
+        Alert.warning(error.message);
+      }
+
+    });
   }
 
-  /** 정렬 */
-  public changeOrder(column: string) {
 
-    this.page.page = 0;
+  /**
+   * Change order of list
+   * @param key
+   */
+  public changeOrder(key: string) {
 
-    // 초기화
-    this.selectedContentSort.sort = this.selectedContentSort.key !== column ? 'default' : this.selectedContentSort.sort;
+    /// 초기화
+    this.selectedContentSort.sort = this.selectedContentSort.key !== key ? 'default' : this.selectedContentSort.sort;
+    // 정렬 정보 저장
+    this.selectedContentSort.key = key;
 
-    // asc, desc, default
-    switch (this.selectedContentSort.sort) {
-
-      case 'asc':
-        this.selectedContentSort.sort = 'desc';
-        break;
-      case 'desc':
-        this.selectedContentSort.sort = 'asc';
-        break;
-      case 'default':
-        this.selectedContentSort.sort = 'desc';
-        break;
+    if (this.selectedContentSort.key === key) {
+      // asc, desc
+      switch (this.selectedContentSort.sort) {
+        case 'asc':
+          this.selectedContentSort.sort = 'desc';
+          break;
+        case 'desc':
+          this.selectedContentSort.sort = 'asc';
+          break;
+        case 'default':
+          this.selectedContentSort.sort = 'desc';
+          break;
+      }
     }
 
-    this.page.sort = column + ',' + this.selectedContentSort.sort;
-
-    // 데이터소스 리스트 조회
-    this.getDataflows();
+    // Get dataflow list
+    this.reloadPage();
 
   }
 
+
+  /**
+   * 페이지 변경
+   * @param data
+   */
+  public changePage(data: { page: number, size: number }) {
+    if (data) {
+      this.page.page = data.page;
+      this.page.size = data.size;
+      // 워크스페이스 조회
+      this.reloadPage(false);
+    }
+  } // function - changePage
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -235,6 +311,40 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
     } else if (event.keyCode === 13 && this.createDataflowComponent.isShow) {
       this.createDataflowComponent.createDataflow();
     }
+  }
+
+
+  /**
+   * Returns parameter for dataflow list
+   * @private
+   */
+  private _getDfParams(): any {
+    const params = {
+      page: this.page.page,
+      size: this.page.size,
+      projection: 'forListView',
+      pseudoParam : (new Date()).getTime()
+    };
+
+    if (!isNullOrUndefined(this.searchText) || StringUtil.isNotEmpty(this.searchText)) {
+      params['dfName'] = this.searchText;
+    }
+
+    this.selectedContentSort.sort !== 'default' && (params['sort'] = this.selectedContentSort.key + ',' + this.selectedContentSort.sort);
+
+    return params;
+  }
+
+
+  /**
+   * Initialise values
+   * @private
+   */
+  private _initView() {
+    this.dataflows = [];
+    this.searchText = '';
+    this.selectedContentSort.sort = 'desc';
+    this.selectedContentSort.key = 'createdTime';
   }
 }
 

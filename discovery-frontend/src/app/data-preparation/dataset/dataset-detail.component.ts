@@ -30,6 +30,7 @@ import {PrDataflow} from '../../domain/data-preparation/pr-dataflow';
 import {CreateSnapshotPopup} from '../component/create-snapshot-popup.component';
 import {SnapshotLoadingComponent} from '../component/snapshot-loading.component';
 import {PreparationCommonUtil} from "../util/preparation-common.util";
+import {Location} from "@angular/common";
 
 import {isNull, isNullOrUndefined} from "util";
 import * as pixelWidth from 'string-pixel-width';
@@ -116,6 +117,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
               private dataflowService: DataflowService,
               private dataflowModelService: DataflowModelService,
               private activatedRoute: ActivatedRoute,
+              private _location:Location,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -156,8 +158,6 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       { command: 'setformat', alias: 'Sf'}
     ];
 
-
-
     // Router에서 파라미터 전달 받기
     this.activatedRoute.params.subscribe((params) => {
       if (params['id']) {
@@ -182,12 +182,15 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     this.snapshotLoadingComponent.init(data);
   }
 
-  /** 데이터셋 리스트로 돌아간다 */
+
+  /**
+   * Go back to dataset list
+   */
   public close() {
     clearInterval(this.interval);
     this.interval = undefined;
-    this.router.navigate(['/management/datapreparation/dataset']);
-  } // function - close
+    this._location.back();
+  }
 
   /**
    * 데이터셋 옵션 레이어 toggle (우측상단)
