@@ -143,8 +143,8 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
       Alert.success(
         this.translateService.instant('msg.metadata.ui.codetable.delete.success', {value: this._originCodeTable.name}));
       // 코드테이블 목록으로 돌아가기
-      this.router.navigate(['/management/metadata/code-table']);
-    }).catch((error) => {
+      this._location.back();
+    }).catch(() => {
 
       // 로딩 hide
       this.loadingHide();
@@ -365,16 +365,16 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
     this.loadingShow();
 
     this._codeTableService.updateCodeTable(this._codeTableId, params ? params : this._getUpdateCodeTableParams()).
-      then((result) => {
-        // alert
-        Alert.success(this.translateService.instant('msg.comm.alert.confirm.success'));
-        // 재조회
-        this._getDetailCodeTable();
-      }).
-      catch((error) => {
-        // 로딩 hide
-        this.loadingHide();
-      });
+    then((result) => {
+      // alert
+      Alert.success(this.translateService.instant('msg.comm.alert.confirm.success'));
+      // 재조회
+      this._getDetailCodeTable();
+    }).
+    catch((error) => {
+      // 로딩 hide
+      this.loadingHide();
+    });
   }
 
   /**
