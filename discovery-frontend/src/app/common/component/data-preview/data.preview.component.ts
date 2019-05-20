@@ -280,13 +280,10 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
           name: engineName,
           type: 'default'
         },
-        fields: [],
+        fields: [selectedField],
         userFields: []
         // TODO datasource에 커스텀필드 걸려있을 경우만 집어넣음
       };
-
-      // 선택한 컬럼을 params의 fields에 추가
-      params.fields.push(selectedField);
       // 필드를 name과 type 프로퍼티만 남겨지도록 수정
       params.fields = params.fields.map((field) => {
         return {
@@ -297,6 +294,16 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
 
       this.datasourceService.getFieldStats(params)
         .then((result) => {
+          // stats 리스트 저장
+          if (!_.isNil(result[0])) {
+            // for loop
+            for (const property in result[0]) {
+              // if not exist property in statsData, push property in statsData
+              if (!this.statsData.hasOwnProperty(property)) {
+                this.statsData[property] = result[0][property];
+              }
+            }
+          }
           resolve(result);
         })
         .catch((error) => {
@@ -952,19 +959,19 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
           type: 'default'
         },
         pivot: {
-          columns: []
+          columns: covarianceList
+            ? covarianceList.map((item) => {
+              return {
+                type: 'measure',
+                aggregationType: 'NONE',
+                name: item.with
+              };
+            })
+            : []
         },
         // TODO 필드 확인
         userFields: []
       };
-      // covariance에 측정된 measure
-      params.pivot.columns = covarianceList.map((item) => {
-        return {
-          type: 'measure',
-          aggregationType: 'NONE',
-          name: item.with
-        };
-      });
       // 선택된 measure
       params.pivot.columns.push({
         type: 'measure',
@@ -1030,14 +1037,14 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     const stats = this.getStats();
 
     // data
-    if (roleType === 'DIMENSION') {
+    if (roleType === 'DIMENSION' && !_.isNil(stats.frequentItems)) {
       barOption.xAxis[0].data = stats.frequentItems.map((item) => {
         return item.value;
       });
       barOption.series[0].data = stats.frequentItems.map((item) => {
         return item.count;
       });
-    } else if (roleType === 'TIMESTAMP') {
+    } else if (roleType === 'TIMESTAMP' && !_.isNil(stats.segments)) {
       barOption.xAxis[0].data = stats.segments.map((item) => {
         return item.interval.split('/')[0];
       });
@@ -1048,7 +1055,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       // Measure Field Histogram : pmf 값에 1번째와 마지막을 버리고, 2번째 부터 count 값을 곱하여 그게 y 축 value 생성
       const count = stats.count;
       let pmf = stats.pmf;
-      if (pmf !== undefined) {
+      if (!_.isNil(pmf)) {
         pmf = this.getPmfList(pmf);
         // data
         barOption.series[0].data = pmf.map((item) => {
@@ -1604,18 +1611,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
 
         this.getFieldStats(field, engineName)
           .then((stats) => {
-
-            // stats 리스트 저장
-            for (const property in stats[0]) {
-              // 존재하지 않을 경우에만 넣어줌
-              if (!this.statsData.hasOwnProperty(property)) {
-                this.statsData[property] = stats[0][property];
-              }
-            }
-
             // 로딩 hide
             this.loadingHide();
-
             // 히스토그램 차트
             this.getHistogramChart(this.selectedField.role);
           })
