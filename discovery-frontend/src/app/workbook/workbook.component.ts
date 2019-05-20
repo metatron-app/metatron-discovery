@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 
 import * as _ from 'lodash';
 import * as moment from 'moment';
@@ -325,6 +325,20 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       this.useUnloadConfirm = this._updateBoardComp.execBeforeUnload();
     }
   } // function - execBeforeUnload
+
+
+  @HostListener('click', ['$event.target'])
+  public clickOther(target) {
+    if (this.isShowDetailMenu) {
+      const $eventTarget:JQuery = $( target );
+      if( !$eventTarget.hasClass('ddp-ui-more')
+        && 0 === $eventTarget.closest('.ddp-ui-more').length
+        && !$eventTarget.hasClass('ddp-popup-lnbmore')
+        && 0 === $eventTarget.closest('.ddp-popup-lnbmore').length) {
+        this.isShowDetailMenu = false;
+      }
+    }
+  } // function - clickOther
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - Common
