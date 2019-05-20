@@ -849,7 +849,7 @@ public class DataSourceController {
       try {
         geometry = wktReader.read(value);
 
-        LogicalType parsedType = findGeoType(geometry).orElseThrow(
+        LogicalType parsedType = findGeoType(geometry, type).orElseThrow(
             () -> new RuntimeException("ERROR_NOT_SUPPORT_WKT_TYPE")
         );
 
@@ -879,7 +879,7 @@ public class DataSourceController {
     return ResponseEntity.ok(resultResponse);
   }
 
-  private Optional<LogicalType> findGeoType(Geometry geometry) {
+  private Optional<LogicalType> findGeoType(Geometry geometry, LogicalType type) {
 
     Class<? extends Geometry> c = geometry.getClass();
     LogicalType logicalType = null;
@@ -890,7 +890,11 @@ public class DataSourceController {
     } else if (c.equals(Polygon.class)) {
       logicalType = LogicalType.GEO_POLYGON;
     } else if (c.equals(MultiLineString.class)) {
-      logicalType = LogicalType.GEO_LINE;
+      if (type != null && type == LogicalType.GEO_POLYGON) { // It can be a polygon.
+        logicalType = LogicalType.GEO_POLYGON;
+      } else {
+        logicalType = LogicalType.GEO_LINE;
+      }
     } else if (c.equals(MultiPolygon.class)) {
       logicalType = LogicalType.GEO_POLYGON;
     }

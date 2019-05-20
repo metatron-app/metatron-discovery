@@ -35,6 +35,7 @@ export enum MapLayerType {
   SYMBOL = <any>'symbol',
   LINE = <any>'line',
   POLYGON = <any>'polygon',
+  MULTILINESTRING = <any>'MultiLineString',
   MULTIPOLYGON = <any>'multipolygon',
   HEATMAP = <any>'heatmap',
   TILE = <any>'tile'
