@@ -385,13 +385,6 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
         // get stats data
         this._getFieldStats(field, engineName)
           .then((stats) => {
-            // for loop
-            for (const property in stats[0]) {
-              // if not exist property in statsData, push property in statsData
-              if (!this.statsData.hasOwnProperty(property)) {
-                this.statsData[property] = stats[0][property];
-              }
-            }
             // loading hide
             this.loadingHide();
             // update histogram chart
@@ -573,13 +566,10 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
           name: engineName,
           type: 'default'
         },
-        fields: [],
+        fields: [selectedField],
         userFields: []
         // TODO datasource에 커스텀필드 걸려있을 경우만 집어넣음
       };
-
-      // push field in params
-      params.fields.push(selectedField);
       // modify field to leave only name and type properties
       params.fields = params.fields.map((field) => {
         const temp = {
@@ -591,6 +581,15 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
       // get stats data
       this.datasourceService.getFieldStats(params)
         .then((result) => {
+          if (!_.isNil(result[0])) {
+            // for loop
+            for (const property in result[0]) {
+              // if not exist property in statsData, push property in statsData
+              if (!this.statsData.hasOwnProperty(property)) {
+                this.statsData[property] = result[0][property];
+              }
+            }
+          }
           resolve(result);
         })
         .catch((error) => {
@@ -818,19 +817,19 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
           type: 'default'
         },
         pivot: {
-          columns: []
+          columns: covarianceList
+            ? covarianceList.map((item) => {
+              return {
+                type: 'measure',
+                aggregationType: 'NONE',
+                name: item.with
+              };
+            })
+            : []
         },
         // TODO 필드 확인
         userFields: []
       };
-      // measure measured in covariance
-      params.pivot.columns = covarianceList.map((item) => {
-        return {
-          type: 'measure',
-          aggregationType: 'NONE',
-          name: item.with
-        };
-      });
       // selected field
       params.pivot.columns.push({
         type: 'measure',
@@ -888,14 +887,14 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
     // get stats
     const stats = this._getStats();
     // data
-    if (roleType === 'DIMENSION') {
+    if (roleType === 'DIMENSION' && !_.isNil(stats.frequentItems)) {
       barOption.xAxis[0].data = stats.frequentItems.map((item) => {
         return item.value;
       });
       barOption.series[0].data = stats.frequentItems.map((item) => {
         return item.count;
       });
-    } else if (roleType === 'TIMESTAMP') {
+    } else if (roleType === 'TIMESTAMP' && !_.isNil(stats.segments)) {
       barOption.xAxis[0].data = stats.segments.map((item) => {
         return item.interval.split('/')[0];
       });
@@ -907,7 +906,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
       const count = stats.count;
       // pmf
       let pmf = stats.pmf;
-      if (pmf !== undefined) {
+      if (!_.isNil(pmf)) {
         pmf = this._getPmfList(pmf);
         // data
         barOption.series[0].data = pmf.map((item, index) => {
