@@ -123,6 +123,9 @@ public class DataConnectionFilterService {
     switch(criterionKey){
       case IMPLEMENTOR:
         for(JdbcDialect jdbcDialect : jdbcDialects){
+          if(jdbcDialect.getImplementor().equals("STAGE")){
+            continue;
+          }
           criterion.addFilter(new ListFilter(criterionKey, "implementor", jdbcDialect.getImplementor(), jdbcDialect.getName()));
         }
         break;
