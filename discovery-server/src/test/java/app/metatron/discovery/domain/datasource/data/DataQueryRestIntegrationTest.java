@@ -3067,7 +3067,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void checkSimilarity() {
 
-    SimilarityQueryRequest queryRequest = new SimilarityQueryRequest(Lists.newArrayList("sales", "sales_join_category"), null);
+    SimilarityQueryRequest queryRequest = new SimilarityQueryRequest(Lists.newArrayList("sales_geo", "sales_join_category"), null);
 
     // @formatter:off
     given()
