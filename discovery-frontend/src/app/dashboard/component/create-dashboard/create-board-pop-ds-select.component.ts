@@ -14,7 +14,7 @@
 
 import { Component, ElementRef, Injector, OnInit, OnDestroy, ViewChild, Output, EventEmitter } from '@angular/core';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import { ConnectionType, Datasource } from '../../../domain/datasource/datasource';
+import {ConnectionType, Datasource, Status} from '../../../domain/datasource/datasource';
 import { StringUtil } from '../../../common/util/string.util';
 import { PageResult } from '../../../domain/common/page';
 import { Alert } from '../../../common/util/alert.util';
@@ -298,7 +298,8 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
 
     const params = {
       size: this.page.size,
-      page: this.page.page
+      page: this.page.page,
+      status : Status.ENABLED
     };
 
     // 토글 정렬
