@@ -82,17 +82,21 @@ not create URIs themselves, instead they should use the above-described links to
 
 [[overview-projection]]
 == Projection
+We introduced the concept of projection model to provide each result set.
+You can get a model that fits your purpose through the projection name.
 
-(TBD)
 
 [[overview-page-sort]]
 == Page & Sort
-
-(TBD)
+For list items, the paging and sort parameters are supported.
+Some limited sort items are marked separately.
 
 [[Authentication]]
 == Authentication
-(TBD)
+In the Authorization request header, specify the token that is issued as follows.
+
+    Authorization: bearer {Token}
+
 
 [[resources]]
 = Resources

@@ -12,39 +12,39 @@
 
 |dataSource
 |DataSource
-|질의할 데이터 소스 정보
+|Datasource information to query
 |
 
 |userFields[]
 |UserDefinedField
-|User-defined field
+|Specifies User-defined field
 |
 
 
 |filters[]
 |Filter
-|Filter 정보
+|Filter information
 |
 
 |projections[]
 |Field
-|질의할 필드 정보
-|선언하는 MeasureField 내 aggregationType 이 null/NONE 인 경우 Select 구문 수행, 아닌 경우 GroupBy 구문 수행.
-이때, 모든 MeasureField 는 동일하게 aggregationType 이 존재하거나 없어야함, Validation 체크 필요
+|Field information to query
+|If the aggregationType in the MeasureField that you declare is null or 'NONE',
+then the Select statement is performed; otherwise, the GroupBy statement is performed.
 
 |limits
 |Limit
-|질의할 최대 Row Count
+|Maximum row counts
 |
 
 |resultFormat
 |SearchResultFormat
-|질의 결과 포맷 지정
+|Specifies the format for query results.
 |
 
 |resultForward
 |ResultForward
-|질의 결과
+|Decide where to place the query results.
 |
 
 |===
@@ -55,17 +55,17 @@
 
 |dataSource
 |DataSource
-|질의할 데이터 소스 정보
+|Datasource information to query
 |
 
 |filters[]
 |Filter
-|Filter 정보
+|Filter information
 |
 
 |userFields
 |UserDefinedField
-|사용자 정의 필드 지정
+|Specifies User-defined field
 |
 
 |searchWord
@@ -97,46 +97,46 @@
 |type
 |Enum
 |Type of Datasource, "default", "mapping"
-|default 타입의 경우 string 형태로 데이터소스 명을 지정 가능합니다.
+|For the default type, the data source name can be specified as a string.
 
 |name
 |String
-|질의할 Main(Left) 데이터 소스 명
-|
+|Name of the Main (Left) datasource to query
+|Must be specified in 'engineName' property of the datasource.
 
 |keyPair
 |Map
-|(mapping) Join 대상이 되는 필드 명 쌍 , key 부분은 left 영역내 필드명이며, value 부분은 right 영역내 필드명임
+|(mapping) The pair of the field name to be joined, the key part is the field name in the left area, and the value part is the field name in the right area
 |
 
 |join
 |Object
-|(mapping) Join 대상(Right) Datasource 정보
+|(mapping) Join (Right) Datasource information
 |
 
 |join.name
 |String
-|Join 대상 데이터 소스 명
+|Name of the datasource to join
 |
 
 |join.joinAlias
 |String
-|하위 조인 대상 존재시, naming 구분자, 기본값은 join.nam
+|Specifies the join name when a subjoin datasource exists. The default value is join.{right datasource name}
 |
 
 |join.type
 |Enum
-|Join Type, "INNER", "LEFT_OUTER", "RIGHT_OUTER"
+|Specifies join type, Currently we are supporting "INNER", "LEFT_OUTER" and "RIGHT_OUTER".
 |
 
 |join.join
 |Object
-|하위 조인 대상 존재시 Join 대상 DataSource 정보
+|Join target DataSource when sub-join datasource exists
 |
 
 |join.keyPair
 |Map
-|하위 조인 대상 존재시, Join 대상 필드명 쌍
+|The pair of join target field name, when a sub-join datasource exists
 |
 
 |===
@@ -157,18 +157,18 @@
 
 |ref
 |String
-|필드 참조 대상, 데이터 소스 명 또는 UserdefinedField 명
+|Specifies the target to which the field refers such as Data source name or user-definedField name.
 |
 
 |valueList
 |Array
-|(include / time_list) 선택한 필드내 값 목록
+|(include / time_list) List of values within the selected field
 |
 
 |intervals
 |Array
-|(time_range) timeUnit 에 맞는 시간 포맷으로 지정, 'datetime/datetime', 'datetime/period', 'period/datetime', 'period/datetime/period' 형태로 입력가능.
-| ex. timeUnit 이 Day 인 경우, 2018-05-19/2018-05-20, "2018-05-20/P2D", ... +
+|(time_range) Specify in time format appropriate for timeUnit. The types that can be input are as follows : 'datetime/datetime', 'datetime/period', 'period/datetime', 'period/datetime/period'
+| ex. if timeUnit is 'DAY' , 2018-05-19/2018-05-20, "2018-05-20/P2D", ... +
  ※ Time format by time unit  +
    - SECOND: "yyyy-MM-dd HH:mm:ss"  +
    -  MINUTE: "yyyy-MM-dd HH:mm"  +
@@ -185,24 +185,24 @@
 
 |byTimeUnit
 |Enum
-|(time_list) timeUnit 범위를 표현하는 시간 단위, "MINUTE", "HOUR", "DAY", "WEEK", "MONTH", "QUARTER", "YEAR"
+|(time_list) by timeUnit, "MINUTE", "HOUR", "DAY", "WEEK", "MONTH", "QUARTER", "YEAR"
 |
 
 |discontinuous
 |Boolean
-|(time_list) 불연속형 여부
+|(time_list) Discontinuity
 |
 
 |tense
 |Enum
-|(time_relative) 기준 시점, "PREVIOUS", "CURRENT", "NEXT"
+|(time_relative) Relative base point, "PREVIOUS", "CURRENT", "NEXT"
 |
 
 |expr
 |String
-|(like) Wildcard 관련 문자('_', '%') 포함, scape 문자('\') 지원  +
+|(like) Support wildcard related characters ('_', '%'), escape character ('\')  +
  (regexpr) Regular Expression +
- (expression) 엔진내 지원하는 Expr 지정
+ (expression) Specifying expression supported in the engine
 |
 
 |===
@@ -228,7 +228,7 @@
 
 |ref
 |String
-|필드 참조 대상, 데이터 소스 명 또는 UserDefinedField 일 경우 "user_defined" 지정
+|Specifies the target to which the field refers such as Data source name or user-definedField name.
 |
 
 |granularity
@@ -243,7 +243,7 @@
 
 |timeZone
 |String
-|(timestamp, dimension) timezone 지정, http://joda-time.sourceforge.net/timezones.html 의 timezone ID 를 따름, default 'UTC'
+|(timestamp, dimension) timezone, follow as this link : http://joda-time.sourceforge.net/timezones.html, default 'UTC'
 |
 
 |locale
@@ -258,8 +258,8 @@
 
 |options
 |String
-|(measure) 집합 함수관련 옵션. key1=value1,key2=value2,.. 형태로 구성
-|Percentile 인 경우 0~1 사이의 값 필요 (ex. value=0.75)
+|(measure) Options related to aggregation type. Configure as key1 = value1, key2 = value2,
+|Percentile requires a value between 0 and 1 (ex. value=0.75)
 
 |===
 
@@ -270,7 +270,7 @@
 |type
 |Enum
 |Type of user-defined field, "user_expr", "user_param", "user_map"
-| "user_param", "user_map" 타입의 경우 추후 정리
+| Currently, only the "user_expr" type is supported.
 
 |name
 |String
@@ -279,7 +279,7 @@
 
 |ref
 |String
-|필드 참조 대상, 데이터 소스 명 또는 UserDefinedField 일 경우 "user_defined" 지정
+|Specifies the target to which the field refers such as Data source name or user-definedField name.
 |
 
 |expr
@@ -309,10 +309,121 @@ Searches datasource on engine.
 
 ===== Request Body
 
-.Request body structure
+.Request body select sample
 [source,json]
 ----
-aaa
+{
+    "dataSource": {
+        "type": "default",
+        "name": "sales_geo"
+    },
+    "filters": [
+        {
+            "type": "time_range",
+            "field": "ShipDate",
+            "timeUnit": "NONE",
+            "intervals": [
+                "EARLIEST_DATETIME/2011-05-19 12:00:00",
+                "2014-05-19 16:00:23/LATEST_DATETIME"
+            ],
+            "timeZone": "UTC",
+            "locale": "en"
+        }
+    ],
+    "projections": [
+        {
+            "type": "timestamp",
+            "name": "OrderDate",
+            "alias": "OrderDate",
+            "format": {
+                "type": "time_format",
+                "format": "yyyy-MM-dd HH:mm:ss",
+                "timeZone": "UTC",
+                "locale": "en"
+            }
+        },
+        {
+            "type": "dimension",
+            "name": "City",
+            "alias": "City"
+        },
+        {
+            "type": "dimension",
+            "name": "Sub-Category",
+            "alias": "Sub-Category"
+        },
+        {
+            "type": "dimension",
+            "name": "Category",
+            "alias": "Category"
+        },
+        {
+            "type": "measure",
+            "name": "Sales",
+            "alias": "Sales",
+            "aggregationType": "NONE",
+            "userDefinedAlias": "Sales"
+        }
+    ],
+    "userFields": [
+
+    ],
+    "limits": {
+        "limit": 1000,
+        "sort": [
+            {
+                "field": "OrderDate",
+                "direction": "DESC"
+            }
+        ]
+    },
+    "metaQuery": false,
+    "preview": false
+}
+----
+
+.Request body GroupBy sample
+[source,json]
+----
+{
+    "dataSource": {
+        "type": "default",
+        "name": "sales_geo"
+    },
+    "filters": [
+        ...
+    ],
+    "projections": [
+        {
+            "type": "dimension",
+            "name": "Category"
+        },
+        {
+            "type": "timestamp",
+            "name": "OrderDate",
+            "format": {
+                "type": "time_continuous",
+                "discontinuous": false,
+                "unit": "YEAR"
+            }
+        },
+        {
+            "type": "measure",
+            "name": "Discount",
+            "alias": "AVG(Discount)"
+            "aggregationType": "AVG"
+        }
+    ],
+    "limits": {
+        "limit": 20,
+        "sort": [
+            {
+                "field": "SUM(Discount)",
+                "direction": "ASC"
+            }
+        ]
+    }
+}
 ----
 
 ===== Response
@@ -327,10 +438,27 @@ Returns cadidated contents of field.
 
 ===== Request Body
 
-.Request body structure
+.Request body sample
 [source,json]
 ----
-{}
+{
+    "dataSource": "sales",
+    "filters": [
+        {
+            "type": "include",
+            "field": "State",
+            "valueList": [
+                "Texas"
+            ]
+        }
+    ],
+    "targetField": {
+        "type": "dimension",
+        "name": "Category"
+    },
+    "sortBy": "COUNT",
+    "limit": 100
+}
 ----
 
 ===== Response
@@ -342,8 +470,8 @@ If successful, this method returns following structure in the response body.
 {
   "minTime": "yyyy-MM-ddTHH:mm:ss.SSSZ"
   "maxTime": "yyyy-MM-ddTHH:mm:ss.SSSZ"
-  "minValue": "string"                 # Dimension Role 이며 DataType 이 Timestamp 인 경우 원본 포맷으로도 전달
-  "minValue": "string"                 # Dimension Role 이며 DataType 이 Timestamp 인 경우 원본 포맷으로도 전달
+  "minValue": "string"                 # If Dimension Role and DataType is Timestamp, the original value is also included in the result.
+  "minValue": "string"                 #
 }
 ----
 
