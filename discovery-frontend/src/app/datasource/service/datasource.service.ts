@@ -299,7 +299,7 @@ export class DatasourceService extends AbstractService {
     };
     (context.widgetId) && (query.context['discovery.widget.id'] = context.widgetId);
 
-    if (pageConf.hasOwnProperty('customFields')) {
+    if (pageConf.customFields) {
       query.userFields = pageConf.customFields.filter(item => item.dataSource === pageConf.dataSource.engineName);
     }
 
