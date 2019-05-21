@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 /**
- * Created by kyungtaak on 2017. 5. 22..
+ *
  */
 @JsonTypeName("union")
 public class UnionDataSource implements DataSource {
@@ -29,23 +29,22 @@ public class UnionDataSource implements DataSource {
   public static UnionDataSource of(Iterable<String> names) {
     return new UnionDataSource(
         StreamSupport.stream(names.spliterator(), false)
-            .map(name -> new TableDataSource(name))
-            .collect(Collectors.toList())
+                     .collect(Collectors.toList())
     );
   }
 
-  private List<TableDataSource> dataSources;
+  private List<String> dataSources;
 
 
-  public UnionDataSource(List<TableDataSource> dataSources) {
+  public UnionDataSource(List<String> dataSources) {
     this.dataSources = dataSources;
   }
 
-  public List<TableDataSource> getDataSources() {
+  public List<String> getDataSources() {
     return dataSources;
   }
 
-  public void setDataSources(List<TableDataSource> dataSources) {
+  public void setDataSources(List<String> dataSources) {
     this.dataSources = dataSources;
   }
 }
