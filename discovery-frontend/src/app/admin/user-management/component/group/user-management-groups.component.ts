@@ -394,6 +394,15 @@ export class UserManagementGroupsComponent extends AbstractUserManagementCompone
     this.groupsService.getGroupList(params)
       .then((result) => {
 
+        // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다
+        if (this.page.page > 0 &&
+          isNullOrUndefined(result['_embedded']) ||
+          (!isNullOrUndefined(result['_embedded']) && result['_embedded'].groups.length === 0))
+        {
+          this.page.page = result.page.number - 1;
+          this._getGroupList();
+        }
+
         // 검색 파라메터 정보 저장
         this._searchParams = params;
 

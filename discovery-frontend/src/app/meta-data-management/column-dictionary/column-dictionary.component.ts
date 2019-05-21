@@ -388,6 +388,15 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
 
     this._columnDictionaryService.getColumnDictionaryList(params).then((result) => {
 
+      // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다.
+      if (this.page.page > 0 &&
+        isNullOrUndefined(result['_embedded']) ||
+        (!isNullOrUndefined(result['_embedded']) && result['_embedded'].dictionaries.length === 0))
+      {
+        this.page.page = result.page.number - 1;
+        this._getColumnDictionaryList();
+      }
+
       this._searchParams = params;
 
       this.pageResult = result.page;

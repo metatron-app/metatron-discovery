@@ -448,7 +448,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
           this.page.page = this.page.page - 1;
         }
         // 재조회
-        this.reloadPage();
+        this.reloadPage(false);
       })
       .catch((error)=> {
         // alert
@@ -475,7 +475,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
           ? this.translateService.instant('msg.mem.alert.change.usr.status.inactive.success', {value: userName})
           : this.translateService.instant('msg.mem.alert.change.usr.status.active.success', {value: userName}));
         // 재조회
-        this.reloadPage();
+        this.reloadPage(false);
       })
       .catch((error) => {
         // alert
@@ -529,6 +529,15 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
     const params = this._getMemberParams();
     this.membersService.getRequestedUser(params)
       .then((result) => {
+
+        // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다
+        if (this.page.page > 0 &&
+          isNullOrUndefined(result['_embedded']) ||
+          (!isNullOrUndefined(result['_embedded']) && result['_embedded'].users.length === 0))
+        {
+          this.page.page = result.page.number - 1;
+          this._getMemberList();
+        }
 
         // 검색 파라메터 정보 저장
         this._searchParams = params;

@@ -378,7 +378,7 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
       // 기존에 저장된 라우트 삭제
       this.cookieService.delete('PREV_ROUTER_URL');
       // 사용자 관리 목록으로 돌아가기
-      this.router.navigate(['/admin/user/members']);
+      this._location.back();
     }).catch((error) => {
       // alert
       Alert.error(error);

@@ -26,6 +26,7 @@ import {CriterionComponent} from "../component/criterion/criterion.component";
 import {Criteria} from "../../domain/datasource/criteria";
 import {ActivatedRoute} from "@angular/router";
 import {Alert} from "../../common/util/alert.util";
+import {isNullOrUndefined} from "util";
 
 @Component({
   selector: 'app-data-connection',
@@ -302,6 +303,16 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
     // get connection list
     this.dataconnectionService.getConnectionList(this.page.page, this.page.size, this.selectedContentSort.key + ',' + this.selectedContentSort.sort, this._getConnectionParams())
       .then((result) => {
+
+        // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다.
+        if (this.page.page > 0 &&
+          isNullOrUndefined(result['_embedded']) ||
+          (!isNullOrUndefined(result['_embedded']) && result['_embedded'].connections.length === 0))
+        {
+          this.page.page = result.page.number - 1;
+          this._setConnectionList();
+        }
+
         // set page result
         this.pageResult = result['page'];
         // set connection list
