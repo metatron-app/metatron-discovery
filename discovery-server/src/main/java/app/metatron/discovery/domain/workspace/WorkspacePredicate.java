@@ -115,6 +115,24 @@ public class WorkspacePredicate {
     return builder;
   }
 
+  public static Predicate searchPublicTypeAndNameContainsAndActive(Workspace.PublicType publicType, String nameContains, Boolean active) {
+
+    BooleanBuilder builder = new BooleanBuilder();
+    QWorkspace workspace = QWorkspace.workspace;
+
+    builder.and(searchPublicTypeAndNameContains(publicType, nameContains));
+    if(active != null) {
+      // active 상태는 하위 호환을 위하여 active 값이 null 인 경우도 true로 인식
+      if(active) {
+        builder.andAnyOf(workspace.active.isNull(), workspace.active.isTrue());
+      } else {
+        builder.and(workspace.active.isFalse());
+      }
+    }
+
+    return builder;
+  }
+
   public static Predicate searchDateTime(String searchDateBy, DateTime from, DateTime to) {
 
     BooleanBuilder builder = new BooleanBuilder();

@@ -977,7 +977,7 @@ public abstract class AbstractQueryBuilder {
   private void addCsvContext(CsvResultForward resultForward) {
     addContext("forwardURL", resultForward.getForwardUrl());
     Map<String, Object> csvContext = Maps.newHashMap();
-    csvContext.put("header", resultForward.isHasHeader());
+    csvContext.put("withHeader", resultForward.isHasHeader());
     csvContext.put("format", "csv");
     csvContext.put("columns", StringUtils.join(getAllOutputFieldName(), ","));
     addContext("forwardContext", csvContext);
