@@ -228,6 +228,15 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
 
     this.dataflowService.getDataflowList(params).then((data) => {
 
+      // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다
+      if (this.page.page > 0 &&
+        isNullOrUndefined(data['_embedded']) ||
+        (!isNullOrUndefined(data['_embedded']) && data['_embedded'].preparationdataflows.length === 0))
+      {
+        this.page.page = data['page'].number - 1;
+        this.getDataflows();
+      }
+
       this._searchParams = params;
 
       this.pageResult = data['page'];

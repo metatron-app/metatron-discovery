@@ -141,8 +141,9 @@ export class DetailUserManagementGroupsComponent extends AbstractUserManagementC
         this.loadingHide();
         // 기존에 저장된 라우트 삭제
         this.cookieService.delete('PREV_ROUTER_URL');
+
         // 그룹 관리 목록으로 돌아가기
-        this.router.navigate(['/admin/user/groups']);
+        this._location.back();
       })
       .catch((error) => {
         // alert

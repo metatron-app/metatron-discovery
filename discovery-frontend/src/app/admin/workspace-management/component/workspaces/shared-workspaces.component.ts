@@ -508,8 +508,13 @@ export class SharedWorkspacesComponent extends AbstractComponent {
       .then(() => {
         // alert
         Alert.success(this.translateService.instant('msg.spaces.shared.alert.delete'));
+
+        if (this.page.page > 0 && this._workspaceList.length === 1) {
+          this.page.page -= 1;
+        }
+
         // 페이지 새로고침
-        this.reloadPage();
+        this.reloadPage(false);
       })
       .catch((error) => {
         // alert
@@ -566,6 +571,15 @@ export class SharedWorkspacesComponent extends AbstractComponent {
 
     this.workspaceService.getWorkspaceByAdmin(params)
       .then((result) => {
+
+        if (this.page.page > 0 &&
+          isNullOrUndefined(result['_embedded']) ||
+          (!isNullOrUndefined(result['_embedded']) && result['_embedded'].workspaces.length === 0))
+        {
+          this.page.page = result.page.number - 1;
+          this._getWorkspaceListInServer();
+        }
+
         // 검색 파라메터 정보 저장
         this._searchParams = params;
         // 페이지 객체
