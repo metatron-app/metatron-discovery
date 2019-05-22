@@ -253,7 +253,7 @@ public class WorkspaceController {
 
     } else {
       Page<Workspace> workspaces = workspaceRepository
-          .findAll(WorkspacePredicate.searchPublicTypeAndNameContains(type, nameContains), pageable);
+          .findAll(WorkspacePredicate.searchPublicTypeAndNameContainsAndActive(type, nameContains, true), pageable);
 
       // 특정 데이터 소스에 연결된 Workspace 찾기
       List<String> linkedWorkspaceIds = null;
