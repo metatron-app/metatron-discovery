@@ -2435,7 +2435,7 @@ em.ddp-icon-control-cut .ddp-ui-tooltip-info.ddp-down em.ddp-icon-view-top {righ
 
 .ddp-box-block.ddp-box-workbench {display:inline-block; background:url(../images/bg_workbench.png) no-repeat right bottom ; background-color:#fff;}
 
-.ddp-ui-space-option {position:relative; padding-right:450px; width:100%; clear:both; z-index:5; box-sizing:border-box;}
+.ddp-ui-space-option {position:relative; padding-right:450px; width:100%; clear:both; z-index:20; box-sizing:border-box;}
 .ddp-ui-space-option .ddp-ui-option-right { position:absolute; top:5px; right:0;}
 .ddp-ui-space-option .ddp-ui-space-nav {padding:20px 0 0 0;}
 .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav {display:inline-block; min-height:25px; max-width:15%; position:relative; padding-left:19px; margin-right:4px; cursor: pointer; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
