@@ -88,7 +88,7 @@
     <li *ngIf="selectedField.type =='user_expr'">
       <a href="javascript:">
         {{'msg.page.th.edit-cond' | translate}}
-        <div class="ddp-data-result ddp-padr0">
+        <div class="ddp-data-result">
           <span class="ddp-txt-result">{{unescapeCustomColumnExpr(selectedField.expr)}}</span>
           <em (click)="customFieldEmit(selectedField)" class="ddp-btn-option"></em>
         </div>
