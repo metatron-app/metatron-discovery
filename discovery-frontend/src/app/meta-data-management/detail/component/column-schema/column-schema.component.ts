@@ -243,9 +243,12 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
       .filter(datetimePopupComponent => _.negate(_.isNil)(datetimePopupComponent.fieldFormat))
       .filter(datetimeValidPopupComponent => !datetimeValidPopupComponent.fieldFormat.isValidFormat);
 
-    if (datetimeValidPopupComponents.length > 0) {
-      this.isSaveInvalid = true;
-      return;
+    // TODO 추후 데이터소스 연결시 if문 제거
+    if (this.hasMetadataColumnInDatasource()) {
+      if (datetimeValidPopupComponents.length > 0) {
+        this.isSaveInvalid = true;
+        return;
+      }
     }
     this._updateColumnSchema();
   }
@@ -431,7 +434,10 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
       .filter(datetimeValidPopupComponent => !datetimeValidPopupComponent.fieldFormat.isValidFormat);
 
     // this.isSaveInvalid = this.columnList.some(field =>  field.role !== Type.Role.TIMESTAMP && (field.type === Type.Logical.TIMESTAMP && !field.format.isValidFormat));
-    this.isSaveInvalid = datetimeValidPopupComponents.length > 0;
+    // TODO 추후 데이터소스 연결시 if문 제거
+    if (this.hasMetadataColumnInDatasource()) {
+      this.isSaveInvalid = datetimeValidPopupComponents.length > 0;
+    }
   }
 
   public isLogicalTypesLayerActivation(metadataColumn: MetadataColumn) {
@@ -667,6 +673,9 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
         .then((result) => {
           result.map((field) => {
             if (MetadataColumn.isTypeIsTimestamp(field)) {
+              if (_.isNil(field.format)) {
+                field.format = new FieldFormat();
+              }
               field.format.isValidFormat = true;
             }
             return field;
@@ -727,6 +736,9 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
         item.format = {
           format: item.format.format.substr(0, 254)
         };
+      }
+      if (!this.hasMetadataColumnInDatasource() && item.type === 'TIMESTAMP' && item.format && item.format.type === FieldFormatType.DATE_TIME && StringUtil.isEmpty(item.format.format)) {
+        item.format = null;
       }
       // dictionary가 있다면
       item.dictionary && (item[ 'dictionary' ] = `/api/dictionaries/${item.dictionary.id}`);

@@ -399,11 +399,21 @@
             <div class="ddp-ui-info"
                  [hidden]="isTypeIsTimestamp(column) === false"
                  [class.ddp-selected]="column.format?.isShowTimestampValidPopup">
-              <em [class.ddp-icon-sinfo2]="isValidInformationIcon(column)"
-                  [class.ddp-icon-error2]="isInvalidInformationIcon(column)"
-                  [ngClass]="[TIMESTAMP_VALID_PUPOP_ELEMENT]"
-                  (click)="onClickInfoIcon(column, index)">
-              </em>
+              <!-- TODO 추후 데이터소스 연결시 error2에 있는 hasMetadataColumnInDatasource container와 template 제거 -->
+              <ng-container *ngIf="hasMetadataColumnInDatasource(); else none">
+                <em [class.ddp-icon-sinfo2]="isValidInformationIcon(column)"
+                    [class.ddp-icon-error2]="isInvalidInformationIcon(column)"
+                    [ngClass]="[TIMESTAMP_VALID_PUPOP_ELEMENT]"
+                    (click)="onClickInfoIcon(column, index)">
+                </em>
+              </ng-container>
+              <ng-template #none>
+                <em class="ddp-icon-sinfo2"
+                    [ngClass]="[TIMESTAMP_VALID_PUPOP_ELEMENT]"
+                    (click)="onClickInfoIcon(column, index)">
+                </em>
+              </ng-template>
+
             </div>
             <!-- format layer -->
             <datetime-valid-popup
@@ -411,7 +421,8 @@
               [fieldFormat]="column?.format"
               [fieldDataList]="fieldDataList"
               [fieldName]="column.physicalName"
-              (changedFieldFormat)="column.format = $event"
+              [isDisableValidation]="!hasMetadataColumnInDatasource()"
+              (changedFieldFormat)="column.format = $event; column.replaceFl = true;"
               (changedFieldFormatValid)="setIsExistErrorInFieldListFlag()"
               (closed)="column.replaceFl = true;">
             </datetime-valid-popup>

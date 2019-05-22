@@ -122,11 +122,12 @@
         <!-- apply -->
         <div class="ddp-type-apply" *ngIf="fieldFormat.type === FIELD_FORMAT_TYPE.DATE_TIME">
           <!-- input text 입력시 ddp-edit 추가 -->
+          <!-- TODO 추후 데이터소스 연결시 isDisableValidation 제거-->
           <div class="ddp-input-apply">
-            <input type="text" placeholder="Enter column delimiter" class="ddp-input-txt" [(ngModel)]="fieldFormat.format" (ngModelChange)="onChangedFormatText($event)">
-            <em class="ddp-icon-apply" (click)="onClickFormatValidation()"></em>
+            <input type="text" placeholder="{{'msg.storage.ph.time.format' | translate}}" class="ddp-input-txt" [(ngModel)]="fieldFormat.format" (ngModelChange)="onChangedFormatText($event)">
+            <em class="ddp-icon-apply" (click)="onClickFormatValidation()" *ngIf="!isDisableValidation"></em>
           </div>
-          <div class="ddp-txt-error" *ngIf="fieldFormat.isValidFormat === false">
+          <div class="ddp-txt-error" *ngIf="!isDisableValidation && fieldFormat.isValidFormat === false">
             <em class="ddp-icon-error-s"></em>{{fieldFormat.formatValidMessage}}
           </div>
         </div>
