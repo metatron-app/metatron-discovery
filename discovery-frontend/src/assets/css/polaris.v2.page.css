@@ -3164,7 +3164,7 @@ ul.ddp-list-layer-option li a .ddp-data-result {float:right; position:relative; 
 ul.ddp-list-layer-option li a .ddp-data-result span.ddp-txt-result {display:inline-block; max-width:90px; color:#90969f; font-size:11px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal; vertical-align: middle;}
 ul.ddp-list-layer-option li a .ddp-data-result em.ddp-icon-view {display:inline-block; position:absolute; top:50%; right:0; width:4px; height:8px; margin:-4px 0 0 0; background:url(../images/icon_dataview.png) no-repeat; background-position:left -40px; vertical-align: middle;}
 ul.ddp-list-layer-option li ul.ddp-list-popup li a em.ddp-icon-view {transform:rotate(0);}
-ul.ddp-list-layer-option li a .ddp-data-result em.ddp-btn-option {vertical-align: middle;}
+ul.ddp-list-layer-option li a .ddp-data-result em.ddp-btn-option {margin-left:3px; margin-right:-3px;vertical-align: middle;}
 ul.ddp-list-layer-option li a .ddp-data-result.ddp-type {color:#666eb2;}
 
 
@@ -6523,7 +6523,7 @@ ul.ddp-ui-tab.ddp-type li .ddp-box-layout4.ddp-information a {padding:0px; borde
 	page : 워크벤치 detail
 ************************************************************************************************************/
 .ddp-wrap-workbench {position:absolute; top:101px; left:0; right:0; bottom:0; width:initial; height:auto; overflow:hidden;}
-.ddp-wrap-workbench .ddp-ui-rnb {position:relative; display:table-cell;width:52px; background-color:#f8f7f9; z-index:20; vertical-align:top;}
+.ddp-wrap-workbench .ddp-ui-rnb {position:relative; display:table-cell;width:52px; background-color:#f8f7f9; z-index:31; vertical-align:top;}
 
 
 .ddp-wrap-workbench .ddp-layout-table {display:table; width:100%; height:100%;}
@@ -6689,8 +6689,6 @@ ul.ddp-list-table li em.ddp-icon-tableinfo.ddp-disabled:hover:before {background
 .ddp-box-layout4 ul.ddp-list-type.ddp-list-popup li a {padding-right:30px;}
 .ddp-box-layout4 ul.ddp-list-type.ddp-list-popup li.ddp-selected a .ddp-data-name {color:#666eb2;}
 .ddp-box-layout4 .ddp-btn-more {display:inline-block; margin:0 20px 0 20px; color:#4b515b; font-size:12px; text-decoration: underline;}
-.ddp-wrap-workbench {position:absolute; top:101px; left:0; right:0; bottom:0; width:initial; height:initial; }
-.ddp-wrap-workbench .ddp-ui-rnb {position:relative; display:table-cell;width:52px; background-color:#f8f7f9; z-index:20; vertical-align:top;}
 
 ul.ddp-list-rnb li a {display:block; position:relative; width:52px; height:52px;}
 ul.ddp-list-rnb li.ddp-selected a {background-color:#90969f;}
