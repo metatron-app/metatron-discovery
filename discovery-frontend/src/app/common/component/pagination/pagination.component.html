@@ -15,7 +15,7 @@
 <div class="ddp-box-page">
   <!-- num -->
   <div class="ddp-page-num">
-    <a (click)="prevPagination()" href="javascript:" class="ddp-btn-prev"></a>
+    <a (click)="prevPagination()" href="javascript:" class="ddp-btn-prev" [ngClass]="{'ddp-disabled':range[0] === 0}" ></a>
     <a *ngFor="let item of range"
        (click)="changePage(item)"
        [ngClass]="{'ddp-selected' : item === info.number }"
