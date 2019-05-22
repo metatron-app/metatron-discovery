@@ -76,7 +76,7 @@
               <tbody>
               <tr *ngFor="let field of editingJoin.left.uiFields">
                 <td class="ddp-txt-center">
-                  <em ngClass="{{getFieldTypeIconClass(field.type)}}"></em>
+                  <em ngClass="{{getFieldTypeIconClass(field.logicalType?.toString())}}"></em>
                 </td>
                 <td>{{field.name}}</td>
               </tr>
@@ -164,7 +164,7 @@
               <tbody>
               <tr *ngFor="let field of editingJoin.right.uiFields">
                 <td class="ddp-txt-center">
-                  <em ngClass="{{getFieldTypeIconClass(field.type)}}"></em>
+                  <em ngClass="{{getFieldTypeIconClass(field.logicalType?.toString())}}"></em>
                 </td>
                 <td>{{field.name}}</td>
               </tr>

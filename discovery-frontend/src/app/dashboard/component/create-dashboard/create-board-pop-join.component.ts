@@ -221,13 +221,19 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public get leftJoinCandidateKeys() {
     return this.editingJoin.left.uiFields.filter(item => {
-      return (item.logicalType !== LogicalType.TIMESTAMP && item.role !== FieldRole.MEASURE);
+      return (item.logicalType !== LogicalType.TIMESTAMP && item.role !== FieldRole.MEASURE
+        && item.logicalType !== LogicalType.GEO_POINT
+        && item.logicalType !== LogicalType.GEO_LINE
+        && item.logicalType !== LogicalType.GEO_POLYGON);
     });
   }
 
   public get rightJoinCandidateKeys() {
     return this.editingJoin.right.uiFields.filter(item => {
-      return (item.logicalType !== LogicalType.TIMESTAMP && item.role !== FieldRole.MEASURE);
+      return (item.logicalType !== LogicalType.TIMESTAMP && item.role !== FieldRole.MEASURE
+        && item.logicalType !== LogicalType.GEO_POINT
+        && item.logicalType !== LogicalType.GEO_LINE
+        && item.logicalType !== LogicalType.GEO_POLYGON);
     });
   }
 
