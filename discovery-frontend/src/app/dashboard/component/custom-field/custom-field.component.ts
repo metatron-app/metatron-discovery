@@ -187,8 +187,6 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
 
   // Init
   public ngOnInit() {
-
-    // Init
     super.ngOnInit();
 
     this._$calculationInput = $('#calculationInput');
@@ -204,6 +202,14 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
     this.setFilters();
     // 함수 및 자동완성 셋
     this.setCalculationFunction();
+  }
+
+  // Destroy
+  public ngOnDestroy() {
+    super.ngOnDestroy();
+  }
+
+  public ngAfterViewInit() {
 
     // 수정모드
     if (this.customField) {
@@ -218,18 +224,10 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
       this._$calculationInput.text(StringUtil.unescapeCustomColumnExpr(this.customField.expr));
       this.calValidButtonCheck();
     } else {
+      this._$calculationInput.text( '' );
       this.setColumnName();
     }
-  }
 
-  // Destory
-  public ngOnDestroy() {
-    // Destory
-    super.ngOnDestroy();
-  }
-
-
-  public ngAfterViewInit() {
     this.setAutoComplete();
     this._$calculationInput.trigger('focus');
     this._$calculationInput.attr('placeholder', this.translateService.instant('msg.board.custom.ui.content.placeholder'));
@@ -239,6 +237,8 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
       this.calValidButtonCheck();
       this.isCalFuncSuccess = null;
     });
+
+    this.safelyDetectChanges();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -495,17 +495,14 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
 
   // 함수 클릭
   public selectFunction(functionItem: CommonCode) {
-    let insertFunction = '<span>';
-    insertFunction += functionItem.commonValue + '( <span id="focusElement"></span>';
-    insertFunction += ' )</span>';
-    this.insertAtCursor(insertFunction);
+    this.insertAtCursor('<span>' + functionItem.commonValue + '( <span id="focusElement"></span> )</span>');
 
     // 검증 버튼 활성화
     this.calValidButtonCheck();
   }
 
   // 컬럼 클릭
-  public selecteColumn(column: Field) {
+  public selectColumn(column: Field) {
     let color = '#439fe5';
     if (column.role === FieldRole.DIMENSION) {
       color = '#5fd7a5';
@@ -522,7 +519,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
 
     // 검증 버튼 활성화
     this.calValidButtonCheck();
-  }
+  } // function - selectColumn
 
   // 커서가 위치한 곳에 텍스트를 넣는다.
   public insertAtCursor(innerHtml) {
@@ -550,7 +547,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
       // range를 갱신한다.
       sel.addRange(range);
     }
-  }
+  } // function - insertAtCursor
 
   // 계산식 버튼 활성화 여부
   public calValidButtonCheck() {

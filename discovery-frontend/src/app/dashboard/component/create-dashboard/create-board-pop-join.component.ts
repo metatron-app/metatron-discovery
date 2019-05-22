@@ -14,18 +14,18 @@
 
 import * as _ from 'lodash';
 import * as pixelWidth from 'string-pixel-width';
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { BoardDataSource, JoinMapping, QueryParam } from '../../../domain/dashboard/dashboard';
-import { GridComponent } from '../../../common/component/grid/grid.component';
-import { Datasource, Field } from '../../../domain/datasource/datasource';
-import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
-import { GridOption } from '../../../common/component/grid/grid.option';
-import { DatasourceService } from '../../../datasource/service/datasource.service';
-import { CommonUtil } from '../../../common/util/common.util';
-import { Alert } from '../../../common/util/alert.util';
+import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
+import {BoardDataSource, JoinMapping, QueryParam} from '../../../domain/dashboard/dashboard';
+import {GridComponent} from '../../../common/component/grid/grid.component';
+import {Datasource, Field, FieldRole, LogicalType} from '../../../domain/datasource/datasource';
+import {header, SlickGridHeader} from '../../../common/component/grid/grid.header';
+import {GridOption} from '../../../common/component/grid/grid.option';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {CommonUtil} from '../../../common/util/common.util';
+import {Alert} from '../../../common/util/alert.util';
 import * as $ from 'jquery';
-import { StringUtil } from '../../../common/util/string.util';
+import {StringUtil} from '../../../common/util/string.util';
 
 @Component({
   selector: 'create-board-pop-join',
@@ -219,6 +219,17 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public get leftJoinCandidateKeys() {
+    return this.editingJoin.left.uiFields.filter(item => {
+      return (item.logicalType !== LogicalType.TIMESTAMP && item.role !== FieldRole.MEASURE);
+    });
+  }
+
+  public get rightJoinCandidateKeys() {
+    return this.editingJoin.right.uiFields.filter(item => {
+      return (item.logicalType !== LogicalType.TIMESTAMP && item.role !== FieldRole.MEASURE);
+    });
+  }
 
   /**
    * 조인 화면 내 검색어에 의한 데이터 소스 목록
@@ -620,7 +631,7 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
     const headers: header[] = fields.map(
       (field: Field) => {
         /* 62 는 CSS 상의 padding 수치의 합산임 */
-        const headerWidth: number = Math.floor(pixelWidth(field.name, { size: 12 })) + 62;
+        const headerWidth: number = Math.floor(pixelWidth(field.name, {size: 12})) + 62;
         return new SlickGridHeader()
           .Id(field.name)
           .Name(field.name)

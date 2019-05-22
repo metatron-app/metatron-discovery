@@ -300,7 +300,9 @@ export class DatasourceService extends AbstractService {
     (context.widgetId) && (query.context['discovery.widget.id'] = context.widgetId);
 
     if (pageConf.customFields) {
-      query.userFields = pageConf.customFields.filter(item => item.dataSource === pageConf.dataSource.engineName);
+      query.userFields = CommonUtil.objectToArray(pageConf.customFields).filter(item => {
+        return item.dataSource === pageConf.dataSource.engineName;
+      });
     }
 
     query.filters = _.cloneDeep(pageConf.filters);
