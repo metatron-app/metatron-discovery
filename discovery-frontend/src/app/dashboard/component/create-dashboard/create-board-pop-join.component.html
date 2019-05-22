@@ -74,9 +74,9 @@
                 <col width="*"/>
               </colgroup>
               <tbody>
-              <tr *ngFor="let field of editingJoin.left.uiFields">
+              <tr *ngFor="let field of getGridFields(editingJoin.left.uiFields)">
                 <td class="ddp-txt-center">
-                  <em ngClass="{{getFieldTypeIconClass(field.type)}}"></em>
+                  <em ngClass="{{getFieldTypeIconClass(field.logicalType?.toString())}}"></em>
                 </td>
                 <td>{{field.name}}</td>
               </tr>
@@ -162,9 +162,9 @@
                 <col width="*"/>
               </colgroup>
               <tbody>
-              <tr *ngFor="let field of editingJoin.right.uiFields">
+              <tr *ngFor="let field of getGridFields(editingJoin.right.uiFields)">
                 <td class="ddp-txt-center">
-                  <em ngClass="{{getFieldTypeIconClass(field.type)}}"></em>
+                  <em ngClass="{{getFieldTypeIconClass(field.logicalType?.toString())}}"></em>
                 </td>
                 <td>{{field.name}}</td>
               </tr>
@@ -185,11 +185,11 @@
           <div class="ddp-form-join">
             <!-- select box -->
             <div id="joinLeft" class="ddp-type-selectbox" [class.ddp-selected]="editingJoin.isJoinLeftFl"
-                 (click)="editingJoin.isJoinLeftFl=true">
+                 (click)="editingJoin.isJoinLeftFl=!editingJoin.isJoinLeftFl" (clickOutside)="editingJoin.isJoinLeftFl=false"
+                 [excludeBeforeClick]="true" [exclude]="'#joinLeft'">
               <span class="ddp-txt-selectbox">{{editingJoin.leftJoinKey && editingJoin.leftJoinKey !=='' ? editingJoin.leftJoinKey : 'Column'}}</span>
-              <ul class="ddp-list-selectbox ddp-selectdown" (clickOutside)="editingJoin.isJoinLeftFl=false"
-                  [excludeBeforeClick]="true" [exclude]="'#joinLeft'">
-                <li *ngFor="let field of editingJoin.left.uiFields" (click)="selectJoinColumn($event, 'left', field.name)">
+              <ul class="ddp-list-selectbox ddp-selectdown" >
+                <li *ngFor="let field of getJoinCandidateKeys( editingJoin.left.uiFields )" (click)="selectJoinColumn($event, 'left', field.name)">
                   <a href="javascript:">{{field.name}}</a>
                 </li>
               </ul>
@@ -198,11 +198,11 @@
             <span class="ddp-data-default">=</span>
             <!-- select box -->
             <div id="joinRight" class="ddp-type-selectbox" [class.ddp-selected]="editingJoin.isJoinRightFl"
-                 (click)="editingJoin.isJoinRightFl=true" (clickOutside)="editingJoin.isJoinRightFl=false"
+                 (click)="editingJoin.isJoinRightFl=!editingJoin.isJoinRightFl" (clickOutside)="editingJoin.isJoinRightFl=false"
                  [excludeBeforeClick]="true" [exclude]="'#joinRight'">
               <span class="ddp-txt-selectbox">{{editingJoin.rightJoinKey && editingJoin.rightJoinKey !=='' ? editingJoin.rightJoinKey : 'Column'}}</span>
               <ul class="ddp-list-selectbox ddp-selectdown" *ngIf="editingJoin.right">
-                <li *ngFor="let field of editingJoin.right.uiFields" (click)="selectJoinColumn($event, 'right', field.name)">
+                <li *ngFor="let field of getJoinCandidateKeys( editingJoin.right.uiFields )" (click)="selectJoinColumn($event, 'right', field.name)">
                   <a href="javascript:">{{field.name}}</a>
                 </li>
               </ul>

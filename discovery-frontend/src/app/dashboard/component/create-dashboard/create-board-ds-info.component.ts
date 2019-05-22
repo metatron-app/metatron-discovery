@@ -525,7 +525,7 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
       });
       this.isEnableJoin = (candidateDataSources && 0 < candidateDataSources.length);
       this._candidateDataSources = candidateDataSources;
-      this.changeDetect.detectChanges();
+      this.safelyDetectChanges();
     }).catch((error) => {
       console.error(error);
       Alert.error(this.translateService.instant('msg.board.alert.fail.load.datasource'))
