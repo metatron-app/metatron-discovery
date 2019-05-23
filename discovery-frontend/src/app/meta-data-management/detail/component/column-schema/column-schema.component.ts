@@ -257,17 +257,32 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   /**
    * Logical type list show
    */
-  public onShowLogicalTypeList(metadataColumn: MetadataColumn): void {
+  public onShowLogicalTypeList(metadataColumn: MetadataColumn, typeElement, typeListElement): void {
 
     if (!this.isLogicalTypesLayerActivation(metadataColumn)) {
       return;
     }
 
     if (this.isSelectedMetadataColumnInColumnDictionaryDefined(metadataColumn) === false) {
-      // show flag
       metadataColumn[ 'typeListFl' ] = !metadataColumn[ 'typeListFl' ];
       // detect changes
       this.changeDetect.detectChanges();
+
+      if (metadataColumn[ 'typeListFl' ]) {
+        const $selectOptionPop = $(typeListElement);
+        const $selectOptionTop = $(typeElement).offset().top;
+        const $selectOptionLeft = $(typeElement).offset().left;
+        $selectOptionPop.css({
+          'position' :'fixed',
+          'left' : $selectOptionLeft,
+          'top' :$selectOptionTop + 23
+        });
+        if($selectOptionTop >  $(window).outerHeight() / 2) {
+          $selectOptionPop.css({
+            'top' : $selectOptionTop - $selectOptionPop.outerHeight() - 5
+          });
+        }
+      }
     }
   }
 
@@ -508,10 +523,10 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     return metadataColumn.format && metadataColumn.format.isValidFormat === false;
   }
 
-  public onClickTypeSelectAndTimestampValidWrapElement(event: MouseEvent, metadataColumn: MetadataColumn) {
+  public onClickTypeSelectAndTimestampValidWrapElement(event: MouseEvent, metadataColumn: MetadataColumn, typeElement, typeListElement) {
 
     if (this._checkIfElementContainsClassName(this._getTargetElementClassList(event), this.TYPE_SELECT_AND_TIMESTAMP_VALID_WRAP_ELEMENT)) {
-      this.onShowLogicalTypeList(metadataColumn);
+      this.onShowLogicalTypeList(metadataColumn, typeElement, typeListElement);
       return;
     }
 
