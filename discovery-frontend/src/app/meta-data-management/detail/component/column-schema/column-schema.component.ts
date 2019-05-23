@@ -698,11 +698,9 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    */
   private _updateColumnSchema(): void {
     this.loadingShow();
-    console.log('tatatat1', this.isSaveInvalid);
     this._metaDataService.updateColumnSchema(this.metaDataModelService.getMetadata().id, this._getUpdateColumnParams())
       .then(() => {
         Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
-        console.log('tatatat2', this.isSaveInvalid);
         this._refreshColumnSchemas();
       })
       .catch(error => this.commonExceptionHandler(error));
