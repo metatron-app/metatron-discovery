@@ -506,6 +506,9 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     this.selectedType = this.constantService.getTypeFiltersFirst();
     this.roleTypeFilters = this.constantService.getRoleTypeFilters();
     this.typeFilters = this.constantService.getTypeFilters();
+    this.selectedContentSort.key = 'physicalName';
+    this.selectedContentSort.sort = 'asc';
+    this.columnList = _.orderBy(this.columnList, this.selectedContentSort.key, 'asc' === this.selectedContentSort.sort ? 'asc' : 'desc');
   }
 
   public isShowInformationMessage() {
@@ -724,6 +727,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   private _refreshColumnSchemas() {
     return this._getColumnSchemas()
       .then(() => {
+        this.columnList = _.orderBy(this.columnList, this.selectedContentSort.key, 'asc' === this.selectedContentSort.sort ? 'asc' : 'desc');
         this.loadingHide();
       });
   }
