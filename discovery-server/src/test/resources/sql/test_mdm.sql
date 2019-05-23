@@ -50,13 +50,13 @@ INSERT INTO mdm_metadata(id, meta_name, meta_desc, meta_source_type, source_id, 
 ('test_meta2', 'Test metadata 2', 'meta description2', 'ENGINE', 'test_engine_source_02', 'admin', NOW(),'admin', NOW(), 1.0),
 ('test_meta3', 'Test metadata 3', 'meta description3', 'ENGINE', 'test_engine_source_03', 'admin', NOW(),'admin', NOW(), 1.0);
 
-INSERT INTO mdm_metadata_column(id, meta_id, column_physical_type, column_physical_name, dictionary_id, column_type, column_name, column_format, table_id) values
-(100011, 'test_meta1', 'STRING', 'pcolumn01', 'test_dictionary1', null, null, null, null),
-(100012, 'test_meta1', 'STRING', 'pcolumn02', null, 'STRING', 'logical name2', null, 'test_code_table2'),
-(100013, 'test_meta1', 'STRING', 'pcolumn03', null, 'STRING', 'logical name3', null, null),
-(100021, 'test_meta2', 'STRING', 'pcolumn01', null, 'STRING', 'logical name1', null, null),
-(100022, 'test_meta2', 'STRING', 'pcolumn02', null, 'STRING', 'logical name2', null, null),
-(100031, 'test_meta3', 'STRING', 'pcolumn', null, 'STRING', 'logical name2', null, null);
+INSERT INTO mdm_metadata_column(id, meta_id, column_physical_type, column_physical_name, dictionary_id, column_type, column_name, column_format, table_id, column_seq) values
+(100011, 'test_meta1', 'STRING', 'pcolumn01', 'test_dictionary1', null, null, null, null, 1),
+(100012, 'test_meta1', 'STRING', 'pcolumn02', null, 'STRING', 'logical name2', null, 'test_code_table2', 2),
+(100013, 'test_meta1', 'STRING', 'pcolumn03', null, 'STRING', 'logical name3', null, null, 3),
+(100021, 'test_meta2', 'STRING', 'pcolumn01', null, 'STRING', 'logical name1', null, null, 1),
+(100022, 'test_meta2', 'STRING', 'pcolumn02', null, 'STRING', 'logical name2', null, null, 2),
+(100031, 'test_meta3', 'STRING', 'pcolumn', null, 'STRING', 'logical name2', null, null, 1);
 
 INSERT INTO catalog_metadata(catalog_id, meta_id) VALUES
 ('catalog1_1', 'test_meta1'),
