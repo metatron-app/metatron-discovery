@@ -37,6 +37,8 @@ public class MetadataColumnProjections extends BaseProjections {
     String getName();
 
     String getDescription();
+
+    Long getSeq();
   }
 
   @Projection(types = MetadataColumn.class, name = "forListView")
@@ -65,6 +67,8 @@ public class MetadataColumnProjections extends BaseProjections {
 
     @Value("#{target.getFieldFormat()}")
     FieldFormat getFormat();
+
+    Long getSeq();
   }
 
   @Projection(types = MetadataColumn.class, name = "forDictionaryListView")
@@ -93,6 +97,8 @@ public class MetadataColumnProjections extends BaseProjections {
 
     @Value("#{target.metadata.source}")
     MetadataSource getMetadataSource();
+
+    Long getSeq();
   }
 
 }
