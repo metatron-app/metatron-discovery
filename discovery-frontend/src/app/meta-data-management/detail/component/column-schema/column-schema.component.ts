@@ -693,6 +693,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
             return field;
           });
           this._hideCurrentTime(result);
+          this.columnList = _.orderBy(result.filter((metadataColumn: MetadataColumn) => MetadataColumn.isCurrentDatetime(metadataColumn) === false), this.selectedContentSort.key, 'asc' === this.selectedContentSort.sort ? 'asc' : 'desc');
           this._saveColumnDataOriginal();
           resolve();
         })
@@ -727,7 +728,6 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   private _refreshColumnSchemas() {
     return this._getColumnSchemas()
       .then(() => {
-        this.columnList = _.orderBy(this.columnList, this.selectedContentSort.key, 'asc' === this.selectedContentSort.sort ? 'asc' : 'desc');
         this.loadingHide();
       });
   }
