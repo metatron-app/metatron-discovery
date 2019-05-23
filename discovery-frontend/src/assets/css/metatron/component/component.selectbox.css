@@ -128,7 +128,7 @@ ul.ddp-list-popup li.ddp-sub:hover .ddp-wrap-popup2 {display:block;}
 .ddp-type-selectbox span.ddp-txt-selectbox em[class*="ddp-icon-dimension-"],
 .ddp-type-selectbox span.ddp-txt-selectbox em[class*="ddp-icon-measure-"]{position:absolute; top:50%; left:10px; margin-top:-6px;}
 
-.ddp-type-selectbox:after {display:inline-block; position:absolute; top:50%; right:9px; width:7px; height:4px; margin-top:-2px; background:url(../../../images/icon_select.png) no-repeat; content:''; z-index:5;}
+.ddp-type-selectbox:after {display:inline-block; position:absolute; top:50%; right:9px; width:7px; height:4px; margin-top:-2px; background:url(../../../images/icon_select.png) no-repeat; content:''; }
 .ddp-type-selectbox:hover:after,
 .ddp-type-selectbox.ddp-selected:after {background-position:-8px 0;}
 

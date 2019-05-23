@@ -66,7 +66,7 @@ public class MetadataRestIntegrationTest extends AbstractRestIntegrationTest {
     Map<String, Object> engineSourceMap = Maps.newHashMap();
     engineSourceMap.put("type","ENGINE");
     engineSourceMap.put("name","test_engine_datasource");
-    engineSourceMap.put("sourceId", "ds-37");
+    engineSourceMap.put("sourceId", "ds-gis-37");
 
     reqMedataMap.put("sourceType", "ENGINE");
     reqMedataMap.put("source", engineSourceMap);
