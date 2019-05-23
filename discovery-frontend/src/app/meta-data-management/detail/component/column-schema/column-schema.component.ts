@@ -14,7 +14,13 @@
 
 import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, QueryList, Renderer, ViewChildren} from '@angular/core';
 import {AbstractComponent} from '../../../../common/component/abstract.component';
-import {ConnectionType, Datasource, FieldFormat, FieldFormatType} from '../../../../domain/datasource/datasource';
+import {
+  ConnectionType,
+  Datasource,
+  FieldFormat,
+  FieldFormatType,
+  FieldRole, LogicalType
+} from '../../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import {MetadataService} from '../../../metadata/service/metadata.service';
 import {MetadataModelService} from '../../../metadata/service/metadata.model.service';
@@ -238,19 +244,14 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    */
   public onClickSave(): void {
 
-    const datetimeValidPopupComponents: DatetimeValidPopupComponent[]
-      = this._datetimePopupComponentList
-      .filter(datetimePopupComponent => _.negate(_.isNil)(datetimePopupComponent.fieldFormat))
-      .filter(datetimeValidPopupComponent => !datetimeValidPopupComponent.fieldFormat.isValidFormat);
-
     // TODO 추후 데이터소스 연결시 if문 제거
     if (this.hasMetadataColumnInDatasource()) {
-      if (datetimeValidPopupComponents.length > 0) {
-        this.isSaveInvalid = true;
-        return;
-      }
+      this.isSaveInvalid = this.columnList.some(field =>  field.role !== Type.Role.TIMESTAMP && (field.type === Type.Logical.TIMESTAMP && !field.format.isValidFormat));
     }
-    this._updateColumnSchema();
+
+    if (!this.isSaveInvalid) {
+      this._updateColumnSchema();
+    }
   }
 
   /**
@@ -427,16 +428,9 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    * Set exist error in field list flag
    */
   public setIsExistErrorInFieldListFlag(): void {
-
-    const datetimeValidPopupComponents: DatetimeValidPopupComponent[]
-      = this._datetimePopupComponentList
-      .filter(datetimePopupComponent => _.negate(_.isNil)(datetimePopupComponent.fieldFormat))
-      .filter(datetimeValidPopupComponent => !datetimeValidPopupComponent.fieldFormat.isValidFormat);
-
-    // this.isSaveInvalid = this.columnList.some(field =>  field.role !== Type.Role.TIMESTAMP && (field.type === Type.Logical.TIMESTAMP && !field.format.isValidFormat));
     // TODO 추후 데이터소스 연결시 if문 제거
     if (this.hasMetadataColumnInDatasource()) {
-      this.isSaveInvalid = datetimeValidPopupComponents.length > 0;
+      this.isSaveInvalid = this.columnList.some(field =>  field.role !== Type.Role.TIMESTAMP && (field.type === Type.Logical.TIMESTAMP && !field.format.isValidFormat));
     }
   }
 
@@ -704,9 +698,11 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    */
   private _updateColumnSchema(): void {
     this.loadingShow();
+    console.log('tatatat1', this.isSaveInvalid);
     this._metaDataService.updateColumnSchema(this.metaDataModelService.getMetadata().id, this._getUpdateColumnParams())
       .then(() => {
         Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
+        console.log('tatatat2', this.isSaveInvalid);
         this._refreshColumnSchemas();
       })
       .catch(error => this.commonExceptionHandler(error));
