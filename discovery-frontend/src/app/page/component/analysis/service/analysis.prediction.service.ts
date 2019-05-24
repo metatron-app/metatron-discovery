@@ -19,6 +19,7 @@ import {SearchQueryRequest} from '../../../../domain/datasource/data/search-quer
 import * as _ from 'lodash';
 import {PageWidget, PageWidgetConfiguration} from '../../../../domain/dashboard/widget/page-widget';
 import {UIOption} from '../../../../common/component/chart/option/ui-option';
+import {CommonUtil} from "../../../../common/util/common.util";
 
 @Injectable()
 export class AnalysisPredictionService extends AbstractService implements OnInit {
@@ -207,7 +208,10 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
     param.limits = _.cloneDeep(widgetConf.limit);
     param.resultFormat = {'type': 'chart', 'mode': 'line', 'columnDelimeter': '―'};
     param.pivot = _.cloneDeep(widgetConf.pivot);
-    param.userFields = _.cloneDeep(widgetConf.customFields.filter(item => item.dataSource === widgetConf.dataSource.engineName));
+    param.userFields = _.cloneDeep(
+      CommonUtil.objectToArray(widgetConf.customFields)
+        .filter(item => item.dataSource === widgetConf.dataSource.engineName)
+    );
 
     if (widget && widget.dashBoard && widget.dashBoard.configuration) {
       param.filters = _.cloneDeep(
