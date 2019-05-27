@@ -607,6 +607,7 @@ public class DataConnectionController {
     return filteredTableNameList;
   }
 
+  @Deprecated
   @RequestMapping(value = "/connections/query/hive/strict", method = RequestMethod.GET)
   public @ResponseBody ResponseEntity<?> strictModeForHiveIngestion() {
     StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
@@ -616,10 +617,19 @@ public class DataConnectionController {
     return ResponseEntity.ok(stageDBConnection.isStrictMode());
   }
 
+  @RequestMapping(value = "/connections/query/hive/partitions/enable", method = RequestMethod.GET)
+  public @ResponseBody ResponseEntity<?> enablePartitionForHiveIngestion() {
+    StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
+    if(stageDBConnection == null){
+      throw new ResourceNotFoundException("StorageProperties.StageDBConnection");
+    }
+    return ResponseEntity.ok(stageDBConnection.getMetastore().includeJdbc());
+  }
+
   @RequestMapping(value = "/connections/query/hive/partitions", method = RequestMethod.POST)
   public @ResponseBody ResponseEntity<?> partitionInforForHiveIngestion(@RequestBody ConnectionRequest checkRequest) {
 
-    // validation check
+    // validation checkØ
     SearchParamValidator.checkNull(checkRequest.getType(), "type");
     SearchParamValidator.checkNull(checkRequest.getQuery(), "query");
     SearchParamValidator.checkNull(checkRequest.getDatabase(), "database");
@@ -665,7 +675,7 @@ public class DataConnectionController {
     }
 
     //when strict mode, requires hive metastore connection info
-    if(stageDBConnection.isStrictMode()){
+    //if(stageDBConnection.isStrictMode()){
       DataConnection hiveConnection = stageDBConnection.getJdbcDataConnection();
 
       if(!HiveDialect.includeMetastoreInfo(hiveConnection)){
@@ -678,10 +688,10 @@ public class DataConnectionController {
                                                                                        checkRequest.getQuery(),
                                                                                        checkRequest.getPartitions());
       return ResponseEntity.ok(validatePartition);
-    } else {
-      throw new DataConnectionException(DataConnectionErrorCodes.NOT_SUPPORTED_API,
-              "/connections/query/hive/partitions/validate API required strict mode.");
-    }
+    //} else {
+    //  throw new DataConnectionException(DataConnectionErrorCodes.NOT_SUPPORTED_API,
+    //          "/connections/query/hive/partitions/validate API required strict mode.");
+    //}
   }
 
   @RequestMapping(value = "/connections/criteria", method = RequestMethod.GET)

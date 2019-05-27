@@ -1,27 +1,10 @@
-= RESTful Metatron API Guide
-Big Data Tech. Lab;
-:doctype: book
-:icons: font
-:source-highlighter: highlightjs
-:toc: left
-:toclevels: 4
-:sectlinks:
 
-[[overview]]
-= Overview
-
-[[resources]]
-= Resources
-
-[[resources-workspace]]
+[[resources-datasource]]
 == DataSource
 
 
-[[resources-datasource-overview]]
-=== 개요
-
-[[resources-workspace-overview-representations]]
-==== Resource representations
+[[resources-datasource-representations]]
+=== Resource representations
 
 .DataSource
 |===
@@ -29,159 +12,171 @@ Big Data Tech. Lab;
 
 |id
 |String
-|데이터 소스 Id, 생성시 부여 함, UUID
+|Datasource Id, Generated value, UUID
 |
 
 |name
 |String
-|데이터 소스 이름,
-ENGINE 타입인 경우 ENGINE 내 DataSource 중복 방지를 위해 내부 룰에 따라 이름 변경 postfix 로 Timestamp 를 추가
-하고 표시이름(alias)를 활용
+|DataSource Name,
+In case of ENGINE type, change the name according to the internal rule to prevent duplication of DataSource in ENGINE
 |writable (POST)
-
-|alias
-|String
-|데이터 소스 표시이름
-|writable
 
 |description
 |String
-|데이터 소스 설명
+|The description of description
 |writable
 
 |owner
 |UserProfile
-|데이터 소스 생성자 정보
+|datasource owner
 |
 
 |owner.username
 |Object
-|생성자 username
+|owner username
 |
 
 |owner.fullName
 |Object
-|생성자 명
+|owner full name
 |
 
 |owner.email
 |Object
-|생성자 email
+|owner email
 |
-
-|dsType
-|Enum
-|데이터소스 스키마 유형, MASTER/LOOKUP
-|writable (POST)
 
 |connType
 |Enum
-|데이터소스 연결 유형, 수집형(ENGINE)/연결형(LIVE)
+|Data source ingestion type, Permanent ingestion type (ENGINE) / Temporary ingestion type (LIVE)
 |writable (POST)
 
 |srcType
 |Enum
-|데이터소스 연결 유형, 수집형(ENGINE)/연결형(LIVE)
+|Source Type such as FILE, HDFS, HIVE, JDBC, REALTIME, IMPORT, SNAPSHOT
 |writable (POST)
 
 |granularity
 |Enum
-|시간 필드에 대한 집계의 최소 단위, SECOND/MINUTE/HOUR/DAY/WEEK/MONTH/QUARTER/YEAR
+|Minimum unit of aggregation in queries for time fields, SECOND/MINUTE/HOUR/DAY/WEEK/MONTH/QUARTER/YEAR
 |writable
 
 |segGranularity
 |Enum
-|connType 가 ENGINE 타입의 경우만 해당, 엔진내 저장 단위
+|Storage(Segment) unit in engine for time fields
 |writable (POST)
 
 |status
 |Enum
-|데이터소스 상태, 사용가능(ENABLED)/일부사용 불가(BAD)/준비중(PREPARING)/적재 실패(FAILED)/사용 불가(DISABLED)
+|Data source status, ENABLED / BAD(Partially unavailable) / PREPARING / FAILED(Ingestion Failed) / DISABLED
 |
 
 |published
 |Boolean
-|데이터소스 전체 공개 여부
+|Whether the data source is public opened
 |writable
 
 |workspaces[]
 |Workspace
-|published 가 false 인 경우 유효, 데이터소스가 사용가능한 Workspace 정보
+|Valid if published is false, workspaces in which this data source is used.
 |
 
 |connection
 |DataConnection
-|데이터소스가 참조하고 있는 연결 정보, 수집형일 경우 적재시 연결 정보이며 연결형일 경우 연결 정보
+|Connection information referenced by the data source; if srcType is JDBC, it is used as connection information when ingesting
 |writable (POST, Resource URL)
 
 |ingestion
 |DataIngestion
-|데이터 소스 적재 정보, 수집형일 경우 적재 정보이며, 연결형일 경우 추가 정보
+|Data source ingestion information
 |
-
-|ingestion.ingestionMinTime
-|DateTime
-|수집형인 경우만 적용, Timestamp 필드 from
-|
-
-|ingestion.ingestionMaxTime
-|DateTime
-|수집형인 경우만 적용, Timestamp 필드 to
-|
-
-|ingestion.size
-|Long
-|수집형인 경우만 적용, 수집된 데이터 사이즈
-|
-
-|ingestion.count
-|Long
-|수집형인 경우만 적용, 수집된 데이터 row count
-|
-
-|ingestion.info
-|IngestionInfo
-|데이터 소스 적재 상세 정보
-|writable (POST)
 
 |fields[]
 |Field
-|데이터 소스내 필드 정보
+|Field (column) information
 |writable (POST)
 
-|fields[].name
+|===
+
+.Field
+|===
+|Name |Type |Description |Note
+
+|name
 |String
-|필드 명
+|The name of field
 |
 
-|fields[].type
+|description
+|String
+|The description of field
+|
+
+|type
 |Enum
-|데이터 타입, 문자형(TEXT)/BOOLEAN/정수형(INT/LONG)/실수형(FLOAT/DOUBLE)/TIMESTAMP
+|Data type, string(STRING)/integer(INTEGER/LONG)/decimal(FLOAT/DOUBLE)/TIMESTAMP
 |
 
-|fields[].biType
+|logicalType
 |Enum
-|OLAP 타입
+|Logical type, string(STRING)/integer(INTEGER/LONG)/decimal(FLOAT/DOUBLE)/TIMESTAMP/geo(GEO_POINT, GEO_LINE, GEO_POLYGON)
 |
 
-|fields[].seq
+|role
+|Enum
+|OLAP type, DIMENSION/MEASURE/TIMESTAMP
+|
+
+|format
+|FieldFormat
+|field format
+|
+
+
+|seq
 |Long
-|필드 정렬 순서
+|Field sequence
 |
 
-|fields[].filtering
-|Boolean
-|필수 필터 여부
+|===
+
+.FieldFormat
+|===
+|Name |Type |Description |Note
+
+|type
+|String
+|The type of field format. time_format/time_unix/geo_point/geo_line/geo_polygon
 |
 
-|fields[].filteringSeq
-|Long
-|필수 필터 순서
+|format
+|String
+|(time_format) time format
 |
 
-|fields[].aggrType
+|timeZone
+|String
+|(time_format) TZ database name in this link : https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+|
+
+|locale
+|String
+|(time_format) 2-letter locale such as en, ko.
+|
+
+|unit
 |Enum
-|수집형인 경우 지정 가능, 사전 집계 타입, NONE/MIN/MAX/COUNT/SUM/AVG/STDDEV/MEDIAN/AREA/RANGE/QUANTILE
+|(time_unix) unix time unit. SECOND / MILLISECOND
+|
+
+|originalSrsName
+|String
+|(geo_x) Original SRS name (coordinate system name)
+|
+
+|maxLevels
+|Integer
+|(geo_x) Geo index level
 |
 
 |===
@@ -192,12 +187,30 @@ ENGINE 타입인 경우 ENGINE 내 DataSource 중복 방지를 위해 내부 룰
 
 |type
 |String
-|적재 타입, 로컬파일(local), HDFS(hdfs), 실시간(realtime), JDBC(single, batch, live)
+|Ingestion source type, local/hdfs/realtime/JDBC(single, batch, link)
+|
+
+|rollup
+|Boolean
+|The concept of "rollup" is based on druid.
+ Druid can summarize raw data at processing time using roll-up options. A rollup is a primary aggregation operation on a selected set of columns that reduces the size of the stored segment. We also use the roll-up option to improve the performance of some query operations.
+ However, if the data in each row is meaningful, you can set the rollup option to false and ingest. In fact, most usability is in this case, so we changed the default to false
+|
+
+|tunningOptions
+|Map
+|Specifies additional options of type key / value.
+|
+
+|intervals
+|Array
+|Specify the range to ingest. Constructs an interval with a combination of start and end times with a "ISO 8601" time format.
+ex. [start/end,start/end,...]
 |
 
 |format
-|FileFormat
-|적재될 파일(or 데이터) 형태
+|Object
+|data format information
 |
 
 |format.type
@@ -207,98 +220,580 @@ ENGINE 타입인 경우 ENGINE 내 DataSource 중복 방지를 위해 내부 룰
 
 |format.delimeter
 |String
-|csv 형태일 경우, 컬럼 구분자
-|
-
-|format.lineSeparator
-|String
-|csv 형태일 경우, 라인 구분자
+|(csv) column delimeter
 |
 
 |format.sheetIndex
-|String
-|excel 형태일 경우, Sheet Index 지정
+|Integer
+|(excel) Sheet index
 |
 
-|dataType
-|Enum
-|JDBC 형태일 경우 적재될 데이터 형태, QUERY/TABLE
+|format.dataType
+|String
+|(single, batch, link) DB data type, TABLE, QUERY
 |
 
-|schema
+|format.schema
 |String
-|JDBC 형태이고, dataType이 TABLE 인 경우, DB 내 Schema 명 기입
+|(single, batch, link) The name of the schema(database) to query
 |
 
-|query
+|format.query
 |String
-|JDBC 형태일 경우, dataType이 TABLE 인 경우 Table 명/ QUERY 인 경우 query 구분 기입
+|(single, batch, link) If the dataType attribute is TABLE, enter the table name. If it is QUERY, enter the query statement
+|
+
+|format.fetchSize
+|String
+|(single, batch, link) Specify the maximum number of rows that can be retrieved from db at a time.
+|
+
+|format.maxLimit
+|String
+|(single, batch, link) Maximum number of rows to fetch
 |
 
 |path
 |String
-|Local File 형태일 경우, 적재할 파일 경로 (서버가 인식할 수 있는 Path)
+|(local) file path to ingest. (Must be a recognizable Path within the server.)
 |
 
 |removeFirstRow
 |String
-|Local File 형태일 경우, 컬럼 헤더가 존재하는 경우 true
-|
-
-|removeFirstRow
-|String
-|Local File 형태일 경우, 컬럼 헤더가 존재하는 경우 true
+|(local) True if the column header exists
 |
 
 |paths
 |String
-|HDFS 형태일 경우, 적재할 경로 목록
+|(hdfs) Path list in HDFS
 |
 
 |findRecursive
 |Boolean
-|HDFS 형태일 경우, 경로중 디렉토리일 경우, 하위 디렉토리 파일도 적재 목록에 포함 여부
+|(hdfs) If the path information is a directory, whether files in the sub-directory are also included in the ingestion path list
 |
 
 |jobProperties
 |Map
-|적재시 수행하는 MR Job 속성 Overwrite
+|(hdfs, hive) Specifies the MR Job attribute to perform when ingestion.
 |
 
 |===
 
-[[resources-workspace-overview-projection]]
-==== Projection
-
-[[resources-workspaces-list]]
-=== Listing Datasource
-
-A `GET` request will list all of the service's datasource.
-
-==== Response structure
-
-TBD
+[[resources-datasource-representations-projections]]
+==== Projection Models
 
 
-[[resources-workspaces-create]]
-=== Creating a Datasource
-
-A `POST` request is used to create a DataSource
-
-==== Request structure
-TBD
-
-[[resources-workspaces-update]]
-=== Updating a Datasource
-
-A `PATCH` request is used to update a workspace
-
-==== Request structure
-
-TBD
+[[resources-datasource-methods]]
+=== Methods
 
 
-[[resources-workspaces-delete]]
-=== Deleting a workspace
+[[resources-datasource-methods-list]]
+==== List
 
-A `DELETE` request is used to update a workspace
+Returns datasources on the specified conditions.
+
+===== HTTP request
+    (GET) /api/datasources(?projection)
+
+===== Parameters
+.Optional query parameters
+|===
+|Parameter Name |Type |Description |Note
+
+|connType
+|string
+|The type of connection - ENGINE, LINK
+|
+
+|srcType
+|string
+|The type of origin source (FILE/JDBC/HDFS/HIVE/REALTIME)
+|
+
+|published
+|boolean
+|Whether the data source is public opened
+|
+
+|nameContains
+|string
+|The string to be included in the data source name
+|
+
+|searchDateBy
+|enum
+|Based on "CREATED" / "MODIFIED"
+|
+
+|from
+|string
+|Search start date, ISO DATE_TIME(yyyy-MM-dd'T'HH:mm:dd.SSSZ) format
+|
+
+|from
+|string
+|Search end date, ISO DATE_TIME(yyyy-MM-dd'T'HH:mm:dd.SSSZ) format
+|
+
+|===
+
+===== Response
+If successful, this method returns list of [#resources-datasource-representations-projections]#projection model# in the response body.
+
+[[resources-datasource-methods-get]]
+==== Get
+Returns a datasource.
+
+===== HTTP request
+    (GET) /api/datasources/{datasourceId}(?projection)
+
+===== Parameters
+.Path parameters
+|===
+|Parameter Name |Type |Description |Note
+
+|datasoureId
+|string
+|datasource Id
+|
+
+|===
+
+===== Response
+If successful, this method returns [#resources-datasource-representations-projections]#projection model# in the response body.
+
+[[resources-datasource-methods-create]]
+==== Create
+
+Creates a DataSource
+
+===== HTTP request
+    (POST) /api/datasources
+
+===== Parameters
+None
+
+===== Request Body
+
+.Request body structure
+[source,json]
+----
+{
+  "name": "string",
+  "description": "string",
+  "dsType": "enum",
+  "connType": "enum",
+  "srcType": "enum",
+  "granularity": "enum",
+  "segGranularity": "enum",
+  "published": false,
+  "connection": "/api/connections/{connectionId}",
+  "fields": [
+    {
+      "seq": 0,
+      "name": "string",
+      "alias": "string",
+      "description": "string",
+      "type": "enum",
+      "role": "enum",
+      "aggrType": "enum",
+      "filtering": false,
+      "filteringSeq": 0
+    }
+  ],
+  "ingestion": {
+    "info": {
+      "type": "string",
+      "dataType": "enum",
+      "schema": "string",
+      "query": "string",
+      "path": "string",
+      "removeFirstRow": false,
+      "paths": ["string"],
+      "findRecursive": false,
+      "jobProperties": {"key": "value"},
+      "format": {
+        "type": "string",
+        "delimeter": "string",
+        "lineSeparator": "string",
+        "sheetIndex": 0
+      }
+    }
+  }
+}
+----
+
+.Request body sample - for JDBC
+[source,json]
+----
+{
+  "name": "JDBCIngestion",
+  "dsType": "MASTER",
+  "connType": "ENGINE",
+  "srcType": "JDBC",
+  "granularity": "DAY",
+  "segGranularity": "MONTH",
+  "connection": "/api/connections/mysql-connection",
+  "fields": [
+    {
+      "name": "time",
+      "type": "TIMESTAMP",
+      "role": "TIMESTAMP",
+      "seq": 0
+    },
+    {
+      "name": "d",
+      "type": "TEXT",
+      "role": "DIMENSION",
+      "seq": 1
+    },
+    {
+      "name": "m1",
+      "type": "DOUBLE",
+      "role": "MEASURE",
+      "aggrType": "SUM",
+      "seq": 2
+    }
+  ],
+  "ingestion": {
+    "info": {
+      "type": "single",
+      "schema": "polaris_datasources",
+      "dataType": "TABLE",
+      "query": "sample_ingestion"
+    }
+  }
+}
+----
+
+.Request body sample - for Local File
+[source,json]
+----
+{
+  "name": "Local File Ingestion",
+  "dsType": "MASTER",
+  "connType": "ENGINE",
+  "srcType": "FILE",
+  "granularity": "DAY",
+  "segGranularity": "MONTH",
+  "ingestion": {
+    "type": "local",
+    "path": "/tmp/sample_ingestion.csv",
+    "removeFirstRow": false,
+    "format": {
+      "type": "csv",
+      "delimiter": ","
+    },
+    "intervals": [
+      "2000-01-01T00:00:00.000Z/2020-01-01T00:00:00.000Z"
+    ]
+  },
+  "fields": [
+    {
+      "name": "event_time",
+      "type": "TIMESTAMP",
+      "role": "TIMESTAMP",
+      "format": {
+        "type": "time_format",
+        "format": "yyyy-MM-dd'T'HH:mm:ssZ",
+        "timeZone": "UTC",
+        "locale": "en"
+      },
+      "seq": 0
+    },
+    {
+      "name": "d1",
+      "type": "STRING",
+      "role": "DIMENSION",
+      "seq": 1
+    },
+    {
+      "name": "d2",
+      "type": "STRING",
+      "role": "DIMENSION",
+      "seq": 2
+    },
+    {
+      "name": "m1",
+      "type": "DOUBLE",
+      "role": "MEASURE",
+      "seq": 3
+    },
+    {
+      "name": "m2",
+      "type": "DOUBLE",
+      "role": "MEASURE",
+      "seq": 4
+    }
+  ]
+}
+----
+
+.Request body sample - for HDFS
+[source,json]
+----
+{
+  "name": "HDFS File Ingestion",
+  "dsType": "MASTER",
+  "connType": "ENGINE",
+  "srcType": "HDFS",
+  "granularity": "DAY",
+  "segGranularity": "MONTH",
+  "ingestion": {
+    "info": {
+      "type": "hdfs",
+      "paths": [
+        "/tmp/sample_ingestion.csv"
+      ],
+      "findRecursive": false,
+      "format": {
+        "type": "csv"
+      },
+      "jobProperties": {
+        "mapreduce.map.memory.mb": "1024",
+        "mapreduce.reduce.memory.mb": "1024",
+        "mapreduce.map.cpu.vcores": "1",
+        "mapreduce.reduce.cpu.vcores": "1"
+      }
+    }
+  }
+  "fields": [
+    {
+      "name": "event_time",
+      "type": "TIMESTAMP",
+      "role": "TIMESTAMP",
+      "format": {
+        "type": "time_format",
+        "format": "yyyy-MM-dd'T'HH:mm:ssZ",
+        "timeZone": "UTC",
+        "locale": "en"
+      },
+      "seq": 0
+    },
+    {
+      "name": "d1",
+      "type": "STRING",
+      "role": "DIMENSION",
+      "seq": 1
+    },
+    {
+      "name": "d2",
+      "type": "STRING",
+      "role": "DIMENSION",
+      "seq": 2
+    },
+    {
+      "name": "m1",
+      "type": "DOUBLE",
+      "role": "MEASURE",
+      "seq": 3
+    },
+    {
+      "name": "m2",
+      "type": "DOUBLE",
+      "role": "MEASURE",
+      "seq": 4
+    }
+  ]
+}
+----
+
+.Request body sample - for Hive
+[source,json]
+----
+{
+  "name": "Hive Ingestion orc partition",
+  "dsType": "MASTER",
+  "connType": "ENGINE",
+  "srcType": "HIVE",
+  "granularity": "DAY",
+  "segGranularity": "MONTH",
+  "ingestion": {
+    "type": "hive",
+    "format": {
+      "type": "orc"
+    },
+    "source": "default.sample_ingestion_partition_parti_orc",
+    "partitions": [
+      {
+        "dd": "21",
+        "ym": "201704"
+      },
+      {
+        "ym": "201705"
+      }
+    ],
+    "intervals": [
+      "2010-12-12/2018-01-01"
+    ]
+  },
+  "fields": [
+    {
+      "name": "event_time",
+      "type": "TIMESTAMP",
+      "role": "TIMESTAMP",
+      "format": {
+        "type": "time_format",
+        "format": "yyyy-MM-dd'T'HH:mm:ssZ",
+        "timeZone": "UTC",
+        "locale": "en"
+      },
+      "seq": 0
+    },
+    {
+      "name": "d1",
+      "type": "STRING",
+      "role": "DIMENSION",
+      "seq": 1
+    },
+    {
+      "name": "d2",
+      "type": "STRING",
+      "role": "DIMENSION",
+      "seq": 2
+    },
+    {
+      "name": "m1",
+      "type": "DOUBLE",
+      "role": "MEASURE",
+      "seq": 3
+    },
+    {
+      "name": "m2",
+      "type": "DOUBLE",
+      "role": "MEASURE",
+      "seq": 4
+    }
+  ]
+}
+----
+
+.Request body sample - for real time
+[source,json]
+----
+{
+  "name": "RealTime Ingestion",
+  "dsType": "MASTER",
+  "connType": "ENGINE",
+  "srcType": "REALTIME",
+  "granularity": "SECOND",
+  "segGranularity": "HOUR",
+  "ingestion": {
+    "type": "realtime",
+    "topic": "sample_topic",
+    "consumerType": "KAFKA",
+    "consumerProperties": {
+      "bootstrap.servers": "localhost:9092"
+    },
+    "format": {
+      "type": "json"
+    },
+    "rollup": false
+  },
+  "fields": [
+    {
+      "name": "event_time",
+      "type": "TIMESTAMP",
+      "role": "TIMESTAMP",
+      "format": {
+        "type": "time_format",
+        "format": "yyyy-MM-dd'T'HH:mm:ssZ",
+        "timeZone": "UTC",
+        "locale": "en"
+      },
+      "seq": 0
+    },
+    {
+      "name": "d1",
+      "type": "STRING",
+      "role": "DIMENSION",
+      "seq": 1
+    },
+    {
+      "name": "d2",
+      "type": "STRING",
+      "role": "DIMENSION",
+      "seq": 2
+    },
+    {
+      "name": "m1",
+      "type": "DOUBLE",
+      "role": "MEASURE",
+      "seq": 3
+    },
+    {
+      "name": "m2",
+      "type": "DOUBLE",
+      "role": "MEASURE",
+      "seq": 4
+    }
+  ]
+}
+----
+
+===== Response
+
+If successful, this method returns a Datasource resource in the response body and `201` status.
+
+[[resources-datasource-methods-update]]
+==== Update
+
+Updates a datasource, This method supports patch semantics.
+The field values you specify replace the existing values.
+
+===== HTTP request
+    (PATCH) /api/datasources/{datasourceId}
+
+===== Parameters
+.Path parameters
+|===
+|Parameter Name |Type |Description |Note
+
+|datasoureId
+|string
+|datasource Id
+
+|
+|===
+
+===== Request Body
+
+.Request body structure
+[source,json]
+----
+{
+  "name": "string",
+  "description": "string",
+  "published": false
+}
+----
+
+===== Response
+If successful, this method returns a Datasource resource in the response body.
+
+[[resources-datasource-methods-delete]]
+==== Delete
+
+Deletes a datasource
+
+===== HTTP request
+    (DELETE) /api/datasources/{datasourceId}
+
+===== Parameters
+.Path parameters
+|===
+|Parameter Name |Type |Description |Note
+
+|datasoureId
+|string
+|datasource Id
+
+|===
+
+===== Request body
+Do not supply a request body with this method.
+
+===== Response
+
+If successful, this method returns an empty response body and `204` status.

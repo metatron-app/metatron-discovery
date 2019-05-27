@@ -141,14 +141,18 @@
             <!-- color select --->
             <div *ngFor="let item of uiOption.color['mappingArray']; let index = index" class="ddp-ui-color-select">
               <div class="ddp-txt-label">
-                <!-- 사용자가 바꾼 color : ddp-user 추가 -->
-                <div class="ddp-box-color">
-                  <!-- 사용자가 바꾼 color : ddp-user 추가 -->
-                  <color-picker [showAlpha]="true" [color]="item.color" [showInitial]="true"
-                                [showInput]="true" [showUserColor]="true" #colorPicker (selected)="colorPaletteSelected($event, item)"></color-picker>
-                </div>
-                {{item.alias}}
                 <a href="javascript:" *ngIf="uiOption.color['settingUseFl']" (click)="resetUserColorSet(item, index)" class="ddp-btn-reset3"></a>
+                <div class="ddp-ui-txt">
+                  <!-- 사용자가 바꾼 color : ddp-user 추가 -->
+                  <div class="ddp-box-color">
+                    <!-- 사용자가 바꾼 color : ddp-user 추가 -->
+                    <color-picker [showAlpha]="true" [color]="item.color" [showInitial]="true"
+                                  [showInput]="true" [showUserColor]="true" #colorPicker (selected)="colorPaletteSelected($event, item)"></color-picker>
+
+                  </div>
+                  <span class="ddp-txt-data" title="{{item.alias}}">{{item.alias}}</span>
+                </div>
+
               </div>
             </div>
             <!-- //color select --->
@@ -175,14 +179,18 @@
             <!-- color select --->
             <div *ngFor="let item of uiOption.color['mappingArray']; let index = index" class="ddp-ui-color-select">
               <div class="ddp-txt-label">
-                <!-- 사용자가 바꾼 color : ddp-user 추가 -->
-                <div class="ddp-box-color">
-                  <!-- 사용자가 바꾼 color : ddp-user 추가 -->
-                  <color-picker [showAlpha]="true" [color]="item.color" [showInitial]="true"
-                                [showInput]="true" [showUserColor]="true" #colorPicker (selected)="colorGaugePaletteSelected($event, item)"></color-picker>
-                </div>
-                {{item.alias}}
                 <a href="javascript:" *ngIf="uiOption.color['settingUseFl']" (click)="resetGaugeUserColorSet(item, index)" class="ddp-btn-reset3"></a>
+
+                <div class="ddp-ui-txt">
+                  <!-- 사용자가 바꾼 color : ddp-user 추가 -->
+                  <div class="ddp-box-color">
+                    <!-- 사용자가 바꾼 color : ddp-user 추가 -->
+                    <color-picker [showAlpha]="true" [color]="item.color" [showInitial]="true"
+                                  [showInput]="true" [showUserColor]="true" #colorPicker (selected)="colorGaugePaletteSelected($event, item)"></color-picker>
+                  </div>
+                  <span class="ddp-txt-data" title="{{item.alias}}">{{item.alias}}</span>
+
+                </div>
               </div>
             </div>
             <!-- //color select --->
@@ -202,6 +210,7 @@
               <label><span class="ddp-slide"></span></label>
             </div>
             <!-- //Slide THREE -->
+
           </div>
           <div *ngIf="uiOption.color['customMode']" class="ddp-user-color">
 
@@ -285,7 +294,7 @@
 
               <div class="ddp-ui-gradation">
                 <gradation-generator (changeGradation)="changeGradations($event)"
-                (clickOutside)="hideGradationColor()"></gradation-generator>
+                                     (clickOutside)="hideGradationColor()"></gradation-generator>
 
                 <!-- user color -->
                 <div class="ddp-gradx-usercolor">
@@ -323,7 +332,7 @@
             {{'msg.page.chart.color.measure.new.range.split.equal' | translate}}
           </a>
           <!--<a *ngIf="'GRADIENT' == uiOption.color['customMode']" (click)="equalColorGradation()" href="javascript:" class="ddp-btn-set">-->
-            <!--{{'msg.page.chart.color.measure.new.range.split.equal' | translate}}-->
+          <!--{{'msg.page.chart.color.measure.new.range.split.equal' | translate}}-->
           <!--</a>-->
         </div>
         <!-- //color by measure part -->

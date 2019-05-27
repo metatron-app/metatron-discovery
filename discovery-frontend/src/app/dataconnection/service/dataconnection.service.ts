@@ -17,9 +17,8 @@ import {AbstractService} from '../../common/service/abstract.service';
 import {CommonUtil} from '../../common/util/common.util';
 import {Page} from '../../domain/common/page';
 import {isNullOrUndefined} from "util";
-import { CriterionKey, ListCriterion } from '../../domain/datasource/listCriterion';
-import { CriteriaFilter } from '../../domain/datasource/criteriaFilter';
 import {Observable} from "rxjs/Observable";
+import {Criteria} from "../../domain/datasource/criteria";
 
 @Injectable()
 export class DataconnectionService extends AbstractService {
@@ -327,7 +326,8 @@ export class DataconnectionService extends AbstractService {
    * @returns {Promise<any>}
    */
   public isStrictModeForStagingDB(): Promise<any> {
-    return this.get(this.URL_CONNECTIONS + '/query/hive/strict');
+    //return this.get(this.URL_CONNECTIONS + '/query/hive/strict');
+    return this.get(this.URL_CONNECTIONS + '/query/hive/partitions/enable');
   }
 
   /**
@@ -369,18 +369,18 @@ export class DataconnectionService extends AbstractService {
 
   /**
    * Get criterion list in connection
-   * @returns {Promise<CriteriaFilter>}
+   * @return {Promise<any>}
    */
-  public getCriterionListInConnection(): Promise<CriteriaFilter> {
+  public getCriterionListInConnection() {
     return this.get(this.API_URL + 'connections/criteria');
   }
 
   /**
    * Get criterion in connection
-   * @param {CriterionKey} criterionKey
-   * @returns {Promise<ListCriterion>}
+   * @param {Criteria.ListCriterionKey} criterionKey
+   * @return {Promise<any>}
    */
-  public getCriterionInConnection(criterionKey: CriterionKey): Promise<ListCriterion> {
+  public getCriterionInConnection(criterionKey: Criteria.ListCriterionKey) {
     return this.get(this.API_URL + `connections/criteria/${criterionKey}`);
   }
 

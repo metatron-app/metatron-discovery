@@ -43,18 +43,16 @@ import {DashboardUtil} from '../../dashboard/util/dashboard.util';
 import {GeoBoundaryFormat, GeoField, GeoHashFormat} from '../../domain/workbook/configurations/field/geo-field';
 import {UIMapOption} from '../../common/component/chart/option/ui-option/map/ui-map-chart';
 import {ChartUtil} from '../../common/component/chart/option/util/chart-util';
-import {CriterionKey, ListCriterion} from '../../domain/datasource/listCriterion';
 import {CommonConstant} from "../../common/constant/common.constant";
-import {CriteriaFilter} from '../../domain/datasource/criteriaFilter';
 import {UITileLayer} from '../../common/component/chart/option/ui-option/map/ui-tile-layer';
 import {MapLayerType} from '../../common/component/chart/option/define/map/map-common';
 import {Pivot} from "../../domain/workbook/configurations/pivot";
 import {TimezoneService} from "../../data-storage/service/timezone.service";
 import {Shelf} from "../../domain/workbook/configurations/shelf/shelf";
-import {TypeFilterObject} from "../../data-storage/service/data-source-create.service";
 import {RegExprFilter} from "../../domain/workbook/configurations/filter/reg-expr-filter";
 import {SpatialFilter} from "../../domain/workbook/configurations/filter/spatial-filter";
 import {TranslateService} from "@ngx-translate/core";
+import {Criteria} from "../../domain/datasource/criteria";
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -74,18 +72,15 @@ export class DatasourceService extends AbstractService {
   /**
    * 데이터 소스 목록
    * @param {string} workspaceId
-   * @param page
+   * @param {Object} params
    * @param {string} projection
-   * @param {Object} options 파라미터
    * @returns {Promise<any>}
    */
-  public getDatasources(workspaceId: string, page: Page, projection: string = 'default', options?: Object): Promise<any> {
+  public getDatasources(workspaceId: string, params: any, projection: string = 'default'): Promise<any> {
     let url = this.API_URL + `workspaces/${workspaceId}/datasources?projection=${projection}`;
 
-    url += '&' + CommonUtil.objectToUrlString(page);
-
-    if (options) {
-      url += '&' + CommonUtil.objectToUrlString(options);
+    if (params) {
+      url += '&' + CommonUtil.objectToUrlString(params);
     }
 
     return this.get(url);
@@ -304,8 +299,10 @@ export class DatasourceService extends AbstractService {
     };
     (context.widgetId) && (query.context['discovery.widget.id'] = context.widgetId);
 
-    if (pageConf.hasOwnProperty('customFields')) {
-      query.userFields = pageConf['customFields'];
+    if (pageConf.customFields) {
+      query.userFields = CommonUtil.objectToArray(pageConf.customFields).filter(item => {
+        return item.dataSource === pageConf.dataSource.engineName;
+      });
     }
 
     query.filters = _.cloneDeep(pageConf.filters);
@@ -334,7 +331,7 @@ export class DatasourceService extends AbstractService {
         layerNum++;
 
         // 3번째 layer는 공간연산 layer 이기 떄문에, 미포함
-        if(layerNum>1) {
+        if (layerNum > 1) {
           break;
         }
 
@@ -358,7 +355,7 @@ export class DatasourceService extends AbstractService {
           }
         }
 
-        if( allPivotFields.length == 0 ){
+        if (allPivotFields.length == 0) {
           continue;
         }
         // timezone 처리 - S
@@ -584,17 +581,17 @@ export class DatasourceService extends AbstractService {
 
                 // clustering
                 let chart = (<UIMapOption>pageConf.chart);
-                if( chart.layers[idx].type == MapLayerType.SYMBOL && chart.layers[idx]['clustering'] ) {
+                if (chart.layers[idx].type == MapLayerType.SYMBOL && chart.layers[idx]['clustering']) {
 
                   // cluster 값 변경
-                  let clusterPrecision : number = 6;
-                  if(chart['layers'][idx]['changeCoverage']){
+                  let clusterPrecision: number = 6;
+                  if (chart['layers'][idx]['changeCoverage']) {
                     // cluster coverage 값 변경
                     clusterPrecision = Math.round((100 - chart.layers[idx]['coverage']) / 8.33);
                   } else {
                     // zoom size 변경
                     let zoomSize = chart.zoomSize - 2;
-                    clusterPrecision = Math.round((18 + (zoomSize-18)) / 1.5);
+                    clusterPrecision = Math.round((18 + (zoomSize - 18)) / 1.5);
                   }
 
                   if (clusterPrecision > 12) clusterPrecision = 12;
@@ -608,14 +605,18 @@ export class DatasourceService extends AbstractService {
                   };
                 }
 
-                let spatialFilter = new SpatialFilter();
-                spatialFilter.dataSource = query.shelf.layers[idx].ref;
-                // spatialFilter.ref = query.shelf.layers[idx].ref;
-                spatialFilter.field = layer.field.name;
-                // 최초 default 값 sales-geo 초기값으로 고정 (빈값일 경우 에러리턴)
-                spatialFilter.lowerCorner = _.isUndefined(chart['lowerCorner']) ? '-123.0998 25.4766' : chart['lowerCorner'];
-                spatialFilter.upperCorner = _.isUndefined(chart['upperCorner']) ? '-68.7918 48.7974' : chart['upperCorner'];
-                query.filters.push( spatialFilter );
+                if (!_.isUndefined(chart['lowerCorner']) && !_.isUndefined(chart['upperCorner'])
+                  && chart['lowerCorner'].indexOf('NaN') == -1 && chart['upperCorner'].indexOf('NaN') == -1) {
+                  let spatialFilter = new SpatialFilter();
+                  spatialFilter.dataSource = query.shelf.layers[idx].ref;
+                  // spatialFilter.ref = query.shelf.layers[idx].ref;
+                  spatialFilter.field = layer.field.name;
+                  // 최초 default 값 sales-geo 초기값으로 고정 (빈값일 경우 에러리턴)
+                  spatialFilter.lowerCorner = chart['lowerCorner'];
+                  spatialFilter.upperCorner = chart['upperCorner'];
+                  query.filters.push(spatialFilter);
+                }
+
               }
 
               // when logicalType => geo point
@@ -633,14 +634,14 @@ export class DatasourceService extends AbstractService {
 
                   // radius precision 값 변경
                   let chart = (<UIMapOption>pageConf.chart);
-                  let radiusPrecision : number = precision;
-                  if(chart['layers'][idx]['changeTileRadius']){
+                  let radiusPrecision: number = precision;
+                  if (chart['layers'][idx]['changeTileRadius']) {
                     // radius 값 변경
                     radiusPrecision = precision;
                   } else {
                     // zoom size 변경
                     let zoomSize = chart.zoomSize - 2;
-                    radiusPrecision = Math.round((18 + (zoomSize-18)) / 1.5);
+                    radiusPrecision = Math.round((18 + (zoomSize - 18)) / 1.5);
                     // radius 값 지정
                     chart['layers'][idx]['changeTileRadius'] = true;
                     chart['layers'][idx]['radius'] = Math.round(100 - (radiusPrecision * 8.33));
@@ -998,20 +999,21 @@ export class DatasourceService extends AbstractService {
     }
   }
 
+
   /**
    * Get criterion list in datasource
-   * @returns {Promise<CriteriaFilter>}
+   * @return {Promise<any>}
    */
-  public getCriterionListInDatasource(): Promise<CriteriaFilter> {
+  public getCriterionListInDatasource() {
     return this.get(this.API_URL + 'datasources/criteria');
   }
 
   /**
-   * Get criterion in datasource
-   * @param {CriterionKey} criterionKey
-   * @returns {Promise<ListCriterion>}
+   *  Get criterion in datasource
+   * @param {Criteria.ListCriterionKey} criterionKey
+   * @return {Promise<any>}
    */
-  public getCriterionInDatasource(criterionKey: CriterionKey): Promise<ListCriterion> {
+  public getCriterionInDatasource(criterionKey: Criteria.ListCriterionKey) {
     return this.get(this.API_URL + `datasources/criteria/${criterionKey}`);
   }
 

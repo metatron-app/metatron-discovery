@@ -266,13 +266,17 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
    * @param {number} idx
    */
   public onDateChange(date: TimeRange, idx: number) {
-
     this.timeRangeList[idx] = date;
     this.targetFilter.intervals = this.timeRangeList.map(item => item.startDate + '/' + item.endDate);
 
-    // 변경사항 전파
-    this._broadcastChange();
+    if(this.mode && this.mode !== 'WIDGET') {
+      this._broadcastChange();
+    }
   } // function -  onDateChange
+
+  public broadcastChange() {
+    this._broadcastChange();
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method

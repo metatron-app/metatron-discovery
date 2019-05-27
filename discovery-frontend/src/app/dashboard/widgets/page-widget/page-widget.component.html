@@ -271,17 +271,6 @@
                (drawFinished)="updateComplete()">
     </pie-chart>
 
-    <!-- MapView 예정 -->
-
-    <control-chart #chart
-                   *ngIf="chartType === 'control' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
-                   (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
-                   (chartSelectInfo)="chartSelectInfo($event)"
-                   (noData)="showNoData()"
-                   (drawFinished)="updateComplete()"
-                   >
-    </control-chart>
-
     <label-chart #chart
                  *ngIf="chartType === 'label' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
                  (uiOptionUpdated)="uiOptionUpdatedHandler($event)"

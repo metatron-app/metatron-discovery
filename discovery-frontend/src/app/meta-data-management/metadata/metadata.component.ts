@@ -15,7 +15,7 @@
 import {AbstractComponent} from '../../common/component/abstract.component';
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {SelectDatatypeComponent} from './create-metadata/select-datatype.component';
-import {isUndefined} from 'util';
+import {isUndefined, isNullOrUndefined} from 'util';
 import {MetadataService} from './service/metadata.service';
 import {Metadata, SourceType} from '../../domain/meta-data-management/metadata';
 import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
@@ -23,8 +23,8 @@ import {Modal} from '../../common/domain/modal';
 import {Alert} from '../../common/util/alert.util';
 import {CatalogService} from '../catalog/service/catalog.service';
 import * as _ from 'lodash';
-import {DomSanitizer} from '@angular/platform-browser';
 import {StorageService} from '../../data-storage/service/storage.service';
+import {ActivatedRoute} from "@angular/router";
 
 declare let $;
 
@@ -39,6 +39,9 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @ViewChild(SelectDatatypeComponent)
   private _selectDatatypeComponent: SelectDatatypeComponent;
+
+  // 검색 파라메터
+  private _searchParams: { [key: string]: string };
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -70,6 +73,9 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   // Unclassified 선택 여부
   public isUnclassifiedSelected: boolean = false;
 
+  public tagDefaultIndex: number;
+  public typeDefaultIndex: number;
+
   /**
    * Metadata SourceType Enum
    */
@@ -85,7 +91,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     protected injector: Injector,
     protected metadataService: MetadataService,
     protected catalogService: CatalogService,
-    public sanitizer: DomSanitizer) {
+    private _activatedRoute: ActivatedRoute) {
     super(element, injector);
   }
 
@@ -98,13 +104,70 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     // Init
     super.ngOnInit();
 
-    this.init();
+    this._initView();
+
+    this.subscriptions.push(
+      // Get query param from url
+      this._activatedRoute.queryParams.subscribe((params) => {
+
+        if (!_.isEmpty(params)) {
+
+
+          if (!isNullOrUndefined(params['size'])) {
+            this.page.size = params['size'];
+          }
+
+          if (!isNullOrUndefined(params['page'])) {
+            this.page.page = params['page'];
+          }
+
+          if (!isNullOrUndefined(params['nameContains'])) {
+            this.listSearchText = params['nameContains'];
+          }
+
+          if (!isNullOrUndefined(params['sourceType'])) {
+            this.sourceType = params['sourceType'];
+            this.typeDefaultIndex = this.sourceTypeList.findIndex((item) => {
+              return item.value.toString() === this.sourceType;
+            });
+          }
+
+          const sort = params['sort'];
+          if (!isNullOrUndefined(sort)) {
+            const sortInfo = decodeURIComponent(sort).split(',');
+            this.selectedContentSort.key = sortInfo[0];
+            this.selectedContentSort.sort = sortInfo[1];
+          }
+
+        }
+
+        // first fetch metadata tag list
+        this.getMetadataTags()
+          .then((result) => {
+            this.tagsList = this.tagsList.concat(result);
+            if (!isNullOrUndefined(params['tag'])) {
+              this.tag = params['tag'];
+              this.tagDefaultIndex = this.tagsList.findIndex((item) => {
+                return item.name === this.tag;
+              });
+            } else {
+              this.tagDefaultIndex = 0;
+            }
+            this.getMetadataList();
+          })
+          .catch(error => {
+            console.error(error);
+            this.getMetadataList();
+          })
+
+
+      })
+    );
+
+
   }
 
-  // Destory
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
   }
 
@@ -112,8 +175,12 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  public init() {
-    this._initView();
+  /**
+   * After metadata creation
+   */
+  // Todo : doesn't refresh
+  public onCreateEmit() {
+    this.reloadPage();
   }
 
   /**
@@ -122,7 +189,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    */
   public onSourceTypeListChange(event) {
     this.sourceType = event.value;
-    this.getMetadataListPageInit();
+    this.reloadPage();
   }
 
   /**
@@ -132,14 +199,16 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   public onTagsListChange(event) {
 
     'All' === event.name ? this.tag = '' : this.tag = event.name;
-    this.getMetadataListPageInit();
+    this.reloadPage();
   }
 
   /**
    * Refresh filter
    */
   public refreshFilter() {
+
     this._initView();
+    this.reloadPage();
 
     // if (getMetadataList !== false) {
     //   this.getMetadataInCatalog();
@@ -176,9 +245,12 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    * @param {string} key
    */
   public onClickSort(key: string): void {
+
+    // 초기화
+    this.selectedContentSort.sort = this.selectedContentSort.key !== key ? 'default' : this.selectedContentSort.sort;
     // 정렬 정보 저장
     this.selectedContentSort.key = key;
-    // 정렬 key와 일치하면
+
     if (this.selectedContentSort.key === key) {
       // asc, desc
       switch (this.selectedContentSort.sort) {
@@ -193,18 +265,9 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
           break;
       }
     }
-    // 페이지 초기화 후 재조회
-    this.getMetadataListPageInit();
-  }
 
-  /**
-   * 페이지 초기화 후 컬럼 사전 리스트 재조회
-   */
-  public getMetadataListPageInit(): void {
-    // 페이지 초기화
-    this.pageResult.number = 0;
-    // 재조회
-    this.getMetadataList();
+    // 페이지 초기화 후 재조회
+    this.reloadPage();
   }
 
   /**
@@ -231,17 +294,24 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   public getMetadataList() {
 
     this.loadingShow();
-    this.metadataService.getMetaDataList(this._getMetadataParams()).then((result) => {
 
-      this.pageResult.number === 0 && (this.metadatas = []);
-      // page 객체
+    this.metadatas = [];
+    const params = this._getMetadataParams();
+
+    this.metadataService.getMetaDataList(params).then((result) => {
+
+      this._searchParams = params;
+
       this.pageResult = result.page;
+
       // 코드 테이블 리스트
       this.metadatas = result['_embedded'] ? this.metadatas.concat(result['_embedded'].metadatas) : [];
+
       // 로딩 hide
       this.loadingHide();
 
     }).catch((error) => {
+      this.commonExceptionHandler(error);
       this.loadingHide();
     });
 
@@ -292,23 +362,6 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     });
   }
 
-  /**
-   * 더보기 버튼 클릭
-   */
-  public onClickGetMoreList() {
-    // page 증가
-    this.pageResult.number++;
-    // 리스트 조회
-    this.getMetadataList();
-  }
-
-  /**
-   * 더 조회할 컨텐츠가 있는지
-   * @returns {boolean}
-   */
-  public isMoreContents(): boolean {
-    return (this.pageResult.number < this.pageResult.totalPages - 1);
-  }
 
   /**
    * 메타데이터 디테일 페이지로 점프
@@ -339,7 +392,10 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     this.metadataService.deleteMetaData(this.selectedMetadata.id).then((result) => {
       Alert.success(
         this.translateService.instant('msg.metadata.alert.md-deleted', {value: this.selectedMetadata.name}));
-      this.getMetadataListPageInit();
+      if (this.page.page > 0 && this.metadatas.length === 1) {
+        this.page.page = this.page.page - 1;
+      }
+      this.reloadPage(false);
     }).catch((error) => {
       Alert.fail(this.translateService.instant('msg.metadata.alert.md-delete.fail'));
     });
@@ -364,16 +420,28 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    * 선택된 카달로그에 포함된 메타데이터 불러오기
    */
   public getMetadataInCatalog() {
-    this.catalogService.getMetadataInCatalog(this.selectedCatalogId, this._getMetadataParams()).then((result) => {
-      // 전달 받은 page number가 0 이면 컬럼 사전 리스트 초기화
-      this.pageResult.number === 0 && (this.metadatas = []);
+
+    this.loadingShow();
+
+    this.metadatas = [];
+
+    const params = this._getMetadataParams();
+
+    this.catalogService.getMetadataInCatalog(this.selectedCatalogId, params).then((result) => {
+
+      this._searchParams = params;
+
       // page 객체
       this.pageResult = result.page;
+
       // 컬럼 사전 리스트
       this.metadatas = result['_embedded'] ? this.metadatas.concat(result['_embedded']['metadatas']) : [];
+
       // 로딩 hide
       this.loadingHide();
     }).catch((error) => {
+
+      this.commonExceptionHandler(error);
       // 로딩 hide
       this.loadingHide();
     });
@@ -410,11 +478,12 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   //   this.refreshFilter(,true);
   // }
 
-  public getMetadataTags() {
-    this.metadataService.getMetadataTags().then((result) => {
-      this.tagsList = this.tagsList.concat(result);
-
-    });
+  public getMetadataTags(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.metadataService.getMetadataTags()
+        .then(resolve)
+        .catch(reject);
+    })
   }
 
   /**
@@ -431,6 +500,33 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     return result;
   }
 
+
+  /**
+   * 페이지 변경
+   * @param data
+   */
+  public changePage(data: { page: number, size: number }) {
+    if (data) {
+      this.page.page = data.page;
+      this.page.size = data.size;
+      // 워크스페이스 조회
+      this.reloadPage(false);
+    }
+  } // function - changePage
+
+  /**
+   * 페이지를 새로 불러온다.
+   * @param {boolean} isFirstPage
+   */
+  public reloadPage(isFirstPage: boolean = true) {
+    (isFirstPage) && (this.page.page = 0);
+    this._searchParams = this._getMetadataParams();
+    this.router.navigate(
+      [this.router.url.replace(/\?.*/gi, '')],
+      {queryParams: this._searchParams, replaceUrl: true}
+    ).then();
+  } // function - reloadPage
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -440,7 +536,6 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
    * ui init
-   * @param getCatalogList 카달로그 리스트 다시 불러올지 여부
    * @private
    */
   private _initView() {
@@ -459,24 +554,22 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
 
     this.sourceType = '';
     this.listSearchText = '';
-    this.tag = '';
 
     // 정렬 초기화
     this.selectedContentSort = new Order();
-    // page 초기화
-    this.pageResult.size = 15;
-    this.pageResult.number = 0;
     this.selectedContentSort.key = 'createdTime';
     this.selectedContentSort.sort = 'desc';
+
     this.tagsList = [{name: 'All', id: ''}];
+    this.tagDefaultIndex = 0;
+    this.typeDefaultIndex = 0;
+    this.tag = '';
 
     // 카달로그를 다시 불러오기
     // if (getCatalogList !== false) {
     //   this.getCatalogList();
     // }
 
-    this.getMetadataList();
-    this.getMetadataTags();
   }
 
   /**
@@ -506,8 +599,8 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   private _searchText(keyword: string): void {
     // key word
     this.listSearchText = keyword;
-    // 페이지 초기화 후 재조회
-    this.getMetadataListPageInit();
+
+    this.reloadPage();
   }
 
   /**
@@ -649,12 +742,12 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    * @returns object
    * @private
    */
-  private _getMetadataParams(): Object {
+  private _getMetadataParams(): any {
 
     const params = {
-      size: this.pageResult.size,
-      page: this.pageResult.number,
-      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort,
+      page: this.page.page,
+      size: this.page.size,
+      pseudoParam : (new Date()).getTime()
     };
 
     // 검색어
@@ -676,6 +769,8 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     // if (this.selectedCatalogId !== null && !isUndefined(this.selectedCatalogId)) {
     //   params['catalogId'] = this.selectedCatalogId;
     // }
+
+    this.selectedContentSort.sort !== 'default' && (params['sort'] = this.selectedContentSort.key + ',' + this.selectedContentSort.sort);
 
     return params;
   }

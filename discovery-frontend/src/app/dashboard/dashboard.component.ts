@@ -196,8 +196,6 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
       this.broadCaster.broadcast('SET_GLOBAL_FILTER', { filters: boardFilters });
     }
     this.selectionFilter.init();
-    // TODO 필터 변경알림 나중에 제거할 로직
-    // this.popupService.notiFilter({ name: 'change-filter-widget-value', data: filter });
   } // function - changeFilterWidgetEventHandler
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

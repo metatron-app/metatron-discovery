@@ -48,7 +48,7 @@ table.ddp-table-form tbody tr td .ddp-txt-long .ddp-icon-global:before {display:
 
 
 table.ddp-table-form tbody tr td .ddp-txt-long2 {display:inline-block; position:relative;max-width:100%; line-height:21px; height:21px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; word-wrap:normal; box-sizing:border-box;}
-table.ddp-table-form tbody tr td .ddp-txt-long {display:inline-block; position:relative; padding-top:1px; margin-top:-2px; margin-bottom:-2px; max-width:100%; line-height:21px; height:21px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; word-wrap:normal; box-sizing:border-box; vertical-align:top;}
+table.ddp-table-form tbody tr td .ddp-txt-long {display:inline-block; position:relative; padding-top:2px; margin-top:-2px; margin-bottom:-2px; max-width:100%; line-height:21px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; word-wrap:normal; box-sizing:border-box; vertical-align:top;}
 
 table.ddp-table-form tbody tr td .ddp-txt-long.ddp-global {padding-right:66px;}
 table.ddp-table-form tbody tr td .ddp-txt-long.ddp-global.ddp-new {padding-right:100px;}
@@ -59,7 +59,7 @@ table.ddp-table-form tbody tr td .ddp-txt-long em.ddp-tag-global {position:absol
 
 table.ddp-table-form tbody tr td .ddp-txt-long.ddp-global .ddp-icon-global {display:block;}
 
-table.ddp-table-form tbody tr td .ddp-txt-long .ddp-tag-global.type-tag {float:right; position:relative; margin-top:-1px; right:0; margin-left:5px; width:auto; min-width:60px;}
+table.ddp-table-form tbody tr td .ddp-txt-long .ddp-tag-global.type-tag {float:right; position:relative; margin-top:-2px; right:0; margin-left:5px; width:auto; min-width:60px;}
 table.ddp-table-form tbody tr td .ddp-txt-long .ddp-data-long {display:block; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
 
 table.ddp-table-form tr td .ddp-wrap-long .ddp-box-tag {position:relative; top:3px; margin-right:13px;}
@@ -94,6 +94,14 @@ table.ddp-table-form tbody tr td .ddp-link-delete {color:#d0d1d8;}
 table.ddp-table-form tbody tr td .ddp-link-delete:hover {color:#90969f}
 table.ddp-table-form tbody tr td .ddp-link-delete em.ddp-icon-delete {display:inline-block; width:11px; height:12px; background:url(../../../images/icon_edit2.png) no-repeat; background-position:-12px -21px;}
 table.ddp-table-form tbody tr td .ddp-link-delete:hover em.ddp-icon-delete {background-position:-24px -21px;}
+table.ddp-table-form tbody tr td .ddp-ui-disabled {display:none;}
+table.ddp-table-form tbody tr.type-disabled td:last-of-type {padding-right:29px;}
+table.ddp-table-form tbody tr.type-disabled.ddp-selected td:last-of-type {padding-right:29px;}
+table.ddp-table-form tbody tr.type-disabled td .ddp-ui-disabled {display:inline-block; position:absolute; top:50%; right:9px; margin-top:-8px;}
+table.ddp-table-form tbody tr.type-disabled td .ddp-ui-disabled .ddp-icon-disabled {display:inline-block; width:16px; height:16px; background:url(../../../images/icon_disabled.png) no-repeat; content:'';}
+table.ddp-table-form tbody tr.type-disabled td .ddp-ui-disabled .ddp-ui-tooltip-info {right:-7px;}
+table.ddp-table-form tbody tr.type-disabled td .ddp-ui-disabled .ddp-ui-tooltip-info .ddp-icon-view-top {right:12px;}
+table.ddp-table-form tbody tr.type-disabled td .ddp-ui-disabled:hover .ddp-ui-tooltip-info {display:block;}
 
 
 .ddp-ui-grid .ddp-ui-empty {padding:20px; color:#b7b9c3; font-size:12px;}
@@ -209,12 +217,10 @@ table.ddp-table-select tbody tr.ddp-selected td:last-of-type {border-right:1px s
 table.ddp-table-select tbody tr td .ddp-box-tag {position:relative; top:2px;}
 table.ddp-table-type2.ddp-table-select tbody tr.ddp-selected > td {padding:12px 10px 13px 10px}
 table.ddp-table-type2.ddp-table-select tbody tr.ddp-selected > td:first-of-type {padding-left:9px;}
-table.ddp-table-select tbody tr td:last-of-type {padding-right:29px !important;}
 
 table.ddp-table-select tr td:last-of-type {padding-right:35px;}
 table.ddp-table-select tbody tr.ddp-selected td:first-child:before {border-left:1px solid #666eb2;}
 table.ddp-table-select tbody tr.ddp-selected td:last-child:before {border-right:1px solid #666eb2; }
-table.ddp-table-select tbody tr.ddp-selected td:last-of-type:after {display:inline-block; position:absolute; top:50%; right:10px; width:11px; height:8px; margin-top:-6px; background:url(../../../images/icon_select2.png) no-repeat; background-position:-15px top; content:'';}
 
 table.ddp-table-select tbody tr.ddp-selected td .ddp-box-tag {position:relative; top:2px;}
 

@@ -19,11 +19,10 @@ import { CommonUtil } from '../../../common/util/common.util';
 import {Observable} from "rxjs/Rx";
 import {CookieConstant} from "../../../common/constant/cookie.constant";
 import {HttpHeaders} from "@angular/common/http";
+import * as _ from 'lodash';
 
 @Injectable()
 export class DatasetService extends AbstractService {
-
-  public connInfo:any = {};
 
   // 데이터플로우에서 데이터셋 생성으로 넘어왔을 경우, 생성 완료 후 다시 데이터플로우도 이동을 위해 필요
   public dataflowId : string;
@@ -39,26 +38,34 @@ export class DatasetService extends AbstractService {
    */
   public getDatasets(param): Promise<Datasets> {
 
-    delete param.page.column;
+    const clonedParam = _.cloneDeep(param);
 
-    const sort = param.page.sort.split(',');
+    let sort = [];
     let sortStr = '';
-    if (sort[0] === 'refDfCount') {
-      if (sort[1] === 'asc') {
-        sortStr = 'Asc';
-      } else {
-        sortStr = 'Desc';
+    if (clonedParam.sort) {
+      sort = clonedParam.sort.split(',');
+      if (sort[0] === 'refDfCount') {
+        if (sort[1] === 'asc') {
+          sortStr = 'Asc';
+        } else {
+          sortStr = 'Desc';
+        }
       }
     }
 
     let url = this.API_URL + `preparationdatasets/search/`;
 
-    if (param.dsType !== '') {
+    let dsType = '';
+    if (clonedParam.dsType.indexOf(',') === -1) {
+      dsType = clonedParam.dsType;
+    }
+
+    if (dsType !== '') {
 
       if (sort[0] === 'refDfCount') {
-        url += `findByDsNameContainingAndDsTypeOrderByRefDfCount${sortStr}?dsType=${param.dsType}&`;
+        url += `findByDsNameContainingAndDsTypeOrderByRefDfCount${sortStr}?dsType=${clonedParam.dsType}&`;
       } else {
-        url += `findByDsNameContainingAndDsType?dsType=${param.dsType}&`;
+        url += `findByDsNameContainingAndDsType?dsType=${clonedParam.dsType}&`;
       }
 
     } else {
@@ -69,7 +76,9 @@ export class DatasetService extends AbstractService {
       }
     }
 
-    url += `dsName=${encodeURIComponent(param.searchText)}&${CommonUtil.objectToUrlString(param.page)}`;
+    delete clonedParam.dsType;
+
+    url += `${CommonUtil.objectToUrlString(clonedParam)}`;
 
     return this.get(url);
 

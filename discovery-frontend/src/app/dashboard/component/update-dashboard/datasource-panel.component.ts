@@ -406,6 +406,16 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
   } // function - openCustomFieldPopup
 
   /**
+   * 사용자 정의 필드 팝업 열기 ( 컨텍스트 메뉴로 부터.. )
+   * @param customField
+   */
+  public openCustomFieldPopupFromContext( customField:CustomField ) {
+    this.customFieldPopupType = customField.role.toString();
+    this.selectedCustomField = customField;
+    this.isShowCustomFiled = true;
+  } // function - openCustomFieldPopupFromContext
+
+  /**
    * 사용자 정의 컬럼 변경
    * ( TODO : 추후 update-dashboard 에 있는 함수를 이곳으로 옮겨와야 한다. )
    * @param data

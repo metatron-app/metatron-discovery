@@ -223,8 +223,10 @@ export class CompleteCreateMetadataComponent extends AbstractPopupComponent impl
       Alert.success(
         this.translateService.instant('msg.metadata.alert.create.success', {value: this.createName.trim()}));
       // complete
+      this.loadingHide();
       this.createComplete.emit();
     }).catch((error) => {
+      this.loadingHide();
       this.commonExceptionHandler(error);
     });
   }

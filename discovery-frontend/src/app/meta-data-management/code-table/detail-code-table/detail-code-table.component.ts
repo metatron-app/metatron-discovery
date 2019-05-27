@@ -14,6 +14,7 @@
 
 import {AbstractComponent} from '../../../common/component/abstract.component';
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Location} from '@angular/common';
 import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';
 import {CodeTableService} from '../service/code-table.service';
 import {ActivatedRoute} from '@angular/router';
@@ -91,6 +92,7 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
 
   // 생성자
   constructor(
+    private _location: Location,
     private _codeTableService: CodeTableService,
     private _activatedRoute: ActivatedRoute,
     protected element: ElementRef,
@@ -141,8 +143,8 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
       Alert.success(
         this.translateService.instant('msg.metadata.ui.codetable.delete.success', {value: this._originCodeTable.name}));
       // 코드테이블 목록으로 돌아가기
-      this.router.navigate(['/management/metadata/code-table']);
-    }).catch((error) => {
+      this._location.back();
+    }).catch(() => {
 
       // 로딩 hide
       this.loadingHide();
@@ -188,7 +190,7 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
    */
   public onClickPrevButton(): void {
     // 코드 테이블 목록 화면으로 이동
-    this.router.navigate(['/management/metadata/code-table']);
+    this._location.back();
   }
 
   /**
@@ -363,16 +365,16 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
     this.loadingShow();
 
     this._codeTableService.updateCodeTable(this._codeTableId, params ? params : this._getUpdateCodeTableParams()).
-      then((result) => {
-        // alert
-        Alert.success(this.translateService.instant('msg.comm.alert.confirm.success'));
-        // 재조회
-        this._getDetailCodeTable();
-      }).
-      catch((error) => {
-        // 로딩 hide
-        this.loadingHide();
-      });
+    then((result) => {
+      // alert
+      Alert.success(this.translateService.instant('msg.comm.alert.confirm.success'));
+      // 재조회
+      this._getDetailCodeTable();
+    }).
+    catch((error) => {
+      // 로딩 hide
+      this.loadingHide();
+    });
   }
 
   /**

@@ -1,0 +1,63 @@
+<!--
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div class="ddp-wrap-popup2">
+  <!-- search -->
+  <div class="ddp-pop-search" *ngIf="criterion.searchable">
+    <component-input
+      [autoFocus]="false"
+      [immediately]="true"
+      [value]="searchKeyword"
+      [placeHolder]="searchPlaceHolder"
+      (changeValue)="searchItem($event)">
+    </component-input>
+  </div>
+  <!-- //search -->
+  <!-- ALL -->
+  <ul class="ddp-list-popup" *ngIf="isEnableAllOption">
+    <li>
+      <a href="javascript:">
+        <label class="ddp-label-checkbox">
+          <input type="checkbox" [checked]="isCheckedAllItem()">
+          <i class="ddp-icon-checkbox"></i>
+          <span class="ddp-txt-checkbox">({{'msg.comm.ui.list.all' | translate}})</span>
+        </label>
+      </a>
+    </li>
+  </ul>
+  <!-- //ALL -->
+  <!-- list -->
+  <ng-container  *ngFor="let list of criterionList">
+    <!-- only show exist filters -->
+    <ng-container  *ngIf="list.filters.length !== 0">
+      <!-- if exist criterionName, show list title -->
+      <span class="ddp-txt-label2" *ngIf="list.criterionName">{{isRequireTranslate(list.criterionName) ? (list.criterionName | translate) : list.criterionName}}</span>
+      <!-- item list -->
+      <ul class="ddp-list-popup">
+        <li *ngFor="let filter of list.filters">
+          <a href="javascript:" (click)="onCheckItem(filter); $event.preventDefault()">
+            <label class="ddp-label-checkbox">
+              <input type="checkbox" [checked]="isCheckedItem(filter)">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{getTranslateFilterName(filter)}}</span>
+            </label>
+          </a>
+        </li>
+      </ul>
+      <!-- //item list -->
+    </ng-container>
+    <!-- //only show exist filters -->
+  </ng-container>
+  <!-- //list -->
+</div>

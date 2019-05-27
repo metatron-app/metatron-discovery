@@ -117,7 +117,7 @@ public class WorkspaceRestIntegrationTest extends AbstractRestIntegrationTest {
      */
     TestUtils.printTestTitle("2. 서버 선택 후 등록");
     String cids = "notebook-jupyter-00" + "," + "notebook-zeppelin-00";
-//    String cids = "notebook-jupyter-00";
+    //    String cids = "notebook-jupyter-00";
     // @formatter:off
     given()
       .auth().oauth2(oauth_token)
@@ -631,8 +631,6 @@ public class WorkspaceRestIntegrationTest extends AbstractRestIntegrationTest {
   /**
    * 워크스페이스 > 노트북 생성하는 화면 호출 시 > 데이터소스 선택 목록 정보
    * (데이터 타입 default 조건이 데이터소스 이므로, 데이터소스 목록을 화면 로딩 시점에서 바로 호출한다.
-   *
-   * @throws JsonProcessingException
    */
   @Test
   @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_WORKSPACE_MANAGE_WORKSPACE"})
@@ -647,11 +645,13 @@ public class WorkspaceRestIntegrationTest extends AbstractRestIntegrationTest {
       .contentType(ContentType.JSON)
       .accept(ContentType.JSON)
 //      .param("onlyPublic", true)
+      .param("status", "enabled,disabled")
       .param("projection", "forListInWorkspaceView")
       .param("nameContains", "test")
       .param("sort", "linkedWorkspaces,desc")
       .param("sort", "modifiedTime,asc")
       .param("sort", "name,desc")
+      .log().all()
     .when()
       .get("/api/workspaces/{id}/datasources", workspaceId)
     .then()
@@ -729,7 +729,7 @@ public class WorkspaceRestIntegrationTest extends AbstractRestIntegrationTest {
     tagetMap1.put("role", "WORKSPACE_ADMIN");
 
     List<JsonPatch> patches = Lists.newArrayList(
-//        new JsonPatch(JsonPatch.Operations.REMOVE, "/members/[memberId == 'metatron']")
+        //        new JsonPatch(JsonPatch.Operations.REMOVE, "/members/[memberId == 'metatron']")
         new JsonPatch(JsonPatch.Operations.REMOVE, "/members/0")
     );
 
@@ -770,10 +770,10 @@ public class WorkspaceRestIntegrationTest extends AbstractRestIntegrationTest {
     TestUtils.printTestTitle("1. 최초 공유 Workspace 생성");
 
     Workspace testWorkspace1 = new WorkspaceBuilder()
-            .name("workspace1")
-            .description("workspace1 desc")
-            .publicType(Workspace.PublicType.SHARED)
-            .build();
+        .name("workspace1")
+        .description("workspace1 desc")
+        .publicType(Workspace.PublicType.SHARED)
+        .build();
 
     // @formatter:off
     Response workspaceRes =
@@ -1064,7 +1064,7 @@ public class WorkspaceRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "admin", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_MANAGE_SHARED_WORKSPACE"})
-//  @OAuthRequest(username = "guest", value = {"SYSTEM_GUEST"})
+  //  @OAuthRequest(username = "guest", value = {"SYSTEM_GUEST"})
   @Sql(value = {"/sql/test_workbook.sql"})
   public void findWorkspaceWithDetailView() {
 
@@ -1172,7 +1172,7 @@ public class WorkspaceRestIntegrationTest extends AbstractRestIntegrationTest {
     StompHeaders stompHeaders = new StompHeaders();
     stompHeaders.set("X-AUTH-TOKEN", oauth_token);
 
-//    StompSession session = null;
+    //    StompSession session = null;
     StompSession session = null;
     try {
       session = stompClient
@@ -1196,7 +1196,7 @@ public class WorkspaceRestIntegrationTest extends AbstractRestIntegrationTest {
 
     System.out.println(GlobalObjectMapper.writeValueAsString(activityStreamV2));
 
-    session.send(stompSendHeaders,activityStreamV2);
+    session.send(stompSendHeaders, activityStreamV2);
 
     // @formatter:off
     given()
@@ -1263,7 +1263,7 @@ public class WorkspaceRestIntegrationTest extends AbstractRestIntegrationTest {
     String toRoleSetName = "테스트 롤셋";
 
     Map<String, String> mapper = Maps.newHashMap();
-//    mapper.put("WORKSPACE_TEST_EDITOR", "WORKSPACE_VIEWER");
+    //    mapper.put("WORKSPACE_TEST_EDITOR", "WORKSPACE_VIEWER");
 
     // @formatter:off
     Response addRoleSetRes =

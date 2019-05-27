@@ -84,6 +84,7 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
 
   // 공유 워크스페이스 리스트
   public sharedWorkspace: Workspace[] = [];
+  public cntAllWorkspaces:number = 0;
 
   // 정렬
   public sort = [
@@ -193,6 +194,7 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
 
       // page 객체 저장
       this.pageResult = workspaces['page'];
+      this.cntAllWorkspaces = this.pageResult.totalElements;
 
       // 결과가 있을 경우
       if (workspaces['_embedded']) {
@@ -446,6 +448,7 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
 
     // 공유 워크스페이스 리스트
     this.sharedWorkspace = [];
+    this.cntAllWorkspaces = 0;
     // 정렬 선택 값
     this.sortText = this.sort[0];
     // 검색어

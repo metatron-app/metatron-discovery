@@ -1,0 +1,489 @@
+
+[[resources-datasource-query]]
+== DataSource Query
+
+
+[[resources-datasource-query-representations]]
+=== Resource representations
+
+.SearchQueryRequest
+|===
+|Name |Type |Description |Note
+
+|dataSource
+|DataSource
+|Datasource information to query
+|
+
+|userFields[]
+|UserDefinedField
+|Specifies User-defined field
+|
+
+
+|filters[]
+|Filter
+|Filter information
+|
+
+|projections[]
+|Field
+|Field information to query
+|If the aggregationType in the MeasureField that you declare is null or 'NONE',
+then the Select statement is performed; otherwise, the GroupBy statement is performed.
+
+|limits
+|Limit
+|Maximum row counts
+|
+
+|resultFormat
+|SearchResultFormat
+|Specifies the format for query results.
+|
+
+|resultForward
+|ResultForward
+|Decide where to place the query results.
+|
+
+|===
+
+.CandidateQueryRequest
+|===
+|Name |Type |Description |Note
+
+|dataSource
+|DataSource
+|Datasource information to query
+|
+
+|filters[]
+|Filter
+|Filter information
+|
+
+|userFields
+|UserDefinedField
+|Specifies User-defined field
+|
+
+|searchWord
+|String
+|search word
+|
+
+|targetField
+|Field
+|Target field
+|
+
+|sortBy
+|Enum
+|Sort criteria, "COUNT", "VALUE"
+|
+
+|limit
+|Integer
+|Limitation of candidated contents
+|
+
+|===
+
+.DataSource
+|===
+|Name |Type |Description |Note
+
+|type
+|Enum
+|Type of Datasource, "default", "mapping"
+|For the default type, the data source name can be specified as a string.
+
+|name
+|String
+|Name of the Main (Left) datasource to query
+|Must be specified in 'engineName' property of the datasource.
+
+|keyPair
+|Map
+|(mapping) The pair of the field name to be joined, the key part is the field name in the left area, and the value part is the field name in the right area
+|
+
+|join
+|Object
+|(mapping) Join (Right) Datasource information
+|
+
+|join.name
+|String
+|Name of the datasource to join
+|
+
+|join.joinAlias
+|String
+|Specifies the join name when a subjoin datasource exists. The default value is join.{right datasource name}
+|
+
+|join.type
+|Enum
+|Specifies join type, Currently we are supporting "INNER", "LEFT_OUTER" and "RIGHT_OUTER".
+|
+
+|join.join
+|Object
+|Join target DataSource when sub-join datasource exists
+|
+
+|join.keyPair
+|Map
+|The pair of join target field name, when a sub-join datasource exists
+|
+
+|===
+
+.Filter
+|===
+|Name |Type |Description |Note
+
+|type
+|Enum
+|Type of Filter, "include", "like", "regexpr", "expression", "measure", "time_list", "time_relative", "time_range")
+|
+
+|field
+|String
+|field name
+|
+
+|ref
+|String
+|Specifies the target to which the field refers such as Data source name or user-definedField name.
+|
+
+|valueList
+|Array
+|(include / time_list) List of values within the selected field
+|
+
+|intervals
+|Array
+|(time_range) Specify in time format appropriate for timeUnit. The types that can be input are as follows : 'datetime/datetime', 'datetime/period', 'period/datetime', 'period/datetime/period'
+| ex. if timeUnit is 'DAY' , 2018-05-19/2018-05-20, "2018-05-20/P2D", ... +
+ ※ Time format by time unit  +
+   - SECOND: "yyyy-MM-dd HH:mm:ss"  +
+   -  MINUTE: "yyyy-MM-dd HH:mm"  +
+   -  HOUR: "yyyy-MM-dd HH"  +
+   -  DAY: "yyyy-MM-dd"  +
+   -  WEEK: "xxxx-ww"  +
+   -  MONTH: "yyyy-MM"  +
+   -  QUARTER: "yyyy-q"  +
+   -  YEAR: "yyyy"
+|timeUnit
+|Enum
+|(time_list / time_range / time_relative) Time units, "SECOND", "MINUTE", "HOUR", "DAY", "WEEK", "MONTH", "QUARTER", "YEAR", "NONE"
+|
+
+|byTimeUnit
+|Enum
+|(time_list) by timeUnit, "MINUTE", "HOUR", "DAY", "WEEK", "MONTH", "QUARTER", "YEAR"
+|
+
+|discontinuous
+|Boolean
+|(time_list) Discontinuity
+|
+
+|tense
+|Enum
+|(time_relative) Relative base point, "PREVIOUS", "CURRENT", "NEXT"
+|
+
+|expr
+|String
+|(like) Support wildcard related characters ('_', '%'), escape character ('\')  +
+ (regexpr) Regular Expression +
+ (expression) Specifying expression supported in the engine
+|
+
+|===
+
+.Field
+|===
+|Name |Type |Description |Note
+
+|type
+|Enum
+|Field role, "dimension", "measure", "timestamp"
+|
+
+|name
+|String
+|The name of field
+|
+
+|alias
+|String
+|Alias
+|
+
+|ref
+|String
+|Specifies the target to which the field refers such as Data source name or user-definedField name.
+|
+
+|granularity
+|Enum
+|(timestamp) timeserise aggregation unit, "SECOND", "MINUTE", "HOUR", "DAYOFWEEK", "WEEK", "MONTH", "QUARTER", "YEAR"
+|
+
+|timeUnit
+|Enum
+|(timestamp, dimension) display format "SECOND", "MINUTE", "HOUR", "DAYOFWEEK", "WEEK", "MONTH", "QUARTER", "YEAR"
+|
+
+|timeZone
+|String
+|(timestamp, dimension) timezone, follow as this link : http://joda-time.sourceforge.net/timezones.html, default 'UTC'
+|
+
+|locale
+|Enum
+|(timestamp, dimension) language locale, default 'en'
+|
+
+|aggregationType
+|Eumn
+|(measure) the type of aggregation, "NONE", "MIN", "MAX", "COUNT", "SUM", "AVG", "STDDEV", "MEDIAN", "AREA", "RANGE", "PERCENTILE"
+|
+
+|options
+|String
+|(measure) Options related to aggregation type. Configure as key1 = value1, key2 = value2,
+|Percentile requires a value between 0 and 1 (ex. value=0.75)
+
+|===
+
+.UserDefinedField
+|===
+|Name |Type |Description |Note
+
+|type
+|Enum
+|Type of user-defined field, "user_expr", "user_param", "user_map"
+| Currently, only the "user_expr" type is supported.
+
+|name
+|String
+|The name of user-defined field
+|
+
+|ref
+|String
+|Specifies the target to which the field refers such as Data source name or user-definedField name.
+|
+
+|expr
+|String
+|(user_expr) Expression
+|
+
+|roleType
+|Enum
+|(user_expr) Field role, "MEASURE", "DIMENSION"
+|
+
+|===
+
+
+[[resources-datasource-query-methods]]
+=== Methods
+
+
+[[resources-datasource-query-methods-search]]
+==== Search
+
+Searches datasource on engine.
+
+===== HTTP request
+    (POST) /api/datasources/query/search
+
+===== Request Body
+
+.Request body select sample
+[source,json]
+----
+{
+    "dataSource": {
+        "type": "default",
+        "name": "sales_geo"
+    },
+    "filters": [
+        {
+            "type": "time_range",
+            "field": "ShipDate",
+            "timeUnit": "NONE",
+            "intervals": [
+                "EARLIEST_DATETIME/2011-05-19 12:00:00",
+                "2014-05-19 16:00:23/LATEST_DATETIME"
+            ],
+            "timeZone": "UTC",
+            "locale": "en"
+        }
+    ],
+    "projections": [
+        {
+            "type": "timestamp",
+            "name": "OrderDate",
+            "alias": "OrderDate",
+            "format": {
+                "type": "time_format",
+                "format": "yyyy-MM-dd HH:mm:ss",
+                "timeZone": "UTC",
+                "locale": "en"
+            }
+        },
+        {
+            "type": "dimension",
+            "name": "City",
+            "alias": "City"
+        },
+        {
+            "type": "dimension",
+            "name": "Sub-Category",
+            "alias": "Sub-Category"
+        },
+        {
+            "type": "dimension",
+            "name": "Category",
+            "alias": "Category"
+        },
+        {
+            "type": "measure",
+            "name": "Sales",
+            "alias": "Sales",
+            "aggregationType": "NONE",
+            "userDefinedAlias": "Sales"
+        }
+    ],
+    "userFields": [
+
+    ],
+    "limits": {
+        "limit": 1000,
+        "sort": [
+            {
+                "field": "OrderDate",
+                "direction": "DESC"
+            }
+        ]
+    },
+    "metaQuery": false,
+    "preview": false
+}
+----
+
+.Request body GroupBy sample
+[source,json]
+----
+{
+    "dataSource": {
+        "type": "default",
+        "name": "sales_geo"
+    },
+    "filters": [
+        ...
+    ],
+    "projections": [
+        {
+            "type": "dimension",
+            "name": "Category"
+        },
+        {
+            "type": "timestamp",
+            "name": "OrderDate",
+            "format": {
+                "type": "time_continuous",
+                "discontinuous": false,
+                "unit": "YEAR"
+            }
+        },
+        {
+            "type": "measure",
+            "name": "Discount",
+            "alias": "AVG(Discount)"
+            "aggregationType": "AVG"
+        }
+    ],
+    "limits": {
+        "limit": 20,
+        "sort": [
+            {
+                "field": "SUM(Discount)",
+                "direction": "ASC"
+            }
+        ]
+    }
+}
+----
+
+===== Response
+If successful, this method returns list of result format in the response body.
+
+[[resources-datasource-search-methods-candidate]]
+==== Candidate
+Returns cadidated contents of field.
+
+===== HTTP request
+    (POST) /api/datasources/query/candidate
+
+===== Request Body
+
+.Request body sample
+[source,json]
+----
+{
+    "dataSource": "sales",
+    "filters": [
+        {
+            "type": "include",
+            "field": "State",
+            "valueList": [
+                "Texas"
+            ]
+        }
+    ],
+    "targetField": {
+        "type": "dimension",
+        "name": "Category"
+    },
+    "sortBy": "COUNT",
+    "limit": 100
+}
+----
+
+===== Response
+If successful, this method returns following structure in the response body.
+
+.Response body structure - for timestamp field
+[source,json]
+----
+{
+  "minTime": "yyyy-MM-ddTHH:mm:ss.SSSZ"
+  "maxTime": "yyyy-MM-ddTHH:mm:ss.SSSZ"
+  "minValue": "string"                 # If Dimension Role and DataType is Timestamp, the original value is also included in the result.
+  "minValue": "string"                 #
+}
+----
+
+.Response body structure - for dimension field
+[source,json]
+----
+[
+    {
+        "field": "string",
+        "count": 0
+    }
+    ...
+]
+
+----

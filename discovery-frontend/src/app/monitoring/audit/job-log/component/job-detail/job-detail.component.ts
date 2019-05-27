@@ -25,6 +25,7 @@ import { LogEditorComponent } from '../../../component/log-editor/log-editor.com
 import { MomentDatePipe } from '../../../../../common/pipe/moment.date.pipe';
 import { ActivatedRoute } from '@angular/router';
 import { CommonUtil } from '../../../../../common/util/common.util';
+import {Location} from "@angular/common";
 
 declare let moment: any;
 
@@ -72,7 +73,9 @@ export class JobDetailComponent extends AbstractPopupComponent {
 
   // 생성자
   constructor(protected auditService: AuditService,
-              protected element: ElementRef, protected activatedRoute : ActivatedRoute,
+              protected element: ElementRef,
+              protected activatedRoute : ActivatedRoute,
+              protected location: Location,
               protected injector: Injector) {
     super(element, injector);
   }
@@ -116,7 +119,7 @@ export class JobDetailComponent extends AbstractPopupComponent {
       this.auditService.previousRouter = '';
       this.router.navigateByUrl(prev);
     } else {
-      this.router.navigateByUrl('/management/monitoring/audit');
+      this.location.back();
     }
 
   }

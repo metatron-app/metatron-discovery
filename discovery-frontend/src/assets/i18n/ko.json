@@ -174,6 +174,9 @@
   "msg.comm.ui.list.ds.type.live" : "라이브",
   "msg.comm.ui.list.ds.type.link" : "연결형",
   "msg.comm.ui.list.ds.opendata" : "오픈 데이터",
+  "msg.comm.ui.ds.engine": "수집형",
+  "msg.comm.ui.ds.live": "라이브",
+  "msg.comm.ui.ds.link": "연결형",
   "msg.comm.ui.del.description" : "정말 삭제하시겠습니까?",
   "msg.comm.name.dim" : "차원값",
   "msg.comm.name.mea" : "측정값",
@@ -295,6 +298,9 @@
   "msg.comm.ui.failed": "실패",
   "msg.comm.ui.complete": "완료됨",
   "msg.comm.ui.canceled": "취소됨",
+  "msg.comm.ui.num.item.list" : "한 페이지당 목록",
+  "msg.comm.alert.error.msg": "문제가 있습니다 <br> 다음 메시지를 확인하십시오",
+  "msg.comm.alert.error.btn": "자세한 내용을 보려면 여기를 클릭하십시오.",
 
   "msg.lnb.btn.manual" : "다운로드",
   "msg.lnb.btn.manual.web" : "온라인",
@@ -405,6 +411,7 @@
   "msg.space.create.notebook.title" : "소스 타입을 선택해 주세요",
   "msg.space.warning.can-not-create-11depth-folder" : "하위 폴더는 10 Depth 까지만 만들 수 있습니다.",
   "msg.space.ui.list.search.placeholder" : "서버명을 검색해 주세요",
+  "msg.space.alert.join.msg" : "엔진 호출중 오류가 발생하였습니다",
 
   "msg.alert.retrieve.fail" : "조회에 실패하였습니다",
   "msg.alert.del.success" : "을(를) 삭제하였습니다",
@@ -695,6 +702,7 @@
   "msg.nbook.ui.host.ph" : "Host 주소를 입력해 주세요",
   "msg.nbook.ui.port.ph" : "Port를 입력해 주세요",
   "msg.nbook.ui.not.used" : "사용하지 않음",
+  "msg.nbook.ui.no.nb" : "노트북이 없습니다",
 
   "msg.dp.alert.check.formula": "수식을 확인해 주세요",
   "msg.dp.alert.check.expression": "수식을 확인해 주세요",
@@ -1535,7 +1543,7 @@
   "msg.board.ui.num.board" : "{{value}}개의 대시보드가 있습니다",
   "msg.board.ui.search.full-column.ph" : "전체열 표시",
   "msg.board.ui.master.dsource" : "마스터 데이터소스",
-  "msg.board.ui.dsource.join": "Datasource to join",
+  "msg.board.ui.dsource.join": "조인 할 데이터소스",
   "msg.board.ui.please.choose.dsource" : "데이터소스를 선택해 주세요",
   "msg.board.ui.add.join.keys" : "조인 키 추가",
   "msg.board.ui.join.column.error" : "조인할 데이터소스 컬럼을 선택해 주세요",
@@ -1544,7 +1552,7 @@
   "msg.board.ui.join.type.left": "Left",
   "msg.board.ui.join.type.right": "Right",
   "msg.board.ui.join.type.fullouter": "Full outer",
-  "msg.board.ui.join.key.none": "No join keys",
+  "msg.board.ui.join.key.none": "조인키가 없습니다",
   "msg.board.ui.join.keys": "{{value}}개 조인키",
   "msg.board.ui.join.preview.rslt" : "결과 미리보기",
   "msg.board.alert.join.setting.error" : "조인 설정이 없습니다",
@@ -2206,6 +2214,8 @@
   "msg.storage.ui.file.uploading": "파일을 업로드 중입니다. 조금만 기다려주세요.",
   "msg.storage.ui.file.failed": "파일 업로드가 실패하였습니다. 다시 파일을 등록해주세요.",
   "msg.storage.ui.file.canceled": "파일 업로드를 취소하였습니다. 다시 파일을 등록해주세요.",
+  "msg.storage.ui.ds.failed": "Ingestion Failed",
+  "msg.storage.ui.ds.disabled": " Temporary Disabled",
 
   "msg.storage.ui.timezone.country.zimbabwe": "짐바브웨",
   "msg.storage.ui.timezone.country.zambia": "잠비아",
@@ -3035,6 +3045,7 @@
   "msg.log.btn.download.csv" : "다운로드",
   "msg.log.btn.over.num.ms" : "{{value}} ms 이상",
   "msg.log.ui.use.record" : "동일 커넥션의 최근 사용 기록",
+  "msg.log.ui.no.log": "잡 로그가 없습니다",
 
   "msg.statistics.ui.daily.query.success-fail" : "쿼리 성공/실패률",
   "msg.statistics.ui.daily.query.frequency" : "사용자 별 쿼리 빈도 수",
@@ -3253,6 +3264,9 @@
   "msg.permission.ui.sys-perm.system-setting.desc" : "사용자를 직접 등록하거나 회원가입 요청을 승인하여 사용자를 등록하고 관리할 수 있습니다. 시스템에서 제공하는 워크스페이스 스키마 퍼미션을 정의할 수 있습니다",
   "msg.permission.ui.sys-perm.ws-manager.desc" : "사용자가 소유하고 있는 워크스페이스에 커스텀 스키마를 생성하고 관리할 수 있습니다",
   "msg.permission.ui.sys-perm.guest.desc" : "게스트",
+  "msg.permission.alert.delete.ok" : "스키마가 삭제되었습니다",
+  "msg.permission.alert.create.ok" : "'{{value}}' 스키마가 생성되었습니다",
+
 
   "msg.page.pivot.layout.condition.dimension.over.desc": "{{value}}개 이상의 차원값",
   "msg.page.pivot.layout.condition.dimension.desc": "{{value}}개의 차원값",
@@ -3284,7 +3298,6 @@
   "msg.page.ui.heat-map" : "히트맵",
   "msg.page.ui.pie" : "원형 차트",
   "msg.page.ui.map" : "맵",
-  "msg.page.ui.control-chart" : "콘트롤 차트",
   "msg.page.ui.kpi" : "핵심지표",
   "msg.page.ui.box-plot" : "박스플롯",
   "msg.page.ui.water-fall" : "폭포 차트",
@@ -3865,6 +3878,8 @@
   "msg.cluster.ui.create.explanation.description" : "Metatron은 Zookeeper, MariaDB, Druid 및 Metatron Discovery를 다루고 있습니다",
   "msg.cluster.ui.create.add.btn" : "추가",
 
+  "msg.metadata.ui.no.col.dic" : "컬럼 사전이 없습니다",
+  "msg.metadata.ui.no.code.table" : "코드 테이블이 없습니다",
   "msg.metadata.ui.title" : "메타 데이터",
   "msg.metadata.ui.codetable.title" : "코드 테이블",
   "msg.metadata.ui.dictionary.title" : "용어 사전",

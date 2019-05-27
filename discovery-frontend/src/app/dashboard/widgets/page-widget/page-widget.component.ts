@@ -49,12 +49,12 @@ import {AnalysisPredictionService} from '../../../page/component/analysis/servic
 import {Widget} from '../../../domain/dashboard/widget/widget';
 import {EventBroadcaster} from '../../../common/event/event.broadcaster';
 import {FilterUtil} from '../../util/filter.util';
-import {NetworkChartComponent} from '../../../common/component/chart/type/network-chart/network-chart.component';
+import {NetworkChartComponent} from '../../../common/component/chart/type/network-chart.component';
 import {DashboardPageRelation} from '../../../domain/dashboard/widget/page-widget.relation';
 import {BoardConfiguration, BoardDataSource, LayoutMode} from '../../../domain/dashboard/dashboard';
-import {GridChartComponent} from '../../../common/component/chart/type/grid-chart/grid-chart.component';
-import {BarChartComponent} from '../../../common/component/chart/type/bar-chart/bar-chart.component';
-import {LineChartComponent} from '../../../common/component/chart/type/line-chart/line-chart.component';
+import {GridChartComponent} from '../../../common/component/chart/type/grid-chart.component';
+import {BarChartComponent} from '../../../common/component/chart/type/bar-chart.component';
+import {LineChartComponent} from '../../../common/component/chart/type/line-chart.component';
 import {OptionGenerator} from '../../../common/component/chart/option/util/option-generator';
 import {BoardSyncOptions, BoardWidgetOptions, WidgetShowType} from '../../../domain/dashboard/dashboard.globalOptions';
 import {DataDownloadComponent} from '../../../common/component/data-download/data.download.component';

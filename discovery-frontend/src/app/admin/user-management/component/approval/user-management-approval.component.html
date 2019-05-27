@@ -55,9 +55,12 @@
     <div class="ddp-ui-option ddp-clear">
       <!-- edit -->
       <component-period
+        [startDateDefault]="initialPeriodData?.startDate"
+        [endDateDefault]="initialPeriodData?.endDate"
+        [defaultType]="initialPeriodData?.type"
         [title]="'msg.mem.th.request.date' | translate"
         [dateType]="false"
-        (changeDate)="onChangeDate($event)"
+        (changeDate)="onFilterDate($event)"
       ></component-period>
       <!-- //edit -->
     </div>
@@ -69,7 +72,7 @@
       <div class="ddp-form-search ddp-fleft">
         <em class="ddp-icon-search"></em>
         <input type="text" placeholder="{{'msg.mem.search.description' | translate}}" [(ngModel)]="searchKeyword" (keyup)="searchUser($event)" >
-        <em class="ddp-btn-search-close" (click)="searchKeyword = ''; getUsers()"></em>
+        <em class="ddp-btn-search-close" *ngIf="searchKeyword !== ''" (click)="getUsers()"></em>
       </div>
       <!-- //검색 -->
       <div class="ddp-ui-rightoption">
@@ -143,10 +146,10 @@
       </tr>
     </tbody>
   </table>
+  <!-- Pagination -->
+  <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+  <!-- // Pagination -->
 
-  <div class="ddp-box-add-link" *ngIf="pageResult && pageResult.totalPages && page.page < pageResult.totalPages -1" (click)="loadMore()">
-    <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
-  </div>
 </div>
 
 <!-- approveModal -->

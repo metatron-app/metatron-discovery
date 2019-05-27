@@ -1906,7 +1906,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           this.openAccessDeniedConfirm();
         }
 
-        // this.restoreQueryResultPreviousState(data.queryEditors);
+        this.restoreQueryResultPreviousState(data.queryEditors);
       });
 
     }).catch((error) => {

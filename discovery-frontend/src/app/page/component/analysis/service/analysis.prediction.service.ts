@@ -12,13 +12,14 @@
  * limitations under the License.
  */
 
-import { Injectable, Injector, OnInit } from '@angular/core';
-import { AbstractService } from '../../../../common/service/abstract.service';
-import { Analysis } from '../../value/analysis';
-import { SearchQueryRequest } from '../../../../domain/datasource/data/search-query-request';
+import {Injectable, Injector, OnInit} from '@angular/core';
+import {AbstractService} from '../../../../common/service/abstract.service';
+import {Analysis} from '../../value/analysis';
+import {SearchQueryRequest} from '../../../../domain/datasource/data/search-query-request';
 import * as _ from 'lodash';
-import { PageWidget, PageWidgetConfiguration } from '../../../../domain/dashboard/widget/page-widget';
-import { UIOption } from '../../../../common/component/chart/option/ui-option';
+import {PageWidget, PageWidgetConfiguration} from '../../../../domain/dashboard/widget/page-widget';
+import {UIOption} from '../../../../common/component/chart/option/ui-option';
+import {CommonUtil} from "../../../../common/util/common.util";
 
 @Injectable()
 export class AnalysisPredictionService extends AbstractService implements OnInit {
@@ -196,22 +197,29 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
   /**
    * 고급분석 예측선 API 파라미터 생성
    *
-   * @param {PageWidgetConfiguration} widgetConfiguration
+   * @param {PageWidgetConfiguration} widgetConf
    * @param {PageWidget} widget
    * @returns {Analysis}
    */
-  private createGetAnalysisParameter(widgetConfiguration: PageWidgetConfiguration, widget: PageWidget) {
+  private createGetAnalysisParameter(widgetConf: PageWidgetConfiguration, widget: PageWidget) {
     // 고급분석 API 호출시 필요한 부가 정보들
     const param: Analysis = new Analysis();
-    param.dataSource = _.cloneDeep(widgetConfiguration.dataSource);
-    param.limits = _.cloneDeep(widgetConfiguration.limit);
-    param.resultFormat = { 'type': 'chart', 'mode': 'line', 'columnDelimeter': '―' };
-    param['pivot'] = _.cloneDeep(widgetConfiguration.pivot);
-    param.userFields = _.cloneDeep(widgetConfiguration.customFields);
+    param.dataSource = _.cloneDeep(widgetConf.dataSource);
+    param.limits = _.cloneDeep(widgetConf.limit);
+    param.resultFormat = {'type': 'chart', 'mode': 'line', 'columnDelimeter': '―'};
+    param.pivot = _.cloneDeep(widgetConf.pivot);
+    param.userFields = _.cloneDeep(
+      CommonUtil.objectToArray(widgetConf.customFields)
+        .filter(item => item.dataSource === widgetConf.dataSource.engineName)
+    );
 
-    if (widget && widget.dashBoard && widget.dashBoard.configuration) param['filters'] = _.cloneDeep(widget.dashBoard.configuration['filters']);
+    if (widget && widget.dashBoard && widget.dashBoard.configuration) {
+      param.filters = _.cloneDeep(
+        widget.dashBoard.configuration.filters.filter(item => item.dataSource === widgetConf.dataSource.engineName)
+      );
+    }
     // 고급분석 API 시 사용하는 예측선 데이터
-    param.analysis = _.cloneDeep(widgetConfiguration.analysis);
+    param.analysis = _.cloneDeep(widgetConf.analysis);
     // parameters관련 파라미터 제거
     delete param.analysis.forecast.parameters;
     return param;
@@ -256,7 +264,7 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
       const observationsSeries = this.createObservationsSeries(targetSeries, defSeriesData, observationsSeriesData);
 
       // Lower 시리즈 생성
-      const { lowerSeries, lowerSeriesData } = this.createLowerSeries(targetSeries, lower);
+      const {lowerSeries, lowerSeriesData} = this.createLowerSeries(targetSeries, lower);
 
       // Upper 시리즈 생성
       const upperSeries = this.createUpperSeries(targetSeries);
@@ -264,13 +272,11 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
       const upperSeriesData = upper.map((value, dataIdx) => {
         if (value > 0 && lowerSeriesData[dataIdx] > 0) {
           return Number(parseFloat((value - lowerSeriesData[dataIdx]).toString()).toFixed(2));
-        }
-        else if (value < 0 && lowerSeriesData[dataIdx] < 0) {
+        } else if (value < 0 && lowerSeriesData[dataIdx] < 0) {
           const returnValue = Number(parseFloat((lowerSeriesData[dataIdx] - value).toString()).toFixed(2));
           lowerSeriesData[dataIdx] = Number(parseFloat(value).toFixed(2));
           return returnValue;
-        }
-        else if (value > 0 && lowerSeriesData[dataIdx] < 0) {
+        } else if (value > 0 && lowerSeriesData[dataIdx] < 0) {
           isAdditionalData = true;
           lowerSeriesData[dataIdx] = null;
           // upper 가 양수이고 lower 가 음수이면 area 음수 영역이 짤림
@@ -317,7 +323,7 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
     const lowerSeriesData = lower.map((value) => {
       return Number(parseFloat(value).toFixed(2));
     });
-    return { lowerSeries, lowerSeriesData };
+    return {lowerSeries, lowerSeriesData};
   }
 
   /**

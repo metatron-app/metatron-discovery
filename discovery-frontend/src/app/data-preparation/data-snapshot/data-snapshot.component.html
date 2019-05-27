@@ -58,23 +58,23 @@
           <label class="ddp-label-type">{{'msg.dp.th.status' | translate}}</label>
           <!-- edit option -->
           <div class="ddp-ui-edit-option ddp-inline">
-            <label class="ddp-label-radio ddp-inline">
-              <input type="radio" name="datasetRadio" (change)="changeStatus('all')" checked>
+            <label class="ddp-label-radio ddp-inline" (change)="onChangeStatus('all')">
+              <input type="radio" name="datasetRadio" [checked]="ssStatus === 'all'" >
               <i class="ddp-icon-radio "></i>
               <span class="ddp-txt-radio">{{'msg.comm.ui.list.all' | translate}}</span>
             </label>
-            <label class="ddp-label-radio ddp-inline">
-              <input type="radio" name="datasetRadio" (change)="changeStatus('success')">
+            <label class="ddp-label-radio ddp-inline" (change)="onChangeStatus('success')">
+              <input type="radio" name="datasetRadio" [checked]="ssStatus === 'success'">
               <i class="ddp-icon-radio "></i>
               <span class="ddp-txt-radio">{{'msg.dp.ui.success' | translate}}</span>
             </label>
-            <label class="ddp-label-radio ddp-inline" (change)="changeStatus('fail')">
-              <input type="radio" name="datasetRadio">
+            <label class="ddp-label-radio ddp-inline" (change)="onChangeStatus('fail')">
+              <input type="radio" name="datasetRadio" [checked]="ssStatus === 'fail'">
               <i class="ddp-icon-radio "></i>
               <span class="ddp-txt-radio">{{'msg.dp.ui.fail' | translate}}</span>
             </label>
-            <label class="ddp-label-radio ddp-inline" (change)="changeStatus('preparing')">
-              <input type="radio" name="datasetRadio">
+            <label class="ddp-label-radio ddp-inline" (change)="onChangeStatus('preparing')">
+              <input type="radio" name="datasetRadio" [checked]="ssStatus==='preparing'">
               <i class="ddp-icon-radio "></i>
               <span class="ddp-txt-radio">{{'msg.dp.ui.preparing' | translate}}</span>
             </label>
@@ -88,7 +88,7 @@
         <div class="ddp-form-search ddp-fleft">
           <em class="ddp-icon-search"></em>
           <input type="text" placeholder="{{'msg.dp.ui.ss.search.description' | translate}}" [(ngModel)]="searchText" (keypress)="onSearchInputKeyPress($event);">
-          <em class="ddp-btn-search-close" *ngIf="searchText" (click)="searchText = ''; page.page = 0; getDatasnapshots();"></em>
+          <em class="ddp-btn-search-close" *ngIf="searchText" (click)="searchText = ''; reloadPage();"></em>
         </div>
         <!-- //검색 -->
 
@@ -97,14 +97,7 @@
         </div>
       </div>
     </div>
-
     <!-- //option -->
-
-    <!-- 데이터 없음 -->
-    <div class="ddp-data-source-none" *ngIf="datasnapshots.length === 0">
-      {{'msg.dp.ui.no.ss.description' | translate}}
-    </div>
-    <!-- //데이터 없음 -->
 
     <table class="ddp-table-form ddp-table-type3" *ngIf="datasnapshots.length > 0">
       <colgroup>
@@ -183,9 +176,16 @@
 
     </table>
     <!-- 더보기 -->
-    <div class="ddp-box-add-link" *ngIf="pageResult.totalElements > page.size" (click)="morePages()">
-      <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+
+    <!-- 데이터 없음 -->
+    <div class="ddp-data-source-none" *ngIf="datasnapshots.length === 0; else yesSs">
+      {{'msg.dp.ui.no.ss.description' | translate}}
     </div>
+    <!-- //데이터 없음 -->
+
+    <ng-template #yesSs>
+      <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+    </ng-template>
     <!-- //더보기 -->
   </div>
 </div>

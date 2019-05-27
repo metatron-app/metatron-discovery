@@ -180,7 +180,7 @@
                           <span class="ddp-data-in">
                             {{field.name}}
                             <em *ngIf="field['nameAlias'] && field['nameAlias']['nameAlias'] != field.name"
-                                class="ddp-icon-alias">
+                                class="ddp-icon-alias" title="{{field['nameAlias']['nameAlias']}}">
                               ({{field['nameAlias']['nameAlias']}})
                             </em>
                           </span>
@@ -540,17 +540,6 @@
                     -->
                     <!-- //차트 정보 -->
                     <!-- 차트 정보 -->
-                    <!-- 컨트롤차트 지원중단 -->
-                    <!--<div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('control')">-->
-                    <!--<span class="ddp-ui-name">{{'msg.page.ui.control-chart' | translate}}</span>-->
-                    <!--<div class="ddp-data-det">-->
-                    <!--{{'msg.page.ui.row' | translate}} : {{'msg.page.ui.one.time.dimension.value' | translate}}<br />-->
-                    <!--{{'msg.page.ui.intersect' | translate}} : {{'msg.page.ui.more-than-one.measured.value' | translate}}-->
-                    <!--</div>-->
-                    <!--</div>-->
-                    <!-- 컨트롤차트 지원중단 -->
-                    <!-- //차트 정보 -->
-                    <!-- 차트 정보 -->
                     <div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('label')">
                       <span class="ddp-ui-name">{{'msg.page.ui.kpi' | translate}}</span>
                       <div class="ddp-data-det">
@@ -877,14 +866,6 @@
                       <span class="ddp-txt-name">{{'msg.page.ui.map.view' | translate}}</span>
                     </a>
                   </li>
-                  <!-- 컨트롤차트 지원중단 -->
-                  <!--<li [class.ddp-recommend]="recommendCharts.indexOf('control') > -1" [class.ddp-selected]="selectChart == 'control'" (click)="selectChart = 'control'">-->
-                  <!--<a href="javascript:">-->
-                  <!--<em class="ddp-img-graph-cont"></em>-->
-                  <!--<span class="ddp-txt-name">{{'msg.page.ui.control-chart' | translate}}</span>-->
-                  <!--</a>-->
-                  <!--</li>-->
-                  <!-- //컨트롤차트 지원중단 -->
                   <li [class.ddp-recommend]="recommendCharts.indexOf('label') > -1"
                       [class.ddp-selected]="selectChart == 'label'" (click)="selectChart = 'label'">
                     <a href="javascript:">
@@ -1460,18 +1441,6 @@
                                    (chartSelectInfo)="chartSelectInfo($event)"
                                    [resizeDelay]="500">
                     </scatter-chart>
-
-                    <!-- 컨트롤차트 지원중단 -->
-                    <!--<control-chart #chart-->
-                    <!--[isPage]="true"-->
-                    <!--*ngIf="selectChart == 'control'"-->
-                    <!--[uiOption]="uiOption"-->
-                    <!--(uiOptionUpdated)="updateUIOption($event)"-->
-                    <!--(noData)="onNoData()"-->
-                    <!--(chartSelectInfo)="chartSelectInfo($event)"-->
-                    <!--[resizeDelay]="500">-->
-                    <!--</control-chart>-->
-                    <!-- //컨트롤차트 지원중단 -->
 
                     <grid-chart #chart
                                 [isPage]="true"

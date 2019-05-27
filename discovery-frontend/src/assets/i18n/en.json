@@ -174,6 +174,9 @@
   "msg.comm.ui.list.ds.type.live": "Live Type",
   "msg.comm.ui.list.ds.type.link": "Linked type",
   "msg.comm.ui.list.ds.opendata" : "Open data",
+  "msg.comm.ui.ds.engine": "Ingested data",
+  "msg.comm.ui.ds.live": "Live data",
+  "msg.comm.ui.ds.link": "Linked data",
   "msg.comm.ui.del.description": "Are you sure you want to delete it?",
   "msg.comm.name.dim": "Dimension",
   "msg.comm.name.mea": "Measure",
@@ -295,6 +298,9 @@
   "msg.comm.ui.failed": "Failed",
   "msg.comm.ui.complete": "Complete",
   "msg.comm.ui.canceled": "Canceled",
+  "msg.comm.ui.num.item.list" : "Show up to",
+  "msg.comm.alert.error.msg": "There were problems<br>Please check the following messages:",
+  "msg.comm.alert.error.btn": "Click here for details",
 
   "msg.lnb.btn.manual" : "Download",
   "msg.lnb.btn.manual.web" : "Online",
@@ -405,6 +411,7 @@
   "msg.space.create.notebook.title": "Select source type",
   "msg.space.warning.can-not-create-11depth-folder" : "You can only create subfolders to 10 depths.",
   "msg.space.ui.list.search.placeholder" : "Search by sever name",
+  "msg.space.alert.join.msg" : "An error occurred while calling the engine",
 
   "msg.alert.retrieve.fail" : "Failed to retrieve data",
   "msg.alert.del.success": " deleted",
@@ -695,6 +702,7 @@
   "msg.nbook.ui.host.ph" : "Please enter a host address",
   "msg.nbook.ui.port.ph" : "Please enter a port number",
   "msg.nbook.ui.not.used" : "not used",
+  "msg.nbook.ui.no.nb" : "There is no notebook",
 
   "msg.dp.alert.check.formula": "Check formula",
   "msg.dp.alert.check.expression": "Please check expression",
@@ -2208,6 +2216,8 @@
   "msg.storage.ui.file.uploading": "File uploading. Please wait.",
   "msg.storage.ui.file.failed": "File upload failed. Please import a file again.",
   "msg.storage.ui.file.canceled": "File upload canceled. Please import a file again.",
+  "msg.storage.ui.ds.failed": "Ingestion Failed",
+  "msg.storage.ui.ds.disabled": " Temporary Disabled",
 
   "msg.storage.ui.timezone.country.zimbabwe": "Zimbabwe",
   "msg.storage.ui.timezone.country.zambia": "Zambia",
@@ -3036,6 +3046,7 @@
   "msg.log.btn.download.csv" : "Download CSV",
   "msg.log.btn.over.num.ms" : "Over {{value}} ms",
   "msg.log.ui.use.record" : "Recent history of the same connection",
+  "msg.log.ui.no.log": "No job log",
 
   "msg.statistics.ui.daily.query.success-fail" : "Daily query success / failure rate",
   "msg.statistics.ui.daily.query.frequency" : "Daily query frequency by user",
@@ -3252,6 +3263,8 @@
   "msg.permission.ui.sys-perm.system-setting.desc" : "Register and manage users by registering or approving membership requests. Users with this permission can define the workspace schema permissions of the system-provided.",
   "msg.permission.ui.sys-perm.ws-manager.desc" : "Create and manage custom schemas in owner workspaces.",
   "msg.permission.ui.sys-perm.guest.desc" : "Guest",
+  "msg.permission.alert.delete.ok" : "Schema deleted",
+  "msg.permission.alert.create.ok" : "'{{value}}' schema created",
 
   "msg.page.pivot.layout.condition.dimension.over.desc": "More than {{value}} dimensions",
   "msg.page.pivot.layout.condition.dimension.desc": "{{value}} dimension",
@@ -3283,7 +3296,6 @@
   "msg.page.ui.heat-map" : "Heatmap",
   "msg.page.ui.pie" : "Pie Chart",
   "msg.page.ui.map" : "Map",
-  "msg.page.ui.control-chart" : "Control Chart",
   "msg.page.ui.kpi" : "KPI",
   "msg.page.ui.box-plot" : "Boxplot",
   "msg.page.ui.water-fall" : "Waterfall Chart",
@@ -3865,6 +3877,8 @@
   "msg.cluster.ui.create.explanation.description" : "Metatron is involves Zookeeper, MariaDB, Druid, and metatron Discovery.",
   "msg.cluster.ui.create.add.btn" : "Add",
 
+  "msg.metadata.ui.no.col.dic" : "No column dictionary",
+  "msg.metadata.ui.no.code.table" : "No code table",
   "msg.metadata.ui.title" : "Metadata",
   "msg.metadata.ui.codetable.title" : "Code Table",
   "msg.metadata.ui.dictionary.title" : "Column Dictionary",

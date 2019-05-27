@@ -216,7 +216,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void searchQuerySelectForSales() throws JsonProcessingException {
 
-    DataSource dataSource1 = new DefaultDataSource("sales");
+    DataSource dataSource1 = new DefaultDataSource("sales_geo");
 
     // Limit
     Limit limit = new Limit();
@@ -227,7 +227,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     List<Filter> filters = Lists.newArrayList(
         //        new IntervalFilter("OrderDate", "2011-01-04T00:00:00.000", "2012-05-19T00:00:00.000"),
-        //        new LikeFilter("Category", "T_chnology")
+        new LikeFilter("Category", "T_chnology")
     );
 
     List<Field> projections = Lists.newArrayList(
@@ -430,7 +430,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void searchQueryForSalesWithTimeRange() throws JsonProcessingException {
 
-    DataSource dataSource1 = new DefaultDataSource("sales");
+    DataSource dataSource1 = new DefaultDataSource("sales_geo");
 
     // Limit
     Limit limit = new Limit();
@@ -1005,7 +1005,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void searchQueryForSalesWithSort() throws JsonProcessingException {
 
-    DataSource dataSource1 = new DefaultDataSource("sales");
+    DataSource dataSource1 = new DefaultDataSource("sales_geo");
 
     Field city = new DimensionField("City");
     Field sumDiscount = new MeasureField("Discount", MeasureField.AggregationType.SUM);
@@ -1046,7 +1046,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void searchQueryForSalesWithPivotFormat() throws JsonProcessingException {
 
-    DataSource dataSource1 = new DefaultDataSource("sales");
+    DataSource dataSource1 = new DefaultDataSource("sales_geo");
 
     Field cat = new DimensionField("Category");
     Field subCat = new DimensionField("Sub-Category");
@@ -1311,7 +1311,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void searchQueryForSalesWithBarChart() throws JsonProcessingException {
 
-    DataSource dataSource1 = new DefaultDataSource("sales");
+    DataSource dataSource1 = new DefaultDataSource("sales_geo");
 
     // Limit
     Limit limit = new Limit();
@@ -1388,7 +1388,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
         new MeasureField("Sales", MeasureField.AggregationType.SUM), field4
     ));
 
-    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot1, limit);
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot4, limit);
     ChartResultFormat format = new ChartResultFormat("bar");
     format.addOptions("showPercentage", true);
     format.addOptions("showCategory", true);
@@ -2828,14 +2828,14 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void candidateQueryForSaleFilterd() throws JsonProcessingException {
 
-    DataSource dataSource1 = new DefaultDataSource("sales");
+    DataSource dataSource1 = new DefaultDataSource("sales_geo");
 
     // Limit
     Limit limit = new Limit();
     limit.setLimit(50000);
 
     List<Filter> filters = Lists.newArrayList(
-        //        new InclusionFilter("State", Lists.newArrayList("Texas"))
+        new InclusionFilter("State", Lists.newArrayList("Texas"))
     );
 
     DimensionField targetField = new DimensionField("Category");
@@ -2856,14 +2856,10 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     request.setUserFields(userFields);
 
-    System.out.println(GlobalObjectMapper.getDefaultMapper().writeValueAsString(request));
-
-    String query = "{\"dataSource\":{\"joins\":[],\"temporary\":false,\"id\":\"ds-gis-37\",\"name\":\"sales_geo\",\"uiDescription\":\"Sales data (2011~2014)\",\"type\":\"default\",\"connType\":\"ENGINE\",\"engineName\":\"sales_geo\"},\"targetField\":{\"type\":\"dimension\",\"name\":\"Category\"}}";
-
     // @formatter:off
     given()
       .auth().oauth2(oauth_token)
-      .body(query)
+      .body(request)
       .contentType(ContentType.JSON)
       .log().all()
     .when()
@@ -3067,7 +3063,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void checkSimilarity() {
 
-    SimilarityQueryRequest queryRequest = new SimilarityQueryRequest(Lists.newArrayList("sales", "sales_join_category"), null);
+    SimilarityQueryRequest queryRequest = new SimilarityQueryRequest(Lists.newArrayList("sales_geo", "sales_join_category"), null);
 
     // @formatter:off
     given()

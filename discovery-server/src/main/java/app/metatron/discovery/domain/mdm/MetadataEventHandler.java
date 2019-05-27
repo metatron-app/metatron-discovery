@@ -29,6 +29,7 @@ import java.util.Map;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
 import app.metatron.discovery.domain.dataconnection.accessor.HiveDataAccessor;
@@ -79,6 +80,10 @@ public class MetadataEventHandler {
       DataSource originalDataSource = (DataSource) metaSourceService
           .getSourcesBySourceId(metadataSource.getType(), metadataSource.getSourceId());
 
+      if (originalDataSource == null) {
+        throw new ResourceNotFoundException(metadataSource.getSourceId());
+      }
+
       if (CollectionUtils.isNotEmpty(metadata.getColumns())) {
         // 전달 받은 Column 정보와 실제 데이터 소스내 데이터가 일치하는지 확인
         Map<String, Field> metaFieldMap = originalDataSource.getMetaFieldMap();
@@ -97,9 +102,11 @@ public class MetadataEventHandler {
 
         }
       } else {
-        // 자동으로 데이터 소스내 필드 정보를 column 정보로 매핑함
-        for (Field field : originalDataSource.getFields()) {
-          metadata.addColumn(new MetadataColumn(field, metadata));
+        // mapping column information
+        if (CollectionUtils.isNotEmpty(originalDataSource.getFields())) {
+          for (Field field : originalDataSource.getFields()) {
+            metadata.addColumn(new MetadataColumn(field, metadata));
+          }
         }
       }
 
@@ -124,12 +131,19 @@ public class MetadataEventHandler {
                                                                              tableName,
                                                                              false);
 
-        //Column 목록 저장하기
-        for (Field field : hiveTableInformation.getFields()) {
-          metadata.addColumn(new MetadataColumn(field, metadata));
+        // Set Column
+        if (CollectionUtils.isNotEmpty(hiveTableInformation.getFields())) {
+          for (int i = 0; i < hiveTableInformation.getFields().size(); i++) {
+            Field field = hiveTableInformation.getFields().get(i);
+
+            MetadataColumn metadataColumn = new MetadataColumn(field, metadata);
+            metadataColumn.setSeq(i + 1L);
+
+            metadata.addColumn(metadataColumn);
+          }
         }
 
-        //Detail 정보 저장하기
+        // Set Detail information
         Map<String, Object> detailInfo = new HashMap<>();
         detailInfo.put("Detail Information", hiveTableInformation.getDetailInformation());
         detailInfo.put("Storage Information", hiveTableInformation.getStorageInformation());
@@ -144,14 +158,21 @@ public class MetadataEventHandler {
                                                                                        tableName,
                                                                                        null,
                                                                                        null);
-        for (Map<String, Object> column : columns) {
-          MetadataColumn metadataColumn = new MetadataColumn();
-          metadataColumn.setName((String) column.get("columnName"));
-          metadataColumn.setPhysicalName((String) column.get("columnName"));
-          metadataColumn.setPhysicalType((String) column.get("columnType"));
-          metadataColumn.setDescription((String) column.get("columnComment"));
-          metadataColumn.setMetadata(metadata);
-          metadata.addColumn(metadataColumn);
+
+        if (CollectionUtils.isNotEmpty(columns)) {
+          for (int i = 0; i < columns.size(); i++) {
+            Map<String, Object> column = columns.get(i);
+
+            MetadataColumn metadataColumn = new MetadataColumn();
+            metadataColumn.setName((String) column.get("columnName"));
+            metadataColumn.setPhysicalName((String) column.get("columnName"));
+            metadataColumn.setPhysicalType((String) column.get("columnType"));
+            metadataColumn.setDescription((String) column.get("columnComment"));
+            metadataColumn.setSeq(i + 1L);
+            metadataColumn.setMetadata(metadata);
+
+            metadata.addColumn(metadataColumn);
+          }
         }
       }
     } else if (metadataSource.getType() == Metadata.SourceType.STAGEDB) {
@@ -181,12 +202,19 @@ public class MetadataEventHandler {
                                                                            tableName,
                                                                            false);
 
-      //Column 목록 저장하기
-      for (Field field : hiveTableInformation.getFields()) {
-        metadata.addColumn(new MetadataColumn(field, metadata));
+      // Set Column
+      if (CollectionUtils.isNotEmpty(hiveTableInformation.getFields())) {
+        for (int i = 0; i < hiveTableInformation.getFields().size(); i++) {
+          Field field = hiveTableInformation.getFields().get(i);
+
+          MetadataColumn metadataColumn = new MetadataColumn(field, metadata);
+          metadataColumn.setSeq(i + 1L);
+
+          metadata.addColumn(metadataColumn);
+        }
       }
 
-      //Detail 정보 저장하기
+      // Set Detail information
       Map<String, Object> detailInfo = new HashMap<>();
       detailInfo.put("Detail Information", hiveTableInformation.getDetailInformation());
       detailInfo.put("Storage Information", hiveTableInformation.getStorageInformation());

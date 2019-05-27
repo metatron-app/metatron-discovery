@@ -18,7 +18,7 @@
     <parent>
         <artifactId>metatron-discovery</artifactId>
         <groupId>app.metatron.discovery</groupId>
-        <version>3.2.2</version>
+        <version>3.2.3</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -101,6 +101,27 @@
                         <configuration>
                             <outputDirectory>target/generated-sources/java</outputDirectory>
                             <processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctor-maven-plugin</artifactId>
+                <version>1.5.3</version>
+                <executions>
+                    <execution>
+                        <id>generate-docs</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>src/main/asciidoc</sourceDirectory>
+                            <outputDirectory>target/classes/resource/docs</outputDirectory>
+                            <backend>html</backend>
+                            <doctype>book</doctype>
                         </configuration>
                     </execution>
                 </executions>
@@ -1067,6 +1088,13 @@
             <version>${jackson.version}</version>
         </dependency>
         <!-- Kurbernetes (E) -->
+
+        <dependency>
+            <groupId>com.mockrunner</groupId>
+            <artifactId>mockrunner-jdbc</artifactId>
+            <version>2.0.1</version>
+            <scope>test</scope>
+        </dependency>
 
 
         <!-- SAML -->

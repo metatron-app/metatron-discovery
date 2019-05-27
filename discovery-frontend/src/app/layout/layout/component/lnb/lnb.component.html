@@ -285,7 +285,7 @@
         <a (click)="downloadManual()" href="javascript:" class="ddp-btn-box">
           <em class="ddp-icon-manual"></em>{{'msg.lnb.btn.manual' | translate}}
         </a>
-        <a target="_blank" rel="noopener noreferrer" href="https://metatron.app/index.php/documents/" class="ddp-btn-box">
+        <a href="javascript:" class="ddp-btn-box" (click)="popupManual();">
           <em class="ddp-icon-global"></em>{{'msg.lnb.btn.manual.web' | translate}}
         </a>
     </span>
@@ -308,7 +308,7 @@
 <!-- //lnb -->
 
 <!-- Navigation Folder -->
-<div class="ddp-wrap-folder-nav" *ngIf="isShowFolderNavi">
+<div class="ddp-wrap-folder-nav" *ngIf="isShow && isShowFolderNavi">
   <em class="ddp-bg-shadow" style="display: none;"></em>
   <!-- title nav -->
   <div class="ddp-ui-title-nav" style="min-width: 840px;">

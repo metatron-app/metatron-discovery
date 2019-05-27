@@ -25,7 +25,7 @@ import {
   SimpleChanges,
   SimpleChange, OnChanges
 } from '@angular/core';
-import { ConnectionType, Datasource, DataSourceSummary, Field } from '../../../domain/datasource/datasource';
+import {ConnectionType, Datasource, DataSourceSummary, Field, Status} from '../../../domain/datasource/datasource';
 import { AbstractComponent } from '../../../common/component/abstract.component';
 import { EventBroadcaster } from '../../../common/event/event.broadcaster';
 import { GridComponent } from '../../../common/component/grid/grid.component';
@@ -493,8 +493,12 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
    * @private
    */
   private _getCandidateDatasource() {
-    this.page.size = 100000;
-    this.datasourceService.getDatasources(this.workspaceId, this.page, 'forDetailView').then((data) => {
+    const params = {
+      size: 100000,
+      page: this.page.page,
+      status : Status.ENABLED
+    };
+    this.datasourceService.getDatasources(this.workspaceId, params, 'forDetailView').then((data) => {
       this._allDataSources = data['_embedded'].datasources;
       const candidateDataSources = this._allDataSources.filter((ds) => {
         if (ds.id === this.dataSource.id) {
@@ -521,7 +525,7 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
       });
       this.isEnableJoin = (candidateDataSources && 0 < candidateDataSources.length);
       this._candidateDataSources = candidateDataSources;
-      this.changeDetect.detectChanges();
+      this.safelyDetectChanges();
     }).catch((error) => {
       console.error(error);
       Alert.error(this.translateService.instant('msg.board.alert.fail.load.datasource'))

@@ -151,7 +151,7 @@
                   </td>
                   <td>
                     <div class="ddp-wrap-num-checkbox">
-                      <label class="ddp-num-checkbox" (click)="onClickSetColumnFiltering(column); $event.preventDefault()">
+                      <label class="ddp-num-checkbox" (click)="onClickSetColumnFiltering(column); $event.preventDefault()" *ngIf="column.logicalType.indexOf('GEO') == -1">
                         <input type="checkbox" [checked]="isEnableColumnFiltering(column)">
                         <i class="ddp-txt-checkbox">{{column.filteringSeq + 1}}</i>
                       </label>

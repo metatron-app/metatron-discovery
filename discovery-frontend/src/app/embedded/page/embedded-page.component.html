@@ -58,13 +58,6 @@
                (noData)="showNoData()" >
     </pie-chart>
 
-    <!-- MapView 예정 -->
-
-    <control-chart #chart
-                   *ngIf="chartType === 'control' && this.uiOption" [uiOption]="uiOption"
-                   (noData)="showNoData()" >
-    </control-chart>
-
     <label-chart #chart
                  *ngIf="chartType === 'label' && this.uiOption" [uiOption]="uiOption"
                  [query]="query"
