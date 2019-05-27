@@ -38,6 +38,9 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
   @Input('fieldName')
   public readonly name: string;
 
+  // TODO 추후 데이터소스 연결시 isDisableValidation 제거
+  @Input() readonly isDisableValidation: boolean;
+
   // valid default format
   public defaultFormat: string;
   // format
@@ -51,6 +54,9 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
 
   @Output()
   public readonly changedFieldFormatValid = new EventEmitter();
+
+  // TODO 추후 데이터소스 연결시 isDisableValidation 제거
+  @Output() readonly changedFieldFormatString = new EventEmitter();
 
   public readonly formatUnitList: { label: string, value: FieldFormatUnit }[] = [
     {label: this.translateService.instant('msg.storage.ui.format.unit.milli-second'), value: FieldFormatUnit.MILLISECOND},
@@ -144,6 +150,11 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
   public onChangedFormatText(value): void {
     this.prevFormat = value;
     this.fieldFormat.isValidFormat = undefined;
+
+    // TODO 추후 데이터소스 연결시 isDisableValidation 제거
+    if (this.isDisableValidation) {
+      this.changedFieldFormat.emit(this.fieldFormat);
+    }
   }
 
   /**
@@ -177,6 +188,11 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
       this.fieldFormat.formatValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.required.check');
       // set type
       this.fieldFormat.type = FieldFormatType.DATE_TIME;
+    }
+
+    // TODO 추후 데이터소스 연결시 isDisableValidation 제거
+    if (this.isDisableValidation) {
+      this.changedFieldFormat.emit(this.fieldFormat);
     }
   }
 

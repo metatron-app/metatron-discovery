@@ -23,6 +23,7 @@ import { StringUtil } from '../../common/util/string.util';
 import {ActivatedRoute} from "@angular/router";
 import {CriterionComponent} from "../component/criterion/criterion.component";
 import {Criteria} from "../../domain/datasource/criteria";
+import {isNullOrUndefined} from "util";
 
 @Component({
   selector: 'app-data-source',
@@ -326,6 +327,16 @@ export class DataSourceListComponent extends AbstractComponent {
     // 데이터 소스 조회 요청
     this.datasourceService.getDatasourceList(this.page.page, this.page.size, this.selectedContentSort.key + ',' + this.selectedContentSort.sort, this._getDatasourceParams())
       .then((result) => {
+
+        // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다.
+        if (this.page.page > 0 &&
+          isNullOrUndefined(result['_embedded']) ||
+          (!isNullOrUndefined(result['_embedded']) && result['_embedded'].datasources.length === 0))
+        {
+          this.page.page = result.page.number - 1;
+          this._setDatasourceList();
+        }
+
         // set page result
         this.pageResult = result['page'];
         // set datasource list

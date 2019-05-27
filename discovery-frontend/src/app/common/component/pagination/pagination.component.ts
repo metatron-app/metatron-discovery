@@ -130,6 +130,14 @@ export class PaginationComponent extends AbstractComponent implements OnInit, On
     this._setRange(startPage);
   } // function - nextPagination
 
+
+  public openChangePageComboBox() {
+    if (this.info.totalElements <= this.info.size) {
+      return;
+    }
+
+    this.isOpenOpts = !this.isOpenOpts;
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

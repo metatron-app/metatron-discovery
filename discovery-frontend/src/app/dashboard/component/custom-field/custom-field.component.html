@@ -85,9 +85,8 @@
             </div>
             <!-- //top -->
 
-
             <ul class="ddp-list-typebasic ddp-typeicon">
-              <li *ngFor="let field of pagedFields" (click)="selecteColumn(field)">
+              <li *ngFor="let field of pagedFields" (click)="selectColumn(field)">
                 <a href="javascript:">
                   <em ngClass="{{DashboardUtil.getFieldIconClass(findNameForIcon(field.type, field.logicalType?.toString()))}}"></em>
                   <span class="ddp-data-name" *ngIf="field.ref">{{field.ref}}.</span>
@@ -95,7 +94,6 @@
                   <em class="ddp-icon-plus"></em>
                 </a>
               </li>
-
             </ul>
 
           </div>

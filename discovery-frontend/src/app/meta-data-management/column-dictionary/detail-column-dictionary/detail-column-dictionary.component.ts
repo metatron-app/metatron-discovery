@@ -165,7 +165,7 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
       Alert.success(this.translateService.instant('msg.metadata.ui.dictionary.delete.success',
         {value: this.columnDictionary.logicalName}));
       // 컬럼 사전 목록으로 돌아가기
-      this.router.navigate(['/management/metadata/column-dictionary']);
+      this._location.back();
     }).catch(error => this.commonExceptionHandler(error));
   }
 

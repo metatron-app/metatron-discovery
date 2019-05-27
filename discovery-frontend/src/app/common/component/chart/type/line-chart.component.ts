@@ -234,7 +234,7 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
         name: column.name,
         data: column.value.map( ( val, idx ) => {
           return {
-            name : column.seriesName[idx],
+            name : column.seriesName ? column.seriesName[idx] : '',
             value : val,
             selected : false,
             itemStyle : optGen.ItemStyle.opacity1()

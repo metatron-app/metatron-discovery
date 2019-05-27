@@ -16,26 +16,20 @@ import {Injectable, Injector} from '@angular/core';
 import {AbstractService} from '../../common/service/abstract.service';
 import {Page} from '../../domain/common/page';
 import {CommonUtil} from '../../common/util/common.util';
-import {SearchQueryRequest} from '../../domain/datasource/data/search-query-request';
+import {MapDataSource, SearchQueryRequest} from '../../domain/datasource/data/search-query-request';
 
 import * as _ from 'lodash';
 import {PageWidgetConfiguration} from '../../domain/dashboard/widget/page-widget';
 import {
-  ChartType,
-  FormatType,
-  GridViewType,
-  LayerViewType,
-  LineMode,
-  ShelfType,
-  ShelveFieldType
+  ChartType, ShelveFieldType, GridViewType, LineMode, ShelfType, FormatType, LayerViewType
 } from '../../common/component/chart/option/define/common';
 import {Filter} from '../../domain/workbook/configurations/filter/filter';
 import {UILineChart} from '../../common/component/chart/option/ui-option/ui-line-chart';
 import {UIGridChart} from '../../common/component/chart/option/ui-option/ui-grid-chart';
 import {FilterUtil} from '../../dashboard/util/filter.util';
 import {InclusionFilter} from '../../domain/workbook/configurations/filter/inclusion-filter';
-import {Dashboard} from '../../domain/dashboard/dashboard';
-import {Field, FieldFormat, LogicalType} from '../../domain/datasource/datasource';
+import {BoardDataSource, Dashboard} from '../../domain/dashboard/dashboard';
+import {Datasource, Field, FieldFormat, FieldFormatType, LogicalType} from '../../domain/datasource/datasource';
 import {MeasureInequalityFilter} from '../../domain/workbook/configurations/filter/measure-inequality-filter';
 import {AdvancedFilter} from '../../domain/workbook/configurations/filter/advanced-filter';
 import {MeasurePositionFilter} from '../../domain/workbook/configurations/filter/measure-position-filter';
@@ -46,7 +40,7 @@ import {FilteringType} from '../../domain/workbook/configurations/field/timestam
 import {TimeCompareRequest} from '../../domain/datasource/data/time-compare-request';
 import {isNullOrUndefined} from 'util';
 import {DashboardUtil} from '../../dashboard/util/dashboard.util';
-import {GeoBoundaryFormat, GeoHashFormat} from '../../domain/workbook/configurations/field/geo-field';
+import {GeoBoundaryFormat, GeoField, GeoHashFormat} from '../../domain/workbook/configurations/field/geo-field';
 import {UIMapOption} from '../../common/component/chart/option/ui-option/map/ui-map-chart';
 import {ChartUtil} from '../../common/component/chart/option/util/chart-util';
 import {CommonConstant} from "../../common/constant/common.constant";
@@ -78,18 +72,15 @@ export class DatasourceService extends AbstractService {
   /**
    * 데이터 소스 목록
    * @param {string} workspaceId
-   * @param page
+   * @param {Object} params
    * @param {string} projection
-   * @param {Object} options 파라미터
    * @returns {Promise<any>}
    */
-  public getDatasources(workspaceId: string, page: Page, projection: string = 'default', options?: Object): Promise<any> {
+  public getDatasources(workspaceId: string, params: any, projection: string = 'default'): Promise<any> {
     let url = this.API_URL + `workspaces/${workspaceId}/datasources?projection=${projection}`;
 
-    url += '&' + CommonUtil.objectToUrlString(page);
-
-    if (options) {
-      url += '&' + CommonUtil.objectToUrlString(options);
+    if (params) {
+      url += '&' + CommonUtil.objectToUrlString(params);
     }
 
     return this.get(url);
@@ -308,8 +299,10 @@ export class DatasourceService extends AbstractService {
     };
     (context.widgetId) && (query.context['discovery.widget.id'] = context.widgetId);
 
-    if (pageConf.hasOwnProperty('customFields')) {
-      query.userFields = pageConf['customFields'];
+    if (pageConf.customFields) {
+      query.userFields = CommonUtil.objectToArray(pageConf.customFields).filter(item => {
+        return item.dataSource === pageConf.dataSource.engineName;
+      });
     }
 
     query.filters = _.cloneDeep(pageConf.filters);
@@ -338,7 +331,7 @@ export class DatasourceService extends AbstractService {
         layerNum++;
 
         // 3번째 layer는 공간연산 layer 이기 떄문에, 미포함
-        if(layerNum>1) {
+        if (layerNum > 1) {
           break;
         }
 
@@ -362,7 +355,7 @@ export class DatasourceService extends AbstractService {
           }
         }
 
-        if( allPivotFields.length == 0 ){
+        if (allPivotFields.length == 0) {
           continue;
         }
         // timezone 처리 - S
@@ -591,14 +584,14 @@ export class DatasourceService extends AbstractService {
                 if ((chart.layers[idx].type == MapLayerType.SYMBOL && chart.layers[idx]['clustering'])
                   || (chart.layers[idx].type == MapLayerType.CLUSTER && chart.layers[idx]['clustering'])) {
                   // cluster 값 변경
-                  let clusterPrecision : number = 6;
-                  if(chart['layers'][idx]['changeCoverage']){
+                  let clusterPrecision: number = 6;
+                  if (chart['layers'][idx]['changeCoverage']) {
                     // cluster coverage 값 변경
                     clusterPrecision = Math.round((100 - chart.layers[idx]['coverage']) / 8.33);
                   } else {
                     // zoom size 변경
                     let zoomSize = chart.zoomSize - 2;
-                    clusterPrecision = Math.round((18 + (zoomSize-18)) / 1.5);
+                    clusterPrecision = Math.round((18 + (zoomSize - 18)) / 1.5);
                   }
 
                   if (clusterPrecision > 12) clusterPrecision = 12;
@@ -612,8 +605,8 @@ export class DatasourceService extends AbstractService {
                   };
                 }
 
-                if ( !_.isUndefined(chart['lowerCorner']) && !_.isUndefined(chart['upperCorner'])
-                  && chart['lowerCorner'].indexOf('NaN') == -1 && chart['upperCorner'].indexOf('NaN') == -1 ) {
+                if (!_.isUndefined(chart['lowerCorner']) && !_.isUndefined(chart['upperCorner'])
+                  && chart['lowerCorner'].indexOf('NaN') == -1 && chart['upperCorner'].indexOf('NaN') == -1) {
                   let spatialFilter = new SpatialFilter();
                   spatialFilter.dataSource = query.shelf.layers[idx].ref;
                   // spatialFilter.ref = query.shelf.layers[idx].ref;
@@ -621,7 +614,7 @@ export class DatasourceService extends AbstractService {
                   // 최초 default 값 sales-geo 초기값으로 고정 (빈값일 경우 에러리턴)
                   spatialFilter.lowerCorner = chart['lowerCorner'];
                   spatialFilter.upperCorner = chart['upperCorner'];
-                  query.filters.push( spatialFilter );
+                  query.filters.push(spatialFilter);
                 }
 
               }
@@ -641,14 +634,14 @@ export class DatasourceService extends AbstractService {
 
                   // radius precision 값 변경
                   let chart = (<UIMapOption>pageConf.chart);
-                  let radiusPrecision : number = precision;
-                  if(chart['layers'][idx]['changeTileRadius']){
+                  let radiusPrecision: number = precision;
+                  if (chart['layers'][idx]['changeTileRadius']) {
                     // radius 값 변경
                     radiusPrecision = precision;
                   } else {
                     // zoom size 변경
                     let zoomSize = chart.zoomSize - 2;
-                    radiusPrecision = Math.round((18 + (zoomSize-18)) / 1.5);
+                    radiusPrecision = Math.round((18 + (zoomSize - 18)) / 1.5);
                     // radius 값 지정
                     chart['layers'][idx]['changeTileRadius'] = true;
                     chart['layers'][idx]['radius'] = Math.round(100 - (radiusPrecision * 8.33));
@@ -792,8 +785,8 @@ export class DatasourceService extends AbstractService {
    * @return {Promise<any>}
    */
   public checkValidDateTimeFormatInField(field: Field, fieldDataList: string[], isInitValid?: boolean): Promise<any> {
-    const params: {samples: string[], format?: string} = {
-      samples: fieldDataList.slice(0,19)
+    const params: { samples: string[], format?: string } = {
+      samples: fieldDataList.slice(0, 19)
     };
     // if not exist format in field, init format
     (!field.format) && (field.format = new FieldFormat());
@@ -801,7 +794,7 @@ export class DatasourceService extends AbstractService {
     (!isInitValid) && (params.format = field.format.format);
     return new Promise<any>((resolve, reject) => {
       this.post(this.API_URL + 'datasources/validation/datetime', params)
-        .then((result: {valid?: boolean, pattern?: string}) =>{
+        .then((result: { valid?: boolean, pattern?: string }) => {
           // if valid or exist pattern
           if (result.valid || result.pattern) {
             // set time format valid TRUE

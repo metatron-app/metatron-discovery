@@ -111,8 +111,8 @@
   </div>
 </div>
 <!-- 커넥션 생성 팝업 -->
-<app-create-connection (createdConnection)="reloadPage(true)"></app-create-connection>
+<app-create-connection (createdConnection)="reloadPage()"></app-create-connection>
 <!-- 커넥션 상세 팝업 -->
-<app-update-connection (updatedConnection)="reloadPage(true)"></app-update-connection>
+<app-update-connection (updatedConnection)="reloadPage(false)"></app-update-connection>
 <!-- 삭제 모달 -->
 <app-delete-modal (deleteConfirm)="removeConnection($event)"></app-delete-modal>

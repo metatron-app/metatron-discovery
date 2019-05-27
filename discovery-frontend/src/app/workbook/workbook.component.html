@@ -41,8 +41,7 @@
       <!-- more -->
       <div *ngIf="isChangeAuthUser"
            class="ddp-ui-more ddp-hover-tooltip" [ngClass]="{'ddp-selected' : isShowDetailMenu}"
-           (click)="toggleWorkbookDetailMenu($event)"
-           (clickOutside)="isShowDetailMenu = false">
+           (click)="toggleWorkbookDetailMenu($event)" >
         <a href="javascript:" class="ddp-icon-more"></a>
         <div class="ddp-ui-tooltip-info ddp-down">
           <em class="ddp-icon-view-top"></em>

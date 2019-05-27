@@ -42,6 +42,8 @@
 .ddp-box-page .ddp-page-num a.ddp-btn-next {margin-left:12px; transform:rotate(180deg);}
 .ddp-box-page .ddp-page-num a.ddp-btn-prev:before,
 .ddp-box-page .ddp-page-num a.ddp-btn-next:before{display:Inline-block; position:absolute; top:50%; left:50%; margin:-4px 0 0 -2px; width:4px; height:7px; background:url(../../../images/btn_page2.png) no-repeat; background-position:-8px -29px; content:'';}
+.ddp-box-page .ddp-page-num a.ddp-btn-prev.ddp-disabled,
+.ddp-box-page .ddp-page-num a.ddp-btn-next.ddp-disabled {opacity:0.3; cursor:no-drop;}
 .ddp-box-page .ddp-page-num a.ddp-page-skip:before {display:inline-block; position:absolute; top:50%; left:50%; margin:-2px 0 0 -8px; width:16px; height:4px; background:url(../../../images/icon_page_skip.png) no-repeat; content:'';}
 .ddp-box-page .ddp-page-num a.ddp-selected {background-color:#f6f6f7; font-weight:bold;}
 .ddp-box-page .ddp-page-setting {float:right; padding:6px 0;}

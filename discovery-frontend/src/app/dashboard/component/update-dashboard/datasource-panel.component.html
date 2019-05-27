@@ -178,7 +178,7 @@
                   (close)="isShowCustomFiled = false">
 </app-custom-field>
 <!-- Field Context Menu layer more -->
-<page-data-context (openCustomFieldEvent)="openCustomFieldPopup($event)"
+<page-data-context (openCustomFieldEvent)="openCustomFieldPopupFromContext($event)"
                    (openColumnDetailEvent)="onColumnDetailPopup($event)"
                    (deleteCustomFieldEvent)="deleteCustomField($event)"
                    (changeAlias)="changeDatasourceFieldAlias($event)"></page-data-context>

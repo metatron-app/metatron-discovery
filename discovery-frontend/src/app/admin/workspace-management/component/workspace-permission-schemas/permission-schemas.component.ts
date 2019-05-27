@@ -448,6 +448,14 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
     this.permissionService.getRolesets(params)
       .then((result) => {
 
+        if (this.page.page > 0 &&
+          isNullOrUndefined(result['_embedded']) ||
+          (!isNullOrUndefined(result['_embedded']) && result['_embedded'].roleSets.length === 0))
+        {
+          this.page.page = result.page.number - 1;
+          this._getRoleSetList();
+        }
+
         // 검색 파라메터 정보 저장
         this._searchParams = params;
 
@@ -461,7 +469,12 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
         // 로딩 hide
         this.loadingHide();
       })
-      .catch(error => this.commonExceptionHandler(error));
+      .catch((error) => {
+
+          this.loadingHide();
+          this.commonExceptionHandler(error)
+        }
+      );
   } // function - _getRoleSetList
 
   /**
