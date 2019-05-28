@@ -112,7 +112,7 @@ export class SchemaConfigureMainComponent extends AbstractComponent {
       selectedTimestampField: this._fieldComponent.selectedTimestampField,
       selectedTimestampType: this._fieldComponent.selectedTimestampType,
       // timestampFieldData
-      timestampFieldData: this._fieldComponent.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.FIELD ? this._fieldComponent.dataList.map(data => data[this._fieldComponent.selectedTimestampField.name]) : []
+      timestampFieldData: this._fieldComponent.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.FIELD ? this._fieldComponent.dataList.map(data => data[this._fieldComponent.selectedTimestampField.uuid]) : []
     }
   }
 

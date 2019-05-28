@@ -182,7 +182,7 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
   }
 
   public isTimestampField(): boolean {
-    return this._selectedTimestampType === DataStorageConstant.Datasource.TimestampType.FIELD && Field.isDimensionField(this.selectedField) && this.isTimestampTypeField() && !this.isEmptySelectedTimestampField() && this.selectedField.name === this._selectedTimestampField.name;
+    return this._selectedTimestampType === DataStorageConstant.Datasource.TimestampType.FIELD && Field.isDimensionField(this.selectedField) && this.isTimestampTypeField() && !this.isEmptySelectedTimestampField() && this.selectedField.uuid === this._selectedTimestampField.uuid;
   }
 
   public isGeoFormatError(): boolean {
@@ -320,6 +320,9 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
     }
   }
 
+  /**
+   * Click time format validation
+   */
   public onClickTimeFormatValidation() {
     this.loadingShow();
     this.fieldConfigService.checkEnableDateTimeFormatAndSetValidationResultInField(this.selectedField.format, this.dataList)
@@ -372,6 +375,10 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
     this._setSearchedTimezoneList(this.searchTimezoneKeyword);
   }
 
+  /**
+   * Change ingestion rule type in field
+   * @param type
+   */
   public onChangeIngestionRuleType(type): void {
     // if different ingestion rule type
     if (this.selectedField.ingestionRule.type !== type.value) {
@@ -382,6 +389,10 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
     }
   }
 
+  /**
+   * Change geo coordinate in field
+   * @param value
+   */
   public onChangeGeoCoordinate(value: string): void {
     if (this.selectedField.format.originalSrsName !== value) {
       this.selectedField.format.originalSrsName = value;
@@ -409,6 +420,9 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
     }
   }
 
+  /**
+   * Hover timestamp icon guide
+   */
   public onHoverTimestampGuideIcon(): void {
     const $infoLeft = $(this.TIMESTAMP_GUIDE_ELEMENT.nativeElement).offset().left;
     const $infoTop = $(this.TIMESTAMP_GUIDE_ELEMENT.nativeElement).offset().top;
@@ -419,6 +433,9 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
     });
   }
 
+  /**
+   * Get selected type
+   */
   public getSelectedType() {
     if (Field.isDimensionField(this.selectedField) && Field.isExpressionField(this.selectedField)) {
       return new Filter.Logical(this.translateService.instant('msg.storage.ui.list.expression'), Type.Logical.USER_DEFINED, 'ddp-icon-type-expression');
@@ -427,7 +444,10 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
     }
   }
 
-
+  /**
+   * Change role in field
+   * @param type
+   */
   public onChangeRole(type): void {
     if (!this.isDisabledTypeChange() && this.selectedField.role !== type.value) {
       // change role
@@ -439,6 +459,10 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
     }
   }
 
+  /**
+   * Change logical type in field
+   * @param type
+   */
   public onChangeLogicalType(type): void {
     if (!this.isDisabledTypeChange() && this.selectedField.logicalType !== type.value) {
       // init ingestionRule
@@ -505,6 +529,9 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
     }
   }
 
+  /**
+   * Close select boxes
+   */
   public closeSelectBoxes(): void {
     if (this._geoCoordinateSelectBox && this._geoCoordinateSelectBox.isListShow === true) {
       this._geoCoordinateSelectBox.isListShow = false;
@@ -600,7 +627,10 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
     }
   }
 
-
+  /**
+   * Set data preview show flag
+   * @private
+   */
   private _setDataPreviewShowFlag(): void {
     // set data list show flag
     if (Field.isExpressionField(this.selectedField)) {
@@ -626,7 +656,10 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
     this.filteredTimezoneList = this.timezoneService.getSearchedTimezoneList(searchKeyword);
   }
 
-
+  /**
+   * Change type list
+   * @private
+   */
   private _changeTypeList(): void {
     if (Field.isMeasureField(this.selectedField)) {
       this.typeList = this.constant.getTypeFiltersInMeasure();
@@ -637,6 +670,10 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
     }
   }
 
+  /**
+   * Broadcast changed field
+   * @private
+   */
   private _broadCastChangedField(): void {
     this.broadCaster.broadcast(DataStorageConstant.Datasource.BroadcastKey.DATASOURCE_CHANGED_SELECTED_FIELD, this.selectedField);
   }
