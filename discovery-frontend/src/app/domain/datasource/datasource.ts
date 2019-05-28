@@ -185,7 +185,6 @@ export class Field {
   segGranularity?: GranularityType;  // segGranularity
 
   // [UI] for Create Datasource
-  uuid?: string;
   isValidType?: boolean;
   isValidReplaceValue?: boolean;
   checked?: boolean;

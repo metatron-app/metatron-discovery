@@ -182,7 +182,7 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
   }
 
   public isTimestampField(): boolean {
-    return this._selectedTimestampType === DataStorageConstant.Datasource.TimestampType.FIELD && Field.isDimensionField(this.selectedField) && this.isTimestampTypeField() && !this.isEmptySelectedTimestampField() && this.selectedField.uuid === this._selectedTimestampField.uuid;
+    return this._selectedTimestampType === DataStorageConstant.Datasource.TimestampType.FIELD && Field.isDimensionField(this.selectedField) && this.isTimestampTypeField() && !this.isEmptySelectedTimestampField() && this.selectedField.originalName === this._selectedTimestampField.originalName;
   }
 
   public isGeoFormatError(): boolean {

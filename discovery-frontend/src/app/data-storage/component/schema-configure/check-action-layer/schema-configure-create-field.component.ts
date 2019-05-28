@@ -29,6 +29,7 @@ import * as _ from 'lodash';
 import {DataStorageConstant} from "../../../constant/data-storage-constant";
 import {StorageFilterSelectBoxComponent} from "../../../data-source-list/component/storage-filter-select-box.component";
 import {ColumnSelectBoxComponent} from "../../../data-source-list/component/column-select-box.component";
+import {CommonUtil} from "../../../../common/util/common.util";
 
 @Component({
   selector: 'schema-configure-create-field',
@@ -45,7 +46,7 @@ export class SchemaConfigureCreateFieldComponent extends AbstractComponent {
   @ViewChild('longitudeSelectBox')
   private readonly _longitudeSelectBox: ColumnSelectBoxComponent;
 
-  private _originFieldList;
+  private _originFieldList: Field[];
 
   public readonly typeList = [
     {label: this.translateService.instant('msg.storage.ui.list.geo.point'), icon: 'ddp-icon-type-point', value: Type.Logical.GEO_POINT},
@@ -56,12 +57,12 @@ export class SchemaConfigureCreateFieldComponent extends AbstractComponent {
   public selectedType = {label: this.translateService.instant('msg.storage.ui.list.geo.point'), icon: 'ddp-icon-type-point', value: Type.Logical.GEO_POINT};
 
   // field list
-  public latitudeFieldList;
-  public longitudeFieldList;
+  public latitudeFieldList: Field[];
+  public longitudeFieldList: Field[];
 
   // selected field
-  public selectedLatitudeField;
-  public selectedLongitudeField;
+  public selectedLatitudeField: Field;
+  public selectedLongitudeField: Field;
 
   // name
   public fieldName: string;
@@ -128,13 +129,14 @@ export class SchemaConfigureCreateFieldComponent extends AbstractComponent {
    * @param fieldList
    */
   public changeFieldList(fieldList): void {
-    // set origin field list
-    this._originFieldList = this._cloneValue(fieldList);
+    // set origin field list (except created field)
+    this._originFieldList = this._cloneValue(fieldList).filter(field => !Field.isCreatedField(field));
     // if empty selected latitude field
     if (this._isEmptyValue(this.selectedLatitudeField)) {
       // set longitude field list
       this.longitudeFieldList = this._cloneValue(this._originFieldList.filter(field => !Field.isRemovedField(field) && !Field.isCreatedField(field)));
     } else { // if not empty selected latitude field
+      this.selectedLatitudeField = this._originFieldList.find(field => field.originalName === this.selectedLatitudeField.originalName);
       // set longitude field list
       this._changeLongitudeFieldListExceptField(this.selectedLatitudeField);
       // if removed field
@@ -147,6 +149,7 @@ export class SchemaConfigureCreateFieldComponent extends AbstractComponent {
       // set latitude field list
       this.latitudeFieldList = this._cloneValue(this._originFieldList.filter(field => !Field.isRemovedField(field) && !Field.isCreatedField(field)));
     } else {  // if not empty selected longitude field
+      this.selectedLongitudeField = this._originFieldList.find(field => field.originalName === this.selectedLongitudeField.originalName);
       // set latitude field list
       this._changeLatitudeFieldListExceptField(this.selectedLongitudeField);
       // if removed field
@@ -243,7 +246,7 @@ export class SchemaConfigureCreateFieldComponent extends AbstractComponent {
    */
   public changeSelectedLatitudeField(field): void {
     // if empty field OR different field
-    if (this._isEmptyValue(this.selectedLatitudeField) || this.selectedLatitudeField.name !== field.name) {
+    if (this._isEmptyValue(this.selectedLatitudeField) || this.selectedLatitudeField.originalName !== field.originalName) {
       this.selectedLatitudeField = field;
       // change longitude field list
       this._changeLongitudeFieldListExceptField(field);
@@ -258,7 +261,7 @@ export class SchemaConfigureCreateFieldComponent extends AbstractComponent {
    */
   public changeSelectedLongitudeField(field): void {
     // if empty field OR different field
-    if (this._isEmptyValue(this.selectedLongitudeField) || this.selectedLongitudeField.name !== field.name) {
+    if (this._isEmptyValue(this.selectedLongitudeField) || this.selectedLongitudeField.originalName !== field.originalName) {
       this.selectedLongitudeField = field;
       // change latitude field list
       this._changeLatitudeFieldListExceptField(field);
@@ -376,7 +379,7 @@ export class SchemaConfigureCreateFieldComponent extends AbstractComponent {
    * @private
    */
   private _changeLatitudeFieldListExceptField(field): void {
-    this.latitudeFieldList = this._originFieldList.filter(originField => originField.name !== field.name);
+    this.latitudeFieldList = this._originFieldList.filter(originField => originField.originalName !== field.originalName);
   }
 
   /**
@@ -385,7 +388,7 @@ export class SchemaConfigureCreateFieldComponent extends AbstractComponent {
    * @private
    */
   private _changeLongitudeFieldListExceptField(field): void {
-    this.longitudeFieldList = this._originFieldList.filter(originField => originField.name !== field.name);
+    this.longitudeFieldList = this._originFieldList.filter(originField => originField.originalName !== field.originalName);
   }
 
   /**
@@ -395,6 +398,7 @@ export class SchemaConfigureCreateFieldComponent extends AbstractComponent {
   private _createField(): void {
     const field = new Field();
     field.removeUIproperties();
+    field.originalName = this.fieldName.trim();
     field.name = this.fieldName.trim();
     field.derived = true;
     // TODO 추후 Type.Role.DIMENSION
@@ -412,8 +416,8 @@ export class SchemaConfigureCreateFieldComponent extends AbstractComponent {
       field.type = Type.Logical.STRUCT;
       // TODO 추후 Type.Logical으로 변경시 제거 필요
       field.setLogicalType(this.selectedType.value);
-      field.derivationRule.latField = this.selectedLatitudeField.name;
-      field.derivationRule.lonField = this.selectedLongitudeField.name;
+      field.derivationRule.latField = this.selectedLatitudeField.originalName;
+      field.derivationRule.lonField = this.selectedLongitudeField.originalName;
       field.format = new FieldFormat();
       field.format.removeUnixTypeProperties();
       field.format.geoCoordinateInitialize();

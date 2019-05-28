@@ -29,7 +29,6 @@ import {SchemaConfigureDeletePopupComponent} from "./check-action-layer/schema-c
 import {SchemaConfigureChangeTypePopupComponent} from "./check-action-layer/schema-configure-change-type-popup.component";
 import {SchemaConfigureTimestampComponent} from "./schema-configure-timestamp.component";
 import {FieldConfigService} from "../../service/field-config.service";
-import {CommonUtil} from "../../../common/util/common.util";
 import * as _ from "lodash";
 
 @Component({
@@ -114,7 +113,7 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
         // change filtered field list
         this._changeFilteredFieldList();
         // if checked field
-        if (this.checkedFieldList.some(checkField => checkField.name === field.name)) {
+        if (this.checkedFieldList.some(checkField => checkField.originalName === field.originalName)) {
           // change checked field list
           this._changeCheckedFieldList();
           // broadcast changed checked field list
@@ -153,10 +152,10 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
   /**
    * Init field list
    * @param {Field[]} fieldList
-   * @param {boolean} isMappingUUID
+   * @param {boolean} isAddOriginalNameProperty
    */
-  public initFieldList(fieldList: Field[], isMappingUUID?: boolean): void {
-    this.fieldList = isMappingUUID ? _.cloneDeep(fieldList).map(field => ({...field, uuid: CommonUtil.getUUID()})) :  _.cloneDeep(fieldList);
+  public initFieldList(fieldList: Field[], isAddOriginalNameProperty?: boolean): void {
+    this.fieldList = isAddOriginalNameProperty ? _.cloneDeep(fieldList).map(field => ({...field, originalName: field.name})) :  _.cloneDeep(fieldList);
   }
 
   /**
@@ -164,30 +163,15 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
    * @param {Field} selectedField
    */
   public initSelectedField(selectedField?: Field): void {
-    this.selectedField = this._isNotEmptyValue(selectedField) ? this.fieldList.find(field => field.uuid === selectedField.uuid) : this.fieldList[0];
+    this.selectedField = this._isNotEmptyValue(selectedField) ? this.fieldList.find(field => field.originalName === selectedField.originalName) : this.fieldList[0];
   }
 
   /**
    * Init data list
    * @param dataList
-   * @param {boolean} isMappingUUID
    */
-  public initDataList(dataList, isMappingUUID?: boolean) {
-    // is mapping UUID
-    if (isMappingUUID) {
-      this.dataList = dataList.map(data => {
-        const item = {};
-        Object.keys(data).forEach(key => {
-          const field = this.fieldList.find(field => field.name === key);
-          if (this._isNotEmptyValue(field)) {
-            item[field.uuid] = data[key];
-          }
-        });
-        return item;
-      });
-    } else {
-      this.dataList = _.cloneDeep(dataList);
-    }
+  public initDataList(dataList) {
+    this.dataList = _.cloneDeep(dataList);
   }
 
   /**
@@ -271,7 +255,7 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
    */
   public removedCreatedField(field: Field): void {
     // remove field in list
-    this.fieldList.splice(this.fieldList.findIndex(targetField => targetField.uuid === field.uuid), 1);
+    this.fieldList.splice(this.fieldList.findIndex(targetField => targetField.originalName === field.originalName), 1);
     // broadcast changed field list
     this._broadCastChangedFieldList();
     // change filtered field list
@@ -301,8 +285,6 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
   editField(field: Field): void {
     // check duplicated
     if (this._isValidEditFieldName(field)) {
-      // if exist referenced geo field
-      this._changeReferencedGeoField(field);
       // change field name
       field.name = field.editName;
       // close edit mode
@@ -323,7 +305,7 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
    */
   public onSelectField(field: Field): void {
     // if not removed field and different selected field
-    if (!this.isRemovedField(field) && this.selectedField.uuid !== field.uuid) {
+    if (!this.isRemovedField(field) && this.selectedField.originalName !== field.originalName) {
       this.selectedField = field;
       // change selected data list
       this._changeSelectedDataList();
@@ -381,6 +363,7 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
     field.editName = field.name;
   }
 
+
   /**
    * Undo removed field
    * @param {Field} field
@@ -390,7 +373,7 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
     // event.stopImmediatePropagation();
     // 이미 컬럼이 존재하는 경우 강제로 변경
     if (this._isDuplicatedName(field, field.name)) {
-      field.name = field.name + '_' + this._getFieldNamePostfix(field);
+      field.name = field.name + '_' + this._getFieldPostfix();
     }
     // field set undo remove field
     Field.setUndoRemoveField(field);
@@ -398,6 +381,9 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
     this._broadCastChangedFieldList();
   }
 
+  /**
+   * Open change type popup
+   */
   public onOpenChangeTypePopup(): void {
     // if opened delete popup
     if (this.isOpenedDeletePopup()) {
@@ -408,6 +394,9 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
     this.isOpenedChangeTypePopup() ? this._changeTypePopupComponent.closePopup() : this._changeTypePopupComponent.openPopup();
   }
 
+  /**
+   * Open delete field popup
+   */
   public onOpenDeletePopup(): void {
     // if opened change type popup
     if (this.isOpenedChangeTypePopup()) {
@@ -416,10 +405,6 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
     }
     // close or open
     this.isOpenedDeletePopup() ? this._deletePopupComponent.closePopup() : this._deletePopupComponent.openPopup();
-  }
-
-  public isReferencedGeoField(field: Field, targetField: Field): boolean {
-    return targetField.derivationRule.latField === field.name || targetField.derivationRule.lonField === field.name;
   }
 
   public isAllCheckedFilteredFieldList(): boolean {
@@ -435,7 +420,7 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
   }
 
   public isTimestampField(field): boolean {
-    return this.isDimensionField(field) && Field.isTimestampTypeField(field) && this.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.FIELD && (!_.isNil(this.selectedTimestampField) && this.selectedTimestampField.uuid === field.uuid);
+    return this.isDimensionField(field) && Field.isTimestampTypeField(field) && this.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.FIELD && (!_.isNil(this.selectedTimestampField) && this.selectedTimestampField.originalName === field.originalName);
   }
 
   public isErrorField(field) {
@@ -457,7 +442,7 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
   }
 
   public isSelectedField(field: Field) {
-    return this.selectedField.uuid === field.uuid;
+    return this.selectedField.originalName === field.originalName;
   }
 
   public isCheckedField(field: Field) {
@@ -580,17 +565,14 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
   }
 
   /**
-   * Get field name postfix
-   * @param {Field} field
+   * Get field postfix
    * @returns {string}
    * @private
    */
-  private _getFieldNamePostfix(field: Field): string {
-    const nameObj = this.fieldList.reduce((result, originField: Field) => {
-      result[originField.name] = _.isNil(result[originField.name]) ? 0 : result[originField.name] + 1;
-      return result;
-    }, {});
-    return nameObj[field.name];
+  private _getFieldPostfix(): string {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
   }
 
   /**
@@ -600,7 +582,7 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
    * @private
    */
   private _getFieldDataList(field: Field): string[] {
-    return this.dataList.map(data => data[field.uuid]);
+    return this.dataList.map(data => data[field.originalName]);
   }
 
   /**
@@ -679,24 +661,5 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
       filteredFieldList = filteredFieldList.filter(field => field.name.toUpperCase().includes(this.searchKeyword.toUpperCase()));
     }
     this.filteredFieldList = filteredFieldList;
-  }
-
-  /**
-   * Change referenced Geo field
-   * @param {Field} field
-   * @private
-   */
-  private _changeReferencedGeoField(field: Field): void {
-    this.fieldList.forEach(originField => {
-      // if referenced Geo field
-      if (this.isCreatedField(originField) && this.isReferencedGeoField(field, originField)) {
-        // change referenced field
-        if (originField.derivationRule.lonField === field.name) {
-          originField.derivationRule.lonField = field.editName;
-        } else if (originField.derivationRule.latField === field.name) {
-          originField.derivationRule.latField = field.editName;
-        }
-      }
-    });
   }
 }

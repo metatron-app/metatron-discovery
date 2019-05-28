@@ -71,7 +71,7 @@ export class SchemaConfigureMainComponent extends AbstractComponent {
     // init field list
     this._fieldComponent.initFieldList(fieldList, true);
     this._fieldComponent.initSelectedField();
-    this._fieldComponent.initDataList(dataList, true);
+    this._fieldComponent.initDataList(dataList);
     // init timestamp
     this._fieldComponent.initTimeFormatInTimestampFieldList();
     // ready
@@ -112,7 +112,7 @@ export class SchemaConfigureMainComponent extends AbstractComponent {
       selectedTimestampField: this._fieldComponent.selectedTimestampField,
       selectedTimestampType: this._fieldComponent.selectedTimestampType,
       // timestampFieldData
-      timestampFieldData: this._fieldComponent.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.FIELD ? this._fieldComponent.dataList.map(data => data[this._fieldComponent.selectedTimestampField.uuid]) : []
+      timestampFieldData: this._fieldComponent.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.FIELD ? this._fieldComponent.dataList.map(data => data[this._fieldComponent.selectedTimestampField.originalName]) : []
     }
   }
 

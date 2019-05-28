@@ -116,7 +116,7 @@ export class SchemaConfigureTimestampComponent extends AbstractComponent {
    * @param {Field} field
    */
   public onChangeSelectedTimestampField(field: Field): void {
-    if (this.isEmptySelectedTimestampField() || this.selectedTimestampField.name !== field.name) {
+    if (this.isEmptySelectedTimestampField() || this.selectedTimestampField.originalName !== field.originalName) {
       this.selectedTimestampField = field;
       this._changedTimestampField();
     }
@@ -161,7 +161,7 @@ export class SchemaConfigureTimestampComponent extends AbstractComponent {
    * @private
    */
   private _isNotExistSelectedTimestampFieldInTimestampFieldList(): boolean {
-    return !this.timestampFieldList.some(field => field.name === this.selectedTimestampField.name);
+    return !this.timestampFieldList.some(field => field.originalName === this.selectedTimestampField.originalName);
   }
 
   /**
