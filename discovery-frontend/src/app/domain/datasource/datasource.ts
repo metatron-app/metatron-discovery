@@ -125,6 +125,7 @@ export class Field {
   id: string;
   // Field 명
   name: string;
+  originalName?: string;
   // logical name
   logicalName?: string;
   // description
@@ -164,7 +165,6 @@ export class Field {
 
   // format
   // TODO 추후 FieldFormat으로 변환
-  // format: FieldFormat;
   format: any | FieldFormat;
 
   // Field 별칭
@@ -185,13 +185,12 @@ export class Field {
   segGranularity?: GranularityType;  // segGranularity
 
   // [UI] for Create Datasource
+  uuid?: string;
   isValidType?: boolean;
-  isValidTimeFormat?: boolean;
   isValidReplaceValue?: boolean;
-  typeValidMessage?: string;
-  replaceValidMessage?: string;
-  timeFormatValidMessage?: string;
   checked?: boolean;
+  isEdit?: boolean;
+  editName?: string;
 
   // [UI] valid layer popup
   isShowTypeList?: boolean;
@@ -621,9 +620,6 @@ export class FieldFormat {
   ////////////////////////////////////////////////////////////////////////////
   // Value to be used only on View
   ////////////////////////////////////////////////////////////////////////////
-  isValidTimeFormat?: boolean;
-  timeFormatValidMessage?: string;
-  // TODO 아래로 통일
   isValidFormat?: boolean;
   formatValidMessage?: string;
   isShowTimestampValidPopup?: boolean;

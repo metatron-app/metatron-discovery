@@ -1,7 +1,7 @@
 import {AbstractComponent} from "../../../common/component/abstract.component";
 import {DataStorageConstant} from "../../constant/data-storage-constant";
 import {EventBroadcaster} from "../../../common/event/event.broadcaster";
-import {Component, ElementRef, Injector} from "@angular/core";
+import {Component, ElementRef, EventEmitter, HostListener, Injector, Output} from "@angular/core";
 import {Field} from "../../../domain/datasource/datasource";
 import * as _ from 'lodash';
 
@@ -23,6 +23,10 @@ export class SchemaConfigureTimestampComponent extends AbstractComponent {
   // flag
   public isShowTimestampFieldList: boolean;
 
+  // event emitter
+  @Output() readonly changedTimestampField: EventEmitter<Field> = new EventEmitter();
+  @Output() readonly changedTimestampType: EventEmitter<DataStorageConstant.Datasource.TimestampType> = new EventEmitter();
+
   constructor(private broadCaster: EventBroadcaster,
               protected element: ElementRef,
               protected injector: Injector) {
@@ -43,14 +47,14 @@ export class SchemaConfigureTimestampComponent extends AbstractComponent {
           this.onChangeSelectedTimestampType(this.timestampTypeList[1]);
           // init first timestamp field
           this._setFirstTimestampField();
-          // broadcast selected timestamp field
-          this._broadCastTimestampField();
+          // changed selected timestamp field
+          this._changedTimestampField();
         }  else if (this._isNotExistSelectedTimestampFieldInTimestampFieldList()) {
           // set FIELD timestamp type
           this.onChangeSelectedTimestampType(this.timestampTypeList[0]);
           this.selectedTimestampField = undefined;
-          // broadcast selected timestamp field
-          this._broadCastTimestampField();
+          // changed selected timestamp field
+          this._changedTimestampField();
         }
         // changes detect
         this.safelyDetectChanges();
@@ -66,6 +70,23 @@ export class SchemaConfigureTimestampComponent extends AbstractComponent {
     }
   }
 
+  /**
+   * Window resize
+   * @param event
+   */
+  @HostListener('window:resize', ['$event'])
+  onResize(event) {
+    // #1925
+    if (this.isShowTimestampFieldList) {
+      this.isShowTimestampFieldList = false;
+    }
+  }
+
+  /**
+   * Init
+   * @param {Field} selectedTimestampField
+   * @param {DataStorageConstant.Datasource.TimestampType} selectedTimestampType
+   */
   public init(selectedTimestampField: Field, selectedTimestampType: DataStorageConstant.Datasource.TimestampType): void {
     this.selectedTimestampField = selectedTimestampField;
     this.selectedTimestampType = selectedTimestampType;
@@ -73,59 +94,97 @@ export class SchemaConfigureTimestampComponent extends AbstractComponent {
 
   /**
    * Get sliced column name
-   * @param field
+   * @param {Field} field
    */
   public getSlicedColumnName(field: Field): string {
     return Field.getSlicedColumnName(field);
   }
 
+  /**
+   * Change selected timestamp type
+   * @param type
+   */
   public onChangeSelectedTimestampType(type): void {
     if (this.selectedTimestampType !== type.value) {
       this.selectedTimestampType = type.value;
-      this._broadCastTimestampType();
+      this._changedTimestampType();
     }
   }
 
-  public onChangeSelectedTimestampField(field): void {
+  /**
+   * Change selected timestamp field
+   * @param {Field} field
+   */
+  public onChangeSelectedTimestampField(field: Field): void {
     if (this.isEmptySelectedTimestampField() || this.selectedTimestampField.name !== field.name) {
       this.selectedTimestampField = field;
-      this._broadCastTimestampField();
+      this._changedTimestampField();
     }
   }
 
+  /**
+   * Change timestamp field list show flag
+   */
   public onChangeTimestampFieldListShowFlag(): void {
     if (!this.isEmptyTimestampFieldList()) {
       this.isShowTimestampFieldList = !this.isShowTimestampFieldList;
     }
   }
 
+  /**
+   * Is empty selected timestamp field
+   * @return {boolean}
+   */
   public isEmptySelectedTimestampField(): boolean {
     return _.isNil(this.selectedTimestampField);
   }
 
-
+  /**
+   * Is empty selected timestamp field list
+   * @return {boolean}
+   */
   public isEmptyTimestampFieldList(): boolean {
     return _.isNil(this.timestampFieldList) || this.timestampFieldList.length === 0;
   }
 
+  /**
+   * Is field timestamp type
+   * @return {boolean}
+   */
   public isFieldTimestampType(type): boolean {
     return type.value === DataStorageConstant.Datasource.TimestampType.FIELD;
   }
 
-  private _broadCastTimestampField(): void {
-    this.broadCaster.broadcast(DataStorageConstant.Datasource.BroadcastKey.DATASOURCE_CHANGED_SELECTED_TIMESTAMP_FIELD, this.selectedTimestampField);
-  }
-
-  private _broadCastTimestampType(): void {
-    this.broadCaster.broadcast(DataStorageConstant.Datasource.BroadcastKey.DATASOURCE_CHANGED_SELECTED_TIMESTAMP_TYPE, this.selectedTimestampType);
-  }
-
+  /**
+   * Is Not exist selected timestamp field in field list
+   * @return {boolean}
+   * @private
+   */
   private _isNotExistSelectedTimestampFieldInTimestampFieldList(): boolean {
     return !this.timestampFieldList.some(field => field.name === this.selectedTimestampField.name);
   }
 
+  /**
+   * Set first timestamp field
+   * @private
+   */
   private _setFirstTimestampField(): void {
     this.selectedTimestampField = this.timestampFieldList[0];
   }
 
+  /**
+   * Changed timestamp field
+   * @private
+   */
+  private _changedTimestampField(): void {
+    this.changedTimestampField.emit(this.selectedTimestampField);
+  }
+
+  /**
+   * Changed timestamp type
+   * @private
+   */
+  private _changedTimestampType(): void {
+    this.changedTimestampType.emit(this.selectedTimestampType);
+  }
 }

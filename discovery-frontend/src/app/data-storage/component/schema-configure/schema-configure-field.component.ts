@@ -27,10 +27,10 @@ import {StringUtil} from "../../../common/util/string.util";
 import {ConstantService} from "../../../shared/datasource-metadata/service/constant.service";
 import {SchemaConfigureDeletePopupComponent} from "./check-action-layer/schema-configure-delete-popup.component";
 import {SchemaConfigureChangeTypePopupComponent} from "./check-action-layer/schema-configure-change-type-popup.component";
-
-import * as _ from "lodash";
 import {SchemaConfigureTimestampComponent} from "./schema-configure-timestamp.component";
 import {FieldConfigService} from "../../service/field-config.service";
+import {CommonUtil} from "../../../common/util/common.util";
+import * as _ from "lodash";
 
 @Component({
   selector: 'schema-configure-field',
@@ -101,8 +101,6 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
         // if GEO type crated field
         if (Field.isGeoType(field)) {
          this._setCratedFieldData(field);
-         // broadcast changed data list
-         this._broadcastChangedDataList();
         }
         // broadcast changed field list
         this._broadCastChangedFieldList();
@@ -123,18 +121,6 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
           this._broadcastChangedCheckedFieldList();
         }
       }),
-      // changed timestamp type
-      this.broadCaster.on(DataStorageConstant.Datasource.BroadcastKey.DATASOURCE_CHANGED_SELECTED_TIMESTAMP_TYPE).subscribe((type: DataStorageConstant.Datasource.TimestampType) => {
-        this.selectedTimestampType = type;
-        // change detect
-        this.safelyDetectChanges();
-      }),
-      // changed timestamp field
-      this.broadCaster.on(DataStorageConstant.Datasource.BroadcastKey.DATASOURCE_CHANGED_SELECTED_TIMESTAMP_FIELD).subscribe((field: Field) => {
-        this.selectedTimestampField = field;
-        // change detect
-        this.safelyDetectChanges();
-      })
     );
   }
 
@@ -150,30 +136,6 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
     super.ngAfterViewInit();
     // broadcast changed field list
     this._broadCastChangedFieldList();
-    // broadcast changed data list
-    this._broadcastChangedDataList();
-  }
-
-  /**
-   * Init time format in timestamp field list
-   * @param {Field[]} timestampFieldList
-   * @private
-   */
-  public initTimeFormatInTimestampFieldList(): void {
-    const callStack = [];
-    // timestamp field loop
-    this.fieldList.forEach((field: Field) => {
-      if (Field.isTimestampTypeField(field)) {
-        // init format
-        field.format = new FieldFormat();
-        callStack.push(this.fieldConfigService.checkEnableDateTimeFormatAndSetValidationResultInField(field.format, this._getFieldDataList(field), true).then((format: FieldFormat) => {}));
-      }
-    });
-    // if not empty callStack
-    if (callStack.length > 0) {
-      this.loadingShow();
-      Promise.all(callStack).then(() => this.loadingHide()).catch(() => this.loadingHide());
-    }
   }
 
   /**
@@ -189,23 +151,65 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
   }
 
   /**
-   * Init field
+   * Init field list
    * @param {Field[]} fieldList
+   * @param {boolean} isMappingUUID
+   */
+  public initFieldList(fieldList: Field[], isMappingUUID?: boolean): void {
+    this.fieldList = isMappingUUID ? _.cloneDeep(fieldList).map(field => ({...field, uuid: CommonUtil.getUUID()})) :  _.cloneDeep(fieldList);
+  }
+
+  /**
+   * Init selected field
    * @param {Field} selectedField
    */
-  public initField(fieldList: Field[], selectedField?: Field) {
-    // init field list
-    this.fieldList = _.cloneDeep(fieldList);
-    // init selected field
-    this.selectedField = selectedField ? this.fieldList.find(field => field.name === selectedField.name) : this.fieldList[0];
+  public initSelectedField(selectedField?: Field): void {
+    this.selectedField = this._isNotEmptyValue(selectedField) ? this.fieldList.find(field => field.uuid === selectedField.uuid) : this.fieldList[0];
   }
 
   /**
    * Init data list
    * @param dataList
+   * @param {boolean} isMappingUUID
    */
-  public initDataList(dataList) {
-    this.dataList = _.cloneDeep(dataList);
+  public initDataList(dataList, isMappingUUID?: boolean) {
+    // is mapping UUID
+    if (isMappingUUID) {
+      this.dataList = dataList.map(data => {
+        const item = {};
+        Object.keys(data).forEach(key => {
+          const field = this.fieldList.find(field => field.name === key);
+          if (this._isNotEmptyValue(field)) {
+            item[field.uuid] = data[key];
+          }
+        });
+        return item;
+      });
+    } else {
+      this.dataList = _.cloneDeep(dataList);
+    }
+  }
+
+  /**
+   * Init time format in timestamp field list
+   * - Only Used create step
+   */
+  public initTimeFormatInTimestampFieldList(): void {
+    const callStack = [];
+    // timestamp field loop
+    this.fieldList.forEach((field: Field) => {
+      // if field is timestamp type field
+      if (Field.isTimestampTypeField(field)) {
+        // init format
+        field.format = new FieldFormat();
+        callStack.push(this.fieldConfigService.checkEnableDateTimeFormatAndSetValidationResultInField(field.format, this._getFieldDataList(field), true).then((format: FieldFormat) => {}));
+      }
+    });
+    // if not empty callStack
+    if (callStack.length > 0) {
+      this.loadingShow();
+      Promise.all(callStack).then(() => this.loadingHide()).catch(() => this.loadingHide());
+    }
   }
 
   /**
@@ -262,11 +266,64 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
   }
 
   /**
+   * Remove created field
+   * @param {Field} field
+   */
+  public removedCreatedField(field: Field): void {
+    // remove field in list
+    this.fieldList.splice(this.fieldList.findIndex(targetField => targetField.uuid === field.uuid), 1);
+    // broadcast changed field list
+    this._broadCastChangedFieldList();
+    // change filtered field list
+    this._changeFilteredFieldList();
+    // change select field first
+    this.onSelectField(this.fieldList[0]);
+  }
+
+  /**
+   * Change timestamp field
+   * @param {Field} field
+   */
+  public changedTimestampField(field: Field): void {
+    this.selectedTimestampField = field;
+    this.safelyDetectChanges();
+  }
+
+  /**
+   * Change timestamp type
+   * @param {DataStorageConstant.Datasource.TimestampType} type
+   */
+  public changedTimestampType(type: DataStorageConstant.Datasource.TimestampType): void {
+    this.selectedTimestampType = type;
+    this.safelyDetectChanges();
+  }
+
+  editField(field: Field): void {
+    // check duplicated
+    if (this._isValidEditFieldName(field)) {
+      // if exist referenced geo field
+      this._changeReferencedGeoField(field);
+      // change field name
+      field.name = field.editName;
+      // close edit mode
+      this.closeEditField(field);
+      // broadcast changed field list
+      this._broadCastChangedFieldList();
+    }
+  }
+
+  closeEditField(field: Field): void {
+    field.isEdit = false;
+    delete field.editName;
+  }
+
+  /**
    * Select field
    * @param {Field} field
    */
   public onSelectField(field: Field): void {
-    if (!this.isRemovedField(field) && this.selectedField.name !== field.name) {
+    // if not removed field and different selected field
+    if (!this.isRemovedField(field) && this.selectedField.uuid !== field.uuid) {
       this.selectedField = field;
       // change selected data list
       this._changeSelectedDataList();
@@ -319,6 +376,10 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
     this._broadcastChangedCheckedFieldList();
   }
 
+  onEditField(field: Field): void {
+    field.isEdit = true;
+    field.editName = field.name;
+  }
 
   /**
    * Undo removed field
@@ -327,6 +388,10 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
   public onClickUndoField(field: Field): void {
     // stop event bubble
     // event.stopImmediatePropagation();
+    // 이미 컬럼이 존재하는 경우 강제로 변경
+    if (this._isDuplicatedName(field, field.name)) {
+      field.name = field.name + '_' + this._getFieldNamePostfix(field);
+    }
     // field set undo remove field
     Field.setUndoRemoveField(field);
     // broadcast changed field list
@@ -353,6 +418,10 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
     this.isOpenedDeletePopup() ? this._deletePopupComponent.closePopup() : this._deletePopupComponent.openPopup();
   }
 
+  public isReferencedGeoField(field: Field, targetField: Field): boolean {
+    return targetField.derivationRule.latField === field.name || targetField.derivationRule.lonField === field.name;
+  }
+
   public isAllCheckedFilteredFieldList(): boolean {
     return !this._isEmptyFilteredFieldList() && this.filteredFieldList.filter(field => !this.isDisableCheck(field)).every(field => this.isCheckedField(field));
   }
@@ -366,14 +435,12 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
   }
 
   public isTimestampField(field): boolean {
-    return this.isDimensionField(field) && Field.isTimestampTypeField(field) && this.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.FIELD && (!_.isNil(this.selectedTimestampField) && this.selectedTimestampField.name === field.name);
+    return this.isDimensionField(field) && Field.isTimestampTypeField(field) && this.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.FIELD && (!_.isNil(this.selectedTimestampField) && this.selectedTimestampField.uuid === field.uuid);
   }
 
   public isErrorField(field) {
     return !this.isRemovedField(field) && (
-      this.isTimestampFormatError(field)
-      || this.isIngestionRuleError(field)
-      || this.isGeoFormatError(field)
+      this.isTimestampFormatError(field) || this.isIngestionRuleError(field) || this.isGeoFormatError(field)
     );
   }
 
@@ -390,7 +457,7 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
   }
 
   public isSelectedField(field: Field) {
-    return this.selectedField.name === field.name;
+    return this.selectedField.uuid === field.uuid;
   }
 
   public isCheckedField(field: Field) {
@@ -447,10 +514,23 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
     }, false);
   }
 
+
+
+  /**
+   * Is empty filtered field list
+   * @returns {boolean}
+   * @private
+   */
   private _isEmptyFilteredFieldList(): boolean {
     return _.isNil(this.filteredFieldList) || this.filteredFieldList.filter(field => !this.isDisableCheck(field)).length === 0
   }
 
+  /**
+   * Is format error
+   * @param {Field} field
+   * @returns {boolean}
+   * @private
+   */
   private _isFormatError(field: Field): boolean {
     return field.format.isValidFormat === false;
   }
@@ -466,12 +546,61 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
   }
 
   /**
+   * Is valid edit field name
+   * @param {Field} field
+   * @returns {boolean}
+   * @private
+   */
+  private _isValidEditFieldName(field: Field): boolean {
+    // is empty name
+    if (StringUtil.isEmpty(field.editName)) {
+      return false;
+    }
+    // check column name length
+    // else if (Field.isEnableFieldName(field.editName)) {
+    //
+    // }
+    // check column name charter
+    // is duplicated
+    else if (this._isDuplicatedName(field, field.editName)) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Is duplicated name
+   * @param {Field} field
+   * @param {string} name
+   * @returns {boolean}
+   * @private
+   */
+  private _isDuplicatedName(field: Field, name: string): boolean {
+    return this.fieldList.some(originField => !this.isRemovedField(originField) && originField !== field &&  originField.name === name);
+  }
+
+  /**
+   * Get field name postfix
+   * @param {Field} field
+   * @returns {string}
+   * @private
+   */
+  private _getFieldNamePostfix(field: Field): string {
+    const nameObj = this.fieldList.reduce((result, originField: Field) => {
+      result[originField.name] = _.isNil(result[originField.name]) ? 0 : result[originField.name] + 1;
+      return result;
+    }, {});
+    return nameObj[field.name];
+  }
+
+  /**
    * Get field data list
    * @param {Field} field
+   * @returns {string[]}
    * @private
    */
   private _getFieldDataList(field: Field): string[] {
-    return this.dataList.map(data => data[field.name]);
+    return this.dataList.map(data => data[field.uuid]);
   }
 
   /**
@@ -498,14 +627,6 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
    */
   private _broadCastChangedFieldList(): void {
     this.broadCaster.broadcast(DataStorageConstant.Datasource.BroadcastKey.DATASOURCE_CHANGED_FIELD_LIST, this.fieldList);
-  }
-
-  /**
-   * Broadcast changed data list
-   * @private
-   */
-  private _broadcastChangedDataList(): void {
-    this.broadCaster.broadcast(DataStorageConstant.Datasource.BroadcastKey.DATASOURCE_CHANGED_FIELD_DATA_LIST, this.dataList);
   }
 
   /**
@@ -558,5 +679,24 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
       filteredFieldList = filteredFieldList.filter(field => field.name.toUpperCase().includes(this.searchKeyword.toUpperCase()));
     }
     this.filteredFieldList = filteredFieldList;
+  }
+
+  /**
+   * Change referenced Geo field
+   * @param {Field} field
+   * @private
+   */
+  private _changeReferencedGeoField(field: Field): void {
+    this.fieldList.forEach(originField => {
+      // if referenced Geo field
+      if (this.isCreatedField(originField) && this.isReferencedGeoField(field, originField)) {
+        // change referenced field
+        if (originField.derivationRule.lonField === field.name) {
+          originField.derivationRule.lonField = field.editName;
+        } else if (originField.derivationRule.latField === field.name) {
+          originField.derivationRule.latField = field.editName;
+        }
+      }
+    });
   }
 }

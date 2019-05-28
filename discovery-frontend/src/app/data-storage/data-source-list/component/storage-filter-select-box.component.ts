@@ -16,6 +16,7 @@
 import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from "@angular/core";
 import {AbstractComponent} from "../../../common/component/abstract.component";
 import {CommonUtil} from "../../../common/util/common.util";
+import {StringUtil} from "../../../common/util/string.util";
 
 @Component({
   selector: 'storage-filter-select-box',
@@ -69,6 +70,10 @@ export class StorageFilterSelectBoxComponent extends AbstractComponent {
   constructor(protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
+  }
+
+  isNotEmptyValue(value): boolean {
+    return StringUtil.isNotEmpty(value);
   }
 
   /**

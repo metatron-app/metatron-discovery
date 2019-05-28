@@ -12,7 +12,17 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, HostListener, Injector, Input, OnChanges, SimpleChanges, ViewChild} from "@angular/core";
+import {
+  Component,
+  ElementRef, EventEmitter,
+  HostListener,
+  Injector,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+  ViewChild
+} from "@angular/core";
 import {ConstantService} from "../../../shared/datasource-metadata/service/constant.service";
 import {EventBroadcaster} from "../../../common/event/event.broadcaster";
 import {AbstractComponent} from "../../../common/component/abstract.component";
@@ -110,6 +120,8 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
   private readonly TIMEZONE_POPUP_ELEMENT: ElementRef;
   @ViewChild('timestampGuideElement')
   private readonly TIMESTAMP_GUIDE_ELEMENT: ElementRef;
+
+  @Output() removedCreatedField = new EventEmitter();
 
   // constructor
   constructor(private constant: ConstantService,
@@ -476,8 +488,13 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
     delete this.selectedField.ingestionRule.isValidReplaceValue;
   }
 
+  /**
+   * Remove field
+   */
   public removeField(): void {
-    if (!Field.isRemovedField(this.selectedField)) {
+    if (this.isCreatedField()) {
+      this.removedCreatedField.emit(this.selectedField);
+    } else if (!Field.isRemovedField(this.selectedField)) { // if not removed field
       Field.setRemoveField(this.selectedField);
       // if checked field
       if (Field.isCheckedField(this.selectedField)) {

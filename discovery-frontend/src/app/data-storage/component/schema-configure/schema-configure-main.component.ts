@@ -21,7 +21,7 @@ import {Filter} from "../../../shared/datasource-metadata/domain/filter";
 import {SchemaConfigureTimestampComponent} from "./schema-configure-timestamp.component";
 import {DataStorageConstant} from "../../constant/data-storage-constant";
 import {Alert} from "../../../common/util/alert.util";
-import {ConnectionType} from "../../../domain/datasource/datasource";
+import {ConnectionType, Field} from "../../../domain/datasource/datasource";
 
 @Component({
   selector: 'schema-configure-main',
@@ -61,16 +61,46 @@ export class SchemaConfigureMainComponent extends AbstractComponent {
     super.ngOnDestroy();
   }
 
-  public init(fieldList, dataList): void {
+  /**
+   * Init
+   * - If not exist prev data
+   * @param {Field[]} fieldList
+   * @param dataList
+   */
+  public init(fieldList: Field[], dataList): void {
     // init field list
-    this._fieldComponent.initField(fieldList);
-    this._fieldComponent.initDataList(dataList);
+    this._fieldComponent.initFieldList(fieldList, true);
+    this._fieldComponent.initSelectedField();
+    this._fieldComponent.initDataList(dataList, true);
     // init timestamp
     this._fieldComponent.initTimeFormatInTimestampFieldList();
     // ready
     this._fieldComponent.ready();
   }
 
+  /**
+   * Init loaded configure data
+   * - If exist prev data
+   * @param data
+   */
+  public initLoadedConfigureData(data): void {
+    // set filter
+    this._filterComponent.initFilters(data.searchKeyword, data.selectedRoleFilter, data.selectedTypeFilter);
+    this._fieldComponent.initFilters(data.searchKeyword, data.selectedRoleFilter, data.selectedTypeFilter);
+    // set list
+    this._fieldComponent.initFieldList(data.fieldList);
+    this._fieldComponent.initSelectedField(data.selectedField);
+    this._fieldComponent.initDataList(data.dataList);
+    // set timestamp
+    this._fieldComponent.initSelectedTimestamp(data.selectedTimestampField, data.selectedTimestampType);
+    // ready
+    this._fieldComponent.ready();
+  }
+
+  /**
+   * Get configure data
+   * @return {object}
+   */
   public getConfigureData() {
     return {
       searchKeyword: this._filterComponent.searchKeyword,
@@ -86,19 +116,10 @@ export class SchemaConfigureMainComponent extends AbstractComponent {
     }
   }
 
-  public initLoadedConfigureData(data): void {
-    // set filter
-    this._filterComponent.initFilters(data.searchKeyword, data.selectedRoleFilter, data.selectedTypeFilter);
-    this._fieldComponent.initFilters(data.searchKeyword, data.selectedRoleFilter, data.selectedTypeFilter);
-    // set list
-    this._fieldComponent.initField(data.fieldList, data.selectedField);
-    this._fieldComponent.initDataList(data.dataList);
-    // set timestamp
-    this._fieldComponent.initSelectedTimestamp(data.selectedTimestampField, data.selectedTimestampType);
-    // ready
-    this._fieldComponent.ready();
-  }
-
+  /**
+   * Is exist error in field list
+   * @return {boolean}
+   */
   public isExistFieldError(): boolean {
     // if select timestamp type is FIELD, not selected timestamp field
     if (this._fieldComponent.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.FIELD && this._fieldComponent.isEmptySelectedTimestampField()) {

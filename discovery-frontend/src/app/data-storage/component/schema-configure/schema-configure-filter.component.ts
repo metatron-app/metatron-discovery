@@ -55,7 +55,7 @@ export class SchemaConfigureFilterComponent extends AbstractComponent {
    * @param event
    */
   @HostListener('window:resize', ['$event'])
-  protected onResize(event) {
+  onResize(event) {
     // #1925
     if (this._roleFilterSelectBox && this._roleFilterSelectBox.isListShow) {
       this._roleFilterSelectBox.isListShow = false;
