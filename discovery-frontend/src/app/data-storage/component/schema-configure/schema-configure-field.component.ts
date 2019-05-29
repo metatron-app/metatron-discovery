@@ -598,7 +598,7 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
         createdData = data[field.derivationRule.latField] || '';
         createdData += ',';
         createdData += data[field.derivationRule.lonField] || '';
-        data[field.name] = createdData;
+        data[field.originalName] = createdData;
       }
     });
   }

@@ -74,8 +74,11 @@
                   <div class="ddp-txt-edit" [class.ddp-selected]="field.isEdit" *ngIf="!isRemovedField(field)" (clickOutside)="closeEditField(field)">
                     <a href="javascript:" class="ddp-icon-edit" (click)="onEditField(field)"></a>
                     <!-- input -->
-                    <div class="ddp-wrap-input">
-                      <input type="text" class="ddp-input-edit" placeholder="edit" [(ngModel)]="field.editName">
+                    <div class="ddp-wrap-input type-file" [class.ddp-error]="field.isNameError">
+                      <span class="ddp-txt-error"><em class="ddp-icon-error-s"></em>error</span>
+                      <div class="ddp-wrap-edit-input">
+                        <input type="text" class="ddp-input-edit" placeholder="edit" [(ngModel)]="field.editName">
+                      </div>
                       <span class="ddp-btn-check" (click)="editField(field)"></span>
                     </div>
                     <!-- //input -->

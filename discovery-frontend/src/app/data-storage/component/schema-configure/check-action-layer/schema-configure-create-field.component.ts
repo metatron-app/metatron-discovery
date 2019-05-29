@@ -398,7 +398,7 @@ export class SchemaConfigureCreateFieldComponent extends AbstractComponent {
   private _createField(): void {
     const field = new Field();
     field.removeUIproperties();
-    field.originalName = this.fieldName.trim();
+    field.originalName = CommonUtil.getUUID();
     field.name = this.fieldName.trim();
     field.derived = true;
     // TODO 추후 Type.Role.DIMENSION
