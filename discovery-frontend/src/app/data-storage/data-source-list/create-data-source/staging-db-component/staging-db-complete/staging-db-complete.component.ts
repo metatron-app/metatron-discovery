@@ -249,6 +249,10 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
    */
   private _deleteColumnProperty(column): void {
     delete column.biType;
+    // if disable originalName
+    if (Field.isDisableOriginalName(column)) {
+      Field.removeOriginalNameProperty(column);
+    }
     // if unloaded property is false, delete unloaded property
     if (column.unloaded === false) {
       delete column.unloaded;

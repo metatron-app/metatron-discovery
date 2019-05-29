@@ -390,6 +390,10 @@ export class DataSourceCreateService {
    */
   private _removeUnnecessaryPropertyInField(field: Field) {
     delete field['biType'];
+    // if disable originalName
+    if (Field.isDisableOriginalName(field)) {
+      Field.removeOriginalNameProperty(field);
+    }
     // delete used UI
     delete field.checked;
     // if unloaded property is false, delete unloaded property

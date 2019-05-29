@@ -226,6 +226,10 @@ export class Field {
     this.logicalType = type;
   }
 
+  public static removeOriginalNameProperty(field: Field) {
+    delete field.originalName;
+  }
+
   public static setRemoveField(field): void {
     field.unloaded = true;
   }
@@ -240,6 +244,10 @@ export class Field {
 
   public static setUndoCheckField(field): void {
     field.checked = false;
+  }
+
+  public static isDisableOriginalName(field: Field): boolean {
+    return this.isCreatedField(field) || (field.name === field.originalName);
   }
 
   public static isTimestampTypeField(field): boolean {
