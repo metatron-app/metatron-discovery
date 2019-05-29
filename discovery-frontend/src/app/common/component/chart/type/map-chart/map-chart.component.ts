@@ -123,6 +123,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
   // OSM Layer
   public osmLayer = new ol.layer.Tile({
+    preload: Infinity,
     source: new ol.source.OSM({
       attributions: this.attribution(),
       crossOrigin: 'anonymous'
@@ -130,6 +131,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   });
 
   public cartoPositronLayer = new ol.layer.Tile({
+    preload: Infinity,
     source: new ol.source.XYZ({
       url: 'http://{1-4}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
       attributions: this.attribution(),
@@ -139,6 +141,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
   // Carto Dark Layer
   public cartoDarkLayer = new ol.layer.Tile({
+    preload: Infinity,
     source: new ol.source.XYZ({
       url: 'http://{1-4}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
       attributions: this.attribution(),
@@ -467,7 +470,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       this.createLayer(source, emptySource, isMapCreation, layerIndex);
 
       // Creation legend
-      this.createLegend(layerIndex);
+      this.createLegend(layerIndex, false);
     }
 
     // Creation tooltip and Zoom
@@ -745,6 +748,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     // Map object initialize
     this.olmap = new ol.Map({
+      loadTilesWhileAnimating: true,
+      loadTilesWhileInteracting: true,
       view: new ol.View({
         center: [126, 37],
         zoom: 6,
@@ -2134,7 +2139,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   /**
    * Create legend
    */
-  private createLegend(layerIndex: number): void {
+  private createLegend(layerIndex: number, isAnalysis : boolean): void {
 
     ////////////////////////////////////////////////////////
     // Enable check
@@ -2164,7 +2169,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     // 공간연산을 하게 되면 data 값이 uiOption 또는 layer의 index가 다르기 때문에 아래와 같이 dataIndex 변환
     let dataIndex: number = layerIndex;
-    if (_.isUndefined(this.getUiMapOption().analysis && this.getUiMapOption().analysis['use'] === true)) {
+    if ( isAnalysis && _.isUndefined(this.getUiMapOption().analysis && this.getUiMapOption().analysis['use'] === true)) {
       dataIndex = this.data.length > -1 ? this.data.length : 0;
     }
 
@@ -2219,7 +2224,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             let colorInfo: any = {};
             colorInfo.color = range.color;
             colorInfo.column = range['column'];
-            legendInfo.color.push(colorInfo);
+            if( colorInfo.column != 'undefined' ){
+              legendInfo.color.push(colorInfo);
+            }
           });
         } else {
           _.each(this.getUiMapOption().fieldList, (field) => {
@@ -2570,7 +2577,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('#') == -1 ? layer.color.tileSchema = '#6344ad' : layer.color.tileSchema);
           layer.color.schema = layer.color.tileSchema;
         } else if (layerType == MapLayerType.POLYGON) {
-          (_.isUndefined(layer.color.tileSchema) || layer.color.polygonSchema.indexOf('#') == -1 ? layer.color.polygonSchema = '#6344ad' : layer.color.polygonSchema);
+          (_.isUndefined(layer.color.polygonSchema) || layer.color.polygonSchema.indexOf('#') == -1 ? layer.color.polygonSchema = '#6344ad' : layer.color.polygonSchema);
           layer.color.schema = layer.color.polygonSchema;
         } else if (layerType == MapLayerType.CLUSTER) {
           (_.isUndefined(layer.color.clusterSchema) || layer.color.clusterSchema.indexOf('#') == -1 ? layer.color.clusterSchema = '#6344ad' : layer.color.clusterSchema);
@@ -3285,7 +3292,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.createMapOverLayEvent();
 
     // create legend
-    this.createLegend(this.getUiMapOption().layerNum);
+    this.createLegend(this.getUiMapOption().layerNum, true);
 
     // Chart resize
     if (this.drawByType != null || !_.isEmpty(this.drawByType))
