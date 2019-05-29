@@ -27,6 +27,8 @@ import {isNullOrUndefined} from "util";
 import {TimezoneService} from "../../data-storage/service/timezone.service";
 import {AggregationType} from "../workbook/configurations/field/measure-field";
 import {Type} from "../../shared/datasource-metadata/domain/type";
+import {StringUtil} from "../../common/util/string.util";
+import {CommonUtil} from "../../common/util/common.util";
 
 export class Datasource extends AbstractHistoryEntity {
   id: string;             // ID
@@ -190,11 +192,11 @@ export class Field {
   checked?: boolean;
   isEdit?: boolean;
   editName?: string;
+  isInvalidName?: boolean;
+  invalidNameMessage?: string;
 
   // [UI] valid layer popup
   isShowTypeList?: boolean;
-
-
 
   // [UI] for Alias
   dsId?: string;                   // 데이터소스 아이디
@@ -226,6 +228,11 @@ export class Field {
     this.logicalType = type;
   }
 
+  public static removeNameValidProperty(field: Field) {
+    delete field.isInvalidName;
+    delete field.invalidNameMessage;
+  }
+
   public static removeOriginalNameProperty(field: Field) {
     delete field.originalName;
   }
@@ -244,6 +251,18 @@ export class Field {
 
   public static setUndoCheckField(field): void {
     field.checked = false;
+  }
+
+  public static isEnableFieldEditNameLength(field: Field): boolean {
+    return field.editName.length < 50;
+  }
+
+  public static isEmptyFieldEditName(field: Field): boolean {
+    return StringUtil.isEmpty(field.editName);
+  }
+
+  public static isDisableFieldEditNameCharacter(field: Field): boolean {
+    return (/^[!@#$%^*+=()~`\{\}\[\]\-\_\;\:\'\"\,\.\/\?\<\>\|\&\\]+$/gi).test(field.editName) || (/[\s\r\n]/gi).test(field.editName);
   }
 
   public static isDisableOriginalName(field: Field): boolean {

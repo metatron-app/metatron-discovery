@@ -297,6 +297,12 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
   closeEditField(field: Field): void {
     field.isEdit = false;
     delete field.editName;
+    // remove name valid property
+    this.removeNameValidProperty(field);
+  }
+
+  public removeNameValidProperty(field): void {
+    Field.removeNameValidProperty(field);
   }
 
   /**
@@ -538,18 +544,30 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
    */
   private _isValidEditFieldName(field: Field): boolean {
     // is empty name
-    if (StringUtil.isEmpty(field.editName)) {
+    if (Field.isEmptyFieldEditName(field)) {
+      field.invalidNameMessage = this.translateService.instant('msg.storage.ui.file.result.FV005');
+      field.isInvalidName = true;
       return false;
     }
     // check column name length
-    // else if (Field.isEnableFieldName(field.editName)) {
-    //
-    // }
-    // check column name charter
-    // is duplicated
-    else if (this._isDuplicatedName(field, field.editName)) {
+    else if (!Field.isEnableFieldEditNameLength(field)) {
+      field.invalidNameMessage = this.translateService.instant('msg.storage.ui.file.result.FV004');
+      field.isInvalidName = true;
       return false;
     }
+    // check column name character
+    else if (Field.isDisableFieldEditNameCharacter(field)) {
+      field.invalidNameMessage = this.translateService.instant('msg.storage.ui.file.result.FV001');
+      field.isInvalidName = true;
+      return false;
+    }
+    // is duplicated
+    else if (this._isDuplicatedName(field, field.editName)) {
+      field.invalidNameMessage = this.translateService.instant('msg.storage.ui.file.result.FV003');
+      field.isInvalidName = true;
+      return false;
+    }
+    field.isInvalidName = false;
     return true;
   }
 
