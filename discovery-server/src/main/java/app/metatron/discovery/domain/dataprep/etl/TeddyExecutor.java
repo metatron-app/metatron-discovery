@@ -117,6 +117,7 @@ import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 
 import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_CORES;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_EXPLICIT_GC;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_LIMIT_ROWS;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_TIMEOUT;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
@@ -150,6 +151,7 @@ public class TeddyExecutor {
     public Integer timeout;
     public Integer cores;
     public Integer limitRows;
+    public Boolean explicitGC;
     public final Integer CANCEL_INTERVAL = 1000;
 
     String oauth_token;
@@ -179,6 +181,7 @@ public class TeddyExecutor {
         cores         = (Integer) prepPropertiesInfo.get(ETL_CORES);
         timeout       = (Integer) prepPropertiesInfo.get(ETL_TIMEOUT);
         limitRows     = (Integer) prepPropertiesInfo.get(ETL_LIMIT_ROWS);
+        explicitGC    = (Boolean) prepPropertiesInfo.get(ETL_EXPLICIT_GC);
 
         if (hadoopConfDir != null) {
             hadoopConf = PrepUtil.getHadoopConf(hadoopConfDir);
@@ -545,6 +548,10 @@ public class TeddyExecutor {
             LOGGER.debug("applyRuleStrings(): end: ruleString={}", ruleString);
             cache.put(masterFullDsId, newDf);
             updateSnapshot("ruleCntDone", String.valueOf(incrRuleCntDone(ssId)), ssId);
+
+            if (explicitGC) {
+                System.gc();
+            }
         }
 
         LOGGER.trace("applyRuleStrings(): end");

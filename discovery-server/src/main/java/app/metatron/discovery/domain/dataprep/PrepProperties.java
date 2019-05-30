@@ -17,6 +17,7 @@ package app.metatron.discovery.domain.dataprep;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.workspace.Book;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -49,6 +50,7 @@ public class PrepProperties {
   public static final String ETL_LIMIT_ROWS       = "polaris.dataprep.etl.limitRows";
   public static final String ETL_JAR              = "polaris.dataprep.etl.jar";
   public static final String ETL_JVM_OPTIONS      = "polaris.dataprep.etl.jvmOptions";
+  public static final String ETL_EXPLICIT_GC      = "polaris.dataprep.etl.explicitGC";
 
   public static String dirDataprep = "dataprep";
   public static String dirPreview = "previews";
@@ -117,6 +119,7 @@ public class PrepProperties {
   public Integer getEtlLimitRows()       { return etl.getLimitRows(); }
   public String  getEtlJar()             { return etl.getJar(); }
   public String  getEtlJvmOptions()      { return etl.getJvmOptions(); }
+  public Boolean getEtlExplicitGC()      { return etl.getExplicitGC(); }
 
   // wrapper functions
   public boolean isHDFSConfigured()      { return (hadoopConfDir != null && stagingBaseDir != null); }
@@ -133,6 +136,7 @@ public class PrepProperties {
     map.put(ETL_TIMEOUT,         getEtlTimeout());
     map.put(ETL_LIMIT_ROWS,      getEtlLimitRows());
     map.put(ETL_JVM_OPTIONS,     getEtlJvmOptions());
+    map.put(ETL_EXPLICIT_GC,     getEtlExplicitGC());
 
     return map;
   }
@@ -217,6 +221,7 @@ public class PrepProperties {
     public Integer limitRows;
     public String jar;
     public String jvmOptions;
+    public Boolean explicitGC;
 
     public EtlInfo() {
     }
@@ -256,6 +261,13 @@ public class PrepProperties {
       return jvmOptions;
     }
 
+    public Boolean getExplicitGC() {
+      if (explicitGC == null) {
+        explicitGC = false;
+      }
+      return explicitGC;
+    }
+
     public void setCores(Integer cores) {
       this.cores = cores;
     }
@@ -276,10 +288,14 @@ public class PrepProperties {
       this.jvmOptions = jvmOptions;
     }
 
+    public void setExplicitGC(Boolean explicitGC) {
+      this.explicitGC = explicitGC;
+    }
+
     @Override
     public String toString() {
-      return String.format("EtlInfo{cores=%d timeout=%d jar=%s jvmOptions=%s}",
-                                    cores, timeout, jar, jvmOptions);
+      return String.format("EtlInfo{cores=%d timeout=%d jar=%s jvmOptions=%s explicitGC=%b}",
+                                    cores, timeout, jar, jvmOptions, explicitGC);
     }
   }
 
