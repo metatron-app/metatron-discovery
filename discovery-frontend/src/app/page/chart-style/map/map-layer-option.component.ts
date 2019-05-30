@@ -197,7 +197,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       layer.color.symbolSchema = cloneLayer.color.schema;
       layer.color.symbolTransparency = cloneLayer.color.transparency;
       layer.symbolPointType = (<UISymbolLayer>cloneLayer).symbol;
-      layer.symbolOutline = (<UIPolygonLayer>cloneLayer).outline;
+      layer.symbolOutline = (<UISymbolLayer>cloneLayer).outline;
     } else if (MapLayerType.TILE === preLayerType) {
       layer.tileRadius = cloneLayer.tileRadius;
       layer.color.tileSchema = cloneLayer.color.schema;
@@ -209,7 +209,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       layer.color.clusterSchema = cloneLayer.color.schema;
       layer.color.clusterTransparency = cloneLayer.color.transparency;
       layer.clusterPointType = (<UISymbolLayer>cloneLayer).symbol;
-      layer.clusterOutline = (<UIPolygonLayer>cloneLayer).outline;
+      layer.clusterOutline = (<UISymbolLayer>cloneLayer).outline;
     }
 
     delete this.uiOption.layers[layerIndex].noneColor;
@@ -275,7 +275,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       if (isNullOrUndefined(layer.symbolOutline)) {
         layer.symbolOutline = null;
       }
-      (<UIPolygonLayer>layer).outline = layer.symbolOutline;
+      (<UISymbolLayer>layer).outline = layer.symbolOutline;
 
       // remove measure aggregation type in shelf
       this.removeAggregationType();
@@ -294,7 +294,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       if (isNullOrUndefined(layer.clusterOutline)) {
         layer.clusterOutline = null;
       }
-      (<UIPolygonLayer>layer).outline = layer.clusterOutline;
+      (<UISymbolLayer>layer).outline = layer.clusterOutline;
 
       // remove measure aggregation type in shelf
       this.removeAggregationType();
@@ -1946,6 +1946,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
               }
             }
             this.uiOption.layers[layerIndex]['needToCalPointRadius'] = true;
+            this.setMinMaxMeasureValue(this.shelf, hasMeasure, this.data, layerIndex, false);
           }
         } else {
           this.resetPointRadius(layerIndex);
