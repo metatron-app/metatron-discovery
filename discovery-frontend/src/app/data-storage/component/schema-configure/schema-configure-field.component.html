@@ -77,7 +77,7 @@
                     <div class="ddp-wrap-input type-file" [class.ddp-error]="field.isInvalidName">
                       <span class="ddp-txt-error"><em class="ddp-icon-error-s"></em>{{field.invalidNameMessage}}</span>
                       <div class="ddp-wrap-edit-input">
-                        <input type="text" class="ddp-input-edit" placeholder="edit" [(ngModel)]="field.editName" (ngModelChange)="removeNameValidProperty(field)">
+                        <input type="text" class="ddp-input-edit" placeholder="{{'msg.metadata.ph.dictionary.create.column.name' | translate}}" [(ngModel)]="field.editName" (ngModelChange)="removeNameValidProperty(field)">
                       </div>
                       <span class="ddp-btn-check" (click)="editField(field)"></span>
                     </div>
