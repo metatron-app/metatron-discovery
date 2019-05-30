@@ -749,7 +749,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     this.loadingShow();
 
     // type 관련 변경 필요 (symbol & cluster) 이는 cluster 타입이 option panel에서 따로 분리된 이유임
-    if (this.uiOption['layers'][this.uiOption['layerNum']]['type'] == MapLayerType.CLUSTER
+    if ( _.eq(this.selectChart, ChartType.MAP) && this.uiOption['layers']
+      && this.uiOption['layers'][this.uiOption['layerNum']]['type'] == MapLayerType.CLUSTER
       && !_.isUndefined(this.uiOption['layers'][this.uiOption['layerNum']]['clustering'])
       && this.uiOption['layers'][this.uiOption['layerNum']]['clustering']) {
       this.uiOption['layers'][this.uiOption['layerNum']]['type'] = MapLayerType.SYMBOL;
