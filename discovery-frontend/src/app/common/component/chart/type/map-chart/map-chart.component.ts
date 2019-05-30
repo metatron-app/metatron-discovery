@@ -54,7 +54,7 @@ import {FormatOptionConverter} from '../../option/converter/format-option-conver
 import {UILineLayer} from '../../option/ui-option/map/ui-line-layer';
 import {Field as AbstractField, Field,} from '../../../../../domain/workbook/configurations/field/field';
 import {Shelf} from '../../../../../domain/workbook/configurations/shelf/shelf';
-import {LogicalType} from '../../../../../domain/datasource/datasource';
+import {FieldRole, LogicalType} from '../../../../../domain/datasource/datasource';
 import {GeoField} from '../../../../../domain/workbook/configurations/field/geo-field';
 import {TooltipOptionConverter} from '../../option/converter/tooltip-option-converter';
 import {ChartUtil} from '../../option/util/chart-util';
@@ -965,7 +965,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // set field list
       ////////////////////////////////////////////////////////
       let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[layerIndex].fields);
-      this.checkFieldList(shelf);
+      this.checkFieldList(shelf, layerIndex);
       // Data set
       for (let i = 0; i < data.features.length; i++) {
         // geo type
@@ -1285,6 +1285,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       let featureSizeType = symbolLayer.size.by;
       let style = null;
       let alias = ChartUtil.getFieldAlias(styleLayer.color.column, scope.shelf.layers[layerNum].fields, styleLayer.color.aggregationType);
+      if( styleLayer.type == MapLayerType.CLUSTER ){
+        alias = 'count';
+      }
       ////////////////////////////////////////////////////////
       // Cluster size
       ////////////////////////////////////////////////////////
@@ -1995,6 +1998,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           for (let key in feature.getProperties()) {
             _.each(this.getUiMapOption().toolTip.displayColumns, (field, idx) => {
               if (_.eq(field, key)) {
+                if ( this.getUiMapOption().layers[this.getUiMapOption().layerNum].type == MapLayerType.CLUSTER ){
+                  aggregationKeys.push({idx: idx, key: 'count'});
+                  return false;
+                }
                 aggregationKeys.push({idx: idx, key: key});
                 return false;
               }
@@ -2547,10 +2554,20 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         }
       });
 
+      if( layerType == MapLayerType.CLUSTER ){
+        isMeasure = false;
+        isNone = true;
+        isDimension = false;
+        if( layer.color.by == MapBy.MEASURE ){
+          isMeasure = true;
+          isNone = false;
+        }
+      }
+
       ////////////////////////////////////////////////////////
       // set field list
       ////////////////////////////////////////////////////////
-      this.checkFieldList(shelf);
+      this.checkFieldList(shelf, index);
 
       ////////////////////////////////////////////////////////
       // Color
@@ -3106,6 +3123,16 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         }
       }
 
+      if (layer.type == MapLayerType.CLUSTER && layer['clustering'] && !_.isUndefined(layer.color.ranges) && (_.isUndefined(layer.color.changeRange) || layer.color.changeRange) && !isAnalysisUse ) {
+        let colorList = this.getColorList(layer);
+        let rangeList = uiOption.layers[idx].color.ranges;
+        // rangeList 에서의 색상을 색상리스트에 설정
+        rangeList.reverse().forEach((item, index) => {
+          colorList[index] = item.color;
+        });
+        layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[idx], colorList, idx, shelf, rangeList);
+      }
+
       _.each(shelf, (field) => {
         if (_.eq(field.type, ShelveFieldType.MEASURE)) {
           if( !_.isUndefined(layer.color.ranges) && _.eq(field.name, layer.color.column) && (_.isUndefined(layer.color.changeRange) || layer.color.changeRange ) ) {
@@ -3149,7 +3176,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    * check field list
    * @param shelf
    */
-  private checkFieldList(shelf: any) {
+  private checkFieldList(shelf: any, layerIndex : number) {
     // 선반값에서 해당 타입에 해당하는값만 field값으로 리턴
     const getShelveReturnField = ((shelf: any, typeList: ShelveFieldType[]): AbstractField[] => {
 
@@ -3174,10 +3201,33 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       });
       return resultList;
     });
-    // 색상지정 기준 필드리스트 설정(measure list)
-    this.uiOption.fieldMeasureList = getShelveReturnField(shelf, [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
-    // 색상지정 기준 필드리스트 설정(dimension list)
-    this.uiOption.fielDimensionList = getShelveReturnField(shelf, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
+
+    let layerOption = this.getUiMapOption().layers[layerIndex];
+    // cluster 타입일 경우
+    if( layerOption.type.toString() == 'cluster' && layerOption['clustering'] ){
+
+      // 이미 변수가 선언이 되어 있어 강제로 변경
+      let defaultObject : any = {
+        aggregationType : null,
+        alias : 'count',
+        type : 'measure',
+        subRole : 'measure',
+        name : 'count',
+        isCustomField : true,
+        field : {
+          role : FieldRole.MEASURE,
+          logicalType : LogicalType.INTEGER
+        }
+      };
+      const tempList: any[] = [];
+      tempList.push( defaultObject );
+      this.uiOption.fieldMeasureList = tempList;
+    } else {
+      // 색상지정 기준 필드리스트 설정(measure list)
+      this.uiOption.fieldMeasureList = getShelveReturnField(shelf, [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
+      // 색상지정 기준 필드리스트 설정(dimension list)
+      this.uiOption.fielDimensionList = getShelveReturnField(shelf, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
+    }
   }
 
   /**

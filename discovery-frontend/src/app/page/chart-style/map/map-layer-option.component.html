@@ -99,7 +99,17 @@
                       <div [ngClass]="{'ddp-list-sub2' : 'heatmap' !== uiOption.layers[layerIndex].type.toString()}">
                         <div [ngClass]="{'ddp-wrap-disabled' : 'MEASURE' === uiOption.layers[layerIndex].color.by.toString() && uiOption.layers[layerIndex].color['settingUseFl']}">
 
-                          <div *ngIf="'heatmap' !== uiOption.layers[layerIndex].type.toString() && 'tile' !== uiOption.layers[layerIndex].type.toString() && ('DIMENSION' === uiOption.layers[layerIndex].color.by.toString() || 'NONE' === uiOption.layers[layerIndex].color.by.toString())" class="ddp-divide2">
+                          <div *ngIf="'cluster' == uiOption.layers[layerIndex].type.toString()" class="ddp-divide2">
+                            <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
+                            <component-select
+                              [array]="fieldMeasureList"
+                              [defaultIndex]="findIndex(fieldMeasureList, 'name', uiOption.layers[layerIndex].color.column, 'color', 'aggregationType', uiOption.layers[layerIndex].color.aggregationType)"
+                              [viewKey]="'alias'"
+                              [isIconType]="true"
+                              (onSelected)="changeColorBy($event, layerIndex)">
+                            </component-select>
+                          </div>
+                          <div *ngIf="'cluster' !== uiOption.layers[layerIndex].type.toString() && 'heatmap' !== uiOption.layers[layerIndex].type.toString() && 'tile' !== uiOption.layers[layerIndex].type.toString() && ('DIMENSION' === uiOption.layers[layerIndex].color.by.toString() || 'NONE' === uiOption.layers[layerIndex].color.by.toString())" class="ddp-divide2">
                             <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
                             <component-select
                               [array]="fieldList[layerIndex]"
@@ -109,7 +119,7 @@
                               (onSelected)="changeColorBy($event, layerIndex)">
                             </component-select>
                           </div>
-                          <div *ngIf="'heatmap' !== uiOption.layers[layerIndex].type.toString() && 'tile' !== uiOption.layers[layerIndex].type.toString() && 'MEASURE' === uiOption.layers[layerIndex].color.by.toString()" class="ddp-divide2">
+                          <div *ngIf="'cluster' !== uiOption.layers[layerIndex].type.toString() && 'heatmap' !== uiOption.layers[layerIndex].type.toString() && 'tile' !== uiOption.layers[layerIndex].type.toString() && 'MEASURE' === uiOption.layers[layerIndex].color.by.toString()" class="ddp-divide2">
                             <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
                             <component-select
                               [array]="fieldList[layerIndex]"

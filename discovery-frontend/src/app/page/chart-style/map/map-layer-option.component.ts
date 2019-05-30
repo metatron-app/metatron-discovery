@@ -39,7 +39,7 @@ import {ColorTemplateComponent} from '../../../common/component/color-picker/col
 import {Field as AbstractField, Field} from '../../../domain/workbook/configurations/field/field';
 import {Shelf} from '../../../domain/workbook/configurations/shelf/shelf';
 import {isNullOrUndefined} from 'util';
-import {AggregationType} from '../../../domain/workbook/configurations/field/measure-field';
+import {AggregationType, MeasureField} from '../../../domain/workbook/configurations/field/measure-field';
 import {ChartUtil} from '../../../common/component/chart/option/util/chart-util';
 import {UILayers} from '../../../common/component/chart/option/ui-option/map/ui-layers';
 import {GeoField} from '../../../domain/workbook/configurations/field/geo-field';
@@ -49,6 +49,7 @@ import {ColorOptionConverter} from '../../../common/component/chart/option/conve
 import {OptionGenerator} from '../../../common/component/chart/option/util/option-generator';
 import {MapChartComponent} from "../../../common/component/chart/type/map-chart/map-chart.component";
 import UI = OptionGenerator.UI;
+import {FieldRole, LogicalType} from "../../../domain/datasource/datasource";
 
 @Component({
   selector: 'map-layer-option',
@@ -229,6 +230,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
     // init color, legend
     this.initOptionSymbolLayer(layerIndex);
+    this.setMeasureDimensions(this.shelf);
 
     // change color type by layer type
     if (MapLayerType.HEATMAP === layerType) {
@@ -317,7 +319,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       this.addAggregationType();
     }
 
-    // set measure, dimension list by layer type
+    // // set measure, dimension list by layer type
     this.setMeasureDimensions(this.shelf);
 
     this.setPointOption();
@@ -527,11 +529,23 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       return _.findIndex(list, {[key] : value, [optionalKey]: optionalValue, [fieldType] : ShelveFieldType.MEASURE});
     }
 
-    let standardType = this.uiOption.layers[this.index].color.by;
+    let index = this.index;
+    if( this.uiOption.layers.length == 1 ) index = 0;
+
+    let standardType = this.uiOption.layers[index].color.by;
     if( type == 'thickness' ) {
-      standardType = (<UILineLayer>this.uiOption.layers[this.index]).thickness.by;
+      standardType = (<UILineLayer>this.uiOption.layers[index]).thickness.by;
     } else if( type == 'size' ) {
-      standardType = (<UISymbolLayer>this.uiOption.layers[this.index]).size.by;
+      standardType = (<UISymbolLayer>this.uiOption.layers[index]).size.by;
+    }
+
+    // cluster 타입일 경우
+    if( this.uiOption.layers[index].type == MapLayerType.CLUSTER ){
+      if( standardType == MapBy.MEASURE ) {
+        return 1;
+      } else {
+        return 0;
+      }
     }
 
     switch (standardType) {
@@ -1540,10 +1554,12 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
         let uiOption = this.uiOption;
         let analysisCountAlias : string;
         let analysisUse : boolean = false;
+        let useChoropleth : boolean = false;
         let isUndefinedAggregationType : boolean = false;
         if( !_.isUndefined(uiOption['analysis']) && !_.isUndefined(uiOption['analysis']['use']) && uiOption['analysis']['use'] ) {
           analysisUse = true;
           if( uiOption['analysis']['operation']['choropleth'] ) {
+            useChoropleth = true;
             analysisCountAlias = uiOption['analysis']['operation']['aggregation']['column'];
             (_.isUndefined(uiOption['analysis']['operation']['aggregation']['type']) ? isUndefinedAggregationType = true : isUndefinedAggregationType = false );
           }
@@ -1556,8 +1572,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
                 item['alias'] = ChartUtil.getAlias(item);
                 resultList.push(item);
               }
-            } else if( _.eq(item.type, ShelveFieldType.MEASURE) ) {
-              if ( item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO')) ) {
+            } else {
+              if ( !useChoropleth && item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO')) ) {
                 item['alias'] = ChartUtil.getAlias(item);
                 resultList.push(item);
               }
@@ -1571,6 +1587,32 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
         });
         return resultList;
       });
+
+      // point cluster 형태의 경우만
+      const symbolList: any[] = [];
+      let layerOption = this.uiOption.layers[this.index];
+      if( layerOption.type == MapLayerType.CLUSTER && layerOption['clustering'] ){
+        symbolList.push({name:this.translateService.instant('msg.page.layer.map.stroke.none'), alias:this.translateService.instant('msg.page.layer.map.stroke.none'), value:MapBy.NONE});
+
+        // 이미 변수가 선언이 되어 있어 강제로 변경
+        let defaultObject : any = {
+          aggregationType : null,
+          alias : 'count',
+          type : 'measure',
+          subRole : 'measure',
+          name : 'count',
+          isCustomField : true,
+          field : {
+            role : FieldRole.MEASURE,
+            logicalType : LogicalType.INTEGER
+          }
+        };
+
+        symbolList.push( defaultObject );
+        this.fieldList.push(symbolList);
+        this.fieldMeasureList = symbolList;
+        continue;
+      }
 
       tempList = getShelveReturnField(layers);
       this.fieldList.push(tempList);
@@ -1624,7 +1666,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
     let shelf: GeoField[] = this.shelf.layers[layerIndex].fields;
 
-    let preference = this.checkFieldPreference(shelf);
+    let preference = this.checkFieldPreference(shelf, layerIndex);
 
     const isNone = preference['isNone'];
     const isMeasure = preference['isMeasure'];
@@ -1731,7 +1773,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * @param {UILayers[]} layers
    * @returns {Object}
    */
-  private checkFieldPreference(layers: GeoField[]): Object {
+  private checkFieldPreference(layers: GeoField[], layerIndex : number): Object {
 
     // Find field
     let isNone: boolean = true;
@@ -1749,6 +1791,12 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
         isMeasure = true;
       }
     });
+
+    if( this.uiOption.layers[layerIndex].type == MapLayerType.CLUSTER ){
+      isMeasure = false;
+      isNone = true;
+      isDimension = false;
+    }
 
     return {isNone: isNone, isDimension: isDimension, isMeasure: isMeasure};
   }

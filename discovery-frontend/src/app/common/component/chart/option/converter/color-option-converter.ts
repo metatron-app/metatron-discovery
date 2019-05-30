@@ -505,7 +505,7 @@ export class ColorOptionConverter {
       }
     } else {
       // symbol 타입 , cluster 사용일 경우
-      if( uiOption.layers[layerIndex].type == MapLayerType.SYMBOL && uiOption.layers[layerIndex]['clustering'] ){
+      if( uiOption.layers[layerIndex].type == MapLayerType.CLUSTER && uiOption.layers[layerIndex]['clustering'] ){
         alias = 'count';
       }
     }
