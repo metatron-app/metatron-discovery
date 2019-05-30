@@ -282,26 +282,40 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
     this.safelyDetectChanges();
   }
 
-  editField(field: Field): void {
+  /**
+   * Edit field
+   * @param {Field} field
+   */
+  public editField(field: Field): void {
     // check duplicated
     if (this._isValidEditFieldName(field)) {
       // change field name
       field.name = field.editName;
       // close edit mode
       this.closeEditField(field);
+      // change filtered field list
+      this._changeFilteredFieldList();
       // broadcast changed field list
       this._broadCastChangedFieldList();
     }
   }
 
-  closeEditField(field: Field): void {
+  /**
+   * Close edit field mode
+   * @param {Field} field
+   */
+  public closeEditField(field: Field): void {
     field.isEdit = false;
     delete field.editName;
     // remove name valid property
     this.removeNameValidProperty(field);
   }
 
-  public removeNameValidProperty(field): void {
+  /**
+   * Remove name valid property
+   * @param {Field} field
+   */
+  public removeNameValidProperty(field: Field): void {
     Field.removeNameValidProperty(field);
   }
 
@@ -364,7 +378,11 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
     this._broadcastChangedCheckedFieldList();
   }
 
-  onEditField(field: Field): void {
+  /**
+   * Open Edit field mode
+   * @param {Field} field
+   */
+  public onEditField(field: Field): void {
     field.isEdit = true;
     field.editName = field.name;
   }
