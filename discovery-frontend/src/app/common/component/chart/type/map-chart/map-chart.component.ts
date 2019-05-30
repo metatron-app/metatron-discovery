@@ -1999,7 +1999,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             _.each(this.getUiMapOption().toolTip.displayColumns, (field, idx) => {
               if (_.eq(field, key)) {
                 if ( this.getUiMapOption().layers[this.getUiMapOption().layerNum].type == MapLayerType.CLUSTER ){
-                  aggregationKeys.push({idx: idx, key: 'count'});
                   return false;
                 }
                 aggregationKeys.push({idx: idx, key: key});
@@ -2555,12 +2554,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       });
 
       if( layerType == MapLayerType.CLUSTER ){
-        isMeasure = false;
-        isNone = true;
+        isMeasure = true;
+        isNone = false;
         isDimension = false;
-        if( layer.color.by == MapBy.MEASURE ){
-          isMeasure = true;
-          isNone = false;
+        if( layer.color.by == MapBy.NONE ){
+          isMeasure = false;
+          isNone = true;
         }
       }
 

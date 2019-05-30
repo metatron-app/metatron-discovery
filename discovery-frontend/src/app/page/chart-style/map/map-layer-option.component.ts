@@ -1793,8 +1793,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     });
 
     if( this.uiOption.layers[layerIndex].type == MapLayerType.CLUSTER ){
-      isMeasure = false;
-      isNone = true;
+      isMeasure = true;
+      isNone = false;
       isDimension = false;
     }
 
