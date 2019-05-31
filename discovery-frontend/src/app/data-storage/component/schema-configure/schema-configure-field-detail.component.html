@@ -265,7 +265,7 @@
               </div>
               <!-- //Timezone -->
               <!-- Missing -->
-              <div class="ddp-wrap-edit3">
+              <div class="ddp-wrap-edit3" *ngIf="!isCreatedField()">
                 <label class="ddp-ui-label-name">{{'msg.storage.ui.th.missing' | translate}}</label>
                 <!-- edit option -->
                 <div class="ddp-ui-option-in">

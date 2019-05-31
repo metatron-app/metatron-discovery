@@ -7266,10 +7266,10 @@ table.ddp-table-form tbody tr td .ddp-td-schema + .ddp-ui-tooltip-info.ddp-left2
 table.ddp-table-form tbody tr td .ddp-td-schema + .ddp-ui-tooltip-info.ddp-left2 em.ddp-icon-view-top {left:42px}
 table.ddp-table-form tbody tr td .ddp-txt-edit {float:left; margin-left:0; position:relative;}
 table.ddp-table-form tbody tr td .ddp-txt-edit a.ddp-icon-edit {display:inline-block; width:13px; height:13px; background:url(../images/icon_edit2.png) no-repeat; background-position:left -34px;}
-table.ddp-table-form tbody tr td .ddp-txt-edit .ddp-wrap-input {display:none; position:absolute; top:0; right:-15px; left:inherit;min-width:382px; z-index:10;}
+table.ddp-table-form tbody tr td .ddp-txt-edit .ddp-wrap-input {display:none; position:absolute; top:1px; right:-15px; left:inherit;min-width:382px; z-index:10;}
 table.ddp-table-form tbody tr td .ddp-txt-edit .ddp-wrap-input.ddp-type {bottom:100%; margin-top:0; margin-bottom:7px; top:inherit;}
-table.ddp-table-form tbody tr td .ddp-txt-edit .ddp-wrap-input.type-input {min-width:131px;}
-table.ddp-table-form tbody tr td .ddp-txt-edit .ddp-wrap-input.type-file{min-width:464px;}
+table.ddp-table-form tbody tr td .ddp-txt-edit .ddp-wrap-input.type-input {min-width:161px;}
+table.ddp-table-form tbody tr td .ddp-txt-edit .ddp-wrap-input.type-file{min-width:495px;}
 table.ddp-table-form tbody tr td .ddp-txt-edit.ddp-selected .ddp-wrap-input {display:block;}
 table.ddp-table-form tbody tr td .ddp-txt-edit.ddp-selected + .ddp-wrap-datarecommend,
 table.ddp-table-form tbody tr td .ddp-txt-edit.ddp-selected + .ddp-icon-time {display:none;}

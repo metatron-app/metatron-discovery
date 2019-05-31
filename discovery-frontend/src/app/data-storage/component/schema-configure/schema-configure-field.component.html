@@ -72,12 +72,12 @@
                   </a>
                   <!-- edit -->
                   <div class="ddp-txt-edit" [class.ddp-selected]="field.isEdit" *ngIf="!isRemovedField(field)" (clickOutside)="closeEditField(field)">
-                    <a href="javascript:" class="ddp-icon-edit" (click)="onEditField(field)"></a>
+                    <a href="javascript:" class="ddp-icon-edit" (click)="onEditField(field, fieldInput)"></a>
                     <!-- input -->
                     <div class="ddp-wrap-input type-file" [class.ddp-error]="field.isInvalidName">
                       <span class="ddp-txt-error"><em class="ddp-icon-error-s"></em>{{field.invalidNameMessage}}</span>
                       <div class="ddp-wrap-edit-input">
-                        <input type="text" class="ddp-input-edit" placeholder="{{'msg.metadata.ph.dictionary.create.column.name' | translate}}" [(ngModel)]="field.editName" (ngModelChange)="removeNameValidProperty(field)">
+                        <input type="text" class="ddp-input-edit" placeholder="{{'msg.metadata.ph.dictionary.create.column.name' | translate}}" (keyup.enter)="editField(field)" [(ngModel)]="field.editName" (ngModelChange)="removeNameValidProperty(field)" #fieldInput>
                       </div>
                       <span class="ddp-btn-check" (click)="editField(field)"></span>
                     </div>

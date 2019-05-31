@@ -13,7 +13,7 @@
  */
 
 import {AbstractComponent} from "../../../common/component/abstract.component";
-import {Component, ElementRef, Injector, Input, ViewChild} from "@angular/core";
+import {Component, ElementRef, Injector, Input, Renderer, Renderer2, ViewChild} from "@angular/core";
 import {EventBroadcaster} from "../../../common/event/event.broadcaster";
 import {DataStorageConstant} from "../../constant/data-storage-constant";
 import {Filter} from "../../../shared/datasource-metadata/domain/filter";
@@ -381,10 +381,13 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
   /**
    * Open Edit field mode
    * @param {Field} field
+   * @param {HTMLInputElement} fieldInput
    */
-  public onEditField(field: Field): void {
+  public onEditField(field: Field, fieldInput: HTMLInputElement): void {
     field.isEdit = true;
     field.editName = field.name;
+    this.safelyDetectChanges();
+    fieldInput.focus();
   }
 
 
@@ -597,7 +600,7 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
    * @private
    */
   private _isDuplicatedName(field: Field, name: string): boolean {
-    return this.fieldList.some(originField => !this.isRemovedField(originField) && originField !== field &&  originField.name === name);
+    return this.fieldList.some(originField => !this.isRemovedField(originField) && originField !== field &&  originField.name.toUpperCase() === name.toUpperCase());
   }
 
   /**
