@@ -700,7 +700,7 @@ export class DatasourceService extends AbstractService {
 
       //map 은 limit 5000개 제한
       query.limits = {
-        limit: 50000,
+        limit: 5000,
         sort: null
       }
     }
