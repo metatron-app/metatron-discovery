@@ -422,7 +422,8 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
       // 파일의 구분자가 변경된 경우 (csv)
       if ((this.sourceData.fileData.fileResult.fileKey !== this.fileResult.fileKey)
         || this.sourceData.fileData.isFirstHeaderRow !== this.isFirstHeaderRow
-        || (this.isExcelFile() && (this.sourceData.fileData.fileResult.selectedSheet.sheetName !== this.fileResult.selectedSheet.sheetName))
+        || (this.isExcelFile() && (this.sourceData.fileData.fileResult.selectedSheet && this.fileResult.selectedSheet.sheetName)
+            && (this.sourceData.fileData.fileResult.selectedSheet.sheetName !== this.fileResult.selectedSheet.sheetName))
         || (!this.isExcelFile() && (this.sourceData.fileData.separator !== this.separator || this.sourceData.fileData.delimiter !== this.delimiter))) {
         return true;
       }
