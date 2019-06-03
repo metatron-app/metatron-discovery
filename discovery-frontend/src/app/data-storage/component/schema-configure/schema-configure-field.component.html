@@ -30,7 +30,7 @@
             <tr>
               <th class="ddp-txt-center">
                 <div class="ddp-ui-checkbox" (click)="onAllCheckFilteredFieldList()">
-                  <input type="checkbox" [checked]="isAllCheckedFilteredFieldList()">
+                  <input type="checkbox" [disabled]="isEmptyFilteredFieldList()" [checked]="isAllCheckedFilteredFieldList()">
                   <i class="ddp-icon-checkbox"></i>
                 </div>
               </th>

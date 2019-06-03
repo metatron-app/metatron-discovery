@@ -7355,6 +7355,7 @@ ul.ddp-list-value li.ddp-total {color:#b7b9c2;}
 .ddp-wrap-value-setting .ddp-ui-title .ddp-btn-delete {display:inline-block; position:absolute; top:23px; right:13px; width:11px; height:12px; background:url(../images/icon_edit2.png) no-repeat; background-position:-24px -21px;}
 .ddp-wrap-value-setting .ddp-ui-title .ddp-btn-delete:hover {background-position-x:left ;}
 .ddp-wrap-value-setting .ddp-ui-title .ddp-btn-delete.ddp-fright {position:relative; top:1px; right:0; margin:0 13px 0 5px;}
+.ddp-wrap-value-setting .ddp-ui-title .ddp-btn-return-s.ddp-fright {position:relative; top:2px; right:0;margin:0 13px 0 5px;}
 .ddp-wrap-value-setting .ddp-ui-title .ddp-data-name {display:block; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
 .ddp-box-popupcontents3.ddp-configure {width:1192px;}
 .ddp-box-popupcontents3.ddp-configure .ddp-wrap-value-setting {margin:0;}
@@ -7454,7 +7455,7 @@ ul.ddp-list-value li.ddp-total {color:#b7b9c2;}
 .ddp-box-action.ddp-type .ddp-box-button [class*="ddp-btn-"] {position:relative; top:0; right:0; margin:0 2px; vertical-align:middle;}
 .ddp-box-action.ddp-type .ddp-type-button {position:absolute; top:0; right:0;}
 .ddp-box-action.ddp-type .ddp-change-type {float:left;}
-.ddp-box-action.ddp-type a.ddp-btn-change {display:inline-block; padding:13px 12px 15px 12px; height:43px; color:#666eb2; box-sizing:border-box; }
+.ddp-box-action.ddp-type a.ddp-btn-change {display:inline-block; padding:13px 12px 15px 12px; height:43px; color:#4b515b; box-sizing:border-box; }
 .ddp-box-action.ddp-type .ddp-change-type.ddp-selected a.ddp-btn-change {background-color:#f0f0f2;}
 .ddp-box-action.ddp-type a.ddp-btn-change:hover {background-color:#f0f0f2;}
 .ddp-box-action.ddp-type a.ddp-btn-change:before {display:inline-block; width:11px; height:12px; margin-right:7px; background:url(../images/icon_change.png) no-repeat; vertical-align:middle; content:'';}

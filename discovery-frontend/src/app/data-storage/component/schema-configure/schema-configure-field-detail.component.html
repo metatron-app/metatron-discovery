@@ -25,7 +25,8 @@
 
         <div class="ddp-ui-value-setting">
           <div class="ddp-ui-title">
-            <a href="javascript:" class="ddp-btn-delete ddp-fright" (click)="removeField()"></a>
+            <a href="javascript:" class="ddp-fright ddp-btn-delete" *ngIf="!isRemovedField()" (click)="removeField()"></a>
+            <a href="javascript:" class="ddp-fright ddp-btn-return-s" *ngIf="isRemovedField()" (click)="undoRemoveField()"></a>
             <span class="ddp-data-name" title="{{selectedField.name}}">{{getSlicedColumnName()}}</span>
           </div>
           <div class="ddp-form-column">

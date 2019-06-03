@@ -89,8 +89,10 @@ em.ddp-icon-alias {display:inline-block; position:relative; top:-2px;height:11px
 .ddp-btn-info:hover {background-position:-28px -30px;}
 
 
+a.ddp-btn-return-s,
 a.ddp-btn-return {display:inline-block; width:22px; height:19px; background:url(../../../images/icon_return.png)no-repeat;}
 a.ddp-btn-return:hover {background-position-x:-23px;}
+a.ddp-btn-return-s {width:14px; height:13px; background-position:-15px -20px;}
 a.ddp-btn-switch {display:inline-block; width:7px; height:12px; background:url(../../../images/icon_switch.png) no-repeat;}
 a.ddp-btn-switch.ddp-selected {background-position:-8px top;}
 

@@ -530,6 +530,15 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
   }
 
   /**
+   * Undo remove field
+   */
+  public undoRemoveField(): void {
+    Field.setUndoRemoveField(this.selectedField);
+    // broadcast changed field
+    this._broadCastChangedField();
+  }
+
+  /**
    * Close select boxes
    */
   public closeSelectBoxes(): void {

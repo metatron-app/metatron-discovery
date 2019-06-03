@@ -97,6 +97,8 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
       this.broadCaster.on(DataStorageConstant.Datasource.BroadcastKey.DATASOURCE_CREATED_FIELD).subscribe((field: Field) => {
         // push field
         this.fieldList.unshift(field);
+        // change selected field
+        this.onSelectField(field);
         // if GEO type crated field
         if (Field.isGeoType(field)) {
          this._setCratedFieldData(field);
@@ -434,8 +436,12 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
     this.isOpenedDeletePopup() ? this._deletePopupComponent.closePopup() : this._deletePopupComponent.openPopup();
   }
 
+  public isEmptyFilteredFieldList(): boolean {
+    return _.isNil(this.filteredFieldList) || this.filteredFieldList.length === 0
+  }
+
   public isAllCheckedFilteredFieldList(): boolean {
-    return !this._isEmptyFilteredFieldList() && this.filteredFieldList.filter(field => !this.isDisableCheck(field)).every(field => this.isCheckedField(field));
+    return !this._isEmptyFilteredFieldListExceptDisableCheckField() && this.filteredFieldList.filter(field => !this.isDisableCheck(field)).every(field => this.isCheckedField(field));
   }
 
   public isMeasureField(field): boolean {
@@ -526,14 +532,12 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
     }, false);
   }
 
-
-
   /**
-   * Is empty filtered field list
+   * Is empty filtered field list of disable check field
    * @returns {boolean}
    * @private
    */
-  private _isEmptyFilteredFieldList(): boolean {
+  private _isEmptyFilteredFieldListExceptDisableCheckField(): boolean {
     return _.isNil(this.filteredFieldList) || this.filteredFieldList.filter(field => !this.isDisableCheck(field)).length === 0
   }
 
