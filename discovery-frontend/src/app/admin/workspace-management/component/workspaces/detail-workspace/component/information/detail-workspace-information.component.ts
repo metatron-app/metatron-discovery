@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, Input, ViewChild } from '@angular/core';
-import { AbstractComponent } from '../../../../../../../common/component/abstract.component';
-import { MemberGroupViewComponent } from '../viewer/member-group-view.component';
-import { UserProfile } from '../../../../../../../domain/user/user-profile';
-import { PublicType } from '../../../../../../../domain/workspace/workspace';
+import {Component, ElementRef, Injector, Input, ViewChild} from '@angular/core';
+import {AbstractComponent} from '../../../../../../../common/component/abstract.component';
+import {MemberGroupViewComponent} from '../viewer/member-group-view.component';
+import {UserProfile} from '../../../../../../../domain/user/user-profile';
+import {PublicType} from '../../../../../../../domain/workspace/workspace';
 
 @Component({
   selector: 'detail-workspaces-information',
@@ -47,8 +47,6 @@ export class DetailWorkspaceInformationComponent extends AbstractComponent {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  public readonly UNKNOWN_USER = 'Unknown user';
 
   @Input('workspace')
   public set setWorkspace(workspace) {

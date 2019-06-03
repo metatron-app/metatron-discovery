@@ -25,7 +25,7 @@ import java.security.Principal;
 @JsonTypeName("user")
 public class UserProfile implements DirectoryProfile {
 
-  public static final String UNKNOWN_USERNAME = "__UNKNOWN_USER";
+  public static final String UNKNOWN_USERNAME = "Unknown user";
 
   String username;
 

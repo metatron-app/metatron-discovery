@@ -31,7 +31,7 @@ import app.metatron.discovery.domain.user.role.Permission;
 @JsonTypeName("group")
 public class GroupProfile implements DirectoryProfile {
 
-  public static final String UNKNOWN_GROUPNAME = "__UNKNOWN_GROUP";
+  public static final String UNKNOWN_GROUPNAME = "Unknown group";
 
   String id;
 

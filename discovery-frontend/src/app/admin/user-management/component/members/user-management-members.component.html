@@ -94,7 +94,7 @@
       <col width="*">
       <col width="15%">
       <col width="10%">
-      <col width="100px">
+      <!-- <col width="100px"> -->
     </colgroup>
     <thead>
     <tr>
@@ -113,7 +113,7 @@
         <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>
         <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'desc'"></em>
       </th>
-      <th colspan="2">
+      <th>
         {{'msg.mem.th.status' | translate}}
       </th>
     </tr>
@@ -159,12 +159,12 @@
           <!-- //popup -->
         </div>
       </td>
-      <td>
+      <!-- <td>
         <a href="javascript:" class="ddp-link-delete" (click)="onClickDeleteUser(item)">
           <em class="ddp-icon-delete"></em>
           {{'msg.mem.btn.delete' | translate}}
         </a>
-      </td>
+      </td> -->
     </tr>
     </tbody>
   </table>

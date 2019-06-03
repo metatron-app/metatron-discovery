@@ -94,6 +94,8 @@ export class WorkspaceMembersSelectBoxComponent extends AbstractComponent implem
 
   private readonly _DEFAULT_SEARCH_KEY = '';
 
+  private readonly _NO_MEMBER = 'No member';
+
   private _originOwnerMember: Entity.Member;
 
   private _isWorkspaceOwnerChanged: boolean;
@@ -189,7 +191,11 @@ export class WorkspaceMembersSelectBoxComponent extends AbstractComponent implem
       this.translateService.instant('msg.comm.menu.admin.user.modal.change.owner.please.select');
       return;
     }
-    return `${checkedMember.value.fullName} (${checkedMember.value.role})`;
+    if (checkedMember.label == this._NO_MEMBER) {
+      return this._NO_MEMBER;
+    } else {
+      return `${checkedMember.value.fullName} (${checkedMember.value.role})`;
+    }
   }
 
   public clickSelectValue(member: Entity.SelectValue<Member>): void {
@@ -335,35 +341,42 @@ export class WorkspaceMembersSelectBoxComponent extends AbstractComponent implem
   }
 
   private generateSelectValuesWithMembers() {
-    this.selectValues.push(Entity.SelectValue.ofOwner(this._originOwnerMember));
+    if (this.member.length > 0) {
+      this.selectValues.push(Entity.SelectValue.ofOwner(this._originOwnerMember));
 
-    _.forEach(this.member, value => {
+      _.forEach(this.member, value => {
 
-      let role: Entity.Role = Entity.Role.OWNER;
-      if (value.role === Entity.Role.WATCHER.toString()) {
-        role = Entity.Role.WATCHER;
-      }
-      if (value.role === Entity.Role.EDITOR.toString()) {
-        role = Entity.Role.EDITOR;
-      }
-      if (value.role === Entity.Role.MANAGER.toString()) {
-        role = Entity.Role.MANAGER;
-      }
+        let role: Entity.Role = Entity.Role.OWNER;
+        if (value.role === Entity.Role.WATCHER.toString()) {
+          role = Entity.Role.WATCHER;
+        }
+        if (value.role === Entity.Role.EDITOR.toString()) {
+          role = Entity.Role.EDITOR;
+        }
+        if (value.role === Entity.Role.MANAGER.toString()) {
+          role = Entity.Role.MANAGER;
+        }
 
-      const member = Entity.SelectValue.ofOther(
-        new Entity.Member(
-          value.id,
-          value.member.email,
-          value.member.fullName,
-          value.member.username,
-          role),
-      );
+        const member = Entity.SelectValue.ofOther(
+          new Entity.Member(
+            value.id,
+            value.member.email,
+            value.member.fullName,
+            value.member.username,
+            role),
+        );
 
-      // Although designated as the workspace owner, it can still be registered as a workspace member
-      // If the current owner is included in the list of members, it is excluded from the list of members
-      if (!this._originOwnerMember.equals(member.value)) {
-        this.selectValues.push(member);
-      }
-    });
+        // Although designated as the workspace owner, it can still be registered as a workspace member
+        // If the current owner is included in the list of members, it is excluded from the list of members
+        if (!this._originOwnerMember.equals(member.value)) {
+          this.selectValues.push(member);
+        }
+      });
+    } else {
+      this.selectValues.push(Entity.SelectValue.ofOwner(new Entity.Member(
+        null, null, this._NO_MEMBER, null, null)));
+    }
+
+
   }
 }

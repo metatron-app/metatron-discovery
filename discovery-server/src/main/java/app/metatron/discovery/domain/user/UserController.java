@@ -204,7 +204,7 @@ public class UserController {
     groupService.deleteGroupMember(user.getUsername());
 
     // Workspace 관련 처리
-    workspaceService.disableWorkspaceAndMember(user.getUsername(), null);
+    workspaceService.deleteWorkspaceAndMember(user.getUsername());
 
     // 캐시에 저장되어 있는 User 정보가 있다면 삭제
     cachedUserService.removeCachedUser(user.getUsername());
