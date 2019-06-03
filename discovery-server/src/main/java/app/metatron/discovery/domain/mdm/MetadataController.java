@@ -51,6 +51,10 @@ import app.metatron.discovery.domain.tag.TagProjections;
 import app.metatron.discovery.domain.tag.TagService;
 import app.metatron.discovery.util.ProjectionUtils;
 
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.util.HttpUtils;
+import javax.servlet.http.HttpServletResponse;
+
 @RepositoryRestController
 public class MetadataController {
 
@@ -249,4 +253,55 @@ public class MetadataController {
 
     return ResponseEntity.noContent().build();
   }
+
+    //#f-2172 2019.06.03
+    @RequestMapping(path = "/metadatas/{metadataId}/data", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity <?> getDataByMetadata(@PathVariable("metadataId") String metadataId,
+                                         @RequestParam(value = "limit", required = false) int limit) {
+
+        Map <String, Object> responseMap = new HashMap <String, Object>();
+
+        Metadata metadata = metadataRepository.findOne(metadataId);
+        if (metadata == null) {
+            throw new ResourceNotFoundException(metadataId);
+        }
+
+        DataFrame result = metadataService.getDataFame(metadata, limit);
+        //set response
+        responseMap.put("size", result.rows.size());
+        responseMap.put("data", result);
+
+        return ResponseEntity.ok(responseMap);
+    }
+
+
+    @RequestMapping(path = "/metadatas/{metadataId}/data/download", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity <?> getDownloadDataByMetadata(@PathVariable("metadataId") String metadataId,
+                                                 @RequestParam(value = "limit", required = false) int limit,
+                                                 @RequestParam(value = "fileName", required = false) String fileName,
+                                                 HttpServletResponse response) {
+
+        Metadata metadata = metadataRepository.findOne(metadataId);
+        if (metadata == null) {
+            throw new ResourceNotFoundException(metadataId);
+        }
+
+        if (StringUtils.isEmpty(fileName)) {
+            fileName = "noname";
+        }
+
+        String csvFileName = metadataService.getDownloadFilePath(fileName);
+
+        metadataService.getDownloadData(metadata, csvFileName, limit);
+        try {
+            HttpUtils.downloadCSVFile(response, fileName, csvFileName, "text/csv; charset=utf-8");
+        } catch (Exception e) {
+            LOGGER.error("getDownloadDataByMetadata(): HttpUtils.downloadCSVFile Exception: " + e.getMessage());
+        }
+
+        return null;
+
+    }
 }
