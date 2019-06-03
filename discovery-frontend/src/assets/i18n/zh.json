@@ -2939,6 +2939,7 @@
   "msg.cluster.ui.create.explanation.description": "Metatron使用 Zookeeper, MariaDB, Druid 及 Metatron Discovery",
   "msg.cluster.ui.create.add.btn": "添加",
 
+  "msg.metadata.ui.no.db.list" : "No DB connection",
   "msg.metadata.ui.no.col.dic" : "No column dictionary",
   "msg.metadata.ui.no.code.table" : "No code table",
   "msg.metadata.ui.title": "元数据",

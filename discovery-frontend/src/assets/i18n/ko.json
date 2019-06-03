@@ -3878,6 +3878,7 @@
   "msg.cluster.ui.create.explanation.description" : "Metatron은 Zookeeper, MariaDB, Druid 및 Metatron Discovery를 다루고 있습니다",
   "msg.cluster.ui.create.add.btn" : "추가",
 
+  "msg.metadata.ui.no.db.list" : "DB 커넥션이 없습니다",
   "msg.metadata.ui.no.col.dic" : "컬럼 사전이 없습니다",
   "msg.metadata.ui.no.code.table" : "코드 테이블이 없습니다",
   "msg.metadata.ui.title" : "메타 데이터",

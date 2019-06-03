@@ -48,6 +48,7 @@ import {CatalogComponent} from './catalog/catalog.component';
 import {MetadataManagementGuard} from '../common/gaurd/metadata-management.guard';
 import {DetailModule} from './detail/detail.module';
 import {DatasourceMetadataSharedModule} from '../shared/datasource-metadata/datasource-metadata-shared.module';
+import {CreateMetadataModule} from "./metadata/create-metadata/refact/create-metadata.module";
 
 @NgModule({
   imports: [
@@ -55,6 +56,7 @@ import {DatasourceMetadataSharedModule} from '../shared/datasource-metadata/data
     DetailModule,
     DatasourceShareModule,
     DatasourceMetadataSharedModule,
+    CreateMetadataModule,
     RouterModule.forChild([
       {path: '', component: MetaDataManagementComponent, canActivate: [MetadataManagementGuard]},
       {path: ':tabId', component: MetaDataManagementComponent, canActivate: [MetadataManagementGuard]},

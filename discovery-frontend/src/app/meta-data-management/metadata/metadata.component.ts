@@ -25,6 +25,7 @@ import {CatalogService} from '../catalog/service/catalog.service';
 import * as _ from 'lodash';
 import {StorageService} from '../../data-storage/service/storage.service';
 import {ActivatedRoute} from "@angular/router";
+import {CreateMetadataMainComponent} from "./create-metadata/refact/create-metadata-main.component";
 
 declare let $;
 
@@ -37,8 +38,8 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild(SelectDatatypeComponent)
-  private _selectDatatypeComponent: SelectDatatypeComponent;
+  @ViewChild(CreateMetadataMainComponent)
+  private _selectDatatypeComponent: CreateMetadataMainComponent;
 
   // 검색 파라메터
   private _searchParams: { [key: string]: string };

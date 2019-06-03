@@ -3877,6 +3877,7 @@
   "msg.cluster.ui.create.explanation.description" : "Metatron is involves Zookeeper, MariaDB, Druid, and metatron Discovery.",
   "msg.cluster.ui.create.add.btn" : "Add",
 
+  "msg.metadata.ui.no.db.list" : "No DB connection",
   "msg.metadata.ui.no.col.dic" : "No column dictionary",
   "msg.metadata.ui.no.code.table" : "No code table",
   "msg.metadata.ui.title" : "Metadata",
