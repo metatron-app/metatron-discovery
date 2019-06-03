@@ -14,21 +14,10 @@
 
 package app.metatron.discovery.domain.mdm;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
-
-import app.metatron.discovery.domain.datasource.DataSource;
-
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcCSVWriter;
 import app.metatron.discovery.domain.engine.EngineProperties;
 import app.metatron.discovery.domain.mdm.source.MetaSourceService;
@@ -37,7 +26,13 @@ import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.supercsv.prefs.CsvPreference;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -52,79 +47,75 @@ import java.util.Optional;
 @Transactional
 public class MetadataService {
 
-  private static Logger LOGGER = LoggerFactory.getLogger(MetadataService.class);
-
-  @Autowired
-  private MetadataRepository metadataRepository;
-
+    private static Logger LOGGER = LoggerFactory.getLogger(MetadataService.class);
     @Autowired
     MetaSourceService metaSourceService;
     @Autowired
     StorageProperties storageProperties;
     @Autowired
     EngineProperties engineProperties;
+    @Autowired
+    private MetadataRepository metadataRepository;
 
-  /**
-   * find metadata from datasource identifier
-   */
-  @Transactional(readOnly = true)
-  public Optional<Metadata> findByDataSource(String dataSourceId) {
-    List<Metadata> results = metadataRepository.findBySource(dataSourceId, null, null);
-    if (CollectionUtils.isEmpty(results)) {
-      return Optional.empty();
+    /**
+     * find metadata from datasource identifier
+     */
+    @Transactional(readOnly = true)
+    public Optional <Metadata> findByDataSource(String dataSourceId) {
+        List <Metadata> results = metadataRepository.findBySource(dataSourceId, null, null);
+        if (CollectionUtils.isEmpty(results)) {
+            return Optional.empty();
+        }
+
+        return Optional.of(results.get(0));
     }
 
-    return Optional.of(results.get(0));
-  }
+    /**
+     * Save using datasource information
+     */
+    public void saveFromDataSource(DataSource dataSource) {
+        // make metadata from datasource
+        Metadata metadata = new Metadata(dataSource);
 
-  /**
-   * Save using datasource information
-   */
-  public void saveFromDataSource(DataSource dataSource) {
-    // make metadata from datasource
-    Metadata metadata = new Metadata(dataSource);
+        metadataRepository.saveAndFlush(metadata);
 
-    metadataRepository.saveAndFlush(metadata);
-
-    LOGGER.info("Successfully saved metadata({}) from datasource({})", metadata.getId(), dataSource.getId());
-  }
-
-  /**
-   * Update from updated datasource
-   */
-  public void updateFromDataSource(DataSource dataSource, boolean includeFields) {
-
-    Optional<Metadata> metadata = findByDataSource(dataSource.getId());
-    if (!metadata.isPresent()) {
-      return;
+        LOGGER.info("Successfully saved metadata({}) from datasource({})", metadata.getId(), dataSource.getId());
     }
 
-    Metadata updateMetadata = metadata.get();
-    updateMetadata.updateFromDataSource(dataSource, includeFields);
+    /**
+     * Update from updated datasource
+     */
+    public void updateFromDataSource(DataSource dataSource, boolean includeFields) {
 
-    metadataRepository.save(updateMetadata);
-  }
+        Optional <Metadata> metadata = findByDataSource(dataSource.getId());
+        if (!metadata.isPresent()) {
+            return;
+        }
 
-  /**
-   * Delete metadata
-   */
-  public void delete(String... metadataIds) {
+        Metadata updateMetadata = metadata.get();
+        updateMetadata.updateFromDataSource(dataSource, includeFields);
 
-    int deleteCnt = 0;
-    for (String metadataId : metadataIds) {
-      Metadata deletingMetadata = metadataRepository.findOne(metadataId);
-      if (deletingMetadata == null) {
-        continue;
-      }
-      metadataRepository.delete(metadataId);
-      deleteCnt++;
+        metadataRepository.save(updateMetadata);
     }
 
-    LOGGER.info("Successfully delete {} metadata items", deleteCnt);
-  }
+    /**
+     * Delete metadata
+     */
+    public void delete(String... metadataIds) {
 
+        int deleteCnt = 0;
+        for (String metadataId : metadataIds) {
+            Metadata deletingMetadata = metadataRepository.findOne(metadataId);
+            if (deletingMetadata == null) {
+                continue;
+            }
+            metadataRepository.delete(metadataId);
+            deleteCnt++;
+        }
 
-    // 2019.06.03 add for grid data
+        LOGGER.info("Successfully delete {} metadata items", deleteCnt);
+    }
+
     public DataFrame getDataFame(Metadata metadata, int limit) {
         DataFrame dataFrame = new DataFrame();
         Statement stmt = null;
@@ -167,10 +158,8 @@ public class MetadataService {
         MetadataSource metadataSource = metadata.getSource();
         Connection conn = null;
 
-        // JDBC
         if (metadataSource.getType() == Metadata.SourceType.JDBC) {
 
-            // Check jdbc connection info.
             if (StringUtils.isEmpty(metadataSource.getSourceId())) {
                 throw new IllegalArgumentException("DataConnection info. required.");
             }
@@ -187,7 +176,6 @@ public class MetadataService {
 
         } else if (metadataSource.getType() == Metadata.SourceType.ENGINE) { // druid
 
-            //set druid jdbc
             DataConnection jdbcDataConnection = new DataConnection();
             jdbcDataConnection.setImplementor("DRUID");
             jdbcDataConnection.setUrl(makeDruidEngineConnectUrl());
