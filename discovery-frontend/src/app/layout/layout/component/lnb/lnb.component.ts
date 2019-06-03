@@ -69,6 +69,9 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   public permission = {
     myWorkspace: false,
     workspace: false,
+    exploreData: true,
+    exploreDataView: true,
+    exploreFavorite: true,
     management: false,
     managementDatasource: false,
     managementMetadata: false,
@@ -94,6 +97,12 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   public lnbManager = {
     // 워크스페이스
     workspace: {fold: false},
+    // 데이터 탐색
+    exploreData: {
+      fold: true,
+      exploreView : { fold: true },
+      favorite: { fold : true }
+    },
     // 매니지먼트
     management: {
       fold: true,
@@ -276,23 +285,50 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     switch (menuName) {
       case 'WORKSPACE' :
         this.lnbManager.workspace.fold = false;
+        this.lnbManager.exploreData.fold = true;
         this.lnbManager.management.fold = true;
         this.lnbManager.administration.fold = true;
         break;
+      case 'EXPLOREDATA' :
+        this.lnbManager.workspace.fold = true;
+        this.lnbManager.exploreData.fold = false;
+        this.lnbManager.management.fold = true;
+        this.lnbManager.administration.fold = true;
+        this.exploreDataMenuClickListener('EXPLOREDATA_VIEW');
+        break;
       case 'MANAGEMENT' :
         this.lnbManager.workspace.fold = true;
+        this.lnbManager.exploreData.fold = true;
         this.lnbManager.management.fold = false;
         this.lnbManager.administration.fold = true;
         this.mgmtMenuClickListener('DATASTORAGE');
         break;
       case 'ADMINISTRATION' :
         this.lnbManager.workspace.fold = true;
+        this.lnbManager.exploreData.fold = true;
         this.lnbManager.management.fold = true;
         this.lnbManager.administration.fold = false;
         this.adminMenuClickListener('USER');
         break;
     }
   } // function - menuDepth1ClickListener
+
+  /**
+   * Explore Data 하위 메뉴 클릭 이벤트 리스너
+   * @param menuName
+   */
+  public exploreDataMenuClickListener(menuName:string) {
+    this.lnbManager.exploreData.exploreView.fold = true;
+    this.lnbManager.exploreData.favorite.fold = true;
+    switch (menuName) {
+      case 'EXPLOREDATA_VIEW' :
+        this.lnbManager.exploreData.exploreView.fold = false;
+        break;
+      case 'EXPLOREDATA_FAVORITE' :
+        this.lnbManager.exploreData.favorite.fold = false;
+        break;
+    }
+  } // function - exploreDataMenuClickListener
 
   /**
    * Management 하위 메뉴 클릭 이벤트 리스너
