@@ -18,9 +18,14 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.data.rest.core.event.AfterCreateEvent;
+import org.springframework.data.rest.core.event.BeforeCreateEvent;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,12 +33,19 @@ import app.metatron.discovery.domain.datasource.DataSource;
 
 @Component
 @Transactional
-public class MetadataService {
+public class MetadataService implements ApplicationEventPublisherAware {
 
   private static Logger LOGGER = LoggerFactory.getLogger(MetadataService.class);
 
   @Autowired
   private MetadataRepository metadataRepository;
+
+  private ApplicationEventPublisher publisher;
+
+  @Override
+  public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+    this.publisher = applicationEventPublisher;
+  }
 
   /**
    * find metadata from datasource identifier
@@ -94,4 +106,16 @@ public class MetadataService {
     LOGGER.info("Successfully delete {} metadata items", deleteCnt);
   }
 
+  @Transactional
+  public List<Metadata> createAndReturn(List<Metadata> metadataList){
+    List<Metadata> returnBody = new ArrayList<>();
+    for(Metadata metadata : metadataList){
+      //trigger event
+      publisher.publishEvent(new BeforeCreateEvent(metadata));
+      Metadata savedObject = metadataRepository.save(metadata);
+      publisher.publishEvent(new AfterCreateEvent(savedObject));
+      returnBody.add(savedObject);
+    }
+    return returnBody;
+  }
 }
