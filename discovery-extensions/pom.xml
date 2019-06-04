@@ -11,9 +11,24 @@
     <packaging>pom</packaging>
     <name>discovery-extensions</name>
 
-    <modules>
-        <module>mssql-connection</module>
-    </modules>
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>mssql-connection</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>include-all</id>
+            <modules>
+                <module>mssql-connection</module>
+                <module>oracle-connection</module>
+            </modules>
+        </profile>
+    </profiles>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
