@@ -48,18 +48,7 @@ public class StorageProperties {
 
   @PostConstruct
   public void init() {
-
-//    if(stagedb == null) {
-//      this.stagedb = new StageDBConnection();
-//      stagedb.setHostname("localhost");
-//      stagedb.setPort(10000);
-//      stagedb.setUsername("hive");
-//      stagedb.setPassword("hive");
-//      MetaStoreProperties metaStoreProperties = new MetaStoreProperties();
-//      metaStoreProperties.setUri("thrift://localhost:9083");
-//      stagedb.setMetastore(metaStoreProperties);
-//    }
-    // 설정 하위 호환을 위하여 처리
+    // For the Backwards compatibility.
     if(stagedb.getMetastore() == null) {
       stagedb.setMetastore(new MetaStoreProperties(stagedb.getMetastoreUri(),
                                                    stagedb.getMetastoreHost(),
