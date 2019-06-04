@@ -140,7 +140,6 @@ public class MetadataService {
         return dataFrame;
     }
 
-
     public void getDownloadData(Metadata metadata, String fileName, int limit) {
         Connection conn = null;
 
@@ -218,7 +217,6 @@ public class MetadataService {
         return conn;
     }
 
-
     public String getDownloadFilePath(String fileName) {
         String downloadFilePath = null;
         String fileDownalodLocalPath = System.getProperty("user.home") + File.separator + "metadatas" + File.separator + "downloads";
@@ -237,7 +235,6 @@ public class MetadataService {
         return downloadFilePath;
     }
 
-
     private void createCSVFile(Connection connection, String query, String fileName, int limit) throws IOException {
 
         try {
@@ -252,7 +249,6 @@ public class MetadataService {
             LOGGER.error(e.getMessage());
         }
     }
-
 
     private String makeDruidEngineConnectUrl() {
 
