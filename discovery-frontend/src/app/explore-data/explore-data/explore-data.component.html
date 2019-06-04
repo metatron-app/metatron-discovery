@@ -175,7 +175,7 @@
 
         <table class="ddp-table-form ddp-table-line">
           <colgroup>
-            <col width="26px">
+            <col width="100px">
             <col width="100px">
             <col width="*">
             <col width="20%">
@@ -227,22 +227,18 @@
           </tr>
           </thead>
 
-          <tbody><tr>
-            <td class="ddp-txt-center"><em class="ddp-icon-fav ddp-selected"></em></td>
-
-            <td>
-              <span class="ddp-box-tag-value ddp-datasource">Datasource</span>
-            </td>
-            <td>
-              <div class="ddp-txt-long">
-                <span class="ddp-txt-search">Data</span> set _EQPID ALL
+          <tbody >
+          <tr *ngFor="let m of metadataList" (click)="onClickMetadata(m)">
+            <td >
+              <div class="ddp-txt-long" >
+                <span class="ddp-txt-search">{{m.name}}</span> set _EQPID ALL
                 <span class="ddp-txt-colortype">-설명</span>
               </div>
             </td>
             <td>
-              <span class="ddp-tags"># 사업부</span>
-              <span class="ddp-tags"># CEI</span>
-              <span class="ddp-tags"># Tech</span>
+              <!--<span class="ddp-tags"># 사업부</span>-->
+              <!--<span class="ddp-tags"># CEI</span>-->
+              <!--<span class="ddp-tags"># Tech</span>-->
             </td>
             <td>
               <div class="ddp-bar">
@@ -256,65 +252,6 @@
               </div>
             </td>
           </tr>
-
-          <tr>
-            <td class="ddp-txt-center"><em class="ddp-icon-fav "></em></td>
-            <td>
-              <span class="ddp-box-tag-value ddp-hive">Hive</span>
-            </td>
-            <td>
-              <div class="ddp-txt-long">
-                Data set _EQPID ALL
-                <span class="ddp-txt-colortype">-설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명</span>
-              </div>
-            </td>
-            <td>
-              <span class="ddp-tags"># 사업부</span>
-              <span class="ddp-tags"># CEI</span>
-              <span class="ddp-tags"># Tech</span>
-            </td>
-            <td>
-              <div class="ddp-bar">
-                <span style="width:70%;"></span>
-              </div>
-            </td>
-            <td>
-              2017-7-13 14:35:00
-              <div class="ddp-btn-control">
-                <em class="ddp-icon-control-cut"></em>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td class="ddp-txt-center"></td>
-            <td>
-              <span class="ddp-box-tag-value ddp-stagingdb">StagingDB</span>
-            </td>
-            <td>
-              <div class="ddp-txt-long">
-                Data set _EQPID ALL
-                <span class="ddp-txt-colortype">-설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명</span>
-              </div>
-            </td>
-            <td>
-              <span class="ddp-tags"># 사업부</span>
-              <span class="ddp-tags"># CEI</span>
-              <span class="ddp-tags"># Tech</span>
-            </td>
-            <td>
-              <div class="ddp-bar">
-                <span style="width:70%;"></span>
-              </div>
-            </td>
-            <td>
-              2017-7-13 14:35:00
-              <div class="ddp-btn-control">
-                <em class="ddp-icon-control-cut"></em>
-              </div>
-            </td>
-          </tr>
-
-
           </tbody>
 
         </table>
@@ -479,4 +416,10 @@
   </div>
 
 
+
 </div>
+<explore-metadata-container
+  *ngIf="selectedMetadata?.id"
+  [metadata]="selectedMetadata"
+  (closeMetadataContainer)="onCloseMetadataContainer()">
+</explore-metadata-container>

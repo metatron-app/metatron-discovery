@@ -1,0 +1,75 @@
+<div class="ddp-wrap-tab-contents" *ngIf="metadataId">
+  <div class="ddp-ui-tab-contents">
+    <div class="ddp-data-details ddp-ui-preview-contents ">
+      <table class="ddp-table-form ddp-table-type2 ddp-table-details">
+        <colgroup>
+          <col width="200px">
+          <col width="*">
+          <col width="150px">
+          <col width="150px">
+          <col width="300px">
+          <col width="150px">
+          <col width="300px">
+          <col width="300px">
+        </colgroup>
+        <thead>
+        <tr>
+          <th>
+            Column name
+          </th>
+          <th>
+            Logical Column Name
+          </th>
+          <th>
+            Column Dictionary
+          </th>
+          <th>
+            Type
+          </th>
+          <th>
+            Format
+          </th>
+          <th>
+            Code table
+          </th>
+          <th>
+            Description
+          </th>
+          <th> Column popularity <div class="ddp-wrap-hover-info"><em class="ddp-icon-info3"></em><div class="ddp-box-layout4 ddp-popularity"><div class="ddp-data-title"> What is data popularity? </div><div class="ddp-data-det"> The data popularity indicates how much the data is being used. The list below is a set of criteria for measuring popularity. <ul><li>• How many dashboards are connected? </li></ul></div></div></div></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let column of columns">
+          <td>
+            {{column.physicalName}}
+          </td>
+          <td>
+            {{column.name}}
+          </td>
+          <td>
+            {{column.dictionary? column.dictionary.name : '-'}}
+          </td>
+          <td>
+            <em class="ddp-icon-type-{{getFieldTypeIconClass(column.type)}}"></em>{{column.type}}
+          </td>
+          <td>
+            {{column.format? column.format.format : '-'}}
+          </td>
+          <td>
+            {{column.codeTable? column.codeTable.name : '-'}}
+          </td>
+          <td>{{column.description || '-'}}</td>
+          <td class="">
+            <div class="ddp-bar">
+              <span [style.width]="column.popularity ? column.popularity + '%' : 0 + '%'"></span>
+            </div>
+          </td>
+        </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+  </div>
+</div>

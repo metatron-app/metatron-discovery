@@ -19,6 +19,15 @@ import {NgModule} from "@angular/core";
 import {FavoriteDataComponent} from "./favorite/favorite-data.component";
 import {FavoriteCreatorComponent} from "./favorite/favorite-creator.component";
 import {ExploreDataComponent} from "./explore-data/explore-data.component";
+import {MetadataContainerComponent} from "./explore-data/popup/metadata-container.component";
+import {MetadataColumnsComponent} from "./explore-data/popup/metadata-columns.component";
+import {MetadataOverviewComponent} from "./explore-data/popup/metadata-overview.component";
+import {MetadataSampleDataComponent} from "./explore-data/popup/metadata-sample-data.component";
+import {RecentQueriesComponent} from "./explore-data/popup/recent-queries.component";
+import {WorkspaceUsesComponent} from "./explore-data/popup/workspace-uses.component";
+import {MetadataService} from "../meta-data-management/metadata/service/metadata.service";
+import {DatasourceService} from "../datasource/service/datasource.service";
+import {TimezoneService} from "../data-storage/service/timezone.service";
 
 @NgModule({
   imports: [
@@ -33,9 +42,15 @@ import {ExploreDataComponent} from "./explore-data/explore-data.component";
   declarations: [
     ExploreDataComponent,
     FavoriteDataComponent,
-    FavoriteCreatorComponent
+    FavoriteCreatorComponent,
+    MetadataContainerComponent,
+    MetadataColumnsComponent,
+    MetadataOverviewComponent,
+    MetadataSampleDataComponent,
+    RecentQueriesComponent,
+    WorkspaceUsesComponent
   ],
-  providers: [],
+  providers: [MetadataService,DatasourceService,TimezoneService],
 })
 export class ExploreDataModule {
   constructor(private broadCaster: EventBroadcaster) {

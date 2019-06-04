@@ -1,0 +1,334 @@
+<div class="ddp-wrap-tab-contents" *ngIf="metadata">
+  <div class="ddp-ui-tab-contents">
+    <div class="ddp-clear">
+      <div class="ddp-detail-view ddp-left">
+
+        <table class="ddp-table-detail type-meata">
+          <colgroup>
+            <col width="120px">
+            <col width="*">
+          </colgroup>
+          <tbody>
+          <tr>
+            <th>
+              Data name
+            </th>
+            <td>
+              {{metadata.name}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              Description
+            </th>
+            <td>
+              {{metadata.description || '-' }}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              Tags
+            </th>
+            <td>
+              <div class="ddp-list-tags" *ngIf="metadata.tags.length > 0 else noTag">
+                <div class="ddp-tags" *ngFor="let tag of metadata.tags"># {{tag.name}} </div>
+              </div>
+              <ng-template #noTag>
+                -
+              </ng-template>
+            </td>
+          </tr>
+          <tr>
+            <th>
+              Data Popularity
+            </th>
+            <td>
+              <div class="ddp-ui-popularity">
+                <em class="ddp-icon-popularity"></em>
+                <div class="ddp-bar">
+                  <span [style.width]="metadata.popularity ? metadata.popularity + '%' : 0 + '%'"></span>
+                </div>
+                <div class="ddp-wrap-hover-info">
+                  <!-- popup -->
+                  <div class="ddp-box-layout4 ddp-popularity">
+                    <div class="ddp-data-title">
+                      What is data popularity?
+                    </div>
+                    <div class="ddp-data-det">
+                      The data popularity indicates how much the data is being
+                      used. The list below is a set of criteria for measuring
+                      popularity.
+                      <ul>
+                        <li>• How many dashboards are connected?
+                        </li><li>• how many times was it joined with other data? </li>
+                        <li>• how many columns were used on the chart shelves? </li>
+                      </ul>
+                    </div>
+
+                  </div>
+                  <!-- //popup -->
+
+                  <em class="ddp-icon-info3"></em>
+                </div>
+
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <th>Catalogs</th>
+            <td>
+              <ng-container *ngIf="metadata.catalogs.length > 0; else noCatalog">
+                <div class="ddp-ui-catalogs ddp-type" *ngFor="let catalog of metadata.catalogs | slice:0:2">
+                  <div class="ddp-box-catalogs">
+                    <span *ngFor="let hierarchy of catalog['hierarchies']">{{hierarchy.name}}</span>
+                  </div>
+                </div>
+                <!-- more -->
+                <!-- 클릭시 ddp-selected 추가 -->
+                <div class="ddp-ui-catalog-more" [class.ddp-selected]="isShowMoreCatalogs">
+                  <a href="javascript:"
+                     class="ddp-link-more"
+                     *ngIf="metadata.catalogs.length > 2"
+                     (click)="isShowMoreCatalogs = true">
+                    More
+                  </a>
+
+                  <!-- popup -->
+                  <div class="ddp-box-layout4 type-info">
+                    <a href="javascript:" class="ddp-icon-close"
+                       (click)="$event.stopImmediatePropagation(); isShowMoreCatalogs = false">
+                    </a>
+                    <div class="ddp-data-title">
+                      Catalogs
+                    </div>
+                    <div class="ddp-data-det ddp-scroll">
+                      <div class="ddp-ui-catalogs" *ngFor="let catalog of metadata.catalogs | slice:3">
+                        <div class="ddp-box-catalogs ddp-list">
+                          <span *ngFor="let hierarchy of catalog['hierarchies']">{{hierarchy.name}}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                  <!-- //popup -->
+                </div>
+                <!-- //more -->
+              </ng-container>
+              <ng-template #noCatalog>
+                -
+              </ng-template>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- detail view -->
+      <div class="ddp-detail-view ddp-right">
+        <!-- detail -->
+        <div class="ddp-detail">
+          <div class="ddp-label">Top User</div>
+          <div class="ddp-data-det">
+            <!-- user -->
+            <ul class="ddp-list-user">
+              <li>
+                <div class="ddp-box-user">
+                  <div class="ddp-data-photo">
+                    <img src="../images/img_profile.png">
+                  </div>
+                  <div class="ddp-wrap-data">
+
+                    <div class="ddp-data-name">
+                      <em class="ddp-icon-control-fav ddp-fright"></em>
+                      <span class="ddp-txt-name" title="JoJohnJohnJohnJohnJohJoJohnJohnJohnJohnJohnJohnhnnJohnhn">JoJohnJohnJohnJohnJohJoJohnJohnJohnJohnJohnJohnhnnJohnhn Sm</span>
+                    </div>
+                    <div class="ddp-data-info" title="Information > DescriptionInformation > Description > Description">Information &gt; DescriptionInformation &gt; Description &gt; Description</div>
+                    <div class="ddp-data-date">yyyy-mm-dd hh:mm:ss</div>
+                  </div>
+
+                </div>
+              </li>
+              <li>
+                <div class="ddp-box-user">
+                  <div class="ddp-data-photo">
+                    <img src="../images/img_profile.png">
+                  </div>
+                  <div class="ddp-wrap-data">
+                    <div class="ddp-data-name">John Sm <em class="ddp-icon-control-fav ddp-selected"></em></div>
+                    <div class="ddp-data-info">Information &gt; Description</div>
+                    <div class="ddp-data-date">yyyy-mm-dd hh:mm:ss</div>
+                  </div>
+
+                </div>
+              </li>
+              <li>
+                <div class="ddp-box-user">
+                  <div class="ddp-data-photo">
+                    <img src="../images/img_profile.png">
+                  </div>
+                  <div class="ddp-wrap-data">
+                    <div class="ddp-data-name">John Smith <em class="ddp-icon-control-fav ddp-selected"></em></div>
+                    <div class="ddp-data-info">Information &gt; Description</div>
+                    <div class="ddp-data-date">yyyy-mm-dd hh:mm:ss</div>
+                  </div>
+
+                </div>
+              </li>
+              <li>
+                <div class="ddp-box-user">
+                  <div class="ddp-data-photo">
+                    <img src="../images/img_profile.png">
+                  </div>
+                  <div class="ddp-wrap-data">
+                    <div class="ddp-data-name">John Smith <em class="ddp-icon-control-fav ddp-selected"></em></div>
+                    <div class="ddp-data-info">Information &gt; Description</div>
+                    <div class="ddp-data-date">yyyy-mm-dd hh:mm:ss</div>
+                  </div>
+
+                </div>
+              </li>
+            </ul>
+            <!-- //user -->
+          </div>
+        </div>
+        <!-- //detail -->
+        <!-- detail -->
+        <div class="ddp-detail">
+          <div class="ddp-label">Recently Updated</div>
+          <div class="ddp-data-det">
+            <table class="ddp-table-detail4">
+              <colgroup>
+                <col width="*">
+                <col width="20%">
+                <col width="20%">
+              </colgroup>
+              <thead>
+              <tr>
+                <th>Updated contents</th>
+                <th>Updated at</th>
+                <th>User</th>
+
+              </tr>
+              </thead>
+              <tbody>
+
+              <tr>
+                <td><span class="ddp-txt-long" title="InformatiInformationInformationInformationInformationon">InformatiInformationInformationInfoInformatiInformationInformationInformationInformationonrmationInformationon &gt; Description1 &gt; Description3 &gt; Description6</span></td>
+                <td>yyyy-mm-dd hh:mm:ss</td>
+                <td>
+                  <div class="ddp-txt-long">
+                    <em class="ddp-icon-control-fav ddp-fright"></em>
+                    <span class="ddp-txt-name" title="TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne">TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne</span>
+                  </div>
+                </td>
+              </tr><tr>
+                <td><span class="ddp-txt-long" title="InformatiInformationInformationInformationInformationon">InformatiInformationInformationInfoInformatiInformationInformationInformationInformationonrmationInformationon &gt; Description1 &gt; Description3 &gt; Description6</span></td>
+                <td>yyyy-mm-dd hh:mm:ss</td>
+                <td>
+                  <div class="ddp-txt-long">
+                    <em class="ddp-icon-control-fav ddp-fright"></em>
+                    <span class="ddp-txt-name" title="TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne">TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="ddp-txt-long" title="InformatiInionInfoInfo">InformatiInionInfoInfo</span></td>
+                <td>yyyy-mm-dd hh:mm:ss</td>
+                <td>
+                  <div class="ddp-txt-long">
+                    <em class="ddp-icon-control-fav ddp-fright ddp-selected"></em>
+                    <span class="ddp-txt-name" title="TammarneyTamTamm">TammarneyTamTamm</span>
+                  </div>
+                </td>
+              </tr>
+              </tbody>
+
+            </table>
+          </div>
+        </div>
+        <!-- //detail -->
+      </div>
+      <!-- //detail view -->
+    </div>
+    <!-- detail -->
+    <div class="ddp-detail-view ddp-type " style="display:;">
+      <div class="ddp-detail">
+        <div class="ddp-label">Recently Used in Workbook
+          <a href="javascript:" class="ddp-link ddp-fright" (click)="onClickSeeAllRecentQueries()">See all lists &gt;</a>
+
+        </div>
+
+
+        <div class="ddp-data-det">
+          <ul class="ddp-list-graph ddp-bottom ddp-cursor">
+            <li>
+              <!-- 그래프 -->
+              <div class="ddp-box-image">
+
+              </div>
+              <!-- //그래프 -->
+              <div class="ddp-data-graph">
+                <span class="ddp-txt-det">New Dashboard 01</span>
+              </div>
+            </li>
+            <li>
+              <!-- 그래프 -->
+              <div class="ddp-box-image">
+
+              </div>
+              <!-- //그래프 -->
+              <div class="ddp-data-graph">
+                <span class="ddp-txt-det">New Dashboard 01</span>
+              </div>
+            </li>
+            <li>
+              <!-- 그래프 -->
+              <div class="ddp-box-image">
+
+              </div>
+              <!-- //그래프 -->
+              <div class="ddp-data-graph">
+                <span class="ddp-txt-det">New Dashboard 01</span>
+              </div>
+            </li>
+          </ul>
+
+          <table class="ddp-table-detail4">
+            <colgroup>
+              <col width="*">
+              <col width="20%">
+              <col width="20%">
+            </colgroup>
+            <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>User</th>
+              <th>Result</th>
+              <th>Query</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td>yyyy-mm-dd hh:mm:ss</td>
+              <td>SUMMARY</td>
+              <td>John Smith</td>
+              <td> <span class="ddp-data-state ddp-success">Success</span></td>
+              <td>
+                <div class="ddp-txt-long ddp-type-button">
+                  <a href="javascript:" class="ddp-btn-selection ddp-fright">Copy</a>
+                  <span class="ddp-txt-name" title="TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne">TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne</span>
+                </div>
+              </td>
+            </tr>
+
+            </tbody>
+
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- //detail -->
+
+  </div>
+</div>

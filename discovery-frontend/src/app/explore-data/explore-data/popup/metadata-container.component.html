@@ -1,0 +1,85 @@
+<div class="ddp-pop-meta-detail" style="z-index: 125" *ngIf="metadata">
+  <!-- popup -->
+  <div class="ddp-box-meta">
+    <a href="javascript:" class="ddp-btn-close" (click)="onClickCloseBtn()"></a>
+    <!-- top -->
+    <div class="ddp-pop-top">
+      <!-- title -->
+      <div class="ddp-ui-title">
+        <span class="ddp-box-tag-value ddp-datasource">{{metadata.sourceType}}</span>
+        <span class="ddp-label-title">{{metadata.name}}</span>
+        <!-- info -->
+        <!-- 클릭시 ddp-selected 추가 -->
+        <div class="ddp-wrap-info" (click)="onClickInfo()" [class.ddp-selected]="isShowInfo">
+          <em class="ddp-icon-info"></em>
+          <div class="ddp-box-layout4 type-info" *ngIf="isShowInfo">
+            <a href="javascript:" class="ddp-icon-close" (click)="$event.stopImmediatePropagation(); isShowInfo = false"></a>
+            <div class="ddp-data-title">
+              Information
+            </div>
+            <div class="ddp-data-det">
+              <table class="ddp-table-pop">
+                <colgroup>
+                  <col width="130px">
+                  <col width="">
+                </colgroup>
+                <tbody>
+                  <tr *ngFor="let info of infoList">
+                    <th>{{info.label}}</th>
+                    <td>{{info.value}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+        <!-- //info -->
+        <!--<em class="ddp-icon-control-fav ddp-selected"></em>-->
+        <div class="ddp-data-name">
+          by <span class="ddp-txt-name">{{metadata.createdBy.fullName}}</span>
+        </div>
+      </div>
+      <!-- //title -->
+      <!-- right -->
+      <div class="ddp-right">
+        <a href="javascript:" class="ddp-btn-pop" (click)="onClickEditData()" *ngIf="isManager()">Edit data</a>
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-black"><em class="ddp-icon-add2"></em>Make workbook</a>
+      </div>
+      <!-- //right -->
+
+    </div>
+    <!-- //top -->
+
+    <div class="ddp-detail-contents">
+      <!-- tab -->
+      <div class="ddp-wrap-tab">
+        <ul class="ddp-ui-tab ddp-clear">
+          <li *ngFor="let tab of tabs"
+              [class.ddp-selected]="selectedTab === tab.id"
+              (click)="onClickTab(tab)">
+            <a href="javascript:">{{tab.value}}</a>
+          </li>
+        </ul>
+      </div>
+      <!-- //tab -->
+
+      <explore-metadata-overview
+        *ngIf="selectedTab === 0"
+        [metadataId]="metadata.id" (openRecentQuery)="onOpenRecentQuery()">
+      </explore-metadata-overview>
+
+      <explore-metadata-columns
+        *ngIf="selectedTab === 1"
+        [metadataId]="metadata.id">
+      </explore-metadata-columns>
+
+      <explore-metadata-sample-data *ngIf="selectedTab === 2"></explore-metadata-sample-data>
+    </div>
+
+  </div>
+  <!-- //popup -->
+
+</div>
+
+<ng-template #recentQueriesContainer></ng-template>

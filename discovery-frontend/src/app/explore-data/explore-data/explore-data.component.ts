@@ -14,6 +14,8 @@
 
 import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
 import {AbstractComponent} from '../../common/component/abstract.component';
+import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
+import {Metadata} from "../../domain/meta-data-management/metadata";
 
 @Component({
   selector: 'app-exploredata-view',
@@ -32,7 +34,9 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public metadataList;
 
+  public selectedMetadata: Metadata;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -40,7 +44,8 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   // 생성자
   constructor(
     protected element: ElementRef,
-    protected injector: Injector) {
+    protected injector: Injector,
+    private _metadataService: MetadataService) {
     super(element, injector);
   }
 
@@ -51,9 +56,11 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   // Init
   public ngOnInit() {
     super.ngOnInit();
+    this.getMetadataList();
   }
 
   public ngAfterViewInit() {
+    this.loadingHide();
     super.ngAfterViewInit();
     $( '.ddp-layout-contents' ).addClass( 'ddp-layout-meta' )
   }
@@ -62,6 +69,25 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   public ngOnDestroy() {
     super.ngOnDestroy();
     $( '.ddp-layout-contents' ).removeClass( 'ddp-layout-meta' )
+  }
+
+  public getMetadataList() {
+    const params = {
+      page: this.page.page,
+      size: this.page.size,
+    };
+    this._metadataService.getMetaDataList(params).then((result) => {
+      this.metadataList = result._embedded.metadatas;
+      console.info('result => ', this.metadataList);
+    })
+  }
+
+  public onClickMetadata(metadata: Metadata) {
+    this.selectedMetadata = metadata
+  }
+
+  public onCloseMetadataContainer() {
+    this.selectedMetadata = null;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
