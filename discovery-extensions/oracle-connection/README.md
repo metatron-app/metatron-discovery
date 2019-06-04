@@ -1,3 +1,4 @@
+
 <img title="logo-metatron" src="https://user-images.githubusercontent.com/6300003/44013820-f7647c96-9f02-11e8-8066-1c97f8b1662c.png" alt="metatron-discovery-logo" width="400px">
 
 Configure Oracle maven Dependencies
@@ -19,7 +20,7 @@ Method 2. Adding a jar file to the local maven repository
 ----------------------------------
 Download from Oracle Technology Network (registration is required) and then install the downloaded jars into your local Maven repository.
 
-Download the ojdbc8.jar file from the link below. (oarcle homepage registration required)
+Download the ojdbc8.jar file from the link below. (oracle homepage registration required)
 
 https://www.oracle.com/technetwork/database/features/jdbc/jdbc-ucp-122-3110062.html
 
