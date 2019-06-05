@@ -47,6 +47,8 @@
                                      [selectedArray]="selectedItems"
                                      [viewKey]="'name'"
                                      [mockup]="isEditMode"
+                                     [filter]="filter"
+                                     [dashboard]="dashboard"
                                      (onSelected)="onSelectInclude($event)"
                                      (changeDisplayOptions)="toggleOptionsSelectComp($event)">
       </component-filter-multi-select>
@@ -58,6 +60,8 @@
                                [selectedItem]="selectedItems ? selectedItems[0] : null"
                                [viewKey]="'name'"
                                [mockup]="isEditMode"
+                               [filter]="filter"
+                               [dashboard]="dashboard"
                                (onSelected)="onSelectInclude($event)"
                                (onCheckAll)="checkAllInclude()"
                                (changeDisplayOptions)="toggleOptionsSelectComp($event)">

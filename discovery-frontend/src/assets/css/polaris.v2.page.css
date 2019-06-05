@@ -1237,6 +1237,7 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 .ddp-area-boardside .ddp-ui-down-title2 {min-height:50px; margin:0 -10px 0 -17px; padding:0 10px 0 17px;cursor:move;}
 .ddp-area-boardside .ddp-box-down .ddp-wrap-divide {padding-top:0px;}
 .ddp-area-boardside .ddp-contents-divide.ddp-type {margin-top:-10px;}
+.ddp-area-boardside .ddp-contents-divide.ddp-type .search-all-message {color:#b7b9c2;}
 .ddp-area-boardside .ddp-ui-down-title2 .ddp-ui-buttons {position:relative; top:17px; float:right; background:none;}
 .ddp-area-boardside .ddp-ui-down-title2 .ddp-wrap-morebutton {display:inline-block;}
 .ddp-area-boardside .ddp-ui-down-title2 .ddp-ui-buttons .ddp-wrap-datalock,.ddp-area-boardside .ddp-ui-down-title2 .ddp-ui-buttons .ddp-wrap-datarecommend,
@@ -3757,6 +3758,7 @@ em[class*="ddp-bg-chart-"] {display:inline-block; position:absolute; top:50%; le
 .ddp-list-part .ddp-label-checkbox.ddp-check-full span.ddp-txt-checkbox {font-size:12px;}
 .ddp-list-part2 .ddp-label-checkbox.ddp-check-full span.ddp-txt-checkbox {font-size:12px;}
 .ddp-list-part .ddp-label-radio.ddp-check-full span.ddp-txt-radio {font-size:12px;}
+.ddp-list-part .ddp-btn-line {display:none; float:right; margin-left:4px; cursor: pointer;}
 .ddp-list-part2 .ddp-label-radio.ddp-check-full span.ddp-txt-radio {font-size:12px;}
 .ddp-wrap-option-checkbox {padding:3px 0;}
 .ddp-wrap-option-checkbox .ddp-label-type {line-height:29px; color:#d0d1d8;}
