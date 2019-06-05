@@ -18,9 +18,9 @@
   <!-- //닫기 버튼 -->
   <div class="ddp-icon-name">
     <div class="ddp-ui-name2 ddp-type3">
-      {{'msg.metadata.ui.create.main.title' | translate}} ({{'msg.storage.li.db' | translate}})
+      {{'msg.metadata.ui.create.main.title' | translate}} ({{'msg.storage.li.hive' | translate}})
       <span class="ddp-txt-info">{{'msg.metadata.ui.create.data.sub' | translate}}</span>
-      <em class="ddp-bg-order-line3-type2"></em>
+      <em class="ddp-bg-order-line2-type1"></em>
     </div>
   </div>
   <!-- contents in  -->
@@ -89,7 +89,7 @@
   <!-- //contents in  -->
   <!-- buttons -->
   <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="changeToPrevStep()">{{'msg.comm.btn.previous' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="onCancel()">{{'msg.comm.btn.cancl' | translate}}</a>
     <!-- disabled 시 ddp-disabled 추가 -->
     <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="changeToNextStep()">{{'msg.comm.btn.next' | translate}}</a>
   </div>

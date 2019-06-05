@@ -13,40 +13,51 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, Input, OnChanges, SimpleChanges, ViewChild} from "@angular/core";
+import {Component, ElementRef, Injector,ViewChild} from "@angular/core";
 import {GridComponent} from "../../../../common/component/grid/grid.component";
 import {GridOption} from "../../../../common/component/grid/grid.option";
 import {Field} from "../../../../domain/datasource/datasource";
 import {header, SlickGridHeader} from "../../../../common/component/grid/grid.header";
-import * as pixelWidth from 'string-pixel-width';
 import {AbstractComponent} from "../../../../common/component/abstract.component";
+import * as pixelWidth from 'string-pixel-width';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'schema-table-preview',
   templateUrl: 'schema-table-preview.component.html'
 })
-export class SchemaTablePreviewComponent extends AbstractComponent implements OnChanges {
+export class SchemaTablePreviewComponent extends AbstractComponent {
 
   @ViewChild(GridComponent)
   private readonly _gridComponent: GridComponent;
 
-  @Input() readonly selectedTable: string;
-
-  @Input() readonly data: {fields: Field[], data, totalRows: number, fileFormat?, partitionFields?};
-
+  selectedTable: string;
   hideGrid: boolean;
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes.data && changes.data.currentValue) {
-      this.hideGrid = true;
-      this._updateGrid(changes.data.currentValue.fields, changes.data.currentValue.data);
-    }
-  }
 
   // constructor
   constructor(protected element: ElementRef,
               protected injector: Injector) {
       super(element, injector);
+  }
+
+  /**
+   * Change table data
+   * @param {string} selectedTable
+   * @param data
+   */
+  changeTableData(selectedTable: string, data): void {
+    this.selectedTable = selectedTable;
+    this.hideGrid = true;
+    // if empty data
+    if (_.isNil(data)) {
+      // TODO error 메시지 표시할 경우
+    } else {
+      this._updateGrid(data.fields, data.data);
+    }
+  }
+
+  initialPreview(): void {
+    this.hideGrid = true;
   }
 
   /**

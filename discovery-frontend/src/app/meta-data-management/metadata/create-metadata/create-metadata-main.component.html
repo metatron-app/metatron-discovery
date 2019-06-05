@@ -42,7 +42,7 @@
   </div>
 </div>
 <!-- //select type -->
-<!-- step -->
+<!-- DB -->
 <create-metadata-db-connection *ngIf="step === CREATE_STEP.DB_CONNECTION"
                                [createData]="createData"
                                (changeStep)="changeStep($event)"
@@ -56,4 +56,15 @@
                              (changeStep)="changeStep($event)"
                              (cancel)="cancelCreate()"
                              (complete)="createCompleted()"></create-metadata-db-complete>
-<!-- //step -->
+<!-- //DB -->
+<!-- Staging -->
+<create-metadata-staging-select *ngIf="step === CREATE_STEP.STAGING_SELECT"
+                           [createData]="createData"
+                           (changeStep)="changeStep($event)"
+                           (cancel)="cancelCreate()"></create-metadata-staging-select>
+<create-metadata-staging-complete *ngIf="step === CREATE_STEP.STAGING_COMPLETE"
+                             [createData]="createData"
+                             (changeStep)="changeStep($event)"
+                             (cancel)="cancelCreate()"
+                             (complete)="createCompleted()"></create-metadata-staging-complete>
+<!-- //Staging -->

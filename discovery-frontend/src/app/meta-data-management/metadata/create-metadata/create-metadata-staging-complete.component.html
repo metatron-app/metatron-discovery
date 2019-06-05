@@ -18,9 +18,9 @@
   <!-- //닫기 버튼 -->
   <div class="ddp-icon-name">
     <div class="ddp-ui-name2 ddp-type3">
-      {{'msg.metadata.ui.create.main.title' | translate}} ({{'msg.storage.li.db' | translate}})
+      {{'msg.metadata.ui.create.main.title' | translate}} ({{'msg.storage.li.hive' | translate}})
       <span class="ddp-txt-info ddp-type">{{'msg.metadata.ui.create.complete.sub' | translate}}</span>
-      <em class="ddp-bg-order-line3-type3"></em>
+      <em class="ddp-bg-order-line2-type2"></em>
     </div>
   </div>
   <div class="ddp-type-contents-in ddp-sheet-resize">
@@ -40,58 +40,6 @@
               {{getDataType()}}
             </td>
           </tr>
-          <ng-container *ngIf="isEnableURL()">
-            <tr>
-              <th>
-                {{'msg.storage.ui.conn.url' | translate}}
-              </th>
-              <td>
-                {{getUrl()}}
-              </td>
-            </tr>
-          </ng-container>
-          <ng-container *ngIf="!isEnableURL()">
-            <tr>
-              <th>
-                {{'msg.comm.th.host' | translate }}
-              </th>
-              <td>
-               {{getHost()}}
-              </td>
-            </tr>
-            <tr>
-              <th>
-                {{'msg.comm.th.port' | translate}}
-              </th>
-              <td>
-               {{getPort()}}
-              </td>
-            </tr>
-            <tr *ngIf="isRequireCatalog()">
-              <th>
-                {{'msg.storage.th.catalog' | translate}}
-              </th>
-              <td>
-                {{getCatalog()}}
-              </td>
-            </tr>
-            <tr *ngIf="isRequireDatabase()">
-              <th>
-                {{'msg.storage.th.db_name' | translate}}
-              </th>
-              <td>
-                {{getDatabase()}}
-              </td>
-            </tr>
-            <tr *ngIf="isRequiredSid()">
-              <th>
-                {{'msg.storage.th.sid' | translate}}
-              </th>
-              <td>
-                {{getSid()}}
-              </td>
-            </tr>
-          </ng-container>
           <tr>
             <th>
               {{'msg.storage.ui.list.schema' | translate}}

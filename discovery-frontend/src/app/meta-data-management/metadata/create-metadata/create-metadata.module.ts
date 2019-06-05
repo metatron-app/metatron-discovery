@@ -10,6 +10,9 @@ import {SchemaSelectBoxComponent} from "./component/schema-select-box.component"
 import {SchemaTableListComponent} from "./component/schema-table-list.component";
 import {SchemaTablePreviewComponent} from "./component/schema-table-preview.component";
 import {CreateMetadataDbCompleteComponent} from "./create-metadata-db-complete.component";
+import {CreateMetadataStagingSelectComponent} from "./create-metadata-staging-select.component";
+import {CreateMetadataStagingCompleteComponent} from "./create-metadata-staging-complete.component";
+import {MetadataControlCompleteComponent} from "./component/metadata-control-complete.component";
 
 @NgModule({
   imports: [
@@ -21,13 +24,16 @@ import {CreateMetadataDbCompleteComponent} from "./create-metadata-db-complete.c
     // common
     ConnectionSelectBoxComponent,
     SchemaSelectBoxComponent,
+    SchemaTableListComponent,
+    SchemaTablePreviewComponent,
+    MetadataControlCompleteComponent,
     // create
     CreateMetadataMainComponent,
     CreateMetadataDbConnectionComponent,
     CreateMetadataDbSelectComponent,
     CreateMetadataDbCompleteComponent,
-    SchemaTableListComponent,
-    SchemaTablePreviewComponent
+    CreateMetadataStagingSelectComponent,
+    CreateMetadataStagingCompleteComponent
   ],
   exports: [
     CreateMetadataMainComponent

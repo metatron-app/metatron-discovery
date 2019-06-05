@@ -18,7 +18,6 @@ import {AbstractComponent} from "../../../common/component/abstract.component";
 import {MetadataConstant} from "../../metadata.constant";
 import {MetadataEntity} from "../metadata.entity";
 import {DataconnectionService} from "../../../dataconnection/service/dataconnection.service";
-import {ConnectionParam} from "../../../data-storage/service/data-connection-create.service";
 import * as _ from "lodash";
 import {isNullOrUndefined} from "util";
 import {SchemaTableListComponent} from "./component/schema-table-list.component";
@@ -26,10 +25,10 @@ import SchemaInfo = MetadataEntity.SchemaInfo;
 import {SchemaTablePreviewComponent} from "./component/schema-table-preview.component";
 
 @Component({
-  selector: 'create-metadata-db-select',
-  templateUrl: 'create-metadata-db-select.component.html'
+  selector: 'create-metadata-staging-select',
+  templateUrl: 'create-metadata-staging-select.component.html'
 })
-export class CreateMetadataDbSelectComponent extends AbstractComponent {
+export class CreateMetadataStagingSelectComponent extends AbstractComponent {
 
   @ViewChild(SchemaTableListComponent)
   private readonly _tableListComponent: SchemaTableListComponent;
@@ -96,18 +95,13 @@ export class CreateMetadataDbSelectComponent extends AbstractComponent {
     this._setTableDetailData();
   }
 
-  changeToPrevStep(): void {
-    this._setSchemaInfoInCreateData();
-    this.changeStep.emit(MetadataConstant.CreateStep.DB_CONNECTION);
-  }
-
   changeToNextStep(): void {
     if (this._isEnableNext()) {
       if (this.createData.isNotEmptySchemaInfo() && this._isChangedSchema()) {
         this.createData.removeCompleteInfo();
       }
       this._setSchemaInfoInCreateData();
-      this.changeStep.emit(MetadataConstant.CreateStep.DB_COMPLETE)
+      this.changeStep.emit(MetadataConstant.CreateStep.STAGING_COMPLETE)
     }
   }
 
@@ -127,7 +121,7 @@ export class CreateMetadataDbSelectComponent extends AbstractComponent {
     // loading show
     this.isLoading = true;
     // get database list
-    const sub = this.connectionService.getSchemaListWithCancel(this._getConnectionParams()).subscribe(
+    const sub = this.connectionService.getSchemaListForHiveWithCancel().subscribe(
       res => {
         this.schemaList = res['databases'];
         this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
@@ -145,7 +139,7 @@ export class CreateMetadataDbSelectComponent extends AbstractComponent {
   private _setTableList(): void {
     // loading show
     this.isLoading = true;
-    const sub = this.connectionService.getTableListWitchCancel(this._getConnectionParamsAddedDatabase()).subscribe(
+    const sub = this.connectionService.getTableListForHiveInMetadataWithCancel(this.selectedSchema).subscribe(
       res => {
         // set table list
         this.tableList = res['tables'];
@@ -165,7 +159,7 @@ export class CreateMetadataDbSelectComponent extends AbstractComponent {
     // loading show
     this.isLoading = true;
     // get detail data
-    const sub = this.connectionService.getTableDetailDataWithCancel(this._getConnectionParamsAddedTable()).subscribe(
+    const sub = this.connectionService.getTableDetailDataForHiveWithCancel( {type: 'TABLE', database: this.selectedSchema, query: this.selectedTable}).subscribe(
       res => {
         // METATRON-1144: 테이블조회시만 테이블 name을 제거하도록 변경
         res['data'] = this._getReplacedDataList(res['data']);
@@ -222,27 +216,6 @@ export class CreateMetadataDbSelectComponent extends AbstractComponent {
    */
   private _getReplacedObject(data: object) {
     return Object.assign({}, ...Object.keys(data).map(key => ({[this._sliceTableName(key)]: data[key]})));
-  }
-
-  /**
-   * Get database params
-   * @return {{connection: ConnectionParam}}
-   * @private
-   */
-  private _getConnectionParams(): {connection: ConnectionParam, type: string} {
-    return {connection: _.cloneDeep(this.createData.connectionInfo.connection), type: 'TABLE'};
-  }
-
-  private _getConnectionParamsAddedDatabase() {
-    const result: {connection, database?} = this._getConnectionParams();
-    result.database = this.selectedSchema;
-    return result;
-  }
-
-  private _getConnectionParamsAddedTable() {
-    const result: {connection, database?, query?} = this._getConnectionParamsAddedDatabase();
-    result.query = this.selectedTable;
-    return result;
   }
 
   private _setSchemaInfoInCreateData(): void {

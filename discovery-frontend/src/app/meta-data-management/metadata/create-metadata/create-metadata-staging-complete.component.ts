@@ -19,15 +19,14 @@ import {AbstractComponent} from "../../../common/component/abstract.component";
 import {MetadataEntity} from "../metadata.entity";
 import {MetadataService} from "../service/metadata.service";
 import * as _ from 'lodash';
-import {AuthenticationType} from "../../../domain/dataconnection/dataconnection";
 import {Alert} from "../../../common/util/alert.util";
 import {MetadataControlCompleteComponent} from "./component/metadata-control-complete.component";
 
 @Component({
-  selector: 'create-metadata-db-complete',
-  templateUrl: 'create-metadata-db-complete.component.html'
+  selector: 'create-metadata-staging-complete',
+  templateUrl: 'create-metadata-staging-complete.component.html'
 })
-export class CreateMetadataDbCompleteComponent extends AbstractComponent {
+export class CreateMetadataStagingCompleteComponent extends AbstractComponent {
 
   @ViewChild(MetadataControlCompleteComponent)
   private readonly _metadataControlCompleteComponent: MetadataControlCompleteComponent;
@@ -64,48 +63,8 @@ export class CreateMetadataDbCompleteComponent extends AbstractComponent {
     }
   }
 
-  isEnableURL(): boolean {
-    return !_.isNil(this.getUrl());
-  }
-
-  isRequiredSid(): boolean {
-    return !_.isNil(this.getSid());
-  }
-
-  isRequireDatabase(): boolean {
-    return !_.isNil(this.getDatabase());
-  }
-
-  isRequireCatalog(): boolean {
-    return !_.isNil(this.getCatalog());
-  }
-
   getDataType() {
-    return this._getConnection().implementor;
-  }
-
-  getHost() {
-    return this._getConnection().hostname
-  }
-
-  getPort() {
-    return this._getConnection().port;
-  }
-
-  getUrl() {
-    return this._getConnection().url;
-  }
-
-  getDatabase() {
-    return this._getConnection().database;
-  }
-
-  getSid() {
-    return this._getConnection().sid;
-  }
-
-  getCatalog() {
-    return this._getConnection().catalog;
+    return this.translateService.instant('msg.storage.li.hive');
   }
 
   getSchema() {
@@ -114,13 +73,8 @@ export class CreateMetadataDbCompleteComponent extends AbstractComponent {
 
   changeToPrevStep(): void {
     this._setCompleteInfoInCreateData();
-    this.changeStep.emit(MetadataConstant.CreateStep.DB_SELECT);
+    this.changeStep.emit(MetadataConstant.CreateStep.STAGING_SELECT);
   }
-
-  private _getConnection() {
-    return this.createData.connectionInfo.connection;
-  }
-
 
   /**
    * get initial searchable flag
@@ -128,7 +82,7 @@ export class CreateMetadataDbCompleteComponent extends AbstractComponent {
    * @private
    */
   private _getInitSearchableInExploreData(): boolean {
-    return this.createData.connectionInfo.connectionDetail.published === false && this.createData.connectionInfo.connectionDetail.authenticationType === AuthenticationType.DIALOG ? false : true;
+    return true;
   }
 
   /**
@@ -138,6 +92,7 @@ export class CreateMetadataDbCompleteComponent extends AbstractComponent {
   private _setCompleteInfoInCreateData(): void {
     this.createData.completeInfo = new MetadataEntity.CompleteInfo(this._metadataControlCompleteComponent.metadataList, this._metadataControlCompleteComponent.isSearchableInExploreData);
   }
+
 
   /**
    * Create metadata
