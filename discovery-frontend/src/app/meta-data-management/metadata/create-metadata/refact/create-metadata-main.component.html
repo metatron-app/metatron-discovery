@@ -33,13 +33,13 @@
                                [createData]="createData"
                                (changeStep)="changeStep($event)"
                                (cancel)="cancelCreate()"></create-metadata-db-connection>
-<!--<create-metadata-db-select *ngIf="step === CREATE_STEP.DB_SELECT"-->
-<!--                           [createData]="createData"-->
-<!--                           (changeStep)="changeStep($event)"-->
-<!--                           (cancel)="cancelCreate()"></create-metadata-db-select>-->
-<!--<create-metadata-db-complete *ngIf="step === CREATE_STEP.DB_COMPLETE"-->
-<!--                             [createData]="createData"-->
-<!--                             (changeStep)="changeStep($event)"-->
-<!--                             (cancel)="cancelCreate()"-->
-<!--                             (complete)="createCompleted()"></create-metadata-db-complete>-->
+<create-metadata-db-select *ngIf="step === CREATE_STEP.DB_SELECT"
+                           [createData]="createData"
+                           (changeStep)="changeStep($event)"
+                           (cancel)="cancelCreate()"></create-metadata-db-select>
+<create-metadata-db-complete *ngIf="step === CREATE_STEP.DB_COMPLETE"
+                             [createData]="createData"
+                             (changeStep)="changeStep($event)"
+                             (cancel)="cancelCreate()"
+                             (complete)="createCompleted()"></create-metadata-db-complete>
 <!-- //step -->

@@ -12,14 +12,14 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2">
+<div class="ddp-type-contents ddp-resize2 ddp-type2 popup-datasource">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="onCancel()"></a>
   <!-- //닫기 버튼 -->
   <div class="ddp-icon-name">
     <div class="ddp-ui-name2 ddp-type3">
-      Create metadata (Database)
-      <span class="ddp-txt-info">Please set data connection</span>
+      {{'msg.metadata.ui.create.main.title' | translate}} ({{'msg.storage.li.db' | translate}})
+      <span class="ddp-txt-info" >{{'msg.metadata.ui.create.connection.sub' | translate}}</span>
       <em class="ddp-bg-order-line3-type"></em>
     </div>
   </div>
@@ -29,19 +29,22 @@
     <div class="ddp-ui-dbconnect">
       <div class="ddp-edit-setting ddp-type">
         <!-- preset box -->
-        <div class="ddp-wrap-edit3 ddp-type ddp-mgt0">
+        <div class="ddp-wrap-edit3 ddp-type">
           <label class="ddp-label-type ddp-bold ">{{'msg.storage.ui.db.connection' | translate}}</label>
           <!-- edit option -->
           <div class="ddp-ui-edit-option ">
-            <connection-select-box
-              [connectionList]="connectionPresetList"
-              [selectedConnection]="selectedConnectionPreset"
-              [isEnableWindowResizeAutoClose]="true"
-              [isDisableSelect]="isEmptyConnectionPresetList()"
-              [pageNum]="pageResult.number"
-              (changedConnection)="onSelectedConnectionPreset($event)"
-              (scrolledList)="setConnectionPresetList($event)">
-            </connection-select-box>
+            <div class="ddp-type-form ddp-clear">
+              <connection-select-box
+                [connectionList]="connectionPresetList"
+                [selectedConnection]="selectedConnectionPreset"
+                [isEnableWindowResizeAutoClose]="true"
+                [isDisableSelect]="isEmptyConnectionPresetList()"
+                [pageNum]="pageResult.number"
+                (changedConnection)="onSelectedConnectionPreset($event)"
+                (scrolledList)="setConnectionPresetList($event)">
+              </connection-select-box>
+              <a href="javascript:" class="ddp-btn-pop ddp-bg-black2" (click)="goToCreateConnection()" *ngIf="isEmptyConnectionPresetList()"> {{'msg.metadata.btn.create.connection.link.preset' | translate}} </a>
+            </div>
           </div>
           <!-- //edit option -->
         </div>

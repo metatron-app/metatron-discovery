@@ -1,0 +1,280 @@
+<div class="ddp-type-contents ddp-resize2 ddp-type2 popup-prep-create-complete popup-prep-create">
+  <!-- 닫기 버튼 -->
+  <a href="javascript:" class="ddp-btn-close" (click)="onCancel()"></a>
+  <!-- //닫기 버튼 -->
+  <div class="ddp-icon-name">
+    <div class="ddp-ui-name2 ddp-type3">
+      {{'msg.metadata.ui.create.main.title' | translate}} ({{'msg.storage.li.db' | translate}})
+      <span class="ddp-txt-info ddp-type">{{'msg.metadata.ui.create.complete.sub' | translate}}</span>
+      <em class="ddp-bg-order-line3-type3"></em>
+    </div>
+  </div>
+  <div class="ddp-type-contents-in ddp-sheet-resize">
+    <div class="ddp-box-popupcontents ddp-wrap-file-create ddp-flex">
+      <div class="ddp-wrap-boxtype ddp-flex-column">
+        <table class="ddp-wrap-boxdata">
+          <colgroup>
+            <col width="120px">
+            <col width="*">
+          </colgroup>
+          <tbody>
+          <tr>
+            <th>
+              {{'msg.comm.th.type' | translate}}
+            </th>
+            <td>
+              {{getDataType()}}
+            </td>
+          </tr>
+          <ng-container *ngIf="isEnableURL()">
+            <tr>
+              <th>
+                {{'msg.storage.ui.conn.url' | translate}}
+              </th>
+              <td>
+                {{getUrl()}}
+              </td>
+            </tr>
+          </ng-container>
+          <ng-container *ngIf="!isEnableURL()">
+            <tr>
+              <th>
+                {{'msg.comm.th.host' | translate }}
+              </th>
+              <td>
+               {{getHost()}}
+              </td>
+            </tr>
+            <tr>
+              <th>
+                {{'msg.comm.th.port' | translate}}
+              </th>
+              <td>
+               {{getPort()}}
+              </td>
+            </tr>
+            <tr *ngIf="isRequireCatalog()">
+              <th>
+                {{'msg.storage.th.catalog' | translate}}
+              </th>
+              <td>
+                {{getCatalog()}}
+              </td>
+            </tr>
+            <tr *ngIf="isRequireDatabase()">
+              <th>
+                {{'msg.storage.th.db_name' | translate}}
+              </th>
+              <td>
+                {{getDatabase()}}
+              </td>
+            </tr>
+            <tr *ngIf="isRequiredSid()">
+              <th>
+                {{'msg.storage.th.sid' | translate}}
+              </th>
+              <td>
+                {{getSid()}}
+              </td>
+            </tr>
+          </ng-container>
+          <tr>
+            <th>
+              {{'msg.storage.ui.list.schema' | translate}}
+            </th>
+            <td>
+              {{getSchema()}}
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <!--  TODO component -->
+      <div class="ddp-ui-sheet-list ddp-flex-column">
+        <table class="ddp-table-sheet">
+          <colgroup>
+            <col width="250px">
+            <col width="230px">
+            <col width="*">
+          </colgroup>
+          <thead>
+          <tr>
+            <th>Source</th>
+            <th>Dataset name</th>
+            <th>Description</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td>
+              <em class="ddp-icon-svg">
+                <svg class="icon-db-custom">
+                  <path class="st0" d="M20.7,5.8l-7.2-3.9c-0.8-0.5-1.8-0.5-2.7,0l-7.2,4C2.6,6.3,2,7.2,2,8.2v7.7c0,1,0.5,1.9,1.4,2.4l7.2,3.9
+                        c0.8,0.5,1.8,0.5,2.7,0l7.2-4c0.9-0.5,1.4-1.4,1.4-2.4V8.1C22.1,7.2,21.5,6.2,20.7,5.8z M16.5,14.3c-0.3,1-0.8,1.9-1.6,2.4
+                        c-0.8,0.6-1.7,0.8-2.8,0.8c-1,0-1.8-0.2-2.5-0.7c-0.7-0.4-1.1-0.9-1.5-1.4c-0.1-0.2-0.2-0.3-0.2-0.5c-0.1-0.2-0.1-0.4-0.2-0.6
+                        c-0.1-0.4-0.1-1.3-0.1-2.5c0-1.3,0-2.1,0.1-2.5c0.2-0.4,0.3-0.7,0.5-1c0.3-0.5,0.8-1,1.4-1.4C10.2,6.6,11,6.4,12,6.4
+                        c1.2,0,2.2,0.3,3,1c0.8,0.6,1.2,1.4,1.4,2.4l0.1,0.3h-2.5V9.8c-0.1-0.4-0.4-0.7-0.7-1C13,8.6,12.5,8.4,12,8.4
+                        c-0.4,0-0.7,0.1-0.9,0.2c-0.3,0.1-0.5,0.3-0.6,0.5c-0.2,0.2-0.3,0.5-0.4,0.8C10,10.3,9.9,11,9.9,12s0,1.7,0.1,2.1
+                        c0.1,0.3,0.2,0.6,0.4,0.8c0.2,0.2,0.4,0.4,0.6,0.5c0.3,0.1,0.6,0.2,0.9,0.2c0.9,0,1.5-0.4,2-1.3l0.1-0.2h2.4V14.3z"></path>
+                </svg>
+              </em>
+              DatasDatasoDatasoDatasoDatasoDatasoDatasoDatasoDatasoo
+            </td>
+            <td>
+              <div class="ddp-sheet-form">
+                <input type="text" class="ddp-input-typebasic" placeholder="text">
+                <span class="ddp-data-error"> Invalid Connect</span>
+              </div>
+            </td>
+            <td>
+              <div class="ddp-sheet-form">
+                <div class="ddp-textarea-resize">
+                  <textarea  placeholder="설명을 입력"></textarea>
+                </div>
+                <span class="ddp-data-error"> Invalid Connect</span>
+              </div>
+
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <em class="ddp-icon-flow-csv"></em>
+              Datasourcename 1
+            </td>
+            <td>
+              <div class="ddp-sheet-form">
+                <input type="text" class="ddp-input-typebasic" placeholder="text">
+                <span class="ddp-data-error" style="display:none;"> Invalid Connect</span>
+              </div>
+            </td>
+            <td>
+              <div class="ddp-sheet-form">
+                <div class="ddp-textarea-resize">
+                  <textarea  placeholder="설명을 입력"></textarea>
+                </div>
+                <span class="ddp-data-error" style="display:none;"> Invalid Connect</span>
+              </div>
+
+            </td>
+            <script>
+              $(document).ready(function() {
+                $('.ddp-textarea-resize').on( 'keyup', 'textarea', function (){
+                  $(this).css('height', '28px');
+                  $(this).height( this.scrollHeight-8 );
+                });
+                $('.ddp-textarea-resize').find( 'textarea' ).keyup();
+              });
+            </script>
+          </tr>
+          <tr>
+            <td>
+              <em class="ddp-icon-flow-xlsx"></em>
+              Datasourcename 1
+            </td>
+            <td>
+              <div class="ddp-sheet-form">
+                <input type="text" class="ddp-input-typebasic" placeholder="text">
+                <span class="ddp-data-error" style="display:none;"> Invalid Connect</span>
+              </div>
+            </td>
+            <td>
+              <div class="ddp-sheet-form">
+                <div class="ddp-textarea-resize">
+                  <textarea  placeholder="설명을 입력"></textarea>
+                </div>
+                <span class="ddp-data-error" style="display:none;"> Invalid Connect</span>
+              </div>
+
+            </td>
+            <script>
+              $(document).ready(function() {
+                $('.ddp-textarea-resize').on( 'keyup', 'textarea', function (){
+                  $(this).css('height', '28px');
+                  $(this).height( this.scrollHeight-8 );
+                });
+                $('.ddp-textarea-resize').find( 'textarea' ).keyup();
+              });
+            </script>
+          </tr>
+          <tr>
+            <td>
+              <em class="ddp-icon-flow-xls"></em>
+              Datasourcename 1
+            </td>
+            <td>
+              <div class="ddp-sheet-form">
+                <input type="text" class="ddp-input-typebasic" placeholder="text">
+                <span class="ddp-data-error" style="display:none;"> Invalid Connect</span>
+              </div>
+            </td>
+            <td>
+              <div class="ddp-sheet-form">
+                <div class="ddp-textarea-resize">
+                  <textarea  placeholder="설명을 입력"></textarea>
+                </div>
+                <span class="ddp-data-error" style="display:none;"> Invalid Connect</span>
+              </div>
+
+            </td>
+            <script>
+              $(document).ready(function() {
+                $('.ddp-textarea-resize').on( 'keyup', 'textarea', function (){
+                  $(this).css('height', '28px');
+                  $(this).height( this.scrollHeight-8 );
+                });
+                $('.ddp-textarea-resize').find( 'textarea' ).keyup();
+              });
+            </script>
+          </tr>
+          <tr>
+            <td>
+              <em class="ddp-icon-flow-json"></em>
+              Datasourcename 1
+            </td>
+            <td>
+              <div class="ddp-sheet-form">
+                <input type="text" class="ddp-input-typebasic" placeholder="text">
+                <span class="ddp-data-error" style="display:none;"> Invalid Connect</span>
+              </div>
+            </td>
+            <td>
+              <div class="ddp-sheet-form">
+                <div class="ddp-textarea-resize">
+                  <textarea  placeholder="">설설명을설명을설명을설명을설명을설명을설명을설명을설명을설명을설명을설명을설명을설명을설명을설명을설명을설명을설명을설명을설명을설명을설명을설명을설명을설명을설명을설명을설명을명을 입력</textarea>
+                </div>
+                <span class="ddp-data-error" style="display:none;"> Invalid Connect</span>
+              </div>
+
+            </td>
+            <script>
+              $(document).ready(function() {
+                $('.ddp-textarea-resize').on( 'keyup', 'textarea', function (){
+                  $(this).css('height', '28px');
+                  $(this).height( this.scrollHeight-8 );
+                });
+                $('.ddp-textarea-resize').find( 'textarea' ).keyup();
+              });
+            </script>
+          </tr>
+          </tbody>
+        </table>
+
+      </div>
+      <div class="ddp-data-check">
+        <div class="ddp-label-type">Searchable in Explore Data</div>
+        <div class="ddp-checkbox-slide ddp-checkbox-automatic2 ">
+          <input type="checkbox" value="None" id="check2" name="check">
+          <label for="check2"><span class="ddp-slide"></span></label>
+        </div>
+      </div>
+      <!--  TODO component -->
+    </div>
+  </div>
+  <!-- buttons -->
+  <div class="ddp-ui-buttons">
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="changeToPrevStep()">{{'msg.comm.btn.previous' | translate}}</a>
+    <!-- disabled 시 ddp-disabled 추가 -->
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="onComplete()">{{'msg.comm.btn.done2' | translate}}</a>
+  </div>
+  <!-- //buttons -->
+</div>

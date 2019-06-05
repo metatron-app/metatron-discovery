@@ -86,6 +86,10 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
           // if exist search param in URL
           if (isExistSearchParams) {
             paramKeys.forEach((key) => {
+              // #1539 call by metadata create step
+              if (key === 'isCreateMode') {
+                this.onClickCreateConnection();
+              }
               if (key === 'size') {
                 this.page.size = params['size'];
               } else if (key === 'page') {

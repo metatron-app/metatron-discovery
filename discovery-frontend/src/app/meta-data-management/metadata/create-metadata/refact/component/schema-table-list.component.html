@@ -1,0 +1,22 @@
+<div class="ddp-ui-sheet-list">
+  <!-- selection -->
+  <div class="ddp-select-all">
+    <label class="ddp-label-checkbox" (change)="onCheckAllTable()">
+      <input type="checkbox"  [checked]="isCheckedAllTable()" [disabled]="isEmptyTableList()" >
+      <i class="ddp-icon-checkbox"></i>
+      <span class="ddp-txt-checkbox"><strong>{{checkedTableList.length}}</strong> {{'msg.storage.ui.sel.count' | translate}}</span>
+    </label>
+  </div>
+  <!-- //selection -->
+  <ul class="ddp-list-sheet">
+    <li *ngFor="let table of tableList" [class.ddp-selected]="isSelectedTable(table)" (click)="onChangeSelectedTable(table)">
+      <label class="ddp-label-checkbox" (change)="onChangeCheckTable(table)">
+        <input type="checkbox" [checked]="isCheckedTable(table)">
+        <i class="ddp-icon-checkbox"></i>
+      </label>
+      <span class="ddp-txt-checkbox">{{table}}
+<!--      <em class="ddp-icon-error2"></em>-->
+      </span>
+    </li>
+  </ul>
+</div>

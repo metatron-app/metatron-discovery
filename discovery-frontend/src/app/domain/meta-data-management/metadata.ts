@@ -43,6 +43,10 @@ export class Metadata extends AbstractHistoryEntity {
     return _.negate(_.isNil)(sourceType)
       && sourceType === SourceType.JDBC;
   }
+
+  public static isDisableMetadataNameCharacter(name: string) {
+    return (/^[!@#$%^*+=()~`\{\}\[\]\-\_\;\:\'\"\,\.\/\?\<\>\|\&\\]+$/gi).test(name);
+  }
 }
 
 export enum SourceType {

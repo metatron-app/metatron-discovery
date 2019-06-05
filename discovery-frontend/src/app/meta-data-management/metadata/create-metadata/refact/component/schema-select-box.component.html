@@ -1,0 +1,40 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-selectbox ddp-flow"
+     [class.ddp-disabled]="isDisableSelect"
+     [class.ddp-selected]="isShowList"
+     [class.ddp-type-search-select]="isEnableSearch"
+     (click)="onChangeShowList($event)" (clickOutside)="closeList()">
+  <!-- 선택시 자동 input display:block; -->
+  <input type="text" class="ddp-input-selectbox" placeholder="{{searchPlaceHolder}}" [ngClass]="SEARCH_INPUT_ELEMENT" *ngIf="isEnableSearch"
+         [ngModel]="searchKeyword" (ngModelChange)="onChangeSearchKeyword($event)">
+  <span class="ddp-txt-selectbox">{{isDisableSelect ? ('msg.metadata.ui.no.db.list' | translate) : (isEmptySelectedSchema() ? unselectedMessage : selectedSchema)}}</span>
+  <ul class="ddp-list-selectbox {{listOptionClass}}" infinite-scroll
+      [scrollWindow]="false"
+      [infiniteScrollDistance]="5"
+      [infiniteScrollThrottle]="150"
+      (scrolled)="onScrollList()">
+    <!-- 데이터가 없는경우 -->
+    <li *ngIf="isEmptySchemaList()">
+      <span class="ddp-noresult">{{'msg.comm.ui.no.rslt' | translate}}</span>
+    </li>
+    <!-- //데이터가 없는경우 -->
+    <!-- 데이터가 있는경우 -->
+    <li *ngFor="let schema of getSchemaList">
+      <a href="javascript:" (click)="onChangeSelectedSchema(schema);">{{schema}}</a>
+    </li>
+    <!-- //데이터가 있는경우 -->
+  </ul>
+</div>

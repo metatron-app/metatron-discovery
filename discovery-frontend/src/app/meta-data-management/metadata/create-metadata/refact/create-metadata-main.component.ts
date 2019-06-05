@@ -2,6 +2,8 @@ import {AbstractComponent} from "../../../../common/component/abstract.component
 import {Component, ElementRef, Injector} from "@angular/core";
 import {MetadataConstant} from "../../../metadata.constant";
 import {StorageService} from "../../../../data-storage/service/storage.service";
+import {MetadataEntity} from "../../metadata.entity";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'create-metadata-main',
@@ -12,7 +14,7 @@ export class CreateMetadataMainComponent extends AbstractComponent {
   step: MetadataConstant.CreateStep;
 
   // data bus
-  createData;
+  createData: MetadataEntity.CreateData;
 
   // enum
   readonly CREATE_STEP = MetadataConstant.CreateStep;
@@ -29,11 +31,11 @@ export class CreateMetadataMainComponent extends AbstractComponent {
 
   /**
    * Init
-   * @param {} createData
+   * @param {MetadataEntity.CreateData} createData
    */
-  init(createData?) {
+  init(createData?: MetadataEntity.CreateData) {
     this.step = MetadataConstant.CreateStep.TYPE;
-    // TODO create data initial
+    this.createData = _.isNil(createData) ? new MetadataEntity.CreateData() : createData;
   }
 
   /**

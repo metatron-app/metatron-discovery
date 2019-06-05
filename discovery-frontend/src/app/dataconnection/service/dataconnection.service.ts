@@ -366,6 +366,13 @@ export class DataconnectionService extends AbstractService {
     return this.postObservable(this.URL_CONNECTIONS + '/metadata/tables/jdbc', params);
   }
 
+  /**
+   * Get table list in metadata enabled cancel
+   * @param params
+   */
+  public getTableListInMetadataWitchCancel(params): Observable<any> {
+    return this.postObservable(this.URL_CONNECTIONS + '/metadata/tables/jdbc', params);
+  }
 
   /**
    * Get criterion list in connection
