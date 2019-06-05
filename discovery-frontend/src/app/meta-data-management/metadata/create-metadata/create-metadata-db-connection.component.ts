@@ -89,6 +89,7 @@ export class CreateMetadataDbConnectionComponent extends AbstractComponent {
       // if not empty connection info and changed connection
       if (this.createData.isNotEmptyConnectionInfo() && this._isChangedConnection(this.createData.connectionInfo)) {
         this.createData.removeSchemaInfo();
+        this.createData.removeCompleteInfo();
       }
       // Set connection info in create data
       this._setConnectionInfoInCreateData();
