@@ -83,7 +83,7 @@ export class CreateMetadataStagingSelectComponent extends AbstractComponent {
       // init selected table
       this.selectedTable = undefined;
       // init preview
-      this._tablePreviewComponent.initialPreview();
+      this._initialTablePreview();
     }
     // set table list
     this._setTableList();
@@ -117,6 +117,10 @@ export class CreateMetadataStagingSelectComponent extends AbstractComponent {
     return _.isNil(this.tableList) || this.tableList.length === 0;
   }
 
+  /**
+   * Set schema list
+   * @private
+   */
   private _setSchemaList(): void {
     // loading show
     this.isLoading = true;
@@ -136,6 +140,10 @@ export class CreateMetadataStagingSelectComponent extends AbstractComponent {
     this.subscriptions.push(sub);
   }
 
+  /**
+   * Set table list
+   * @private
+   */
   private _setTableList(): void {
     // loading show
     this.isLoading = true;
@@ -155,9 +163,15 @@ export class CreateMetadataStagingSelectComponent extends AbstractComponent {
     this.subscriptions.push(sub);
   }
 
+  /**
+   * Set table detail data
+   * @private
+   */
   private _setTableDetailData(): void {
     // loading show
     this.isLoading = true;
+    // init preview
+    this._initialTablePreview();
     // get detail data
     const sub = this.connectionService.getTableDetailDataForHiveWithCancel( {type: 'TABLE', database: this.selectedSchema, query: this.selectedTable}).subscribe(
       res => {
@@ -171,7 +185,6 @@ export class CreateMetadataStagingSelectComponent extends AbstractComponent {
         this.isLoading = false;
       },
       err => {
-        this._tablePreviewComponent.initialPreview();
         this.commonExceptionHandler(err);
         this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
         this.isLoading = false;
@@ -218,10 +231,27 @@ export class CreateMetadataStagingSelectComponent extends AbstractComponent {
     return Object.assign({}, ...Object.keys(data).map(key => ({[this._sliceTableName(key)]: data[key]})));
   }
 
+  /**
+   * Set schema info in create data
+   * @private
+   */
   private _setSchemaInfoInCreateData(): void {
     this.createData.schemaInfo = new SchemaInfo(this.schemaList, this.selectedSchema, this.tableList, this.selectedTable, this.selectedTableDetailData, this._tableListComponent ? this._tableListComponent.checkedTableList : []);
   }
 
+  /**
+   * Initial table preview
+   * @private
+   */
+  private _initialTablePreview(): void {
+    this._tablePreviewComponent.initialPreview();
+  }
+
+  /**
+   * Load schema info
+   * @param {MetadataEntity.SchemaInfo} schemaInfo
+   * @private
+   */
   private _loadSchemaInfo(schemaInfo: MetadataEntity.SchemaInfo): void {
     this.schemaList = schemaInfo.schemaList;
     this.selectedSchema = schemaInfo.selectedSchema;

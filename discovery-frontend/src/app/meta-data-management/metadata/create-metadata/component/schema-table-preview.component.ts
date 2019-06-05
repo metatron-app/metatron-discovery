@@ -47,7 +47,6 @@ export class SchemaTablePreviewComponent extends AbstractComponent {
    */
   changeTableData(selectedTable: string, data): void {
     this.selectedTable = selectedTable;
-    this.hideGrid = true;
     // if empty data
     if (_.isNil(data)) {
       // TODO error 메시지 표시할 경우
@@ -114,6 +113,7 @@ export class SchemaTablePreviewComponent extends AbstractComponent {
    * @private
    */
   private _drawGrid(headers: header[], rows) {
+    this.hideGrid = false;
     this.changeDetect.detectChanges();
     // 그리드 옵션은 선택
     this._gridComponent.create(headers, rows,
@@ -123,7 +123,6 @@ export class SchemaTablePreviewComponent extends AbstractComponent {
         .RowHeight(32)
         .build()
     );
-    this.hideGrid = false;
   }
 
   /**
