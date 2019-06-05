@@ -14,7 +14,6 @@
 
 import {AbstractComponent} from '../../common/component/abstract.component';
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {SelectDatatypeComponent} from './create-metadata/select-datatype.component';
 import {isUndefined, isNullOrUndefined} from 'util';
 import {MetadataService} from './service/metadata.service';
 import {Metadata, SourceType} from '../../domain/meta-data-management/metadata';
@@ -25,7 +24,7 @@ import {CatalogService} from '../catalog/service/catalog.service';
 import * as _ from 'lodash';
 import {StorageService} from '../../data-storage/service/storage.service';
 import {ActivatedRoute} from "@angular/router";
-import {CreateMetadataMainComponent} from "./create-metadata/refact/create-metadata-main.component";
+import {CreateMetadataMainComponent} from "./create-metadata/create-metadata-main.component";
 
 declare let $;
 
@@ -38,6 +37,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   @ViewChild(CreateMetadataMainComponent)
   private _selectDatatypeComponent: CreateMetadataMainComponent;
 

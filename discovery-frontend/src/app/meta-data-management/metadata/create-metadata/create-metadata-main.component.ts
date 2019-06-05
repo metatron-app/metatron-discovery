@@ -1,8 +1,23 @@
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {Component, ElementRef, Injector} from "@angular/core";
-import {MetadataConstant} from "../../../metadata.constant";
-import {StorageService} from "../../../../data-storage/service/storage.service";
-import {MetadataEntity} from "../../metadata.entity";
+/*
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {AbstractComponent} from "../../../common/component/abstract.component";
+import {Component, ElementRef, EventEmitter, Injector, Output} from "@angular/core";
+import {MetadataConstant} from "../../metadata.constant";
+import {StorageService} from "../../../data-storage/service/storage.service";
+import {MetadataEntity} from "../metadata.entity";
 import * as _ from 'lodash';
 
 @Component({
@@ -18,6 +33,8 @@ export class CreateMetadataMainComponent extends AbstractComponent {
 
   // enum
   readonly CREATE_STEP = MetadataConstant.CreateStep;
+
+  @Output() readonly createdComplete = new EventEmitter();
 
   // constructor
   constructor(protected element: ElementRef,
@@ -56,7 +73,7 @@ export class CreateMetadataMainComponent extends AbstractComponent {
   createCompleted() {
     // cancel create
     this.cancelCreate();
-    // TODO
+    this.createdComplete.emit();
   }
 
   onSelectCreateType(step: MetadataConstant.CreateStep): void {

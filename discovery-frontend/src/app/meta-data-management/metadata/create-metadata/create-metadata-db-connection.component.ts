@@ -1,14 +1,29 @@
+/*
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from "@angular/core";
-import {MetadataConstant} from "../../../metadata.constant";
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {ConnectionComponent, ConnectionValid} from "../../../../data-storage/component/connection/connection.component";
-import {DataconnectionService} from "../../../../dataconnection/service/dataconnection.service";
-import {PageResult} from "../../../../domain/common/page";
-import {Dataconnection} from "../../../../domain/dataconnection/dataconnection";
+import {MetadataConstant} from "../../metadata.constant";
+import {AbstractComponent} from "../../../common/component/abstract.component";
+import {ConnectionComponent, ConnectionValid} from "../../../data-storage/component/connection/connection.component";
+import {DataconnectionService} from "../../../dataconnection/service/dataconnection.service";
+import {PageResult} from "../../../domain/common/page";
+import {Dataconnection} from "../../../domain/dataconnection/dataconnection";
 import * as _ from 'lodash';
-import {MetadataEntity} from "../../metadata.entity";
+import {MetadataEntity} from "../metadata.entity";
 import ConnectionInfo = MetadataEntity.ConnectionInfo;
-import {StringUtil} from "../../../../common/util/string.util";
+import {StringUtil} from "../../../common/util/string.util";
 
 @Component({
   selector: 'create-metadata-db-connection',
@@ -18,6 +33,8 @@ export class CreateMetadataDbConnectionComponent extends AbstractComponent {
 
   @ViewChild(ConnectionComponent)
   private _connectionComponent: ConnectionComponent;
+
+  private _connectionDetail: Dataconnection;
 
   @Input() readonly createData: MetadataEntity.CreateData;
 
@@ -223,6 +240,7 @@ export class CreateMetadataDbConnectionComponent extends AbstractComponent {
         this.loadingHide();
         // init
         this._connectionComponent.init(connection);
+        this._connectionDetail = connection;
       })
       .catch(error => this.commonExceptionHandler(error));
   }
@@ -246,7 +264,7 @@ export class CreateMetadataDbConnectionComponent extends AbstractComponent {
    * @private
    */
   private _setConnectionInfoInCreateData(): void {
-    this.createData.connectionInfo = new ConnectionInfo(this.connectionPresetList, this.selectedConnectionPreset, this._connectionComponent.getConnectionParams(true), this.pageResult);
+    this.createData.connectionInfo = new ConnectionInfo(this.connectionPresetList, this.selectedConnectionPreset, this._connectionComponent.getConnectionParams(true), this._connectionDetail, this.pageResult);
   }
 
   /**
@@ -258,6 +276,7 @@ export class CreateMetadataDbConnectionComponent extends AbstractComponent {
     this.connectionPresetList = connectionInfo.connectionPresetList;
     this.selectedConnectionPreset = connectionInfo.selectedConnectionPreset;
     this.pageResult = connectionInfo.pageResult;
+    this._connectionDetail = connectionInfo.connectionDetail;
     // connection
     this._connectionComponent.init(connectionInfo.connection);
     this._connectionComponent.connectionValidation = ConnectionValid.ENABLE_CONNECTION;

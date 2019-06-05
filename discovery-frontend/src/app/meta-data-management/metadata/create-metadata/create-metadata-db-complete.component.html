@@ -1,0 +1,168 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-contents ddp-resize2 ddp-type2 popup-prep-create-complete popup-prep-create">
+  <!-- 닫기 버튼 -->
+  <a href="javascript:" class="ddp-btn-close" (click)="onCancel()"></a>
+  <!-- //닫기 버튼 -->
+  <div class="ddp-icon-name">
+    <div class="ddp-ui-name2 ddp-type3">
+      {{'msg.metadata.ui.create.main.title' | translate}} ({{'msg.storage.li.db' | translate}})
+      <span class="ddp-txt-info ddp-type">{{'msg.metadata.ui.create.complete.sub' | translate}}</span>
+      <em class="ddp-bg-order-line3-type3"></em>
+    </div>
+  </div>
+  <div class="ddp-type-contents-in ddp-sheet-resize">
+    <div class="ddp-box-popupcontents ddp-wrap-file-create ddp-flex">
+      <div class="ddp-wrap-boxtype ddp-flex-column">
+        <table class="ddp-wrap-boxdata">
+          <colgroup>
+            <col width="120px">
+            <col width="*">
+          </colgroup>
+          <tbody>
+          <tr>
+            <th>
+              {{'msg.comm.th.type' | translate}}
+            </th>
+            <td>
+              {{getDataType()}}
+            </td>
+          </tr>
+          <ng-container *ngIf="isEnableURL()">
+            <tr>
+              <th>
+                {{'msg.storage.ui.conn.url' | translate}}
+              </th>
+              <td>
+                {{getUrl()}}
+              </td>
+            </tr>
+          </ng-container>
+          <ng-container *ngIf="!isEnableURL()">
+            <tr>
+              <th>
+                {{'msg.comm.th.host' | translate }}
+              </th>
+              <td>
+               {{getHost()}}
+              </td>
+            </tr>
+            <tr>
+              <th>
+                {{'msg.comm.th.port' | translate}}
+              </th>
+              <td>
+               {{getPort()}}
+              </td>
+            </tr>
+            <tr *ngIf="isRequireCatalog()">
+              <th>
+                {{'msg.storage.th.catalog' | translate}}
+              </th>
+              <td>
+                {{getCatalog()}}
+              </td>
+            </tr>
+            <tr *ngIf="isRequireDatabase()">
+              <th>
+                {{'msg.storage.th.db_name' | translate}}
+              </th>
+              <td>
+                {{getDatabase()}}
+              </td>
+            </tr>
+            <tr *ngIf="isRequiredSid()">
+              <th>
+                {{'msg.storage.th.sid' | translate}}
+              </th>
+              <td>
+                {{getSid()}}
+              </td>
+            </tr>
+          </ng-container>
+          <tr>
+            <th>
+              {{'msg.storage.ui.list.schema' | translate}}
+            </th>
+            <td>
+              {{getSchema()}}
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <!--  TODO component -->
+      <div class="ddp-ui-sheet-list ddp-flex-column">
+        <table class="ddp-table-sheet">
+          <colgroup>
+            <col width="250px">
+            <col width="230px">
+            <col width="*">
+          </colgroup>
+          <thead>
+          <tr>
+            <th>{{'msg.metadata.th.create.table' | translate}}</th>
+            <th>{{'msg.metadata.th.create.name' | translate}}</th>
+            <th>{{'msg.metadata.th.create.description' | translate}}</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let metadata of metadataList">
+            <td>
+              {{metadata.table}}
+            </td>
+            <td>
+              <div class="ddp-sheet-form">
+                <input type="text" class="ddp-input-typebasic" placeholder="{{metadata.table}}" [ngModel]="metadata.name" (ngModelChange)="onChangeMetadataName(metadata, $event)">
+                <span class="ddp-data-error" *ngIf="isErrorMetadataName(metadata)"> {{metadata.errorMessage}}</span>
+              </div>
+            </td>
+            <td>
+              <div class="ddp-sheet-form">
+                <div class="ddp-textarea-resize">
+                  <textarea  placeholder="{{'msg.metadata.ph.create.description' | translate}}" [ngModel]="metadata.description" (ngModelChange)="onChangeMetadataDescription(metadata, $event)" (keyup)="changeDescriptionHeight(descriptionElement)" #descriptionElement></textarea>
+                </div>
+<!--                <span class="ddp-data-error"> Invalid Connect</span>-->
+              </div>
+
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="ddp-box-synch type-error" *ngIf="!isEmptyMetadataList() && isErrorInMetadataList()">
+        <div class="ddp-txt-synch">
+          <em class="ddp-icon-info"></em>
+          {{'msg.metadata.ui.create.error.alert' | translate}}
+        </div>
+      </div>
+      <div class="ddp-data-check">
+        <div class="ddp-label-type">{{'msg.metadata.btn.create.searchable.explore' | translate}}</div>
+        <div class="ddp-checkbox-slide ddp-checkbox-automatic2" (change)="onChangeSearchableInExploreData()">
+          <input type="checkbox" value="None" id="check2" name="check" [checked]="isSearchableInExploreData">
+          <label for="check2"><span class="ddp-slide"></span></label>
+        </div>
+      </div>
+      <!--  TODO component -->
+    </div>
+  </div>
+  <!-- buttons -->
+  <div class="ddp-ui-buttons">
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="changeToPrevStep()">{{'msg.comm.btn.previous' | translate}}</a>
+    <!-- disabled 시 ddp-disabled 추가 -->
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="onComplete()">{{'msg.comm.btn.done2' | translate}}</a>
+  </div>
+  <!-- //buttons -->
+</div>

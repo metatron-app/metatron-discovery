@@ -72,7 +72,7 @@
         <div class="ddp-wrap-sheet ddp-wrap-druid">
           <!-- if empty table list -->
           <div class="ddp-ui-empty" *ngIf="isEmptyTableList()">
-            {{isIdleTableList() ? 'No table list. Please choose another schema' : 'emptyTableList'}}
+            {{'msg.metadata.ui.create.none.table.list' | translate}}
           </div>
           <!-- //if empty table list -->
           <!-- if not empty table list -->

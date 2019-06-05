@@ -1,9 +1,24 @@
+/*
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from "@angular/core";
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {MetadataConstant} from "../../../metadata.constant";
-import {MetadataEntity} from "../../metadata.entity";
-import {DataconnectionService} from "../../../../dataconnection/service/dataconnection.service";
-import {ConnectionParam} from "../../../../data-storage/service/data-connection-create.service";
+import {AbstractComponent} from "../../../common/component/abstract.component";
+import {MetadataConstant} from "../../metadata.constant";
+import {MetadataEntity} from "../metadata.entity";
+import {DataconnectionService} from "../../../dataconnection/service/dataconnection.service";
+import {ConnectionParam} from "../../../data-storage/service/data-connection-create.service";
 import * as _ from "lodash";
 import {isNullOrUndefined} from "util";
 import {SchemaTableListComponent} from "./component/schema-table-list.component";
@@ -76,28 +91,30 @@ export class CreateMetadataDbSelectComponent extends AbstractComponent {
   }
 
   changeToPrevStep(): void {
+    this._setSchemaInfoInCreateData();
     this.changeStep.emit(MetadataConstant.CreateStep.DB_CONNECTION);
   }
 
   changeToNextStep(): void {
     if (this._isEnableNext()) {
+      if (this.createData.isNotEmptySchemaInfo() && this._isChangedSchema()) {
+        this.createData.removeCompleteInfo();
+      }
       this._setSchemaInfoInCreateData();
       this.changeStep.emit(MetadataConstant.CreateStep.DB_COMPLETE)
-    } else {
-
     }
   }
 
+  private _isChangedSchema(): boolean {
+    return this.createData.schemaInfo.selectedSchema !== this.selectedSchema;
+  }
+
   private _isEnableNext() {
-    return !_.isNil(this.selectedSchema) && !this._tableListComponent.isEmptyCheckedTableList();
+    return !_.isNil(this.selectedSchema) && !_.isNil(this._tableListComponent) && !this._tableListComponent.isEmptyCheckedTableList();
   }
 
   isEmptyTableList(): boolean {
-    return this.isIdleTableList() || this.tableList.length === 0;
-  }
-
-  isIdleTableList(): boolean {
-    return _.isNil(this.tableList);
+    return _.isNil(this.tableList) || this.tableList.length === 0;
   }
 
   private _setSchemaList(): void {
@@ -231,7 +248,10 @@ export class CreateMetadataDbSelectComponent extends AbstractComponent {
     this.tableList = schemaInfo.tableList;
     this.selectedTable = schemaInfo.selectedTable;
     this.selectedTableDetailData = schemaInfo.selectedTableDetailData;
-    this._tableListComponent.checkedTableList = schemaInfo.checkedTableList;
+    if (schemaInfo.checkedTableList.length > 0) {
+      this.safelyDetectChanges();
+      this._tableListComponent.checkedTableList = schemaInfo.checkedTableList;
+    }
   }
 
   /**

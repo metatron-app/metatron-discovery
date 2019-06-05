@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from "../../../../../common/component/abstract.component";
+import {AbstractComponent} from "../../../../common/component/abstract.component";
 import {Component, ElementRef, EventEmitter, HostListener, Injector, Input, Output} from "@angular/core";
 import * as _ from 'lodash';
-import {StringUtil} from "../../../../../common/util/string.util";
-import {CommonUtil} from "../../../../../common/util/common.util";
+import {StringUtil} from "../../../../common/util/string.util";
+import {CommonUtil} from "../../../../common/util/common.util";
 
 @Component({
   selector: 'schema-select-box',

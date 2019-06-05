@@ -5920,7 +5920,6 @@ table.ddp-table-union tr td .ddp-data-dropped strong {color:#666eb2; font-weight
 .ddp-wrap-sheet .ddp-ui-sheet-list ul.ddp-list-sheet li label.ddp-label-checkbox input {left:14px}
 .ddp-wrap-sheet .ddp-ui-sheet-list ul.ddp-list-sheet li label.ddp-label-checkbox i {left:14px;}
 .ddp-wrap-sheet .ddp-ui-sheet-list ul.ddp-list-sheet li span.ddp-txt-checkbox {display:block; padding:14px 28px 14px 0; font-size:14px; color:#4c515a;}
-.ddp-wrap-sheet .ddp-ui-sheet-list ul.ddp-list-sheet li.ddp-selected span.ddp-txt-checkbox {color:#fff;}
 
 .ddp-wrap-sheet .ddp-ui-sheet-list ul.ddp-list-sheet li label.ddp-label-radio {display:inline-block; position:absolute; top:0; left:0;  width:35px; height:100%; box-sizing:border-box;}
 .ddp-wrap-sheet .ddp-ui-sheet-list ul.ddp-list-sheet li label.ddp-label-radio input {left:14px;}
