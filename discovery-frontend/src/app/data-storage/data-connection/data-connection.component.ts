@@ -27,6 +27,7 @@ import {Criteria} from "../../domain/datasource/criteria";
 import {ActivatedRoute} from "@angular/router";
 import {Alert} from "../../common/util/alert.util";
 import {isNullOrUndefined} from "util";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-data-connection',
@@ -349,6 +350,10 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
     // if search keyword not empty
     if (StringUtil.isNotEmpty(this.searchKeyword)) {
       params['containsText'] = this.searchKeyword.trim();
+    }
+    // remove isCreateMode property
+    if (!_.isNil(params['isCreateMode'])) {
+      delete params['isCreateMode'];
     }
     return params;
   }
