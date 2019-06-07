@@ -172,7 +172,7 @@ public class MetadataEventHandler {
             metadataColumn.setSeq(i + 1L);
 
             //physicalType to LogicalType
-            DataType physicalType = DataType.jdbcToFieldType(metadataColumn.getPhysicalType());
+            DataType physicalType = DataType.jdbcToFieldType(metadataColumn.getPhysicalType().toLowerCase());
             LogicalType logicalType = physicalType.toLogicalType();
             Field.FieldRole role = physicalType.toRole();
             metadataColumn.setType(logicalType);
