@@ -516,6 +516,8 @@ ul.ddp-list-folder-nav li a:hover {background-color:#e7e7ea}
 .ddp-box-popup3.ddp-box-fix {height:720px;}
 .ddp-box-popup3.ddp-box-fix .ddp-ui-buttons {position:absolute; bottom:0; left:0; right:0;}
 
+.ddp-box-popup3 .ddp-wrap-message {width:700px;margin:10px auto;text-align: left;}
+
 .ddp-wrap-layout-popup.ddp-wrap-edit .ddp-box-popup {width:679px; height:402px; margin:-201px 0 0 -339px;}
 .ddp-wrap-layout-popup.ddp-wrap-edit .ddp-box-popup .ddp-box-edit {height:324px; margin-bottom:20px; border-bottom:1px solid #e7e7ea;}
 
