@@ -29,6 +29,7 @@ import java.util.Map;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
@@ -169,6 +170,13 @@ public class MetadataEventHandler {
             metadataColumn.setPhysicalType((String) column.get("columnType"));
             metadataColumn.setDescription((String) column.get("columnComment"));
             metadataColumn.setSeq(i + 1L);
+
+            //physicalType to LogicalType
+            DataType physicalType = DataType.jdbcToFieldType(metadataColumn.getPhysicalType());
+            LogicalType logicalType = physicalType.toLogicalType();
+            Field.FieldRole role = physicalType.toRole();
+            metadataColumn.setType(logicalType);
+            metadataColumn.setRole(role);
             metadataColumn.setMetadata(metadata);
 
             metadata.addColumn(metadataColumn);
