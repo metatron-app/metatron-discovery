@@ -90,7 +90,7 @@ export class MetadataControlCompleteComponent extends AbstractComponent {
     return this.metadataList.map(metadata => metadata.table);
   }
 
-  getMetadataCreateParams(selectedPreset): Metadata[] {
+  getMetadataCreateParams(schema: string, selectedPreset): Metadata[] {
     return this.metadataList.reduce((result, metadata) => {
       const param = new Metadata();
       param.name = metadata.name.trim();
@@ -104,6 +104,7 @@ export class MetadataControlCompleteComponent extends AbstractComponent {
       source.type = MetadataSourceType.JDBC;
       // preset id
       source.sourceId = selectedPreset.id;
+      source.schema = schema;
       source.table = metadata.table;
       param.source = source;
       result.push(param);
@@ -111,7 +112,7 @@ export class MetadataControlCompleteComponent extends AbstractComponent {
     }, []);
   }
 
-  getMetadataCreateParamsUsedStaging(): Metadata[] {
+  getMetadataCreateParamsUsedStaging(schema: string): Metadata[] {
     return this.metadataList.reduce((result, metadata) => {
       const param = new Metadata();
       param.name = metadata.name.trim();
@@ -123,6 +124,7 @@ export class MetadataControlCompleteComponent extends AbstractComponent {
       source.name = 'Stage DB';
       source.type = MetadataSourceType.STAGEDB;
       source.sourceId = SourceType.STAGING.toString();
+      source.schema = schema;
       source.table = metadata.table;
       param.source = source;
       result.push(param);

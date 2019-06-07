@@ -243,7 +243,9 @@ export class CreateMetadataDbSelectComponent extends AbstractComponent {
    * @private
    */
   private _getConnectionParams(): {connection: ConnectionParam, type: string} {
-    return {connection: _.cloneDeep(this.createData.connectionInfo.connection), type: 'TABLE'};
+    const result = {connection: _.cloneDeep(this.createData.connectionInfo.connection), type: 'TABLE'};
+    result.connection.id = this.createData.connectionInfo.selectedConnectionPreset.id;
+    return result;
   }
 
   /**

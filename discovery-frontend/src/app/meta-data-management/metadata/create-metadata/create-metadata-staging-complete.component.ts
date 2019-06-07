@@ -100,7 +100,7 @@ export class CreateMetadataStagingCompleteComponent extends AbstractComponent {
    */
   private _createMetadata() {
     this.loadingShow();
-    this.metadataService.createMetaData(this._metadataControlCompleteComponent.getMetadataCreateParamsUsedStaging())
+    this.metadataService.createMetaData(this._metadataControlCompleteComponent.getMetadataCreateParamsUsedStaging(this.createData.schemaInfo.selectedSchema))
       .then(result => {
         this.loadingHide();
         Alert.success(this.translateService.instant('msg.metadata.alert.create.success'));

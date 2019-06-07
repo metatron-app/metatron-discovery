@@ -149,7 +149,7 @@ export class CreateMetadataDbCompleteComponent extends AbstractComponent {
    */
   private _createMetadata() {
     this.loadingShow();
-    this.metadataService.createMetaData(this._metadataControlCompleteComponent.getMetadataCreateParams(this.getSelectedConnectionPreset()))
+    this.metadataService.createMetaData(this._metadataControlCompleteComponent.getMetadataCreateParams(this.createData.schemaInfo.selectedSchema, this.getSelectedConnectionPreset()))
       .then(result => {
         this.loadingHide();
         Alert.success(this.translateService.instant('msg.metadata.alert.create.success'));
