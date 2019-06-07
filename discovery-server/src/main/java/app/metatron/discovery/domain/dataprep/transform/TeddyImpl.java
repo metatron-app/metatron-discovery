@@ -57,6 +57,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes.PREP_TEDDY_ERROR_CODE;
+
 @Component
 public class TeddyImpl {
   private static Logger LOGGER = LoggerFactory.getLogger(TeddyImpl.class);
@@ -72,7 +74,7 @@ public class TeddyImpl {
   @Autowired
   PrepProperties prepProperties;
 
-  @Autowired
+  @Autowired(required = false)
   StorageProperties storageProperties;
 
   public void checkNonAlphaNumericalColNames(String dsId) throws IllegalColumnNameForHiveException {
@@ -309,7 +311,7 @@ public class TeddyImpl {
       stmt = conn.createStatement();
     } catch (SQLException e) {
       e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, e);
+      throw PrepException.create(PREP_TEDDY_ERROR_CODE, e);
     }
 
     DataFrame df = new DataFrame(dsName);   // join, union등에서 dataset 이름을 제공하기위해 dsName 추가
@@ -318,10 +320,10 @@ public class TeddyImpl {
       df.setByJDBC(stmt, sql, prepProperties.getSamplingLimitRows());
     } catch (JdbcTypeNotSupportedException e) {
       LOGGER.error("loadHiveDataset(): JdbcTypeNotSupportedException occurred", e);
-      throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_NOT_SUPPORTED_TYPE);
+      throw PrepException.create(PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_NOT_SUPPORTED_TYPE);
     } catch (JdbcQueryFailedException e) {
       LOGGER.error("loadHiveDataset(): JdbcQueryFailedException occurred", e);
-      throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_QUERY_FAILED);
+      throw PrepException.create(PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_QUERY_FAILED);
     }
 
     return createStage0(dsId, df);
@@ -346,10 +348,10 @@ public class TeddyImpl {
       df.setByJDBC(stmt, sql, prepProperties.getSamplingLimitRows());
     } catch (JdbcTypeNotSupportedException e) {
       LOGGER.error("loadContentsByImportedJdbc(): JdbcTypeNotSupportedException occurred", e);
-      throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_NOT_SUPPORTED_TYPE);
+      throw PrepException.create(PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_NOT_SUPPORTED_TYPE);
     } catch (JdbcQueryFailedException e) {
       LOGGER.error("loadContentsByImportedJdbc(): JdbcQueryFailedException occurred", e);
-      throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_QUERY_FAILED);
+      throw PrepException.create(PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_QUERY_FAILED);
     }
 
     return createStage0(dsId, df);
