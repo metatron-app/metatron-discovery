@@ -17,8 +17,8 @@ import {
   Output, ViewChild
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
-import { DatasourceInfo } from '../../../../../domain/datasource/datasource';
-import { SchemaConfigComponent } from '../../../../component/schema-config/schema-config.component';
+import {DatasourceInfo, FieldFormatType} from '../../../../../domain/datasource/datasource';
+import {SchemaConfigureMainComponent} from "../../../../component/schema-configure/schema-configure-main.component";
 
 @Component({
   selector: 'db-configure-schema',
@@ -26,8 +26,8 @@ import { SchemaConfigComponent } from '../../../../component/schema-config/schem
 })
 export class DbConfigureSchemaComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
-  @ViewChild(SchemaConfigComponent)
-  private _schemaConfigComponent: SchemaConfigComponent;
+  @ViewChild(SchemaConfigureMainComponent)
+  private readonly _schemaConfigureMainComponent: SchemaConfigureMainComponent;
 
   // 생성될 데이터소스 정보
   @Input('sourceData')
@@ -50,6 +50,11 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
   public ngOnInit() {
     // Init
     super.ngOnInit();
+    if (this.sourceData.schemaData) {
+      this._schemaConfigureMainComponent.initLoadedConfigureData(this.sourceData.schemaData);
+    } else {
+      this._schemaConfigureMainComponent.init(this.sourceData.fieldList, this.sourceData.fieldData);
+    }
   }
 
   // Destory
@@ -67,20 +72,41 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
     return this.sourceData.workbenchFl;
   }
 
-  /**
-   * Step change click event
-   * @param {string} route
-   */
-  public onClickPageChange(route: string): void {
-    route === 'prev' ? this._schemaConfigComponent.onClickPrev() : this._schemaConfigComponent.onClickNext();
+  public onClickPrev() {
+    this._saveSchemaConfigureData();
+    this._step = 'db-select-data';
+    this._stepChange.emit(this._step);
   }
 
-  /**
-   * Changed step
-   * @param {string} route
-   */
-  public onChangedStep(route: string): void {
-    this._step = route === 'prev' ? 'db-select-data' : 'db-ingestion-permission';
-    this._stepChange.emit(this._step);
+  public onClickNext() {
+    if (this._isEnableNext()) {
+      this._saveSchemaConfigureData();
+      this._step = 'db-ingestion-permission';
+      this._stepChange.emit(this._step);
+    }
+  }
+
+  private _isEnableNext(): boolean {
+    return this._schemaConfigureMainComponent.isExistFieldError();
+  }
+
+  private _isChangedTimestamp(configureData): boolean {
+    // if exist schema data in source data
+    if (this.sourceData.schemaData) {
+      // if changed timestamp field
+      return (configureData.selectedTimestampType !== this.sourceData.schemaData.selectedTimestampType) ||
+        configureData.selectedTimestampField &&
+        (configureData.selectedTimestampField.name !== this.sourceData.schemaData.selectedTimestampField.name
+          || configureData.selectedTimestampField.format.type !== this.sourceData.schemaData.selectedTimestampField.format.type
+          || configureData.selectedTimestampField.format.type === FieldFormatType.UNIX_TIME && this.sourceData.schemaData.selectedTimestampField.format.type === FieldFormatType.UNIX_TIME && configureData.selectedTimestampField.format.unit !== this.sourceData.schemaData.selectedTimestampField.format.unit);
+    } else { // if not exist schema data
+      return false;
+    }
+  }
+
+  private _saveSchemaConfigureData() {
+    const configureData = this._schemaConfigureMainComponent.getConfigureData();
+    configureData['isChangedTimestampField'] = this._isChangedTimestamp(configureData);
+    this.sourceData.schemaData = configureData;
   }
 }

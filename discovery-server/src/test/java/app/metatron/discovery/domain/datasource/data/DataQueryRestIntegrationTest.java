@@ -694,7 +694,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void searchQueryForSalesWithExpression() throws JsonProcessingException {
 
-    DataSource dataSource1 = new DefaultDataSource("sales");
+    DataSource dataSource1 = new DefaultDataSource("sales_geo");
 
     // Limit
     Limit limit = new Limit();
@@ -741,7 +741,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void searchQueryForSalesWithExpression1() throws JsonProcessingException {
 
-    DataSource dataSource1 = new DefaultDataSource("sales");
+    DataSource dataSource1 = new DefaultDataSource("sales_geo");
 
     // Limit
     Limit limit = new Limit();
@@ -756,7 +756,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
         new ExpressionField("orderdate_d", "\"OrderDate\"", "dimension", false),
         new ExpressionField("trim", "TRIM( \"Category\"  )", "dimension", false),
         new ExpressionField("case_dim", "CASE( \"Category\" == 'Furniture', 'F', 'default' )", "dimension", false),
-        //        new ExpressionField("switch_dim", "SWITCH( \"Category\", 'Furniture', 'F', 'Technology', 'T')", "dimension", false)
+        new ExpressionField("switch_dim", "SWITCH( \"Category\", 'Furniture', 'F', 'Technology', 'T')", "dimension", false),
         new ExpressionField("sumof_dim", "(SUMOF([SalesForecase]) - SUMOF( [Sales]  ) ) / SUMOF( [Sales]  ) * 100", "measure", true)
         //        new ExpressionField("test", "Sales + 1", "measure", false)
     );

@@ -157,7 +157,7 @@ public class PrepTransformService {
   @Autowired(required = false)
   PrepProperties prepProperties;
 
-  @Autowired
+  @Autowired(required = false)
   StorageProperties storageProperties;
 
   @Value("${server.port:8180}")
@@ -210,8 +210,9 @@ public class PrepTransformService {
     }
 
     Map<String, Object> mapEveryForEtl = prepProperties.getEveryForEtl();
-    StageDBConnection stageDB = storageProperties.getStagedb();
-    if(stageDB!=null) { // if the value is null, that means storage.stagedb is not in a yaml. NOT using STAGING_DB
+
+    if(storageProperties != null && storageProperties.getStagedb() != null) { // if the value is null, that means storage.stagedb is not in a yaml. NOT using STAGING_DB
+      StageDBConnection stageDB = storageProperties.getStagedb();
       mapEveryForEtl.put(STAGEDB_HOSTNAME, stageDB.getHostname());
       mapEveryForEtl.put(STAGEDB_PORT, stageDB.getPort());
       mapEveryForEtl.put(STAGEDB_USERNAME, stageDB.getUsername());

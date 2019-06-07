@@ -58,6 +58,24 @@ public class CommonsCsvProcessorTest {
   }
 
   @Test
+  public void duplicatedColumnProcessing() {
+
+    String targetFile = getClass().getClassLoader()
+                                  .getResource("csv/duplicated_column.csv").getPath();
+
+    CommonsCsvProcessor commonsCsvProcessor = new CommonsCsvProcessor("file://" + targetFile)
+        .withHeader(true)
+        .totalCount()
+        .parse(",");
+
+    IngestionDataResultResponse resultResponse = commonsCsvProcessor.ingestionDataResultResponse();
+
+    System.out.println(GlobalObjectMapper.writeValueAsString(resultResponse));
+
+
+  }
+
+  @Test
   public void bomProcessing() {
 
     String targetFile = getClass().getClassLoader()

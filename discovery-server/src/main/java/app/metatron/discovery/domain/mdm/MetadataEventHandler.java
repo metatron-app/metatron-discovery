@@ -62,7 +62,7 @@ public class MetadataEventHandler {
   @Autowired
   EngineProperties engineProperties;
 
-  @Autowired
+  @Autowired(required = false)
   StorageProperties storageProperties;
 
   @HandleBeforeCreate
@@ -180,11 +180,10 @@ public class MetadataEventHandler {
       String schema = metadataSource.getSchema();
       String tableName = metadataSource.getTable();
 
-      StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
-
-      if (stageDBConnection == null) {
-        throw new IllegalArgumentException("Staging Hive DB info. required.");
+      if(storageProperties == null || storageProperties.getStagedb() == null) {
+        throw new IllegalArgumentException("Staging database information required.");
       }
+      StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
 
       DataConnection hiveConnection = new DataConnection();
       hiveConnection.setUrl(stageDBConnection.getUrl());

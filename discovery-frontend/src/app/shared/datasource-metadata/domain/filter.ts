@@ -16,12 +16,14 @@ export namespace Filter {
   export class Role {
     label: string | any;
     value: Type.Role;
+    icon: string;
     checked: boolean;
 
-    constructor(label: string | any, value: Type.Role, checked: boolean) {
+    constructor(label: string | any, value: Type.Role, checked: boolean, icon: string) {
       this.label = label;
       this.value = value;
       this.checked = checked;
+      this.icon = icon;
     }
   }
 }

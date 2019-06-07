@@ -119,7 +119,8 @@ public class JdbcIngestionJob extends AbstractIngestionJob implements IngestionJ
             connection,
             ingestionInfo,
             dataSource.getEngineName(),
-            dataSource.getFields()
+            dataSource.getFields(),
+            null
         );
       }
     } catch (JdbcDataConnectionException ce) {
