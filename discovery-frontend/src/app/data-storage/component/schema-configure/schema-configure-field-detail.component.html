@@ -1,0 +1,316 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-wrap-fright">
+  <!-- setting -->
+  <div class="ddp-box-setting">
+    <!--<div class="ddp-data-top-title">-->
+    <!--Column name-->
+
+    <!--</div>-->
+    <div class="ddp-wrap-set-contents ddp-full">
+      <!-- setting -->
+      <div class="ddp-wrap-value-setting" *ngIf="!isEmptyValue(selectedField)" (scroll)="closeSelectBoxes()">
+
+        <div class="ddp-ui-value-setting">
+          <div class="ddp-ui-title">
+            <a href="javascript:" class="ddp-fright ddp-btn-delete" *ngIf="!isRemovedField()" (click)="removeField()"></a>
+            <a href="javascript:" class="ddp-fright ddp-btn-return-s" *ngIf="isRemovedField()" (click)="undoRemoveField()"></a>
+            <span class="ddp-data-name" title="{{selectedField.name}}">{{getSlicedColumnName()}}</span>
+          </div>
+          <div class="ddp-form-column">
+            <!-- value list -->
+            <div class="ddp-wrap-value-det">
+              <div class="ddp-label-value">{{'msg.storage.ui.data' | translate}}</div>
+              <ul class="ddp-list-value">
+                <li class="ddp-nodata" *ngIf="!isShowDataPreview">{{previewMessage}}</li>
+                <ng-container *ngIf="isShowDataPreview">
+                  <li *ngFor="let data of dataList">{{getSlicedDataContent(data)}}</li>
+                  <li class="ddp-total">{{'msg.storage.ui.schema.column.rows.desc' | translate}}</li>
+                </ng-container>
+              </ul>
+            </div>
+            <!-- //value list -->
+            <!-- removed  -->
+            <div class="ddp-data-delete " *ngIf="isRemovedField()">
+              <span class="ddp-txt">{{'msg.storage.ui.del.column' | translate}}</span>
+            </div>
+            <!-- //removed  -->
+            <div class="ddp-ui-setting" *ngIf="!isRemovedField()">
+              <!-- role -->
+              <div class="ddp-wrap-edit3">
+                <label class="ddp-ui-label-name">{{'msg.comm.th.role' | translate}}</label>
+                <!-- edit option -->
+                <div class="ddp-ui-option-in">
+                  <ul class="ddp-list-checktype">
+                    <li *ngFor="let type of roleList">
+                      <label class="ddp-label-radio" (change)="onChangeRole(type)">
+                        <input type="radio" [checked]="selectedField.role === type.value" [disabled]="isDisabledTypeChange() && selectedField.role !== type.value">
+                        <i class="ddp-icon-radio"></i>
+                        <span class="ddp-txt-radio"><span class="ddp-box-tag-value {{type.icon}}">{{type.label}}</span></span>
+                      </label>
+                    </li>
+                  </ul>
+                </div>
+                <!-- //edit option -->
+              </div>
+              <!-- //role -->
+              <!-- edit -->
+              <div class="ddp-wrap-edit3">
+                <label class="ddp-ui-label-name">
+                  {{'msg.comm.detail.type' | translate}}
+                  <!-- 타임스탬프만 시계 아이콘 -->
+                  <em class="ddp-icon-time" *ngIf="isTimestampField()"></em>
+                </label>
+                <!-- edit option -->
+                <div class="ddp-ui-option-in">
+                  <!-- seletbox -->
+                  <storage-filter-select-box
+                    #typeSelectBox
+                    [filterList]="typeList"
+                    [selectedFilter]="getSelectedType()"
+                    [isEnableIcon]="true"
+                    [isDisableList]="isDisabledTypeChange()"
+                    [isEnableFloating]="true"
+                    (changedFilter)="onChangeLogicalType($event)"></storage-filter-select-box>
+                  <!-- //seletbox -->
+                  <div class="ddp-info" *ngIf="isTimestampField()">{{'msg.storage.ui.configure.schema.logical.change.timestamp' | translate}}</div>
+                  <div class="ddp-info" *ngIf="isCreatedField()">{{'msg.storage.ui.configure.schema.logical.change.derived' | translate}}</div>
+                  <div class="ddp-txt-error" *ngIf=" !isCreatedField() && isGeoFormatError()"><em class="ddp-icon-error-s"></em>{{selectedField.format.formatValidMessage}}</div>
+                </div>
+                <!-- //edit option -->
+              </div>
+              <!-- //edit -->
+              <!-- geo -->
+              <div class="ddp-wrap-edit3" *ngIf="isGeoField() && !isEmptyFormat() && (isCreatedField() || !isFormatError())">
+                <label class="ddp-ui-label-name">{{'msg.storage.ui.geo.coordinate' | translate}}</label>
+                <!-- edit option -->
+                <div class="ddp-ui-option-in">
+                  <storage-filter-select-box
+                    #geoCoordinateSelectBox
+                    [filterList]="geoCoordinateList"
+                    [isOnlyStringList]="true"
+                    [isDisableList]="!isCreatedField() && !selectedField.format.isValidFormat"
+                    [isEnableFloating]="true"
+                    [selectedFilter]="selectedField.format.originalSrsName"
+                    (changedFilter)="onChangeGeoCoordinate($event)">
+                  </storage-filter-select-box>
+                </div>
+                <!-- //edit option -->
+              </div>
+              <!-- //geo -->
+              <!-- Time display format -->
+              <div class="ddp-wrap-edit3"  *ngIf="isTimestampTypeField()">
+                <div class="ddp-ui-label-name">
+                  {{'msg.storage.ui.time.display.format' | translate}}
+                  <div class="ddp-wrap-hover-info" #timestampGuideElement (mouseenter)="onHoverTimestampGuideIcon()">
+                    <em class="ddp-icon-info3"></em>
+                    <!-- popup -->
+                    <div class="ddp-box-layout4">
+                      <div class="ddp-data-title">
+                        {{'msg.storage.ui.display.format.guide' | translate}}
+                      </div>
+                      <div class="ddp-data-det">
+                        <dl class="ddp-dl-det">
+                          <dt>
+                            yyyy
+                          </dt>
+                          <dd>
+                            <em>=</em> {{'msg.storage.ui.th.four-digit-year' | translate}}
+                          </dd>
+                        </dl>
+                        <dl class="ddp-dl-det">
+                          <dt>
+                            MM
+                          </dt>
+                          <dd>
+                            <em>=</em> {{'msg.storage.ui.th.two-digit-month' | translate}}
+                          </dd>
+                        </dl>
+                        <dl class="ddp-dl-det">
+                          <dt>
+                            dd
+                          </dt>
+                          <dd>
+                            <em>=</em> {{'msg.storage.ui.th.two-digit-day' | translate}}<br />
+                            {{'msg.storage.ui.th.two-digit-day-thorough' | translate}}
+                          </dd>
+                        </dl>
+                        <dl class="ddp-dl-det">
+                          <dt>
+                            HH
+                          </dt>
+                          <dd>
+                            <em>=</em> {{'msg.storage.ui.th.four-digit-hour' | translate}}<br />
+                            {{'msg.storage.ui.th.four-digit-hour-allowed' | translate}}
+                          </dd>
+                        </dl>
+                        <dl class="ddp-dl-det">
+                          <dt>
+                            mm 
+                          </dt>
+                          <dd>
+                            <em>=</em> {{'msg.storage.ui.th.two-digit-minute' | translate}}<br />
+                            {{'msg.storage.ui.th.two-digit-minute-thorough' | translate}}
+                          </dd>
+                        </dl>
+                        <dl class="ddp-dl-det">
+                          <dt>
+                            ss
+                          </dt>
+                          <dd>
+                            <em>=</em> {{'msg.storage.ui.th.two-digit-second' | translate}}<br />
+                            {{'msg.storage.ui.th.two-digit-second-thorough' | translate}}
+                          </dd>
+                        </dl>
+                        <dl class="ddp-dl-det">
+                          <dt>
+                            S
+                          </dt>
+                          <dd>
+                            <em>=</em> {{'msg.storage.ui.th.one-more-digit' | translate}} <br />
+                            {{'msg.storage.ui.th.one-more-digit-decimal' | translate}}
+                          </dd>
+                        </dl>
+                        <dl class="ddp-dl-det">
+                          <dt>
+                            TZD
+                          </dt>
+                          <dd>
+                            <em>=</em>
+                            {{'msg.storage.ui.th.time-zone-designator' | translate}} <br />
+                            (Z or +hh:mm or -hh:mm)
+                          </dd>
+                        </dl>
+                      </div>
+                    </div>
+                    <!-- //popup -->
+                  </div>
+                  <div class="ddp-type-format ddp-fright" (click)="onChangeEnableUnixCodeInField(); $event.preventDefault()">
+                    <label class="ddp-label-checkbox">
+                      <input type="checkbox" [checked]="isUnixTypeField()">
+                      <i class="ddp-icon-checkbox"></i>
+                      <span class="ddp-txt-checkbox">{{'msg.storage.ui.enable.unix' | translate}}</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- edit format -->
+                <div class="ddp-ui-option-in">
+                  <div class="ddp-input-apply" *ngIf="isTimeTypeField()">
+                    <input type="text" class="ddp-input-txt" placeholder="{{'msg.storage.ph.time.format' | translate}}"
+                           [(ngModel)]="selectedField.format.format"
+                           (ngModelChange)="initTimeFormatValid(); initIngestionRuleReplaceValid()">
+                    <em class="ddp-icon-apply" (click)="onClickTimeFormatValidation()"></em>
+                  </div>
+                  <div class="ddp-ui-error ddp-italic" *ngIf="selectedField.format.isValidFormat === false">
+                    <em class="ddp-icon-error"></em>{{selectedField.format.formatValidMessage}}
+                  </div>
+                  <ul class="ddp-list-checktype" *ngIf="isUnixTypeField()">
+                    <li *ngFor="let unit of formatUnitList">
+                      <label class="ddp-label-radio" (change)="onChangeFormatUnitInField(unit)">
+                        <input type="radio" [checked]="selectedField.format.unit === unit.value">
+                        <i class="ddp-icon-radio"></i>
+                        <span class="ddp-txt-radio">{{unit.label}}</span>
+                      </label>
+                    </li>
+                  </ul>
+                </div>
+                <!-- //edit format -->
+              </div>
+              <!-- //Time display format -->
+              <!-- Timezone -->
+              <div class="ddp-wrap-edit3" *ngIf="isEnableTimezone()">
+                <label class="ddp-ui-label-name">
+                  {{'msg.storage.ui.timezone' | translate}}
+                </label>
+                <!-- edit option -->
+                <div class="ddp-ui-option-in">
+                  <!--
+                      클릭할때 : ddp-selected 추가
+                      결과 보여질때 : ddp-result 추가
+                  -->
+                  <div class="ddp-type-selectbox ddp-type-search-select ddp-result" [class.ddp-selected]="isShowTimezoneList"
+                       (click)="onChangeTimezoneSelectBoxShowFlag($event)" (clickOutside)="isShowTimezoneList = false" #timezoneElement>
+                    <!-- 선택시 자동 input display:block; -->
+                    <input type="text" class="ddp-input-selectbox" placeholder="{{'msg.storage.ph.search.timezone' | translate}}" [ngModel]="searchTimezoneKeyword" (ngModelChange)="onChangeSearchTimezoneKeyword($event)">
+                    <span class="ddp-txt-selectbox">{{getSelectedTimezoneLabel(selectedField.format)}}</span>
+                    <div class="ddp-wrap-popup2" #timezonePopupElement>
+                      <ul class="ddp-list-popup ddp-focus-hover">
+                        <li *ngIf="filteredTimezoneList && filteredTimezoneList.length === 0">
+                          <span class="ddp-noresult">{{'msg.comm.ui.no.rslt' | translate}}</span>
+                        </li>
+                        <li [class.ddp-selected]="item.momentName === selectedField.format.timeZone" *ngFor="let item of filteredTimezoneList" (click)="onChangeTimezoneInField(selectedField, item)">
+                          <a href="javascript:" title="{{item.label}}">
+                            {{item.label}}
+                            <em class="ddp-icon-check"></em>
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                </div>
+                <!-- //edit option -->
+              </div>
+              <!-- //Timezone -->
+              <!-- Missing -->
+              <div class="ddp-wrap-edit3" *ngIf="!isCreatedField()">
+                <label class="ddp-ui-label-name">{{'msg.storage.ui.th.missing' | translate}}</label>
+                <!-- edit option -->
+                <div class="ddp-ui-option-in">
+                  <ul class="ddp-list-checktype">
+                    <li *ngFor="let type of ingestionRuleTypeList">
+                      <ng-container *ngIf="type.value === INGESTION_RULE_TYPE.REPLACE">
+                        <div class="ddp-form-checktype">
+                          <label class="ddp-label-radio" (change)="onChangeIngestionRuleType(type)">
+                            <input type="radio" [checked]="selectedField.ingestionRule.type === type.value">
+                            <i class="ddp-icon-radio"></i>
+                            <span class="ddp-txt-radio">{{type.label}}</span>
+                          </label>
+                          <!-- input type -->
+                          <div class="ddp-type-input">
+                            <div class="ddp-input-apply" [class.ddp-disabled]="selectedField.ingestionRule.type !== type.value">
+                              <input type="text" class="ddp-input-txt"  placeholder="{{getDefaultIngestionRuleValue()}}" [(ngModel)]="selectedField.ingestionRule.value" (ngModelChange)="initIngestionRuleReplaceValid()">
+                              <em class="ddp-icon-apply" (click)="ingestionRuleValidation()"></em>
+                            </div>
+                          </div>
+                          <!-- //input type -->
+                        </div>
+                        <!-- error -->
+                        <div class="ddp-ui-error" *ngIf="isIngestionRuleError()">
+                          <em class="ddp-icon-error"></em>{{selectedField.ingestionRule.replaceValidationMessage}}
+                        </div>
+                        <!-- //error -->
+                      </ng-container>
+                      <label class="ddp-label-radio" *ngIf="type.value !== INGESTION_RULE_TYPE.REPLACE" (change)="onChangeIngestionRuleType(type)">
+                        <input type="radio" [checked]="selectedField.ingestionRule.type === type.value">
+                        <i class="ddp-icon-radio"></i>
+                        <span class="ddp-txt-radio">{{type.label}}</span>
+                      </label>
+                    </li>
+                  </ul>
+                </div>
+                <!-- //edit option -->
+              </div>
+              <!-- //Missing -->
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- //setting -->
+    </div>
+  </div>
+  <!-- //setting -->
+</div>

@@ -82,7 +82,7 @@
 .popup-datastore-schema .ddp-type-top-option .ddp-form-search {width:270px;}
 .popup-datastore-schema .ddp-type-top-option .ddp-ui-rightoption .ddp-form-label2:first-of-type {margin-left:0;}
 .popup-datastore-schema .ddp-type-top-option .ddp-wrap-add-column {float:left; position:relative; margin-left:6px;}
-.popup-datastore-schema .ddp-type-top-option .ddp-wrap-add-column.ddp-selected .ddp-box-column {display:block; z-index:10;}
+.popup-datastore-schema .ddp-type-top-option .ddp-wrap-add-column.ddp-selected .ddp-box-column {display:block; z-index:20;}
 .popup-datastore-schema .ddp-type-top-option .ddp-wrap-add-column.ddp-selected .ddp-btn-selection {background-color:#d0d1d8;}
 .popup-datastore-schema .ddp-wrap-add-column .ddp-box-column {display:none; position:absolute; top:100%; right:0; padding:19px 14px 13px 14px; margin-top:5px; width:470px; box-sizing:border-box;}
 .popup-datastore-schema .ddp-wrap-add-column .ddp-box-column .ddp-wrap-edit3 + .ddp-wrap-edit3 {margin-top:12px;}

@@ -17,27 +17,43 @@ package app.metatron.discovery.spec.druid.ingestion.parser;
 import com.google.common.base.Preconditions;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public class DimensionSchema {
+import app.metatron.discovery.common.datasource.DataType;
 
-  private String type;
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", defaultImpl = StringDimensionSchema.class)
+@JsonSubTypes(value = {
+    @JsonSubTypes.Type(name = "string", value = StringDimensionSchema.class),
+    @JsonSubTypes.Type(name = "long", value = LongDimensionSchema.class),
+    @JsonSubTypes.Type(name = "double", value = DoubleDimensionSchema.class)
+})
+public abstract class DimensionSchema {
+
+  public static DimensionSchema of(String name, DataType dataType) {
+    switch (dataType) {
+      case LONG:
+        return new LongDimensionSchema(name);
+      case DOUBLE:
+        return new DoubleDimensionSchema(name);
+      case STRING:
+        return new StringDimensionSchema(name);
+    }
+    throw new IllegalArgumentException("not supported type " + dataType + " (" + name + ")");
+  }
 
   private final String name;
 
   private final MultiValueHandling multiValueHandling;
 
-  public DimensionSchema(String name, String type, MultiValueHandling multiValueHandling) {
+  public DimensionSchema(String name, MultiValueHandling multiValueHandling) {
     this.name = Preconditions.checkNotNull(name, "Dimension name cannot be null.");
     this.multiValueHandling = multiValueHandling;
   }
 
   public String getName() {
     return name;
-  }
-
-  public String getType() {
-    return type;
   }
 
   public MultiValueHandling getMultiValueHandling() {

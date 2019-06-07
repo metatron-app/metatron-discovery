@@ -197,6 +197,7 @@ public class HiveDataAccessor extends AbstractJdbcDataAccessor {
         if (isColumnInfo) {
           Field field = new Field();
           field.setName(columnName);
+          field.setOriginalName(columnName);
           field.setType(DataType.jdbcToFieldType(descType));
           field.setRole(field.getType().toRole());
           field.setOriginalType(descType);

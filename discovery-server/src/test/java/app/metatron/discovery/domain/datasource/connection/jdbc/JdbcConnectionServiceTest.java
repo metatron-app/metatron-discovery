@@ -135,24 +135,27 @@ public class JdbcConnectionServiceTest extends AbstractIntegrationTest {
     ingestionInfo.setConnection(connection);
     ingestionInfo.setDataType(TABLE);
     ingestionInfo.setQuery("sales");
-    ingestionInfo.setDatabase("sample");
+    ingestionInfo.setDatabase("testbed1");
     String dataSourceName = "temp_sample_csv001";
 
     List<Field> fieldList = Lists.newArrayList();
 
     Field field = new Field();
     field.setName("City");
-    field.setLogicalName("city");
+    field.setLogicalName("City");
+    field.setSqlName("city");
     fieldList.add(field);
 
     field = new Field();
     field.setName("Category");
-    field.setLogicalName("category");
+    field.setLogicalName("Category");
+    field.setSqlName("category");
     fieldList.add(field);
 
     field = new Field();
     field.setName("OrderDate");
     field.setLogicalName("orderDate");
+    field.setSqlName("orderdate");
     fieldList.add(field);
 
     List<Filter> filterList = new ArrayList<>();

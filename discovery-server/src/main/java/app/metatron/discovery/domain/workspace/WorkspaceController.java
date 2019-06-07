@@ -799,7 +799,7 @@ public class WorkspaceController {
     return ResponseEntity.noContent().build();
   }
 
-  @RequestMapping(path = "/workspaces/{id}/delegate/{owner}", method = RequestMethod.POST)
+  @RequestMapping(path = "/workspaces/{id}/delegate/{owner:.+}", method = RequestMethod.POST)
   public ResponseEntity<?> delegateWorkspace(@PathVariable("id") String workspaceId,
                                              @PathVariable("owner") String owner) {
 

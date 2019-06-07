@@ -37,6 +37,12 @@ public class RelayAggregation implements Aggregation {
     this.typeName = typeName;
   }
 
+  public RelayAggregation(String name, String columnName, String typeName) {
+    this.name = name;
+    this.typeName = typeName;
+    this.columnName = columnName;
+  }
+
   public RelayAggregation(String name, String columnName, String typeName, String relayType) {
     this.name = name;
     this.columnName = columnName;

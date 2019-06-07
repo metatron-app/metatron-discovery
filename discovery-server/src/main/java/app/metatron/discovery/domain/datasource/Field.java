@@ -30,6 +30,7 @@ package app.metatron.discovery.domain.datasource;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
 import com.google.common.primitives.Longs;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -130,6 +131,12 @@ public class Field implements MetatronDomain<Long> {
    */
   @Column(name = "field_logical_name")
   private String logicalName;
+
+  /**
+   * Original field name, column name of source data before ingestion
+   */
+  @Column(name = "field_sql_name")
+  private String sqlName;
 
   /**
    * Field description
@@ -255,10 +262,16 @@ public class Field implements MetatronDomain<Long> {
   private Set<Field> mappedField;
 
   @Transient
+  @JsonProperty
   private String originalName;
 
   @Transient
+  @JsonProperty
   private String originalType;
+
+  @Transient
+  @JsonProperty
+  private Boolean duplicated;
 
   public Field() {
     // Empty Constructor
@@ -295,6 +308,40 @@ public class Field implements MetatronDomain<Long> {
     setFormat(patch.getObjectValue("format"));
   }
 
+  public static void checkDuplicatedField(List<Field> fields, boolean changeOriginalName) {
+
+    String dupSuffixFormat = "_DUP%d";
+
+    List<String> fieldNames = fields.stream().map(f -> f.getName()).collect(Collectors.toList());
+
+    Set<String> allItems = Sets.newHashSet();
+    Set<String> duplicates = fieldNames.stream()
+                                       .filter(n -> !allItems.add(n))
+                                       .collect(Collectors.toSet());
+
+    for (String duplicate : duplicates) {
+      List<Field> dupFields = fields.stream()
+                                    .filter(f -> duplicate.equals(f.getName()))
+                                    .collect(Collectors.toList());
+
+      for (int i = 0; i < dupFields.size(); i++) {
+        Field field = dupFields.get(i);
+        String originalName = field.getName();
+        String duplicatedName = field.getName() + String.format(dupSuffixFormat, i + 1);
+        field.setName(duplicatedName);
+        field.setLogicalName(originalName);
+        field.setDuplicated(true);
+
+        if (changeOriginalName) {
+          field.setOriginalName(duplicatedName);
+        } else {
+          field.setOriginalName(originalName);
+        }
+      }
+    }
+
+  }
+
   public void updateField(CollectionPatch patch) {
     // if(patch.hasProperty("name")) this.name = patch.getValue("name");
     if (patch.hasProperty("logicalName")) this.logicalName = patch.getValue("logicalName");
@@ -329,6 +376,18 @@ public class Field implements MetatronDomain<Long> {
     this.seq = column.getSeq();
   }
 
+  public boolean changedName() {
+    if (StringUtils.isEmpty(name)) {
+      return false;
+    }
+
+    if (!name.equals(getOriginalName())) {
+      return true;
+    }
+
+    return false;
+  }
+
   /**
    * for backward compatibility of timezone
    */
@@ -345,31 +404,31 @@ public class Field implements MetatronDomain<Long> {
   public Aggregation getAggregation(boolean isRelay) {
 
     if (isRelay) {
-      return new RelayAggregation(name, logicalType.toEngineMetricType());
+      return new RelayAggregation(name, getOriginalName(), logicalType.toEngineMetricType());
     }
 
     if (aggrType == null) {
-      return new GenericSumAggregation(name, name, "double");
+      return new GenericSumAggregation(name, getOriginalName(), "double");
     }
 
     // TODO: SUM/MIN/MAX 타입도 체크해야하는지 확인 해볼것
     switch (aggrType) {
       case SUM:
-        return new GenericSumAggregation(name, name, "double");
+        return new GenericSumAggregation(name, getOriginalName(), "double");
       case MIN:
-        return new GenericMinAggregation(name, name, "double");
+        return new GenericMinAggregation(name, getOriginalName(), "double");
       case MAX:
-        return new GenericMaxAggregation(name, name, "double");
+        return new GenericMaxAggregation(name, getOriginalName(), "double");
       case AREA:
-        return new AreaAggregation(name, name);
+        return new AreaAggregation(name, getOriginalName());
       case RANGE:
-        return new RangeAggregation(name, name);
+        return new RangeAggregation(name, getOriginalName());
       case VARIATION:
-        return new VarianceAggregation(name, name);
+        return new VarianceAggregation(name, getOriginalName());
       case APPROX:
-        return new ApproxHistogramFoldAggregation(name, name);
+        return new ApproxHistogramFoldAggregation(name, getOriginalName());
       default:
-        return new GenericSumAggregation(name, name, "double");
+        return new GenericSumAggregation(name, getOriginalName(), "double");
     }
   }
 
@@ -449,7 +508,7 @@ public class Field implements MetatronDomain<Long> {
   public TimestampSpec createTimestampSpec() {
 
     TimestampSpec timestampSpec = new TimestampSpec();
-    timestampSpec.setColumn(this.getName());
+    timestampSpec.setColumn(this.getOriginalName());
     timestampSpec.setReplaceWrongColumn(true);
 
     FieldFormat fieldFormat = GlobalObjectMapper.readValue(this.format, FieldFormat.class);
@@ -539,6 +598,17 @@ public class Field implements MetatronDomain<Long> {
     this.type = type;
   }
 
+  public String getLogicalName() {
+    if (StringUtils.isEmpty(logicalName)) {
+      return name;
+    }
+    return logicalName;
+  }
+
+  public void setLogicalName(String logicalName) {
+    this.logicalName = logicalName;
+  }
+
   public LogicalType getLogicalType() {
     if (logicalType == null) {
       return type.toLogicalType();
@@ -548,6 +618,14 @@ public class Field implements MetatronDomain<Long> {
 
   public void setLogicalType(LogicalType logicalType) {
     this.logicalType = logicalType;
+  }
+
+  public String getSqlName() {
+    return sqlName;
+  }
+
+  public void setSqlName(String sqlName) {
+    this.sqlName = sqlName;
   }
 
   public Long getSeq() {
@@ -572,17 +650,6 @@ public class Field implements MetatronDomain<Long> {
 
   public void setAggrType(MeasureField.AggregationType aggrType) {
     this.aggrType = aggrType;
-  }
-
-  public String getLogicalName() {
-    if (StringUtils.isEmpty(logicalName)) {
-      return name;
-    }
-    return logicalName;
-  }
-
-  public void setLogicalName(String logicalName) {
-    this.logicalName = logicalName;
   }
 
   @JsonIgnore
@@ -716,6 +783,9 @@ public class Field implements MetatronDomain<Long> {
   }
 
   public String getOriginalName() {
+    if (StringUtils.isEmpty(originalName)) {
+      return name;
+    }
     return originalName;
   }
 
@@ -731,6 +801,14 @@ public class Field implements MetatronDomain<Long> {
     this.originalType = originalType;
   }
 
+  public Boolean getDuplicated() {
+    return duplicated;
+  }
+
+  public void setDuplicated(Boolean duplicated) {
+    this.duplicated = duplicated;
+  }
+
   @Override
   public String toString() {
     return "Field{" +
@@ -741,12 +819,6 @@ public class Field implements MetatronDomain<Long> {
         ", role=" + role +
         ", format='" + format + '\'' +
         '}';
-  }
-
-  public enum BIType {
-    DIMENSION,
-    MEASURE,
-    TIMESTAMP
   }
 
   public enum FieldRole {

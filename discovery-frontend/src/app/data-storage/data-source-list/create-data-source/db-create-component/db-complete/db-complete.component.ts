@@ -20,23 +20,25 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  Output, ViewChild
+  Output,
+  ViewChild
 } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
-import { DatasourceInfo, FieldFormatType, IngestionRuleType } from '../../../../../domain/datasource/datasource';
-import { DatasourceService } from '../../../../../datasource/service/datasource.service';
-import { Alert } from '../../../../../common/util/alert.util';
-import { CommonUtil } from '../../../../../common/util/common.util';
-import { StringUtil } from '../../../../../common/util/string.util';
-import { ConfirmModalComponent } from '../../../../../common/component/modal/confirm/confirm.component';
-import { Modal } from '../../../../../common/domain/modal';
-import { CookieConstant } from '../../../../../common/constant/cookie.constant';
+import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
+import {DatasourceInfo, Field, FieldFormatType, IngestionRuleType} from '../../../../../domain/datasource/datasource';
+import {DatasourceService} from '../../../../../datasource/service/datasource.service';
+import {Alert} from '../../../../../common/util/alert.util';
+import {CommonUtil} from '../../../../../common/util/common.util';
+import {StringUtil} from '../../../../../common/util/string.util';
+import {ConfirmModalComponent} from '../../../../../common/component/modal/confirm/confirm.component';
+import {Modal} from '../../../../../common/domain/modal';
+import {CookieConstant} from '../../../../../common/constant/cookie.constant';
 import {CommonConstant} from "../../../../../common/constant/common.constant";
 import {GranularityService} from "../../../../service/granularity.service";
 import {CreateSourceCompleteData} from "../../../../service/data-source-create.service";
 import {StorageService} from "../../../../service/storage.service";
 import {AuthenticationType, JdbcDialect} from "../../../../../domain/dataconnection/dataconnection";
 import * as _ from 'lodash';
+import {DataStorageConstant} from "../../../../constant/data-storage-constant";
 
 /**
  * Creating datasource with Database - complete step
@@ -305,34 +307,37 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
    * @param column
    * @private
    */
-  private _deleteColumnProperty(column: any): void {
+  private _deleteColumnProperty(column): void {
     delete column.biType;
-    delete column.replaceFl;
+    // if disable originalName
+    if (Field.isDisableOriginalName(column)) {
+      Field.removeOriginalNameProperty(column);
+    }
     // if unloaded property is false, delete unloaded property
     if (column.unloaded === false) {
       delete column.unloaded;
     }
     // delete used UI
-    delete column.isValidTimeFormat;
-    delete column.isValidReplaceValue;
-    delete column.replaceValidMessage;
-    delete column.timeFormatValidMessage;
     delete column.checked;
-    if (column.format) {
+    if (!Field.isEmptyIngestionRule(column)) {
+      delete column.ingestionRule.isValidReplaceValue;
+      delete column.ingestionRule.replaceValidationMessage;
+    }
+    if (!Field.isEmptyFormat(column)) {
       delete column.format.isValidFormat;
       delete column.format.formatValidMessage;
     }
     // if not GEO types
-    if (column.logicalType.indexOf('GEO_') === -1) {
-      if (column.logicalType !== 'TIMESTAMP' && column.format) {
+    if (!Field.isGeoType(column)) {
+      if (!Field.isTimestampTypeField(column) && column.format) {
         delete column.format;
-      } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.UNIX_TIME) {
+      } else if (Field.isTimestampTypeField(column) && column.format.type === FieldFormatType.UNIX_TIME) {
         // remove format
         delete column.format.format;
         // remove timezone
         delete column.format.timeZone;
         delete column.format.locale;
-      } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.DATE_TIME) {
+      } else if (Field.isTimestampTypeField(column) && column.format.type === FieldFormatType.DATE_TIME) {
         delete column.format.unit;
       }
     } else {  // if GEO types
@@ -449,9 +454,9 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
    */
   private _getFieldsParams(): any[] {
     // timestamp enable
-    const isCreateTimestamp = this.getSchemaData.selectedTimestampType === 'CURRENT';
+    const isCreateTimestamp = this.getSchemaData.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.CURRENT;
     // fields param
-    let fields = _.cloneDeep(this.getSchemaData._originFieldList);
+    let fields = _.cloneDeep(this.getSchemaData.fieldList);
     // seq number
     let seq = 0;
     // field 설정
@@ -561,7 +566,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
       ingestion['tuningOptions'] = this._toObject(this.getIngestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)));
     }
     // if not used current_time TIMESTAMP, set intervals
-    if (this.getSchemaData.selectedTimestampType !== 'CURRENT') {
+    if (this.getSchemaData.selectedTimestampType !== DataStorageConstant.Datasource.TimestampType.CURRENT) {
       ingestion['intervals'] =  [this._granularityService.getIntervalUsedParam(this.getIngestionData.startIntervalText, this.getIngestionData.selectedSegmentGranularity) + '/' + this._granularityService.getIntervalUsedParam(this.getIngestionData.endIntervalText, this.getIngestionData.selectedSegmentGranularity)];
     }
     return ingestion;

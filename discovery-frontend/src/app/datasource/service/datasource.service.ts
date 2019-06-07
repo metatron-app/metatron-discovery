@@ -789,59 +789,6 @@ export class DatasourceService extends AbstractService {
   }
 
   /**
-   * Check valid date time format in field
-   * @param {Field} field
-   * @param {string[]} fieldDataList
-   * @param {boolean} isInitValid
-   * @return {Promise<any>}
-   */
-  public checkValidDateTimeFormatInField(field: Field, fieldDataList: string[], isInitValid?: boolean): Promise<any> {
-    const params: { samples: string[], format?: string } = {
-      samples: fieldDataList.slice(0, 19)
-    };
-    // if not exist format in field, init format
-    (!field.format) && (field.format = new FieldFormat());
-    // if not init valid, set format in params
-    (!isInitValid) && (params.format = field.format.format);
-    return new Promise<any>((resolve, reject) => {
-      this.post(this.API_URL + 'datasources/validation/datetime', params)
-        .then((result: { valid?: boolean, pattern?: string }) => {
-          // if valid or exist pattern
-          if (result.valid || result.pattern) {
-            // set time format valid TRUE
-            field.isValidTimeFormat = true;
-            // if exist pattern, set time format in field
-            (result.pattern) && (field.format.format = result.pattern);
-            // if enable timezone, set browser timezone at field
-            if (this._timezoneSvc.isEnableTimezoneInDateFormat(field.format)) {
-              !field.format.timeZone && (field.format.timeZone = this._timezoneSvc.getBrowserTimezone().momentName);
-              field.format.locale = this._timezoneSvc.browserLocale;
-            } else { // if not enable timezone
-              field.format.timeZone = TimezoneService.DISABLE_TIMEZONE_KEY;
-            }
-          } else { // invalid
-            // set time format valid FALSE
-            field.isValidTimeFormat = false;
-            // set time format valid message
-            field.timeFormatValidMessage = this._translateSvc.instant('msg.storage.ui.schema.valid.required.match.data');
-          }
-          // if valid format, set enable time format
-          (result.valid) && (field.isValidTimeFormat = true);
-          resolve(field);
-        })
-        .catch((error) => {
-          // if init valid, set default time format in field
-          (isInitValid) && (field.format.format = 'yyyy-MM-dd');
-          // set time format valid FALSE
-          field.isValidTimeFormat = false;
-          // set time format valid message
-          field.timeFormatValidMessage = this._translateSvc.instant('msg.storage.ui.schema.valid.required.match.data');
-          reject(field);
-        });
-    });
-  }
-
-  /**
    * cron validation 체크
    * @param param
    * @returns {Promise<any>}

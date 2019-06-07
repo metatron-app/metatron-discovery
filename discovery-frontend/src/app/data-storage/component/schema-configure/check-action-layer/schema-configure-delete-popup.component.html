@@ -1,0 +1,12 @@
+<div class="ddp-box-layout4 ddp-delete" *ngIf="isShowPopup" (clickOutside)="closePopup()" [delayClickOutsideInit]="true">
+  <a href="javascript:" class="ddp-btn-close" (click)="closePopup()"></a>
+  <div class="ddp-wrap-data-detail">
+    <div class="ddp-ui-top-title">
+     {{'msg.storage.ui.action.delete' | translate}}
+    </div>
+  </div>
+  <div class="ddp-box-button">
+    <a href="javascript:" class="ddp-btn-line" (click)="closePopup()">{{'msg.comm.btn.cancl' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-solid ddp-bg-black" (click)="deleteCheckedFieldList()">{{'msg.comm.btn.done' | translate}}</a>
+  </div>
+</div>

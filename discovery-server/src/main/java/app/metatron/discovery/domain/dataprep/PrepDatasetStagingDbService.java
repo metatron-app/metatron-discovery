@@ -16,6 +16,7 @@ package app.metatron.discovery.domain.dataprep;
 
 import static app.metatron.discovery.domain.dataprep.entity.PrDataset.RS_TYPE.QUERY;
 
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
 import app.metatron.discovery.domain.dataconnection.DataConnectionRepository;
@@ -72,7 +73,7 @@ public class PrepDatasetStagingDbService {
     @Autowired(required = false)
     PrepProperties prepProperties;
 
-    @Autowired
+    @Autowired(required = false)
     StorageProperties storageProperties;
 
     @Autowired
@@ -227,6 +228,8 @@ public class PrepDatasetStagingDbService {
             List<Field> fields = Lists.newArrayList();
             List<Map<String, String>> headers = Lists.newArrayList();
 
+            validateStorageProperties(storageProperties);
+
             StageDBConnection stageDB = storageProperties.getStagedb();
             DataConnection stageDataConnection = new DataConnection();
             stageDataConnection.setHostname(    stageDB.getHostname());
@@ -320,6 +323,12 @@ public class PrepDatasetStagingDbService {
         return responseMap;
     }
 
+    private static void validateStorageProperties(StorageProperties storageProperties) {
+        if (storageProperties == null || storageProperties.getStagedb() == null) {
+            throw new ResourceNotFoundException("Stage DB information required.");
+        }
+    }
+
     // FIXME: connectUrl에 명시된 server에 hiveserver2가 돌고 있어야 한다.
     public DataFrame getPreviewStagedbForDataFrame(String queryStmt, String dbName, String tblName, String size) throws SQLException {
 
@@ -331,6 +340,8 @@ public class PrepDatasetStagingDbService {
             if(dbName==null || dbName.isEmpty()) {
                 dbName = "default";
             }
+
+            validateStorageProperties(storageProperties);
 
             StageDBConnection stageDB = storageProperties.getStagedb();
             DataConnection stageDataConnection = new DataConnection();
@@ -448,6 +459,8 @@ public class PrepDatasetStagingDbService {
             } else {
                 sql = "SELECT * FROM " + tblName + " LIMIT " + size;
             }
+
+            validateStorageProperties(storageProperties);
 
             StageDBConnection stageDB = storageProperties.getStagedb();
             DataConnection stageDataConnection = new DataConnection();
@@ -575,6 +588,8 @@ public class PrepDatasetStagingDbService {
 
     public void writeSnapshot(ServletOutputStream outputStream, String dbName, String sql, String fileType) throws PrepException {
         try {
+            validateStorageProperties(storageProperties);
+
             StageDBConnection stageDB = storageProperties.getStagedb();
             DataConnection stageDataConnection = new DataConnection();
             stageDataConnection.setHostname(    stageDB.getHostname());
@@ -619,6 +634,8 @@ public class PrepDatasetStagingDbService {
 
     public void dropHiveSnapshotTable(String sql) throws PrepException {
         try {
+            validateStorageProperties(storageProperties);
+
             StageDBConnection stageDB = storageProperties.getStagedb();
             DataConnection stageDataConnection = new DataConnection();
             stageDataConnection.setHostname(    stageDB.getHostname());

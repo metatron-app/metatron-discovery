@@ -98,7 +98,7 @@ public class PrDatasetController {
     @Autowired
     PrepProperties prepProperties;
 
-    @Autowired
+    @Autowired(required = false)
     StorageProperties storageProperties;
 
     @Value("${spring.http.multipart.max-file-size}")
@@ -464,12 +464,10 @@ public class PrDatasetController {
             if(prepProperties.getLocalBaseDir() != null) {
                 storageTypes.add(PrDataset.STORAGE_TYPE.LOCAL);
             }
-            StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
-            if(prepProperties.getStagingBaseDir() != null && storageProperties.getStagedb()!=null ) {
+            if(storageProperties != null && prepProperties.getStagingBaseDir() != null && storageProperties.getStagedb() != null ) {
                 storageTypes.add(PrDataset.STORAGE_TYPE.HDFS);
             }
-            StorageProperties.S3Connection s3Connection = storageProperties.getS3();
-            if(storageProperties.getS3()!=null ) {
+            if(storageProperties != null && storageProperties.getS3() != null) {
                 storageTypes.add(PrDataset.STORAGE_TYPE.S3);
             }
             response.put("storage_types", storageTypes);

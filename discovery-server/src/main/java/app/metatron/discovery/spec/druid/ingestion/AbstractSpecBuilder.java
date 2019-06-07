@@ -87,6 +87,10 @@ public class AbstractSpecBuilder {
         addRule(field.getName(), field.getIngestionRuleObject());
       }
 
+      if (field.getRole() == Field.FieldRole.DIMENSION && field.changedName()) {
+        dataSchema.addEvaluation(new Evaluation(field.getName(), "\"" + field.getOriginalName() + "\""));
+      }
+
       FieldFormat fieldFormat = field.getFormatObject();
       if (fieldFormat != null) {
         if (fieldFormat instanceof GeoFormat) {
@@ -238,14 +242,14 @@ public class AbstractSpecBuilder {
           break;
         case INTEGER:
         case LONG:
-          dimenstionSchemas.add(new DimensionSchema(dimensionfield.getName(), "long", null));
+          dimenstionSchemas.add(DimensionSchema.of(dimensionfield.getName(), DataType.LONG));
           break;
         case FLOAT:
         case DOUBLE:
-          dimenstionSchemas.add(new DimensionSchema(dimensionfield.getName(), "double", null));
+          dimenstionSchemas.add(DimensionSchema.of(dimensionfield.getName(), DataType.DOUBLE));
           break;
         case ARRAY:
-          dimenstionSchemas.add(new DimensionSchema(dimensionfield.getName(), "string", DimensionSchema.MultiValueHandling.ARRAY));
+          dimenstionSchemas.add(new StringDimensionSchema(dimensionfield.getName(), DimensionSchema.MultiValueHandling.ARRAY));
           break;
         default:
           throw new IllegalArgumentException("Not support dimension type");
@@ -270,7 +274,7 @@ public class AbstractSpecBuilder {
       // get Columns
       List<String> columns = dataSource.getFields().stream()
                                        .filter(field -> BooleanUtils.isNotTrue(field.getDerived()))
-                                       .map((field) -> field.getName())
+                                       .map((field) -> field.getOriginalName())
                                        .collect(Collectors.toList());
 
       if (hadoopIngestion) {

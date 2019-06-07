@@ -132,4 +132,44 @@ public class KafkaIoConfig implements IoConfig {
   public void setTaskDuration(String taskDuration) {
     this.taskDuration = taskDuration;
   }
+
+  public String getStartDelay() {
+    return startDelay;
+  }
+
+  public void setStartDelay(String startDelay) {
+    this.startDelay = startDelay;
+  }
+
+  public String getPeriod() {
+    return period;
+  }
+
+  public void setPeriod(String period) {
+    this.period = period;
+  }
+
+  public Boolean getUseEarliestOffset() {
+    return useEarliestOffset;
+  }
+
+  public void setUseEarliestOffset(Boolean useEarliestOffset) {
+    this.useEarliestOffset = useEarliestOffset;
+  }
+
+  public String getCompletionTimeout() {
+    return completionTimeout;
+  }
+
+  public void setCompletionTimeout(String completionTimeout) {
+    this.completionTimeout = completionTimeout;
+  }
+
+  public String getLateMessageRejectionPeriod() {
+    return lateMessageRejectionPeriod;
+  }
+
+  public void setLateMessageRejectionPeriod(String lateMessageRejectionPeriod) {
+    this.lateMessageRejectionPeriod = lateMessageRejectionPeriod;
+  }
 }
