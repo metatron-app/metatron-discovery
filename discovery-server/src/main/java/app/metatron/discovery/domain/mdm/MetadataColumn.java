@@ -26,6 +26,8 @@ import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.format.support.DefaultFormattingConversionService;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.persistence.*;
 
@@ -137,6 +139,16 @@ public class MetadataColumn implements MetatronDomain<Long>  {
   @JsonBackReference("column_codetable")
   private CodeTable codeTable;
 
+
+  /**
+   * Column additional context
+   */
+  @Column(name = "column_additional_context", length = 65535, columnDefinition = "TEXT")
+  @Basic(fetch = FetchType.LAZY)
+  @JsonRawValue
+  @JsonDeserialize(using = KeepAsJsonDeserialzier.class)
+  private String additionalContext;
+
   public MetadataColumn() {
   }
 
@@ -151,6 +163,14 @@ public class MetadataColumn implements MetatronDomain<Long>  {
     this.role = field.getRole();
     this.seq = field.getSeq();
     this.metadata = metadata;
+
+    //field derived
+    if(field.getDerived() != null && field.getDerived()){
+      HashMap<String, Object> additionalMap = new HashMap<>();
+      additionalMap.put("derived", field.getDerived());
+      additionalMap.put("derivationRule", field.getDerivationRuleObject());
+      this.additionalContext = GlobalObjectMapper.writeValueAsString(additionalMap);
+    }
   }
 
   public MetadataColumn(CollectionPatch patch, DefaultFormattingConversionService defaultConversionService) {
@@ -180,6 +200,11 @@ public class MetadataColumn implements MetatronDomain<Long>  {
       CodeTable codeTable = defaultConversionService.convert(uri, CodeTable.class);
       codeTable.addColumn(this);
       this.codeTable = codeTable;
+    }
+
+    if(patch.hasProperty("additionalContext")) {
+      Map additionalContextMap = GlobalObjectMapper.getDefaultMapper().convertValue(patch.getValue("additionalContext"), Map.class);
+      this.additionalContext = GlobalObjectMapper.writeValueAsString(additionalContextMap);
     }
   }
 
@@ -225,6 +250,11 @@ public class MetadataColumn implements MetatronDomain<Long>  {
         if(this.codeTable != null) this.codeTable.removeColumn(this);
         this.codeTable = null;
       }
+    }
+
+    if(patch.hasProperty("additionalContext")) {
+      Map additionalContextMap = GlobalObjectMapper.getDefaultMapper().convertValue(patch.getValue("additionalContext"), Map.class);
+      this.additionalContext = GlobalObjectMapper.writeValueAsString(additionalContextMap);
     }
   }
 
@@ -345,6 +375,22 @@ public class MetadataColumn implements MetatronDomain<Long>  {
   public FieldFormat getFieldFormat() {
     if(StringUtils.isNotEmpty(format)){
       return GlobalObjectMapper.readValue(format, FieldFormat.class);
+    }
+    return null;
+  }
+
+  public String getAdditionalContext() {
+    return additionalContext;
+  }
+
+  public void setAdditionalContext(String additionalContext) {
+    this.additionalContext = additionalContext;
+  }
+
+  @JsonIgnore
+  public Map getAdditionalContextMap(){
+    if(StringUtils.isNotEmpty(additionalContext)){
+      return GlobalObjectMapper.readValue(additionalContext, Map.class);
     }
     return null;
   }

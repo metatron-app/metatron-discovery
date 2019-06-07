@@ -259,7 +259,7 @@ public class MetadataController {
             throw new ResourceNotFoundException(metadataId);
         }
 
-        DataFrame result = metadataService.getDataFame(metadata, limit);
+        DataFrame result = metadataService.getDataFrame(metadata, limit);
 
         responseMap.put("size", result.rows.size());
         responseMap.put("data", result);
