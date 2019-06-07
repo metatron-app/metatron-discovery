@@ -244,7 +244,6 @@ export class CreateMetadataDbSelectComponent extends AbstractComponent {
    */
   private _getConnectionParams(): {connection: ConnectionParam, type: string} {
     const result = {connection: _.cloneDeep(this.createData.connectionInfo.connection), type: 'TABLE'};
-    result.connection.id = this.createData.connectionInfo.selectedConnectionPreset.id;
     return result;
   }
 
@@ -256,6 +255,7 @@ export class CreateMetadataDbSelectComponent extends AbstractComponent {
   private _getConnectionParamsAddedDatabase() {
     const result: {connection, database?} = this._getConnectionParams();
     result.database = this.selectedSchema;
+    result.connection.id = this.createData.connectionInfo.selectedConnectionPreset.id;
     return result;
   }
 
