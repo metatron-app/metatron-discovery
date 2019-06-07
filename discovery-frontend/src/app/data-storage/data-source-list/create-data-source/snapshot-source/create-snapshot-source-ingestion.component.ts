@@ -13,6 +13,7 @@ import {
 import {DatasourceInfo} from "../../../../domain/datasource/datasource";
 import {IngestionSettingComponent} from "../../component/ingestion-setting.component";
 import {SsType} from "../../../../domain/data-preparation/pr-snapshot";
+import {DataStorageConstant} from "../../../constant/data-storage-constant";
 
 @Component({
   selector: 'create-snapshot-ingestion-select',
@@ -47,7 +48,7 @@ export class CreateSnapshotSourceIngestionComponent extends AbstractPopupCompone
     if (changes._sourceData) {
       this._ingestionSettingComponent.init(
         this._sourceData, this._sourceData.snapshotData.selectedSnapshot.ssType === SsType.STAGING_DB ? 'SNAPSHOT-STAGING' : 'SNAPSHOT',
-        this._sourceData.schemaData.selectedTimestampType === 'CURRENT' ? null :  this._sourceData.schemaData.selectedTimestampField,
+        this._sourceData.schemaData.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.CURRENT ? null :  this._sourceData.schemaData.selectedTimestampField,
         this._sourceData.schemaData.isChangedTimestampField
       );
       // remove changed flag

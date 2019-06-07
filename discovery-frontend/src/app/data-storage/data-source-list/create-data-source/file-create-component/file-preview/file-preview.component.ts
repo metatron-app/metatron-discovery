@@ -178,7 +178,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
    * @returns {boolean}
    */
   public isCsvFile(): boolean {
-    return !this.fileResult.sheets;
+    return _.isNil(this.fileResult.sheets);
   }
 
   /**
@@ -186,7 +186,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
    * @return {boolean}
    */
   public isExcelFile(): boolean {
-    return _.isNil(this.fileResult.sheets);
+    return !_.isNil(this.fileResult.sheets);
   }
 
   /**

@@ -2035,7 +2035,7 @@
   "msg.storage.ui.dsource.synchronization.modal.btn" : "동기화",
   "msg.storage.ui.dsource.synchronization.success" : "데이터소스 동기화 완료",
   "msg.storage.th.start.time" : "시작 시간",
-  "msg.storage.ui.revival" : "갱신",
+  "msg.storage.ui.revival" : "되돌리기",
   "msg.storage.ui.list.length" : "<strong>{{value}}</strong>개 데이터가 있습니다",
   "msg.storage.th.rollup.settings" : "롤업",
   "msg.storage.th.rollup.description.title" : "롤업이란 무엇입니까?",

@@ -31,7 +31,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionErrorCodes;
 import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionException;
 
@@ -117,6 +119,21 @@ public class JdbcCSVWriter extends CsvResultSetWriter implements ICsvResultSetWr
 
     if(withHeader) {
       writeHeaders(resultSet, removeSubQueryTableName);
+    }
+
+    writeContents(resultSet); // increments row and line number before writing of each row
+  }
+
+  public void write(final ResultSet resultSet, List<Field> fields, boolean useOriginalName) throws SQLException, IOException {
+    if (resultSet == null) {
+      throw new NullPointerException("ResultSet cannot be null");
+    }
+
+    if (withHeader) {
+      List<String> headerNames = fields.stream()
+                                       .map(f -> useOriginalName ? f.getOriginalName() : f.getName())
+                                       .collect(Collectors.toList());
+      writeHeaders(headerNames);
     }
 
     writeContents(resultSet); // increments row and line number before writing of each row

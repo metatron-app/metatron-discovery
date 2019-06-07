@@ -2037,7 +2037,7 @@
   "msg.storage.ui.dsource.synchronization.modal.btn" : "Synchronize",
   "msg.storage.ui.dsource.synchronization.success" : "Datasource synchronization completed.",
   "msg.storage.th.start.time" : "Start time",
-  "msg.storage.ui.revival" : "Revival",
+  "msg.storage.ui.revival" : "Undo",
   "msg.storage.ui.list.length" : "There are <strong>{{value}}</strong> lists",
   "msg.storage.th.rollup.settings" : "Rollup",
   "msg.storage.th.rollup.description.title" : "What is Rollup?",

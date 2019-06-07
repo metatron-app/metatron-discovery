@@ -28,6 +28,7 @@ import org.apache.hadoop.fs.ContentSummary;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.datanucleus.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -333,20 +334,13 @@ public class CommonsCsvProcessor {
     Map<String, Object> rowMap = null;
     for (String[] row : rows) {
       rowMap = Maps.newLinkedHashMap();
-      for (int i = 0; i < columnNames.size(); i++) {
-        rowMap.put(columnNames.get(i), row[i]);
+      for (int i = 0; i < fields.size(); i++) {
+        rowMap.put(fields.get(i).getName(), row[i]);
       }
       resultRows.add(rowMap);
     }
 
     FileValidationResponse isParsable = new FileValidationResponse(true);
-
-    // replace 'null' column name to generated column name
-    for (int j = 0; j < columnNames.size(); j++) {
-      if (columnNames.get(j) == null) {
-        columnNames.set(j, prefixColumnName + (j + 1));
-      }
-    }
 
     return new IngestionDataResultResponse(fields, resultRows, totalRows, isParsable);
   }
@@ -354,8 +348,15 @@ public class CommonsCsvProcessor {
   private List<Field> makeField() {
     List<Field> fields = Lists.newArrayList();
     for (int i = 0; i < columnNames.size(); i++) {
-      fields.add(new Field(columnNames.get(i), DataType.STRING, i + 1));
+      String columnName = columnNames.get(i);
+      if (StringUtils.isEmpty(columnName)) {
+        throw new CommonsCsvException("Invalid header name: null");
+      }
+      fields.add(new Field(columnName, DataType.STRING, i + 1));
     }
+
+    Field.checkDuplicatedField(fields, false);
+
     return fields;
   }
 
