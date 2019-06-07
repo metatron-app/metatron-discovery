@@ -87,7 +87,7 @@ export class MetadataControlCompleteComponent extends AbstractComponent {
   }
 
   getMetadataTableList(): string[] {
-    return this.metadataList.map(metadata => metadata.table);
+    return this.metadataList.map(metadata => metadata.name);
   }
 
   getMetadataCreateParams(schema: string, selectedPreset): Metadata[] {

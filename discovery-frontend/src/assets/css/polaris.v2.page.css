@@ -8248,7 +8248,7 @@ table .ddp-type-multy [class*="ddp-col-"]{padding:0 3px}
 table.ddp-table-detail .ddp-box-slider {width:505px;}
 table.ddp-table-detail .ddp-box-slider .ddp-checkbox-slide.ddp-checkbox-automatic2 {padding-left:30px; margin-bottom:10px}
 
-/*table.ddp-table-form span.ddp-box-tag-value {display:inline-block; min-width:80px; padding:2px 3px 1px 3px; border-radius:1px; font-size:12px; box-sizing:border-box;text-align:center;}*/
+table.ddp-table-form span.ddp-box-tag-value {display:inline-block; min-width:80px; padding:2px 3px 1px 3px; border-radius:1px; font-size:12px; box-sizing:border-box;text-align:center;}
 table.ddp-table-form span.ddp-box-tag-value.ddp-dimension {color:#439fe5; border:1px solid #439fe5;}
 table.ddp-table-form span.ddp-box-tag-value.ddp-measure {color:#5fd7a5; border:1px solid #5fd7a5;}
 table.ddp-table-type2 tbody tr td .ddp-box-hover {display:inline-block;}

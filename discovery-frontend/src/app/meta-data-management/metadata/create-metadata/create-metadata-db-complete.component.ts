@@ -171,7 +171,7 @@ export class CreateMetadataDbCompleteComponent extends AbstractComponent {
         } else {
           // set name error
           result.forEach(name => {
-            const metadata = this._metadataControlCompleteComponent.metadataList.find(metadata => metadata.table === name);
+            const metadata = this._metadataControlCompleteComponent.metadataList.find(metadata => metadata.name === name);
             metadata.isErrorName = true;
             metadata.errorMessage = this.translateService.instant('msg.metadata.ui.create.name.error.duplicated');
           });
