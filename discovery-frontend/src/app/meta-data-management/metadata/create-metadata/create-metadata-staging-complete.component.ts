@@ -100,7 +100,7 @@ export class CreateMetadataStagingCompleteComponent extends AbstractComponent {
    */
   private _createMetadata() {
     this.loadingShow();
-    this.metadataService.createMetaData(this._metadataControlCompleteComponent.getMetadataCreateParams())
+    this.metadataService.createMetaData(this._metadataControlCompleteComponent.getMetadataCreateParamsUsedStaging())
       .then(result => {
         this.loadingHide();
         Alert.success(this.translateService.instant('msg.metadata.alert.create.success'));
@@ -115,14 +115,14 @@ export class CreateMetadataStagingCompleteComponent extends AbstractComponent {
    */
   private _checkDuplicatedMetadataNameFromServerAndCreateMetadata() {
     this.loadingShow();
-    this.metadataService.getDuplicatedMetadataNameList(this._metadataControlCompleteComponent.getMetadataNameList())
+    this.metadataService.getDuplicatedMetadataNameList(this._metadataControlCompleteComponent.getMetadataTableList())
       .then(result => {
         if (_.isNil(result) || result.length === 0) {
           this._createMetadata();
         } else {
           // set name error
           result.forEach(name => {
-            const metadata = this._metadataControlCompleteComponent.metadataList.find(metadata => metadata.name === name);
+            const metadata = this._metadataControlCompleteComponent.metadataList.find(metadata => metadata.table === name);
             metadata.isErrorName = true;
             metadata.errorMessage = this.translateService.instant('msg.metadata.ui.create.name.error.duplicated');
           });
