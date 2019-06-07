@@ -702,7 +702,13 @@ export class DatasourceService extends AbstractService {
       query.limits = {
         limit: 5000,
         sort: null
-      }
+      };
+      let uiOption = <UIMapOption>pageConf.chart;
+      uiOption.layers.forEach((layer) => {
+        if(layer.type == MapLayerType.SYMBOL || layer.type == MapLayerType.HEATMAP) {
+          query.limits.limit = 20000;
+        }
+      });
     }
 
     if (!_.isEmpty(resultFormatOptions)) {
