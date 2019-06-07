@@ -73,13 +73,9 @@ export class StorageService extends AbstractService {
    * @param {ImplementorType} implementorType
    * @return {JdbcDialect}
    */
-  public findConnectionType(implementorType: ImplementorType): JdbcDialect {
+  public findConnectionType(implementorType): JdbcDialect {
     return _.cloneDeep(StorageService.connectionTypeList.find(type => type.implementor === implementorType));
   }
-
-  public static findJdbcDialectFromImplementorType(implementorType: ImplementorType): JdbcDialect {
-  return _.cloneDeep(StorageService.connectionTypeList.find(type => type.implementor === implementorType));
-}
 
   /**
    * Is require SID

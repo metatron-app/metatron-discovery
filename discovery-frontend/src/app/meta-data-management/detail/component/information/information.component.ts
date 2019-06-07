@@ -21,6 +21,7 @@ import {MetadataModelService} from '../../../metadata/service/metadata.model.ser
 import {Alert} from '../../../../common/util/alert.util';
 import {Metadata, SourceType} from '../../../../domain/meta-data-management/metadata';
 import {MetadataSourceType} from "../../../../domain/meta-data-management/metadata-source";
+import {StorageService} from "../../../../data-storage/service/storage.service";
 
 @Component({
   selector: 'app-metadata-detail-information',
@@ -70,6 +71,7 @@ export class InformationComponent extends AbstractComponent implements OnInit, O
   constructor(
     protected element: ElementRef,
     protected metadataService: MetadataService,
+    protected storageService: StorageService,
     public metadataModelService: MetadataModelService,
     protected injector: Injector) {
     super(element, injector);
@@ -122,10 +124,6 @@ export class InformationComponent extends AbstractComponent implements OnInit, O
     return Metadata.isSourceTypeIsJdbc(this.metadataModelService.getMetadata().sourceType)
   }
 
-  getMetadataDatabaseType() {
-    return this.metadataModelService.getMetadata().source.source.implementor;
-  }
-
   getMetadataType(): string {
     switch (this.metadataModelService.getMetadata().sourceType) {
       case SourceType.ENGINE:
@@ -135,6 +133,10 @@ export class InformationComponent extends AbstractComponent implements OnInit, O
       case SourceType.STAGEDB:
         return this.translateService.instant('msg.storage.li.hive');
     }
+  }
+
+  getMetadataDatabaseTypeToString(): string {
+    return this.storageService.findConnectionType(this.metadataModelService.getMetadata().source.source.implementor).name || this.metadataModelService.getMetadata().source.source.implementor.toString();
   }
 
   /**

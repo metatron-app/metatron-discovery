@@ -72,7 +72,7 @@
           {{'msg.metadata.md.ui.data.type' | translate}}
         </th>
         <td>
-          {{getMetadataType()}} <span *ngIf="isDatabaseTypeMetadata()">({{getMetadataDatabaseType()}})</span>
+          {{getMetadataType()}} <span *ngIf="isDatabaseTypeMetadata()">({{getMetadataDatabaseTypeToString()}})</span>
         </td>
       </tr>
       <tr>
