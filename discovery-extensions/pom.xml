@@ -22,7 +22,7 @@
             </modules>
         </profile>
         <profile>
-            <id>include-all</id>
+            <id>extensions-all</id>
             <modules>
                 <module>mssql-connection</module>
                 <module>oracle-connection</module>

@@ -251,7 +251,7 @@ If not set, activate all extension of extension path.
 
 ### 3. maven profile related to distribution constraints
 We do not build all extensions by default because there are extensions that are restricted by some distribution licenses.
-To build the entire extension you need to build it using the 'include-all' profile.
+To build the entire extension you need to build it using the 'extensions-all' profile.
 ```
-mvn -P include-all clean install
+mvn -P extensions-all clean install
 ``` 
