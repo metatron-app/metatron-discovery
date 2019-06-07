@@ -137,8 +137,8 @@
     <tbody>
     <tr *ngFor="let metadata of metadatas" (click)="onClickMetadataDetail(metadata)">
       <td>
-        <span class="ddp-box-tag-value" [ngClass]="{'ddp-datasource':metadata.sourceType.toString() === 'ENGINE', 'ddp-hive': 'JDBC' == metadata.sourceType.toString(), 'ddp-stagingdb' : 'STAGEDB' == metadata.sourceType.toString()}">
-          {{ 'ENGINE' == metadata.sourceType.toString() ? 'Datasource' : 'STAGEDB' == metadata.sourceType.toString() ? 'Staging DB' : 'JDBC' == metadata.sourceType.toString() ? 'HIVE' : metadata.sourceType }}
+        <span class="ddp-box-tag-value" [ngClass]="getMetadataTypeIcon(metadata)">
+          {{getMetadataType(metadata)}}
         </span>
       </td>
       <td>

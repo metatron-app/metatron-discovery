@@ -281,6 +281,28 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     this.getMetadataList();
   }
 
+  getMetadataType(metadata: Metadata): string {
+    switch (metadata.sourceType) {
+      case SourceType.ENGINE:
+        return this.translateService.instant('msg.comm.th.ds');
+      case SourceType.JDBC:
+        return this.translateService.instant('msg.storage.li.db');
+      case SourceType.STAGEDB:
+        return this.translateService.instant('msg.storage.li.hive');
+    }
+  }
+
+  getMetadataTypeIcon(metadata: Metadata): string {
+    switch (metadata.sourceType) {
+      case SourceType.ENGINE:
+        return 'ddp-datasource';
+      case SourceType.JDBC:
+        return 'ddp-hive';
+      case SourceType.STAGEDB:
+        return 'ddp-stagingdb';
+    }
+  }
+
   /**
    * 컨텐츠 총 갯수
    * @returns {number}
@@ -543,14 +565,14 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     this.sourceTypeList = StorageService.isEnableStageDB
       ? [
         {label: 'All', value: ''},
-        {label: 'Datasource', value: SourceType.ENGINE},
-        {label: 'Hive', value: SourceType.JDBC},
-        {label: 'Staging DB', value: SourceType.STAGING},
+        {label: this.translateService.instant('msg.comm.th.ds'), value: SourceType.ENGINE},
+        {label: this.translateService.instant('msg.storage.li.db'), value: SourceType.JDBC},
+        {label: this.translateService.instant('msg.storage.li.hive'), value: SourceType.STAGING},
       ]
       : [
         {label: 'All', value: ''},
-        {label: 'Datasource', value: SourceType.ENGINE},
-        {label: 'Hive', value: SourceType.JDBC},
+        {label: this.translateService.instant('msg.comm.th.ds'), value: SourceType.ENGINE},
+        {label: this.translateService.instant('msg.storage.li.db'), value: SourceType.JDBC},
       ];
 
     this.sourceType = '';
