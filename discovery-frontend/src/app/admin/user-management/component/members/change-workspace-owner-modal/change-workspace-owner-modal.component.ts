@@ -297,11 +297,23 @@ export class ChangeWorkspaceOwnerModalComponent extends AbstractPopupComponent i
     });
   }
 
+  private deleteWorkspace(workspaceId: string) {
+    return new Promise(((resolve, reject) => {
+      this.workspaceService.deleteWorkspace(workspaceId).
+        then(result => resolve(result)).
+        catch(error => reject(error));
+    }))
+  }
+
   private _transferWorkspacesOwner() {
     forkJoin(
       this._workspaceDetailComponents.map((component, index) => {
-          return from(this.transferWorkspaceOwner(component.getWorkspaceId(),
-            this._workspaceMembersSelectBoxComponents.toArray()[index].getCheckedMember().value.username));
+          if (this._workspaceMembersSelectBoxComponents.toArray()[index].getCheckedMember().value.role != null) {
+            return from(this.transferWorkspaceOwner(component.getWorkspaceId(),
+              this._workspaceMembersSelectBoxComponents.toArray()[index].getCheckedMember().value.username));
+          } else {
+            return from(this.deleteWorkspace(component.getWorkspaceId()));
+          }
         },
       ),
     ).subscribe(

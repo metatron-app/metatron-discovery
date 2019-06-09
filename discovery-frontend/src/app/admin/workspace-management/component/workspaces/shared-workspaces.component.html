@@ -162,66 +162,68 @@
     </thead>
     <tbody>
     <tr *ngFor="let workspace of getWorkspaceList" (click)="onOpenWorkspaceDetail(workspace.id)">
-      <td>
-        <!-- ddp-shared -->
-        <span class="ddp-box-tag"
-              [class.ddp-personal]="workspace.publicType.toString() === 'PRIVATE'"
-              [class.ddp-shared]="workspace.publicType.toString() === 'SHARED'">
-          {{(workspace.publicType.toString() === 'SHARED' ? 'msg.comm.ui.shared' : 'msg.comm.ui.personal') | translate}}
-        </span>
-      </td>
-      <td>
-        <!-- ddp-tag ddp-info -->
-        <div class="ddp-txt-long">
-          <em class="ddp-tag-global type-tag" *ngIf="workspace.published">{{'msg.spaces.spaces.ui.allowance.tag' | translate}}</em>
-          <span class="ddp-data-long" [class.ddp-global]="workspace.published">{{workspace.name}}
+      <ng-container *ngIf="!(workspace.publicType.toString() === 'PRIVATE' && !workspace.active)">
+        <td>
+          <!-- ddp-shared -->
+          <span class="ddp-box-tag"
+                [class.ddp-personal]="workspace.publicType.toString() === 'PRIVATE'"
+                [class.ddp-shared]="workspace.publicType.toString() === 'SHARED'">
+            {{(workspace.publicType.toString() === 'SHARED' ? 'msg.comm.ui.shared' : 'msg.comm.ui.personal') | translate}}
           </span>
-        </div>
-      </td>
-      <td>
-        <div class="ddp-txt-long">
-          {{workspace.description}}
-        </div>
-      </td>
-      <td>
-        {{workspace.lastAccessedTime ? (workspace.lastAccessedTime | mdate: 'YYYY-MM-DD HH:mm') : ''}}
-      </td>
-      <td>
-        {{workspace.createdTime | mdate: 'YYYY-MM-DD HH:mm'}}
-      </td>
-      <td>
-        <!--
-            클릭시 ddp-selected 추가
-        -->
-        <div class="ddp-hover-status"
-             *ngIf="isPublicWorkspace(workspace)"
-             [class.ddp-selected]="workspace.statusShowFl">
-          <!-- inactive 일때 ddp-inactive 추가 -->
-          <span class="ddp-status-active ddp-inactive"
-                (clickOutside)="workspace.statusShowFl = false"
-                (click)="onClickShowStatus(workspace, workspace.statusShowFl)">{{getWorkspaceStatus(workspace)}} <em class="ddp-icon-view"></em>
-          </span>
-          <!-- popup -->
-          <div class="ddp-wrap-popup2">
-            <ul class="ddp-list-popup">
-              <li *ngFor="let status of statusList" (click)="onOpenChangeStatus(workspace, status.value)"
-                  [class.ddp-selected]="status.active === workspace.active">
-                <a href="javascript:">
-                  {{status.label}}
-                  <em class="ddp-icon-check"></em>
-                </a>
-              </li>
-            </ul>
+        </td>
+        <td>
+          <!-- ddp-tag ddp-info -->
+          <div class="ddp-txt-long">
+            <em class="ddp-tag-global type-tag" *ngIf="workspace.published">{{'msg.spaces.spaces.ui.allowance.tag' | translate}}</em>
+            <span class="ddp-data-long" [class.ddp-global]="workspace.published">{{workspace.name}}
+            </span>
           </div>
-          <!-- //popup -->
-        </div>
-      </td>
-      <td>
-        <a href="javascript:" class="ddp-link-delete" (click)="onOpenDeleteWorkspace(workspace.id)" *ngIf="isPublicWorkspace(workspace)">
-          <em class="ddp-icon-delete"></em>
-          {{'msg.spaces.spaces.ui.delete' | translate}}
-        </a>
-      </td>
+        </td>
+        <td>
+          <div class="ddp-txt-long">
+            {{workspace.description}}
+          </div>
+        </td>
+        <td>
+          {{workspace.lastAccessedTime ? (workspace.lastAccessedTime | mdate: 'YYYY-MM-DD HH:mm') : ''}}
+        </td>
+        <td>
+          {{workspace.createdTime | mdate: 'YYYY-MM-DD HH:mm'}}
+        </td>
+        <td>
+          <!--
+              클릭시 ddp-selected 추가
+          -->
+          <div class="ddp-hover-status"
+               *ngIf="isPublicWorkspace(workspace)"
+               [class.ddp-selected]="workspace.statusShowFl">
+            <!-- inactive 일때 ddp-inactive 추가 -->
+            <span class="ddp-status-active ddp-inactive"
+                  (clickOutside)="workspace.statusShowFl = false"
+                  (click)="onClickShowStatus(workspace, workspace.statusShowFl)">{{getWorkspaceStatus(workspace)}} <em class="ddp-icon-view"></em>
+            </span>
+            <!-- popup -->
+            <div class="ddp-wrap-popup2">
+              <ul class="ddp-list-popup">
+                <li *ngFor="let status of statusList" (click)="onOpenChangeStatus(workspace, status.value)"
+                    [class.ddp-selected]="status.active === workspace.active">
+                  <a href="javascript:">
+                    {{status.label}}
+                    <em class="ddp-icon-check"></em>
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <!-- //popup -->
+          </div>
+        </td>
+        <td>
+          <a href="javascript:" class="ddp-link-delete" (click)="onOpenDeleteWorkspace(workspace.id)" *ngIf="isPublicWorkspace(workspace)">
+            <em class="ddp-icon-delete"></em>
+            {{'msg.spaces.spaces.ui.delete' | translate}}
+          </a>
+        </td>
+      </ng-container>
     </tr>
     </tbody>
   </table>

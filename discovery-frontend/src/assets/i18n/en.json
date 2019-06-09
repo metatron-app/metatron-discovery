@@ -90,6 +90,7 @@
   "msg.comm.menu.admin.workspace" : "Workspaces",
   "msg.comm.menu.admin.workspace.shared" : "Workspace",
   "msg.comm.menu.admin.workspace.permission" : "Permission schemas",
+  "msg.comm.menu.admin.user.change.workspace.description" : "Workspace without members will be deleted.",
   "msg.comm.btn.save" : "Save",
   "msg.comm.btn.close": "Close",
   "msg.comm.btn.done": "Done",
