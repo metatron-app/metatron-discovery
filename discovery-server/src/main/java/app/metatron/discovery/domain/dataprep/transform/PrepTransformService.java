@@ -520,7 +520,6 @@ public class PrepTransformService {
     }
     LOGGER.trace("load_internal(): start: dsId={}", dsId);
 
-    PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
     DataFrame gridResponse;
 
     // 만약 PLM cache에 존재하고, transition을 재적용할 필요가 없다면
@@ -1165,7 +1164,7 @@ public class PrepTransformService {
 
   @Transactional(rollbackFor = Exception.class)
   public PrepTransformResponse fetch(String dsId, Integer stageIdx) throws IOException {
-    PrepTransformResponse response = null;
+    PrepTransformResponse response;
 
     try {
       load_internal(dsId);
@@ -1293,14 +1292,13 @@ public class PrepTransformService {
           queryStmt = queryStmt.substring(0, queryStmt.length() - 1);
         }
 
-        String dbName = importedDataset.getDbName();
         DataConnection dataConnection = this.connectionRepository.getOne( importedDataset.getDcId() );
         Hibernate.initialize(dataConnection);
         if (dataConnection instanceof HibernateProxy) {
           dataConnection = (DataConnection) ((HibernateProxy) dataConnection).getHibernateLazyInitializer().getImplementation();
         }
 
-        gridResponse = teddyImpl.loadJdbcDataset(wrangledDsId, dataConnection, dbName, queryStmt, wrangledDataset.getDsName());
+        gridResponse = teddyImpl.loadJdbcDataset(wrangledDsId, dataConnection, queryStmt, wrangledDataset.getDsName());
         break;
 
       case STAGING_DB:
