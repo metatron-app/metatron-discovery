@@ -32,7 +32,7 @@ import app.metatron.discovery.domain.dataconnection.dialect.HiveDialect;
 
 @Component
 @ConfigurationProperties(prefix = "polaris.storage")
-@ConditionalOnProperty(name = "polaris.storage.stagedb.username")
+@ConditionalOnProperty(value = "polaris.storage")
 public class StorageProperties {
 
   public enum StorageType{
