@@ -28,7 +28,6 @@ import {TimezoneService} from "../../data-storage/service/timezone.service";
 import {AggregationType} from "../workbook/configurations/field/measure-field";
 import {Type} from "../../shared/datasource-metadata/domain/type";
 import {StringUtil} from "../../common/util/string.util";
-import {CommonUtil} from "../../common/util/common.util";
 
 export class Datasource extends AbstractHistoryEntity {
   id: string;             // ID
@@ -417,6 +416,7 @@ export class Field {
 
 // 데이터소스 생성시 사용하는 정보
 export class DatasourceInfo {
+  public datasourceId: string;
   // src type
   public type: SourceType;
   public dsType: DataSourceType;

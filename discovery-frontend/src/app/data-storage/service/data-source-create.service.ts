@@ -247,6 +247,25 @@ export class DataSourceCreateService {
   }
 
   /**
+   * Get file format parameter
+   * @returns {Object}
+   */
+  public getFileFormatParams(fileFormat: string, fileData: any): object {
+    const format = {
+      type: fileFormat,
+    };
+    // if file format is csv, add delimiter and lineSeparator
+    if (fileFormat === 'csv') {
+      format['delimiter'] = fileData.delimiter;
+      format['lineSeparator'] = fileData.separator;
+    } else {
+      // add sheetIndex
+      format['sheetIndex'] = fileData.fileResult.sheets.findIndex(sheet => sheet === fileData.fileResult.selectedSheet);
+    }
+    return format;
+  }
+
+  /**
    * Is CSV file string
    * @param {string} uri
    * @return {boolean}

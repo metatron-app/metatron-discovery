@@ -66,6 +66,7 @@
 <file-preview *ngIf="step=='file-preview'"
              [sourceData]="sourceData"
              [(step)]="step"
+             (onComplete)="createComplete()"
              (close)="createClose()">
 </file-preview>
 
@@ -86,6 +87,7 @@
 <file-complete *ngIf="step==='file-complete'"
                [sourceData]="sourceData"
                [(step)]="step"
+               (onComplete)="createComplete()"
                (close)="createClose()">
 </file-complete>
 

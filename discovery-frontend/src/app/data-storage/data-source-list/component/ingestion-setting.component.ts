@@ -13,8 +13,21 @@
  */
 
 import {AbstractComponent} from '../../../common/component/abstract.component';
-import {Component, ElementRef, EventEmitter, Injector, Output, Renderer2, ViewChild} from '@angular/core';
-import {DatasourceInfo, Field, FieldFormat, FieldFormatType,} from '../../../domain/datasource/datasource';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Output,
+  Renderer2,
+  ViewChild
+} from '@angular/core';
+import {
+  DatasourceInfo,
+  Field,
+  FieldFormat,
+  FieldFormatType,
+} from '../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
 import {StringUtil} from '../../../common/util/string.util';
@@ -630,6 +643,10 @@ export class IngestionSettingComponent extends AbstractComponent {
       return CommonUtil.formatBytes(bytes, 2);
     }
   };
+
+  public get isReinjestion() : boolean {
+    return StringUtil.isNotEmpty(this._sourceData.datasourceId);
+  }
 
   /**
    * ui init

@@ -4705,7 +4705,7 @@ table.ddp-table-order tr td {padding:13px 13px; border-top:1px solid #e7e7ea; fo
 .ddp-top-flow .ddp-data-form .ddp-data-box a.ddp-list-link {display:block; padding:10px 9px; color:#4b525b; font-size:13px;}
 .ddp-top-flow .ddp-data-form .ddp-data-box a.ddp-list-link:hover {background-color:#f6f6f7;}
 .ddp-top-flow .ddp-data-form .ddp-data-box a.ddp-list-link em.ddp-icon-create {display:inline-block; width:13px; height:13px; margin-right:5px; background:url(../images/icon_add.png) no-repeat; background-position:left -22px;}
-
+.ddp-top-flow .ddp-data-form .ddp-data-box a.ddp-list-link .ddp-icon-drop-re {position:Relative; top:0; left:0; margin-top:0; margin-right:5px;}
 .ddp-top-flow .ddp-wrap-navi {padding:0 0 0 10px; height:48px; box-sizing:border-box; overflow:hidden;}
 .ddp-top-flow .ddp-wrap-navi:before,
 .ddp-top-flow .ddp-wrap-navi:after {display:table; content:'';}

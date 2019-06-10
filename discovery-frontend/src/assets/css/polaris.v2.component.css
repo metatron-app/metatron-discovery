@@ -750,7 +750,7 @@ ul.ddp-list-typebasic.ddp-view li.ddp-selected a .ddp-icon-plus {display:block;}
 .ddp-box-synch.type-info {border-color:#e7e7ea; background-color:#f6f6f7; color:#90969f;}
 .ddp-box-synch.type-info .ddp-icon-info {width:13px; height:13px; background-position:left -27px;}
 .ddp-box-synch.type-error {border-color:#ffcedb; background-color:#ffedf2; color:#dc494f;}
-.ddp-box-synch.type-error .ddp-icon-info {background-position:left -55px;}
+.ddp-box-synch.type-error .ddp-icon-info {width:13px; height:13px; background-position:left -80px;}
 .ddp-btn-blue {padding:7px 17px 8px 17px; border-radius:2px; background-color:#6174b3; color:#fff; font-size:13px;}
 .ddp-box-synch.type-warning {border-color:#fbe4b3; background-color:#fef6e4; color:#e9b017;}
 .ddp-box-synch.type-warning .ddp-icon-info {background-position:left -67px;}
