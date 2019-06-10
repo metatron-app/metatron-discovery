@@ -19,7 +19,9 @@ import {InputComponent} from '../../../../common/component/input/input.component
 import {MetadataService} from '../../../metadata/service/metadata.service';
 import {MetadataModelService} from '../../../metadata/service/metadata.model.service';
 import {Alert} from '../../../../common/util/alert.util';
-import {Metadata} from '../../../../domain/meta-data-management/metadata';
+import {Metadata, SourceType} from '../../../../domain/meta-data-management/metadata';
+import {MetadataSourceType} from "../../../../domain/meta-data-management/metadata-source";
+import {StorageService} from "../../../../data-storage/service/storage.service";
 
 @Component({
   selector: 'app-metadata-detail-information',
@@ -69,6 +71,7 @@ export class InformationComponent extends AbstractComponent implements OnInit, O
   constructor(
     protected element: ElementRef,
     protected metadataService: MetadataService,
+    protected storageService: StorageService,
     public metadataModelService: MetadataModelService,
     protected injector: Injector) {
     super(element, injector);
@@ -116,6 +119,25 @@ export class InformationComponent extends AbstractComponent implements OnInit, O
   public addCatalog() {
     this.openAddCataglog.emit();
   } // function - addCatalog
+
+  isDatabaseTypeMetadata(): boolean {
+    return Metadata.isSourceTypeIsJdbc(this.metadataModelService.getMetadata().sourceType)
+  }
+
+  getMetadataType(): string {
+    switch (this.metadataModelService.getMetadata().sourceType) {
+      case SourceType.ENGINE:
+        return this.translateService.instant('msg.comm.th.ds');
+      case SourceType.JDBC:
+        return this.translateService.instant('msg.storage.li.db');
+      case SourceType.STAGEDB:
+        return this.translateService.instant('msg.storage.li.hive');
+    }
+  }
+
+  getMetadataDatabaseTypeToString(): string {
+    return this.storageService.findConnectionType(this.metadataModelService.getMetadata().source.source.implementor).name || this.metadataModelService.getMetadata().source.source.implementor.toString();
+  }
 
   /**
    * Get metadata tags
