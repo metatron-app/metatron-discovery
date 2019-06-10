@@ -14,22 +14,27 @@
 
 import {Injectable, Injector} from '@angular/core';
 import {AbstractService} from '../../common/service/abstract.service';
-import {Page} from '../../domain/common/page';
 import {CommonUtil} from '../../common/util/common.util';
-import {MapDataSource, SearchQueryRequest} from '../../domain/datasource/data/search-query-request';
+import {SearchQueryRequest} from '../../domain/datasource/data/search-query-request';
 
 import * as _ from 'lodash';
 import {PageWidgetConfiguration} from '../../domain/dashboard/widget/page-widget';
 import {
-  ChartType, ShelveFieldType, GridViewType, LineMode, ShelfType, FormatType, LayerViewType
+  ChartType,
+  FormatType,
+  GridViewType,
+  LayerViewType,
+  LineMode,
+  ShelfType,
+  ShelveFieldType
 } from '../../common/component/chart/option/define/common';
 import {Filter} from '../../domain/workbook/configurations/filter/filter';
 import {UILineChart} from '../../common/component/chart/option/ui-option/ui-line-chart';
 import {UIGridChart} from '../../common/component/chart/option/ui-option/ui-grid-chart';
 import {FilterUtil} from '../../dashboard/util/filter.util';
 import {InclusionFilter} from '../../domain/workbook/configurations/filter/inclusion-filter';
-import {BoardDataSource, Dashboard} from '../../domain/dashboard/dashboard';
-import {Datasource, Field, FieldFormat, FieldFormatType, LogicalType} from '../../domain/datasource/datasource';
+import {Dashboard} from '../../domain/dashboard/dashboard';
+import {Field, LogicalType} from '../../domain/datasource/datasource';
 import {MeasureInequalityFilter} from '../../domain/workbook/configurations/filter/measure-inequality-filter';
 import {AdvancedFilter} from '../../domain/workbook/configurations/filter/advanced-filter';
 import {MeasurePositionFilter} from '../../domain/workbook/configurations/filter/measure-position-filter';
@@ -40,7 +45,10 @@ import {FilteringType} from '../../domain/workbook/configurations/field/timestam
 import {TimeCompareRequest} from '../../domain/datasource/data/time-compare-request';
 import {isNullOrUndefined} from 'util';
 import {DashboardUtil} from '../../dashboard/util/dashboard.util';
-import {GeoBoundaryFormat, GeoField, GeoHashFormat} from '../../domain/workbook/configurations/field/geo-field';
+import {
+  GeoBoundaryFormat,
+  GeoHashFormat
+} from '../../domain/workbook/configurations/field/geo-field';
 import {UIMapOption} from '../../common/component/chart/option/ui-option/map/ui-map-chart';
 import {ChartUtil} from '../../common/component/chart/option/util/chart-util';
 import {CommonConstant} from "../../common/constant/common.constant";
@@ -745,6 +753,16 @@ export class DatasourceService extends AbstractService {
   // 데이터소스 생성
   public createDatasourceTemporary(param: any): Promise<any> {
     return this.post(this.API_URL + 'datasources/temporary', param);
+  }
+
+  // datasource append
+  public appendDatasource(datasourceId: string, param: any): Promise<any> {
+    return this.patch(this.API_URL + `datasources/${datasourceId}/append`, param);
+  }
+
+  // datasource overwrite
+  public overwriteDatasource(datasourceId: string, param: any): Promise<any> {
+    return this.patch(this.API_URL + `datasources/${datasourceId}/overwrite`, param);
   }
 
   /**

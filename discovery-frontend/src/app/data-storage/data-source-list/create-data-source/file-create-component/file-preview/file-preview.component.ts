@@ -39,6 +39,8 @@ import {
   FileResult,
   Sheet
 } from "../../../../service/data-source-create.service";
+import {Modal} from "../../../../../common/domain/modal";
+import {ConfirmModalComponent} from "../../../../../common/component/modal/confirm/confirm.component";
 
 @Component({
   selector: 'file-preview',
@@ -56,6 +58,9 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
   @ViewChild(GridComponent)
   private readonly gridComponent: GridComponent;
 
+  @ViewChild(ConfirmModalComponent)
+  private confirmModal: ConfirmModalComponent;
+
   // file results
   public fileResult: FileResult;
 
@@ -67,6 +72,9 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
 
   @Output()
   public readonly stepChange: EventEmitter<string> = new EventEmitter();
+
+  @Output()
+  public readonly onComplete: EventEmitter<any> = new EventEmitter();
 
   // 그리드 row
   public rowNum: number;
@@ -90,6 +98,10 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
   public isValidFile: boolean;
   public isValidDelimiter: boolean;
   public isValidSeparator: boolean;
+
+  public ingestionStatus: string;
+  public ingestionPopup: boolean = false;
+  public patches = [];
 
   // 생성자
   constructor(private datasourceService: DatasourceService,
@@ -144,11 +156,53 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
         this._deleteSchemaData();
         // 기존 파일 데이터 삭제후 생성
         this._deleteAndSaveFileData();
-        // 다음페이지로 이동
-        this.step = 'file-configure-schema';
-        this.stepChange.emit(this.step);
+
+        if(this.ingestionStatus === 'append' || this.ingestionStatus === 'newcolumn') {
+          this.ingestionPopup = true;
+        } else {
+          this._nextStep();
+        }
       }
     }
+  }
+
+  /**
+   * 재적재 팝업 취소
+   */
+  public ingestionPopupCancel(): void {
+    this._nextStep();
+  }
+
+  /**
+   * 재적재 팝업 확인
+   */
+  public ingestionPopupConfirm(): void {
+    this.ingestionPopup = false;
+    // loading show
+    this.loadingShow();
+    // create datasource
+    this.datasourceService.appendDatasource(this.sourceData.datasourceId, this._getIngestionParams())
+      .then((result) => {
+        // @TODO 리소스 번들 처리
+        Alert.success(`'${this.sourceData.completeData.sourceName.trim()}' ` + this.translateService.instant('msg.storage.alert.source.reingestion.success'));
+        this.loadingHide();
+        this.close();
+        this.onComplete.emit();
+      })
+      .catch((error) => {
+        // loading hide
+        this.loadingHide();
+        // modal
+        const modal: Modal = new Modal();
+        // show cancel disable
+        modal.isShowCancel = false;
+        // title
+        modal.name = this.translateService.instant('msg.storage.ui.dsource.reingestion.fail.title');
+        // desc
+        modal.description = this.translateService.instant('msg.storage.ui.dsource.reingestion.fail.description');
+        // show error modal
+        this.confirmModal.init(modal);
+      });
   }
 
   /**
@@ -187,6 +241,15 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
    */
   public isExcelFile(): boolean {
     return !_.isNil(this.fileResult.sheets);
+  }
+
+  /**
+   * Get file format
+   * @returns {string}
+   * @private
+   */
+  private _getFileFormat(): string {
+    return this.isExcelFile() ? 'excel' : 'csv';
   }
 
   /**
@@ -258,6 +321,32 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
     this._setFileDetail(true);
   }
 
+  /**
+   * Get title
+   * @returns {string}
+   */
+  public get getTitle(): string {
+    if (this.sourceData.datasourceId) {
+      return this.translateService.instant('msg.storage.ui.dsource.reingestion.title') + ' (' + this.translateService.instant('msg.storage.ui.dsource.create.file.title') + ')';
+    } else {
+      return this.translateService.instant('msg.storage.ui.dsource.create.title') + ' (' + this.translateService.instant('msg.storage.ui.dsource.create.file.title') + ')';
+    }
+  }
+
+  public get getReingestionStatusMsg() {
+    return this._dataSourceCreateService.getFileErrorMessage(this.ingestionStatus);
+  }
+
+  /**
+   * 스키마 설정 화면으로 이동
+   * @private
+   */
+  private _nextStep(): void {
+    this.ingestionPopup = false;
+    // 다음페이지로 이동
+    this.step = 'file-configure-schema';
+    this.stepChange.emit(this.step);
+  }
 
   /**
    * 데이터가 변경이 일어나고 스키마데이터가 있다면 스키마데이터 삭제
@@ -479,6 +568,10 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
             this.isValidDelimiter = true;
             this.isValidSeparator = true;
           }
+
+          // 재적재 상태체크
+          this._checkReingestionStatus();
+
         } else if (result.isParsable) { // if result is not parsable
           // set error message
           this.selectedFileDetailData.errorMessage = this._dataSourceCreateService.getFileErrorMessage(result.isParsable.warning);
@@ -536,6 +629,86 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
     this.isValidSeparator = fileData.isValidSeparator;
     // grid 출력
     this._updateGrid(this.selectedFileDetailData.data, this.selectedFileDetailData.fields);
+
+    // 재적재 상태체크
+    this._checkReingestionStatus();
+  }
+
+  /**
+   * check reingestion status
+   * @private
+   */
+  private _checkReingestionStatus() {
+    if(this.sourceData.datasourceId) {
+      this.ingestionStatus = 'overwrite';
+      const sourceFieldList = this.sourceData.configureData._originFieldList;
+
+      let biggerFieldList = sourceFieldList;
+      let smallFieldList = this.selectedFileDetailData.fields;
+
+      if(biggerFieldList.length < smallFieldList.length) {
+        biggerFieldList = this.selectedFileDetailData.fields;
+        smallFieldList = sourceFieldList;
+      }
+
+      this.patches = [];
+
+      let fieldCount: number = 0;
+      let seq: number = smallFieldList.length -1;
+      for (let biggerField of biggerFieldList) {
+        let matched : boolean = false;
+        for (let smallField of smallFieldList) {
+            if(smallField.name === biggerField.name) {
+              fieldCount++;
+              matched = true;
+              break;
+            }
+        }
+        if(!matched) {
+          const patch = {
+            op: 'add',
+            name: biggerField.name,
+            logicalName: biggerField.name,
+            type: 'STRING',
+            logicalType: 'STRING',
+            role: 'DIMENSION',
+            aggrType: 'NONE',
+            seq: seq++
+          };
+          this.patches.push(patch);
+        }
+      }
+
+      if(fieldCount === smallFieldList.length) {
+        if(fieldCount === biggerFieldList.length){
+          this.ingestionStatus = 'append';
+        } else {
+          this.ingestionStatus = 'newcolumn';
+        }
+      }
+
+    }
+  }
+
+  /**
+   * Get ingestion parameter
+   * @returns {Object}
+   * @private
+   */
+  private _getIngestionParams(): object {
+    // ingestion param
+    const ingestion = {
+      type: 'local',
+      format: this._dataSourceCreateService.getFileFormatParams(this._getFileFormat(), this.sourceData.fileData),
+      removeFirstRow: this.sourceData.fileData.isFirstHeaderRow,
+      path: this.sourceData.fileData.fileResult.filePath,
+      uploadFileName: this.sourceData.fileData.fileResult.fileName
+    };
+    const param = {
+      ingestionInfo: ingestion,
+      patches: this.patches
+    };
+    return param;
   }
 
 }

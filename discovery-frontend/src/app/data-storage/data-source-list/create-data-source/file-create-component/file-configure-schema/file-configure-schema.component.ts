@@ -13,10 +13,15 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  Output,
   ViewChild
 } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
+import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
 import {DatasourceInfo, FieldFormatType} from '../../../../../domain/datasource/datasource';
 import {SchemaConfigureMainComponent} from "../../../../component/schema-configure/schema-configure-main.component";
 
@@ -70,6 +75,18 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent {
       this._saveSchemaConfigureData();
       this._step = 'file-ingestion';
       this._stepChange.emit(this._step);
+    }
+  }
+
+  /**
+   * Get title
+   * @returns {string}
+   */
+  public get getTitle(): string {
+    if (this.sourceData.datasourceId) {
+      return this.translateService.instant('msg.storage.ui.dsource.reingestion.title') + ' (' + this.translateService.instant('msg.storage.ui.dsource.create.file.title') + ')';
+    } else {
+      return this.translateService.instant('msg.storage.ui.dsource.create.title') + ' (' + this.translateService.instant('msg.storage.ui.dsource.create.file.title') + ')';
     }
   }
 

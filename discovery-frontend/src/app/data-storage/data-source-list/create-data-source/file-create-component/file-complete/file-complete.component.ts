@@ -24,7 +24,12 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import {DatasourceInfo, Field, FieldFormatType, IngestionRuleType} from '../../../../../domain/datasource/datasource';
+import {
+  DatasourceInfo,
+  Field,
+  FieldFormatType,
+  IngestionRuleType
+} from '../../../../../domain/datasource/datasource';
 import {Alert} from '../../../../../common/util/alert.util';
 import {DatasourceService} from '../../../../../datasource/service/datasource.service';
 import {CommonUtil} from '../../../../../common/util/common.util';
@@ -35,7 +40,10 @@ import {Modal} from '../../../../../common/domain/modal';
 import {CookieConstant} from '../../../../../common/constant/cookie.constant';
 import {CommonConstant} from "../../../../../common/constant/common.constant";
 import {GranularityService} from "../../../../service/granularity.service";
-import {CreateSourceCompleteData} from "../../../../service/data-source-create.service";
+import {
+  CreateSourceCompleteData,
+  DataSourceCreateService
+} from "../../../../service/data-source-create.service";
 import {DataStorageConstant} from "../../../../constant/data-storage-constant";
 
 /**
@@ -63,8 +71,12 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
   // create complete data
   public createCompleteData: CreateSourceCompleteData;
 
+  @Output()
+  public readonly onComplete: EventEmitter<any> = new EventEmitter();
+
   // Constructor
   constructor(private datasourceService: DatasourceService,
+              private _dataSourceCreateService: DataSourceCreateService,
               private _granularityService: GranularityService,
               protected element: ElementRef,
               protected injector: Injector) {
@@ -121,7 +133,11 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
       return;
     }
     // create datasource
-    this._createDatasource();
+    if (this._sourceData.datasourceId) {
+      this._reingestionDatasource();
+    } else {
+      this._createDatasource();
+    }
   }
 
   /**
@@ -154,6 +170,50 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
    */
   public isExcelFile(): boolean {
     return this.getFileData.fileResult.sheets && this.getFileData.fileResult.sheets.length !== 0;
+  }
+
+  /**
+   * Get title
+   * @returns {string}
+   */
+  public get getTitle(): string {
+    if (this._sourceData.datasourceId) {
+      return this.translateService.instant('msg.storage.ui.dsource.reingestion.title') + ' (' + this.translateService.instant('msg.storage.ui.dsource.create.file.title') + ')';
+    } else {
+      return this.translateService.instant('msg.storage.ui.dsource.create.title') + ' (' + this.translateService.instant('msg.storage.ui.dsource.create.file.title') + ')';
+    }
+  }
+
+  /**
+   * Re-Ingestion datasource
+   * @private
+   */
+  private _reingestionDatasource(): void {
+    // loading show
+    this.loadingShow();
+    // create datasource
+    this.datasourceService.overwriteDatasource(this._sourceData.datasourceId, this._getCreateDatasourceParams())
+      .then((result) => {
+        // complete alert
+        Alert.success(`'${this.createCompleteData.sourceName.trim()}' ` + this.translateService.instant('msg.storage.alert.source.reingestion.success'));
+        this.loadingHide();
+        this.close();
+        this.onComplete.emit();
+      })
+      .catch((error) => {
+        // loading hide
+        this.loadingHide();
+        // modal
+        const modal: Modal = new Modal();
+        // show cancel disable
+        modal.isShowCancel = false;
+        // title
+        modal.name = this.translateService.instant('msg.storage.ui.dsource.reingestion.fail.title');
+        // desc
+        modal.description = this.translateService.instant('msg.storage.ui.dsource.reingestion.fail.description');
+        // show error modal
+        this.confirmModal.init(modal);
+      });
   }
 
   /**
@@ -365,26 +425,6 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
   }
 
   /**
-   * Get file format parameter
-   * @returns {Object}
-   * @private
-   */
-  private _getFileFormatParams(): object {
-    const format = {
-      type: this._getFileFormat(),
-    };
-    // if file format is csv, add delimiter and lineSeparator
-    if (this._getFileFormat() === 'csv') {
-      format['delimiter'] = this.getFileData.delimiter;
-      format['lineSeparator'] = this.getFileData.separator;
-    } else {
-      // add sheetIndex
-      format['sheetIndex'] = this.getFileData.fileResult.sheets.findIndex(sheet => sheet === this.getFileData.fileResult.selectedSheet);
-    }
-    return format;
-  }
-
-  /**
    * Get ingestion parameter
    * @returns {Object}
    * @private
@@ -393,7 +433,7 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
     // ingestion param
     const ingestion = {
       type: 'local',
-      format: this._getFileFormatParams(),
+      format: this._dataSourceCreateService.getFileFormatParams(this._getFileFormat(), this.getFileData),
       removeFirstRow: this.getFileData.isFirstHeaderRow,
       path: this.getFileData.fileResult.filePath,
       rollup: this.getIngestionData.selectedRollUpType.value,
