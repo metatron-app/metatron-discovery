@@ -91,7 +91,7 @@
   <div class="ddp-ui-buttons">
     <a href="javascript:" class="ddp-btn-type-popup" (click)="changeToPrevStep()">{{'msg.comm.btn.previous' | translate}}</a>
     <!-- disabled 시 ddp-disabled 추가 -->
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="changeToNextStep()">{{'msg.comm.btn.next' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [class.ddp-disabled]="!isEnableNext()" (click)="changeToNextStep()">{{'msg.comm.btn.next' | translate}}</a>
   </div>
   <!-- //buttons -->
 
