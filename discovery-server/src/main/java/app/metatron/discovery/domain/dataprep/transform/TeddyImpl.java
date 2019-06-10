@@ -327,9 +327,8 @@ public class TeddyImpl {
     return createStage0(dsId, df);
   }
 
-  public DataFrame loadJdbcDataset(String dsId, DataConnection jdbcDataConnection, String dbName, String sql,
-                                   String dsName) throws PrepException {
-    JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(jdbcDataConnection);
+  public DataFrame loadJdbcDataFrame(DataConnection dataConnection, String sql, int limit, String dsName) {
+    JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(dataConnection);
     Connection conn;
     Statement stmt = null;
 
@@ -343,7 +342,7 @@ public class TeddyImpl {
     DataFrame df = new DataFrame(dsName);   // join, union등에서 dataset 이름을 제공하기위해 dsName 추가
 
     try {
-      df.setByJDBC(stmt, sql, prepProperties.getSamplingLimitRows());
+      df.setByJDBC(stmt, sql, limit);
     } catch (JdbcTypeNotSupportedException e) {
       LOGGER.error("loadContentsByImportedJdbc(): JdbcTypeNotSupportedException occurred", e);
       throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_NOT_SUPPORTED_TYPE);
@@ -352,6 +351,11 @@ public class TeddyImpl {
       throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_QUERY_FAILED);
     }
 
+    return df;
+  }
+
+  public DataFrame loadJdbcDataset(String dsId, DataConnection dataConnection, String sql, String dsName) throws PrepException {
+    DataFrame df = loadJdbcDataFrame(dataConnection, sql, prepProperties.getSamplingLimitRows(), dsName);
     return createStage0(dsId, df);
   }
 
