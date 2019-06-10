@@ -167,10 +167,13 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
       .then(() => this.loadingShow())
       .then(() => this._getColumnSchemas().then())
       .then(() => {
-        return this.getFieldData()
-          .then(fieldDataList => {
-            this.fieldDataList = _.isNil(fieldDataList) ? [] : fieldDataList
-          });
+        // TODO #2172 if staging or JDBC type metadata, not used field data
+        if (this.hasMetadataColumnInDatasource()) {
+          return this.getFieldData()
+            .then(fieldDataList => {
+              this.fieldDataList = _.isNil(fieldDataList) ? [] : fieldDataList
+            });
+        }
       })
       .then(() => this.loadingHide())
       .catch(error => this.commonExceptionHandler(error));
@@ -577,7 +580,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
       }
     }
 
-    if (this.isMetadataSourceTypeIsJdbc()) {
+    else if (this.isMetadataSourceTypeIsJdbc()) {
       return new Promise((resolve, reject) => {
         return this._dataconnectionService.getTableDataForHive({
           'type': 'TABLE',
@@ -589,7 +592,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
       });
     }
 
-    if (this.isMetadataSourceTypeIsStaging()) {
+    else if (this.isMetadataSourceTypeIsStaging()) {
       return new Promise((resolve, reject) => {
         return this._dataconnectionService.getTableDataForHive({
           'type': 'TABLE',
