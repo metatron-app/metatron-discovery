@@ -5896,6 +5896,9 @@ table.ddp-table-union tr td .ddp-data-dropped strong {color:#666eb2; font-weight
 
 .ddp-box-upload {height:70px; padding:0 140px 0 29px; margin-bottom:5px; background-color:#f6f6f7;}
 .ddp-wrap-file-create {width:880px;}
+.popup-prep-create-complete .type-metadata .ddp-wrap-boxtype  {height:auto; min-height:160px; max-height:160px; margin-bottom:0px; }
+.popup-prep-create-complete .type-metadata .ddp-sheet-table {margin-top:-192px; padding-top:202px; padding-bottom:10px; height:100%; box-sizing:border-box;}
+.popup-prep-create-complete .type-metadata .ddp-sheet-table.type-info {margin-top:-223px; padding-top:233px;}
 .ddp-box-popupcontents.ddp-flex {display:flex;flex-direction: column;}
 .ddp-box-popupcontents.ddp-flex .ddp-flex-column { margin-bottom:10px;}
 .ddp-box-popupcontents.ddp-flex .ddp-wrap-boxtype.ddp-flex-column {height:auto; min-height:auto; max-height:auto; overflow-y:inherit}
