@@ -45,24 +45,27 @@
                 <div class="ddp-wrap-tab-type2">
                   <ul class="ddp-list-tab-type2 ddp-clear">
                     <li *ngFor="let item of symbolLayerTypes"
-                        [ngClass]="{'ddp-selected' : item.value == uiOption.layers[layerIndex].type}"
+                        [ngClass]="{'ddp-selected' : item.value ===  uiOption.layers[layerIndex].type}"
                         (click)="changeSymbolLayerType(item['value'], layerIndex)">
                       <a href="javascript:">
-                        <em [ngClass]="{'ddp-icon-map-sign' : 'symbol' === item.value.toString(),
+                        <em [ngClass]="{'ddp-icon-map-point' : 'symbol' === item.value.toString(),
                                         'ddp-icon-map-heatmap': 'heatmap' === item.value.toString(),
-                                        'ddp-icon-map-tile': 'tile' === item.value.toString()}"></em>
+                                        'ddp-icon-map-hexagon': 'tile' === item.value.toString(),
+                                        'ddp-icon-map-cluster': 'cluster' === item.value.toString()}">
+                        </em>
                       </a>
-                      <!-- tooltip -->
-                      <div class="ddp-ui-tooltip-info">
-                        <em class="ddp-icon-view-top"></em>
-                        <span *ngIf="'symbol' === item['value'].toString()"
-                              class="ddp-txt-tooltip">{{'msg.page.layer.map.type.point' | translate}}</span>
-                        <span *ngIf="'heatmap' === item['value'].toString()"
-                              class="ddp-txt-tooltip">{{'msg.page.layer.map.type.heatmap' | translate}}</span>
-                        <span *ngIf="'tile' === item['value'].toString()"
-                              class="ddp-txt-tooltip">{{'msg.page.layer.map.type.tile' | translate}}</span>
-                      </div>
-                      <!-- //tooltip -->
+                      <span class="ddp-txt-type">{{item['name'].toString()}}</span>
+                      <!--&lt;!&ndash; tooltip &ndash;&gt;-->
+                      <!--<div class="ddp-ui-tooltip-info">-->
+                      <!--<em class="ddp-icon-view-top"></em>-->
+                      <!--<span *ngIf="'symbol' === item['value'].toString()"-->
+                      <!--class="ddp-txt-tooltip">{{'msg.page.layer.map.type.point' | translate}}</span>-->
+                      <!--<span *ngIf="'heatmap' === item['value'].toString()"-->
+                      <!--class="ddp-txt-tooltip">{{'msg.page.layer.map.type.heatmap' | translate}}</span>-->
+                      <!--<span *ngIf="'tile' === item['value'].toString()"-->
+                      <!--class="ddp-txt-tooltip">{{'msg.page.layer.map.type.tile' | translate}}</span>-->
+                      <!--</div>-->
+                      <!--&lt;!&ndash; //tooltip &ndash;&gt;-->
                     </li>
                   </ul>
                 </div>
@@ -74,7 +77,9 @@
                 <div class="ddp-ui-type-contents">
                   <div class="ddp-wrap-divide">
                     <!-- symbol layer : point type -->
-                    <div *ngIf="'symbol' === uiOption.layers[layerIndex].type.toString()" class="ddp-divide2 ">
+                    <div class="ddp-divide2"
+                         *ngIf="'symbol' === uiOption.layers[layerIndex].type.toString()
+                                || 'cluster' === uiOption.layers[layerIndex].type.toString()">
                       <div class="ddp-list-label">{{'msg.page.layer.map.point' | translate}}</div>
                       <ul class="ddp-list-express ddp-tab6 ddp-type2">
                         <li *ngFor="let item of symbolLayerSymbols"
@@ -92,47 +97,48 @@
                     <div class="ddp-divide2 ">
                       <div class="ddp-list-label">{{'msg.page.layer.map.color' | translate}}</div>
                       <div [ngClass]="{'ddp-list-sub2' : 'heatmap' !== uiOption.layers[layerIndex].type.toString()}">
-                        <div
-                          [ngClass]="{'ddp-wrap-disabled' : 'MEASURE' === uiOption.layers[layerIndex].color.by.toString() && uiOption.layers[layerIndex].color['settingUseFl']}">
-                          <div *ngIf="'heatmap' !== uiOption.layers[layerIndex].type.toString()" class="ddp-divide2">
+                        <div [ngClass]="{'ddp-wrap-disabled' : 'MEASURE' === uiOption.layers[layerIndex].color.by.toString() && uiOption.layers[layerIndex].color['settingUseFl']}">
+
+                          <div *ngIf="'cluster' == uiOption.layers[layerIndex].type.toString()" class="ddp-divide2">
                             <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
-                            <!-- SELECTBOX -->
                             <component-select
-                              [array]="colorByList"
-                              [defaultIndex]="findIndex(colorByList, 'value', uiOption.layers[layerIndex].color.by)"
-                              [viewKey]="'name'"
+                              [array]="fieldMeasureList"
+                              [defaultIndex]="findIndex(fieldMeasureList, 'name', uiOption.layers[layerIndex].color.column, 'color', 'aggregationType', uiOption.layers[layerIndex].color.aggregationType)"
+                              [viewKey]="'alias'"
+                              [isIconType]="true"
                               (onSelected)="changeColorBy($event, layerIndex)">
                             </component-select>
-                            <!-- //SELECTBOX -->
                           </div>
-                          <!-- color by dimension column -->
-                          <div
-                            *ngIf="'heatmap' !== uiOption.layers[layerIndex].type.toString() && 'DIMENSION' === uiOption.layers[layerIndex].color.by.toString()"
-                            class="ddp-divide2">
-                            <!-- SELECTBOX -->
+                          <div *ngIf="'cluster' !== uiOption.layers[layerIndex].type.toString() && 'heatmap' !== uiOption.layers[layerIndex].type.toString() && 'tile' !== uiOption.layers[layerIndex].type.toString() && ('DIMENSION' === uiOption.layers[layerIndex].color.by.toString() || 'NONE' === uiOption.layers[layerIndex].color.by.toString())" class="ddp-divide2">
+                            <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
                             <component-select
-                              [array]="fieldList[layerIndex].dimensionList"
-                              [defaultIndex]="findIndex(fieldList[layerIndex].dimensionList, 'name', uiOption.layers[layerIndex].color.column)"
+                              [array]="fieldList[layerIndex]"
+                              [defaultIndex]="findIndex(fieldList[layerIndex], 'name', uiOption.layers[layerIndex].color.column, 'color')"
                               [viewKey]="'alias'"
-                              (onSelected)="changeColorColumn($event, layerIndex)">
+                              [isIconType]="true"
+                              (onSelected)="changeColorBy($event, layerIndex)">
                             </component-select>
-                            <!-- //SELECTBOX -->
                           </div>
-                          <!-- //color by dimension column -->
-                          <!-- color by measure column -->
-                          <div
-                            *ngIf="'heatmap' !== uiOption.layers[layerIndex].type.toString() && 'MEASURE' === uiOption.layers[layerIndex].color.by.toString()"
-                            class="ddp-divide2">
-                            <!-- SELECTBOX -->
+                          <div *ngIf="'cluster' !== uiOption.layers[layerIndex].type.toString() && 'heatmap' !== uiOption.layers[layerIndex].type.toString() && 'tile' !== uiOption.layers[layerIndex].type.toString() && 'MEASURE' === uiOption.layers[layerIndex].color.by.toString()" class="ddp-divide2">
+                            <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
                             <component-select
-                              [array]="fieldList[layerIndex].measureList"
-                              [defaultIndex]="findIndex(fieldList[layerIndex].measureList, 'name', uiOption.layers[layerIndex].color.column, 'aggregationType', uiOption.layers[layerIndex].color.aggregationType)"
+                              [array]="fieldList[layerIndex]"
+                              [defaultIndex]="findIndex(fieldList[layerIndex], 'name', uiOption.layers[layerIndex].color.column, 'color', 'aggregationType', uiOption.layers[layerIndex].color.aggregationType)"
                               [viewKey]="'alias'"
-                              (onSelected)="changeColorColumn($event, layerIndex)">
+                              [isIconType]="true"
+                              (onSelected)="changeColorBy($event, layerIndex)">
                             </component-select>
-                            <!-- //SELECTBOX -->
                           </div>
-                          <!-- //color by measure column -->
+                          <div *ngIf="'tile' == uiOption.layers[layerIndex].type.toString()" class="ddp-divide2">
+                            <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
+                            <component-select
+                              [array]="fieldMeasureList"
+                              [defaultIndex]="findIndex(fieldMeasureList, 'name', uiOption.layers[layerIndex].color.column, 'color', 'aggregationType', uiOption.layers[layerIndex].color.aggregationType)"
+                              [viewKey]="'alias'"
+                              [isIconType]="true"
+                              (onSelected)="changeColorBy($event, layerIndex)">
+                            </component-select>
+                          </div>
 
                           <div class="ddp-divide2">
                             <!-- color by none -->
@@ -323,34 +329,23 @@
                   </div>
 
                   <!-- symbol : size -->
-                  <div *ngIf="'symbol' === uiOption.layers[layerIndex].type.toString()" class="ddp-wrap-divide">
+                  <div class="ddp-wrap-divide"
+                       *ngIf="'symbol' === uiOption.layers[layerIndex].type.toString()" >
+                              <!--|| 'cluster' === uiOption.layers[layerIndex].type.toString()">-->
                     <!-- divide -->
                     <div class="ddp-divide2 ">
                       <div class="ddp-list-label">{{'msg.page.layer.map.size' | translate}}</div>
                       <div class="ddp-list-sub2">
                         <div class="ddp-divide2">
                           <div class="ddp-list-label">{{'msg.page.layer.map.size.by' | translate}}</div>
-                          <!-- SELECTBOX -->
                           <component-select
-                            [array]="byList"
-                            [defaultIndex]="findIndex(byList, 'value', uiOption.layers[layerIndex].size.by)"
-                            [viewKey]="'name'"
+                            [array]="fieldMeasureList"
+                            [isIconType]="true"
+                            [defaultIndex]="findIndex(fieldMeasureList, 'name', uiOption.layers[layerIndex].size.column, 'size', 'aggregationType')"
+                            [viewKey]="'alias'"
                             (onSelected)="changeSizeBy($event, layerIndex)"
                           ></component-select>
-                          <!-- //SELECTBOX -->
                         </div>
-
-                        <div *ngIf="'NONE' !== uiOption.layers[layerIndex].size.by.toString()" class="ddp-divide2">
-                          <!-- SELECTBOX -->
-                          <component-select
-                            [array]="fieldList[layerIndex].measureList"
-                            [defaultIndex]="findIndex(fieldList[layerIndex].measureList, 'name', uiOption.layers[layerIndex].size.column)"
-                            [viewKey]="'alias'"
-                            (onSelected)="changeSizeColumn($event, layerIndex)"
-                          ></component-select>
-                          <!-- //SELECTBOX -->
-                        </div>
-
                         <!-- TODO radius range by none -->
                         <!--<div *ngIf="false && uiOption.layers[layerIndex].size.radiusRange?.length > 0" class="ddp-divide2">-->
                         <!--<div class="ddp-form-slider">-->
@@ -407,6 +402,70 @@
                         <!--</div>-->
                         <!-- //radius range by measure -->
                       </div>
+
+                      <!-- 크기반경 -->
+                      <div class="ddp-list-sub2"
+                           *ngIf="uiOption.layers[layerIndex]['pointRadiusTo'] == null && uiOption.layers[layerIndex]['type'] == 'symbol'">
+                        <div class="ddp-divide2">
+                          <div class="ddp-list-label type-label">{{'msg.page.layer.map.size' | translate}}</div>
+                          <div class="ddp-form-slider">
+                            <div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">
+                              <range-slider-component [hideFromTo]="false"
+                                                      [hideMinMax]="true"
+                                                      [keyboard]="false"
+                                                      [min]="1"
+                                                      [max]="200"
+                                                      [from]="uiOption.layers[layerIndex]['pointRadiusFrom']"
+                                                      [type]="'single'"
+                                                      [step]="1"
+                                                      (onFinish)="changePointSize({}, $event, layerIndex, true)">
+                              </range-slider-component>
+                            </div>
+                            <div class="ddp-box-option-input ddp-type ddp-inline">
+                              <span class="ddp-txt-input">px</span>
+                              <input type="text" [ngModel]="uiOption.layers[layerIndex]['pointRadiusFrom']"
+                                     (keyup.enter)="changePointSizeText($event, layerIndex, 'pointRadiusFrom');">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="ddp-list-sub2"
+                           *ngIf="uiOption.layers[layerIndex]['pointRadiusTo'] != null && uiOption.layers[layerIndex]['type'] == 'symbol'">
+                        <div class="ddp-divide2">
+                          <div class="ddp-list-label">{{'msg.page.layer.map.size.by.radius.range' | translate}}</div>
+                          <div class="ddp-wrap-range">
+                            <div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">
+                              <range-slider-component [hideFromTo]="false"
+                                                      [hideMinMax]="true"
+                                                      [keyboard]="false"
+                                                      [min]="1"
+                                                      [max]="200"
+                                                      [from]="uiOption.layers[layerIndex]['pointRadiusFrom']"
+                                                      [to]="uiOption.layers[layerIndex]['pointRadiusTo']"
+                                                      [type]="'double'"
+                                                      [step]="1"
+                                                      (onFinish)="changePointSize({}, $event, layerIndex, false)">
+                              </range-slider-component>
+                            </div>
+                            <div class="ddp-data-range ddp-clear">
+                              <div class="ddp-box-option-input ddp-type">
+                                <span class="ddp-txt-input">px</span>
+                                <input type="text" [ngModel]="uiOption.layers[layerIndex]['pointRadiusFrom']"
+                                       (keyup.enter)="changePointSizeText($event, layerIndex, 'pointRadiusFrom');">
+                              </div>
+                              <div class="ddp-bar">
+                                ~
+                              </div>
+                              <div class="ddp-box-option-input ddp-type">
+                                <span class="ddp-txt-input">px</span>
+                                <input type="text" [ngModel]="uiOption.layers[layerIndex]['pointRadiusTo']"
+                                       (keyup.enter)="changePointSizeText($event, layerIndex, 'pointRadiusTo');">
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- // 크기반경 -->
                     </div>
                     <!-- //divide -->
                   </div>
@@ -414,7 +473,9 @@
 
                   <!-- symbol, polygon : outline -->
                   <div
-                    *ngIf="'symbol' === uiOption.layers[layerIndex].type.toString() || 'polygon' === uiOption.layers[layerIndex].type.toString()"
+                    *ngIf="'symbol' === uiOption.layers[layerIndex].type.toString()
+                            || 'polygon' === uiOption.layers[layerIndex].type.toString()
+                            || 'cluster' === uiOption.layers[layerIndex].type.toString()"
                     class="ddp-wrap-divide">
                     <!-- divide -->
                     <div class="ddp-divide2 ">
@@ -468,58 +529,89 @@
                   </div>
                   <!-- //symbol, polygon : outline -->
 
+                  <!--&lt;!&ndash; symbol : cluster &ndash;&gt;-->
+                  <!--<div class="ddp-wrap-divide" *ngIf="(uiOption['analysis'] == null || uiOption['analysis']['use'] == false) && 'symbol' === uiOption.layers[layerIndex].type.toString()">-->
+                  <!--&lt;!&ndash; divide &ndash;&gt;-->
+                  <!--<div class="ddp-divide2 ">-->
+                  <!--<div class="ddp-wrap-option-slider">-->
+                  <!--<span class="ddp-label-slider">{{'msg.page.layer.map.cluster' | translate}}</span>-->
+                  <!--&lt;!&ndash; Slide THREE &ndash;&gt;-->
+                  <!--<div class="ddp-checkbox-slide ddp-checkbox-automatic2">-->
+                  <!--<input type="checkbox" value="None" id="check2" name="check"-->
+                  <!--[ngModel]="uiOption.layers[layerIndex]['clustering']"-->
+                  <!--(click)="isEnableClustering(layerIndex);">-->
+                  <!--<label for="check2"><span class="ddp-slide"></span></label>-->
+                  <!--</div>-->
+                  <!--&lt;!&ndash; //Slide THREE &ndash;&gt;-->
+                  <!--</div>-->
+                  <!--<div class="ddp-list-sub2" *ngIf="uiOption.layers[layerIndex]['clustering']">-->
+                  <!--&lt;!&ndash; divide &ndash;&gt;-->
+                  <!--<div class="ddp-divide2">-->
+                  <!--<div class="ddp-wrap-option-multy ddp-clear">-->
+                  <!--<div class="ddp-col-8">-->
+                  <!--<span class="ddp-label-txt">{{'msg.page.layer.map.cluster.coverage' | translate}}</span>-->
+                  <!--</div>-->
+                  <!--</div>-->
+                  <!--&lt;!&ndash; divide &ndash;&gt;-->
+                  <!--<div class="ddp-divide2">-->
+                  <!--<div class="ddp-form-slider">-->
+                  <!--<div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">-->
+                  <!--<range-slider-component [hideFromTo]="false"-->
+                  <!--[hideMinMax]="true"-->
+                  <!--[keyboard]="false"-->
+                  <!--[min]="0"-->
+                  <!--[max]="100"-->
+                  <!--[from]="uiOption.layers[layerIndex]['coverage']"-->
+                  <!--[type]="'single'"-->
+                  <!--[step]="1"-->
+                  <!--(onFinish)="changeClustering({}, $event, layerIndex)">-->
+                  <!--</range-slider-component>-->
+                  <!--</div>-->
+                  <!--<div class="ddp-box-option-input ddp-type ddp-inline">-->
+                  <!--<span class="ddp-txt-input">%</span>-->
+                  <!--<input type="number"-->
+                  <!--[ngModel]="uiOption.layers[layerIndex]['coverage']"-->
+                  <!--(keyup.enter)="changeClusteringText($event, layerIndex);">-->
+                  <!--</div>-->
+                  <!--</div>-->
+                  <!--</div>-->
+                  <!--&lt;!&ndash; //divide &ndash;&gt;-->
+                  <!--</div>-->
+                  <!--&lt;!&ndash; //divide &ndash;&gt;-->
+                  <!--</div>-->
+                  <!--</div>-->
+                  <!--&lt;!&ndash; //divide &ndash;&gt;-->
+                  <!--</div>-->
+                  <!--&lt;!&ndash; //symbol : cluster &ndash;&gt;-->
+
                   <!-- symbol : cluster -->
-                  <div class="ddp-wrap-divide" *ngIf="(uiOption['analysis'] == null || uiOption['analysis']['use'] == false) && 'symbol' === uiOption.layers[layerIndex].type.toString()">
+                  <div class="ddp-wrap-divide"
+                       *ngIf="((uiOption['analysis'] == null || uiOption['analysis']['use'] == false) && 'cluster' === uiOption.layers[layerIndex].type.toString())">
                     <!-- divide -->
                     <div class="ddp-divide2 ">
-                      <div class="ddp-wrap-option-slider">
-                        <span class="ddp-label-slider">{{'msg.page.layer.map.cluster' | translate}}</span>
-                        <!-- Slide THREE -->
-                        <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-                          <input type="checkbox" value="None" id="check2" name="check"
-                                 [ngModel]="uiOption.layers[layerIndex]['clustering']"
-                                 (click)="isEnableClustering(layerIndex);">
-                          <label for="check2"><span class="ddp-slide"></span></label>
+                      <div class="ddp-list-label type-label">{{'msg.page.layer.map.cluster.distance' | translate}}</div>
+                      <div class="ddp-form-slider">
+                        <div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">
+                          <range-slider-component [hideFromTo]="false"
+                                                  [hideMinMax]="true"
+                                                  [keyboard]="false"
+                                                  [min]="0"
+                                                  [max]="100"
+                                                  [from]="uiOption.layers[layerIndex]['coverage']"
+                                                  [type]="'single'"
+                                                  [step]="1"
+                                                  (onFinish)="changeClustering({}, $event, layerIndex)">
+                          </range-slider-component>
                         </div>
-                        <!-- //Slide THREE -->
-                      </div>
-                      <div class="ddp-list-sub2" *ngIf="uiOption.layers[layerIndex]['clustering']">
-                        <!-- divide -->
-                        <div class="ddp-divide2">
-                          <div class="ddp-wrap-option-multy ddp-clear">
-                            <div class="ddp-col-8">
-                              <span class="ddp-label-txt">{{'msg.page.layer.map.cluster.coverage' | translate}}</span>
-                            </div>
-                          </div>
-                          <!-- divide -->
-                          <div class="ddp-divide2">
-                            <div class="ddp-form-slider">
-                              <div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">
-                                <range-slider-component [hideFromTo]="false"
-                                                        [hideMinMax]="true"
-                                                        [keyboard]="false"
-                                                        [min]="0"
-                                                        [max]="100"
-                                                        [from]="uiOption.layers[layerIndex]['coverage']"
-                                                        [type]="'single'"
-                                                        [step]="1"
-                                                        (onFinish)="changeClustering({}, $event, layerIndex)">
-                                </range-slider-component>
-                              </div>
-                              <div class="ddp-box-option-input ddp-type ddp-inline">
-                                <span class="ddp-txt-input">%</span>
-                                <input type="number"
-                                       [ngModel]="uiOption.layers[layerIndex]['coverage']"
-                                       (keyup.enter)="changeClusteringText($event, layerIndex);">
-                              </div>
-                            </div>
-                          </div>
-                          <!-- //divide -->
+                        <div class="ddp-box-option-input ddp-type ddp-inline">
+                          <span class="ddp-txt-input">%</span>
+                          <input type="number"
+                                 [ngModel]="uiOption.layers[layerIndex]['coverage']"
+                                 (keyup.enter)="changeClusteringText($event, layerIndex);">
                         </div>
-                        <!-- //divide -->
                       </div>
+                      <!-- //divide -->
                     </div>
-                    <!-- //divide -->
                   </div>
                   <!-- //symbol : cluster -->
 
@@ -656,25 +748,13 @@
                         <div class="ddp-list-sub2">
                           <div class="ddp-divide2">
                             <div class="ddp-list-label">{{'msg.page.layer.map.stroke.by' | translate}}</div>
-                            <!-- SELECTBOX -->
                             <component-select
-                              [array]="byList"
-                              [defaultIndex]="findIndex(byList, 'value', uiOption.layers[layerIndex].thickness?.by)"
-                              [viewKey]="'name'"
+                              [array]="fieldMeasureList"
+                              [defaultIndex]="findIndex(fieldMeasureList, 'name', uiOption.layers[layerIndex].thickness.column, 'thickness', 'aggregationType', uiOption.layers[layerIndex].thickness.aggregationType)"
+                              [isIconType]="true"
+                              [viewKey]="'alias'"
                               (onSelected)="changeStrokeBy($event, layerIndex)"
                             ></component-select>
-                            <!-- //SELECTBOX -->
-                          </div>
-                          <div *ngIf="'MEASURE' === uiOption.layers[layerIndex].thickness?.by?.toString()"
-                               class="ddp-divide2">
-                            <!-- SELECTBOX -->
-                            <component-select
-                              [array]="fieldList[layerIndex].measureList"
-                              [defaultIndex]="findIndex(fieldList[layerIndex].measureList, 'name', uiOption.layers[layerIndex].thickness.column, 'aggregationType', uiOption.layers[layerIndex].thickness.aggregationType)"
-                              [viewKey]="'alias'"
-                              (onSelected)="changeStrokeColumn($event, layerIndex)"
-                            ></component-select>
-                            <!-- //SELECTBOX -->
                           </div>
                           <div class="ddp-divide2">
                             <div class="ddp-wrap-option-multy ddp-clear">

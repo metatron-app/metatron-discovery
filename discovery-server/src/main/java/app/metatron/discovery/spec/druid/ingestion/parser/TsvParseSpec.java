@@ -14,21 +14,13 @@
 
 package app.metatron.discovery.spec.druid.ingestion.parser;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.List;
-
-import app.metatron.discovery.KeepAsUnescapeSerializer;
 
 /**
  * Created by kyungtaak on 2017. 3. 30..
  */
 public class TsvParseSpec extends CsvParseSpec implements ParseSpec {
 
-  @JsonSerialize(using = KeepAsUnescapeSerializer.class)
   String delimiter;
 
   public TsvParseSpec() {
@@ -45,10 +37,5 @@ public class TsvParseSpec extends CsvParseSpec implements ParseSpec {
 
   public void setDelimiter(String delimiter) {
     this.delimiter = delimiter;
-  }
-
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
   }
 }

@@ -581,8 +581,7 @@ export class DatasourceService extends AbstractService {
 
                 // clustering
                 let chart = (<UIMapOption>pageConf.chart);
-                if (chart.layers[idx].type == MapLayerType.SYMBOL && chart.layers[idx]['clustering']) {
-
+                if ( chart.layers[idx].type == MapLayerType.CLUSTER && chart.layers[idx]['clustering'] ) {
                   // cluster 값 변경
                   let clusterPrecision: number = 6;
                   if (chart['layers'][idx]['changeCoverage']) {
@@ -603,6 +602,18 @@ export class DatasourceService extends AbstractService {
                     // 0~99 퍼센트 값을 1~12값으로 변환
                     precision: (_.isNaN(clusterPrecision) ? 6 : clusterPrecision)
                   };
+
+                } else if ( chart.layers[idx].type == MapLayerType.SYMBOL ) {
+
+                  let precision : number = 12;
+                  query.shelf.layers[idx].view = <GeoHashFormat>{
+                    type: 'abbr',
+                    method: "h3",
+                    relayType: "FIRST",
+                    // zoom 값을 12~14 사이 값으로 변환
+                    precision: precision
+                  };
+
                 }
 
                 if (!_.isUndefined(chart['lowerCorner']) && !_.isUndefined(chart['upperCorner'])
@@ -691,7 +702,13 @@ export class DatasourceService extends AbstractService {
       query.limits = {
         limit: 5000,
         sort: null
-      }
+      };
+      let uiOption = <UIMapOption>pageConf.chart;
+      uiOption.layers.forEach((layer) => {
+        if(layer.type == MapLayerType.SYMBOL || layer.type == MapLayerType.HEATMAP) {
+          query.limits.limit = 20000;
+        }
+      });
     }
 
     if (!_.isEmpty(resultFormatOptions)) {

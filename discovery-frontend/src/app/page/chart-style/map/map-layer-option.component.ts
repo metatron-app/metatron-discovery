@@ -11,11 +11,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, Injector, Input, Output,
-  ViewChild
-} from '@angular/core';
-import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
+import {AfterViewChecked, Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
+import {UIMapOption} from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
 import {
   MapBy,
   MapLayerType,
@@ -31,27 +28,28 @@ import {
   ShelveFieldType,
   SymbolType
 } from '../../../common/component/chart/option/define/common';
-import { UISymbolLayer } from '../../../common/component/chart/option/ui-option/map/ui-symbol-layer';
-import { MapOutline } from '../../../common/component/chart/option/ui-option/map/ui-outline';
-import { UIPolygonLayer } from '../../../common/component/chart/option/ui-option/map/ui-polygon-layer';
-import { UILineLayer } from '../../../common/component/chart/option/ui-option/map/ui-line-layer';
-import { UIHeatmapLayer } from '../../../common/component/chart/option/ui-option/map/ui-heatmap-layer';
-import { UITileLayer } from '../../../common/component/chart/option/ui-option/map/ui-tile-layer';
-import { BaseOptionComponent } from '../base-option.component';
-import { ColorTemplateComponent } from '../../../common/component/color-picker/color-template.component';
-import { Field as AbstractField, Field } from '../../../domain/workbook/configurations/field/field';
-import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
-import { isNullOrUndefined } from 'util';
-import { AggregationType } from '../../../domain/workbook/configurations/field/measure-field';
-import { ChartUtil } from '../../../common/component/chart/option/util/chart-util';
-import { UILayers } from '../../../common/component/chart/option/ui-option/map/ui-layers';
-import { GeoField } from '../../../domain/workbook/configurations/field/geo-field';
-import { ColorRange } from '../../../common/component/chart/option/ui-option/ui-color';
-import { FormatOptionConverter } from '../../../common/component/chart/option/converter/format-option-converter';
-import { ColorOptionConverter } from '../../../common/component/chart/option/converter/color-option-converter';
-import { OptionGenerator } from '../../../common/component/chart/option/util/option-generator';
-import UI = OptionGenerator.UI;
+import {UISymbolLayer} from '../../../common/component/chart/option/ui-option/map/ui-symbol-layer';
+import {MapOutline} from '../../../common/component/chart/option/ui-option/map/ui-outline';
+import {UIPolygonLayer} from '../../../common/component/chart/option/ui-option/map/ui-polygon-layer';
+import {UILineLayer} from '../../../common/component/chart/option/ui-option/map/ui-line-layer';
+import {UIHeatmapLayer} from '../../../common/component/chart/option/ui-option/map/ui-heatmap-layer';
+import {UITileLayer} from '../../../common/component/chart/option/ui-option/map/ui-tile-layer';
+import {BaseOptionComponent} from '../base-option.component';
+import {ColorTemplateComponent} from '../../../common/component/color-picker/color-template.component';
+import {Field as AbstractField, Field} from '../../../domain/workbook/configurations/field/field';
+import {Shelf} from '../../../domain/workbook/configurations/shelf/shelf';
+import {isNullOrUndefined} from 'util';
+import {AggregationType, MeasureField} from '../../../domain/workbook/configurations/field/measure-field';
+import {ChartUtil} from '../../../common/component/chart/option/util/chart-util';
+import {UILayers} from '../../../common/component/chart/option/ui-option/map/ui-layers';
+import {GeoField} from '../../../domain/workbook/configurations/field/geo-field';
+import {ColorRange} from '../../../common/component/chart/option/ui-option/ui-color';
+import {FormatOptionConverter} from '../../../common/component/chart/option/converter/format-option-converter';
+import {ColorOptionConverter} from '../../../common/component/chart/option/converter/color-option-converter';
+import {OptionGenerator} from '../../../common/component/chart/option/util/option-generator';
 import {MapChartComponent} from "../../../common/component/chart/type/map-chart/map-chart.component";
+import UI = OptionGenerator.UI;
+import {FieldRole, LogicalType} from "../../../domain/datasource/datasource";
 
 @Component({
   selector: 'map-layer-option',
@@ -75,15 +73,14 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   public set setRnbMenu( rnbMenu: string ) {
     this.rnbMenu = rnbMenu;
     this.getLayerIndex();
-    if( this.fieldList.length > 0){
-      this.initColorList();
-    }
   }
 
   @Input('uiOption')
   public set setUiOption(uiOption: UIMapOption) {
 
     this.uiOption = uiOption;
+
+    this.setClusterOption();
 
     // set ranges for view
     this.rangesViewList = this.setRangeViewByDecimal(this.uiOption.layers[this.index].color['ranges']);
@@ -102,6 +99,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     this.setByType(shelf);
 
     this.shelf = shelf;
+
+    this.setPointOption();
+
+    this.changeDetect.detectChanges();
   }
 
   // color template popup
@@ -118,8 +119,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
   // symbol layer - type list
   public symbolLayerTypes = [{name : this.translateService.instant('msg.page.layer.map.type.point'), value: MapLayerType.SYMBOL},
-                             {name : this.translateService.instant('msg.page.layer.map.type.heatmap'), value: MapLayerType.HEATMAP},
-                             {name : this.translateService.instant('msg.page.layer.map.type.tile'), value: MapLayerType.TILE}];
+    {name: this.translateService.instant('msg.page.layer.map.type.heatmap'), value: MapLayerType.HEATMAP},
+    {name: this.translateService.instant('msg.page.layer.map.type.tile'), value: MapLayerType.TILE},
+    {name: this.translateService.instant('msg.page.layer.map.type.cluster'), value: MapLayerType.CLUSTER}];
 
   // symbol layer - symbol list
   public symbolLayerSymbols = [{name : this.translateService.instant('msg.page.layer.map.point.circle'), value : MapSymbolType.CIRCLE},
@@ -129,12 +131,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   // outline - thickness
   public thicknessList = [{value : MapThickness.THIN}, {value : MapThickness.NORMAL}, {value : MapThickness.THICK}];
 
-
-  // line - storke by, symbol - size by
-  public byList = [];
-
-  // all layers - color by
-  public colorByList = [];
 
   // line layer - thickness
   public lineStyleList = [{name : this.translateService.instant('msg.page.layer.map.line.type.solid'), value: MapLineStyle.SOLID},
@@ -146,6 +142,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
   // dimension, measure List
   public fieldList = [];
+  public fieldMeasureList = [];
 
   // range list for view
   public rangesViewList = [];
@@ -182,21 +179,16 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * symbol layer - change layer type
    * @param {MapLayerType} layerType
    */
-  public changeSymbolLayerType(layerType : MapLayerType, layerIndex : number) {
+  public changeSymbolLayerType(layerType: MapLayerType, layerIndex: number) {
 
     if (this.uiOption.layers[layerIndex].type === layerType) return;
 
-    // deep copy layer type
-    let cloneLayerType = _.cloneDeep(this.uiOption.layers[layerIndex].type);
-
-    let dimensionList = this.fieldList[layerIndex].dimensionList;
-    let measureList = this.fieldList[layerIndex].measureList;
-
-    let layer : UILayers = this.uiOption.layers[layerIndex];
+    let measureList = [];
+    let layer: UILayers = this.uiOption.layers[layerIndex];
 
     // 기존 레이어 타입 설정 셋팅
-    const preLayerType : MapLayerType = cloneLayerType;
-    let cloneLayer = _.cloneDeep( layer );
+    const preLayerType: MapLayerType = _.cloneDeep(this.uiOption.layers[layerIndex].type);
+    let cloneLayer = _.cloneDeep(this.uiOption.layers[layerIndex]);
     if (MapLayerType.HEATMAP === preLayerType) {
       layer.heatMapRadius = cloneLayer.heatMapRadius;
       layer.color.heatMapSchema = cloneLayer.color.schema;
@@ -204,6 +196,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     } else if (MapLayerType.SYMBOL === preLayerType) {
       layer.color.symbolSchema = cloneLayer.color.schema;
       layer.color.symbolTransparency = cloneLayer.color.transparency;
+      layer.symbolPointType = (<UISymbolLayer>cloneLayer).symbol;
+      layer.symbolOutline = (<UISymbolLayer>cloneLayer).outline;
     } else if (MapLayerType.TILE === preLayerType) {
       layer.tileRadius = cloneLayer.tileRadius;
       layer.color.tileSchema = cloneLayer.color.schema;
@@ -211,31 +205,50 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     } else if (MapLayerType.POLYGON === preLayerType) {
       layer.color.polygonSchema = cloneLayer.color.schema;
       layer.color.tranTransparency = cloneLayer.color.transparency;
+    } else if (MapLayerType.CLUSTER === preLayerType) {
+      layer.color.clusterSchema = cloneLayer.color.schema;
+      layer.color.clusterTransparency = cloneLayer.color.transparency;
+      layer.clusterPointType = (<UISymbolLayer>cloneLayer).symbol;
+      layer.clusterOutline = (<UISymbolLayer>cloneLayer).outline;
     }
+
+    delete this.uiOption.layers[layerIndex].noneColor;
+    delete this.uiOption.layers[layerIndex].dimensionColor
+    delete this.uiOption.layers[layerIndex].measureColor
 
     // change layer type
     this.uiOption.layers[layerIndex].type = layerType;
 
+    // cluster 설정 (cluster 경우 point 타입에서 cluster on / off 기능으로 구현됨)
+    if (layerType === MapLayerType.CLUSTER) {
+      // 클러스터 설정 on
+      this.uiOption.layers[layerIndex]['clustering'] = true;
+    } else {
+      // disable cluster
+      this.uiOption.layers[layerIndex]['clustering'] = false;
+    }
+
     // init color, legend
     this.initOptionSymbolLayer(layerIndex);
+    this.setMeasureDimensions(this.shelf);
 
     // change color type by layer type
     if (MapLayerType.HEATMAP === layerType) {
 
       layer = this.setColorByShelf(false, layerIndex);
-      if( isNullOrUndefined(layer.color.heatMapTransparency) ) {
+      if (isNullOrUndefined(layer.color.heatMapTransparency)) {
         layer.color.heatMapTransparency = 10;
       }
       layer.color.transparency = layer.color.heatMapTransparency;
-      if( isNullOrUndefined(layer['blur']) ) {
+      if (isNullOrUndefined(layer['blur'])) {
         layer['blur'] = 20;
       }
-      if( isNullOrUndefined(layer.heatMapRadius) ) {
+      if (isNullOrUndefined(layer.heatMapRadius)) {
         layer.heatMapRadius = 20;
       }
       layer['radius'] = layer.heatMapRadius;
 
-      measureList = this.fieldList[layerIndex]['measureList'];
+      measureList = this.findFieldList(this.fieldList[layerIndex], ShelveFieldType.MEASURE.toString());
 
       // when measure doesn't exist, hide/disable legend
       if (!measureList || 0 === measureList.length) {
@@ -251,15 +264,37 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     } else if (MapLayerType.SYMBOL === layerType) {
       // set color by shelf
       layer = this.setColorByShelf(false, layerIndex);
-      if( isNullOrUndefined(layer.color.symbolTransparency) ) {
-        layer.color.symbolTransparency = 10;
+      if (isNullOrUndefined(layer.color.symbolTransparency)) {
+        layer.color.symbolTransparency = 50;
       }
       layer.color.transparency = layer.color.symbolTransparency;
-
-      // add color by dimension list
-      if (dimensionList.length > 0 && -1 === _.findIndex(this.colorByList, ( item ) => { return item.value === MapBy.DIMENSION; })) {
-        this.colorByList.splice(1, 0, {name : this.translateService.instant('msg.page.li.color.dimension'), value : MapBy.DIMENSION});
+      if (isNullOrUndefined(layer.symbolPointType)) {
+        layer.symbolPointType = MapSymbolType.CIRCLE;
       }
+      (<UISymbolLayer>layer).symbol = layer.symbolPointType;
+      if (isNullOrUndefined(layer.symbolOutline)) {
+        layer.symbolOutline = null;
+      }
+      (<UISymbolLayer>layer).outline = layer.symbolOutline;
+
+      // remove measure aggregation type in shelf
+      this.removeAggregationType();
+
+    } else if (MapLayerType.CLUSTER === layerType) {
+      // set color by shelf
+      layer = this.setColorByShelf(false, layerIndex);
+      if (isNullOrUndefined(layer.color.clusterTransparency)) {
+        layer.color.clusterTransparency = 10;
+      }
+      layer.color.transparency = layer.color.clusterTransparency;
+      if (isNullOrUndefined(layer.clusterPointType)) {
+        layer.clusterPointType = MapSymbolType.CIRCLE;
+      }
+      (<UISymbolLayer>layer).symbol = layer.clusterPointType;
+      if (isNullOrUndefined(layer.clusterOutline)) {
+        layer.clusterOutline = null;
+      }
+      (<UISymbolLayer>layer).outline = layer.clusterOutline;
 
       // remove measure aggregation type in shelf
       this.removeAggregationType();
@@ -267,17 +302,14 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     } else if (MapLayerType.TILE === layerType) {
       // set color by shelf
       layer = this.setColorByShelf(true, layerIndex);
-      if( isNullOrUndefined(layer.color.tranTransparency) ) {
+      if (isNullOrUndefined(layer.color.tranTransparency)) {
         layer.color.tranTransparency = 10;
       }
       layer.color.transparency = layer.color.tranTransparency;
-      if( isNullOrUndefined(layer.tileRadius) ) {
+      if (isNullOrUndefined(layer.tileRadius)) {
         layer.tileRadius = 20;
       }
       layer['radius'] = layer.tileRadius;
-
-      // remove color by dimension list
-      _.remove(this.colorByList, ( item ) => { return item.value === MapBy.DIMENSION; });
 
       // if( isNullOrUndefined(this.uiOption.layers[this.index]['coverage']) ) {
       //   this.uiOption.layers[this.index]['coverage'] = 0.9;
@@ -287,18 +319,20 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       this.addAggregationType();
     }
 
-    // set measure, dimension list by layer type
+    // // set measure, dimension list by layer type
     this.setMeasureDimensions(this.shelf);
 
+    this.setPointOption();
+
     // apply layer ui option
-    this.applyLayers({type : EventType.MAP_CHANGE_OPTION});
+    this.applyLayers({type: EventType.MAP_CHANGE_OPTION});
   }
 
   /**
    * symbol layer - change symbol type
    * @param {SymbolType} symbolType
    */
-  public changeSymbolType(symbolType: MapSymbolType, layerIndex : number) {
+  public changeSymbolType(symbolType: MapSymbolType, layerIndex: number) {
 
     (<UISymbolLayer>this.uiOption.layers[layerIndex]).symbol = symbolType;
 
@@ -327,6 +361,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     } else if (MapLayerType.POLYGON === layer.type) {
       layer.color.tranTransparency = slider.from;
       layer.color.transparency = layer.color.tranTransparency;
+    } else if (MapLayerType.CLUSTER === layer.type) {
+      layer.color.clusterTransparency = slider.from;
+      layer.color.transparency = layer.color.clusterTransparency;
     }
     this.applyLayers();
   }
@@ -340,7 +377,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
     let inputValue = parseFloat($event.target.value);
 
-    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < 0) {
+    if (_.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < 0) {
       $event.target.value = this.uiOption.layers[index].color.transparency;
       return;
     } else {
@@ -357,6 +394,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       } else if (MapLayerType.POLYGON === layer.type) {
         layer.color.tranTransparency = inputValue;
         layer.color.transparency = layer.color.tranTransparency;
+      } else if (MapLayerType.CLUSTER === layer.type) {
+        layer.color.clusterTransparency = inputValue;
+        layer.color.transparency = layer.color.clusterTransparency;
       }
       this.applyLayers();
     }
@@ -366,15 +406,16 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * symbol, polygon layer - toggle outline
    * @param {MapOutline} outline
    */
-  public toggleOutline(outline: MapOutline, layerIndex : number) {
+  public toggleOutline(outline: MapOutline, layerIndex: number) {
 
     if (outline) {
       outline = null;
-    } else outline = <any>{color : '#4f4f4f', thickness : MapThickness.NORMAL};
+    } else {
+      outline = <any>{color: '#4f4f4f', thickness: MapThickness.NORMAL};
+    }
 
-    if (MapLayerType.SYMBOL === this.uiOption.layers[layerIndex].type) {
+    if (MapLayerType.SYMBOL === this.uiOption.layers[layerIndex].type || MapLayerType.CLUSTER === this.uiOption.layers[layerIndex].type) {
       (<UISymbolLayer>this.uiOption.layers[layerIndex]).outline = outline;
-
     } else if (MapLayerType.POLYGON === this.uiOption.layers[layerIndex].type) {
       (<UIPolygonLayer>this.uiOption.layers[layerIndex]).outline = outline;
     }
@@ -386,9 +427,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * symbol, polygon layer - change thickness
    * @param {MapThickness} thickness
    */
-  public changeThick(thickness: MapThickness, layerIndex : number) {
+  public changeThick(thickness: MapThickness, layerIndex: number) {
 
-    if (MapLayerType.SYMBOL === this.uiOption.layers[layerIndex].type) {
+    if (MapLayerType.SYMBOL === this.uiOption.layers[layerIndex].type || MapLayerType.CLUSTER === this.uiOption.layers[layerIndex].type) {
       (<UISymbolLayer>this.uiOption.layers[layerIndex]).outline.thickness = thickness;
 
     } else if (MapLayerType.POLYGON === this.uiOption.layers[layerIndex].type) {
@@ -401,27 +442,74 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   /**
    * symbol, polygon layer - clustering
    */
-  public isEnableClustering(layerIndex : number) {
+  public isEnableClustering(layerIndex: number) {
     (<UISymbolLayer>this.uiOption.layers[layerIndex]).clustering = !(<UISymbolLayer>this.uiOption.layers[layerIndex]).clustering;
-    this.applyLayers({type : EventType.MAP_CHANGE_OPTION});
+    this.applyLayers({type: EventType.MAP_CHANGE_OPTION});
   }
 
   public changeClustering(obj: any, $event: any, index: number) {
-    this.uiOption.layers[index]['coverage']= $event.from;
+    this.uiOption.layers[index]['coverage'] = $event.from;
     (<UIMapOption>this.uiOption).layers[index]['changeCoverage'] = true;
-    this.applyLayers({type : EventType.MAP_CHANGE_OPTION});
+    this.applyLayers({type: EventType.MAP_CHANGE_OPTION});
   }
 
   public changeClusteringText($event: any, index: number) {
     let inputValue = parseFloat($event.target.value);
-    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < 0) {
+    if (_.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < 0) {
       $event.target.value = (<UISymbolLayer>this.uiOption.layers[index])['coverage'];
       return;
     } else {
       (<UISymbolLayer>this.uiOption.layers[index])['coverage'] = inputValue;
       (<UIMapOption>this.uiOption).layers[index]['changeCoverage'] = true;
-      this.applyLayers({type : EventType.MAP_CHANGE_OPTION});
+      this.applyLayers({type: EventType.MAP_CHANGE_OPTION});
     }
+  }
+
+  /**
+   * change point size
+   */
+  public changePointSize(obj: any, $event: any, index: number, isSingle: boolean) {
+    (<UIMapOption>this.uiOption).layers[index]['isChangePointRadius'] = true;
+    this.uiOption['isChangeStyle'] = true;
+
+    let fromValue = parseFloat($event.from);
+    if (isSingle) {
+      this.uiOption.layers[index]['pointRadiusFrom'] = fromValue;
+      this.uiOption.layers[index].pointRadius = fromValue;
+      delete this.uiOption.layers[index]['pointRadiusTo'];
+    } else {
+      let toValue = parseFloat($event.to);
+      this.uiOption.layers[index]['pointRadiusFrom'] = fromValue;
+      this.uiOption.layers[index]['pointRadiusTo'] = toValue;
+    }
+    this.applyLayers();
+  }
+
+  public changePointSizeText($event: any, index: number, sizeValue: string) {
+    let inputValue = $event.target.value;
+    // number check
+    if (_.isEmpty(inputValue.toString()) || isNaN(inputValue)) {
+      $event.target.value = this.uiOption.layers[index][sizeValue];
+      return;
+    }
+    // validation
+    if (!isNullOrUndefined(this.uiOption.layers[index]['pointRadiusTo'])) {
+      if (sizeValue == 'pointRadiusFrom' && inputValue > this.uiOption.layers[index]['pointRadiusTo']) {
+        $event.target.value = this.uiOption.layers[index][sizeValue];
+        return;
+      } else if (sizeValue == 'pointRadiusTo' && inputValue < this.uiOption.layers[index]['pointRadiusFrom']) {
+        $event.target.value = this.uiOption.layers[index][sizeValue];
+        return;
+      }
+    }
+    let value = parseFloat(inputValue);
+    this.uiOption.layers[index][sizeValue] = value;
+    if (sizeValue == 'pointRadiusFrom') {
+      this.uiOption.layers[index].pointRadius = value;
+    }
+    (<UIMapOption>this.uiOption).layers[index]['isChangePointRadius'] = true;
+    this.uiOption['isChangeStyle'] = true;
+    this.applyLayers();
   }
 
   /**
@@ -431,36 +519,101 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * @param value
    * @returns {number}
    */
-  public findIndex(list: Object[], key: string, value: any, optionalKey?: string, optionalValue?: any) {
+  public findIndex(list: Object[], key: string, value: any, type: string, optionalKey?: string, optionalValue?: any) {
 
+    if( !_.isUndefined(list) && list.length == 1 ) return list.length-1;
+
+    const fieldType : string = 'type';
+    // aggregationType 있는경우
     if (optionalKey && optionalValue) {
-      return _.findIndex(list, {[key] : value, [optionalKey]: optionalValue});
+      return _.findIndex(list, {[key] : value, [optionalKey]: optionalValue, [fieldType] : ShelveFieldType.MEASURE});
     }
-    return _.findIndex(list, {[key] : value});
+
+    let index = this.index;
+    if( this.uiOption.layers.length == 1 ) index = 0;
+
+    let standardType = this.uiOption.layers[index].color.by;
+    if( type == 'thickness' ) {
+      standardType = (<UILineLayer>this.uiOption.layers[index]).thickness.by;
+    } else if( type == 'size' ) {
+      standardType = (<UISymbolLayer>this.uiOption.layers[index]).size.by;
+    }
+
+    // cluster 타입일 경우
+    if( this.uiOption.layers[index].type == MapLayerType.CLUSTER ){
+      if( standardType == MapBy.MEASURE ) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }
+
+    switch (standardType) {
+      case MapBy.NONE :
+        return _.findIndex(list, {[key] : value});
+      case MapBy.DIMENSION :
+        return _.findIndex(list, {[key] : value, [fieldType] : ShelveFieldType.DIMENSION});
+      case MapBy.MEASURE :
+        return _.findIndex(list, {[key] : value, [fieldType] : ShelveFieldType.MEASURE});
+      default :
+        return _.findIndex(list, {[key] : value});
+    }
+
+  }
+
+  /**
+   * return same type field list
+   * @param list
+   * @param fieldTypeValue
+   * @returns {T[]}
+   */
+  public findFieldList(list: Object[], fieldTypeValue : string, isDefaultValue? : boolean) {
+    const fieldType : string = 'type';
+
+    if( isDefaultValue ){
+      let resultFieldList : any = _.filter(list, {[fieldType] : fieldTypeValue});
+      resultFieldList.unshift({name : this.translateService.instant('msg.page.layer.map.stroke.none'), alias : this.translateService.instant('msg.page.layer.map.stroke.none'), value : MapBy.NONE});
+      return resultFieldList;
+    }
+
+    return _.filter(list, {[fieldType] : fieldTypeValue});
   }
 
   /**
    * all layers - set color by
    * @param {Object} data
    */
-  public changeColorBy(data: Object, layerIndex : number) {
+  public changeColorBy(data: Field, layerIndex : number) {
 
-    if (this.uiOption.layers[layerIndex].color.by === data['value']) return;
+    if (this.uiOption.layers[layerIndex].color.column === data.name ) return;
 
     // init color ranges
     this.uiOption.layers[layerIndex].color.ranges = undefined;
     // hide custom color
     this.uiOption.layers[layerIndex].color['settingUseFl'] = false;
 
-    this.uiOption.layers[layerIndex].color.by = data['value'];
+    switch (data.type) {
+      case 'none' :
+        this.uiOption.layers[layerIndex].color.by = MapBy.NONE;
+        break;
+      case 'dimension' :
+        this.uiOption.layers[layerIndex].color.by = MapBy.DIMENSION;
+        break;
+      case 'measure' :
+        this.uiOption.layers[layerIndex].color.by = MapBy.MEASURE;
+        break;
+      default :
+        this.uiOption.layers[layerIndex].color.by = MapBy.NONE;
+        break;
+    }
 
     this.uiOption.layers[layerIndex].color.aggregationType = undefined;
 
-    let dimensionList = this.fieldList[layerIndex].dimensionList;
-    let measureList = this.fieldList[layerIndex].measureList;
+    let dimensionList = this.findFieldList(this.fieldList[layerIndex], ShelveFieldType.DIMENSION.toString());
+    let measureList = this.findFieldList(this.fieldList[layerIndex], ShelveFieldType.MEASURE.toString());
 
     // set schema by color type
-    if (MapBy.DIMENSION === data['value']) {
+    if ('dimension' === data.type) {
       this.uiOption.layers[layerIndex].color.schema = 'SC1';
 
       // only set column when dimension column exsists
@@ -470,7 +623,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
         this.uiOption.layers[layerIndex].color.column = '';
       }
 
-    } else if (MapBy.MEASURE === data['value']) {
+    } else if ('measure' === data.type) {
       this.uiOption.layers[layerIndex].color.schema = 'VC1';
 
       // only set column when measure column exsists
@@ -500,12 +653,13 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
         }
       }
 
-    } else if (MapBy.NONE === data['value']) {
+    } else {
       this.uiOption.layers[layerIndex].color.schema = '#6344ad';
       this.uiOption.layers[layerIndex].color.column = '';
     }
 
-    this.applyLayers();
+    this.changeColorColumn(data, layerIndex);
+
   }
 
   /**
@@ -514,7 +668,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    */
   public changeColorColumn(data: Field, layerIndex : number) {
 
-    if (this.uiOption.layers[layerIndex].color.column === data.name && (!data.aggregationType || (data.aggregationType && this.uiOption.layers[layerIndex].color.aggregationType === data.aggregationType))) return;
+    // if (this.uiOption.layers[layerIndex].color.column === data.name && ((this.uiOption.layers[layerIndex].color.by == MapBy.MEASURE && !data.aggregationType) || (data.aggregationType && this.uiOption.layers[layerIndex].color.aggregationType === data.aggregationType))) return;
 
     this.uiOption.layers[layerIndex].color.column = data.name;
 
@@ -545,6 +699,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       this.uiOption.layers[layerIndex].color.aggregationType = null;
     }
 
+    this.uiOption.layers[layerIndex]['isColorOptionChanged'] = true;
     this.applyLayers();
   }
 
@@ -552,15 +707,28 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * line layer - stroke by
    * @param {Object} data
    */
-  public changeStrokeBy(data: Object, layerIndex : number) {
+  public changeStrokeBy(data: Field, layerIndex : number) {
 
-    (<UILineLayer>this.uiOption.layers[layerIndex]).thickness.by = data['value'];
+    switch (data.type) {
+      case 'none' :
+        (<UILineLayer>this.uiOption.layers[layerIndex]).thickness.by = MapBy.NONE;
+        break;
+      case 'dimension' :
+        (<UILineLayer>this.uiOption.layers[layerIndex]).thickness.by = MapBy.DIMENSION;
+        break;
+      case 'measure' :
+        (<UILineLayer>this.uiOption.layers[layerIndex]).thickness.by = MapBy.MEASURE;
+        break;
+      default :
+        (<UILineLayer>this.uiOption.layers[layerIndex]).thickness.by = MapBy.NONE;
+        break;
+    }
 
     (<UILineLayer>this.uiOption.layers[layerIndex]).thickness.aggregationType = undefined;
 
-    if (MapBy.MEASURE === data['value']) {
+    if ('measure' === data.type) {
 
-      let measureList = this.fieldList[layerIndex].measureList;
+      let measureList = this.findFieldList(this.fieldList[layerIndex], ShelveFieldType.MEASURE.toString());
 
       // only set column when measure column exsists
       if (measureList && measureList.length > 0) {
@@ -573,17 +741,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       (<UILineLayer>this.uiOption.layers[layerIndex]).thickness.column = '';
     }
 
-    this.applyLayers();
+    this.changeStrokeColumn(data, layerIndex);
   }
 
   /**
    * line layer - stroke column
    * @param {Object} data
    */
-  public changeStrokeColumn(data: Object, layerIndex : number) {
+  public changeStrokeColumn(data: Field, layerIndex : number) {
 
-    (<UILineLayer>this.uiOption.layers[layerIndex]).thickness.column = data['name'];
-    (<UILineLayer>this.uiOption.layers[layerIndex]).thickness.aggregationType = data['aggregationType'];
+    (<UILineLayer>this.uiOption.layers[layerIndex]).thickness.column = data.name;
+    (<UILineLayer>this.uiOption.layers[layerIndex]).thickness.aggregationType = data.aggregationType;
 
     this.applyLayers();
   }
@@ -611,14 +779,32 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * symbol layer - change size by
    * @param {Object} data
    */
-  public changeSizeBy(data: Object, layerIndex : number) {
+  public changeSizeBy(data: Field, layerIndex : number) {
 
-    (<UISymbolLayer>this.uiOption.layers[layerIndex]).size.by = data['value'];
+    this.resetPointRadius(layerIndex);
+    this.setMinMaxMeasureValue(this.shelf, data, this.data, layerIndex, false);
+
+    switch (data.type) {
+      case 'none' :
+        (<UISymbolLayer>this.uiOption.layers[layerIndex]).size.by = MapBy.NONE;
+        break;
+      case 'dimension' :
+        (<UISymbolLayer>this.uiOption.layers[layerIndex]).size.by = MapBy.DIMENSION;
+        break;
+      case 'measure' :
+        (<UISymbolLayer>this.uiOption.layers[layerIndex]).size.by = MapBy.MEASURE;
+        this.setPointOption();
+        this.setMinMaxMeasureValue(this.shelf, data, this.data, layerIndex, true);
+        break;
+      default :
+        (<UISymbolLayer>this.uiOption.layers[layerIndex]).size.by = MapBy.NONE;
+        break;
+    }
 
     // set column when size by is measure
-    if (MapBy.MEASURE === data['value']) {
+    if ('measure' === data.type) {
 
-      let measureList = this.fieldList[layerIndex].measureList;
+      let measureList =  this.findFieldList(this.fieldList[layerIndex], ShelveFieldType.MEASURE.toString());
 
       if (measureList && measureList.length > 0) {
         (<UISymbolLayer>this.uiOption.layers[layerIndex]).size.column = measureList[0]['name'];
@@ -629,7 +815,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       (<UISymbolLayer>this.uiOption.layers[layerIndex]).size.column = '';
     }
 
-    this.applyLayers();
+    this.changeSizeColumn(data, layerIndex);
+
   }
 
   /**
@@ -658,9 +845,12 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       this.uiOption.layers[layerIndex].color['tileSchema'] = colorCode;
     } else if (MapLayerType.POLYGON === layerType) {
       this.uiOption.layers[layerIndex].color['polygonSchema'] = colorCode;
+    } else if (MapLayerType.CLUSTER === layerType) {
+      this.uiOption.layers[layerIndex].color['clusterSchema'] = colorCode;
     }
 
     this.uiOption.layers[layerIndex].color.schema = colorCode;
+    this.uiOption.layers[layerIndex].noneColor = _.cloneDeep(colorCode);
 
     this.applyLayers();
   }
@@ -698,9 +888,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     heatMapLayer.radius = heatMapLayer.heatMapRadius;
     this.applyLayers();
   }
+
   public changeRadiusText($event: any, index: number) {
     let inputValue = parseFloat($event.target.value);
-    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < 0) {
+    if (_.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < 0) {
       $event.target.value = this.uiOption.layers[index]['radius'];
       return;
     } else {
@@ -716,7 +907,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * @param obj
    * @param slider
    */
-  public changeHexagonRadius(obj: any, slider: any, layerIndex : number) {
+  public changeHexagonRadius(obj: any, slider: any, layerIndex: number) {
     let tileLayer = (<UITileLayer>this.uiOption.layers[layerIndex]);
     tileLayer.tileRadius = slider.from;
     tileLayer.radius = tileLayer.tileRadius;
@@ -728,11 +919,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * hexgon layer - change radius text
    * @param event
    */
-  public changeHexagonRadiusText(event: any, layerIndex : number) {
+  public changeHexagonRadiusText(event: any, layerIndex: number) {
 
     let inputValue = parseFloat(event.target.value);
 
-    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < 0) {
+    if (_.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < 0) {
       event.target.value = (<UITileLayer>this.uiOption.layers[layerIndex]).radius;
       return;
     } else {
@@ -783,8 +974,29 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       this.uiOption.layers[layerIndex].color['tileSchema'] = data.colorNum;
     } else if (MapLayerType.POLYGON === layerType) {
       this.uiOption.layers[layerIndex].color['polygonSchema'] = data.colorNum;
+    } else if (MapLayerType.CLUSTER === layerType) {
+      this.uiOption.layers[layerIndex].color['clusterSchema'] = data.colorNum;
     }
     this.uiOption.layers[layerIndex].color.schema = data.colorNum;
+
+    let isDimension: boolean = false;
+    let isMeasure: boolean = false;
+    _.each(this.shelf.layers[layerIndex].fields, (field) => {
+      // when logical type is not geo, type is dimension
+      if (('user_expr' === field.field.type || (field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') == -1)) && _.eq(field.type, ShelveFieldType.DIMENSION)) {
+        isDimension = true;
+      }
+      if (_.eq(field.type, ShelveFieldType.MEASURE)) {
+        isMeasure = true;
+      }
+    });
+
+    if( isDimension ){
+      this.uiOption.layers[layerIndex].dimensionColor = _.cloneDeep(data.colorNum);
+    }
+    if( isMeasure ){
+      this.uiOption.layers[layerIndex].measureColor = _.cloneDeep(data.colorNum);
+    }
 
     const colorList = <any>_.cloneDeep(ChartColorList[this.uiOption.layers[layerIndex].color['schema']]);
 
@@ -1013,6 +1225,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     // set changed range in list
     rangeList[index] = range;
     this.uiOption.layers[layerIndex].color.ranges = rangeList;
+    this.uiOption.layers[layerIndex].color.changeRange = false;
 
     this.applyLayers();
   }
@@ -1042,7 +1255,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     const uiMinValue = _.cloneDeep(this.uiOption.layers[layerIndex].color.minValue);
 
     // 하위 fixMin값
-    const lowerfixMin = rangeList[index + 1] ?(rangeList[index + 1].fixMin) ? rangeList[index + 1].fixMin : rangeList[index + 1].fixMax : null;
+    const lowerfixMin = rangeList[index + 1] ? (rangeList[index + 1].fixMin) ? rangeList[index + 1].fixMin : rangeList[index + 1].fixMax : null;
 
     // 최소값인경우
     if (!rangeList[index + 1]) {
@@ -1051,7 +1264,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       if (uiMinValue < range.lte && rangeList[index - 1].fixMin > range.lte) {
 
         range.fixMax = range.lte;
-        rangeList[index-1].gt = range.lte;
+        rangeList[index - 1].gt = range.lte;
       } else {
         // 기존값으로 리턴
         range.lte = range.fixMax;
@@ -1082,6 +1295,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     // set changed range in list
     rangeList[index] = range;
     this.uiOption.layers[layerIndex].color.ranges = rangeList;
+    this.uiOption.layers[layerIndex].color.changeRange = false;
 
     this.applyLayers();
   }
@@ -1101,12 +1315,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
       returnString += ': ' + currentRnage.fixMin;
 
-    // case min value
+      // case min value
     } else if (rangeList.length - 1 == index) {
 
       returnString += ': ' + currentRnage.fixMax;
-    }
-    else {
+    } else {
 
       // 하위값이 있는경우 하위값의 min값이 있는경우 min값으로 설정 없는경우 최소값 설정
       let availableMin = !rangeList[index + 1] ? null : rangeList[index + 1].fixMin ? rangeList[index + 1].fixMin : rangeList[index + 1].fixMax;
@@ -1122,7 +1335,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   /**
    * click new color range
    */
-  public addNewRange(index: number, layerIndex : number) {
+  public addNewRange(index: number, layerIndex: number) {
 
     this.removeInputRangeShowStatus();
 
@@ -1141,8 +1354,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     // 현재 단계의 최소값 설정
     minValue = minValue + (maxValue - minValue) / 2;
 
-    const formatMinValue =  Math.floor(Number(minValue) * (Math.pow(10, this.uiOption.valueFormat.decimal))) / Math.pow(10, this.uiOption.valueFormat.decimal);
-    const formatMaxValue =  Math.floor(Number(maxValue) * (Math.pow(10, this.uiOption.valueFormat.decimal))) / Math.pow(10, this.uiOption.valueFormat.decimal);
+    const formatMinValue = Math.floor(Number(minValue) * (Math.pow(10, this.uiOption.valueFormat.decimal))) / Math.pow(10, this.uiOption.valueFormat.decimal);
+    const formatMaxValue = Math.floor(Number(maxValue) * (Math.pow(10, this.uiOption.valueFormat.decimal))) / Math.pow(10, this.uiOption.valueFormat.decimal);
 
     // 하위단계의 최대값 현재 최소값으로 변경
     rangeList[index].lte = formatMinValue;
@@ -1159,7 +1372,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   /**
    * when color palette color is changed
    */
-  public colorPaletteSelected(layerIndex : number, colorCode: string, item?: any) {
+  public colorPaletteSelected(layerIndex: number, colorCode: string, item?: any) {
 
     if (this.uiOption.layers[layerIndex].color.by == MapBy.MEASURE) {
 
@@ -1174,7 +1387,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   /**
    * remove selected color range
    */
-  public removeColorRange(range: ColorRange, index: number, layerIndex :number) {
+  public removeColorRange(range: ColorRange, index: number, layerIndex: number) {
 
     // 색상 범위리스트
     const rangeList = this.uiOption.layers[layerIndex].color.ranges;
@@ -1213,7 +1426,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   /**
    * equalize custom color range
    */
-  public equalColorRange(layerIndex : number): void {
+  public equalColorRange(layerIndex: number): void {
 
     // 색상 범위리스트
     const rangeList = this.uiOption.layers[layerIndex].color.ranges;
@@ -1227,10 +1440,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     });
 
     // 공간연산 사용 여부
-    if(!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] == true ) {
+    if (!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] == true) {
       // 비교 레이어 영역 설정 여부
-      if(!_.isUndefined(this.uiOption.analysis['includeCompareLayer']) && this.uiOption.analysis['includeCompareLayer'] == true) {
-        this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[(this.uiOption.analysis['layerNum']+1)], colorList, layerIndex, this.shelf.layers[layerIndex].fields, rangeList);
+      if (!_.isUndefined(this.uiOption.analysis['includeCompareLayer']) && this.uiOption.analysis['includeCompareLayer'] == true) {
+        this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[(this.uiOption.analysis['layerNum'] + 1)], colorList, layerIndex, this.shelf.layers[layerIndex].fields, rangeList);
       } else {
         this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[this.uiOption.analysis['layerNum']], colorList, layerIndex, this.shelf.layers[layerIndex].fields, rangeList);
       }
@@ -1316,9 +1529,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     // set dimension, measure list
     this.setMeasureDimensions(shelf);
 
-    // init list
-    this.initColorList();
-
   }
 
   /**
@@ -1328,38 +1538,48 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   private setMeasureDimensions(shelf: Shelf) {
 
     // nothing left when remove a map-layer
-    if(shelf.layers[this.index] == null) return;
+    if (shelf.layers[this.index] == null) return;
 
     this.fieldList = [];
-    let tempObj : object = {};
-    let measureList: Field[];
-    let dimensionList: Field[];
+    let tempList = [];
 
     for(let index=0; index < shelf.layers.length; index++) {
 
       let layers = _.cloneDeep(shelf.layers[index].fields);
 
-      const getShelveReturnField = ((shelve: any, typeList: ShelveFieldType[]): AbstractField[] => {
-        const resultList: AbstractField[] = [];
+      const getShelveReturnField = ((shelve: any, typeList?: ShelveFieldType[]): AbstractField[] => {
+        const resultList: any[] = [];
+        resultList.push({name:this.translateService.instant('msg.page.layer.map.stroke.none'), alias:this.translateService.instant('msg.page.layer.map.stroke.none'), value:MapBy.NONE});
 
         let uiOption = this.uiOption;
         let analysisCountAlias : string;
+        let analysisUse : boolean = false;
+        let useChoropleth : boolean = false;
         let isUndefinedAggregationType : boolean = false;
         if( !_.isUndefined(uiOption['analysis']) && !_.isUndefined(uiOption['analysis']['use']) && uiOption['analysis']['use'] ) {
+          analysisUse = true;
           if( uiOption['analysis']['operation']['choropleth'] ) {
+            useChoropleth = true;
             analysisCountAlias = uiOption['analysis']['operation']['aggregation']['column'];
             (_.isUndefined(uiOption['analysis']['operation']['aggregation']['type']) ? isUndefinedAggregationType = true : isUndefinedAggregationType = false );
           }
         }
 
         shelve.map((item) => {
-          if( !_.isUndefined(analysisCountAlias) && _.eq(item.type, typeList[0]) && _.eq(item.type, ShelveFieldType.MEASURE) ){
-            if( (!_.isUndefined(item['isCustomField']) && item['isCustomField'] ) || ( !isUndefinedAggregationType && analysisCountAlias == item.name) ){
-              item['alias'] = ChartUtil.getAlias(item);
-              resultList.push(item);
+          if( analysisUse ){
+            if( !_.isUndefined(analysisCountAlias) && _.eq(item.type, ShelveFieldType.MEASURE) ){
+              if( (!_.isUndefined(item['isCustomField']) && item['isCustomField'] ) || ( !isUndefinedAggregationType && analysisCountAlias == item.name) ){
+                item['alias'] = ChartUtil.getAlias(item);
+                resultList.push(item);
+              }
+            } else {
+              if ( !useChoropleth && item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO')) ) {
+                item['alias'] = ChartUtil.getAlias(item);
+                resultList.push(item);
+              }
             }
           } else {
-            if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO'))) ) {
+            if ( item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO')) ) {
               item['alias'] = ChartUtil.getAlias(item);
               resultList.push(item);
             }
@@ -1368,36 +1588,38 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
         return resultList;
       });
 
-      measureList = getShelveReturnField(layers, [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
-      dimensionList = getShelveReturnField(layers, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
-      tempObj = {
-          'measureList'    : measureList,
-          'dimensionList'  : dimensionList
-      };
-      this.fieldList.push(tempObj);
+      // point cluster 형태의 경우만
+      const symbolList: any[] = [];
+      let layerOption = this.uiOption.layers[this.index];
+      if( layerOption.type == MapLayerType.CLUSTER && layerOption['clustering'] ){
+        symbolList.push({name:this.translateService.instant('msg.page.layer.map.stroke.none'), alias:this.translateService.instant('msg.page.layer.map.stroke.none'), value:MapBy.NONE});
+
+        // 이미 변수가 선언이 되어 있어 강제로 변경
+        let defaultObject : any = {
+          aggregationType : null,
+          alias : 'count',
+          type : 'measure',
+          subRole : 'measure',
+          name : 'count',
+          isCustomField : true,
+          field : {
+            role : FieldRole.MEASURE,
+            logicalType : LogicalType.INTEGER
+          }
+        };
+
+        symbolList.push( defaultObject );
+        this.fieldList.push(symbolList);
+        this.fieldMeasureList = symbolList;
+        continue;
+      }
+
+      tempList = getShelveReturnField(layers);
+      this.fieldList.push(tempList);
+      this.fieldMeasureList = this.findFieldList(this.fieldList[this.index], 'measure', true);
 
     }
 
-  }
-
-  /**
-   * init color list
-   */
-  private initColorList() {
-    // init list
-    this.byList = [{name : this.translateService.instant('msg.page.layer.map.stroke.none'), value : MapBy.NONE}];
-    this.colorByList = [{name : this.translateService.instant('msg.page.layer.map.stroke.none'), value : MapBy.NONE}];
-
-    // when dimension exists, not hexagon layer, set dimension type
-    if (this.fieldList[this.index].dimensionList.length > 0 && MapLayerType.TILE !== this.uiOption.layers[this.index].type) {
-      this.colorByList.push({name : this.translateService.instant('msg.page.li.color.dimension'), value : MapBy.DIMENSION});
-    }
-
-    // when measure exists, set measure type
-    if (this.fieldList[this.index].measureList.length > 0) {
-      this.byList.push({name : this.translateService.instant('msg.page.layer.map.stroke.measure'), value : MapBy.MEASURE});
-      this.colorByList.push({name : this.translateService.instant('msg.page.layer.map.stroke.measure'), value : MapBy.MEASURE});
-    }
   }
 
   /**
@@ -1444,7 +1666,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
     let shelf: GeoField[] = this.shelf.layers[layerIndex].fields;
 
-    let preference = this.checkFieldPreference(shelf);
+    let preference = this.checkFieldPreference(shelf, layerIndex);
 
     const isNone = preference['isNone'];
     const isMeasure = preference['isMeasure'];
@@ -1453,8 +1675,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     let layer: UILayers = this.uiOption.layers[layerIndex];
     let layerType = layer.type;
 
-    let dimensionList = this.fieldList[layerIndex].dimensionList;
-    let measureList = this.fieldList[layerIndex].measureList;
+    let dimensionList = this.findFieldList(this.fieldList[layerIndex], ShelveFieldType.DIMENSION.toString());
+    let measureList = this.findFieldList(this.fieldList[layerIndex], ShelveFieldType.MEASURE.toString());
+
 
     ///////////////////////////
     // Color by None
@@ -1473,6 +1696,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       } else if (layerType == MapLayerType.POLYGON) {
         (_.isUndefined(layer.color.polygonSchema) || layer.color.polygonSchema.indexOf('#') == -1 ? layer.color.polygonSchema = '#6344ad' : layer.color.polygonSchema);
         layer.color.schema = layer.color.polygonSchema;
+      } else if (layerType == MapLayerType.CLUSTER) {
+        (_.isUndefined(layer.color.clusterSchema) || layer.color.clusterSchema.indexOf('#') == -1 ? layer.color.clusterSchema = '#6344ad' : layer.color.clusterSchema);
+        layer.color.schema = layer.color.clusterSchema;
       } else {
         layer.color.schema = '#6344ad';
       }
@@ -1497,6 +1723,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       } else if (layerType == MapLayerType.POLYGON) {
         (_.isUndefined(layer.color.polygonSchema) || layer.color.polygonSchema.indexOf('VC') == -1 ? layer.color.polygonSchema = 'VC1' : layer.color.polygonSchema);
         layer.color.schema = layer.color.polygonSchema;
+      } else if (layerType == MapLayerType.CLUSTER) {
+        (_.isUndefined(layer.color.clusterSchema) || layer.color.clusterSchema.indexOf('VC') == -1 ? layer.color.clusterSchema = 'VC1' : layer.color.clusterSchema);
+        layer.color.schema = layer.color.clusterSchema;
       } else {
         layer.color.schema = 'VC1';
       }
@@ -1525,6 +1754,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       } else if (layerType == MapLayerType.POLYGON) {
         (_.isUndefined(layer.color.polygonSchema) || layer.color.polygonSchema.indexOf('SC') == -1 ? layer.color.polygonSchema = 'SC1' : layer.color.polygonSchema);
         layer.color.schema = layer.color.polygonSchema;
+      } else if (layerType == MapLayerType.CLUSTER) {
+        (_.isUndefined(layer.color.clusterSchema) || layer.color.clusterSchema.indexOf('SC') == -1 ? layer.color.clusterSchema = 'SC1' : layer.color.clusterSchema);
+        layer.color.schema = layer.color.clusterSchema;
       } else {
         layer.color.schema = 'SC1';
       }
@@ -1541,7 +1773,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * @param {UILayers[]} layers
    * @returns {Object}
    */
-  private checkFieldPreference(layers: GeoField[]): Object {
+  private checkFieldPreference(layers: GeoField[], layerIndex : number): Object {
 
     // Find field
     let isNone: boolean = true;
@@ -1559,6 +1791,12 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
         isMeasure = true;
       }
     });
+
+    if( this.uiOption.layers[layerIndex].type == MapLayerType.CLUSTER ){
+      isMeasure = true;
+      isNone = false;
+      isDimension = false;
+    }
 
     return {isNone: isNone, isDimension: isDimension, isMeasure: isMeasure};
   }
@@ -1654,6 +1892,101 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
         if (uiItem['minInputShow']) delete uiItem['minInputShow'];
         if (uiItem['maxInputShow']) delete uiItem['maxInputShow'];
       });
+    }
+  }
+
+  /**
+   * cluster type 설정
+   */
+  private setClusterOption() {
+    if (!_.isUndefined(this.uiOption) && !_.isUndefined(this.uiOption['layers']) && this.uiOption['layers'].length > 0) {
+      for (let layerIndex = 0; this.uiOption['layers'].length > layerIndex; layerIndex++) {
+        // type 관련 설정
+        if (this.uiOption['layers'][layerIndex]['type'] == MapLayerType.SYMBOL
+          && !_.isUndefined(this.uiOption['layers'][layerIndex]['clustering'])
+          && this.uiOption['layers'][layerIndex]['clustering']) {
+          this.uiOption['layers'][layerIndex]['type'] = MapLayerType.CLUSTER;
+        }
+      }
+    }
+  }
+
+  /**
+   * 크기반경 설정
+   */
+  private setPointOption() {
+    if (!_.isUndefined(this.uiOption) && !_.isUndefined(this.uiOption['layers']) && this.uiOption['layers'].length > 0) {
+      for (let layerIndex = 0; this.uiOption['layers'].length > layerIndex; layerIndex++) {
+        // 크기 반경 관련 설정
+        if (this.uiOption['layers'][layerIndex]['type'] == MapLayerType.SYMBOL) {
+          // 크기 설정
+          if (isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusFrom'])) {
+            // default size of points are 5 pixel
+            this.uiOption.layers[layerIndex]['pointRadiusFrom'] = 5;
+            this.uiOption.layers[layerIndex].pointRadius = 5;
+          }
+          let hasMeasure = this.shelf.layers[layerIndex].fields.find((field) => {
+            return field.type == 'measure';
+          });
+          // Measure 값이 없을 경우
+          if (this.shelf['layers'][layerIndex].fields.length <= 1
+            || (this.shelf['layers'][layerIndex].fields.length > 1
+              && isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusTo'])
+              && isNullOrUndefined(hasMeasure))) {
+            delete this.uiOption.layers[layerIndex]['needToCalPointRadius'];
+            delete this.uiOption.layers[layerIndex]['pointRadiusTo'];
+            delete this.uiOption.layers[layerIndex]['pointRadiusCal'];
+            this.uiOption.layers[layerIndex].pointRadius = this.uiOption.layers[layerIndex]['pointRadiusFrom'];
+          } else if (this.shelf['layers'][layerIndex].fields.length > 1 && hasMeasure) {
+            if (isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusTo'])) {
+              if (this.uiOption.layers[layerIndex]['pointRadiusFrom'] < 100) {
+                this.uiOption.layers[layerIndex]['pointRadiusTo'] = 20;
+              } else {
+                this.uiOption.layers[layerIndex]['pointRadiusTo'] = 200;
+              }
+            }
+            this.uiOption.layers[layerIndex]['needToCalPointRadius'] = true;
+            this.setMinMaxMeasureValue(this.shelf, hasMeasure, this.data, layerIndex, false);
+          }
+        } else {
+          this.resetPointRadius(layerIndex);
+        }
+      }
+    }
+  }
+
+  private resetPointRadius(layerIndex: number) {
+    this.uiOption.layers[layerIndex].pointRadius = 5;
+    this.uiOption.layers[layerIndex]['pointRadiusFrom'] = 5;
+    delete this.uiOption.layers[layerIndex]['needToCalPointRadius'];
+    delete this.uiOption.layers[layerIndex]['pointRadiusTo'];
+    delete this.uiOption.layers[layerIndex]['pointRadiusCal'];
+  }
+
+  private setMinMaxMeasureValue(shelf: Shelf, selectedField: Field, data: any, layerIndex: number, isSet: boolean) {
+    if (isSet) {
+      let alias: string = null;
+      shelf.layers.forEach((layer) => {
+        layer.fields.forEach((field) => {
+          if (field.field.id == selectedField.field.id) {
+            alias = selectedField.field.name;
+          }
+        });
+      });
+      let minValue = 0;
+      let maxValue = 0;
+      // 공간연산으로 인한 data index 설정
+      let dataIndex = !isNullOrUndefined(this.uiOption.analysis) && this.uiOption.analysis.use == true ? this.uiOption.analysis.layerNum : layerIndex;
+      if (!_.isUndefined(data[dataIndex].valueRange) && !_.isUndefined(data[dataIndex].valueRange[alias])) {
+        // less than 0, set minValue
+        minValue = _.cloneDeep(data[dataIndex].valueRange[alias].minValue);
+        maxValue = _.cloneDeep(data[dataIndex].valueRange[alias].maxValue);
+      }
+      this.uiOption.layers[layerIndex]['size'].minValue = minValue;
+      this.uiOption.layers[layerIndex]['size'].maxValue = maxValue;
+    } else {
+      delete this.uiOption.layers[layerIndex]['size'].minValue;
+      delete this.uiOption.layers[layerIndex]['size'].maxValue;
     }
   }
 

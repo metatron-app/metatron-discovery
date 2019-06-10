@@ -23,7 +23,8 @@ import {
   UIChartColor,
   UIChartColorByDimension,
   UIChartColorBySeries,
-  UIChartColorByValue, UIChartColorGradationByValue,
+  UIChartColorByValue,
+  UIChartColorGradationByValue,
   UIChartZoom,
   UIOption
 } from './option/ui-option';
@@ -212,6 +213,12 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
     // Set
     this.uiOption = value;
+
+    // point re-size from map point type
+    if (!_.isUndefined(this.uiOption['isChangeStyle']) && this.uiOption['isChangeStyle']) {
+      this.draw(false);
+      return;
+    }
 
     // 차트변경시 uiOption이 초기화되므로 uiOption값 재설정
     this.setDataInfo();
