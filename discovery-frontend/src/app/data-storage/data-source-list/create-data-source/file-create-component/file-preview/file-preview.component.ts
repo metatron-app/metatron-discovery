@@ -638,17 +638,16 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
    * check reingestion status
    * @private
    */
-  private _checkReingestionStatus() {
+  private _checkReingestionStatus(): void {
     if(this.sourceData.datasourceId) {
       this.ingestionStatus = 'overwrite';
       const sourceFieldList = this.sourceData.configureData._originFieldList;
 
-      let biggerFieldList = sourceFieldList;
-      let smallFieldList = this.selectedFileDetailData.fields;
+      let biggerFieldList = this.selectedFileDetailData.fields;
+      let smallFieldList = this.sourceData.configureData._originFieldList;
 
       if(biggerFieldList.length < smallFieldList.length) {
-        biggerFieldList = this.selectedFileDetailData.fields;
-        smallFieldList = sourceFieldList;
+        return;
       }
 
       this.patches = [];
