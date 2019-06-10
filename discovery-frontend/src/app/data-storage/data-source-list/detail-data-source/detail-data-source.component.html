@@ -29,7 +29,7 @@
           <a href="javascript:" class="ddp-icon-more"></a>
           <!-- popup -->
           <div class="ddp-data-box">
-            <a href="javascript:" class="ddp-list-link" (click)="reIngestion()" *ngIf="showReingestionButton"><em class="ddp-icon-drop-re"></em>{{'msg.storage.btn.dsource.reingestion' | translate}}</a>
+            <a href="javascript:" class="ddp-list-link" (click)="reIngestion()" *ngIf="isShowReingestion"><em class="ddp-icon-drop-re"></em>{{'msg.storage.btn.dsource.reingestion' | translate}}</a>
             <a href="javascript:" class="ddp-list-link" (click)="deleteModalOpen()"><em class="ddp-icon-delete"></em>{{'msg.storage.btn.del.dsource' | translate}}</a>
             <span class="ddp-data-by" *ngIf="datasource.createdBy">
               <!--생성 {{datasource.createdTime | date : 'yyyy.MM.dd hh:mm'}} by {{datasource.createdBy.fullName ? datasource.createdBy.fullName : datasource.createdBy}}-->

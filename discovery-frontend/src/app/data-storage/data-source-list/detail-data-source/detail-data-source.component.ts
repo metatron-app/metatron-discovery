@@ -115,6 +115,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
 
   public step: string;
   public sourceData: DatasourceInfo;
+  public isShowReingestion: boolean;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -370,6 +371,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
    */
   public reIngestionComplete(): void {
     this.isNotShowProgress = false;
+    this.isShowReingestion = false;
     this.ngOnInit();
   }
 
@@ -379,13 +381,6 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
   public reIngestionClose(): void {
     this.step = '';
     this.onChangeMode( this.mode );
-  }
-
-  /**
-   * 재적재버튼 표시 확인
-   */
-  public showReingestionButton(): boolean {
-    return this.datasource.connType === ConnectionType.ENGINE && this.datasource.srcType === SourceType.FILE;
   }
 
   /**
@@ -537,6 +532,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
           // set view mode
           this.mode = mode;
           resolve(datasource);
+          this._showReingestion();
         })
         .catch(error => reject(error));
     });
@@ -604,9 +600,17 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
             // disconnect websocket
             this._subscribe.unsubscribe();
           }
+          this._showReingestion();
         }, headers);
     } catch (e) {
       console.info(e);
+    }
+  }
+
+  private _showReingestion() {
+    if (this.datasource.status != Status.PREPARING
+      && this.datasource.connType === ConnectionType.ENGINE && this.datasource.srcType === SourceType.FILE) {
+      this.isShowReingestion = true;
     }
   }
 
