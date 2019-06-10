@@ -7312,7 +7312,6 @@ table.ddp-table-view tbody tr.ddp-selected td {padding:2px 10px 3px 10px; border
 table.ddp-table-view tbody tr.ddp-selected td:first-of-type {padding-left:9px; border-left:1px solid #666eb2;}
 table.ddp-table-view tbody tr.ddp-selected td:last-of-type {padding-right:9px; border-right:1px solid #666eb2;}
 
-
 table.ddp-table-view tbody tr.ddp-selected td .ddp-icon-view {display:block; }
 table.ddp-table-form tbody tr.ddp-disabled em.ddp-icon-view {display:none;}
 table.ddp-table-form tbody tr.ddp-disabled .ddp-ui-checkbox {display:none;}
@@ -7322,6 +7321,9 @@ table.ddp-table-form tbody tr.ddp-disabled:nth-child(even) td {background-color:
 
 table.ddp-table-form tbody tr.ddp-disabled:nth-child(odd) td:first-of-type {border-left:1px solid #fafafa;}
 table.ddp-table-form tbody tr.ddp-disabled:nth-child(odd) td:last-of-type {border-right:1px solid #fafafa;}
+
+table.ddp-table-form tbody tr.ddp-disabled.ddp-selected:nth-child(odd) td:first-of-type {border-left:1px solid #666eb2;}
+table.ddp-table-form tbody tr.ddp-disabled.ddp-selected:nth-child(odd) td:last-of-type {border-right:1px solid #666eb2;}
 
 .ddp-box-viewtable .ddp-ui-gridbody.ddp-action {bottom:103px;}
 .ddp-box-schema.ddp-box-full .ddp-wrap-fleft{width:100%;}

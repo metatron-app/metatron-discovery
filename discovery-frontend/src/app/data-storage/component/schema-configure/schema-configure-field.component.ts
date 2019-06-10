@@ -574,6 +574,10 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
       field.isInvalidName = true;
       return false;
     }
+    // is same prev name
+    else if (Field.isNameEqualEditName(field)) {
+      return true;
+    }
     // check column name length
     else if (!Field.isEnableFieldEditNameLength(field)) {
       field.invalidNameMessage = this.translateService.instant('msg.storage.ui.file.result.FV004');
