@@ -1568,6 +1568,7 @@
   "msg.board.alert.global-filter.edit.error" :"글로벌 필터 수정에 실패했습니다",
   "msg.board.alert.update.board.error" : "대시보드 업데이트 시에 오류가 발생했습니다",
   "msg.board.ui.fit-to-height.tooltip" : "min:900 ~ max:2400",
+  "msg.board.alert.global-filter.del.error" : "글로벌 필터는 삭제할 수 없습니다",
   "msg.board.alert.recomm-filter.del.error" : "추천 필터는 삭제할 수 없습니다",
   "msg.board.alert.dashboard.update.fail": "대시보드 업데이트 시에 오류가 발생했습니다",
   "msg.board.alert.dashboard.sort.success": "대시보드 순서가 변경되었습니다",
