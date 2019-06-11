@@ -7461,7 +7461,7 @@ ul.ddp-list-value li.ddp-total {color:#b7b9c2;}
 .ddp-box-action .ddp-ui-checkaction .ddp-type-selectbox {width:180px;}
 .ddp-box-action a.ddp-btn-line {position:absolute; top:9px; right:9px;}
 
-.ddp-box-viewtable.ddp-selected .ddp-box-action.ddp-type {display:block;}
+.ddp-box-viewtable.ddp-selected .ddp-box-action.ddp-type {display:block; z-index:10;}
 .ddp-box-action.ddp-type {display:none; height:45px;}
 .ddp-box-action.ddp-type .ddp-box-button {clear:both; padding:17px 0 13px 0;text-align:center;}
 .ddp-box-action.ddp-type .ddp-box-button [class*="ddp-btn-"] {position:relative; top:0; right:0; margin:0 2px; vertical-align:middle;}
