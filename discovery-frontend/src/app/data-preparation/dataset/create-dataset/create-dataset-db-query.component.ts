@@ -713,7 +713,9 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         this.datasetJdbc.dataconnection.connection.catalog = connectionInfo.catalog;
       }
 
-      if (this.datasetJdbc.dataconnection.connection.implementor === 'TIBERO' && !connectionInfo.url) {
+      if ( (this.datasetJdbc.dataconnection.connection.implementor === 'TIBERO' || this.datasetJdbc.dataconnection.connection.implementor === 'ORACLE')
+            && !connectionInfo.url) {
+
         this.datasetJdbc.dataconnection.connection.sid = connectionInfo.sid;
       }
 
