@@ -792,7 +792,7 @@
   "msg.dp.alert.no.snapshot" : "Snapshot does not exist",
   "msg.dp.alert.unsupported.imported.dataset" : "Unsupported imported dataset type",
   "msg.dp.alert.no.flow.info" : "No dataflow information",
-  "msg.dp.alert.no.row.data" : " data does not exist",
+  "msg.dp.alert.no.row.data" : "Wrong row number",
   "msg.dp.alert.out.of.range": "Value out of range",
   "msg.dp.alert.please.sel.ds": "Please select dataset",
   "msg.dp.alert.redo.fail": "REDO failed",
