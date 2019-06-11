@@ -291,15 +291,14 @@ public class OracleConnectionExtension extends Plugin {
     @Override
     public String getTableDescQuery(JdbcConnectInformation connectInfo, String catalog, String schema, String table) {
       StringBuilder builder = new StringBuilder();
-      builder.append(" SELECT S.OWNER, S.SEGMENT_NAME, S.BYTES / 1024 KB, S.BYTES/1024/1024 MB, T.NUM_ROWS ");
-      builder.append(" FROM DBA_SEGMENTS S ");
-      builder.append("   INNER JOIN ALL_TABLES T ON S.SEGMENT_NAME = T.TABLE_NAME ");
+      builder.append(" SELECT * ");
+      builder.append(" FROM ALL_TABLES T ");
       builder.append(" WHERE 1=1 ");
       if(StringUtils.isNotEmpty(schema)){
-        builder.append(" AND S.OWNER = UPPER('" + schema + "') ");
+        builder.append(" AND T.OWNER = UPPER('" + schema + "') ");
       }
       if(StringUtils.isNotEmpty(table)){
-        builder.append(" AND S.SEGMENT_NAME = UPPER('" + table + "') ");
+        builder.append(" AND T.TABLE_NAME = UPPER('" + table + "') ");
       }
       return builder.toString();
     }
