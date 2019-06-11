@@ -260,6 +260,11 @@ export class Field {
     return StringUtil.isEmpty(field.editName);
   }
 
+  public static isNameEqualEditName(field: Field): boolean {
+    return field.name === field.editName.trim();
+  }
+
+
   public static isDisableFieldEditNameCharacter(field: Field): boolean {
     return (/^[!@#$%^*+=()~`\{\}\[\]\-\_\;\:\'\"\,\.\/\?\<\>\|\&\\]+$/gi).test(field.editName) || (/[\s\r\n]/gi).test(field.editName);
   }
