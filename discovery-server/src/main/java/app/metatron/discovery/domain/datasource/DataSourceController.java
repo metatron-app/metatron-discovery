@@ -1136,6 +1136,9 @@ public class DataSourceController {
       localFileIngestionInfo.setUploadFileName(((LocalFileIngestionInfo) ingestionInfo).getUploadFileName());
       localFileIngestionInfo.setRemoveFirstRow(((LocalFileIngestionInfo) ingestionInfo).getRemoveFirstRow());
       localFileIngestionInfo.setFormat(ingestionInfo.getFormat());
+      if(ingestionInfo.getIntervals() != null){
+        localFileIngestionInfo.setIntervals(ingestionInfo.getIntervals());
+      }
       dataSource.setIngestionInfo(localFileIngestionInfo);
     }
 
@@ -1152,7 +1155,7 @@ public class DataSourceController {
     dataSource.setStatus(PREPARING);
     dataSourceRepository.saveAndFlush(dataSource);
 
-    LOGGER.debug("Re-Ingestion overwrite dataSource : {} ", dataSource.toString());
+    LOGGER.debug("Re-Ingestion append dataSource : {} ", dataSource.toString());
 
     ThreadFactory factory = new ThreadFactoryBuilder()
         .setNameFormat("ingestion-append-" + dataSource.getId() + "-%s")

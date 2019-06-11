@@ -416,6 +416,7 @@ export class Field {
 
 // 데이터소스 생성시 사용하는 정보
 export class DatasourceInfo {
+  public datasource: Datasource;
   public datasourceId: string;
   // src type
   public type: SourceType;

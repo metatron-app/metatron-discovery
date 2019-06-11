@@ -34,6 +34,8 @@ public class UniformGranularitySpec implements GranularitySpec {
 
   Boolean rollup;
 
+  Boolean append = true;
+
   public UniformGranularitySpec() {
   }
 
@@ -87,4 +89,9 @@ public class UniformGranularitySpec implements GranularitySpec {
   public void setRollup(Boolean rollup) {
     this.rollup = rollup;
   }
+
+  public Boolean getAppend() { return append; }
+
+  public void setAppend(Boolean append) { this.append = append; }
+
 }
