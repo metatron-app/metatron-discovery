@@ -229,6 +229,24 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * 마우스가 벗어남
+   */
+  public mouseoutWidget() {
+
+    if (this.filterSelectComponent && this.filterSelectComponent.isShowSelectList ) {
+      this.filterSelectComponent.isShowSelectList = false;
+      this.safelyDetectChanges();
+      this.toggleOptionsSelectComp(false);
+    }
+
+    if (this.filterMultiSelectComponent && this.filterMultiSelectComponent.isShowSelectList) {
+      this.filterMultiSelectComponent.isShowSelectList = false;
+      this.safelyDetectChanges();
+      this.toggleOptionsSelectComp(false);
+    }
+
+  } // function - mouseoutWidget
 
   /**
    * 위젯 설정 변경
@@ -361,7 +379,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
       filter.valueList.push(item.name);
     } else if (filter.selector === InclusionSelectorType.MULTI_LIST) {
       // 멀티 리스트
-      if (-1 === filter.valueList.indexOf( item.name ) ) {
+      if (-1 === filter.valueList.indexOf(item.name)) {
         filter.valueList.push(item.name);
       } else {
         const idx = filter.valueList.indexOf(item.name);
