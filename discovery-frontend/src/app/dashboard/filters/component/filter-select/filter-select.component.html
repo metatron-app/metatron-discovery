@@ -41,7 +41,7 @@
           <a href="javascript:"  draggable="false" (click)="selectAllItem();">{{'msg.comm.ui.list.all'|translate}}</a>
         </li>
         <li *ngFor="let item of array | baseFilter:['name', searchText]">
-          <a href="javascript:" (click)="selectCandidateItem(item);" [ngStyle]="item.isTemporary ? {'color': '#8fb66a'} : {}">{{isStringArray ? item : item[viewKey]}}</a>
+          <a href="javascript:" (click)="selectCandidateItem(item);" [ngStyle]="item.isTemporary ? {'color': '#9499c2'} : {}">{{isStringArray ? item : item[viewKey]}}</a>
         </li>
       </ul>
     </div>

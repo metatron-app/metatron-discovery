@@ -93,6 +93,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
 
   // 후보리스트
   public candidateList: Candidate[] = [];
+  public isSearchingCandidateAvailability: boolean = false;
 
   // 선택 아이템
   public selectedItems: Candidate[];
@@ -418,6 +419,36 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
     this._broadcastChangeFilter(filter);
   } // function - applyValue
 
+  public candidateFromSearchText() {
+    if(StringUtil.isEmpty(this.searchText)) {
+      return;
+    }
+
+    this.loadingShow();
+    this.datasourceService.getCandidateForFilter(
+      this.filter, this.dashboard, [], null, null, this.searchText).then((resultCandidates) => {
+      if(resultCandidates && resultCandidates.length > 0) {
+        resultCandidates.forEach((resultCandidate) => {
+          if(this.existCandidate(resultCandidate.field) === false) {
+            let candidate = new Candidate();
+            candidate.count = resultCandidate.count;
+            candidate.name = resultCandidate.field;
+            candidate.isTemporary = true;
+
+            this.candidateList.unshift(candidate);
+          }
+        });
+
+        this.safelyDetectChanges();
+      }
+
+      this.loadingHide();
+    }).catch((error) => {
+      this.commonExceptionHandler(error);
+    });
+
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -484,7 +515,6 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
       // this.datasourceService.getCandidateForFilter(
       //   this.filter, this.dashboard, this.getFiltersParam(this.filter), this.field).then((result) => {
       this.datasourceService.getCandidateForFilter(filter, this.dashboard, [], this.field).then((result) => {
-
         if ('include' === filter.type) {
 
           // 기본값 설정
@@ -497,6 +527,12 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
 
           // 사용자 정의 값 추가
           this.addDefineValues(inclusionFilter);
+
+          if(result && Array.isArray(result) && result.length > 100) {
+            this.isSearchingCandidateAvailability = true;
+          } else {
+            this.isSearchingCandidateAvailability = false;
+          }
 
           // 선택된 후보값 목록
           const selectedCandidateValues: string[] = inclusionFilter.candidateValues;
@@ -708,5 +744,14 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
     this.isRangeTypeTimeFilter = FilterUtil.isTimeRangeFilter(timeFilter);
     this.isListTypeTimeFilter = FilterUtil.isTimeListFilter(timeFilter);
   } // function - _setTimeFilterStatus
+
+  private existCandidate(name : string) : boolean {
+    const filteredCandidates = this.candidateList.filter(candidate => candidate.name === name);
+    if(filteredCandidates != null && filteredCandidates.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
 }
