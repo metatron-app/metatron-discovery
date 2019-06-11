@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy;
 
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.UnknownTypeException;
+import java.math.BigDecimal;
 import org.joda.time.DateTime;
 
 import java.math.BigInteger;
@@ -75,6 +76,9 @@ public enum ColumnType {
     }
     else if (obj instanceof BigInteger) {
       return Long.valueOf(((BigInteger) obj).longValue());
+    }
+    else if (obj instanceof BigDecimal) {
+      return Long.valueOf(((BigDecimal) obj).longValue());
     }
     else if (obj instanceof Float) {
       return Double.valueOf(((Float) obj).doubleValue());
