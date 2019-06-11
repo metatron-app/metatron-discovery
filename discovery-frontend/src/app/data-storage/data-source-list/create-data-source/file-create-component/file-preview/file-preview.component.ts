@@ -720,7 +720,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
       uploadFileName: this.sourceData.fileData.fileResult.fileName
     };
     if (!_.isNil(timestampField)) {
-      const info = this._granularityService.getInitializedInterval(this.dataList, timestampField.format.format, granularity, timestampField.format.type, timestampField.format.unit);
+      const info = this._granularityService.getInitializedInterval(this.dataList.sort(), timestampField.format.format, granularity, timestampField.format.type, timestampField.format.unit);
       ingestion['intervals'] = [this._granularityService.getIntervalUsedParam(info.startInterval, granularity) + '/' + this._granularityService.getIntervalUsedParam(info.endInterval, granularity)];
     }
 
