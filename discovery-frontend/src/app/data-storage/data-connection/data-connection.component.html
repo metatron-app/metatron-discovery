@@ -37,6 +37,7 @@
         <div class="ddp-form-filter-search">
           <component-input
             [autoFocus]="false"
+            [isEnableDelete]="true"
             [value]="searchKeyword"
             [placeHolder]="'msg.storage.ph.connection.search' | translate"
             (changeValue)="onChangedSearchKeyword($event)">
@@ -60,7 +61,11 @@
       <a href="javascript:" class=" ddp-btn-pop ddp-bg-black" (click)="onClickCreateConnection()"><em class="ddp-icon-add2"></em>{{'msg.comm.btn.new' | translate}}</a>
     </div>
     <!-- //create connection -->
-    <table class="ddp-table-form ddp-table-type3">
+    <div class="ddp-data-source-none" *ngIf="isEmptyList(); else existList">
+      {{'msg.comm.ui.no.rslt' | translate}}
+    </div>
+    <ng-template #existList>
+      <table class="ddp-table-form ddp-table-type3">
       <colgroup>
         <col width="*">
         <col width="12%">
@@ -105,9 +110,10 @@
       </tr>
       </tbody>
     </table>
-    <!-- Pagination -->
-    <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
-    <!-- // Pagination -->
+      <!-- Pagination -->
+      <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+      <!-- // Pagination -->
+    </ng-template>
   </div>
 </div>
 <!-- 커넥션 생성 팝업 -->
