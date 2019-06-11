@@ -405,6 +405,7 @@ public class JdbcConnectionService {
     JdbcCSVWriter jdbcCSVWriter = null;
     try {
       jdbcCSVWriter = new JdbcCSVWriter(new FileWriter(tempFileName), CsvPreference.STANDARD_PREFERENCE);
+      jdbcCSVWriter.setJdbcDialect(jdbcDialect);
       jdbcCSVWriter.setConnection(connection);
       jdbcCSVWriter.setQuery(queryString);
       jdbcCSVWriter.setFileName(tempFileName);
@@ -642,6 +643,7 @@ public class JdbcConnectionService {
     Preconditions.checkNotNull(realConnection, "connection info. required.");
 
     JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(realConnection);
+    JdbcDialect jdbcDialect = jdbcDataAccessor.getDialect();
     Connection connection = jdbcDataAccessor.getConnection(ingestionInfo.getDatabase(), true);
 
     // Max time 이 없는 경우 고려
@@ -664,6 +666,7 @@ public class JdbcConnectionService {
     JdbcCSVWriter jdbcCSVWriter = null;
     try {
       jdbcCSVWriter = new JdbcCSVWriter(new FileWriter(tempFileName), CsvPreference.STANDARD_PREFERENCE);
+      jdbcCSVWriter.setJdbcDialect(jdbcDialect);
       jdbcCSVWriter.setConnection(connection);
       jdbcCSVWriter.setQuery(queryString);
       jdbcCSVWriter.setFetchSize(fetchSize);
@@ -762,12 +765,12 @@ public class JdbcConnectionService {
     JdbcUtils.closeConnection(connection);
   }
 
-  public int writeResultSetToCSV(ResultSet resultSet, String tempCsvFilePath, List<String> headers) throws SQLException {
+  public int writeResultSetToCSV(JdbcDialect jdbcDialect, ResultSet resultSet, String tempCsvFilePath, List<String> headers) throws SQLException {
     JdbcCSVWriter jdbcCSVWriter = null;
     int rowNumber = 0;
     try {
       jdbcCSVWriter = new JdbcCSVWriter(new FileWriter(tempCsvFilePath), CsvPreference.STANDARD_PREFERENCE);
-
+      jdbcCSVWriter.setJdbcDialect(jdbcDialect);
       //write header from list if exist
       if (headers != null && !headers.isEmpty()) {
         jdbcCSVWriter.setWithHeader(false);

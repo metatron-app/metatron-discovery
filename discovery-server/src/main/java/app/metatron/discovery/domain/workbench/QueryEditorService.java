@@ -67,6 +67,7 @@ import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionSe
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceManager;
 import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
+import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.WebSocketUtils;
 
@@ -127,6 +128,7 @@ public class QueryEditorService {
     dataSourceInfo.setQueryList(queryList);
 
     JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(jdbcDataConnection);
+    JdbcDialect jdbcDialect = jdbcDataAccessor.getDialect();
 
     int queryIndex = 0;
     while(!queryList.isEmpty()){
@@ -166,7 +168,7 @@ public class QueryEditorService {
       entityManager.clear();
 
       QueryResult queryResult = executeQuery(dataSourceInfo, substitutedQuery, workbench.getId(), webSocketId, jdbcDataConnection,
-              queryHistoryId, auditId, queryIndex, queryEditor.getId());
+                                             jdbcDialect, queryHistoryId, auditId, queryIndex, queryEditor.getId());
       queryResults.add(queryResult);
 
       //increase query index
@@ -303,8 +305,8 @@ public class QueryEditorService {
   }
 
   private QueryResult executeQuery(WorkbenchDataSource dataSourceInfo, String query, String workbenchId, String webSocketId,
-                                   DataConnection jdbcDataConnection, long queryHistoryId, String auditId,
-                                   int queryIndex, String queryEditorId){
+                                   DataConnection jdbcDataConnection, JdbcDialect jdbcDialect, long queryHistoryId,
+                                   String auditId, int queryIndex, String queryEditorId){
 
     ResultSet resultSet = null;
     QueryResult queryResult = null;
@@ -373,7 +375,7 @@ public class QueryEditorService {
           sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.GET_RESULTSET, queryIndex,
                   queryEditorId, workbenchId, webSocketId);
           resultSet = stmt.getResultSet();
-          queryResult = getQueryResult(resultSet, query, null, defaultResultSize, queryEditorId, queryIndex);
+          queryResult = getQueryResult(jdbcDialect, resultSet, query, null, defaultResultSize, queryEditorId, queryIndex);
         } else {
           queryResult = createMessageResult("OK", query, QueryResult.QueryResultStatus.SUCCESS);
         }
@@ -382,7 +384,7 @@ public class QueryEditorService {
           sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.GET_RESULTSET, queryIndex,
                   queryEditorId, workbenchId, webSocketId);
           resultSet = stmt.getResultSet();
-          queryResult = getQueryResult(resultSet, query, null, defaultResultSize, queryEditorId, queryIndex);
+          queryResult = getQueryResult(jdbcDialect, resultSet, query, null, defaultResultSize, queryEditorId, queryIndex);
         } else {
           queryResult = createMessageResult("OK", query, QueryResult.QueryResultStatus.SUCCESS);
         }
@@ -433,7 +435,8 @@ public class QueryEditorService {
     return queryResult;
   }
   
-  private QueryResult getQueryResult(ResultSet resultSet, String query, String tempTable, int pageSize, String queryEditorId, int queryIndex) throws SQLException{
+  private QueryResult getQueryResult(JdbcDialect jdbcDialect, ResultSet resultSet, String query, String tempTable,
+                                     int pageSize, String queryEditorId, int queryIndex) throws SQLException{
     //1. create CSV File with header
     String csvBaseDir = workbenchProperties.getTempCSVPath();
     if(!csvBaseDir.endsWith(File.separator)){
@@ -457,6 +460,7 @@ public class QueryEditorService {
 
     //3. write csv
     int rowNumber = jdbcConnectionService.writeResultSetToCSV(
+            jdbcDialect,
             resultSet,
             csvBaseDir + tempFileName,
             fieldList.stream().map(field -> field.getName()).collect(Collectors.toList()));

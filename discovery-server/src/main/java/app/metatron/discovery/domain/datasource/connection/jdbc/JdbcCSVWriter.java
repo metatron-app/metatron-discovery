@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionErrorCodes;
 import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionException;
 
@@ -45,12 +46,21 @@ public class JdbcCSVWriter extends CsvResultSetWriter implements ICsvResultSetWr
 
   private static final Logger LOGGER = LoggerFactory.getLogger(JdbcCSVWriter.class);
 
+  private JdbcDialect jdbcDialect;
   private Connection connection;
   private String query;
   private String fileName;
   private boolean withHeader = true;
   private int fetchSize = 0;
   private int maxRow = 0;
+
+  public JdbcDialect getJdbcDialect() {
+    return jdbcDialect;
+  }
+
+  public void setJdbcDialect(JdbcDialect jdbcDialect) {
+    this.jdbcDialect = jdbcDialect;
+  }
 
   public Connection getConnection() {
     return connection;
@@ -175,7 +185,12 @@ public class JdbcCSVWriter extends CsvResultSetWriter implements ICsvResultSetWr
       // thrown before writing occurs
       objects.clear();
       for( int columnIndex = 1; columnIndex <= numberOfColumns; columnIndex++ ) {
-        objects.add(resultSet.getString(columnIndex));
+        if(jdbcDialect != null && jdbcDialect.resultObjectConverter() != null){
+          Object columnObj = jdbcDialect.resultObjectConverter().apply(resultSet.getObject(columnIndex));
+          objects.add(columnObj);
+        } else {
+          objects.add(resultSet.getString(columnIndex));
+        }
       }
       super.writeRow(objects);
     }
