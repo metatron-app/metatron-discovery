@@ -24,7 +24,7 @@ import {
   ViewChild
 } from '@angular/core';
 import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
-import {DatasourceInfo, Field} from '../../../../../domain/datasource/datasource';
+import {DatasourceInfo, Field, FieldRole} from '../../../../../domain/datasource/datasource';
 import {Alert} from '../../../../../common/util/alert.util';
 import {DatasourceService} from '../../../../../datasource/service/datasource.service';
 import {header, SlickGridHeader} from '../../../../../common/component/grid/grid.header';
@@ -41,6 +41,11 @@ import {
 } from "../../../../service/data-source-create.service";
 import {Modal} from "../../../../../common/domain/modal";
 import {ConfirmModalComponent} from "../../../../../common/component/modal/confirm/confirm.component";
+import {
+  Granularity,
+  GranularityObject,
+  GranularityService
+} from "../../../../service/granularity.service";
 
 @Component({
   selector: 'file-preview',
@@ -102,10 +107,12 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
   public ingestionStatus: string;
   public ingestionPopup: boolean = false;
   public patches = [];
+  public dataList = [];
 
   // 생성자
   constructor(private datasourceService: DatasourceService,
               private _dataSourceCreateService: DataSourceCreateService,
+              private _granularityService: GranularityService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -643,7 +650,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
       this.ingestionStatus = 'overwrite';
 
       let biggerFieldList = this.selectedFileDetailData.fields;
-      let smallFieldList = this.sourceData.configureData._originFieldList;
+      let smallFieldList = this.sourceData.datasource.fields;
 
       if(biggerFieldList.length < smallFieldList.length) {
         return;
@@ -677,6 +684,13 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
         }
       }
 
+      const timestampField = this.sourceData.datasource.fields.find(field => field.role == FieldRole.TIMESTAMP);
+      if (!_.isNil(timestampField)) {
+        for(let data of this.selectedFileDetailData.data) {
+          this.dataList.push(data[timestampField.name]);
+        }
+      }
+
       if(fieldCount === smallFieldList.length) {
         if(fieldCount === biggerFieldList.length){
           this.ingestionStatus = 'append';
@@ -694,14 +708,22 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
    * @private
    */
   private _getIngestionParams(): object {
+    const timestampField = this.sourceData.datasource.fields.find(field => field.role == FieldRole.TIMESTAMP);
+    const granularity: GranularityObject = this._granularityService.granularityList.find(granularityObject => granularityObject.value == Granularity[this.sourceData.datasource.segGranularity.toString()]);
+
     // ingestion param
     const ingestion = {
       type: 'local',
       format: this._dataSourceCreateService.getFileFormatParams(this._getFileFormat(), this.sourceData.fileData),
-      removeFirstRow: this.sourceData.fileData.isFirstHeaderRow,
+      removeFirstRow: this.isFirstHeaderRow,
       path: this.sourceData.fileData.fileResult.filePath,
       uploadFileName: this.sourceData.fileData.fileResult.fileName
     };
+    if (!_.isNil(timestampField)) {
+      const info = this._granularityService.getInitializedInterval(this.dataList.sort(), timestampField.format.format, granularity, timestampField.format.type, timestampField.format.unit);
+      ingestion['intervals'] = [this._granularityService.getIntervalUsedParam(info.startInterval, granularity) + '/' + this._granularityService.getIntervalUsedParam(info.endInterval, granularity)];
+    }
+
     const param = {
       ingestionInfo: ingestion,
       patches: this.patches

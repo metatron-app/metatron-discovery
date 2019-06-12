@@ -37,10 +37,7 @@ import {Metadata} from '../../../domain/meta-data-management/metadata';
 import {CookieConstant} from '../../../common/constant/cookie.constant';
 import {CommonConstant} from '../../../common/constant/common.constant';
 import {Message} from '@stomp/stompjs';
-import {
-  CreateSourceCompleteData,
-  CreateSourceConfigureData
-} from "../../service/data-source-create.service";
+import {CreateSourceCompleteData} from "../../service/data-source-create.service";
 
 @Component({
   selector: 'app-detail-datasource',
@@ -348,14 +345,13 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
    */
   public reIngestion(): void {
     this.sourceData = new DatasourceInfo();
+    this.sourceData.datasourceId = this.datasourceId;
     this.sourceData.type = this.datasource.srcType;
     this.sourceData.connType = ConnectionType.ENGINE;
-    this.sourceData.datasourceId = this.datasourceId;
     this.sourceData.completeData = new CreateSourceCompleteData();
     this.sourceData.completeData.sourceName = this.datasource.name;
     this.sourceData.completeData.sourceDescription = this.datasource.description;
-    this.sourceData.configureData = new CreateSourceConfigureData();
-    this.sourceData.configureData._originFieldList = this.datasource.fields;
+    this.sourceData.datasource = this.datasource;
 
     if (this.datasource.srcType = SourceType.FILE) {
       this.step = 'file-upload';
@@ -371,7 +367,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
    */
   public reIngestionComplete(): void {
     this.isNotShowProgress = false;
-    this.isShowReingestion = false;
+    this.isShowReingestion = true;
     this.ngOnInit();
   }
 
