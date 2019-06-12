@@ -676,6 +676,15 @@ export class DashboardUtil {
   } // function - addBoardFilter
 
   /**
+   * 신규 필터 여부
+   * @param board
+   * @param filter
+   */
+  public static isNewFilter(board: Dashboard, filter: Filter):boolean {
+    return -1 === board.configuration.filters.findIndex(item => item.dataSource === filter.dataSource && item.field === filter.field);
+  } // function - isNewFilter
+
+  /**
    * 글로벌 필터 갱신
    * @param {Dashboard} board
    * @param {Filter} filter

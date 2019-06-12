@@ -1898,6 +1898,13 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (selectedField.useFilter) {
       // 제거
 
+      const globalFilters = this.widget.dashBoard.configuration.filters;
+      let idx = _.findIndex(globalFilters, {field: selectedField.name});
+      if( -1 < idx ) {
+        Alert.warning(this.translateService.instant('msg.board.alert.global-filter.del.error'));
+        return;
+      }
+
       if (selectedField.filtering) {
         Alert.warning(this.translateService.instant('msg.board.alert.recomm-filter.del.error'));
         return;
@@ -1905,13 +1912,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       selectedField.useFilter = false;
 
-
-      const globalFilters = this.widget.dashBoard.configuration.filters;
-      const chartFilters = this.widgetConfiguration.filters;
-
       // filter에서 해당 필드 제거로직
-      let idx = _.findIndex(globalFilters, {field: selectedField.name});
-      if (idx > -1) this.deleteFilter(globalFilters[idx]);
+      const chartFilters = this.widgetConfiguration.filters;
       idx = _.findIndex(chartFilters, {field: selectedField.name});
       if (idx > -1) this.deleteFilter(chartFilters[idx]);
 
@@ -1924,6 +1926,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       selectedField.useFilter = true;
 
+      let newFilter:Filter;
       if (selectedField.logicalType === LogicalType.TIMESTAMP) {
         // 시간 필터
         const timeFilter = FilterUtil.getTimeAllFilter(selectedField);
@@ -1934,8 +1937,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
           timeFilter.ui.widgetId = 'NEW';
         }
 
-        this.widgetConfiguration.filters.push(timeFilter);
-
+        newFilter = timeFilter;
       } else if (selectedField.role === FieldRole.MEASURE) {
         // 측정값 필터
         const boundFilter = FilterUtil.getBasicBoundFilter(selectedField);
@@ -1950,7 +1952,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
           boundFilter.ref = 'user_defined';
         }
 
-        this.widgetConfiguration.filters.push(boundFilter);
+        newFilter = boundFilter;
       } else {
         // inclusion필터
         const inclusionFilter = FilterUtil.getBasicInclusionFilter(selectedField);
@@ -1966,34 +1968,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
           inclusionFilter.ref = 'user_defined';
         }
 
-        this.widgetConfiguration.filters.push(inclusionFilter);
+        newFilter = inclusionFilter;
       }
+      newFilter.dataSource = this.dataSource.engineName;
 
-
-      // 필터 업데이트
-      if (!this.isNewWidget()) {
-        // 글로벌 필터 업데이트
-        const widget = {configuration: _.cloneDeep(this.originalWidgetConfiguration)};
-        widget.configuration.filters = _.cloneDeep(this.widgetConfiguration.filters);
-
-        // 스펙 변경
-        widget.configuration = DashboardUtil.convertPageWidgetSpecToServer(widget.configuration);
-
-        this.loadingShow();
-        this.widgetService.updateWidget(this.widget.id, widget).then((page: Widget) => {
-          this.loadingHide();
-          return page;
-        }).catch((error) => {
-          this.loadingHide();
-          if (!isUndefined(error.details)) {
-            Alert.error(error.details);
-          } else if (!isUndefined(error.message)) {
-            Alert.error(error.message);
-          } else {
-            Alert.error(error);
-          }
-        });
-      }
+      this.updateFilter( newFilter, true );
     }
   } // function - toggleFilter
 
