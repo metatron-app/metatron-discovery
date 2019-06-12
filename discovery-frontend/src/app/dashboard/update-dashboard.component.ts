@@ -1260,14 +1260,21 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    * @param {Filter} filter
    */
   public configureFilter(filter: Filter) {
-    this.updateFilter(filter, true);
+    if( DashboardUtil.isNewFilter( this.dashboard, filter ) ) {
+      this.addFilter( filter, () => {
+        this.updateFilter(filter, true);
+      });
+    } else {
+      this.updateFilter(filter, true);
+    }
   } // function - configureFilter
 
   /**
    * 단일 필터 추가
    * @param {Filter} filter
+   * @param {Function} callback
    */
-  public addFilter(filter: Filter) {
+  public addFilter(filter: Filter, callback?:Function) {
     if (!filter.ui.widgetId) {
       this.showBoardLoading();
       const newFilterWidget: FilterWidget = new FilterWidget(filter, this.dashboard);
@@ -1278,6 +1285,15 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
         // 글로벌 필터 업데이트
         this.dashboard = DashboardUtil.addBoardFilter(this.dashboard, filter);
+
+        ( callback ) && ( callback() );
+
+        this.safelyDetectChanges();
+
+        // Layout 업데이트
+        this.renderLayout();
+
+        this.dashboard.updateId = CommonUtil.getUUID();
 
         this.hideBoardLoading();
       });
