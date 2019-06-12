@@ -921,6 +921,11 @@ ul.ddp-list-board-thumbview li.ddp-selected a span.ddp-data-name {color:#4b515b;
 .ddp-ui-widget-contents .ddp-form-multy .ddp-box-multy.ddp-form-time .ddp-input-typebasic {width:45%;}
 .ddp-ui-widget-contents .ddp-form-multy .ddp-box-multy.ddp-form-time .ddp-type-selectbox {width:55%;}
 
+.ddp-ui-widget-contents .ddp-list-search-candidate {margin-bottom: 10px;}
+.ddp-ui-widget-contents .ddp-list-search-candidate .ddp-btn-line {float:right;margin-left:4px;cursor: pointer;}
+.ddp-ui-widget-contents .ddp-list-search-candidate .ddp-search-text {overflow:hidden}
+.ddp-ui-widget-contents .ddp-list-search-candidate .ddp-search-text .ddp-input-search {width:100%;padding: 7px 26px 6px 13px;box-sizing: border-box;}
+
 .ddp-view-widget-text {color:#4b515b; font-size:24px;overflow-y: auto;}
 .ddp-view-widget .ddp-ui-title {padding:10px 0 9px 0;color:#4b515b; font-size:14px;}
 .ddp-view-widget .ddp-ui-title .ddp-icon-filter,
