@@ -65,6 +65,7 @@ export class InputComponent implements OnInit, OnDestroy {
   @Input() public isTrim: boolean = true;        // 공백 제거 여부
 
   @Input() public showClear: boolean = true;    // Clear 버튼 표시 여부 ( 현재는 search 에서만 표시 )
+  @Input() public isEnableDelete: boolean;    // Clear 버튼 표시 여부 ( default input 용 )
 
   @Input() public inputClass: string = ''; // Input Element 클래스
 

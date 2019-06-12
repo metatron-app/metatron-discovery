@@ -85,6 +85,8 @@ export class CriterionComponent extends AbstractComponent {
     // if exist search params
     if (Object.keys(searchParams).length > 0) {
       this.queryParams = _.cloneDeep(searchParams);
+    } else {
+      this.queryParams = {};
     }
     // if exist criterion list
     if (!_.isNil(this.queryParams[Criteria.KEY_EXTENSIONS])) {
