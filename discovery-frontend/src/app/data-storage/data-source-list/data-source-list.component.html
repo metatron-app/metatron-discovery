@@ -38,6 +38,7 @@
         <div class="ddp-form-filter-search">
           <component-input
             [autoFocus]="false"
+            [isEnableDelete]="true"
             [value]="searchKeyword"
             [placeHolder]="'msg.storage.ph.source.search' | translate"
             (changeValue)="onChangedSearchKeyword($event)">
@@ -61,71 +62,72 @@
       <a href="javascript:" class=" ddp-btn-pop ddp-bg-black" (click)="changeMode('create-data-source')"><em class="ddp-icon-add2"></em>{{'msg.comm.btn.new' | translate}}</a>
     </div>
     <!-- //create datasource -->
-    <table class="ddp-table-form ddp-table-type3">
-      <colgroup>
-        <col width="*">
-        <col width="10%">
-        <col width="13%">
-        <col width="7%">
-        <col width="20%">
-      </colgroup>
-      <thead>
-      <tr>
-        <th>
-          {{'msg.comm.th.ds' | translate}}
-        </th>
-        <th>
-          {{'msg.storage.th.data_type' | translate}}
-        </th>
-        <th>
-          {{'msg.storage.th.ingestion_type' | translate}}
-        </th>
-        <th>
-          {{'msg.storage.th.status' | translate}}
-        </th>
-        <th class="ddp-cursor" (click)="sortDatasourceList('createdTime')">
-          {{'msg.comm.th.created' | translate}}
-          <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>
-          <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'desc'"></em>
-        </th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngFor="let datasource of datasourceList" (click)="onClickDatasource(datasource.id)">
-        <td>
-          <div class="ddp-txt-long" [class.ddp-global]="datasource.published">
-            {{datasource.name}}
-            <em class="ddp-icon-info3" *ngIf="datasource.fieldsMatched === false"></em>
-            <span class="ddp-txt-colortype" *ngIf="datasource.description">-{{datasource.description}}</span>
-            <em class="ddp-tag-global" *ngIf="datasource.published">{{'msg.comm.ui.list.ds.opendata' | translate}}</em>
-          </div>
-        </td>
-        <td>
-          {{getDataTypeChange(datasource.srcType)}}
-        </td>
-        <td>
-          {{(datasource.connType.toString() == 'ENGINE' ? 'msg.storage.ui.list.ingested.data':'msg.storage.ui.list.linked.data') | translate}}
-        </td>
-        <td>
-          <span class="{{getSourceStatusIcon(datasource.status)}}">{{getSourceStatusLabel(datasource.status)}}</span>
-        </td>
-        <td class="ddp-data-last">
-          {{datasource.createdTime | mdate: 'YYYY-MM-DD HH:mm'}}  <em class="ddp-icon-by">{{'msg.storage.ui.by' | translate}}</em>{{datasource.createdBy.fullName}}
-          <div class="ddp-btn-control">
-            <em class="ddp-icon-control-cut" (click)="onClickRemoveDatasource(datasource); $event.stopPropagation()"></em>
-          </div>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-    <!-- no result -->
-<!--    <div class="ddp-data-source-none" *ngIf="datasourceList.length === 0; else yesCt">-->
-<!--      데이터가 없습니다-->
-<!--    </div>-->
+    <div class="ddp-data-source-none" *ngIf="isEmptyList(); else existList">
+      {{'msg.comm.ui.no.rslt' | translate}}
+    </div>
     <!-- //no result -->
-    <!-- Pagination -->
-    <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
-    <!-- // Pagination -->
+    <ng-template #existList>
+      <table class="ddp-table-form ddp-table-type3">
+        <colgroup>
+          <col width="*">
+          <col width="10%">
+          <col width="13%">
+          <col width="7%">
+          <col width="20%">
+        </colgroup>
+        <thead>
+        <tr>
+          <th>
+            {{'msg.comm.th.ds' | translate}}
+          </th>
+          <th>
+            {{'msg.storage.th.data_type' | translate}}
+          </th>
+          <th>
+            {{'msg.storage.th.ingestion_type' | translate}}
+          </th>
+          <th>
+            {{'msg.storage.th.status' | translate}}
+          </th>
+          <th class="ddp-cursor" (click)="sortDatasourceList('createdTime')">
+            {{'msg.comm.th.created' | translate}}
+            <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>
+            <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'desc'"></em>
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let datasource of datasourceList" (click)="onClickDatasource(datasource.id)">
+          <td>
+            <div class="ddp-txt-long" [class.ddp-global]="datasource.published">
+              {{datasource.name}}
+              <em class="ddp-icon-info3" *ngIf="datasource.fieldsMatched === false"></em>
+              <span class="ddp-txt-colortype" *ngIf="datasource.description">-{{datasource.description}}</span>
+              <em class="ddp-tag-global" *ngIf="datasource.published">{{'msg.comm.ui.list.ds.opendata' | translate}}</em>
+            </div>
+          </td>
+          <td>
+            {{getDataTypeChange(datasource.srcType)}}
+          </td>
+          <td>
+            {{(datasource.connType.toString() == 'ENGINE' ? 'msg.storage.ui.list.ingested.data':'msg.storage.ui.list.linked.data') | translate}}
+          </td>
+          <td>
+            <span class="{{getSourceStatusIcon(datasource.status)}}">{{getSourceStatusLabel(datasource.status)}}</span>
+          </td>
+          <td class="ddp-data-last">
+            {{datasource.createdTime | mdate: 'YYYY-MM-DD HH:mm'}}  <em class="ddp-icon-by">{{'msg.storage.ui.by' | translate}}</em>{{datasource.createdBy.fullName}}
+            <div class="ddp-btn-control">
+              <em class="ddp-icon-control-cut" (click)="onClickRemoveDatasource(datasource); $event.stopPropagation()"></em>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <!-- Pagination -->
+      <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+      <!-- // Pagination -->
+    </ng-template>
   </div>
 </div>
 <!-- 데이터소스 생성 -->

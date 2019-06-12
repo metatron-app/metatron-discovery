@@ -18,6 +18,7 @@
          (keyup)="keyupHandler($event)" (focus)="focusHandler()" (blur)="blurHandler()"
          (mousedown)="$event.stopPropagation()" (mousemove)="$event.stopPropagation()"
          class="{{inputClass}} {{optionalClass}}" type="text" >
+  <a href="javascript:" class="ddp-btn-delete" *ngIf="isEnableDelete && isNotEmptyInput()" (click)="clearValue()" [style.display]="isNotEmptyInput() ? 'block' : 'none'"></a>
 </ng-container>
 
 <ng-container *ngIf="'apply' === compType" >
