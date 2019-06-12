@@ -15,11 +15,16 @@
 import { Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { AbstractComponent } from '../../../../common/component/abstract.component';
 import { Alert } from '../../../../common/util/alert.util';
-import {Candidate, InclusionFilter} from '../../../../domain/workbook/configurations/filter/inclusion-filter';
+import {
+  Candidate,
+  InclusionFilter,
+  InclusionSelectorType
+} from '../../../../domain/workbook/configurations/filter/inclusion-filter';
 import {isNullOrUndefined} from "util";
 import {FilterUtil} from "../../../util/filter.util";
 import {DatasourceService} from "../../../../datasource/service/datasource.service";
 import {Dashboard} from "../../../../domain/dashboard/dashboard";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'component-filter-select',
@@ -46,14 +51,16 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
 
   @Input('array')
   set setArray(array: Candidate[]) {
-    this.array = array;
+    this.candidateList = array;
   }
 
   // 서버와 통신 후 인덱스를 지정해야 하는 경우
   @Input('defaultIndex')
   set setDefaultIndex(index: number) {
-    this.defaultIndex = index;
-    this.selectedItem = this.array[this.defaultIndex];
+    if(this.isSelectorTypeSingle()) {
+      this.defaultIndex = index;
+      this.selectedItems.push(this.candidateList[this.defaultIndex]);
+    }
   }
 
   // 기본 메시지
@@ -65,7 +72,8 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
   public disabled = false;
   // 선택 아이템
   @Input()
-  public selectedItem: Candidate;
+  public selectedItems: Candidate[];
+
   // 셀렉트 리스트 show/hide 플래그
   public isShowSelectList = false;
   // 외부에서 리스트를 조절하고 싶을 경우
@@ -107,13 +115,23 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
   @Output() public onLoadPage = new EventEmitter<number>();
 
   // 리스트 객체
-  public array: Candidate[];
+  public candidateList: Candidate[];
   // 검색어
   public searchText: string = '';
   // 기본 선택 인덱스
   public defaultIndex = -1;
   // 페이지 번호
   public pageNum: number = 0;
+
+  public pageCandidateList: Candidate[] = [];
+  public currentPage = 1;
+  public lastPage = 1;
+  public pageSize = 10;
+  public totalCount = 0;
+
+  public viewText: string;
+
+  public isDeSelected: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -135,15 +153,22 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
   public ngOnInit() {
     super.ngOnInit();
 
-    if (this.array != null && this.array.length > 0) {
-      if (typeof this.array[0] === 'string') {
+    (isNullOrUndefined(this.selectedItems)) && (this.selectedItems = []);
+
+    if (this.candidateList != null && this.candidateList.length > 0) {
+      if (typeof this.candidateList[0] === 'string') {
         this.isStringArray = true;
       }
     }
 
-    if (this.defaultIndex > -1) {
-      this.selectedItem = this.array[this.defaultIndex];
+    if(this.isSelectorTypeSingle()) {
+      if (this.defaultIndex > -1) {
+        this.selectedItems.push(this.candidateList[this.defaultIndex]);
+      }
     }
+
+    this.updateView();
+    this.setCandidatePage(1, true);
   }
 
   // Destroy
@@ -164,7 +189,8 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
       return;
     }
 
-    this.selectedItem = null;
+    this.selectedItems = [];
+    this.isDeSelected = false;
     this.onCheckAll.emit('all');
 
     this.isShowSelectList = false;
@@ -176,7 +202,6 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
    * @param {Candidate} item
    */
   public selectCandidateItem(item: Candidate) {
-
     // 모형 모드일 때는 기능 동작을 하지 않는다
     if( this.isMockup ) {
       Alert.info(this.translateService.instant('msg.board.alert.not-select-editmode'));
@@ -184,11 +209,26 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
     }
 
     // 선택 변수에 저장
-    this.selectedItem = item;
-    this.onSelected.emit(item);
+    if(this.isSelectorTypeSingle()) {
+      this.selectedItems = [];
+      this.selectedItems.push(item);
 
-    this.isShowSelectList = false;
-    this.changeDisplayOptions.emit(this.isShowSelectList);
+      this.onSelected.emit(item);
+
+      this.isShowSelectList = false;
+      this.changeDisplayOptions.emit(this.isShowSelectList);
+    } else if(this.isSelectorTypeMulti()) {
+      if (this.isSelectedItem(item)) {
+        const idx = this.selectedItems.findIndex(arrItem => arrItem.name === item.name);
+        this.selectedItems.splice(idx, 1);
+      } else {
+        this.selectedItems.push(item);
+      }
+    }
+
+    this.isDeSelected = false;
+    this.updateView();
+
   } // function - selectCandidateItem
 
   /**
@@ -199,8 +239,15 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
     // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
     if (!this.elementRef.nativeElement.contains(event.target)) {
       // 팝업창 닫기
+      if(this.isSelectorTypeMulti()) {
+        if (this.isShowSelectList && this.candidateList && this.candidateList.length) {
+          this.onSelected.emit(this.selectedItems);
+        }
+      }
+
       this.isShowSelectList = false;
       this.changeDisplayOptions.emit(this.isShowSelectList);
+
     }
   } // function onClickHost
 
@@ -210,6 +257,13 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
   public toggleSelectList() {
     this._setViewListPosition();
     this.isShowSelectList = !this.isShowSelectList;
+
+    if(this.isSelectorTypeMulti()) {
+      if (!this.isShowSelectList) {
+        this.onSelected.emit(this.selectedItems);
+      }
+    }
+
     this.changeDisplayOptions.emit(this.isShowSelectList);
 
   } // function toggleSelectList
@@ -224,10 +278,15 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
    */
   public reset(valueList: any) {
     if (valueList == null || valueList.length === 0) {
-      this.selectedItem = null;
+      this.selectedItems = [];
     } else {
-      this.selectedItem = valueList[0];
+      if(this.isSelectorTypeSingle()) {
+        this.selectedItems.push(valueList[0]);
+      } else if(this.isSelectorTypeMulti()) {
+        this.selectedItems = valueList;
+      }
     }
+
     this.changeDetect.detectChanges();
   } // function reset
 
@@ -236,6 +295,11 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
    */
   public closeList() {
     this.isShowSelectList = false;
+
+    if(this.isSelectorTypeMulti()) {
+      this.onSelected.emit(this.selectedItems);
+    }
+
     this.changeDisplayOptions.emit(this.isShowSelectList);
   } // function closeList
 
@@ -259,10 +323,11 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
             candidate.name = resultCandidate.field;
             candidate.isTemporary = true;
 
-            this.array.push(candidate);
+            this.candidateList.push(candidate);
           }
         });
 
+        this.setCandidatePage(1, true);
         this.safelyDetectChanges();
       }
 
@@ -271,6 +336,132 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
       this.commonExceptionHandler(error);
     });
   }
+
+  public setCandidatePage(page: number, isInitial: boolean = false) {
+    if (isInitial) {
+      this.pageCandidateList = [];
+      this.currentPage = 1;
+      this.lastPage = 1;
+      this.totalCount = 0;
+    }
+
+    // 더이상 페이지가 없을 경우 리턴
+    if (page <= 0) return;
+    if (this.lastPage < page) return;
+
+    this.currentPage = page;
+    let start = 0;
+    let end = 0;
+
+    // 필드 페이징
+    if (this.candidateList && 0 < this.candidateList.length) {
+
+      let pagedList: Candidate[] = _.cloneDeep(this.candidateList);
+
+      if (this.filter.showSelectedItem) {
+        pagedList = pagedList.filter(item => {
+          return -1 < this.selectedItems.findIndex(val => val.name === item.name);
+        });
+      }
+
+      // 검색 적용
+      if ('' !== this.searchText) {
+        pagedList = pagedList.filter(item => {
+          return ( item.name ) ? -1 < item.name.toLowerCase().indexOf(this.searchText.toLowerCase()) : false;
+        });
+      }
+
+      // 총사이즈
+      this.totalCount = pagedList.length;
+
+      // 마지막 페이지 계산
+      this.lastPage = (this.totalCount % this.pageSize === 0) ? (this.totalCount / this.pageSize) : Math.floor(this.totalCount / this.pageSize) + 1;
+      (1 > this.lastPage) && (this.lastPage = 1);
+
+      start = (page * this.pageSize) - this.pageSize;
+      end = page * this.pageSize;
+      if (end > this.totalCount) {
+        end = this.totalCount;
+      }
+      // 현재 페이지에 맞게 데이터 자르기
+      this.pageCandidateList = pagedList.slice(start, end);
+    }
+  }
+
+  public deselectCandidate() {
+    this.selectedItems = [];
+    this.filter.showSelectedItem = false;
+    this.setCandidatePage(1, true);
+    this.selectAllItem();
+    this.updateView();
+    this.isDeSelected = true;
+  }
+
+  /**
+   * update combo-box label
+   * @param selectedArray
+   */
+  public updateView(items?: any) {
+    let selectedItems = this.selectedItems;
+
+    if(items) {
+      selectedItems = items;
+    }
+
+    if (selectedItems == null || selectedItems.length === 0) {
+      this.viewText = this.unselectedMessage;
+    } else if (selectedItems.length === this.candidateList.length) {
+      this.viewText = this.translateService.instant('msg.comm.ui.list.all');
+    } else {
+      this.viewText = selectedItems.map(item => item.name).join(',');
+    }
+  } // function - updateView
+
+  /**
+   * 전체선택
+   * @param $event
+   */
+  public checkAll($event?) {
+    // 모형 모드일 때는 기능 동작을 하지 않는다
+    if (this.isMockup) {
+      Alert.info(this.translateService.instant('msg.board.alert.not-select-editmode'));
+      return;
+    }
+
+    if (this.isSelectedAll) {
+      this.selectedItems = [];
+    } else {
+      this.selectedItems = [];
+      this.candidateList.forEach(item => this.selectedItems.push(item));
+    }
+
+    this.isDeSelected = false;
+    this.updateView();
+  } // function - checkAll
+
+  /**
+   * Returns whether all item selected
+   */
+  public get isSelectedAll() {
+    return this.selectedItems && this.selectedItems.length > 0 && this.selectedItems.length === this.candidateList.length;
+  } // function - isSelectedAll
+
+  /**
+   * Returns whether Item is selected.
+   * @param targetItem
+   */
+  public isSelectedItem(targetItem: any) {
+    return this.selectedItems && this.selectedItems.some(item => item.name === targetItem.name);
+  } // function - isSelectedItem
+
+  public isSelectorTypeSingle() : boolean {
+    return (<InclusionFilter>this.filter).selector === InclusionSelectorType.SINGLE_COMBO;
+  }
+
+  public isSelectorTypeMulti() : boolean {
+    return (<InclusionFilter>this.filter).selector === InclusionSelectorType.MULTI_COMBO;
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -295,12 +486,11 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
   }// function _setViewListPosition
 
   private existCandidate(name : string) : boolean {
-    const filteredCandidates = this.array.filter(candidate => candidate.name === name);
+    const filteredCandidates = this.candidateList.filter(candidate => candidate.name === name);
     if(filteredCandidates != null && filteredCandidates.length > 0) {
       return true;
     } else {
       return false;
     }
   }
-
 }

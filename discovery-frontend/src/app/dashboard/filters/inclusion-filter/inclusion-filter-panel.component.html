@@ -37,6 +37,13 @@
 
     <!-- 필터 속성 표시 영역 -->
     <div *ngIf="filter" class="ddp-flex-button">
+      <div *ngIf="isDeSelected" class="ddp-wrap-morebutton ddp-hover-tooltip">
+        <em class="ddp-icon-sinfo2"></em>
+        <div class="ddp-ui-tooltip-info ddp-down">
+          <em class="ddp-icon-view-top"></em> {{ 'msg.comm.ui.no.filtering' | translate }}
+        </div>
+      </div>
+
       <em class="ddp-icon-global-s" *ngIf="isBoardFilter"></em>
       <!-- 추천/필수 필터 경우 -->
       <div *ngIf="filter.ui.filteringSeq > 0" class="ddp-wrap-datarecommend">
@@ -150,14 +157,24 @@
       </div>
     </div>
     <div class="search-all-message">{{searchAllMessage}}</div>
+    <div style="border-bottom: 1px dotted gray;">
+      {{ 'msg.comm.ui.total' | translate }} {{ candidateListSize }}
+      <div style="float:right;">
+        <div *ngIf="isMultiSelector" style="display:inline;">
+          <a href="javascript:" (click)="checkAll()">{{ 'msg.comm.ui.list.sel.all' | translate }}</a> /
+        </div>
+        <a href="javascript:" (click)="deselectAll()">
+          <span *ngIf="!isMultiSelector">{{ 'msg.comm.ui.list.desel' | translate }}</span>
+          <span *ngIf="isMultiSelector">{{ 'msg.comm.ui.list.desel.all' | translate }}</span>
+        </a>
+      </div>
+    </div>
     <!-- // 검색 영여 -->
     <!-- 목록 영역 -->
     <ul class="ddp-list-checktype ddp-list-padd" *ngIf="isMultiSelector" >
-      <li *ngIf="filter.ui.importanceType === 'general'">
-        <label class="ddp-label-checkbox" >
-          <input (click)="checkAll($event)" [checked]="isCheckAll()" type="checkbox" >
-          <i class="ddp-icon-checkbox ddp-dark"></i>
-          <span class="ddp-txt-checkbox">({{'msg.board.filter.ui.all' | translate}})</span>
+      <li *ngIf="pageCandidateList == null || pageCandidateList.length == 0">
+        <label style="display:inline-block; font-size:13px; color:#4b515b; vertical-align:bottom; word-break:break-all;">
+          {{ 'msg.comm.ui.no.rslt' | translate }}
         </label>
       </li>
       <li *ngFor="let item of pageCandidateList">
@@ -173,12 +190,9 @@
       </li>
     </ul>
     <ul class="ddp-list-checktype ddp-list-padd" *ngIf="!isMultiSelector" >
-      <li *ngIf="filter.ui.importanceType === 'general'">
-        <label class="ddp-label-radio">
-          <input type="radio" name="{{filter.field}}" (click)="checkAll($event)"
-                 [checked]="filter.valueList.length === 0">
-          <i class="ddp-icon-radio"></i>
-          <span class="ddp-txt-radio">({{'msg.board.filter.ui.all' | translate}})</span>
+      <li *ngIf="pageCandidateList == null || pageCandidateList.length == 0">
+        <label style="display:inline-block; font-size:13px; color:#4b515b; vertical-align:bottom; word-break:break-all;">
+          {{ 'msg.comm.ui.no.rslt' | translate }}
         </label>
       </li>
       <li *ngFor="let item of pageCandidateList">

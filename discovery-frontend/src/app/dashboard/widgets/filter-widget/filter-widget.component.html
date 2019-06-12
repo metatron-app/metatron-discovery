@@ -42,22 +42,23 @@
     <div *ngIf="filter.type === 'include'" [ngStyle]="{ 'top' : isShowTitle ? '38px' : '0px' }"
          class="ddp-ui-widget-contents" >
       <!-- 복수 선택 콤보 박스 -->
-      <component-filter-multi-select *ngIf="convertToIncludeFilter(filter).selector === inclusionSelectorType.MULTI_COMBO"
-                                     [array]="candidateList"
-                                     [selectedArray]="selectedItems"
-                                     [viewKey]="'name'"
-                                     [mockup]="isEditMode"
-                                     [filter]="filter"
-                                     [dashboard]="dashboard"
-                                     (onSelected)="onSelectInclude($event)"
-                                     (changeDisplayOptions)="toggleOptionsSelectComp($event)">
-      </component-filter-multi-select>
-      <!-- // 복수 선택 콤보 박스 -->
+<!--      <component-filter-multi-select *ngIf="convertToIncludeFilter(filter).selector === inclusionSelectorType.MULTI_COMBO"-->
+<!--                                     [array]="candidateList"-->
+<!--                                     [selectedArray]="selectedItems"-->
+<!--                                     [viewKey]="'name'"-->
+<!--                                     [mockup]="isEditMode"-->
+<!--                                     [filter]="filter"-->
+<!--                                     [dashboard]="dashboard"-->
+<!--                                     (onSelected)="onSelectInclude($event)"-->
+<!--                                     (changeDisplayOptions)="toggleOptionsSelectComp($event)">-->
+<!--      </component-filter-multi-select>-->
+<!--      &lt;!&ndash; // 복수 선택 콤보 박스 &ndash;&gt;-->
 
       <!-- 단일 선택 콤보 박스 -->
-      <component-filter-select *ngIf="convertToIncludeFilter(filter).selector === inclusionSelectorType.SINGLE_COMBO"
+      <component-filter-select *ngIf="convertToIncludeFilter(filter).selector === inclusionSelectorType.SINGLE_COMBO
+                                            || convertToIncludeFilter(filter).selector === inclusionSelectorType.MULTI_COMBO"
                                [array]="candidateList"
-                               [selectedItem]="selectedItems ? selectedItems[0] : null"
+                               [selectedItems]="selectedItems"
                                [viewKey]="'name'"
                                [mockup]="isEditMode"
                                [filter]="filter"

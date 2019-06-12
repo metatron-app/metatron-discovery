@@ -14,6 +14,11 @@
 
 <!-- //Drop down -->
 <div class="ddp-list-part ddp-type">
+  <div *ngIf="isDeSelected">
+    <label>&nbsp;</label>
+    <label style="float:right;">{{ 'msg.comm.ui.no.filtering' | translate }}</label>
+    <em class="ddp-icon-sinfo2" style="float:right;"></em>
+  </div>
   <a (click)="candidateFromSearchText()" class="ddp-btn-line"
      [ngStyle]="(viewType === 'widget' && '' !== searchText && isShowSelectList) ?  {'display': 'block'} : {'display': 'none'}">
     {{'msg.comm.ui.search-all' | translate}}
@@ -24,29 +29,85 @@
        [ngClass]="{'ddp-selected' : isShowSelectList && isShowSelectListForOutSide, 'ddp-offset' : viewType === 'widget'}"
        [ngStyle]="(viewType === 'widget' && '' !== searchText) ? {'overflow': 'hidden'} : {}" (click)="setViewListPosition()">
     <div class="ddp-type-selectbox2" (click)="toggleSelectList()">
-      <span class="ddp-txt-selectbox ddp-result">{{selectedItem == null ? unselectedMessage :  isStringArray ? selectedItem : selectedItem[viewKey] }}</span>
+      <span class="ddp-txt-selectbox ddp-result">{{viewText}}</span>
     </div>
 
     <!-- drop search -->
     <div class="ddp-ui-drop-search" [ngClass]="{'ddp-drop' : viewType === 'widget'}">
       <input type="text" class="ddp-input-search" placeholder="Search" [(ngModel)]="searchText" [disabled]="isMockup"
-             (keyup)="setViewListPosition()">
-      <ul class="ddp-list-selectbox2"
-          infinite-scroll
-          [scrollWindow]="false"
-          [infiniteScrollDistance]="5"
-          [infiniteScrollThrottle]="150"
-          (scrolled)="onScroll()" >
-        <li *ngIf="isShowAll">
-          <a href="javascript:"  draggable="false" (click)="selectAllItem();">{{'msg.comm.ui.list.all'|translate}}</a>
-        </li>
-        <li *ngFor="let item of array | baseFilter:['name', searchText]">
-          <a href="javascript:" (click)="selectCandidateItem(item);" [ngStyle]="item.isTemporary ? {'color': '#9499c2'} : {}">{{isStringArray ? item : item[viewKey]}}</a>
-        </li>
-      </ul>
+             (keyup)="setViewListPosition(); setCandidatePage(1, true);">
+        <div class="ddp-ui-divide" style="padding: 10px;">
+          <div style="border-bottom: 1px dotted gray;">
+            {{ 'msg.comm.ui.total' | translate }} {{ candidateList.length }}
+            <div style="float:right;">
+              <div *ngIf="isSelectorTypeMulti()" style="display:inline;">
+                <a href="javascript:" (click)="checkAll();">{{ 'msg.comm.ui.list.sel.all' | translate }}</a> /
+              </div>
+              <a href="javascript:" (click)="deselectCandidate();">
+                <span *ngIf="isSelectorTypeSingle()">{{ 'msg.comm.ui.list.desel' | translate }}</span>
+                <span *ngIf="isSelectorTypeMulti()">{{ 'msg.comm.ui.list.desel.all' | translate }}</span>
+              </a>
+            </div>
+          </div>
+
+          <ul class="ddp-list-checktype ddp-list-padd"
+              infinite-scroll
+              [scrollWindow]="false"
+              [infiniteScrollDistance]="5"
+              [infiniteScrollThrottle]="150"
+              (scrolled)="onScroll()" >
+            <li *ngIf="pageCandidateList == null || pageCandidateList.length == 0">
+              <label style="display:inline-block; font-size:13px; color:#4b515b; vertical-align:bottom; word-break:break-all;">
+                {{ 'msg.comm.ui.no.rslt' | translate }}
+              </label>
+            </li>
+            <li *ngFor="let item of pageCandidateList">
+              <label *ngIf="isSelectorTypeSingle()" class="ddp-label-radio" (click)="selectCandidateItem(item);">
+                <input type="radio" [checked]="isSelectedItem(item)"><i class="ddp-icon-radio"></i>
+                <span class="ddp-txt-radio" [ngStyle]="item.isTemporary ? {'color': '#9499c2'} : {}">{{isStringArray ? item : item[viewKey]}}</span>
+              </label>
+
+              <label *ngIf="isSelectorTypeMulti()" class="ddp-label-checkbox" >
+                <input type="checkbox" (click)="selectCandidateItem(item);"
+                       [checked]="isSelectedItem(item)">
+                <i class="ddp-icon-checkbox ddp-dark"></i>
+                <span class="ddp-txt-checkbox" [ngStyle]="item.isTemporary ? {'color': '#9499c2'} : {}">
+                {{ ( null === item.name || 'null' === item.name ) ? '(Null)' : ( ( '' === item.name || undefined === item.name ) ? '(Empty)' : item.name ) }}
+              </span>
+              </label>
+            </li>
+          </ul>
+
+          <div class="ddp-ui-values" style="border-top: 1px dotted gray;">
+            <div class="ddp-data-values">
+              <label class="ddp-label-check-value">
+                <input (click)="filter.showSelectedItem = !filter.showSelectedItem;setCandidatePage(1, true);"
+                       [checked]="filter.showSelectedItem"
+                       type="checkbox" >
+                <i></i>
+              </label>
+              <ng-container *ngIf="filter.showSelectedItem">
+                {{ 'msg.board.filter.selected-values' | translate : { value : selectedItems.length } }}
+              </ng-container>
+              <ng-container *ngIf="!filter.showSelectedItem">
+                {{ 'msg.board.filter.all-values' | translate }}
+              </ng-container>
+            </div>
+
+            <div class="ddp-ui-page">
+              <a (click)="setCandidatePage(currentPage-1)"
+                 [class.ddp-disabled]="1 === currentPage"
+                 href="javascript:" class="ddp-btn-prev"></a>
+              <span class="ddp-data-page"><em>{{currentPage}}</em>/<em>{{lastPage}}</em></span>
+              <a (click)="setCandidatePage(currentPage+1)"
+                 [class.ddp-disabled]="lastPage === currentPage"
+                 href="javascript:" class="ddp-btn-next"></a>
+            </div>
+          </div>
+        </div>
+
     </div>
     <!-- drop search -->
   </div>
   <!-- //selectbox -->
 </div>
-

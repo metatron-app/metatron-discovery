@@ -118,7 +118,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   public pageCandidateList: Candidate[] = [];
   public currentPage: number = 1;
   public lastPage: number = 1;
-  public pageSize: number = 15;
+  public pageSize: number = 10;
   public totalCount: number = 0;
   public totalItemCnt: number = 0;
 
@@ -136,7 +136,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   public measureFields: Field[] = [];
 
   public useDefineValue: boolean = true;
-  public usePaging: boolean = false;
+  public usePaging: boolean = true;
 
   public matcherTypeList: any[];
   private selectedMatcherType: any;
@@ -661,19 +661,18 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
    * 전체 선택
    * @param event
    */
-  public candidateSelectAll(event: any) {
-    const checked = event.target ? event.target.checked : event.currentTarget.checked;
+  public candidateSelectAll() {
     if (this.isSingleSelect(this.targetFilter)) {
       this.selectedValues = [];
     } else {
-      if (checked) {
-        this.selectedValues = [].concat(this._candidateList);
-        this.toggleAllCandidateValues(true);
-      } else {
-        this.selectedValues = [];
-      }
+      this.selectedValues = [].concat(this._candidateList);
+      this.toggleAllCandidateValues(true);
     }
   } // function - candidateSelectAll
+
+  public candidateDeselectAll() {
+    this.selectedValues = [];
+  }
 
   /**
    * 전체 선택 여부
@@ -809,6 +808,10 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
 
   public isRegularExpressionMatcher(): boolean {
     return this.selectedMatcherType.value == MatcherType.REGULAR_EXPRESSION;
+  }
+
+  public isNoFiltering() {
+    return this.selectedValues.length == 0;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
