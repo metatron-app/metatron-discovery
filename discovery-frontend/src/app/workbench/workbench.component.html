@@ -15,9 +15,7 @@
 <div class="ddp-wrap-naviarea ddp-naviarea2 ddp-clear" *ngIf="mainViewShow">
 
   <div class="ddp-ui-navidata ddp-type">
-    <span class="ddp-data-time" *ngIf="workbench.modifiedBy"
-          [innerHTML]="'msg.common.ui.updated.emphasis.name' | translate : {modifiedTime : workbench.modifiedTime | mdate:'YYYY-MM-DD HH:mm', fullName :workbench.modifiedBy.fullName } ">
-        </span>
+    <span class="ddp-data-time" *ngIf="workbench.modifiedBy.fullName">{{'msg.common.ui.updated' | translate : { modifiedTime : workbench.modifiedTime | mdate : 'YYYY-MM-DD HH:mm', fullName :workbench.modifiedBy.fullName } }}</span>
 
     <!-- 버튼 -->
     <div class="ddp-ui-work-buttons" (click)="showOption()" (clickOutside)="isWorkbenchOptionShow = false">
