@@ -134,19 +134,21 @@ ul.ddp-list-popup li.ddp-sub:hover .ddp-wrap-popup2 {display:block;}
 
 .ddp-type-selectbox:after {display:inline-block; position:absolute; top:50%; right:9px; width:7px; height:4px; margin-top:-2px; background:url(../../../images/icon_select.png) no-repeat; content:''; }
 .ddp-type-selectbox:hover:after,
-.ddp-type-selectbox.ddp-selected:after {background-position:-8px 0;}
-
+.ddp-type-selectbox.ddp-selected:after {background-position:-8px 0; z-index:1;}
+.ddp-type-selectbox.ddp-selected:after {transform:rotate(180deg);}
 .ddp-type-selectbox .ddp-wrap-popup2 {display:none; position:absolute; top:32px; left:0; right:0; max-height:190px; overflow-y:auto;}
 .ddp-type-selectbox .ddp-wrap-popup2 ul.ddp-list-selectbox2 li {padding:5px 10px}
 .ddp-type-selectbox .ddp-wrap-popup2 ul.ddp-list-selectbox2 li label.ddp-label-checkbox span {font-size:12px;}
 
 ul.ddp-list-selectbox2.ddp-hover-none li:hover {background:none !important;}
 
-
 .ddp-type-selectbox.ddp-selected {border:1px solid #8f96a0;}
 .ddp-type-selectbox.ddp-selected .ddp-wrap-popup2 {display:block;}
 .ddp-type-selectbox.ddp-selected ul.ddp-list-selectbox {display:block;}
 .ddp-type-selectbox.ddp-selected .ddp-input-selectbox {display:block;}
+.ddp-type-selectbox.ddp-selected.ddp-del .ddp-input-selectbox {padding-right:50px;}
+.ddp-type-selectbox.ddp-selected.ddp-del .ddp-input-selectbox + .ddp-btn-del {position:absolute; top:50%; right:25px; margin-top:-8px; width:15px; height:15px; background:url(../../../images/btn_close.png) no-repeat; background-position:left -132px; z-index:1;}
+
 .ddp-type-selectbox.ddp-selected .ddp-wrap-popup2.ddp-scroll-none {max-height:inherit; overflow:initial;}
 .ddp-type-selectbox.ddp-selected {z-index:55; border:1px solid #8f96a0;}
 
@@ -177,7 +179,6 @@ ul.ddp-list-selectbox2.ddp-hover-none li:hover {background:none !important;}
 .ddp-type-selectbox span.ddp-txt-selectbox span.ddp-column-type {display:block; position:relative; padding-left:20px;}
 .ddp-type-selectbox span.ddp-txt-selectbox span.ddp-column-type [class*="ddp-icon"] {left:0;}
 .ddp-type-selectbox span.ddp-txt-selectbox.ddp-icon {padding-left:25px;}
-
 /**************************************************************
 	selectbox - 2 disabled
 **************************************************************/

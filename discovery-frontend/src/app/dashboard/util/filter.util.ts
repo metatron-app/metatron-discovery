@@ -59,7 +59,7 @@ declare let moment;
 
 export class FilterUtil {
 
-  public static CANDIDATE_LIMIT:number = 1000;
+  public static CANDIDATE_LIMIT:number = 100;
 
   /**
    * 필터 패널 내용 목록 조회

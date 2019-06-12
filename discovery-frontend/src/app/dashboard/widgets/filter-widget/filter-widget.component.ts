@@ -32,7 +32,6 @@ import {Field} from '../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import {SubscribeArg} from '../../../common/domain/subscribe-arg';
 import {PopupService} from '../../../common/service/popup.service';
-import {FilterMultiSelectComponent} from '../../filters/component/filter-multi-select/filter-multi-select.component';
 import * as $ from 'jquery';
 import {FilterSelectComponent} from '../../filters/component/filter-select/filter-select.component';
 import {EventBroadcaster} from '../../../common/event/event.broadcaster';
@@ -63,9 +62,6 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @ViewChild(FilterSelectComponent)
   private filterSelectComponent: FilterSelectComponent;
-
-  @ViewChild(FilterMultiSelectComponent)
-  private filterMultiSelectComponent: FilterMultiSelectComponent;
 
   @ViewChild(BoundFilterComponent)
   private _boundFilterComp: BoundFilterComponent;
@@ -153,7 +149,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
               this.filterSelectComponent.reset(inclusionFilter.valueList);
               break;
             case InclusionSelectorType.MULTI_COMBO:
-              this.filterMultiSelectComponent.updateView(this.selectedItems);
+              this.filterSelectComponent.updateView(this.selectedItems);
               break;
             default :
               this._candidate(inclusionFilter);
@@ -234,19 +230,11 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
    * 마우스가 벗어남
    */
   public mouseoutWidget() {
-
     if (this.filterSelectComponent && this.filterSelectComponent.isShowSelectList ) {
       this.filterSelectComponent.isShowSelectList = false;
       this.safelyDetectChanges();
       this.toggleOptionsSelectComp(false);
     }
-
-    if (this.filterMultiSelectComponent && this.filterMultiSelectComponent.isShowSelectList) {
-      this.filterMultiSelectComponent.isShowSelectList = false;
-      this.safelyDetectChanges();
-      this.toggleOptionsSelectComp(false);
-    }
-
   } // function - mouseoutWidget
 
   /**
@@ -464,7 +452,13 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
     }).catch((error) => {
       this.commonExceptionHandler(error);
     });
+  }
 
+  public isNoFiltering() : boolean {
+    const filter = <InclusionFilter>this.filter;
+
+    return (filter.selector === InclusionSelectorType.SINGLE_COMBO || filter.selector === InclusionSelectorType.MULTI_COMBO)
+    && (filter.valueList && filter.valueList.length == 0);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -562,6 +556,13 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
                 this.candidateList.push(this._objToCandidate(item, this.field));
               }
             });
+
+            this.candidateList =
+              this.candidateList.concat(
+                selectedCandidateValues
+                  .map(item => this._stringToCandidate(item))
+                  .filter(item => -1 === this.candidateList.findIndex(can => can.name === item.name))
+              );
           } else {
             result.forEach(item => {
               this.candidateList.push(this._objToCandidate(item, this.field));
