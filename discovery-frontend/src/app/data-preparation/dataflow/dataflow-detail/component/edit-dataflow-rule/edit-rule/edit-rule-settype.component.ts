@@ -374,7 +374,12 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
 
     // COLUMN
     let arrFields:string[] = data.jsonRuleString.col;
-    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+    this.selectedFields = arrFields.map( item => {
+      if(item.length>2 && item.startsWith('`') && item.endsWith('`')) {
+        item = item.substring(1,item.length-1);
+      }
+      return this.fields.find( orgItem => orgItem.name === item );
+    } ).filter(field => !!field);
 
     // TYPE
     this.selectedType = data.jsonRuleString.type.toLowerCase();
