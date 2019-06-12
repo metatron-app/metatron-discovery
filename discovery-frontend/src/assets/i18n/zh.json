@@ -765,7 +765,7 @@
   "msg.dp.alert.no.snapshot" : "不存在Snapshot",
   "msg.dp.alert.unsupported.imported.dataset" : "不支持的导入数据集类型",
   "msg.dp.alert.no.flow.info": "无数据流信息",
-  "msg.dp.alert.no.row.data": "无数据",
+  "msg.dp.alert.no.row.data": "行号错误",
   "msg.dp.alert.out.of.range": "超出范围的值",
   "msg.dp.alert.please.sel.ds": "请选择数据集",
   "msg.dp.alert.redo.fail": "REDO适用失败",
