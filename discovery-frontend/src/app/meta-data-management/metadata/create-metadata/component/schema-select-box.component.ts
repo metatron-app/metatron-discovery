@@ -14,7 +14,15 @@
  */
 
 import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {Component, ElementRef, EventEmitter, HostListener, Injector, Input, Output} from "@angular/core";
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  Input,
+  Output,
+} from "@angular/core";
 import * as _ from 'lodash';
 import {StringUtil} from "../../../../common/util/string.util";
 import {CommonUtil} from "../../../../common/util/common.util";
@@ -28,6 +36,7 @@ export class SchemaSelectBoxComponent extends AbstractComponent {
   @Input() readonly isDisableSelect: boolean;
   @Input() readonly isEnableWindowResizeAutoClose: boolean;
   @Input() readonly isEnableSearch: boolean;
+  @Input() readonly isEnableAutoShowList: boolean;
 
   @Input() readonly schemaList: string[];
   @Input() selectedSchema: string;
@@ -54,6 +63,12 @@ export class SchemaSelectBoxComponent extends AbstractComponent {
     super.ngOnInit();
     this.pageResult.number = 0;
     this.pageResult.size = 20;
+  }
+
+  ngAfterViewInit() {
+    if (this.isEnableAutoShowList && this.isEmptySelectedSchema()) {
+      setTimeout(() => { this.isShowList = true})
+    }
   }
 
   /**

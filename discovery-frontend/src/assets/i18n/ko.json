@@ -3912,6 +3912,7 @@
   "msg.metadata.ui.no.db.list" : "DB 커넥션이 없습니다",
   "msg.metadata.ui.no.col.dic" : "컬럼 사전이 없습니다",
   "msg.metadata.ui.no.code.table" : "코드 테이블이 없습니다",
+  "msg.metadata.ui.select.schema" : "스키마 선택",
   "msg.metadata.ui.title" : "메타 데이터",
   "msg.metadata.ui.codetable.title" : "코드 테이블",
   "msg.metadata.ui.dictionary.title" : "용어 사전",

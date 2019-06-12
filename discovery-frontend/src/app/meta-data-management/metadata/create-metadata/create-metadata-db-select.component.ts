@@ -102,7 +102,7 @@ export class CreateMetadataDbSelectComponent extends AbstractComponent {
   }
 
   changeToNextStep(): void {
-    if (this._isEnableNext()) {
+    if (this.isEnableNext()) {
       if (this.createData.isNotEmptySchemaInfo() && this._isChangedSchema()) {
         this.createData.removeCompleteInfo();
       }
@@ -111,16 +111,16 @@ export class CreateMetadataDbSelectComponent extends AbstractComponent {
     }
   }
 
-  private _isChangedSchema(): boolean {
-    return this.createData.schemaInfo.selectedSchema !== this.selectedSchema;
-  }
-
-  private _isEnableNext() {
+  isEnableNext(): boolean {
     return !_.isNil(this.selectedSchema) && !_.isNil(this._tableListComponent) && !this._tableListComponent.isEmptyCheckedTableList();
   }
 
   isEmptyTableList(): boolean {
     return _.isNil(this.tableList) || this.tableList.length === 0;
+  }
+
+  private _isChangedSchema(): boolean {
+    return this.createData.schemaInfo.selectedSchema !== this.selectedSchema;
   }
 
   /**
