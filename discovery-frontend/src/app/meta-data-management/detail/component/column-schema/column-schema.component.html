@@ -397,7 +397,7 @@
             <!-- //select -->
           </div>
           <div class="ddp-ui-info"
-               [hidden]="isTypeIsTimestamp(column) === false"
+               [hidden]="isShowInformationIcon(column) === false"
                [class.ddp-selected]="column.format?.isShowTimestampValidPopup">
             <!-- TODO 추후 데이터소스 연결시 error2에 있는 hasMetadataColumnInDatasource container와 template 제거 -->
             <ng-container *ngIf="hasMetadataColumnInDatasource(); else none">
@@ -415,7 +415,7 @@
             </ng-template>
             <!-- format layer -->
             <datetime-valid-popup
-              [hidden]="isTypeIsTimestamp(column) === false"
+              [hidden]="isShowInformationIcon(column) === false"
               [fieldFormat]="column?.format"
               [fieldDataList]="fieldDataList"
               [fieldName]="column.physicalName"
