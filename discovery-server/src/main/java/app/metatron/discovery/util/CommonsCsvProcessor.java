@@ -31,13 +31,13 @@ import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.LineNumberReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -302,18 +302,13 @@ public class CommonsCsvProcessor {
     }
 
     if (enableTotalCnt) {
-      if (rows.size() < maxRowCnt) {
-        totalRows = rows.size() * 1L;
-      } else {
-        try (LineNumberReader count = new LineNumberReader(streamReader)) {
-          while (count.skip(Long.MAX_VALUE) > 0) {
-            // Loop just in case the file is > Long.MAX_VALUE or skip() decides to not read the entire file
-          }
-          totalRows = count.getLineNumber() + 1L;
-        } catch (IOException e) {
+      try{
+        totalRows = countLines();
+        if (withHeader) {
+          totalRows--;
         }
+      }catch(IOException e){
       }
-
     }
 
     try {
@@ -390,6 +385,44 @@ public class CommonsCsvProcessor {
   //
   //    return new FileValidationResponse(true);
   //  }
+
+  private long countLines() throws IOException {
+    InputStream is = new BufferedInputStream(new FileInputStream(new File(csvUri)));
+    try {
+      byte[] c = new byte[1024];
+
+      int readChars = is.read(c);
+      if (readChars == -1) {
+        // bail out if nothing to read
+        return 0;
+      }
+
+      // make it easy for the optimizer to tune this loop
+      long count = 0L;
+      while (readChars == 1024) {
+        for (int i=0; i<1024;) {
+          if (c[i++] == '\n') {
+            ++count;
+          }
+        }
+        readChars = is.read(c);
+      }
+
+      // count remaining characters
+      while (readChars != -1) {
+        for (int i=0; i<readChars; ++i) {
+          if (c[i] == '\n') {
+            ++count;
+          }
+        }
+        readChars = is.read(c);
+      }
+
+      return count == 0 ? 1 : count;
+    } finally {
+      is.close();
+    }
+  }
 
 
   public static class CommonsCsvException extends MetatronException {
