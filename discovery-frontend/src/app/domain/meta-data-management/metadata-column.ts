@@ -47,6 +47,10 @@ export class MetadataColumn {
   // Value to be used only on View
   ////////////////////////////////////////////////////////////////////////////
 
+  public static isRoleIsTimestamp(metadataColumn: MetadataColumn) {
+    return metadataColumn.role === Type.Role.TIMESTAMP
+  }
+
   public static isTypeIsTimestamp(metadataColumn: MetadataColumn) {
     return metadataColumn.type === Type.Logical.TIMESTAMP
   }
