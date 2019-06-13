@@ -7761,8 +7761,7 @@ table.ddp-table-type3.ddp-popup tr td {padding:10px 10px 11px 10px;}
 
 .ddp-data-details.ddp-ui-preview-contents .ddp-table-form {white-space:nowrap;}
 .ddp-data-details.ddp-ui-preview-contents table tr th {border-bottom:1px solid #e9e9ec;}
-.ddp-data-details.ddp-ui-preview-contents .ddp-ui-selected-option.ddp-selected .ddp-wrap-popup2 {left:inherit; right:0px; width:140px;}
-
+.ddp-data-details.ddp-ui-preview-contents .ddp-ui-selected-option.ddp-selected .ddp-wrap-popup2 {left:inherit; right:0px; width:140px; z-index:20;}
 
 
 .ddp-ui-preview-contents table.ddp-table-form.ddp-table-details tbody tr:nth-child(odd):hover td {background-color:#fafafa;}
