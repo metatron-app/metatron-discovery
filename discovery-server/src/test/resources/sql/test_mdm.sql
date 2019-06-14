@@ -39,6 +39,11 @@ INSERT INTO mdm_catalog_tree(catalog_ancestor, catalog_descendant, catalog_depth
 ('catalog1_1', 'catalog1_1_1', 1),
 ('catalog1', 'catalog1_1_1', 2);
 
+INSERT INTO datasource(id, ds_name, ds_engine_name, ds_owner_id, ds_desc, ds_type, ds_src_type,ds_conn_type, ds_granularity, ds_status, ds_published, version, created_time, created_by, modified_time, modified_by) values
+('ds_mdm_01_id', 'ds_mdm_01', 'ds_mdm_01', 'polaris', 'Dummy datasource #1', 'MASTER', 'IMPORT', 'ENGINE', 'DAY', 'ENABLED', true, 1.0, NOW(), 'polaris',  NOW(), 'polaris'),
+('ds_mdm_02_id', 'ds_mdm_02', 'ds_mdm_02', 'polaris', 'Dummy datasource #2', 'MASTER', 'IMPORT', 'ENGINE', 'DAY', 'ENABLED', true, 1.0, NOW(), 'polaris',  NOW(), 'polaris'),
+('ds_mdm_03_id', 'ds_mdm_03', 'ds_mdm_03', 'polaris', 'Dummy datasource #3', 'MASTER', 'IMPORT', 'ENGINE', 'DAY', 'ENABLED', true, 1.0, NOW(), 'polaris',  NOW(), 'polaris');
+
 INSERT INTO mdm_metadata_source(id, meta_source_type, meta_source_name, meta_source_id, meta_source_schema, meta_source_table, created_by, created_time, modified_by, modified_time, version) values
 ('test_engine_source_01', 'ENGINE', 'engine_datasource_01', 'source_id_1', null, null, 'admin', NOW(),'admin', NOW(), 1.0),
 ('test_engine_source_02', 'ENGINE', 'engine_datasource_02', 'source_id_2', null, null,'admin', NOW(),'admin', NOW(), 1.0),
