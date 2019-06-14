@@ -17,6 +17,7 @@ package app.metatron.discovery.domain.mdm.lineage;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import javax.ws.rs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,5 +68,12 @@ public class MetadataDepController {
     MetadataDep metadataDep = depService.getMetadateDep(id);
 
     return ResponseEntity.ok(metadataDep);
+  }
+
+  @RequestMapping(value = "/metadatas/deps/map/{metaId}", method = RequestMethod.GET, produces = "application/json")
+  public ResponseEntity<?> getMetadataDepMap(@PathVariable("metaId") String metaId) {
+    MetadataDepMapNode metadataDepMapNode = depService.getMetadataDepMap(metaId);
+
+    return ResponseEntity.ok(metadataDepMapNode);
   }
 }

@@ -14,9 +14,13 @@
 
 package app.metatron.discovery.domain.mdm.lineage;
 
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @RepositoryRestResource
 public interface MetadataDepRepository extends JpaRepository<MetadataDep, String> {
+  List<MetadataDep> findByUpstreamId(String upstreamId);
+  List<MetadataDep> findByDownstreamId(String downstreamId);
 }

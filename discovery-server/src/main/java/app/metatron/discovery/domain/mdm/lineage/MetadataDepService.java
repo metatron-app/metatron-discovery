@@ -14,7 +14,9 @@
 
 package app.metatron.discovery.domain.mdm.lineage;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,5 +62,47 @@ public class MetadataDepService {
 
     LOGGER.trace("getMetadateDep(): end");
     return metadataDep;
+  }
+
+  private void addMetadataDepMap(MetadataDepMapNode node, boolean upward, List<String> visitedMetaIds) {
+    String metaId = node.getMetaId();
+    List<MetadataDep> deps;
+    MetadataDepMapNode newNode;
+
+    if (upward) {
+      deps = depRepository.findByDownstreamId(metaId);
+    } else {
+      deps = depRepository.findByUpstreamId(metaId);
+    }
+
+    for (MetadataDep dep : deps) {
+      if (upward) {
+        newNode = new MetadataDepMapNode(dep.getUpstreamId());
+        node.getUpstreamNodes().add(newNode);
+      } else {
+        newNode = new MetadataDepMapNode(dep.getDownstreamId());
+        node.getDownstreamNodes().add(newNode);
+      }
+
+      if (visitedMetaIds.contains(newNode.getMetaId())) {
+        node.setCircuit(true);
+      } else {
+        visitedMetaIds.add(node.getMetaId());
+      }
+
+      addMetadataDepMap(newNode, upward, visitedMetaIds);
+    }
+  }
+
+  public MetadataDepMapNode getMetadataDepMap(String metaId) {
+    LOGGER.trace("getMetadataDepMap(): start");
+
+    List<String> visitedMetaIds = new ArrayList();
+    MetadataDepMapNode topNode = new MetadataDepMapNode(metaId);
+    addMetadataDepMap(topNode, true, visitedMetaIds);
+    addMetadataDepMap(topNode, false, visitedMetaIds);
+
+    LOGGER.trace("getMetadataDepMap(): end");
+    return topNode;
   }
 }
