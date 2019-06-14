@@ -30,21 +30,18 @@ import java.util.Map;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.jdbc.Sql;
 
 @TestExecutionListeners(value = OAuthTestExecutionListener.class, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-@Sql({"/sql/test_mdm.sql"})
-public class MetadataDepRestIntegrationTest extends AbstractRestIntegrationTest {
+public class LineageEdgeRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Before
   public void setUp() {
     RestAssured.port = serverPort;
   }
 
-  private String createMetadataEntity(String name, String type, String sourceName,
+  private String createMetadata(String name, String type, String sourceName,
       String sourceId) {
     Map<String, Object> reqMedataMap = Maps.newHashMap();
     reqMedataMap.put("name", name);
@@ -75,7 +72,7 @@ public class MetadataDepRestIntegrationTest extends AbstractRestIntegrationTest 
     return from(createRes.asString()).get("id");
   }
 
-  private Map<String, Object> readMetadataEntity(String id) {
+  private Map<String, Object> readMetadata(String id) {
     // @formatter:off
     Response readResponse = given()
         .auth().oauth2(oauth_token)
@@ -92,7 +89,7 @@ public class MetadataDepRestIntegrationTest extends AbstractRestIntegrationTest 
     return readResponse.jsonPath().getMap("");
   }
 
-  private void createMetadataDepEntity(String desc, String upstreamId, String downstreamId) {
+  private void createLineageEdge(String desc, String upstreamId, String downstreamId) {
     Map<String, Object> request = Maps.newHashMap();
     request.put("desc", desc);
     request.put("upstreamId", upstreamId);
@@ -107,7 +104,7 @@ public class MetadataDepRestIntegrationTest extends AbstractRestIntegrationTest 
             .accept(ContentType.JSON)
             .log().all()
             .when()
-            .post("/api/metadatas/deps");
+            .post("/api/metadatas/lineage/edge");
 
     createRes.then()
         .statusCode(HttpStatus.SC_CREATED)
@@ -115,14 +112,14 @@ public class MetadataDepRestIntegrationTest extends AbstractRestIntegrationTest 
     // @formatter:on
   }
 
-  private List<Map<String, String>> listMetadataDependencies() {
+  private List<Map<String, String>> listLineageEdge() {
     // @formatter:off
     Response readResponse = given()
         .auth().oauth2(oauth_token)
         .contentType(ContentType.JSON)
         .accept(ContentType.JSON)
         .when()
-        .get("/api/metadatas/deps");
+        .get("/api/metadatas/lineage/edge");
 
     readResponse.then()
         .statusCode(HttpStatus.SC_OK)
@@ -133,14 +130,14 @@ public class MetadataDepRestIntegrationTest extends AbstractRestIntegrationTest 
 
   }
 
-  private Map<String, Object> getMetadataDependencyMap(String metaId) {
+  private Map<String, Object> getLineageMap(String metaId) {
     // @formatter:off
     Response readResponse = given()
         .auth().oauth2(oauth_token)
         .contentType(ContentType.JSON)
         .accept(ContentType.JSON)
         .when()
-        .get("/api/metadatas/deps/map/" + metaId);
+        .get("/api/metadatas/lineage/map/" + metaId);
 
     readResponse.then()
         .statusCode(HttpStatus.SC_OK)
@@ -152,58 +149,37 @@ public class MetadataDepRestIntegrationTest extends AbstractRestIntegrationTest 
 
   @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER"})
-  public void defaultCrudTest() {
-    TestUtils.printTestTitle("1. Create metadata entities");
-
-//    ('ds_mdm_01_id', 'ds_mdm_01', 'ds_mdm_01', 'polaris', 'Dummy datasource #1', 'MASTER', 'IMPORT', 'ENGINE', 'DAY', 'ENABLED', true, 1.0, NOW(), 'polaris',  NOW(), 'polaris'),
-//    ('ds_mdm_02_id', 'ds_mdm_02', 'ds_mdm_02', 'polaris', 'Dummy datasource #2', 'MASTER', 'IMPORT', 'ENGINE', 'DAY', 'ENABLED', true, 1.0, NOW(), 'polaris',  NOW(), 'polaris'),
-//    ('ds_mdm_03_id', 'ds_mdm_03', 'ds_mdm_03', 'polaris', 'Dummy datasource #3', 'MASTER', 'IMPORT', 'ENGINE', 'DAY', 'ENABLED', true, 1.0, NOW(), 'polaris',  NOW(), 'polaris');
+  @Sql({"/sql/test_mdm.sql"})
+  public void totalLineageTest() {
+    TestUtils.printTestTitle("1. Create metadatas");
 
     // Used "ENGINE" just because of the absence of corresponding entities for JDBC or STAGEDB
-    String id1 = createMetadataEntity("meta1", "ENGINE", "ds_mdm_01", "ds_mdm_01_id");
-    String id2 = createMetadataEntity("meta2", "ENGINE", "ds_mdm_02", "ds_mdm_02_id");
-    String id3 = createMetadataEntity("meta3", "ENGINE", "ds_mdm_03", "ds_mdm_03_id");
+    String metaId1 = createMetadata("meta1", "ENGINE", "ds_mdm_01", "ds_mdm_01_id");
+    String metaId2 = createMetadata("meta2", "ENGINE", "ds_mdm_02", "ds_mdm_02_id");
+    String metaId3 = createMetadata("meta3", "ENGINE", "ds_mdm_03", "ds_mdm_03_id");
 
-    Map<String, Object> map1 = readMetadataEntity(id1);
-    Map<String, Object> map2 = readMetadataEntity(id2);
-    Map<String, Object> map3 = readMetadataEntity(id3);
+    Map<String, Object> map1 = readMetadata(metaId1);
+    Map<String, Object> map2 = readMetadata(metaId2);
+    Map<String, Object> map3 = readMetadata(metaId3);
 
-    assert id1.equals(map1.get("id"));
-    assert id2.equals(map2.get("id"));
-    assert id3.equals(map3.get("id"));
+    assert metaId1.equals(map1.get("id"));
+    assert metaId2.equals(map2.get("id"));
+    assert metaId3.equals(map3.get("id"));
 
-    TestUtils.printTestTitle("2. Create metadata dependency entities");
+    TestUtils.printTestTitle("2. Create lineage edges");
 
-    createMetadataDepEntity("CREATE TABLE AS SELECT * FROM mdm_test_jdbc", id1, id2);
-    createMetadataDepEntity("Druid ingestion with Hive Table", id2, id3);
+    createLineageEdge("CREATE TABLE AS SELECT * FROM mdm_test_jdbc", metaId1, metaId2);
+    createLineageEdge("Druid ingestion with Hive Table", metaId2, metaId3);
 
-    TestUtils.printTestTitle("3. list metadata dependencies");
+    TestUtils.printTestTitle("3. list lineage edges");
 
-    List<Map<String, String>> deps = listMetadataDependencies();
+    List<Map<String, String>> edges = listLineageEdge();
+    System.out.print(edges);
 
-    System.out.print(deps);
-  }
+    TestUtils.printTestTitle("4. Get lineage map");
 
-  @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER"})
-  public void dependencyMapTest() {
-    TestUtils.printTestTitle("1. Create metadata entities");
-
-    // Used "ENGINE" just because of the absence of corresponding entities for JDBC or STAGEDB
-    String id1 = createMetadataEntity("meta1", "ENGINE", "ds_mdm_01", "ds_mdm_01_id");
-    String id2 = createMetadataEntity("meta2", "ENGINE", "ds_mdm_02", "ds_mdm_02_id");
-    String id3 = createMetadataEntity("meta3", "ENGINE", "ds_mdm_03", "ds_mdm_03_id");
-
-    TestUtils.printTestTitle("2. Create metadata dependency entities");
-
-    createMetadataDepEntity("CREATE TABLE AS SELECT * FROM mdm_test_jdbc", id1, id2);
-    createMetadataDepEntity("Druid ingestion with Hive Table", id2, id3);
-
-    TestUtils.printTestTitle("3. Get metadata dependency map");
-
-    Map<String, Object> depMap = getMetadataDependencyMap(id2);
-
-    System.out.print(depMap);
+    Map<String, Object> lineageMap = getLineageMap(metaId2);
+    System.out.print(lineageMap);
   }
 }
 

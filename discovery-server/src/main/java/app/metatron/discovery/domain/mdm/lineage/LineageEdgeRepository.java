@@ -14,9 +14,12 @@
 
 package app.metatron.discovery.domain.mdm.lineage;
 
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @RepositoryRestResource
-public interface MetadataColDepRepository extends JpaRepository<MetadataColDep, String> {
+public interface LineageEdgeRepository extends JpaRepository<LineageEdge, String> {
+  List<LineageEdge> findByFromMetaId(String fromMetaId);
+  List<LineageEdge> findByToMetaId(String toMetaId);
 }

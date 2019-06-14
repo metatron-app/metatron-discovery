@@ -18,22 +18,22 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MetadataDepMapNode implements Serializable {
+public class LineageMapNode implements Serializable {
   private String metaId;
 
-  private List<MetadataDepMapNode> upstreamNodes;
-  private List<MetadataDepMapNode> downstreamNodes;
+  private List<LineageMapNode> fromMapNodes;
+  private List<LineageMapNode> toMapNodes;
 
   private boolean circuit;
 
-  public MetadataDepMapNode() {
+  public LineageMapNode() {
     metaId = null;
-    upstreamNodes = new ArrayList();
-    downstreamNodes = new ArrayList();
+    fromMapNodes = new ArrayList();
+    toMapNodes = new ArrayList();
     circuit = false;
   }
 
-  public MetadataDepMapNode(String metaId) {
+  public LineageMapNode(String metaId) {
     this();
     this.metaId = metaId;
   }
@@ -46,22 +46,22 @@ public class MetadataDepMapNode implements Serializable {
     this.metaId = metaId;
   }
 
-  public List<MetadataDepMapNode> getUpstreamNodes() {
-    return upstreamNodes;
+  public List<LineageMapNode> getFromMapNodes() {
+    return fromMapNodes;
   }
 
-  public void setUpstreamNodes(
-      List<MetadataDepMapNode> upstreamNodes) {
-    this.upstreamNodes = upstreamNodes;
+  public void setFromMapNodes(
+      List<LineageMapNode> fromMapNodes) {
+    this.fromMapNodes = fromMapNodes;
   }
 
-  public List<MetadataDepMapNode> getDownstreamNodes() {
-    return downstreamNodes;
+  public List<LineageMapNode> getToMapNodes() {
+    return toMapNodes;
   }
 
-  public void setDownstreamNodes(
-      List<MetadataDepMapNode> downstreamNodes) {
-    this.downstreamNodes = downstreamNodes;
+  public void setToMapNodes(
+      List<LineageMapNode> toMapNodes) {
+    this.toMapNodes = toMapNodes;
   }
 
   public boolean isCircuit() {
@@ -74,10 +74,10 @@ public class MetadataDepMapNode implements Serializable {
 
   @Override
   public String toString() {
-    return "MetadataDepMapNode{" +
+    return "LineageMapNode{" +
         "metaId='" + metaId + '\'' +
-        ", upstreamNodes=" + upstreamNodes +
-        ", downstreamNodes=" + downstreamNodes +
+        ", fromMapNodes=" + fromMapNodes +
+        ", toMapNodes=" + toMapNodes +
         ", circuit=" + circuit +
         '}';
   }
