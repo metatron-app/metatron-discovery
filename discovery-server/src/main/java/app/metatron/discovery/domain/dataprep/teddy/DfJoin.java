@@ -14,17 +14,20 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.JoinTypeNotSupportedException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.LeftPredicateNotFoundException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.PredicateTypeMismatchException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.RightPredicateNotFoundException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.prep.parser.preparation.rule.Join;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DfJoin extends DataFrame {
   private static Logger LOGGER = LoggerFactory.getLogger(DfJoin.class);
@@ -46,13 +49,13 @@ public class DfJoin extends DataFrame {
   }
 
   private void gatherPredicates(Expression expr, DataFrame leftDf, DataFrame rightDf,
-                                List<Identifier.IdentifierExpr> leftPredicates,
-                                List<Identifier.IdentifierExpr> rightPredicates) throws TeddyException {
+                                List<Identifier.IdentifierExpr> lPredicates,
+                                List<Identifier.IdentifierExpr> rPredicates) throws TeddyException {
     int colno;
 
     if (expr instanceof Expr.BinAndExpr) {
-      gatherPredicates(((Expr.BinAndExpr) expr).getLeft(), leftDf, rightDf, leftPredicates, rightPredicates);
-      gatherPredicates(((Expr.BinAndExpr) expr).getRight(), leftDf, rightDf, leftPredicates, rightPredicates);
+      gatherPredicates(((Expr.BinAndExpr) expr).getLeft(), leftDf, rightDf, lPredicates, rPredicates);
+      gatherPredicates(((Expr.BinAndExpr) expr).getRight(), leftDf, rightDf, lPredicates, rPredicates);
     }
     else if (expr instanceof Expr.BinAsExpr) {
       if (!((Expr.BinAsExpr) expr).getOp().equals("=")) {
@@ -61,7 +64,7 @@ public class DfJoin extends DataFrame {
 
       for (colno = 0; colno < leftDf.getColCnt(); colno++) {
         if (leftDf.getColName(colno).equals(((Expr.BinAsExpr) expr).getLeft().toString())) {
-          leftPredicates.add((Identifier.IdentifierExpr) ((Expr.BinAsExpr) expr).getLeft());
+          lPredicates.add((Identifier.IdentifierExpr) ((Expr.BinAsExpr) expr).getLeft());
           break;
         }
       }
@@ -69,9 +72,9 @@ public class DfJoin extends DataFrame {
         throw new LeftPredicateNotFoundException("join(): left predicate not found: " + expr.toString());
       }
 
-      for (colno = 0; colno < leftDf.getColCnt(); colno++) {
+      for (colno = 0; colno < rightDf.getColCnt(); colno++) {
         if (rightDf.getColName(colno).equals(((Expr.BinAsExpr) expr).getRight().toString())) {
-          rightPredicates.add((Identifier.IdentifierExpr) ((Expr.BinAsExpr) expr).getRight());
+          rPredicates.add((Identifier.IdentifierExpr) ((Expr.BinAsExpr) expr).getRight());
           break;
         }
       }
@@ -88,123 +91,111 @@ public class DfJoin extends DataFrame {
     return rightColName;
   }
 
-  private Row addJoinedRow(Row lrow, List<String> leftSelectColNames, Row rrow, List<String> rightSelectColNames) {
-    Row newRow = new Row();
-    for (String colName : leftSelectColNames) {
-      newRow.add(colName, lrow.get(colName));                           // left에서 온 컬럼은 이름 그대로 넣음
-    }
-    for (String colName : rightSelectColNames) {
-      newRow.add(this.getColName(newRow.colCnt), rrow.get(colName));  // 필요한 경우 "r_"이 붙은 컬럼 이름 (여기까지 온 것은 이미 붙은 상황)
-    }
-    return newRow;
-  }
-
   @Override
   public List<Object> prepare(DataFrame prevDf, Rule rule, List<DataFrame> slaveDfs) throws TeddyException {
     List<Object> preparedArgs = new ArrayList<>();
     Join join = (Join) rule;
 
-    List<String> leftSelectColNames = getIdentifierList(join.getLeftSelectCol());
-    List<String> rightSelectColNames = getIdentifierList(join.getRightSelectCol());
-    Expression condition = join.getCondition();
+    assert slaveDfs.size() == 1 : slaveDfs.size();
+    DataFrame slaveDf = slaveDfs.get(0);
+
+    // Get all the selected column names.
+    List<String> lSelectColNames = getIdentifierList(join.getLeftSelectCol());
+    List<String> rSelectColNames = getIdentifierList(join.getRightSelectCol());
+    Expression cond = join.getCondition();
     String joinType = join.getJoinType();
-    DataFrame rightDf = slaveDfs.get(0);
 
+    // Get all the predicates' identifiers for both left and right side.
+    List<Identifier.IdentifierExpr> lPredicates = new ArrayList<>();
+    List<Identifier.IdentifierExpr> rPredicates = new ArrayList<>();
+    gatherPredicates(cond, prevDf, slaveDf, lPredicates, rPredicates);
+    assert lPredicates.size() == rPredicates.size();
 
-    List<Identifier.IdentifierExpr> leftPredicates = new ArrayList<>();
-    List<Identifier.IdentifierExpr> rightPredicates = new ArrayList<>();
-    gatherPredicates(condition, prevDf, rightDf, leftPredicates, rightPredicates);
+    // Change column names into String[]
+    List<String> lPredColNames = new ArrayList<>(lPredicates.size());
+    List<String> rPredColNames = new ArrayList<>(lPredicates.size());
 
-    List<Expr.BinEqExpr> eqExprs = new ArrayList<>();
-    for (int i = 0; i < leftPredicates.size(); i++) {
-      eqExprs.add(new Expr.BinEqExpr("=", leftPredicates.get(i), rightPredicates.get(i)));
+    for (int i = 0; i < lPredicates.size(); i++) {
+      lPredColNames.add(lPredicates.get(i).getValue());
+      rPredColNames.add(rPredicates.get(i).getValue());
     }
 
-    for (String colName : leftSelectColNames) {
-      this.addColumn(colName, prevDf.getColDescByColName(colName));
-    }
-    for (String colName : rightSelectColNames) {
-      String rightColName = this.checkRightColName(colName);   // 같은 column이름이 있을 경우 right에서 온 것에 "r_"을 붙여준다.
-      this.addColumn(rightColName, rightDf.getColDescByColName(colName));
-      this.interestedColNames.add(rightColName);
-    }
-
-    List<Object[]> lobjsList = new ArrayList<>();
-    List<Object[]> robjsList = new ArrayList<>();
-
-    for (int i = 0; i < leftPredicates.size(); i++) {
-      lobjsList.add(new Object[prevDf.rows.size()]);
-      robjsList.add(new Object[rightDf.rows.size()]);
-    }
-
-    Row lrow = null;
-    Row rrow = null;
-    lrow = prevDf.rows.get(0);
-
-    for (int rrowno = 0; rrowno < rightDf.rows.size(); rrowno++) {
-      rrow = rightDf.rows.get(rrowno);
-      for (int i = 0; i < leftPredicates.size(); i++) {
-        (robjsList.get(i))[rrowno] = rightPredicates.get(i).eval(rrow).value();
+    // Check predicate type mismatch
+    for (int i = 0; i < lPredColNames.size(); i++) {
+      ColumnType lType = prevDf.getColTypeByColName(lPredColNames.get(i));
+      ColumnType rType = slaveDf.getColTypeByColName(rPredColNames.get(i));
+      if (lType != rType) {
+        throw new PredicateTypeMismatchException(String.format(
+            "join(): predicate type mismatch: left=%s right=%s", lType.name(), rType.name()));
       }
     }
 
-    // 각 predicate column 별로 1줄만 type check
-    for (int i = 0; i < leftPredicates.size(); i++) {
-      if (lrow == null || rrow == null || leftPredicates.get(i).eval(lrow).type() != rightPredicates.get(i).eval(rrow).type()) {
-        throw new PredicateTypeMismatchException(String.format("join(): predicate type mismatch: left=%s right=%s", lrow == null ? "null" : leftPredicates.get(i).eval(lrow).type().name(), rrow == null ? "null" : rightPredicates.get(i).eval(rrow).type().name()));
-
-      }
+    // Add columns from left to right
+    for (String colName : lSelectColNames) {
+      addColumn(colName, prevDf.getColDescByColName(colName));
     }
 
-    preparedArgs.add(leftPredicates);
-    preparedArgs.add(lobjsList);
-    preparedArgs.add(robjsList);
-    preparedArgs.add(rightDf);
-    preparedArgs.add(leftSelectColNames);
-    preparedArgs.add(rightSelectColNames);
+    for (String colName : rSelectColNames) {
+      String rightColName = checkRightColName(colName);   // 같은 column이름이 있을 경우 right에서 온 것에 "r_"을 붙여준다.
+      addColumn(rightColName, slaveDf.getColDescByColName(colName));
+      interestedColNames.add(rightColName);
+    }
+
+    // Toss parameters to sub-threads
+    preparedArgs.add(slaveDf);
+    preparedArgs.add(lSelectColNames);
+    preparedArgs.add(rSelectColNames);
+    preparedArgs.add(lPredColNames);
+    preparedArgs.add(rPredColNames);
     return preparedArgs;
   }
 
   @Override
   public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
-    List<Row> rows = new ArrayList<>();
-    Row lrow = null;
-    Row rrow = null;
-
-    List<Identifier.IdentifierExpr> leftPredicates = (List<Identifier.IdentifierExpr>) preparedArgs.get(0);
-    List<Object[]> lobjsList = (List<Object[]>) preparedArgs.get(1);
-    List<Object[]> robjsList = (List<Object[]>) preparedArgs.get(2);
-    DataFrame rightDf = (DataFrame) preparedArgs.get(3);
-    List<String> leftSelectColNames = (List<String>) preparedArgs.get(4);
-    List<String> rightSelectColNames = (List<String>) preparedArgs.get(5);
-
+    // Restore prepared parameters
+    DataFrame slaveDf = (DataFrame) preparedArgs.get(0);
+    List<String> lSelectColNames = (List<String>) preparedArgs.get(1);
+    List<String> rSelectColNames = (List<String>) preparedArgs.get(2);
+    List<String> lPredColNames = (List<String>) preparedArgs.get(3);
+    List<String> rPredColNames = (List<String>) preparedArgs.get(4);
 
     LOGGER.trace("DfJoin.gather(): start: offset={} length={}", offset, length);
+    List<Row> rows = new ArrayList<>();
 
+    // Simple Nest Loop Join
     for (int lrowno = offset; lrowno < offset + length; cancelCheck(++lrowno)) {
-      lrow = prevDf.rows.get(lrowno);
-      for (int i = 0; i < leftPredicates.size(); i++) {
-        (lobjsList.get(i))[lrowno] = leftPredicates.get(i).eval(lrow).value();
-      }
-    }
+      Row lrow = prevDf.rows.get(lrowno);
 
-    for (int lrowno = offset; lrowno < offset + length; cancelCheck(++lrowno)) {
-      for (int rrowno = 0; rrowno < rightDf.rows.size(); rrowno++) {
-        boolean equal = true;
-        for (int i = 0; i < lobjsList.size(); i++) {
-          if (!(lobjsList.get(i))[lrowno].equals((robjsList.get(i))[rrowno])) {
-            equal = false;
+      for (int rrowno = 0; rrowno < slaveDf.rows.size(); rrowno++) {
+        Row rrow = slaveDf.rows.get(rrowno);
+        boolean matched = true;
+
+        for (int predno = 0; predno < lPredColNames.size(); predno++) {
+          Object lObj = lrow.get(lPredColNames.get(predno));
+          if (lObj == null) {
+            matched = false;
+            break;
+          }
+
+          if (lObj.equals(rrow.get(rPredColNames.get(predno))) == false) {
+            matched = false;
             break;
           }
         }
-        if (equal) {
-          lrow = prevDf.rows.get(lrowno);
-          rrow = rightDf.rows.get(rrowno);
-          rows.add(addJoinedRow(lrow, leftSelectColNames, rrow, rightSelectColNames));
 
-          if (rows.size() == limit) {
-            return rows;
+        if (matched) {
+          Row newRow = new Row();
+          for (String colName : lSelectColNames) {
+            newRow.add(colName,
+                lrow.get(colName));                           // left에서 온 컬럼은 이름 그대로 넣음
           }
+
+          for (String colName : rSelectColNames) {
+            newRow.add(getColName(newRow.colCnt),
+                rrow.get(colName));  // 필요한 경우 "r_"이 붙은 컬럼 이름 (여기까지 온 것은 이미 붙은 상황)
+          }
+
+          rows.add(newRow);
         }
       }
     }
