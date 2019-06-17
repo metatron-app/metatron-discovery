@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-workspace-uses',
+  selector: 'explore-workspace-uses',
   templateUrl: './workspace-uses.component.html',
 })
 export class WorkspaceUsesComponent implements OnInit {
@@ -12,12 +12,16 @@ export class WorkspaceUsesComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
+
   }
 
-  openPopup(workspaces: any) {
-
+  public init(workspaces) {
     this.workspaces = workspaces;
+    this.isShow = true;
+  }
 
+  public closePopup() {
+    this.isShow = false;
   }
 
 }

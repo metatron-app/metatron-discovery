@@ -1,96 +1,61 @@
-<div class="ddp-layout-popuptype">
-  <em class="ddp-bg-popup"></em>
-  <div class="ddp-ui-popup">
-    <!-- title -->
-    <div class="ddp-ui-popup-title">
-      <span class="ddp-txt-title-name">
-            Recent Queries
-      </span>
-
-      <div class="ddp-ui-pop-buttons">
-        <a href="javascript:" class="ddp-btn-pop">Cancel</a>
-        <a href="javascript:" class="ddp-btn-pop ddp-bg-black">Make Workbench</a>
-      </div>
-      <!-- det -->
+<div class="ddp-pop-preview ddp-type" *ngIf="isShow">
+  <!-- top -->
+  <div class="ddp-ui-top">
+    <div class="ddp-data-name">
+      Recently Queries
+      <div class="ddp-data-info"><em class="ddp-icon-info"></em>List up to the last 100 cases.</div>
     </div>
-    <!-- //title -->
-    <!--
-        설명 메세지 있을경우 ddp-info 추가
-        에러 메세지 같이 있을경우 ddp-info2 추가
-    -->
-    <div class="ddp-ui-popup-contents ddp-info">
-      <div class="ddp-box-message">
-
-        <!-- synch -->
-        <div class="ddp-box-synch type-info">
-          <div class="ddp-txt-synch">
-            <em class="ddp-icon-info"></em>
-            List up to last 100 cases.
+    <em class="ddp-btn-popup-close" (click)="closePopup()"></em>
+  </div>
+  <!-- //top -->
+  <!-- cpmtemts -->
+  <div class="ddp-ui-preview-contents ">
+    <table class="ddp-table-form ddp-table-type3">
+      <colgroup>
+        <col width="15%">
+        <col width="15%">
+        <col width="20%">
+        <col width="150px">
+        <col width="*">
+      </colgroup>
+      <thead>
+      <tr>
+        <th>Date</th>
+        <th>Type</th>
+        <th>User</th>
+        <th>Result</th>
+        <th>Query</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>yyyy-mm-dd hh:mm:ss</td>
+        <td>SUMMARY</td>
+        <td>John Smith</td>
+        <td> <span class="ddp-data-state ddp-success">Success</span></td>
+        <td>
+          <div class="ddp-txt-long ddp-type-button">
+            <a href="javascript:" class="ddp-btn-selection ddp-fright" (click)="onClickCopy()">Copy</a>
+            <span class="ddp-txt-name" title="TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne">TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne</span>
           </div>
-          <a href="javascript:" class="ddp-btn-info-close"></a>
-        </div>
-        <!-- //synch -->
-      </div>
+        </td>
+      </tr>
+      <tr>
+        <td>yyyy-mm-dd hh:mm:ss</td>
+        <td>SUMMARY</td>
+        <td>John Smith</td>
+        <td> <span class="ddp-data-state ddp-fail">fail</span></td>
+        <td>
+          <div class="ddp-txt-long ddp-type-button">
+            <a href="javascript:" class="ddp-btn-selection ddp-fright">Copy</a>
+            <span class="ddp-txt-name" title="TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne">TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne</span>
+          </div>
+        </td>
+      </tr>
+      </tbody>
 
-      <!-- preview contents -->
-      <div class="ddp-data-details ddp-ui-preview-contents type-border ">
-        <table class="ddp-table-detail4">
-          <colgroup>
-            <col width="180px">
-            <col width="130px">
-            <col width="170px">
-            <col width="100px">
-            <col width="*">
-          </colgroup>
-          <thead>
-          <tr>
-            <th>Date</th>
-            <th>Type</th>
-            <th>User</th>
-            <th>Result</th>
-            <th>Query</th>
-
-          </tr>
-          </thead>
-          <tbody>
-          <tr>
-            <td>yyyy-mm-dd hh:mm:ss</td>
-            <td>SUMMARY</td>
-            <td><span class="ddp-txt-long" title="John Smith">John SmithJohn SmithJohn SmithJohn SmithJohn SmithJohn SmithJohn SmithJohn Smith</span></td>
-            <td> <span class="ddp-data-state ddp-success">Success</span></td>
-            <td>
-              <div class="ddp-txt-long ddp-type-button">
-                <a href="javascript:" class="ddp-btn-selection ddp-fright">Copy</a>
-                <span class="ddp-txt-name" title="TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne">TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne</span>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>yyyy-mm-dd hh:mm:ss</td>
-            <td>SUMMARY</td>
-            <td>John Smith</td>
-            <td> <span class="ddp-data-state ddp-fail">fail</span></td>
-            <td>
-              <div class="ddp-txt-long ddp-type-button">
-                <a href="javascript:" class="ddp-btn-selection ddp-fright">Copy</a>
-                <span class="ddp-txt-name" title="TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne">TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne</span>
-              </div>
-            </td>
-          </tr>
-
-
-
-
-          </tbody>
-
-        </table>
-
-      </div>
-
-      <!-- //preview contents -->
-
-
-    </div>
+    </table>
 
   </div>
+  <!-- //cpmtemts -->
 </div>

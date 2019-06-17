@@ -48,7 +48,7 @@ table.ddp-table-form tbody tr td .ddp-txt-long .ddp-icon-global:before {display:
 
 
 table.ddp-table-form tbody tr td .ddp-txt-long2 {display:inline-block; position:relative;max-width:100%; line-height:21px; height:21px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; word-wrap:normal; box-sizing:border-box;}
-table.ddp-table-form tbody tr td .ddp-txt-long {display:inline-block; position:relative; padding-top:2px; margin-top:-2px; margin-bottom:-2px; max-width:100%; line-height:21px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; word-wrap:normal; box-sizing:border-box; vertical-align:top;}
+table.ddp-table-form tbody tr td .ddp-txt-long {display:inline-block; position:relative;max-width:100%; line-height:21px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; word-wrap:normal; box-sizing:border-box; vertical-align:top;}
 
 table.ddp-table-form tbody tr td .ddp-txt-long.ddp-global {padding-right:66px;}
 table.ddp-table-form tbody tr td .ddp-txt-long.ddp-global.ddp-new {padding-right:100px;}

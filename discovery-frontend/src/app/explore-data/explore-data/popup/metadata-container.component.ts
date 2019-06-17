@@ -1,5 +1,5 @@
 import {
-  Component, ComponentFactoryResolver,
+  Component,
   ElementRef,
   EventEmitter,
   Injector,
@@ -7,7 +7,6 @@ import {
   OnInit,
   Output,
   ViewChild,
-  ViewContainerRef
 } from '@angular/core';
 import {Metadata} from "../../../domain/meta-data-management/metadata";
 import {AbstractPopupComponent} from "../../../common/component/abstract-popup.component";
@@ -15,6 +14,7 @@ import * as $ from "jquery";
 import {RecentQueriesComponent} from "./recent-queries.component";
 import {CommonUtil} from "../../../common/util/common.util";
 import {SYSTEM_PERMISSION} from "../../../common/permission/permission";
+import {WorkspaceUsesComponent} from "./workspace-uses.component";
 
 @Component({
   selector: 'explore-metadata-container',
@@ -26,11 +26,11 @@ export class MetadataContainerComponent extends AbstractPopupComponent implement
   @Input()
   public metadata: Metadata;
 
+  @ViewChild(WorkspaceUsesComponent)
+  workspaceUsesComp: WorkspaceUsesComponent;
+
   @Output()
   public closeMetadataContainer = new EventEmitter();
-
-  @ViewChild('recentQueriesContainer', {read: ViewContainerRef})
-  recentQueriesContainer: ViewContainerRef;
 
   public selectedTab: number = 0;
 
@@ -42,7 +42,7 @@ export class MetadataContainerComponent extends AbstractPopupComponent implement
 
   constructor(
     protected element: ElementRef,
-    protected injector: Injector, private _resolver: ComponentFactoryResolver) {
+    protected injector: Injector) {
     super(element, injector);
   }
 
@@ -115,17 +115,10 @@ export class MetadataContainerComponent extends AbstractPopupComponent implement
     return (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_DATASOURCE.toString())) || (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_METADATA.toString()));
   }
 
-  public onOpenRecentQuery() {
-
-    this.recentQueriesContainer.clear();
-
-    const factory = this._resolver.resolveComponentFactory(RecentQueriesComponent);
-
-    const componentRef = this.recentQueriesContainer.createComponent(factory);
-
-    componentRef.instance.datasourceId = '';
-
+  public onClickCreatedBy() {
+    this.workspaceUsesComp.init({});
   }
+
 
 }
 

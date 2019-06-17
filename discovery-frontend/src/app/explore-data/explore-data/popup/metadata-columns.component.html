@@ -1,16 +1,16 @@
 <div class="ddp-wrap-tab-contents" *ngIf="metadataId">
   <div class="ddp-ui-tab-contents">
-    <div class="ddp-data-details ddp-ui-preview-contents ">
-      <table class="ddp-table-form ddp-table-type2 ddp-table-details">
+    <div class="ddp-data-details ddp-ui-preview-contents" (scroll)="onScroll()">
+      <table class="ddp-table-form ddp-table-type2 ddp-table-details ddp-inherit">
         <colgroup>
+          <col width="300px">
+          <col width="300px">
+          <col width="150px">
+          <col width="150px">
+          <col width="300px">
+          <col width="150px">
           <col width="200px">
-          <col width="*">
-          <col width="150px">
-          <col width="150px">
-          <col width="300px">
-          <col width="150px">
-          <col width="300px">
-          <col width="300px">
+          <col width="200px">
         </colgroup>
         <thead>
         <tr>
@@ -39,7 +39,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let column of columns">
+        <tr *ngFor="let column of columns; let index=index">
           <td>
             {{column.physicalName}}
           </td>
@@ -56,8 +56,51 @@
             {{column.format? column.format.format : '-'}}
           </td>
           <td>
-            {{column.codeTable? column.codeTable.name : '-'}}
-          </td>
+            <div class=" ddp-select-search ddp-pop-select"
+                 [ngClass]="{'ddp-selected': column['isShowCodeTable']}">
+              <a href="javascript:" class="ddp-ui-search2"
+                 (click)="$event.stopImmediatePropagation(); onClickOpenCodeTable(column, index)">
+                {{column.codeTable? column.codeTable.name : '-'}}
+              </a>
+              <div class="ddp-box-layout4 ddp-pop-fix"
+                   #codeTablePreview
+                   style="top: 343px; left: 1284px;">
+                <a class="ddp-btn-close" href="javascript:" (click)="column['isShowCodeTable'] = false"></a>
+                <div class="ddp-data-title"> 조직 코드 </div>
+                <div class="ddp-data-code ddp-size">
+                  <table class="ddp-table-code">
+                    <colgroup>
+                      <col style="width: 90px;">
+                      <col [style.width]="'*'">
+                    </colgroup>
+                    <tbody>
+                    <tr *ngFor="let item of codeTableDetailList | slice:0:10">
+                      <td>
+                        <span class="ddp-txt-long">{{item.code}}</span>
+                        <!-- tooltip -->
+                        <div class="ddp-ui-tooltip-info">
+                          <em class="ddp-icon-view-top"></em>
+                          {{item.code}}
+                        </div>
+                        <!-- //tooltip -->
+                      </td>
+
+                      <td>
+                        <span class="ddp-txt-long">{{item.value}}</span>
+                        <!-- tooltip -->
+                        <div class="ddp-ui-tooltip-info">
+                          <em class="ddp-icon-view-top"></em>
+                          {{item.value}}
+                        </div>
+                        <!-- //tooltip -->
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
           <td>{{column.description || '-'}}</td>
           <td class="">
             <div class="ddp-bar">

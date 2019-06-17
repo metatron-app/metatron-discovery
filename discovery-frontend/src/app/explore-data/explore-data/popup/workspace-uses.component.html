@@ -2,13 +2,10 @@
   <em class="ddp-bg-popup"></em>
   <div class="ddp-ui-popup">
     <div class="ddp-ui-popup-title">
-            <span class="ddp-txt-title-name">
-              Used in workspaces ({{workspaces.length}})
-
-            </span>
+      <span class="ddp-txt-title-name">Used in workspaces ({{workspaces.length}})</span>
 
       <div class="ddp-ui-pop-buttons">
-        <a href="javascript:" class="ddp-btn-pop">Cancel</a>
+        <a href="javascript:" class="ddp-btn-pop" (click)="closePopup()">Cancel</a>
         <a href="javascript:" class="ddp-btn-pop ddp-bg-black"><em class="ddp-icon-add2"></em>Make new workbook</a>
       </div>
     </div>

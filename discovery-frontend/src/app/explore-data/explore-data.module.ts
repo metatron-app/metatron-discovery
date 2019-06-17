@@ -28,6 +28,7 @@ import {WorkspaceUsesComponent} from "./explore-data/popup/workspace-uses.compon
 import {MetadataService} from "../meta-data-management/metadata/service/metadata.service";
 import {DatasourceService} from "../datasource/service/datasource.service";
 import {TimezoneService} from "../data-storage/service/timezone.service";
+import {CodeTableService} from "../meta-data-management/code-table/service/code-table.service";
 
 @NgModule({
   imports: [
@@ -50,7 +51,7 @@ import {TimezoneService} from "../data-storage/service/timezone.service";
     RecentQueriesComponent,
     WorkspaceUsesComponent
   ],
-  providers: [MetadataService,DatasourceService,TimezoneService],
+  providers: [MetadataService,DatasourceService,TimezoneService, CodeTableService],
 })
 export class ExploreDataModule {
   constructor(private broadCaster: EventBroadcaster) {

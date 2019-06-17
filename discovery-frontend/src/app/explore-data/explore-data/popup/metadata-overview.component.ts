@@ -1,11 +1,8 @@
 import {
   Component,
-  ComponentFactoryResolver,
-  EventEmitter,
   Input,
-  OnInit, Output,
+  OnInit,
   ViewChild,
-  ViewContainerRef
 } from '@angular/core';
 import {MetadataService} from "../../../meta-data-management/metadata/service/metadata.service";
 import {RecentQueriesComponent} from "./recent-queries.component";
@@ -17,8 +14,9 @@ import {Metadata} from "../../../domain/meta-data-management/metadata";
 })
 export class MetadataOverviewComponent implements OnInit {
 
-  @ViewChild('recentQueriesContainer', {read: ViewContainerRef})
-  recentQueriesContainer: ViewContainerRef;
+  @ViewChild(RecentQueriesComponent)
+  recentQueries: RecentQueriesComponent;
+
 
   @Input()
   public metadataId: string;
@@ -27,11 +25,7 @@ export class MetadataOverviewComponent implements OnInit {
 
   public isShowMoreCatalogs: boolean = false;
 
-  @Output()
-  public openRecentQuery = new EventEmitter();
-
-  constructor(private _metadataService: MetadataService,
-              private _resolver: ComponentFactoryResolver) {
+  constructor(private _metadataService: MetadataService) {
 
   }
 
@@ -50,7 +44,7 @@ export class MetadataOverviewComponent implements OnInit {
   }
 
   onClickSeeAllRecentQueries() {
-    this.openRecentQuery.emit();
+    this.recentQueries.init();
   }
 
 

@@ -37,7 +37,7 @@
         <!-- //info -->
         <!--<em class="ddp-icon-control-fav ddp-selected"></em>-->
         <div class="ddp-data-name">
-          by <span class="ddp-txt-name">{{metadata.createdBy.fullName}}</span>
+          by <span class="ddp-txt-name" (click)="onClickCreatedBy()">{{metadata.createdBy.fullName}}</span>
         </div>
       </div>
       <!-- //title -->
@@ -66,7 +66,7 @@
 
       <explore-metadata-overview
         *ngIf="selectedTab === 0"
-        [metadataId]="metadata.id" (openRecentQuery)="onOpenRecentQuery()">
+        [metadataId]="metadata.id">
       </explore-metadata-overview>
 
       <explore-metadata-columns
@@ -82,4 +82,4 @@
 
 </div>
 
-<ng-template #recentQueriesContainer></ng-template>
+<explore-workspace-uses></explore-workspace-uses>

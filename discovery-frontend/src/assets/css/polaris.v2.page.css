@@ -355,7 +355,7 @@ dl.ddp-dl-detail dd br {display:block; margin-top:5px;}
 .ddp-pop-preview:before {display:inline-block; content:''; position:fixed; left:0; right:0; bottom:0; top:0; background-color:rgba(208,209,216,0.5);}
 .ddp-pop-preview.ddp-pop-database em.ddp-icon-view {display:inline-block; position:absolute; top:66px; left:-8px; width:8px; height:12px; background:url(../images/icon_dataview.png) no-repeat; background-position:left -27px; z-index:3;}
 .ddp-pop-preview .ddp-ui-top {position:relative; height:38px; background-color:#4b515b; border:1px solid #4b515b;}
-.ddp-pop-preview .ddp-ui-top .ddp-data-name {position:relative; padding:10px 0 10px 15px;color:#fff; font-size:14px; font-weight:bold; }
+.ddp-pop-preview .ddp-ui-top .ddp-data-name {position:relative; padding:10px 30px 10px 15px;color:#fff; font-size:14px; font-weight:bold; }
 .ddp-pop-preview .ddp-ui-top .ddp-data-name.ddp-cut {padding-right:30px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 .ddp-pop-preview .ddp-ui-top .ddp-data-name .ddp-txt-detail {display:inline-block; margin-left:5px; font-weight:normal; font-size:13px;}
 .ddp-pop-preview .ddp-ui-top .ddp-data-name em.ddp-icon-database-s2 {margin-right:5px;}
@@ -366,6 +366,8 @@ dl.ddp-dl-detail dd br {display:block; margin-top:5px;}
 .ddp-pop-preview .ddp-ui-top .ddp-data-name .ddp-link-top {float:right; margin-right:38px; color:#d0d1d8; font-size:13px; text-decoration: underline; font-weight:normal;}
 .ddp-pop-preview .ddp-ui-top .ddp-data-name .ddp-link-top:hover {color:#fff;}
 .ddp-pop-preview .ddp-ui-top .ddp-data-name em.ddp-icon-scheme {position:relative; margin-right:5px;}
+.ddp-pop-preview .ddp-ui-top .ddp-data-name .ddp-data-info {display:inline-block; margin-left:10px;  color:#90969f; font-size:12px; font-weight:normal;}
+.ddp-pop-preview .ddp-ui-top .ddp-data-name .ddp-data-info .ddp-icon-info {display:inline-block; width:13px; height:13px; margin-right:4px; background:url(../images/icon_info.png) no-repeat; background-position:left -30px}
 .ddp-pop-preview .ddp-ui-top em.ddp-icon-database,
 .ddp-pop-preview .ddp-ui-top em.ddp-icon-database2 {display:inline-block; width:12px; height:14px; margin-right:5px; background:url(../images/icon_database.png) no-repeat; background-position:-26px top; vertical-align: middle;}
 
@@ -400,6 +402,7 @@ dl.ddp-dl-detail dd br {display:block; margin-top:5px;}
 
 .ddp-ui-preview-contents table.ddp-table-type2 tbody tr:hover td {background-color:#f2f1f9;}
 .ddp-ui-preview-contents table.ddp-table-form tbody tr td .ddp-txt-long {font-size:14px;}
+.ddp-ui-preview-contents table.ddp-table-form tbody tr td .ddp-txt-long.ddp-type-button .ddp-txt-name {display:block; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; margin-top:6px;}
 .ddp-ui-preview-contents .ddp-table-header {padding-right:18px;}
 .ddp-ui-preview-contents .ddp-table-tbody {position:absolute; top:29px; left:0; right:0; bottom:0; overflow-y:scroll; border-top:1px solid #e9e9ec;}
 .ddp-ui-preview-contents .ddp-col-table {position:relative; height:100%; border-left:1px solid #ddd;}
