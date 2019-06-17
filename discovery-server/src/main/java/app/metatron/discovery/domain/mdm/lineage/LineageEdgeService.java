@@ -33,10 +33,10 @@ public class LineageEdgeService {
   }
 
   @Transactional(rollbackFor = Exception.class)
-  public LineageEdge createEdge(String desc, String fromMetaId, String toMetaId) throws Exception {
+  public LineageEdge createEdge(String fromMetaId, String toMetaId, String description) throws Exception {
     LOGGER.trace("createEdge(): start");
 
-    LineageEdge lineageEdge = new LineageEdge(desc, fromMetaId, toMetaId);
+    LineageEdge lineageEdge = new LineageEdge(fromMetaId, toMetaId, description);
     edgeRepository.saveAndFlush(lineageEdge);
 
     LOGGER.trace("createEdge(): end");
@@ -77,10 +77,10 @@ public class LineageEdgeService {
     // We are not interested the downstreams of any upstreams. Vice versa.
     for (LineageEdge edge : edges) {
       if (upward) {
-        newNode = new LineageMapNode(edge.getFromMetaId());
+        newNode = new LineageMapNode(edge.getFromMetaId(), edge.getDescription());
         node.getFromMapNodes().add(newNode);
       } else {
-        newNode = new LineageMapNode(edge.getToMetaId());
+        newNode = new LineageMapNode(edge.getToMetaId(), edge.getDescription());
         node.getToMapNodes().add(newNode);
       }
 

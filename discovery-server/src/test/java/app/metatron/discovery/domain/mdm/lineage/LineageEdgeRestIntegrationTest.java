@@ -89,11 +89,11 @@ public class LineageEdgeRestIntegrationTest extends AbstractRestIntegrationTest 
     return readResponse.jsonPath().getMap("");
   }
 
-  private void createLineageEdge(String desc, String upstreamId, String downstreamId) {
+  private void createLineageEdge(String fromMetaId, String toMetaId, String description) {
     Map<String, Object> request = Maps.newHashMap();
-    request.put("desc", desc);
-    request.put("upstreamId", upstreamId);
-    request.put("downstreamId", downstreamId);
+    request.put("fromMetaId", fromMetaId);
+    request.put("toMetaId", toMetaId);
+    request.put("description", description);
 
     // @formatter:off
     Response createRes =
@@ -168,8 +168,8 @@ public class LineageEdgeRestIntegrationTest extends AbstractRestIntegrationTest 
 
     TestUtils.printTestTitle("2. Create lineage edges");
 
-    createLineageEdge("CREATE TABLE AS SELECT * FROM mdm_test_jdbc", metaId1, metaId2);
-    createLineageEdge("Druid ingestion with Hive Table", metaId2, metaId3);
+    createLineageEdge(metaId1, metaId2, "CREATE TABLE AS SELECT * FROM mdm_test_jdbc");
+    createLineageEdge(metaId2, metaId3, "Druid ingestion with Hive Table");
 
     TestUtils.printTestTitle("3. list lineage edges");
 

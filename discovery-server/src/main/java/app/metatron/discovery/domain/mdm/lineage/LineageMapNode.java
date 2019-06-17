@@ -20,6 +20,7 @@ import java.util.List;
 
 public class LineageMapNode implements Serializable {
   private String metaId;
+  private String description;
 
   private List<LineageMapNode> fromMapNodes;
   private List<LineageMapNode> toMapNodes;
@@ -28,6 +29,7 @@ public class LineageMapNode implements Serializable {
 
   public LineageMapNode() {
     metaId = null;
+    description = null;
     fromMapNodes = new ArrayList();
     toMapNodes = new ArrayList();
     circuit = false;
@@ -38,12 +40,25 @@ public class LineageMapNode implements Serializable {
     this.metaId = metaId;
   }
 
+  public LineageMapNode(String metaId, String description) {
+    this(metaId);
+    this.description = description;
+  }
+
   public String getMetaId() {
     return metaId;
   }
 
   public void setMetaId(String metaId) {
     this.metaId = metaId;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 
   public List<LineageMapNode> getFromMapNodes() {
@@ -76,6 +91,7 @@ public class LineageMapNode implements Serializable {
   public String toString() {
     return "LineageMapNode{" +
         "metaId='" + metaId + '\'' +
+        ", description=" + description +
         ", fromMapNodes=" + fromMapNodes +
         ", toMapNodes=" + toMapNodes +
         ", circuit=" + circuit +
