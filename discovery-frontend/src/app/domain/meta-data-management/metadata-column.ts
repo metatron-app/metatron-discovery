@@ -47,8 +47,12 @@ export class MetadataColumn {
   // Value to be used only on View
   ////////////////////////////////////////////////////////////////////////////
 
+  public static isGeoColumn(metadataColumn: MetadataColumn) {
+    return metadataColumn.type === Type.Logical.GEO_POLYGON || metadataColumn.type === Type.Logical.GEO_POINT || metadataColumn.type === Type.Logical.GEO_LINE;
+  }
+
   public static isTypeIsTimestamp(metadataColumn: MetadataColumn) {
-    return metadataColumn.type === Type.Logical.TIMESTAMP
+    return metadataColumn.type === Type.Logical.TIMESTAMP;
   }
 
   /**
@@ -56,7 +60,7 @@ export class MetadataColumn {
    */
   public static isTimestampColumn(metadataColumn: MetadataColumn) {
     return metadataColumn.role === Type.Role.TIMESTAMP
-      && metadataColumn.type === Type.Logical.TIMESTAMP
+      && metadataColumn.type === Type.Logical.TIMESTAMP;
   }
 
   /**

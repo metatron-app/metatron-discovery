@@ -1,0 +1,113 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- tab contents -->
+<div class="ddp-ui-tab-contents">
+  <!-- guide message -->
+  <div class="ddp-box-message" *ngIf="isDatasourceTypeMetadata() && isLinkedSourceType()">
+    <!-- if only linked source -->
+    <div class="ddp-box-synch type-info">
+      <div class="ddp-txt-synch">
+        <em class="ddp-icon-info"></em>
+        {{'msg.storage.ui.linked.source.preview' | translate}}
+      </div>
+    </div>
+    <!-- //if only linked source -->
+    <!-- if linked source include geo type-->
+    <div class="ddp-box-synch type-info" *ngIf="isExistCreatedField">
+      <div class="ddp-txt-synch">
+        <em class="ddp-icon-info"></em>
+        {{'msg.storage.ui.linked.source.preview.include.geo' | translate}}
+      </div>
+    </div>
+    <!-- //if linked source include geo type-->
+  </div>
+  <!-- //guide message -->
+  <!-- datagrid -->
+  <div class="ddp-datagrid">
+    <!-- option -->
+    <div class="ddp-ui-option ddp-clear" *ngIf="isEnableFilter">
+      <div class="ddp-wrap-edit">
+        <!-- search -->
+        <component-input
+          [compType]="'search'"
+          [showClear]="true"
+          [value]="searchTextKeyword"
+          [placeHolder]="'msg.storage.ui.search.data' | translate"
+          (changeValue)="onChangeSearchTextKeyword($event)">
+        </component-input>
+        <!-- //search -->
+      </div>
+      <!-- role filter -->
+      <div class="ddp-wrap-edit" *ngIf="isDatasourceTypeMetadata()">
+        <label class="ddp-label-type">{{'msg.comm.th.role' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option ddp-inline">
+          <div class="ddp-ui-option-in">
+            <label class="ddp-label-radio" *ngFor="let type of roleTypeFilterList">
+              <input type="radio"
+                     (change)="onChangeRoleFilter(type)"
+                     [checked]="selectedRoleTypeFilter.value === type.value">
+              <i class="ddp-icon-radio"></i>
+              <span class="ddp-txt-radio">{{type.label}}</span>
+            </label>
+          </div>
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //role filter -->
+
+      <!-- type filter -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{'msg.storage.ui.type' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option">
+          <!-- selectbox -->
+          <!-- 선택시 : ddp-selected 추가 -->
+          <storage-filter-select-box
+            [filterList]="logicalTypeFilterList"
+            [selectedFilter]="selectedLogicalTypeFilter"
+            [isEnableIcon]="true"
+            (changedFilter)="onChangeTypeFilter($event)"></storage-filter-select-box>
+          <!-- //selectbox -->
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- type filter -->
+      <div class="ddp-reset">
+        <a href="javascript:" class="ddp-btn-reset3" (click)="onClickResetFilter()"></a>
+      </div>
+      <!-- right -->
+      <div class=" ddp-fright">
+        <div class="ddp-data-form">
+          <input type="text" class="ddp-data-input"
+                 [(ngModel)]="gridDataLimit" (keyup.enter)="onChangeGridDataLimit()"
+                 input-mask="number">
+          {{'msg.storage.ui.row' | translate}}
+        </div>
+        <a href="javascript:" class="ddp-btn-bg" (click)="onClickCsvDownload()"><em class="ddp-icon-link-down"></em>{{'msg.log.btn.download.csv' | translate}}</a>
+      </div>
+      <!-- //right -->
+    </div>
+    <!-- //option -->
+    <!-- fix grid -->
+    <div class="ddp-fix-grid meta-grid-type" grid-component
+         [class.meta-grid]="isDatasourceTypeMetadata()" [class.ddp-msg-info1]="isDatasourceTypeMetadata() && !isExistCreatedField" [class.ddp-msg-info2]="isDatasourceTypeMetadata() && isExistCreatedField"
+         (onHeaderRowCellRendered)="extendGridHeader($event)">
+    </div>
+    <!-- //fix grid -->
+  </div>
+  <!-- //datagrid -->
+</div>
+<!-- //tab contents -->

@@ -157,6 +157,14 @@ export class MetadataService extends AbstractService {
     return this.get(this.URL_METADATA + `/tags`);
   }
 
+  public getMetadataSampleData(metadataId: string, limit: number = 50) {
+    return this.get(this.URL_METADATA + '/' + metadataId + '/data?limit=' + limit);
+  }
+
+  public getDownloadMetadataSampleData(metadataId: string, fileName: string, limit: number = 50) {
+    return this.get(this.URL_METADATA + '/' + metadataId + '/data/download?limit=' + limit + '&fileName=' + fileName);
+  }
+
   /**
    * 데이터 소스에 대한 메타데이터 조회
    * @param {string} sourceId

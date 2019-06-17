@@ -64,6 +64,14 @@ export class Datasource extends AbstractHistoryEntity {
   public static getConnection(datasource: Datasource) {
     return datasource.connection || datasource.ingestion.connection;
   }
+
+  public static isLinkedDatasource(datasource: Datasource): boolean {
+    return datasource.connType === ConnectionType.LINK;
+  }
+
+  public static isEngineDatasource(datasource: Datasource): boolean {
+    return datasource.connType === ConnectionType.ENGINE;
+  }
 }
 
 export class DataSourceSummary {
