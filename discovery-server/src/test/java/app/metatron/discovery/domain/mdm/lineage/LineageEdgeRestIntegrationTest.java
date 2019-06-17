@@ -180,6 +180,13 @@ public class LineageEdgeRestIntegrationTest extends AbstractRestIntegrationTest 
 
     Map<String, Object> lineageMap = getLineageMap(metaId2);
     System.out.print(lineageMap);
+
+    TestUtils.printTestTitle("4. Test a circuit");
+
+    createLineageEdge(metaId3, metaId1, "Preparation snapshot from Druid JDBC to a Hive table");
+
+    lineageMap = getLineageMap(metaId3);
+    System.out.print(lineageMap);
   }
 }
 

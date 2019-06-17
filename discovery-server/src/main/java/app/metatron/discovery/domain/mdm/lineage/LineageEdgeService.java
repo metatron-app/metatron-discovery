@@ -86,6 +86,7 @@ public class LineageEdgeService {
 
       if (visitedMetaIds.contains(newNode.getMetaId())) {
         newNode.setCircuit(true);
+        continue;
       } else {
         visitedMetaIds.add(newNode.getMetaId());
       }
