@@ -43,21 +43,41 @@ import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataCo
 import static java.util.stream.Collectors.toList;
 
 /**
- *
+ * The type Abstract jdbc data accessor.
  */
 public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJdbcDataAccessor.class);
 
+  /**
+   * The Connection info.
+   */
   protected JdbcConnectInformation connectionInfo;
+  /**
+   * The Connector.
+   */
   protected JdbcConnector connector;
+  /**
+   * The Dialect.
+   */
   protected JdbcDialect dialect;
+  /**
+   * The Connection.
+   */
   protected Connection connection;
 
+  /**
+   * Instantiates a new Abstract jdbc data accessor.
+   */
   public AbstractJdbcDataAccessor(){
 
   }
 
+  /**
+   * Gets connection info.
+   *
+   * @return the connection info
+   */
   public JdbcConnectInformation getConnectionInfo() {
     return connectionInfo;
   }
@@ -67,6 +87,11 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
     this.connectionInfo = connectionInfo;
   }
 
+  /**
+   * Gets connector.
+   *
+   * @return the connector
+   */
   public JdbcConnector getConnector() {
     return connector;
   }
@@ -112,6 +137,11 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
     this.connection = connection;
   }
 
+  /**
+   * Get exclude schemas list.
+   *
+   * @return the list
+   */
   public List<String> getExcludeSchemas(){
     List<String> excludeSchemaList = null;
     if(connectionInfo.getPropertiesMap() != null
@@ -133,6 +163,11 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
     return excludeSchemaList;
   }
 
+  /**
+   * Get exclude tables list.
+   *
+   * @return the list
+   */
   public List<String> getExcludeTables(){
     List<String> excludeTableList = null;
     if(connectionInfo.getPropertiesMap() != null
@@ -154,6 +189,14 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
     return excludeTableList;
   }
 
+  /**
+   * Create page info map map.
+   *
+   * @param size          the size
+   * @param totalElements the total elements
+   * @param page          the page
+   * @return the map
+   */
   protected Map<String, Integer> createPageInfoMap(int size, int totalElements, int page) {
     Map<String, Integer> pageInfoMap = new HashMap<>();
     pageInfoMap.put("size", size);
@@ -573,6 +616,13 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
     }
   }
 
+  /**
+   * Convert value to required type object.
+   *
+   * @param value        the value
+   * @param requiredType the required type
+   * @return the object
+   */
   protected Object convertValueToRequiredType(Object value, Class<?> requiredType) {
     if (String.class == requiredType) {
       return value.toString();
