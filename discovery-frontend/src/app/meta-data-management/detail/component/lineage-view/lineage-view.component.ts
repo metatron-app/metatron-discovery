@@ -288,13 +288,17 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
       if( this.lineageDepth <= node.positionX ) { this.lineageDepth = node.positionX + 1; }
       if( this.lineageHeight <= node.positionY ) { this.lineageHeight = node.positionY + 1; }
-
       node.value = [node.positionX,node.positionY];
 
       node.category = 0;
       node.symbol = this.symbolInfo['CSV']['SELECTED'];
       node.symbolSize = [50,50];
       node.symbolOffset = [0,0];
+
+      /* main node */
+      if( node.metadataId === this.metaDataModelService.getMetadata().id ) {
+        node.symbolSize = [70,70];
+      }
 
       return node;
     });
