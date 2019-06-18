@@ -179,7 +179,8 @@ public class DfJoin extends DataFrame {
         break;
       case OUTER:
         leftOuter = true;
-        rightOuter = true; break;
+        rightOuter = true;
+        break;
       default:
         break;
     }
