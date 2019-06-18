@@ -4061,6 +4061,7 @@
   "msg.metadata.ui.list" : "There is <strong>{{value}}</strong> list",
   "msg.metadata.th.information" : "Information",
   "msg.metadata.th.col-schema" : "Column schema",
+  "msg.metadata.th.lineage-view" : "Lineage View",
   "msg.metadata.ui.name.ph" : "Please enter metadata name",
   "msg.metadata.btn.delete.md" : "Delete this metadata",
   "msg.metadata.ui.no.description" : "No description",

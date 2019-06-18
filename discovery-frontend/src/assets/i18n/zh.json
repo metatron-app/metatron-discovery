@@ -3118,6 +3118,7 @@
   "msg.metadata.ui.list": "有<strong>{{value}}</strong>个数据",
   "msg.metadata.th.information": "Information",
   "msg.metadata.th.col-schema": "Column schema",
+  "msg.metadata.th.lineage-view" : "Lineage View",
   "msg.metadata.ui.name.ph": "请输入元数据名",
   "msg.metadata.btn.delete.md": "删除元数据",
   "msg.metadata.ui.no.description": "无说明",
