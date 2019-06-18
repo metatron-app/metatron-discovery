@@ -139,12 +139,12 @@ polaris:
     maxFetchSize: 1000             # Fetch size when loading sql results, only applies to supported db libarary
     tempCSVPath: /tmp              # Specify a directory to temporarily store query results
   dataprep:
-    localBaseDir: ${user.home}/dataprep
-    hadoopConfDir: /etc/hadoop
-    stagingBaseDir: hdfs://localhost:9000/user/hive/dataprep
+    localBaseDir: ${user.home}/dataprep                       # Where uploaded files, local file snapshots, serialized previews are stored
+    hadoopConfDir: /etc/hadoop                                # Set $HADOOP_CONF_DIR
+    stagingBaseDir: hdfs://localhost:9000/user/hive/dataprep  # Where uploaded files, HDFS file snapshots, files for Hive external tables are stored
     sampling:
-      timeout: 20
+      timeout: 20       # Timeout for rule edit sessions
     etl:
-      timeout: 36000
+      timeout: 36000    # Timeout for generating snapshots
 ----
 
