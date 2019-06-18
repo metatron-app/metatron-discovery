@@ -1,11 +1,8 @@
-<a href="javascript:" class="ddp-ui-banner-link {{bannerClass}}" (click)="onClickBanner()">
+<a href="javascript:" class="{{bannerClass}}" (click)="onClickBanner()">
   <div class="ddp-banner-title"><em class="{{iconClass}}"></em>{{title}}</div>
-  <div class="ddp-txt-detail" *ngIf="isEnableDescription">
-    {{description}}
-  </div>
+  <div class="ddp-txt-detail" *ngIf="isEnableDescription" [innerHTML]="description"></div>
   <div class="ddp-banner-tags" *ngIf="isEnableTag">
     <span class="ddp-tags" *ngFor="let tag of tagList" (click)="onClickTag(tag)"># {{tag}}</span>
   </div>
 </a>
-
 

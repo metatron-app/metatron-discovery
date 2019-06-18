@@ -1,5 +1,7 @@
 import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
 import {AbstractComponent} from "../../../common/component/abstract.component";
+import * as _ from "lodash";
+import {StringUtil} from "../../../common/util/string.util";
 
 @Component({
   selector: 'component-banner',
@@ -14,9 +16,6 @@ export class BannerComponent extends AbstractComponent {
   @Input() readonly title: string;
   @Input() readonly description: string;
   @Input() readonly tagList;
-  // option
-  @Input() readonly isEnableDescription: boolean;
-  @Input() readonly isEnableTag: boolean;
   // event
   @Output() readonly clickedBanner = new EventEmitter();
   @Output() readonly clickedTag = new EventEmitter();
@@ -27,12 +26,19 @@ export class BannerComponent extends AbstractComponent {
   }
 
   onClickBanner() {
-    // TODO check bubbling
     this.clickedBanner.emit();
   }
 
   onClickTag(tag) {
-    // TODO check bubbling
+    event.stopImmediatePropagation();
     this.clickedTag.emit(tag);
+  }
+
+  isEnableTag(): boolean {
+    return !_.isNil(this.tagList) && this.tagList.length !== 0;
+  }
+
+  isEnableDescription(): boolean {
+    return StringUtil.isNotEmpty(this.description);
   }
 }

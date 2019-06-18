@@ -37,6 +37,8 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
 
   public selectedMetadata: Metadata;
 
+  isFoldingNavigation: boolean;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -77,6 +79,10 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     else if($(window).scrollTop() === 0) {
       $('.ddp-layout-contents').removeClass('ddp-scroll');
     }
+  }
+
+  onChangeFoldingNavigation(): void {
+    this.isFoldingNavigation = !this.isFoldingNavigation;
   }
 
   public onClickMetadata(metadata: Metadata) {

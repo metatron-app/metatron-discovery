@@ -30,7 +30,6 @@ import {DatasourceService} from "../datasource/service/datasource.service";
 import {TimezoneService} from "../data-storage/service/timezone.service";
 import {BannerComponent} from "./explore-data/component/banner.component";
 import {CardComponent} from "./explore-data/component/card.component";
-import {CardWrapComponent} from "./explore-data/component/card-wrap.component";
 import {CodeTableService} from "../meta-data-management/code-table/service/code-table.service";
 import {ExploreDataMainComponent} from "./explore-data/explore-data-main.component";
 
@@ -47,7 +46,6 @@ import {ExploreDataMainComponent} from "./explore-data/explore-data-main.compone
   declarations: [
     BannerComponent,
     CardComponent,
-    CardWrapComponent,
     ExploreDataComponent,
     FavoriteDataComponent,
     FavoriteCreatorComponent,

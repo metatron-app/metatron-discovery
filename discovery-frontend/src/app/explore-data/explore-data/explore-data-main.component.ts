@@ -15,6 +15,8 @@
 import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
 import {AbstractComponent} from '../../common/component/abstract.component';
 import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
+import * as _ from "lodash";
+import {StringUtil} from "../../common/util/string.util";
 
 @Component({
   selector: 'explore-data-main',
@@ -46,6 +48,14 @@ export class ExploreDataMainComponent extends AbstractComponent {
   ngOnInit() {
     super.ngOnInit();
     this.setMetadataList();
+  }
+
+  isEnableTag(metadata): boolean {
+    return !_.isNil(metadata.tags) && metadata.tags.length !== 0;
+  }
+
+  isEnableDescription(metadata): boolean {
+    return StringUtil.isNotEmpty(metadata.description);
   }
 
   setMetadataList() {

@@ -47,10 +47,7 @@
     <!-- //search -->
   </div>
   <!-- //top -->
-  <!--
-      ddp-close 추가시 닫힘
-  -->
-  <div class="ddp-view-catalog ">
+  <div class="ddp-view-catalog" [class.ddp-close]="isFoldingNavigation">
     <!-- catalogs -->
     <div class="ddp-wrap-catalogs ">
       <div class="ddp-wrap-tabs ddp-clear">
@@ -63,7 +60,7 @@
       <!-- //tab -->
       <div class="ddp-wrap-folding">
         <!-- 폴딩 -->
-        <a href="#" class="ddp-btn-folding ddp-hover-tooltip">
+        <a href="javascript:" class="ddp-btn-folding ddp-hover-tooltip" (click)="onChangeFoldingNavigation()">
           <!-- tooltip -->
           <div class="ddp-ui-tooltip-info ddp-down">
             <em class="ddp-icon-view-top"></em>
@@ -76,11 +73,11 @@
       <div class="ddp-wrap-tab-contents">
         <div class="ddp-ui-tab-contents">
           <!-- search -->
-<!--          <div class="ddp-ui-searching">-->
-<!--            <em class="ddp-icon-search"></em>-->
+          <div class="ddp-ui-searching">
+            <em class="ddp-icon-search"></em>
 
-<!--            <input type="text" placeholder="Search">-->
-<!--          </div>-->
+            <input type="text" placeholder="Search">
+          </div>
           <!-- //search -->
           <div class="ddp-ui-catalog-contents">
             <!-- favorite -->

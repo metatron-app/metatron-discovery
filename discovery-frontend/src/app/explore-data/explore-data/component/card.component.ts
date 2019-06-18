@@ -1,5 +1,7 @@
 import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
 import {AbstractComponent} from "../../../common/component/abstract.component";
+import * as _ from "lodash";
+import {StringUtil} from "../../../common/util/string.util";
 
 @Component({
   selector: 'component-card',
@@ -15,10 +17,6 @@ export class CardComponent extends AbstractComponent {
   @Input() readonly tagList;
   @Input() readonly popularity: number;
   @Input() readonly creator: string;
-  // option
-  @Input() readonly isEnableDescription: boolean;
-  @Input() readonly isEnableTag: boolean;
-  @Input() readonly isEnablePopularity: boolean;
   // event
   @Output() readonly clickedCard = new EventEmitter();
   @Output() readonly clickedTag = new EventEmitter();
@@ -35,5 +33,17 @@ export class CardComponent extends AbstractComponent {
   onClickTag(tag) {
     event.stopImmediatePropagation();
     this.clickedTag.emit(tag);
+  }
+
+  isEnableTag(): boolean {
+    return !_.isNil(this.tagList) && this.tagList.length !== 0;
+  }
+
+  isEnableDescription(): boolean {
+    return StringUtil.isNotEmpty(this.description);
+  }
+
+  isEnablePopularity(): boolean {
+    return !_.isNil(this.popularity);
   }
 }

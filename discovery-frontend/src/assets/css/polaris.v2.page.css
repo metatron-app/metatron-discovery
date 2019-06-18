@@ -8307,6 +8307,8 @@ ddp-wrap-meatadata {width:600px; margin:0 auto 0 auto; text-align:left;}
 .ddp-ui-searching .ddp-icon-search {display:inline-block; position:absolute; top:50%; left:11px; margin-top:-9px;  width:20px; height:19px; background:url(../images/btn_search.png) no-repeat;}
 .ddp-ui-searching input {display:block; width:100%; padding:8px 0; border:none; color:#666db7; font-size:14px; line-height:21px; background:none;}
 .ddp-ui-catalog-contents {position:absolute; top:114px; left:0; right:0;bottom:0; overflow:auto;}
+.ddp-ui-catalog-contents.ddp-type {top:38px}
+.ddp-ui-catalog-contents.ddp-type .ddp-ui-favorite {border-top:none}
 .ddp-ui-favorite {border-top:4px solid #f0eff7;}
 .ddp-ui-favorite .ddp-ui-label {padding:14px 18px 10px 18px;color:#90969f;}
 .ddp-ui-favorite .ddp-ui-label .ddp-icon-favorite {display:inline-block; width:14px; height:13px; margin-right:4px; background:url(../images/icon_fav.png) no-repeat; background-position:left -44px; vertical-align:middle;}
