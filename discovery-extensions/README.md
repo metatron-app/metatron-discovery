@@ -130,12 +130,7 @@ Please refer to the sample below.
 </properties>
 ```
 
-### 2. Rename Extension Class
-Modify the name of the WelcomeConnectionExtension class as desired.
-(ex : CustomConnectionExtension.java)
-
-### 3 Add the desired JDBC Driver as dependency and specify DriverClass.
-- Add jdbc driver dependency
+- Add the desired JDBC Driver as dependency
 ```
 <dependencies>
     <dependency>
@@ -146,6 +141,11 @@ Modify the name of the WelcomeConnectionExtension class as desired.
 </dependencies>
 ```
 
+### 2. Rename Extension Class
+Modify the name of the WelcomeConnectionExtension class as desired.
+(ex : CustomConnectionExtension.java)
+
+### 3. Override methods of JdbcDialect interface that require modification.
 - Override methods of JdbcDialect interface that require modification.
 ```
 @Override
@@ -170,7 +170,7 @@ public InputSpec getInputSpec() {
 }
 
 @Override
-public String getConnectorClass(JdbcConnectInformation connectInfo) {
+public String getDriverClass(JdbcConnectInformation connectInfo) {
   return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 }
 
