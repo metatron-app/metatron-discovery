@@ -24,13 +24,62 @@ import java.util.Properties;
 import app.metatron.discovery.extension.dataconnection.jdbc.JdbcConnectInformation;
 import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 
+/**
+ * The interface Jdbc connector.
+ */
 public interface JdbcConnector {
 
+  /**
+   * Gets driver.
+   *
+   * @param connectionUrl   the connection url
+   * @param driverClassName the driver class name
+   * @return the driver
+   * @throws SQLException the sql exception
+   */
   Driver getDriver(String connectionUrl, String driverClassName) throws SQLException;
 
+  /**
+   * Gets connection.
+   *
+   * @param connection      the connection
+   * @param jdbcDialect     the jdbc dialect
+   * @param database        the database
+   * @param includeDatabase the include database
+   * @return the connection
+   */
   Connection getConnection(JdbcConnectInformation connection, JdbcDialect jdbcDialect, String database, boolean includeDatabase);
+
+  /**
+   * Gets connection.
+   *
+   * @param connection      the connection
+   * @param jdbcDialect     the jdbc dialect
+   * @param database        the database
+   * @param includeDatabase the include database
+   * @param username        the username
+   * @param password        the password
+   * @return the connection
+   */
   Connection getConnection(JdbcConnectInformation connection, JdbcDialect jdbcDialect, String database, boolean includeDatabase, String username, String password);
+
+  /**
+   * Gets connection.
+   *
+   * @param connectionUrl   the connection url
+   * @param properties      the properties
+   * @param driverClassName the driver class name
+   * @return the connection
+   * @throws SQLException the sql exception
+   */
   Connection getConnection(String connectionUrl, Properties properties, String driverClassName) throws SQLException;
 
+  /**
+   * Close connection.
+   *
+   * @param connection the connection
+   * @param stmt       the stmt
+   * @param rs         the rs
+   */
   void closeConnection(Connection connection, Statement stmt, ResultSet rs);
 }
