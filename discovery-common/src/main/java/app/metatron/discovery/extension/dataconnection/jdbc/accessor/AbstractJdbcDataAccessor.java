@@ -498,7 +498,9 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
       int columnCount = rsmd.getColumnCount();
       for (int i = 1; i <= columnCount; i++) {
         String columnName = rsmd.getColumnLabel(i);
-        Object columnObj = dialect.resultObjectConverter().apply(resultSet.getObject(i));
+        Object columnObj = dialect.resultObjectConverter() == null
+            ? resultSet.getObject(i)
+            : dialect.resultObjectConverter().apply(resultSet.getObject(i));
         rowMap.put(columnName, columnObj);
       }
       return rowMap;
@@ -522,7 +524,9 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
             Map<String, Object> rowMap = new LinkedHashMap<>();
             for (int i = 1; i <= columnCount; i++) {
               String columnName = rsmd.getColumnLabel(i);
-              Object columnObj = dialect.resultObjectConverter().apply(rs.getObject(i));
+              Object columnObj = dialect.resultObjectConverter() == null
+                  ? rs.getObject(i)
+                  : dialect.resultObjectConverter().apply(rs.getObject(i));
               rowMap.put(columnName, columnObj);
             }
             resultList.add((T) rowMap);
@@ -547,9 +551,13 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
         LOGGER.error("Execute Query For map result greater than 1");
         throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
                                               "Execute Query For map result greater than 1");
-      } else {
-        return resultList.get(0);
       }
+
+      if (resultList.size() < 1){
+        return null;
+      }
+
+      return resultList.get(0);
     } catch (Exception e) {
       throw e;
     }
