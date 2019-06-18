@@ -23,6 +23,7 @@
     <version>3.3.0-rc1</version>
 
     <modules>
+        <module>discovery-frontend</module>
         <module>discovery-server</module>
         <module>discovery-prep-parser</module>
         <module>discovery-common</module>
