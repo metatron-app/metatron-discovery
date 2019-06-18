@@ -23,7 +23,6 @@
     <version>3.3.0-rc1</version>
 
     <modules>
-        <module>discovery-frontend</module>
         <module>discovery-server</module>
         <module>discovery-prep-parser</module>
         <module>discovery-common</module>
@@ -56,9 +55,9 @@
         <tomcat.version>8.5.23</tomcat.version>
 
         <!-- SpringFramework -->
-        <hibernate.version>5.2.12.Final</hibernate.version>
-        <hibernate.search.version>5.5.5.Final</hibernate.search.version>
-        <lucene.version>5.3.1</lucene.version>
+        <hibernate.version>5.4.3.Final</hibernate.version>
+        <hibernate.search.version>5.11.1.Final</hibernate.search.version>
+        <lucene.version>5.5.5</lucene.version>
 
         <!-- Cache -->
         <infinispan.version>9.0.0.CR2</infinispan.version>
