@@ -25,8 +25,9 @@ spring:
     multipart: # Used to adjust the maximum size when uploading files
       max-file-size: 300Mb
       max-request-size: 300Mb
-  # The data source used by the application has the following default settings. 
+  # The default value is set according to the setting of the METATRON_DB_TYPE value(h2 or mysql) in metatron-env.sh.
   # If you want additional configuration, it is recommended to manage only connection pool or jpa related properties.
+  # If you want to set up a new data source type, you can change it from the 'platform' property.
   datasource:
     platform: mysql
     driver-class-name: com.mysql.jdbc.Driver
@@ -78,13 +79,14 @@ The application-related properties are prefixed with "polaris" and categorized b
 [source, yaml]
 ----
 polaris:
-  format: 
-    datetimes: # Specify a datetime format that is recommended when performing validation on a column of type timestamp.
+  format:
+    # Specify a datetime format that is recommended when performing validation on a column of type timestamp.
+    datetimes:
       - 'yy-MM-dd'
       - 'dd/MM/yyyy'
   storage:
-    # The stagedb concept is internally used as an intermediary processing medium when processing large amounts of 
-    # data when ingesting or trasforming data in an application. We are using hive and specify the information related to it.
+    # The stagedb concept is internally used as an intermediary processing medium when processing large amounts of data
+    # when ingesting or trasforming data in an application. We are using hive and specify the information related to it.
     stagedb: 
       hostname: localhost # for hiveserver
       port: 10000         # for hiveserver
@@ -97,16 +99,19 @@ polaris:
           username: hive
           password: hive
   engine:
-    hostname: # Specify representative access url by engine node, application requires only 3 nodes
+    # Specify representative access url by engine node, application requires only 3 nodes
+    hostname:
       broker: http://localhost:8082
       overlord: http://localhost:8090
       coordinator: http://localhost:8081
     ingestion:
-      loader: # Used when forwarding files from an application to an engine cluster when loading local files
+      # Used when forwarding files from an application to an engine cluster when loading local files
+      loader:
         remoteType: SSH # "LOCAL" is the default value, but if the engine is configured as a separate cluster, use "SSH" mode for remote communication.
         localBaseDir: ${java.io.tmpdir:-/tmp}
         remoteDir: ${java.io.tmpdir:-/tmp}
-        hosts: # Specifies the host information where the middle manager node is located.
+        # Specifies the host information where the middle manager node is located.
+        hosts:
           middlemanager01: # It must be the hostname recognized by the engine. Refer to the worker hostname on the engine console.
             port: 22
             username: metatron
@@ -125,15 +130,14 @@ polaris:
         delay: 3
         maxDelay: 90
         maxDuration : 3600
-  mail: # Additional information for mail notifications
-    admin: admin@metatron.com # Specify representative manager email
+  mail:                            # Additional information for mail notifications
+    admin: admin@metatron.com      # Specify representative manager email
     baseUrl: http://localhost:8180 # Specify connection url for linking metatron contents in mail
   workbench:
-    defaultResultSize: 1000
-    maxResultSize: 1000000
-    maxFetchSize: 1000
-    tempHdfsPath: /tmp/hive
-    tempCSVPath: /tmp
+    defaultResultSize: 1000        # Row mumber of results to display by default on the screen
+    maxResultSize: 1000000         # The maximum row number of results that a user can specify
+    maxFetchSize: 1000             # Fetch size when loading sql results, only applies to supported db libarary
+    tempCSVPath: /tmp              # Specify a directory to temporarily store query results
   dataprep:
     localBaseDir: ${user.home}/dataprep
     hadoopConfDir: /etc/hadoop
