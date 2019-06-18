@@ -4056,5 +4056,11 @@
   "msg.metadata.th.column.logical.tooltip.title" : "논리 컬럼 이름이란?",
   "msg.metadata.th.column.logical.tooltip.desc" : "논리 컬럼 이름은 메타트론에서 사용자가 일반적으로 사용하는 컬럼 이름입니다. 사용자의 비즈니스 용어 또는 인덱스를 생성할 때 논리 이름으로 지정됩니다 논리 컬럼 이름은 차트 또는 워크벤치를 작성할 때 메타트론에서 사용됩니다.",
   "msg.catalog.alert.catalog.already.exists" : "카달로그가 이미 있습니다",
-  "msg.catalog.alert.catalog.create.success" : "'{{value}}' 카달로그가 생성되었습니다."
+  "msg.catalog.alert.catalog.create.success" : "'{{value}}' 카달로그가 생성되었습니다.",
+
+  "msg.explore.ui.title" : "Explore Data",
+  "msg.explore.ui.tab.catalogs" : "Catalogs",
+  "msg.explore.ui.tab.tags" : "Tags",
+  "msg.explore.ui.list.recommended" : "Recommended for you",
+  "msg.explore.ui.list.popular" : "Popular data"
 }

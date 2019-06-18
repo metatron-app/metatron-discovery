@@ -2,7 +2,7 @@
   <!-- banner -->
         <div class="ddp-ui-banner">
           <div class="ddp-type-label">
-            Recommended for you
+           {{'msg.explore.ui.list.recommended' | translate}}
           </div>
           <div class="ddp-box-banner">
             <div class="ddp-banner-main">
@@ -34,7 +34,7 @@
     <!-- wrap box -->
     <div class="ddp-wrap-box">
       <div class="ddp-box-summary">
-        <div class="ddp-type-summary-label">Popular data</div>
+        <div class="ddp-type-summary-label">{{'msg.explore.ui.list.popular' | translate}}</div>
         <ul class="ddp-list-summary ddp-clear">
           <li *ngFor="let metadata of popularMetadataList">
             <component-card [imageClass]="'ddp-data-images type-hive'"

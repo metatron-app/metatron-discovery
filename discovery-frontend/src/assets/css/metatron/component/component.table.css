@@ -35,7 +35,6 @@ table.ddp-table-form tbody tr td .ddp-type-txt.ddp-info .ddp-status-rejected +  
 table.ddp-table-form tbody tr td .ddp-type-txt.ddp-info .ddp-ui-info .ddp-box-layout4 {display:none; position:absolute; left:-30px; top:100%; margin-top:6px;}
 table.ddp-table-form tbody tr td .ddp-type-txt.ddp-info .ddp-ui-info:hover .ddp-box-layout4 {display:block; white-space:normal;}
 
-
 table.ddp-table-form tbody tr td .ddp-wrap-long {display:inline-block; position:relative; padding-right:41px; max-width:100%; box-sizing:border-box;}
 
 table.ddp-table-form tbody tr td .ddp-wrap-long em.ddp-icon-new,
@@ -45,7 +44,6 @@ table.ddp-table-form tbody tr td .ddp-txt-long.ddp-info {display:inline-block; p
 table.ddp-table-form tbody tr td .ddp-txt-long .ddp-data-txt {text-overflow:ellipsis; overflow:hidden; white-space:nowrap;}
 table.ddp-table-form tbody tr td .ddp-txt-long .ddp-icon-global {display:none; position:absolute; top:2px; right:0; width:53px; padding:2px 2px 3px 2px;  text-align:center; border:1px solid #666eb2; border-radius:2px; background:#eff0f7; box-sizing:border-box;}
 table.ddp-table-form tbody tr td .ddp-txt-long .ddp-icon-global:before {display:inline-block; content:'전체공개'; color:#666eb2; font-size:11px; line-height:11px;}
-
 
 table.ddp-table-form tbody tr td .ddp-txt-long2 {display:inline-block; position:relative;max-width:100%; line-height:21px; height:21px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; word-wrap:normal; box-sizing:border-box;}
 table.ddp-table-form tbody tr td .ddp-txt-long {display:inline-block; position:relative;max-width:100%; line-height:21px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; word-wrap:normal; box-sizing:border-box; vertical-align:top;}
@@ -61,7 +59,7 @@ table.ddp-table-form tbody tr td .ddp-txt-long.ddp-global .ddp-icon-global {disp
 
 table.ddp-table-form tbody tr td .ddp-txt-long .ddp-tag-global.type-tag {float:right; position:relative; margin-top:-2px; right:0; margin-left:5px; width:auto; min-width:60px;}
 table.ddp-table-form tbody tr td .ddp-txt-long .ddp-data-long {display:block; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
-
+table.ddp-table-form tbody tr td .ddp-txt-long.ddp-type {overflow:initial;}
 table.ddp-table-form tr td .ddp-wrap-long .ddp-box-tag {position:relative; top:3px; margin-right:13px;}
 
 
@@ -111,7 +109,6 @@ table.ddp-table-form tbody tr.type-disabled td .ddp-ui-disabled:hover .ddp-ui-to
 .ddp-box-viewtable .ddp-ui-gridhead tr th {height:33px; box-sizing:border-box;}
 .ddp-box-viewtable .ddp-ui-gridbody {top:34px;}
 
-
 .ddp-ui-gridhead2 {padding-right:18px;  background-color:#f6f6f7;}
 .ddp-ui-gridbody2 {position:absolute; top:35px; left:0; right:0; bottom:0; overflow-y:scroll;}
 
@@ -119,8 +116,6 @@ table.ddp-table-form tbody tr.type-disabled td .ddp-ui-disabled:hover .ddp-ui-to
 .ddp-wrap-viewtable .ddp-box-add-link {margin-top:-1px; padding:13px 0; border:1px solid #b7b9c2;}
 .ddp-wrap-viewtable.ddp-type {padding-bottom:43px;}
 .ddp-box-viewtable.ddp-selected .ddp-ui-gridbody {bottom:45px;}
-
-
 
 /**************************************************************
 	Table form cursor, inherit
@@ -137,8 +132,6 @@ table.ddp-table-form.ddp-inherit tbody tr td {overflow:inherit; white-space:norm
 /**************************************************************
 	Table form 2
 **************************************************************/
-
-
 table.ddp-table-form2 {table-layout:fixed; width:100%; box-sizing:border-box;}
 table.ddp-table-form2 thead tr th {padding:5px 29px; font-size:12px; color:#90969f; text-align:left; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
 table.ddp-table-form2 tbody tr td {position:relative; padding:7px 29px; color:#4b515b; font-size:13px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; word-wrap:normal; box-sizing:border-box;}
@@ -147,6 +140,7 @@ table.ddp-table-form2.ddp-long tbody tr td {text-overflow:inherit; white-space:i
 table.ddp-table-form2 tbody tr td .ddp-data-note {color:#b7bac1; font-size:13px;}
 table.ddp-table-form2 tbody tr td.ddp-table-icons,
 table.ddp-table-form2 thead tr th.ddp-table-icons {padding:0; text-align:center;}
+
 /**************************************************************
 	Table type 2
 **************************************************************/
@@ -176,6 +170,7 @@ table.ddp-table-type2 tbody tr td.ddp-disabled > div {opacity:0.3;}
 table.ddp-table-type2 tbody tr td.ddp-input-form {cursor:pointer;}
 table.ddp-table-type2 tbody tr td.ddp-input-form:hover {background-color:#f1f1f3 !important;}
 table.ddp-table-type2 tbody tr td.ddp-input-form input.ddp-txt-input {display:block; position:relative; width:100%; height:100%; border:none; background:none; font-size:13px; box-sizing:border-box; z-index:10; cursor:pointer;}
+
 table.ddp-table-type2 tbody tr td .ddp-input-form.ddp-edit input.ddp-txt-input {padding-right:34px;}
 table.ddp-table-type2 tbody tr td .ddp-input-form.ddp-edit .ddp-icon-edit {display:none; position:absolute; top:50%; right:10px; margin-top:-6px;width:12px; height:12px; background:url(../../../images/icon_edit.png) no-repeat; }
 table.ddp-table-type2 tbody tr td .ddp-input-form.ddp-edit:hover .ddp-icon-edit {display:block;}
@@ -215,12 +210,16 @@ table.ddp-table-select tbody tr.ddp-selected td {border-top:1px solid #666eb2; b
 table.ddp-table-select tbody tr.ddp-selected td:first-of-type {border-left:1px solid #666eb2;}
 table.ddp-table-select tbody tr.ddp-selected td:last-of-type {border-right:1px solid #666eb2;}
 table.ddp-table-select tbody tr td .ddp-box-tag {position:relative; top:2px;}
+table.ddp-table-select tbody tr td .ddp-ui-checkbox,
+table.ddp-table-select tbody tr td .ddp-ui-radio {font-size:0; vertical-align:middle;}
 table.ddp-table-type2.ddp-table-select tbody tr.ddp-selected > td {padding:12px 10px 13px 10px}
 table.ddp-table-type2.ddp-table-select tbody tr.ddp-selected > td:first-of-type {padding-left:9px;}
+
 
 table.ddp-table-select tr td:last-of-type {padding-right:35px;}
 table.ddp-table-select tbody tr.ddp-selected td:first-child:before {border-left:1px solid #666eb2;}
 table.ddp-table-select tbody tr.ddp-selected td:last-child:before {border-right:1px solid #666eb2; }
+
 
 table.ddp-table-select tbody tr.ddp-selected td .ddp-box-tag {position:relative; top:2px;}
 
@@ -275,12 +274,9 @@ em.ddp-icon-array-des2 {display:inline-block; position:relative; top:-1px; width
 
 em.ddp-icon-array-default2:before,
 em.ddp-icon-array-asc2:before,
-em.ddp-icon-array-des2:before {display:inline-block; content:''; position:absolute; width:7px; height:9px; background:url(../../../images/icon_array.png) no-repeat; cursor: pointer;}
-em.ddp-icon-array-default2:before {top:5px; left:50%;margin-left:-4px;}
-em.ddp-icon-array-asc2:before {width:7px; height:4px; top:5px; left:50%; margin-left:-4px;}
-em.ddp-icon-array-des2:before {width:7px; height:4px;  top:10px; left:50%; margin-left:-4px; background-position:left -5px;}
-
-
+em.ddp-icon-array-des2:before {display:inline-block; content:''; position:absolute; width:7px; height:9px;top:5px; left:50%; margin-left:-4px;background:url(../../../images/icon_array.png) no-repeat; cursor: pointer;}
+em.ddp-icon-array-asc2:before {background-position:-16px top;}
+em.ddp-icon-array-des2:before {background-position:-8px top;}
 
 /**************************************************************
 	더보기 버튼
@@ -290,7 +286,11 @@ em.ddp-icon-array-des2:before {width:7px; height:4px;  top:10px; left:50%; margi
 .ddp-box-add-link:hover span.ddp-link-type {color:#4b515b; text-decoration: underline;}
 .ddp-box-add-link span.ddp-link-type em.ddp-icon-view {display:inline-block; width:7px; height:4px; margin-left:6px; background:url(../../../images/icon_selecview.png) no-repeat; background-position:-35px -7px; vertical-align: middle;}
 .ddp-box-add-link:hover span.ddp-link-type em.ddp-icon-view {background-position:left -7px;}
-
+.ddp-box-add-link.ddp-shadow {border:none; padding:14px 0; margin-top:10px;
+    -webkit-box-shadow: 0px 2px 2px 1px rgba(231,231,234,1);
+    -moz-box-shadow: 0px 2px 2px 1px rgba(231,231,234,1);
+    box-shadow: 0px 2px 2px 1px rgba(231,231,234,1);
+}
 .ddp-box-add-link2 {position:relative; padding:16px 0; margin-top:-1px; border-top:1px solid #b7b9c2; border-bottom:1px solid #b7b9c2; background-color:#fff; text-align:center; cursor:pointer; z-index:1;}
 .ddp-box-add-link2 span.ddp-link-type {font-size:13px; color:#90969f;}
 .ddp-box-add-link2:hover span.ddp-link-type {color:#4b515b; text-decoration: underline;}

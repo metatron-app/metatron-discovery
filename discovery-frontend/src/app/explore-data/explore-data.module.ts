@@ -32,6 +32,8 @@ import {BannerComponent} from "./explore-data/component/banner.component";
 import {CardComponent} from "./explore-data/component/card.component";
 import {CodeTableService} from "../meta-data-management/code-table/service/code-table.service";
 import {ExploreDataMainComponent} from "./explore-data/explore-data-main.component";
+import {CatalogFolderComponent} from "./explore-data/component/catalog-folder.component";
+import {ExploreCatalogMainComponent} from "./explore-data/explore-catalog-main.component";
 
 @NgModule({
   imports: [
@@ -46,6 +48,7 @@ import {ExploreDataMainComponent} from "./explore-data/explore-data-main.compone
   declarations: [
     BannerComponent,
     CardComponent,
+    CatalogFolderComponent,
     ExploreDataComponent,
     FavoriteDataComponent,
     FavoriteCreatorComponent,
@@ -55,7 +58,8 @@ import {ExploreDataMainComponent} from "./explore-data/explore-data-main.compone
     MetadataSampleDataComponent,
     RecentQueriesComponent,
     WorkspaceUsesComponent,
-    ExploreDataMainComponent
+    ExploreDataMainComponent,
+    ExploreCatalogMainComponent
   ],
   providers: [MetadataService,DatasourceService,TimezoneService, CodeTableService],
 })

@@ -37,7 +37,12 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
 
   public selectedMetadata: Metadata;
 
+  mode: ExploreMode = ExploreMode.MAIN;
+
   isFoldingNavigation: boolean;
+
+  // enum
+  readonly EXPLORE_MODE = ExploreMode;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -81,6 +86,11 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     }
   }
 
+  onChangeTab() {
+    // TODO 임시
+    this.mode = ExploreMode.MAIN;
+  }
+
   onChangeFoldingNavigation(): void {
     this.isFoldingNavigation = !this.isFoldingNavigation;
   }
@@ -105,4 +115,9 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+}
+
+enum ExploreMode {
+  MAIN = 'MAIN',
+  CATALOG = 'CATALOG'
 }

@@ -1,0 +1,14 @@
+<li [class.ddp-open]="isOpened">
+  <a href="javascript:" class="ddp-depth">
+    <em class="ddp-view" (click)="onChangeFolderOpen()"></em>
+    <div class="ddp-txt-link">
+      <em class="ddp-icon-folder"></em>
+      <span class="ddp-txt-search">사업</span> sub2
+    </div>
+  </a>
+  <!-- sub catalog -->
+  <ul>
+    <component-catalog-folder></component-catalog-folder>
+  </ul>
+  <!-- //sub catalog -->
+</li>

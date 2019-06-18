@@ -3,7 +3,7 @@
   <!-- top -->
   <div class="ddp-ui-contents-top ">
     <div class="ddp-ui-title">
-      Explore Data
+      {{'msg.explore.ui.title' | translate}}
     </div>
     <!-- tag -->
     <div class="ddp-ui-tag">
@@ -53,7 +53,7 @@
       <div class="ddp-wrap-tabs ddp-clear">
         <ul class="ddp-ui-tab ddp-type">
           <li class="ddp-selected">
-            <a href="javascript:">Catalogs</a>
+            <a href="javascript:">{{'msg.explore.ui.tab.catalogs' | translate}}</a>
           </li>
         </ul>
       </div>
@@ -73,67 +73,68 @@
       <div class="ddp-wrap-tab-contents">
         <div class="ddp-ui-tab-contents">
           <!-- search -->
-          <div class="ddp-ui-searching">
-            <em class="ddp-icon-search"></em>
+<!--          <div class="ddp-ui-searching">-->
+<!--            <em class="ddp-icon-search"></em>-->
 
-            <input type="text" placeholder="Search">
-          </div>
+<!--            <input type="text" placeholder="Search">-->
+<!--          </div>-->
           <!-- //search -->
           <div class="ddp-ui-catalog-contents">
             <!-- favorite -->
-            <div class="ddp-ui-favorite">
-              <div class="ddp-ui-label"><em class="ddp-icon-favorite"></em>Favorite</div>
-              <ul class="ddp-list-favorite">
-                <li>
-                  <a href="javascript:">
-                    <em class="ddp-icon-folder-type"></em>
-                    <div class="ddp-data-txt">
-                                                    <span class="ddp-data-navi">
-                                                        Abc사업부 > ABbde팀 > ABC파트Abc사업부 > ABbde팀 > ABC파트Abc사업부 > ABbde팀 > ABC파트
-                                                    </span>
-                      <span class="ddp-data-name">A 사업부</span>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a href="javascript:">
-                    <em class="ddp-icon-folder"></em>
-                    <div class="ddp-data-txt">
-                                                    <span class="ddp-data-navi">
-                                                        Abc사업부 > ABbde팀 > ABC파트Abc사업부 > ABbde팀 > ABC파트Abc사업부 > ABbde팀 > ABC파트
-                                                    </span>
-                      <span class="ddp-data-name">A 사업부</span>
-                    </div>
-                  </a>
-                </li>
-              </ul>
-            </div>
+<!--            <div class="ddp-ui-favorite">-->
+<!--              <div class="ddp-ui-label"><em class="ddp-icon-favorite"></em>Favorite</div>-->
+<!--              <ul class="ddp-list-favorite">-->
+<!--                <li>-->
+<!--                  <a href="javascript:">-->
+<!--                    <em class="ddp-icon-folder-type"></em>-->
+<!--                    <div class="ddp-data-txt">-->
+<!--                                                    <span class="ddp-data-navi">-->
+<!--                                                        Abc사업부 > ABbde팀 > ABC파트Abc사업부 > ABbde팀 > ABC파트Abc사업부 > ABbde팀 > ABC파트-->
+<!--                                                    </span>-->
+<!--                      <span class="ddp-data-name">A 사업부</span>-->
+<!--                    </div>-->
+<!--                  </a>-->
+<!--                </li>-->
+<!--                <li>-->
+<!--                  <a href="javascript:">-->
+<!--                    <em class="ddp-icon-folder"></em>-->
+<!--                    <div class="ddp-data-txt">-->
+<!--                                                    <span class="ddp-data-navi">-->
+<!--                                                        Abc사업부 > ABbde팀 > ABC파트Abc사업부 > ABbde팀 > ABC파트Abc사업부 > ABbde팀 > ABC파트-->
+<!--                                                    </span>-->
+<!--                      <span class="ddp-data-name">A 사업부</span>-->
+<!--                    </div>-->
+<!--                  </a>-->
+<!--                </li>-->
+<!--              </ul>-->
+<!--            </div>-->
 
             <!-- //favorite -->
             <!-- tree -->
             <div class="ddp-ui-tree">
               <ul class="ddp-list-tree">
-                <li class=" ddp-open">
+                <li class="ddp-open">
                   <a href="javascript:" class="ddp-depth">
                     <em class="ddp-view"></em>
                     <div class="ddp-txt-link">
-                      <em class="ddp-icon-folder"></em>A <span class="ddp-txt-search">사업부</span>
+                      <em class="ddp-icon-folder"></em>
+                      A <span class="ddp-txt-search">사업부</span>
                     </div>
                   </a>
                   <!-- 2depth -->
                   <ul>
                     <li>
                       <a href="javascript:">
-                        <em class="ddp-icon-folder"></em>
-
-
+                        <em class="ddp-view"></em>
                         <div class="ddp-txt-link">
-                          <em class="ddp-icon-folder"></em>sub1 selected  <span class="ddp-txt-search">사업</span>
+                          <em class="ddp-icon-folder"></em>
+                          sub1 selected<span class="ddp-txt-search">사업</span>
                         </div>
                       </a>
                     </li>
                     <li>
                       <a href="javascript:">
+                        <em class="ddp-view"></em>
                         <div class="ddp-txt-link">
                           <em class="ddp-icon-question"></em>
                           <span class="ddp-txt-search">사업</span> sub2
@@ -142,6 +143,7 @@
                     </li>
                     <li>
                       <a href="javascript:" class="ddp-depth">
+                        <em class="ddp-view"></em>
                         <div class="ddp-txt-link">
                           <em class="ddp-icon-folder"></em>
                           <span class="ddp-txt-search">사업</span> sub2
@@ -152,6 +154,7 @@
                       <ul>
                         <li>
                           <a href="javascript:">
+                            <em class="ddp-view"></em>
                             <div class="ddp-txt-link">
                               <em class="ddp-icon-folder"></em>
                               sub1 selected <span class="ddp-txt-search">사업</span> sub2
@@ -163,8 +166,9 @@
                       </ul>
                       <!-- //3depth -->
                     </li>
-                    <li class="ddp-selected">
+                    <li class="ddp-selected ddp-open">
                       <a href="javascript:" class="ddp-depth">
+                        <em class="ddp-view"></em>
                         <div class="ddp-txt-link">
                           <em class="ddp-icon-folder"></em>
                           <span class="ddp-txt-search">사업</span> sub2
@@ -173,7 +177,6 @@
                       <!-- 3depth -->
                       <ul>
                         <li>
-
                           <a href="javascript:">
                             <em class="ddp-view"></em>
                             <div class="ddp-txt-link">
@@ -200,7 +203,8 @@
       </div>
     </div>
     <!-- //catalogs -->
-    <explore-data-main (clickedMetadata)="onClickMetadata($event)"></explore-data-main>
+    <explore-data-main (clickedMetadata)="onClickMetadata($event)" *ngIf="mode === EXPLORE_MODE.MAIN"></explore-data-main>
+    <explore-catalog-main (clickedMetadata)="onClickMetadata($event)" *ngIf="mode === EXPLORE_MODE.CATALOG"></explore-catalog-main>
   </div>
 </div>
 <explore-metadata-container
