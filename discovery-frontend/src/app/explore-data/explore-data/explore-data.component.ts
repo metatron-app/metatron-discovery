@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit} from '@angular/core';
 import {AbstractComponent} from '../../common/component/abstract.component';
 import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
 import {Metadata} from "../../domain/meta-data-management/metadata";
@@ -34,9 +34,9 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public metadataList;
 
   public selectedMetadata: Metadata;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -44,8 +44,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   // 생성자
   constructor(
     protected element: ElementRef,
-    protected injector: Injector,
-    private _metadataService: MetadataService) {
+    protected injector: Injector) {
     super(element, injector);
   }
 
@@ -56,7 +55,6 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   // Init
   public ngOnInit() {
     super.ngOnInit();
-    this.getMetadataList();
   }
 
   public ngAfterViewInit() {
@@ -71,15 +69,14 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     $( '.ddp-layout-contents' ).removeClass( 'ddp-layout-meta' )
   }
 
-  public getMetadataList() {
-    const params = {
-      page: this.page.page,
-      size: this.page.size,
-    };
-    this._metadataService.getMetaDataList(params).then((result) => {
-      this.metadataList = result._embedded.metadatas;
-      console.info('result => ', this.metadataList);
-    })
+  @HostListener('window:scroll')
+  onScrolled() {
+    if($(window).scrollTop() > 0){
+      $('.ddp-layout-contents').addClass('ddp-scroll');
+    }
+    else if($(window).scrollTop() === 0) {
+      $('.ddp-layout-contents').removeClass('ddp-scroll');
+    }
   }
 
   public onClickMetadata(metadata: Metadata) {

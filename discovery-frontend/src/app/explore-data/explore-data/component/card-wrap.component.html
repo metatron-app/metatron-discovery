@@ -1,0 +1,18 @@
+<!-- ddp-ui-list-summary || ddp-box-summary-->
+<div [ngClass]="wrapClass">
+  <div class="ddp-type-summary-label">{{title}}
+    <a href="javascript:" class="ddp-btn-more" *ngIf="isEnableMoreContent">more ></a>
+  </div>
+<!--  ddp-list-summary ddp-clear || ddp-list-data -->
+  <ul [ngClass]="listWrapClass">
+    <li *ngFor="let card of cardList">
+      <component-card [isEnableTag]="isEnableTag(card)" [isEnableDescription]="isEnableDescription(card)" [isEnablePopularity]="true"
+                      [imageClass]="'ddp-data-images type-hive'"
+                      [title]="card.name" [description]="card.description"
+                      [tagList]="card.tags"
+                      [popularity]="card.popularity"
+                      [creator]="card?.createdBy?.fullName" (clickedCard)="onClickCard(card)">
+      </component-card>
+    </li>
+  </ul>
+</div>

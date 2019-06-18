@@ -13,6 +13,8 @@ export class CardComponent extends AbstractComponent {
   @Input() readonly title: string;
   @Input() readonly description: string;
   @Input() readonly tagList;
+  @Input() readonly popularity: number;
+  @Input() readonly creator: string;
   // option
   @Input() readonly isEnableDescription: boolean;
   @Input() readonly isEnableTag: boolean;
@@ -27,12 +29,11 @@ export class CardComponent extends AbstractComponent {
   }
 
   onClickCard() {
-    // TODO check bubbling
     this.clickedCard.emit();
   }
 
   onClickTag(tag) {
-    // TODO check bubblings
+    event.stopImmediatePropagation();
     this.clickedTag.emit(tag);
   }
 }

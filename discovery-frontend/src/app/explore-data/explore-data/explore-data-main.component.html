@@ -1,0 +1,111 @@
+<div class="ddp-ui-contents-list ddp-type ">
+  <!-- banner -->
+  <!--      <div class="ddp-ui-banner">-->
+  <!--        <div class="ddp-type-label">-->
+  <!--          Recommended for you-->
+  <!--        </div>-->
+  <!--        <div class="ddp-box-banner">-->
+  <!--          <div class="ddp-banner-main">-->
+  <!--            <component-banner [bannerClass]="'type-banner01'" [iconClass]="'ddp-icon-datasource'"-->
+  <!--                              [isEnableDescription]="true"-->
+  <!--                              [isEnableTag]="true"-->
+  <!--                              [tagList]="['사업부','사업부']"-->
+  <!--                              [title]="'New Data Source 01'"-->
+  <!--                              [description]="'데이터 설명 데이터 설명 데이터 설명 데이터 설명 데이터 설명 데이터 설명<br>데이터 설명 데이터 설명 데이터 설명'"></component-banner>-->
+  <!--          </div>-->
+  <!--          <div class="ddp-banner-list">-->
+  <!--            <component-banner [bannerClass]="'type-banner03'" [iconClass]="'ddp-icon-stagingdb'"-->
+  <!--                              [title]="'Data Source 002'">-->
+  <!--            </component-banner>-->
+  <!--          </div>-->
+  <!--        </div>-->
+  <!--      </div>-->
+  <!-- //banner -->
+  <!-- summary -->
+  <div class="ddp-wrap-meta-summary">
+    <!-- wrap box -->
+    <div class="ddp-wrap-box">
+      <component-wrap-card [title]="'Popular data'" [wrapClass]="'ddp-box-summary'" [listWrapClass]="'ddp-list-summary ddp-clear'" [cardList]="popularMetadataList" (clickedCard)="onClickMetadata($event)"></component-wrap-card>
+      <!--          <component-wrap-card [title]="'New or Update'" [wrapClass]="'ddp-box-summary'" [listWrapClass]="'ddp-list-summary ddp-clear'"></component-wrap-card>-->
+      <div class="ddp-box-summary">
+        <div class="ddp-type-summary-label">New or Update</div>
+        <ul class="ddp-list-summary ddp-clear">
+          <li>
+            <component-card [isEnableTag]="false" [isEnableDescription]="true" [isEnablePopularity]="false"
+                            [imageClass]="'ddp-data-images type-database'"
+                            [title]="'New  data'" [description]="'설명설명설명설명설명설명설명설명설명설명설명설명설명설명'" [popularity]="50"  [creator]="'admin'">
+            </component-card>
+          </li>
+          <li>
+            <component-card [isEnableTag]="false" [isEnableDescription]="true" [isEnablePopularity]="false"
+                            [imageClass]="'ddp-data-images type-datasource'"
+                            [title]="'New  data'" [description]="'설명설명설명설명설명설명설명설명설명설명설명설명설명설명'" [popularity]="50"  [creator]="'admin'">
+            </component-card>
+          </li>
+          <li>
+            <component-card [isEnableTag]="false" [isEnableDescription]="true" [isEnablePopularity]="false"
+                            [imageClass]="'ddp-data-images type-stagingdb'"
+                            [title]="'New  data'" [description]="'설명설명설명설명설명설명설명설명설명설명설명설명설명설명'" [popularity]="50"  [creator]="'admin'">
+            </component-card>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <!-- //wrap box -->
+    <!-- wrap summary list -->
+    <div class="ddp-wrap-list-summary">
+      <!-- summary list -->
+      <div class="ddp-ui-list-summary">
+        <div class="ddp-type-summary-label">My favorite
+          <a href="javascript:" class="ddp-btn-more">more ></a>
+        </div>
+        <ul class="ddp-list-data">
+          <li>
+            <component-card [isEnableTag]="false" [isEnableDescription]="false" [isEnablePopularity]="false"
+                            [imageClass]="'ddp-data-images type-hive'"
+                            [title]="'New  data'" [creator]="'admin'">
+            </component-card>
+          </li>
+          <li>
+            <component-card [isEnableTag]="false" [isEnableDescription]="false" [isEnablePopularity]="false"
+                            [imageClass]="'ddp-data-images type-database'"
+                            [title]="'New  data'" [creator]="'admin'">
+            </component-card>
+          </li>
+          <li>
+            <component-card [isEnableTag]="false" [isEnableDescription]="false" [isEnablePopularity]="false"
+                            [imageClass]="'ddp-data-images type-database'"
+                            [title]="'New  data'" [creator]="'admin'">
+            </component-card>
+          </li>
+        </ul>
+
+      </div>
+      <!-- //summary list -->
+      <!-- summary list -->
+      <div class="ddp-ui-list-summary">
+        <div class="ddp-type-summary-label">Favorite creator
+          <a href="javascript:" class="ddp-btn-more">more ></a>
+        </div>
+        <ul class="ddp-list-data">
+          <li>
+            <component-card [isEnableTag]="false" [isEnableDescription]="false" [isEnablePopularity]="false"
+                            [imageClass]="'ddp-data-images type-database'"
+                            [title]="'New  data'" [creator]="'admin'">
+            </component-card>
+          </li>
+          <li>
+            <component-card [isEnableTag]="false" [isEnableDescription]="false" [isEnablePopularity]="false"
+                            [imageClass]="'ddp-data-images type-database'"
+                            [title]="'New  data'" [creator]="'admin'">
+            </component-card>
+          </li>
+        </ul>
+      </div>
+      <!-- //summary list -->
+    </div>
+    <!-- //wrap summary list -->
+  </div>
+  <!-- //summary -->
+</div>
+

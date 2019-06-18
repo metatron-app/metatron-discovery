@@ -21,9 +21,6 @@
 .ddp-list-tags .ddp-ui-add-button .ddp-btn-add:hover {border:1px solid #b7b9c1;color:#4b515b;}
 .ddp-list-tags .ddp-ui-add-button .ddp-btn-add em.ddp-icon-plus {display:inline-block; width:13px; height:13px; margin-right:5px; background:url(../../../images/icon_add.png) no-repeat; background-position:-84px -22px; vertical-align:middle;}
 
-
-
-
 /**************************************************************
     box-tag
 **************************************************************/
@@ -75,7 +72,6 @@
 .ddp-data-state.ddp-preparing {font-size:11px; color:#4b515b; font-weight:bold;}
 .ddp-data-state.ddp-running {font-size:11px; color:#ffba00; font-weight:bold;}
 .ddp-data-state.ddp-cancelled {font-size:11px; color:#90969f; font-weight:bold;}
-
 
 .ddp-data-state.ddp-scheduling {font-size:11px; color:#10bf83; font-weight:bold;}
 .ddp-data-state.ddp-creating {font-size:11px; color:#ffba00; font-weight:bold;}

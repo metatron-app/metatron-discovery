@@ -28,7 +28,11 @@ import {WorkspaceUsesComponent} from "./explore-data/popup/workspace-uses.compon
 import {MetadataService} from "../meta-data-management/metadata/service/metadata.service";
 import {DatasourceService} from "../datasource/service/datasource.service";
 import {TimezoneService} from "../data-storage/service/timezone.service";
+import {BannerComponent} from "./explore-data/component/banner.component";
+import {CardComponent} from "./explore-data/component/card.component";
+import {CardWrapComponent} from "./explore-data/component/card-wrap.component";
 import {CodeTableService} from "../meta-data-management/code-table/service/code-table.service";
+import {ExploreDataMainComponent} from "./explore-data/explore-data-main.component";
 
 @NgModule({
   imports: [
@@ -41,6 +45,9 @@ import {CodeTableService} from "../meta-data-management/code-table/service/code-
     ]),
   ],
   declarations: [
+    BannerComponent,
+    CardComponent,
+    CardWrapComponent,
     ExploreDataComponent,
     FavoriteDataComponent,
     FavoriteCreatorComponent,
@@ -49,7 +56,8 @@ import {CodeTableService} from "../meta-data-management/code-table/service/code-
     MetadataOverviewComponent,
     MetadataSampleDataComponent,
     RecentQueriesComponent,
-    WorkspaceUsesComponent
+    WorkspaceUsesComponent,
+    ExploreDataMainComponent
   ],
   providers: [MetadataService,DatasourceService,TimezoneService, CodeTableService],
 })
