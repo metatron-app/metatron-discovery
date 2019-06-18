@@ -160,7 +160,6 @@ public class DfJoin extends DataFrame {
 
   @Override
   public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
-    // Restore prepared parameters
     DataFrame slaveDf = (DataFrame) preparedArgs.get(0);
     List<String> lSelectColNames = (List<String>) preparedArgs.get(1);
     List<String> rSelectColNames = (List<String>) preparedArgs.get(2);
@@ -232,11 +231,17 @@ public class DfJoin extends DataFrame {
           }
 
           rows.add(makeRow(lrow, rrow, lSelectColNames, rSelectColNames));
+          if (rows.size() > limit) {
+            return rows;
+          }
         }
       } // end of rrow loop
 
       if (leftOuter && !matchedOnce) {
         rows.add(makeRow(lrow, null, lSelectColNames, rSelectColNames));
+        if (rows.size() > limit) {
+          return rows;
+        }
       }
     } // end of lrow loop
 
@@ -248,6 +253,9 @@ public class DfJoin extends DataFrame {
 
         Row rrow = slaveDf.rows.get(rrowno);
         rows.add(makeRow(null, rrow, lSelectColNames, rSelectColNames));
+        if (rows.size() > limit) {
+          return rows;
+        }
       }
     }
 
