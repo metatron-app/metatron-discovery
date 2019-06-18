@@ -14,12 +14,14 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.InvalidJoinTypeException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.JoinTypeNotSupportedException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.LeftPredicateNotFoundException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.PredicateTypeMismatchException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.RightPredicateNotFoundException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.prep.parser.preparation.rule.Join;
+import app.metatron.discovery.prep.parser.preparation.rule.Join.JOIN_TYPE;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
@@ -105,6 +107,11 @@ public class DfJoin extends DataFrame {
     Expression cond = join.getCondition();
     String joinType = join.getJoinType();
 
+    JOIN_TYPE joinTypeEnum = Join.getJoinTypeEnum(joinType);
+    if (joinTypeEnum == JOIN_TYPE.INVALID) {
+      throw new InvalidJoinTypeException("joinType=" + joinType);
+    }
+
     // Get all the predicates' identifiers for both left and right side.
     List<Identifier.IdentifierExpr> lPredicates = new ArrayList<>();
     List<Identifier.IdentifierExpr> rPredicates = new ArrayList<>();
@@ -136,7 +143,7 @@ public class DfJoin extends DataFrame {
     }
 
     for (String colName : rSelectColNames) {
-      String rightColName = checkRightColName(colName);   // 같은 column이름이 있을 경우 right에서 온 것에 "r_"을 붙여준다.
+      String rightColName = checkRightColName(colName);   // if the same name exists on left, right column name is modified.
       addColumn(rightColName, slaveDf.getColDescByColName(colName));
       interestedColNames.add(rightColName);
     }
@@ -147,6 +154,7 @@ public class DfJoin extends DataFrame {
     preparedArgs.add(rSelectColNames);
     preparedArgs.add(lPredColNames);
     preparedArgs.add(rPredColNames);
+    preparedArgs.add(joinTypeEnum);
     return preparedArgs;
   }
 
@@ -158,18 +166,44 @@ public class DfJoin extends DataFrame {
     List<String> rSelectColNames = (List<String>) preparedArgs.get(2);
     List<String> lPredColNames = (List<String>) preparedArgs.get(3);
     List<String> rPredColNames = (List<String>) preparedArgs.get(4);
+    JOIN_TYPE joinTypeEnum = (JOIN_TYPE) preparedArgs.get(5);
+    boolean leftOuter = false;
+    boolean rightOuter = false;
+
+    switch (joinTypeEnum) {
+      case LEFT:
+        leftOuter = true;
+        break;
+      case RIGHT:
+        rightOuter = true;
+        break;
+      case OUTER:
+        leftOuter = true;
+        rightOuter = true; break;
+      default:
+        break;
+    }
 
     LOGGER.trace("DfJoin.gather(): start: offset={} length={}", offset, length);
     List<Row> rows = new ArrayList<>();
 
+    boolean[] rightMatchedOnce = null;
+
+    if (rightOuter) {
+      rightMatchedOnce = new boolean[slaveDf.rows.size()];
+    }
+
     // Simple Nest Loop Join
-    for (int lrowno = offset; lrowno < offset + length; cancelCheck(++lrowno)) {
+    int until = Math.min(offset + length, prevDf.rows.size());
+    for (int lrowno = offset; lrowno < until; cancelCheck(++lrowno)) {
       Row lrow = prevDf.rows.get(lrowno);
+      boolean matchedOnce = false;
 
       for (int rrowno = 0; rrowno < slaveDf.rows.size(); rrowno++) {
         Row rrow = slaveDf.rows.get(rrowno);
         boolean matched = true;
 
+        // Predicate compare
         for (int predno = 0; predno < lPredColNames.size(); predno++) {
           Object lObj = lrow.get(lPredColNames.get(predno));
           if (lObj == null) {
@@ -177,31 +211,74 @@ public class DfJoin extends DataFrame {
             break;
           }
 
-          if (lObj.equals(rrow.get(rPredColNames.get(predno))) == false) {
+          Object rObj = rrow.get(rPredColNames.get(predno));
+          if (rObj == null) {
+            matched = false;
+            break;
+          }
+
+          if (lObj.equals(rObj) == false) {
             matched = false;
             break;
           }
         }
 
         if (matched) {
-          Row newRow = new Row();
-          for (String colName : lSelectColNames) {
-            newRow.add(colName,
-                lrow.get(colName));                           // left에서 온 컬럼은 이름 그대로 넣음
+          matchedOnce = true;
+
+          if (rightOuter) {
+            rightMatchedOnce[rrowno] = true;
           }
 
-          for (String colName : rSelectColNames) {
-            newRow.add(getColName(newRow.colCnt),
-                rrow.get(colName));  // 필요한 경우 "r_"이 붙은 컬럼 이름 (여기까지 온 것은 이미 붙은 상황)
-          }
-
-          rows.add(newRow);
+          rows.add(makeRow(lrow, rrow, lSelectColNames, rSelectColNames));
         }
+      } // end of rrow loop
+
+      if (leftOuter && !matchedOnce) {
+        rows.add(makeRow(lrow, null, lSelectColNames, rSelectColNames));
+      }
+    } // end of lrow loop
+
+    if (rightOuter) {
+      for (int rrowno = 0; rrowno < rightMatchedOnce.length; rrowno++) {
+        if (rightMatchedOnce[rrowno]) {
+          continue;
+        }
+
+        Row rrow = slaveDf.rows.get(rrowno);
+        rows.add(makeRow(null, rrow, lSelectColNames, rSelectColNames));
       }
     }
 
     LOGGER.trace("DfSet.gather(): end: offset={} length={}", offset, length);
     return rows;
+  }
+
+  private Row makeRow(Row lrow, Row rrow,
+                      List<String> lSelectColNames, List<String> rSelectColNames) {
+    Row newRow = new Row();
+
+    if (lrow != null) {
+      for (String colName : lSelectColNames) {
+        newRow.add(colName, lrow.get(colName));
+      }
+    } else {
+      for (String colName : lSelectColNames) {
+        newRow.add(colName, null);
+      }
+    }
+
+    if (rrow != null) {
+      for (String colName : rSelectColNames) {
+        newRow.add(getColName(newRow.colCnt), rrow.get(colName));
+      }
+    } else {
+      for (String colName : rSelectColNames) {
+        newRow.add(getColName(newRow.colCnt), null);
+      }
+    }
+
+    return newRow;
   }
 }
 
