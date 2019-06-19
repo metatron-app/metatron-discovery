@@ -314,6 +314,8 @@ spring:
           auto: update
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
         naming_strategy: org.hibernate.cfg.ImprovedNamingStrategy
+        connection:
+          release_mode: after_transaction
 
 ---
 spring:

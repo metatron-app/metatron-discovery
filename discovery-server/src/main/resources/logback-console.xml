@@ -33,6 +33,9 @@
     <!-- show hibernate sql -->
     <logger name="org.hibernate.SQL" level="info"/>
 
+    <!-- hide warn HibernateJpaDialect, because release_mode : after_transaction -->
+    <logger name="org.springframework.orm.jpa.vendor" level="error"/>
+
     <!-- show bound hibernate parameters with trace -->
     <logger name="org.hibernate.type" level="info"/>
 
