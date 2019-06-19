@@ -50,6 +50,14 @@ export class LineageViewService extends AbstractService {
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  // temporary service
+  public createDatasource(param: any): Promise<any> {
+    return this.post(this.API_URL + 'datasources', param);
+  }
+  public createConnection(param: any) : Promise<any> {
+    return this.post(this.API_URL + 'connections', param);
+  }
+
   /**
   * 리니지 엣지 목록 생성
   * @param {any} params

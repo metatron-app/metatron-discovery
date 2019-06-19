@@ -94,6 +94,8 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
     this._initialiseChartValues();
 
+    this.test_data();
+
     this.getLineageMap();
   }
 
@@ -108,63 +110,230 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  public test_data() {
+
+    this.metadataService.getDuplicatedMetadataNameList(['test_meta1']).then((result) => {
+      if (result.length==0) {
+        let param = {
+          'authenticationType': "MANUAL",
+          'hostname': "localhost",
+          'implementor': "MYSQL",
+          'name': "lineage test conn",
+          'password': "test",
+          'port': 3306,
+          'type': "JDBC",
+          'username': "test"
+        };
+        this.lineageViewService.createConnection(param).then((result) => {
+          if (result) {
+            let param = {
+              'connection': result._links.self.href,
+              'name' : 'lienage_test',
+              'dsType': 'MASTER',
+              'srcType' : 'NONE',
+              'connType': 'ENGINE',
+              'description': 'lineage_test',
+              'granularity' : 'DAY',
+              'fields': [],
+              'ingestion': null,
+              'segGranularity': "DAY"
+            }
+            this.lineageViewService.createDatasource(param).then((result) => {
+              if (result) {
+                let datasource_id = result.id;
+
+                let metadata = [
+                  {
+                    'name': "test_meta1",
+                    'description': 'mdm lineage test1',
+                    'source': {
+                      name: "lineage test conn",
+                      schema: "test",
+                      sourceId: datasource_id,
+                      table: "test",
+                      type: "ENGINE"
+                    },
+                    'sourceType': 'ENGINE'
+                  }, {
+                    'name': "test_meta2",
+                    'description': 'mdm lineage test2',
+                    'source': {
+                      name: "lineage test conn",
+                      schema: "test",
+                      sourceId: datasource_id,
+                      table: "test",
+                      type: "ENGINE"
+                    },
+                    'sourceType': 'ENGINE'
+                  }, {
+                    'name': "test_meta3",
+                    'description': 'mdm lineage test3',
+                    'source': {
+                      name: "lineage test conn",
+                      schema: "test",
+                      sourceId: datasource_id,
+                      table: "test",
+                      type: "ENGINE"
+                    },
+                    'sourceType': 'JDBC'
+                  }, {
+                    'name': "test_meta4",
+                    'description': 'mdm lineage test4',
+                    'source': {
+                      name: "lineage test conn",
+                      schema: "test",
+                      sourceId: datasource_id,
+                      table: "test",
+                      type: "ENGINE"
+                    },
+                    'sourceType': 'JDBC'
+                  }, {
+                    'name': "test_meta5",
+                    'description': 'mdm lineage test5',
+                    'source': {
+                      name: "lineage test conn",
+                      schema: "test",
+                      sourceId: datasource_id,
+                      table: "test",
+                      type: "ENGINE"
+                    },
+                    'sourceType': 'JDBC'
+                  }, {
+                    'name': "test_meta6",
+                    'description': 'mdm lineage test6',
+                    'source': {
+                      name: "lineage test conn",
+                      schema: "test",
+                      sourceId: datasource_id,
+                      table: "test",
+                      type: "ENGINE"
+                    },
+                    'sourceType': 'JDBC'
+                  }, {
+                    'name': "test_meta7",
+                    'description': 'mdm lineage test7',
+                    'source': {
+                      name: "lineage test conn",
+                      schema: "test",
+                      sourceId: datasource_id,
+                      table: "test",
+                      type: "ENGINE"
+                    },
+                    'sourceType': 'JDBC'
+                  }, {
+                    'name': "test_meta8",
+                    'description': 'mdm lineage test8',
+                    'source': {
+                      name: "lineage test conn",
+                      schema: "test",
+                      sourceId: datasource_id,
+                      table: "test",
+                      type: "ENGINE"
+                    },
+                    'sourceType': 'JDBC'
+                  }, {
+                    'name': "test_meta9",
+                    'description': 'mdm lineage test9',
+                    'source': {
+                      name: "lineage test conn",
+                      schema: "test",
+                      sourceId: datasource_id,
+                      table: "test",
+                      type: "ENGINE"
+                    },
+                    'sourceType': 'JDBC'
+                  }
+                ];
+
+                this.metadataService.createMetaData(metadata).then((result) => {
+                  if (result) {
+                    let paramList = [
+                      {
+                        'description' : result[0].name +' -> '+result[1].name,
+                        'fromMetaId' : result[0].id,
+                        'toMetaId' : result[1].id
+                      }, {
+                        'description' : result[1].name +' -> '+result[2].name,
+                        'fromMetaId' : result[1].id,
+                        'toMetaId' : result[2].id
+                      }, {
+                        'description' : result[3].name +' -> '+result[0].name,
+                        'fromMetaId' : result[3].id,
+                        'toMetaId' : result[0].id
+                      }, {
+                        'description' : result[2].name +' -> '+result[4].name,
+                        'fromMetaId' : result[2].id,
+                        'toMetaId' : result[4].id
+                      }, {
+                        'description' : result[1].name +' -> '+result[2].name,
+                        'fromMetaId' : result[1].id,
+                        'toMetaId' : result[2].id
+                      }, {
+                        'description' : result[5].name +' -> '+result[1].name,
+                        'fromMetaId' : result[5].id,
+                        'toMetaId' : result[1].id
+                      }, {
+                        'description' : result[6].name +' -> '+result[5].name,
+                        'fromMetaId' : result[6].id,
+                        'toMetaId' : result[5].id
+                      }, {
+                        'description' : result[2].name +' -> '+result[7].name,
+                        'fromMetaId' : result[2].id,
+                        'toMetaId' : result[7].id
+                      }, {
+                        'description' : result[8].name +' -> '+result[0].name,
+                        'fromMetaId' : result[8].id,
+                        'toMetaId' : result[0].id
+                      }
+                    ];
+                    paramList.forEach(params => {
+                      this.lineageViewService.postLineageEdge(params).then((result) => {
+                        if (result) {
+                          console.log(result);
+                        }
+                      }).catch((error) => {
+                        console.error(error);
+                      });
+                    });
+                  }
+                }).catch((error) => {
+                });
+              }
+            }).catch((error) => {
+            });
+          }
+        }).catch((error) => {
+        });
+      }
+    }).catch((error) => {
+    });
+
+  }
+
+  private awaitCount = 0;
+  public constructLineageNode(metaId: string, x: number, y: number) {
+    let lineageNode = {
+      'metadataId': metaId,
+      'positionX': x,
+      'positionY': y
+    };
+
+    this.awaitCount++;
+    this.metadataService.getDetailMetaData(metaId).then((result) => {
+      lineageNode['metadata'] = result;
+      this.awaitCount--;
+    }).catch((error) => {
+      console.error(error);
+      this.awaitCount--;
+    });
+
+    return lineageNode;
+  }
+
   /**
    * Get lineage map
    */
   public getLineageMap() {
-
-    let test : boolean = false;
-    if( test != false ) {
-      let paramList = [
-        {
-          'description' : 'test1 -> test2',
-          'fromMetaId' : 'test_meta1',
-          'toMetaId' : 'test_meta2'
-        }, {
-          'description' : 'test2 -> test3',
-          'fromMetaId' : 'test_meta2',
-          'toMetaId' : 'test_meta3'
-        }, {
-          'description' : 'test4 -> test1',
-          'fromMetaId' : 'test_meta4',
-          'toMetaId' : 'test_meta1'
-        }, {
-          'description' : 'test3 -> test5',
-          'fromMetaId' : 'test_meta3',
-          'toMetaId' : 'test_meta5'
-        }, {
-          'description' : 'test2 -> test3',
-          'fromMetaId' : 'test_meta2',
-          'toMetaId' : 'test_meta3'
-        }, {
-          'description' : 'test6 -> test2',
-          'fromMetaId' : 'test_meta6',
-          'toMetaId' : 'test_meta2'
-        }, {
-          'description' : 'test7 -> test7',
-          'fromMetaId' : 'test_meta7',
-          'toMetaId' : 'test_meta6'
-        }, {
-          'description' : 'test3 -> test8',
-          'fromMetaId' : 'test_meta3',
-          'toMetaId' : 'test_meta8'
-        }, {
-          'description' : 'test9 -> test1',
-          'fromMetaId' : 'test_meta9',
-          'toMetaId' : 'test_meta1'
-        }
-      ];
-      paramList.forEach(params => {
-        this.lineageViewService.postLineageEdge(params).then((result) => {
-          if (result) {
-            console.error(result);
-          }
-        }).catch((error) => {
-          console.error(error);
-        });
-      });
-
-    }
 
     let metadataId = this.metaDataModelService.getMetadata().id;
     this.lineageViewService.getLineageMapForMetadata(metadataId).then((result) => {
@@ -173,7 +342,14 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
       if (result) {
         this.makeLineageFromMap(result);
-        this.drawChart();
+
+        // 임시방편 : 데모용
+        setTimeout(() => {
+          console.log(this.awaitCount);
+          if(this.awaitCount==0) {
+            this.drawChart();
+          }
+        }, 500);
       } else {
       }
     }).catch((error) => {
@@ -187,11 +363,7 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
    */
   public makeLineageFromMap(mapRoot: any) {
 
-    let lineageNode = {
-      'metadataId': mapRoot.metaId,
-      'positionX': this.lineageMaxDepth,
-      'positionY': 0
-    };
+    let lineageNode = this.constructLineageNode( mapRoot.metaId, this.lineageMaxDepth, 0 );
     this.lineageNodes.push( lineageNode );
 
     this.makeLineageNode( lineageNode, -1, mapRoot ); // forward
@@ -230,16 +402,14 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
         if( siblings ) {
           positionY = siblings.length;
         }
-        let _lineageNode = {
-          'metadataId': followNode.metaId,
-          'positionX': positionX,
-          'positionY': positionY
-        };
+        let _lineageNode = this.constructLineageNode( followNode.metaId, positionX, positionY );
         this.lineageNodes.push( _lineageNode );
 
+        let sourceNode = direction==1?lineageNode:_lineageNode;
+        let targetNode = direction==1?_lineageNode:lineageNode;
         let _lineageEdge = {
-          'source': direction==1?lineageNode.metadataId:_lineageNode.metadataId,
-          'target': direction==1?_lineageNode.metadataId:lineageNode.metadataId,
+          'source': sourceNode.metadataId,
+          'target': targetNode.metadataId
         };
         this.lineageEdges.push( _lineageEdge );
 
@@ -283,7 +453,9 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
     this.lineageDepth = 0;
     this.lineageHeight = 0;
-    this.chartNodes = this.lineageNodes.map((node,idx) => {
+    this.chartNodes = this.lineageNodes.map((_node,idx) => {
+      let node = _.cloneDeep(_node);
+
       node.name = node.metadataId;
 
       if( this.lineageDepth <= node.positionX ) { this.lineageDepth = node.positionX + 1; }
@@ -307,14 +479,18 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
     this.chartOptions.yAxis.min = 0;
     this.chartOptions.yAxis.max = this.lineageHeight;
 
-    this.chartLinks = this.lineageEdges.map(edge => {
+    this.chartLinks = this.lineageEdges.map(_edge => {
+      let edge = _.cloneDeep(_edge);
+      /*
       let source : string = edge.source;
       let target : string = edge.target;
       let link : any = {
         'source': source,
-        'target': target,
+        'target': target
       };
       return link;
+      */
+      return edge;
     });
 
     this.chartOptions.series[0].nodes = this.chartNodes;
@@ -416,10 +592,15 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
               label: {
                 show: true,
                 color: '#000',
+                /*
                 formatter: [
-                  '{red|{b}}',
-                  '{large|{c}}'
+                  '{large|{b}}',
+                  '{red|node}'
                 ].join('\n'),
+                */
+                formatter: (params) => {
+                  return params.data.metadata.name;
+                },
                 rich: {
                   red: {
                     color: 'red',
