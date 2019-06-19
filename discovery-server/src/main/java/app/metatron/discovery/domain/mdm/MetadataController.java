@@ -38,6 +38,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -248,5 +250,23 @@ public class MetadataController {
     dataSourceService.updateFromMetadata(metadata, true);
 
     return ResponseEntity.noContent().build();
+  }
+
+  /**
+   * Metadata count by sourceType
+   */
+  @RequestMapping(path = "/metadatas/statistics/count/sourcetype", method = RequestMethod.GET)
+  public @ResponseBody
+  ResponseEntity<?> getCountBySourceType() {
+
+    List<MetadataStatsDto> metadataStatsDtoList = metadataRepository.countBySourceType();
+    HashMap<String, Long> result = new LinkedHashMap<>();
+    for(MetadataStatsDto metadataStatsDto : metadataStatsDtoList){
+      if(metadataStatsDto.getKeyword() == null){
+        continue;
+      }
+      result.put(metadataStatsDto.getKeyword(), metadataStatsDto.getValue());
+    }
+    return ResponseEntity.ok(result);
   }
 }
