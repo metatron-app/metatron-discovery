@@ -34,6 +34,7 @@ import {CodeTableService} from "../meta-data-management/code-table/service/code-
 import {ExploreDataMainComponent} from "./explore-data/explore-data-main.component";
 import {CatalogFolderComponent} from "./explore-data/component/catalog-folder.component";
 import {ExploreCatalogMainComponent} from "./explore-data/explore-catalog-main.component";
+import {CatalogService} from "../meta-data-management/catalog/service/catalog.service";
 
 @NgModule({
   imports: [
@@ -59,9 +60,15 @@ import {ExploreCatalogMainComponent} from "./explore-data/explore-catalog-main.c
     RecentQueriesComponent,
     WorkspaceUsesComponent,
     ExploreDataMainComponent,
-    ExploreCatalogMainComponent
+    ExploreCatalogMainComponent,
   ],
-  providers: [MetadataService,DatasourceService,TimezoneService, CodeTableService],
+  providers: [
+    MetadataService,
+    CatalogService,
+    DatasourceService,
+    TimezoneService,
+    CodeTableService
+  ],
 })
 export class ExploreDataModule {
   constructor(private broadCaster: EventBroadcaster) {

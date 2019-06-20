@@ -84,12 +84,12 @@ export class CatalogService extends AbstractService {
    * @param pageable
    * @return
    */
-  public getMetadataInCatalog(id: string, params?: any): Promise<any> {
+  public getMetadataInCatalog(id: string, params?: any, allSubCatalogs: boolean = true): Promise<any> {
     let url = this.URL_CATALOG + `/${id}/metadatas`;
     if (params) {
       url += '?' + CommonUtil.objectToUrlString(params);
     }
-    return this.get(url + `&projection=default&allSubCatalogs=true`);
+    return this.get(url + `&projection=default&allSubCatalogs=${allSubCatalogs}`);
   }
 
   /**

@@ -187,4 +187,8 @@ export class MetadataService extends AbstractService {
     };
     return this.post(this.URL_METADATA + `/metasources/${connId}?projection=${projection}`, param);
   }
+
+  public getMetadataSourceTypeCount() {
+    return this.get(this.URL_METADATA + 'statistics/count/sourcetype');
+  }
 }

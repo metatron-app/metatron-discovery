@@ -7,44 +7,11 @@
     </div>
     <!-- tag -->
     <div class="ddp-ui-tag">
-      <div class="ddp-box-tag-value ddp-datasource">Datasource 541 </div>
-      <div class="ddp-box-tag-value ddp-hive">Hive  11</div>
-      <div class="ddp-box-tag-value ddp-stagingdb">StagingDB 92</div>
+      <div class="ddp-box-tag-value ddp-datasource">Datasource {{sourceTypeCount}} </div>
+      <div class="ddp-box-tag-value ddp-hive">Database  {{databaseTypeCount}}</div>
+      <div class="ddp-box-tag-value ddp-stagingdb">StagingDB {{stagingTypeCount}}</div>
     </div>
     <!-- //tag -->
-    <!-- search -->
-<!--    <div class="ddp-meta-search">-->
-<!--      &lt;!&ndash; select box &ndash;&gt;-->
-<!--      &lt;!&ndash; 클릭시 ddp-selected 추가 &ndash;&gt;-->
-<!--      <div class="ddp-search-select ">-->
-<!--        <span class="ddp-data">All</span>-->
-
-<!--        <div class="ddp-wrap-popup2">-->
-<!--          <ul class="ddp-list-popup">-->
-<!--            <li >-->
-<!--              <a href="#">-->
-<!--                All-->
-<!--              </a>-->
-<!--            </li>-->
-<!--            <li>-->
-<!--              <a href="#">-->
-<!--                워크북-->
-<!--              </a>-->
-<!--            </li>-->
-
-<!--          </ul>-->
-<!--        </div>-->
-
-<!--      </div>-->
-<!--      &lt;!&ndash; //select box &ndash;&gt;-->
-<!--      &lt;!&ndash; search form &ndash;&gt;-->
-<!--      <div class="ddp-search-b">-->
-<!--        <em class="ddp-icon-search"></em>-->
-<!--        <input type="text" placeholder="Searching Meta data"/>-->
-<!--      </div>-->
-<!--      &lt;!&ndash; //search form &ndash;&gt;-->
-<!--    </div>-->
-    <!-- //search -->
   </div>
   <!-- //top -->
   <div class="ddp-view-catalog" [class.ddp-close]="isFoldingNavigation">
@@ -72,139 +39,21 @@
       </div>
       <div class="ddp-wrap-tab-contents">
         <div class="ddp-ui-tab-contents">
-          <!-- search -->
-<!--          <div class="ddp-ui-searching">-->
-<!--            <em class="ddp-icon-search"></em>-->
-
-<!--            <input type="text" placeholder="Search">-->
-<!--          </div>-->
-          <!-- //search -->
-          <div class="ddp-ui-catalog-contents">
-            <!-- favorite -->
-<!--            <div class="ddp-ui-favorite">-->
-<!--              <div class="ddp-ui-label"><em class="ddp-icon-favorite"></em>Favorite</div>-->
-<!--              <ul class="ddp-list-favorite">-->
-<!--                <li>-->
-<!--                  <a href="javascript:">-->
-<!--                    <em class="ddp-icon-folder-type"></em>-->
-<!--                    <div class="ddp-data-txt">-->
-<!--                                                    <span class="ddp-data-navi">-->
-<!--                                                        Abc사업부 > ABbde팀 > ABC파트Abc사업부 > ABbde팀 > ABC파트Abc사업부 > ABbde팀 > ABC파트-->
-<!--                                                    </span>-->
-<!--                      <span class="ddp-data-name">A 사업부</span>-->
-<!--                    </div>-->
-<!--                  </a>-->
-<!--                </li>-->
-<!--                <li>-->
-<!--                  <a href="javascript:">-->
-<!--                    <em class="ddp-icon-folder"></em>-->
-<!--                    <div class="ddp-data-txt">-->
-<!--                                                    <span class="ddp-data-navi">-->
-<!--                                                        Abc사업부 > ABbde팀 > ABC파트Abc사업부 > ABbde팀 > ABC파트Abc사업부 > ABbde팀 > ABC파트-->
-<!--                                                    </span>-->
-<!--                      <span class="ddp-data-name">A 사업부</span>-->
-<!--                    </div>-->
-<!--                  </a>-->
-<!--                </li>-->
-<!--              </ul>-->
-<!--            </div>-->
-
-            <!-- //favorite -->
+          <div class="ddp-ui-catalog-contents ddp-type">
             <!-- tree -->
             <div class="ddp-ui-tree">
               <ul class="ddp-list-tree">
-                <li class="ddp-open">
-                  <a href="javascript:" class="ddp-depth">
-                    <em class="ddp-view"></em>
-                    <div class="ddp-txt-link">
-                      <em class="ddp-icon-folder"></em>
-                      A <span class="ddp-txt-search">사업부</span>
-                    </div>
-                  </a>
-                  <!-- 2depth -->
-                  <ul>
-                    <li>
-                      <a href="javascript:">
-                        <em class="ddp-view"></em>
-                        <div class="ddp-txt-link">
-                          <em class="ddp-icon-folder"></em>
-                          sub1 selected<span class="ddp-txt-search">사업</span>
-                        </div>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="javascript:">
-                        <em class="ddp-view"></em>
-                        <div class="ddp-txt-link">
-                          <em class="ddp-icon-question"></em>
-                          <span class="ddp-txt-search">사업</span> sub2
-                        </div>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="javascript:" class="ddp-depth">
-                        <em class="ddp-view"></em>
-                        <div class="ddp-txt-link">
-                          <em class="ddp-icon-folder"></em>
-                          <span class="ddp-txt-search">사업</span> sub2
-                        </div>
-
-                      </a>
-                      <!-- 3depth -->
-                      <ul>
-                        <li>
-                          <a href="javascript:">
-                            <em class="ddp-view"></em>
-                            <div class="ddp-txt-link">
-                              <em class="ddp-icon-folder"></em>
-                              sub1 selected <span class="ddp-txt-search">사업</span> sub2
-                            </div>
-
-                          </a>
-                        </li>
-
-                      </ul>
-                      <!-- //3depth -->
-                    </li>
-                    <li class="ddp-selected ddp-open">
-                      <a href="javascript:" class="ddp-depth">
-                        <em class="ddp-view"></em>
-                        <div class="ddp-txt-link">
-                          <em class="ddp-icon-folder"></em>
-                          <span class="ddp-txt-search">사업</span> sub2
-                        </div>
-                      </a>
-                      <!-- 3depth -->
-                      <ul>
-                        <li>
-                          <a href="javascript:">
-                            <em class="ddp-view"></em>
-                            <div class="ddp-txt-link">
-                              <em class="ddp-icon-folder"></em>
-                              <span class="ddp-txt-search">사업</span> sub2su
-                            </div>
-
-                          </a>
-                        </li>
-
-                      </ul>
-                      <!-- //3depth -->
-                    </li>
-                  </ul>
-                  <!-- //2depth -->
-                </li>
+                <component-catalog-folder *ngFor="let catalog of catalogList" [catalog]="catalog" (clickedCatalog)="onClickCatalog($event)"></component-catalog-folder>
               </ul>
-
             </div>
-
             <!-- //tree -->
           </div>
         </div>
       </div>
     </div>
     <!-- //catalogs -->
-    <explore-data-main (clickedMetadata)="onClickMetadata($event)" *ngIf="mode === EXPLORE_MODE.MAIN"></explore-data-main>
-    <explore-catalog-main (clickedMetadata)="onClickMetadata($event)" *ngIf="mode === EXPLORE_MODE.CATALOG"></explore-catalog-main>
+    <explore-data-main *ngIf="mode === EXPLORE_MODE.MAIN" (clickedMetadata)="onClickMetadata($event)"></explore-data-main>
+    <explore-catalog-main *ngIf="mode === EXPLORE_MODE.CATALOG" (clickedMetadata)="onClickMetadata($event)" [catalog]="selectedCatalog"></explore-catalog-main>
   </div>
 </div>
 <explore-metadata-container

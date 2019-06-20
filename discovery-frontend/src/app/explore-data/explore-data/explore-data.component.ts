@@ -16,6 +16,9 @@ import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit} from '
 import {AbstractComponent} from '../../common/component/abstract.component';
 import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
 import {Metadata} from "../../domain/meta-data-management/metadata";
+import * as _ from 'lodash';
+import {CatalogService} from "../../meta-data-management/catalog/service/catalog.service";
+import {Catalog} from "../../domain/catalog/catalog";
 
 @Component({
   selector: 'app-exploredata-view',
@@ -23,45 +26,35 @@ import {Metadata} from "../../domain/meta-data-management/metadata";
 })
 export class ExploreDataComponent extends AbstractComponent implements OnInit, OnDestroy {
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   public selectedMetadata: Metadata;
+  selectedCatalog: Catalog.Tree;
 
+  // data
   mode: ExploreMode = ExploreMode.MAIN;
+  sourceTypeCount: number = 0;
+  stagingTypeCount: number = 0;
+  databaseTypeCount: number = 0;
+  catalogList: Catalog.Tree;
 
   isFoldingNavigation: boolean;
 
   // enum
   readonly EXPLORE_MODE = ExploreMode;
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Constructor
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   // 생성자
-  constructor(
-    protected element: ElementRef,
-    protected injector: Injector) {
+  constructor(private metadataService: MetadataService,
+              private catalogService: CatalogService,
+              protected element: ElementRef,
+              protected injector: Injector) {
     super(element, injector);
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Override Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // Init
   public ngOnInit() {
     super.ngOnInit();
+    this._setCatalogList(Catalog.Constant.CATALOG_ROOT_ID);
+    // set count
+    this._setMetadataSourceTypeCount();
   }
 
   public ngAfterViewInit() {
@@ -95,6 +88,11 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     this.isFoldingNavigation = !this.isFoldingNavigation;
   }
 
+  onClickCatalog(catalog: Catalog.Tree): void {
+    this.mode = ExploreMode.CATALOG;
+    this.selectedCatalog = catalog;
+  }
+
   public onClickMetadata(metadata: Metadata) {
     this.selectedMetadata = metadata
   }
@@ -103,18 +101,34 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     this.selectedMetadata = null;
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  private _setMetadataSourceTypeCount(): void {
+    this.loadingShow();
+    this.metadataService.getMetadataSourceTypeCount()
+      .then((result: {ENGINE: number, JDBC: number, STAGEDB: number}) => {
+        if (!_.isNil(result.ENGINE)) {
+          this.sourceTypeCount = result.ENGINE;
+        }
+        if (!_.isNil(result.JDBC)) {
+          this.databaseTypeCount = result.JDBC;
+        }
+        if (!_.isNil(result.STAGEDB)) {
+          this.stagingTypeCount = result.STAGEDB;
+        }
+        this.loadingHide();
+      })
+      .catch(error => this.commonExceptionHandler(error));
+  }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
+  private _setCatalogList(catalogId: string): void {
+    this.loadingShow();
+    this.catalogService.getTreeCatalogs(catalogId)
+      .then((result) => {
+        if (catalogId === Catalog.Constant.CATALOG_ROOT_ID) {
+          this.catalogList = result;
+        }
+      })
+      .catch(error => this.commonExceptionHandler(error));
+  }
 }
 
 enum ExploreMode {

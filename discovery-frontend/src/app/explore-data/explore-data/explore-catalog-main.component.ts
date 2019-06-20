@@ -12,17 +12,20 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
 import {AbstractComponent} from '../../common/component/abstract.component';
-import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
 import * as _ from "lodash";
 import {StringUtil} from "../../common/util/string.util";
+import {Catalog} from "../../domain/catalog/catalog";
+import {CatalogService} from "../../meta-data-management/catalog/service/catalog.service";
 
 @Component({
   selector: 'explore-catalog-main',
   templateUrl: './explore-catalog-main.component.html',
 })
-export class ExploreCatalogMainComponent extends AbstractComponent {
+export class ExploreCatalogMainComponent extends AbstractComponent implements OnChanges {
+
+  @Input() readonly catalog: Catalog.Tree;
 
   metadataList;
 
@@ -30,22 +33,23 @@ export class ExploreCatalogMainComponent extends AbstractComponent {
   @Output() readonly clickedMetadata = new EventEmitter();
 
   // 생성자
-  constructor(
-    protected element: ElementRef,
-    protected injector: Injector,
-    private _metadataService: MetadataService) {
+  constructor(private catalogService: CatalogService,
+              protected element: ElementRef,
+              protected injector: Injector) {
     super(element, injector);
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Override Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // Init
   ngOnInit() {
     super.ngOnInit();
-    this.setMetadataList();
   }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!_.isNil(changes.catalog.currentValue)) {
+      this.setMetadataList(changes.catalog.currentValue.id);
+    }
+  }
+
 
   isEnableTag(metadata): boolean {
     return !_.isNil(metadata.tags) && metadata.tags.length !== 0;
@@ -55,14 +59,18 @@ export class ExploreCatalogMainComponent extends AbstractComponent {
     return StringUtil.isNotEmpty(metadata.description);
   }
 
-  setMetadataList() {
+  setMetadataList(catalogId: string) {
     const params = {
       page: this.page.page,
       size: this.page.size,
     };
-    this._metadataService.getMetaDataList(params).then((result) => {
-      // TODO set metadata list
-      this.metadataList = result._embedded.metadatas;
+    this.catalogService.getMetadataInCatalog(catalogId, params, false)
+      .then((result) => {
+        if (result._embedded) {
+          this.metadataList = result._embedded.metadatas;
+        } else {
+          this.metadataList = [];
+        }
     })
   }
 

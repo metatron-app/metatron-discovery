@@ -1,7 +1,7 @@
-<div class="ddp-ui-contents-list ddp-type ">
+<div class="ddp-ui-contents-list ddp-type">
   <div class="ddp-meta-list">
     <div class="ddp-type-label">
-      사업부
+      {{catalog.name}}
 <!--      <em class="ddp-icon-fav "></em>-->
     </div>
     <!-- box list -->
@@ -19,19 +19,18 @@
         <thead>
           <tr>
 <!--            <th>-->
-
 <!--            </th>-->
             <th>
-              Data type
+              {{'msg.metadata.md.ui.data.type' | translate}}
             </th>
             <th>
-              Data
+              {{'msg.comm.ui.name' | translate}}
             </th>
             <th>
-              Tags
+              {{'msg.metadata.md.ui.tags' | translate}}
             </th>
             <th>
-              Data Popularity
+              {{'msg.metadata.md.ui.data.popularity' | translate}}
               <div class="ddp-wrap-hover-info">
                 <em class="ddp-icon-info3"></em>
                 <!-- popup -->
@@ -56,12 +55,12 @@
               Creator
             </th>
             <th>
-              Created
+              {{'msg.comm.ui.list.created' | translate}}
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let metadata of metadataList">
+          <tr *ngFor="let metadata of metadataList" (click)="onClickMetadata(metadata)">
           <!-- favorite -->
 <!--          <td class="ddp-txt-center"><em class="ddp-icon-fav ddp-selected"></em></td>-->
           <!-- //favorite -->
