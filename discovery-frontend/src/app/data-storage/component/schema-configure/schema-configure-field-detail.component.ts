@@ -14,7 +14,8 @@
 
 import {
   Component,
-  ElementRef, EventEmitter,
+  ElementRef,
+  EventEmitter,
   HostListener,
   Injector,
   Input,
@@ -614,7 +615,11 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
           });
         break;
       case LogicalType.INTEGER:
-        this.selectedField.ingestionRule.isValidReplaceValue = (/^[0-9]*$/g).test(this.selectedField.ingestionRule.value);
+        if (Field.isMeasureField(this.selectedField)) {
+          this.selectedField.ingestionRule.isValidReplaceValue = (/^[+-]?[0-9]*$/g).test(this.selectedField.ingestionRule.value);
+        } else {
+          this.selectedField.ingestionRule.isValidReplaceValue = (/^[0-9]*$/g).test(this.selectedField.ingestionRule.value);
+        }
         // validation fail
         if (!this.selectedField.ingestionRule.isValidReplaceValue) {
           this.selectedField.ingestionRule.replaceValidationMessage = this.translateService.instant('msg.storage.ui.schema.valid.integer');
@@ -624,7 +629,11 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
       case LogicalType.FLOAT:
       case LogicalType.LNT:
       case LogicalType.LNG:
-        this.selectedField.ingestionRule.isValidReplaceValue = (/^[0-9]+([.][0-9]+)$/g).test(this.selectedField.ingestionRule.value);
+        if (Field.isMeasureField(this.selectedField)) {
+          this.selectedField.ingestionRule.isValidReplaceValue = (/^[+-]?[0-9]+([.][0-9]+)$/g).test(this.selectedField.ingestionRule.value);
+        } else {
+          this.selectedField.ingestionRule.isValidReplaceValue = (/^[0-9]+([.][0-9]+)$/g).test(this.selectedField.ingestionRule.value);
+        }
         // validation fail
         if (!this.selectedField.ingestionRule.isValidReplaceValue) {
           this.selectedField.ingestionRule.replaceValidationMessage = this.translateService.instant('msg.storage.ui.schema.valid.decimal');
