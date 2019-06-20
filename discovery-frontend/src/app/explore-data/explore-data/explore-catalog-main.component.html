@@ -65,7 +65,7 @@
 <!--          <td class="ddp-txt-center"><em class="ddp-icon-fav ddp-selected"></em></td>-->
           <!-- //favorite -->
           <td>
-            <span class="ddp-box-tag-value ddp-datasource">test</span>
+            <span class="ddp-box-tag-value ddp-datasource">{{getConvertedMetadataType(metadata.sourceType)}}</span>
           </td>
           <td>
             <div class="ddp-txt-long">
@@ -86,7 +86,7 @@
             </div>
           </td>
           <td>
-            <span class="ddp-txt-long" title="홍길동">홍길동</span>
+            <span class="ddp-txt-long" title="{{metadata?.createdBy?.fullName}}">{{metadata?.createdBy?.fullName}}</span>
           </td>
           <td>
             {{metadata.createdTime | mdate: 'YYYY-MM-DD HH:mm'}}

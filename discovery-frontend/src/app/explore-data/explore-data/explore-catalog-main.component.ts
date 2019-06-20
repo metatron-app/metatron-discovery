@@ -18,6 +18,7 @@ import * as _ from "lodash";
 import {StringUtil} from "../../common/util/string.util";
 import {Catalog} from "../../domain/catalog/catalog";
 import {CatalogService} from "../../meta-data-management/catalog/service/catalog.service";
+import {SourceType} from "../../domain/meta-data-management/metadata";
 
 @Component({
   selector: 'explore-catalog-main',
@@ -49,7 +50,17 @@ export class ExploreCatalogMainComponent extends AbstractComponent implements On
       this.setMetadataList(changes.catalog.currentValue.id);
     }
   }
-
+  
+  getConvertedMetadataType(sourceType: SourceType) {
+    switch (sourceType) {
+      case SourceType.ENGINE:
+        return this.translateService.instant('msg.comm.th.ds');
+      case SourceType.JDBC:
+        return this.translateService.instant('msg.storage.li.db');
+      case SourceType.STAGEDB:
+        return this.translateService.instant('msg.storage.li.hive');
+    }
+  }
 
   isEnableTag(metadata): boolean {
     return !_.isNil(metadata.tags) && metadata.tags.length !== 0;
@@ -64,7 +75,7 @@ export class ExploreCatalogMainComponent extends AbstractComponent implements On
       page: this.page.page,
       size: this.page.size,
     };
-    this.catalogService.getMetadataInCatalog(catalogId, params, false)
+    this.catalogService.getMetadataInCatalog(catalogId, params, false, 'forListView')
       .then((result) => {
         if (result._embedded) {
           this.metadataList = result._embedded.metadatas;
