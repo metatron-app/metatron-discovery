@@ -119,6 +119,40 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
     this.changedFieldFormat.emit(this.fieldFormat);
   }
 
+
+  public initFromDictionary(): void {
+    // field format
+    if (isNullOrUndefined(this.fieldFormat.formatInitialize)) {
+      this.fieldFormat = FieldFormat.of(this.fieldFormat);
+    }
+    // set value list
+    if (isNullOrUndefined(this._valueList)) {
+      this._valueList = this._dateList ? this._dateList.reduce((acc, data) => {
+        if (!isNullOrUndefined(data[this.name])) {
+          acc.push(data[this.name]);
+        }
+        return acc;
+      }, []) : [];
+    }
+    // if init format
+    if (StringUtil.isEmpty(this.fieldFormat.format) && this.fieldFormat.type === FieldFormatType.DATE_TIME) {
+      // if not exist default format
+      if (isNullOrUndefined(this.defaultFormat)) {
+        this._checkFormatValidation(true);
+      } else { // if exist default format
+        this.fieldFormat.format = this.defaultFormat;
+        this.fieldFormat.isValidFormat = true;
+      }
+    } else if (StringUtil.isNotEmpty(this.fieldFormat.format) && this.fieldFormat.type === FieldFormatType.DATE_TIME) {
+      this._checkFormatValidation();
+    } else if (this.fieldFormat.type === FieldFormatType.UNIX_TIME) {
+      this.fieldFormat.isValidFormat = true;
+    }
+    // open
+    this.fieldFormat.isShowTimestampValidPopup = true;
+    this.changedFieldFormat.emit(this.fieldFormat);
+  }
+
   /**
    * Cancel
    */
