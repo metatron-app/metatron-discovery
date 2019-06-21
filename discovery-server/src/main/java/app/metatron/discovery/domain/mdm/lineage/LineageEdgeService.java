@@ -14,6 +14,20 @@
 
 package app.metatron.discovery.domain.mdm.lineage;
 
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.dataprep.teddy.Row;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotSerializeIntoJsonException;
+import app.metatron.discovery.domain.dataprep.transform.PrepTransformService;
+import app.metatron.discovery.domain.dataprep.transform.TeddyImpl;
+import app.metatron.discovery.domain.mdm.Metadata;
+import app.metatron.discovery.domain.mdm.MetadataRepository;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -28,6 +42,15 @@ public class LineageEdgeService {
 
   @Autowired
   LineageEdgeRepository edgeRepository;
+
+  @Autowired
+  MetadataRepository metadataRepository;
+
+  @Autowired
+  PrDatasetRepository datasetRepository;
+
+  @Autowired
+  PrepTransformService prepTransformService;
 
   public LineageEdgeService() {
   }
@@ -109,4 +132,151 @@ public class LineageEdgeService {
     LOGGER.trace("getLineageMap(): end");
     return topNode;
   }
+
+  public List<LineageEdge> loadLineageMapDsByDsName(String wrangledDsName) {
+    if (wrangledDsName == null) {
+      wrangledDsName = "DEFAULT_LINEAGE_MAP";
+    }
+
+    List<PrDataset> datasets = datasetRepository.findByDsName(wrangledDsName);
+    if (datasets.size() == 0) {
+      LOGGER.error("loadLineageMapDsByDsName(): Cannot find W.DS by name: " + wrangledDsName);
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET);
+    } else if (datasets.size() > 1) {
+      LOGGER.error(String.format("loadLineageMapDsByDsName(): %d W.DS by name: %s", datasets.size(), wrangledDsName));
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_AMBIGUOUS_DATASET);
+    }
+
+    PrDataset dataset = datasets.get(0);
+    return loadLineageMapDs(dataset.getDsId(), dataset.getDsName());
+  }
+
+  private boolean checkDuplication(LineageEdge edge) {
+    List<LineageEdge> edges = edgeRepository.findAll();
+
+    for (LineageEdge edgeStored : edges) {
+      if (edge.equals(edgeStored)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Read a dependency dataset. (feat. Dataprep)
+   *
+   * For metadata dependency we use 7 Columns below:
+   *
+   *  - from_meta_name, to_meta_name
+   *  - from_col_name, to_col_name
+   *  - description
+   *  - (from_id, to_id)
+   *
+   * If from_col_name exists, then it's dependency between columns. If not, it's between metadata.
+   * When find by name:
+   *  - if cannot find any, then throw an exception.
+   *  - if multiple metadata found, use the ids. That means if there is an id, then we don't find by name.
+   *  - if ids are not provided, throw an exception.
+   *
+   * NOTE: IT'S RARE THAT A NON-TEST SYSTEM HAS METADATA WITH THE SAME NAMES.
+   *
+   * Belows are examples. (Each ids are omitted.)
+   *
+   * +---------------------+-------------------+----------------------+---------------------+--------------------+
+   * | from_meta_name      | from_col_name     | downstream_meta_name | downstream_col_name | description        |
+   * +---------------------+-------------------+----------------------+---------------------+--------------------+
+   * | Imported dataset #1 |                   | Hive table #1        |                     | Cleansing #1       |
+   * | Hive table #2       |                   | Hive table #1        |                     | UPDATE SQL #1      |
+   * | Hive table #1       |                   | Datasource #1        |                     | Batch ingestion #1 |
+   * +---------------------+-------------------+----------------------+---------------------+--------------------+
+   *
+   * (Imported dataset #1) ---(Cleansing #1)------> Hive table #1 ---(Batch ingestion #1)---> (Datasource #1)
+   *                                          /
+   * (Hive table #2) ---(UPDATE SQL #1)------/
+   *
+   * +---------------------+-------------------+----------------------+---------------------+--------------------+
+   * | from_meta_name      | from_col_name     | downstream_meta_name | downstream_col_name | description        |
+   * +---------------------+-------------------+----------------------+---------------------+--------------------+
+   * | Imported dataset #1 | col_1             | Hive table #1        | col_1               | Cleansing #1       |
+   * | Imported dataset #1 | col_2             | Hive table #1        | col_2               | Cleansing #1       |
+   * | Hive table #2       | rebate            | Hive table #1        | col_2               | UPDATE SQL #1      |
+   * | Hive table #1       | col_1             | Datasource #1        | region_name         | Batch ingestion #1 |
+   * | Hive table #1       | col_2             | Datasource #1        | region_sum          | Batch ingestion #1 |
+   * +---------------------+-------------------+----------------------+---------------------+--------------------+
+   *
+   * (col_1) ----------------> (col_1) --------------> region_name
+   *
+   * (col_2) ----------------> (col_2) --------------> region_sum
+   *                    /
+   * (rebate) ---------/
+   */
+  public List<LineageEdge> loadLineageMapDs(String wrangledDsId, String wrangledDsName) {
+    DataFrame df = null;
+
+    try {
+      prepTransformService.loadWrangledDataset(wrangledDsId);
+    } catch (IOException e) {
+      LOGGER.error("loadLineageMapDs(): IOException occurred: dsName=" + wrangledDsName);
+      e.printStackTrace();
+    } catch (CannotSerializeIntoJsonException e) {
+      LOGGER.error("loadLineageMapDs(): CannotSerializeIntoJsonException occurred: dsName=" + wrangledDsName);
+      e.printStackTrace();
+    }
+
+    List<LineageEdge> newEdges = new ArrayList();
+
+    for (Row row : df.rows) {
+      String fromMetaId = getMetaIdByRow(row, true);
+      String toMetaId = getMetaIdByRow(row, true);
+      String description = (String) row.get("description");
+
+      LineageEdge edge = new LineageEdge(fromMetaId, toMetaId, description);
+      if (checkDuplication(edge)) {
+        continue;
+      }
+
+      edgeRepository.save(edge);
+      newEdges.add(edge);
+    }
+
+    return newEdges;
+  }
+
+  private String getMetaIdByRow(Row row, boolean from) {
+    String metaId;
+    String metaName;
+    String metaColName;
+
+    if (from) {
+      metaId = (String) row.get("from_meta_id");
+      metaName = (String) row.get("from_meta_name");
+      metaColName = (String) row.get("from_meta_col_name");
+    } else {
+      metaId = (String) row.get("to_meta_id");
+      metaName = (String) row.get("to_meta_name");
+      metaColName = (String) row.get("to_meta_col_name");
+    }
+
+    // When ID is known
+    if (metaId != null) {
+      return metaId;
+    }
+
+    // When metaColName exists, the target is a metadata column.
+    if (metaColName != null) {
+      metaName = metaColName;
+    }
+
+    List<Metadata> metadatas = metadataRepository.findByName(metaName);
+
+    if (metadatas.size() == 0) {
+      LOGGER.error(String.format("loadLineageMapDs(): Metadata %s not found: ignored", metaName));
+      return null;
+    }
+
+    // Return the first one. If duplicated, ignore the rest.
+    return metadatas.get(0).getId();
+  }
+
 }

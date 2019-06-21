@@ -16,6 +16,7 @@ package app.metatron.discovery.domain.dataprep.repository;
 
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.entity.PrDatasetProjections;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -36,6 +37,8 @@ public interface PrDatasetRepository extends JpaRepository<PrDataset, String>,Pr
     //List<PrDataset> findByDsType(@Param("dsType") PrDataset.DS_TYPE dsType);
 
     //Page<PrDataset> findByDsNameContainingAndImportType(@Param("dsName") String dsName, @Param("importType") PrDataset.IMPORT_TYPE importType, Pageable pageable);
+
+    List<PrDataset> findByDsName(String dsName);
 
     Page<PrDataset> findByDsNameContaining(@Param("dsName") String dsName, Pageable pageable);
 

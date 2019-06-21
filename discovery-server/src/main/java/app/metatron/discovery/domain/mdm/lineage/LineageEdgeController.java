@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RepositoryRestController
 public class LineageEdgeController {
@@ -74,5 +75,21 @@ public class LineageEdgeController {
     LineageMapNode lineageMapNode = lineageEdgeService.getLineageMap(metaId);
 
     return ResponseEntity.ok(lineageMapNode);
+  }
+
+  // Load a lineaged map dataset named "dsName" (default=DEFAULT_LINEAGE_MAP), return the new edges created by this.
+  @RequestMapping(value = "/metadatas/lineage/map", method = RequestMethod.POST, produces = "application/json")
+  public ResponseEntity<?> loadLineageMap(@RequestBody Map<String, String> request) {
+    List<LineageEdge> newEdges;
+    String dsId = request.get("dsId");
+    String dsName = request.get("dsName");
+
+    if (dsId != null) {
+      newEdges = lineageEdgeService.loadLineageMapDs(dsId, dsName);
+    } else {
+      newEdges = lineageEdgeService.loadLineageMapDsByDsName(dsName);
+    }
+
+    return ResponseEntity.created(URI.create("")).body(newEdges);
   }
 }

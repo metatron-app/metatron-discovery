@@ -788,6 +788,7 @@
   "msg.dp.alert.no.dataflow" : "Dataflow가 존재하지 않습니다",
   "msg.dp.alert.using.other.dataflow" : "이 dataset은 다른 dataflow에서 사용되고 있습니다",
   "msg.dp.alert.no.dataset" : "Dataset이 존재하지 않습니다",
+  "msg.dp.alert.ambiguous.dataset" : "해당 이름을 갖는 2개 이상의 dataset이 존재합니다",
   "msg.dp.alert.no.snapshot" : "Snapshot이 존재하지 않습니다",
   "msg.dp.alert.unsupported.imported.dataset" : "지원하지 않는 형식의 imported dataset입니다",
   "msg.dp.alert.no.flow.info" : "데이터플로우 정보가 없습니다",

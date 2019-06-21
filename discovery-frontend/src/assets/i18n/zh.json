@@ -763,6 +763,7 @@
   "msg.dp.alert.no.dataflow": "不存在Dataflow",
   "msg.dp.alert.using.other.dataflow" : "此数据集由另一个数据流使用",
   "msg.dp.alert.no.dataset": "不存在Dataset",
+  "msg.dp.alert.ambiguous.dataset" : "有多个数据集",
   "msg.dp.alert.no.snapshot" : "不存在Snapshot",
   "msg.dp.alert.unsupported.imported.dataset" : "不支持的导入数据集类型",
   "msg.dp.alert.no.flow.info": "无数据流信息",

@@ -97,4 +97,15 @@ public class MetadataRepositoryImpl extends QueryDslRepositorySupport implements
 
     return query.fetch();
   }
+
+  @Override
+  public List<Metadata> findByName(String name) {
+    QMetadata qMetadata = QMetadata.metadata;
+    QMetadataSource qMetadataSource = qMetadata.source;
+
+    JPQLQuery query = from(qMetadata).distinct().join(qMetadataSource).fetchJoin()
+        .where(qMetadataSource.name.eq(name));
+
+    return query.fetch();
+  }
 }

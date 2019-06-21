@@ -789,6 +789,7 @@
   "msg.dp.alert.no.dataflow" : "Dataflow does not exist",
   "msg.dp.alert.using.other.dataflow" : "This dataset is used by another dataflow",
   "msg.dp.alert.no.dataset" : "Dataset does not exist",
+  "msg.dp.alert.ambiguous.dataset" : "There are 2 or more datasets with the name",
   "msg.dp.alert.no.snapshot" : "Snapshot does not exist",
   "msg.dp.alert.unsupported.imported.dataset" : "Unsupported imported dataset type",
   "msg.dp.alert.no.flow.info" : "No dataflow information",
