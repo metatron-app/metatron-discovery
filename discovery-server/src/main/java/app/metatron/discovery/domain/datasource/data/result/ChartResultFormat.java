@@ -165,11 +165,16 @@ public class ChartResultFormat extends SearchResultFormat {
         String columnAggregation = getOptions("columnAggregation", "");
         response = response.reshapeForGrid(columnAggregation);
         break;
+      case "bar":
+        response = (MatrixResponse) originalResultFormat.makeResult(node);
+        if (request.getPivot().reverseMode()) { // process for reverse mode
+          response = response.reshapeForReverse(columnDelimeter);
+        }
+        break;
       case "line":
       case "combine":
       case "control":
       case "radar":
-      case "bar":
       case "waterfall":
       case "gauge":
       default:
@@ -392,8 +397,17 @@ public class ChartResultFormat extends SearchResultFormat {
 
   public SearchResultFormat toBarPivotFormat(Pivot pivot) {
 
-    List<Field> columns = pivot.getColumns();
-    List<Field> rows = pivot.getRows();
+    boolean reverseMode = pivot.reverseMode();
+
+    List<Field> columns;
+    List<Field> rows;
+    if (reverseMode) {
+      columns = pivot.getRows();
+      rows = pivot.getColumns();
+    } else {
+      columns = pivot.getColumns();
+      rows = pivot.getRows();
+    }
     List<Field> aggrs = pivot.getAggregations();
 
     List<String> keyFields = Lists.newArrayList();
@@ -413,7 +427,11 @@ public class ChartResultFormat extends SearchResultFormat {
         if (field instanceof MeasureField || field instanceof ExpressionField) {
           aggregation.add(new PivotResultFormat.Aggregation(field.getAlias()));
         } else if (field instanceof DimensionField || field instanceof TimestampField) {
-          pivotFields.add(new PivotResultFormat.Pivot(field));
+          if (reverseMode) {
+            keyFields.add(field.getAlias());
+          } else {
+            pivotFields.add(new PivotResultFormat.Pivot(field));
+          }
         }
       }
     }

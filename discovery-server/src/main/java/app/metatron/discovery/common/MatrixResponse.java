@@ -44,6 +44,7 @@ package app.metatron.discovery.common;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.node.NumericNode;
@@ -56,6 +57,7 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.StringTokenizer;
 
@@ -105,14 +107,14 @@ public class MatrixResponse<R, C> implements Serializable {
 
   public MatrixResponse(List<R> rows, List<Column<C>> columns, List<C> values) {
     this.rows = rows;
-    if(rows != null) this.categoryCount = rows.size();
+    if (rows != null) this.categoryCount = rows.size();
     this.columns = columns;
     this.values = values;
   }
 
   public MatrixResponse(List<R> rows, Map<String, List<C>> columnMap) {
     this.rows = rows;
-    if(rows != null) this.categoryCount = rows.size();
+    if (rows != null) this.categoryCount = rows.size();
     columns = Lists.newArrayList();
     for (String key : columnMap.keySet()) {
       columns.add(new Column<>(key, columnMap.get(key)));
@@ -121,7 +123,7 @@ public class MatrixResponse<R, C> implements Serializable {
 
   public MatrixResponse(List<R> rows, Map<String, List<List<C>>> categoryMap, Map<String, List<List<C>>> columnMap) {
     this.rows = rows;
-    if(rows != null) this.categoryCount = rows.size();
+    if (rows != null) this.categoryCount = rows.size();
 
     this.categories = Lists.newArrayList();
     for (String key : categoryMap.keySet()) {
@@ -141,6 +143,39 @@ public class MatrixResponse<R, C> implements Serializable {
       info = Maps.newLinkedHashMap();
     }
     info.put(key, value);
+  }
+
+  /**
+   * reverse row to column
+   */
+  public MatrixResponse<R, C> reshapeForReverse(String columnDelimeter) {
+
+    Set<R> newRows = Sets.newLinkedHashSet();
+    List<Column<C>> newColumns = Lists.newArrayList();
+
+    for (int i = 0; i < rows.size(); i++) {
+
+      int categorySize = categories.size();
+      for (int j = 0; j < categorySize; j++) {
+        Column category = categories.get(j);
+        String name = rows.get(i) + columnDelimeter + category.getName();
+        List<C> values = Lists.newArrayList();
+        List<Double> percentage = Lists.newArrayList();
+        for (int k = 0; k < columns.size(); k++) {
+          Column<C> targetColumn = columns.get(k);
+          String columnName = targetColumn.getName();
+          if (!StringUtils.endsWith(columnName, category.getName())) {
+            continue;
+          }
+          newRows.add((R) StringUtils.substringBeforeLast(columnName, columnDelimeter));
+          values.add(targetColumn.getValue().get(i));
+          percentage.add(targetColumn.getPercentage().get(i));
+        }
+        newColumns.add(new Column<>(name, values, percentage));
+      }
+    }
+
+    return new MatrixResponse<>(Lists.newArrayList(newRows), newColumns);
   }
 
   /**
@@ -196,20 +231,20 @@ public class MatrixResponse<R, C> implements Serializable {
 
         // Remove measure name from name of column.
         String joinName = StringUtils.substringBeforeLast(col.getName(), columnDelimeter);
-        if(StringUtils.isEmpty(joinName) || joinName.endsWith(columnDelimeter)) {
+        if (StringUtils.isEmpty(joinName) || joinName.endsWith(columnDelimeter)) {
           continue;
         }
 
-        if(emptyRowName) {
+        if (emptyRowName) {
           // If no field is located in the Row, the measure name is placed in front.
           String[] splitedName = StringUtils.split(col.getName(), columnDelimeter);//
-          if(splitedName.length > 1) {
+          if (splitedName.length > 1) {
             joiner.add(splitedName[splitedName.length - 1]);
             for (int z = 0; z < splitedName.length - 1; z++) {
               joiner.add(splitedName[z]);
             }
           } else {
-              joiner.add(col.getName());
+            joiner.add(col.getName());
           }
         } else {
           joiner.add(rowName);
@@ -371,8 +406,8 @@ public class MatrixResponse<R, C> implements Serializable {
     }
 
     List<String[]> arrays = this.columns.stream()
-                                     .map(c -> splitColumnName(c.getName(), columnDelimeter))
-                                     .collect(toList());
+                                        .map(c -> splitColumnName(c.getName(), columnDelimeter))
+                                        .collect(toList());
 
     // addMinMax를 위한 처리
     List<Double> valueForMinMax = this.columns.stream()
@@ -380,7 +415,7 @@ public class MatrixResponse<R, C> implements Serializable {
                                               .collect(toList());
 
     NameValueTree tree = new NameValueTree(arrays, valueForMinMax);
-    if(setPercentage) {
+    if (setPercentage) {
       tree.calculatedPecentage();
     }
 
@@ -394,9 +429,6 @@ public class MatrixResponse<R, C> implements Serializable {
 
   /**
    * 맨 마지막 measure 필드를 제거하고, dimension 필드만 컬럼 구분자로 분할하여 처리
-   * @param str
-   * @param delimiter
-   * @return
    */
   private String[] splitColumnName(String str, String delimiter) {
 
@@ -713,7 +745,7 @@ public class MatrixResponse<R, C> implements Serializable {
     }
 
     public void calculatedPecentage() {
-      if(CollectionUtils.isEmpty(children)) {
+      if (CollectionUtils.isEmpty(children)) {
         return;
       }
 
@@ -721,7 +753,7 @@ public class MatrixResponse<R, C> implements Serializable {
       double sum = 0.0;
       for (NameValueTree child : children) {
         double value = child.getValue() == null ? 0.0 : (double) child.getValue();
-        if(value < 0.0) {
+        if (value < 0.0) {
           minusSum += value;
         } else {
           sum += value;
@@ -732,13 +764,13 @@ public class MatrixResponse<R, C> implements Serializable {
 
       for (NameValueTree child : children) {
         double value = child.getValue() == null ? 0.0 : (double) child.getValue();
-        child.setPercentage( sum == 0.0 ? 0.0 : ((value + minusSum) / sum) * 100);
+        child.setPercentage(sum == 0.0 ? 0.0 : ((value + minusSum) / sum) * 100);
         child.calculatedPecentage();
       }
     }
 
     public void addChild(NameValueTree childTree) {
-      if(children == null) {
+      if (children == null) {
         children = Lists.newArrayList();
       }
       children.add(childTree);
