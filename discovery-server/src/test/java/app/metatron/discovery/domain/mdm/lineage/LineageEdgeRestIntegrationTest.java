@@ -21,8 +21,11 @@ import app.metatron.discovery.AbstractRestIntegrationTest;
 import app.metatron.discovery.TestUtils;
 import app.metatron.discovery.core.oauth.OAuthRequest;
 import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE;
 import app.metatron.discovery.domain.dataprep.rest.PrDatasetRestIntegrationTest;
 import com.facebook.presto.jdbc.internal.guava.collect.Maps;
+import com.jayway.jsonpath.JsonPath;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
@@ -198,12 +201,10 @@ public class LineageEdgeRestIntegrationTest extends AbstractRestIntegrationTest 
     String metaId8 = createMetadata("meta8", "ENGINE", "ds_mdm_08", "ds_mdm_08_id");
     String metaId9 = createMetadata("meta9", "ENGINE", "ds_mdm_09", "ds_mdm_09_id");
 
-    lineageMap = getLineageMap(metaId3);
-    System.out.print(lineageMap);
-
     TestUtils.printTestTitle("7. Test load lineage map");
 
-    prepareLineageMapDs();
+    String wrangledDsId = prepareLineageMapDs();
+    loadLineageMap();   // It has to work in both cases that wrangledDsId is given or not.
     lineageMap = getLineageMap(metaId6);
     System.out.print(lineageMap);
   }
@@ -211,13 +212,23 @@ public class LineageEdgeRestIntegrationTest extends AbstractRestIntegrationTest 
   /*
    * meta4 --(prep import)--> meta5 --(prep wrangle)----> meta6 --(prep snapshot)--> meta7 --(ingestion)--> meta8
    * meta9 --------------(prep join)------------------/
+   *
+   * returns wrangledDsId
    */
-  private void prepareLineageMapDs() {
-    String dsId = PrDatasetRestIntegrationTest.make_dataset_static(oauth_token,
-                                   "src/test/resources/csv/test_lineage.csv",
-                                   "DEFAULT_LINEAGE_MAP", "Hard-coded: LineageEdgeRestIntegrationTest.java");
-    // Just call loadLineageMap API
-    loadLineageMap();
+  private String prepareLineageMapDs() {
+    Map<String, Object> response = PrDatasetRestIntegrationTest.make_dataset_static(oauth_token,
+                         "src/test/resources/csv/test_lineage.csv",
+                         "DEFAULT_LINEAGE_MAP", "Hard-coded: LineageEdgeRestIntegrationTest.java");
+    List<Object> datasets = (List<Object>) response.get("datasets");
+    for (Object dataset : datasets) {
+      HashMap<String, Object> map = (HashMap) dataset;
+      String dsType = (String) map.get("dsType");
+      if (dsType.equals(DS_TYPE.WRANGLED.name())) {
+        return (String) map.get("dsId");
+      }
+    }
+    assert false : response;
+    return null;
   }
 
   private void loadLineageMap() {

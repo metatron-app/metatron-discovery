@@ -26,6 +26,7 @@ import app.metatron.discovery.domain.dataprep.json.PrepJsonUtil;
 import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrameService;
+import app.metatron.discovery.domain.dataprep.teddy.Row;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcQueryFailedException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcTypeNotSupportedException;
@@ -409,6 +410,37 @@ public class TeddyImpl {
     return true;
   }
 
+  // Applying "header" is the default.
+  // In cases of below, we don't do that.
+  // 4. The type of column name is not a string. (Datasets from like JDBC, Engine, etc.)
+  // 1. A null or empty column name.
+  // 2. A column that's name started with a number.
+  // 3. The length of the column name is all the same to it's column values. (This needs some efforts.)
+
+  public boolean shouldApplyHeaderRule(DataFrame df) {
+    if (df.rows.size() <= 1) {
+      return false;
+    }
+
+    Row row = df.rows.get(0);
+    for (int colno = 0; colno < df.getColCnt(); colno++) {
+      if (df.getColType(colno) != ColumnType.STRING) {
+        return false;
+      }
+
+      String col = (String) row.get(colno);
+      if (col == null || col.length() == 0) {
+        return false;
+      }
+
+      if (Character.isDigit(((String) col).charAt(0))) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   // Get header and settype rule strings via inspecting 100 rows.
   public List<String> getAutoTypingRules(DataFrame df) throws TeddyException {
     String[] ruleStrings = new String[3];
@@ -428,8 +460,10 @@ public class TeddyImpl {
 
     //If all column types of row 0 elements is String and predicted column types is not all String.
     //Then add Header rule and change column name.
-    if(Collections.frequency(columnTypesRow0, ColumnType.STRING) == df.colCnt &&
-        Collections.frequency(columnTypes, ColumnType.STRING) != df.colCnt && looksLikeHeadered(df)) {
+//    if(Collections.frequency(columnTypesRow0, ColumnType.STRING) == df.colCnt &&
+//        Collections.frequency(columnTypes, ColumnType.STRING) != df.colCnt && looksLikeHeadered(df)) {
+
+    if (shouldApplyHeaderRule(df)) {
       String ruleString = "header rownum: 1";
 
       setTypeRules.add(ruleString);

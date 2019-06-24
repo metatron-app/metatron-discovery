@@ -17,8 +17,12 @@ package app.metatron.discovery.domain.dataprep.rest;
 import app.metatron.discovery.AbstractRestIntegrationTest;
 import app.metatron.discovery.core.oauth.OAuthRequest;
 import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE;
+import app.metatron.discovery.domain.dataprep.transform.PrepTransformRequest;
 import com.facebook.presto.jdbc.internal.guava.collect.Maps;
 import com.facebook.presto.jdbc.internal.jackson.core.JsonProcessingException;
+import com.jayway.jsonpath.JsonPath;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
@@ -143,7 +147,8 @@ public class PrDatasetRestIntegrationTest extends AbstractRestIntegrationTest {
         return importedDsId;
     }
 
-    public static String make_dataset_static(String oauth_token, String path,
+    // returns dataflow create response as map
+    public static Map<String, Object> make_dataset_static(String oauth_token, String path,
                                              String dsName, String dsDesc) {
         List<String> ret = file_upload_static(oauth_token, path);
         String filenameBeforeUpload=ret.get(0);
@@ -203,16 +208,35 @@ public class PrDatasetRestIntegrationTest extends AbstractRestIntegrationTest {
             .extract()
             .response();
 
-        Map<String, Object> transform_post_body = Maps.newHashMap();
-        String dfId = dataflow_post_response.path("dfId");
-        transform_post_body.put("dfId", dfId);
+        /*
+         * "response_map":
+         *   "dfId" : "d7108a9e-8be2-43cb-806c-c21c28d8b9ba"
+         *   "dfDesc" : "posted_df_desc1"
+         *   "createdBy" : " size = 4"
+         *   "importedDsCount" : "1"
+         *   "createdTime" : "2019-06-24T10:38:36.026Z"
+         *   "datasets" : [
+         *     "dsId" -> "ab621d39-a6e7-4dff-bfc6-ca77c1edc136"
+         *     "dsName" -> "DEFAULT_LINEAGE_MAP"
+         *     "dsType" -> "IMPORTED"
+         *     "storedUri" -> "file:///dataprep/uploads/17253834-3afe-470a-a8e2-9d9e8a616b16.csv"
+         */
 
-        return importedDsId;
+        Map<String, Object> dataflow_post_response_map = dataflow_post_response.jsonPath().get();
+        return dataflow_post_response_map;
     }
 
     public String make_dataset() {
-        return make_dataset_static(oauth_token, "src/test/resources/test_dataprep.csv",
-                                   null, null);
+        Map<String, Object> response = make_dataset_static(oauth_token, "src/test/resources/test_dataprep.csv",
+                                                           null, null);
+        List<PrDataset> datasets = (List<PrDataset>) response.get("datasets");
+        for (PrDataset dataset : datasets) {
+            if (dataset.getDsType() == DS_TYPE.IMPORTED) {
+                return dataset.getDsId();
+            }
+        }
+        assert false : response;
+        return null;
     }
 
     public String make_dataset_with_db() {

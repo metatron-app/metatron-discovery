@@ -85,12 +85,10 @@ public class LineageEdgeController {
     String dsId = request.get("dsId");
     String dsName = request.get("dsName");
 
-  if (dsId != null) {
+    if (dsId != null) {
       newEdges = lineageEdgeService.loadLineageMapDs(dsId, dsName);
-    } else if (dsName != null) {
-      newEdges = lineageEdgeService.loadLineageMapDsByDsName(dsName);
     } else {
-      newEdges = lineageEdgeService.loadLineageMapDs();
+      newEdges = lineageEdgeService.loadLineageMapDsByDsName(dsName);
     }
 
     return ResponseEntity.created(URI.create("")).body(newEdges);

@@ -16,6 +16,7 @@ package app.metatron.discovery.domain.mdm.lineage;
 
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
@@ -141,32 +142,42 @@ public class LineageEdgeService {
     return topNode;
   }
 
-  public List<LineageEdge> loadLineageMapDs() {
-    return loadLineageMapDsByDsName("DEFAULT_LINEAGE_MAP");
-  }
-
   public List<LineageEdge> loadLineageMapDsByDsName(String wrangledDsName) {
+    if (wrangledDsName == null) {
+      wrangledDsName = "DEFAULT_LINEAGE_MAP";
+    }
+
     List<PrDataset> datasets = datasetRepository.findByDsName(wrangledDsName);
     if (datasets.size() == 0) {
       LOGGER.error("loadLineageMapDsByDsName(): Cannot find W.DS by name: " + wrangledDsName);
-      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET);
-//    } else if (datasets.size() > 1) {
-//      LOGGER.error(String.format("loadLineageMapDsByDsName(): %d W.DS by name: %s", datasets.size(), wrangledDsName));
-//      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_AMBIGUOUS_DATASET);
+      throw PrepException
+          .create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET);
     }
 
     // Use the 1st one if many.
+    for (PrDataset dataset : datasets) {
+      if (dataset.getDsType() == DS_TYPE.WRANGLED) {
+        return loadLineageMapDs(dataset.getDsId(), dataset.getDsName());
+      }
+    }
 
-    PrDataset dataset = datasets.get(0);
-    return loadLineageMapDs(dataset.getDsId(), dataset.getDsName());
+    assert false;
+    return new ArrayList();
   }
 
-  private LineageEdge findAndReplace(LineageEdge newEdge) {
-    List<LineageEdge> edges = edgeRepository.findAll();
+  private boolean isSame(String a, String b) {
+    return a == null ? false : a.equals(b);
+  }
 
-    for (LineageEdge edgeStored : edges) {
-      if (newEdge.equals(edgeStored)) {
-        return edgeStored;
+  private LineageEdge findOrNew(String fromMetaId, String toMetaId, String description) {
+    List<LineageEdge> edges = edgeRepository.findAll();
+    LineageEdge newEdge = new LineageEdge(fromMetaId, toMetaId, description);
+
+    for (LineageEdge edge : edges) {
+      if (isSame(edge.getFromMetaId(), fromMetaId) &&
+          isSame(edge.getToMetaId(), toMetaId) &&
+          isSame(edge.getDescription(), description)) {
+        return edge;
       }
     }
 
@@ -238,13 +249,11 @@ public class LineageEdgeService {
 
     for (Row row : df.rows) {
       String fromMetaId = getMetaIdByRow(row, true);
-      String toMetaId = getMetaIdByRow(row, true);
+      String toMetaId = getMetaIdByRow(row, false);
       String description = (String) row.get("description");
 
-      LineageEdge edge = new LineageEdge(fromMetaId, toMetaId, description);
-
       // Over write if exists. (UPSERT)
-      edge = findAndReplace(edge);
+      LineageEdge edge = findOrNew(fromMetaId, toMetaId, description);
 
       edgeRepository.save(edge);
       newEdges.add(edge);

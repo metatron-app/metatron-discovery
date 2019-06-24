@@ -83,23 +83,6 @@ public class LineageEdge extends AbstractHistoryEntity {
     this.description = description;
   }
 
-  private boolean same(String a, String b) {
-    return a == null ? false : a.equals(b);
-  }
-
-  public boolean equals(LineageEdge edge) {
-    return same(this.fromMetaId, fromMetaId) && same(this.toMetaId, toMetaId) && same(this.description, description);
-  }
-
-  public int hashcode() {
-    int prime = 31;
-    int hashCode = 1;
-
-    hashCode = prime * hashCode + ((fromMetaId == null) ? 0 : fromMetaId.hashCode());
-    hashCode = prime * hashCode + ((toMetaId == null) ? 0 : toMetaId.hashCode());
-    return prime * hashCode + ((description == null) ? 0 : description.hashCode());
-  }
-
   @Override
   public String toString() {
     return "LineageEdge{" +
