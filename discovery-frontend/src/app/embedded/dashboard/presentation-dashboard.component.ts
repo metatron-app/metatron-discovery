@@ -57,7 +57,7 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
   public isPlayShow: boolean = false;   // 쇼 실행 여부
 
   // 타이머 관련
-  public timerInterval: number[] = [3, 5, 7, 9];
+  public timerInterval: number[] = [3, 5, 7, 9, 60];
   public isShowIntervalLayer: boolean = false;
   public selectedInterval: number = 3;   // 선택된 타이머 간격
 
