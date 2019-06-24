@@ -33,11 +33,11 @@ public class LineageEdge extends AbstractHistoryEntity {
   @Column(name = "edge_id")
   private String edgeId;
 
-  @Column(name = "from_meta_id")
-  private String fromMetaId;
+  @Column(name = "upstream_meta_id")
+  private String upstreamMetaId;
 
-  @Column(name = "to_meta_id")
-  private String toMetaId;
+  @Column(name = "downstream_meta_id")
+  private String downstreamMetaId;
 
   @Lob
   @Column(name = "description")
@@ -46,10 +46,10 @@ public class LineageEdge extends AbstractHistoryEntity {
   public LineageEdge() {
   }
 
-  public LineageEdge(String fromMetaId, String toMetaId, String description) {
+  public LineageEdge(String upstreamMetaId, String downstreamMetaId, String description) {
     this();
-    this.fromMetaId = fromMetaId;
-    this.toMetaId = toMetaId;
+    this.upstreamMetaId = upstreamMetaId;
+    this.downstreamMetaId = downstreamMetaId;
     this.description = description;
   }
 
@@ -61,20 +61,20 @@ public class LineageEdge extends AbstractHistoryEntity {
     this.edgeId = edgeId;
   }
 
-  public String getFromMetaId() {
-    return fromMetaId;
+  public String getUpstreamMetaId() {
+    return upstreamMetaId;
   }
 
-  public void setFromMetaId(String fromMetaId) {
-    this.fromMetaId = fromMetaId;
+  public void setUpstreamMetaId(String upstreamMetaId) {
+    this.upstreamMetaId = upstreamMetaId;
   }
 
-  public String getToMetaId() {
-    return toMetaId;
+  public String getDownstreamMetaId() {
+    return downstreamMetaId;
   }
 
-  public void setToMetaId(String toMetaId) {
-    this.toMetaId = toMetaId;
+  public void setDownstreamMetaId(String downstreamMetaId) {
+    this.downstreamMetaId = downstreamMetaId;
   }
 
   public String getDescription() {
@@ -89,8 +89,8 @@ public class LineageEdge extends AbstractHistoryEntity {
   public String toString() {
     return "LineageEdge{" +
         "edgeId='" + edgeId + '\'' +
-        ", fromMetaId='" + fromMetaId + '\'' +
-        ", toMetaId='" + toMetaId + '\'' +
+        ", upstreamMetaId='" + upstreamMetaId + '\'' +
+        ", downstreamMetaId='" + downstreamMetaId + '\'' +
         ", description='" + description + '\'' +
         '}';
   }

@@ -250,40 +250,40 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
                     let paramList = [
                       {
                         'description' : result[0].name +' -> '+result[1].name,
-                        'fromMetaId' : result[0].id,
-                        'toMetaId' : result[1].id
+                        'upstreamMetaId' : result[0].id,
+                        'downstreamMetaId' : result[1].id
                       }, {
                         'description' : result[1].name +' -> '+result[2].name,
-                        'fromMetaId' : result[1].id,
-                        'toMetaId' : result[2].id
+                        'upstreamMetaId' : result[1].id,
+                        'downstreamMetaId' : result[2].id
                       }, {
                         'description' : result[3].name +' -> '+result[0].name,
-                        'fromMetaId' : result[3].id,
-                        'toMetaId' : result[0].id
+                        'upstreamMetaId' : result[3].id,
+                        'downstreamMetaId' : result[0].id
                       }, {
                         'description' : result[2].name +' -> '+result[4].name,
-                        'fromMetaId' : result[2].id,
-                        'toMetaId' : result[4].id
+                        'upstreamMetaId' : result[2].id,
+                        'downstreamMetaId' : result[4].id
                       }, {
                         'description' : result[1].name +' -> '+result[2].name,
-                        'fromMetaId' : result[1].id,
-                        'toMetaId' : result[2].id
+                        'upstreamMetaId' : result[1].id,
+                        'downstreamMetaId' : result[2].id
                       }, {
                         'description' : result[5].name +' -> '+result[1].name,
-                        'fromMetaId' : result[5].id,
-                        'toMetaId' : result[1].id
+                        'upstreamMetaId' : result[5].id,
+                        'downstreamMetaId' : result[1].id
                       }, {
                         'description' : result[6].name +' -> '+result[5].name,
-                        'fromMetaId' : result[6].id,
-                        'toMetaId' : result[5].id
+                        'upstreamMetaId' : result[6].id,
+                        'downstreamMetaId' : result[5].id
                       }, {
                         'description' : result[2].name +' -> '+result[7].name,
-                        'fromMetaId' : result[2].id,
-                        'toMetaId' : result[7].id
+                        'upstreamMetaId' : result[2].id,
+                        'downstreamMetaId' : result[7].id
                       }, {
                         'description' : result[8].name +' -> '+result[0].name,
-                        'fromMetaId' : result[8].id,
-                        'toMetaId' : result[0].id
+                        'upstreamMetaId' : result[8].id,
+                        'downstreamMetaId' : result[0].id
                       }
                     ];
                     paramList.forEach(params => {

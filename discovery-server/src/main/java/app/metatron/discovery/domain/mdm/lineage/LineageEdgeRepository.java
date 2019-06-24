@@ -20,6 +20,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @RepositoryRestResource
 public interface LineageEdgeRepository extends JpaRepository<LineageEdge, String> {
-  List<LineageEdge> findByFromMetaId(String fromMetaId);
-  List<LineageEdge> findByToMetaId(String toMetaId);
+  List<LineageEdge> findByUpstreamMetaId(String upstreamMetaId);
+  List<LineageEdge> findByDownstreamMetaId(String downstreamMetaId);
 }

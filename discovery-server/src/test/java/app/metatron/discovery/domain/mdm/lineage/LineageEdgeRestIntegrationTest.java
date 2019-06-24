@@ -92,10 +92,10 @@ public class LineageEdgeRestIntegrationTest extends AbstractRestIntegrationTest 
     return readResponse.jsonPath().getMap("");
   }
 
-  private void createLineageEdge(String fromMetaId, String toMetaId, String description) {
+  private void createLineageEdge(String upstreamMetaId, String downstreamMetaId, String description) {
     Map<String, Object> request = Maps.newHashMap();
-    request.put("fromMetaId", fromMetaId);
-    request.put("toMetaId", toMetaId);
+    request.put("upstreamMetaId", upstreamMetaId);
+    request.put("downstreamMetaId", downstreamMetaId);
     request.put("description", description);
 
     // @formatter:off
@@ -186,7 +186,7 @@ public class LineageEdgeRestIntegrationTest extends AbstractRestIntegrationTest 
 
     TestUtils.printTestTitle("5. Test a circuit");
 
-    createLineageEdge(metaId3, metaId1, "Preparation snapshot from Druid JDBC to a Hive table");
+    createLineageEdge(metaId3, metaId1, "Preparation snapshot upstream Druid JDBC to a Hive table");
 
     TestUtils.printTestTitle("6. Add more and test complex lineage");
 

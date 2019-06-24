@@ -44,11 +44,11 @@ public class LineageEdgeController {
     LineageEdge lineageEdge = null;
 
     try {
-      String fromMetaId = request.get("fromMetaId");
-      String toMetaId = request.get("toMetaId");
+      String upstreamMetaId = request.get("upstreamMetaId");
+      String downstreamMetaId = request.get("downstreamMetaId");
       String description = request.get("description");
 
-      lineageEdge = lineageEdgeService.createEdge(fromMetaId, toMetaId, description);
+      lineageEdge = lineageEdgeService.createEdge(upstreamMetaId, downstreamMetaId, description);
     } catch (Exception e) {
       LOGGER.error("create(): caught an exception: ", e);
     }

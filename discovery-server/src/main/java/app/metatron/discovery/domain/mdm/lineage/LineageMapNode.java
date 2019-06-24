@@ -22,8 +22,8 @@ public class LineageMapNode implements Serializable {
   private String metaId;
   private String description;
 
-  private List<LineageMapNode> fromMapNodes;
-  private List<LineageMapNode> toMapNodes;
+  private List<LineageMapNode> upstreamMapNodes;
+  private List<LineageMapNode> downstreamMapNodes;
 
   private boolean circuit;
 
@@ -32,14 +32,13 @@ public class LineageMapNode implements Serializable {
   public LineageMapNode() {
     metaId = null;
     description = null;
-    fromMapNodes = new ArrayList();
-    toMapNodes = new ArrayList();
+    upstreamMapNodes = new ArrayList();
+    downstreamMapNodes = new ArrayList();
     circuit = false;
   }
 
   public LineageMapNode(String metaId) {
     this();
-    this.metaId = metaId;
     this.metaId = metaId;
   }
 
@@ -69,22 +68,22 @@ public class LineageMapNode implements Serializable {
     this.description = description;
   }
 
-  public List<LineageMapNode> getFromMapNodes() {
-    return fromMapNodes;
+  public List<LineageMapNode> getUpstreamMapNodes() {
+    return upstreamMapNodes;
   }
 
-  public void setFromMapNodes(
-      List<LineageMapNode> fromMapNodes) {
-    this.fromMapNodes = fromMapNodes;
+  public void setUpstreamMapNodes(
+      List<LineageMapNode> upstreamMapNodes) {
+    this.upstreamMapNodes = upstreamMapNodes;
   }
 
-  public List<LineageMapNode> getToMapNodes() {
-    return toMapNodes;
+  public List<LineageMapNode> getDownstreamMapNodes() {
+    return downstreamMapNodes;
   }
 
-  public void setToMapNodes(
-      List<LineageMapNode> toMapNodes) {
-    this.toMapNodes = toMapNodes;
+  public void setDownstreamMapNodes(
+      List<LineageMapNode> downstreamMapNodes) {
+    this.downstreamMapNodes = downstreamMapNodes;
   }
 
   public boolean isCircuit() {
@@ -108,8 +107,8 @@ public class LineageMapNode implements Serializable {
     return "LineageMapNode{" +
         "metaId='" + metaId + '\'' +
         ", description='" + description + '\'' +
-        ", fromMapNodes=" + fromMapNodes +
-        ", toMapNodes=" + toMapNodes +
+        ", upstreamMapNodes=" + upstreamMapNodes +
+        ", downstreamMapNodes=" + downstreamMapNodes +
         ", circuit=" + circuit +
         ", metaName='" + metaName + '\'' +
         '}';

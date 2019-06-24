@@ -56,11 +56,11 @@ public class LineageEdgeService {
   }
 
   @Transactional(rollbackFor = Exception.class)
-  public LineageEdge createEdge(String fromMetaId, String toMetaId, String description)
+  public LineageEdge createEdge(String upstreamMetaId, String downstreamMetaId, String description)
       throws Exception {
     LOGGER.trace("createEdge(): start");
 
-    LineageEdge lineageEdge = new LineageEdge(fromMetaId, toMetaId, description);
+    LineageEdge lineageEdge = new LineageEdge(upstreamMetaId, downstreamMetaId, description);
     edgeRepository.saveAndFlush(lineageEdge);
 
     LOGGER.trace("createEdge(): end");
@@ -93,22 +93,22 @@ public class LineageEdgeService {
 
     // Edges that have A as downstream are upstream edges of A, vice versa.
     if (upward) {
-      edges = edgeRepository.findByToMetaId(metaId);
+      edges = edgeRepository.findByDownstreamMetaId(metaId);
     } else {
-      edges = edgeRepository.findByFromMetaId(metaId);
+      edges = edgeRepository.findByUpstreamMetaId(metaId);
     }
 
     // Once started upward, we only find upstreams, and upstreams of upstreams, and so on.
     // We are not interested the downstreams of any upstreams. Vice versa.
     for (LineageEdge edge : edges) {
       if (upward) {
-        String fromMetaName = getMetaName(edge.getFromMetaId());
-        newNode = new LineageMapNode(edge.getFromMetaId(), edge.getDescription(), fromMetaName);
-        node.getFromMapNodes().add(newNode);
+        String upstreamMetaName = getMetaName(edge.getUpstreamMetaId());
+        newNode = new LineageMapNode(edge.getUpstreamMetaId(), edge.getDescription(), upstreamMetaName);
+        node.getUpstreamMapNodes().add(newNode);
       } else {
-        String toMetaName = getMetaName(edge.getToMetaId());
-        newNode = new LineageMapNode(edge.getToMetaId(), edge.getDescription(), toMetaName);
-        node.getToMapNodes().add(newNode);
+        String downstreamMetaName = getMetaName(edge.getDownstreamMetaId());
+        newNode = new LineageMapNode(edge.getDownstreamMetaId(), edge.getDescription(), downstreamMetaName);
+        node.getDownstreamMapNodes().add(newNode);
       }
 
       if (visitedMetaIds.contains(newNode.getMetaId())) {
@@ -170,13 +170,13 @@ public class LineageEdgeService {
     return a == null ? false : a.equals(b);
   }
 
-  private LineageEdge findOrNew(String fromMetaId, String toMetaId, String description) {
+  private LineageEdge findOrNew(String upstreamMetaId, String downstreamMetaId, String description) {
     List<LineageEdge> edges = edgeRepository.findAll();
-    LineageEdge newEdge = new LineageEdge(fromMetaId, toMetaId, description);
+    LineageEdge newEdge = new LineageEdge(upstreamMetaId, downstreamMetaId, description);
 
     for (LineageEdge edge : edges) {
-      if (isSame(edge.getFromMetaId(), fromMetaId) &&
-          isSame(edge.getToMetaId(), toMetaId) &&
+      if (isSame(edge.getUpstreamMetaId(), upstreamMetaId) &&
+          isSame(edge.getDownstreamMetaId(), downstreamMetaId) &&
           isSame(edge.getDescription(), description)) {
         return edge;
       }
@@ -190,9 +190,9 @@ public class LineageEdgeService {
    *
    * For metadata dependency we use 7 Columns below:
    *
-   * - from_meta_name, to_meta_name - from_col_name, to_col_name - description - (from_id, to_id)
+   * - upstream_meta_name, downstream_meta_name - upstream_col_name, downstream_col_name - description - (upstream_id, downstream_id)
    *
-   * If from_col_name exists, then it's dependency between columns. If not, it's between metadata.
+   * If upstream_col_name exists, then it's dependency between columns. If not, it's between metadata.
    * When find by name: - if cannot find any, then throw an exception. - if multiple metadata found,
    * use the ids. That means if there is an id, then we don't find by name. - if ids are not
    * provided, throw an exception.
@@ -202,7 +202,7 @@ public class LineageEdgeService {
    * Belows are examples. (Each ids are omitted.)
    *
    * +---------------------+-------------------+---------------+-------------+--------------------+
-   * | from_meta_name      | from_col_name     | to_meta_name  | to_col_name | description        |
+   * | upstream_meta_name      | upstream_col_name     | downstream_meta_name  | downstream_col_name | description        |
    * +---------------------+-------------------+---------------+-------------+--------------------+
    * | Imported dataset #1 |                   | Hive table #1 |             | Cleansing #1       |
    * | Hive table #2       |                   | Hive table #1 |             | UPDATE SQL #1      |
@@ -213,7 +213,7 @@ public class LineageEdgeService {
    * (Datasource #1) / (Hive table #2) ---(UPDATE SQL #1)------/
    *
    * +---------------------+-------------------+---------------+-------------+--------------------+
-   * | from_meta_name      | from_col_name     | to_meta_name  | to_col_name | description        |
+   * | upstream_meta_name      | upstream_col_name     | downstream_meta_name  | downstream_col_name | description        |
    * +---------------------+-------------------+---------------+-------------+--------------------+
    * | Imported dataset #1 | col_1             | Hive table #1 | col_1       | Cleansing #1       |
    * | Imported dataset #1 | col_2             | Hive table #1 | col_2       | Cleansing #1       |
@@ -243,12 +243,12 @@ public class LineageEdgeService {
     List<LineageEdge> newEdges = new ArrayList();
 
     for (Row row : df.rows) {
-      String fromMetaId = getMetaIdByRow(row, true);
-      String toMetaId = getMetaIdByRow(row, false);
+      String upstreamMetaId = getMetaIdByRow(row, true);
+      String downstreamMetaId = getMetaIdByRow(row, false);
       String description = (String) row.get("description");
 
       // Over write if exists. (UPSERT)
-      LineageEdge edge = findOrNew(fromMetaId, toMetaId, description);
+      LineageEdge edge = findOrNew(upstreamMetaId, downstreamMetaId, description);
 
       edgeRepository.save(edge);
       newEdges.add(edge);
@@ -260,30 +260,32 @@ public class LineageEdgeService {
   // Null if the key is contained, or value is an empty string.
   private String getValue(Row row, String colName) {
     if (!row.nameIdxs.containsKey(colName)) {
+      LOGGER.error("Cannot find column from lineage map file: " + colName);
       return null;
     }
 
     String col = (String) row.get(colName);
     if (col.length() == 0) {
+      LOGGER.error("Column from lineage map file is empty: " + colName);
       return null;
     }
 
     return col;
   }
 
-  private String getMetaIdByRow(Row row, boolean from) {
+  private String getMetaIdByRow(Row row, boolean upstream) {
     String metaId;
     String metaName;
     String metaColName;
 
-    if (from) {
-      metaId = getValue(row, "from_meta_id");
-      metaName = getValue(row, "from_meta_name");
-      metaColName = getValue(row, "from_meta_col_name");
+    if (upstream) {
+      metaId = getValue(row, "upstream_meta_id");
+      metaName = getValue(row, "upstream_meta_name");
+      metaColName = getValue(row, "upstream_meta_col_name");
     } else {
-      metaId = getValue(row, "to_meta_id");
-      metaName = getValue(row, "to_meta_name");
-      metaColName = getValue(row, "to_meta_col_name");
+      metaId = getValue(row, "downstream_meta_id");
+      metaName = getValue(row, "downstream_meta_name");
+      metaColName = getValue(row, "downstream_meta_col_name");
     }
 
     // When ID is known

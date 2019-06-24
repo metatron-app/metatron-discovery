@@ -1,4 +1,4 @@
-from_meta_name,from_meta_col_name,to_meta_name,to_meta_col_name,description
+upstream_meta_name,upstream_meta_col_name,downstream_meta_name,downstream_meta_col_name,description
 meta4,,meta5,,prep import
 meta5,,meta6,,prep wrangle
 meta9,,meta6,,prep join
