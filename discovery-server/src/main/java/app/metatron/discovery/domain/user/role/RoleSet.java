@@ -85,7 +85,7 @@ import app.metatron.discovery.domain.workspace.Workspace;
 //  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   Integer linkedWorkspaces = 0;
 
-  @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+  @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE})
   @JoinTable(name = "role_set_workspace",
       joinColumns = @JoinColumn(name = "rs_id", referencedColumnName = "id"),
       inverseJoinColumns = @JoinColumn(name = "ws_id", referencedColumnName = "id"))
