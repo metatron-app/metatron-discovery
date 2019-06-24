@@ -391,6 +391,24 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
   } // function - rightCheckAllEventHandler
 
   /**
+   * 오른쪽 컬럼 select 자동 체크
+   */
+  public setRightCheckOnLoad() {
+    this.rightSelCols = this.leftSelCols.filter( col => {
+      var included = false;
+      this.rightDataset.gridData.fields.forEach( field => {
+        if( col == field.name ) { included = true; }
+      });
+      return included;
+    });
+    if( 0<this.rightSelCols.length && this.rightSelCols.length==this.rightDataset.gridData.fields.length) {
+      this.rightCheckAll = true;
+    }
+    this.rightSelCols.forEach(colName => this.rightGrid.columnSelection(colName));
+
+  } // function - setRightCheckOnLoad
+
+  /**
    * join key 정보를 목록에 추가한다
    */
   public addJoinKeys() {
@@ -579,7 +597,9 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
     // 초기화 check상태 & 선택 된 columns
     this.rightSelCols = [];
     this.joinList = []; // 조인리스트 초기화
-    this.selectedJoinType = 'LEFT';
+    if(this.selectedJoinType==='') { // 기본 유지. 없을 때만 초기값 LEFT
+      this.selectedJoinType = 'LEFT';
+    }
     this.rightCheckAll = false; // 전체 체크 해제
     this.rightDataset = dataset; // 클릭된 데이터셋을 this.rightDataset에 넣는다
 
@@ -594,7 +614,11 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
         this.rightDataset.data = JSON.stringify(data);
         this.rightDataset.gridData = gridData;
 
-        this.updateGrid(this.rightDataset.gridData, this.rightGrid);
+
+        this.updateGrid(this.rightDataset.gridData, this.rightGrid).then(() => {
+          // 컬럼 자동 선택
+          this.setRightCheckOnLoad();
+        });
 
         // 조인키 넣기
         this.setJoinKeys();
