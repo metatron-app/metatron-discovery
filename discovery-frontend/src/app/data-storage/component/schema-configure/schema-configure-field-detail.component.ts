@@ -383,6 +383,10 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
       // broadcast changed field
       this._broadCastChangedField();
     }
+
+    if (type.value === IngestionRuleType.REPLACE && StringUtil.isNotEmpty(this.selectedField.ingestionRule.value)) {
+      this.ingestionRuleValidation();
+    }
   }
 
   /**
