@@ -24,8 +24,9 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name="lineage_edge")
+@Table(name = "lineage_edge")
 public class LineageEdge extends AbstractHistoryEntity {
+
   @Id
   @GeneratedValue(generator = "uuid")
   @GenericGenerator(name = "uuid", strategy = "uuid2")
@@ -42,7 +43,8 @@ public class LineageEdge extends AbstractHistoryEntity {
   @Column(name = "description")
   private String description;
 
-  public LineageEdge() {}
+  public LineageEdge() {
+  }
 
   public LineageEdge(String fromMetaId, String toMetaId, String description) {
     this();

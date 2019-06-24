@@ -14,7 +14,6 @@
 
 package app.metatron.discovery.domain.mdm.lineage;
 
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
@@ -25,7 +24,6 @@ import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.Row;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotSerializeIntoJsonException;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformService;
-import app.metatron.discovery.domain.dataprep.transform.TeddyImpl;
 import app.metatron.discovery.domain.mdm.Metadata;
 import app.metatron.discovery.domain.mdm.MetadataRepository;
 import java.io.IOException;
@@ -39,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class LineageEdgeService {
+
   private static Logger LOGGER = LoggerFactory.getLogger(LineageEdgeService.class);
 
   @Autowired
@@ -57,7 +56,8 @@ public class LineageEdgeService {
   }
 
   @Transactional(rollbackFor = Exception.class)
-  public LineageEdge createEdge(String fromMetaId, String toMetaId, String description) throws Exception {
+  public LineageEdge createEdge(String fromMetaId, String toMetaId, String description)
+      throws Exception {
     LOGGER.trace("createEdge(): start");
 
     LineageEdge lineageEdge = new LineageEdge(fromMetaId, toMetaId, description);
@@ -85,7 +85,8 @@ public class LineageEdgeService {
     return lineageEdge;
   }
 
-  private void addMapNodeRecursive(LineageMapNode node, boolean upward, List<String> visitedMetaIds) {
+  private void addMapNodeRecursive(LineageMapNode node, boolean upward,
+      List<String> visitedMetaIds) {
     String metaId = node.getMetaId();
     List<LineageEdge> edges;
     LineageMapNode newNode;
@@ -189,16 +190,12 @@ public class LineageEdgeService {
    *
    * For metadata dependency we use 7 Columns below:
    *
-   *  - from_meta_name, to_meta_name
-   *  - from_col_name, to_col_name
-   *  - description
-   *  - (from_id, to_id)
+   * - from_meta_name, to_meta_name - from_col_name, to_col_name - description - (from_id, to_id)
    *
    * If from_col_name exists, then it's dependency between columns. If not, it's between metadata.
-   * When find by name:
-   *  - if cannot find any, then throw an exception.
-   *  - if multiple metadata found, use the ids. That means if there is an id, then we don't find by name.
-   *  - if ids are not provided, throw an exception.
+   * When find by name: - if cannot find any, then throw an exception. - if multiple metadata found,
+   * use the ids. That means if there is an id, then we don't find by name. - if ids are not
+   * provided, throw an exception.
    *
    * NOTE: IT'S RARE THAT A NON-TEST SYSTEM HAS METADATA WITH THE SAME NAMES.
    *
@@ -212,9 +209,8 @@ public class LineageEdgeService {
    * | Hive table #1       |                   | Datasource #1 |             | Batch ingestion #1 |
    * +---------------------+-------------------+---------------+-------------+--------------------+
    *
-   * (Imported dataset #1) ---(Cleansing #1)------> Hive table #1 ---(Batch ingestion #1)---> (Datasource #1)
-   *                                          /
-   * (Hive table #2) ---(UPDATE SQL #1)------/
+   * (Imported dataset #1) ---(Cleansing #1)------> Hive table #1 ---(Batch ingestion #1)--->
+   * (Datasource #1) / (Hive table #2) ---(UPDATE SQL #1)------/
    *
    * +---------------------+-------------------+---------------+-------------+--------------------+
    * | from_meta_name      | from_col_name     | to_meta_name  | to_col_name | description        |
@@ -228,9 +224,7 @@ public class LineageEdgeService {
    *
    * (col_1) ----------------> (col_1) --------------> region_name
    *
-   * (col_2) ----------------> (col_2) --------------> region_sum
-   *                    /
-   * (rebate) ---------/
+   * (col_2) ----------------> (col_2) --------------> region_sum / (rebate) ---------/
    */
   public List<LineageEdge> loadLineageMapDs(String wrangledDsId, String wrangledDsName) {
     DataFrame df = null;
@@ -241,7 +235,8 @@ public class LineageEdgeService {
       LOGGER.error("loadLineageMapDs(): IOException occurred: dsName=" + wrangledDsName);
       e.printStackTrace();
     } catch (CannotSerializeIntoJsonException e) {
-      LOGGER.error("loadLineageMapDs(): CannotSerializeIntoJsonException occurred: dsName=" + wrangledDsName);
+      LOGGER.error("loadLineageMapDs(): CannotSerializeIntoJsonException occurred: dsName="
+          + wrangledDsName);
       e.printStackTrace();
     }
 

@@ -21,15 +21,12 @@ import app.metatron.discovery.AbstractRestIntegrationTest;
 import app.metatron.discovery.TestUtils;
 import app.metatron.discovery.core.oauth.OAuthRequest;
 import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
-import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE;
 import app.metatron.discovery.domain.dataprep.rest.PrDatasetRestIntegrationTest;
 import com.facebook.presto.jdbc.internal.guava.collect.Maps;
-import com.jayway.jsonpath.JsonPath;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -187,7 +184,6 @@ public class LineageEdgeRestIntegrationTest extends AbstractRestIntegrationTest 
     Map<String, Object> lineageMap = getLineageMap(metaId2);
     System.out.print(lineageMap);
 
-
     TestUtils.printTestTitle("5. Test a circuit");
 
     createLineageEdge(metaId3, metaId1, "Preparation snapshot from Druid JDBC to a Hive table");
@@ -217,8 +213,8 @@ public class LineageEdgeRestIntegrationTest extends AbstractRestIntegrationTest 
    */
   private String prepareLineageMapDs() {
     Map<String, Object> response = PrDatasetRestIntegrationTest.make_dataset_static(oauth_token,
-                         "src/test/resources/csv/test_lineage.csv",
-                         "DEFAULT_LINEAGE_MAP", "Hard-coded: LineageEdgeRestIntegrationTest.java");
+        "src/test/resources/csv/test_lineage.csv",
+        "DEFAULT_LINEAGE_MAP", "Hard-coded: LineageEdgeRestIntegrationTest.java");
     List<Object> datasets = (List<Object>) response.get("datasets");
     for (Object dataset : datasets) {
       HashMap<String, Object> map = (HashMap) dataset;
