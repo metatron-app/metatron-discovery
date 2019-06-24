@@ -27,6 +27,8 @@ public class LineageMapNode implements Serializable {
 
   private boolean circuit;
 
+  private String metaName;  // This is optional.
+
   public LineageMapNode() {
     metaId = null;
     description = null;
@@ -38,11 +40,17 @@ public class LineageMapNode implements Serializable {
   public LineageMapNode(String metaId) {
     this();
     this.metaId = metaId;
+    this.metaId = metaId;
   }
 
   public LineageMapNode(String metaId, String description) {
     this(metaId);
     this.description = description;
+  }
+
+  public LineageMapNode(String metaId, String description, String metaName) {
+    this(metaId, description);
+    this.metaName = metaName;
   }
 
   public String getMetaId() {
@@ -87,14 +95,23 @@ public class LineageMapNode implements Serializable {
     this.circuit = circuit;
   }
 
+  public String getMetaName() {
+    return metaName;
+  }
+
+  public void setMetaName(String metaName) {
+    this.metaName = metaName;
+  }
+
   @Override
   public String toString() {
     return "LineageMapNode{" +
         "metaId='" + metaId + '\'' +
-        ", description=" + description +
+        ", description='" + description + '\'' +
         ", fromMapNodes=" + fromMapNodes +
         ", toMapNodes=" + toMapNodes +
         ", circuit=" + circuit +
+        ", metaName='" + metaName + '\'' +
         '}';
   }
 }

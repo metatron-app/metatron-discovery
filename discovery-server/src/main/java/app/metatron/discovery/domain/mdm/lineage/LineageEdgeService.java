@@ -100,10 +100,12 @@ public class LineageEdgeService {
     // We are not interested the downstreams of any upstreams. Vice versa.
     for (LineageEdge edge : edges) {
       if (upward) {
-        newNode = new LineageMapNode(edge.getFromMetaId(), edge.getDescription());
+        String fromMetaName = getMetaName(edge.getFromMetaId());
+        newNode = new LineageMapNode(edge.getFromMetaId(), edge.getDescription(), fromMetaName);
         node.getFromMapNodes().add(newNode);
       } else {
-        newNode = new LineageMapNode(edge.getToMetaId(), edge.getDescription());
+        String toMetaName = getMetaName(edge.getToMetaId());
+        newNode = new LineageMapNode(edge.getToMetaId(), edge.getDescription(), toMetaName);
         node.getToMapNodes().add(newNode);
       }
 
@@ -118,13 +120,19 @@ public class LineageEdgeService {
     }
   }
 
+  private String getMetaName(String metaId) {
+    List<Metadata> metadatas = metadataRepository.findById(metaId);
+    return metadatas.get(0).getName();
+  }
+
   public LineageMapNode getLineageMap(String metaId) {
     LOGGER.trace("getLineageMap(): start");
 
     List<String> visitedMetaIds = new ArrayList();
     visitedMetaIds.add(metaId);
 
-    LineageMapNode topNode = new LineageMapNode(metaId);
+    String metaName = getMetaName(metaId);
+    LineageMapNode topNode = new LineageMapNode(metaId, null, metaName);
 
     addMapNodeRecursive(topNode, true, visitedMetaIds);
     addMapNodeRecursive(topNode, false, visitedMetaIds);
@@ -133,34 +141,36 @@ public class LineageEdgeService {
     return topNode;
   }
 
-  public List<LineageEdge> loadLineageMapDsByDsName(String wrangledDsName) {
-    if (wrangledDsName == null) {
-      wrangledDsName = "DEFAULT_LINEAGE_MAP";
-    }
+  public List<LineageEdge> loadLineageMapDs() {
+    return loadLineageMapDsByDsName("DEFAULT_LINEAGE_MAP");
+  }
 
+  public List<LineageEdge> loadLineageMapDsByDsName(String wrangledDsName) {
     List<PrDataset> datasets = datasetRepository.findByDsName(wrangledDsName);
     if (datasets.size() == 0) {
       LOGGER.error("loadLineageMapDsByDsName(): Cannot find W.DS by name: " + wrangledDsName);
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET);
-    } else if (datasets.size() > 1) {
-      LOGGER.error(String.format("loadLineageMapDsByDsName(): %d W.DS by name: %s", datasets.size(), wrangledDsName));
-      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_AMBIGUOUS_DATASET);
+//    } else if (datasets.size() > 1) {
+//      LOGGER.error(String.format("loadLineageMapDsByDsName(): %d W.DS by name: %s", datasets.size(), wrangledDsName));
+//      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_AMBIGUOUS_DATASET);
     }
+
+    // Use the 1st one if many.
 
     PrDataset dataset = datasets.get(0);
     return loadLineageMapDs(dataset.getDsId(), dataset.getDsName());
   }
 
-  private boolean checkDuplication(LineageEdge edge) {
+  private LineageEdge findAndReplace(LineageEdge newEdge) {
     List<LineageEdge> edges = edgeRepository.findAll();
 
     for (LineageEdge edgeStored : edges) {
-      if (edge.equals(edgeStored)) {
-        return true;
+      if (newEdge.equals(edgeStored)) {
+        return edgeStored;
       }
     }
 
-    return false;
+    return newEdge;
   }
 
   /**
@@ -183,27 +193,27 @@ public class LineageEdgeService {
    *
    * Belows are examples. (Each ids are omitted.)
    *
-   * +---------------------+-------------------+----------------------+---------------------+--------------------+
-   * | from_meta_name      | from_col_name     | downstream_meta_name | downstream_col_name | description        |
-   * +---------------------+-------------------+----------------------+---------------------+--------------------+
-   * | Imported dataset #1 |                   | Hive table #1        |                     | Cleansing #1       |
-   * | Hive table #2       |                   | Hive table #1        |                     | UPDATE SQL #1      |
-   * | Hive table #1       |                   | Datasource #1        |                     | Batch ingestion #1 |
-   * +---------------------+-------------------+----------------------+---------------------+--------------------+
+   * +---------------------+-------------------+---------------+-------------+--------------------+
+   * | from_meta_name      | from_col_name     | to_meta_name  | to_col_name | description        |
+   * +---------------------+-------------------+---------------+-------------+--------------------+
+   * | Imported dataset #1 |                   | Hive table #1 |             | Cleansing #1       |
+   * | Hive table #2       |                   | Hive table #1 |             | UPDATE SQL #1      |
+   * | Hive table #1       |                   | Datasource #1 |             | Batch ingestion #1 |
+   * +---------------------+-------------------+---------------+-------------+--------------------+
    *
    * (Imported dataset #1) ---(Cleansing #1)------> Hive table #1 ---(Batch ingestion #1)---> (Datasource #1)
    *                                          /
    * (Hive table #2) ---(UPDATE SQL #1)------/
    *
-   * +---------------------+-------------------+----------------------+---------------------+--------------------+
-   * | from_meta_name      | from_col_name     | downstream_meta_name | downstream_col_name | description        |
-   * +---------------------+-------------------+----------------------+---------------------+--------------------+
-   * | Imported dataset #1 | col_1             | Hive table #1        | col_1               | Cleansing #1       |
-   * | Imported dataset #1 | col_2             | Hive table #1        | col_2               | Cleansing #1       |
-   * | Hive table #2       | rebate            | Hive table #1        | col_2               | UPDATE SQL #1      |
-   * | Hive table #1       | col_1             | Datasource #1        | region_name         | Batch ingestion #1 |
-   * | Hive table #1       | col_2             | Datasource #1        | region_sum          | Batch ingestion #1 |
-   * +---------------------+-------------------+----------------------+---------------------+--------------------+
+   * +---------------------+-------------------+---------------+-------------+--------------------+
+   * | from_meta_name      | from_col_name     | to_meta_name  | to_col_name | description        |
+   * +---------------------+-------------------+---------------+-------------+--------------------+
+   * | Imported dataset #1 | col_1             | Hive table #1 | col_1       | Cleansing #1       |
+   * | Imported dataset #1 | col_2             | Hive table #1 | col_2       | Cleansing #1       |
+   * | Hive table #2       | rebate            | Hive table #1 | col_2       | UPDATE SQL #1      |
+   * | Hive table #1       | col_1             | Datasource #1 | region_name | Batch ingestion #1 |
+   * | Hive table #1       | col_2             | Datasource #1 | region_sum  | Batch ingestion #1 |
+   * +---------------------+-------------------+---------------+-------------+--------------------+
    *
    * (col_1) ----------------> (col_1) --------------> region_name
    *
@@ -215,7 +225,7 @@ public class LineageEdgeService {
     DataFrame df = null;
 
     try {
-      prepTransformService.loadWrangledDataset(wrangledDsId);
+      df = prepTransformService.loadWrangledDataset(wrangledDsId);
     } catch (IOException e) {
       LOGGER.error("loadLineageMapDs(): IOException occurred: dsName=" + wrangledDsName);
       e.printStackTrace();
@@ -232,9 +242,9 @@ public class LineageEdgeService {
       String description = (String) row.get("description");
 
       LineageEdge edge = new LineageEdge(fromMetaId, toMetaId, description);
-      if (checkDuplication(edge)) {
-        continue;
-      }
+
+      // Over write if exists. (UPSERT)
+      edge = findAndReplace(edge);
 
       edgeRepository.save(edge);
       newEdges.add(edge);
@@ -243,19 +253,33 @@ public class LineageEdgeService {
     return newEdges;
   }
 
+  // Null if the key is contained, or value is an empty string.
+  private String getValue(Row row, String colName) {
+    if (!row.nameIdxs.containsKey(colName)) {
+      return null;
+    }
+
+    String col = (String) row.get(colName);
+    if (col.length() == 0) {
+      return null;
+    }
+
+    return col;
+  }
+
   private String getMetaIdByRow(Row row, boolean from) {
     String metaId;
     String metaName;
     String metaColName;
 
     if (from) {
-      metaId = (String) row.get("from_meta_id");
-      metaName = (String) row.get("from_meta_name");
-      metaColName = (String) row.get("from_meta_col_name");
+      metaId = getValue(row, "from_meta_id");
+      metaName = getValue(row, "from_meta_name");
+      metaColName = getValue(row, "from_meta_col_name");
     } else {
-      metaId = (String) row.get("to_meta_id");
-      metaName = (String) row.get("to_meta_name");
-      metaColName = (String) row.get("to_meta_col_name");
+      metaId = getValue(row, "to_meta_id");
+      metaName = getValue(row, "to_meta_name");
+      metaColName = getValue(row, "to_meta_col_name");
     }
 
     // When ID is known

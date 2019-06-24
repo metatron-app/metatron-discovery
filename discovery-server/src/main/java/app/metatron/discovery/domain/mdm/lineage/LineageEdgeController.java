@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+@RequestMapping(value = "/metadatas/lineages")
 @RepositoryRestController
 public class LineageEdgeController {
 
@@ -39,7 +40,7 @@ public class LineageEdgeController {
   public LineageEdgeController() {
   }
 
-  @RequestMapping(value = "/metadatas/lineage/edge", method = RequestMethod.POST, produces = "application/json")
+  @RequestMapping(value = "/edges", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
   public ResponseEntity<?> createEdge(@RequestBody Map<String, String> request) {
     LineageEdge lineageEdge = null;
 
@@ -56,21 +57,21 @@ public class LineageEdgeController {
     return ResponseEntity.created(URI.create("")).body(lineageEdge);
   }
 
-  @RequestMapping(value = "/metadatas/lineage/edge", method = RequestMethod.GET, produces = "application/json")
+  @RequestMapping(value = "/edges", method = RequestMethod.GET, produces = "application/json", consumes = "application/json")
   public ResponseEntity<?> listEdge() {
     List<LineageEdge> edges = lineageEdgeService.listEdge();
 
     return ResponseEntity.ok(edges);
   }
 
-  @RequestMapping(value = "/metadatas/lineage/edge/{edgeId}", method = RequestMethod.GET, produces = "application/json")
+  @RequestMapping(value = "/edges/{edgeId}", method = RequestMethod.GET, produces = "application/json", consumes = "application/json")
   public ResponseEntity<?> getEdge(@PathVariable("edgeId") String edgeId) {
     LineageEdge lineageEdge = lineageEdgeService.getEdge(edgeId);
 
     return ResponseEntity.ok(lineageEdge);
   }
 
-  @RequestMapping(value = "/metadatas/lineage/map/{metaId}", method = RequestMethod.GET, produces = "application/json")
+  @RequestMapping(value = "map/{metaId}", method = RequestMethod.GET, produces = "application/json", consumes = "application/json")
   public ResponseEntity<?> getLineageMap(@PathVariable("metaId") String metaId) {
     LineageMapNode lineageMapNode = lineageEdgeService.getLineageMap(metaId);
 
@@ -78,16 +79,18 @@ public class LineageEdgeController {
   }
 
   // Load a lineaged map dataset named "dsName" (default=DEFAULT_LINEAGE_MAP), return the new edges created by this.
-  @RequestMapping(value = "/metadatas/lineage/map", method = RequestMethod.POST, produces = "application/json")
+  @RequestMapping(value = "/map", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
   public ResponseEntity<?> loadLineageMap(@RequestBody Map<String, String> request) {
     List<LineageEdge> newEdges;
     String dsId = request.get("dsId");
     String dsName = request.get("dsName");
 
-    if (dsId != null) {
+  if (dsId != null) {
       newEdges = lineageEdgeService.loadLineageMapDs(dsId, dsName);
-    } else {
+    } else if (dsName != null) {
       newEdges = lineageEdgeService.loadLineageMapDsByDsName(dsName);
+    } else {
+      newEdges = lineageEdgeService.loadLineageMapDs();
     }
 
     return ResponseEntity.created(URI.create("")).body(newEdges);

@@ -21,10 +21,13 @@ import app.metatron.discovery.AbstractRestIntegrationTest;
 import app.metatron.discovery.TestUtils;
 import app.metatron.discovery.core.oauth.OAuthRequest;
 import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
+import app.metatron.discovery.domain.dataprep.rest.PrDatasetRestIntegrationTest;
 import com.facebook.presto.jdbc.internal.guava.collect.Maps;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
+import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.http.HttpStatus;
@@ -79,7 +82,7 @@ public class LineageEdgeRestIntegrationTest extends AbstractRestIntegrationTest 
         .contentType(ContentType.JSON)
         .param("projection", "forListView")
         .when()
-        .get("/api/metadatas/{id}", id);
+        .get("/api/metadatas/" + id);
 
     readResponse.then()
         .statusCode(HttpStatus.SC_OK)
@@ -104,7 +107,7 @@ public class LineageEdgeRestIntegrationTest extends AbstractRestIntegrationTest 
             .accept(ContentType.JSON)
             .log().all()
             .when()
-            .post("/api/metadatas/lineage/edge");
+            .post("/api/metadatas/lineages/edges");
 
     createRes.then()
         .statusCode(HttpStatus.SC_CREATED)
@@ -119,7 +122,7 @@ public class LineageEdgeRestIntegrationTest extends AbstractRestIntegrationTest 
         .contentType(ContentType.JSON)
         .accept(ContentType.JSON)
         .when()
-        .get("/api/metadatas/lineage/edge");
+        .get("/api/metadatas/lineages/edges");
 
     readResponse.then()
         .statusCode(HttpStatus.SC_OK)
@@ -137,7 +140,7 @@ public class LineageEdgeRestIntegrationTest extends AbstractRestIntegrationTest 
         .contentType(ContentType.JSON)
         .accept(ContentType.JSON)
         .when()
-        .get("/api/metadatas/lineage/map/" + metaId);
+        .get("/api/metadatas/lineages/map/" + metaId);
 
     readResponse.then()
         .statusCode(HttpStatus.SC_OK)
@@ -181,12 +184,57 @@ public class LineageEdgeRestIntegrationTest extends AbstractRestIntegrationTest 
     Map<String, Object> lineageMap = getLineageMap(metaId2);
     System.out.print(lineageMap);
 
-    TestUtils.printTestTitle("4. Test a circuit");
+
+    TestUtils.printTestTitle("5. Test a circuit");
 
     createLineageEdge(metaId3, metaId1, "Preparation snapshot from Druid JDBC to a Hive table");
 
+    TestUtils.printTestTitle("6. Add more and test complex lineage");
+
+    String metaId4 = createMetadata("meta4", "ENGINE", "ds_mdm_04", "ds_mdm_04_id");
+    String metaId5 = createMetadata("meta5", "ENGINE", "ds_mdm_05", "ds_mdm_05_id");
+    String metaId6 = createMetadata("meta6", "ENGINE", "ds_mdm_06", "ds_mdm_06_id");
+    String metaId7 = createMetadata("meta7", "ENGINE", "ds_mdm_07", "ds_mdm_07_id");
+    String metaId8 = createMetadata("meta8", "ENGINE", "ds_mdm_08", "ds_mdm_08_id");
+    String metaId9 = createMetadata("meta9", "ENGINE", "ds_mdm_09", "ds_mdm_09_id");
+
     lineageMap = getLineageMap(metaId3);
     System.out.print(lineageMap);
+
+    TestUtils.printTestTitle("7. Test load lineage map");
+
+    prepareLineageMapDs();
+    lineageMap = getLineageMap(metaId6);
+    System.out.print(lineageMap);
+  }
+
+  /*
+   * meta4 --(prep import)--> meta5 --(prep wrangle)----> meta6 --(prep snapshot)--> meta7 --(ingestion)--> meta8
+   * meta9 --------------(prep join)------------------/
+   */
+  private void prepareLineageMapDs() {
+    String dsId = PrDatasetRestIntegrationTest.make_dataset_static(oauth_token,
+                                   "src/test/resources/csv/test_lineage.csv",
+                                   "DEFAULT_LINEAGE_MAP", "Hard-coded: LineageEdgeRestIntegrationTest.java");
+    // Just call loadLineageMap API
+    loadLineageMap();
+  }
+
+  private void loadLineageMap() {
+    // @formatter:off
+    Response loadLineageMapRes =
+        given()
+            .auth().oauth2(oauth_token)
+            .contentType(ContentType.JSON)
+            .body(new HashMap())
+            .log().all()
+            .when()
+            .post("/metadatas/lineages/map");
+
+    loadLineageMapRes.then()
+        .statusCode(HttpStatus.SC_CREATED)
+        .log().all();
+    // @formatter:on
   }
 }
 
