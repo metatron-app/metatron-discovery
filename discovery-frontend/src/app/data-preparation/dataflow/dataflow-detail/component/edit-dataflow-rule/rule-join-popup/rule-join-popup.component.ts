@@ -617,7 +617,8 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
 
         this.updateGrid(this.rightDataset.gridData, this.rightGrid).then(() => {
           // 컬럼 자동 선택
-          this.setRightCheckOnLoad();
+          //this.setRightCheckOnLoad();
+          this.setRightCheckAll(true);
         });
 
         // 조인키 넣기
