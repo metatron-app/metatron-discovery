@@ -282,7 +282,7 @@
                           <!-- input type -->
                           <div class="ddp-type-input">
                             <div class="ddp-input-apply" [class.ddp-disabled]="selectedField.ingestionRule.type !== type.value">
-                              <input type="text" class="ddp-input-txt"  placeholder="{{getDefaultIngestionRuleValue()}}" [(ngModel)]="selectedField.ingestionRule.value" (ngModelChange)="initIngestionRuleReplaceValid()">
+                              <input type="text" class="ddp-input-txt"  placeholder="{{getDefaultIngestionRuleValue()}}" [(ngModel)]="selectedField.ingestionRule.value" (ngModelChange)="initIngestionRuleReplaceValid()" (keyup.Enter)="ingestionRuleValidation()" (blur)="ingestionRuleValidation()">
                               <em class="ddp-icon-apply" (click)="ingestionRuleValidation()"></em>
                             </div>
                           </div>

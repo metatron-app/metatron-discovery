@@ -83,23 +83,18 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
   // unit list
   public readonly formatUnitList = [
     {label: this.translateService.instant('msg.storage.ui.format.unit.milli-second'), value: FieldFormatUnit.MILLISECOND},
-    {label: this.translateService.instant('msg.storage.ui.format.unit.second'), value: FieldFormatUnit.SECOND},
+    {label: this.translateService.instant('msg.storage.ui.format.unit.second'), value: FieldFormatUnit.SECOND}
   ];
 
   // ingestion rule type list
   public readonly ingestionRuleTypeList = [
-    {label: this.translateService.instant('msg.storage.ui.replace.with'), value: IngestionRuleType.REPLACE},
-    {label: this.translateService.instant('msg.storage.btn.discard'), value: IngestionRuleType.DISCARD},
     {label: this.translateService.instant('msg.storage.btn.no.apply'), value: IngestionRuleType.DEFAULT},
+    {label: this.translateService.instant('msg.storage.ui.replace.with'), value: IngestionRuleType.REPLACE},
+    {label: this.translateService.instant('msg.storage.btn.discard'), value: IngestionRuleType.DISCARD}
   ];
 
   // filtered timezone list
   public filteredTimezoneList: TimeZoneObject[];
-
-
-
-
-
 
   public typeList;
   public previewMessage: string;
