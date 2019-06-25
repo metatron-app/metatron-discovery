@@ -206,4 +206,8 @@ export class DatasetService extends AbstractService {
         return new Blob([res], {type: mineType})
       });
   }
+
+  public makeLineage(params: any) {
+    return this.post(this.API_URL + `metadatas/lineages/map`, params);
+  }
 }

@@ -94,7 +94,7 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
     this._initialiseChartValues();
 
-    this.test_data();
+    //this.test_data();
 
     this.getLineageMap();
   }

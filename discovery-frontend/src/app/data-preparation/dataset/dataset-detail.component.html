@@ -171,6 +171,10 @@
         <label class="ddp-label-detail">
           {{'msg.comm.th.used' | translate}}
           <div class="ddp-fright">
+            <a href="javascript:" class="ddp-btn-line" (click)="makeLineage()" *ngIf="isForLineage">
+              <em class="ddp-icon-add"></em>
+              {{'msg.dp.ui.make.lineage' | translate}}
+            </a>
             <a href="javascript:" class="ddp-btn-line" (click)="addToExistingFlow()" *ngIf="dataset.importType">
               <em class="ddp-icon-add"></em>
               {{'msg.dp.ui.add.existing.dataflow' | translate}}
