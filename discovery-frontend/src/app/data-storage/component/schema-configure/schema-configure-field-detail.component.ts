@@ -89,8 +89,8 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
   // ingestion rule type list
   public readonly ingestionRuleTypeList = [
     {label: this.translateService.instant('msg.storage.btn.no.apply'), value: IngestionRuleType.DEFAULT},
-    {label: this.translateService.instant('msg.storage.ui.replace.with'), value: IngestionRuleType.REPLACE},
-    {label: this.translateService.instant('msg.storage.btn.discard'), value: IngestionRuleType.DISCARD}
+    {label: this.translateService.instant('msg.storage.btn.discard'), value: IngestionRuleType.DISCARD},
+    {label: this.translateService.instant('msg.storage.ui.replace.with'), value: IngestionRuleType.REPLACE}
   ];
 
   // filtered timezone list
