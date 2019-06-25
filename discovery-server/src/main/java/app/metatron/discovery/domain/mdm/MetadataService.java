@@ -14,22 +14,6 @@
 
 package app.metatron.discovery.domain.mdm;
 
-import app.metatron.discovery.common.datasource.LogicalType;
-import app.metatron.discovery.domain.dataconnection.DataConnection;
-import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
-import app.metatron.discovery.domain.dataprep.teddy.ColumnDescription;
-import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnNotFoundException;
-import app.metatron.discovery.domain.datasource.DataSource;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcCSVWriter;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
-import app.metatron.discovery.domain.engine.EngineProperties;
-import app.metatron.discovery.domain.mdm.source.MetaSourceService;
-import app.metatron.discovery.domain.mdm.source.MetadataSource;
-import app.metatron.discovery.domain.storage.StorageProperties;
-import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -43,12 +27,26 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.Statement;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import app.metatron.discovery.common.data.projection.DataGrid;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
+import app.metatron.discovery.domain.datasource.DataSource;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcCSVWriter;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
+import app.metatron.discovery.domain.datasource.data.DataSourceValidator;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
+import app.metatron.discovery.domain.engine.EngineProperties;
+import app.metatron.discovery.domain.engine.EngineQueryService;
+import app.metatron.discovery.domain.mdm.preview.MetadataEngineDataPreview;
+import app.metatron.discovery.domain.mdm.preview.MetadataJdbcDataPreview;
+import app.metatron.discovery.domain.mdm.source.MetaSourceService;
+import app.metatron.discovery.domain.mdm.source.MetadataSource;
+import app.metatron.discovery.domain.storage.StorageProperties;
+import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
 
 
 @Component
@@ -70,7 +68,13 @@ public class MetadataService {
   EngineProperties engineProperties;
 
   @Autowired
-  private MetadataRepository metadataRepository;
+  MetadataRepository metadataRepository;
+
+  @Autowired
+  EngineQueryService engineQueryService;
+
+  @Autowired
+  DataSourceValidator dataSourceValidator;
 
   /**
    * find metadata from datasource identifier
@@ -131,41 +135,89 @@ public class MetadataService {
     LOGGER.info("Successfully delete {} metadata items", deleteCnt);
   }
 
-  public DataFrame getDataFrame(Metadata metadata, int limit) {
-    //get connection info
+  public DataGrid getDataGrid(Metadata metadata, int limit) {
+    DataGrid resultDataGrid = null;
+    MetadataSource metadataSource = metadata.getSource();
 
+    //1. SourceType=JDBC
+    if (metadataSource.getType() == Metadata.SourceType.JDBC) {
+      DataConnection jdbcDataConnection
+          = (DataConnection) metaSourceService.getSourcesBySourceId(metadataSource.getType(), metadataSource.getSourceId());
+      String query = makeQueryStatementForPreview(metadata);
 
-    DataFrame dataFrame = new DataFrame();
-    Statement stmt = null;
-    Connection conn = null;
+      MetadataJdbcDataPreview metadataJdbcDataPreview = new MetadataJdbcDataPreview(metadata);
+      metadataJdbcDataPreview.setConnectInformation(jdbcDataConnection);
+      metadataJdbcDataPreview.setQuery(query);
+      metadataJdbcDataPreview.setLimit(limit);
+      metadataJdbcDataPreview.getData();
 
-    String query = makeQueryStatement(metadata);
+      resultDataGrid = metadataJdbcDataPreview;
 
-    try {
-      conn = getConnection(metadata);
-      stmt = conn.createStatement();
-    } catch (Exception e) {
-      e.printStackTrace();
-      LOGGER.error("getDataFrame : createStatement Exception " + e.getMessage());
+    //2. SourceType=ENGINE
+    } else if (metadataSource.getType() == Metadata.SourceType.ENGINE) {
+      DataSource metadataSourceDetail
+          = (DataSource) metaSourceService.getSourcesBySourceId(metadataSource.getType(), metadataSource.getSourceId());
+
+      //2-1. SourceType=ENGINE, ConnectionType=ENGINE
+      if(metadataSourceDetail.getConnType() == DataSource.ConnectionType.ENGINE){ //druid
+        MetadataEngineDataPreview metadataEngineDataPreview = new MetadataEngineDataPreview(metadata);
+        metadataEngineDataPreview.setEngineDataSource(metadataSourceDetail);
+        metadataEngineDataPreview.setEngineQueryService(engineQueryService);
+        metadataEngineDataPreview.setLimit(limit);
+        metadataEngineDataPreview.getData();
+
+        resultDataGrid = metadataEngineDataPreview;
+
+      //2-2. SourceType=ENGINE, ConnectionType=LINK
+      } else if (metadataSourceDetail.getConnType() == DataSource.ConnectionType.LINK) { //jdbc
+        DataConnection jdbcDataConnection = metadataSourceDetail.getConnection();
+        String query = makeQueryStatementForPreview(metadata);
+        MetadataJdbcDataPreview metadataJdbcDataPreview = new MetadataJdbcDataPreview(metadata);
+        metadataJdbcDataPreview.setConnectInformation(jdbcDataConnection);
+        metadataJdbcDataPreview.setQuery(query);
+        metadataJdbcDataPreview.setLimit(limit);
+        metadataJdbcDataPreview.getData();
+
+        resultDataGrid = metadataJdbcDataPreview;
+      }
+
+    //3. SourceType=STAGEDB
+    } else if (metadataSource.getType() == Metadata.SourceType.STAGEDB) {
+      StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
+
+      if (stageDBConnection == null) {
+        throw new IllegalArgumentException("Staging Hive DB info. required.");
+      }
+
+      DataConnection hiveConnection = new DataConnection();
+      hiveConnection.setUrl(stageDBConnection.getUrl());
+      hiveConnection.setHostname(stageDBConnection.getHostname());
+      hiveConnection.setPort(stageDBConnection.getPort());
+      hiveConnection.setUsername(stageDBConnection.getUsername());
+      hiveConnection.setPassword(stageDBConnection.getPassword());
+      hiveConnection.setImplementor("STAGE");
+
+      String query = makeQueryStatementForPreview(metadata);
+
+      MetadataJdbcDataPreview metadataJdbcDataPreview = new MetadataJdbcDataPreview(metadata);
+      metadataJdbcDataPreview.setConnectInformation(hiveConnection);
+      metadataJdbcDataPreview.setQuery(query);
+      metadataJdbcDataPreview.setLimit(limit);
+      metadataJdbcDataPreview.getData();
+
+      resultDataGrid = metadataJdbcDataPreview;
     }
 
-    try {
-      dataFrame.setByJDBC(stmt, query, limit);
-
-      //merge column info from metadata
-      mergeMetadataColumn(dataFrame, metadata);
-
-    } catch (Exception e) {
-      LOGGER.error("getDataFrame : dataFrame.setByJDBC Exception : {}", e);
+    if(resultDataGrid == null){
+      throw new IllegalArgumentException("SourceType (" + metadataSource.getType() + ") is not supported.");
     }
-
-    return dataFrame;
+    return resultDataGrid;
   }
 
   public void getDownloadData(Metadata metadata, String fileName, int limit) {
     Connection conn = null;
 
-    String query = makeQueryStatement(metadata);
+    String query = makeQueryStatementForPreview(metadata);
     conn = getConnection(metadata);
 
     try {
@@ -269,8 +321,8 @@ public class MetadataService {
     try {
       JdbcCSVWriter jdbcCSVWriter = new JdbcCSVWriter(new FileWriter(fileName), CsvPreference.STANDARD_PREFERENCE);
       jdbcCSVWriter.setConnection(connection);
-      jdbcCSVWriter.setFetchSize(limit);
-      jdbcCSVWriter.setMaxRow(1000);
+      jdbcCSVWriter.setFetchSize(1000);
+      jdbcCSVWriter.setMaxRow(limit);
       jdbcCSVWriter.setQuery(query);
       jdbcCSVWriter.setFileName(fileName);
       jdbcCSVWriter.write();
@@ -291,7 +343,7 @@ public class MetadataService {
     return stringBuilder.toString();
   }
 
-  private String makeQueryStatement(Metadata metadata) {
+  private String makeQueryStatementForPreview(Metadata metadata) {
     String queryString = null;
     MetadataSource metadataSource = metadata.getSource();
 
@@ -341,58 +393,5 @@ public class MetadataService {
 
     queryString = jdbcConnectionService.generateSelectQuery(jdbcConnection, schema, type, query, null);
     return queryString;
-  }
-
-  public void mergeMetadataColumn(DataFrame dataFrame, Metadata metadata){
-    List<MetadataColumn> metadataColumns = metadata.getColumns();
-
-    //merge field from metadata column
-    if(metadataColumns != null){
-      for(MetadataColumn metadataColumn : metadata.getColumns()){
-        Map<String, Object> additionalMap = metadataColumn.getAdditionalContextMap();
-        Boolean isDerivedColumn = additionalMap != null && additionalMap.get("derived") != null
-            ? (Boolean) additionalMap.get("derived")
-            : false;
-
-        if(isDerivedColumn){
-          dataFrame.addColumn(metadataColumn.getPhysicalName(), getColumnType(metadataColumn.getType()));
-        }
-
-        try{
-          int colNo = dataFrame.getColnoByColName(metadataColumn.getPhysicalName());
-          ColumnDescription colDesc = dataFrame.colDescs.get(colNo);
-          colDesc.setLogicalName(metadataColumn.getName());
-          if(isDerivedColumn){
-            colDesc.setDerived(isDerivedColumn);
-          }
-        } catch (ColumnNotFoundException e){
-          LOGGER.error("mergeMetadataColumn : dataFrame.getColnoByColName({}) Exception {}"
-              , metadataColumn.getPhysicalName(), e.getMessage());
-        }
-      }
-    }
-  }
-
-  public ColumnType getColumnType(LogicalType metadataColumnType){
-    switch (metadataColumnType){
-      case STRING:
-      case LNG: case LNT:
-      case GEO_POINT: case GEO_LINE: case GEO_POLYGON:
-        return ColumnType.STRING;
-      case BOOLEAN:
-        return ColumnType.BOOLEAN;
-      case TIMESTAMP:
-        return ColumnType.TIMESTAMP;
-      case NUMBER: case DOUBLE:
-        return ColumnType.DOUBLE;
-      case INTEGER:
-        return ColumnType.LONG;
-      case ARRAY:
-        return ColumnType.ARRAY;
-      case STRUCT: case MAP_KEY: case MAP_VALUE:
-        return ColumnType.MAP;
-      default:
-        return ColumnType.STRING;
-    }
   }
 }

@@ -24,7 +24,6 @@ public class ColumnDescription implements Serializable {
   private String logicalName;
   private List<ColumnDescription> arrColDesc;
   private Map<String, ColumnDescription> mapColDesc;
-  private Boolean derived;
 
   public ColumnDescription() {
     type = ColumnType.UNKNOWN;
@@ -105,13 +104,5 @@ public class ColumnDescription implements Serializable {
 
   public void setMapColDesc(Map<String, ColumnDescription> mapColDesc) {
     this.mapColDesc = mapColDesc;
-  }
-
-  public Boolean getDerived() {
-    return derived;
-  }
-
-  public void setDerived(Boolean derived) {
-    this.derived = derived;
   }
 }

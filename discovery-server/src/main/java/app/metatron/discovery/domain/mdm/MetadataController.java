@@ -3,7 +3,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,15 +17,17 @@ package app.metatron.discovery.domain.mdm;
 import app.metatron.discovery.common.entity.DomainType;
 import app.metatron.discovery.common.entity.SearchParamValidator;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.common.data.projection.DataGrid;
 import app.metatron.discovery.domain.CollectionPatch;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.datasource.DataSourceService;
 import app.metatron.discovery.domain.tag.Tag;
 import app.metatron.discovery.domain.tag.TagProjections;
 import app.metatron.discovery.domain.tag.TagService;
 import app.metatron.discovery.util.HttpUtils;
 import app.metatron.discovery.util.ProjectionUtils;
+
 import com.google.common.collect.Maps;
+
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -51,247 +53,246 @@ import java.util.Map;
 @RepositoryRestController
 public class MetadataController {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(MetadataController.class);
+  private static Logger LOGGER = LoggerFactory.getLogger(MetadataController.class);
 
-    @Autowired
-    MetadataService metadataService;
+  @Autowired
+  MetadataService metadataService;
 
-    @Autowired
-    DataSourceService dataSourceService;
+  @Autowired
+  DataSourceService dataSourceService;
 
-    @Autowired
-    TagService tagService;
+  @Autowired
+  TagService tagService;
 
-    @Autowired
-    MetadataRepository metadataRepository;
+  @Autowired
+  MetadataRepository metadataRepository;
 
-    @Autowired
-    PagedResourcesAssembler pagedResourcesAssembler;
+  @Autowired
+  PagedResourcesAssembler pagedResourcesAssembler;
 
-    @Autowired
-    ProjectionFactory projectionFactory;
+  @Autowired
+  ProjectionFactory projectionFactory;
 
-    @Autowired
-    DefaultFormattingConversionService defaultConversionService;
+  @Autowired
+  DefaultFormattingConversionService defaultConversionService;
 
-    MetadataColumnProjections metadataColumnProjections = new MetadataColumnProjections();
+  MetadataColumnProjections metadataColumnProjections = new MetadataColumnProjections();
 
-    MetadataProjections metadataProjections = new MetadataProjections();
+  MetadataProjections metadataProjections = new MetadataProjections();
 
-    public MetadataController() {
+  public MetadataController() {
+  }
+
+  /**
+   * Metadata 목록을 조회합니다.
+   */
+  @RequestMapping(value = "/metadatas", method = RequestMethod.GET)
+  public ResponseEntity <?> findMetadatas(
+      @RequestParam(value = "sourceType", required = false) String sourceType,
+      @RequestParam(value = "catalogId", required = false) String catalogId,
+      @RequestParam(value = "tag", required = false) String tag,
+      @RequestParam(value = "nameContains", required = false) String nameContains,
+      @RequestParam(value = "searchDateBy", required = false) String searchDateBy,
+      @RequestParam(value = "from", required = false)
+      @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) DateTime from,
+      @RequestParam(value = "to", required = false)
+      @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) DateTime to,
+      Pageable pageable, PersistentEntityResourceAssembler resourceAssembler) {
+
+
+    // Validate source type.
+    Metadata.SourceType searchSourceType = null;
+    if (StringUtils.isNotEmpty(sourceType)) {
+      searchSourceType = SearchParamValidator.enumUpperValue(Metadata.SourceType.class, sourceType, "sourceType");
     }
 
-    /**
-     * Metadata 목록을 조회합니다.
-     */
-    @RequestMapping(value = "/metadatas", method = RequestMethod.GET)
-    public ResponseEntity <?> findMetadatas(
-            @RequestParam(value = "sourceType", required = false) String sourceType,
-            @RequestParam(value = "catalogId", required = false) String catalogId,
-            @RequestParam(value = "tag", required = false) String tag,
-            @RequestParam(value = "nameContains", required = false) String nameContains,
-            @RequestParam(value = "searchDateBy", required = false) String searchDateBy,
-            @RequestParam(value = "from", required = false)
-            @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) DateTime from,
-            @RequestParam(value = "to", required = false)
-            @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) DateTime to,
-            Pageable pageable, PersistentEntityResourceAssembler resourceAssembler) {
-
-
-        // Validate source type.
-        Metadata.SourceType searchSourceType = null;
-        if (StringUtils.isNotEmpty(sourceType)) {
-            searchSourceType = SearchParamValidator.enumUpperValue(Metadata.SourceType.class, sourceType, "sourceType");
-        }
-
-        // 기본 정렬 조건 셋팅
-        if (pageable.getSort() == null || !pageable.getSort().iterator().hasNext()) {
-            pageable = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(),
-                    new Sort(Sort.Direction.ASC, "name"));
-        }
-
-        Page <Metadata> metadatas = metadataRepository.searchMetadatas(searchSourceType, catalogId, tag, nameContains, searchDateBy, from, to, pageable);
-
-        return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(metadatas, resourceAssembler));
+    // 기본 정렬 조건 셋팅
+    if (pageable.getSort() == null || !pageable.getSort().iterator().hasNext()) {
+      pageable = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(),
+          new Sort(Sort.Direction.ASC, "name"));
     }
 
+    Page <Metadata> metadatas = metadataRepository.searchMetadatas(searchSourceType, catalogId, tag, nameContains, searchDateBy, from, to, pageable);
 
-    @RequestMapping(value = "/metadatas/metasources/{sourceId}", method = RequestMethod.POST)
-    public ResponseEntity <?> findMetadataByOriginSource(@PathVariable("sourceId") String sourceId,
-                                                         @RequestBody(required = false) Map <String, Object> requestParam,
-                                                         @RequestParam(value = "projection", required = false, defaultValue = "default") String projection) {
+    return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(metadatas, resourceAssembler));
+  }
 
-        String schema = null;
-        List <String> tableList = null;
-        if (requestParam != null) {
-            schema = (String) requestParam.get("schema");
-            tableList = (List) requestParam.get("table");
-        }
 
-        List results = metadataRepository.findBySource(sourceId, schema, tableList);
+  @RequestMapping(value = "/metadatas/metasources/{sourceId}", method = RequestMethod.POST)
+  public ResponseEntity <?> findMetadataByOriginSource(@PathVariable("sourceId") String sourceId,
+                             @RequestBody(required = false) Map <String, Object> requestParam,
+                             @RequestParam(value = "projection", required = false, defaultValue = "default") String projection) {
 
-        return ResponseEntity.ok(ProjectionUtils.toListResource(projectionFactory,
-                metadataProjections.getProjectionByName(projection),
-                results));
-
+    String schema = null;
+    List <String> tableList = null;
+    if (requestParam != null) {
+      schema = (String) requestParam.get("schema");
+      tableList = (List) requestParam.get("table");
     }
 
-    @RequestMapping(value = "/metadatas/tags", method = RequestMethod.GET)
-    public ResponseEntity <?> findTagsInMetadata(@RequestParam(value = "nameContains", required = false) String nameContains) {
+    List results = metadataRepository.findBySource(sourceId, schema, tableList);
 
-        List tags = tagService.findByTagsWithDomain(Tag.Scope.DOMAIN, DomainType.METADATA, nameContains);
+    return ResponseEntity.ok(ProjectionUtils.toListResource(projectionFactory,
+        metadataProjections.getProjectionByName(projection),
+        results));
 
-        return ResponseEntity.ok(
-                ProjectionUtils.toListResource(projectionFactory, TagProjections.DefaultProjection.class, tags)
-        );
+  }
+
+  @RequestMapping(value = "/metadatas/tags", method = RequestMethod.GET)
+  public ResponseEntity <?> findTagsInMetadata(@RequestParam(value = "nameContains", required = false) String nameContains) {
+
+    List tags = tagService.findByTagsWithDomain(Tag.Scope.DOMAIN, DomainType.METADATA, nameContains);
+
+    return ResponseEntity.ok(
+        ProjectionUtils.toListResource(projectionFactory, TagProjections.DefaultProjection.class, tags)
+    );
+  }
+
+  @RequestMapping(value = "/metadatas/{metadataId}/tags/{action:attach|detach|update}", method = RequestMethod.POST)
+  public ResponseEntity <?> manageTag(@PathVariable("metadataId") String metadataId,
+                    @PathVariable("action") String action,
+                    @RequestBody List <String> tagNames) {
+    switch (action) {
+      case "attach":
+        tagService.attachTagsToDomainItem(Tag.Scope.DOMAIN, DomainType.METADATA, metadataId, tagNames);
+        break;
+      case "detach":
+        tagService.detachTagsFromDomainItem(Tag.Scope.DOMAIN, DomainType.METADATA, metadataId, tagNames);
+        break;
+      case "update":
+        tagService.updateTagsInDomainItem(Tag.Scope.DOMAIN, DomainType.METADATA, metadataId, tagNames);
+        break;
     }
 
-    @RequestMapping(value = "/metadatas/{metadataId}/tags/{action:attach|detach|update}", method = RequestMethod.POST)
-    public ResponseEntity <?> manageTag(@PathVariable("metadataId") String metadataId,
-                                        @PathVariable("action") String action,
-                                        @RequestBody List <String> tagNames) {
-        switch (action) {
-            case "attach":
-                tagService.attachTagsToDomainItem(Tag.Scope.DOMAIN, DomainType.METADATA, metadataId, tagNames);
-                break;
-            case "detach":
-                tagService.detachTagsFromDomainItem(Tag.Scope.DOMAIN, DomainType.METADATA, metadataId, tagNames);
-                break;
-            case "update":
-                tagService.updateTagsInDomainItem(Tag.Scope.DOMAIN, DomainType.METADATA, metadataId, tagNames);
-                break;
-        }
+    return ResponseEntity.noContent().build();
+  }
 
-        return ResponseEntity.noContent().build();
+
+  @RequestMapping(path = "/metadatas/name/{value}/duplicated", method = RequestMethod.GET)
+  public ResponseEntity <?> checkDuplicatedValue(@PathVariable("value") String value) {
+
+    Map <String, Boolean> duplicated = Maps.newHashMap();
+    if (metadataRepository.exists(MetadataPredicate.searchDuplicatedName(value))) {
+      duplicated.put("duplicated", true);
+    } else {
+      duplicated.put("duplicated", false);
     }
 
+    return ResponseEntity.ok(duplicated);
 
-    @RequestMapping(path = "/metadatas/name/{value}/duplicated", method = RequestMethod.GET)
-    public ResponseEntity <?> checkDuplicatedValue(@PathVariable("value") String value) {
+  }
 
-        Map <String, Boolean> duplicated = Maps.newHashMap();
-        if (metadataRepository.exists(MetadataPredicate.searchDuplicatedName(value))) {
-            duplicated.put("duplicated", true);
-        } else {
-            duplicated.put("duplicated", false);
-        }
+  /**
+   * Metadata 내 컬럼 정보를 가져옵니다.
+   */
+  @RequestMapping(path = "/metadatas/{metadataId}/columns", method = RequestMethod.GET)
+  public @ResponseBody
+  ResponseEntity <?> getColumnssInMetadata(@PathVariable("metadataId") String metadataId,
+                       @RequestParam(value = "projection", required = false, defaultValue = "default") String projection) {
 
-        return ResponseEntity.ok(duplicated);
-
+    Metadata metadata = metadataRepository.findOne(metadataId);
+    if (metadata == null) {
+      throw new ResourceNotFoundException(metadataId);
     }
 
-    /**
-     * Metadata 내 컬럼 정보를 가져옵니다.
-     */
-    @RequestMapping(path = "/metadatas/{metadataId}/columns", method = RequestMethod.GET)
-    public @ResponseBody
-    ResponseEntity <?> getColumnssInMetadata(@PathVariable("metadataId") String metadataId,
-                                             @RequestParam(value = "projection", required = false, defaultValue = "default") String projection) {
+    List results = metadata.getColumns();
 
-        Metadata metadata = metadataRepository.findOne(metadataId);
-        if (metadata == null) {
-            throw new ResourceNotFoundException(metadataId);
-        }
+    return ResponseEntity.ok(ProjectionUtils.toListResource(projectionFactory,
+        metadataColumnProjections.getProjectionByName(projection),
+        results));
 
-        List results = metadata.getColumns();
+  }
 
-        return ResponseEntity.ok(ProjectionUtils.toListResource(projectionFactory,
-                metadataColumnProjections.getProjectionByName(projection),
-                results));
+  /**
+   * Metadata 내 컬럼 정보를 수정합니다.
+   */
+  @RequestMapping(path = "/metadatas/{metadataId}/columns", method = {RequestMethod.PATCH, RequestMethod.PUT})
+  public @ResponseBody
+  ResponseEntity <?> patchColumnsInMetadata(@PathVariable("metadataId") String metadataId,
+                        @RequestBody List <CollectionPatch> patches) {
 
+    Metadata metadata = metadataRepository.findOne(metadataId);
+    if (metadata == null) {
+      throw new ResourceNotFoundException(metadataId);
     }
 
-    /**
-     * Metadata 내 컬럼 정보를 수정합니다.
-     */
-    @RequestMapping(path = "/metadatas/{metadataId}/columns", method = {RequestMethod.PATCH, RequestMethod.PUT})
-    public @ResponseBody
-    ResponseEntity <?> patchColumnsInMetadata(@PathVariable("metadataId") String metadataId,
-                                              @RequestBody List <CollectionPatch> patches) {
-
-        Metadata metadata = metadataRepository.findOne(metadataId);
-        if (metadata == null) {
-            throw new ResourceNotFoundException(metadataId);
-        }
-
-        Map <Long, MetadataColumn> columnMap = metadata.getColumnMap();
-        for (CollectionPatch patch : patches) {
-            Long columnId = patch.getLongValue("id");
-            switch (patch.getOp()) {
-                case ADD:
-                    metadata.addColumn(new MetadataColumn(patch, defaultConversionService));
-                    LOGGER.debug("Add code in code table({})", metadataId);
-                    break;
-                case REPLACE:
-                    if (columnMap.containsKey(columnId)) {
-                        MetadataColumn column = columnMap.get(columnId);
-                        column.updateColumn(patch, defaultConversionService);
-                        LOGGER.debug("Updated code in code table({}) : {}", metadataId, columnId);
-                    }
-                    break;
-                case REMOVE:
-                    if (columnMap.containsKey(columnId)) {
-                        metadata.removeColumn(columnMap.get(columnId));
-                        LOGGER.debug("Deleted code in code table({}) : {}", metadataId, columnId);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        // save metadata and sync. with datasource
-        metadataRepository.save(metadata);
-        dataSourceService.updateFromMetadata(metadata, true);
-
-        return ResponseEntity.noContent().build();
+    Map <Long, MetadataColumn> columnMap = metadata.getColumnMap();
+    for (CollectionPatch patch : patches) {
+      Long columnId = patch.getLongValue("id");
+      switch (patch.getOp()) {
+        case ADD:
+          metadata.addColumn(new MetadataColumn(patch, defaultConversionService));
+          LOGGER.debug("Add code in code table({})", metadataId);
+          break;
+        case REPLACE:
+          if (columnMap.containsKey(columnId)) {
+            MetadataColumn column = columnMap.get(columnId);
+            column.updateColumn(patch, defaultConversionService);
+            LOGGER.debug("Updated code in code table({}) : {}", metadataId, columnId);
+          }
+          break;
+        case REMOVE:
+          if (columnMap.containsKey(columnId)) {
+            metadata.removeColumn(columnMap.get(columnId));
+            LOGGER.debug("Deleted code in code table({}) : {}", metadataId, columnId);
+          }
+          break;
+        default:
+          break;
+      }
     }
 
-    @RequestMapping(path = "/metadatas/{metadataId}/data", method = RequestMethod.GET)
-    public @ResponseBody
-    ResponseEntity <?> getDataByMetadata(@PathVariable("metadataId") String metadataId,
-                                         @RequestParam(value = "limit", required = false) int limit) {
+    // save metadata and sync. with datasource
+    metadataRepository.save(metadata);
+    dataSourceService.updateFromMetadata(metadata, true);
 
-        Map <String, Object> responseMap = new HashMap <String, Object>();
+    return ResponseEntity.noContent().build();
+  }
 
-        Metadata metadata = metadataRepository.findOne(metadataId);
-        if (metadata == null) {
-            throw new ResourceNotFoundException(metadataId);
-        }
+  @RequestMapping(path = "/metadatas/{metadataId}/data", method = RequestMethod.GET)
+  public @ResponseBody
+  ResponseEntity <?> getDataByMetadata(@PathVariable("metadataId") String metadataId,
+                     @RequestParam(value = "limit", required = false) int limit) {
 
-        DataFrame result = metadataService.getDataFrame(metadata, limit);
+    Map <String, Object> responseMap = new HashMap <String, Object>();
 
-        responseMap.put("size", result.rows.size());
-        responseMap.put("data", result);
-
-        return ResponseEntity.ok(responseMap);
+    Metadata metadata = metadataRepository.findOne(metadataId);
+    if (metadata == null) {
+      throw new ResourceNotFoundException(metadataId);
     }
 
-    @RequestMapping(path = "/metadatas/{metadataId}/data/download", method = RequestMethod.GET)
-    public @ResponseBody
-    ResponseEntity <?> getDownloadDataByMetadata(@PathVariable("metadataId") String metadataId,
-                                                 @RequestParam(value = "limit", required = false) int limit,
-                                                 @RequestParam(value = "fileName", required = false) String fileName,
-                                                 HttpServletResponse response) {
+    DataGrid result = metadataService.getDataGrid(metadata, limit);
+    responseMap.put("size", result.getRows() == null ? 0 : result.getRows().size());
+    responseMap.put("data", result);
 
-        Metadata metadata = metadataRepository.findOne(metadataId);
-        if (metadata == null) {
-            throw new ResourceNotFoundException(metadataId);
-        }
+    return ResponseEntity.ok(responseMap);
+  }
 
-        if (StringUtils.isEmpty(fileName)) {
-            fileName = "noname";
-        }
+  @RequestMapping(path = "/metadatas/{metadataId}/data/download", method = RequestMethod.GET)
+  public @ResponseBody
+  ResponseEntity <?> getDownloadDataByMetadata(@PathVariable("metadataId") String metadataId,
+                         @RequestParam(value = "limit", required = false) int limit,
+                         @RequestParam(value = "fileName", required = false) String fileName,
+                         HttpServletResponse response) {
 
-        String csvFileName = metadataService.getDownloadFilePath(fileName);
-
-        metadataService.getDownloadData(metadata, csvFileName, limit);
-        try {
-            HttpUtils.downloadCSVFile(response, fileName, csvFileName, "text/csv; charset=utf-8");
-        } catch (Exception e) {
-            LOGGER.error("getDownloadDataByMetadata(): HttpUtils.downloadCSVFile Exception: " + e.getMessage());
-        }
-
-        return null;
+    Metadata metadata = metadataRepository.findOne(metadataId);
+    if (metadata == null) {
+      throw new ResourceNotFoundException(metadataId);
     }
+
+    if (StringUtils.isEmpty(fileName)) {
+      fileName = "noname";
+    }
+
+    String csvFileName = metadataService.getDownloadFilePath(fileName);
+
+    metadataService.getDownloadData(metadata, csvFileName, limit);
+    try {
+      HttpUtils.downloadCSVFile(response, fileName, csvFileName, "text/csv; charset=utf-8");
+    } catch (Exception e) {
+      LOGGER.error("getDownloadDataByMetadata(): HttpUtils.downloadCSVFile Exception: " + e.getMessage());
+    }
+
+    return null;
+  }
 }
