@@ -13,6 +13,7 @@ import {MetadataModelService} from "../../metadata/service/metadata.model.servic
 
 import * as _ from "lodash";
 import {Type} from "../../../shared/datasource-metadata/domain/type";
+import {MetadataSource} from "../../../domain/meta-data-management/metadata-source";
 
 @Component({
   selector: 'metadata-grid-component',
@@ -111,7 +112,7 @@ export class MetadataGridComponent extends AbstractComponent {
   }
 
   isLinkedSourceType(): boolean {
-    return Datasource.isLinkedDatasource(this.metadata.source.source as Datasource);
+    return MetadataSource.isNotEmptySource(this.metadata.source) && Datasource.isLinkedDatasource(this.metadata.source.source as Datasource);
   }
 
 
@@ -121,6 +122,10 @@ export class MetadataGridComponent extends AbstractComponent {
    */
   extendGridHeader(args: any): void {
     $(`<div class="slick-data">${_.find(this.fieldList, {'name': args.column.id})['logicalName'] || ''}</div>`).appendTo(args.node);
+  }
+
+  private _isCreatedField(field): boolean {
+    return !_.isNil(field.additionals) && field.additionals.derived === true;
   }
 
   private _setFieldList(colNames: string[], colDescs): void {
@@ -134,7 +139,7 @@ export class MetadataGridComponent extends AbstractComponent {
 
   private _setFieldRowList(colNames: string[], rows) {
     this.fieldRowList = rows.reduce((result, row) => {
-      result.push(row.objCols.reduce((mappingRow, data, index) => {
+      result.push(row.values.reduce((mappingRow, data, index) => {
         mappingRow[colNames[index]] = data;
         return mappingRow;
       }, {}));
@@ -149,19 +154,22 @@ export class MetadataGridComponent extends AbstractComponent {
         // if exist data
         if (!_.isNil(result.data)) {
           // set isExistCreatedField flag
-          if (result.data.colDescs.length > 0) {
-            this.isExistCreatedField = result.data.colDescs.some(col => col.dervied === true);
+          if (result.data.columnDescriptions.length > 0) {
+            this.isExistCreatedField = result.data.columnDescriptions.some(col => !_.isNil(col.additionals) && col.additionals.derived === true);
           }
           // set field list
-          this._setFieldList(result.data.colNames, result.data.colDescs);
+          this._setFieldList(result.data.columnNames, result.data.columnDescriptions);
           // set field data list
-          this._setFieldRowList(result.data.colNames, result.data.rows);
+          this._setFieldRowList(result.data.columnNames, result.data.rows);
           // create grid
           this._updateGrid();
         }
         this.loadingHide();
       })
-      .catch(error => this.commonExceptionHandler(error));
+      .catch(error => {
+        this.fieldList = [];
+        this.commonExceptionHandler(error);
+      });
   }
 
   /**
@@ -195,7 +203,7 @@ export class MetadataGridComponent extends AbstractComponent {
           .Sortable(true)
           .Formatter((row, cell, value) => {
             // if derived expression type or LINK geo type
-            if (field.derived && (field.type === LogicalType.STRING || this.isLinkedSourceType())) {
+            if (this._isCreatedField(field) && (field.type === LogicalType.STRING || this.isLinkedSourceType())) {
               return '<div  style="' + defaultStyle + nullStyle + '">' + noPreviewGuideMessage + '</div>';
             } else {
               return value;
@@ -234,8 +242,8 @@ export class MetadataGridComponent extends AbstractComponent {
    */
   private _getGridHeaderName(field, headerName: string): string {
     return field.type === LogicalType.TIMESTAMP && (this.timezoneService.isEnableTimezoneInDateFormat(field.format) || field.format && field.format.type === FieldFormatType.UNIX_TIME)
-      ? `<span style="padding-left:20px;"><em class="${this.getFieldTypeIconClass(field.type.toString())}"></em>${headerName}<div class="slick-column-det" title="${this._getTimezoneLabel(field.format)}">${this._getTimezoneLabel(field.format)}</div></span>`
-      : `<span style="padding-left:20px;"><em class="${this.getFieldTypeIconClass(field.type.toString())}"></em>${headerName}</span>`;
+      ? `<span style="padding-left:20px;"><em class="${this.getFieldTypeIconClass(this._getConvertedType(field.type, field.logicalType).toString())}"></em>${headerName}<div class="slick-column-det" title="${this._getTimezoneLabel(field.format)}">${this._getTimezoneLabel(field.format)}</div></span>`
+      : `<span style="padding-left:20px;"><em class="${this.getFieldTypeIconClass(this._getConvertedType(field.type, field.logicalType).toString())}"></em>${headerName}</span>`;
   }
 
   /**
@@ -266,9 +274,9 @@ export class MetadataGridComponent extends AbstractComponent {
     if (this.selectedRoleTypeFilter.value === Type.Role.ALL) {
       return fieldList;
     } else if (this.selectedRoleTypeFilter.value === Type.Role.DIMENSION) { // if selected DIMENSION filter
-      return fieldList.filter(field => field.role === Type.Role.DIMENSION || field.role === Type.Role.TIMESTAMP);
+      return fieldList.filter(field => field.additionals.role === Type.Role.DIMENSION || field.additionals.role === Type.Role.TIMESTAMP);
     } else {  // if selected MEASURE filter
-      return fieldList.filter(field => field.role === Type.Role.MEASURE);
+      return fieldList.filter(field => field.additionals.role === Type.Role.MEASURE);
     }
   }
 
@@ -276,13 +284,15 @@ export class MetadataGridComponent extends AbstractComponent {
     if ( this.selectedLogicalTypeFilter.value === Type.Logical.ALL) {
       return fieldList;
     } else {
-      return fieldList.filter(field => this._getConvertedType(field.type) === this.selectedLogicalTypeFilter.value);
+      return fieldList.filter(field => this._getConvertedType(field.type, field.logicalType) === this.selectedLogicalTypeFilter.value);
     }
   }
 
-  private _getConvertedType(type: Type.Logical): Type.Logical {
+  private _getConvertedType(type: Type.Logical, logicalType: Type.Logical): Type.Logical {
     if (type === Type.Logical.LONG) {
       return Type.Logical.INTEGER;
+    } else if (type === Type.Logical.STRUCT) {
+      return logicalType;
     } else {
       return type;
     }
