@@ -108,6 +108,7 @@ public class RoleSetEventHandler {
       Set<Workspace> linkedWorkspaces = roleSet.getWorkspaces();
       List<String> workspaceIds = Lists.newArrayList();
       for (Workspace workspace : linkedWorkspaces) {
+        LOGGER.debug("UPDATED: Set linked workspace({}) to default permission schema", workspace.getId());
         defaultRoleSetWorkspaces.add(workspace);
         workspaceIds.add(workspace.getId());
       }
@@ -117,6 +118,7 @@ public class RoleSetEventHandler {
 
       if (CollectionUtils.isNotEmpty(roleSet.getRoleNames())) {
         for (String deletedRoleName : roleSet.getRoleNames()) {
+          LOGGER.debug("UPDATED: Set linked workspace({}) in roleset({}) to {}", workspaceIds, deletedRoleName, defaultRoleSet.getDefaultRole().getName());
           workspaceMemberRepository.updateMultiMemberRoleInWorkspaces(workspaceIds, deletedRoleName, defaultRoleSet.getDefaultRole().getName());
         }
       }
