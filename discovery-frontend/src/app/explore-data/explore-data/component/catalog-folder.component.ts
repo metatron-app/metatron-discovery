@@ -39,6 +39,10 @@ export class CatalogFolderComponent extends AbstractComponent {
     super(element, injector);
   }
 
+  isEmptySearchKeyword(): boolean {
+    return StringUtil.isEmpty(this.searchKeyword);
+  }
+
   onChangeFolderOpen(catalogId: string) {
     // stop bubbling
     event.stopImmediatePropagation();

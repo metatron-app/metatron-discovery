@@ -39,11 +39,17 @@
       </div>
       <div class="ddp-wrap-tab-contents">
         <div class="ddp-ui-tab-contents">
-          <div class="ddp-ui-catalog-contents ddp-type">
+          <!-- search -->
+          <div class="ddp-ui-searching">
+            <em class="ddp-icon-search"></em>
+            <component-input [placeHolder]="'Search catalog'" (changeValue)="onChangeCatalogSearchValue($event)" [value]="catalogSearchKeyword" [autoFocus]="false"></component-input>
+          </div>
+          <!-- //search -->
+          <div class="ddp-ui-catalog-contents">
             <!-- tree -->
             <div class="ddp-ui-tree">
               <ul class="ddp-list-tree">
-                <component-catalog-folder *ngFor="let catalog of catalogList" [catalog]="catalog" (clickedCatalog)="onClickCatalog($event)"></component-catalog-folder>
+                <component-catalog-folder *ngFor="let catalog of catalogList" [catalog]="catalog" (clickedCatalog)="onClickCatalog($event)" [searchKeyword]="catalogSearchKeyword"></component-catalog-folder>
               </ul>
             </div>
             <!-- //tree -->

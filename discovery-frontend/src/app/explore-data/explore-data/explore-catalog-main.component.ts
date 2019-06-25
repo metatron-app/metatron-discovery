@@ -18,7 +18,7 @@ import * as _ from "lodash";
 import {StringUtil} from "../../common/util/string.util";
 import {Catalog} from "../../domain/catalog/catalog";
 import {CatalogService} from "../../meta-data-management/catalog/service/catalog.service";
-import {SourceType} from "../../domain/meta-data-management/metadata";
+import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
 
 @Component({
   selector: 'explore-catalog-main',
@@ -27,8 +27,7 @@ import {SourceType} from "../../domain/meta-data-management/metadata";
 export class ExploreCatalogMainComponent extends AbstractComponent implements OnChanges {
 
   @Input() readonly catalog: Catalog.Tree;
-
-  metadataList;
+  metadataList: Metadata[];
 
   // event
   @Output() readonly clickedMetadata = new EventEmitter();
@@ -40,14 +39,13 @@ export class ExploreCatalogMainComponent extends AbstractComponent implements On
     super(element, injector);
   }
 
-  // Init
   ngOnInit() {
     super.ngOnInit();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (!_.isNil(changes.catalog.currentValue)) {
-      this.setMetadataList(changes.catalog.currentValue.id);
+      this._setMetadataList(changes.catalog.currentValue.id);
     }
   }
   
@@ -62,15 +60,49 @@ export class ExploreCatalogMainComponent extends AbstractComponent implements On
     }
   }
 
-  isEnableTag(metadata): boolean {
-    return !_.isNil(metadata.tags) && metadata.tags.length !== 0;
+  isEmptyMetadataList(): boolean {
+    return _.isNil(this.metadataList) || this.metadataList.length === 0;
   }
 
-  isEnableDescription(metadata): boolean {
+  isEnableTag(metadata: Metadata): boolean {
+    return !Metadata.isEmptyTags(metadata);
+  }
+
+  isEnableDescription(metadata: Metadata): boolean {
     return StringUtil.isNotEmpty(metadata.description);
   }
 
-  setMetadataList(catalogId: string) {
+  /**
+   * More connection click event
+   */
+  changePage(data: { page: number, size: number }): void {
+    // if more datasource list
+    if (data) {
+      this.page.page = data.page;
+      this.page.size = data.size;
+      this.reloadPage(false);
+    }
+  }
+
+  /**
+   * 페이지를 새로 불러온다.
+   * @param {boolean} isFirstPage
+   */
+  reloadPage(isFirstPage: boolean = true) {
+    (isFirstPage) && (this.page.page = 0);
+    const params = {
+      page: this.page.page,
+      size: this.page.size,
+      pseudoParam : (new Date()).getTime()
+    };
+    this.router.navigate(
+      [this.router.url.replace(/\?.*/gi, '')],
+      {queryParams: params, replaceUrl: true}
+    ).then();
+  } // function - reloadPage
+
+  private _setMetadataList(catalogId: string) {
+    this.loadingShow();
     const params = {
       page: this.page.page,
       size: this.page.size,
@@ -82,10 +114,12 @@ export class ExploreCatalogMainComponent extends AbstractComponent implements On
         } else {
           this.metadataList = [];
         }
-    })
+        this.loadingHide();
+      })
+      .catch(error => this.commonExceptionHandler(error));
   }
 
-  onClickMetadata(metadata) {
+  onClickMetadata(metadata: Metadata) {
     return this.clickedMetadata.emit(metadata);
   }
 }

@@ -1,6 +1,6 @@
 <li [class.ddp-open]="isOpened">
   <a href="javascript:" class="ddp-depth" (click)="onClickCatalog(catalog)">
-    <em class="ddp-view" (click)="onChangeFolderOpen(catalog.id)" *ngIf="catalog.countOfChild !== 0"></em>
+    <em class="ddp-view" (click)="onChangeFolderOpen(catalog.id)" *ngIf="isEmptySearchKeyword() && catalog.countOfChild !== 0"></em>
     <div class="ddp-txt-link">
       <em class="ddp-icon-folder"></em>
       <span [innerHTML]="getCatalogName()"></span>

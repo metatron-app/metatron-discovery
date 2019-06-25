@@ -106,11 +106,10 @@ export class CatalogService extends AbstractService {
    * @param param
    * @return
    */
-  public getCatalogs(params: any): Promise<any> {
+  public getCatalogs(params: any, projection: string = 'forListView'): Promise<any> {
 
     let url = this.URL_CATALOG;
     url += '?' + CommonUtil.objectToUrlString(params);
-    return this.get(url + `&projection=forListView`);
+    return this.get(url + `&projection=${projection}`);
   }
-
 }

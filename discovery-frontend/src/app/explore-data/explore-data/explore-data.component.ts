@@ -19,6 +19,7 @@ import {Metadata} from "../../domain/meta-data-management/metadata";
 import * as _ from 'lodash';
 import {CatalogService} from "../../meta-data-management/catalog/service/catalog.service";
 import {Catalog} from "../../domain/catalog/catalog";
+import {StringUtil} from "../../common/util/string.util";
 
 @Component({
   selector: 'app-exploredata-view',
@@ -26,7 +27,7 @@ import {Catalog} from "../../domain/catalog/catalog";
 })
 export class ExploreDataComponent extends AbstractComponent implements OnInit, OnDestroy {
 
-  public selectedMetadata: Metadata;
+  selectedMetadata: Metadata;
   selectedCatalog: Catalog.Tree;
 
   // data
@@ -35,6 +36,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   stagingTypeCount: number = 0;
   databaseTypeCount: number = 0;
   catalogList: Catalog.Tree;
+  catalogSearchKeyword: string;
 
   isFoldingNavigation: boolean;
 
@@ -52,13 +54,13 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   // Init
   public ngOnInit() {
     super.ngOnInit();
+    // set catalog list
     this._setCatalogList(Catalog.Constant.CATALOG_ROOT_ID);
     // set count
     this._setMetadataSourceTypeCount();
   }
 
   public ngAfterViewInit() {
-    this.loadingHide();
     super.ngAfterViewInit();
     $( '.ddp-layout-contents' ).addClass( 'ddp-layout-meta' )
   }
@@ -79,6 +81,10 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     }
   }
 
+  isEmptyCatalogSearchKeyword(): boolean {
+    return StringUtil.isEmpty(this.catalogSearchKeyword);
+  }
+
   onChangeTab() {
     // TODO 임시
     this.mode = ExploreMode.MAIN;
@@ -88,16 +94,26 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     this.isFoldingNavigation = !this.isFoldingNavigation;
   }
 
+  onChangeCatalogSearchValue(value: string): void {
+    this.catalogSearchKeyword = value;
+    // if empty catalog search keyword
+    if (this.isEmptyCatalogSearchKeyword()) {
+      this._setCatalogList(Catalog.Constant.CATALOG_ROOT_ID);
+    } else {
+      this._setCatalogListUsedSearch();
+    }
+  }
+
   onClickCatalog(catalog: Catalog.Tree): void {
     this.mode = ExploreMode.CATALOG;
     this.selectedCatalog = catalog;
   }
 
-  public onClickMetadata(metadata: Metadata) {
+  onClickMetadata(metadata: Metadata) {
     this.selectedMetadata = metadata
   }
 
-  public onCloseMetadataContainer() {
+  onCloseMetadataContainer() {
     this.selectedMetadata = null;
   }
 
@@ -126,6 +142,17 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
         if (catalogId === Catalog.Constant.CATALOG_ROOT_ID) {
           this.catalogList = result;
         }
+        this.loadingHide();
+      })
+      .catch(error => this.commonExceptionHandler(error));
+  }
+
+  private _setCatalogListUsedSearch(): void {
+    this.loadingShow();
+    this.catalogService.getCatalogs({nameContains: this.catalogSearchKeyword}, 'forSimpleTreeView')
+      .then((result) => {
+        this.catalogList = result;
+        this.loadingHide();
       })
       .catch(error => this.commonExceptionHandler(error));
   }

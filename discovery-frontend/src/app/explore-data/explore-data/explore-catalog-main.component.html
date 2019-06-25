@@ -52,7 +52,7 @@
               </div>
             </th>
             <th>
-              Creator
+              {{'msg.storage.ui.criterion.creator' | translate}}
             </th>
             <th>
               {{'msg.comm.ui.list.created' | translate}}
@@ -94,11 +94,10 @@
         </tr>
         </tbody>
       </table>
+      <!-- Pagination -->
+      <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+      <!-- // Pagination -->
     </div>
     <!-- //box list -->
-    <div class="ddp-box-add-link ddp-shadow">
-      <span class="ddp-link-type">더보기 <em class="ddp-icon-view"></em></span>
-    </div>
   </div>
-
 </div>

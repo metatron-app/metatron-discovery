@@ -17,6 +17,7 @@ import {AbstractComponent} from '../../common/component/abstract.component';
 import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
 import * as _ from "lodash";
 import {StringUtil} from "../../common/util/string.util";
+import {Metadata} from "../../domain/meta-data-management/metadata";
 
 @Component({
   selector: 'explore-data-main',
@@ -24,10 +25,10 @@ import {StringUtil} from "../../common/util/string.util";
 })
 export class ExploreDataMainComponent extends AbstractComponent {
 
-  popularMetadataList;
-  updatedMetadataList;
-  favoriteMetadataList;
-  favoriteCreatorMetadataList;
+  popularMetadataList: Metadata[];
+  updatedMetadataList: Metadata[];
+  favoriteMetadataList: Metadata[];
+  favoriteCreatorMetadataList: Metadata[];
 
   // event
   @Output() readonly clickedMetadata = new EventEmitter();
@@ -47,29 +48,33 @@ export class ExploreDataMainComponent extends AbstractComponent {
   // Init
   ngOnInit() {
     super.ngOnInit();
-    this.setMetadataList();
+    this._setMetadataList();
   }
 
-  isEnableTag(metadata): boolean {
-    return !_.isNil(metadata.tags) && metadata.tags.length !== 0;
+  isEnableTag(metadata: Metadata): boolean {
+    return !Metadata.isEmptyTags(metadata);
   }
 
-  isEnableDescription(metadata): boolean {
+  isEnableDescription(metadata: Metadata): boolean {
     return StringUtil.isNotEmpty(metadata.description);
   }
 
-  setMetadataList() {
+  private _setMetadataList() {
+    this.loadingShow();
     const params = {
       page: this.page.page,
       size: this.page.size,
     };
-    this._metadataService.getMetaDataList(params).then((result) => {
-      // TODO set metadata list
-      this.popularMetadataList = result._embedded.metadatas;
-    })
+    this._metadataService.getMetaDataList(params)
+      .then((result) => {
+        // TODO set metadata list
+        this.popularMetadataList = result._embedded.metadatas;
+        this.loadingHide();
+      })
+      .catch(error => this.commonExceptionHandler(error));
   }
 
-  onClickMetadata(metadata) {
+  onClickMetadata(metadata: Metadata) {
     return this.clickedMetadata.emit(metadata);
   }
 }
