@@ -23,6 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import app.metatron.discovery.common.data.projection.ColumnDescription;
 import app.metatron.discovery.common.data.projection.Row;
@@ -31,6 +33,7 @@ import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
 import app.metatron.discovery.domain.datasource.data.result.ObjectResultFormat;
 import app.metatron.discovery.domain.engine.EngineQueryService;
 import app.metatron.discovery.domain.mdm.Metadata;
+import app.metatron.discovery.domain.mdm.MetadataColumn;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
 
@@ -120,7 +123,6 @@ public class MetadataEngineDataPreview extends MetadataDataPreview {
     }
     searchQueryRequest.setLimits(new Limit(limit));
     ArrayNode engineData = (ArrayNode) engineQueryService.search(searchQueryRequest);
-
 
     engineData.forEach(rowNode -> {
       Row row = new Row();

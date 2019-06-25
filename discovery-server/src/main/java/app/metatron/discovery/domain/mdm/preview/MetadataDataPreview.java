@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -157,12 +158,20 @@ public abstract class MetadataDataPreview implements DataGrid, DataHistogram {
     for(MetadataColumn metadataColumn : metadata.getColumns()){
       columnNames.add(metadataColumn.getPhysicalName());
 
+      //Create column description
+
+      //column field role
+      Map additionalMap = metadataColumn.getAdditionalContextMap();
+      if(additionalMap == null){
+        additionalMap = new HashMap();
+      }
+      additionalMap.put("role", metadataColumn.getRole());
       ColumnDescription columnDescription = new ColumnDescription(metadataColumn.getPhysicalName(),
                                                                   metadataColumn.getPhysicalType(),
                                                                   metadataColumn.getName(),
                                                                   metadataColumn.getType().toString(),
                                                                   GlobalObjectMapper.readValue(metadataColumn.getFormat()),
-                                                                  metadataColumn.getAdditionalContextMap());
+                                                                  additionalMap);
       columnDescriptions.add(columnDescription);
 
       columnIndex.put(metadataColumn.getPhysicalName(), metadata.getColumns().indexOf(metadataColumn));
