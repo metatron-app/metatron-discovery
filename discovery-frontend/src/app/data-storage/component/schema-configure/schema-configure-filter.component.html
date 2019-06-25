@@ -1,0 +1,63 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0C
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-top-option ddp-clear">
+  <!-- search -->
+  <component-input
+    [compType]="'search'"
+    [showClear]="true"
+    [optionalClass]="'ddp-fleft'"
+    [value]="searchKeyword"
+    [placeHolder]="'msg.storage.ui.column.search.description' | translate"
+    (changeValue)="changeSearchKeyword($event)">
+  </component-input>
+  <!-- //search -->
+  <div class="ddp-ui-rightoption">
+    <!-- role filter -->
+    <div class="ddp-form-label2 ddp-fleft">
+      <label class="ddp-label-type">{{'msg.comm.th.role' | translate}}</label>
+      <div class="ddp-wrap-dropdown">
+        <!-- select box -->
+        <storage-filter-select-box
+          #roleFilterSelectBox
+          [isEnableIcon]="false"
+          [filterList]="roleFilterList"
+          [selectedFilter]="selectedRoleFilter"
+          (changedFilter)="changeRoleFilter($event)">
+        </storage-filter-select-box>
+        <!-- //select box -->
+      </div>
+    </div>
+    <!-- //role filter -->
+    <!-- type filter -->
+    <div class="ddp-form-label2 ddp-fleft">
+      <label class="ddp-label-type">{{'msg.comm.th.type' | translate}}</label>
+      <div class="ddp-wrap-dropdown">
+        <!-- select box -->
+        <storage-filter-select-box
+          #typeFilterSelectBox
+          [isEnableIcon]="true"
+          [filterList]="typeFilterList"
+          [selectedFilter]="selectedTypeFilter"
+          (changedFilter)="changeTypeFilter($event)">
+        </storage-filter-select-box>
+        <!-- //select box -->
+      </div>
+    </div>
+    <!-- //type filter -->
+    <!-- add column -->
+    <schema-configure-create-field></schema-configure-create-field>
+    <!-- //add column -->
+  </div>
+</div>

@@ -493,6 +493,7 @@ export enum EventType {
   MAP_CHANGE_OPTION = <any>'mapChangeOption',
   // 공간 분석 시
   MAP_SPATIAL_ANALYSIS = <any>'spatialAnalysis',
+  MAP_SPATIAL_REANALYSIS = <any>'spatialReAnalysis',
   // 그리드차트 피봇/원본
   GRID_ORIGINAL = <any>'gridViewType',
   // 바차트 병렬 / 중첩

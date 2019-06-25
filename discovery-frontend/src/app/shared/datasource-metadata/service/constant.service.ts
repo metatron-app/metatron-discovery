@@ -11,9 +11,9 @@ import {Filter} from '../domain/filter';
 export class ConstantService {
 
   private readonly roleTypeFilters: Filter.Role[] = [
-    new Filter.Role(this.translateService.instant('msg.comm.ui.list.all'), Type.Role.ALL, true),
-    new Filter.Role(this.translateService.instant('msg.comm.name.dim'), Type.Role.DIMENSION, false),
-    new Filter.Role(this.translateService.instant('msg.comm.name.mea'), Type.Role.MEASURE, false),
+    new Filter.Role(this.translateService.instant('msg.comm.ui.list.all'), Type.Role.ALL, true, ''),
+    new Filter.Role(this.translateService.instant('msg.comm.name.dim'), Type.Role.DIMENSION, false, 'ddp-dimension'),
+    new Filter.Role(this.translateService.instant('msg.comm.name.mea'), Type.Role.MEASURE, false, 'ddp-measure'),
   ];
 
   private readonly typeFilters: Filter.Logical[] = [
@@ -30,7 +30,16 @@ export class ConstantService {
     new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.line'), Type.Logical.GEO_LINE, 'ddp-icon-type-line'),
   ];
 
+  private readonly geoCoordinates: string[] = [
+    'EPSG:4326',
+    'EPSG:4301'
+  ];
+
   constructor(private translateService: TranslateService) {
+  }
+
+  public getGeoCoordinateList() {
+    return _.cloneDeep(this.geoCoordinates);
   }
 
   public getRoleTypeFilterFirst() {
@@ -39,6 +48,10 @@ export class ConstantService {
 
   public getRoleTypeFilters() {
     return _.cloneDeep(this.roleTypeFilters);
+  }
+
+  public getRoleTypeFiltersFirstExceptAll() {
+    return _.cloneDeep(this.roleTypeFilters.filter(type => type.value !== Type.Role.ALL)[0]);
   }
 
   public getRoleTypeFiltersExceptAll() {
@@ -53,9 +66,17 @@ export class ConstantService {
     return _.cloneDeep(this.typeFilters);
   }
 
+  public getTypeFiltersFirstExceptAll() {
+    return _.cloneDeep(this.typeFilters.filter(type => type.value !== Type.Logical.ALL)[0]);
+  }
+
+  public getTypeFiltersExceptAll() {
+    return _.cloneDeep(this.typeFilters.filter(type => type.value !== Type.Logical.ALL));
+  }
+
   public getTypeFiltersInCreateStep() {
     const filters = _.cloneDeep(this.typeFilters);
-    filters.push(new Filter.Logical(this.translateService.instant('msg.storage.ui.list.user'), Type.Logical.USER_DEFINED, 'ddp-icon-type-expression'));
+    filters.push(new Filter.Logical(this.translateService.instant('msg.storage.ui.list.expression'), Type.Logical.USER_DEFINED, 'ddp-icon-type-expression'));
     return filters;
   }
 
@@ -67,6 +88,10 @@ export class ConstantService {
           && type.value !== Type.Logical.GEO_POLYGON
           && type.value !== Type.Logical.GEO_LINE;
       }));
+  }
+
+  public getTypeFiltersInDimensionIncludeGeoTypes() {
+    return _.cloneDeep(this.typeFilters.filter(type => type.value !== Type.Logical.ALL));
   }
 
   public getTypeFiltersInDimensionOnlyBaseTypeString() {

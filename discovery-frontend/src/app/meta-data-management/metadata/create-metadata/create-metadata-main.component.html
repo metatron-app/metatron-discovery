@@ -1,0 +1,70 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- select type -->
+<div class="ddp-wrap-layout-popup" *ngIf="step === CREATE_STEP.TYPE">
+  <div class="ddp-ui-layout-popup">
+    <div class="ddp-box-popup ddp-popup-type">
+      <!-- title -->
+      <div class="ddp-pop-title">{{'msg.metadata.ui.metadata.create.type.title' | translate}}</div>
+      <!-- //title -->
+      <div class="ddp-pop-detail">
+        <!-- 데이터 선택 -->
+        <div class="ddp-ui-data-select">
+          <a href="javascript:" class="ddp-btn-select" (click)="onSelectCreateType(CREATE_STEP.DB_CONNECTION)">
+            <em class="ddp-icon-boxbtn-database"></em>
+            {{'msg.storage.li.db' | translate}}
+          </a>
+          <a href="javascript:" class="ddp-btn-select" [class.ddp-disabled]="!isEnableStageDB()" (click)="onSelectCreateType(CREATE_STEP.STAGING_SELECT)">
+            <em class="ddp-icon-boxbtn-staging"></em>
+            {{'msg.storage.li.hive' | translate}}
+          </a>
+        </div>
+        <!-- //데이터 선택 -->
+      </div>
+      <!-- button -->
+      <div class="ddp-ui-buttons">
+        <a href="javascript:" class="ddp-btn-type-popup" (click)="cancelCreate()">{{'msg.comm.btn.cancl' | translate}}</a>
+      </div>
+      <!-- //button -->
+    </div>
+  </div>
+</div>
+<!-- //select type -->
+<!-- DB -->
+<create-metadata-db-connection *ngIf="step === CREATE_STEP.DB_CONNECTION"
+                               [createData]="createData"
+                               (changeStep)="changeStep($event)"
+                               (cancel)="cancelCreate()"></create-metadata-db-connection>
+<create-metadata-db-select *ngIf="step === CREATE_STEP.DB_SELECT"
+                           [createData]="createData"
+                           (changeStep)="changeStep($event)"
+                           (cancel)="cancelCreate()"></create-metadata-db-select>
+<create-metadata-db-complete *ngIf="step === CREATE_STEP.DB_COMPLETE"
+                             [createData]="createData"
+                             (changeStep)="changeStep($event)"
+                             (cancel)="cancelCreate()"
+                             (complete)="createCompleted()"></create-metadata-db-complete>
+<!-- //DB -->
+<!-- Staging -->
+<create-metadata-staging-select *ngIf="step === CREATE_STEP.STAGING_SELECT"
+                           [createData]="createData"
+                           (changeStep)="changeStep($event)"
+                           (cancel)="cancelCreate()"></create-metadata-staging-select>
+<create-metadata-staging-complete *ngIf="step === CREATE_STEP.STAGING_COMPLETE"
+                             [createData]="createData"
+                             (changeStep)="changeStep($event)"
+                             (cancel)="cancelCreate()"
+                             (complete)="createCompleted()"></create-metadata-staging-complete>
+<!-- //Staging -->

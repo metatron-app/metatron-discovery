@@ -18,7 +18,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -86,6 +85,10 @@ public class AbstractSpecBuilder {
 
       if (field.getIngestionRule() != null) {
         addRule(field.getName(), field.getIngestionRuleObject());
+      }
+
+      if (field.getRole() == Field.FieldRole.DIMENSION && field.changedName()) {
+        dataSchema.addEvaluation(new Evaluation(field.getName(), "\"" + field.getOriginalName() + "\""));
       }
 
       FieldFormat fieldFormat = field.getFormatObject();
@@ -239,14 +242,14 @@ public class AbstractSpecBuilder {
           break;
         case INTEGER:
         case LONG:
-          dimenstionSchemas.add(new DimensionSchema(dimensionfield.getName(), "long", null));
+          dimenstionSchemas.add(DimensionSchema.of(dimensionfield.getName(), DataType.LONG));
           break;
         case FLOAT:
         case DOUBLE:
-          dimenstionSchemas.add(new DimensionSchema(dimensionfield.getName(), "double", null));
+          dimenstionSchemas.add(DimensionSchema.of(dimensionfield.getName(), DataType.DOUBLE));
           break;
         case ARRAY:
-          dimenstionSchemas.add(new DimensionSchema(dimensionfield.getName(), "string", DimensionSchema.MultiValueHandling.ARRAY));
+          dimenstionSchemas.add(new StringDimensionSchema(dimensionfield.getName(), DimensionSchema.MultiValueHandling.ARRAY));
           break;
         default:
           throw new IllegalArgumentException("Not support dimension type");
@@ -271,31 +274,30 @@ public class AbstractSpecBuilder {
       // get Columns
       List<String> columns = dataSource.getFields().stream()
                                        .filter(field -> BooleanUtils.isNotTrue(field.getDerived()))
-                                       .map((field) -> field.getName())
+                                       .map((field) -> field.getOriginalName())
                                        .collect(Collectors.toList());
 
       if (hadoopIngestion) {
         CsvFileFormat csvFormat = (CsvFileFormat) fileFormat;
 
-        TsvParseSpec parseSpec = new TsvParseSpec();
-        parseSpec.setTimestampSpec(timestampSpec);
-        parseSpec.setDimensionsSpec(dimensionsSpec);
-        parseSpec.setColumns(columns);
+        if (csvFormat.isDefaultCsvMode()) {
+          CsvParseSpec parseSpec = new CsvParseSpec();
+          parseSpec.setTimestampSpec(timestampSpec);
+          parseSpec.setDimensionsSpec(dimensionsSpec);
+          parseSpec.setColumns(columns);
 
-        // Hive's default delimiter is not a comma
-        if (StringUtils.isEmpty(csvFormat.getDelimiter())) {
-          if (ingestionInfo instanceof HiveIngestionInfo) {
-            parseSpec.setDelimiter("\u0001");
-          } else {
-            parseSpec.setDelimiter(CsvFileFormat.DEFAULT_DELIMITER);
-          }
+          parser = new StringParser(parseSpec);
         } else {
+          TsvParseSpec parseSpec = new TsvParseSpec();
+          parseSpec.setTimestampSpec(timestampSpec);
+          parseSpec.setDimensionsSpec(dimensionsSpec);
+          parseSpec.setColumns(columns);
+
           parseSpec.setDelimiter(csvFormat.getDelimiter());
+          parseSpec.setListDelimiter(csvFormat.getLineSeparator());
+
+          parser = new StringParser(parseSpec);
         }
-
-        parseSpec.setListDelimiter(csvFormat.getLineSeparator());
-
-        parser = new StringParser(parseSpec);
       } else {
 
         CsvStreamParser csvStreamParser = new CsvStreamParser();
@@ -318,10 +320,6 @@ public class AbstractSpecBuilder {
           csvStreamParser.setTimestampSpec(timestampSpec);
           csvStreamParser.setDimensionsSpec(dimensionsSpec);
           csvStreamParser.setColumns(columns);
-
-          if (StringUtils.isEmpty(csvFormat.getDelimiter())) {
-            csvFormat.setDelimiter(CsvFileFormat.DEFAULT_DELIMITER);
-          }
 
           if (!csvFormat.isDefaultCsvMode()) {
             csvStreamParser.setDelimiter(csvFormat.getDelimiter());

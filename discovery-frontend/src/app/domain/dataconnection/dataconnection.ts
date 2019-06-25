@@ -66,15 +66,27 @@ export interface JdbcDialect {
   iconResource4: string;
 }
 
-export interface InputSpec {
-  implementor: InputMandatory,
-  authenticationType: InputMandatory,
-  options: InputMandatory,
-  database: InputMandatory,
-  sid: InputMandatory,
-  catalog: InputMandatory,
-  username: InputMandatory,
-  password: InputMandatory
+export class InputSpec {
+  implementor: InputMandatory;
+  authenticationType: InputMandatory;
+  options: InputMandatory;
+  database: InputMandatory;
+  sid: InputMandatory;
+  catalog: InputMandatory;
+  username: InputMandatory;
+  password: InputMandatory;
+
+  public static isRequiredSid(inputSpec: InputSpec) {
+    return inputSpec.sid === InputMandatory.MANDATORY;
+  }
+
+  public static isRequireDatabase(inputSpec: InputSpec): boolean {
+    return inputSpec.database === InputMandatory.MANDATORY;
+  }
+
+  public static isRequireCatalog(inputSpec: InputSpec): boolean {
+    return inputSpec.catalog === InputMandatory.MANDATORY;
+  }
 }
 
 export enum ImplementorType {

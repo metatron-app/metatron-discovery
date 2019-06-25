@@ -56,7 +56,11 @@ export class MetadataService extends AbstractService {
    * @returns {Promise<any>}
    */
   public createMetaData(params: object): Promise<any> {
-    return this.post(this.URL_METADATA, params);
+    return this.post(this.URL_METADATA + '/batch', params);
+  }
+
+  public getDuplicatedMetadataNameList(params: string[]): Promise<string[]> {
+    return this.post(this.URL_METADATA + '/name/duplicated', params);
   }
 
   /**

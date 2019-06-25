@@ -4,22 +4,20 @@ How to make an extended connection
 ==================================
 
 
-# Step 1. create an extension module
-
-1-1. Navigate to the directory of the discovery-extensions module.
+Step 1. create an extension module
 ----------------------------------
+
+### 1. Navigate to the directory of the discovery-extensions module.
 ```
 metatron-discovery $ cd discovery-extensions
 ```
 
-1-2. Create an extension module using archetype.
-----------------------------------
+### 2. Create an extension module using archetype.
 ```
 discovery-extensions $ mvn archetype:generate -DarchetypeGroupId=app.metatron.discovery -DarchetypeArtifactId=discovery-extension-connection-archetype -DarchetypeVersion=1.0.0
 ```
 
-1-3. In interactive mode, enter the desired value.
-----------------------------------
+### 3. In interactive mode, enter the desired value.
 ```
 $ mvn archetype:generate -DarchetypeGroupId=app.metatron.discovery -DarchetypeArtifactId=discovery-extension-connection-archetype -DarchetypeVersion=1.0.0
 [INFO] Scanning for projects...
@@ -58,8 +56,7 @@ package: app.metatron.discovery
 
 
 
-1-4. An extension module has been created with the following parameters.
-----------------------------------
+### 4. An extension module has been created with the following parameters.
 ```
 [INFO] ----------------------------------------------------------------------------
 [INFO] Using following parameters for creating project from Archetype: discovery-extension-connection-archetype:1.0.0
@@ -80,8 +77,7 @@ package: app.metatron.discovery
 [INFO] ------------------------------------------------------------------------
 ```
 
-1-5. Created module structure
-----------------------------------
+### 5. Created module structure
 ```
 custom-connection $ tree
 .
@@ -99,12 +95,12 @@ custom-connection $ tree
 
 ```
 
-# Step 2. Customize extension
+Step 2. Customize extension
+---------------------------------------
 Let's create an extension named custom-connection. This extension adds MS-SQL jdbc connection.
 
-2-1. Open and modify the created pom.xml.
----------------------------------------
-1. In the parent.version property, type metatron-discovery version (ex: 3.2.0)
+### 1. Open and modify the created pom.xml.
+- In the parent.version property, type metatron-discovery version (ex: 3.2.0)
 ```
 <parent>
     <artifactId>discovery-extensions</artifactId>
@@ -113,7 +109,7 @@ Let's create an extension named custom-connection. This extension adds MS-SQL jd
 </parent>
 ```
 
-2. Change the properties as desired.
+- Change the properties as desired.
 change plugin.id, plugin.class property as desired.
 Please refer to the sample below.
 ```
@@ -134,14 +130,7 @@ Please refer to the sample below.
 </properties>
 ```
 
-2-2. Rename Extension Class
----------------------------------------
-Modify the name of the WelcomeConnectionExtension class as desired.
-(ex : CustomConnectionExtension.java)
-
-2-3 Add the desired JDBC Driver as dependency and specify DriverClass.
----------------------------------------
-1. Add jdbc driver dependency
+- Add the desired JDBC Driver as dependency
 ```
 <dependencies>
     <dependency>
@@ -152,7 +141,12 @@ Modify the name of the WelcomeConnectionExtension class as desired.
 </dependencies>
 ```
 
-2. Override methods of JdbcDialect interface that require modification.
+### 2. Rename Extension Class
+Modify the name of the WelcomeConnectionExtension class as desired.
+(ex : CustomConnectionExtension.java)
+
+### 3. Override methods of JdbcDialect interface that require modification.
+- Override methods of JdbcDialect interface that require modification.
 ```
 @Override
 public String getName() {
@@ -176,7 +170,7 @@ public InputSpec getInputSpec() {
 }
 
 @Override
-public String getConnectorClass(JdbcConnectInformation connectInfo) {
+public String getDriverClass(JdbcConnectInformation connectInfo) {
   return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 }
 
@@ -214,14 +208,12 @@ public String makeConnectUrl(JdbcConnectInformation connectInfo, String database
 }
 ```
 
-2-4. Build extension module
----------------------------------------
+### 4. Build extension module
 ```
 discovery-extensions $ mvn clean install
 ```
 
-2-5. extension output created at discovery-distribution/extensions directory
----------------------------------------
+### 5. extension output created at discovery-distribution/extensions directory
 ```
 metatron-discovery $ ls -al discovery-distribution/extensions/
 drwxr-xr-x   3 staff  staff    96B Apr 15 15:23 ./
@@ -230,18 +222,17 @@ drwxr-xr-x  10 staff  staff   320B Apr 15 15:23 ../
 ```
 
 
-# Step 3. Exploit extended connection in Metatron Discovery
-
-3-1. Config extension path
+Step 3. Exploit extended connection in Metatron Discovery
 ---------------------------------------
+
+### 1. Config extension path
 Basically, use Metatron-Discovery's ApplicationHome subdirectory "extension" as the extension path.
 To explicitly specify the extension path, you can add the following options:
 ```
 -Dpf4j.pluginsDir=<extension path>
 ```
 
-3-2. Enable / disable extension
----------------------------------------
+### 2. Enable / disable extension
 You can enable or disable the extension when you start Metatron Discovery.
 Open application.yaml and add the following:
 ```
@@ -257,3 +248,10 @@ polaris:
       - ...
 ```
 If not set, activate all extension of extension path.
+
+### 3. maven profile related to distribution constraints
+We do not build all extensions by default because there are extensions that are restricted by some distribution licenses.
+To build the entire extension you need to build it using the 'extensions-all' profile.
+```
+mvn -P extensions-all clean install
+``` 

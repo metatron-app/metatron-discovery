@@ -51,6 +51,10 @@ export class MetadataColumn {
     return metadataColumn.type === Type.Logical.GEO_POLYGON || metadataColumn.type === Type.Logical.GEO_POINT || metadataColumn.type === Type.Logical.GEO_LINE;
   }
 
+  public static isRoleIsTimestamp(metadataColumn: MetadataColumn) {
+    return metadataColumn.role === Type.Role.TIMESTAMP
+  }
+
   public static isTypeIsTimestamp(metadataColumn: MetadataColumn) {
     return metadataColumn.type === Type.Logical.TIMESTAMP;
   }

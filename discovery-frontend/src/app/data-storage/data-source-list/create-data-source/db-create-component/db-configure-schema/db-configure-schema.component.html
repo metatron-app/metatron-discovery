@@ -24,14 +24,12 @@
     </div>
   </div>
   <!-- contents in  -->
-  <schema-config-component [sourceData]="sourceData"
-                           (changedStep)="onChangedStep($event)">
-  </schema-config-component>
+  <schema-configure-main [connType]="sourceData.connType"></schema-configure-main>
   <!-- //contents in  -->
   <!-- buttons -->
   <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" *ngIf="!isWorkbenchCreate" (click)="onClickPageChange('prev')">{{'msg.comm.btn.previous' | translate}}</a>
-    <a href="javascript:" class="ddp-btn-type-popup  ddp-bg-black" (click)="onClickPageChange('next')">{{'msg.comm.btn.next' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup"  *ngIf="!isWorkbenchCreate"  (click)="onClickPrev()">{{'msg.comm.btn.previous' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup  ddp-bg-black" (click)="onClickNext()">{{'msg.comm.btn.next' | translate}}</a>
   </div>
   <!-- //buttons -->
 

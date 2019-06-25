@@ -12,9 +12,14 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
+import {AbstractComponent} from '../../../common/component/abstract.component';
 import {
-  Component, ElementRef, EventEmitter, Injector, Output, Renderer2,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Output,
+  Renderer2,
   ViewChild
 } from '@angular/core';
 import {
@@ -24,12 +29,13 @@ import {
   FieldFormatType,
 } from '../../../domain/datasource/datasource';
 import * as _ from 'lodash';
-import { DatasourceService } from '../../../datasource/service/datasource.service';
-import { StringUtil } from '../../../common/util/string.util';
-import { Alert } from '../../../common/util/alert.util';
-import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
-import { CommonUtil } from '../../../common/util/common.util';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {StringUtil} from '../../../common/util/string.util';
+import {Alert} from '../../../common/util/alert.util';
+import {DataconnectionService} from '../../../dataconnection/service/dataconnection.service';
+import {CommonUtil} from '../../../common/util/common.util';
 import {GranularityObject, GranularityService} from '../../service/granularity.service';
+import {DataStorageConstant} from "../../constant/data-storage-constant";
 
 declare let moment: any;
 /**
@@ -576,7 +582,7 @@ export class IngestionSettingComponent extends AbstractComponent {
    * @returns {boolean}
    */
   public isUsedCurrentTimestampColumn(): boolean {
-    return this._sourceData.schemaData.selectedTimestampType === 'CURRENT';
+    return this._sourceData.schemaData.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.CURRENT;
   }
 
   /**
@@ -637,6 +643,10 @@ export class IngestionSettingComponent extends AbstractComponent {
       return CommonUtil.formatBytes(bytes, 2);
     }
   };
+
+  public get isReinjestion() : boolean {
+    return StringUtil.isNotEmpty(this._sourceData.datasourceId);
+  }
 
   /**
    * ui init

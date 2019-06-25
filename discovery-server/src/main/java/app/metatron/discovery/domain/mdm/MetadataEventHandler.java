@@ -29,6 +29,7 @@ import java.util.Map;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
@@ -62,7 +63,7 @@ public class MetadataEventHandler {
   @Autowired
   EngineProperties engineProperties;
 
-  @Autowired
+  @Autowired(required = false)
   StorageProperties storageProperties;
 
   @HandleBeforeCreate
@@ -169,6 +170,13 @@ public class MetadataEventHandler {
             metadataColumn.setPhysicalType((String) column.get("columnType"));
             metadataColumn.setDescription((String) column.get("columnComment"));
             metadataColumn.setSeq(i + 1L);
+
+            //physicalType to LogicalType
+            DataType physicalType = DataType.jdbcToFieldType(metadataColumn.getPhysicalType().toLowerCase());
+            LogicalType logicalType = physicalType.toLogicalType();
+            Field.FieldRole role = physicalType.toRole();
+            metadataColumn.setType(logicalType);
+            metadataColumn.setRole(role);
             metadataColumn.setMetadata(metadata);
 
             metadata.addColumn(metadataColumn);
@@ -180,11 +188,10 @@ public class MetadataEventHandler {
       String schema = metadataSource.getSchema();
       String tableName = metadataSource.getTable();
 
-      StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
-
-      if (stageDBConnection == null) {
-        throw new IllegalArgumentException("Staging Hive DB info. required.");
+      if(storageProperties == null || storageProperties.getStagedb() == null) {
+        throw new IllegalArgumentException("Staging database information required.");
       }
+      StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
 
       DataConnection hiveConnection = new DataConnection();
       hiveConnection.setUrl(stageDBConnection.getUrl());

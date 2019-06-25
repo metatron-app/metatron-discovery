@@ -694,7 +694,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void searchQueryForSalesWithExpression() throws JsonProcessingException {
 
-    DataSource dataSource1 = new DefaultDataSource("sales");
+    DataSource dataSource1 = new DefaultDataSource("sales_geo");
 
     // Limit
     Limit limit = new Limit();
@@ -741,7 +741,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void searchQueryForSalesWithExpression1() throws JsonProcessingException {
 
-    DataSource dataSource1 = new DefaultDataSource("sales");
+    DataSource dataSource1 = new DefaultDataSource("sales_geo");
 
     // Limit
     Limit limit = new Limit();
@@ -756,7 +756,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
         new ExpressionField("orderdate_d", "\"OrderDate\"", "dimension", false),
         new ExpressionField("trim", "TRIM( \"Category\"  )", "dimension", false),
         new ExpressionField("case_dim", "CASE( \"Category\" == 'Furniture', 'F', 'default' )", "dimension", false),
-        //        new ExpressionField("switch_dim", "SWITCH( \"Category\", 'Furniture', 'F', 'Technology', 'T')", "dimension", false)
+        new ExpressionField("switch_dim", "SWITCH( \"Category\", 'Furniture', 'F', 'Technology', 'T')", "dimension", false),
         new ExpressionField("sumof_dim", "(SUMOF([SalesForecase]) - SUMOF( [Sales]  ) ) / SUMOF( [Sales]  ) * 100", "measure", true)
         //        new ExpressionField("test", "Sales + 1", "measure", false)
     );
@@ -2011,13 +2011,17 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     DimensionField geoDimensionField = new DimensionField("gis");
 
+    // Only dimension case
+    //    List<Field> fields = Lists.newArrayList(geoDimensionField,
+    //                                            new DimensionField("gu"));
+
     List<Field> fields = Lists.newArrayList(geoDimensionField,
                                             new DimensionField("gu"),
                                             new MeasureField("py", null, MeasureField.AggregationType.NONE),
                                             new MeasureField("amt", null, MeasureField.AggregationType.NONE));
 
-    //MapViewLayer layer1 = new MapViewLayer("layer1", "estate", fields, new LayerView.HashLayerView("geohex", 5));
-    MapViewLayer layer1 = new MapViewLayer("layer1", "estate", fields, new LayerView.AbbreviatedView("geohex", 12, RelayAggregation.Relaytype.FIRST.name()));
+    //    MapViewLayer layer1 = new MapViewLayer("layer1", "estate", fields, new LayerView.ClusteringLayerView("geohex", 5));
+    MapViewLayer layer1 = new MapViewLayer("layer1", "estate", fields, new LayerView.AbbreviatedView("h3", 12, RelayAggregation.Relaytype.FIRST.name()));
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);

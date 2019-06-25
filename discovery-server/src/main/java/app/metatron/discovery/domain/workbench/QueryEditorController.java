@@ -46,12 +46,15 @@ import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.audit.Audit;
 import app.metatron.discovery.domain.audit.AuditRepository;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
 import app.metatron.discovery.domain.dataconnection.DataConnectionRepository;
 import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcCSVWriter;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceManager;
+import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
+import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 import app.metatron.discovery.util.HibernateUtils;
 import app.metatron.discovery.util.HttpUtils;
 
@@ -334,6 +337,9 @@ public class QueryEditorController {
                         String connectionId, String fileName, String csvFilePath) throws IOException{
     //Hibernate Proxy Initialize
     DataConnection dataConnection = dataConnectionRepository.findOne(connectionId);
+    JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(dataConnection);
+    JdbcDialect jdbcDialect = jdbcDataAccessor.getDialect();
+
     if(dataConnection == null){
       throw new ResourceNotFoundException("DataConnection(" + connectionId + ")");
     }
@@ -346,6 +352,7 @@ public class QueryEditorController {
     dataSourceInfo.setQueryStatus(QueryStatus.RUNNING);
     try{
       JdbcCSVWriter jdbcCSVWriter = new JdbcCSVWriter(new FileWriter(csvFilePath), CsvPreference.STANDARD_PREFERENCE);
+      jdbcCSVWriter.setJdbcDialect(jdbcDialect);
       jdbcCSVWriter.setConnection(dataSourceInfo.getPrimaryConnection());
       jdbcCSVWriter.setFetchSize(5000);
       jdbcCSVWriter.setMaxRow(1000000);

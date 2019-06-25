@@ -1,0 +1,99 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-contents ddp-resize2 ddp-type2">
+  <!-- 닫기 버튼 -->
+  <a href="javascript:" class="ddp-btn-close" (click)="onCancel()"></a>
+  <!-- //닫기 버튼 -->
+  <div class="ddp-icon-name">
+    <div class="ddp-ui-name2 ddp-type3">
+      {{'msg.metadata.ui.create.main.title' | translate}} ({{'msg.storage.li.hive' | translate}})
+      <span class="ddp-txt-info">{{'msg.metadata.ui.create.data.sub' | translate}}</span>
+      <em class="ddp-bg-order-line2-type1"></em>
+    </div>
+  </div>
+  <!-- contents in  -->
+  <div class="ddp-type-contents-in ddp-size-resize2">
+    <div class="ddp-box-popupcontents ddp-wrap-file-create ">
+      <!-- loading -->
+      <div #loadingPart class="ddp-loading-part" [style.display]="isLoading ? 'inline-block' : 'none'">
+        <div style="" class="lds-wedges">
+          <div>
+            <div>
+              <div></div>
+            </div>
+            <div>
+              <div></div>
+            </div>
+            <div>
+              <div></div>
+            </div>
+            <div>
+              <div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- //loading -->
+      <div class="ddp-wrap-sheet-top">
+        <!-- edit -->
+        <div class="ddp-wrap-edit3 ddp-type">
+          <label class="ddp-label-type ddp-bold ">
+            {{'msg.metadata.ui.select.schema' | translate}}
+          </label>
+          <!-- edit option -->
+          <div class="ddp-ui-edit-option">
+            <!-- disabled 시 ddp-disabled 추가 -->
+            <div class="ddp-type-form ddp-clear ">
+              <schema-select-box [schemaList]="schemaList"
+                                 [selectedSchema]="selectedSchema"
+                                 [isEnableWindowResizeAutoClose]="true"
+                                 [isEnableAutoShowList]="true"
+                                 (changedSchema)="onChangeSelectedSchema($event)"></schema-select-box>
+            </div>
+          </div>
+          <!-- //edit option -->
+        </div>
+        <!-- //edit -->
+      </div>
+      <!-- wrap sheet -->
+      <div class="ddp-wrap-table-sheet">
+        <!-- ddp-full 추가 -->
+        <div class="ddp-wrap-sheet ddp-wrap-druid">
+          <!-- if empty table list -->
+          <div class="ddp-ui-empty" *ngIf="isEmptyTableList()">
+            {{'msg.metadata.ui.create.none.table.list' | translate}}
+          </div>
+          <!-- //if empty table list -->
+          <!-- if not empty table list -->
+          <ng-container *ngIf="!isEmptyTableList()">
+            <schema-table-list [tableList]="tableList" [selectedTable]="selectedTable" (changedSelectedTable)="onChangeSelectedTable($event)"></schema-table-list>
+            <schema-table-preview></schema-table-preview>
+          </ng-container>
+          <!-- //if not empty table list -->
+        </div>
+        <!-- //wrap sheet -->
+      </div>
+    </div>
+  </div>
+  <!-- //contents in  -->
+  <!-- buttons -->
+  <div class="ddp-ui-buttons">
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="onCancel()">{{'msg.comm.btn.cancl' | translate}}</a>
+    <!-- disabled 시 ddp-disabled 추가 -->
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [class.ddp-disabled]="!isEnableNext()" (click)="changeToNextStep()">{{'msg.comm.btn.next' | translate}}</a>
+  </div>
+  <!-- //buttons -->
+
+</div>

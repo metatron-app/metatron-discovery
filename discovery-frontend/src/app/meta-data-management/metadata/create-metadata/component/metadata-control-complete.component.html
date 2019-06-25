@@ -1,0 +1,68 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div class="ddp-sheet-table type-info">
+  <div class="ddp-ui-sheet-list ">
+    <table class="ddp-table-sheet">
+      <colgroup>
+        <col width="250px">
+        <col width="330px">
+        <col width="*">
+      </colgroup>
+      <thead>
+      <tr>
+        <th>{{'msg.metadata.th.create.table' | translate}}</th>
+        <th>{{'msg.metadata.th.create.name' | translate}}</th>
+        <th>{{'msg.metadata.th.create.description' | translate}}</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let metadata of metadataList">
+        <td>
+          {{metadata.table}}
+        </td>
+        <td>
+          <div class="ddp-sheet-form">
+            <input type="text" class="ddp-input-typebasic" placeholder="{{metadata.table}}" [ngModel]="metadata.name" (ngModelChange)="onChangeMetadataName(metadata, $event)">
+            <span class="ddp-data-error" *ngIf="isErrorMetadataName(metadata)"> {{metadata.errorMessage}}</span>
+          </div>
+        </td>
+        <td>
+          <div class="ddp-sheet-form">
+            <div class="ddp-textarea-resize">
+          <textarea  placeholder="{{'msg.metadata.ph.create.description' | translate}}" #descriptionElement
+                     [ngModel]="metadata.description" (ngModelChange)="onChangeMetadataDescription(metadata, $event)" (keyup)="changeDescriptionHeight(descriptionElement)">
+          </textarea>
+            </div>
+            <!--                <span class="ddp-data-error"> Invalid Connect</span>-->
+          </div>
+
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="ddp-box-synch type-error" *ngIf="!isEmptyMetadataList() && isErrorInMetadataList()">
+  <div class="ddp-txt-synch">
+    <em class="ddp-icon-info"></em>
+    {{'msg.metadata.ui.create.error.alert' | translate}}
+  </div>
+</div>
+<div class="ddp-data-check">
+  <div class="ddp-label-type">{{'msg.metadata.btn.create.searchable.explore' | translate}}</div>
+  <div class="ddp-checkbox-slide ddp-checkbox-automatic2" (change)="onChangeSearchableInExploreData()">
+    <input type="checkbox" value="None" id="check2" name="check" [checked]="isSearchableInExploreData">
+    <label for="check2"><span class="ddp-slide"></span></label>
+  </div>
+</div>

@@ -14,7 +14,10 @@
 
 <div class="ddp-ui-option-down ddp-lnb-down" [class.ddp-selected]="'prediction' === dataSubLayerKey">
     <div class="ddp-ui-down-title" (click)="clickDataSubPanel('prediction', $event)">
-      <em class="ddp-icon-menumove"></em> {{LABEL.SUB_MENU}}
+        <em class="ddp-icon-menumove"></em>
+
+        <!-- label : 예측선 -->
+        {{LABEL.SUB_MENU}}
     </div>
 
     <!-- TODO: inline style 은 추후에 제거할 예정 -->
@@ -324,10 +327,8 @@
 
                 <!-- checkbox -->
                 <label class="ddp-label-checkbox ddp-type3">
-                    <input type="checkbox"
-                           [(ngModel)]="data.isSelectedForecast" [checked]="data.isSelectedForecast"
-                           [disabled]="data.isSelectedForecast && !data.isSelectedConfidence"
-                           (change)="changeUseForecast()">
+                    <input type="checkbox" [checked]="data.isSelectedForecast"
+                           [(ngModel)]="data.isSelectedForecast">
                     <i class="ddp-icon-checkbox"></i>
 
                     <!-- label : Forecast -->
@@ -372,9 +373,8 @@
                 <label *ngIf="data.isPredictionLineActive"
                        class="ddp-label-checkbox ddp-type3">
                     <input type="checkbox"
-                           [checked]="data.isSelectedConfidence" [(ngModel)]="data.isSelectedConfidence"
-                           [disabled]="data.isSelectedConfidence && !data.isSelectedForecast"
-                           (change)="changeUseConfidence()">
+                           [checked]="data.isSelectedConfidence"
+                           [(ngModel)]="data.isSelectedConfidence">
                     <i class="ddp-icon-checkbox"></i>
 
                     <!-- label : Confidence -->

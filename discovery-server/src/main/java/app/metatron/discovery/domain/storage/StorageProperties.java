@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.storage;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +32,7 @@ import app.metatron.discovery.domain.dataconnection.dialect.HiveDialect;
 
 @Component
 @ConfigurationProperties(prefix = "polaris.storage")
+@ConditionalOnProperty("polaris.storage.stagedb.hostname")
 public class StorageProperties {
 
   public enum StorageType{
@@ -46,7 +48,7 @@ public class StorageProperties {
 
   @PostConstruct
   public void init() {
-    // 설정 하위 호환을 위하여 처리
+    // For the Backwards compatibility.
     if(stagedb.getMetastore() == null) {
       stagedb.setMetastore(new MetaStoreProperties(stagedb.getMetastoreUri(),
                                                    stagedb.getMetastoreHost(),

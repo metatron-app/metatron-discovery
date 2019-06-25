@@ -14,18 +14,13 @@
 
 package app.metatron.discovery.spec.druid.ingestion.parser;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import java.util.List;
-
-import app.metatron.discovery.KeepAsUnescapeSerializer;
 
 /**
  * Created by kyungtaak on 2016. 6. 17..
  */
 public class CsvParseSpec extends TimeAndDimsParseSpec implements ParseSpec {
 
-  @JsonSerialize(using = KeepAsUnescapeSerializer.class)
   String listDelimiter;
 
   List<String> columns;

@@ -29,6 +29,7 @@
           <a href="javascript:" class="ddp-icon-more"></a>
           <!-- popup -->
           <div class="ddp-data-box">
+            <a href="javascript:" class="ddp-list-link" (click)="reIngestion()" *ngIf="isShowReingestion"><em class="ddp-icon-drop-re"></em>{{'msg.storage.btn.dsource.reingestion' | translate}}</a>
             <a href="javascript:" class="ddp-list-link" (click)="deleteModalOpen()"><em class="ddp-icon-delete"></em>{{'msg.storage.btn.del.dsource' | translate}}</a>
             <span class="ddp-data-by" *ngIf="datasource.createdBy">
               <!--생성 {{datasource.createdTime | date : 'yyyy.MM.dd hh:mm'}} by {{datasource.createdBy.fullName ? datasource.createdBy.fullName : datasource.createdBy}}-->
@@ -154,7 +155,12 @@
     <!-- //contents -->
   </div>
 </div>
-
+<!-- 데이터재적재 생성 -->
+<app-create-data-source *ngIf="step !== ''"
+                        [step]="step"
+                        [sourceData]="sourceData"
+                        (sourceCreateClose)="reIngestionClose()"
+                        (sourceCreateComplete)="reIngestionComplete()"></app-create-data-source>
 <!-- 공통 모달 -->
 <app-delete-modal (deleteConfirm)="deleteDatasource()"></app-delete-modal>
 <app-confirm-modal (confirm)="updateDatasource({published: !datasource.published})"></app-confirm-modal>

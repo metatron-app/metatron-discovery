@@ -12,23 +12,39 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
+import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
   ViewChild
 } from '@angular/core';
-import { DatasourceInfo, FieldFormatType, IngestionRuleType } from '../../../../../domain/datasource/datasource';
-import { Alert } from '../../../../../common/util/alert.util';
-import { DatasourceService } from '../../../../../datasource/service/datasource.service';
-import { CommonUtil } from '../../../../../common/util/common.util';
+import {
+  DatasourceInfo,
+  Field,
+  FieldFormatType,
+  IngestionRuleType
+} from '../../../../../domain/datasource/datasource';
+import {Alert} from '../../../../../common/util/alert.util';
+import {DatasourceService} from '../../../../../datasource/service/datasource.service';
+import {CommonUtil} from '../../../../../common/util/common.util';
 import * as _ from 'lodash';
-import { StringUtil } from '../../../../../common/util/string.util';
-import { ConfirmModalComponent } from '../../../../../common/component/modal/confirm/confirm.component';
-import { Modal } from '../../../../../common/domain/modal';
-import { CookieConstant } from '../../../../../common/constant/cookie.constant';
+import {StringUtil} from '../../../../../common/util/string.util';
+import {ConfirmModalComponent} from '../../../../../common/component/modal/confirm/confirm.component';
+import {Modal} from '../../../../../common/domain/modal';
+import {CookieConstant} from '../../../../../common/constant/cookie.constant';
 import {CommonConstant} from "../../../../../common/constant/common.constant";
 import {GranularityService} from "../../../../service/granularity.service";
-import {CreateSourceCompleteData} from "../../../../service/data-source-create.service";
+import {
+  CreateSourceCompleteData,
+  DataSourceCreateService
+} from "../../../../service/data-source-create.service";
+import {DataStorageConstant} from "../../../../constant/data-storage-constant";
 
 /**
  * Creating datasource with File - complete step
@@ -55,8 +71,12 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
   // create complete data
   public createCompleteData: CreateSourceCompleteData;
 
+  @Output()
+  public readonly onComplete: EventEmitter<any> = new EventEmitter();
+
   // Constructor
   constructor(private datasourceService: DatasourceService,
+              private _dataSourceCreateService: DataSourceCreateService,
               private _granularityService: GranularityService,
               protected element: ElementRef,
               protected injector: Injector) {
@@ -113,7 +133,11 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
       return;
     }
     // create datasource
-    this._createDatasource();
+    if (this._sourceData.datasourceId) {
+      this._reingestionDatasource();
+    } else {
+      this._createDatasource();
+    }
   }
 
   /**
@@ -146,6 +170,50 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
    */
   public isExcelFile(): boolean {
     return this.getFileData.fileResult.sheets && this.getFileData.fileResult.sheets.length !== 0;
+  }
+
+  /**
+   * Get title
+   * @returns {string}
+   */
+  public get getTitle(): string {
+    if (this._sourceData.datasourceId) {
+      return this.translateService.instant('msg.storage.ui.dsource.reingestion.title') + ' (' + this.translateService.instant('msg.storage.ui.dsource.create.file.title') + ')';
+    } else {
+      return this.translateService.instant('msg.storage.ui.dsource.create.title') + ' (' + this.translateService.instant('msg.storage.ui.dsource.create.file.title') + ')';
+    }
+  }
+
+  /**
+   * Re-Ingestion datasource
+   * @private
+   */
+  private _reingestionDatasource(): void {
+    // loading show
+    this.loadingShow();
+    // create datasource
+    this.datasourceService.overwriteDatasource(this._sourceData.datasourceId, this._getCreateDatasourceParams())
+      .then((result) => {
+        // complete alert
+        Alert.success(`'${this.createCompleteData.sourceName.trim()}' ` + this.translateService.instant('msg.storage.alert.source.reingestion.success'));
+        this.loadingHide();
+        this.close();
+        this.onComplete.emit();
+      })
+      .catch((error) => {
+        // loading hide
+        this.loadingHide();
+        // modal
+        const modal: Modal = new Modal();
+        // show cancel disable
+        modal.isShowCancel = false;
+        // title
+        modal.name = this.translateService.instant('msg.storage.ui.dsource.reingestion.fail.title');
+        // desc
+        modal.description = this.translateService.instant('msg.storage.ui.dsource.reingestion.fail.description');
+        // show error modal
+        this.confirmModal.init(modal);
+      });
   }
 
   /**
@@ -218,34 +286,37 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
    * @param column
    * @private
    */
-  private _deleteColumnProperty(column: any): void {
+  private _deleteColumnProperty(column): void {
     delete column.biType;
-    delete column.replaceFl;
+    // if disable originalName
+    if (Field.isDisableOriginalName(column)) {
+      Field.removeOriginalNameProperty(column);
+    }
     // if unloaded property is false, delete unloaded property
     if (column.unloaded === false) {
       delete column.unloaded;
     }
     // delete used UI
-    delete column.isValidTimeFormat;
-    delete column.isValidReplaceValue;
-    delete column.replaceValidMessage;
-    delete column.timeFormatValidMessage;
     delete column.checked;
-    if (column.format) {
+    if (!Field.isEmptyIngestionRule(column)) {
+      delete column.ingestionRule.isValidReplaceValue;
+      delete column.ingestionRule.replaceValidationMessage;
+    }
+    if (!Field.isEmptyFormat(column)) {
       delete column.format.isValidFormat;
       delete column.format.formatValidMessage;
     }
     // if not GEO types
-    if (column.logicalType.indexOf('GEO_') === -1) {
-      if (column.logicalType !== 'TIMESTAMP' && column.format) {
+    if (!Field.isGeoType(column)) {
+      if (!Field.isTimestampTypeField(column) && column.format) {
         delete column.format;
-      } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.UNIX_TIME) {
+      } else if (Field.isTimestampTypeField(column) && column.format.type === FieldFormatType.UNIX_TIME) {
         // remove format
         delete column.format.format;
         // remove timezone
         delete column.format.timeZone;
         delete column.format.locale;
-      } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.DATE_TIME) {
+      } else if (Field.isTimestampTypeField(column) && column.format.type === FieldFormatType.DATE_TIME) {
         delete column.format.unit;
       }
     } else {  // if GEO types
@@ -321,9 +392,9 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
    */
   private _getFieldsParams(): any[] {
     // timestamp enable
-    const isCreateTimestamp = this.getSchemaData.selectedTimestampType === 'CURRENT';
+    const isCreateTimestamp = this.getSchemaData.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.CURRENT;
     // fields param
-    let fields = _.cloneDeep(this.getSchemaData._originFieldList);
+    let fields = _.cloneDeep(this.getSchemaData.fieldList);
     // seq number
     let seq = 0;
     // field setting
@@ -354,26 +425,6 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
   }
 
   /**
-   * Get file format parameter
-   * @returns {Object}
-   * @private
-   */
-  private _getFileFormatParams(): object {
-    const format = {
-      type: this._getFileFormat(),
-    };
-    // if file format is csv, add delimiter and lineSeparator
-    if (this._getFileFormat() === 'csv') {
-      format['delimiter'] = this.getFileData.delimiter;
-      format['lineSeparator'] = this.getFileData.separator;
-    } else {
-      // add sheetIndex
-      format['sheetIndex'] = this.getFileData.fileResult.sheets.findIndex(sheet => sheet === this.getFileData.fileResult.selectedSheet);
-    }
-    return format;
-  }
-
-  /**
    * Get ingestion parameter
    * @returns {Object}
    * @private
@@ -382,7 +433,7 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
     // ingestion param
     const ingestion = {
       type: 'local',
-      format: this._getFileFormatParams(),
+      format: this._dataSourceCreateService.getFileFormatParams(this._getFileFormat(), this.getFileData),
       removeFirstRow: this.getFileData.isFirstHeaderRow,
       path: this.getFileData.fileResult.filePath,
       rollup: this.getIngestionData.selectedRollUpType.value,
@@ -393,7 +444,7 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
       ingestion['tuningOptions'] = this._toObject(this.getIngestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)));
     }
     // if not used current_time TIMESTAMP, set intervals
-    if (this.getSchemaData.selectedTimestampType !== 'CURRENT') {
+    if (this.getSchemaData.selectedTimestampType !== DataStorageConstant.Datasource.TimestampType.CURRENT) {
       ingestion['intervals'] =  [this._granularityService.getIntervalUsedParam(this.getIngestionData.startIntervalText, this.getIngestionData.selectedSegmentGranularity) + '/' + this._granularityService.getIntervalUsedParam(this.getIngestionData.endIntervalText, this.getIngestionData.selectedSegmentGranularity)];
     }
     return ingestion;

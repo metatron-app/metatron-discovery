@@ -15,6 +15,8 @@
 
 import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from "@angular/core";
 import {AbstractComponent} from "../../../common/component/abstract.component";
+import {CommonUtil} from "../../../common/util/common.util";
+import {StringUtil} from "../../../common/util/string.util";
 
 @Component({
   selector: 'storage-filter-select-box',
@@ -57,10 +59,21 @@ export class StorageFilterSelectBoxComponent extends AbstractComponent {
   // select list show/hide flag
   public isListShow: boolean;
 
+  // constant
+  public readonly UUID = CommonUtil.getUUID();
+  public readonly SELECT_BOX_WRAP_ELEMENT = this.UUID + '-select-box-wrap-elm';
+  public readonly SELECT_BOX_LABEL_ELEMENT = this.UUID + '-select-box-label-elm';
+  public readonly SELECT_BOX_ICON_WRAP_ELEMENT = this.UUID + '-select-box-icon-wrap-elm';
+  public readonly SELECT_BOX_ICON_ELEMENT = this.UUID + '-select-box-icon-elm';
+
   // constructor
   constructor(protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
+  }
+
+  isNotEmptyValue(value): boolean {
+    return StringUtil.isNotEmpty(value);
   }
 
   /**
@@ -82,6 +95,8 @@ export class StorageFilterSelectBoxComponent extends AbstractComponent {
   public onChangedFilter(filter): void {
     // change filter
     this.selectedFilter = filter;
+    // close
+    this.isListShow = false;
     // event emit
     this._changedFilter.emit(filter);
   }
@@ -91,7 +106,9 @@ export class StorageFilterSelectBoxComponent extends AbstractComponent {
    * @param {MouseEvent} event
    */
   public onChangeListShow(event: MouseEvent): void {
-    if (!this.isDisableList) {
+    const targetElement = event.target['classList'];
+    // if not derived and TIMESTAMP
+    if (!this.isDisableList && (targetElement.contains(this.SELECT_BOX_WRAP_ELEMENT) || targetElement.contains(this.SELECT_BOX_LABEL_ELEMENT) || targetElement.contains(this.SELECT_BOX_ICON_WRAP_ELEMENT) || targetElement.contains(this.SELECT_BOX_ICON_ELEMENT))) {
       this.isListShow = !this.isListShow;
       // if open list and is enable floating option
       if (this.isListShow && this.isEnableFloating) {

@@ -37,8 +37,8 @@ public class DfHeader extends DataFrame {
     Header header = (Header) rule;
 
     int targetRowno = header.getRownum().intValue() - 1;
-    if (targetRowno < 0) {
-      throw new NoRowException("DfHeader.prepare(): rownum should be >= 1: rownum=" + (targetRowno + 1));
+    if (targetRowno < 0 || targetRowno >= prevDf.rows.size()) {
+      throw new NoRowException("DfHeader.prepare(): row number should be >= 1 and < row_count: rowno=" + (targetRowno + 1));
     }
 
     int i = 1;

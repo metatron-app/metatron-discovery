@@ -18,8 +18,13 @@
   <div class="ddp-type-selectbox"
        (click)="toggleSelectList()"
        [ngClass]="{'ddp-selected' : isShowSelectList && isShowSelectListForOutSide, 'ddp-nowrap-r': noWrapFl, 'ddp-full' : isFull, 'ddp-flow':isDataprep}">
-    <span class="ddp-txt-selectbox">{{selectedItem == null ? unselectedMessage :  isStringArray ? selectedItem : selectedItem[viewKey] }}</span>
-    <ul [ngClass]="{'ddp-selectdown': isUpSelect == false, 'ddp-ellipsis' : isEllipsis}"
+    <span class="ddp-txt-selectbox">
+      <span *ngIf="isIconType && !(selectedItem == null || selectedItem.name == translateService.instant('msg.page.layer.map.stroke.none') || (selectedItem.isCustomField != undefined && selectedItem.isCustomField))" class="ddp-icons">
+          <em class="{{getIconClass(selectedItem)}}"></em>
+      </span>
+      {{selectedItem == null ? unselectedMessage :  isStringArray ? selectedItem : selectedItem[viewKey] }}
+    </span>
+    <ul *ngIf="!isIconType" [ngClass]="{'ddp-selectdown': isUpSelect == false, 'ddp-ellipsis' : isEllipsis}"
         class="ddp-list-selectbox">
       <li *ngFor="let item of array">
         <a href="javascript:" (click)="selected(item);" title="{{isStringArray ? item : item[viewKey]}}">
@@ -30,6 +35,23 @@
         <span class="ddp-noresult">{{'msg.comm.ui.no.rslt' | translate}}</span>
       </li>
     </ul>
+
+    <div *ngIf="isIconType" class="ddp-wrap-popup2">
+      <ul class="ddp-list-popup">
+        <li *ngFor="let item of array">
+          <a href="javascript:" (click)="selected(item);">
+            <span *ngIf="getIconClass(item) != ''" class="ddp-icons">
+              <em class="{{getIconClass(item)}}"></em>
+            </span>
+            {{isStringArray ? item : item[viewKey]}}
+          </a>
+        </li>
+        <li *ngIf="array?.length === 0">
+          <span class="ddp-noresult">{{'msg.comm.ui.no.rslt' | translate}}</span>
+        </li>
+      </ul>
+    </div>
+
   </div>
 </div>
 <!-- //Drop down -->

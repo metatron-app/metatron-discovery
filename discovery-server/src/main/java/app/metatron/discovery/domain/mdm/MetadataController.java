@@ -26,6 +26,7 @@ import app.metatron.discovery.domain.tag.TagService;
 import app.metatron.discovery.util.HttpUtils;
 import app.metatron.discovery.util.ProjectionUtils;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import org.apache.commons.lang3.StringUtils;
@@ -47,8 +48,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RepositoryRestController
 public class MetadataController {
@@ -81,6 +84,15 @@ public class MetadataController {
   MetadataProjections metadataProjections = new MetadataProjections();
 
   public MetadataController() {
+  }
+
+  /**
+   * save bulk Metadata
+   */
+  @RequestMapping(value = "/metadatas/batch", method = RequestMethod.POST)
+  public ResponseEntity<?> findMetadatas(@RequestBody List<Metadata> requestBody){
+    List<Metadata> savedMetadatas = metadataService.createAndReturn(requestBody);
+    return ResponseEntity.created(URI.create("")).body(savedMetadatas);
   }
 
   /**
@@ -179,7 +191,21 @@ public class MetadataController {
     }
 
     return ResponseEntity.ok(duplicated);
+  }
 
+  @RequestMapping(path = "/metadatas/name/duplicated", method = RequestMethod.POST)
+  public ResponseEntity<?> checkDuplicatedValues(@RequestBody List<String> values) {
+
+    List<String> metadataNameList = Lists.newArrayList();
+    if(values != null && values.size() > 0){
+      List<Metadata> existedMetadata
+          = Lists.newArrayList(metadataRepository.findAll(MetadataPredicate.searchDuplicatedNames(values)));
+
+      metadataNameList
+          = existedMetadata.stream().map(metadata -> metadata.getName()).collect(Collectors.toList());
+    }
+
+    return ResponseEntity.ok(metadataNameList);
   }
 
   /**

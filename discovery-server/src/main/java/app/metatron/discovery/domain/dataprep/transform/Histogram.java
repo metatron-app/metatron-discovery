@@ -122,17 +122,8 @@ public class Histogram implements Serializable {
       Object obj = rows.get(rowno).get(colno);
 
       // missing, mismatch 처리
-      if (obj == null) {
-        missing++;
-        missingRows.add(rowno);
+      if (checkMismatchMissing(rowno, obj, Map.class)) {
         continue;
-      } else if (!(obj instanceof Map)) {
-        mismatched++;
-        mismatchedRows.add(rowno);
-        continue;
-      } else {
-        matched++;
-        matchedRows.add(rowno);
       }
 
       assert obj instanceof Map : obj;
@@ -182,19 +173,9 @@ public class Histogram implements Serializable {
       Object obj = rows.get(rowno).get(colno);
 
       // missing, mismatch 처리
-      if (obj == null) {
-        missing++;
-        missingRows.add(rowno);
+      if (checkMismatchMissing(rowno, obj, List.class)) {
         continue;
-      } else if (!(obj instanceof List)) {
-        mismatched++;
-        mismatchedRows.add(rowno);
-        continue;
-      } else {
-        matched++;
-        matchedRows.add(rowno);
       }
-      assert obj instanceof List : obj;
 
       for (Object o : (List<Object>) obj) {
         String str = o.toString();
@@ -230,6 +211,22 @@ public class Histogram implements Serializable {
     LOGGER.trace("updateHistArray() end: colno={}", colno);
   }
 
+  private boolean checkMismatchMissing(int rowno, Object obj, Class cls) {
+    if (obj == null || (obj instanceof String && obj.equals(""))) {
+      missing++;
+      missingRows.add(rowno);
+      return true;
+    } else if (!obj.getClass().equals(cls)) {
+      mismatched++;
+      mismatchedRows.add(rowno);
+      return true;
+    }
+
+    matched++;
+    matchedRows.add(rowno);
+    return false;
+  }
+
   private void updateHistString(int colno, List<Row> rows) {
     Map<String, Integer> map = new HashMap();
     Map<String, List<Integer>> mapRownos = new HashMap();
@@ -240,17 +237,8 @@ public class Histogram implements Serializable {
       Object obj = rows.get(rowno).get(colno);
 
       // missing, mismatch 처리
-      if (obj == null) {
-        missing++;
-        missingRows.add(rowno);
+      if (checkMismatchMissing(rowno, obj, String.class)) {
         continue;
-      } else if (!(obj instanceof String)) {
-        mismatched++;
-        mismatchedRows.add(rowno);
-        continue;
-      } else {
-        matched++;
-        matchedRows.add(rowno);
       }
 
       assert obj instanceof String : obj;
@@ -304,17 +292,8 @@ public class Histogram implements Serializable {
       Object obj = rows.get(rowno).get(colno);
 
       // missing, mismatch 처리
-      if (obj == null) {
-        missing++;
-        missingRows.add(rowno);
+      if (checkMismatchMissing(rowno, obj, Boolean.class)) {
         continue;
-      } else if (!(obj instanceof Boolean)) {
-        mismatched++;
-        mismatchedRows.add(rowno);
-        continue;
-      } else {
-        matched++;
-        matchedRows.add(rowno);
       }
 
       assert obj instanceof Boolean : obj;
@@ -349,17 +328,8 @@ public class Histogram implements Serializable {
       Object obj = rows.get(rowno).get(colno);
 
       // missing, mismatch 처리
-      if (obj == null) {
-        missing++;
-        missingRows.add(rowno);
+      if (checkMismatchMissing(rowno, obj, Long.class)) {
         continue;
-      } else if (!(obj instanceof Long)) {
-        mismatched++;
-        mismatchedRows.add(rowno);
-        continue;
-      } else {
-        matched++;
-        matchedRows.add(rowno);
       }
 
       assert obj instanceof Long : obj;
@@ -576,17 +546,8 @@ public class Histogram implements Serializable {
       Object obj = rows.get(rowno).get(colno);
 
       // missing, mismatch 처리
-      if (obj == null) {
-        missing++;
-        missingRows.add(rowno);
+      if (checkMismatchMissing(rowno, obj, DateTime.class)) {
         continue;
-      } else if (!(obj instanceof DateTime)) {
-        mismatched++;
-        mismatchedRows.add(rowno);
-        continue;
-      } else {
-        matched++;
-        matchedRows.add(rowno);
       }
 
       assert obj instanceof DateTime : obj;
@@ -682,17 +643,8 @@ public class Histogram implements Serializable {
       Object obj = rows.get(rowno).get(colno);
 
       // missing, mismatch 처리
-      if (obj == null) {
-        missing++;
-        missingRows.add(rowno);
+      if (checkMismatchMissing(rowno, obj, Double.class)) {
         continue;
-      } else if (!(obj instanceof Double)) {
-        mismatched++;
-        mismatchedRows.add(rowno);
-        continue;
-      } else {
-        matched++;
-        matchedRows.add(rowno);
       }
 
       assert obj instanceof Double : obj;

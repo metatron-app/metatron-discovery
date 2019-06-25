@@ -432,11 +432,11 @@
           </div>
           <!-- //info -->
         </label>
-        <div class="ddp-type-selectbox ddp-setting" [class.ddp-selected]="isShowQueryGranularityList"
+        <div class="ddp-type-selectbox ddp-setting" [class.ddp-selected]="isShowQueryGranularityList" [class.ddp-disabled]="isReinjestion"
              (click)="isShowQueryGranularityList = !isShowQueryGranularityList"
              (clickOutside)="isShowQueryGranularityList=false">
           <span class="ddp-txt-selectbox">{{selectedQueryGranularity.label}}</span>
-          <ul class="ddp-list-selectbox ddp-selectdown">
+          <ul class="ddp-list-selectbox ddp-selectdown" *ngIf="!isReinjestion">
             <li *ngFor="let granularity of queryGranularityList">
               <a href="javascript:" (click)="onChangeQueryGranularity(granularity)">
                 {{granularity.label}}
@@ -465,11 +465,11 @@
           </div>
           <!-- //info -->
         </label>
-        <div class="ddp-type-selectbox ddp-setting" [class.ddp-selected]="isShowSegmentGranularityList"
+        <div class="ddp-type-selectbox ddp-setting" [class.ddp-selected]="isShowSegmentGranularityList" [class.ddp-disabled]="isReinjestion"
              (click)="isShowSegmentGranularityList = !isShowSegmentGranularityList"
              (clickOutside)="isShowSegmentGranularityList=false">
           <span class="ddp-txt-selectbox">{{selectedSegmentGranularity.label}}</span>
-          <ul class="ddp-list-selectbox ddp-selectdown">
+          <ul class="ddp-list-selectbox ddp-selectdown" *ngIf="!isReinjestion">
             <li *ngFor="let granularity of segmentGranularityList">
               <a href="javascript:" (click)="onChangeSegmentGranularity(granularity)">
                 {{granularity.label}}
@@ -541,7 +541,7 @@
         <!-- edit option -->
         <div class="ddp-ui-edit-option">
           <label class="ddp-label-radio" *ngFor="let type of rollUpTypeList" (change)="onChangeRollUpType(type)">
-            <input type="radio" [checked]="selectedRollUpType.value === type.value">
+            <input type="radio" [checked]="selectedRollUpType.value === type.value" [disabled]="isReinjestion">
             <i class="ddp-icon-radio"></i>
             <span class="ddp-txt-radio">{{type.label}}</span>
           </label>

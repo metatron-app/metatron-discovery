@@ -180,8 +180,8 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
 
         // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다
         if (this.page.page > 0 &&
-          isNullOrUndefined(data['_embedded']) ||
-          (!isNullOrUndefined(data['_embedded']) && data['_embedded'].preparationdatasets.length === 0))
+          (isNullOrUndefined(data['_embedded']) ||
+          (!isNullOrUndefined(data['_embedded']) && data['_embedded'].preparationdatasets.length === 0)))
         {
           this.page.page = data['page'].number - 1;
           this.getDatasets();

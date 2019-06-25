@@ -14,22 +14,27 @@
 
 import {Injectable, Injector} from '@angular/core';
 import {AbstractService} from '../../common/service/abstract.service';
-import {Page} from '../../domain/common/page';
 import {CommonUtil} from '../../common/util/common.util';
-import {MapDataSource, SearchQueryRequest} from '../../domain/datasource/data/search-query-request';
+import {SearchQueryRequest} from '../../domain/datasource/data/search-query-request';
 
 import * as _ from 'lodash';
 import {PageWidgetConfiguration} from '../../domain/dashboard/widget/page-widget';
 import {
-  ChartType, ShelveFieldType, GridViewType, LineMode, ShelfType, FormatType, LayerViewType
+  ChartType,
+  FormatType,
+  GridViewType,
+  LayerViewType,
+  LineMode,
+  ShelfType,
+  ShelveFieldType
 } from '../../common/component/chart/option/define/common';
 import {Filter} from '../../domain/workbook/configurations/filter/filter';
 import {UILineChart} from '../../common/component/chart/option/ui-option/ui-line-chart';
 import {UIGridChart} from '../../common/component/chart/option/ui-option/ui-grid-chart';
 import {FilterUtil} from '../../dashboard/util/filter.util';
 import {InclusionFilter} from '../../domain/workbook/configurations/filter/inclusion-filter';
-import {BoardDataSource, Dashboard} from '../../domain/dashboard/dashboard';
-import {Datasource, Field, FieldFormat, FieldFormatType, LogicalType} from '../../domain/datasource/datasource';
+import {Dashboard} from '../../domain/dashboard/dashboard';
+import {Field, LogicalType} from '../../domain/datasource/datasource';
 import {MeasureInequalityFilter} from '../../domain/workbook/configurations/filter/measure-inequality-filter';
 import {AdvancedFilter} from '../../domain/workbook/configurations/filter/advanced-filter';
 import {MeasurePositionFilter} from '../../domain/workbook/configurations/filter/measure-position-filter';
@@ -40,7 +45,10 @@ import {FilteringType} from '../../domain/workbook/configurations/field/timestam
 import {TimeCompareRequest} from '../../domain/datasource/data/time-compare-request';
 import {isNullOrUndefined} from 'util';
 import {DashboardUtil} from '../../dashboard/util/dashboard.util';
-import {GeoBoundaryFormat, GeoField, GeoHashFormat} from '../../domain/workbook/configurations/field/geo-field';
+import {
+  GeoBoundaryFormat,
+  GeoHashFormat
+} from '../../domain/workbook/configurations/field/geo-field';
 import {UIMapOption} from '../../common/component/chart/option/ui-option/map/ui-map-chart';
 import {ChartUtil} from '../../common/component/chart/option/util/chart-util';
 import {CommonConstant} from "../../common/constant/common.constant";
@@ -581,8 +589,7 @@ export class DatasourceService extends AbstractService {
 
                 // clustering
                 let chart = (<UIMapOption>pageConf.chart);
-                if (chart.layers[idx].type == MapLayerType.SYMBOL && chart.layers[idx]['clustering']) {
-
+                if ( chart.layers[idx].type == MapLayerType.CLUSTER && chart.layers[idx]['clustering'] ) {
                   // cluster 값 변경
                   let clusterPrecision: number = 6;
                   if (chart['layers'][idx]['changeCoverage']) {
@@ -603,6 +610,18 @@ export class DatasourceService extends AbstractService {
                     // 0~99 퍼센트 값을 1~12값으로 변환
                     precision: (_.isNaN(clusterPrecision) ? 6 : clusterPrecision)
                   };
+
+                } else if ( chart.layers[idx].type == MapLayerType.SYMBOL ) {
+
+                  let precision : number = 12;
+                  query.shelf.layers[idx].view = <GeoHashFormat>{
+                    type: 'abbr',
+                    method: "h3",
+                    relayType: "FIRST",
+                    // zoom 값을 12~14 사이 값으로 변환
+                    precision: precision
+                  };
+
                 }
 
                 if (!_.isUndefined(chart['lowerCorner']) && !_.isUndefined(chart['upperCorner'])
@@ -691,7 +710,13 @@ export class DatasourceService extends AbstractService {
       query.limits = {
         limit: 5000,
         sort: null
-      }
+      };
+      let uiOption = <UIMapOption>pageConf.chart;
+      uiOption.layers.forEach((layer) => {
+        if(layer.type == MapLayerType.SYMBOL || layer.type == MapLayerType.HEATMAP) {
+          query.limits.limit = 20000;
+        }
+      });
     }
 
     if (!_.isEmpty(resultFormatOptions)) {
@@ -747,6 +772,16 @@ export class DatasourceService extends AbstractService {
     return this.post(this.API_URL + 'datasources/temporary', param);
   }
 
+  // datasource append
+  public appendDatasource(datasourceId: string, param: any): Promise<any> {
+    return this.patch(this.API_URL + `datasources/${datasourceId}/append`, param);
+  }
+
+  // datasource overwrite
+  public overwriteDatasource(datasourceId: string, param: any): Promise<any> {
+    return this.patch(this.API_URL + `datasources/${datasourceId}/overwrite`, param);
+  }
+
   /**
    * 저장된 Linked 데이터 소스 정보를 기반으로 임시 데이터 소스를 생성합니다.
    * @param {string} dataSourceId
@@ -775,59 +810,6 @@ export class DatasourceService extends AbstractService {
    */
   public checkValidationDateTime(param: any): Promise<any> {
     return this.post(this.API_URL + 'datasources/validation/datetime', param);
-  }
-
-  /**
-   * Check valid date time format in field
-   * @param {Field} field
-   * @param {string[]} fieldDataList
-   * @param {boolean} isInitValid
-   * @return {Promise<any>}
-   */
-  public checkValidDateTimeFormatInField(field: Field, fieldDataList: string[], isInitValid?: boolean): Promise<any> {
-    const params: { samples: string[], format?: string } = {
-      samples: fieldDataList.slice(0, 19)
-    };
-    // if not exist format in field, init format
-    (!field.format) && (field.format = new FieldFormat());
-    // if not init valid, set format in params
-    (!isInitValid) && (params.format = field.format.format);
-    return new Promise<any>((resolve, reject) => {
-      this.post(this.API_URL + 'datasources/validation/datetime', params)
-        .then((result: { valid?: boolean, pattern?: string }) => {
-          // if valid or exist pattern
-          if (result.valid || result.pattern) {
-            // set time format valid TRUE
-            field.isValidTimeFormat = true;
-            // if exist pattern, set time format in field
-            (result.pattern) && (field.format.format = result.pattern);
-            // if enable timezone, set browser timezone at field
-            if (this._timezoneSvc.isEnableTimezoneInDateFormat(field.format)) {
-              !field.format.timeZone && (field.format.timeZone = this._timezoneSvc.getBrowserTimezone().momentName);
-              field.format.locale = this._timezoneSvc.browserLocale;
-            } else { // if not enable timezone
-              field.format.timeZone = TimezoneService.DISABLE_TIMEZONE_KEY;
-            }
-          } else { // invalid
-            // set time format valid FALSE
-            field.isValidTimeFormat = false;
-            // set time format valid message
-            field.timeFormatValidMessage = this._translateSvc.instant('msg.storage.ui.schema.valid.required.match.data');
-          }
-          // if valid format, set enable time format
-          (result.valid) && (field.isValidTimeFormat = true);
-          resolve(field);
-        })
-        .catch((error) => {
-          // if init valid, set default time format in field
-          (isInitValid) && (field.format.format = 'yyyy-MM-dd');
-          // set time format valid FALSE
-          field.isValidTimeFormat = false;
-          // set time format valid message
-          field.timeFormatValidMessage = this._translateSvc.instant('msg.storage.ui.schema.valid.required.match.data');
-          reject(field);
-        });
-    });
   }
 
   /**

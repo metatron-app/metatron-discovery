@@ -28,7 +28,7 @@ public class StorageController {
 
   private static Logger LOGGER = LoggerFactory.getLogger(StorageController.class);
 
-  @Autowired
+  @Autowired(required = false)
   StorageProperties storageProperties;
 
   @RequestMapping(value = "/storage/{storageType}", method = RequestMethod.GET)
@@ -36,10 +36,11 @@ public class StorageController {
 
     switch (storageType){
       case STAGEDB:
-        StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
-        if(stageDBConnection == null){
+        if(storageProperties == null || storageProperties.getStagedb() == null) {
           return ResponseEntity.noContent().build();
         }
+        StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
+
         return ResponseEntity.ok(stageDBConnection);
       default:
         throw new IllegalArgumentException("Not supported type " + storageType);

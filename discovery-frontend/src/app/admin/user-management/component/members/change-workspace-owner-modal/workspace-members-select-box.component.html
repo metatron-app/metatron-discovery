@@ -54,14 +54,14 @@
           [class.ddp-disabled]="member.disabled">
         <a href="javascript:" *ngIf="member.disabled">
           {{ member.label }}
-          <span class="ddp-rank">({{ member.value.role }})</span>
+          <span class="ddp-rank" *ngIf="member.value.role">({{ member.value.role }})</span>
           <em class="ddp-icon-check"></em>
         </a>
         <a href="javascript:"
            *ngIf="!member.disabled"
            (click)="clickSelectValue(member)">
           {{ member.label }}
-          <span class="ddp-rank">({{ member.value.role }})</span>
+          <span class="ddp-rank" *ngIf="member.value.role">({{ member.value.role }})</span>
           <em class="ddp-icon-check"></em>
         </a>
       </li>

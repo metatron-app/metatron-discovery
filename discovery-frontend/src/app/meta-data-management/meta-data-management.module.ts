@@ -32,22 +32,17 @@ import {MetadataComponent} from './metadata/metadata.component';
 import {MetadataService} from './metadata/service/metadata.service';
 import {MetadataDetailComponent} from './metadata/metadata-detail.component';
 import {SelectCatalogComponent} from './metadata/component/select-catalog.component';
-import {SelectDatatypeComponent} from './metadata/create-metadata/select-datatype.component';
-import {CompleteCreateMetadataComponent} from './metadata/create-metadata/complete-create-metadata.component';
 import {DatasourceService} from '../datasource/service/datasource.service';
 import {DatasourceShareModule} from '../datasource/datasource-share.module';
-import {DsSelectDatasourceComponent} from './metadata/create-metadata/ds-select-datasource.component';
 import {MetadataModelService} from './metadata/service/metadata.model.service';
-import {HiveSetConnectionComponent} from './metadata/create-metadata/hive-set-connection.component';
 import {DataconnectionService} from '../dataconnection/service/dataconnection.service';
-import {StagingSelectSchemaComponent} from './metadata/create-metadata/staging-select-schema.component';
 import {CatalogService} from './catalog/service/catalog.service';
-import {HiveSelectSchemaComponent} from './metadata/create-metadata/hive-select-schema.component';
 import {ChooseColumnDictionaryComponent} from './component/choose-column-dictionary/choose-column-dictionary.component';
 import {CatalogComponent} from './catalog/catalog.component';
 import {MetadataManagementGuard} from '../common/gaurd/metadata-management.guard';
 import {DetailModule} from './detail/detail.module';
 import {DatasourceMetadataSharedModule} from '../shared/datasource-metadata/datasource-metadata-shared.module';
+import {CreateMetadataModule} from "./metadata/create-metadata/create-metadata.module";
 
 @NgModule({
   imports: [
@@ -55,6 +50,7 @@ import {DatasourceMetadataSharedModule} from '../shared/datasource-metadata/data
     DetailModule,
     DatasourceShareModule,
     DatasourceMetadataSharedModule,
+    CreateMetadataModule,
     RouterModule.forChild([
       {path: '', component: MetaDataManagementComponent, canActivate: [MetadataManagementGuard]},
       {path: ':tabId', component: MetaDataManagementComponent, canActivate: [MetadataManagementGuard]},
@@ -73,17 +69,6 @@ import {DatasourceMetadataSharedModule} from '../shared/datasource-metadata/data
     // 메타데이터
     MetadataComponent,
     MetadataDetailComponent,
-    // 메타데이터 생성
-    SelectDatatypeComponent,
-    // 메타데이터 생성 - 데이터소스
-    DsSelectDatasourceComponent,
-    // 메타데이터 생성 - HIVE
-    HiveSetConnectionComponent,
-    HiveSelectSchemaComponent,
-    // 메타데이터 생성 - StagingDB
-    StagingSelectSchemaComponent,
-    // 메타데이터 생성 - 공통
-    CompleteCreateMetadataComponent,
     // 컬럼 사전
     ColumnDictionaryComponent,
     DetailColumnDictionaryComponent,

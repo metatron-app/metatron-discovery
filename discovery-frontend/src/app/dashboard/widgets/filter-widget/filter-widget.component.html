@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-box-widget" >
+<div class="ddp-box-widget" (mouseleave)="mouseoutWidget()">
   <!-- Top Control -->
   <div *ngIf="isAuthMgmtViewMode" class="ddp-top-control ddp-clear"
        [ngStyle]="{'margin-right': isVisibleScrollbar ? '20px' : '' }">
@@ -47,6 +47,8 @@
                                      [selectedArray]="selectedItems"
                                      [viewKey]="'name'"
                                      [mockup]="isEditMode"
+                                     [filter]="filter"
+                                     [dashboard]="dashboard"
                                      (onSelected)="onSelectInclude($event)"
                                      (changeDisplayOptions)="toggleOptionsSelectComp($event)">
       </component-filter-multi-select>
@@ -58,11 +60,24 @@
                                [selectedItem]="selectedItems ? selectedItems[0] : null"
                                [viewKey]="'name'"
                                [mockup]="isEditMode"
+                               [filter]="filter"
+                               [dashboard]="dashboard"
                                (onSelected)="onSelectInclude($event)"
                                (onCheckAll)="checkAllInclude()"
                                (changeDisplayOptions)="toggleOptionsSelectComp($event)">
       </component-filter-select>
       <!-- // 단일 선택 콤보 박스 -->
+
+      <!-- 목록형 검색 영역 -->
+      <div *ngIf="isViewMode && isSearchingCandidateAvailability
+                    && (convertToIncludeFilter(filter).selector === inclusionSelectorType.MULTI_LIST
+                      || convertToIncludeFilter(filter).selector === inclusionSelectorType.SINGLE_LIST)"
+           class="ddp-list-search-candidate">
+        <a (click)="candidateFromSearchText()" class="ddp-btn-line">{{'msg.comm.ui.search-all' | translate}}</a>
+        <div class="ddp-search-text">
+          <input type="text" class="ddp-input-search" [(ngModel)]="searchText">
+        </div>
+      </div>
 
       <!-- 복수 선택 목록 -->
       <ul *ngIf="convertToIncludeFilter(filter).selector === inclusionSelectorType.MULTI_LIST"
@@ -83,7 +98,7 @@
                    [disabled]="isEditMode"
                    [checked]="convertToIncludeFilter(filter).valueList.indexOf(item.name) > -1">
             <i class="ddp-icon-checkbox ddp-dark"></i>
-            <span class="ddp-txt-checkbox">{{item.name}}</span>
+            <span class="ddp-txt-checkbox" [ngStyle]="item.isTemporary ? {'color': '#9499c2'} : {}">{{item.name}}</span>
           </label>
         </li>
       </ul>
@@ -106,7 +121,7 @@
                    [disabled]="isEditMode"
                    [checked]="convertToIncludeFilter(filter).valueList.indexOf(item.name) > -1">
             <i class="ddp-icon-radio"></i>
-            <span class="ddp-txt-radio">{{item.name}}</span>
+            <span class="ddp-txt-radio" [ngStyle]="item.isTemporary ? {'color': '#9499c2'} : {}">{{item.name}}</span>
           </label>
         </li>
       </ul>
