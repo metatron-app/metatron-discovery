@@ -70,7 +70,7 @@ public class LineageEdgeController {
     return ResponseEntity.ok(lineageEdge);
   }
 
-  @RequestMapping(value = "map/{metaId}", method = RequestMethod.GET, produces = "application/json", consumes = "application/json")
+  @RequestMapping(value = "/map/{metaId}", method = RequestMethod.GET, produces = "application/json", consumes = "application/json")
   public ResponseEntity<?> getLineageMap(@PathVariable("metaId") String metaId) {
     LineageMapNode lineageMapNode = lineageEdgeService.getLineageMap(metaId);
 

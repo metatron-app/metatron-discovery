@@ -24,7 +24,7 @@ export class LineageViewService extends AbstractService {
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  private readonly URL_LINEAGENODE = this.API_URL + 'metadatas/lineage';
+  private readonly URL_LINEAGENODE = this.API_URL + 'metadatas/lineages';
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables

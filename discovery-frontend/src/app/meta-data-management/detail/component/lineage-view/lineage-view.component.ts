@@ -381,17 +381,17 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
     let followNodes = null;
     if(direction === -1) { // forward
-      followNodes = mapNode.fromMapNodes.filter(node => node.circuit == false);
+      followNodes = mapNode.upstreamMapNodes.filter(node => node.circuit == false);
     } else { // toward
-      followNodes = mapNode.toMapNodes.filter(node => node.circuit == false);
+      followNodes = mapNode.downstreamMapNodes.filter(node => node.circuit == false);
     }
 
     var ignoreCircuit : boolean = false;
     if(ignoreCircuit != false) {
       if(direction === -1) { // forward
-        followNodes = mapNode.fromMapNodes;
+        followNodes = mapNode.upstreamMapNodes;
       } else { // toward
-        followNodes = mapNode.toMapNodes;
+        followNodes = mapNode.downstreamMapNodes;
       }
     }
 
