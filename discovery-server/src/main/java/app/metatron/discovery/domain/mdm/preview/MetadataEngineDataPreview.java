@@ -15,7 +15,7 @@
 package app.metatron.discovery.domain.mdm.preview;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 import app.metatron.discovery.common.data.projection.ColumnDescription;
@@ -33,7 +32,6 @@ import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
 import app.metatron.discovery.domain.datasource.data.result.ObjectResultFormat;
 import app.metatron.discovery.domain.engine.EngineQueryService;
 import app.metatron.discovery.domain.mdm.Metadata;
-import app.metatron.discovery.domain.mdm.MetadataColumn;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
 
@@ -124,32 +122,14 @@ public class MetadataEngineDataPreview extends MetadataDataPreview {
     searchQueryRequest.setLimits(new Limit(limit));
     ArrayNode engineData = (ArrayNode) engineQueryService.search(searchQueryRequest);
 
+    ObjectMapper mapper = new ObjectMapper();
     engineData.forEach(rowNode -> {
       Row row = new Row();
       for(ColumnDescription columnDescription : this.columnDescriptions){
         String columnName = columnDescription.getName();
-        Object columnValue = null;
 
-        JsonNode valueNode = rowNode.get(columnName);
-        if(valueNode.isNull()){
-          row.values.add(null);
-          continue;
-        }
-
-        switch(columnDescription.getType().toUpperCase()){
-          case "LONG" :
-            columnValue = valueNode.asLong();
-            break;
-          case "BOOLEAN" :
-            columnValue = valueNode.asBoolean();
-            break;
-          case "DOUBLE" :
-            columnValue = valueNode.asDouble();
-            break;
-          default :
-            columnValue = valueNode.asText();
-            break;
-        }
+        Map<String, Object> result = mapper.convertValue(rowNode, Map.class);
+        Object columnValue = result.get(columnName);
         row.values.add(columnValue);
       }
       this.rows.add(row);

@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Optional;
 
 import app.metatron.discovery.common.data.projection.DataGrid;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
 import app.metatron.discovery.domain.datasource.DataSource;
@@ -182,6 +183,10 @@ public class MetadataService implements ApplicationEventPublisherAware {
     } else if (metadataSource.getType() == Metadata.SourceType.ENGINE) {
       DataSource metadataSourceDetail
           = (DataSource) metaSourceService.getSourcesBySourceId(metadataSource.getType(), metadataSource.getSourceId());
+
+      if(metadataSourceDetail == null){
+        throw new ResourceNotFoundException("Metadata Source (" + metadataSource.getType() + " : " + metadataSource.getSourceId() + ") not exist.");
+      }
 
       //2-1. SourceType=ENGINE, ConnectionType=ENGINE
       if(metadataSourceDetail.getConnType() == DataSource.ConnectionType.ENGINE){ //druid
