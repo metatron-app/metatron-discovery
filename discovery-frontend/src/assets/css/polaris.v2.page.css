@@ -8520,6 +8520,10 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
   -webkit-box-shadow: 0px 2px 2px 1px rgba(231,231,234,1);
   -moz-box-shadow: 0px 2px 2px 1px rgba(231,231,234,1);
   box-shadow: 0px 2px 2px 1px rgba(231,231,234,1);}
+.ddp-layout-meta .ddp-meta-list .ddp-box-page {border:none;
+  -webkit-box-shadow: 0px 2px 2px 1px rgba(231,231,234,1);
+  -moz-box-shadow: 0px 2px 2px 1px rgba(231,231,234,1);
+  box-shadow: 0px 2px 2px 1px rgba(231,231,234,1);}
 .ddp-ui-banner {padding:14px 0 0 0;}
 .ddp-ui-banner .ddp-type-label {padding-bottom:13px; font-size:14px; font-weight:bold;}
 .ddp-box-banner {display:flex; height:340px;}
@@ -8568,7 +8572,7 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
 .ddp-wrap-meta-summary .ddp-wrap-list-summary .ddp-type-summary-label .ddp-btn-more  {float:right; padding:3px 7px; background-color:#f2e9f0; color:#4c515a; font-size:12px; font-weight:normal; border-radius:2px;}
 
 .ddp-wrap-meta-summary .ddp-wrap-box .ddp-list-summary {padding:25px 0 0 0; margin:-10px -77px;}
-.ddp-wrap-meta-summary .ddp-wrap-box .ddp-list-summary > li {width:50%; padding:10px 77px; float:left; box-sizing:border-box;}
+.ddp-wrap-meta-summary .ddp-wrap-box .ddp-list-summary > li {width:50%; height:115px; padding:10px 77px; float:left; box-sizing:border-box;}
 .ddp-wrap-meta-summary .ddp-wrap-box .ddp-list-summary li a {display:block;}
 
 .ddp-wrap-meta-summary .ddp-wrap-box .ddp-list-summary li a:hover .ddp-data-txt .ddp-data-name {font-weight:bold;}

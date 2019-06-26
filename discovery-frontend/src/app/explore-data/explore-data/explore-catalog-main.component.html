@@ -5,7 +5,7 @@
 <!--      <em class="ddp-icon-fav "></em>-->
     </div>
     <!-- box list -->
-    <div class="ddp-box-list">
+    <div class="ddp-box-list" *ngIf="!isEmptyMetadataList()">
       <table class="ddp-table-form ddp-table-line">
         <colgroup>
 <!--          <col width="26px">-->
@@ -94,10 +94,15 @@
         </tr>
         </tbody>
       </table>
-      <!-- Pagination -->
-      <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
-      <!-- // Pagination -->
     </div>
     <!-- //box list -->
+    <!-- Pagination -->
+    <ng-template #notEmptyMetadataList>
+      <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+    </ng-template>
+    <!-- // Pagination -->
+    <div class="ddp-data-source-none" *ngIf="isEmptyMetadataList(); else notEmptyMetadataList">
+      {{'msg.metadata.ui.no.metadata' | translate}}
+    </div>
   </div>
 </div>
