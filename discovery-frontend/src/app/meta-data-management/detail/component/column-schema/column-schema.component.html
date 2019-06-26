@@ -294,7 +294,7 @@
                  [ngModel]="column.name"
                  (ngModelChange)="column.name = $event; column.nameChangeFl = true; column.replaceFl = true">
         </td>
-        <td>
+        <td [ngClass]="{'ddp-disabled': isGeoType(column.type)}">
           <div class="ddp-select-search ddp-hover-tooltip">
             <a href="javascript:"
                class="ddp-ui-search2"

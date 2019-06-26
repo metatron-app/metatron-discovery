@@ -426,6 +426,12 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    */
   public onClickSearchDictionary(metadataColumn: MetadataColumn): void {
     event.stopImmediatePropagation();
+
+
+    // GEO타입 딕셔너리 수정 불가 : #2242
+    if (this.isGeoType(metadataColumn.type)) {
+      return;
+    }
     this._saveCurrentlySelectedColumn(metadataColumn);
     this._chooseDictionaryEvent.emit({ name: 'CREATE', dictionary: metadataColumn.dictionary }); // 컬럼 사전 선택 컴포넌트
   }
@@ -484,6 +490,15 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     if (this.hasMetadataColumnInDatasource()) {
       this.isSaveInvalid = this.columnList.some(field =>  field.role !== Type.Role.TIMESTAMP && (field.type === Type.Logical.TIMESTAMP && !field.format.isValidFormat));
     }
+  }
+
+  /**
+   * Return true if column is geo type
+   * @param type
+   */
+  public isGeoType(type: Type.Logical): boolean {
+    const types = ['GEO_LINE', 'GEO_POINT','GEO_POLYGON'];
+    return -1 < types.indexOf(type)
   }
 
   public isLogicalTypesLayerActivation(metadataColumn: MetadataColumn) {
