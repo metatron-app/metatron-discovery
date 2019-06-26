@@ -97,7 +97,7 @@ public class RoleSetEventHandler {
 //  @PreAuthorize("hasAnyAuthority('PERM_SYSTEM_WRITE_USER') " +
 //          "or hasPermission(#roleSet, 'PERM_WORKSPACE_WRITE_MEMBER')")
   public void handleBeforeDelete(RoleSet roleSet) {
-    Hibernate.initialize(roleSet);
+    Hibernate.initialize(roleSet.getWorkspaces());
   }
 
   @HandleAfterDelete
