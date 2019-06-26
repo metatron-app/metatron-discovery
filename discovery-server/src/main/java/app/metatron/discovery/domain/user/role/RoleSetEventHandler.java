@@ -17,6 +17,7 @@ package app.metatron.discovery.domain.user.role;
 import com.google.common.collect.Lists;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,6 +97,7 @@ public class RoleSetEventHandler {
 //  @PreAuthorize("hasAnyAuthority('PERM_SYSTEM_WRITE_USER') " +
 //          "or hasPermission(#roleSet, 'PERM_WORKSPACE_WRITE_MEMBER')")
   public void handleBeforeDelete(RoleSet roleSet) {
+    Hibernate.initialize(roleSet);
   }
 
   @HandleAfterDelete
@@ -123,7 +125,6 @@ public class RoleSetEventHandler {
         }
       }
     }
-
   }
 
   @HandleBeforeLinkDelete
