@@ -67,6 +67,8 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
   @Input()
   public isNameEdit: boolean;
 
+  public selectedNode: any;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -214,6 +216,11 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
     }
   }
 
+  public closeColumnView() {
+    this.selectedNode = null;
+    this.chartAreaResize();
+  }
+
   /* symbol properties of the category have a bug
    * manual copy
    */
@@ -236,19 +243,23 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
     this.chart.off('click');
     this.chart.on('click', (params) => {
-      if(params===null) { return; }
-      if(params.componentType!=='series') { return; }
+      if(params!==null && params.componentType==='series') {
+        //console.log(params.dataType +'_'+ params.dataIndex +' is clicked');
 
-      //console.log(params.dataType +'_'+ params.dataIndex +' is clicked');
+        if( params.dataType==='node' ) {
+          const option = this.chart.getOption();
+          option.series[params.seriesIndex].data.map((node, idx) => {
+            if(idx===params.dataIndex) {
+              console.log(node);
+              this.selectedNode = node;
+            }
+          });
+          this.chart.setOption(option);
+        }
 
-      if( params.dataType==='node' ) {
-        const option = this.chart.getOption();
-        option.series[params.seriesIndex].data.map((node, idx) => {
-          if(idx===params.dataIndex) {
-            console.log(node);
-          }
-        });
-        this.chart.setOption(option);
+        this.chartAreaResize();
+      } else {
+        this.closeColumnView();
       }
     });
 
@@ -431,14 +442,28 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
           edgeSymbol: ['circle', 'arrow'],
           edgeSymbolSize: 10,
           edgeLabel: {
-            show: true,
-            color: '#000',
-            formatter: (params) => {
-              return 'edge label';
-            }
+            show: false
           },
           tooltip: {
-            formatter: 'metaId : <br />{b0}'
+            formatter: (params) => {
+              if( params.dataType==='node' ) {
+                return params.data.metadata.name;
+              } else if( params.dataType==='edge' ) {
+                var sourceId = params.data.source;
+                var targetId = params.data.target;
+                var sourceName = null;
+                var targetName = null;
+                this.lineageNodes.forEach( (node) => {
+                  if(node.metadataId==sourceId) {
+                    sourceName = node.metadata.name;
+                  } else if(node.metadataId==targetId) {
+                    targetName = node.metadata.name;
+                  }
+                });
+                return sourceName +' to '+ targetName;
+              }
+              return null;
+            },
           },
           left: 'center',
           top: 'middle',
@@ -462,6 +487,9 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
     if(resizeCall == undefined) resizeCall = false;
     const hScrollbarWith: number = 30;
     let minHeightSize: number = this.lineageHeight < 5 ? 500 : this.lineageHeight * 100;
+    if( this.selectedNode && this.selectedNode.metadataId ) {
+      minHeightSize = minHeightSize - 100;
+    }
     let fixHeight: number = minHeightSize;
     const minWidthSize: number = $('.ddp-lineage-view').width()- hScrollbarWith;
     $('.ddp-lineage-view').css('overflow-x', 'hidden');
