@@ -166,10 +166,10 @@ public abstract class MetadataDataPreview implements DataGrid, DataHistogram {
         additionalMap = new HashMap();
       }
       additionalMap.put("role", metadataColumn.getRole());
-      ColumnDescription columnDescription = new ColumnDescription(metadataColumn.getPhysicalName(),
-                                                                  metadataColumn.getPhysicalType(),
-                                                                  metadataColumn.getName(),
+      ColumnDescription columnDescription = new ColumnDescription(metadataColumn.getName(),
                                                                   metadataColumn.getType().toString(),
+                                                                  metadataColumn.getPhysicalName(),
+                                                                  metadataColumn.getPhysicalType(),
                                                                   GlobalObjectMapper.readValue(metadataColumn.getFormat()),
                                                                   additionalMap);
       columnDescriptions.add(columnDescription);

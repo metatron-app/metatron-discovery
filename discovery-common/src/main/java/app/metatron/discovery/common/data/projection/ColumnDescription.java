@@ -21,21 +21,21 @@ import java.util.Map;
  */
 public class ColumnDescription {
   /**
-   * The Name.
+   * The Logical Name.
    */
   String name;
   /**
-   * The Type.
+   * The Logical Type.
    */
   String type;
   /**
-   * The Logical name.
+   * The Physical name.
    */
-  String logicalName;
+  String physicalName;
   /**
-   * The Logical type.
+   * The Physical type.
    */
-  String logicalType;
+  String physicalType;
   /**
    * The Format.
    */
@@ -48,18 +48,18 @@ public class ColumnDescription {
   /**
    * Instantiates a new Column description.
    *
-   * @param name        the name
-   * @param type        the type
-   * @param logicalName the logical name
-   * @param logicalType the logical type
-   * @param format      the format
-   * @param additionals the additionals
+   * @param name         the name
+   * @param type         the type
+   * @param physicalName the physical name
+   * @param physicalType the physical type
+   * @param format       the format
+   * @param additionals  the additionals
    */
-  public ColumnDescription(String name, String type, String logicalName, String logicalType, Map<String, Object> format, Map<String, Object> additionals) {
+  public ColumnDescription(String name, String type, String physicalName, String physicalType, Map<String, Object> format, Map<String, Object> additionals) {
     this.name = name;
     this.type = type;
-    this.logicalName = logicalName;
-    this.logicalType = logicalType;
+    this.physicalName = physicalName;
+    this.physicalType = physicalType;
     this.format = format;
     this.additionals = additionals;
   }
@@ -101,39 +101,39 @@ public class ColumnDescription {
   }
 
   /**
-   * Gets logical name.
+   * Gets physical name.
    *
-   * @return the logical name
+   * @return the physical name
    */
-  public String getLogicalName() {
-    return logicalName;
+  public String getPhysicalName() {
+    return physicalName;
   }
 
   /**
-   * Sets logical name.
+   * Sets physical name.
    *
-   * @param logicalName the logical name
+   * @param physicalName the physical name
    */
-  public void setLogicalName(String logicalName) {
-    this.logicalName = logicalName;
+  public void setPhysicalName(String physicalName) {
+    this.physicalName = physicalName;
   }
 
   /**
-   * Gets logical type.
+   * Gets physical type.
    *
-   * @return the logical type
+   * @return the physical type
    */
-  public String getLogicalType() {
-    return logicalType;
+  public String getPhysicalType() {
+    return physicalType;
   }
 
   /**
-   * Sets logical type.
+   * Sets physical type.
    *
-   * @param logicalType the logical type
+   * @param physicalType the physical type
    */
-  public void setLogicalType(String logicalType) {
-    this.logicalType = logicalType;
+  public void setPhysicalType(String physicalType) {
+    this.physicalType = physicalType;
   }
 
   /**
