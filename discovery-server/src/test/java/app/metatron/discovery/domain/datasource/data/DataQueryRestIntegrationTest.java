@@ -1334,7 +1334,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     // Case 2. 디멘젼에 열선반에 위치하고 행선반에 디멘젼 처리
     Pivot pivot2 = new Pivot();
-    pivot2.setColumns(Lists.newArrayList(new DimensionField("Category"), new DimensionField("Sub-Category")));
+    pivot2.setColumns(Lists.newArrayList(new DimensionField("Category")));
     pivot2.setRows(Lists.newArrayList(new DimensionField("Region")));
     pivot2.setAggregations(Lists.newArrayList(
         new MeasureField("Sales", MeasureField.AggregationType.AVG)
@@ -1388,7 +1388,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
         new MeasureField("Sales", MeasureField.AggregationType.SUM), field4
     ));
 
-    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot4, limit);
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot2, limit);
     ChartResultFormat format = new ChartResultFormat("bar");
     format.addOptions("showPercentage", true);
     format.addOptions("showCategory", true);
@@ -2878,7 +2878,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void candidateQueryForUserDefined() throws JsonProcessingException {
 
-    DataSource dataSource1 = new DefaultDataSource("sales");
+    DataSource dataSource1 = new DefaultDataSource("sales_geo");
 
     // Limit
     Limit limit = new Limit();
@@ -2899,8 +2899,8 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     CandidateQueryRequest request = new CandidateQueryRequest();
     request.setDataSource(dataSource1);
     request.setFilters(filters);
-    request.setTargetField(targetField2);
-    request.setUserFields(Lists.newArrayList(expressionField2));
+    request.setTargetField(targetField1);
+    request.setUserFields(Lists.newArrayList(expressionField1));
 
     System.out.println(GlobalObjectMapper.getDefaultMapper().writeValueAsString(request));
 
