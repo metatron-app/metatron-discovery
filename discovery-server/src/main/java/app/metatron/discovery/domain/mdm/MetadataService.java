@@ -15,6 +15,8 @@
 package app.metatron.discovery.domain.mdm;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,16 +29,20 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.supercsv.prefs.CsvPreference;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection;
-import java.util.Calendar;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 
 import app.metatron.discovery.common.data.projection.DataGrid;
+import app.metatron.discovery.common.data.projection.Row;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
@@ -245,13 +251,9 @@ public class MetadataService implements ApplicationEventPublisherAware {
   }
 
   public void getDownloadData(Metadata metadata, String fileName, int limit) {
-    Connection conn = null;
-
-    String query = makeQueryStatementForPreview(metadata);
-    conn = getConnection(metadata);
-
+    DataGrid dataGrid = getDataGrid(metadata, limit);
     try {
-      createCSVFile(conn, query, fileName, limit);
+      createCSVFile(dataGrid, fileName);
     } catch (Exception e) {
       LOGGER.error("getDownloadData : createCSVFile Exception " + e.getMessage());
     }
@@ -344,6 +346,23 @@ public class MetadataService implements ApplicationEventPublisherAware {
     }
 
     return downloadFilePath;
+  }
+
+  private void createCSVFile(DataGrid dataGrid, String filePath) throws IOException{
+    BufferedWriter writer = Files.newBufferedWriter(Paths.get(filePath));
+
+    String[] headers = new String[dataGrid.getColumnCount()];
+    CSVFormat csvFormat = CSVFormat.DEFAULT.withHeader(dataGrid.getColumnNames().toArray(headers));
+
+    CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
+
+    for(Row row : dataGrid.getRows()){
+      csvPrinter.printRecord(row.values);
+    }
+
+    csvPrinter.flush();
+
+    LOGGER.debug("created csv file to : {}", filePath);
   }
 
   private void createCSVFile(Connection connection, String query, String fileName, int limit) throws IOException {
