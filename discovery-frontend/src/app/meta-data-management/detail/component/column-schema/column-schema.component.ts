@@ -348,9 +348,16 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
       // logical column name 초기화
       this._selectedColumn.name = this._selectedColumn.physicalName;
 
-      // type string으로 초기화
-      this._selectedColumn.type = Type.Logical.STRING;
-      this._selectedColumn.format = null;
+      // # 2242
+      // role이 타입스템프 타입에 딕셔너리를 적용할 경우 type과 format 이 적용되지 않기 때문에..
+      // 딕셔너리를 해제해도 string으로 초기화 하지 않음
+      if (this._selectedColumn.role !== Type.Role.TIMESTAMP) {
+        // type string으로 초기화
+        this._selectedColumn.type = Type.Logical.STRING;
+        this._selectedColumn.format = null;
+
+      }
+
 
       // code table 삭제
       if (!_.isNil(this._selectedColumn.codeTable)) {
@@ -359,6 +366,12 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
       // description 초기화
       this._selectedColumn.description = '';
+
+
+      // check validation
+      this.setIsExistErrorInFieldListFlag();
+
+
 
     } else {
       // 컬럼 사전이 있다면 해당 컬럼 사전의 상세정보 조회
