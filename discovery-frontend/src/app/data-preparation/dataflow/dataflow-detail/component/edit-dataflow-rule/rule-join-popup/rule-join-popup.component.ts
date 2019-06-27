@@ -149,6 +149,11 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
       nameDupMap[dataaset.dsName] = nameCnt + 1;
     });
 
+    // 선택된 RightDataset은 표시 안함
+    if( this.rightDataset ) {
+      list = list.filter( dataset => this.rightDataset.dsId!==dataset.dsId );
+    }
+
     // 검색어가 있는지 체크
     const isSearchTextEmpty = StringUtil.isNotEmpty(this.searchText);
 
@@ -500,10 +505,12 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
     let list = [leftDsId];
     while( 0<list.length ) {
       let pop = list.shift();
+      /* self item can be on list
       if( pop === rightDsId ) {
         ret = false;
         break;
       }
+      */
       for(let us of upstreams ) {
         if( us.dsId === pop ) {
           if( false==list.includes( us.dsId ) ) {
