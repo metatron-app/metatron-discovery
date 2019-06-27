@@ -33,6 +33,9 @@ import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionErrorCodes;
 import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionException;
 
+/**
+ * The type Abstract jdbc connector.
+ */
 public abstract class AbstractJdbcConnector implements JdbcConnector{
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJdbcConnector.class);
 
@@ -75,18 +78,48 @@ public abstract class AbstractJdbcConnector implements JdbcConnector{
     }
   }
 
+  /**
+   * Get connection url string.
+   *
+   * @param connectionInfo  the connection info
+   * @param dialect         the dialect
+   * @param database        the database
+   * @param includeDatabase the include database
+   * @return the string
+   */
   protected String getConnectionUrl(JdbcConnectInformation connectionInfo, JdbcDialect dialect, String database, boolean includeDatabase){
     return dialect.makeConnectUrl(connectionInfo, database, includeDatabase);
   }
 
+  /**
+   * Get username string.
+   *
+   * @param connectionInfo the connection info
+   * @param dialect        the dialect
+   * @return the string
+   */
   protected String getUsername(JdbcConnectInformation connectionInfo, JdbcDialect dialect){
     return connectionInfo.getUsername();
   }
 
+  /**
+   * Get password string.
+   *
+   * @param connectionInfo the connection info
+   * @param dialect        the dialect
+   * @return the string
+   */
   protected String getPassword(JdbcConnectInformation connectionInfo, JdbcDialect dialect){
     return connectionInfo.getPassword();
   }
 
+  /**
+   * Get properties properties.
+   *
+   * @param connectionInfo the connection info
+   * @param dialect        the dialect
+   * @return the properties
+   */
   protected Properties getProperties(JdbcConnectInformation connectionInfo, JdbcDialect dialect){
     Properties properties = new Properties();
     String userName = getUsername(connectionInfo, dialect);

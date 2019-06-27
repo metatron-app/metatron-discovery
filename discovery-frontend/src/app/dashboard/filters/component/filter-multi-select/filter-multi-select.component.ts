@@ -15,8 +15,10 @@
 import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {AbstractComponent} from '../../../../common/component/abstract.component';
 import {Alert} from '../../../../common/util/alert.util';
-import {Candidate} from '../../../../domain/workbook/configurations/filter/inclusion-filter';
+import {Candidate, InclusionFilter} from '../../../../domain/workbook/configurations/filter/inclusion-filter';
 import {isNullOrUndefined} from 'util';
+import {Dashboard} from "../../../../domain/dashboard/dashboard";
+import {DatasourceService} from "../../../../datasource/service/datasource.service";
 
 @Component({
   selector: 'component-filter-multi-select',
@@ -75,6 +77,12 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
   @Input('mockup')
   public isMockup?: boolean = false;
 
+  @Input('filter')
+  public filter: InclusionFilter;
+
+  @Input('dashboard')
+  public dashboard: Dashboard;
+
   // 변경 이벤트
   @Output() public onSelected = new EventEmitter();
 
@@ -105,7 +113,8 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
 
   // 생성자
   constructor(protected elementRef: ElementRef,
-              protected injector: Injector) {
+              protected injector: Injector,
+              protected datasourceService: DatasourceService) {
 
     super(elementRef, injector);
   }
@@ -220,6 +229,7 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
     this.changeDisplayOptions.emit(this.isShowSelectList);
   } // function - toggleSelectList
 
+
   /**
    * 값 초기화
    * @param valueList
@@ -258,6 +268,36 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
   public onScroll() {
     this.onLoadPage.emit(this.pageNum++);
   } // function - onScroll
+
+  public candidateFromSearchText() {
+    this.loadingShow();
+    this.datasourceService.getCandidateForFilter(
+      this.filter, this.dashboard, [], null, null, this.searchText).then((resultCandidates) => {
+      if(resultCandidates && resultCandidates.length > 0) {
+        resultCandidates.forEach((resultCandidate) => {
+          if(this.existCandidate(resultCandidate.field) === false) {
+            let candidate = new Candidate();
+            candidate.count = resultCandidate.count;
+            candidate.name = resultCandidate.field;
+            candidate.isTemporary = true;
+
+            this.array.push(candidate);
+          }
+        });
+
+        this.safelyDetectChanges();
+      }
+
+      this.loadingHide();
+    }).catch((error) => {
+      this.commonExceptionHandler(error);
+    });
+  }
+
+  public setViewListPosition() {
+    this._setViewListPosition();
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -281,4 +321,12 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
     }
   } // function - _setViewListPosition
 
+  private existCandidate(name : string) : boolean {
+    const filteredCandidates = this.array.filter(candidate => candidate.name === name);
+    if(filteredCandidates != null && filteredCandidates.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

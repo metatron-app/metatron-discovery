@@ -38,7 +38,9 @@ export enum MapLayerType {
   MULTILINESTRING = <any>'MultiLineString',
   MULTIPOLYGON = <any>'multipolygon',
   HEATMAP = <any>'heatmap',
-  TILE = <any>'tile'
+  TILE = <any>'tile',
+  // cluster => UI Only
+  CLUSTER = <any>'cluster'
 }
 
 /**

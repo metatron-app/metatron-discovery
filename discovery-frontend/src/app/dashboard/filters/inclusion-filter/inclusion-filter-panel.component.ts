@@ -80,6 +80,8 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
   public isSearchFocus: boolean = false;          // 검색바 포커스 여부
   public isOverCandidateWarning: boolean = false;  // Candidate Limit 을 넘겼는지 여부
 
+  public searchAllMessage = '';
+
   @Input('filter')
   public originalFilter: InclusionFilter;
 
@@ -318,6 +320,11 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
    * @param {boolean} isInitial
    */
   public setCandidatePage(page: number, isInitial: boolean = false) {
+    if(this.searchText === '') {
+      this.searchAllMessage = '';
+    } else {
+      this.searchAllMessage = this.translateService.instant('msg.board.filter.ui.search-all');
+    }
 
     if (isInitial) {
       this.pageCandidateList = [];
@@ -501,6 +508,12 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
 
         // 위젯 화면 표시
         this.isShowFilter = true;
+
+        if(result == null || result.length == 0) {
+          this.searchAllMessage = this.translateService.instant('msg.board.filter.ui.search-all.nodata');
+        } else {
+          this.searchAllMessage = '';
+        }
 
         this.loadingHide();
       }).catch((error) => {

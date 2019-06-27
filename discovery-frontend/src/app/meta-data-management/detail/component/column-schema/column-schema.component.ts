@@ -167,10 +167,13 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
       .then(() => this.loadingShow())
       .then(() => this._getColumnSchemas().then())
       .then(() => {
-        return this.getFieldData()
-          .then(fieldDataList => {
-            this.fieldDataList = _.isNil(fieldDataList) ? [] : fieldDataList
-          });
+        // TODO #2172 if staging or JDBC type metadata, not used field data
+        if (this.hasMetadataColumnInDatasource()) {
+          return this.getFieldData()
+            .then(fieldDataList => {
+              this.fieldDataList = _.isNil(fieldDataList) ? [] : fieldDataList
+            });
+        }
       })
       .then(() => this.loadingHide())
       .catch(error => this.commonExceptionHandler(error));
@@ -456,8 +459,8 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
       && this.isTimestampColumn(metadataColumn) === false;
   }
 
-  public isTypeIsTimestamp(metadataColumn: MetadataColumn) {
-    return MetadataColumn.isTypeIsTimestamp(metadataColumn);
+  public isShowInformationIcon(metadataColumn: MetadataColumn) {
+    return MetadataColumn.isTypeIsTimestamp(metadataColumn) && !MetadataColumn.isRoleIsTimestamp(metadataColumn);
   }
 
   public isTimestampColumn(metadataColumn: MetadataColumn) {
@@ -577,7 +580,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
       }
     }
 
-    if (this.isMetadataSourceTypeIsJdbc()) {
+    else if (this.isMetadataSourceTypeIsJdbc()) {
       return new Promise((resolve, reject) => {
         return this._dataconnectionService.getTableDataForHive({
           'type': 'TABLE',
@@ -589,7 +592,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
       });
     }
 
-    if (this.isMetadataSourceTypeIsStaging()) {
+    else if (this.isMetadataSourceTypeIsStaging()) {
       return new Promise((resolve, reject) => {
         return this._dataconnectionService.getTableDataForHive({
           'type': 'TABLE',
@@ -846,7 +849,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
       .then((result) => {
         // 변경된 컬럼의 사전정보로 logicalType, Format, CodeTable, Description 적용
         this._selectedColumn.type = result.logicalType || null;
-        this._selectedColumn.format = result.format || new FieldFormat();
+        this._selectedColumn.format = result.format || null;
         this._selectedColumn.description = result.description || null;
 
         // 이름이 사용자에 의해 변경되지 않았다면 컬럼 사전의 이름을 name으로 지정함

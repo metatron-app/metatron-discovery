@@ -72,5 +72,6 @@ export interface ConnectionParam {
   database?: string;
   catalog?: string;
   sid?: string;
-  properties?: any;
+  properties?;
+  id?: string;
 }

@@ -114,7 +114,7 @@ public class DataSourceService {
   @Autowired
   DataSourceProperties dataSourceProperties;
 
-  @Autowired
+  @Autowired(required = false)
   StorageProperties storageProperties;
 
   /**
@@ -416,8 +416,7 @@ public class DataSourceService {
             DataSource.SourceType.SNAPSHOT
         };
 
-        boolean supportStageDB = storageProperties.getStagedb() != null;
-        if(supportStageDB){
+        if(storageProperties != null && storageProperties.getStagedb() != null){
           srcTypes = ArrayUtils.add(srcTypes, 2, DataSource.SourceType.HIVE);
         }
 

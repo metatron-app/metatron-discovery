@@ -54,9 +54,12 @@ public class AuditRepositoryImpl extends QueryDslRepositorySupport implements Au
   public List<AuditStatsDto> countStatusByDate(Predicate predicate) {
     NumberPath<Long> aliasDate = Expressions.numberPath(Long.class, "date");
     QAudit qAudit = QAudit.audit;
+    Expression<String> groupDateExpr = qAudit.startTime.year().stringValue()
+                                                       .concat(qAudit.startTime.dayOfYear().stringValue());
 
-    Expression<String> groupDateExpr = Expressions.stringTemplate("DATE_FORMAT({0}, {1})", qAudit.startTime, "%Y-%m-%d");
-    Expression<String> selectDateExpr = Expressions.stringTemplate("DATE_FORMAT({0}, {1})", qAudit.startTime, "%Y-%m-%d").as("date");
+    Expression<String> selectDateExpr = qAudit.startTime.year().stringValue()
+                                                        .concat(qAudit.startTime.dayOfYear().stringValue())
+                                                        .as("date");
 
     return from(qAudit)
             .select(Projections.constructor(AuditStatsDto.class, selectDateExpr, qAudit.status, qAudit.count()))

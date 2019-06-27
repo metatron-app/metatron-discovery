@@ -25,9 +25,7 @@ import {
 import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
 import {DatasourceInfo} from '../../../../../domain/datasource/datasource';
 import * as _ from 'lodash';
-import {
-  FileResult, Sheet,
-} from "../../../../service/data-source-create.service";
+import {FileResult, Sheet,} from "../../../../service/data-source-create.service";
 import {Pluploader} from "../../../../../common/component/pluploader/pluploader";
 
 @Component({
@@ -142,6 +140,18 @@ export class FileUploadComponent extends AbstractPopupComponent implements OnIni
     }
     this.fileResult = fileResult;
     this.safelyDetectChanges();
+  }
+
+  /**
+   * Get title
+   * @returns {string}
+   */
+  public get getTitle(): string {
+    if (this.sourceData.datasourceId) {
+      return this.translateService.instant('msg.storage.ui.dsource.reingestion.title') + ' (' + this.translateService.instant('msg.storage.ui.dsource.create.file.title') + ')';
+    } else {
+      return this.translateService.instant('msg.storage.ui.dsource.create.title') + ' (' + this.translateService.instant('msg.storage.ui.dsource.create.file.title') + ')';
+    }
   }
 
   /**

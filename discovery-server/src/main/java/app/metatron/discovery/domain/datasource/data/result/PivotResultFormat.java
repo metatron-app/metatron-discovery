@@ -379,16 +379,11 @@ public class PivotResultFormat extends SearchResultFormat {
           if (first) {
             for (String parameterName : parameterNames) {
               String paramNamePlus = parameterName + ".params";  // .param postfix 로 [alpha, beta, gamma] 값이 포함됨
+              List<Double> infoValues = Lists.newArrayList();
+
               // Array node 파싱
               JsonNode paramNode = itemNode.get(paramNamePlus);
-
-              List<Double> infoValues;
-              if (paramNode == null) {
-                infoValues = Lists.newArrayList(0.0, 0.0, 0.0);
-              } else {
-                infoValues = Lists.newArrayList();
-                paramNode.forEach(arrayItem -> infoValues.add(arrayItem.asDouble()));
-              }
+              paramNode.forEach(arrayItem -> infoValues.add(arrayItem.asDouble()));
 
               result.put(paramNamePlus, infoValues);
             }

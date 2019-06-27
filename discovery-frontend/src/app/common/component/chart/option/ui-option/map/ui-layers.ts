@@ -12,8 +12,9 @@
  * limitations under the License.
  */
 
-import { MapBy, MapLayerType } from '../../define/map/map-common';
+import {MapBy, MapLayerType, MapSymbolType} from '../../define/map/map-common';
 import { ColorRange } from '../ui-color';
+import {MapOutline} from "./ui-outline";
 
 /**
  * map chart layer
@@ -36,6 +37,20 @@ export interface UILayers {
 
   // tile radius
   tileRadius? : number;
+
+  // point radius
+  pointRadius?: number;
+
+  symbolPointType? : MapSymbolType;
+  symbolOutline? : MapOutline;
+
+  clusterPointType? : MapSymbolType;
+  clusterOutline? : MapOutline;
+
+  // color type 관련
+  noneColor? : string;
+  dimensionColor? : string;
+  measureColor? : string;
 }
 
 /**
@@ -96,4 +111,9 @@ interface SymbolColor {
 
   polygonSchema? : string;
 
+  // cluster => UI Only
+  clusterSchema?: string;
+  clusterTransparency?: number;
+
+  changeRange? : boolean;
 }

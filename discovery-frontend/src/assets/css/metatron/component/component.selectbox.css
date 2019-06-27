@@ -52,6 +52,8 @@ ul.ddp-list-popup li span.ddp-noresult {display:block;padding:5px 10px; color:#b
 ul.ddp-list-popup li a {display:block; position:relative; padding:6px 14px 6px 14px; font-size:13px; color:#4b515b; white-space: nowrap;overflow: hidden;text-overflow: ellipsis;}
 
 ul.ddp-list-popup li a:hover {background-color:#f6f6f7;}
+ul.ddp-list-popup li a .ddp-icons {display:inline-block; position:relative; width:17px; height:15px; vertical-align: middle;}
+ul.ddp-list-popup li a .ddp-icons [class*="ddp-icon-"] {position:absolute; top:1px; left:0;}
 ul.ddp-list-popup li.ddp-selected > a {color:#666eb2 !important; padding-right:28px;}
 ul.ddp-list-popup.ddp-type li.ddp-selected > a {padding-right:14px;}
 ul.ddp-list-popup.ddp-hover-none li a:hover {background:none !important;}
@@ -122,6 +124,8 @@ ul.ddp-list-popup li.ddp-sub:hover .ddp-wrap-popup2 {display:block;}
 .ddp-type-selectbox input.ddp-input-selectbox.ddp-value {color:#666eb3;}
 
 .ddp-type-selectbox span.ddp-txt-selectbox {display:block; color:#4a515c; font-size:13px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; word-wrap:normal;}
+.ddp-type-selectbox span.ddp-txt-selectbox .ddp-icons {display:inline-block; float:left; position:relative; width:17px; height:16px; }
+.ddp-type-selectbox span.ddp-txt-selectbox .ddp-icons [class*="ddp-icon-"] {left:0px;}
 .ddp-type-selectbox span.ddp-txt-selectbox span.ddp-type-txt {padding-left:22px; color:#4b515b; font-size:13px; }
 .ddp-type-selectbox span.ddp-txt-selectbox.ddp-result {color:#4b515b;}
 .ddp-type-selectbox span.ddp-txt-selectbox em[class*="ddp-icon-type-"],

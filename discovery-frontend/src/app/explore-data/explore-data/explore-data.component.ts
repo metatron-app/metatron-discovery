@@ -54,10 +54,20 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   // Init
   public ngOnInit() {
     super.ngOnInit();
+
+    // const test = async () => {
+    //   await this._setMetadataSourceTypeCount()
+    //   await this._setCatalogList(Catalog.Constant.CATALOG_ROOT_ID)
+    //   throw new Error('test');
+    // }
+    //
+    // test().catch(error => this.commonExceptionHandler(error));
+
     // set catalog list
-    this._setCatalogList(Catalog.Constant.CATALOG_ROOT_ID);
-    // set count
-    this._setMetadataSourceTypeCount();
+    this._setCatalogList2(Catalog.Constant.CATALOG_ROOT_ID).catch(error => this.commonExceptionHandler(error));
+    // this._setMetadataSourceTypeCount2().catch(error => this.commonExceptionHandler(error));
+    // // set count
+    // this._setMetadataSourceTypeCount();
   }
 
   public ngAfterViewInit() {
@@ -133,6 +143,28 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
         this.loadingHide();
       })
       .catch(error => this.commonExceptionHandler(error));
+  }
+
+  private async _setCatalogList2(catalogId: string) {
+    const result = await this.catalogService.getTreeCatalogs(catalogId);
+    if (catalogId === Catalog.Constant.CATALOG_ROOT_ID) {
+      this.catalogList = result;
+    }
+  }
+
+  private async _setMetadataSourceTypeCount2() {
+    // this.loadingShow();
+    // const result: {ENGINE: number, JDBC: number, STAGEDB: number} = await this.catalogService.getMetadataSourceTypeCount();
+    // if (!_.isNil(result.ENGINE)) {
+    //   this.sourceTypeCount = result.ENGINE;
+    // }
+    // if (!_.isNil(result.JDBC)) {
+    //   this.databaseTypeCount = result.JDBC;
+    // }
+    // if (!_.isNil(result.STAGEDB)) {
+    //   this.stagingTypeCount = result.STAGEDB;
+    // }
+    // this.loadingHide();
   }
 
   private _setCatalogList(catalogId: string): void {

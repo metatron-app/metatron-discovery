@@ -6,25 +6,27 @@
           </div>
           <div class="ddp-box-banner">
             <div class="ddp-banner-main">
-              <component-banner [bannerClass]="'ddp-ui-banner-link type-banner01'" [iconClass]="'ddp-icon-datasource'"
-                                [tagList]="['사업부','사업부']"
-                                [title]="'New Data Source 01'"
-                                [description]="'데이터 설명 데이터 설명 데이터 설명 데이터 설명 데이터 설명 데이터 설명<br>데이터 설명 데이터 설명 데이터 설명'"
-                                [style.width]="100 + '%'" [style.display]="'table'" [style.height]="100 + '%'"></component-banner>
+              <component-banner  *ngIf="!isEmptyRecommendedMetadataList()"
+                                 [bannerClass]="'ddp-ui-banner-link type-banner01'" [iconClass]="getMetadataIcon(recommendedMetadataList[0])"
+                                 [title]="recommendedMetadataList[0].name"
+                                 [tagList]="recommendedMetadataList[0].tags"
+                                 [description]="recommendedMetadataList[0].description"
+                                 [style.width]="100 + '%'" [style.display]="'table'" [style.height]="100 + '%'"></component-banner>
             </div>
-            <div class="ddp-banner-list">
-              <component-banner [bannerClass]="'ddp-ui-banner-link type-banner02'" [iconClass]="'ddp-icon-stagingdb'"
-                                [title]="'Data Source 002'">
+            <div class="ddp-banner-list" *ngIf="!isEmptyRecommendedMetadataList() && recommendedMetadataList.length > 1">
+              <component-banner  *ngFor="let metadata of recommendedMetadataList | slice:1:5"
+                                [bannerClass]="'ddp-ui-banner-link type-banner02'" [iconClass]="getMetadataIcon(metadata)"
+                                [title]="metadata.name">
               </component-banner>
-              <component-banner [bannerClass]="'ddp-ui-banner-link type-banner03'" [iconClass]="'ddp-icon-stagingdb'"
-                                [title]="'Data Source 002'">
-              </component-banner>
-              <component-banner [bannerClass]="'ddp-ui-banner-link type-banner04'" [iconClass]="'ddp-icon-stagingdb'"
-                                [title]="'Data Source 002'">
-              </component-banner>
-              <component-banner [bannerClass]="'ddp-ui-banner-link type-banner03'" [iconClass]="'ddp-icon-stagingdb'"
-                                [title]="'Data Source 002'">
-              </component-banner>
+<!--              <component-banner [bannerClass]="'ddp-ui-banner-link type-banner03'" [iconClass]="'ddp-icon-stagingdb'"-->
+<!--                                [title]="'Data Source 002'">-->
+<!--              </component-banner>-->
+<!--              <component-banner [bannerClass]="'ddp-ui-banner-link type-banner04'" [iconClass]="'ddp-icon-stagingdb'"-->
+<!--                                [title]="'Data Source 002'">-->
+<!--              </component-banner>-->
+<!--              <component-banner [bannerClass]="'ddp-ui-banner-link type-banner03'" [iconClass]="'ddp-icon-stagingdb'"-->
+<!--                                [title]="'Data Source 002'">-->
+<!--              </component-banner>-->
             </div>
           </div>
         </div>
@@ -37,7 +39,7 @@
         <div class="ddp-type-summary-label">{{'msg.explore.ui.list.popular' | translate}}</div>
         <ul class="ddp-list-summary ddp-clear">
           <li *ngFor="let metadata of popularMetadataList">
-            <component-card [imageClass]="'ddp-data-images type-hive'"
+            <component-card [imageClass]="getMetadataImage(metadata)"
                             [title]="metadata.name" [description]="metadata.description"
                             [tagList]="metadata.tags"
                             [popularity]="metadata.popularity"
@@ -47,21 +49,14 @@
         </ul>
       </div>
       <div class="ddp-box-summary">
-        <div class="ddp-type-summary-label">New or Update</div>
+        <div class="ddp-type-summary-label">Recommended data</div>
         <ul class="ddp-list-summary ddp-clear">
-          <li>
-            <component-card [imageClass]="'ddp-data-images type-database'"
-                            [title]="'New  data'" [description]="'설명설명설명설명설명설명설명설명설명설명설명설명설명설명'" [popularity]="50"  [creator]="'admin'">
-            </component-card>
-          </li>
-          <li>
-            <component-card [imageClass]="'ddp-data-images type-database'"
-                            [title]="'New  data'" [description]="'설명설명설명설명설명설명설명설명설명설명설명설명설명설명'" [popularity]="50"  [creator]="'admin'">
-            </component-card>
-          </li>
-          <li>
-            <component-card [imageClass]="'ddp-data-images type-database'"
-                            [title]="'New  data'" [description]="'설명설명설명설명설명설명설명설명설명설명설명설명설명설명'" [popularity]="50"  [creator]="'admin'">
+          <li *ngFor="let metadata of recommendedMetadataList">
+            <component-card [imageClass]="getMetadataImage(metadata)"
+                            [title]="metadata.name" [description]="metadata.description"
+                            [tagList]="metadata.tags"
+                            [popularity]="metadata.popularity"
+                            [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
             </component-card>
           </li>
         </ul>
@@ -73,42 +68,28 @@
       <!-- summary list -->
       <div class="ddp-ui-list-summary">
         <div class="ddp-type-summary-label">My favorite
-          <a href="javascript:" class="ddp-btn-more">more ></a>
+<!--          <a href="javascript:" class="ddp-btn-more">more ></a>-->
         </div>
         <ul class="ddp-list-data">
-          <li>
-            <component-card [imageClass]="'ddp-data-images type-hive'"
-                            [title]="'New  data'" [creator]="'admin'">
-            </component-card>
-          </li>
-          <li>
-            <component-card [imageClass]="'ddp-data-images type-hive'"
-                            [title]="'New  data'" [creator]="'admin'">
-            </component-card>
-          </li>
-          <li>
-            <component-card [imageClass]="'ddp-data-images type-hive'"
-                            [title]="'New  data'" [creator]="'admin'">
+          <li *ngFor="let metadata of favoriteMetadataList">
+            <component-card [imageClass]="getMetadataImage(metadata)"
+                            [title]="metadata.name"
+                            [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
             </component-card>
           </li>
         </ul>
-
       </div>
       <!-- //summary list -->
       <!-- summary list -->
       <div class="ddp-ui-list-summary">
         <div class="ddp-type-summary-label">Favorite creator
-          <a href="javascript:" class="ddp-btn-more">more ></a>
+<!--          <a href="javascript:" class="ddp-btn-more">more ></a>-->
         </div>
         <ul class="ddp-list-data">
-          <li>
-            <component-card [imageClass]="'ddp-data-images type-hive'"
-                            [title]="'New  data'" [creator]="'admin'">
-            </component-card>
-          </li>
-          <li>
-            <component-card [imageClass]="'ddp-data-images type-hive'"
-                            [title]="'New  data'" [creator]="'admin'">
+          <li *ngFor="let metadata of favoriteCreatorMetadataList">
+            <component-card [imageClass]="getMetadataImage(metadata)"
+                            [title]="metadata.name"
+                            [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
             </component-card>
           </li>
         </ul>

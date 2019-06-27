@@ -133,7 +133,7 @@ public class HiveDialect implements JdbcDialect {
 
   @Override
   public String getConnectorClass(JdbcConnectInformation connectInfo) {
-    return "app.metatron.discovery.domain.dataconnection.jdbc.connector.KerberosJdbcConnector";
+    return "app.metatron.discovery.domain.dataconnection.connector.KerberosJdbcConnector";
   }
 
   @Override

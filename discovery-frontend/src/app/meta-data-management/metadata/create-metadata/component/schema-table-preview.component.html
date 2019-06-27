@@ -1,0 +1,31 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-view-sheet">
+  <div class="ddp-data-tablename" *ngIf="!hideGrid">
+    {{selectedTable}}
+  </div>
+  <!-- 그리드 영역 -->
+  <div class="ddp-wrap-grid">
+    <!-- 데이터 없는경우 -->
+    <div class="ddp-ui-empty" *ngIf="hideGrid">
+      {{'msg.storage.ui.dsource.create.preview.no.data' | translate}}
+    </div>
+    <!-- //데이터 없는경우 -->
+    <!-- 데이터 있는경우 -->
+    <div grid-component [hidden]="hideGrid" style="width:100%; height:100%;"></div>
+    <!-- //데이터 있는경우 -->
+  </div>
+  <!-- //그리드 영역 -->
+</div>

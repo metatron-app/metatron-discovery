@@ -12,15 +12,23 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, OnInit, Injector, ViewChild, OnDestroy, HostListener } from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { DataflowService } from './service/dataflow.service';
-import { PrDataflow } from '../../domain/data-preparation/pr-dataflow';
-import { Modal } from '../../common/domain/modal';
-import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
-import { Alert } from '../../common/util/alert.util';
-import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
-import { CreateDataflowNameDescComponent } from './create-dataflow-name-desc.component';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  Injector,
+  OnDestroy,
+  OnInit,
+  ViewChild
+} from '@angular/core';
+import {AbstractComponent} from '../../common/component/abstract.component';
+import {DataflowService} from './service/dataflow.service';
+import {PrDataflow} from '../../domain/data-preparation/pr-dataflow';
+import {Modal} from '../../common/domain/modal';
+import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
+import {Alert} from '../../common/util/alert.util';
+import {MomentDatePipe} from '../../common/pipe/moment.date.pipe';
+import {CreateDataflowNameDescComponent} from './create-dataflow-name-desc.component';
 import {isNullOrUndefined} from "util";
 import {StringUtil} from "../../common/util/string.util";
 import {ActivatedRoute} from "@angular/router";
@@ -230,8 +238,8 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
 
       // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다
       if (this.page.page > 0 &&
-        isNullOrUndefined(data['_embedded']) ||
-        (!isNullOrUndefined(data['_embedded']) && data['_embedded'].preparationdataflows.length === 0))
+        (isNullOrUndefined(data['_embedded']) ||
+          (!isNullOrUndefined(data['_embedded']) && data['_embedded'].preparationdatasets.length === 0)))
       {
         this.page.page = data['page'].number - 1;
         this.getDataflows();

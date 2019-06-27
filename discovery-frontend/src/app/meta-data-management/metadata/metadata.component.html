@@ -83,12 +83,12 @@
   </div>
   <table class="ddp-table-form ddp-table-type3" *ngIf="metadatas && metadatas.length > 0">
     <colgroup>
-      <col width="100px">
+      <col width="120px">
       <col width="*">
       <col width="150px">
       <col width="150px">
-      <col width="300px">
-      <col width="300px">
+      <col width="200px">
+      <col width="250px">
     </colgroup>
     <thead>
     <tr>
@@ -137,8 +137,8 @@
     <tbody>
     <tr *ngFor="let metadata of metadatas" (click)="onClickMetadataDetail(metadata)">
       <td>
-        <span class="ddp-box-tag-value" [ngClass]="{'ddp-datasource':metadata.sourceType.toString() === 'ENGINE', 'ddp-hive': 'JDBC' == metadata.sourceType.toString(), 'ddp-stagingdb' : 'STAGEDB' == metadata.sourceType.toString()}">
-          {{ 'ENGINE' == metadata.sourceType.toString() ? 'Datasource' : 'STAGEDB' == metadata.sourceType.toString() ? 'Staging DB' : 'JDBC' == metadata.sourceType.toString() ? 'HIVE' : metadata.sourceType }}
+        <span class="ddp-box-tag-value" [ngClass]="getMetadataTypeIcon(metadata)">
+          {{getMetadataType(metadata)}}
         </span>
       </td>
       <td>
@@ -180,6 +180,7 @@
   </ng-template>
 </div>
 
-<app-select-datatype (createdEmit)="onCreateEmit()"></app-select-datatype>
+<create-metadata-main (createdComplete)="reloadPage(true)"></create-metadata-main>
+
 <app-select-catalog></app-select-catalog>
 <app-delete-modal (deleteConfirm)="deleteMetadata()"></app-delete-modal>

@@ -13,12 +13,22 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
   ViewChild
 } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
-import { DatasourceInfo } from '../../../../../domain/datasource/datasource';
-import { IngestionSettingComponent } from '../../../component/ingestion-setting.component';
+import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
+import {DatasourceInfo} from '../../../../../domain/datasource/datasource';
+import {IngestionSettingComponent} from '../../../component/ingestion-setting.component';
+import {DataStorageConstant} from "../../../../constant/data-storage-constant";
 
 /**
  * Creating datasource with StagingDB - ingestion step
@@ -83,7 +93,7 @@ export class StagingDbIngestionComponent extends AbstractPopupComponent implemen
       this._ingestionSettingComponent.init(
         this._sourceData,
         'STAGING',
-        this._sourceData.schemaData.selectedTimestampType === 'CURRENT' ? null :  this._sourceData.schemaData.selectedTimestampField,
+        this._sourceData.schemaData.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.CURRENT ? null :  this._sourceData.schemaData.selectedTimestampField,
         this._sourceData.schemaData.isChangedTimestampField
       );
       // remove changed flag

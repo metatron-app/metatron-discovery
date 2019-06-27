@@ -102,7 +102,7 @@ public class PrepDatasetFileService {
     @Autowired(required = false)
     PrepProperties prepProperties;
 
-    @Autowired
+    @Autowired(required = false)
     StorageProperties storageProperties;
 
     @Autowired

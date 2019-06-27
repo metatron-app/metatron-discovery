@@ -96,7 +96,7 @@
         <a href="javascript:" class="ddp-btn-selection ddp-line" (click)="onClickResetPassword()"><em
           class="ddp-icon-key"></em>{{'msg.mem.btn.reset.pw' | translate}}</a>
         <!--<a href="javascript:" class="ddp-btn-selection ddp-line" (click)="onClickLoginUser()"><em class="ddp-icon-view"></em>{{'msg.mem.btn.login.usr' | translate}}</a>-->
-        <a href="javascript:" class="ddp-btn-selection ddp-reject" (click)="onClickDeleteUser()"><em
+        <a href="javascript:" class="ddp-btn-selection ddp-reject" (click)="onClickDeleteUser()" *ngIf="userData.status?.toString() === 'LOCKED'"><em
           class="ddp-icon-delete"></em>{{'msg.mem.btn.delete.usr' | translate}}</a>
 
       </div>

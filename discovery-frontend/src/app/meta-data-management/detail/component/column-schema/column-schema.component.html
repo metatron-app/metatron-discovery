@@ -319,9 +319,8 @@
             (clickOutside)="column['typeListFl'] = false;">
           <div class="ddp-wrap-type-option">
             <!-- select -->
-            <div #logicalType
+            <div #logicalType class="ddp-ui-selected-option"
                  [class.ddp-selected]="column['typeListFl']"
-                 [ngClass]="['ddp-ui-selected-option']"
                  (click)="onShowLogicalTypeList(column, logicalType, logicalTypeList)">
                 <span class="ddp-link-text ddp-txt-icon">
                   <em [ngClass]="[getFieldTypeIconClass(column.type)]"></em>
@@ -332,7 +331,7 @@
                   </span>
                 </span>
               <!--suppress JSUnusedGlobalSymbols -->
-              <div class="ddp-wrap-popup2 ddp-scroll-none" [ngClass]="['ddp-types']"
+              <div class="ddp-wrap-popup2 ddp-types ddp-scroll-none"
                    #logicalTypeList>
                 <ul class="ddp-list-popup">
                   <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.STRING)">
@@ -396,28 +395,27 @@
               <!-- //popup -->
             </div>
             <!-- //select -->
-            <div class="ddp-ui-info"
-                 [hidden]="isTypeIsTimestamp(column) === false"
-                 [class.ddp-selected]="column.format?.isShowTimestampValidPopup">
-              <!-- TODO 추후 데이터소스 연결시 error2에 있는 hasMetadataColumnInDatasource container와 template 제거 -->
-              <ng-container *ngIf="hasMetadataColumnInDatasource(); else none">
-                <em [class.ddp-icon-sinfo2]="isValidInformationIcon(column)"
-                    [class.ddp-icon-error2]="isInvalidInformationIcon(column)"
-                    [ngClass]="[TIMESTAMP_VALID_PUPOP_ELEMENT]"
-                    (click)="onClickInfoIcon(column, index)">
-                </em>
-              </ng-container>
-              <ng-template #none>
-                <em class="ddp-icon-sinfo2"
-                    [ngClass]="[TIMESTAMP_VALID_PUPOP_ELEMENT]"
-                    (click)="onClickInfoIcon(column, index)">
-                </em>
-              </ng-template>
-
-            </div>
+          </div>
+          <div class="ddp-ui-info"
+               [hidden]="isShowInformationIcon(column) === false"
+               [class.ddp-selected]="column.format?.isShowTimestampValidPopup">
+            <!-- TODO 추후 데이터소스 연결시 error2에 있는 hasMetadataColumnInDatasource container와 template 제거 -->
+            <ng-container *ngIf="hasMetadataColumnInDatasource(); else none">
+              <em [class.ddp-icon-sinfo2]="isValidInformationIcon(column)"
+                  [class.ddp-icon-error2]="isInvalidInformationIcon(column)"
+                  [ngClass]="[TIMESTAMP_VALID_PUPOP_ELEMENT]"
+                  (click)="onClickInfoIcon(column, index)">
+              </em>
+            </ng-container>
+            <ng-template #none>
+              <em class="ddp-icon-sinfo2"
+                  [ngClass]="[TIMESTAMP_VALID_PUPOP_ELEMENT]"
+                  (click)="onClickInfoIcon(column, index)">
+              </em>
+            </ng-template>
             <!-- format layer -->
             <datetime-valid-popup
-              [hidden]="isTypeIsTimestamp(column) === false"
+              [hidden]="isShowInformationIcon(column) === false"
               [fieldFormat]="column?.format"
               [fieldDataList]="fieldDataList"
               [fieldName]="column.physicalName"

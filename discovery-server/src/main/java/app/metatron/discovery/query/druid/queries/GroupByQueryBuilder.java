@@ -299,8 +299,8 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
             }
 
             LayerView layerView = mapViewLayer.getView();
-            if (layerView instanceof LayerView.ClusteringLayerView) {
-              LayerView.ClusteringLayerView clusteringLayerView = (LayerView.ClusteringLayerView) layerView;
+            if (layerView instanceof LayerView.ClusteringLayerView || layerView instanceof LayerView.AbbreviatedView) {
+              LayerView.HashLayerView clusteringLayerView = (LayerView.HashLayerView) layerView;
 
               virtualColumns.put(VC_COLUMN_GEO_COORD, new ExprVirtualColumn(clusteringLayerView.toHashExpression(engineColumnName), VC_COLUMN_GEO_COORD));
               dimensions.add(new DefaultDimension(VC_COLUMN_GEO_COORD));

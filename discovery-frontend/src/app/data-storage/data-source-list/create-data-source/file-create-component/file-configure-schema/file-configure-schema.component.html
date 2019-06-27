@@ -3,7 +3,7 @@
   ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
   ~
-  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~      http://www.apache.org/licenses/LICENSE-2.0C
   ~
   ~ Unless required by applicable law or agreed to in writing, software
   ~ distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,21 +16,18 @@
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- //닫기 버튼 -->
   <div class="ddp-icon-name">
-    <div class="ddp-ui-name2 ddp-type3">
-      {{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.ui.dsource.create.file.title' | translate}})
+    <div class="ddp-ui-name2 ddp-type3">{{getTitle}}
       <span class="ddp-txt-info ddp-type">{{'msg.storage.ui.configure.schema' | translate}}</span>
       <em class="ddp-bg-order-line5-type3"></em>
     </div>
   </div>
   <!-- contents in  -->
-  <schema-config-component [sourceData]="sourceData"
-                           (changedStep)="onChangedStep($event)">
-  </schema-config-component>
+  <schema-configure-main [connType]="sourceData.connType"></schema-configure-main>
   <!-- //contents in  -->
   <!-- buttons -->
   <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="onClickPageChange('prev')">{{'msg.comm.btn.previous' | translate}}</a>
-    <a href="javascript:" class="ddp-btn-type-popup  ddp-bg-black" (click)="onClickPageChange('next')">{{'msg.comm.btn.next' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup"  (click)="onClickPrev()">{{'msg.comm.btn.previous' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup  ddp-bg-black" (click)="onClickNext()">{{'msg.comm.btn.next' | translate}}</a>
   </div>
   <!-- //buttons -->
 </div>

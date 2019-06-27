@@ -32,6 +32,7 @@ import {Alert} from "../../../../common/util/alert.util";
 import {ShelveFieldType} from "../../../../common/component/chart/option/define/common";
 import {Field as AbstractField, Field} from "../../../../domain/workbook/configurations/field/field";
 import {ChartUtil} from "../../../../common/component/chart/option/util/chart-util";
+import {isNullOrUndefined} from "util";
 
 @Component({
   selector: 'map-spatial',
@@ -170,14 +171,24 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       this.shelf.layers.forEach(layer => {
         if (!_.isUndefined(layer.fields) && layer.fields.length > 0 && shelfIndex < 2) {
           layer.fields.forEach(field => {
-            if (!_.isUndefined(field) && !_.isUndefined(field.field) && !_.isUndefined(field.field.logicalType)
-              && (field.field.logicalType === LogicalType.GEO_POINT || field.field.logicalType === LogicalType.GEO_POLYGON || field.field.logicalType === LogicalType.GEO_LINE)) {
-              if (!_.isUndefined(this.uiOption) && !_.isUndefined(this.uiOption.layers)
-                && this.uiOption.layers.length > 0 && !_.isUndefined(this.uiOption.layers[shelfIndex].name)) {
+            if (!_.isUndefined(field)
+              && !_.isUndefined(field.field)
+              && !_.isUndefined(field.field.logicalType)
+              && (field.field.logicalType === LogicalType.GEO_POINT
+                || field.field.logicalType === LogicalType.GEO_POLYGON
+                || field.field.logicalType === LogicalType.GEO_LINE)) {
+              if (!_.isUndefined(this.uiOption)
+                && !_.isUndefined(this.uiOption.layers)
+                && this.uiOption.layers.length > 0
+                && !_.isUndefined(this.uiOption.layers[shelfIndex].name)) {
                 this.baseList.layers.push(this.uiOption.layers[shelfIndex].name);
-                if (!isChanged) {
-                  this.baseList['selectedNum'] = shelfIndex;
-                  isChanged = true;
+                if (!isNullOrUndefined(this.uiOption) && !isNullOrUndefined(this.uiOption.analysis) && !isNullOrUndefined(this.uiOption.analysis.selectedLayerNum)) {
+                  this.baseList['selectedNum'] = this.uiOption.analysis.selectedLayerNum;
+                } else {
+                  if (!isChanged) {
+                    this.baseList['selectedNum'] = shelfIndex;
+                    isChanged = true;
+                  }
                 }
               }
             }
@@ -255,6 +266,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       return layer != value;
     });
     this.compareIndex = 0;
+    this.setMeasureList();
     this.changeDetect.detectChanges();
   }
 
@@ -333,7 +345,8 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
   public spatialAnalysisBtn() {
 
     // 공간연산 실행 체크 (Validation)
-    if (!_.isUndefined(this.uiOption['analysis']) && this.uiOption['analysis']['use'] == true) {
+    if (!_.isUndefined(this.uiOption['analysis']) && this.uiOption['analysis']['use'] == true
+      && (isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) || (!isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) && this.uiOption.analysis['isReAnalysis'] == false))) {
       // Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.already'));
       return;
     }
@@ -384,7 +397,20 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
         return;
     }
 
-    this.changeAnalysis.emit(mapUIOption);
+
+    let value = {
+      action: 'analysis',
+      uiOption: mapUIOption
+    };
+
+    if (!isNullOrUndefined(this.uiOption.analysis['isReAnalysis'])
+      && this.uiOption.analysis['isReAnalysis'] == true
+      && this.uiOption.layers.length >= 3) {
+      value.action = 'reAnalysis';
+    }
+    delete this.uiOption.analysis['isReAnalysis'];
+
+    this.changeAnalysis.emit(value);
   }
 
   /**
@@ -455,8 +481,11 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       unitInputData = unitInputData * 1000;
     }
 
+    let tempReAnalysis = !isNullOrUndefined(this.uiOption.analysis) && !isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) ? this.uiOption.analysis['isReAnalysis'] : false;
+
     mapUIOption.analysis = {
       use: true,
+      isReAnalysis: tempReAnalysis,
       type: 'geo',
       // data를 위한 layer
       layerNum: 0,
@@ -490,8 +519,11 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       bufferDataValue = bufferDataValue * 1000;
     }
 
+    let tempReAnalysis = !isNullOrUndefined(this.uiOption.analysis) && !isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) ? this.uiOption.analysis['isReAnalysis'] : false;
+
     mapUIOption.analysis = {
       use: true,
+      isReAnalysis: tempReAnalysis,
       type: 'geo',
       // data를 위한 layer
       layerNum: 0,
@@ -535,8 +567,12 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
    * symmetrical set data
    */
   private symmetricalSetData(baseData: string, compareData: string, spatialDataValue: string, mapUIOption: UIMapOption): UIMapOption {
+
+    let tempReAnalysis = !isNullOrUndefined(this.uiOption.analysis) && !isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) ? this.uiOption.analysis['isReAnalysis'] : false;
+
     mapUIOption.analysis = {
       use: true,
+      isReAnalysis: tempReAnalysis,
       type: 'geo',
       layerNum: this.baseIndex,
       mainLayer: baseData,
@@ -591,9 +627,13 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
         'measureList': measureList,
         'dimensionList': dimensionList
       };
-      if (measureList.length > 0)
+      if (measureList.length > 0) {
         this.fieldList = tempObj;
+      }
 
+      if (isNullOrUndefined(this.fieldList['measureList'][this.colorByIndex])) {
+        this.colorByIndex = 0;
+      }
     }
   }
 
@@ -602,8 +642,8 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
    */
   private doEnableAnalysisBtn() {
     if(!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] == true) {
-      setTimeout(() => this.changeAnalysis.emit('removeAnalysisLayerEvent'), 1000);
-
+      this.uiOption.analysis['isReAnalysis'] = true;
+      // setTimeout(() => this.changeAnalysis.emit('removeAnalysisLayerEvent'), 1000);
     }
   }
 

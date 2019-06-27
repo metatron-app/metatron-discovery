@@ -24,7 +24,7 @@ import {
   ViewChild
 } from '@angular/core';
 import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
-import {DatasourceInfo, Field} from '../../../../../domain/datasource/datasource';
+import {DatasourceInfo, Field, FieldRole} from '../../../../../domain/datasource/datasource';
 import {Alert} from '../../../../../common/util/alert.util';
 import {DatasourceService} from '../../../../../datasource/service/datasource.service';
 import {header, SlickGridHeader} from '../../../../../common/component/grid/grid.header';
@@ -39,6 +39,13 @@ import {
   FileResult,
   Sheet
 } from "../../../../service/data-source-create.service";
+import {Modal} from "../../../../../common/domain/modal";
+import {ConfirmModalComponent} from "../../../../../common/component/modal/confirm/confirm.component";
+import {
+  Granularity,
+  GranularityObject,
+  GranularityService
+} from "../../../../service/granularity.service";
 
 @Component({
   selector: 'file-preview',
@@ -56,6 +63,9 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
   @ViewChild(GridComponent)
   private readonly gridComponent: GridComponent;
 
+  @ViewChild(ConfirmModalComponent)
+  private confirmModal: ConfirmModalComponent;
+
   // file results
   public fileResult: FileResult;
 
@@ -67,6 +77,9 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
 
   @Output()
   public readonly stepChange: EventEmitter<string> = new EventEmitter();
+
+  @Output()
+  public readonly onComplete: EventEmitter<any> = new EventEmitter();
 
   // 그리드 row
   public rowNum: number;
@@ -91,9 +104,15 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
   public isValidDelimiter: boolean;
   public isValidSeparator: boolean;
 
+  public ingestionStatus: string;
+  public ingestionPopup: boolean = false;
+  public patches = [];
+  public dataList = [];
+
   // 생성자
   constructor(private datasourceService: DatasourceService,
               private _dataSourceCreateService: DataSourceCreateService,
+              private _granularityService: GranularityService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -144,11 +163,53 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
         this._deleteSchemaData();
         // 기존 파일 데이터 삭제후 생성
         this._deleteAndSaveFileData();
-        // 다음페이지로 이동
-        this.step = 'file-configure-schema';
-        this.stepChange.emit(this.step);
+
+        if(this.ingestionStatus === 'append' || this.ingestionStatus === 'newcolumn') {
+          this.ingestionPopup = true;
+        } else {
+          this._nextStep();
+        }
       }
     }
+  }
+
+  /**
+   * 재적재 팝업 취소
+   */
+  public ingestionPopupCancel(): void {
+    this._nextStep();
+  }
+
+  /**
+   * 재적재 팝업 확인
+   */
+  public ingestionPopupConfirm(): void {
+    this.ingestionPopup = false;
+    // loading show
+    this.loadingShow();
+    // create datasource
+    this.datasourceService.appendDatasource(this.sourceData.datasourceId, this._getIngestionParams())
+      .then((result) => {
+        // @TODO 리소스 번들 처리
+        Alert.success(`'${this.sourceData.completeData.sourceName.trim()}' ` + this.translateService.instant('msg.storage.alert.source.reingestion.success'));
+        this.loadingHide();
+        this.close();
+        this.onComplete.emit();
+      })
+      .catch((error) => {
+        // loading hide
+        this.loadingHide();
+        // modal
+        const modal: Modal = new Modal();
+        // show cancel disable
+        modal.isShowCancel = false;
+        // title
+        modal.name = this.translateService.instant('msg.storage.ui.dsource.reingestion.fail.title');
+        // desc
+        modal.description = this.translateService.instant('msg.storage.ui.dsource.reingestion.fail.description');
+        // show error modal
+        this.confirmModal.init(modal);
+      });
   }
 
   /**
@@ -178,7 +239,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
    * @returns {boolean}
    */
   public isCsvFile(): boolean {
-    return !this.fileResult.sheets;
+    return _.isNil(this.fileResult.sheets);
   }
 
   /**
@@ -186,7 +247,16 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
    * @return {boolean}
    */
   public isExcelFile(): boolean {
-    return _.isNil(this.fileResult.sheets);
+    return !_.isNil(this.fileResult.sheets);
+  }
+
+  /**
+   * Get file format
+   * @returns {string}
+   * @private
+   */
+  private _getFileFormat(): string {
+    return this.isExcelFile() ? 'excel' : 'csv';
   }
 
   /**
@@ -258,6 +328,32 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
     this._setFileDetail(true);
   }
 
+  /**
+   * Get title
+   * @returns {string}
+   */
+  public get getTitle(): string {
+    if (this.sourceData.datasourceId) {
+      return this.translateService.instant('msg.storage.ui.dsource.reingestion.title') + ' (' + this.translateService.instant('msg.storage.ui.dsource.create.file.title') + ')';
+    } else {
+      return this.translateService.instant('msg.storage.ui.dsource.create.title') + ' (' + this.translateService.instant('msg.storage.ui.dsource.create.file.title') + ')';
+    }
+  }
+
+  public get getReingestionStatusMsg() {
+    return this._dataSourceCreateService.getFileErrorMessage(this.ingestionStatus);
+  }
+
+  /**
+   * 스키마 설정 화면으로 이동
+   * @private
+   */
+  private _nextStep(): void {
+    this.ingestionPopup = false;
+    // 다음페이지로 이동
+    this.step = 'file-configure-schema';
+    this.stepChange.emit(this.step);
+  }
 
   /**
    * 데이터가 변경이 일어나고 스키마데이터가 있다면 스키마데이터 삭제
@@ -422,7 +518,8 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
       // 파일의 구분자가 변경된 경우 (csv)
       if ((this.sourceData.fileData.fileResult.fileKey !== this.fileResult.fileKey)
         || this.sourceData.fileData.isFirstHeaderRow !== this.isFirstHeaderRow
-        || (this.isExcelFile() && (this.sourceData.fileData.fileResult.selectedSheet.sheetName !== this.fileResult.selectedSheet.sheetName))
+        || (this.isExcelFile() && (this.sourceData.fileData.fileResult.selectedSheet && this.fileResult.selectedSheet.sheetName)
+            && (this.sourceData.fileData.fileResult.selectedSheet.sheetName !== this.fileResult.selectedSheet.sheetName))
         || (!this.isExcelFile() && (this.sourceData.fileData.separator !== this.separator || this.sourceData.fileData.delimiter !== this.delimiter))) {
         return true;
       }
@@ -478,6 +575,10 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
             this.isValidDelimiter = true;
             this.isValidSeparator = true;
           }
+
+          // 재적재 상태체크
+          this._checkReingestionStatus();
+
         } else if (result.isParsable) { // if result is not parsable
           // set error message
           this.selectedFileDetailData.errorMessage = this._dataSourceCreateService.getFileErrorMessage(result.isParsable.warning);
@@ -535,6 +636,99 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
     this.isValidSeparator = fileData.isValidSeparator;
     // grid 출력
     this._updateGrid(this.selectedFileDetailData.data, this.selectedFileDetailData.fields);
+
+    // 재적재 상태체크
+    this._checkReingestionStatus();
+  }
+
+  /**
+   * check reingestion status
+   * @private
+   */
+  private _checkReingestionStatus(): void {
+    if(this.sourceData.datasourceId) {
+      this.ingestionStatus = 'overwrite';
+
+      let biggerFieldList = this.selectedFileDetailData.fields;
+      let smallFieldList = this.sourceData.datasource.fields;
+
+      if(biggerFieldList.length < smallFieldList.length) {
+        return;
+      }
+
+      this.patches = [];
+
+      let fieldCount: number = 0;
+      let seq: number = smallFieldList.length -1;
+      for (let biggerField of biggerFieldList) {
+        let matched : boolean = false;
+        for (let smallField of smallFieldList) {
+            if(smallField.name === biggerField.name) {
+              fieldCount++;
+              matched = true;
+              break;
+            }
+        }
+        if(!matched) {
+          const patch = {
+            op: 'add',
+            name: biggerField.name,
+            logicalName: biggerField.name,
+            type: 'STRING',
+            logicalType: 'STRING',
+            role: 'DIMENSION',
+            aggrType: 'NONE',
+            seq: seq++
+          };
+          this.patches.push(patch);
+        }
+      }
+
+      const timestampField = this.sourceData.datasource.fields.find(field => field.role == FieldRole.TIMESTAMP);
+      if (!_.isNil(timestampField)) {
+        for(let data of this.selectedFileDetailData.data) {
+          this.dataList.push(data[timestampField.name]);
+        }
+      }
+
+      if(fieldCount === smallFieldList.length) {
+        if(fieldCount === biggerFieldList.length){
+          this.ingestionStatus = 'append';
+        } else {
+          this.ingestionStatus = 'newcolumn';
+        }
+      }
+
+    }
+  }
+
+  /**
+   * Get ingestion parameter
+   * @returns {Object}
+   * @private
+   */
+  private _getIngestionParams(): object {
+    const timestampField = this.sourceData.datasource.fields.find(field => field.role == FieldRole.TIMESTAMP);
+    const granularity: GranularityObject = this._granularityService.granularityList.find(granularityObject => granularityObject.value == Granularity[this.sourceData.datasource.segGranularity.toString()]);
+
+    // ingestion param
+    const ingestion = {
+      type: 'local',
+      format: this._dataSourceCreateService.getFileFormatParams(this._getFileFormat(), this.sourceData.fileData),
+      removeFirstRow: this.isFirstHeaderRow,
+      path: this.sourceData.fileData.fileResult.filePath,
+      uploadFileName: this.sourceData.fileData.fileResult.fileName
+    };
+    if (!_.isNil(timestampField)) {
+      const info = this._granularityService.getInitializedInterval(this.dataList.sort(), timestampField.format.format, granularity, timestampField.format.type, timestampField.format.unit);
+      ingestion['intervals'] = [this._granularityService.getIntervalUsedParam(info.startInterval, granularity) + '/' + this._granularityService.getIntervalUsedParam(info.endInterval, granularity)];
+    }
+
+    const param = {
+      ingestionInfo: ingestion,
+      patches: this.patches
+    };
+    return param;
   }
 
 }

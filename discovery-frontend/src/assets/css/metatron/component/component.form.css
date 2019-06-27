@@ -166,6 +166,11 @@
 
 .ddp-wrap-edit3 .ddp-ui-edit-option.ddp-type .ddp-type-multy {margin-bottom:-20px; }
 .ddp-wrap-edit3 .ddp-ui-edit-option.ddp-type .ddp-type-multy [class*="ddp-col-"] {position:relative; padding-bottom:20px;}
+.ddp-wrap-edit3 .ddp-ui-edit-option .ddp-type-form {position:relative;}
+.ddp-wrap-edit3 .ddp-ui-edit-option .ddp-type-form.ddp-disabled {cursor:no-drop;}
+.ddp-wrap-edit3 .ddp-ui-edit-option .ddp-type-form.ddp-disabled:before {display:inline-block; position:absolute; top:0; left:0; right:0; bottom:0; content:''; background-color:rgba(255,255,255,0.3); z-index:1; }
+.ddp-wrap-edit3 .ddp-ui-edit-option .ddp-type-form  .ddp-type-selectbox.ddp-flow {float:left;}
+.ddp-wrap-edit3 .ddp-ui-edit-option .ddp-type-form .ddp-btn-pop {float:left; margin-left:4px;}
 .ddp-wrap-edit3.ddp-type .ddp-type-multy .ddp-type-selectbox {width:100%;}
 .ddp-wrap-edit3.ddp-type .ddp-type-multy {margin:0 -3px;}
 .ddp-wrap-edit3.ddp-type .ddp-type-multy [class*="ddp-col-"] {position:relative; padding:0 3px;}

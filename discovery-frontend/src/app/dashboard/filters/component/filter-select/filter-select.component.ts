@@ -15,7 +15,11 @@
 import { Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { AbstractComponent } from '../../../../common/component/abstract.component';
 import { Alert } from '../../../../common/util/alert.util';
-import { Candidate } from '../../../../domain/workbook/configurations/filter/inclusion-filter';
+import {Candidate, InclusionFilter} from '../../../../domain/workbook/configurations/filter/inclusion-filter';
+import {isNullOrUndefined} from "util";
+import {FilterUtil} from "../../../util/filter.util";
+import {DatasourceService} from "../../../../datasource/service/datasource.service";
+import {Dashboard} from "../../../../domain/dashboard/dashboard";
 
 @Component({
   selector: 'component-filter-select',
@@ -84,6 +88,12 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
   @Input('mockup')
   public isMockup?: boolean = false;
 
+  @Input('filter')
+  public filter: InclusionFilter;
+
+  @Input('dashboard')
+  public dashboard: Dashboard;
+
   // 단일 데이터 선택 이벤트
   @Output() public onSelected = new EventEmitter();
 
@@ -104,13 +114,15 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
   public defaultIndex = -1;
   // 페이지 번호
   public pageNum: number = 0;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
   constructor(protected elementRef: ElementRef,
-              protected injector: Injector) {
+              protected injector: Injector,
+              protected datasourceService: DatasourceService) {
 
     super(elementRef, injector);
   }
@@ -202,6 +214,10 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
 
   } // function toggleSelectList
 
+  public setViewListPosition() {
+    this._setViewListPosition();
+  }
+
   /**
    * 값 초기화
    * @param {any} valueList
@@ -229,6 +245,32 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
   public onScroll() {
     this.onLoadPage.emit(this.pageNum++);
   } // function - onScroll
+
+
+  public candidateFromSearchText() {
+    this.loadingShow();
+    this.datasourceService.getCandidateForFilter(
+      this.filter, this.dashboard, [], null, null, this.searchText).then((resultCandidates) => {
+      if(resultCandidates && resultCandidates.length > 0) {
+        resultCandidates.forEach((resultCandidate) => {
+          if(this.existCandidate(resultCandidate.field) === false) {
+            let candidate = new Candidate();
+            candidate.count = resultCandidate.count;
+            candidate.name = resultCandidate.field;
+            candidate.isTemporary = true;
+
+            this.array.push(candidate);
+          }
+        });
+
+        this.safelyDetectChanges();
+      }
+
+      this.loadingHide();
+    }).catch((error) => {
+      this.commonExceptionHandler(error);
+    });
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -251,5 +293,14 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
       });
     }
   }// function _setViewListPosition
+
+  private existCandidate(name : string) : boolean {
+    const filteredCandidates = this.array.filter(candidate => candidate.name === name);
+    if(filteredCandidates != null && filteredCandidates.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
 }

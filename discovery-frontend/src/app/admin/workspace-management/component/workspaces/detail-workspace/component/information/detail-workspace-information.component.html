@@ -67,9 +67,9 @@
             {{'msg.space.ui.owner' | translate}}
           </div>
 
-          <span class="ddp-data-name ddp-hover">{{ getUserFullName(owner) ? getUserFullName(owner) : UNKNOWN_USER }}
+          <span class="ddp-data-name ddp-hover">{{owner?.fullName}}
             <user-information [name]="getUserFullName(owner)"
-                              [id]="owner?.fullName === '__UNKNOWN_USER' ? '' : owner?.username"
+                              [id]="owner?.username"
                               [email]="owner?.email">
             </user-information>
           </span>

@@ -206,6 +206,10 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
     this.mapSpatialComponent.mapSpatialChanges(uiOption, shelf);
   }
 
+  public mapSpatialAnalysisBtn() {
+    this.mapSpatialComponent.spatialAnalysisBtn();
+  }
+
   // ------------------------------------
   // @Output
   // ------------------------------------

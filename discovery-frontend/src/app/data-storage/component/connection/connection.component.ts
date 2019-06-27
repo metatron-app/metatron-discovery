@@ -116,9 +116,9 @@ export class ConnectionComponent extends AbstractComponent {
 
   /**
    * Init
-   * @param {Dataconnection} connection
+   * @param {Dataconnection | ConnectionParam} connection
    */
-  public init(connection?: Dataconnection): void {
+  public init(connection?: Dataconnection | ConnectionParam): void {
     this._connectionInputInitialize();
     this.inputErrorInitialize();
     this.connectionValidInitialize();

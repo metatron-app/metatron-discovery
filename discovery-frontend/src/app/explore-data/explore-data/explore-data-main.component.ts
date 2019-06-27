@@ -17,7 +17,7 @@ import {AbstractComponent} from '../../common/component/abstract.component';
 import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
 import * as _ from "lodash";
 import {StringUtil} from "../../common/util/string.util";
-import {Metadata} from "../../domain/meta-data-management/metadata";
+import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
 
 @Component({
   selector: 'explore-data-main',
@@ -26,7 +26,7 @@ import {Metadata} from "../../domain/meta-data-management/metadata";
 export class ExploreDataMainComponent extends AbstractComponent {
 
   popularMetadataList: Metadata[];
-  updatedMetadataList: Metadata[];
+  recommendedMetadataList: Metadata[];
   favoriteMetadataList: Metadata[];
   favoriteCreatorMetadataList: Metadata[];
 
@@ -48,7 +48,19 @@ export class ExploreDataMainComponent extends AbstractComponent {
   // Init
   ngOnInit() {
     super.ngOnInit();
-    this._setMetadataList();
+    const init = async () => {
+      this.loadingShow();
+      await this._setPopularMetadataList();
+      await this._setRecommendedMetadataList();
+      await this._setMyFavoriteMetadataList();
+      await this._setCreatorFavoriteMetadataList();
+      this.loadingHide();
+    };
+    init().catch(error => this.commonExceptionHandler(error));
+  }
+
+  isEmptyRecommendedMetadataList() {
+    return _.isNil(this.recommendedMetadataList);
   }
 
   isEnableTag(metadata: Metadata): boolean {
@@ -59,22 +71,63 @@ export class ExploreDataMainComponent extends AbstractComponent {
     return StringUtil.isNotEmpty(metadata.description);
   }
 
-  private _setMetadataList() {
-    this.loadingShow();
-    const params = {
-      page: this.page.page,
-      size: this.page.size,
-    };
-    this._metadataService.getMetaDataList(params)
-      .then((result) => {
-        // TODO set metadata list
-        this.popularMetadataList = result._embedded.metadatas;
-        this.loadingHide();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+  getMetadataIcon(metadata: Metadata): string {
+    switch (metadata.sourceType) {
+      case SourceType.ENGINE:
+        return 'ddp-icon-datasource';
+      case SourceType.JDBC:
+        return 'ddp-icon-database';
+      case SourceType.STAGEDB:
+        return 'ddp-icon-stagingdb';
+      default:
+        return '';
+    }
+  }
+
+  getMetadataImage(metadata: Metadata): string {
+    switch (metadata.sourceType) {
+      case SourceType.ENGINE:
+        return 'ddp-data-images type-datasource';
+      case SourceType.JDBC:
+        return 'ddp-data-images type-database';
+      case SourceType.STAGEDB:
+        return 'ddp-data-images type-stagingdb';
+      default:
+        return 'ddp-data-images type-database';
+    }
   }
 
   onClickMetadata(metadata: Metadata) {
     return this.clickedMetadata.emit(metadata);
   }
+
+  private async _setPopularMetadataList() {
+    const result = await this._metadataService.getMetadataListByPopularity({size: 10, page: 0});
+    if (!_.isNil(result._embedded)) {
+      this.popularMetadataList = result._embedded.metadatas;
+    }
+  }
+
+  private async _setMyFavoriteMetadataList() {
+    const result = await this._metadataService.getMetadataListByMyFavorite({size: 10, page: 0, projection: 'forListView'});
+    if (!_.isNil(result._embedded)) {
+      this.favoriteMetadataList = result._embedded.metadatas;
+    }
+  }
+
+  private async _setCreatorFavoriteMetadataList() {
+    const result = await this._metadataService.getMetadataListByCreatorFavorite({size: 10, page: 0, projection: 'forListView'});
+    if (!_.isNil(result._embedded)) {
+      this.favoriteCreatorMetadataList = result._embedded.metadatas;
+    }
+  }
+
+  private async _setRecommendedMetadataList() {
+    const result = await this._metadataService.getMetadataListByRecommended({size: 10, page: 0, projection: 'forListView'});
+    if (!_.isNil(result._embedded)) {
+      this.recommendedMetadataList = result._embedded.metadatas;
+    }
+  }
+
+
 }

@@ -105,6 +105,28 @@ public interface LayerView extends Serializable {
       return builder.toString();
     }
 
+    @JsonIgnore
+    public List<Aggregation> getClusteringAggregations(String fieldName) {
+      List<String> pointKeyList = LogicalType.GEO_POINT.getGeoPointKeys();
+
+      List<Aggregation> aggregations = Lists.newArrayList();
+      aggregations.add(new GenericSumAggregation("SUM_LAT", null, fieldName + "." + pointKeyList.get(0), "double"));
+      aggregations.add(new GenericSumAggregation("SUM_LON", null, fieldName + "." + pointKeyList.get(1), "double"));
+      aggregations.add(new CountAggregation("count"));
+
+      return aggregations;
+
+    }
+
+    @JsonIgnore
+    public List<PostAggregation> getClusteringPostAggregations(String geoName) {
+
+      String expr = geoName + " = concat(\'POINT(\', SUM_LON/count, \' \' , SUM_LAT/count, \')\')";
+
+      return Lists.newArrayList(new ExprPostAggregator(expr));
+
+    }
+
     @Override
     public boolean needAggregation() {
       return true;
@@ -120,7 +142,7 @@ public interface LayerView extends Serializable {
   }
 
 
-  class AbbreviatedView extends ClusteringLayerView implements LayerView {
+  class AbbreviatedView extends HashLayerView implements LayerView {
 
     RelayAggregation.Relaytype relayType;
 
@@ -148,28 +170,6 @@ public interface LayerView extends Serializable {
     public ClusteringLayerView(@JsonProperty("method") String method,
                                @JsonProperty("precision") Integer precision) {
       super(method, precision);
-    }
-
-    @JsonIgnore
-    public List<Aggregation> getClusteringAggregations(String fieldName) {
-      List<String> pointKeyList = LogicalType.GEO_POINT.getGeoPointKeys();
-
-      List<Aggregation> aggregations = Lists.newArrayList();
-      aggregations.add(new GenericSumAggregation("SUM_LAT", null, fieldName + "." + pointKeyList.get(0), "double"));
-      aggregations.add(new GenericSumAggregation("SUM_LON", null, fieldName + "." + pointKeyList.get(1), "double"));
-      aggregations.add(new CountAggregation("count"));
-
-      return aggregations;
-
-    }
-
-    @JsonIgnore
-    public List<PostAggregation> getClusteringPostAggregations(String geoName) {
-
-      String expr = geoName + " = concat(\'POINT(\', SUM_LON/count, \' \' , SUM_LAT/count, \')\')";
-
-      return Lists.newArrayList(new ExprPostAggregator(expr));
-
     }
 
   }

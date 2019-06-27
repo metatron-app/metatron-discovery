@@ -94,7 +94,7 @@ public class IngestionJobRunner {
   @Autowired
   private EngineProperties engineProperties;
 
-  @Autowired
+  @Autowired(required = false)
   private StorageProperties storageProperties;
 
   @Autowired

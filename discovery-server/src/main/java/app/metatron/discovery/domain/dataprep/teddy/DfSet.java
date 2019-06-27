@@ -16,20 +16,18 @@ package app.metatron.discovery.domain.dataprep.teddy;
 
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongTargetColumnExpressionException;
-import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.Set;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DfSet extends DataFrame {
   private static Logger LOGGER = LoggerFactory.getLogger(DfSet.class);
@@ -81,33 +79,8 @@ public class DfSet extends DataFrame {
       throw new WrongTargetColumnExpressionException("doSet(): wrong target column expression: " + targetColExpr.toString());
     }
 
-    // add columns
     for (int colno = 0; colno < prevDf.getColCnt(); colno++) {
-      // 변경이 가해진 column은 type이 바뀔 수 있다는 가정 (맞는지는 모르겠으나, backward-compatability를 위해 그렇게 함) --> FIXME: 이제 mismatch가 생겼기 때문에 값에 의해 타입이 바뀌는 일은 없어져야 함
-      if (targetColnos.contains(colno)) {
-        ColumnType columnType = prevDf.decideType(replacedColExprs.get(colno)) == ColumnType.UNKNOWN ? prevDf.getColType(colno) : prevDf.decideType(replacedColExprs.get(colno));
-        String timestampStyle = null;
-
-        //If columnType is timestamp, then set timestamp style.
-        //If there is only one column name in rule-String, then use that columns timestamp style.
-        //Else, use object column's timestamp style.
-        if(columnType == ColumnType.TIMESTAMP){
-          if(prevDf.ruleColumns.size() == 1) {
-            timestampStyle = prevDf.getColTimestampStyleByColName(prevDf.ruleColumns.get(0));
-          } else {
-            timestampStyle = prevDf.getColTimestampStyle(colno);
-          }
-
-          timestampStyle = timestampStyle == null ? TimestampTemplate.DATE_TIME_01.getFormat() : timestampStyle;
-        }
-
-        addColumnWithTimestampStyle(
-                prevDf.getColName(colno),
-                columnType,
-                timestampStyle);
-      } else {
-        addColumn(prevDf.getColName(colno), prevDf.getColDesc(colno));
-      }
+      addColumn(prevDf.getColName(colno), prevDf.getColDesc(colno));
     }
 
     preparedArgs.add(targetColnos);

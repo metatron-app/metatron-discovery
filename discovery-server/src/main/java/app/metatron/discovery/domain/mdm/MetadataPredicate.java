@@ -75,7 +75,7 @@ public class MetadataPredicate {
   }
 
   /**
-   * CodeTable 명 중복 조회 조건
+   * Metadata name duplicate check
    *
    * @param name
    * @return
@@ -86,6 +86,23 @@ public class MetadataPredicate {
     QMetadata qMetadata = QMetadata.metadata;
 
     builder = builder.and(qMetadata.name.eq(name));
+
+    return builder;
+  }
+
+  /**
+   * Metadata names duplicate check
+   *
+   * @param names
+   * @return
+   */
+  public static Predicate searchDuplicatedNames(List<String> names) {
+    BooleanBuilder builder = new BooleanBuilder();
+    QMetadata qMetadata = QMetadata.metadata;
+
+    if(names != null && names.size() > 0){
+      builder = builder.and(qMetadata.name.in(names));
+    }
 
     return builder;
   }

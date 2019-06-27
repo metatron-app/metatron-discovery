@@ -32,7 +32,7 @@
 .popup-prep-create-complete table.ddp-table-sheet tr td:last-of-type {padding-right:20px;}
 
 .popup-prep-create-complete table.ddp-table-sheet tr:nth-child(odd) td{background-color:#fafafa;}
-.popup-prep-create-complete table.ddp-table-sheet tr td textarea {display:block; width:100%; padding:5px 10px; border:1px solid #d0d1d9; box-sizing:border-box;}
+.popup-prep-create-complete table.ddp-table-sheet tr td textarea {display:block; width:100%; padding:5px 10px; height:30px; border:1px solid #d0d1d9; box-sizing:border-box;}
 
 /**************************************************************
   popup :99_데이터프리퍼레이션_02데이터셋_02파일업로드1

@@ -1,0 +1,149 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-wrap-variable ">
+  <div class=" ddp-box-schema ddp-clear">
+    <!--  list  -->
+    <div class="ddp-wrap-fleft">
+      <!-- view table -->
+      <!-- checkbox 클릭시 ddp-selected 추가 -->
+      <div class="ddp-box-viewtable" [class.ddp-selected]="isExistCheckedFieldInFieldList()">
+        <!-- gridhead -->
+        <div class="ddp-ui-gridhead">
+          <table class="ddp-table-form ddp-table-type2">
+            <colgroup>
+              <col width="51px">
+              <col width="*">
+            </colgroup>
+            <thead>
+            <tr>
+              <th class="ddp-txt-center">
+                <div class="ddp-ui-checkbox" (click)="onAllCheckFilteredFieldList()">
+                  <input type="checkbox" [disabled]="isEmptyFilteredFieldList()" [checked]="isAllCheckedFilteredFieldList()">
+                  <i class="ddp-icon-checkbox"></i>
+                </div>
+              </th>
+              <th>
+                {{'msg.storage.th.column' | translate}}
+              </th>
+            </tr>
+            </thead>
+          </table>
+        </div>
+        <!--// gridhead -->
+        <!-- gridbody -->
+        <div class="ddp-ui-gridbody">
+          <table class="ddp-table-form ddp-table-type2 ddp-table-view ddp-inherit">
+            <colgroup>
+              <col width="51px">
+              <col width="*">
+            </colgroup>
+
+            <tbody>
+            <tr *ngFor="let field of filteredFieldList" [class.ddp-selected]="isSelectedField(field)" [class.ddp-disabled]="isRemovedField(field)" (click)="onSelectField(field)">
+              <td class="ddp-txt-center">
+                <div class="ddp-ui-checkbox" (click)="onCheckField(field)" *ngIf="!isRemovedField(field)">
+                  <input type="checkbox" [checked]="isCheckedField(field)" [disabled]="isDisableCheck(field)">
+                  <i class="ddp-icon-checkbox"></i>
+                  <!-- only show derived -->
+                  <div class="ddp-ui-tooltip-info ddp-left2" *ngIf="isCreatedField(field)">
+                    <em class="ddp-icon-view-top"></em>{{'msg.storage.ui.configure.schema.tooltip.derived' | translate}}
+                  </div>
+                  <!-- //only show derived -->
+                </div>
+              </td>
+              <td>
+                <!-- value -->
+                <div class="ddp-wrap-value-icon ddp-type">
+                  <a href="javascript:" class="ddp-btn-revival" (click)="onClickUndoField(field)" *ngIf="isRemovedField(field)">
+                    <em class="ddp-icon-time-s"></em>
+                    {{'msg.storage.ui.revival' | translate}}
+                  </a>
+                  <!-- edit -->
+                  <div class="ddp-txt-edit" [class.ddp-selected]="field.isEdit" *ngIf="!isRemovedField(field)" (clickOutside)="closeEditField(field)">
+                    <a href="javascript:" class="ddp-icon-edit" (click)="onEditField(field, fieldInput)"></a>
+                    <!-- input -->
+                    <div class="ddp-wrap-input type-file" [class.ddp-error]="field.isInvalidName">
+                      <span class="ddp-txt-error"><em class="ddp-icon-error-s"></em>{{field.invalidNameMessage}}</span>
+                      <div class="ddp-wrap-edit-input">
+                        <input type="text" class="ddp-input-edit" placeholder="{{'msg.metadata.ph.dictionary.create.column.name' | translate}}" (keyup.enter)="editField(field)" [(ngModel)]="field.editName" (ngModelChange)="removeNameValidProperty(field)" #fieldInput>
+                      </div>
+                      <span class="ddp-btn-check" (click)="editField(field)"></span>
+                    </div>
+                    <!-- //input -->
+                  </div>
+                  <!-- //edit -->
+                  <em class="ddp-icon-time" *ngIf="isTimestampField(field)"></em>
+                  <em class="ddp-icon-view"></em>
+                </div>
+                <!-- //value -->
+                <div class="ddp-td-schema">
+                  <span class="ddp-box-tag-value" [class.ddp-measure]="isMeasureField(field)" [class.ddp-dimension]="isDimensionField(field)">{{isMeasureField(field) ? ('msg.comm.name.mea' | translate) : ('msg.comm.name.dim' | translate)}}</span>
+                  <div class="ddp-type-icon">
+                    <em class="{{getFieldTypeIcon(field)}}"></em>
+                  </div>
+                  <div class="ddp-form-name">
+                <span class="ddp-data-name" title="{{field.name}}">{{getSlicedColumnName(field)}}
+                  <em class="ddp-icon-error2" *ngIf="isErrorField(field)"></em>
+                </span>
+                  </div>
+
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+
+        </div>
+        <!--// gridbody -->
+        <!-- box action -->
+        <div class="ddp-box-action ddp-type">
+          <span class="ddp-data-selet"><strong>{{checkedFieldList.length}}</strong>{{'msg.storage.ui.sel.count' | translate}}</span>
+          <div class="ddp-type-button">
+            <!-- change type -->
+            <div class="ddp-change-type" [class.ddp-selected]="isOpenedChangeTypePopup()">
+              <a href="javascript:" class="ddp-btn-change" (click)="onOpenChangeTypePopup()">{{'msg.storage.ui.list.type' | translate}}</a>
+              <!-- popup -->
+              <schema-configure-change-type-popup [checkedFieldList]="checkedFieldList" [dataList]="dataList"
+                                                  [selectedTimestampType]="selectedTimestampType" [selectedTimestampField]="selectedTimestampField"
+                                                  (changedFieldListEvent)="initCheckedFieldList()"></schema-configure-change-type-popup>
+              <!-- //popup -->
+            </div>
+            <!-- //change type -->
+            <div class="ddp-delete-type" [class.ddp-selected]="isOpenedDeletePopup()">
+              <a href="javascript:" class="ddp-btn-delete" (click)="onOpenDeletePopup()">{{'msg.storage.ui.list.del' | translate}}</a>
+              <!-- popup -->
+              <schema-configure-delete-popup [checkedFieldList]="checkedFieldList" (removedFieldListEvent)="initCheckedFieldList()"></schema-configure-delete-popup>
+              <!-- //popup -->
+            </div>
+          </div>
+        </div>
+        <!-- //box action -->
+      </div>
+      <!-- //view table -->
+    </div>
+    <!--  //list  -->
+    <!-- detail -->
+    <schema-configure-field-detail
+      [connType]="connType"
+      [selectedField]="selectedField"
+      [dataList]="selectedDataList"
+      [selectedTimestampType]="selectedTimestampType"
+      [selectedTimestampField]="selectedTimestampField"
+      (removedCreatedField)="removedCreatedField($event)"></schema-configure-field-detail>
+    <!-- //detail -->
+  </div>
+</div>
+<!-- timestamp -->
+<schema-configure-timestamp (changedTimestampField)="changedTimestampField($event)" (changedTimestampType)="changedTimestampType($event)"></schema-configure-timestamp>

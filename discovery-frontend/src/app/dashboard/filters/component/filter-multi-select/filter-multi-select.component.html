@@ -14,17 +14,23 @@
 
 <!-- //Drop down -->
 <div class="ddp-list-part ddp-type">
+  <a  (click)="candidateFromSearchText()" class="ddp-btn-line"
+      [ngStyle]="(viewType === 'widget' && '' !== searchText && isShowSelectList) ?  {'display': 'block'} : {'display': 'none'}">
+    {{'msg.comm.ui.search-all' | translate}}
+  </a>
   <!-- selectbox -->
   <!-- 클릭시 ddp-selecte 추가 -->
   <div class="ddp-wrap-drop-search" #ddpOffSet
-       [ngClass]="{'ddp-selected' : isShowSelectList && isShowSelectListForOutSide, 'ddp-offset' : viewType === 'widget'}">
+       [ngClass]="{'ddp-selected' : isShowSelectList && isShowSelectListForOutSide, 'ddp-offset' : viewType === 'widget'}"
+       [ngStyle]="(viewType === 'widget' && '' !== searchText) ? {'overflow': 'hidden'} : {}" (click)="setViewListPosition()">
     <div class="ddp-type-selectbox2"  (click)="toggleSelectList()">
       <span class="ddp-txt-selectbox ddp-result">{{viewText}}</span>
     </div>
 
     <!-- drop search -->
     <div class="ddp-ui-drop-search" [ngClass]="{'ddp-drop' : viewType === 'widget'}">
-      <input type="text" class="ddp-input-search" placeholder="Search" [(ngModel)]="searchText" [disabled]="isMockup" >
+      <input type="text" class="ddp-input-search" placeholder="Search" [(ngModel)]="searchText" [disabled]="isMockup"
+             (keyup)="setViewListPosition()">
       <ul class="ddp-list-selectbox2"
           infinite-scroll
           [scrollWindow]="false"
@@ -49,7 +55,7 @@
                      [disabled]="isMockup" (change)="selected(item, $event)"
                      [checked]="isSelectedItem(item)">
               <i class="ddp-icon-checkbox ddp-dark"></i>
-              <span class="ddp-txt-checkbox">{{item[viewKey]}}</span>
+              <span class="ddp-txt-checkbox" [ngStyle]="item.isTemporary ? {'color': '#9499c2'} : {}">{{item[viewKey]}}</span>
             </label>
           </a>
         </li>

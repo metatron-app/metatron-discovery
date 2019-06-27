@@ -36,6 +36,7 @@ import {ChartType} from '../../common/component/chart/option/define/common';
 import {CommonConstant} from "../../common/constant/common.constant";
 import {ChartUtil} from "../../common/component/chart/option/util/chart-util";
 import {FilterUtil} from "./filter.util";
+import {MapLayerType} from "../../common/component/chart/option/define/map/map-common";
 
 export class DashboardUtil {
 
@@ -225,6 +226,15 @@ export class DashboardUtil {
       for (let filter of configuration.filters) {
         filter = FilterUtil.convertToServerSpecForDashboard(filter);
       }
+    }
+
+    // cluster를 map-option 에서 type으로 분리를 해서 CLUSTER 로 이용하고 api request 할 때는 symbol로 변경
+    if (_.eq(chart.type, ChartType.MAP)) {
+      chart.layers.forEach((layer) => {
+        if (layer.clustering && layer.type == MapLayerType.CLUSTER) {
+          layer.type = MapLayerType.SYMBOL;
+        }
+      });
     }
 
     return configuration;
@@ -664,6 +674,15 @@ export class DashboardUtil {
     board.configuration.filters.push(filter);
     return board;
   } // function - addBoardFilter
+
+  /**
+   * 신규 필터 여부
+   * @param board
+   * @param filter
+   */
+  public static isNewFilter(board: Dashboard, filter: Filter):boolean {
+    return -1 === board.configuration.filters.findIndex(item => item.dataSource === filter.dataSource && item.field === filter.field);
+  } // function - isNewFilter
 
   /**
    * 글로벌 필터 갱신

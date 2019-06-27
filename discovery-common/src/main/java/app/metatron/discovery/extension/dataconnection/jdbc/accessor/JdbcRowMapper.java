@@ -18,9 +18,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
+ * The interface Jdbc row mapper.
  *
+ * @param <T> the type parameter
  */
 @FunctionalInterface
 public interface JdbcRowMapper<T> {
+  /**
+   * Map row t.
+   *
+   * @param rs     the rs
+   * @param rowNum the row num
+   * @return the t
+   * @throws SQLException the sql exception
+   */
   T mapRow(ResultSet rs, int rowNum) throws SQLException;
 }

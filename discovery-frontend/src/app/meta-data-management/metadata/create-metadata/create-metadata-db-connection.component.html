@@ -1,0 +1,70 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-contents ddp-resize2 ddp-type2 popup-datasource">
+  <!-- 닫기 버튼 -->
+  <a href="javascript:" class="ddp-btn-close" (click)="onCancel()"></a>
+  <!-- //닫기 버튼 -->
+  <div class="ddp-icon-name">
+    <div class="ddp-ui-name2 ddp-type3">
+      {{'msg.metadata.ui.create.main.title' | translate}} ({{'msg.storage.li.db' | translate}})
+      <span class="ddp-txt-info" >{{'msg.metadata.ui.create.connection.sub' | translate}}</span>
+      <em class="ddp-bg-order-line3-type"></em>
+    </div>
+  </div>
+  <!-- import -->
+  <div class="ddp-type-contents-in ddp-type ddp-scroll">
+    <!-- dp connection -->
+    <div class="ddp-ui-dbconnect">
+      <div class="ddp-edit-setting ddp-type">
+        <!-- preset box -->
+        <div class="ddp-wrap-edit3 ddp-type">
+          <label class="ddp-label-type ddp-bold ">{{'msg.storage.ui.db.connection' | translate}}</label>
+          <!-- edit option -->
+          <div class="ddp-ui-edit-option ">
+            <div class="ddp-type-form ddp-clear">
+              <connection-select-box
+                [connectionList]="connectionPresetList"
+                [selectedConnection]="selectedConnectionPreset"
+                [isEnableWindowResizeAutoClose]="true"
+                [isDisableSelect]="isEmptyConnectionPresetList()"
+                [pageNum]="pageResult.number"
+                (changedConnection)="onSelectedConnectionPreset($event)"
+                (scrolledList)="setConnectionPresetList($event)">
+              </connection-select-box>
+              <a href="javascript:" class="ddp-btn-pop ddp-bg-black2" (click)="goToCreateConnection()" *ngIf="isEmptyConnectionPresetList()"> {{'msg.metadata.btn.create.connection.link.preset' | translate}} </a>
+            </div>
+          </div>
+          <!-- //edit option -->
+        </div>
+        <!-- //preset box -->
+        <app-connection [isDisableChangeConnectionInfo]="true"
+                        [isDisableChangeConnectionType]="true"
+                        [isHideConnectionLabel]="true"
+                        [isDisableProperties]="true"></app-connection>
+      </div>
+    </div>
+    <!-- //dp connection -->
+  </div>
+  <!-- //import -->
+  <!-- buttons -->
+  <div class="ddp-ui-buttons">
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="onCancel()">{{'msg.comm.btn.cancl' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="changeToNextStep()">{{'msg.comm.btn.next' | translate}}</a>
+  </div>
+  <!-- //buttons -->
+</div>
+
+
+

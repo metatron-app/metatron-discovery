@@ -3,7 +3,7 @@
     <parent>
         <artifactId>metatron-discovery</artifactId>
         <groupId>app.metatron.discovery</groupId>
-        <version>3.2.3</version>
+        <version>3.3.0-rc1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -11,9 +11,24 @@
     <packaging>pom</packaging>
     <name>discovery-extensions</name>
 
-    <modules>
-        <module>mssql-connection</module>
-    </modules>
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>mssql-connection</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>extensions-all</id>
+            <modules>
+                <module>mssql-connection</module>
+                <module>oracle-connection</module>
+            </modules>
+        </profile>
+    </profiles>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

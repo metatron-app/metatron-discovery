@@ -168,6 +168,26 @@ public class WorkspaceService {
     workspaceFavoriteRepository.deleteByUsername(username);
   }
 
+  /**
+   * 사용자 삭제시 Workspace 삭제
+   */
+  @Transactional
+  public void deleteWorkspaceAndMember(String username) {
+    // PRIVATE workspace 삭제
+    Workspace workspace = workspaceRepository.findPrivateWorkspaceByOwnerId(username);
+    if(workspace == null) {
+      LOGGER.warn("Fail to find private workspace : {}", username);
+    } else {
+      workspaceRepository.delete(workspace);
+    }
+
+    // Workspace Member 로 포함된 경우 삭제
+    workspaceMemberRepository.deleteByMemberIds(Lists.newArrayList(username));
+
+    // Workspace Favorite 삭제
+    workspaceFavoriteRepository.deleteByUsername(username);
+  }
+
   public Integer countAvailableWorkspaces(String workspaceId) {
 
     BooleanBuilder builder = new BooleanBuilder();

@@ -27,6 +27,9 @@ while [ $# -gt 0 ]; do
     start)
       MODE="start"
       ;;
+    foreground)
+      MODE="foreground"
+      ;;
     stop)
       MODE="stop"
       ;;
@@ -138,13 +141,13 @@ function check_if_process_is_alive() {
   fi
 }
 
-function upstart() {
+function foreground() {
 
   initialize_default_directories
 
-  echo "METATRON_CLASSPATH: ${METATRON_CLASSPATH_OVERRIDES}:${CLASSPATH}" >> "${METATRON_OUTFILE}"
+  echo "METATRON_CLASSPATH: ${METATRON_CLASSPATH_OVERRIDES}:${CLASSPATH}"
 
-  $METATRON_RUNNER $JAVA_OPTS -cp "${METATRON_CLASSPATH_OVERRIDES}:${CLASSPATH}" $METATRON_MAIN $METATRON_OPTION >> "${METATRON_OUTFILE}"
+  $METATRON_RUNNER $JAVA_OPTS -cp "${METATRON_CLASSPATH_OVERRIDES}:${CLASSPATH}" $METATRON_MAIN $METATRON_OPTION
 }
 
 function start() {
@@ -230,8 +233,8 @@ case "${MODE}" in
   stop)
     stop
     ;;
-  upstart)
-    upstart
+  foreground)
+    foreground
     ;;
   reload)
     stop

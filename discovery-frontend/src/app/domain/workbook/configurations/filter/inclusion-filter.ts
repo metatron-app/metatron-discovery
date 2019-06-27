@@ -69,6 +69,7 @@ export class Candidate {
   public count: number;
   public isDefinedValue: boolean = false;
   public isShow: boolean = false;   // Whether icon is displayed
+  public isTemporary: boolean = false;
 }
 
 export enum InclusionSortBy {

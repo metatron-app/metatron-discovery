@@ -14,7 +14,6 @@
 
 import {AbstractComponent} from '../../common/component/abstract.component';
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {SelectDatatypeComponent} from './create-metadata/select-datatype.component';
 import {isUndefined, isNullOrUndefined} from 'util';
 import {MetadataService} from './service/metadata.service';
 import {Metadata, SourceType} from '../../domain/meta-data-management/metadata';
@@ -25,6 +24,7 @@ import {CatalogService} from '../catalog/service/catalog.service';
 import * as _ from 'lodash';
 import {StorageService} from '../../data-storage/service/storage.service';
 import {ActivatedRoute} from "@angular/router";
+import {CreateMetadataMainComponent} from "./create-metadata/create-metadata-main.component";
 
 declare let $;
 
@@ -37,8 +37,9 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild(SelectDatatypeComponent)
-  private _selectDatatypeComponent: SelectDatatypeComponent;
+
+  @ViewChild(CreateMetadataMainComponent)
+  private _selectDatatypeComponent: CreateMetadataMainComponent;
 
   // 검색 파라메터
   private _searchParams: { [key: string]: string };
@@ -278,6 +279,28 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     this._refreshSelectedCatalog();
     this.isUnclassifiedSelected = true;
     this.getMetadataList();
+  }
+
+  getMetadataType(metadata: Metadata): string {
+    switch (metadata.sourceType) {
+      case SourceType.ENGINE:
+        return this.translateService.instant('msg.comm.th.ds');
+      case SourceType.JDBC:
+        return this.translateService.instant('msg.storage.li.db');
+      case SourceType.STAGEDB:
+        return this.translateService.instant('msg.storage.li.hive');
+    }
+  }
+
+  getMetadataTypeIcon(metadata: Metadata): string {
+    switch (metadata.sourceType) {
+      case SourceType.ENGINE:
+        return 'ddp-datasource';
+      case SourceType.JDBC:
+        return 'ddp-hive';
+      case SourceType.STAGEDB:
+        return 'ddp-stagingdb';
+    }
   }
 
   /**
@@ -542,14 +565,14 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     this.sourceTypeList = StorageService.isEnableStageDB
       ? [
         {label: 'All', value: ''},
-        {label: 'Datasource', value: SourceType.ENGINE},
-        {label: 'Hive', value: SourceType.JDBC},
-        {label: 'Staging DB', value: SourceType.STAGING},
+        {label: this.translateService.instant('msg.comm.th.ds'), value: SourceType.ENGINE},
+        {label: this.translateService.instant('msg.storage.li.db'), value: SourceType.JDBC},
+        {label: this.translateService.instant('msg.storage.li.hive'), value: SourceType.STAGING},
       ]
       : [
         {label: 'All', value: ''},
-        {label: 'Datasource', value: SourceType.ENGINE},
-        {label: 'Hive', value: SourceType.JDBC},
+        {label: this.translateService.instant('msg.comm.th.ds'), value: SourceType.ENGINE},
+        {label: this.translateService.instant('msg.storage.li.db'), value: SourceType.JDBC},
       ];
 
     this.sourceType = '';

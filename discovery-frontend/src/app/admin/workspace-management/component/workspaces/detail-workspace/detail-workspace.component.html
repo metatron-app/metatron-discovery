@@ -43,7 +43,7 @@
           <div class="ddp-data-txt">
             {{workspace.createdTime | mdate:'YYYY-MM-DD HH:mm'}} <span *ngIf="isPublicWorkspace()">{{'msg.spaces.spaces.detail.ui.by' | translate}}</span>
             <div class="ddp-wrap-link-detail2" *ngIf="isPublicWorkspace()">
-              <a href="javascript:" class="ddp-link-info">{{ getUserFullName(workspace.createdBy) ? getUserFullName(workspace.createdBy) : UNKNOWN_USER }}</a>
+              <a href="javascript:" class="ddp-link-info">{{workspace.createdBy.fullName}}</a>
               <user-information [name]="getUserFullName(workspace.createdBy)"
                                 [id]="workspace.createdBy?.username"
                                 [email]="workspace.createdBy?.email">
@@ -62,7 +62,7 @@
           <div class="ddp-data-txt">
             {{workspace.modifiedTime | mdate:'YYYY-MM-DD HH:mm'}} <span *ngIf="isPublicWorkspace()">{{'msg.spaces.spaces.detail.ui.by' | translate}}</span>
             <div class="ddp-wrap-link-detail2" *ngIf="isPublicWorkspace()">
-              <a href="javascript:" class="ddp-link-info">{{ getUserFullName(workspace.modifiedBy) ? getUserFullName(workspace.modifiedBy) : UNKNOWN_USER }}</a>
+              <a href="javascript:" class="ddp-link-info">{{workspace.modifiedBy.fullName}}</a>
               <user-information [name]="getUserFullName(workspace.modifiedBy)"
                                 [id]="workspace.modifiedBy?.username"
                                 [email]="workspace.modifiedBy?.email">
