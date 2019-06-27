@@ -46,8 +46,6 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
   // 노드간 링크 리스트
   private chartLinks: any[] = [];
 
-  private symbolInfo: any;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -94,8 +92,6 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
     this._initialiseChartValues();
 
-    //this.test_data();
-
     this.getLineageMap();
   }
 
@@ -109,206 +105,6 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  public test_data() {
-
-    this.metadataService.getDuplicatedMetadataNameList(['test_meta1']).then((result) => {
-      if (result.length==0) {
-        let param = {
-          'authenticationType': "MANUAL",
-          'hostname': "localhost",
-          'implementor': "MYSQL",
-          'name': "lineage test conn",
-          'password': "test",
-          'port': 3306,
-          'type': "JDBC",
-          'username': "test"
-        };
-        this.lineageViewService.createConnection(param).then((result) => {
-          if (result) {
-            let param = {
-              'connection': result._links.self.href,
-              'name' : 'lienage_test',
-              'dsType': 'MASTER',
-              'srcType' : 'NONE',
-              'connType': 'ENGINE',
-              'description': 'lineage_test',
-              'granularity' : 'DAY',
-              'fields': [],
-              'ingestion': null,
-              'segGranularity': "DAY"
-            }
-            this.lineageViewService.createDatasource(param).then((result) => {
-              if (result) {
-                let datasource_id = result.id;
-
-                let metadata = [
-                  {
-                    'name': "test_meta1",
-                    'description': 'mdm lineage test1',
-                    'source': {
-                      name: "lineage test conn",
-                      schema: "test",
-                      sourceId: datasource_id,
-                      table: "test",
-                      type: "ENGINE"
-                    },
-                    'sourceType': 'ENGINE'
-                  }, {
-                    'name': "test_meta2",
-                    'description': 'mdm lineage test2',
-                    'source': {
-                      name: "lineage test conn",
-                      schema: "test",
-                      sourceId: datasource_id,
-                      table: "test",
-                      type: "ENGINE"
-                    },
-                    'sourceType': 'ENGINE'
-                  }, {
-                    'name': "test_meta3",
-                    'description': 'mdm lineage test3',
-                    'source': {
-                      name: "lineage test conn",
-                      schema: "test",
-                      sourceId: datasource_id,
-                      table: "test",
-                      type: "ENGINE"
-                    },
-                    'sourceType': 'JDBC'
-                  }, {
-                    'name': "test_meta4",
-                    'description': 'mdm lineage test4',
-                    'source': {
-                      name: "lineage test conn",
-                      schema: "test",
-                      sourceId: datasource_id,
-                      table: "test",
-                      type: "ENGINE"
-                    },
-                    'sourceType': 'JDBC'
-                  }, {
-                    'name': "test_meta5",
-                    'description': 'mdm lineage test5',
-                    'source': {
-                      name: "lineage test conn",
-                      schema: "test",
-                      sourceId: datasource_id,
-                      table: "test",
-                      type: "ENGINE"
-                    },
-                    'sourceType': 'JDBC'
-                  }, {
-                    'name': "test_meta6",
-                    'description': 'mdm lineage test6',
-                    'source': {
-                      name: "lineage test conn",
-                      schema: "test",
-                      sourceId: datasource_id,
-                      table: "test",
-                      type: "ENGINE"
-                    },
-                    'sourceType': 'JDBC'
-                  }, {
-                    'name': "test_meta7",
-                    'description': 'mdm lineage test7',
-                    'source': {
-                      name: "lineage test conn",
-                      schema: "test",
-                      sourceId: datasource_id,
-                      table: "test",
-                      type: "ENGINE"
-                    },
-                    'sourceType': 'JDBC'
-                  }, {
-                    'name': "test_meta8",
-                    'description': 'mdm lineage test8',
-                    'source': {
-                      name: "lineage test conn",
-                      schema: "test",
-                      sourceId: datasource_id,
-                      table: "test",
-                      type: "ENGINE"
-                    },
-                    'sourceType': 'JDBC'
-                  }, {
-                    'name': "test_meta9",
-                    'description': 'mdm lineage test9',
-                    'source': {
-                      name: "lineage test conn",
-                      schema: "test",
-                      sourceId: datasource_id,
-                      table: "test",
-                      type: "ENGINE"
-                    },
-                    'sourceType': 'JDBC'
-                  }
-                ];
-
-                this.metadataService.createMetaData(metadata).then((result) => {
-                  if (result) {
-                    let paramList = [
-                      {
-                        'description' : result[0].name +' -> '+result[1].name,
-                        'upstreamMetaId' : result[0].id,
-                        'downstreamMetaId' : result[1].id
-                      }, {
-                        'description' : result[1].name +' -> '+result[2].name,
-                        'upstreamMetaId' : result[1].id,
-                        'downstreamMetaId' : result[2].id
-                      }, {
-                        'description' : result[3].name +' -> '+result[0].name,
-                        'upstreamMetaId' : result[3].id,
-                        'downstreamMetaId' : result[0].id
-                      }, {
-                        'description' : result[2].name +' -> '+result[4].name,
-                        'upstreamMetaId' : result[2].id,
-                        'downstreamMetaId' : result[4].id
-                      }, {
-                        'description' : result[1].name +' -> '+result[2].name,
-                        'upstreamMetaId' : result[1].id,
-                        'downstreamMetaId' : result[2].id
-                      }, {
-                        'description' : result[5].name +' -> '+result[1].name,
-                        'upstreamMetaId' : result[5].id,
-                        'downstreamMetaId' : result[1].id
-                      }, {
-                        'description' : result[6].name +' -> '+result[5].name,
-                        'upstreamMetaId' : result[6].id,
-                        'downstreamMetaId' : result[5].id
-                      }, {
-                        'description' : result[2].name +' -> '+result[7].name,
-                        'upstreamMetaId' : result[2].id,
-                        'downstreamMetaId' : result[7].id
-                      }, {
-                        'description' : result[8].name +' -> '+result[0].name,
-                        'upstreamMetaId' : result[8].id,
-                        'downstreamMetaId' : result[0].id
-                      }
-                    ];
-                    paramList.forEach(params => {
-                      this.lineageViewService.postLineageEdge(params).then((result) => {
-                        if (result) {
-                          console.log(result);
-                        }
-                      }).catch((error) => {
-                        console.error(error);
-                      });
-                    });
-                  }
-                }).catch((error) => {
-                });
-              }
-            }).catch((error) => {
-            });
-          }
-        }).catch((error) => {
-        });
-      }
-    }).catch((error) => {
-    });
-
-  }
 
   private awaitCount = 0;
   public constructLineageNode(metaId: string, x: number, y: number) {
@@ -418,6 +214,15 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
     }
   }
 
+  /* symbol properties of the category have a bug
+   * manual copy
+   */
+  private setCategory(categories, node) {
+    node.symbol = categories[node.category].symbol;
+    node.symbolSize = categories[node.category].symbolSize;
+    node.symbolOffset = categories[node.category].symbolOffset;
+  }
+
   /**
    * 차트 그리기
    */
@@ -438,18 +243,16 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
       if( params.dataType==='node' ) {
         const option = this.chart.getOption();
-        option.series[params.seriesIndex].nodes.map((node, idx) => {
+        option.series[params.seriesIndex].data.map((node, idx) => {
           if(idx===params.dataIndex) {
-            node.category = (node.category+1)%2;
-            var nodeType = node.category==0?'CSV':'WRANGLED';
-            node.symbol = this.symbolInfo[nodeType]['SELECTED'];
-            node.symbolSize = [50,50];
-            node.symbolOffset = [0,0];
+            console.log(node);
           }
         });
         this.chart.setOption(option);
       }
     });
+
+    let seriesIdx = 0;
 
     this.lineageDepth = 0;
     this.lineageHeight = 0;
@@ -462,15 +265,14 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
       if( this.lineageHeight <= node.positionY ) { this.lineageHeight = node.positionY + 1; }
       node.value = [node.positionX,node.positionY];
 
-      node.category = 0;
-      node.symbol = this.symbolInfo['CSV']['SELECTED'];
-      node.symbolSize = [50,50];
-      node.symbolOffset = [0,0];
-
       /* main node */
       if( node.metadataId === this.metaDataModelService.getMetadata().id ) {
-        node.symbolSize = [70,70];
+        node.category = 0; // main node
+      } else {
+        node.category = 1; // normal node
       }
+
+      this.setCategory(this.chartOptions.series[seriesIdx].categories, node);
 
       return node;
     });
@@ -493,8 +295,8 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
       return edge;
     });
 
-    this.chartOptions.series[0].nodes = this.chartNodes;
-    this.chartOptions.series[0].links = this.chartLinks;
+    this.chartOptions.series[seriesIdx].data = this.chartNodes;
+    this.chartOptions.series[seriesIdx].links = this.chartLinks;
 
     this.chart.setOption(this.chartOptions);
     this.chartAreaResize(true);
@@ -520,19 +322,6 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
    * @private
    */
   private _initialiseChartValues() {
-
-    const SVG_LOCATION: string = 'image://' + window.location.origin + '/assets/images/datapreparation/png/icon_';
-
-    this.symbolInfo = {
-      'CSV' : {
-        'DEFAULT': SVG_LOCATION + 'file_csv.png',
-        'SELECTED': SVG_LOCATION + 'file_csv_focus.png',
-      },
-      'WRANGLED': {
-        'DEFAULT': SVG_LOCATION + 'dataset_wrangled_.png',
-        'SELECTED': SVG_LOCATION + 'dataset_wrangled_focus.png',
-      }
-    };
 
     this.chartOptions = {
       backgroundColor: '#ffffff',
@@ -578,69 +367,69 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
           hoverAnimation: true,
           roam: true,
           draggable: true,
-          itemStyle: {
-            color: '#acacac',
-            borderColor: '#1af'
-          },
           categories: [
             {
-              name: 'cat1',
-              symbol: 'rect',
-              symbolSize: [100,300],
-              symbolKeepAspect: false,
-              symbolOffset: [0, 0],
+              name: 'main_node',
+              symbol: 'roundRect',
+              symbolSize: [50,50],
+              symbolOffset: [0,0],
+              itemStyle: {
+                color: 'rgba(0, 0, 0, 0.0)',
+                borderColor: '#000',
+                borderWidth: 1,
+                borderType: 'solid',
+                opacity: 1.0,
+              },
               label: {
                 show: true,
+                offset: [0, 50],
                 color: '#000',
-                /*
-                formatter: [
-                  '{large|{b}}',
-                  '{red|node}'
-                ].join('\n'),
-                */
                 formatter: (params) => {
-                  return params.data.metadata.name;
+                  return [
+                    '{title|Main Node}',
+                    '{large|'+params.data.metadata.name+'}'
+                  ].join('\n');
                 },
                 rich: {
-                  red: {
-                    color: 'red',
-                    lineHeight: 10
+                  title: {
+                    color: 'gray'
                   },
                   large: {
-                    color: 'blue',
+                    color: '#050505',
                     fontSize: 18,
-                    fontFamily: 'Microsoft YaHei',
                     borderColor: '#449933',
                     borderRadius: 4
                   }
                 }
-              },
-              itemStyle: {
-                color: {
-                  type: 'linear',
-                  x: 0,
-                  y: 0,
-                  x2: 0,
-                  y2: 1,
-                  colorStops: [{
-                      offset: 0, color: 'red' // color at 0% position
-                  }, {
-                      offset: 1, color: 'blue' // color at 100% position
-                  }],
-                  global: false // false by default
-                }
-              }
-            }, {
-              name: 'cat2',
-              symbol: 'circle',
-              symbolSize: 150,
-              label: {
-                show: true,
-                color: '#000',
-                formatter: '{b}<br />{c}'
               }
             },
+            {
+              name: 'normal_node',
+              symbol: 'rect',
+              symbolSize: [50,50],
+              symbolOffset: [0, 0],
+              itemStyle: {
+                color: 'rgba(0, 0, 0, 0.0)',
+                borderColor: '#000',
+                borderWidth: 1,
+                borderType: 'solid',
+                opacity: 1.0,
+              },
+              label: {
+                show: true,
+                offset: [0, 50],
+                color: '#000',
+                formatter: (params) => {
+                  return params.data.metadata.name;
+                }
+              }
+            }
           ],
+          nodes: null,
+          links: null,
+          lineStyle: { normal: { opacity: 1, width: 0.5 } },
+          edgeSymbol: ['circle', 'arrow'],
+          edgeSymbolSize: 10,
           edgeLabel: {
             show: true,
             color: '#000',
@@ -651,11 +440,6 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
           tooltip: {
             formatter: 'metaId : <br />{b0}'
           },
-          nodes: null,
-          links: null,
-          lineStyle: { normal: { opacity: 1, width: 0.5 } },
-          edgeSymbol: ['circle', 'arrow'],
-          edgeSymbolSize: 10,
           left: 'center',
           top: 'middle',
           right: 'auto',
