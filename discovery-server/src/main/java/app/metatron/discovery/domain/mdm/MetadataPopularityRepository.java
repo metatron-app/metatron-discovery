@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.mdm;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -23,6 +25,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -39,6 +42,8 @@ public interface MetadataPopularityRepository extends JpaRepository<MetadataPopu
   MetadataPopularity findByTypeAndMetaColumnId(MetadataPopularity.PopularityType type, Long metaColumnId);
 
   MetadataPopularity findByTypeAndMetadataIdAndSourceIdAndMetaColumnId(MetadataPopularity.PopularityType type, String metadataId, String sourceId, Long metaColumnId);
+
+  Page<MetadataPopularity> findByType(MetadataPopularity.PopularityType type, Pageable pageable);
 
   @Query("SELECT MAX(m.score) FROM MetadataPopularity m WHERE m.type = :type")
   Optional<Long> findByMaxScore(@Param("type") MetadataPopularity.PopularityType type);

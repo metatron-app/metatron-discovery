@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -42,6 +43,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import app.metatron.discovery.common.entity.DomainType;
 import app.metatron.discovery.common.entity.SearchParamValidator;
@@ -69,6 +71,10 @@ public class MetadataController {
 
   @Autowired
   MetadataRepository metadataRepository;
+
+  @Autowired
+  MetadataPopularityRepository metadataPopularityRepository;
+
 
   @Autowired
   PagedResourcesAssembler pagedResourcesAssembler;
@@ -268,5 +274,67 @@ public class MetadataController {
       result.put(metadataStatsDto.getKeyword(), metadataStatsDto.getValue());
     }
     return ResponseEntity.ok(result);
+  }
+
+  @RequestMapping(path = "/metadatas/popularity", method = RequestMethod.GET)
+  @ResponseBody
+  public ResponseEntity<?> getMetadatasByPopularity(Pageable pageable) {
+
+    //fix order by popularity DESC
+    PageRequest pageRequest
+        = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(), Sort.Direction.DESC, "popularity");
+
+    Page<MetadataPopularity> metadataPopularityList
+        = metadataPopularityRepository.findByType(MetadataPopularity.PopularityType.METADATA, pageRequest);
+
+    //find metadataid by populraity
+    List<String> metadataId = metadataPopularityList.getContent()
+                                                    .stream()
+                                                    .map(p -> p.getMetadataId())
+                                                    .collect(Collectors.toList());
+
+    List metadatas = metadataRepository.findAll(metadataId);
+
+    //order by populraity
+    metadatas.sort((a, b) -> {
+      int aIndex = metadataId.indexOf(((Metadata) a).getId());
+      int bIndex = metadataId.indexOf(((Metadata) b).getId());
+      if(aIndex == bIndex){
+        return 0;
+      } else if(aIndex > bIndex){
+        return 1;
+      } else {
+        return -1;
+      }
+    });
+
+    Page<Metadata> metadataPage = new PageImpl<Metadata>(metadatas, pageable, metadataPopularityList.getTotalElements());
+    Page<Metadata> metadataResourced = ProjectionUtils.toPageResource(projectionFactory,
+                                                                      metadataProjections.getProjectionByName("forListView"),
+                                                                      metadataPage);
+    return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(metadataResourced));
+  }
+
+  @RequestMapping(path = "/metadatas/favorite/my", method = RequestMethod.GET)
+  @ResponseBody
+  public ResponseEntity<?> getMyFavoriteMetadatas(Pageable pageable, PersistentEntityResourceAssembler resourceAssembler) {
+    Page<Metadata> metadatas = metadataRepository.findAll(pageable);
+    return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(metadatas, resourceAssembler));
+  }
+
+  @RequestMapping(path = "/metadatas/favorite/creator", method = RequestMethod.GET)
+  @ResponseBody
+  public ResponseEntity<?> getFavoriteMetadataByCreator(Pageable pageable, PersistentEntityResourceAssembler resourceAssembler) {
+    Page<Metadata> metadatas = metadataRepository.findAll(pageable);
+    return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(metadatas, resourceAssembler));
+  }
+
+
+  @RequestMapping(path = "/metadatas/recommended", method = RequestMethod.GET)
+  @ResponseBody
+  public ResponseEntity<?> getRecommendedMetadatas(Pageable pageable, PersistentEntityResourceAssembler resourceAssembler) {
+    Page<Metadata> metadatas = metadataRepository.findAll(pageable);
+    return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(metadatas, resourceAssembler));
+
   }
 }
