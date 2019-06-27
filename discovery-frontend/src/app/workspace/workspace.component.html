@@ -235,7 +235,7 @@
           <!-- check 되었을때. ddp-selected 추가 -->
           <!-- checkbox -->
           <div class="ddp-ui-checkbox" (click)="checkEvent($event, folderData); $event.stopPropagation();">
-            <input type="checkbox"  [checked] = "folderData.checked">
+            <input type="checkbox" [checked] = "folderData.checked">
             <i class="ddp-icon-checkbox"></i>
           </div>
           <!-- //checkbox -->
@@ -289,8 +289,8 @@
            | baseFilter:['type', selectedContentFilter.key]
            | baseFilter:['name', srchText]
            | baseSort : [selectedContentSort.key, selectedContentSort.type])"
-           (click)="detailPage(book.id, book.type); $event.stopPropagation();"
-           [ngClass]="{'ddp-box-workbench' : book.type === 'workbench' , 'ddp-selected' : book.checked}">
+           (click)="detailValidPage(book); $event.stopPropagation();"
+           [ngClass]="{'ddp-box-workbench' : book.type === 'workbench' , 'ddp-selected' : book.checked , 'ddp-disabled' : (book.type === 'notebook' || book.type === 'workbench') && !book.contents.connValid }">
         <em *ngIf="checkEditAuth(book)" (click)="deleteModalOpen(book); $event.stopPropagation();"
             class="ddp-icon-control-cut ddp-hover-tooltip" >
           <!-- 툴팁 -->
@@ -318,32 +318,88 @@
         </div>
         <!-- //box contents -->
 
-        <!-- connection -->
-        <div class="ddp-type-connection" *ngIf="book.type == 'workbench'">
-          <em class="ddp-icon-type">
-            <img src="{{getWorkbenchConnTypeIcon(book)}}">
-          </em>
-          {{ getConnName(book) }}
-        </div>
-        <!-- //connection -->
-
         <!-- box botom -->
+        <!-- workbench -->
+        <div class="ddp-box-bottom" *ngIf="book.type === 'workbench'">
+          <div class="ddp-data-connection">
+            <div class="ddp-txt-connection">
+              <!-- info -->
+              <div class="ddp-type-info" *ngIf="!book.contents.connValid">
+                <em class="ddp-icon-error2"></em>
+                <!-- tooltip -->
+                <div class="ddp-ui-tooltip-info ddp-down">
+                  <em class="ddp-icon-view-top"></em>{{'msg.space.ui.workbench.unauthorized' | translate}}
+                </div>
+                <!-- //tooltip -->
+              </div>
+              <!-- //info -->
+              <div class="ddp-txt-in" title="{{ getConnName(book) }}">
+                <span class="ddp-img">
+                    <img src="{{getWorkbenchConnTypeIcon(book)}}">
+                </span>
+                <span class="ddp-view-txt">{{ getConnName(book) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- //workbench -->
         <!-- workbook -->
-        <div class="ddp-box-bottom" *ngIf="book.type == 'workbook'" >
+        <div class="ddp-box-bottom" *ngIf="book.type === 'workbook'" >
           <div class="ddp-wrap-num" >
-            <span class="ddp-data-num"><em class="ddp-icon-result-data"></em>{{book.contents.dataSource}}</span>
+            <span class="ddp-data-num"><em class="ddp-icon-result-data"></em>{{book.contents.dataSource}}
+              <!-- info -->
+              <div class="ddp-type-info" *ngIf="book.contents.inactiveDataSource > 0">
+                  <em class="ddp-icon-error2"></em>
+                  <!-- tooltip -->
+                  <div class="ddp-ui-tooltip-info ddp-down">
+                    <em class="ddp-icon-view-top"></em>{{'msg.space.ui.workbook.unauthorized' | translate : {inactive : book.contents.inactiveDataSource, active : book.contents.dataSource } }}
+                  </div>
+                  <!-- //tooltip -->
+              </div>
+              <!-- //info -->
+            </span>
             <span class="ddp-data-num"><em class="ddp-icon-result-workbook"></em>{{book.contents.dashboard}}</span>
           </div>
         </div>
         <!-- //workbook -->
         <!-- notebook -->
-        <div class="ddp-box-bottom" *ngIf="false">
+        <div class="ddp-box-bottom" *ngIf="book.type === 'notebook'">
           <div class="ddp-wrap-data">
-            <!--<span class="ddp-data-name"><em class="ddp-icon-dashboard3"></em> Dashboard name</span>-->
-            <!--<span class="ddp-data-name"><em class="ddp-icon-chart2"></em>chart name</span>-->
-            <span class="ddp-data-name"><em class="ddp-icon-result-data" *ngIf="book.dsName"></em> {{book.dsName}}</span>
-            <span class="ddp-data-name ddp-data-lang-r" *ngIf="book.kernelType === 'R'"> {{'msg.nbook.ui.r' | translate}}</span>
-            <span class="ddp-data-name ddp-data-lang-python" *ngIf="book.kernelType === 'PYTHON'"> {{'msg.nbook.ui.python' | translate}}</span>
+            <span class="ddp-data-name" *ngIf="book.contents.connectorType === 'jupyter' || book.contents.connectorType === 'zeppelin'">
+                <em [ngClass]="{'ddp-icon-lang-jupyter' : book.contents.connectorType === 'jupyter', 'ddp-icon-lang-zeppelin' : book.contents.connectorType === 'zeppelin'}"></em>
+                <div class="ddp-txt-name">
+                  <!-- error -->
+                  <div class="ddp-type-info" *ngIf="!book.contents.connValid">
+
+                    <em class="ddp-icon-error2"></em>
+                    <!-- tooltip -->
+                    <div class="ddp-ui-tooltip-info ddp-down">
+                      <em class="ddp-icon-view-top"></em>{{'msg.space.ui.notebook.unauthorized' | translate}}
+                    </div>
+                    <!-- //tooltip -->
+                  </div>
+                  <!-- //error -->
+                  <span class="ddp-txt-name-in">{{book.connector}}</span>
+                </div>
+            </span>
+            <span class="ddp-data-name ddp-data-lang-r" *ngIf="book.kernelType === 'R'">
+                <div class="ddp-txt-name">
+                    <span class="ddp-txt-name-in">{{'msg.nbook.ui.r' | translate}}</span>
+
+                </div>
+            </span>
+            <span class="ddp-data-name ddp-data-lang-python" *ngIf="book.kernelType === 'PYTHON'">
+                <div class="ddp-txt-name">
+                    <span class="ddp-txt-name-in">{{'msg.nbook.ui.python' | translate}}</span>
+
+                </div>
+            </span>
+            <span class="ddp-data-name ddp-data-lang-python" *ngIf="book.kernelType === 'SPARK'">
+                <div class="ddp-txt-name">
+                    <span class="ddp-txt-name-in">{{'msg.nbook.ui.spark' | translate}}</span>
+
+                </div>
+            </span>
           </div>
         </div>
         <!-- //notebook -->
@@ -431,8 +487,8 @@
         | baseFilter:['type', 'folder', true]
         | baseFilter:['type', selectedContentFilter.key]
         | baseFilter:['name', srchText]
-        | baseSort : [selectedContentSort.key, selectedContentSort.type]); let i=index" (click)="detailPage(book.id, book.type); $event.stopPropagation();"
-          [ngClass]="{'ddp-selected' : book.checked}">
+        | baseSort : [selectedContentSort.key, selectedContentSort.type]); let i=index" (click)="detailValidPage(book); $event.stopPropagation();"
+          [ngClass]="{'ddp-selected' : book.checked , 'ddp-disabled' : (book.type === 'notebook' || book.type === 'workbench') && !book.contents.connValid }">
         <a href="javascript:" draggable="false">
           <!-- checkbox -->
           <div class="ddp-ui-checkbox" (click)="checkEvent($event, book);">
@@ -443,16 +499,57 @@
           <div class="ddp-box-tag ddp-{{book.type}}">{{book.type}}</div>
           <!-- Item Information -->
           <div class="ddp-ui-data-list">
+            <!-- workbench -->
+            <div class="ddp-data-info" *ngIf="book.type === 'workbench'">
+              <span class="ddp-data-connection">
+                  <img src="{{getWorkbenchConnTypeIcon(book)}}">
+                  <span class="ddp-txt-connection" title="{{ getConnName(book) }}">{{ getConnName(book) }}</span>
+                <!-- error -->
+                  <div class="ddp-type-info" *ngIf="!book.contents.connValid">
+                      <em class="ddp-icon-error2"></em>
+                    <!-- tooltip -->
+                      <div class="ddp-ui-tooltip-info ddp-down">
+                          <em class="ddp-icon-view-top"></em>{{'msg.space.ui.notebook.unauthorized' | translate}}
+                      </div>
+                    <!-- //tooltip -->
+                  </div>
+                <!-- //error -->
+              </span>
+            </div>
             <!-- workbook -->
-            <div class="ddp-wrap-num" *ngIf="book.type == 'workbook'">
-              <span class="ddp-data-num"><em class="ddp-icon-result-data"></em>{{book.contents.dataSource}}</span>
+            <div class="ddp-wrap-num" *ngIf="book.type === 'workbook'">
+              <span class="ddp-data-num"><em class="ddp-icon-result-data"></em>{{book.contents.dataSource}}
+                <!-- error -->
+                <div class="ddp-type-info" *ngIf="book.contents.inactiveDataSource > 0">
+                  <em class="ddp-icon-error2"></em>
+                  <!-- tooltip -->
+                  <div class="ddp-ui-tooltip-info ddp-down">
+                      <em class="ddp-icon-view-top"></em>
+                    {{'msg.space.ui.workbook.unauthorized' | translate : {inactive : book.contents.inactiveDataSource, active : book.contents.dataSource } }}
+                  </div>
+                  <!-- //tooltip -->
+                </div>
+                <!-- //error -->
+              </span>
               <span class="ddp-data-num"><em class="ddp-icon-result-workbook"></em>{{book.contents.dashboard}}</span>
             </div>
             <!-- notebook -->
-            <div class="ddp-data-info" *ngIf="book.type == 'notebook'">
-              <span class="ddp-data-name"><em class="ddp-icon-result-data" *ngIf="book.dsName"></em> {{book.dsName}}</span>
-              <span class="ddp-data-name ddp-data-lang-r" *ngIf="book.kernelType === 'R'">R</span>
-              <span class="ddp-data-name ddp-data-lang-python" *ngIf="book.kernelType === 'PYTHON'">{{'msg.nbook.ui.python' | translate}}</span>
+            <div class="ddp-data-info" *ngIf="book.type === 'notebook'">
+              <span class="ddp-data-name"><em [ngClass]="{'ddp-icon-lang-jupyter' : book.contents.connectorType === 'jupyter', 'ddp-icon-lang-zeppelin' : book.contents.connectorType === 'zeppelin'}"></em>{{book.connector}}
+                <!-- error -->
+                <div class="ddp-type-info" *ngIf="!book.contents.connValid">
+                    <em class="ddp-icon-error2"></em>
+                  <!-- tooltip -->
+                    <div class="ddp-ui-tooltip-info ddp-down">
+                        <em class="ddp-icon-view-top"></em>{{'msg.space.ui.notebook.unauthorized' | translate}}
+                    </div>
+                  <!-- //tooltip -->
+                </div>
+                <!-- //error -->
+              </span>
+              <span class="ddp-data-name ddp-data-lang-r" *ngIf="book.kernelType === 'R'"> {{'msg.nbook.ui.r' | translate}}</span>
+              <span class="ddp-data-name ddp-data-lang-python" *ngIf="book.kernelType === 'PYTHON'"> {{'msg.nbook.ui.python' | translate}}</span>
+              <span class="ddp-data-name ddp-data-lang-python" *ngIf="book.kernelType === 'SPARK'"> {{'msg.nbook.ui.spark' | translate}}</span>
             </div>
             <div class="ddp-data-date">
               {{'msg.comm.ui.list.last' | translate}} <span class="ddp-data-ago">{{book.modifiedTime | amTimeAgo}}</span>

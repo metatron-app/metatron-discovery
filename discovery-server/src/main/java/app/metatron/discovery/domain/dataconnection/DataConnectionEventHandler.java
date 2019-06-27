@@ -14,11 +14,6 @@
 
 package app.metatron.discovery.domain.dataconnection;
 
-import app.metatron.discovery.domain.activities.ActivityStreamService;
-import app.metatron.discovery.domain.activities.spec.ActivityGenerator;
-import app.metatron.discovery.domain.activities.spec.ActivityObject;
-import app.metatron.discovery.domain.activities.spec.ActivityStreamV2;
-import app.metatron.discovery.domain.workspace.Workspace;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.joda.time.DateTime;
@@ -32,6 +27,12 @@ import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.Set;
+
+import app.metatron.discovery.domain.activities.ActivityStreamService;
+import app.metatron.discovery.domain.activities.spec.ActivityGenerator;
+import app.metatron.discovery.domain.activities.spec.ActivityObject;
+import app.metatron.discovery.domain.activities.spec.ActivityStreamV2;
+import app.metatron.discovery.domain.workspace.Workspace;
 
 @RepositoryEventHandler(DataConnection.class)
 public class DataConnectionEventHandler {
@@ -82,16 +83,13 @@ public class DataConnectionEventHandler {
   @HandleBeforeLinkDelete
   @PreAuthorize("hasAuthority('PERM_SYSTEM_MANAGE_DATASOURCE')")
   public void handleBeforeLinkDelete(DataConnection dataConnection, Object linked) {
-
     // Count connected workspaces.
+    Set<Workspace> preWorkspaces = connectionRepository.findWorkspacesInDataConnection(dataConnection.id);
     // Not a public workspace and linked entity type is Workspace.
     if(BooleanUtils.isNotTrue(dataConnection.getPublished()) &&
-        !CollectionUtils.sizeIsEmpty(linked) &&
-        CollectionUtils.get(linked, 0) instanceof Workspace) {
+        !CollectionUtils.sizeIsEmpty(preWorkspaces)) {
       dataConnection.setLinkedWorkspaces(dataConnection.getWorkspaces().size());
-
-      // Insert ActivityStream for saving grant history.
-      Set<Workspace> preWorkspaces = connectionRepository.findWorkspacesInDataConnection(dataConnection.id);
+      LOGGER.debug("DELETED: Set linked workspace in dataconnection({}) : {}", dataConnection.getId(), dataConnection.getLinkedWorkspaces());
 
       for (Workspace workspace : preWorkspaces) {
         if(!dataConnection.getWorkspaces().contains(workspace)) {

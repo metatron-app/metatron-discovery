@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.notebook;
 
+import com.google.common.collect.Maps;
+
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import org.apache.commons.lang3.NotImplementedException;
@@ -95,6 +97,14 @@ public class Notebook extends Book {
         projection.put("type", "notebook");
         projection.put("link", getLink());
         projection.put("connector", this.connector.getName());
+        projection.put("kernelType", getKernelType().toString());
+        projection.put("dsName", getDsName());
+
+        Map<String, Object> contents = Maps.newLinkedHashMap();
+        contents.put("connectorType", this.connector.getType());
+        contents.put("dsType", getDsType());
+        contents.put("connValid", this.getWorkspace().getConnectors().contains(this.connector));
+        projection.put("contents", contents);
 
         return projection;
     }

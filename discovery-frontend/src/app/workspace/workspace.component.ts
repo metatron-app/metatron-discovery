@@ -15,7 +15,12 @@
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {AbstractComponent} from '../common/component/abstract.component';
 import {CreateWorkbookComponent} from '../workbook/component/create-workbook/create-workbook.component';
-import {CountByBookType, PermissionChecker, PublicType, Workspace} from '../domain/workspace/workspace';
+import {
+  CountByBookType,
+  PermissionChecker,
+  PublicType,
+  Workspace
+} from '../domain/workspace/workspace';
 import {WorkspaceService} from './service/workspace.service';
 import {ActivatedRoute} from '@angular/router';
 import {Book} from '../domain/workspace/book';
@@ -741,7 +746,14 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     }
   } // function - detailPage
 
-  /**
+  public detailValidPage(book: Book) {
+    if((book.type == 'workbench' || book.type == 'notebook') && !book.contents.connValid) {
+      return;
+    }
+    this.detailPage(book.id, book.type);
+  }
+
+ /**
    * 데이터소스 뷰 페이지
    */
   public datasourceView() {

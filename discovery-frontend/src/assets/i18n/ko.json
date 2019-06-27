@@ -413,6 +413,9 @@
   "msg.space.warning.can-not-create-11depth-folder" : "하위 폴더는 10 Depth 까지만 만들 수 있습니다.",
   "msg.space.ui.list.search.placeholder" : "서버명을 검색해 주세요",
   "msg.space.alert.join.msg" : "엔진 호출중 오류가 발생하였습니다",
+  "msg.space.ui.workbook.unauthorized" : "데이터소스({{inactive}}/{{active}})의 Publish 권한을 체크하세요",
+  "msg.space.ui.notebook.unauthorized" : "노트북 서버의 권한을 체크하세요",
+  "msg.space.ui.workbench.unauthorized" : "데이터 커넥션의 Publish 권한을 체크하세요",
 
   "msg.alert.retrieve.fail" : "조회에 실패하였습니다",
   "msg.alert.del.success" : "을(를) 삭제하였습니다",
@@ -998,7 +1001,7 @@
   "msg.dp.li.sf.description" : "특정 타임스탬프 형식으로 전환합니다",
   "msg.dp.li.wd.description" : "Row들을 Grouping 하고 Group 내의 값들과 비교한 결과를 새로운 필드로 추가합니다",
   "msg.dp.th.col.delimiter" : "컬럼 구분자",
-  "msg.dp.th.col.delimiter.ph" : "컬럼 구분자를 입력해 주세",
+  "msg.dp.th.col.delimiter.ph" : "컬럼 구분자를 입력해 주세요",
   "msg.dp.th.command": "커맨드",
   "msg.dp.th.compression": "압축",
   "msg.dp.th.condition": "조건",
@@ -1657,6 +1660,7 @@
   "msg.board.unload.title" : "대시보드를 불러올 수 없습니다.",
   "msg.board.unload.desc" : "알수없는 이유로 대시보드를 불러올 수 없습니다.<br>다시 시도해주세요",
   "msg.board.ui.cant-not-down-aggregate" : "집계함수가 포함된 컬림이 있어서 원본보기를 지원할 수 없습니다.",
+  "msg.board.error.deny-datasource" : "데이터소스 사용이 허용되지 않았습니다.",
 
   "msg.storage.btn.create.dsource": "새로운 데이터소스 생성",
   "msg.storage.ui.dsource.search.description": "데이터소스 이름으로 검색해 주세요",

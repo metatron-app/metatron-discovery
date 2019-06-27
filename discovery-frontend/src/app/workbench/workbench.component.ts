@@ -41,9 +41,12 @@ import {isNullOrUndefined, isUndefined} from 'util';
 import {LoadingComponent} from '../common/component/loading/loading.component';
 import {DatasourceService} from '../datasource/service/datasource.service';
 import {PageWidget} from '../domain/dashboard/widget/page-widget';
-import {Dashboard, BoardDataSource, BoardConfiguration} from '../domain/dashboard/dashboard';
+import {BoardConfiguration, BoardDataSource, Dashboard} from '../domain/dashboard/dashboard';
 import {
-  ConnectionType, Datasource, Field, IngestionRuleType
+  ConnectionType,
+  Datasource,
+  Field,
+  IngestionRuleType
 } from '../domain/datasource/datasource';
 import {Workbook} from '../domain/workbook/workbook';
 import {DataconnectionService} from '../dataconnection/service/dataconnection.service';
@@ -57,7 +60,12 @@ import {CodemirrorComponent} from './component/editor-workbench/codemirror.compo
 import {SaveAsHiveTableComponent} from "./component/save-as-hive-table/save-as-hive-table.component";
 import {DetailWorkbenchDatabase} from "./component/detail-workbench/detail-workbench-database/detail-workbench-database";
 import {Message} from '@stomp/stompjs';
-import {AuthenticationType, Dataconnection, InputMandatory, InputSpec} from "../domain/dataconnection/dataconnection";
+import {
+  AuthenticationType,
+  Dataconnection,
+  InputMandatory,
+  InputSpec
+} from "../domain/dataconnection/dataconnection";
 
 declare let moment: any;
 declare let Split;
@@ -1870,54 +1878,60 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // 워크벤치 아이디 저장
     // read Workbench With View Projection
     this.workbenchService.getWorkbench(this.workbenchId).then((data) => {
-      // 워크벤치 데이터
-      WorkbenchService.workbench = data;
-      WorkbenchService.workbenchId = this.workbenchId;
+      if (data.valid) {
+        // 워크벤치 데이터
+        WorkbenchService.workbench = data;
+        WorkbenchService.workbenchId = this.workbenchId;
 
-      // 퍼미션 조회를 위한 워크스페이스 정보 조회 및 퍼미션 체커 설정
-      this._workspaceId = data.workspace.id;
-      this.workspaceService.getWorkSpace(data.workspace.id, 'forDetailView').then((workspace: Workspace) => {
+        // 퍼미션 조회를 위한 워크스페이스 정보 조회 및 퍼미션 체커 설정
+        this._workspaceId = data.workspace.id;
+        this.workspaceService.getWorkSpace(data.workspace.id, 'forDetailView').then((workspace: Workspace) => {
 
-        // 퍼미션 체커 정의
-        const permissionChecker: PermissionChecker = new PermissionChecker(workspace);
+          // 퍼미션 체커 정의
+          const permissionChecker: PermissionChecker = new PermissionChecker(workspace);
 
-        if (workspace.active && permissionChecker.isViewWorkbench()) {
+          if (workspace.active && permissionChecker.isViewWorkbench()) {
 
-          // 관리 유저 여부 설정
-          this.isChangeAuthUser =
-            (permissionChecker.isManageWorkbench() || permissionChecker.isEditWorkbench(data.createdBy.username));
+            // 관리 유저 여부 설정
+            this.isChangeAuthUser =
+              (permissionChecker.isManageWorkbench() || permissionChecker.isEditWorkbench(data.createdBy.username));
 
-          this.mimeType = data.dataConnection.implementor.toString();
-          this.authenticationType = data.dataConnection['authenticationType'] || 'MANUAL';
-          if (data.dataConnection['authenticationType'] === 'DIALOG') {
-            this.loginLayerShow = true;
-            this.workbenchTemp = data;
+            this.mimeType = data.dataConnection.implementor.toString();
+            this.authenticationType = data.dataConnection['authenticationType'] || 'MANUAL';
+            if (data.dataConnection['authenticationType'] === 'DIALOG') {
+              this.loginLayerShow = true;
+              this.workbenchTemp = data;
+            } else {
+              this.workbenchTemp = data;
+              this.readQuery(this.workbenchTemp.queryEditors);
+              this.webSocketLoginId = '';
+              this.webSocketLoginPw = '';
+
+              // connectWebSocket.call(this);
+            }
+            connectWebSocket.call(this);
+
+            this.isDataManager = CommonUtil.isValidPermission(SYSTEM_PERMISSION.MANAGE_DATASOURCE);
+
+            if (data.dataConnection.supportSaveAsHiveTable) {
+              this.supportSaveAsHiveTable = data.dataConnection.supportSaveAsHiveTable;
+            }
+
+            this.setWorkbenchName();
+            this.setWorkbenchDesc();
+
           } else {
-            this.workbenchTemp = data;
-            this.readQuery(this.workbenchTemp.queryEditors);
-            this.webSocketLoginId = '';
-            this.webSocketLoginPw = '';
-
-            // connectWebSocket.call(this);
-          }
-          connectWebSocket.call(this);
-
-          this.isDataManager = CommonUtil.isValidPermission(SYSTEM_PERMISSION.MANAGE_DATASOURCE);
-
-          if (data.dataConnection.supportSaveAsHiveTable) {
-            this.supportSaveAsHiveTable = data.dataConnection.supportSaveAsHiveTable;
+            // 경고창 표시
+            this.openAccessDeniedConfirm();
           }
 
-          this.setWorkbenchName();
-          this.setWorkbenchDesc();
-
-        } else {
-          // 경고창 표시
-          this.openAccessDeniedConfirm();
-        }
-
-        this.restoreQueryResultPreviousState(data.queryEditors);
-      });
+          this.restoreQueryResultPreviousState(data.queryEditors);
+        });
+      } else {
+        // 경고창 표시
+        this.loadingHide();
+        this.openAccessDeniedConfirm();
+      }
 
     }).catch((error) => {
       if (!isUndefined(error.details)) {
@@ -2652,7 +2666,14 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * 워크스페이스로 돌아가기
    */
   public goBack() {
-    this.router.navigate(['/workspace', this._workspaceId]).then();
+    const cookieWs = this.cookieService.get(CookieConstant.KEY.CURRENT_WORKSPACE);
+    let cookieWorkspace = null;
+    if (cookieWs) {
+      cookieWorkspace = JSON.parse(cookieWs);
+    }
+    if (null !== cookieWorkspace) {
+      this.router.navigate(['/workspace', cookieWorkspace['workspaceId']]);
+    }
   } // function - goBack
 
   // sql 포맷터

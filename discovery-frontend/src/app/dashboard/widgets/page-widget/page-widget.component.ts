@@ -56,7 +56,11 @@ import {GridChartComponent} from '../../../common/component/chart/type/grid-char
 import {BarChartComponent} from '../../../common/component/chart/type/bar-chart.component';
 import {LineChartComponent} from '../../../common/component/chart/type/line-chart.component';
 import {OptionGenerator} from '../../../common/component/chart/option/util/option-generator';
-import {BoardSyncOptions, BoardWidgetOptions, WidgetShowType} from '../../../domain/dashboard/dashboard.globalOptions';
+import {
+  BoardSyncOptions,
+  BoardWidgetOptions,
+  WidgetShowType
+} from '../../../domain/dashboard/dashboard.globalOptions';
 import {DataDownloadComponent} from '../../../common/component/data-download/data.download.component';
 import {CustomField} from '../../../domain/workbook/configurations/field/custom-field';
 import {ChartLimitInfo, DashboardUtil} from '../../util/dashboard.util';
@@ -212,6 +216,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * 컴포넌트 초기 실행
    */
   public ngOnInit() {
+    if(this.inputWidget.dashBoard.dataSources.filter(datasource => {return datasource.id === this.widget.configuration.dataSource.id}).length == 0) {
+      this._showError({code: 'GB0000', details: this.translateService.instant('msg.board.error.deny-datasource')});
+    }
     super.ngOnInit();
   }
 

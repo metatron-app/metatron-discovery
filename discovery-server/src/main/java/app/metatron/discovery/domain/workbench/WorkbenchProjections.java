@@ -83,6 +83,9 @@ public class WorkbenchProjections extends BaseProjections{
 
     String getDatabaseName();
 
+    @Value("#{target.dataConnection.workspaces.contains(target.workspace)}")
+    Boolean getValid();
+
     @Value("#{@cachedUserService.findUserProfile(target.createdBy)}")
     UserProfile getCreatedBy();
 

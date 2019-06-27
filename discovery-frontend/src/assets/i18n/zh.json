@@ -395,6 +395,9 @@
   "msg.space.th.server": "服务器",
   "msg.space.create.notebook.title": "请选择数据类型",
   "msg.space.ui.list.search.placeholder" : "請搜索服務器名稱",
+  "msg.space.ui.workbook.unauthorized" : "未经授权。请检查数据源的发布权限 ({{inactive}}/{{active}}).",
+  "msg.space.ui.notebook.unauthorized" : "未经授权。请检查笔记本服务器的权限。",
+  "msg.space.ui.workbench.unauthorized" : "未经授权。请检查数据连接的发布权限。",
 
   "msg.alert.retrieve.fail": "查询失败",
   "msg.alert.del.success": "~已删除",
@@ -1551,6 +1554,7 @@
   "msg.board.unload.title": "无法调出dashboard",
   "msg.board.unload.desc": "未知原因不可调出dashboard，<br>请再次尝试",
   "msg.board.ui.cant-not-down-aggregate": "因存在包含合计函数的列，不支持查看原件",
+  "msg.board.error.deny-datasource" : "不允许使用数据源。",
 
   "msg.storage.btn.create.dsource": "创建新数据源",
   "msg.storage.ui.dsource.search.description": "以数据源名称搜索",
