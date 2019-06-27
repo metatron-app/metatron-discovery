@@ -11,22 +11,15 @@
                                  [title]="recommendedMetadataList[0].name"
                                  [tagList]="recommendedMetadataList[0].tags"
                                  [description]="recommendedMetadataList[0].description"
-                                 [style.width]="100 + '%'" [style.display]="'table'" [style.height]="100 + '%'"></component-banner>
+                                 [style.width]="100 + '%'" [style.display]="'table'" [style.height]="100 + '%'"
+                                 (clickedBanner)="onClickMetadata(recommendedMetadataList[0])"></component-banner>
             </div>
             <div class="ddp-banner-list" *ngIf="!isEmptyRecommendedMetadataList() && recommendedMetadataList.length > 1">
-              <component-banner  *ngFor="let metadata of recommendedMetadataList | slice:1:5"
+              <component-banner *ngFor="let metadata of recommendedMetadataList | slice:1:5"
                                 [bannerClass]="'ddp-ui-banner-link type-banner02'" [iconClass]="getMetadataIcon(metadata)"
-                                [title]="metadata.name">
+                                [title]="metadata.name"
+                                (clickedBanner)="onClickMetadata(metadata)">
               </component-banner>
-<!--              <component-banner [bannerClass]="'ddp-ui-banner-link type-banner03'" [iconClass]="'ddp-icon-stagingdb'"-->
-<!--                                [title]="'Data Source 002'">-->
-<!--              </component-banner>-->
-<!--              <component-banner [bannerClass]="'ddp-ui-banner-link type-banner04'" [iconClass]="'ddp-icon-stagingdb'"-->
-<!--                                [title]="'Data Source 002'">-->
-<!--              </component-banner>-->
-<!--              <component-banner [bannerClass]="'ddp-ui-banner-link type-banner03'" [iconClass]="'ddp-icon-stagingdb'"-->
-<!--                                [title]="'Data Source 002'">-->
-<!--              </component-banner>-->
             </div>
           </div>
         </div>
@@ -49,9 +42,9 @@
         </ul>
       </div>
       <div class="ddp-box-summary">
-        <div class="ddp-type-summary-label">Recommended data</div>
+        <div class="ddp-type-summary-label">{{'msg.explore.ui.list.updated' | translate}}</div>
         <ul class="ddp-list-summary ddp-clear">
-          <li *ngFor="let metadata of recommendedMetadataList">
+          <li *ngFor="let metadata of updatedMetadataList">
             <component-card [imageClass]="getMetadataImage(metadata)"
                             [title]="metadata.name" [description]="metadata.description"
                             [tagList]="metadata.tags"
@@ -67,7 +60,7 @@
     <div class="ddp-wrap-list-summary">
       <!-- summary list -->
       <div class="ddp-ui-list-summary">
-        <div class="ddp-type-summary-label">My favorite
+        <div class="ddp-type-summary-label">{{'msg.explore.ui.list.favorite.my' | translate}}
 <!--          <a href="javascript:" class="ddp-btn-more">more ></a>-->
         </div>
         <ul class="ddp-list-data">
@@ -82,7 +75,7 @@
       <!-- //summary list -->
       <!-- summary list -->
       <div class="ddp-ui-list-summary">
-        <div class="ddp-type-summary-label">Favorite creator
+        <div class="ddp-type-summary-label">{{'msg.explore.ui.list.favorite.creator' | translate}}
 <!--          <a href="javascript:" class="ddp-btn-more">more ></a>-->
         </div>
         <ul class="ddp-list-data">

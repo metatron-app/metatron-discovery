@@ -8572,7 +8572,8 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
 .ddp-box-banner .ddp-banner-list {width:333px; }
 .ddp-box-banner .ddp-ui-banner-link.type-banner01 {display:table-cell; vertical-align:middle;}
 .ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-banner-title {padding-bottom:18px; color:#ffffff; font-size:22px; font-weight:bold; text-align:center;}
-.ddp-box-banner .ddp-ui-banner-link .ddp-banner-title .ddp-icon-datasource {display:inline-block; width:26px; height:32px; margin-right:17px; background:url(../images/icon_data_meta.png) no-repeat; }
+.ddp-box-banner .ddp-ui-banner-link .ddp-banner-title .ddp-icon-datasource {display:inline-block; width:26px; height:32px; background:url(../images/icon_data_meta.png) no-repeat;}
+.ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-banner-title .ddp-icon-datasource {margin-right:17px;}
 .ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-txt-detail {text-align:center; color:#fff; font-size:13px; opacity:0.4;}
 .ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-banner-tags {padding-top:9px; text-align:center;}
 .ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-banner-tags .ddp-tags {padding:7px 10px; margin-left:6px; border-radius:5px; background-color:#343865; color:#9da9ff;}
@@ -8583,9 +8584,10 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
 .ddp-box-banner .ddp-ui-banner-link.type-banner04 {background:url(../images/bg_banner04.png) no-repeat; background-size:100% 100%;}
 .ddp-box-banner .ddp-ui-banner-link.type-banner05 {background:url(../images/bg_banner05.png) no-repeat; background-size:100% 100%;}
 .ddp-box-banner .ddp-banner-list [class*="ddp-ui-banner-link"] .ddp-banner-title {position:relative; padding-left:66px;}
-.ddp-box-banner .ddp-banner-list [class*="ddp-ui-banner-link"] .ddp-banner-title [class*="ddp-icon-"] {display:inline-block;position:absolute; top:50%; left:29px; margin-top:-16px; background:url(../images/icon_data_meta.png) no-repeat;}
-.ddp-box-banner .ddp-banner-list [class*="ddp-ui-banner-link"] .ddp-banner-title .ddp-icon-hive {left:22px; width:38px; height:38px; margin-top:-20px; background-position:left -33px;}
-.ddp-box-banner .ddp-banner-list [class*="ddp-ui-banner-link"] .ddp-banner-title .ddp-icon-stagingdb {width:34px; height:36px; margin-top:-18px; background-position:left -72px;}
+.ddp-box-banner .ddp-banner-list .ddp-banner-title [class*="ddp-icon-"] {display:inline-block;position:absolute; top:50%; left:29px; margin-top:-16px; background:url(../images/icon_data_meta.png) no-repeat;}
+.ddp-box-banner .ddp-banner-list .ddp-banner-title .ddp-icon-hive {left:22px; width:38px; height:38px; margin-top:-20px; background-position:left -33px;}
+.ddp-box-banner .ddp-banner-list .ddp-banner-title .ddp-icon-stagingdb {width:34px; height:36px; margin-top:-18px; background-position:left -72px;}
+.ddp-box-banner .ddp-banner-list .ddp-banner-title .ddp-icon-database {width:25px; height:29px; margin-top:-15px; background-position:left -108px;}
 
 .ddp-wrap-meta-summary {display:flex;}
 .ddp-wrap-meta-summary .ddp-wrap-box {flex:1 auto; margin-top:15px;}

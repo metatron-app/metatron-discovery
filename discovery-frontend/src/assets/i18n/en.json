@@ -4094,5 +4094,8 @@
   "msg.explore.ui.tab.catalogs" : "Catalogs",
   "msg.explore.ui.tab.tags" : "Tags",
   "msg.explore.ui.list.recommended" : "Recommended for you",
-  "msg.explore.ui.list.popular" : "Popular data"
+  "msg.explore.ui.list.popular" : "Popular data",
+  "msg.explore.ui.list.updated" : "New or Update",
+  "msg.explore.ui.list.favorite.creator" : "Favorite creator",
+  "msg.explore.ui.list.favorite.my" : "My favorite"
 }

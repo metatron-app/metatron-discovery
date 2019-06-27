@@ -55,19 +55,12 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   public ngOnInit() {
     super.ngOnInit();
 
-    // const test = async () => {
-    //   await this._setMetadataSourceTypeCount()
-    //   await this._setCatalogList(Catalog.Constant.CATALOG_ROOT_ID)
-    //   throw new Error('test');
-    // }
-    //
-    // test().catch(error => this.commonExceptionHandler(error));
-
-    // set catalog list
-    this._setCatalogList2(Catalog.Constant.CATALOG_ROOT_ID).catch(error => this.commonExceptionHandler(error));
-    // this._setMetadataSourceTypeCount2().catch(error => this.commonExceptionHandler(error));
-    // // set count
-    // this._setMetadataSourceTypeCount();
+    const init = async () => {
+      this.loadingShow();
+      await this._setMetadataSourceTypeCount();
+      await this._setCatalogList(Catalog.Constant.CATALOG_ROOT_ID);
+    };
+    init().catch(error => this.commonExceptionHandler(error));
   }
 
   public ngAfterViewInit() {
@@ -108,7 +101,10 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     this.catalogSearchKeyword = value;
     // if empty catalog search keyword
     if (this.isEmptyCatalogSearchKeyword()) {
-      this._setCatalogList(Catalog.Constant.CATALOG_ROOT_ID);
+      this.loadingShow();
+      this._setCatalogList(Catalog.Constant.CATALOG_ROOT_ID)
+        .then(() => this.loadingHide())
+        .catch(error => this.commonExceptionHandler(error));
     } else {
       this._setCatalogListUsedSearch();
     }
@@ -127,56 +123,24 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     this.selectedMetadata = null;
   }
 
-  private _setMetadataSourceTypeCount(): void {
-    this.loadingShow();
-    this.metadataService.getMetadataSourceTypeCount()
-      .then((result: {ENGINE: number, JDBC: number, STAGEDB: number}) => {
-        if (!_.isNil(result.ENGINE)) {
-          this.sourceTypeCount = result.ENGINE;
-        }
-        if (!_.isNil(result.JDBC)) {
-          this.databaseTypeCount = result.JDBC;
-        }
-        if (!_.isNil(result.STAGEDB)) {
-          this.stagingTypeCount = result.STAGEDB;
-        }
-        this.loadingHide();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+  private async _setMetadataSourceTypeCount() {
+    const result: {ENGINE: number, JDBC: number, STAGEDB: number} = await this.metadataService.getMetadataSourceTypeCount();
+    if (!_.isNil(result.ENGINE)) {
+      this.sourceTypeCount = result.ENGINE;
+    }
+    if (!_.isNil(result.JDBC)) {
+      this.databaseTypeCount = result.JDBC;
+    }
+    if (!_.isNil(result.STAGEDB)) {
+      this.stagingTypeCount = result.STAGEDB;
+    }
   }
 
-  private async _setCatalogList2(catalogId: string) {
+  private async _setCatalogList(catalogId: string) {
     const result = await this.catalogService.getTreeCatalogs(catalogId);
     if (catalogId === Catalog.Constant.CATALOG_ROOT_ID) {
       this.catalogList = result;
     }
-  }
-
-  private async _setMetadataSourceTypeCount2() {
-    // this.loadingShow();
-    // const result: {ENGINE: number, JDBC: number, STAGEDB: number} = await this.catalogService.getMetadataSourceTypeCount();
-    // if (!_.isNil(result.ENGINE)) {
-    //   this.sourceTypeCount = result.ENGINE;
-    // }
-    // if (!_.isNil(result.JDBC)) {
-    //   this.databaseTypeCount = result.JDBC;
-    // }
-    // if (!_.isNil(result.STAGEDB)) {
-    //   this.stagingTypeCount = result.STAGEDB;
-    // }
-    // this.loadingHide();
-  }
-
-  private _setCatalogList(catalogId: string): void {
-    this.loadingShow();
-    this.catalogService.getTreeCatalogs(catalogId)
-      .then((result) => {
-        if (catalogId === Catalog.Constant.CATALOG_ROOT_ID) {
-          this.catalogList = result;
-        }
-        this.loadingHide();
-      })
-      .catch(error => this.commonExceptionHandler(error));
   }
 
   private _setCatalogListUsedSearch(): void {

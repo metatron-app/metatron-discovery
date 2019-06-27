@@ -25,8 +25,9 @@ import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
 })
 export class ExploreDataMainComponent extends AbstractComponent {
 
-  popularMetadataList: Metadata[];
   recommendedMetadataList: Metadata[];
+  popularMetadataList: Metadata[];
+  updatedMetadataList: Metadata[];
   favoriteMetadataList: Metadata[];
   favoriteCreatorMetadataList: Metadata[];
 
@@ -51,6 +52,7 @@ export class ExploreDataMainComponent extends AbstractComponent {
     const init = async () => {
       this.loadingShow();
       await this._setPopularMetadataList();
+      await this._updatedMetadataList();
       await this._setRecommendedMetadataList();
       await this._setMyFavoriteMetadataList();
       await this._setCreatorFavoriteMetadataList();
@@ -105,6 +107,13 @@ export class ExploreDataMainComponent extends AbstractComponent {
     const result = await this._metadataService.getMetadataListByPopularity({size: 10, page: 0});
     if (!_.isNil(result._embedded)) {
       this.popularMetadataList = result._embedded.metadatas;
+    }
+  }
+
+  private async _updatedMetadataList() {
+    const result = await this._metadataService.getMetaDataList({size: 10, page: 0, sort: 'modifiedTime,desc'});
+    if (!_.isNil(result._embedded)) {
+      this.updatedMetadataList = result._embedded.metadatas;
     }
   }
 
