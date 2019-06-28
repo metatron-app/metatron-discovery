@@ -432,6 +432,8 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
       Alert.warning(this.translateService.instant('msg.dp.ui.join.key.error'));
     }
 
+    this.leftJoinKey = '';
+    this.rightJoinKey = '';
     // this.previewJoinResult();   // 조인 결과 미리보기
   } // function - addToJoinKeys
 
@@ -666,7 +668,6 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
 
         // 조인키를 넣어 준다
         this.rightJoinKey = '';
-        this.rightJoinKey = '';
         this.leftJoinKey = '';
 
         // 선택됐었던 column list 초기화
@@ -788,7 +789,15 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
       return;
     }
     this.rightJoinKey = key;
-    this.isRightDatasetShow = false;
+    if(this.leftJoinKey==='') {
+      for (let field of this.leftDataset.gridData.fields) {
+        if (field.name && key === field.name) {
+          this.leftJoinKey = key;
+          break;
+        }
+      }
+    }
+    setTimeout(() => this.isRightDatasetShow = false);
   } // function - onRightJoinKeySelected
 
   public showTypeList(event) {
