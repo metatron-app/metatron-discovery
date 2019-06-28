@@ -14,10 +14,14 @@
 
 package app.metatron.discovery.domain.user.role;
 
+import com.google.common.collect.Lists;
+
 import org.apache.commons.collections4.CollectionUtils;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.core.annotation.HandleAfterDelete;
 import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
 import org.springframework.data.rest.core.annotation.HandleBeforeDelete;
 import org.springframework.data.rest.core.annotation.HandleBeforeLinkDelete;
@@ -25,7 +29,12 @@ import org.springframework.data.rest.core.annotation.HandleBeforeLinkSave;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 
+import java.util.List;
+import java.util.Set;
+
 import app.metatron.discovery.domain.workspace.Workspace;
+import app.metatron.discovery.domain.workspace.WorkspaceMemberRepository;
+import app.metatron.discovery.domain.workspace.WorkspaceRepository;
 
 /**
  * Created by kyungtaak on 2016. 5. 14..
@@ -37,6 +46,15 @@ public class RoleSetEventHandler {
 
   @Autowired
   RoleSetService roleSetService;
+
+  @Autowired
+  RoleSetRepository roleSetRepository;
+
+  @Autowired
+  WorkspaceRepository workspaceRepository;
+
+  @Autowired
+  WorkspaceMemberRepository workspaceMemberRepository;
 
   @HandleBeforeCreate
 //  @PreAuthorize("hasAnyAuthority('PERM_SYSTEM_WRITE_USER') " +
@@ -79,6 +97,34 @@ public class RoleSetEventHandler {
 //  @PreAuthorize("hasAnyAuthority('PERM_SYSTEM_WRITE_USER') " +
 //          "or hasPermission(#roleSet, 'PERM_WORKSPACE_WRITE_MEMBER')")
   public void handleBeforeDelete(RoleSet roleSet) {
+    Hibernate.initialize(roleSet.getWorkspaces());
+  }
+
+  @HandleAfterDelete
+  public void handleAfterDelete(RoleSet roleSet) {
+    // 연결된 워크스페이스 기본 퍼미션 스키마로 변경, Member의 Role도 defaultRole로 변경
+    if (roleSet.getScope() == RoleSet.RoleSetScope.PUBLIC &&
+        roleSet.getLinkedWorkspaces() > 0) {
+      RoleSet defaultRoleSet = roleSetService.getDefaultRoleSet();
+      Set<Workspace> defaultRoleSetWorkspaces = defaultRoleSet.getWorkspaces();
+      Set<Workspace> linkedWorkspaces = roleSet.getWorkspaces();
+      List<String> workspaceIds = Lists.newArrayList();
+      for (Workspace workspace : linkedWorkspaces) {
+        LOGGER.debug("UPDATED: Set linked workspace({}) to default permission schema", workspace.getId());
+        defaultRoleSetWorkspaces.add(workspace);
+        workspaceIds.add(workspace.getId());
+      }
+      defaultRoleSet.setWorkspaces(defaultRoleSetWorkspaces);
+      defaultRoleSet.setLinkedWorkspaces(defaultRoleSet.getWorkspaces().size());
+      roleSetRepository.saveAndFlush(defaultRoleSet);
+
+      if (CollectionUtils.isNotEmpty(roleSet.getRoleNames())) {
+        for (String deletedRoleName : roleSet.getRoleNames()) {
+          LOGGER.debug("UPDATED: Set linked workspace({}) in roleset({}) to {}", workspaceIds, deletedRoleName, defaultRoleSet.getDefaultRole().getName());
+          workspaceMemberRepository.updateMultiMemberRoleInWorkspaces(workspaceIds, deletedRoleName, defaultRoleSet.getDefaultRole().getName());
+        }
+      }
+    }
   }
 
   @HandleBeforeLinkDelete
