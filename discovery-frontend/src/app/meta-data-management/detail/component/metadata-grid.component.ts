@@ -121,7 +121,7 @@ export class MetadataGridComponent extends AbstractComponent {
    * @param args
    */
   extendGridHeader(args: any): void {
-    $(`<div class="slick-data">${_.find(this.fieldList, {'name': args.column.id})['logicalName'] || ''}</div>`).appendTo(args.node);
+    $(`<div class="slick-data">${_.find(this.fieldList, {'name': args.column.id})['physicalName'] || ''}</div>`).appendTo(args.node);
   }
 
   private _isCreatedField(field): boolean {
@@ -242,8 +242,8 @@ export class MetadataGridComponent extends AbstractComponent {
    */
   private _getGridHeaderName(field, headerName: string): string {
     return field.type === LogicalType.TIMESTAMP && (this.timezoneService.isEnableTimezoneInDateFormat(field.format) || field.format && field.format.type === FieldFormatType.UNIX_TIME)
-      ? `<span style="padding-left:20px;"><em class="${this.getFieldTypeIconClass(this._getConvertedType(field.type, field.logicalType).toString())}"></em>${headerName}<div class="slick-column-det" title="${this._getTimezoneLabel(field.format)}">${this._getTimezoneLabel(field.format)}</div></span>`
-      : `<span style="padding-left:20px;"><em class="${this.getFieldTypeIconClass(this._getConvertedType(field.type, field.logicalType).toString())}"></em>${headerName}</span>`;
+      ? `<span style="padding-left:20px;"><em class="${this.getFieldTypeIconClass(this._getConvertedType(field.type, field.physicalType).toString())}"></em>${headerName}<div class="slick-column-det" title="${this._getTimezoneLabel(field.format)}">${this._getTimezoneLabel(field.format)}</div></span>`
+      : `<span style="padding-left:20px;"><em class="${this.getFieldTypeIconClass(this._getConvertedType(field.type, field.physicalType).toString())}"></em>${headerName}</span>`;
   }
 
   /**
@@ -284,7 +284,7 @@ export class MetadataGridComponent extends AbstractComponent {
     if ( this.selectedLogicalTypeFilter.value === Type.Logical.ALL) {
       return fieldList;
     } else {
-      return fieldList.filter(field => this._getConvertedType(field.type, field.logicalType) === this.selectedLogicalTypeFilter.value);
+      return fieldList.filter(field => this._getConvertedType(field.type, field.physicalType) === this.selectedLogicalTypeFilter.value);
     }
   }
 
