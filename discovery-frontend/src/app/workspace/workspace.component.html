@@ -365,7 +365,7 @@
         <!-- notebook -->
         <div class="ddp-box-bottom" *ngIf="book.type === 'notebook'">
           <div class="ddp-wrap-data">
-            <span class="ddp-data-name" *ngIf="book.contents.connectorType === 'jupyter' || book.contents.connectorType === 'zeppelin'">
+            <span class="ddp-data-name" title="{{book.connector}}" *ngIf="book.contents.connectorType === 'jupyter' || book.contents.connectorType === 'zeppelin'">
                 <em [ngClass]="{'ddp-icon-lang-jupyter' : book.contents.connectorType === 'jupyter', 'ddp-icon-lang-zeppelin' : book.contents.connectorType === 'zeppelin'}"></em>
                 <div class="ddp-txt-name">
                   <!-- error -->
@@ -382,22 +382,19 @@
                   <span class="ddp-txt-name-in">{{book.connector}}</span>
                 </div>
             </span>
-            <span class="ddp-data-name ddp-data-lang-r" *ngIf="book.kernelType === 'R'">
+            <span class="ddp-data-name ddp-data-lang-r" title="{{'msg.nbook.ui.r' | translate}}" *ngIf="book.kernelType === 'R'">
                 <div class="ddp-txt-name">
                     <span class="ddp-txt-name-in">{{'msg.nbook.ui.r' | translate}}</span>
-
                 </div>
             </span>
-            <span class="ddp-data-name ddp-data-lang-python" *ngIf="book.kernelType === 'PYTHON'">
+            <span class="ddp-data-name ddp-data-lang-python" title="{{'msg.nbook.ui.python' | translate}}" *ngIf="book.kernelType === 'PYTHON'">
                 <div class="ddp-txt-name">
                     <span class="ddp-txt-name-in">{{'msg.nbook.ui.python' | translate}}</span>
-
                 </div>
             </span>
-            <span class="ddp-data-name ddp-data-lang-python" *ngIf="book.kernelType === 'SPARK'">
+            <span class="ddp-data-name ddp-data-lang-python" title="{{'msg.nbook.ui.spark' | translate}}" *ngIf="book.kernelType === 'SPARK'">
                 <div class="ddp-txt-name">
                     <span class="ddp-txt-name-in">{{'msg.nbook.ui.spark' | translate}}</span>
-
                 </div>
             </span>
           </div>
@@ -501,9 +498,9 @@
           <div class="ddp-ui-data-list">
             <!-- workbench -->
             <div class="ddp-data-info" *ngIf="book.type === 'workbench'">
-              <span class="ddp-data-connection">
+              <span class="ddp-data-connection" title="{{ getConnName(book) }}">
                   <img src="{{getWorkbenchConnTypeIcon(book)}}">
-                  <span class="ddp-txt-connection" title="{{ getConnName(book) }}">{{ getConnName(book) }}</span>
+                  <span class="ddp-txt-connection">{{ getConnName(book) }}</span>
                 <!-- error -->
                   <div class="ddp-type-info" *ngIf="!book.contents.connValid">
                       <em class="ddp-icon-error2"></em>
@@ -535,7 +532,7 @@
             </div>
             <!-- notebook -->
             <div class="ddp-data-info" *ngIf="book.type === 'notebook'">
-              <span class="ddp-data-name"><em [ngClass]="{'ddp-icon-lang-jupyter' : book.contents.connectorType === 'jupyter', 'ddp-icon-lang-zeppelin' : book.contents.connectorType === 'zeppelin'}"></em>{{book.connector}}
+              <span class="ddp-data-name" title="{{book.connector}}"><em [ngClass]="{'ddp-icon-lang-jupyter' : book.contents.connectorType === 'jupyter', 'ddp-icon-lang-zeppelin' : book.contents.connectorType === 'zeppelin'}"></em>{{book.connector}}
                 <!-- error -->
                 <div class="ddp-type-info" *ngIf="!book.contents.connValid">
                     <em class="ddp-icon-error2"></em>
@@ -547,9 +544,9 @@
                 </div>
                 <!-- //error -->
               </span>
-              <span class="ddp-data-name ddp-data-lang-r" *ngIf="book.kernelType === 'R'"> {{'msg.nbook.ui.r' | translate}}</span>
-              <span class="ddp-data-name ddp-data-lang-python" *ngIf="book.kernelType === 'PYTHON'"> {{'msg.nbook.ui.python' | translate}}</span>
-              <span class="ddp-data-name ddp-data-lang-python" *ngIf="book.kernelType === 'SPARK'"> {{'msg.nbook.ui.spark' | translate}}</span>
+              <span class="ddp-data-name ddp-data-lang-r" title="{{'msg.nbook.ui.r' | translate}}" *ngIf="book.kernelType === 'R'"> {{'msg.nbook.ui.r' | translate}}</span>
+              <span class="ddp-data-name ddp-data-lang-python" title="{{'msg.nbook.ui.python' | translate}}" *ngIf="book.kernelType === 'PYTHON'"> {{'msg.nbook.ui.python' | translate}}</span>
+              <span class="ddp-data-name ddp-data-lang-python" title="{{'msg.nbook.ui.spark' | translate}}" *ngIf="book.kernelType === 'SPARK'"> {{'msg.nbook.ui.spark' | translate}}</span>
             </div>
             <div class="ddp-data-date">
               {{'msg.comm.ui.list.last' | translate}} <span class="ddp-data-ago">{{book.modifiedTime | amTimeAgo}}</span>
