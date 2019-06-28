@@ -32,8 +32,11 @@ import app.metatron.discovery.common.data.projection.ColumnHistogram;
 import app.metatron.discovery.common.data.projection.DataGrid;
 import app.metatron.discovery.common.data.projection.DataHistogram;
 import app.metatron.discovery.common.data.projection.Row;
+import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.mdm.Metadata;
 import app.metatron.discovery.domain.mdm.MetadataColumn;
+
+import static app.metatron.discovery.domain.datasource.Field.COLUMN_NAME_CURRENT_DATETIME;
 
 /**
  * The type Metadata data preview.
@@ -156,6 +159,13 @@ public abstract class MetadataDataPreview implements DataGrid, DataHistogram {
    */
   protected void generateColumns(Metadata metadata){
     for(MetadataColumn metadataColumn : metadata.getColumns()){
+      //skip current_datetime
+      if(metadata.getSourceType() == Metadata.SourceType.ENGINE
+          && COLUMN_NAME_CURRENT_DATETIME.equals(metadataColumn.getPhysicalName())
+          && metadataColumn.getRole() == Field.FieldRole.TIMESTAMP){
+        continue;
+      }
+
       columnNames.add(metadataColumn.getPhysicalName());
 
       //Create column description
