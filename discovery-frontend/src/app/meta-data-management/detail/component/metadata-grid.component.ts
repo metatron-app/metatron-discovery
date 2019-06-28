@@ -140,7 +140,8 @@ export class MetadataGridComponent extends AbstractComponent {
   private _setFieldRowList(colNames: string[], rows) {
     this.fieldRowList = rows.reduce((result, row) => {
       result.push(row.values.reduce((mappingRow, data, index) => {
-        mappingRow[colNames[index]] = data;
+        // #2172 if null or undefined, init empty string
+        mappingRow[colNames[index]] = data || '';
         return mappingRow;
       }, {}));
       return result;
