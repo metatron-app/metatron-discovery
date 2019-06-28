@@ -126,7 +126,7 @@ public class MetadataEngineDataPreview extends MetadataDataPreview {
     engineData.forEach(rowNode -> {
       Row row = new Row();
       for(ColumnDescription columnDescription : this.columnDescriptions){
-        String columnName = columnDescription.getName();
+        String columnName = columnDescription.getPhysicalName();
 
         Map<String, Object> result = mapper.convertValue(rowNode, Map.class);
         Object columnValue = result.get(columnName);
