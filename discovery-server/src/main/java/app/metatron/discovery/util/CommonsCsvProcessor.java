@@ -412,7 +412,7 @@ public class CommonsCsvProcessor {
       // count remaining characters
       while (readChars != -1) {
         for (int i=0; i<readChars; ++i) {
-          if (c[i] == '\n') {
+          if (i == readChars -1 || c[i] == '\n') {
             ++count;
           }
         }
