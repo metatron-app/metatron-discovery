@@ -1354,6 +1354,21 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
       });
   }
 
+  /**
+   * 예측선 사용 여부
+   */
+  public changeUseForecast() {
+    if( this.data.isSelectedForecast ) {
+      this.data.analysis.analysis.forecast.style.lineType = 'SOLID';
+      this.data.analysis.analysis.forecast.style.lineThickness = 2.0;
+      this.predictionLineForecastDataChangeNotification();
+    } else {
+      this.data.analysis.analysis.forecast.style.lineType = 'SOLID';
+      this.data.analysis.analysis.forecast.style.lineThickness = 0;
+      this.predictionLineForecastDataChangeNotification();
+    }
+  } // function - changeUseForecast
+
   // -------------------------------------------------------------------------------------------------------------------
   // Confidence 관련
   // -------------------------------------------------------------------------------------------------------------------
@@ -1417,6 +1432,13 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
     // 예측선 Confidence 데이터 변경 알림
     this.predictionLineConfidenceDataChangeNotification();
   } // function - setConfidenceTransparency
+
+  /**
+   * 투명도 사용 여부 변경
+   */
+  public changeUseConfidence() {
+    this.setConfidenceTransparency( this.data.isSelectedConfidence ? 10 : 0 );
+  } // function - changeUseConfidence
 
   // -------------------------------------------------------------------------------------------------------------------
   // 셀렉트 박스 콜백 관련
