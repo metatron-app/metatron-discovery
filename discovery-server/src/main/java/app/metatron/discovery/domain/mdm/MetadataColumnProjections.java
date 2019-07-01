@@ -17,6 +17,8 @@ package app.metatron.discovery.domain.mdm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
+import java.util.Map;
+
 import app.metatron.discovery.common.BaseProjections;
 import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.domain.datasource.Field;
@@ -67,6 +69,9 @@ public class MetadataColumnProjections extends BaseProjections {
 
     @Value("#{target.getFieldFormat()}")
     FieldFormat getFormat();
+
+    @Value("#{target.getAdditionalContextMap()}")
+    Object getAdditionalContext();
 
     Long getSeq();
   }
