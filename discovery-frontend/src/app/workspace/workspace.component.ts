@@ -747,10 +747,9 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   } // function - detailPage
 
   public detailValidPage(book: Book) {
-    if((book.type == 'workbench' || book.type == 'notebook') && !book.contents.connValid) {
-      return;
+    if ( book.contents.connValid ) {
+      this.detailPage(book.id, book.type);
     }
-    this.detailPage(book.id, book.type);
   }
 
  /**
