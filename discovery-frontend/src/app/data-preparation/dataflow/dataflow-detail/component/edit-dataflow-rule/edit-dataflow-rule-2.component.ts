@@ -48,6 +48,7 @@ import {DataflowModelService} from "../../../service/dataflow.model.service";
 import {ActivatedRoute} from "@angular/router";
 import {CommonConstant} from "../../../../../common/constant/common.constant";
 import {Observable} from "rxjs";
+import {Subscription} from "rxjs/Subscription";
 
 declare let Split;
 
@@ -162,6 +163,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   // tell if union is updating or just adding
   public isUpdate: boolean = false;
 
+  public isForward: boolean; // location.forward
+
 
   // Histogram
   public charts: any = [];
@@ -251,6 +254,17 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     // Init
     super.ngOnInit();
+
+    this.subscriptions.push(
+      <Subscription>this.location.subscribe((popState) => {
+        if( this.isForward !== true ) {
+          this.isForward = true;
+          this.location.forward();
+        } else {
+          this.isForward = false;
+        }
+      })
+    );
 
     // 데이터소스 생성완료시 사용
     this.subscriptions.push(
