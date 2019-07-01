@@ -4097,6 +4097,7 @@
   "msg.explore.ui.list.recommended" : "추천 데이터",
   "msg.explore.ui.list.popular" : "가장 인기있는",
   "msg.explore.ui.list.updated" : "신규 또는 수정된",
-  "msg.explore.ui.list.favorite.creator" : "즐겨찾기로",
-  "msg.explore.ui.list.favorite.my" : "즐겨찾기"
+  "msg.explore.ui.list.data.creator" : "데이터 등록자",
+  "msg.explore.ui.list.favorite.my" : "즐겨찾기",
+  "msg.explore.ui.lnb.folding" : "폴딩"
 }

@@ -76,30 +76,13 @@ export class ExploreCatalogMainComponent extends AbstractComponent implements On
    * More connection click event
    */
   changePage(data: { page: number, size: number }): void {
-    // if more datasource list
+    // if more metadata list
     if (data) {
       this.page.page = data.page;
       this.page.size = data.size;
-      this.reloadPage(false);
+      this._setMetadataList(this.catalog.id);
     }
   }
-
-  /**
-   * 페이지를 새로 불러온다.
-   * @param {boolean} isFirstPage
-   */
-  reloadPage(isFirstPage: boolean = true) {
-    (isFirstPage) && (this.page.page = 0);
-    const params = {
-      page: this.page.page,
-      size: this.page.size,
-      pseudoParam : (new Date()).getTime()
-    };
-    this.router.navigate(
-      [this.router.url.replace(/\?.*/gi, '')],
-      {queryParams: params, replaceUrl: true}
-    ).then();
-  } // function - reloadPage
 
   private _setMetadataList(catalogId: string) {
     this.loadingShow();
@@ -109,6 +92,9 @@ export class ExploreCatalogMainComponent extends AbstractComponent implements On
     };
     this.catalogService.getMetadataInCatalog(catalogId, params, false, 'forListView')
       .then((result) => {
+
+        this.pageResult = result.page;
+
         if (result._embedded) {
           this.metadataList = result._embedded.metadatas;
         } else {

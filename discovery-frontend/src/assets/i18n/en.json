@@ -4096,6 +4096,7 @@
   "msg.explore.ui.list.recommended" : "Recommended for you",
   "msg.explore.ui.list.popular" : "Popular data",
   "msg.explore.ui.list.updated" : "New or Update",
-  "msg.explore.ui.list.favorite.creator" : "Favorite creator",
-  "msg.explore.ui.list.favorite.my" : "My favorite"
+  "msg.explore.ui.list.data.creator" : "Data creator",
+  "msg.explore.ui.list.favorite.my" : "My favorite",
+  "msg.explore.ui.lnb.folding" : "Folding"
 }
