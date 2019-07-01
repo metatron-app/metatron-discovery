@@ -545,8 +545,6 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    * @private
    */
   private _convertSpecToUI(boardInfo: Dashboard): Dashboard {
-    console.log(boardInfo);
-
     (boardInfo.configuration) || (boardInfo.configuration = new BoardConfiguration());
     (boardInfo.configuration.options) || (boardInfo.configuration.options = new BoardGlobalOptions());
 

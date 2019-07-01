@@ -13,28 +13,31 @@
  */
 
 import {
-  Component, DoCheck,
+  Component,
+  DoCheck,
   ElementRef,
   EventEmitter,
   Injector,
-  Input, KeyValueDiffers, OnDestroy,
+  Input,
+  KeyValueDiffers,
+  OnDestroy,
   OnInit,
   Output,
   ViewChild
 } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Datasource, Field, FieldRole, LogicalType } from '../../../domain/datasource/datasource';
-import { Filter } from '../../../domain/workbook/configurations/filter/filter';
-import { Widget } from '../../../domain/dashboard/widget/widget';
-import { Alert } from '../../../common/util/alert.util';
-import { StringUtil } from '../../../common/util/string.util';
-import { FilterUtil } from '../../util/filter.util';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {Datasource, Field, FieldRole, LogicalType} from '../../../domain/datasource/datasource';
+import {Filter} from '../../../domain/workbook/configurations/filter/filter';
+import {Widget} from '../../../domain/dashboard/widget/widget';
+import {Alert} from '../../../common/util/alert.util';
+import {StringUtil} from '../../../common/util/string.util';
+import {FilterUtil} from '../../util/filter.util';
 import * as _ from 'lodash';
-import { CustomField } from '../../../domain/workbook/configurations/field/custom-field';
-import { BoardConfiguration, BoardDataSource, Dashboard } from '../../../domain/dashboard/dashboard';
-import { PageDataContextComponent } from '../../../page/page-data/page-data-context.component';
-import { DashboardUtil } from '../../util/dashboard.util';
-import { EventBroadcaster } from '../../../common/event/event.broadcaster';
+import {CustomField} from '../../../domain/workbook/configurations/field/custom-field';
+import {BoardConfiguration, BoardDataSource, Dashboard} from '../../../domain/dashboard/dashboard';
+import {PageDataContextComponent} from '../../../page/page-data/page-data-context.component';
+import {DashboardUtil} from '../../util/dashboard.util';
+import {EventBroadcaster} from '../../../common/event/event.broadcaster';
 
 @Component({
   selector: 'datasource-panel',
@@ -185,7 +188,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
    * @param {Datasource} dataSource
    */
   public selectDataSource(dataSource: Datasource) {
-    if( dataSource ) {
+    if( dataSource && dataSource.valid ) {
       this.dataSource = dataSource;
       const boardConf: BoardConfiguration = this.dashboard.configuration;
 

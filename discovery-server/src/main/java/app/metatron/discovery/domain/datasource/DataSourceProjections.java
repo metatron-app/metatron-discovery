@@ -76,6 +76,8 @@ public class DataSourceProjections extends BaseProjections {
 
     String getDescription();
 
+    Boolean getValid();
+
   }
 
   @Projection(types = DataSource.class, name = "forListView")
@@ -183,6 +185,8 @@ public class DataSourceProjections extends BaseProjections {
     DataSource.SourceType getSrcType();
 
     DataSourceTemporary getTemporary();
+
+    Boolean getValid();
 
     @Value("#{@contextService.getContexts(target)}")
     Map<String, Object> getContexts();

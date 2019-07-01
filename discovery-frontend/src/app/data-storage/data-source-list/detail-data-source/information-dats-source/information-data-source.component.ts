@@ -26,7 +26,13 @@ import {
   ViewChild
 } from '@angular/core';
 import {AbstractPopupComponent} from '../../../../common/component/abstract-popup.component';
-import {ConnectionType, Datasource, Field, SourceType, Status} from '../../../../domain/datasource/datasource';
+import {
+  ConnectionType,
+  Datasource,
+  Field,
+  SourceType,
+  Status
+} from '../../../../domain/datasource/datasource';
 import {SetWorkspacePublishedComponent} from '../../../component/set-workspace-published/set-workspace-published.component';
 import {DatasourceService} from '../../../../datasource/service/datasource.service';
 import {QueryDetailComponent} from './component/query-detail/query-detail.component';
@@ -38,9 +44,10 @@ import {StringUtil} from '../../../../common/util/string.util';
 import {ConfirmModalComponent} from "../../../../common/component/modal/confirm/confirm.component";
 import {Modal} from "../../../../common/domain/modal";
 import {Alert} from "../../../../common/util/alert.util";
-import { IngestionLogComponent } from './component/ingestion-log/ingestion-log.component';
-import { CommonUtil } from '../../../../common/util/common.util';
+import {IngestionLogComponent} from './component/ingestion-log/ingestion-log.component';
+import {CommonUtil} from '../../../../common/util/common.util';
 import {Metadata} from "../../../../domain/meta-data-management/metadata";
+import {SsType} from "../../../../domain/data-preparation/pr-snapshot";
 
 declare let echarts: any;
 
@@ -149,6 +156,11 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
 
   // description
   public descriptionChangeText: string;
+
+  public dsStatus = Status;
+  public dsSrcType = SourceType;
+  public dsConnType = ConnectionType;
+  public snSsType = SsType;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor

@@ -12,11 +12,19 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  Injector,
+  OnDestroy,
+  OnInit,
+  ViewChild
+} from '@angular/core';
 
 import * as _ from 'lodash';
 import * as moment from 'moment';
-import { ClipboardService } from 'ngx-clipboard';
+import {ClipboardService} from 'ngx-clipboard';
 import {AbstractComponent} from '../common/component/abstract.component';
 import {ActivatedRoute} from '@angular/router';
 import {Workbook, WorkbookDetailProjections} from '../domain/workbook/workbook';
@@ -26,10 +34,10 @@ import {DeleteModalComponent} from '../common/component/modal/delete/delete.comp
 import {Modal} from '../common/domain/modal';
 import {Alert} from '../common/util/alert.util';
 import {UserProfile} from '../domain/user/user-profile';
-import {Dashboard, BoardDataSource, PresentationDashboard} from '../domain/dashboard/dashboard';
+import {BoardDataSource, Dashboard, PresentationDashboard} from '../domain/dashboard/dashboard';
 import {DragDropConfig, DragDropService, DragDropSortableService, SortableContainer} from 'ng2-dnd';
 import {DashboardService} from '../dashboard/service/dashboard.service';
-import {Comments, Comment} from '../domain/comment/comment';
+import {Comment, Comments} from '../domain/comment/comment';
 import {CookieConstant} from '../common/constant/cookie.constant';
 import {MomentPipe} from '../common/pipe/moment.pipe';
 import {MomentDatePipe} from '../common/pipe/moment.date.pipe';
@@ -1179,7 +1187,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       this.workbookService.getWorkbook(this.workbookId).then((result) => {
         // 워크북이 들고있는 전체 데이터 소스 목록
         this.datasources = result.dataSource.map((ds) => {
-          return {id: ds.id, name: ds.name};
+          return {id: ds.id, name: ds.name, valid: ds.valid};
         });
 
         // 최초 아무것도 선택이 안 되어있는 경우는 전체 선택

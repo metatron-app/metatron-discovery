@@ -413,7 +413,7 @@
   "msg.space.warning.can-not-create-11depth-folder" : "하위 폴더는 10 Depth 까지만 만들 수 있습니다.",
   "msg.space.ui.list.search.placeholder" : "서버명을 검색해 주세요",
   "msg.space.alert.join.msg" : "엔진 호출중 오류가 발생하였습니다",
-  "msg.space.ui.workbook.unauthorized" : "데이터소스({{inactive}}/{{active}})의 Publish 권한을 체크하세요",
+  "msg.space.ui.workbook.unauthorized" : "데이터소스({{inactive}})의 Publish 권한을 체크하세요",
   "msg.space.ui.notebook.unauthorized" : "노트북 서버의 권한을 체크하세요",
   "msg.space.ui.workbench.unauthorized" : "데이터 커넥션의 Publish 권한을 체크하세요",
 

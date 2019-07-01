@@ -103,11 +103,11 @@
               <div class="ddp-wrap-popup2" (clickOutside)="isShowDatasourceMenu=false"
                    [excludeBeforeClick]="true" [exclude]="'.ddp-data-selectbox'">
                 <ul class="ddp-list-popup ddp-type">
-                  <li *ngFor="let ds of datasources" [ngClass]="{'ddp-selected' : selectedDatasources.indexOf(ds.id) > -1}">
+                  <li *ngFor="let ds of datasources" [ngClass]="{'ddp-selected' : ds.valid && selectedDatasources.indexOf(ds.id) > -1, 'ddp-disabled' : !ds.valid}">
                     <a href="javascript:" >
                       <label class="ddp-label-checkbox">
                         <input (click)="selectDatasource(ds.id);"
-                               [checked]="selectedDatasources.indexOf(ds.id) > -1" type="checkbox" >
+                               [checked]="ds.valid && selectedDatasources.indexOf(ds.id) > -1" type="checkbox" >
                         <i class="ddp-icon-checkbox"></i>
                         <span class="ddp-txt-checkbox" title="{{ds['name']}}">{{ds['name']}}</span>
                       </label>

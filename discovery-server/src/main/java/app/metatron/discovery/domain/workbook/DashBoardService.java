@@ -118,8 +118,11 @@ public class DashBoardService {
     Set<DataSource> result = Sets.newHashSet();
     for (DataSource dataSource : dataSources) {
       if (BooleanUtils.isTrue(dataSource.getPublished()) || dataSource.getWorkspaces().contains(workbook.getWorkspace())) {
-        result.add(dataSource);
+        dataSource.setValid(true);
+      } else {
+        dataSource.setValid(false);
       }
+      result.add(dataSource);
     }
 
     return result;

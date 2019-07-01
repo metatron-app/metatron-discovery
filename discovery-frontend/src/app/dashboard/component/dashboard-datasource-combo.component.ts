@@ -15,17 +15,19 @@
 import {
   AfterViewInit,
   Component,
-  ElementRef, EventEmitter,
+  ElementRef,
+  EventEmitter,
   Injector,
   Input,
   OnDestroy,
-  OnInit, Output,
+  OnInit,
+  Output,
   SimpleChange,
   SimpleChanges
 } from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { Datasource } from '../../domain/datasource/datasource';
-import { EventBroadcaster } from '../../common/event/event.broadcaster';
+import {AbstractComponent} from '../../common/component/abstract.component';
+import {Datasource} from '../../domain/datasource/datasource';
+import {EventBroadcaster} from '../../common/event/event.broadcaster';
 
 @Component({
   selector: 'dashboard-datasource-combo',
@@ -129,10 +131,12 @@ export class DashboardDatasourceComboComponent extends AbstractComponent impleme
    * @param {Datasource} dataSource
    */
   public selectDataSource(dataSource: Datasource) {
-    this.isShowDataSourceOpts = false;
-    this.selectedDataSource = dataSource;
-    this._selectOptionEvent.emit(dataSource);
-    this.safelyDetectChanges();
+    if ( dataSource.valid ) {
+      this.isShowDataSourceOpts = false;
+      this.selectedDataSource = dataSource;
+      this._selectOptionEvent.emit(dataSource);
+      this.safelyDetectChanges();
+    }
   } // function - selectDataSource
 
   /**

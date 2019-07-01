@@ -290,7 +290,7 @@
            | baseFilter:['name', srchText]
            | baseSort : [selectedContentSort.key, selectedContentSort.type])"
            (click)="detailValidPage(book); $event.stopPropagation();"
-           [ngClass]="{'ddp-box-workbench' : book.type === 'workbench' , 'ddp-selected' : book.checked , 'ddp-disabled' : (book.type === 'notebook' || book.type === 'workbench') && !book.contents.connValid }">
+           [ngClass]="{'ddp-box-workbench' : book.type === 'workbench' , 'ddp-selected' : book.checked , 'ddp-disabled' : !book.contents.connValid }">
         <em *ngIf="checkEditAuth(book)" (click)="deleteModalOpen(book); $event.stopPropagation();"
             class="ddp-icon-control-cut ddp-hover-tooltip" >
           <!-- 툴팁 -->
@@ -346,13 +346,13 @@
         <!-- workbook -->
         <div class="ddp-box-bottom" *ngIf="book.type === 'workbook'" >
           <div class="ddp-wrap-num" >
-            <span class="ddp-data-num"><em class="ddp-icon-result-data"></em>{{book.contents.dataSource}}
+            <span class="ddp-data-num"><em class="ddp-icon-result-data"></em>{{book.contents.dataSource - book.contents.inactiveDataSource}}
               <!-- info -->
               <div class="ddp-type-info" *ngIf="book.contents.inactiveDataSource > 0">
                   <em class="ddp-icon-error2"></em>
                   <!-- tooltip -->
                   <div class="ddp-ui-tooltip-info ddp-down">
-                    <em class="ddp-icon-view-top"></em>{{'msg.space.ui.workbook.unauthorized' | translate : {inactive : book.contents.inactiveDataSource, active : book.contents.dataSource } }}
+                    <em class="ddp-icon-view-top"></em>{{'msg.space.ui.workbook.unauthorized' | translate : {inactive : book.contents.inactiveDataSource } }}
                   </div>
                   <!-- //tooltip -->
               </div>
@@ -485,7 +485,7 @@
         | baseFilter:['type', selectedContentFilter.key]
         | baseFilter:['name', srchText]
         | baseSort : [selectedContentSort.key, selectedContentSort.type]); let i=index" (click)="detailValidPage(book); $event.stopPropagation();"
-          [ngClass]="{'ddp-selected' : book.checked , 'ddp-disabled' : (book.type === 'notebook' || book.type === 'workbench') && !book.contents.connValid }">
+          [ngClass]="{'ddp-selected' : book.checked , 'ddp-disabled' : !book.contents.connValid }">
         <a href="javascript:" draggable="false">
           <!-- checkbox -->
           <div class="ddp-ui-checkbox" (click)="checkEvent($event, book);">
@@ -515,14 +515,14 @@
             </div>
             <!-- workbook -->
             <div class="ddp-wrap-num" *ngIf="book.type === 'workbook'">
-              <span class="ddp-data-num"><em class="ddp-icon-result-data"></em>{{book.contents.dataSource}}
+              <span class="ddp-data-num"><em class="ddp-icon-result-data"></em>{{book.contents.dataSource - book.contents.inactiveDataSource}}
                 <!-- error -->
                 <div class="ddp-type-info" *ngIf="book.contents.inactiveDataSource > 0">
                   <em class="ddp-icon-error2"></em>
                   <!-- tooltip -->
                   <div class="ddp-ui-tooltip-info ddp-down">
                       <em class="ddp-icon-view-top"></em>
-                    {{'msg.space.ui.workbook.unauthorized' | translate : {inactive : book.contents.inactiveDataSource, active : book.contents.dataSource } }}
+                    {{'msg.space.ui.workbook.unauthorized' | translate : {inactive : book.contents.inactiveDataSource } }}
                   </div>
                   <!-- //tooltip -->
                 </div>
