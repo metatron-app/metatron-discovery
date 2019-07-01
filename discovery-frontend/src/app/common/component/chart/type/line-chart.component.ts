@@ -1123,7 +1123,6 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
           this.chartOption = this.predictionLineLineStyleColorBySeries();
           this.chartOption = this.predictionLineAreaStyleColorBySeries();
         }
-
         break;
       }
       case ChartColorType.MEASURE: {

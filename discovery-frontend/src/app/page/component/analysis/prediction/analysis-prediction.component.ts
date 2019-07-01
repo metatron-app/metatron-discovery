@@ -760,11 +760,17 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
           .forEach((agg) => {
             const hyperParameter = new HyperParameter();
 
-            // alias가 있는경우
-            if (agg.alias) hyperParameter.field = agg.alias;
-            else if ( 'user_defined' === agg.ref ) hyperParameter.field = agg.ref + '.' + agg.name;
-            // alias가 없는경우
-            else hyperParameter.field = `${agg.aggregationType + '(' + agg.name + ')'}`;
+            if (agg.alias) {
+              // alias가 있는경우
+              hyperParameter.field = agg.alias;
+            } else {
+              // alias가 없는경우
+              if( agg.ref ) {
+                hyperParameter.field = `${agg.aggregationType + '(' + agg.ref + '.' + agg.name + ')'}`;
+              } else {
+                hyperParameter.field = `${agg.aggregationType + '(' + agg.name + ')'}`;
+              }
+            }
 
             hyperParameter.alpha = resultData[`${hyperParameter.field}.params`][0];
             hyperParameter.beta = resultData[`${hyperParameter.field}.params`][1];
@@ -793,11 +799,18 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
 
           // alias 설정
           let alias: string;
-          // alias가 있는경우
-          if (agg.alias) alias = agg.alias;
-          else if ( 'user_defined' === agg.ref ) alias = agg.ref + '.' + agg.name;
-          // alias가 없는경우
-          else alias = `${agg.aggregationType + '(' + agg.name + ')'}`;
+          if (agg.alias) {
+            // alias가 있는경우
+            alias = agg.alias;
+          }
+          else {
+            // alias가 없는경우
+            if( agg.ref ) {
+              alias = `${agg.aggregationType + '(' + agg.ref + '.' + agg.name + ')'}`;
+            } else {
+              alias = `${agg.aggregationType + '(' + agg.name + ')'}`;
+            }
+          }
 
           const parameter = this.data.analysis.analysis.forecast.parameters
             .filter((param) => {
@@ -1649,11 +1662,18 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
       .forEach((agg) => {
         const hyperParameter = new HyperParameter();
 
-        // alias가 있는경우
-        if (agg.alias) hyperParameter.field = agg.alias;
-        else if ( 'user_defined' === agg.ref ) hyperParameter.field = agg.ref + '.' + agg.name;
-        // alias가 없는경우
-        else hyperParameter.field = `${agg.aggregationType + '(' + agg.name + ')'}`;
+        if (agg.alias) {
+          // alias가 있는경우
+          hyperParameter.field = agg.alias;
+        }
+        else {
+          // alias가 없는경우
+          if( agg.ref ) {
+            hyperParameter.field = `${agg.aggregationType + '(' + agg.ref + '.' + agg.name + ')'}`;
+          } else {
+            hyperParameter.field = `${agg.aggregationType + '(' + agg.name + ')'}`;
+          }
+        }
 
         // 고급분석 제외
         analysisInAnalysis.forecast.parameters.push(_.cloneDeep(hyperParameter));
