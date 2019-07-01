@@ -47,6 +47,10 @@ export class Metadata extends AbstractHistoryEntity {
   public static isDisableMetadataNameCharacter(name: string) {
     return (/^[!@#$%^*+=()~`\{\}\[\]\-\_\;\:\'\"\,\.\/\?\<\>\|\&\\]+$/gi).test(name);
   }
+
+  public static isEmptyTags(metadata: Metadata): boolean {
+    return _.isNil(metadata.tags) || metadata.tags.length === 0;
+  }
 }
 
 export enum SourceType {

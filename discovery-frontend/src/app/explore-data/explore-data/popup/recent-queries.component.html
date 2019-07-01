@@ -1,0 +1,61 @@
+<div class="ddp-pop-preview ddp-type" *ngIf="isShow">
+  <!-- top -->
+  <div class="ddp-ui-top">
+    <div class="ddp-data-name">
+      Recently Queries
+      <div class="ddp-data-info"><em class="ddp-icon-info"></em>List up to the last 100 cases.</div>
+    </div>
+    <em class="ddp-btn-popup-close" (click)="closePopup()"></em>
+  </div>
+  <!-- //top -->
+  <!-- cpmtemts -->
+  <div class="ddp-ui-preview-contents ">
+    <table class="ddp-table-form ddp-table-type3">
+      <colgroup>
+        <col width="15%">
+        <col width="15%">
+        <col width="20%">
+        <col width="150px">
+        <col width="*">
+      </colgroup>
+      <thead>
+      <tr>
+        <th>Date</th>
+        <th>Type</th>
+        <th>User</th>
+        <th>Result</th>
+        <th>Query</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>yyyy-mm-dd hh:mm:ss</td>
+        <td>SUMMARY</td>
+        <td>John Smith</td>
+        <td> <span class="ddp-data-state ddp-success">Success</span></td>
+        <td>
+          <div class="ddp-txt-long ddp-type-button">
+            <a href="javascript:" class="ddp-btn-selection ddp-fright" (click)="onClickCopy()">Copy</a>
+            <span class="ddp-txt-name" title="TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne">TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne</span>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>yyyy-mm-dd hh:mm:ss</td>
+        <td>SUMMARY</td>
+        <td>John Smith</td>
+        <td> <span class="ddp-data-state ddp-fail">fail</span></td>
+        <td>
+          <div class="ddp-txt-long ddp-type-button">
+            <a href="javascript:" class="ddp-btn-selection ddp-fright">Copy</a>
+            <span class="ddp-txt-name" title="TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne">TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne</span>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+
+    </table>
+
+  </div>
+  <!-- //cpmtemts -->
+</div>

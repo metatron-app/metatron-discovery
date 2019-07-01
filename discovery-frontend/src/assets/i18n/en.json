@@ -49,10 +49,15 @@
   "msg.comm.ui.soring.alphnumeric.desc" : "Alpahnumeric descending",
   "msg.comm.ui.beforeunload" : "Your changes may not be saved.",
   "msg.comm.menu.title.workspace": "WORKSPACE",
+  "msg.comm.menu.title.explore-data" : "EXPLORE DATA",
   "msg.comm.menu.title.management": "MANAGEMENT",
   "msg.comm.menu.title.administration": "ADMINISTRATION",
   "msg.comm.menu.space.private": "Personal Workspace",
   "msg.comm.menu.space.share": "Shared Workspace",
+  "msg.comm.menu.explore-data.view" : "Explore Data",
+  "msg.comm.menu.explore-data.favorite" : "My Favorite",
+  "msg.comm.menu.explore-data.favorite.data" : "Data",
+  "msg.comm.menu.explore-data.favorite.creator" : "Data Creator",
   "msg.comm.menu.manage.metadata" : "Metadata",
   "msg.comm.menu.manage.metadata.metadata" : "Metadata",
   "msg.comm.menu.manage.metadata.column-dictionary" : "Column Dictionary",
@@ -4084,5 +4089,15 @@
   "msg.metadata.th.column.logical.tooltip.title" : "What is logical column name?",
   "msg.metadata.th.column.logical.tooltip.desc" : "Logical column name is the column name that is commonly used by the user in Metatron. It is specified as a logical name when creating business terms or index for users. Logical column names are used in Metatron when creating a chart or workbench.",
   "msg.catalog.alert.catalog.already.exists" : "Catalog already exists",
-  "msg.catalog.alert.catalog.create.success" : "'{{value}}' catalog is created."
+  "msg.catalog.alert.catalog.create.success" : "'{{value}}' catalog is created.",
+
+  "msg.explore.ui.title" : "Explore Data",
+  "msg.explore.ui.tab.catalogs" : "Catalogs",
+  "msg.explore.ui.tab.tags" : "Tags",
+  "msg.explore.ui.list.recommended" : "Recommended for you",
+  "msg.explore.ui.list.popular" : "Popular data",
+  "msg.explore.ui.list.updated" : "New or Update",
+  "msg.explore.ui.list.data.creator" : "Data creator",
+  "msg.explore.ui.list.favorite.my" : "My favorite",
+  "msg.explore.ui.lnb.folding" : "Folding"
 }

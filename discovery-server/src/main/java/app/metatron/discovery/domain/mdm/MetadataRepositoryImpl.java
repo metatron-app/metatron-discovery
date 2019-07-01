@@ -16,6 +16,9 @@ package app.metatron.discovery.domain.mdm;
 
 import com.google.common.collect.Lists;
 
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.JPQLQuery;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -96,5 +99,16 @@ public class MetadataRepositoryImpl extends QueryDslRepositorySupport implements
                                                .where(qMetadataSource.sourceId.in(sourceIds));
 
     return query.fetch();
+  }
+
+  @Override
+  public List<MetadataStatsDto> countBySourceType() {
+    NumberPath<Long> aliasCount = Expressions.numberPath(Long.class, "count");
+    QMetadata qMetadata = QMetadata.metadata;
+
+    return from(qMetadata)
+        .select(Projections.constructor(MetadataStatsDto.class, qMetadata.sourceType, qMetadata.sourceType.count().as(aliasCount)))
+        .groupBy(qMetadata.sourceType)
+        .fetch();
   }
 }

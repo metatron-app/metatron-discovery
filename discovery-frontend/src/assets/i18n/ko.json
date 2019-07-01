@@ -49,10 +49,15 @@
   "msg.comm.ui.soring.alphnumeric.desc" : "영숫자 내림차순",
   "msg.comm.ui.beforeunload" : "나가시겠습니까?",
   "msg.comm.menu.title.workspace" : "WORKSPACE",
+  "msg.comm.menu.title.explore-data" : "EXPLORE DATA",
   "msg.comm.menu.title.management" : "MANAGEMENT",
   "msg.comm.menu.title.administration" : "ADMINISTRATION",
   "msg.comm.menu.space.private" : "개인 워크스페이스",
   "msg.comm.menu.space.share" : "공유 워크스페이스",
+  "msg.comm.menu.explore-data.view" : "Explore Data",
+  "msg.comm.menu.explore-data.favorite" : "My Favorite",
+  "msg.comm.menu.explore-data.favorite.data" : "Data",
+  "msg.comm.menu.explore-data.favorite.creator" : "Data Creator",
   "msg.comm.menu.manage.metadata" : "메타데이터",
   "msg.comm.menu.manage.metadata.metadata" : "메타데이터",
   "msg.comm.menu.manage.metadata.column-dictionary" : "용어 사전",
@@ -4085,5 +4090,15 @@
   "msg.metadata.th.column.logical.tooltip.title" : "논리 컬럼 이름이란?",
   "msg.metadata.th.column.logical.tooltip.desc" : "논리 컬럼 이름은 메타트론에서 사용자가 일반적으로 사용하는 컬럼 이름입니다. 사용자의 비즈니스 용어 또는 인덱스를 생성할 때 논리 이름으로 지정됩니다 논리 컬럼 이름은 차트 또는 워크벤치를 작성할 때 메타트론에서 사용됩니다.",
   "msg.catalog.alert.catalog.already.exists" : "카달로그가 이미 있습니다",
-  "msg.catalog.alert.catalog.create.success" : "'{{value}}' 카달로그가 생성되었습니다."
+  "msg.catalog.alert.catalog.create.success" : "'{{value}}' 카달로그가 생성되었습니다.",
+
+  "msg.explore.ui.title" : "데이터 탐색",
+  "msg.explore.ui.tab.catalogs" : "카탈로그",
+  "msg.explore.ui.tab.tags" : "태그",
+  "msg.explore.ui.list.recommended" : "추천 데이터",
+  "msg.explore.ui.list.popular" : "가장 인기있는",
+  "msg.explore.ui.list.updated" : "신규 또는 수정된",
+  "msg.explore.ui.list.data.creator" : "데이터 등록자",
+  "msg.explore.ui.list.favorite.my" : "즐겨찾기",
+  "msg.explore.ui.lnb.folding" : "폴딩"
 }

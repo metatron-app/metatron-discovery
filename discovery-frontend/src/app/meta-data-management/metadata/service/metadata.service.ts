@@ -199,4 +199,48 @@ export class MetadataService extends AbstractService {
     };
     return this.post(this.URL_METADATA + `/metasources/${connId}?projection=${projection}`, param);
   }
+
+  public getMetadataSourceTypeCount() {
+    return this.get(this.URL_METADATA + '/statistics/count/sourcetype');
+  }
+
+  public getMetadataListByPopularity(params) {
+    // URL
+    let url: string = this.URL_METADATA + '/popularity';
+    // if exist params
+    if (params) {
+      url += '?' + CommonUtil.objectToUrlString(params);
+    }
+    return this.get(url);
+  }
+
+  public getMetadataListByMyFavorite(params) {
+    // URL
+    let url: string = this.URL_METADATA + '/favorite/my';
+    // if exist params
+    if (params) {
+      url += '?' + CommonUtil.objectToUrlString(params);
+    }
+    return this.get(url);
+  }
+
+  public getMetadataListByCreatorFavorite(params) {
+    // URL
+    let url: string = this.URL_METADATA + '/favorite/creator';
+    // if exist params
+    if (params) {
+      url += '?' + CommonUtil.objectToUrlString(params);
+    }
+    return this.get(url);
+  }
+
+  public getMetadataListByRecommended(params) {
+    // URL
+    let url: string = this.URL_METADATA + '/recommended';
+    // if exist params
+    if (params) {
+      url += '?' + CommonUtil.objectToUrlString(params);
+    }
+    return this.get(url);
+  }
 }

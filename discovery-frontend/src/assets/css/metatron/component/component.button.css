@@ -154,6 +154,7 @@ a.ddp-btn-line-s em.ddp-icon-upload {width:11px; height:12px; background-positio
 a.ddp-btn-line-s em.ddp-icon-download {width:13px; height:13px; background-position:left -230px;}
 a.ddp-btn-line-s:hover em.ddp-icon-upload {background-position-x:-12px;}
 a.ddp-btn-line-s:hover em.ddp-icon-download {background-position-x:-14px;}
+a.ddp-btn-line-s em.ddp-icon-add2 {display:inline-block; width:13px; height:13px; background:url(../../../images/icon_add.png) no-repeat; background-position:-84px -22px;}
 
 /*.ddp-btn-line2:hover em.ddp-icon-btnsource {background-position:-12px 0;}*/
 .ddp-btn-line2:hover em.ddp-icon-spacelist {background-position:-15px -73px;}
