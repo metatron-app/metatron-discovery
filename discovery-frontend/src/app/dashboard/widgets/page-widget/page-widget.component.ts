@@ -216,9 +216,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * 컴포넌트 초기 실행
    */
   public ngOnInit() {
-    if(this.inputWidget.dashBoard.dataSources.filter(datasource => {return datasource.id === this.widget.configuration.dataSource.id}).length == 0) {
-      this._showError({code: 'GB0000', details: this.translateService.instant('msg.board.error.deny-datasource')});
-    }
+    this._checkDatasource();
     super.ngOnInit();
   }
 
@@ -1723,6 +1721,43 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         })
     } else {
       this.predictionLineDisabled();
+    }
+  }
+
+  /**
+   * Check datasource
+   * @private
+   */
+  private _checkDatasource(): void {
+    let valid = true;
+    let invalidDatasourceName = '';
+    if (this.widget.configuration.chart.type === ChartType.MAP) {
+      for (const widgetDatasource of this.widget.configuration.dataSource.dataSources) {
+        for (const dashboardDatasource of this.inputWidget.dashBoard.dataSources) {
+          if (widgetDatasource.id == dashboardDatasource.id) {
+            if (!dashboardDatasource.valid){
+              valid = false;
+              if(invalidDatasourceName != '') {
+                invalidDatasourceName += ', '
+              }
+              invalidDatasourceName += dashboardDatasource.name;
+            }
+          }
+        }
+      }
+    } else {
+      for (const dashboardDatasource of this.inputWidget.dashBoard.dataSources) {
+        if (this.widget.configuration.dataSource.id == dashboardDatasource.id) {
+          if (!dashboardDatasource.valid) {
+            valid = false;
+            invalidDatasourceName = dashboardDatasource.name;
+          }
+        }
+      }
+    }
+
+    if (!valid) {
+      this._showError({code: 'GB0000', details: this.translateService.instant('msg.board.error.deny-datasource', {datasource : invalidDatasourceName})});
     }
   }
 

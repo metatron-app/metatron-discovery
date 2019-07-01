@@ -368,7 +368,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
   public reIngestionComplete(): void {
     this.datasource.status = Status.PREPARING;
     this.isNotShowProgress = false;
-    this.isShowReingestion = true;
+    this.isShowReingestion = false;
     this.ngOnInit();
   }
 
