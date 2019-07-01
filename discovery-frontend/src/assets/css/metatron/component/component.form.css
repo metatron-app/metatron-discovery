@@ -327,6 +327,11 @@ ul.ddp-list-value li.ddp-data-none {background:none; color:#b7b9c3;}
 .ddp-txt-error2 {color:#ff3324; text-align:center; font-size:13px;}
 .ddp-txt-error.ddp-default {color:#b7b9c2;}
 .ddp-txt-error.ddp-default .ddp-icon-error-s {display:inline-block; width:13px; height:13px; background:url(../../../images/icon_info.png) no-repeat; background-position:left -16px; vertical-align:middle;}
+.ddp-txt-info {position:relative; color:#b5b8c2; font-size:12px;}
+.ddp-txt-info .ddp-icon-info,
+.ddp-txt-info.type-error .ddp-icon-error {display:inline-block; width:14px; height:14px;  margin-right:6px; background:url(../../../images/icon_info3.png) no-repeat; background-position:-15px -94px; vertical-align: middle;}
+.ddp-txt-info.type-error {color:#dd4950;}
+.ddp-txt-info.type-error .ddp-icon-error {background:url(../../../images/icon_info3.png) no-repeat; background-position:0 -109px;}
 /**************************************************************
     popup form
 **************************************************************/
