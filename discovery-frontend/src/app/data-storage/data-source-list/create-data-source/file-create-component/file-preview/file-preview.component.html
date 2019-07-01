@@ -194,24 +194,105 @@
 </div>
 
 <app-confirm-modal></app-confirm-modal>
-<!-- modal -->
-<div class="ddp-wrap-layout-popup type-small" *ngIf="ingestionPopup">
-  <div class="ddp-table-cell">
 
-    <div class="ddp-box-popup ">
-      <div class="ddp-popup-text">
+<!-- popup -->
+<div class="ddp-wrap-layout-popup ddp-scroll-popup type-setting" *ngIf="ingestionPopup">
+  <div class="ddp-ui-layout-popup">
+    <div class="ddp-pop-contents">
+      <div class="ddp-box-popup ">
+        <a href="javascript:" class="ddp-btn-close" (click)="ingestionPopupCancel()"></a>
         <!-- title -->
-        <div class="ddp-pop-title" [innerHTML]="'msg.storage.confirm.dsource.reingestion.desc' | translate"></div>
+        <div class="ddp-pop-title" [innerHTML]="'msg.storage.confirm.dsource.reingestion.desc1' | translate"></div>
         <!-- //title -->
+        <div class="ddp-pop-detail">
+          {{'msg.storage.confirm.dsource.reingestion.desc2' | translate}}
+          <!-- 클릭시 ddp-selected 추가 -->
+          <div class="ddp-wrap-advance" [class.ddp-selected]="advanceSetting">
+
+            <a href="javascript:" class="ddp-txt-setting" (click)="advanceSetting = true">{{'msg.storage.th.advanced.setting' | translate}}</a>
+            <div class="ddp-wrap-boxtype">
+
+              <table class="ddp-wrap-boxdata">
+                <colgroup>
+                  <col width="120px">
+                  <col width="*">
+                </colgroup>
+                <tbody>
+                <tr>
+                  <th>
+                    {{'msg.storage.th.time-column' | translate}}
+                  </th>
+                  <td>
+                    {{getSelectedTimeStampFieldName}}
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    {{'msg.storage.ui.intervals' | translate}}
+                  </th>
+                  <td>
+                    <div class="ddp-sub-option ddp-clear">
+                      <div class="ddp-wrap-edit3 ddp-type ">
+                        <label class="ddp-label-type">{{'msg.storage.th.segment.gran' | translate}}</label>
+                        <!-- edit option -->
+                        <div class="ddp-ui-edit-option">
+                          <input type="text" class="ddp-input-typebasic" placeholder="{{getSelectedSegmentGranularity}}" disabled="disabled">
+
+                        </div>
+                        <!-- //edit option -->
+                      </div>
+
+                      <!-- calen -->
+                      <div class="ddp-ui-calen type-calen" *ngIf="selectedTimestampField">
+                        <!-- disabled 시 ddp-disabled 추가 -->
+                        <div class="ddp-box-calen ">
+                          <input type="text" class="ddp-input-typebasic ddp-data-calen" input-mask="calendar" (focusout)="checkStartInterval()" [(ngModel)]="startIntervalText">
+                        </div>
+
+                        <span class="ddp-bar">~</span>
+                        <div class="ddp-box-calen ">
+                          <input type="text" class="ddp-input-typebasic ddp-data-calen" input-mask="calendar" (focusout)="checkEndInterval()" [(ngModel)]="endIntervalText">
+                        </div>
+                      </div>
+                      <!-- //calen -->
+
+                      <!-- info -->
+                      <div class="ddp-wrap-info " *ngIf="selectedTimestampField">
+                        <div class="ddp-txt-info" *ngIf="intervalValid || granularityUnit > 10000">
+                          <em class="ddp-icon-info"></em>{{granularityUnit | numberCommas}} {{'msg.storage.ui.intervals.units' | translate}}
+                        </div>
+                        <div class="ddp-txt-info type-error type-hover" *ngIf="!intervalValid">
+                          <em class="ddp-icon-error"></em>{{granularityUnit | numberCommas}} {{'msg.storage.ui.intervals.units' | translate}}
+                          <!-- tooltip -->
+                          <div class="ddp-ui-tooltip-info">
+                            <em class="ddp-icon-view-top"></em>
+                            {{intervalValid ? ('msg.storage.ui.intervals.valid.unit' | translate) : intervalValidMessage}}
+                          </div>
+                          <!-- //tooltip -->
+                        </div>
+                      </div>
+                      <!-- //info -->
+                    </div>
+
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- button -->
+        <div class="ddp-ui-buttons">
+          <a href="javascript:" class="ddp-btn-type-popup" (click)="ingestionPopupCancel()">{{'msg.comm.btn.cancl' | translate}}</a>
+          <!-- disabled 시 ddp-disabled 추가 -->
+          <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black " [class.ddp-disabled]="!intervalValid || granularityUnit > 10000" (click)="ingestionPopupConfirm()">{{'msg.storage.confirm.dsource.reingestion.done' | translate}}</a>
+        </div>
+        <!-- //button -->
       </div>
-      <!-- button -->
-      <div class="ddp-ui-buttons">
-        <a href="javascript:" class="ddp-btn-type-popup" (click)="ingestionPopupCancel()">{{'msg.comm.btn.cancl' | translate}}</a>
-        <!-- disabled 시 ddp-disabled 추가 -->
-        <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black " (click)="ingestionPopupConfirm()">{{'msg.storage.confirm.dsource.reingestion.done' | translate}}</a>
-      </div>
-      <!-- //button -->
     </div>
   </div>
 </div>
-<!-- // modal -->
+<!-- //popup -->

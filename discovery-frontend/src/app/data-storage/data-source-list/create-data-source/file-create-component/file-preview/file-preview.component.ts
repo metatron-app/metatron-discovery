@@ -46,6 +46,7 @@ import {
   GranularityObject,
   GranularityService
 } from "../../../../service/granularity.service";
+import {StringUtil} from "../../../../../common/util/string.util";
 
 @Component({
   selector: 'file-preview',
@@ -109,6 +110,23 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
   public patches = [];
   public dataList = [];
 
+  public advanceSetting: boolean = false;
+  public selectedTimestampField: Field;
+  // selected segment granularity
+  public selectedSegmentGranularity: GranularityObject;
+  // interval input text
+  public startIntervalText: string;
+  public endIntervalText: string;
+  // interval valid message
+  public intervalValidMessage: string;
+  // interval valid
+  public intervalValid: boolean;
+  // granularity unit
+  public granularityUnit: number;
+  // timestamp field first/end data
+  private _firstMomentData: any;
+  private _endMomentData: any;
+
   // 생성자
   constructor(private datasourceService: DatasourceService,
               private _dataSourceCreateService: DataSourceCreateService,
@@ -165,12 +183,20 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
         this._deleteAndSaveFileData();
 
         if(this.ingestionStatus === 'append' || this.ingestionStatus === 'newcolumn') {
-          this.ingestionPopup = true;
+          this.ingestionPopupShow();
         } else {
           this._nextStep();
         }
       }
     }
+  }
+
+  /**
+   * 재적재 팝업 취소
+   */
+  public ingestionPopupShow(): void {
+    this._initGranularityIntervalInfo();
+    this.ingestionPopup = true;
   }
 
   /**
@@ -340,8 +366,48 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
     }
   }
 
+  /**
+   * Get re-ingestion status message
+   */
   public get getReingestionStatusMsg() {
     return this._dataSourceCreateService.getFileErrorMessage(this.ingestionStatus);
+  }
+
+  /**
+   * Check start granularity interval
+   */
+  public checkStartInterval(): void {
+    StringUtil.isEmpty(this.startIntervalText) && (this.startIntervalText = this._granularityService.getInitInterval(this._firstMomentData, this.selectedSegmentGranularity));
+    // get interval validation info
+    const validInfo = this._granularityService.getIntervalValidationInfo(this.startIntervalText, this.endIntervalText, this.selectedSegmentGranularity);
+    this.intervalValid = validInfo.intervalValid;
+    this.intervalValidMessage = validInfo.intervalValidMessage;
+    this.granularityUnit = validInfo.granularityUnit;
+  }
+
+  /**
+   * Check end granularity interval
+   */
+  public checkEndInterval(): void {
+    StringUtil.isEmpty(this.endIntervalText) && (this.endIntervalText = this._granularityService.getInitInterval(this._endMomentData, this.selectedSegmentGranularity));
+    // get interval validation info
+    const validInfo = this._granularityService.getIntervalValidationInfo(this.startIntervalText, this.endIntervalText, this.selectedSegmentGranularity);
+    this.intervalValid = validInfo.intervalValid;
+    this.intervalValidMessage = validInfo.intervalValidMessage;
+    this.granularityUnit = validInfo.granularityUnit;
+  }
+
+  public get getSelectedTimeStampFieldName() {
+    if (_.isNil(this.selectedTimestampField)) {
+      return this.translateService.instant('msg.storage.th.current-time');
+    } else {
+      return this.selectedTimestampField.name;
+    }
+  }
+
+  public get getSelectedSegmentGranularity() {
+    return this._granularityService.getSegmentGranularityList().find(
+      segmentGranularity => segmentGranularity.value.toString() === this.sourceData.datasource.segGranularity.toString()).label;
   }
 
   /**
@@ -708,9 +774,6 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
    * @private
    */
   private _getIngestionParams(): object {
-    const timestampField = this.sourceData.datasource.fields.find(field => field.role == FieldRole.TIMESTAMP);
-    const granularity: GranularityObject = this._granularityService.granularityList.find(granularityObject => granularityObject.value == Granularity[this.sourceData.datasource.segGranularity.toString()]);
-
     // ingestion param
     const ingestion = {
       type: 'local',
@@ -719,9 +782,9 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
       path: this.sourceData.fileData.fileResult.filePath,
       uploadFileName: this.sourceData.fileData.fileResult.fileName
     };
-    if (!_.isNil(timestampField)) {
-      const info = this._granularityService.getInitializedInterval(this.dataList.sort(), timestampField.format.format, granularity, timestampField.format.type, timestampField.format.unit);
-      ingestion['intervals'] = [this._granularityService.getIntervalUsedParam(info.startInterval, granularity) + '/' + this._granularityService.getIntervalUsedParam(info.endInterval, granularity)];
+
+    if (!_.isNil(this.selectedTimestampField)) {
+      ingestion['intervals'] = [this._granularityService.getIntervalUsedParam(this.startIntervalText, this.selectedSegmentGranularity) + '/' + this._granularityService.getIntervalUsedParam(this.endIntervalText, this.selectedSegmentGranularity)];
     }
 
     const param = {
@@ -729,6 +792,29 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
       patches: this.patches
     };
     return param;
+  }
+
+  /**
+   * Granularity interval initial
+   * @private
+   */
+  private _initGranularityIntervalInfo(): void {
+    this.selectedSegmentGranularity = this._granularityService.granularityList.find(granularityObject => granularityObject.value == Granularity[this.sourceData.datasource.segGranularity.toString()]);
+    this.selectedTimestampField = this.sourceData.datasource.fields.find(field => field.role == FieldRole.TIMESTAMP);
+    if (!_.isNil(this.selectedTimestampField)) {
+      const info = this._granularityService.getInitializedInterval(this.dataList.sort(), this.selectedTimestampField.format.format, this.selectedSegmentGranularity, this.selectedTimestampField.format.type, this.selectedTimestampField.format.unit);
+      // set interval text
+      this.startIntervalText = info.startInterval;
+      this.endIntervalText = info.endInterval;
+      this.intervalValid = info.intervalValid;
+      this.intervalValidMessage = info.intervalValidMessage;
+      this.granularityUnit = info.granularityUnit;
+      // set moment data
+      this._firstMomentData = info.firstMoment;
+      this._endMomentData = info.endMoment;
+    } else {
+      this.intervalValid = true;
+    }
   }
 
 }

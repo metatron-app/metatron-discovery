@@ -5957,6 +5957,34 @@ table.ddp-table-union tr td .ddp-data-dropped strong {color:#666eb2; font-weight
 .ddp-wrap-edit-form .ddp-wrap-edit3{margin-top:20px;}
 
 /**********************************************************************************
+	popup : 데이터저장소 시트선택 (적재팝업
+**********************************************************************************/
+.ddp-wrap-layout-popup.type-setting .ddp-box-popup {position:relative; top:0; left:0; height:auto; margin:0 0 0 0; padding-bottom:79px}
+.ddp-wrap-layout-popup.type-setting .ddp-box-popup .ddp-pop-title {padding:80px 0 0 0;}
+.ddp-wrap-layout-popup.type-setting .ddp-box-popup .ddp-pop-detail {padding:8px 0 20px 0; color:#90969f; font-size:14px; text-align:center;}
+.ddp-wrap-layout-popup.type-setting .ddp-pop-detail .ddp-wrap-advance {margin:0 auto; width:464px; text-align:right;}
+.ddp-wrap-layout-popup.type-setting .ddp-pop-detail .ddp-wrap-advance .ddp-txt-setting {display:inline-block; margin-top:10px; font-size:13px; color:#4c515a; text-decoration:underline;}
+.ddp-wrap-layout-popup.type-setting .ddp-pop-detail .ddp-wrap-advance .ddp-txt-setting {display:inline-block; padding-bottom:20px; color:#4c515a; font-size:13px; text-decoration:underline;}
+.ddp-wrap-layout-popup.type-setting .ddp-pop-detail .ddp-wrap-advance .ddp-txt-setting:after {display:inline-block; width:7px; height:4px; margin-left:10px; background:url(../images/icon_select.png) no-repeat; background-position:-16px top; vertical-align:middle; content:'';}
+.ddp-wrap-layout-popup.type-setting .ddp-pop-detail .ddp-wrap-advance.ddp-selected .ddp-txt-setting:after {transform:rotate(180deg)}
+.ddp-wrap-layout-popup.type-setting .ddp-wrap-advance.ddp-selected .ddp-wrap-boxtype {display:block;}
+.ddp-wrap-layout-popup.type-setting .ddp-wrap-advance .ddp-wrap-boxtype {display:none; text-align:left; margin:0; width:100%; height:auto; min-height:auto;padding:20px 20px; overflow:inherit;}
+.ddp-wrap-layout-popup.type-setting .ddp-wrap-advance .ddp-wrap-boxtype table tr td,
+.ddp-wrap-layout-popup.type-setting .ddp-wrap-advance .ddp-wrap-boxtype table tr th {padding:10px 6px; font-size:12px;}
+.ddp-wrap-layout-popup.type-setting .ddp-wrap-advance .ddp-wrap-boxtype table tr td .ddp-sub-option {margin:-6px 0 0 0;}
+.ddp-wrap-layout-popup.type-setting .ddp-wrap-advance .ddp-wrap-boxtype table tr td .ddp-label-radio {margin-right:28px;}
+.ddp-wrap-layout-popup.type-setting .ddp-wrap-advance .ddp-wrap-boxtype table tr td .ddp-wrap-edit3 {display:block; width:auto;}
+.ddp-wrap-layout-popup.type-setting .ddp-wrap-advance .ddp-wrap-boxtype table tr td .ddp-wrap-edit3.ddp-type .ddp-label-type {width:auto; margin-right:6px; padding:6px 0; font-size:12px;}
+.ddp-wrap-layout-popup.type-setting .ddp-wrap-advance .ddp-wrap-boxtype table tr td .ddp-ui-calen.type-calen {margin-top:10px;}
+.ddp-wrap-layout-popup.type-setting .ddp-wrap-advance .ddp-wrap-boxtype table tr td .ddp-wrap-edit3 .ddp-ui-edit-option {display:block; overflow:Hidden;}
+.ddp-wrap-layout-popup.type-setting .ddp-wrap-advance .ddp-wrap-boxtype table tr td .ddp-wrap-info {float:left; width:100%; padding:5px 0 0 0;}
+.ddp-wrap-layout-popup.type-setting .ddp-wrap-advance .ddp-wrap-boxtype table tr td .ddp-wrap-info .ddp-txt-info + .ddp-txt-info {margin-top:5px;}
+.ddp-wrap-layout-popup.type-setting .ddp-wrap-advance .ddp-wrap-boxtype table tr td .ddp-wrap-info .type-hover {cursor:pointer;}
+.ddp-wrap-layout-popup.type-setting .ddp-wrap-advance .ddp-wrap-boxtype table tr td .ddp-wrap-info .type-hover:hover .ddp-ui-tooltip-info {display:block;}
+.ddp-wrap-layout-popup.type-setting .ddp-wrap-advance .ddp-wrap-boxtype table tr td .ddp-wrap-info .type-hover .ddp-ui-tooltip-info {top:100%; left:-100px; margin-top:5px; width:340px; white-space:normal;}
+.ddp-wrap-layout-popup.type-setting .ddp-wrap-advance .ddp-wrap-boxtype table tr td .ddp-wrap-info .type-hover .ddp-ui-tooltip-info .ddp-icon-view-top {left:105px; margin:0;}
+
+/**********************************************************************************
 	page : 데이터 프리퍼레이션 리메인
 **********************************************************************************/
 .ddp-page-rename {margin-top:-120px; padding:120px 50px 49px 50px; height:100%; box-sizing:border-box;}
