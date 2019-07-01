@@ -69,7 +69,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   public permission = {
     myWorkspace: false,
     workspace: false,
-    exploreData: true,
+    exploreData: false,
     exploreDataView: true,
     exploreFavorite: true,
     management: false,
@@ -236,8 +236,13 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
       if (items && 0 < items.length) {
         const exts: Extension[] = items;
         exts.forEach(ext => {
-          (this.lnbManager[ext.parent]) || (this.lnbManager[ext.parent] = {});
-          this.lnbManager[ext.parent][ext.name] = {fold: true};
+
+          if( 'Explore Data' === ext.name ) {
+            this.permission.exploreData = true;
+          } else {
+            (this.lnbManager[ext.parent]) || (this.lnbManager[ext.parent] = {});
+            this.lnbManager[ext.parent][ext.name] = {fold: true};
+          }
         });
       }
     });

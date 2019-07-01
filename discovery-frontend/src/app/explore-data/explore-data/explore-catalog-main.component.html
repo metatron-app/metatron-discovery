@@ -75,7 +75,9 @@
             </div>
           </td>
           <td>
-            <span class="ddp-tags" *ngFor="let tag of metadata.tags"># {{tag.name}}</span>
+            <div class="ddp-wrap-tags">
+              <span class="ddp-tags" *ngFor="let tag of metadata.tags"># {{tag.name}}</span>
+            </div>
           </td>
           <td>
             <div class="ddp-ui-popularity">
