@@ -128,7 +128,7 @@ public class MetadataJdbcDataPreview extends MetadataDataPreview {
             if(isDerivedColumn){
               row.values.add(null);
             } else {
-              Object originalValue = rs.getObject(columnDescription.getName());
+              Object originalValue = rs.getObject(columnDescription.getPhysicalName());
               if(jdbcDialect != null && jdbcDialect.resultObjectConverter() != null){
                 row.values.add(jdbcDialect.resultObjectConverter().apply(originalValue));
               } else {
@@ -141,7 +141,7 @@ public class MetadataJdbcDataPreview extends MetadataDataPreview {
       }
 
     } catch(Exception e){
-      LOGGER.error("Execute Query For Jdbc Preview error", e.getMessage());
+      e.printStackTrace();
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.GENERAL_ERROR_CODE,
                                             "Execute Query For Jdbc Preview error");
 
