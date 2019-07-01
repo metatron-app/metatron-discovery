@@ -65,6 +65,23 @@ public class MetaSourceService {
    * @return
    */
   public Object getSourcesBySourceId(Metadata.SourceType type, String sourceId) {
+    switch (type) {
+      case ENGINE:
+        return dataSourceRepository.findOne(sourceId);
+      case JDBC:
+        return dataConnectionRepository.findOne(sourceId);
+    }
+    return null;
+  }
+
+  /**
+   * Gets sources by source id with projection.
+   *
+   * @param type     the type
+   * @param sourceId the source id
+   * @return the sources by source id with projection
+   */
+  public Object getSourcesBySourceIdWithProjection(Metadata.SourceType type, String sourceId) {
     Object source = null;
     switch (type) {
       case ENGINE:
@@ -74,7 +91,6 @@ public class MetaSourceService {
         source = dataConnectionRepository.findOne(sourceId);
         break;
     }
-
     return source;
   }
 }

@@ -47,7 +47,7 @@ public class MetadataSourceProjections extends BaseProjections {
 
     //String getSourceId();
 
-    @Value("#{@metaSourceService.getSourcesBySourceId(target.type, target.sourceId)}")
+    @Value("#{@metaSourceService.getSourcesBySourceIdWithProjection(target.type, target.sourceId)}")
     Object getSource();
 
     String getSchema();
