@@ -909,7 +909,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
     }
 
     // PREVIEW index = APPEND: next index || UPDATE: current index
-    var syncIndex = this.serverSyncIndex;
+    var syncIndex : string = this.serverSyncIndex;
     if( syncIndex !== this.leftDataset.ruleCurIdx ) {
       // when command is UPDATE, this.leftDataset.ruleCurIdx is syncIndex - 1;
       syncIndex = this.leftDataset.ruleCurIdx;
