@@ -14,12 +14,13 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes.PREP_TEDDY_ERROR_CODE;
+
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
 import app.metatron.discovery.domain.dataprep.PrepProperties;
 import app.metatron.discovery.domain.dataprep.PrepUtil;
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.json.PrepJsonUtil;
@@ -56,8 +57,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes.PREP_TEDDY_ERROR_CODE;
 
 @Component
 public class TeddyImpl {
@@ -192,7 +191,7 @@ public class TeddyImpl {
 
   public DataFrame preview(String dsId, int stageIdx, String ruleString) throws TeddyException {
     Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
-    return apply(rev.get(stageIdx - 1), ruleString, null);
+    return apply(rev.get(stageIdx), ruleString, null);
   }
 
   public DataFrame fetch(String dsId, Integer stageIdx) {

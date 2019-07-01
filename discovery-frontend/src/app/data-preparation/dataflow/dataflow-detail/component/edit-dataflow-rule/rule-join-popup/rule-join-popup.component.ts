@@ -908,7 +908,13 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
       return;
     }
 
-    const rule = { command: 'join', op: 'PREVIEW', ruleString: ruleStr[1] , ruleIdx : this.serverSyncIndex};
+    // PREVIEW index = APPEND: next index || UPDATE: current index
+    var syncIndex = this.serverSyncIndex;
+    if( syncIndex !== this.leftDataset.ruleCurIdx ) {
+      // when command is UPDATE, this.leftDataset.ruleCurIdx is syncIndex - 1;
+      syncIndex = this.leftDataset.ruleCurIdx;
+    }
+    const rule = { command: 'join', op: 'PREVIEW', ruleString: ruleStr[1] , ruleIdx : syncIndex};
     this.dataflowService.applyRules(this.leftDataset.dsId, rule)
       .then((data) => {
         this.loadingHide();
