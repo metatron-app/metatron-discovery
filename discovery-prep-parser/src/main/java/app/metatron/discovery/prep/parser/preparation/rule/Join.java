@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.prep.parser.preparation.rule;
 
+import static app.metatron.discovery.prep.parser.preparation.rule.Join.JOIN_TYPE.*;
+
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 
 public class Join implements Rule, Rule.Factory {
@@ -23,6 +25,29 @@ public class Join implements Rule, Rule.Factory {
   Expression rightSelectCol;
   Expression condition;
   String joinType;
+
+  public enum JOIN_TYPE {
+    INNER,
+    LEFT,
+    RIGHT,
+    OUTER,
+    INVALID
+  }
+
+  public static JOIN_TYPE getJoinTypeEnum(String joinType) {
+    joinType = joinType.replace("'", "").toUpperCase();
+
+    if (joinType.equals(INNER.name())) {
+      return INNER;
+    } else if (joinType.equals(LEFT.name())) {
+      return LEFT;
+    } else if (joinType.equals(RIGHT.name())) {
+      return RIGHT;
+    } else if (joinType.equals(OUTER.name())) {
+      return OUTER;
+    }
+    return INVALID;
+  }
 
   public Join() {
   }

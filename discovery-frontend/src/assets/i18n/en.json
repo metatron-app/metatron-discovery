@@ -864,6 +864,7 @@
   "msg.dp.alert.teddy.works.only.on.array.or.map" : "Works only on array or map",
   "msg.dp.alert.teddy.works.only.on.array" : "Works only on array",
   "msg.dp.alert.teddy.invalid.index.type" : "Invalid index type",
+  "msg.dp.alert.teddy.invalid.join.type" : "Invalid join type",
   "msg.dp.alert.teddy.idx.on.maptype.should.be.string" : "Index on maptype should be string",
   "msg.dp.alert.teddy.wrong.array.index" : "Wrong array index",
   "msg.dp.alert.teddy.invalid.json" : "Invalid json",

@@ -14,7 +14,8 @@
 
 import {
   Component,
-  ElementRef, EventEmitter,
+  ElementRef,
+  EventEmitter,
   HostListener,
   Injector,
   Input,
@@ -82,23 +83,18 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
   // unit list
   public readonly formatUnitList = [
     {label: this.translateService.instant('msg.storage.ui.format.unit.milli-second'), value: FieldFormatUnit.MILLISECOND},
-    {label: this.translateService.instant('msg.storage.ui.format.unit.second'), value: FieldFormatUnit.SECOND},
+    {label: this.translateService.instant('msg.storage.ui.format.unit.second'), value: FieldFormatUnit.SECOND}
   ];
 
   // ingestion rule type list
   public readonly ingestionRuleTypeList = [
-    {label: this.translateService.instant('msg.storage.ui.replace.with'), value: IngestionRuleType.REPLACE},
-    {label: this.translateService.instant('msg.storage.btn.discard'), value: IngestionRuleType.DISCARD},
     {label: this.translateService.instant('msg.storage.btn.no.apply'), value: IngestionRuleType.DEFAULT},
+    {label: this.translateService.instant('msg.storage.btn.discard'), value: IngestionRuleType.DISCARD},
+    {label: this.translateService.instant('msg.storage.ui.replace.with'), value: IngestionRuleType.REPLACE}
   ];
 
   // filtered timezone list
   public filteredTimezoneList: TimeZoneObject[];
-
-
-
-
-
 
   public typeList;
   public previewMessage: string;
@@ -387,6 +383,10 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
       // broadcast changed field
       this._broadCastChangedField();
     }
+
+    if (type.value === IngestionRuleType.REPLACE && StringUtil.isNotEmpty(this.selectedField.ingestionRule.value)) {
+      this.ingestionRuleValidation();
+    }
   }
 
   /**
@@ -614,7 +614,11 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
           });
         break;
       case LogicalType.INTEGER:
-        this.selectedField.ingestionRule.isValidReplaceValue = (/^[0-9]*$/g).test(this.selectedField.ingestionRule.value);
+        if (Field.isMeasureField(this.selectedField)) {
+          this.selectedField.ingestionRule.isValidReplaceValue = (/^[+-]?[0-9]*$/g).test(this.selectedField.ingestionRule.value);
+        } else {
+          this.selectedField.ingestionRule.isValidReplaceValue = (/^[0-9]*$/g).test(this.selectedField.ingestionRule.value);
+        }
         // validation fail
         if (!this.selectedField.ingestionRule.isValidReplaceValue) {
           this.selectedField.ingestionRule.replaceValidationMessage = this.translateService.instant('msg.storage.ui.schema.valid.integer');
@@ -624,7 +628,11 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
       case LogicalType.FLOAT:
       case LogicalType.LNT:
       case LogicalType.LNG:
-        this.selectedField.ingestionRule.isValidReplaceValue = (/^[0-9]+([.][0-9]+)$/g).test(this.selectedField.ingestionRule.value);
+        if (Field.isMeasureField(this.selectedField)) {
+          this.selectedField.ingestionRule.isValidReplaceValue = (/^[+-]?[0-9]+([.][0-9]+)$/g).test(this.selectedField.ingestionRule.value);
+        } else {
+          this.selectedField.ingestionRule.isValidReplaceValue = (/^[0-9]+([.][0-9]+)$/g).test(this.selectedField.ingestionRule.value);
+        }
         // validation fail
         if (!this.selectedField.ingestionRule.isValidReplaceValue) {
           this.selectedField.ingestionRule.replaceValidationMessage = this.translateService.instant('msg.storage.ui.schema.valid.decimal');

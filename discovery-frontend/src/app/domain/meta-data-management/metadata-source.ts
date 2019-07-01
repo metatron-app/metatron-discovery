@@ -15,6 +15,7 @@
 import { AbstractHistoryEntity } from '../common/abstract-history-entity';
 import {Datasource} from '../datasource/datasource';
 import {Dataconnection} from '../dataconnection/dataconnection';
+import * as _ from 'lodash';
 
 export class MetadataSource extends AbstractHistoryEntity {
   // id
@@ -33,6 +34,10 @@ export class MetadataSource extends AbstractHistoryEntity {
   public sourceInfo: string;
   // Datasource
   public source: Datasource | Dataconnection;
+
+  static isNotEmptySource(metadataSource: MetadataSource): boolean {
+    return !_.isNil(metadataSource.source);
+  }
 }
 
 export enum MetadataSourceType {

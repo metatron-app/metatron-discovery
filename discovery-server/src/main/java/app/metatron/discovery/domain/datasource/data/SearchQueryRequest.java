@@ -64,6 +64,7 @@ import java.util.stream.Collectors;
 import app.metatron.discovery.common.CommonLocalVariable;
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.datasource.data.forward.ResultForward;
+import app.metatron.discovery.domain.datasource.data.result.ChartResultFormat;
 import app.metatron.discovery.domain.datasource.data.result.SearchResultFormat;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.Pivot;
@@ -368,6 +369,13 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
 
     if (this.resultFormat != null && this.resultFormat.getRequest() == null) {
       this.resultFormat.setRequest(this);
+    }
+
+    // FixMe: Just workaround, we have to use window function
+    if (this.resultFormat instanceof ChartResultFormat) {
+      if ("bar".equals(((ChartResultFormat) resultFormat).getMode())) {
+        pivot.reverseMode();
+      }
     }
   }
 

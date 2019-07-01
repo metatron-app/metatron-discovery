@@ -12,21 +12,21 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { ActivatedRoute } from '@angular/router';
-import { PermissionService } from '../../../../user/service/permission.service';
-import { RoleSet } from '../../../../domain/user/role/roleSet';
-import { Alert } from '../../../../common/util/alert.util';
-import { Modal } from '../../../../common/domain/modal';
-import { Location } from "@angular/common";
-import { ConfirmModalComponent } from '../../../../common/component/modal/confirm/confirm.component';
-import { isUndefined } from 'util';
-import { CommonUtil } from '../../../../common/util/common.util';
-import { PermissionSchemaSetComponent } from '../../../../workspace/component/permission/permission-schema-set.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AbstractComponent} from '../../../../common/component/abstract.component';
+import {ActivatedRoute} from '@angular/router';
+import {PermissionService} from '../../../../user/service/permission.service';
+import {RoleSet} from '../../../../domain/user/role/roleSet';
+import {Alert} from '../../../../common/util/alert.util';
+import {Modal} from '../../../../common/domain/modal';
+import {Location} from "@angular/common";
+import {ConfirmModalComponent} from '../../../../common/component/modal/confirm/confirm.component';
+import {isUndefined} from 'util';
+import {CommonUtil} from '../../../../common/util/common.util';
+import {PermissionSchemaSetComponent} from '../../../../workspace/component/permission/permission-schema-set.component';
 import * as _ from 'lodash';
-import { Page } from '../../../../domain/common/page';
-import { Workspace } from '../../../../domain/workspace/workspace';
+import {Page} from '../../../../domain/common/page';
+import {Workspace} from '../../../../domain/workspace/workspace';
 
 @Component({
   selector: 'app-detail-permission-schema',
@@ -398,7 +398,7 @@ export class DetailPermissionSchemaComponent extends AbstractComponent implement
         const wsList = result['_embedded']['workspaces'];
         if( 1 === pageSize ) {
           this.firstWorkspace = wsList[0];
-          this.totalWsCnt = ( 0 < result['page']['totalElements'] ) ? result['page']['totalElements'] - 1 : 0;
+          this.totalWsCnt = ( 0 < result['page']['totalElements'] ) ? result['page']['totalElements'] : 0;
         } else {
           if( 1 < wsList.length ) {
             wsList.shift(0);

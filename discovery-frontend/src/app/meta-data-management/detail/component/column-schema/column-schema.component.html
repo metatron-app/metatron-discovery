@@ -294,7 +294,7 @@
                  [ngModel]="column.name"
                  (ngModelChange)="column.name = $event; column.nameChangeFl = true; column.replaceFl = true">
         </td>
-        <td>
+        <td [ngClass]="{'ddp-disabled': isGeoType(column.type)}">
           <div class="ddp-select-search ddp-hover-tooltip">
             <a href="javascript:"
                class="ddp-ui-search2"
@@ -499,14 +499,11 @@
         </td>
         <td [ngClass]="['ddp-input-form']"
             #metadataColumnSchemaDescriptionTds
-            [class.ddp-padding-none]="!isSelectedMetadataColumnInColumnDictionaryDefined(column)"
-            [class.ddp-disabled]="isSelectedMetadataColumnInColumnDictionaryDefined(column)"
             (click)="focusMetadataColumnSchemaDescriptionInput(index, column)">
           <input type="text"
                  class="ddp-txt-input"
                  #metadataColumnSchemaDescriptionInputs
                  (blur)="blurMetadataColumnSchemaDescriptionInput(index)"
-                 [readOnly]="isSelectedMetadataColumnInColumnDictionaryDefined(column)"
                  [ngModel]="column.description"
                  (ngModelChange)="column.description = $event; column.replaceFl = true">
         </td>
