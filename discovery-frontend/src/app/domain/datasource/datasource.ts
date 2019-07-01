@@ -214,6 +214,7 @@ export class Field {
 
   // for MetaData
   uiMetaData?: MetadataColumn;
+  physicalName?: string;
 
   // for Datasource detail
   op?: 'replace';

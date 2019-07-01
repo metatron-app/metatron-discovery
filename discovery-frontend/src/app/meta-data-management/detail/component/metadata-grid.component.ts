@@ -121,7 +121,8 @@ export class MetadataGridComponent extends AbstractComponent {
    * @param args
    */
   extendGridHeader(args: any): void {
-    $(`<div class="slick-data">${_.find(this.fieldList, {'name': args.column.id})['physicalName'] || ''}</div>`).appendTo(args.node);
+    // #2172 name -> physicalName, logicalName -> name
+    $(`<div class="slick-data">${_.find(this.fieldList, {'physicalName': args.column.id})['name'] || ''}</div>`).appendTo(args.node);
   }
 
   private _isCreatedField(field): boolean {
@@ -132,7 +133,7 @@ export class MetadataGridComponent extends AbstractComponent {
     this.fieldList = colDescs.map((col, index) =>  {
       return {
         ...col,
-        name: colNames[index]
+        colName: colNames[index]
       };
     });
   }
@@ -187,8 +188,9 @@ export class MetadataGridComponent extends AbstractComponent {
       const nullStyle: string = 'color:#b6b9c1;';
       const noPreviewGuideMessage: string = this.translateService.instant('msg.dp.ui.no.preview');
 
+      // #2172 name -> physicalName, logicalName -> name
       return fields.map((field) => {
-        const headerName: string = field.headerKey || field.name;
+        const headerName: string = field.headerKey || field.physicalName;
         return new SlickGridHeader()
           .Id(headerName)
           .Name(this._getGridHeaderName(field, headerName))
@@ -214,7 +216,7 @@ export class MetadataGridComponent extends AbstractComponent {
       });
     } else {
       return fields.map((field: Field) => {
-        const headerName: string = field.headerKey || field.name;
+        const headerName: string = field.headerKey || field.physicalName;
         return new SlickGridHeader()
           .Id(headerName)
           .Name(this._getGridHeaderName(field, headerName))
