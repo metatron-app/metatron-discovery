@@ -710,8 +710,8 @@ ul.ddp-list-board-thumbview li.ddp-selected a span.ddp-wrap-image:before {displa
 ul.ddp-list-board-thumbview li a:hover .ddp-wrap-image:before {display:inline-block; content:''; position:absolute; top:0; left:0; right:0; bottom:0; background-color:rgba(86,93,101,0.1);}
 ul.ddp-list-board-thumbview li.ddp-selected a span.ddp-data-name {color:#4b515b;}
 
-ul.ddp-list-board-listview li.ddp-disabled:after {display:inline-block; content:''; position:absolute; top:0; left:0; right:0; bottom:0; background-color:rgba(255,255,255,0.7); cursor:no-drop;}
-ul.ddp-list-board-thumbview li.ddp-disabled:after {display:inline-block; content:''; position:absolute; top:0; left:0; right:0; bottom:0; background-color:rgba(255,255,255,0.7); cursor:no-drop;}
+ul.ddp-list-board-listview li.ddp-disabled a:after {display:inline-block; content:''; position:absolute; top:0; left:0; right:0; bottom:0; background-color:rgba(255,255,255,0.7); cursor:no-drop;}
+ul.ddp-list-board-thumbview li.ddp-disabled a:after {display:inline-block; content:''; position:absolute; top:0; left:0; right:0; bottom:0; background-color:rgba(255,255,255,0.7); cursor:no-drop;}
 
 .ddp-ui-board-filter {position:relative; padding-right:53px;}
 .ddp-ui-board-filter .ddp-btn-slider {position:absolute; top:0px; left:0; bottom:0; width:70px; padding:15px 0; background-color:#fff; z-index:1;}
