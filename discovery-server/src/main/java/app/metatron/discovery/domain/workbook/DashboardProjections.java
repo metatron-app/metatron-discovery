@@ -84,6 +84,9 @@ public class DashboardProjections extends BaseProjections {
     UserProfile getModifiedBy();
 
     DateTime getModifiedTime();
+
+    @Value("#{T(app.metatron.discovery.util.ProjectionUtils).toListResource(@projectionFactory, T(app.metatron.discovery.domain.datasource.DataSourceProjections$ForDetailProjection), @dashBoardService.backingDataSource(target.dataSources, target.workBook))}")
+    Object getDataSources();
   }
 
   /**

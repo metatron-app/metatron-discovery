@@ -145,13 +145,14 @@
                 <ul class="ddp-list-board-listview"
                     dnd-sortable-container [sortableData]="filteredDashboard" [dropZones]="['source-dropZone']" >
                   <li *ngFor="let dashboard of filteredDashboard ; let x = index"
-                      (click)="loadAndSelectDashboard(dashboard)"
+                      (click)="detailDashboard(dashboard)"
                       dnd-sortable
                       [sortableIndex]="x"
                       [dragEnabled]="true"
                       [dragData]="dashboard"
                       (onDropSuccess)="changeOrder()"
-                      [class.ddp-selected]="selectedDashboard && dashboard.id === selectedDashboard.id">
+                      [class.ddp-selected]="selectedDashboard && dashboard.id === selectedDashboard.id"
+                      [class.ddp-disabled]="isInvalidDatasource(dashboard)" >
                     <a href="javascript:">
                       <span class="ddp-ui-number">{{x + 1}}</span>
                       <em *ngIf="isChangeAuthUser && publicType.SHARED === workspace?.publicType"
@@ -198,13 +199,14 @@
                 <ul class="ddp-list-board-thumbview"
                     dnd-sortable-container [sortableData]="filteredDashboard" [dropZones]="['source-dropZone']" >
                   <li *ngFor="let dashboard of filteredDashboard; let x = index"
-                      (click)="loadAndSelectDashboard(dashboard)"
+                      (click)="detailDashboard(dashboard)"
                       dnd-sortable
                       [sortableIndex]="x"
                       [dragEnabled]="true"
                       [dragData]="dashboard"
                       (onDropSuccess)="changeOrder()"
-                      [class.ddp-selected]="selectedDashboard && dashboard.id === selectedDashboard.id" >
+                      [class.ddp-selected]="selectedDashboard && dashboard.id === selectedDashboard.id"
+                      [class.ddp-disabled]="isInvalidDatasource(dashboard)">
                     <a href="javascript:">
                       <span class="ddp-icon-number">{{x + 1}}</span>
                       <span class="ddp-data-name"

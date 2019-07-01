@@ -395,9 +395,10 @@
   "msg.space.th.server": "服务器",
   "msg.space.create.notebook.title": "请选择数据类型",
   "msg.space.ui.list.search.placeholder" : "請搜索服務器名稱",
-  "msg.space.ui.workbook.unauthorized" : "未经授权。请检查数据源的发布权限 ({{inactive}}).",
+  "msg.space.ui.workbook.unauthorized" : "未经授权。请检查数据源的发布权限({{inactive}}).",
   "msg.space.ui.notebook.unauthorized" : "未经授权。请检查笔记本服务器的权限。",
   "msg.space.ui.workbench.unauthorized" : "未经授权。请检查数据连接的发布权限。",
+  "msg.space.ui.dashboard.unauthorized" : "未经授权。请检查数据源的发布权限.<br>请再次尝试",
 
   "msg.alert.retrieve.fail": "查询失败",
   "msg.alert.del.success": "~已删除",

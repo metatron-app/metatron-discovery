@@ -416,6 +416,7 @@
   "msg.space.ui.workbook.unauthorized" : "데이터소스({{inactive}})의 Publish 권한을 체크하세요",
   "msg.space.ui.notebook.unauthorized" : "노트북 서버의 권한을 체크하세요",
   "msg.space.ui.workbench.unauthorized" : "데이터 커넥션의 Publish 권한을 체크하세요",
+  "msg.space.ui.dashboard.unauthorized" : "데이터소스의 Publish 권한을 체크하세요<br>다시 시도해주세요",
 
   "msg.alert.retrieve.fail" : "조회에 실패하였습니다",
   "msg.alert.del.success" : "을(를) 삭제하였습니다",

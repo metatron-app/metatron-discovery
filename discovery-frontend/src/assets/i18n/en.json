@@ -413,9 +413,10 @@
   "msg.space.warning.can-not-create-11depth-folder" : "You can only create subfolders to 10 depths.",
   "msg.space.ui.list.search.placeholder" : "Search by sever name",
   "msg.space.alert.join.msg" : "An error occurred while calling the engine",
-  "msg.space.ui.workbook.unauthorized" : "Unauthorized.\nPlease check the publish permission of the datasource ({{inactive}}).",
+  "msg.space.ui.workbook.unauthorized" : "Unauthorized.\nPlease check the publish permission of the datasource({{inactive}}).",
   "msg.space.ui.notebook.unauthorized" : "Unauthorized.\nPlease check the permission of the notebook server.",
   "msg.space.ui.workbench.unauthorized" : "Unauthorized.\nPlease check the publish permission of the data connection.",
+  "msg.space.ui.dashboard.unauthorized" : "Please check the publish permission of the datasource.<br>Please try again",
 
   "msg.alert.retrieve.fail" : "Failed to retrieve data",
   "msg.alert.del.success": " deleted",
