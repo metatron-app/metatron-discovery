@@ -2441,11 +2441,10 @@ em.ddp-icon-control-cut .ddp-ui-tooltip-info.ddp-down em.ddp-icon-view-top {righ
 .ddp-box-block .ddp-box-bottom .ddp-wrap-num span.ddp-data-num em[class*="ddp-icon-"] {margin-right:7px; vertical-align: middle;}
 .ddp-box-block .ddp-box-bottom .ddp-wrap-num span.ddp-data-num .ddp-type-info {display:inline-block; position:relative; top:1px; margin-left:4px; vertical-align:middle; z-index:2;}
 .ddp-box-block .ddp-box-bottom .ddp-wrap-num span.ddp-data-num .ddp-type-info:hover {z-index:50;}
-.ddp-box-block .ddp-box-bottom .ddp-wrap-num span.ddp-data-num .ddp-type-info .ddp-icon-error2 {display: block;}
 .ddp-box-block .ddp-box-bottom .ddp-type-info .ddp-ui-tooltip-info.ddp-down {display:none; right:initial; left:-19px; width:200px; white-space:pre-wrap;}
 .ddp-box-block .ddp-box-bottom .ddp-type-info:hover .ddp-ui-tooltip-info.ddp-down {display:block;}
 .ddp-box-block .ddp-box-bottom .ddp-type-info .ddp-ui-tooltip-info.ddp-down .ddp-icon-view-top {margin-right:0; left:27px; right:initial;}
-.ddp-box-block .ddp-box-bottom .ddp-wrap-data {padding:11px 14px 10px 14px;}
+.ddp-box-block .ddp-box-bottom .ddp-wrap-data {padding:11px 14px 10px 14px; height:15px;}
 .ddp-box-block .ddp-box-bottom .ddp-wrap-data:before,
 .ddp-box-block .ddp-box-bottom .ddp-wrap-data:after {display:table; content:'';}
 .ddp-box-block .ddp-box-bottom .ddp-wrap-data:after {clear:both;}
@@ -2463,8 +2462,8 @@ em.ddp-icon-control-cut .ddp-ui-tooltip-info.ddp-down em.ddp-icon-view-top {righ
 .ddp-box-block .ddp-box-bottom .ddp-wrap-data .ddp-data-name .ddp-txt-name {display:inline-block; max-width:100%;}
 .ddp-box-block .ddp-box-bottom .ddp-wrap-data .ddp-data-name .ddp-txt-name .ddp-txt-name-in {display:block; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
 .ddp-box-block .ddp-box-bottom .ddp-wrap-data .ddp-data-name .ddp-type-info {float:right; position:relative; top:1px; margin-left:6px; z-index:5;}
-
-.ddp-box-block .ddp-box-bottom .ddp-data-connection {position:relative; padding:11px 15px 12px 43px; width:100%; color:#90969f; font-size:12px; box-sizing:border-box;}
+.ddp-box-block .ddp-box-bottom em.ddp-icon-error2 {display: block;}
+.ddp-box-block .ddp-box-bottom .ddp-data-connection {position:relative; padding:11px 15px 12px 43px; width:100%; color:#90969f; font-size:12px; box-sizing:border-box; height:38px;}
 .ddp-box-block .ddp-box-bottom .ddp-data-connection .ddp-img {position:absolute; top:50%; left:15px; margin-top:-11px;}
 .ddp-box-block .ddp-box-bottom .ddp-type-info {float:right; position:relative; top:1px; margin-left:5px; z-index:20;}
 .ddp-box-block .ddp-box-bottom .ddp-type-info:hover {z-index:50;}
