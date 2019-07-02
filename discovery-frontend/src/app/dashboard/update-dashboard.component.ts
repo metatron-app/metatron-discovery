@@ -68,6 +68,7 @@ import {FilterUtil} from './util/filter.util';
 import {ChartType} from '../common/component/chart/option/define/common';
 import {UIMapOption} from '../common/component/chart/option/ui-option/map/ui-map-chart';
 import {Shelf, ShelfLayers} from '../domain/workbook/configurations/shelf/shelf';
+import * as $ from "jquery";
 
 @Component({
   selector: 'app-update-dashboard',
@@ -353,7 +354,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     });
     // 일괄삭제를 위한 서비스 등록
     this.subscriptions.push(popupSubscribe);
-
+    $('body').css( 'overflow', 'hidden' );
   } // function - ngOnInit
 
   /**
@@ -375,6 +376,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
+    $('body').css( 'overflow', '' );
   } // function - ngOnDestroy
 
   /**
