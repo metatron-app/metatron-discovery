@@ -165,6 +165,8 @@ public class EngineLoadService {
                                             .anyMatch(legacyField -> legacyField.getName().equals(compareField));
           }
           field.setName(newFieldName);
+          // #1920 Change buildspec column to originalname
+          field.setOriginalName(newFieldName);
         }
       }
     }
