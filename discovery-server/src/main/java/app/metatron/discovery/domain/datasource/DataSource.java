@@ -320,6 +320,9 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
   @JsonIgnore
   IngestionInfo ingestionInfo;
 
+  @Transient
+  Boolean valid;
+
   public DataSource() {
   }
 
@@ -946,6 +949,10 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
   public void setFailOnEngine(Boolean failOnEngine) {
     this.failOnEngine = failOnEngine;
   }
+
+  public Boolean getValid() { return valid; }
+
+  public void setValid(Boolean valid) { this.valid = valid; }
 
   public boolean isFieldMatchedByNames(final List<String> matchingFieldNames) {
     if (this.getFields() == null || this.getFields().isEmpty()) {

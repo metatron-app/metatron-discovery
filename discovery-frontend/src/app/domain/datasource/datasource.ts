@@ -58,6 +58,8 @@ export class Datasource extends AbstractHistoryEntity {
   owner: any[];
   countOfDataSources: number;
 
+  valid: boolean;
+
   // for UI
   num?: number;
   temporary?: TemporaryDatasource;

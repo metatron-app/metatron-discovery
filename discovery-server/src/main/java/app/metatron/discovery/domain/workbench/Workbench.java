@@ -78,6 +78,7 @@ public class Workbench extends Book {
 		Map<String, Object> contents = Maps.newLinkedHashMap();
 		contents.put("connType", dataConnection.getImplementor());
 		contents.put("connName", dataConnection.getName());
+		contents.put("connValid", dataConnection.getWorkspaces().contains(workspace));
 
 		projection.put("contents", contents);
 

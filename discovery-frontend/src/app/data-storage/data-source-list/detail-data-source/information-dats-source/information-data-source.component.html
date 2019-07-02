@@ -85,7 +85,7 @@
           {{'msg.storage.th.ingestion_type' | translate}}
         </th>
         <td>
-          {{(datasource.connType.toString() === 'ENGINE' ? 'msg.storage.ui.list.ingested.data' : 'msg.storage.ui.list.linked.data') | translate}}
+          {{(datasource.connType === dsConnType.ENGINE ? 'msg.storage.ui.list.ingested.data' : 'msg.storage.ui.list.linked.data') | translate}}
         </td>
       </tr>
       <!-- //data type -->
@@ -100,42 +100,42 @@
             <div class="ddp-top-status">
               <span class="ddp-data-status {{getSourceStatusClass(datasource.status)}}">{{datasource.status}} </span>
               <a href="javascript:" class="ddp-link-detail"
-                 *ngIf="datasource.status.toString() === 'FAILED'"
+                 *ngIf="datasource.status === dsStatus.FAILED"
                  (click)="onClickIngestionDetails()">{{'msg.comm.detail.details' | translate}}</a>
             </div>
             <!-- box -->
-            <div class="ddp-box-status" *ngIf="!isNotShowProgress && (datasource.status.toString() === 'FAILED' || datasource.status.toString() === 'PREPARING' || datasource.status.toString() === 'ENABLED')">
+            <div class="ddp-box-status" *ngIf="!isNotShowProgress && (datasource.status === dsStatus.FAILED || datasource.status === dsStatus.PREPARING || datasource.status === dsStatus.ENABLED)">
               <!-- stagingDB -->
               <ng-container *ngIf="isHiveType()">
                 <div class="ddp-list-status">
                   <!-- Druid 적재 -->
                   <div class="ddp-status"
                        [class.ddp-finish]="ingestionProcessStatusStep >= 2"
-                       [class.ddp-fail]="datasource.status.toString() === 'FAILED' && ingestionProcessStatusStep === 2">
+                       [class.ddp-fail]="datasource.status === dsStatus.FAILED && ingestionProcessStatusStep === 2">
                     <span class="ddp-num">1</span>
                     <span class="ddp-txt-status">{{'msg.storage.ui.ingestion.step-2' | translate}}</span>
                     <em class="ddp-line"
-                        [class.type-dotted]="datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep === 2"
-                        [class.type-finish]="ingestionProcessStatusStep < 2 || (datasource.status.toString() === 'FAILED' && ingestionProcessStatusStep === 2)"></em>
+                        [class.type-dotted]="datasource.status === dsStatus.PREPARING && ingestionProcessStatusStep === 2"
+                        [class.type-finish]="ingestionProcessStatusStep < 2 || (datasource.status === dsStatus.FAILED && ingestionProcessStatusStep === 2)"></em>
                   </div>
                   <!-- //Druid 적재 -->
                   <!-- 상태확인 -->
                   <div class="ddp-status"
                     [class.ddp-finish]="ingestionProcessStatusStep >= 3"
-                    [class.ddp-ing]="datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep === 2"
-                    [class.ddp-fail]="datasource.status.toString() === 'FAILED' && ingestionProcessStatusStep === 3">
+                    [class.ddp-ing]="datasource.status === dsStatus.PREPARING && ingestionProcessStatusStep === 2"
+                    [class.ddp-fail]="datasource.status === dsStatus.FAILED && ingestionProcessStatusStep === 3">
                     <span class="ddp-num">2</span>
                     <span class="ddp-txt-status">{{'msg.storage.ui.ingestion.step-3' | translate}}</span>
                     <em class="ddp-line"
-                        [class.type-dotted]="datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep === 3"
-                        [class.type-finish]="ingestionProcessStatusStep < 3  || (datasource.status.toString() === 'FAILED' && ingestionProcessStatusStep === 3)"></em>
+                        [class.type-dotted]="datasource.status === dsStatus.PREPARING && ingestionProcessStatusStep === 3"
+                        [class.type-finish]="ingestionProcessStatusStep < 3  || (datasource.status === dsStatus.FAILED && ingestionProcessStatusStep === 3)"></em>
                   </div>
                   <!-- //상태확인 -->
                   <!-- 완료 -->
                   <div class="ddp-status"
-                       [class.ddp-finish]="datasource.status.toString() === 'ENABLED' && ingestionProcessStatusStep === 4"
-                       [class.ddp-ing]="datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep === 3"
-                       [class.ddp-fail]="datasource.status.toString() === 'FAILED' && ingestionProcessStatusStep === 4">
+                       [class.ddp-finish]="datasource.status === dsStatus.ENABLED && ingestionProcessStatusStep === 4"
+                       [class.ddp-ing]="datasource.status === dsStatus.PREPARING && ingestionProcessStatusStep === 3"
+                       [class.ddp-fail]="datasource.status === dsStatus.FAILED && ingestionProcessStatusStep === 4">
                     <span class="ddp-num">3</span>
                     <span class="ddp-txt-status">{{'msg.storage.ui.ingestion.step-4' | translate}}</span>
                   </div>
@@ -149,43 +149,43 @@
                   <!-- 데이터 이관 -->
                   <div class="ddp-status"
                        [class.ddp-finish]="ingestionProcessStatusStep >= 1"
-                       [class.ddp-fail]="datasource.status.toString() === 'FAILED' && ingestionProcessStatusStep === 1">
+                       [class.ddp-fail]="datasource.status === dsStatus.FAILED && ingestionProcessStatusStep === 1">
                     <span class="ddp-num">1</span>
                     <span class="ddp-txt-status">{{'msg.storage.ui.ingestion.step-1' | translate}}</span>
                     <em class="ddp-line"
-                        [class.type-dotted]="datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep === 1"
-                        [class.type-finish]="ingestionProcessStatusStep < 1 || (datasource.status.toString() === 'FAILED' && ingestionProcessStatusStep === 1)"></em>
+                        [class.type-dotted]="datasource.status === dsStatus.PREPARING && ingestionProcessStatusStep === 1"
+                        [class.type-finish]="ingestionProcessStatusStep < 1 || (datasource.status === dsStatus.FAILED && ingestionProcessStatusStep === 1)"></em>
                   </div>
                   <!-- //데이터 이관 -->
                   <!-- Druid 적재 -->
                   <div class="ddp-status"
                        [class.ddp-finish]="ingestionProcessStatusStep >= 2"
-                       [class.ddp-ing]="datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep === 1"
-                       [class.ddp-fail]="datasource.status.toString() === 'FAILED' && ingestionProcessStatusStep === 2">
+                       [class.ddp-ing]="datasource.status === dsStatus.PREPARING && ingestionProcessStatusStep === 1"
+                       [class.ddp-fail]="datasource.status === dsStatus.FAILED && ingestionProcessStatusStep === 2">
                     <span class="ddp-num">2</span>
                     <span class="ddp-txt-status">{{'msg.storage.ui.ingestion.step-2' | translate}}</span>
                     <em class="ddp-line"
-                        [class.type-dotted]="datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep === 2"
-                        [class.type-finish]="ingestionProcessStatusStep < 2 || (datasource.status.toString() === 'FAILED' && ingestionProcessStatusStep === 2)"></em>
+                        [class.type-dotted]="datasource.status === dsStatus.PREPARING && ingestionProcessStatusStep === 2"
+                        [class.type-finish]="ingestionProcessStatusStep < 2 || (datasource.status === dsStatus.FAILED && ingestionProcessStatusStep === 2)"></em>
                   </div>
                   <!-- //Druid 적재 -->
                   <!-- 상태확인 -->
                   <div class="ddp-status"
                        [class.ddp-finish]="ingestionProcessStatusStep >= 3"
-                       [class.ddp-ing]="datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep === 2"
-                       [class.ddp-fail]="datasource.status.toString() === 'FAILED' && ingestionProcessStatusStep === 3">
+                       [class.ddp-ing]="datasource.status === dsStatus.PREPARING && ingestionProcessStatusStep === 2"
+                       [class.ddp-fail]="datasource.status === dsStatus.FAILED && ingestionProcessStatusStep === 3">
                     <span class="ddp-num">3</span>
                     <span class="ddp-txt-status">{{'msg.storage.ui.ingestion.step-3' | translate}}</span>
                     <em class="ddp-line"
-                        [class.type-dotted]="datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep === 3"
-                        [class.type-finish]="ingestionProcessStatusStep < 3 || (datasource.status.toString() === 'FAILED' && ingestionProcessStatusStep === 3)"></em>
+                        [class.type-dotted]="datasource.status === dsStatus.PREPARING && ingestionProcessStatusStep === 3"
+                        [class.type-finish]="ingestionProcessStatusStep < 3 || (datasource.status === dsStatus.FAILED && ingestionProcessStatusStep === 3)"></em>
                   </div>
                   <!-- //상태확인 -->
                   <!-- 완료 -->
                   <div class="ddp-status"
-                       [class.ddp-finish]="datasource.status.toString() === 'ENABLED' && ingestionProcessStatusStep === 4"
-                       [class.ddp-ing]="datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep === 3"
-                       [class.ddp-fail]="datasource.status.toString() === 'FAILED' && ingestionProcessStatusStep === 4">
+                       [class.ddp-finish]="datasource.status === dsStatus.ENABLED && ingestionProcessStatusStep === 4"
+                       [class.ddp-ing]="datasource.status === dsStatus.PREPARING && ingestionProcessStatusStep === 3"
+                       [class.ddp-fail]="datasource.status === dsStatus.FAILED && ingestionProcessStatusStep === 4">
                     <span class="ddp-num">4</span>
                     <span class="ddp-txt-status">{{'msg.storage.ui.ingestion.step-4' | translate}}</span>
                   </div>
@@ -358,7 +358,7 @@
             </div>
             <!-- //edit -->
             <!-- only snapshot type (STAGING_DB) -->
-            <ng-container *ngIf="datasource.srcType.toString() === 'SNAPSHOT' && datasource.snapshot.ssType.toString() === 'STAGING_DB'">
+            <ng-container *ngIf="datasource.srcType === dsSrcType.SNAPSHOT && datasource.snapshot.ssType === snSsType.STAGING_DB">
               <!-- Database -->
               <div class="ddp-wrap-edit3 ddp-type">
                 <label class="ddp-label-type">{{'msg.storage.li.db' | translate}}</label>
@@ -523,13 +523,13 @@
         <tbody>
         <tr>
           <th>
-            {{(getConnType.toString() === 'ENGINE' ? 'msg.storage.th.ingestion-settings' : 'msg.storage.th.dsource-expire') | translate}}
+            {{(getConnType === dsConnType.ENGINE ? 'msg.storage.th.ingestion-settings' : 'msg.storage.th.dsource-expire') | translate}}
           </th>
           <td>
             <div class="ddp-ui-summary">
               <!-- Engine 형 -->
-              <span class="ddp-data-txt" *ngIf="getConnType.toString() === 'ENGINE'">{{(getIngestion.type === 'single' ? 'msg.storage.th.ingest-once' : 'msg.storage.th.ingest-prcdly') | translate}}</span>
-              <ul class="ddp-list-sub" *ngIf="getConnType.toString() === 'ENGINE'">
+              <span class="ddp-data-txt" *ngIf="getConnType === dsConnType.ENGINE">{{(getIngestion.type === 'single' ? 'msg.storage.th.ingest-once' : 'msg.storage.th.ingest-prcdly') | translate}}</span>
+              <ul class="ddp-list-sub" *ngIf="getConnType === dsConnType.ENGINE">
                 <li>
                   {{'msg.storage.th.scope-ingest' | translate}} : {{getIngestionScopeLabel()}}
                 </li>
@@ -548,7 +548,7 @@
               </ul>
               <!-- //Engine 형 -->
               <!-- Link 형 -->
-              <ul class="ddp-list-sub" *ngIf="getConnType.toString() === 'LINK'">
+              <ul class="ddp-list-sub" *ngIf="getConnType === dsConnType.LINK">
                 <li>
                   {{'msg.storage.th.time-interval' | translate}} : {{getIngestionExpired()}}
                 </li>
@@ -561,7 +561,7 @@
       </table>
       <!-- //ingestion settings -->
       <!-- partition settings -->
-      <table class="ddp-table-detail" *ngIf="isHiveType() || (datasource.srcType.toString() === 'SNAPSHOT' && datasource.snapshot.ssType.toString() === 'STAGING_DB')">
+      <table class="ddp-table-detail" *ngIf="isHiveType() || (datasource.srcType === dsSrcType.SNAPSHOT && datasource.snapshot.ssType === snSsType.STAGING_DB)">
         <colgroup>
           <col width="170px" />
           <col width="*" />

@@ -56,7 +56,11 @@ import {GridChartComponent} from '../../../common/component/chart/type/grid-char
 import {BarChartComponent} from '../../../common/component/chart/type/bar-chart.component';
 import {LineChartComponent} from '../../../common/component/chart/type/line-chart.component';
 import {OptionGenerator} from '../../../common/component/chart/option/util/option-generator';
-import {BoardSyncOptions, BoardWidgetOptions, WidgetShowType} from '../../../domain/dashboard/dashboard.globalOptions';
+import {
+  BoardSyncOptions,
+  BoardWidgetOptions,
+  WidgetShowType
+} from '../../../domain/dashboard/dashboard.globalOptions';
 import {DataDownloadComponent} from '../../../common/component/data-download/data.download.component';
 import {CustomField} from '../../../domain/workbook/configurations/field/custom-field';
 import {ChartLimitInfo, DashboardUtil} from '../../util/dashboard.util';
@@ -212,6 +216,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * 컴포넌트 초기 실행
    */
   public ngOnInit() {
+    this._checkDatasource();
     super.ngOnInit();
   }
 
@@ -1716,6 +1721,43 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         })
     } else {
       this.predictionLineDisabled();
+    }
+  }
+
+  /**
+   * Check datasource
+   * @private
+   */
+  private _checkDatasource(): void {
+    let valid = true;
+    let invalidDatasourceName = '';
+    if (this.widget.configuration.chart.type === ChartType.MAP) {
+      for (const widgetDatasource of this.widget.configuration.dataSource.dataSources) {
+        for (const dashboardDatasource of this.inputWidget.dashBoard.dataSources) {
+          if (widgetDatasource.id == dashboardDatasource.id) {
+            if (!dashboardDatasource.valid){
+              valid = false;
+              if(invalidDatasourceName != '') {
+                invalidDatasourceName += ', '
+              }
+              invalidDatasourceName += dashboardDatasource.name;
+            }
+          }
+        }
+      }
+    } else {
+      for (const dashboardDatasource of this.inputWidget.dashBoard.dataSources) {
+        if (this.widget.configuration.dataSource.id == dashboardDatasource.id) {
+          if (!dashboardDatasource.valid) {
+            valid = false;
+            invalidDatasourceName = dashboardDatasource.name;
+          }
+        }
+      }
+    }
+
+    if (!valid) {
+      this._showError({code: 'GB0000', details: this.translateService.instant('msg.board.error.deny-datasource', {datasource : invalidDatasourceName})});
     }
   }
 

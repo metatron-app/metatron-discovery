@@ -421,16 +421,13 @@ public class DataSourceEventHandler {
   @HandleBeforeLinkDelete
   @PreAuthorize("hasAuthority('PERM_SYSTEM_MANAGE_DATASOURCE')")
   public void handleBeforeLinkDelete(DataSource dataSource, Object linked) {
-
     // Count connected workspaces.
+    Set<Workspace> preWorkspaces = dataSourceRepository.findWorkspacesInDataSource(dataSource.getId());
     // Not a public workspace and linked entity type is Workspace.
     if (BooleanUtils.isNotTrue(dataSource.getPublished()) &&
-        !CollectionUtils.sizeIsEmpty(linked) &&
-        CollectionUtils.get(linked, 0) instanceof Workspace) {
+        !CollectionUtils.sizeIsEmpty(preWorkspaces)) {
       dataSource.setLinkedWorkspaces(dataSource.getWorkspaces().size());
       LOGGER.debug("DELETED: Set linked workspace in datasource({}) : {}", dataSource.getId(), dataSource.getLinkedWorkspaces());
-
-      Set<Workspace> preWorkspaces = dataSourceRepository.findWorkspacesInDataSource(dataSource.getId());
 
       for (Workspace workspace : preWorkspaces) {
         if(!dataSource.getWorkspaces().contains(workspace)) {

@@ -418,6 +418,10 @@
   "msg.space.warning.can-not-create-11depth-folder" : "You can only create subfolders to 10 depths.",
   "msg.space.ui.list.search.placeholder" : "Search by sever name",
   "msg.space.alert.join.msg" : "An error occurred while calling the engine",
+  "msg.space.ui.workbook.unauthorized" : "Unauthorized.\nPlease check the publish permission of the datasource({{inactive}}).",
+  "msg.space.ui.notebook.unauthorized" : "Unauthorized.\nPlease check the permission of the notebook server.",
+  "msg.space.ui.workbench.unauthorized" : "Unauthorized.\nPlease check the publish permission of the data connection.",
+  "msg.space.ui.dashboard.unauthorized" : "Please check the publish permission of the datasource.<br>Please try again",
 
   "msg.alert.retrieve.fail" : "Failed to retrieve data",
   "msg.alert.del.success": " deleted",
@@ -1665,6 +1669,7 @@
   "msg.board.unload.title" : "Dashboard can not be loaded",
   "msg.board.unload.desc" : "We can not draw your dashboard for an unknown reason.<br>Please try again",
   "msg.board.ui.cant-not-down-aggregate" : "Original view cannot be supported for custom columns with aggregate functions",
+  "msg.board.error.deny-datasource" : "Datasource({{datasource}}) usages is not allowed.",
 
   "msg.storage.btn.create.dsource": "Create new datasource",
   "msg.storage.ui.dsource.search.description": "Search by name of datasource",

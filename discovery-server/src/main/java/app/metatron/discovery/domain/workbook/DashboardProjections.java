@@ -84,6 +84,9 @@ public class DashboardProjections extends BaseProjections {
     UserProfile getModifiedBy();
 
     DateTime getModifiedTime();
+
+    @Value("#{T(app.metatron.discovery.util.ProjectionUtils).toListResource(@projectionFactory, T(app.metatron.discovery.domain.datasource.DataSourceProjections$ForDetailProjection), @dashBoardService.backingDataSource(target.dataSources, target.workBook))}")
+    Object getDataSources();
   }
 
   /**
@@ -142,7 +145,8 @@ public class DashboardProjections extends BaseProjections {
 
     String getTemporaryId();
 
-    @Value("#{T(app.metatron.discovery.util.ProjectionUtils).toListResource(@projectionFactory, T(app.metatron.discovery.domain.datasource.DataSourceProjections$ForDetailProjection), target.dataSources)}")
+    //@Value("#{T(app.metatron.discovery.util.ProjectionUtils).toListResource(@projectionFactory, T(app.metatron.discovery.domain.datasource.DataSourceProjections$ForDetailProjection), target.dataSources)}")
+    @Value("#{T(app.metatron.discovery.util.ProjectionUtils).toListResource(@projectionFactory, T(app.metatron.discovery.domain.datasource.DataSourceProjections$ForDetailProjection), @dashBoardService.backingDataSource(target.dataSources, target.workBook))}")
     Object getDataSources();
 
 //    @Value("#{T(app.metatron.discovery.util.ProjectionUtils).toListResource(@projectionFactory, T(app.metatron.discovery.domain.workbook.widget.WidgetProjections$ForDetailViewProjection), target.widgets)}")

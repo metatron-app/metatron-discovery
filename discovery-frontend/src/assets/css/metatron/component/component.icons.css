@@ -109,9 +109,14 @@ span.ddp-data-jupyter:before {width:12px; height:16px;}
 span.ddp-data-zeppelin:before {width:18px; height:10px; background-position:left -17px;}
 
 span.ddp-data-lang-r:before,
-span.ddp-data-lang-python:before  {display:inline-block; content:''; margin-right:5px; background:url(../../../images/icon_lang.png) no-repeat; vertical-align: middle;}
+span.ddp-data-lang-python:before{display:inline-block; content:''; margin-right:5px; background:url(../../../images/icon_lang.png) no-repeat; vertical-align: middle;}
 span.ddp-data-lang-r:before {width:16px; height:13px; background-position:left -14px;}
 span.ddp-data-lang-python:before {width:13px; height:13px;}
+
+em.ddp-icon-lang-zeppelin,
+em.ddp-icon-lang-jupyter {display:inline-block; content:''; margin-right:5px; background:url(../../../images/icon_lang.png) no-repeat; vertical-align: middle;}
+em.ddp-icon-lang-zeppelin {width:17px; height:11px; background-position:left -28px;}
+em.ddp-icon-lang-jupyter {width:12px; height:16px; background-position:left -40px;}
 
 em.ddp-icon-window {display:inline-block; width:12px; height:10px; background:url(../../../images/icon_window.png) no-repeat; vertical-align: middle;}
 em.ddp-icon-lock-s,

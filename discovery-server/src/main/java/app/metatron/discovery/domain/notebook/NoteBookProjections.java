@@ -119,6 +119,9 @@ public class NoteBookProjections {
         @Value("#{target.getConnector().getType()}")
         String getConnectorType();
 
+        @Value("#{target.getWorkspace().getConnectors().contains(target.getConnector())}")
+        Boolean getConnValid();
+
         @Value("#{@cachedUserService.findUserProfile(target.createdBy)}")
         UserProfile getCreatedBy();
 

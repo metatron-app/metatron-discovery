@@ -12,11 +12,19 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  Injector,
+  OnDestroy,
+  OnInit,
+  ViewChild
+} from '@angular/core';
 
 import * as _ from 'lodash';
 import * as moment from 'moment';
-import { ClipboardService } from 'ngx-clipboard';
+import {ClipboardService} from 'ngx-clipboard';
 import {AbstractComponent} from '../common/component/abstract.component';
 import {ActivatedRoute} from '@angular/router';
 import {Workbook, WorkbookDetailProjections} from '../domain/workbook/workbook';
@@ -26,10 +34,10 @@ import {DeleteModalComponent} from '../common/component/modal/delete/delete.comp
 import {Modal} from '../common/domain/modal';
 import {Alert} from '../common/util/alert.util';
 import {UserProfile} from '../domain/user/user-profile';
-import {Dashboard, BoardDataSource, PresentationDashboard} from '../domain/dashboard/dashboard';
+import {BoardDataSource, Dashboard, PresentationDashboard} from '../domain/dashboard/dashboard';
 import {DragDropConfig, DragDropService, DragDropSortableService, SortableContainer} from 'ng2-dnd';
 import {DashboardService} from '../dashboard/service/dashboard.service';
-import {Comments, Comment} from '../domain/comment/comment';
+import {Comment, Comments} from '../domain/comment/comment';
 import {CookieConstant} from '../common/constant/cookie.constant';
 import {MomentPipe} from '../common/pipe/moment.pipe';
 import {MomentDatePipe} from '../common/pipe/moment.date.pipe';
@@ -993,37 +1001,55 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   } // function - confirmDeleteDashboard
 
   /**
+   * 대시보드 정보 선택
+   * @param {Dashboard} dashboard
+   */
+  public detailDashboard(dashboard: Dashboard) {
+    if (!this.isInvalidDatasource(dashboard)) {
+      this.loadAndSelectDashboard(dashboard);
+    }
+  }
+
+  /**
    * 대시보드 정보 조회 및 선택
    * @param {Dashboard} dashboard
    */
   public loadAndSelectDashboard(dashboard: Dashboard) {
 
     this.tempLoadBoard = dashboard;
-    if (!this.selectedDashboard || this.selectedDashboard.id !== dashboard.id) {
-      if(this._boardComp) {
-        this._boardComp.showBoardLoading();
-        this._boardComp.hideError();
+    if (this.isInvalidDatasource(dashboard)) {
+      if (this._boardComp) {
+        this.selectedDashboard = undefined;
+        this._boardComp.showError(this.translateService.instant('msg.space.ui.dashboard.unauthorized'));
+        this._boardComp.hideBoardLoading();
       }
-      this.dashboardService.getDashboard(dashboard.id).then((board: Dashboard) => {
-        // save data for selected dashboard
-        board.workBook = this.workbook;
-        this.selectedDashboard = board;
-        this.tempLoadBoard = undefined;
-
-        this.scrollToDashboard(board.id); // scroll to item
-
-        (this._boardComp) && (this._boardComp.hideBoardLoading());
-        this.safelyDetectChanges();
-      }).catch(() => {
-        if(this._boardComp) {
-          this._boardComp.showError();
-          this._boardComp.hideBoardLoading();
-        }
-        this.safelyDetectChanges();
-      });
     } else {
-      this._boardComp.hideBoardLoading();
-      this.safelyDetectChanges();
+      if (!this.selectedDashboard || this.selectedDashboard.id !== dashboard.id) {
+        if (this._boardComp) {
+          this._boardComp.showBoardLoading();
+          this._boardComp.hideError();
+        }
+        this.dashboardService.getDashboard(dashboard.id).then((board: Dashboard) => {
+          // save data for selected dashboard
+          board.workBook = this.workbook;
+          this.selectedDashboard = board;
+          this.tempLoadBoard = undefined;
+
+          this.scrollToDashboard(board.id); // scroll to item
+
+          (this._boardComp) && (this._boardComp.hideBoardLoading());
+          this.safelyDetectChanges();
+        }).catch(() => {
+          if (this._boardComp) {
+            this._boardComp.showError();
+            this._boardComp.hideBoardLoading();
+          }
+          this.safelyDetectChanges();
+        });
+      } else {
+        this._boardComp.hideBoardLoading();
+        this.safelyDetectChanges();
+      }
     }
   } // function - loadAndSelectDashboard
 
@@ -1165,6 +1191,14 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     }
   } // function - getEditorName
 
+  /**
+   * 대시보드의 데이터소스 Publish 체크
+   * @returns {boolean}
+   */
+  public isInvalidDatasource(dashboard:Dashboard): boolean {
+    return dashboard.dataSources.filter((ds) => ds.valid).length == 0;
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -1179,7 +1213,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       this.workbookService.getWorkbook(this.workbookId).then((result) => {
         // 워크북이 들고있는 전체 데이터 소스 목록
         this.datasources = result.dataSource.map((ds) => {
-          return {id: ds.id, name: ds.name};
+          return {id: ds.id, name: ds.name, valid: ds.valid};
         });
 
         // 최초 아무것도 선택이 안 되어있는 경우는 전체 선택
