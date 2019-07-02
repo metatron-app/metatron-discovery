@@ -368,24 +368,27 @@ export class UpdateConnectionComponent extends AbstractComponent {
         params.port = '';
       }
     }
-    // if security type is MANUAL
-    if (this._connectionComponent.selectedAuthenticationType.value === AuthenticationType.MANUAL) {
-      // if password different
-      if (this._connectionComponent.password.trim() !== this.originConnectionData.password) {
-        params.password = this._connectionComponent.password.trim();
+    // if enable authentication type
+    if (!this._connectionComponent.isDisableAuthenticationType()) {
+      // if security type is MANUAL
+      if (this._connectionComponent.selectedAuthenticationType.value === AuthenticationType.MANUAL) {
+        // if password different
+        if (this._connectionComponent.password.trim() !== this.originConnectionData.password) {
+          params.password = this._connectionComponent.password.trim();
+        }
+        // if username different
+        if (this._connectionComponent.username.trim() !== this.originConnectionData.username) {
+          params.username = this._connectionComponent.username.trim();
+        }
       }
-      // if username different
-      if (this._connectionComponent.username.trim() !== this.originConnectionData.username) {
-        params.username = this._connectionComponent.username.trim();
-      }
-    }
-    // if changed security type
-    if (this.originConnectionData.authenticationType !== this._connectionComponent.selectedAuthenticationType.value) {
-      params.authenticationType = this._connectionComponent.selectedAuthenticationType.value;
-      // if origin security type is MANUAL, delete username and password
-      if (this.originConnectionData.authenticationType === AuthenticationType.MANUAL) {
-        params.username = '';
-        params.password = '';
+      // if changed security type
+      if (this.originConnectionData.authenticationType !== this._connectionComponent.selectedAuthenticationType.value) {
+        params.authenticationType = this._connectionComponent.selectedAuthenticationType.value;
+        // if origin security type is MANUAL, delete username and password
+        if (this.originConnectionData.authenticationType === AuthenticationType.MANUAL) {
+          params.username = '';
+          params.password = '';
+        }
       }
     }
     // if changed property
