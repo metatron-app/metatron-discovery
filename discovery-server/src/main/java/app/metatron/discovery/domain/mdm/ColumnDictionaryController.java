@@ -106,14 +106,17 @@ public class ColumnDictionaryController {
   @RequestMapping(path = "/dictionaries/name/{value}/duplicated", method = RequestMethod.GET)
   public ResponseEntity<?> checkDuplicatedValue(@PathVariable("value") String value) {
 
-    Map<String, Boolean> duplicated = Maps.newHashMap();
-    if (columnDictionaryRepository.exists(ColumnDictionaryPredicate.searchDuplicatedName(value))) {
-      duplicated.put("duplicated", true);
+    Map<String, Boolean> duplicatedResult = Maps.newHashMap();
+    Predicate duplicatedPredicate = ColumnDictionaryPredicate.searchDuplicatedLogicalName(value);
+    Boolean duplicated = columnDictionaryRepository.exists(duplicatedPredicate);
+
+    if (duplicated) {
+      duplicatedResult.put("duplicated", true);
     } else {
-      duplicated.put("duplicated", false);
+      duplicatedResult.put("duplicated", false);
     }
 
-    return ResponseEntity.ok(duplicated);
+    return ResponseEntity.ok(duplicatedResult);
 
   }
 
