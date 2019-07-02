@@ -84,4 +84,20 @@ public class ColumnDictionaryPredicate {
     return builder;
   }
 
+  /**
+   * ColumnDictionary Logical 명 중복 조회 조건
+   *
+   * @param logicalName
+   * @return
+   */
+  public static Predicate searchDuplicatedLogicalName(String logicalName) {
+
+    BooleanBuilder builder = new BooleanBuilder();
+    QColumnDictionary dictionary = QColumnDictionary.columnDictionary;
+
+    builder = builder.and(dictionary.logicalName.eq(logicalName));
+
+    return builder;
+  }
+
 }
