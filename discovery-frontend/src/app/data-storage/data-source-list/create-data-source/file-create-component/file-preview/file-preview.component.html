@@ -209,7 +209,7 @@
           <!-- 클릭시 ddp-selected 추가 -->
           <div class="ddp-wrap-advance" [class.ddp-selected]="advanceSetting">
 
-            <a href="javascript:" class="ddp-txt-setting" (click)="advanceSetting = true">{{'msg.storage.th.advanced.setting' | translate}}</a>
+            <a href="javascript:" class="ddp-txt-setting" (click)="advanceSetting = !advanceSetting">{{'msg.storage.th.advanced.setting' | translate}}</a>
             <div class="ddp-wrap-boxtype">
 
               <table class="ddp-wrap-boxdata">
