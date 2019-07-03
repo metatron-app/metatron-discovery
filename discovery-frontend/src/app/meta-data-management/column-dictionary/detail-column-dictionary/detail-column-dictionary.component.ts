@@ -28,6 +28,7 @@ import * as _ from 'lodash';
 import {LinkedMetadataComponent} from '../../component/linked-metadata-columns/linked-metadata.component';
 import {LinkedMetaDataColumn} from '../../../domain/meta-data-management/metadata-column';
 import {Location} from '@angular/common';
+import {StringUtil} from "../../../common/util/string.util";
 
 @Component({
   selector: 'app-detail-column-dictionary',
@@ -184,6 +185,10 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
    */
   public isSelectedLogicalType(type: any): boolean {
     return this.columnDictionary.logicalType === type;
+  }
+
+  public isEmptyDictionaryFormat(): boolean {
+    return _.isNil(this.columnDictionary.format) || StringUtil.isEmpty(this.columnDictionary.format.format);
   }
 
   /**

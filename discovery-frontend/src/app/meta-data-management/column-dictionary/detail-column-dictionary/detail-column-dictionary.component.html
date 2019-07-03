@@ -157,9 +157,7 @@
             <!-- 클릭시 ddp-selected 추가 -->
             <div class="ddp-txt-edit" [class.ddp-selected]="shortNameEditFl" (clickOutside)="shortNameEditFl = false">
               <!-- data -->
-              <span class="ddp-data-name"
-                    [class.ddp-data-none]="!columnDictionary.suggestionShortName"
-                    (click)="onChangeShortNameMode()">
+              <span class="ddp-data-name" [class.ddp-data-none]="!columnDictionary.suggestionShortName" (click)="onChangeShortNameMode()">
               {{ columnDictionary.suggestionShortName && columnDictionary.suggestionShortName.length > 0 ? columnDictionary.suggestionShortName : 'msg.metadata.ui.codetable.detail.used.column.dictionary.no.name' | translate }}
               <em class="ddp-icon-edit2"></em>
             </span>
@@ -362,8 +360,8 @@
                    [class.ddp-selected]="timeFormatEditFl"
                    (clickOutside)="timeFormatEditFl = false">
                 <!-- data -->
-                <span class="ddp-data-name" (click)="onChangeTimeFormatMode()">
-              {{(columnDictionary.format && columnDictionary.format.hasOwnProperty('format')) ? columnDictionary.format.format : columnDictionary.format}}
+                <span class="ddp-data-name" [class.ddp-data-none]="isEmptyDictionaryFormat()" (click)="onChangeTimeFormatMode()">
+              {{isEmptyDictionaryFormat() ? ('msg.metadata.ui.codetable.detail.used.column.dictionary.no.format'| translate) : columnDictionary.format.format}}
                   <em class="ddp-icon-edit2"></em>
             </span>
                 <!-- //data -->
