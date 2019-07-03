@@ -1465,6 +1465,7 @@
   "msg.board.ui.use.filter" : "필터에서 사용중입니다. 사용 해제 후 다시 시도해 주세요.",
   "msg.board.ui.not.delete.custom" : "사용자 정의 필드 삭제 불가",
   "msg.board.custom.ui.column.empty" : "컬럼을 입력해주세요",
+  "msg.board.custom.ui.column.reserved" : "예약어를 사용할 수 없습니다.(count, __time, timestamp)",
   "msg.board.custom.ui.val.un.check" : "조건식을 검증해주세요.",
   "msg.board.custom.th.title" : "사용자 컬럼",
   "msg.board.custom.th.role" : "역할",
