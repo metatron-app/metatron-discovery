@@ -12,16 +12,14 @@
  * limitations under the License.
  */
 
-import {
-  Component, ElementRef, EventEmitter, Injector, Output, ViewChild
-} from '@angular/core';
-import { DataconnectionService } from '../../dataconnection/service/dataconnection.service';
-import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
-import { SetWorkspacePublishedComponent } from '../component/set-workspace-published/set-workspace-published.component';
-import { CommonUtil } from '../../common/util/common.util';
-import { StringUtil } from '../../common/util/string.util';
+import {Component, ElementRef, EventEmitter, Injector, Output, ViewChild} from '@angular/core';
+import {DataconnectionService} from '../../dataconnection/service/dataconnection.service';
+import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
+import {SetWorkspacePublishedComponent} from '../component/set-workspace-published/set-workspace-published.component';
+import {CommonUtil} from '../../common/util/common.util';
+import {StringUtil} from '../../common/util/string.util';
 import {AuthenticationType, Dataconnection} from '../../domain/dataconnection/dataconnection';
-import {ConnectionComponent, ConnectionValid} from "../component/connection/connection.component";
+import {ConnectionComponent} from "../component/connection/connection.component";
 import {AbstractComponent} from "../../common/component/abstract.component";
 import {Alert} from "../../common/util/alert.util";
 import {Modal} from "../../common/domain/modal";
@@ -309,8 +307,9 @@ export class UpdateConnectionComponent extends AbstractComponent {
     // update connection
     this.connectionService.updateConnection(this._connectionId, {published: !this.originConnectionData.published})
       .then((result) => {
-        this.originConnectionData.published = this.published = result.published;
-        this.originConnectionData.modifiedTime = this.published = result.modifiedTime;
+        this.originConnectionData.published = result.published;
+        this.originConnectionData.modifiedTime = result.modifiedTime;
+        this.published = result.published;
         // alert
         result['published']
           ? Alert.success(this.translateService.instant('msg.storage.alert.dconn-public.success'))
