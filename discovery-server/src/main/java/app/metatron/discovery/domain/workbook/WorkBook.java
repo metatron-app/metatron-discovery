@@ -111,7 +111,7 @@ public class WorkBook extends Book {
     }
     contents.put("dataSource", dataSourceMap.values().size());
     contents.put("inactiveDataSource", inactiveDataSourceMap.values().size());
-    contents.put("connValid", dataSourceMap.values().size() != inactiveDataSourceMap.values().size());
+    contents.put("connValid", dataSourceMap.values().size() == 0 || dataSourceMap.values().size() != inactiveDataSourceMap.values().size());
     projection.put("contents", contents);
 
     return projection;
