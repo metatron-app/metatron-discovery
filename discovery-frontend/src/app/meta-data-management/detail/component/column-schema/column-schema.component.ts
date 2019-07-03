@@ -197,6 +197,11 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
       metadataColumn.checked = true;
 
       if (isFromDictionary) {
+        // if not exist format in column, initial format
+        if (_.isNil(metadataColumn.format)) {
+          metadataColumn.format = new FieldFormat();
+          this.safelyDetectChanges();
+        }
         // 열리는 순간 바로 validation을 해야한다.
         this._datetimePopupComponentList.toArray()[index].initFromDictionary();
       } else {
