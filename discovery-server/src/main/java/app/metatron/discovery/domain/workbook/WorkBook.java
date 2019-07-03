@@ -89,20 +89,22 @@ public class WorkBook extends Book {
     projection.put("type", "workbook");
 
     Map<String, Object> contents = Maps.newLinkedHashMap();
-    contents.put("dashboard", dashBoards.size());
 
     // TODO: 기획쪽과 논의해볼 필요가 있음.
+    int dashboardSize = 0;
     final Map<String, DataSource> dataSourceMap = Maps.newHashMap();
     for (DashBoard dashBoard : dashBoards) {
-      if(dashBoard.getDataSources() == null) {
+      if(dashBoard.getDataSources() == null || dashBoard.getDataSources().isEmpty()) {
         continue;
       }
+      dashboardSize++;
       dashBoard.getDataSources().forEach(dataSource -> {
         if(!dataSourceMap.containsKey(dataSource.getId())) {
           dataSourceMap.put(dataSource.getId(), dataSource);
         }
       });
     }
+    contents.put("dashboard", dashboardSize);
     contents.put("dataSource", dataSourceMap.values().size());
 
     projection.put("contents", contents);
