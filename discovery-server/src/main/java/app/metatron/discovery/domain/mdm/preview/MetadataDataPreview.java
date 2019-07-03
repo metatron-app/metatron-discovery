@@ -32,6 +32,7 @@ import app.metatron.discovery.common.data.projection.ColumnHistogram;
 import app.metatron.discovery.common.data.projection.DataGrid;
 import app.metatron.discovery.common.data.projection.DataHistogram;
 import app.metatron.discovery.common.data.projection.Row;
+import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.mdm.Metadata;
 import app.metatron.discovery.domain.mdm.MetadataColumn;
@@ -177,7 +178,9 @@ public abstract class MetadataDataPreview implements DataGrid, DataHistogram {
       }
       additionalMap.put("role", metadataColumn.getRole());
       ColumnDescription columnDescription = new ColumnDescription(metadataColumn.getName(),
-                                                                  metadataColumn.getType().toString(),
+                                                                  metadataColumn.getType() == null
+                                                                      ? DataType.UNKNOWN.toLogicalType().toString()
+                                                                      : metadataColumn.getType().toString(),
                                                                   metadataColumn.getPhysicalName(),
                                                                   metadataColumn.getPhysicalType(),
                                                                   GlobalObjectMapper.readValue(metadataColumn.getFormat()),
