@@ -112,6 +112,8 @@ public class PrepException extends MetatronException {
             return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_INVALID_FUNCTION_TYPE);
         else if (e instanceof InvalidIndexTypeException)
             return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_INVAILD_INDEX_TYPE);
+        else if (e instanceof InvalidJoinTypeException)
+            return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_INVAILD_JOIN_TYPE);
         else if (e instanceof InvalidJsonException)
             return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_INVALID_JSON);
         else if (e instanceof JdbcQueryFailedException)

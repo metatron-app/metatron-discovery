@@ -197,9 +197,8 @@ public class TeddyImpl {
   }
 
   public DataFrame preview(String dsId, int stageIdx, String ruleString) throws TeddyException {
-    Revision rev = getCurRev(
-        dsId);     // rule apply == revision generate, so always use the last one.
-    return apply(rev.get(stageIdx), ruleString, null);
+    Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
+    return apply(rev.get(stageIdx - 1), ruleString, null);
   }
 
   public DataFrame fetch(String dsId, Integer stageIdx) {

@@ -149,6 +149,11 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
       nameDupMap[dataaset.dsName] = nameCnt + 1;
     });
 
+    // 선택된 RightDataset은 표시 안함
+    if( this.rightDataset ) {
+      list = list.filter( dataset => this.rightDataset.dsId!==dataset.dsId );
+    }
+
     // 검색어가 있는지 체크
     const isSearchTextEmpty = StringUtil.isNotEmpty(this.searchText);
 
@@ -391,6 +396,24 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
   } // function - rightCheckAllEventHandler
 
   /**
+   * 오른쪽 컬럼 select 자동 체크
+   */
+  public setRightCheckOnLoad() {
+    this.rightSelCols = this.leftSelCols.filter( col => {
+      var included = false;
+      this.rightDataset.gridData.fields.forEach( field => {
+        if( col == field.name ) { included = true; }
+      });
+      return included;
+    });
+    if( 0<this.rightSelCols.length && this.rightSelCols.length==this.rightDataset.gridData.fields.length) {
+      this.rightCheckAll = true;
+    }
+    this.rightSelCols.forEach(colName => this.rightGrid.columnSelection(colName));
+
+  } // function - setRightCheckOnLoad
+
+  /**
    * join key 정보를 목록에 추가한다
    */
   public addJoinKeys() {
@@ -409,6 +432,8 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
       Alert.warning(this.translateService.instant('msg.dp.ui.join.key.error'));
     }
 
+    this.leftJoinKey = '';
+    this.rightJoinKey = '';
     // this.previewJoinResult();   // 조인 결과 미리보기
   } // function - addToJoinKeys
 
@@ -482,10 +507,12 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
     let list = [leftDsId];
     while( 0<list.length ) {
       let pop = list.shift();
+      /* self item can be on list
       if( pop === rightDsId ) {
         ret = false;
         break;
       }
+      */
       for(let us of upstreams ) {
         if( us.dsId === pop ) {
           if( false==list.includes( us.dsId ) ) {
@@ -579,7 +606,9 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
     // 초기화 check상태 & 선택 된 columns
     this.rightSelCols = [];
     this.joinList = []; // 조인리스트 초기화
-    this.selectedJoinType = 'LEFT';
+    if(this.selectedJoinType==='') { // 기본 유지. 없을 때만 초기값 LEFT
+      this.selectedJoinType = 'LEFT';
+    }
     this.rightCheckAll = false; // 전체 체크 해제
     this.rightDataset = dataset; // 클릭된 데이터셋을 this.rightDataset에 넣는다
 
@@ -594,7 +623,12 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
         this.rightDataset.data = JSON.stringify(data);
         this.rightDataset.gridData = gridData;
 
-        this.updateGrid(this.rightDataset.gridData, this.rightGrid);
+
+        this.updateGrid(this.rightDataset.gridData, this.rightGrid).then(() => {
+          // 컬럼 자동 선택
+          //this.setRightCheckOnLoad();
+          this.setRightCheckAll(true);
+        });
 
         // 조인키 넣기
         this.setJoinKeys();
@@ -633,7 +667,6 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
         this.rightDataset.gridData = gridData;
 
         // 조인키를 넣어 준다
-        this.rightJoinKey = '';
         this.rightJoinKey = '';
         this.leftJoinKey = '';
 
@@ -756,7 +789,15 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
       return;
     }
     this.rightJoinKey = key;
-    this.isRightDatasetShow = false;
+    if(this.leftJoinKey==='') {
+      for (let field of this.leftDataset.gridData.fields) {
+        if (field.name && key === field.name) {
+          this.leftJoinKey = key;
+          break;
+        }
+      }
+    }
+    setTimeout(() => this.isRightDatasetShow = false);
   } // function - onRightJoinKeySelected
 
   public showTypeList(event) {

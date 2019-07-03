@@ -108,6 +108,53 @@
       </div>
     </li>
     <!-- //WORKSPACE -->
+
+    <!-- EXPLOREDATA -->
+    <li *ngIf="permission.exploreData" [ngClass]="{'ddp-selected': lnbManager.exploreData.fold == false}" >
+      <div class="ddp-wrap-listmenu">
+        <a href="javascript:" (click)="depth1Menu1ClickListener( 'EXPLOREDATA' )">
+          <span class="ddp-txt-lnbmenu">{{'msg.comm.menu.title.explore-data' | translate}}</span>
+          <em class="ddp-icon-menuview"></em>
+        </a>
+        <!-- sub -->
+        <div class="ddp-list-sub">
+          <!-- submenu -->
+          <ul class="ddp-list-sublnb">
+            <li *ngIf="permission.exploreDataView" [ngClass]="{'ddp-selected': lnbManager.exploreData.exploreView.fold == false}">
+              <a href="javascript:" (click)="exploreDataMenuClickListener('EXPLOREDATA_VIEW')">
+                <em class="ddp-icon-dot"></em>
+                {{'msg.comm.menu.explore-data.view' | translate}}
+              </a>
+              <ul class="ddp-list-sublnb-2depth">
+                <li>
+                  <a href="javascript:" (click)="move('exploredata/view')">
+                    {{'msg.comm.menu.explore-data.view' | translate}}
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li *ngIf="permission.exploreFavorite" [ngClass]="{'ddp-selected': lnbManager.exploreData.favorite.fold == false}">
+              <a href="javascript:" (click)="exploreDataMenuClickListener('EXPLOREDATA_FAVORITE')">
+                <em class="ddp-icon-dot"></em>
+                {{'msg.comm.menu.explore-data.favorite' | translate}}
+              </a>
+              <ul class="ddp-list-sublnb-2depth">
+                <li>
+                  <a href="javascript:" (click)="move('exploredata/favorite/data')">{{'msg.comm.menu.explore-data.favorite.data' | translate}}</a>
+                </li>
+                <li>
+                  <a href="javascript:" (click)="move('exploredata/favorite/creator')">{{'msg.comm.menu.explore-data.favorite.creator' | translate}}</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <!-- //submenu -->
+        </div>
+        <!-- //sub -->
+      </div>
+    </li>
+    <!-- // EXPLOREDATA -->
+
     <!-- MANAGEMENT -->
     <li *ngIf="permission.management" [ngClass]="{'ddp-selected': lnbManager.management.fold == false}" >
       <div class="ddp-wrap-listmenu">

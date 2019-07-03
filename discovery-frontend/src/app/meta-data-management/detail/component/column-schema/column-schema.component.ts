@@ -12,15 +12,21 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, QueryList, Renderer, ViewChildren} from '@angular/core';
-import {AbstractComponent} from '../../../../common/component/abstract.component';
 import {
-  ConnectionType,
-  Datasource,
-  FieldFormat,
-  FieldFormatType,
-  FieldRole, LogicalType
-} from '../../../../domain/datasource/datasource';
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  QueryList,
+  Renderer,
+  ViewChildren
+} from '@angular/core';
+import {AbstractComponent} from '../../../../common/component/abstract.component';
+import {ConnectionType, Datasource, FieldFormat, FieldFormatType} from '../../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import {MetadataService} from '../../../metadata/service/metadata.service';
 import {MetadataModelService} from '../../../metadata/service/metadata.model.service';
@@ -183,13 +189,20 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     super.ngOnDestroy();
   }
 
-  public onClickInfoIcon(metadataColumn: MetadataColumn, index: number): void {
+  public onClickInfoIcon(metadataColumn: MetadataColumn, index: number, isFromDictionary: boolean = false): void {
     if (MetadataColumn.isTypeIsTimestamp(metadataColumn)) {
       if (metadataColumn[ 'typeListFl' ]) {
         metadataColumn[ 'typeListFl' ] = false;
       }
       metadataColumn.checked = true;
-      this._datetimePopupComponentList.toArray()[ index ].init();
+
+      if (isFromDictionary) {
+        // 열리는 순간 바로 validation을 해야한다.
+        this._datetimePopupComponentList.toArray()[index].initFromDictionary();
+      } else {
+        this._datetimePopupComponentList.toArray()[ index ].init();
+      }
+
     }
   }
 
@@ -329,8 +342,42 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     this._selectedColumn.replaceFl = true;
     // 현재 선택한 컬럼의 사전 변경
     this._selectedColumn.dictionary = columnDictionary;
-    // 컬럼 사전이 있다면 해당 컬럼 사전의 상세정보 조회
-    columnDictionary && this._getDetailColumnDictionary(columnDictionary.id);
+
+    // 컬럼 딕셔너리 삭제시
+    if (columnDictionary === null) {
+      // logical column name 초기화
+      this._selectedColumn.name = this._selectedColumn.physicalName;
+
+      // # 2242
+      // role이 타입스템프 타입에 딕셔너리를 적용할 경우 type과 format 이 적용되지 않기 때문에..
+      // 딕셔너리를 해제해도 string으로 초기화 하지 않음
+      if (this._selectedColumn.role !== Type.Role.TIMESTAMP) {
+        // type string으로 초기화
+        this._selectedColumn.type = Type.Logical.STRING;
+        this._selectedColumn.format = null;
+
+      }
+
+
+      // code table 삭제
+      if (!_.isNil(this._selectedColumn.codeTable)) {
+        delete this._selectedColumn.codeTable
+      }
+
+      // description 초기화
+      this._selectedColumn.description = '';
+
+
+      // check validation
+      this.setIsExistErrorInFieldListFlag();
+
+
+
+    } else {
+      // 컬럼 사전이 있다면 해당 컬럼 사전의 상세정보 조회
+      this._getDetailColumnDictionary(columnDictionary.id);
+    }
+
   }
 
   /**
@@ -392,6 +439,12 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    */
   public onClickSearchDictionary(metadataColumn: MetadataColumn): void {
     event.stopImmediatePropagation();
+
+
+    // GEO타입 딕셔너리 수정 불가 : #2242
+    if (this.isGeoType(metadataColumn.type)) {
+      return;
+    }
     this._saveCurrentlySelectedColumn(metadataColumn);
     this._chooseDictionaryEvent.emit({ name: 'CREATE', dictionary: metadataColumn.dictionary }); // 컬럼 사전 선택 컴포넌트
   }
@@ -452,6 +505,15 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     }
   }
 
+  /**
+   * Return true if column is geo type
+   * @param type
+   */
+  public isGeoType(type: Type.Logical): boolean {
+    const types = ['GEO_LINE', 'GEO_POINT','GEO_POLYGON'];
+    return -1 < types.indexOf(type)
+  }
+
   public isLogicalTypesLayerActivation(metadataColumn: MetadataColumn) {
     return metadataColumn.type !== Type.Logical.GEO_LINE
       && metadataColumn.type !== Type.Logical.GEO_POINT
@@ -459,8 +521,8 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
       && this.isTimestampColumn(metadataColumn) === false;
   }
 
-  public isTypeIsTimestamp(metadataColumn: MetadataColumn) {
-    return MetadataColumn.isTypeIsTimestamp(metadataColumn);
+  public isShowInformationIcon(metadataColumn: MetadataColumn) {
+    return MetadataColumn.isTypeIsTimestamp(metadataColumn) && !MetadataColumn.isRoleIsTimestamp(metadataColumn);
   }
 
   public isTimestampColumn(metadataColumn: MetadataColumn) {
@@ -847,9 +909,16 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     this.loadingShow();
     this._columnDictionaryService.getColumnDictionaryDetail(dictionaryId)
       .then((result) => {
-        // 변경된 컬럼의 사전정보로 logicalType, Format, CodeTable, Description 적용
-        this._selectedColumn.type = result.logicalType || null;
-        this._selectedColumn.format = result.format || new FieldFormat();
+
+        // 데이터소스 타입 메타데이터이고 && 컬럼의 role이 timestamp라면 ? 컬럼 딕셔너리를 추가했을때
+        // 타입과 포멧이 변경되면 안됨. stay as timestamp
+        console.info('selected type ==>', this._selectedColumn);
+        if (!(this._selectedColumn.role === Type.Role.TIMESTAMP && this.isMetadataSourceTypeIsEngine())) {
+          // 변경된 컬럼의 사전정보로 logicalType, Format, CodeTable, Description 적용
+          this._selectedColumn.type = result.logicalType || null;
+          this._selectedColumn.format = result.format || null;
+        }
+
         this._selectedColumn.description = result.description || null;
 
         // 이름이 사용자에 의해 변경되지 않았다면 컬럼 사전의 이름을 name으로 지정함
@@ -861,6 +930,19 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
           this._removeCodeTableForSelectedColumn();
           this.loadingHide();
         }
+
+        // 딕셔너리 타입이 타임스템프인경우 벨리데이션 전이기 떄문에 팝업 오픈 + 빨강 아이콘
+        if (result.logicalType === Type.Logical.TIMESTAMP) {
+
+          const idx = this.getColumns().findIndex((item) => {
+            return item.id === this._selectedColumn.id
+          });
+
+          this.safelyDetectChanges();
+          this.onClickInfoIcon(this._selectedColumn, idx, true);
+
+        }
+
       })
       .catch(error => this.commonExceptionHandler(error));
   }

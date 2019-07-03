@@ -92,16 +92,20 @@ export class DataSourceListComponent extends AbstractComponent {
                 searchParams[key] = params[key].split(',');
               }
             });
+            // TODO 추후 criterion component로 이동
+            delete searchParams['pseudoParam'];
+            // init criterion search param
+            this.criterionComponent.initSearchParams(searchParams);
           }
-          // TODO 추후 criterion component로 이동
-          delete searchParams['pseudoParam'];
-          // init criterion search param
-          this.criterionComponent.initSearchParams(searchParams);
           // set datasource list
           this._setDatasourceList();
         }));
       })
       .catch(error => this.commonExceptionHandler(error));
+  }
+
+  isEmptyList(): boolean {
+    return this.datasourceList.length === 0;
   }
 
   /**

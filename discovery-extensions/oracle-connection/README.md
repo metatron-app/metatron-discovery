@@ -36,5 +36,5 @@ We do not build all extensions by default because there are extensions that are 
 
 To build the entire extension you need to build it using the 'include-all' profile.
 ```
-mvn -P include-all clean install
+mvn -P extensions-all clean install
 ``` 

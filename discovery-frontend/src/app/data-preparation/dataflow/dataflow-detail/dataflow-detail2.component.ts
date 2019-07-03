@@ -32,6 +32,7 @@ import {PreparationAlert} from "../../util/preparation-alert.util";
 import {Modal} from "../../../common/domain/modal";
 import {DatasetInfoPopupComponent} from "./component/dataset-info-popup/dataset-info-popup.component";
 import {PreparationCommonUtil} from "../../util/preparation-common.util";
+import {Subscription} from "rxjs/Subscription";
 
 declare let echarts: any;
 
@@ -142,6 +143,8 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
 
   public cloneFlag: boolean = false;
 
+  public isForward: boolean; // location.forward
+
   public step: string;
   public longUpdatePopupType: string = '';
 
@@ -176,6 +179,17 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
     super.ngOnInit();
 
     // navigation back check
+    this.subscriptions.push(
+      <Subscription>this.location.subscribe((popState) => {
+        if( this.isForward !== true ) {
+          this.isForward = true;
+          this.location.forward();
+        } else {
+          this.isForward = false;
+        }
+      })
+    );
+
     this.step = '';
 
     this._initialiseValues();
@@ -232,7 +246,7 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
    * 뒤로가기
    * */
   public close() {
-    this._location.back();
+    this.router.navigate(['/management/datapreparation/dataflow']);
   }
 
   // 다른 데이터 플로우로 이동

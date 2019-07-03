@@ -328,11 +328,19 @@ public class JdbcConnectionService {
                                                          boolean extractColumnName) {
     JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(connectInformation);
     Connection conn = jdbcDataAccessor.getConnection(schema, true);
-    JdbcDialect dialect = DataConnectionHelper.lookupDialect(connectInformation);
+    String queryString = generateSelectQuery(connectInformation, schema, type, query, partitionList);
+    LOGGER.debug("selectQueryForIngestion SQL : {} ", queryString);
+    return selectQuery(connectInformation, conn, queryString, limit, extractColumnName);
+  }
 
-    JdbcQueryResultResponse queryResultSet = null;
+  public String generateSelectQuery(JdbcConnectInformation connectInformation,
+                                    String schema,
+                                    JdbcIngestionInfo.DataType type,
+                                    String query,
+                                    List<Map<String, Object>> partitionList){
     String queryString;
     if (type == JdbcIngestionInfo.DataType.TABLE) {
+      JdbcDialect dialect = DataConnectionHelper.lookupDialect(connectInformation);
       NativeCriteria nativeCriteria = new NativeCriteria(connectInformation.getImplementor());
       String tableName = dialect.getTableName(connectInformation, connectInformation.getCatalog(), schema, query);
       String tableAlias = dialect.getTableName(connectInformation, connectInformation.getCatalog(), "", query);
@@ -352,9 +360,7 @@ public class JdbcConnectionService {
     } else {
       queryString = query;
     }
-
-    LOGGER.debug("selectQueryForIngestion SQL : {} ", queryString);
-    return selectQuery(connectInformation, conn, queryString, limit, extractColumnName);
+    return queryString;
   }
 
   public JdbcQueryResultResponse selectQueryForIngestion(JdbcConnectInformation connectInformation,

@@ -20,10 +20,12 @@ import com.google.common.collect.Lists;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 
 import java.io.Serializable;
 import java.util.List;
 
+import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
 import app.metatron.discovery.domain.workbook.configurations.field.Field;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.GraphShelf;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.PivotShelf;
@@ -34,19 +36,25 @@ import app.metatron.discovery.domain.workbook.configurations.widget.shelf.PivotS
 public class Pivot implements Serializable  {
 
   /**
-   * 열 영역에 위치한 필드 정보
+   * List of field in column area
    */
   List<Field> columns;
 
   /**
-   * 행 영역에 위치한 필드 정보
+   * List of field in row area
    */
   List<Field> rows;
 
   /**
-   * 교차 영역에 위치한 필드 정보
+   * List of field in aggregation area
    */
   List<Field> aggregations;
+
+  /**
+   * for reversed pivoting (percentage)
+   */
+  @JsonIgnore
+  boolean reverseMode;
 
   public Pivot() {
     // Empty Constructor
@@ -84,20 +92,51 @@ public class Pivot implements Serializable  {
     return false;
   }
 
+  /**
+   * Pivot 내 필드 정보가 존재하는지 여부 체크
+   */
+  @JsonIgnore
+  public boolean reverseMode() {
+    if (CollectionUtils.isNotEmpty(rows)) {
+      reverseMode = true;
+      return true;
+    }
+
+    if (CollectionUtils.isNotEmpty(aggregations)) {
+      long dimCount = aggregations.stream().filter(field -> field instanceof DimensionField).count();
+      if (dimCount > 1) {
+        reverseMode = true;
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   @JsonIgnore
   public List<Field> getAllFields() {
 
     List<Field> fields = Lists.newArrayList();
 
-    if(CollectionUtils.isNotEmpty(columns)) {
-      fields.addAll(columns);
+    if(BooleanUtils.isTrue(reverseMode)) {
+      if (CollectionUtils.isNotEmpty(rows)) {
+        fields.addAll(rows);
+      }
+
+      if (CollectionUtils.isNotEmpty(columns)) {
+        fields.addAll(columns);
+      }
+    } else {
+      if (CollectionUtils.isNotEmpty(columns)) {
+        fields.addAll(columns);
+      }
+
+      if (CollectionUtils.isNotEmpty(rows)) {
+        fields.addAll(rows);
+      }
     }
 
-    if(CollectionUtils.isNotEmpty(rows)) {
-      fields.addAll(rows);
-    }
-
-    if(CollectionUtils.isNotEmpty(aggregations)) {
+    if (CollectionUtils.isNotEmpty(aggregations)) {
       fields.addAll(aggregations);
     }
 
@@ -126,5 +165,9 @@ public class Pivot implements Serializable  {
 
   public void setAggregations(List<Field> aggregations) {
     this.aggregations = aggregations;
+  }
+
+  public Boolean getReverseMode() {
+    return reverseMode;
   }
 }

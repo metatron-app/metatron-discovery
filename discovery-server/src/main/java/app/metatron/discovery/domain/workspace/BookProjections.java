@@ -102,8 +102,8 @@ public class BookProjections extends BaseProjections {
     @Value("#{@bookTreeService.findSubBooksInfoForView(target.id, false, 'LIST', target.bookType)}")
     List<Map<String, Object>> getBooks();
 
-    @Value("#{@projectionFactory.createProjection(T(app.metatron.discovery.domain.workspace.WorkspaceProjections$HeaderViewProjection), target.workspace)}")
-    Object getWorkspace();
+    @Value("#{T(app.metatron.discovery.util.HibernateUtils).unproxy(target.workspace)}")
+    WorkspaceProjections.HeaderViewProjection getWorkspace();
 
     DateTime getCreatedTime();
 

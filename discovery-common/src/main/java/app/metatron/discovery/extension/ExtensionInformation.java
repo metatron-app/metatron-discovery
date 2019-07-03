@@ -29,8 +29,13 @@
 package app.metatron.discovery.extension;
 
 /**
- *
+ * The interface Extension information.
  */
 public interface ExtensionInformation {
+  /**
+   * Gets name.
+   *
+   * @return the name
+   */
   String getName();
 }

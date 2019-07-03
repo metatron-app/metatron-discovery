@@ -1372,7 +1372,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             resultTab.message = 'Workbench Error - Query is Fail';
           }
           this._calculateEditorResultSlideBtn();
-          this._doneOrNextExecute();
         }
 
       });

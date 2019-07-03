@@ -210,8 +210,8 @@
                 <div class="ddp-ui-option-in">
                   <div class="ddp-input-apply" *ngIf="isTimeTypeField()">
                     <input type="text" class="ddp-input-txt" placeholder="{{'msg.storage.ph.time.format' | translate}}"
-                           [(ngModel)]="selectedField.format.format"
-                           (ngModelChange)="initTimeFormatValid(); initIngestionRuleReplaceValid()">
+                           [(ngModel)]="selectedField.format.format" (ngModelChange)="initTimeFormatValid(); initIngestionRuleReplaceValid()"
+                           (keyup.enter)="onClickTimeFormatValidation()" (blur)="onClickTimeFormatValidation()">
                     <em class="ddp-icon-apply" (click)="onClickTimeFormatValidation()"></em>
                   </div>
                   <div class="ddp-ui-error ddp-italic" *ngIf="selectedField.format.isValidFormat === false">
@@ -282,7 +282,9 @@
                           <!-- input type -->
                           <div class="ddp-type-input">
                             <div class="ddp-input-apply" [class.ddp-disabled]="selectedField.ingestionRule.type !== type.value">
-                              <input type="text" class="ddp-input-txt"  placeholder="{{getDefaultIngestionRuleValue()}}" [(ngModel)]="selectedField.ingestionRule.value" (ngModelChange)="initIngestionRuleReplaceValid()">
+                              <input type="text" class="ddp-input-txt" placeholder="{{getDefaultIngestionRuleValue()}}"
+                                     [(ngModel)]="selectedField.ingestionRule.value" (ngModelChange)="initIngestionRuleReplaceValid()"
+                                     (keyup.Enter)="ingestionRuleValidation()" (blur)="ingestionRuleValidation()">
                               <em class="ddp-icon-apply" (click)="ingestionRuleValidation()"></em>
                             </div>
                           </div>

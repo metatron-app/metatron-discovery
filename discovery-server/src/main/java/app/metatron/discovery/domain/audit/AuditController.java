@@ -214,8 +214,11 @@ public class AuditController {
     LineChartSeriesResponse<DateTime> result = new LineChartSeriesResponse<>(seriesNames);
 
     mapByDate.entrySet().forEach(map -> {
-      DateTime dateTime = new DateTime(map.getKey(), DateTimeZone.UTC)
-              .withTime(0, 0, 0, 0);
+      String yearAndDayOfYear = map.getKey();
+      DateTime dateTime
+          = new DateTime(Integer.parseInt(yearAndDayOfYear.substring(0, 4)), 1, 1, 0, 0, DateTimeZone.UTC)
+                        .plusDays(Integer.parseInt(yearAndDayOfYear.substring(4)) - 1);
+
       Map<Audit.AuditStatus, Long> cntMap = map.getValue();
       result.add(dateTime, cntMap.get(Audit.AuditStatus.SUCCESS), cntMap.get(Audit.AuditStatus.FAIL));
     });

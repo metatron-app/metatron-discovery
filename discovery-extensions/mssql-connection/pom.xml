@@ -9,7 +9,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>mssql-connection</artifactId>
     <groupId>app.metatron.discovery</groupId>
-    <version>1.0.0-7.3.0</version>
+    <version>7.3.0</version>
     <name>mssql-connection extension</name>
     <packaging>jar</packaging>
 
@@ -92,6 +92,7 @@
                         <descriptor>src/main/assembly/assembly.xml</descriptor>
                     </descriptors>
                     <appendAssemblyId>false</appendAssemblyId>
+                    <finalName>${project.artifactId}-${project.version}-${project.parent.version}</finalName>
                 </configuration>
                 <executions>
                     <execution>

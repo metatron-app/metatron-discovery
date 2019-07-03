@@ -100,8 +100,18 @@ public class CatalogProjections extends BaseProjections {
     List<Map<String, Object>> getCatalogs();
 
     @Value("#{@catalogService.countSubCatalogs(target.id)}")
-    Boolean getCountOfChild();
+    Long getCountOfChild();
+  }
 
+  @Projection(name = "forSimpleTreeView", types = {Catalog.class})
+  public interface SimpleTreeViewProjection {
+
+    String getId();
+
+    String getName();
+
+    @Value("#{@catalogService.countSubCatalogs(target.id)}")
+    Long getCountOfChild();
   }
 
   @Projection(name = "forSimpleView", types = {Catalog.class})

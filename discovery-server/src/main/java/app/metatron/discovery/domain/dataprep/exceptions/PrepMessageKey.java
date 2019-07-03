@@ -140,6 +140,7 @@ public enum PrepMessageKey {
     MSG_DP_ALERT_TEDDY_WORKS_ONLY_ON_ARRAY_OR_MAP(               "msg.dp.alert.teddy.works.only.on.array.or.map"),
     MSG_DP_ALERT_TEDDY_WORKS_ONLY_ON_ARRAY(                      "msg.dp.alert.teddy.works.only.on.array"),
     MSG_DP_ALERT_TEDDY_INVAILD_INDEX_TYPE(                       "msg.dp.alert.teddy.invalid.index.type"),
+    MSG_DP_ALERT_TEDDY_INVAILD_JOIN_TYPE(                        "msg.dp.alert.teddy.invalid.join.type"),
     MSG_DP_ALERT_TEDDY_IDX_ON_MAPTYPE_SHOULD_BE_STRING(          "msg.dp.alert.teddy.idx.on.maptype.should.be.string"),
     MSG_DP_ALERT_TEDDY_WRONG_ARRAY_INDEX(                        "msg.dp.alert.teddy.wrong.array.index"),
     MSG_DP_ALERT_TEDDY_INVALID_JSON(                             "msg.dp.alert.teddy.invalid.json"),

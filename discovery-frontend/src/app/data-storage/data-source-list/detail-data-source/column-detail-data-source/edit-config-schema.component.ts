@@ -314,7 +314,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
       // 만약 기존 타입이 GEO 또는 TIMESTAMP 타입이라면
       if (prevLogicalType ===  LogicalType.GEO_POINT || prevLogicalType === LogicalType.GEO_POLYGON || prevLogicalType === LogicalType.GEO_LINE || prevLogicalType === LogicalType.TIMESTAMP) {
         // remove format
-        delete targetField.format;
+        targetField.format = null;
         this.setIsExistErrorInFieldListFlag();
       }
       // 변경될 타입이 GEO 타입이라면

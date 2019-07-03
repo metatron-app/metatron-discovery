@@ -7,14 +7,18 @@ import {LineageViewComponent} from './component/lineage-view/lineage-view.compon
 import {LineageColumnViewComponent} from './component/lineage-view/lineage-column-view.component';
 import {LineageViewService} from './service/lineage-view.service';
 import {DatasourceMetadataSharedModule} from '../../shared/datasource-metadata/datasource-metadata-shared.module';
+import {MetadataGridComponent} from "./component/metadata-grid.component";
+import {DataStorageCommonModule} from "../../data-storage/data-storage-common.module";
 
 @NgModule({
   imports: [
     CommonModule,
-    DatasourceMetadataSharedModule
+    DatasourceMetadataSharedModule,
+    DataStorageCommonModule
   ],
   declarations: [
     InformationComponent,
+    MetadataGridComponent,
     ColumnSchemaComponent,
     LineageViewComponent,
     LineageColumnViewComponent,
@@ -22,6 +26,7 @@ import {DatasourceMetadataSharedModule} from '../../shared/datasource-metadata/d
   ],
   exports: [
     InformationComponent,
+    MetadataGridComponent,
     ColumnSchemaComponent,
     LineageViewComponent,
     LineageColumnViewComponent,

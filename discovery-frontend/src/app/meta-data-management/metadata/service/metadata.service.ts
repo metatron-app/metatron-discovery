@@ -161,6 +161,14 @@ export class MetadataService extends AbstractService {
     return this.get(this.URL_METADATA + `/tags`);
   }
 
+  public getMetadataSampleData(metadataId: string, limit: number = 50) {
+    return this.get(this.URL_METADATA + '/' + metadataId + '/data?limit=' + limit);
+  }
+
+  public getDownloadMetadataSampleData(metadataId: string, fileName: string, limit: number = 50) {
+    return this.get(this.URL_METADATA + '/' + metadataId + '/data/download?limit=' + limit + '&fileName=' + fileName);
+  }
+
   /**
    * 데이터 소스에 대한 메타데이터 조회
    * @param {string} sourceId
@@ -190,5 +198,49 @@ export class MetadataService extends AbstractService {
       'table': tableName,
     };
     return this.post(this.URL_METADATA + `/metasources/${connId}?projection=${projection}`, param);
+  }
+
+  public getMetadataSourceTypeCount() {
+    return this.get(this.URL_METADATA + '/statistics/count/sourcetype');
+  }
+
+  public getMetadataListByPopularity(params) {
+    // URL
+    let url: string = this.URL_METADATA + '/popularity';
+    // if exist params
+    if (params) {
+      url += '?' + CommonUtil.objectToUrlString(params);
+    }
+    return this.get(url);
+  }
+
+  public getMetadataListByMyFavorite(params) {
+    // URL
+    let url: string = this.URL_METADATA + '/favorite/my';
+    // if exist params
+    if (params) {
+      url += '?' + CommonUtil.objectToUrlString(params);
+    }
+    return this.get(url);
+  }
+
+  public getMetadataListByCreatorFavorite(params) {
+    // URL
+    let url: string = this.URL_METADATA + '/favorite/creator';
+    // if exist params
+    if (params) {
+      url += '?' + CommonUtil.objectToUrlString(params);
+    }
+    return this.get(url);
+  }
+
+  public getMetadataListByRecommended(params) {
+    // URL
+    let url: string = this.URL_METADATA + '/recommended';
+    // if exist params
+    if (params) {
+      url += '?' + CommonUtil.objectToUrlString(params);
+    }
+    return this.get(url);
   }
 }
