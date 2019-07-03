@@ -3974,6 +3974,7 @@
   "msg.metadata.ui.codetable.detail.used.column.dictionary.no.name" : "이름이 없습니다",
   "msg.metadata.ui.codetable.detail.used.column.dictionary.no.description" : "설명이 없습니다",
   "msg.metadata.ui.codetable.detail.used.column.dictionary.no.code.table" : "코드 테이블이 없습니다",
+  "msg.metadata.ui.codetable.detail.used.column.dictionary.no.format" : "포맷이 없습니다",
   "msg.metadata.ui.codetable.detail.restore.btn" : "되돌리기",
   "msg.metadata.ui.codetable.detail.code.table.save.btn" : "코드 테이블 저장",
   "msg.metadata.ui.codetable.choose.code.table.title" : "코드 테이블을 선택해 주세요",

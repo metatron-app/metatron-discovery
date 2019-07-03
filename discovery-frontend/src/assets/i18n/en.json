@@ -3973,6 +3973,7 @@
   "msg.metadata.ui.codetable.detail.used.column.dictionary.no.name" : "No name",
   "msg.metadata.ui.codetable.detail.used.column.dictionary.no.description" : "No description",
   "msg.metadata.ui.codetable.detail.used.column.dictionary.no.code.table" : "No code table",
+  "msg.metadata.ui.codetable.detail.used.column.dictionary.no.format" : "No format",
   "msg.metadata.ui.codetable.detail.restore.btn" : "Restore",
   "msg.metadata.ui.codetable.detail.code.table.save.btn" : "Save code table",
   "msg.metadata.ui.codetable.choose.code.table.title" : "Choose a code table",
