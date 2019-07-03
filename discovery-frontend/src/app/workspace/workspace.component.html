@@ -141,7 +141,7 @@
     <div class="ddp-ui-space-nav">
       <div (click)="topFolder()" class="ddp-data-nav">
         <em class="ddp-icon-space" ></em>
-        {{workspaceName}}
+        <span>{{workspaceName}}</span>
         <!-- 폴더 생성 -->
         <a *ngIf="!folder.hierarchies && permissionChecker && permissionChecker.isManageWsFolder()" (click)="createFolder()"
            draggable="false" href="javascript:" class="ddp-btn-folderplus" ></a>

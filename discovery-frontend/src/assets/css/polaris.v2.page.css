@@ -2478,13 +2478,12 @@ em.ddp-icon-control-cut .ddp-ui-tooltip-info.ddp-down em.ddp-icon-view-top {righ
 .ddp-ui-space-option .ddp-ui-option-right { position:absolute; top:5px; right:0;}
 .ddp-ui-space-option .ddp-ui-space-nav {padding:20px 0 0 0;}
 .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav {display:inline-block; min-height:25px; max-width:15%; position:relative; padding-left:19px; margin-right:4px; cursor: pointer; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
-.ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav:hover {text-decoration: underline;}
 .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav:after {display:inline-block; content:''; position:absolute; top:50%; left:0; width:4px; height:7px; margin-top:-4px; background:url(../images/icon_dataview.png) no-repeat; background-position:-5px -19px;}
 .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav:first-of-type {padding-left:0; max-width:15%; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal; line-height:23px;}
 .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav:first-of-type:after {display:none;}
 .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav em.ddp-icon-space {display:inline-block; position:relative; top:-1px; width:14px; height:14px; margin-right:8px; background:url(../images/icon_workspace.png) no-repeat; vertical-align: middle;}
 .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav span.ddp-data-namefolder {display:inline-block; position:relative; color:#35393f; font-size:13px; line-height:2em; cursor:pointer;}
-.ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav span.ddp-data-namefolder:hover {text-decoration: underline;}
+.ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav span:hover {text-decoration: underline;}
 .ddp-ui-space-option .ddp-ui-space-nav a.ddp-btn-folderplus {display:inline-block; position:relative; top:6px; width:16px; height:15px; background:url(../images/icon_buttons.png) no-repeat; background-position:left -198px; vertical-align: top;}
 .ddp-ui-space-option .ddp-ui-space-nav a.ddp-btn-folderplus:hover {background-position:-17px -198px;}
 .ddp-ui-space-option .ddp-ui-option-right .ddp-form-search {float:left; margin:10px 15px 0 0;}
