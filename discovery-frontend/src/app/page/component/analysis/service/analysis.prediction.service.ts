@@ -20,6 +20,7 @@ import * as _ from 'lodash';
 import {PageWidget, PageWidgetConfiguration} from '../../../../domain/dashboard/widget/page-widget';
 import {UIOption} from '../../../../common/component/chart/option/ui-option';
 import {CommonUtil} from "../../../../common/util/common.util";
+import {Filter} from "../../../../domain/workbook/configurations/filter/filter";
 
 @Injectable()
 export class AnalysisPredictionService extends AbstractService implements OnInit {
@@ -150,9 +151,12 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
   public getAnalysisPredictionLineFromDashBoard(widgetConfiguration: PageWidgetConfiguration,
                                                 widget: PageWidget,
                                                 chart: any,
-                                                resultData?: { data: any; config: SearchQueryRequest; uiOption: UIOption }): Promise<any> {
+                                                resultData: { data: any; config: SearchQueryRequest; uiOption: UIOption },
+                                                filters?:Filter[] ): Promise<any> {
 
-    return this.getAnalysis(this.createGetAnalysisParameter(widgetConfiguration, widget))
+    const analysisParam:Analysis = this.createGetAnalysisParameter(widgetConfiguration, widget);
+    analysisParam.filters = filters;
+    return this.getAnalysis(analysisParam)
       .then((result) => {
         this.createPredictionLineSeriesList(result, widgetConfiguration);
         return result;

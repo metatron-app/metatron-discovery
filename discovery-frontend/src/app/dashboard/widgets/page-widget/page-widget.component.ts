@@ -978,8 +978,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public showDownloadLayer(event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
-    if( ConnectionType.LINK === ConnectionType[this.widget.configuration.dataSource.connType] ) {
-      this._dataDownComp.openGridDown(event, this._dataGridComp );
+    if (ConnectionType.LINK === ConnectionType[this.widget.configuration.dataSource.connType]) {
+      this._dataDownComp.openGridDown(event, this._dataGridComp);
     } else {
       this._dataDownComp.openWidgetDown(event, this.widget.id, this.isOriginDown);
     }
@@ -1072,7 +1072,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       }
     };
 
-    if( ConnectionType.LINK === ConnectionType[this.widget.configuration.dataSource.connType] ) {
+    if (ConnectionType.LINK === ConnectionType[this.widget.configuration.dataSource.connType]) {
       const boardConf: BoardConfiguration = this.widget.dashBoard.configuration;
       const query: SearchQueryRequest
         = this.datasourceService.makeQuery(
@@ -1528,7 +1528,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         // line차트이면서 columns 데이터가 있는경우
         if (this.chartType === 'line' && this.resultData.data.columns && this.resultData.data.columns.length > 0) {
           // 고급분석 예측선 API 호출
-          this.getAnalysis();
+          this.getAnalysis(cloneQuery);
         } else {
           this.chart.resultData = this.resultData;
           this.isSetChartData = true;
@@ -1703,18 +1703,20 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
   /**
    * 고급분석 예측선 API 호출
+   * @param query
    */
-  private getAnalysis(): void {
+  private getAnalysis(query: SearchQueryRequest): void {
     if (this.isAnalysisPredictionEnabled()) {
       Promise
         .resolve()
         .then(() => {
           if (this.isAnalysisPredictionEnabled()) {
-            this.analysisPredictionService.getAnalysisPredictionLineFromDashBoard(this.widgetConfiguration, this.widget, this.chart, this.resultData)
-              .catch((error) => {
-                this._showError(error);
-                this.updateComplete();
-              });
+            this.analysisPredictionService.getAnalysisPredictionLineFromDashBoard(
+              this.widgetConfiguration, this.widget, this.chart, this.resultData, query.filters
+            ).catch((error) => {
+              this._showError(error);
+              this.updateComplete();
+            });
           } else {
             this.predictionLineDisabled();
           }
@@ -1735,9 +1737,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       for (const widgetDatasource of this.widget.configuration.dataSource.dataSources) {
         for (const dashboardDatasource of this.inputWidget.dashBoard.dataSources) {
           if (widgetDatasource.id == dashboardDatasource.id) {
-            if (!dashboardDatasource.valid){
+            if (!dashboardDatasource.valid) {
               valid = false;
-              if(invalidDatasourceName != '') {
+              if (invalidDatasourceName != '') {
                 invalidDatasourceName += ', '
               }
               invalidDatasourceName += dashboardDatasource.name;
@@ -1757,7 +1759,10 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     }
 
     if (!valid) {
-      this._showError({code: 'GB0000', details: this.translateService.instant('msg.board.error.deny-datasource', {datasource : invalidDatasourceName})});
+      this._showError({
+        code: 'GB0000',
+        details: this.translateService.instant('msg.board.error.deny-datasource', {datasource: invalidDatasourceName})
+      });
     }
   }
 
