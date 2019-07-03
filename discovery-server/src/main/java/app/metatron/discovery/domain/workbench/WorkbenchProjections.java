@@ -83,7 +83,7 @@ public class WorkbenchProjections extends BaseProjections{
 
     String getDatabaseName();
 
-    @Value("#{target.dataConnection.workspaces.contains(target.workspace)}")
+    @Value("#{target.dataConnection.workspaces.contains(target.workspace) || target.dataConnection.published}")
     Boolean getValid();
 
     @Value("#{@cachedUserService.findUserProfile(target.createdBy)}")
