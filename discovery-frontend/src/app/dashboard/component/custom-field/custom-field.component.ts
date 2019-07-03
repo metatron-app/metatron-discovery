@@ -463,7 +463,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
   public done() {
 
     // callFuncSuccess가 아닐때 columnName이 없을때 return
-    if ('S' !== this.isCalFuncSuccess || !this.columnName || '' == this.columnName.trim()) {
+    if ('S' !== this.isCalFuncSuccess || !this.columnName || '' == this.columnName.trim() || this.isReservedFieldName(this.columnName)) {
       return;
     }
 
