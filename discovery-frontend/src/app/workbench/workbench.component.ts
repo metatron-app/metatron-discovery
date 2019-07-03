@@ -2313,6 +2313,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             workbenchId: this.workbenchId,
             webSocketId: CommonConstant.websocketId
           };
+        } else if(data['connected'] === false){
+          Alert.error(data['message']);
         }
 
         if ('CONNECT' == data.command) {

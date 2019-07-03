@@ -305,9 +305,9 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
       this._connTypeList = StorageService.connectionTypeList;
     }
     const connType = this.getConnType(book);
-    return this.getConnImplementorGrayImgUrl(
-      connType,
-      this._connTypeList.find(item => item.implementor === connType).iconResource3
+    return this.getConnImplementorGrayImgUrl(connType,
+      isNullOrUndefined(this._connTypeList.find(item => item.implementor === connType)) ?
+        null : this._connTypeList.find(item => item.implementor === connType).iconResource3
     );
   } // function - getWorkbenchConnTypeIcon
 

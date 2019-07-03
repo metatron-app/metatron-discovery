@@ -859,26 +859,35 @@ public class JdbcConnectionService {
     return dataList;
   }
 
-  public boolean isSupportSaveAsHiveTable(DataConnection jdbcDataConnection) {
-    JdbcDialect dialect = DataConnectionHelper.lookupDialect(jdbcDataConnection);
-    if (dialect instanceof HiveDialect) {
-      return HiveDialect.isSupportSaveAsHiveTable(jdbcDataConnection);
+  public boolean isSupportSaveAsHiveTable(DataConnection jdbcDataConnection){
+    try{
+      JdbcDialect dialect = DataConnectionHelper.lookupDialect(jdbcDataConnection);
+      if(dialect instanceof HiveDialect){
+        return HiveDialect.isSupportSaveAsHiveTable(jdbcDataConnection);
+      }
+    } catch (JdbcDataConnectionException e){
+      LOGGER.error("cannot get isSupportSaveAsHiveTable for {}", jdbcDataConnection.getImplementor(), e);
     }
     return false;
   }
 
-  public Object getConnectionInformation(DataConnection jdbcDataConnection) {
-    JdbcDialect dialect = DataConnectionHelper.lookupDialect(jdbcDataConnection);
-
+  public Object getConnectionInformation(DataConnection jdbcDataConnection){
     Map<String, Object> extensionInfo = new HashMap<>();
-    extensionInfo.put("name", dialect.getName());
-    extensionInfo.put("implementor", dialect.getImplementor());
-    extensionInfo.put("scope", dialect.getScope());
-    extensionInfo.put("inputSpec", dialect.getInputSpec());
-    extensionInfo.put("iconResource1", dialect.getIconResource1());
-    extensionInfo.put("iconResource2", dialect.getIconResource2());
-    extensionInfo.put("iconResource3", dialect.getIconResource3());
-    extensionInfo.put("iconResource4", dialect.getIconResource4());
+    extensionInfo.put("implementor", jdbcDataConnection.getImplementor());
+
+    try{
+      JdbcDialect dialect = DataConnectionHelper.lookupDialect(jdbcDataConnection);
+      extensionInfo.put("name", dialect.getName());
+      extensionInfo.put("scope", dialect.getScope());
+      extensionInfo.put("inputSpec", dialect.getInputSpec());
+      extensionInfo.put("iconResource1", dialect.getIconResource1());
+      extensionInfo.put("iconResource2", dialect.getIconResource2());
+      extensionInfo.put("iconResource3", dialect.getIconResource3());
+      extensionInfo.put("iconResource4", dialect.getIconResource4());
+    } catch (JdbcDataConnectionException e){
+      LOGGER.error("cannot get ConnectionInformation for {}", jdbcDataConnection.getImplementor(), e);
+    }
+
     return extensionInfo;
   }
 
