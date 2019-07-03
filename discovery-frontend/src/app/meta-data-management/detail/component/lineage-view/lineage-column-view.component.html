@@ -16,5 +16,12 @@
   <div style="position:relative; float:right;">
     <a href="javascript:" class="ddp-btn-popup-close" (click)="closeInfo()"></a>
   </div>
-  {{selectedNode.metadataId}}
+
+  <div *ngIf="this.selectedNode.metadata">
+    <ul>
+      <li *ngFor="let column of this.selectedNode.metadata.columns">
+        <span>{{column.name}}</span> ( <span>{{column.type}}</span> )
+      </li>
+    </ul>
+  </div>
 </div>

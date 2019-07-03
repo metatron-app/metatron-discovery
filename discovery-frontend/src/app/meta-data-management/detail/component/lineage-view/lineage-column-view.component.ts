@@ -95,5 +95,6 @@ export class LineageColumnViewComponent extends AbstractComponent implements OnI
   private closeInfo() {
     this.closeColumnView.emit();
   }
+
 }
 

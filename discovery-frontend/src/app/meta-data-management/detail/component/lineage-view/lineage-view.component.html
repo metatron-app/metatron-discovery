@@ -15,7 +15,7 @@
 <!-- tab contents -->
 <div [ngClass]="['ddp-ui-tab-contents']">
   <div [ngClass]="['ddp-lineage-view']">
-    <div id="chartCanvas" style="width:100%;height:100%;"></div>
+    <div id="chartCanvas" style="width:100%;height:100%;overflow:hidden"></div>
 
     <!-- 노드 아이콘 클릭시 상세 영역 -->
     <div *ngIf="selectedNode && selectedNode.metadataId"

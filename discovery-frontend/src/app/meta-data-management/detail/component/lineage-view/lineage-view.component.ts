@@ -24,6 +24,16 @@ import {Metadata} from '../../../../domain/meta-data-management/metadata';
 
 declare let echarts;
 
+enum NodeType {
+  MainNode = 0,
+  NormalNode = 1
+};
+
+// 다이어그램 시리즈 번호
+enum SeriesIndex {
+  LINEAGE_DIAGRAM = 0
+};
+
 @Component({
   selector: 'app-metadata-detail-lineageview',
   templateUrl: './lineage-view.component.html'
@@ -46,6 +56,9 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
   // 노드간 링크 리스트
   private chartLinks: any[] = [];
 
+  // 노드 아이콘 경로
+  private symbolInfo: any = {};
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -67,7 +80,7 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
   @Input()
   public isNameEdit: boolean;
 
-  public selectedNode: any;
+  public selectedNode: any = null;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -217,7 +230,17 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
   }
 
   public closeColumnView() {
-    this.selectedNode = null;
+    if( this.selectedNode !== null ) {
+      var index = this.selectedNode.index;
+      var category = this.selectedNode.category;
+
+      var seriesIdx = SeriesIndex.LINEAGE_DIAGRAM;
+      const option = this.chart.getOption();
+      option.series[seriesIdx].data[index].symbol = this.symbolInfo[NodeType[category]]['DEFAULT'];
+
+      this.selectedNode = null;
+    }
+
     this.chartAreaResize();
   }
 
@@ -241,35 +264,50 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
     this.chartNodes = [];
     this.chartLinks = [];
 
+    let seriesIdx = SeriesIndex.LINEAGE_DIAGRAM;
+
     this.chart.off('click');
     this.chart.on('click', (params) => {
-      if(params!==null && params.componentType==='series') {
-        //console.log(params.dataType +'_'+ params.dataIndex +' is clicked');
 
+      let oldSelectedNodeIdx = this.selectedNode!==null?this.selectedNode.index:null;
+      let newSelectedNodeIdx = null;
+
+      const option = this.chart.getOption();
+      if(params!==null && params.componentType==='series' && params.seriesIndex===seriesIdx) {
         if( params.dataType==='node' ) {
-          const option = this.chart.getOption();
-          option.series[params.seriesIndex].data.map((node, idx) => {
+          option.series[seriesIdx].data.map((node, idx) => {
             if(idx===params.dataIndex) {
-              console.log(node);
-              this.selectedNode = node;
+              newSelectedNodeIdx = idx;
             }
           });
-          this.chart.setOption(option);
         }
+      }
 
+      if( oldSelectedNodeIdx !== null ) {
+        var category = option.series[seriesIdx].data[oldSelectedNodeIdx].category;
+        option.series[seriesIdx].data[oldSelectedNodeIdx].symbol = this.symbolInfo[NodeType[category]]['DEFAULT'];
+
+        this.selectedNode = null;
+      }
+      if( newSelectedNodeIdx !== null ) {
+        var category = option.series[seriesIdx].data[newSelectedNodeIdx].category;
+        option.series[seriesIdx].data[newSelectedNodeIdx].symbol = this.symbolInfo[NodeType[category]]['SELECTED'];
+
+        this.selectedNode = option.series[seriesIdx].data[newSelectedNodeIdx];
+      }
+
+      if( oldSelectedNodeIdx !== null || newSelectedNodeIdx !== null ) {
+        this.chart.setOption(option);
         this.chartAreaResize();
-      } else {
-        this.closeColumnView();
       }
     });
-
-    let seriesIdx = 0;
 
     this.lineageDepth = 0;
     this.lineageHeight = 0;
     this.chartNodes = this.lineageNodes.map((_node,idx) => {
       let node = _.cloneDeep(_node);
 
+      node.index = idx;
       node.name = node.metadataId;
 
       if( this.lineageDepth <= node.positionX ) { this.lineageDepth = node.positionX + 1; }
@@ -278,9 +316,9 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
       /* main node */
       if( node.metadataId === this.metaDataModelService.getMetadata().id ) {
-        node.category = 0; // main node
+        node.category = NodeType.MainNode;
       } else {
-        node.category = 1; // normal node
+        node.category = NodeType.NormalNode;
       }
 
       this.setCategory(this.chartOptions.series[seriesIdx].categories, node);
@@ -334,6 +372,16 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
    */
   private _initialiseChartValues() {
 
+    const SVG_LOCATION: string = 'image://' + window.location.origin + '/assets/images/mdm/png/icon_';
+    this.symbolInfo[NodeType[NodeType.MainNode]] = {
+      DEFAULT: SVG_LOCATION + 'table.png',
+      SELECTED: SVG_LOCATION + 'table_focus.png',
+    };
+    this.symbolInfo[NodeType[NodeType.NormalNode]] = {
+      DEFAULT: SVG_LOCATION + 'table.png',
+      SELECTED: SVG_LOCATION + 'table_focus.png',
+    };
+
     this.chartOptions = {
       backgroundColor: '#ffffff',
       nodeScaleRatio: 1.0,
@@ -353,25 +401,10 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
         axisLine: { show: false },
         axisTick: { show: false }
       },
-      /*
-      graphic: {
-        type: 'text',
-        position: [1,1],
-        left:100,
-        right:100,
-        width: 100,
-        height: 100,
-        draggable: true,
-        style: {
-          text: 'test text',
-          lineWidth: 1
-        }
-      },
-      */
       series: [
         {
           type: 'graph',
-          layout: 'circular',
+          layout: 'none',
           coordinateSystem: 'cartesian2d',
           focusNodeAdjacency: false,
           legendHoverLink: false,
@@ -380,9 +413,10 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
           draggable: true,
           categories: [
             {
-              name: 'main_node',
-              symbol: 'roundRect',
-              symbolSize: [50,50],
+              name: NodeType[NodeType.MainNode],
+              //symbol: 'roundRect',
+              symbol: this.symbolInfo[NodeType[NodeType.MainNode]]['DEFAULT'],
+              symbolSize: [70,70],
               symbolOffset: [0,0],
               itemStyle: {
                 color: 'rgba(0, 0, 0, 0.0)',
@@ -415,8 +449,9 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
               }
             },
             {
-              name: 'normal_node',
-              symbol: 'rect',
+              name: NodeType[NodeType.NormalNode],
+              //symbol: 'rect',
+              symbol: this.symbolInfo[NodeType[NodeType.NormalNode]]['DEFAULT'],
               symbolSize: [50,50],
               symbolOffset: [0, 0],
               itemStyle: {
@@ -487,11 +522,13 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
     if(resizeCall == undefined) resizeCall = false;
     const hScrollbarWith: number = 30;
     let minHeightSize: number = this.lineageHeight < 5 ? 500 : this.lineageHeight * 100;
+    /*
     if( this.selectedNode && this.selectedNode.metadataId ) {
       minHeightSize = minHeightSize - 100;
     }
+    */
     let fixHeight: number = minHeightSize;
-    const minWidthSize: number = $('.ddp-lineage-view').width()- hScrollbarWith;
+    const minWidthSize: number = $('.ddp-lineage-view').width() - hScrollbarWith;
     $('.ddp-lineage-view').css('overflow-x', 'hidden');
     $('#chartCanvas').css('height', fixHeight+'px').css('width', minWidthSize+'px').css('overflow', 'hidden');
     if($('#chartCanvas').children()!=null && $('#chartCanvas').children()!=undefined){
