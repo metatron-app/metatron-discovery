@@ -648,6 +648,14 @@ export class IngestionSettingComponent extends AbstractComponent {
     return StringUtil.isNotEmpty(this._sourceData.datasourceId);
   }
 
+  public get includGeoType() : boolean {
+    if (Array.isArray(this._sourceData.schemaData.fieldList)) {
+      let fieldList:Array<Field> = this._sourceData.schemaData.fieldList;
+      return fieldList.filter(field => Field.isGeoType(field)).length > 0;
+    }
+    return false;
+  }
+
   /**
    * ui init
    * @private

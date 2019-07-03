@@ -541,7 +541,7 @@
         <!-- edit option -->
         <div class="ddp-ui-edit-option">
           <label class="ddp-label-radio" *ngFor="let type of rollUpTypeList" (change)="onChangeRollUpType(type)">
-            <input type="radio" [checked]="selectedRollUpType.value === type.value" [disabled]="isReinjestion">
+            <input type="radio" [checked]="selectedRollUpType.value === type.value" [disabled]="isReinjestion || includGeoType">
             <i class="ddp-icon-radio"></i>
             <span class="ddp-txt-radio">{{type.label}}</span>
           </label>
