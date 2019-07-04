@@ -2485,7 +2485,7 @@ em.ddp-icon-control-cut .ddp-ui-tooltip-info.ddp-down em.ddp-icon-view-top {righ
 .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav span.ddp-data-nameworkspace {display:inline-block; position:relative; cursor:pointer;}
 .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav span.ddp-data-nameworkspace:hover {text-decoration: underline;}
 .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav span.ddp-data-namefolder {display:inline-block; position:relative; color:#35393f; font-size:13px; line-height:2em; cursor:pointer;}
-.ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav span.ddp-data-namefolder:hover {text-decoration: underline;}
+.ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav span:hover {text-decoration: underline;}
 .ddp-ui-space-option .ddp-ui-space-nav a.ddp-btn-folderplus {display:inline-block; position:relative; top:6px; width:16px; height:15px; background:url(../images/icon_buttons.png) no-repeat; background-position:left -198px; vertical-align: top;}
 .ddp-ui-space-option .ddp-ui-space-nav a.ddp-btn-folderplus:hover {background-position:-17px -198px;}
 .ddp-ui-space-option .ddp-ui-option-right .ddp-form-search {float:left; margin:10px 15px 0 0;}
