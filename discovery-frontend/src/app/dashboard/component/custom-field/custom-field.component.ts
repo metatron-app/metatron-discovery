@@ -14,22 +14,29 @@
 
 import * as _ from 'lodash';
 import {
-  AfterViewInit, Component, ElementRef, EventEmitter, Injector, Input, OnDestroy,
-  OnInit, Output,
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
   ViewChild
 } from '@angular/core';
-import { DashboardService } from '../../service/dashboard.service';
-import { CommonCode } from '../../../domain/code/common-code';
+import {DashboardService} from '../../service/dashboard.service';
+import {CommonCode} from '../../../domain/code/common-code';
 import {ConnectionType, Field, FieldRole} from '../../../domain/datasource/datasource';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Alert } from '../../../common/util/alert.util';
-import { BoardDataSource } from '../../../domain/dashboard/dashboard';
-import { StringUtil } from '../../../common/util/string.util';
-import { ConfirmModalComponent } from '../../../common/component/modal/confirm/confirm.component';
-import { Modal } from '../../../common/domain/modal';
-import { CustomField } from '../../../domain/workbook/configurations/field/custom-field';
-import { DashboardUtil } from '../../util/dashboard.util';
-import { isNullOrUndefined } from "util";
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {Alert} from '../../../common/util/alert.util';
+import {BoardDataSource} from '../../../domain/dashboard/dashboard';
+import {StringUtil} from '../../../common/util/string.util';
+import {ConfirmModalComponent} from '../../../common/component/modal/confirm/confirm.component';
+import {Modal} from '../../../common/domain/modal';
+import {CustomField} from '../../../domain/workbook/configurations/field/custom-field';
+import {DashboardUtil} from '../../util/dashboard.util';
+import {isNullOrUndefined} from "util";
 
 declare let $: any;
 
@@ -456,7 +463,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
   public done() {
 
     // callFuncSuccess가 아닐때 columnName이 없을때 return
-    if ('S' !== this.isCalFuncSuccess || !this.columnName || '' == this.columnName.trim()) {
+    if ('S' !== this.isCalFuncSuccess || !this.columnName || '' == this.columnName.trim() || this.isReservedFieldName(this.columnName)) {
       return;
     }
 
@@ -658,6 +665,14 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
       return logicalType
     }
 
+  }
+
+  public isReservedFieldName(name: string): boolean {
+    if (name === 'count' || name === '__time' || name === 'timestamp') {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
