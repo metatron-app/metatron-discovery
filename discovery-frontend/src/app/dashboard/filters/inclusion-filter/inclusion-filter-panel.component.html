@@ -37,6 +37,13 @@
 
     <!-- 필터 속성 표시 영역 -->
     <div *ngIf="filter" class="ddp-flex-button">
+      <div *ngIf="isDeSelected" class="ddp-wrap-morebutton ddp-hover-tooltip">
+        <em class="ddp-icon-sinfo2"></em>
+        <div class="ddp-ui-tooltip-info ddp-down">
+          <em class="ddp-icon-view-top"></em> {{ 'msg.comm.ui.no.filtering' | translate }}
+        </div>
+      </div>
+
       <em class="ddp-icon-global-s" *ngIf="isBoardFilter"></em>
       <!-- 추천/필수 필터 경우 -->
       <div *ngIf="filter.ui.filteringSeq > 0" class="ddp-wrap-datarecommend">
@@ -149,81 +156,91 @@
         <!-- //popup -->
       </div>
     </div>
-    <div class="search-all-message">{{searchAllMessage}}</div>
-    <!-- // 검색 영여 -->
-    <!-- 목록 영역 -->
-    <ul class="ddp-list-checktype ddp-list-padd" *ngIf="isMultiSelector" >
-      <li *ngIf="filter.ui.importanceType === 'general'">
-        <label class="ddp-label-checkbox" >
-          <input (click)="checkAll($event)" [checked]="isCheckAll()" type="checkbox" >
-          <i class="ddp-icon-checkbox ddp-dark"></i>
-          <span class="ddp-txt-checkbox">({{'msg.board.filter.ui.all' | translate}})</span>
-        </label>
-      </li>
-      <li *ngFor="let item of pageCandidateList">
-        <label class="ddp-label-checkbox" >
-          <input type="checkbox" (click)="onSelected(item.name, $event)"
-                 [checked]="filter.valueList.indexOf(item.name) > -1">
-          <i class="ddp-icon-checkbox ddp-dark"></i>
-          <span class="ddp-txt-checkbox">
-            {{ ( null === item.name || 'null' === item.name ) ? '(Null)' : ( ( '' === item.name || undefined === item.name ) ? '(Empty)' : item.name ) }}
-            <span class="ddp-data-valuenum">{{item.count}}</span>
-          </span>
-        </label>
-      </li>
-    </ul>
-    <ul class="ddp-list-checktype ddp-list-padd" *ngIf="!isMultiSelector" >
-      <li *ngIf="filter.ui.importanceType === 'general'">
-        <label class="ddp-label-radio">
-          <input type="radio" name="{{filter.field}}" (click)="checkAll($event)"
-                 [checked]="filter.valueList.length === 0">
-          <i class="ddp-icon-radio"></i>
-          <span class="ddp-txt-radio">({{'msg.board.filter.ui.all' | translate}})</span>
-        </label>
-      </li>
-      <li *ngFor="let item of pageCandidateList">
-        <label class="ddp-label-radio">
-          <input type="radio" name="{{filter.field}}" (click)="onSelected(item.name, $event)"
-                 [checked]="filter.valueList.indexOf(item.name) > -1" >
-          <i class="ddp-icon-radio"></i>
-          <span class="ddp-txt-radio">
-            {{ ( null === item.name || 'null' === item.name ) ? '(Null)' : ( ( '' === item.name || undefined === item.name ) ? '(Empty)' : item.name ) }}
-            <span class="ddp-data-valuenum">{{item.count}}</span>
-          </span>
-        </label>
-      </li>
-    </ul>
-    <!-- // 목록 영역 -->
-    <!-- 목록 제한 및 페이징 영역 -->
-    <div class="ddp-ui-values">
-      <div class="ddp-data-values">
-        <label class="ddp-label-check-value">
-          <input (click)="filter.showSelectedItem = !filter.showSelectedItem;setCandidatePage(1, true);"
-                 [checked]="filter.showSelectedItem"
-                 type="checkbox" >
-          <i></i>
-        </label>
-        <ng-container *ngIf="filter.showSelectedItem">
-          {{ 'msg.board.filter.selected-values' | translate : { value : filter.valueList.length } }}
-        </ng-container>
-        <ng-container *ngIf="!filter.showSelectedItem">
-          {{ 'msg.board.filter.all-values' | translate : { value : candidateListSize } }}
-        </ng-container>
-
+    
+    <div class="ddp-no-result" *ngIf="pageCandidateList == null || pageCandidateList.length == 0">
+      <div class="ddp-wrap-info" *ngIf="isOverCandidateWarning">
+        <div class="ddp-ui-info">
+          <em class="ddp-icon-info"></em>
+          {{ 'msg.board.filter.ui.search-all' | translate }}
+        </div>
       </div>
-      <!-- 페이징 영역 -->
-      <div class="ddp-ui-page">
-        <a (click)="setCandidatePage(currentPage-1)"
-           [class.ddp-disabled]="1 === currentPage"
-           href="javascript:" class="ddp-btn-prev"></a>
-        <span class="ddp-data-page"><em>{{currentPage}}</em>/<em>{{lastPage}}</em></span>
-        <a (click)="setCandidatePage(currentPage+1)"
-           [class.ddp-disabled]="lastPage === currentPage"
-           href="javascript:" class="ddp-btn-next"></a>
-      </div>
-      <!-- // 페이징 영역 -->
+      <span class="ddp-txt-noresult">{{ 'msg.comm.ui.no.rslt' | translate }}</span>
     </div>
-    <!-- // 목록 제한 및 페이징 영역 -->
+
+    <div *ngIf="filter.showSelectedItem || (pageCandidateList != null && pageCandidateList.length > 0)">
+      <div class="ddp-select-setting">
+        <ul class="ddp-list-select">
+          <li *ngIf="isMultiSelector"><a href="javascript:" (click)="checkAll()">{{ 'msg.comm.ui.list.sel.all' | translate }}</a></li>
+          <li>
+            <a href="javascript:" (click)="deselectAll()">
+              <span *ngIf="!isMultiSelector">{{ 'msg.comm.ui.list.desel' | translate }}</span>
+              <span *ngIf="isMultiSelector">{{ 'msg.comm.ui.list.desel.all' | translate }}</span>
+            </a>
+          </li>
+        </ul>
+        <span class="ddp-data-total">{{ 'msg.comm.ui.total' | translate }} <strong>{{ totalCount }}</strong></span>
+      </div>
+
+      <!-- 목록 영역 -->
+      <ul class="ddp-list-checktype ddp-list-padd" *ngIf="isMultiSelector">
+        <li *ngFor="let item of pageCandidateList">
+          <label class="ddp-label-checkbox" >
+            <input type="checkbox" (click)="onSelected(item.name, $event)"
+                   [checked]="filter.valueList.indexOf(item.name) > -1">
+            <i class="ddp-icon-checkbox ddp-dark"></i>
+            <span class="ddp-txt-checkbox">
+            {{ ( null === item.name || 'null' === item.name ) ? '(Null)' : ( ( '' === item.name || undefined === item.name ) ? '(Empty)' : item.name ) }}
+              <span class="ddp-data-valuenum">{{item.count}}</span>
+          </span>
+          </label>
+        </li>
+      </ul>
+      <ul class="ddp-list-checktype ddp-list-padd" *ngIf="!isMultiSelector" >
+        <li *ngFor="let item of pageCandidateList">
+          <label class="ddp-label-radio">
+            <input type="radio" name="{{filter.field}}" (click)="onSelected(item.name, $event)"
+                   [checked]="filter.valueList.indexOf(item.name) > -1" >
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-txt-radio">
+            {{ ( null === item.name || 'null' === item.name ) ? '(Null)' : ( ( '' === item.name || undefined === item.name ) ? '(Empty)' : item.name ) }}
+              <span class="ddp-data-valuenum">{{item.count}}</span>
+          </span>
+          </label>
+        </li>
+      </ul>
+      <!-- // 목록 영역 -->
+
+      <!-- 목록 제한 및 페이징 영역 -->
+      <div class="ddp-ui-values">
+        <div class="ddp-data-values">
+          <label class="ddp-label-check-value">
+            <input (click)="filter.showSelectedItem = !filter.showSelectedItem;setCandidatePage(1, true);"
+                   [checked]="filter.showSelectedItem"
+                   type="checkbox" >
+            <i></i>
+          </label>
+          <ng-container *ngIf="filter.showSelectedItem">
+            {{ 'msg.board.filter.selected-values' | translate : { value : filter.valueList.length } }}
+          </ng-container>
+          <ng-container *ngIf="!filter.showSelectedItem">
+            {{ 'msg.board.filter.all-values' | translate : { value : candidateListSize } }}
+          </ng-container>
+        </div>
+
+        <!-- 페이징 영역 -->
+        <div class="ddp-ui-page">
+          <a (click)="setCandidatePage(currentPage-1)"
+             [class.ddp-disabled]="1 === currentPage"
+             href="javascript:" class="ddp-btn-prev"></a>
+          <span class="ddp-data-page"><em>{{currentPage}}</em>/<em>{{lastPage}}</em></span>
+          <a (click)="setCandidatePage(currentPage+1)"
+             [class.ddp-disabled]="lastPage === currentPage"
+             href="javascript:" class="ddp-btn-next"></a>
+        </div>
+        <!-- // 페이징 영역 -->
+      </div>
+      <!-- // 목록 제한 및 페이징 영역 -->
+    </div>
   </div>
 </div>
 <!-- // 컨텐츠 영역 -->

@@ -41,6 +41,9 @@
 .ddp-search-value .ddp-pop-warning {display:none; position:absolute; top:100%; right:-10px; padding:5px 10px; max-width:240px; border-radius:3px; background-color:rgba(97,116,179,0.9); color:#fff; font-size:13px; box-sizing:border-box; letter-spacing:-0.5px;}
 .ddp-search-value .ddp-data-value .icon-warning:hover + .ddp-pop-warning {display:block;}
 
+.ddp-search-value.ddp-nofilter .ddp-txt-nofilter {display:block;}
+.ddp-search-value .ddp-txt-nofilter {display:none; float:right; position:relative; top:6px;margin:0 6px; color:#b6b9c2; font-size:12px;}
+.ddp-search-value .ddp-txt-nofilter:before {display:inline-block; position:relative; top:-1px; margin-right:3px; width:14px; height:14px; background:url(../../../images/icon_info3.png) no-repeat; background-position:-15px -94px; content:''; vertical-align:middle; }
 /**************************************************************
   multi search
 **************************************************************/

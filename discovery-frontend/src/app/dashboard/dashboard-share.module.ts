@@ -13,7 +13,6 @@
  */
 
 import { NgModule } from '@angular/core';
-import { FilterMultiSelectComponent } from './filters/component/filter-multi-select/filter-multi-select.component';
 import { FilterSelectComponent } from './filters/component/filter-select/filter-select.component';
 import { CommonModule } from '../common/common.module';
 import { InclusionFilterPanelComponent } from './filters/inclusion-filter/inclusion-filter-panel.component';
@@ -42,7 +41,6 @@ import { TimeRangeComponent } from './filters/component/time-range.component';
   ],
   declarations: [
     FilterSelectComponent,
-    FilterMultiSelectComponent,
     TimeRangeComponent,
     InclusionFilterPanelComponent,
     BoundFilterComponent,
@@ -63,7 +61,6 @@ import { TimeRangeComponent } from './filters/component/time-range.component';
   ],
   exports: [
     FilterSelectComponent,
-    FilterMultiSelectComponent,
     TimeRangeComponent,
     InclusionFilterPanelComponent,
     BoundFilterComponent,
