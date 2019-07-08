@@ -259,18 +259,20 @@ public class DataSourceEventHandler {
   @HandleAfterCreate
   public void handleDataSourceAfterCreate(DataSource dataSource) {
 
-    // IngestionHistoy 가 존재하면 저장 수행
-    IngestionHistory histroy = dataSource.getHistory();
-    if (histroy != null) {
-      histroy.setDataSourceId(dataSource.getId());
-      ingestionHistoryRepository.save(histroy);
+    // IngestionHistory 가 존재하면 저장 수행
+    IngestionHistory history = dataSource.getHistory();
+    if (history != null) {
+      history.setDataSourceId(dataSource.getId());
+      ingestionHistoryRepository.save(history);
     }
 
     // save context from domain
     contextService.saveContextFromDomain(dataSource);
 
-    // create metadata from datasource
-    metadataService.saveFromDataSource(dataSource);
+    if (dataSource.getConnType() == LINK) {
+      // create metadata
+      metadataService.saveFromDataSource(dataSource);
+    }
 
     // 수집 경로가 아닌 경우 Pass
     if (dataSource.getIngestion() == null) {

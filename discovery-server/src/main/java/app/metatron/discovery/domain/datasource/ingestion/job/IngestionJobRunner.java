@@ -64,6 +64,7 @@ import app.metatron.discovery.domain.engine.EngineProperties;
 import app.metatron.discovery.domain.engine.EngineQueryService;
 import app.metatron.discovery.domain.engine.model.IngestionStatusResponse;
 import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
+import app.metatron.discovery.domain.mdm.MetadataService;
 import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.util.PolarisUtils;
 
@@ -123,6 +124,9 @@ public class IngestionJobRunner {
 
   @Autowired
   private IngestionOptionService ingestionOptionService;
+
+  @Autowired
+  private MetadataService metadataService;
 
   private SimpMessageSendingOperations messagingTemplate;
 
@@ -237,6 +241,9 @@ public class IngestionJobRunner {
 
       sendTopic(sendTopicUri, successResponse);
       setSuccessProgress(history.getId(), summary);
+
+      // create metadata
+      createMetadata(dataSource);
 
     } catch (Exception e) {
 
@@ -446,5 +453,13 @@ public class IngestionJobRunner {
     return statusResponse;
   }
 
+  public void createMetadata(DataSource dataSource){
+    try{
+      // create metadata
+      metadataService.saveFromDataSource(dataSource);
+    }catch (Exception e){
+      LOGGER.error("Fail to create Metadata : {}", e);
+    }
+  }
 }
 
