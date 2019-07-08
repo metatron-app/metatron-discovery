@@ -255,10 +255,10 @@
                 scope : 'write'
             };
             var success = function(result){
-                document.cookie = 'LOGIN_TOKEN='+result.access_token+';path=/;domain='+location.hostname;
-                document.cookie = 'LOGIN_TOKEN_TYPE='+result.token_type+';path=/;domain='+location.hostname;
-                document.cookie = 'REFRESH_LOGIN_TOKEN='+result.refresh_token+';path=/;domain='+location.hostname;
-                document.cookie = 'LOGIN_USER_ID='+$("input[name=username]").val()+';path=/;domain='+location.hostname;
+                document.cookie = 'LOGIN_TOKEN='+result.access_token+';path=/';
+                document.cookie = 'LOGIN_TOKEN_TYPE='+result.token_type+';path=/';
+                document.cookie = 'REFRESH_LOGIN_TOKEN='+result.refresh_token+';path=/';
+                document.cookie = 'LOGIN_USER_ID='+$("input[name=username]").val()+';path=/';
                 oauthLogin.permission(result.token_type + ' ' + result.access_token);
             };
             var error = function(err){
@@ -271,7 +271,7 @@
             var header = {Authorization : authHeader};
             var url = '/api/auth/SYSTEM/permissions';
             var success = function(result){
-                document.cookie = 'PERMISSION='+result.join('==')+';path=/;domain='+location.hostname;
+                document.cookie = 'PERMISSION='+result.join('==')+';path=/';
                 location.replace(document.location.href);
             };
             var error = function(){
