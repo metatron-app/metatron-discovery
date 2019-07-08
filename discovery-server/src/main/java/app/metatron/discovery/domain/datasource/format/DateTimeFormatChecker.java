@@ -107,14 +107,17 @@ public class DateTimeFormatChecker {
 
   public boolean checkUnixTimeFormat(List<String> samples) {
 
+    int totalCount = samples.size();
     int count = 0;
     for (String timeStr : samples) {
-      if(StringUtils.isNumeric(timeStr)) {
+      if (StringUtils.isBlank(timeStr)) {
+        totalCount--;
+      } else if(StringUtils.isNumeric(timeStr)) {
         count++;
       }
     }
 
-    if (count >= samples.size() * 0.5) {
+    if (count >= totalCount * 0.5) {
       return true;
     }
 
@@ -124,18 +127,23 @@ public class DateTimeFormatChecker {
 
   public boolean checkTimeFormat(DateTimeFormatter formatter, List<String> samples) {
 
+    int totalCount = samples.size();
     int count = 0;
     for (String timeStr : samples) {
-      try {
-        formatter.withLocale(Locale.ENGLISH).parseDateTime(timeStr);
-      } catch (Exception e) {
-        LOGGER.warn("Invalid date format - no match : " + e.getMessage());
-        continue;
+      if (StringUtils.isBlank(timeStr)) {
+        totalCount--;
+      } else {
+        try {
+          formatter.withLocale(Locale.ENGLISH).parseDateTime(timeStr);
+        } catch (Exception e) {
+          LOGGER.warn("Invalid date format - no match : " + e.getMessage());
+          continue;
+        }
+        count++;
       }
-      count++;
     }
 
-    if (count >= samples.size() * 0.5) {
+    if (count >= totalCount * 0.5) {
       return true;
     }
 
