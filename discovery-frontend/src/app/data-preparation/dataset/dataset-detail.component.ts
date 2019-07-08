@@ -358,7 +358,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     this.datasetService.makeLineage(params)
       .then(result => {
         this.loadingHide();
-        PreparationAlert.success(`${result.length} edges are created`);
+        Alert.success(this.translateService.instant('msg.dp.alert.create-lineage.success',{value:result.length}));
       })
       .catch((error) => {
         this.loadingHide();
@@ -368,7 +368,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   }
 
   public canUseForLineage() {
-    if( !this.dataset.gridResponse.colNames ) {
+    if (this.dataset.dsType!==DsType.WRANGLED || !this.dataset.gridResponse.colNames ) {
       return false;
     }
 
