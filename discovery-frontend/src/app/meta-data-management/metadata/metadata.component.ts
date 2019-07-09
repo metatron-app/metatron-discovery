@@ -550,6 +550,14 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     ).then();
   } // function - reloadPage
 
+  createdMetadata(metadataId?: string) {
+    if (_.isNil(metadataId)) {
+      this.reloadPage(true);
+    } else {  // if exist metadataId, go to detail page
+      this.router.navigate(['management/metadata/metadata', metadataId]);
+    }
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

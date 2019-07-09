@@ -180,7 +180,7 @@
   </ng-template>
 </div>
 
-<create-metadata-main (createdComplete)="reloadPage(true)"></create-metadata-main>
+<create-metadata-main (createdComplete)="createdMetadata($event)"></create-metadata-main>
 
 <app-select-catalog></app-select-catalog>
 <app-delete-modal (deleteConfirm)="deleteMetadata()"></app-delete-modal>
