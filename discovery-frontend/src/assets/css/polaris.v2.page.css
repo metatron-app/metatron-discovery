@@ -2595,8 +2595,6 @@ em.ddp-icon-control-cut .ddp-ui-tooltip-info.ddp-down em.ddp-icon-view-top {righ
 .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav:first-of-type {padding-left:0; max-width:15%; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal; line-height:23px;}
 .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav:first-of-type:after {display:none;}
 .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav em.ddp-icon-space {display:inline-block; position:relative; top:-1px; width:14px; height:14px; margin-right:8px; background:url(../images/icon_workspace.png) no-repeat; vertical-align: middle;}
-.ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav span.ddp-data-nameworkspace {display:inline-block; position:relative; cursor:pointer;}
-.ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav span.ddp-data-nameworkspace:hover {text-decoration: underline;}
 .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav span.ddp-data-namefolder {display:inline-block; position:relative; color:#35393f; font-size:13px; line-height:2em; cursor:pointer;}
 .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav span:hover {text-decoration: underline;}
 .ddp-ui-space-option .ddp-ui-space-nav a.ddp-btn-folderplus {display:inline-block; position:relative; top:6px; width:16px; height:15px; background:url(../images/icon_buttons.png) no-repeat; background-position:left -198px; vertical-align: top;}
@@ -4765,6 +4763,10 @@ table.ddp-table-order tr td {padding:13px 13px; border-top:1px solid #e7e7ea; fo
 .ddp-data-alias-column {position:relative; padding-left:19px; font-size:14px; font-weight:bold;}
 .ddp-data-alias-column em[class*="ddp-icon-type"] {left:0}
 .ddp-box-copy-table {position:absolute; top:153px; left:50px; right:50px; bottom:57px; padding-bottom:42px; border:1px solid  #b7b9c2;}
+.ddp-box-copy-table .ddp-btn-bg {position:absolute; top:-38px; right:0; padding:7px 12px; border-radius:2px; color:#90969f;}
+.ddp-box-copy-table .ddp-btn-bg .ddp-icon-reset {display:inline-block; margin-right:3px; width:14px; height:13px; background:url(../images/icon_reset.png) no-repeat; background-position:-16px -20px; vertical-align:middle;}
+.ddp-box-copy-table .ddp-btn-bg:hover {color:#4b515b;}
+.ddp-box-copy-table .ddp-btn-bg:hover .ddp-icon-reset {background-position:-15px -34px;}
 .ddp-box-copy-table .ddp-txt-info {position:absolute; top:-33px; right:0; font-size:12px; color:#b7b9c2;}
 .ddp-box-copy-table .ddp-box-add-link3 {position:absolute; bottom:-1px; left:-1px; right:-1px;}
 .ddp-box-copy-table .ddp-view-grid {width:100%; height:100%; overflow:auto;}

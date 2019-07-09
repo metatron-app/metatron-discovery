@@ -311,6 +311,7 @@
   "msg.comm.alert.error.msg": "문제가 있습니다 <br> 다음 메시지를 확인하십시오",
   "msg.comm.alert.error.btn": "자세한 내용을 보려면 여기를 클릭하십시오.",
   "msg.comm.ui.total": "검색 결과",
+  "msg.comm.btn.reset.all": "모두 초기화",
 
   "msg.lnb.btn.manual" : "다운로드",
   "msg.lnb.btn.manual.web" : "온라인",
