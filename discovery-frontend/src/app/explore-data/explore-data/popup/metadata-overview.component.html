@@ -11,7 +11,7 @@
           <tbody>
           <tr>
             <th>
-              Data name
+              {{'msg.explore.ui.detail.data.name'| translate}}
             </th>
             <td>
               {{metadata.name}}
@@ -19,15 +19,14 @@
           </tr>
           <tr>
             <th>
-              Description
+              {{'msg.explore.ui.detail.description'| translate}}
             </th>
-            <td>
-              {{metadata.description || '-' }}
+            <td [innerHTML]="metadata.description || '-'">
             </td>
           </tr>
           <tr>
             <th>
-              Tags
+              {{'msg.explore.ui.detail.tags'| translate}}
             </th>
             <td>
               <div class="ddp-list-tags" *ngIf="metadata.tags.length > 0 else noTag">
@@ -40,7 +39,7 @@
           </tr>
           <tr>
             <th>
-              Data Popularity
+              {{'msg.explore.ui.detail.popularity'| translate}}
             </th>
             <td>
               <div class="ddp-ui-popularity">
@@ -49,33 +48,16 @@
                   <span [style.width]="metadata.popularity ? metadata.popularity + '%' : 0 + '%'"></span>
                 </div>
                 <div class="ddp-wrap-hover-info">
-                  <!-- popup -->
-                  <div class="ddp-box-layout4 ddp-popularity">
-                    <div class="ddp-data-title">
-                      What is data popularity?
-                    </div>
-                    <div class="ddp-data-det">
-                      The data popularity indicates how much the data is being
-                      used. The list below is a set of criteria for measuring
-                      popularity.
-                      <ul>
-                        <li>• How many dashboards are connected?
-                        </li><li>• how many times was it joined with other data? </li>
-                        <li>• how many columns were used on the chart shelves? </li>
-                      </ul>
-                    </div>
-
-                  </div>
-                  <!-- //popup -->
-
+                  <!-- layer -->
+                  <component-popularity-layer></component-popularity-layer>
+                  <!-- //layer -->
                   <em class="ddp-icon-info3"></em>
                 </div>
-
               </div>
             </td>
           </tr>
           <tr>
-            <th>Catalogs</th>
+            <th>{{'msg.explore.ui.detail.catalogs'| translate}}</th>
             <td>
               <ng-container *ngIf="metadata.catalogs.length > 0; else noCatalog">
                 <div class="ddp-ui-catalogs ddp-type" *ngFor="let catalog of metadata.catalogs | slice:0:2">
@@ -99,7 +81,7 @@
                        (click)="$event.stopImmediatePropagation(); isShowMoreCatalogs = false">
                     </a>
                     <div class="ddp-data-title">
-                      Catalogs
+                      {{'msg.explore.ui.detail.catalogs'| translate}}
                     </div>
                     <div class="ddp-data-det ddp-scroll">
                       <div class="ddp-ui-catalogs" *ngFor="let catalog of metadata.catalogs | slice:3">

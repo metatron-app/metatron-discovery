@@ -35,6 +35,8 @@ import {ExploreDataMainComponent} from "./explore-data/explore-data-main.compone
 import {CatalogFolderComponent} from "./explore-data/component/catalog-folder.component";
 import {ExploreCatalogMainComponent} from "./explore-data/explore-catalog-main.component";
 import {CatalogService} from "../meta-data-management/catalog/service/catalog.service";
+import {PopularityLayerComponent} from "./explore-data/component/popularity-layer.component";
+import {MetadataTypeBoxTagComponent} from "./explore-data/component/metadata-type-box-tag.component";
 
 @NgModule({
   imports: [
@@ -47,6 +49,8 @@ import {CatalogService} from "../meta-data-management/catalog/service/catalog.se
     ]),
   ],
   declarations: [
+    MetadataTypeBoxTagComponent,
+    PopularityLayerComponent,
     BannerComponent,
     CardComponent,
     CatalogFolderComponent,

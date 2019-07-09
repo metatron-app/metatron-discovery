@@ -62,9 +62,9 @@ export class MetadataContainerComponent extends AbstractPopupComponent implement
     $('body').removeClass('body-hidden').addClass('body-hidden');
 
     this.tabs = [
-      {id: 0, label: 'Overview', value: 'Overview'},
-      {id: 1, label: 'Columns', value: 'Columns'},
-      {id: 2, label: 'Sample data', value: 'Sample data'},
+      {id: 0, label: this.translateService.instant('msg.explore.ui.detail.tab.overview'), value: 'Overview'},
+      {id: 1, label: this.translateService.instant('msg.explore.ui.detail.tab.columns'), value: 'Columns'},
+      {id: 2, label: this.translateService.instant('msg.explore.ui.detail.tab.sample'), value: 'Sample data'},
     ];
 
     this._setMetadataInformation(this.metadata);
