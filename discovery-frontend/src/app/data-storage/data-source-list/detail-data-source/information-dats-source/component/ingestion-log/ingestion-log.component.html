@@ -30,7 +30,7 @@
       </ng-container>
       <!-- //if ENGINE_RUNNING_TASK -->
       <!-- else -->
-      <ng-container *ngIf="ingestionProgress !== 'ENGINE_RUNNING_TASK' && failResultsObject">
+      <ng-container *ngIf="ingestionProgress !== INGESTION_STEP.ENGINE_RUNNING_TASK && failResultsObject">
         message : {{failResultsObject.errorCode}} <br>
         cause : {{failResultsObject.cause}}
       </ng-container>
