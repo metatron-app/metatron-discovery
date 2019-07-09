@@ -4115,5 +4115,13 @@
   "msg.explore.ui.list.updated" : "신규 또는 수정된",
   "msg.explore.ui.list.data.creator" : "데이터 등록자",
   "msg.explore.ui.list.favorite.my" : "즐겨찾기",
-  "msg.explore.ui.lnb.folding" : "폴딩"
+  "msg.explore.ui.lnb.folding" : "폴딩",
+  "msg.explore.ui.detail.tab.overview" : "오버뷰",
+  "msg.explore.ui.detail.tab.columns" : "컬럼",
+  "msg.explore.ui.detail.tab.sample" : "샘플데이터",
+  "msg.explore.ui.detail.data.name" : "데이터 이름",
+  "msg.explore.ui.detail.description" : "설명",
+  "msg.explore.ui.detail.tags" : "태그",
+  "msg.explore.ui.detail.catalogs" : "카탈로그",
+  "msg.explore.ui.detail.popularity" : "데이터 인기도"
 }

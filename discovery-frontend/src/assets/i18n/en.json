@@ -4114,5 +4114,13 @@
   "msg.explore.ui.list.updated" : "New or Update",
   "msg.explore.ui.list.data.creator" : "Data creator",
   "msg.explore.ui.list.favorite.my" : "My favorite",
-  "msg.explore.ui.lnb.folding" : "Folding"
+  "msg.explore.ui.lnb.folding" : "Folding",
+  "msg.explore.ui.detail.tab.overview" : "Overview",
+  "msg.explore.ui.detail.tab.columns" : "Columns",
+  "msg.explore.ui.detail.tab.sample" : "Sample data",
+  "msg.explore.ui.detail.data.name" : "Data name",
+  "msg.explore.ui.detail.description" : "Description",
+  "msg.explore.ui.detail.tags" : "Tags",
+  "msg.explore.ui.detail.catalogs" : "Catalogs",
+  "msg.explore.ui.detail.popularity" : "Data Popularity"
 }
