@@ -68,10 +68,17 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
   public columnDictionaryList: ColumnDictionary[] = [];
   // 검색어
   public searchText: string = '';
-  // 정렬
-  public selectedContentSort: Order = new Order();
 
   public defaultDate: PeriodData;
+
+  // sort
+  public sortList = [
+    {name: 'Name Ascending', value: 'logicalName,asc'},
+    {name: 'Name Descending', value: 'logicalName,desc'},
+    {name: 'Create Ascending', value: 'createdTime,asc'},
+    {name: 'Create Descending', value: 'createdTime,desc'},
+  ];
+  public selectedSort;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -111,11 +118,8 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
             this.searchText = params['logicalNameContains'];
           }
 
-          const sort = params['sort'];
-          if (!isNullOrUndefined(sort)) {
-            const sortInfo = decodeURIComponent(sort).split(',');
-            this.selectedContentSort.key = sortInfo[0];
-            this.selectedContentSort.sort = sortInfo[1];
+          if (!_.isNil(params['sort'])) {
+            this.selectedSort = this.sortList.find(sort => sort.value === params['sort']);
           }
 
           const from = params['from'];
@@ -228,8 +232,8 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
    * 필터링 초기화 버튼 클릭 이벤트
    */
   public onClickResetFilters(): void {
-    // 정렬
-    this.selectedContentSort = new Order();
+    // 정렬 초기화
+    this.selectedSort = this.sortList[0];
     // create date 초기화
     this._selectedDate = null;
     // date 필터 created update 설정 default created로 설정
@@ -241,35 +245,6 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
     // date 필터 init
     this.periodComponent.setAll();
 
-    this.reloadPage();
-  }
-
-  /**
-   * 정렬 버튼 클릭
-   * @param {string} key
-   */
-  public onClickSort(key: string): void {
-
-    // 초기화
-    this.selectedContentSort.sort = this.selectedContentSort.key !== key ? 'default' : this.selectedContentSort.sort;
-    // 정렬 정보 저장
-    this.selectedContentSort.key = key;
-
-    if (this.selectedContentSort.key === key) {
-      // asc, desc
-      switch (this.selectedContentSort.sort) {
-        case 'asc':
-          this.selectedContentSort.sort = 'desc';
-          break;
-        case 'desc':
-          this.selectedContentSort.sort = 'asc';
-          break;
-        case 'default':
-          this.selectedContentSort.sort = 'desc';
-          break;
-      }
-    }
-    // 페이지 초기화 후 재조회
     this.reloadPage();
   }
 
@@ -330,11 +305,15 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
   /**
    * After creating column dictionary
    */
-  public onCreateComplete() {
-
-    this.reloadPage();
-
+  public onCreateComplete(dictionaryId: string) {
+    this.onClickDetailColumnDictionary(dictionaryId);
   }
+
+  changeSort(sort) {
+    this.selectedSort = sort;
+    this.reloadPage();
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -353,8 +332,7 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
     // 검색어 초기화
     this.searchText = '';
     // 정렬 초기화
-    this.selectedContentSort = new Order();
-
+    this.selectedSort = this.sortList[0];
   }
 
   /**
@@ -425,6 +403,7 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
     const params = {
       size: this.page.size,
       page: this.page.page,
+      sort: this.selectedSort.value,
       pseudoParam : (new Date()).getTime()
     };
     // 검색어
@@ -445,14 +424,6 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
     } else {
       params['type'] = 'ALL';
     }
-
-    this.selectedContentSort.sort !== 'default' && (params['sort'] = this.selectedContentSort.key + ',' + this.selectedContentSort.sort);
-
     return params;
   }
-}
-
-class Order {
-  key: string = 'logicalName';
-  sort: string = 'asc';
 }

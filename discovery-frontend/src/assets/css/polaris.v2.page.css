@@ -5858,7 +5858,6 @@ ul.ddp-list-top-tab li.ddp-selected a {border-bottom:3px solid #666eb2; color:#6
 .ddp-ui-contents-list .ddp-ui-option span.ddp-data-total.ddp-only:after {display:none;}
 .ddp-ui-contents-list .ddp-ui-option span.ddp-data-total.ddp-type:after {display:none}
 .ddp-ui-contents-list .ddp-ui-option .ddp-list-option {position:relative; float:left; padding:0 17px 0 17px;}
-
 .ddp-ui-contents-list .ddp-ui-option .ddp-list-option .ddp-wrap-info {display:inline-block; position:relative; top:2px; vertical-align:top;}
 .ddp-ui-contents-list .ddp-ui-option .ddp-list-option .ddp-wrap-info .ddp-icon-info  {display:inline-block; width:13px; height:13px; background:url(../images/icon_info.png) no-repeat; background-position:-14px -30px; cursor:pointer;}
 .ddp-ui-contents-list .ddp-ui-option .ddp-list-option .ddp-wrap-info .ddp-icon-info:hover {background-position:-28px -30px;}
@@ -5877,6 +5876,8 @@ ul.ddp-list-top-tab li.ddp-selected a {border-bottom:3px solid #666eb2; color:#6
 .ddp-ui-contents-list .ddp-ui-option a.ddp-btn-link.ddp-disabled,
 .ddp-ui-contents-list .ddp-ui-option a.ddp-btn-link.ddp-disabled:hover {color:#90969f; opacity:0.5; cursor: no-drop;}
 .ddp-ui-contents-list .ddp-ui-option a.ddp-btn-link em.ddp-icon-link-add {display:inline-block; width:13px; height:13px; background:url(../images/icon_add.png) no-repeat; background-position:left -22px;}
+
+.ddp-ui-contents-list .ddp-ui-option .ddp-ui-sort.type-option { margin:-13px 0 0 0;}
 .ddp-ui-contents-list .ddp-ui-option a.ddp-link-reset {color:#90969f; font-size:12px;}
 .ddp-ui-contents-list .ddp-ui-option a.ddp-link-reset:hover {color:#4b515b;}
 .ddp-ui-contents-list .ddp-ui-option a.ddp-link-reset em.ddp-btn-reset3 {position:relative; top:-1px; margin-right:6px; vertical-align: middle;}
