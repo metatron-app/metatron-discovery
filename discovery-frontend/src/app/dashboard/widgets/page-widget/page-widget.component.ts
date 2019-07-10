@@ -1733,7 +1733,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   private _checkDatasource(): void {
     let valid = true;
     let invalidDatasourceName = '';
-    if (this.widget.configuration.chart.type === ChartType.MAP) {
+    if (this.widget.configuration.chart.type === ChartType.MAP && !_.isNil(this.widget.configuration.dataSource.dataSources)) {
       for (const widgetDatasource of this.widget.configuration.dataSource.dataSources) {
         for (const dashboardDatasource of this.inputWidget.dashBoard.dataSources) {
           if (widgetDatasource.id == dashboardDatasource.id) {
