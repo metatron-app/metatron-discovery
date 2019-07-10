@@ -335,6 +335,9 @@ public class TeddyExecutor {
         assert false : storedUri;
     }
 
+    String jsonColDescs = GlobalObjectMapper.getDefaultMapper().writeValueAsString(df.colDescs);
+    updateSnapshot("custom", "{'colDescs':" + jsonColDescs + "}", ssId);
+
     // master를 비롯해서, 스냅샷 생성을 위해 새로 만들어진 모든 full dataset을 제거
     for (String fullDsId : reverseMap.keySet()) {
       cache.remove(fullDsId);
@@ -381,6 +384,9 @@ public class TeddyExecutor {
     // totalLines는 아래 함수 안에서 설정함
     createHiveSnapshotInternal(ssId, masterFullDsId, ruleStrings, partKeys, database, tableName,
         extHdfsDir, format, compression);
+
+    String jsonColDescs = GlobalObjectMapper.getDefaultMapper().writeValueAsString(finalDf.colDescs);
+    updateSnapshot("custom", "{'colDescs':" + jsonColDescs + "}", ssId);
 
     // master를 비롯해서, 스냅샷 생성을 위해 새로 만들어진 모든 full dataset을 제거
     for (String fullDsId : reverseMap.keySet()) {
