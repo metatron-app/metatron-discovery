@@ -93,4 +93,9 @@ public class TagService {
       }
     }
   }
+
+  public List<TagTreeDTO> getTagsWithCount(Tag.Scope scope, DomainType domainType, String nameContains) {
+    return tagRepository.findWithCount(scope, domainType, nameContains);
+  }
+
 }

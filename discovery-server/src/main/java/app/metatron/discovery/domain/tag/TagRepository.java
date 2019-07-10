@@ -15,8 +15,14 @@
 package app.metatron.discovery.domain.tag;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QueryDslPredicateExecutor;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+
+import java.util.List;
+
+import app.metatron.discovery.common.entity.DomainType;
 
 /**
  * Created by kyungtaak on 2016. 8. 30..
@@ -26,4 +32,12 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 public interface TagRepository extends JpaRepository<Tag, String>,
     QueryDslPredicateExecutor<Tag>, TagRepositoryExtends {
 
+  @Query("SELECT new app.metatron.discovery.domain.tag.TagTreeDTO(t.id, t.name, count(d)) " +
+      "FROM Tag AS t " +
+      "LEFT JOIN t.domains d " +
+      "where t.scope = :scope " +
+      "AND t.domainType = :domainType " +
+      "AND t.name LIKE %:nameContains% " +
+      "GROUP BY t.id, t.name")
+  List<TagTreeDTO> findWithCount(@Param("scope") Tag.Scope scope, @Param("domainType") DomainType domainType, @Param("nameContains") String nameContains);
 }

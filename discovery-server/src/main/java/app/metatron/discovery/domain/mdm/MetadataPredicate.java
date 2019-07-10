@@ -74,6 +74,51 @@ public class MetadataPredicate {
     return builder;
   }
 
+  public static Predicate searchList(String keyword, Metadata.SourceType sourceType, String catalogId,
+                                     String nameContains, String descContains, List<String> userIds,
+                                     String searchDateBy, DateTime from, DateTime to) {
+
+    BooleanBuilder builder = new BooleanBuilder();
+    QMetadata qMetadata = QMetadata.metadata;
+
+    if(sourceType != null) {
+      builder.and(qMetadata.sourceType.eq(sourceType));
+    }
+
+    if(catalogId != null) {
+      builder.and(qMetadata.catalogs.any().id.eq(catalogId));
+    }
+
+    if(StringUtils.isNotEmpty(keyword)){
+      builder = builder.and(qMetadata.name.containsIgnoreCase(keyword)
+                        .or(qMetadata.createdBy.in(userIds))
+                        .or(qMetadata.description.containsIgnoreCase(keyword)));
+    } else {
+      if(StringUtils.isNotEmpty(nameContains)) {
+        builder = builder.and(qMetadata.name.containsIgnoreCase(nameContains));
+      }
+
+      if(userIds != null && userIds.size() > 0) {
+        builder = builder.and(qMetadata.createdBy.in(userIds));
+      }
+
+      if(StringUtils.isNotEmpty(descContains)) {
+        builder = builder.and(qMetadata.description.containsIgnoreCase(descContains));
+      }
+    }
+
+    if(from != null && to != null) {
+      if(StringUtils.isNotEmpty(searchDateBy) && "CREATED".equalsIgnoreCase(searchDateBy)) {
+        builder = builder.and(qMetadata.createdTime.between(from, to));
+      } else {
+        builder = builder.and(qMetadata.modifiedTime.between(from, to));
+      }
+    }
+
+
+    return builder;
+  }
+
   /**
    * Metadata name duplicate check
    *
