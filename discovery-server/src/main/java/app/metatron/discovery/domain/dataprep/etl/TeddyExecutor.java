@@ -53,6 +53,7 @@ import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccesso
 import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
+import app.metatron.discovery.prep.parser.preparation.rule.Join;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
@@ -498,6 +499,11 @@ public class TeddyExecutor {
         if (rowcnt > 0) {
           if (DataFrame.isParallelizable(rule)) {
             int partSize = rowcnt / cores + 1;  // +1 to prevent being 0
+
+            // Outer joins cannot be parallelized. (But, implemented as prepare-gather structure)
+            if (rule.getName().equals("join") && ((Join) rule).getJoinType().equalsIgnoreCase("INNER") == false) {
+              partSize = rowcnt;
+            }
 
             for (int rowno = 0; rowno < rowcnt; rowno += partSize) {
               LOGGER.debug("applyRuleStrings(): add thread: rowno={} partSize={} rowcnt={}", rowno,
