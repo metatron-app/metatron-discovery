@@ -1,6 +1,8 @@
 <a href="javascript:" (click)="onClickCard()">
   <div class="ddp-wrap-data">
-    <span [ngClass]="imageClass"></span>
+    <span class="ddp-data-images type-svg" [ngClass]="iconClass">
+      <component-metadata-svg [iconClass]="iconClass"></component-metadata-svg>
+    </span>
     <div class="ddp-data-txt">
       <!-- title -->
       <div class="ddp-data-name" title="{{title}}">{{title}}</div>

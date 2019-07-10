@@ -1,5 +1,10 @@
 <a href="javascript:" class="{{bannerClass}}" (click)="onClickBanner()">
-  <div class="ddp-banner-title"><em class="{{iconClass}}"></em>{{title}}</div>
+  <div class="ddp-banner-title">
+    <span class="ddp-data-images type-svg" [ngClass]="iconClass">
+      <component-metadata-svg [iconClass]="iconClass"></component-metadata-svg>
+    </span>
+    {{title}}
+  </div>
   <div class="ddp-txt-detail" *ngIf="isEnableDescription" [innerHTML]="description"></div>
   <div class="ddp-banner-tags" *ngIf="isEnableTag">
     <span class="ddp-tags" *ngFor="let tag of tagList" (click)="onClickTag(tag)"># {{tag.name}}</span>

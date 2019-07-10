@@ -1,8 +1,8 @@
 <em class="ddp-bg-back"></em>
 <div class="ddp-ui-contents-in">
   <!-- top -->
-  <div class="ddp-ui-contents-top ">
-    <div class="ddp-ui-title">
+  <div class="ddp-ui-contents-top">
+    <div class="ddp-ui-title ddp-cursor" (click)="goToExploreMain()">
       {{'msg.explore.ui.title' | translate}}
     </div>
     <!-- tag -->
@@ -12,15 +12,48 @@
       <div class="ddp-box-tag-value ddp-stagingdb">{{'msg.storage.li.hive'| translate}} {{stagingTypeCount}}</div>
     </div>
     <!-- //tag -->
+    <!-- search -->
+    <div class="ddp-meta-search">
+      <!-- select box -->
+      <div class="ddp-search-select ">
+        <span class="ddp-data">All</span>
+
+        <div class="ddp-wrap-popup2">
+          <ul class="ddp-list-popup">
+            <li >
+              <a href="#">
+                All
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                워크북
+              </a>
+            </li>
+
+          </ul>
+        </div>
+      </div>
+      <!-- search form -->
+      <div class="ddp-search-b">
+        <em class="ddp-icon-search"></em>
+        <component-input [placeHolder]="'Searching Meta data'" (changeValue)="onChangeSearchKeyword($event)" [value]="searchKeyword" [autoFocus]="false"></component-input>
+      </div>
+      <!-- //search form -->
+    </div>
+    <!-- //search -->
   </div>
   <!-- //top -->
   <div class="ddp-view-catalog" [class.ddp-close]="isFoldingNavigation">
-    <!-- catalogs -->
+    <!-- lnb -->
     <div class="ddp-wrap-catalogs ">
       <div class="ddp-wrap-tabs ddp-clear">
-        <ul class="ddp-ui-tab ddp-type">
-          <li class="ddp-selected">
+        <ul class="ddp-ui-tab">
+          <li [class.ddp-selected]="isSelectedCatalogTab()" (click)="onChangeLnbTab(EXPLORE_LNB_MODE.CATALOG)">
             <a href="javascript:">{{'msg.explore.ui.tab.catalogs' | translate}}</a>
+          </li>
+          <li [class.ddp-selected]="isSelectedTagTab()" (click)="onChangeLnbTab(EXPLORE_LNB_MODE.TAG)">
+            <a href="javascript:">{{'msg.explore.ui.tab.tags' | translate}}</a>
           </li>
         </ul>
       </div>
@@ -38,7 +71,8 @@
         <!-- //폴딩 -->
       </div>
       <div class="ddp-wrap-tab-contents">
-        <div class="ddp-ui-tab-contents">
+        <!-- catalog -->
+        <div class="ddp-ui-tab-contents" *ngIf="isSelectedCatalogTab()">
           <!-- search -->
           <div class="ddp-ui-searching">
             <em class="ddp-icon-search"></em>
@@ -50,14 +84,38 @@
             <div class="ddp-ui-tree">
               <ul class="ddp-list-tree">
                 <component-catalog-folder *ngFor="let catalog of catalogList" [catalog]="catalog" (clickedCatalog)="onClickCatalog($event)" [searchKeyword]="catalogSearchKeyword"></component-catalog-folder>
+                <!-- is empty -->
+                <component-catalog-folder *ngIf="catalogList && catalogList.length === 0" [isEmptyCatalog]="true"></component-catalog-folder>
+                <!-- //is empty -->
               </ul>
             </div>
             <!-- //tree -->
           </div>
         </div>
+        <!-- //catalog -->
+        <!-- tags -->
+        <div class="ddp-ui-tab-contents" *ngIf="isSelectedTagTab()">
+          <!-- search -->
+          <div class="ddp-ui-searching">
+            <em class="ddp-icon-search"></em>
+            <component-input [placeHolder]="'Searching tags'" (changeValue)="onChangeTagSearchValue($event)" [value]="tagSearchKeyword" [autoFocus]="false"></component-input>
+          </div>
+          <!-- //search -->
+          <div class="ddp-ui-tags">
+            <ul class="ddp-list-tags">
+              <li *ngFor="let tag of tagList">
+                <div class="ddp-txt-data">
+                  <span class="ddp-data-num">(11)</span>
+                  <span class="ddp-data-name">{{tag.name}}</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <!-- //tags -->
       </div>
     </div>
-    <!-- //catalogs -->
+    <!-- //lnb -->
     <explore-data-main *ngIf="mode === EXPLORE_MODE.MAIN" (clickedMetadata)="onClickMetadata($event)"></explore-data-main>
     <explore-catalog-main *ngIf="mode === EXPLORE_MODE.CATALOG" (clickedMetadata)="onClickMetadata($event)" [catalog]="selectedCatalog"></explore-catalog-main>
   </div>

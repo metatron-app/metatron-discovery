@@ -28,13 +28,14 @@ import {WorkspaceUsesComponent} from "./explore-data/popup/workspace-uses.compon
 import {MetadataService} from "../meta-data-management/metadata/service/metadata.service";
 import {DatasourceService} from "../datasource/service/datasource.service";
 import {TimezoneService} from "../data-storage/service/timezone.service";
-import {BannerComponent} from "./explore-data/component/banner.component";
-import {CardComponent} from "./explore-data/component/card.component";
+import {ExploreBannerComponent} from "./explore-data/component/explore-banner.component";
+import {ExploreCardComponent} from "./explore-data/component/explore-card.component";
 import {CodeTableService} from "../meta-data-management/code-table/service/code-table.service";
 import {ExploreDataMainComponent} from "./explore-data/explore-data-main.component";
 import {CatalogFolderComponent} from "./explore-data/component/catalog-folder.component";
 import {ExploreCatalogMainComponent} from "./explore-data/explore-catalog-main.component";
 import {CatalogService} from "../meta-data-management/catalog/service/catalog.service";
+import {MetadataSvgComponent} from "./explore-data/component/metadata-svg.component";
 
 @NgModule({
   imports: [
@@ -47,8 +48,9 @@ import {CatalogService} from "../meta-data-management/catalog/service/catalog.se
     ]),
   ],
   declarations: [
-    BannerComponent,
-    CardComponent,
+    MetadataSvgComponent,
+    ExploreBannerComponent,
+    ExploreCardComponent,
     CatalogFolderComponent,
     ExploreDataComponent,
     FavoriteDataComponent,
