@@ -1,0 +1,69 @@
+<div class="ddp-wrap-catalogs ">
+  <div class="ddp-wrap-tabs ddp-clear">
+    <ul class="ddp-ui-tab">
+      <li [class.ddp-selected]="isSelectedCatalogTab()" (click)="onChangeLnbTab(EXPLORE_LNB_MODE.CATALOG)">
+        <a href="javascript:">{{'msg.explore.ui.tab.catalogs' | translate}}</a>
+      </li>
+      <li [class.ddp-selected]="isSelectedTagTab()" (click)="onChangeLnbTab(EXPLORE_LNB_MODE.TAG)">
+        <a href="javascript:">{{'msg.explore.ui.tab.tags' | translate}}</a>
+      </li>
+    </ul>
+  </div>
+  <!-- //tab -->
+  <div class="ddp-wrap-folding">
+    <!-- 폴딩 -->
+    <a href="javascript:" class="ddp-btn-folding ddp-hover-tooltip" (click)="onChangeFoldingNavigation()">
+      <!-- tooltip -->
+      <div class="ddp-ui-tooltip-info ddp-down">
+        <em class="ddp-icon-view-top"></em>
+        {{'msg.explore.ui.lnb.folding'| translate}}
+      </div>
+      <!-- //tooltip -->
+    </a>
+    <!-- //폴딩 -->
+  </div>
+  <div class="ddp-wrap-tab-contents">
+    <!-- catalog -->
+    <div class="ddp-ui-tab-contents" *ngIf="isSelectedCatalogTab()">
+      <!-- search -->
+      <div class="ddp-ui-searching">
+        <em class="ddp-icon-search"></em>
+        <component-input [placeHolder]="'Search catalog'" (changeValue)="onChangeCatalogSearchKeyword($event)" [value]="catalogSearchKeyword" [autoFocus]="false"></component-input>
+      </div>
+      <!-- //search -->
+      <div class="ddp-ui-catalog-contents">
+        <!-- tree -->
+        <div class="ddp-ui-tree">
+          <ul class="ddp-list-tree">
+            <component-catalog-folder *ngFor="let catalog of catalogList" [catalog]="catalog" (clickedCatalog)="onClickCatalog($event)" [searchKeyword]="catalogSearchKeyword"></component-catalog-folder>
+            <!-- is empty -->
+            <component-catalog-folder *ngIf="catalogList && catalogList.length === 0" [isEmptyCatalog]="true"></component-catalog-folder>
+            <!-- //is empty -->
+          </ul>
+        </div>
+        <!-- //tree -->
+      </div>
+    </div>
+    <!-- //catalog -->
+    <!-- tags -->
+    <div class="ddp-ui-tab-contents" *ngIf="isSelectedTagTab()">
+      <!-- search -->
+      <div class="ddp-ui-searching">
+        <em class="ddp-icon-search"></em>
+        <component-input [placeHolder]="'Searching tags'" (changeValue)="onChangeTagSearchKeyword($event)" [value]="tagSearchKeyword" [autoFocus]="false"></component-input>
+      </div>
+      <!-- //search -->
+      <div class="ddp-ui-tags">
+        <ul class="ddp-list-tags">
+          <li *ngFor="let tag of tagList">
+            <div class="ddp-txt-data">
+              <span class="ddp-data-num">(11)</span>
+              <span class="ddp-data-name">{{tag.name}}</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <!-- //tags -->
+  </div>
+</div>

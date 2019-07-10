@@ -33,9 +33,12 @@ import {ExploreCardComponent} from "./explore-data/component/explore-card.compon
 import {CodeTableService} from "../meta-data-management/code-table/service/code-table.service";
 import {ExploreDataMainComponent} from "./explore-data/explore-data-main.component";
 import {CatalogFolderComponent} from "./explore-data/component/catalog-folder.component";
-import {ExploreCatalogMainComponent} from "./explore-data/explore-catalog-main.component";
+import {ExploreDataListComponent} from "./explore-data/explore-data-list.component";
 import {CatalogService} from "../meta-data-management/catalog/service/catalog.service";
 import {MetadataSvgComponent} from "./explore-data/component/metadata-svg.component";
+import {ExploreDataSearchComponent} from "./explore-data/explore-data-search.component";
+import {ExploreDataModelService} from "./explore-data/service/explore-data-model.service";
+import {ExploreDataLnbComponent} from "./explore-data/explore-data-lnb.component";
 
 @NgModule({
   imports: [
@@ -62,14 +65,17 @@ import {MetadataSvgComponent} from "./explore-data/component/metadata-svg.compon
     RecentQueriesComponent,
     WorkspaceUsesComponent,
     ExploreDataMainComponent,
-    ExploreCatalogMainComponent,
+    ExploreDataListComponent,
+    ExploreDataSearchComponent,
+    ExploreDataLnbComponent
   ],
   providers: [
     MetadataService,
     CatalogService,
     DatasourceService,
     TimezoneService,
-    CodeTableService
+    CodeTableService,
+    ExploreDataModelService
   ],
 })
 export class ExploreDataModule {

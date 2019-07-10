@@ -22,4 +22,16 @@ export namespace ExploreDataConstant {
       DATA_SET = 'type-dataset',
     }
   }
+
+  export enum SearchRange {
+    ALL = 'keyword',
+    DATA_NAME = 'nameContains',
+    DESCRIPTION = 'descContains',
+    CREATOR = 'creatorContains',
+  }
+
+  export enum LnbTab {
+    CATALOG = 'CATALOG',
+    TAG = 'TAG'
+  }
 }

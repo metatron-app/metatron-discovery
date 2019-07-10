@@ -12,28 +12,31 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, OnChanges, Output, SimpleChanges} from '@angular/core';
 import {AbstractComponent} from '../../common/component/abstract.component';
 import * as _ from "lodash";
 import {StringUtil} from "../../common/util/string.util";
-import {Catalog} from "../../domain/catalog/catalog";
-import {CatalogService} from "../../meta-data-management/catalog/service/catalog.service";
 import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
+import {ExploreDataConstant} from "../constant/explore-data-constant";
+import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
+import {CommonConstant} from "../../common/constant/common.constant";
+import {ExploreDataModelService} from "./service/explore-data-model.service";
 
 @Component({
-  selector: 'explore-catalog-main',
-  templateUrl: './explore-catalog-main.component.html',
+  selector: 'explore-data-list',
+  templateUrl: './explore-data-list.component.html',
 })
-export class ExploreCatalogMainComponent extends AbstractComponent implements OnChanges {
+export class ExploreDataListComponent extends AbstractComponent implements OnChanges {
 
-  @Input() readonly catalog: Catalog.Tree;
+  title: string;
   metadataList: Metadata[];
 
   // event
   @Output() readonly clickedMetadata = new EventEmitter();
 
   // 생성자
-  constructor(private catalogService: CatalogService,
+  constructor(private metadataService: MetadataService,
+              private exploreDataModelService: ExploreDataModelService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -47,6 +50,12 @@ export class ExploreCatalogMainComponent extends AbstractComponent implements On
     if (!_.isNil(changes.catalog.currentValue)) {
       this._setMetadataList(changes.catalog.currentValue.id);
     }
+  }
+
+  initMetadataList() {
+    this.page.page = 0;
+    this.page.size = CommonConstant.API_CONSTANT.PAGE_SIZE;
+    this._setMetadataList(this._getMetadataListParams());
   }
   
   getConvertedMetadataType(sourceType: SourceType) {
@@ -80,17 +89,34 @@ export class ExploreCatalogMainComponent extends AbstractComponent implements On
     if (data) {
       this.page.page = data.page;
       this.page.size = data.size;
-      this._setMetadataList(this.catalog.id);
+      this._setMetadataList(this._getMetadataListParams());
     }
   }
 
-  private _setMetadataList(catalogId: string) {
-    this.loadingShow();
-    const params = {
+  onClickMetadata(metadata: Metadata) {
+    return this.clickedMetadata.emit(metadata);
+  }
+
+  private _getMetadataListParams() {
+    const result = {
       page: this.page.page,
       size: this.page.size,
     };
-    this.catalogService.getMetadataInCatalog(catalogId, params, false, 'forListView')
+    // if not empty search keyword
+    if (StringUtil.isNotEmpty(this.exploreDataModelService.searchKeyword)) {
+      result[this.exploreDataModelService.selectedSearchRange.value] = this.exploreDataModelService.searchKeyword.trim();
+    }
+    if (this.exploreDataModelService.selectedLnbTab === ExploreDataConstant.LnbTab.CATALOG && !_.isNil(this.exploreDataModelService.selectedCatalog)) {
+      result['catalogId'] = this.exploreDataModelService.selectedCatalog.id;
+    } else if (this.exploreDataModelService.selectedLnbTab === ExploreDataConstant.LnbTab.TAG && !_.isNil(this.exploreDataModelService.selectedTag)) {
+      result['tag'] = this.exploreDataModelService.selectedTag.name;
+    }
+    return result;
+  }
+
+  private _setMetadataList(params) {
+    this.loadingShow();
+    this.metadataService.getMetaDataList(params)
       .then((result) => {
 
         this.pageResult = result.page;
@@ -103,9 +129,5 @@ export class ExploreCatalogMainComponent extends AbstractComponent implements On
         this.loadingHide();
       })
       .catch(error => this.commonExceptionHandler(error));
-  }
-
-  onClickMetadata(metadata: Metadata) {
-    return this.clickedMetadata.emit(metadata);
   }
 }

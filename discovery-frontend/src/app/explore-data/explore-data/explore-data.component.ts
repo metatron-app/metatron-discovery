@@ -12,46 +12,35 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit} from '@angular/core';
+import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {AbstractComponent} from '../../common/component/abstract.component';
 import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
 import {Metadata} from "../../domain/meta-data-management/metadata";
 import * as _ from 'lodash';
 import {CatalogService} from "../../meta-data-management/catalog/service/catalog.service";
-import {Catalog} from "../../domain/catalog/catalog";
-import {StringUtil} from "../../common/util/string.util";
+import {ExploreDataListComponent} from "./explore-data-list.component";
 
 @Component({
   selector: 'app-exploredata-view',
   templateUrl: './explore-data.component.html',
 })
 export class ExploreDataComponent extends AbstractComponent implements OnInit, OnDestroy {
+  
+  @ViewChild(ExploreDataListComponent)
+  private readonly _exploreDataListComponent: ExploreDataListComponent;
 
   selectedMetadata: Metadata;
-  selectedCatalog: Catalog.Tree;
-  selectedTag;
-
   // data
   mode: ExploreMode = ExploreMode.MAIN;
-  lnbMode = ExploreLnbTab.CATALOG;
   sourceTypeCount: number = 0;
   stagingTypeCount: number = 0;
   databaseTypeCount: number = 0;
-  catalogList: Catalog.Tree[];
-  catalogSearchKeyword: string;
-  tagList;
-  tagSearchKeyword: string;
-  searchKeyword: string;
-
-  isFoldingNavigation: boolean;
 
   // enum
   readonly EXPLORE_MODE = ExploreMode;
-  readonly EXPLORE_LNB_MODE = ExploreLnbTab;
 
   // 생성자
   constructor(private metadataService: MetadataService,
-              private catalogService: CatalogService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -64,8 +53,6 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     const init = async () => {
       this.loadingShow();
       await this._setMetadataSourceTypeCount();
-      await this._setCatalogList(Catalog.Constant.CATALOG_ROOT_ID);
-      await this._setTagList();
     };
     init().catch(error => this.commonExceptionHandler(error));
   }
@@ -91,68 +78,18 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     }
   }
 
-  isSelectedTagTab(): boolean {
-    return this.lnbMode === ExploreLnbTab.TAG;
-  }
-
-  isSelectedCatalogTab(): boolean {
-    return this.lnbMode === ExploreLnbTab.CATALOG;
-  }
-
-  isEmptyCatalogSearchKeyword(): boolean {
-    return StringUtil.isEmpty(this.catalogSearchKeyword);
-  }
-
-  isEmptyTagSearchKeyword(): boolean {
-    return StringUtil.isEmpty(this.tagSearchKeyword);
-  }
-
   goToExploreMain() {
     this.mode = ExploreMode.MAIN;
   }
 
-  onChangeFoldingNavigation(): void {
-    this.isFoldingNavigation = !this.isFoldingNavigation;
+  onChangedSearch(): void {
+    this._setExploreListMode();
+    this._exploreDataListComponent.initMetadataList();
   }
 
-  onChangeCatalogSearchValue(value: string): void {
-    this.catalogSearchKeyword = value;
-    // if empty catalog search keyword
-    if (this.isEmptyCatalogSearchKeyword()) {
-      this.loadingShow();
-      this._setCatalogList(Catalog.Constant.CATALOG_ROOT_ID)
-        .then(() => this.loadingHide())
-        .catch(error => this.commonExceptionHandler(error));
-    } else {
-      this._setCatalogListUsedSearch();
-    }
-  }
-
-  onChangeTagSearchValue(value: string): void {
-    this.tagSearchKeyword = value;
-    // if empty tag search keyword
-    if (this.isEmptyTagSearchKeyword()) {
-      this.loadingShow();
-      this._setTagList()
-        .then(() => this.loadingHide())
-        .catch(error => this.commonExceptionHandler(error));
-    } else {
-      this._setTagListUsedSearch();
-    }
-  }
-
-  onChangeLnbTab(value: ExploreLnbTab): void {
-    this.lnbMode = value;
-  }
-
-  onChangeSearchKeyword(value: string): void {
-    this.searchKeyword = value;
-    // TODO
-  }
-
-  onClickCatalog(catalog: Catalog.Tree): void {
-    this.mode = ExploreMode.CATALOG;
-    this.selectedCatalog = catalog;
+  onChangedLnbData(): void {
+    this._setExploreListMode();
+    this._exploreDataListComponent.initMetadataList();
   }
 
   onClickMetadata(metadata: Metadata) {
@@ -176,45 +113,16 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     }
   }
 
-  private async _setCatalogList(catalogId: string) {
-    const result = await this.catalogService.getTreeCatalogs(catalogId);
-    if (catalogId === Catalog.Constant.CATALOG_ROOT_ID) {
-      this.catalogList = result;
+  private _setExploreListMode() {
+    // if MAIN component
+    if (this.mode === ExploreMode.MAIN) {
+      this.mode = ExploreMode.LIST;
+      this.safelyDetectChanges();
     }
-  }
-
-  private async _setTagList() {
-    const result = await this.metadataService.getMetadataTagList('forTreeView');
-    this.tagList = result;
-  }
-
-  private _setCatalogListUsedSearch(): void {
-    this.loadingShow();
-    this.catalogService.getCatalogs({nameContains: this.catalogSearchKeyword}, 'forSimpleTreeView')
-      .then((result) => {
-        this.catalogList = result;
-        this.loadingHide();
-      })
-      .catch(error => this.commonExceptionHandler(error));
-  }
-
-  private _setTagListUsedSearch(): void {
-    // this.loadingShow();
-    // this.metadataService.getMetadataTagList({nameContains: this.catalogSearchKeyword}, 'forTreeView')
-    //   .then((result) => {
-    //     this.catalogList = result;
-    //     this.loadingHide();
-    //   })
-    //   .catch(error => this.commonExceptionHandler(error));
   }
 }
 
 enum ExploreMode {
   MAIN = 'MAIN',
-  CATALOG = 'CATALOG'
-}
-
-enum ExploreLnbTab {
-  CATALOG = 'CATALOG',
-  TAG = 'TAG'
+  LIST = 'LIST'
 }
