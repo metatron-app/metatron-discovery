@@ -57,6 +57,7 @@ import org.springframework.data.rest.core.annotation.HandleBeforeLinkSave;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +67,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+
+import javax.annotation.PostConstruct;
 
 import app.metatron.discovery.domain.activities.ActivityStreamService;
 import app.metatron.discovery.domain.activities.spec.ActivityGenerator;
@@ -499,6 +502,11 @@ public class DataSourceEventHandler {
       }
     }
 
+  }
+
+  @PostConstruct
+  void setGlobalSecurityContext() {
+    SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
   }
 
 }
