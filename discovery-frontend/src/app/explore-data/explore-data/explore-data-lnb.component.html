@@ -64,7 +64,7 @@
             <a href="javascript:">
               <div class="ddp-txt-data">
                 <span class="ddp-data-num">({{tag.count}})</span>
-                <span class="ddp-data-name">{{tag.name}}</span>
+                <span class="ddp-data-name" [innerHTML]="getTagName(tag.name)"></span>
               </div>
             </a>
           </li>

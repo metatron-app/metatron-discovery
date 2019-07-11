@@ -249,7 +249,7 @@ export class MetadataService extends AbstractService {
     let url: string = this.URL_METADATA + `/tags?projection=${projection}`;
     // if exist params
     if (params) {
-      url += CommonUtil.objectToUrlString(params);
+      url += '&' + CommonUtil.objectToUrlString(params);
     }
     return this.get(url);
   }

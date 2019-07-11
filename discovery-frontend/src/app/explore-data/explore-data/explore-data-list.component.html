@@ -69,9 +69,8 @@
           </td>
           <td>
             <div class="ddp-txt-long">
-<!--              <span class="ddp-txt-search">Data</span> set _EQPID ALL-->
-              {{metadata.name}}
-              <span class="ddp-txt-colortype" *ngIf="isEnableDescription(metadata)">-{{metadata.description}}</span>
+              <span [innerHTML]="getMetadataName(metadata.name)"></span>
+              <span class="ddp-txt-colortype" *ngIf="isEnableDescription(metadata)" [innerHTML]="getMetadataDescription(metadata.description)"></span>
             </div>
           </td>
           <td>
@@ -88,7 +87,7 @@
             </div>
           </td>
           <td>
-            <span class="ddp-txt-long" title="{{metadata?.createdBy?.fullName}}">{{metadata?.createdBy?.fullName}}</span>
+            <span class="ddp-txt-long" title="{{metadata?.createdBy?.fullName}}" [innerHTML]="getMetadataCreator(metadata?.createdBy?.fullName)"></span>
           </td>
           <td>
             {{metadata.createdTime | mdate: 'YYYY-MM-DD HH:mm'}}

@@ -8557,10 +8557,11 @@ ul.ddp-list-tags li.ddp-selected a {background-color:#f3f4f9;}
 .ddp-ui-tree ul.ddp-list-tree {margin-left:-15px;}
 .ddp-ui-tree ul.ddp-list-tree > li em.ddp-view {}
 .ddp-ui-tree ul.ddp-list-tree li a {display:block; position:relative; padding:10px 0 10px 61px; font-size:13px; color:#4b515b; white-space:nowrap;}
-
 .ddp-ui-tree ul.ddp-list-tree li ul li a:before {display:inline-block; position:absolute; top:-17px; left:0; width:27px; height:39px; background:url(../images/icon_tree_line.png) no-repeat left bottom; content:'';}
 .ddp-ui-tree ul.ddp-list-tree li a .ddp-txt-link{display:block;}
 .ddp-ui-tree ul.ddp-list-tree li a .ddp-txt-link:hover {font-weight:bold;}
+.ddp-ui-tree ul.ddp-list-tree li.ddp-selected > a > .ddp-txt-link,
+.ddp-ui-tree ul.ddp-list-tree li.ddp-selected > a > .ddp-txt-link * {font-weight:bold;}
 .ddp-ui-tree ul.ddp-list-tree li a span.ddp-txt-search{color:#666db7; font-size:13px;}
 .ddp-ui-tree ul.ddp-list-tree li .ddp-view {display:none; position:absolute; top:0; left:16px; bottom:0; width:18px; cursor:pointer; z-index:1;}
 .ddp-ui-tree ul.ddp-list-tree li .ddp-view:before {display:inline-block;  position:absolute; top:50%; left:7px; margin-top:-2px;width:7px; height:3px; background:url(../images/icon_select.png) no-repeat; background-position:-24px top; content:''; transform:rotate(-90deg); cursor:pointer;}

@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
 import {AbstractComponent} from '../../common/component/abstract.component';
 import * as _ from "lodash";
 import {StringUtil} from "../../common/util/string.util";
@@ -31,6 +31,9 @@ export class ExploreDataListComponent extends AbstractComponent {
   title: string;
   metadataList: Metadata[];
 
+  searchRange;
+  searchedKeyword: string;
+
   // event
   @Output() readonly clickedMetadata = new EventEmitter();
 
@@ -43,21 +46,12 @@ export class ExploreDataListComponent extends AbstractComponent {
   }
 
   initMetadataList(): void {
+    this.searchRange = this.exploreDataModelService.selectedSearchRange;
+    this.searchedKeyword = this.exploreDataModelService.searchKeyword;
     this._setTitle();
     this.page.page = 0;
     this.page.size = CommonConstant.API_CONSTANT.PAGE_SIZE;
     this._setMetadataList(this._getMetadataListParams());
-  }
-
-  getConvertedMetadataType(sourceType: SourceType) {
-    switch (sourceType) {
-      case SourceType.ENGINE:
-        return this.translateService.instant('msg.comm.th.ds');
-      case SourceType.JDBC:
-        return this.translateService.instant('msg.storage.li.db');
-      case SourceType.STAGEDB:
-        return this.translateService.instant('msg.storage.li.hive');
-    }
   }
 
   isEmptyMetadataList(): boolean {
@@ -70,6 +64,41 @@ export class ExploreDataListComponent extends AbstractComponent {
 
   isEnableDescription(metadata: Metadata): boolean {
     return StringUtil.isNotEmpty(metadata.description);
+  }
+
+  getMetadataName(name: string) {
+    if (StringUtil.isNotEmpty(this.searchedKeyword) && (this.searchRange.value === ExploreDataConstant.SearchRange.ALL || this.searchRange.value === ExploreDataConstant.SearchRange.DATA_NAME)) {
+      return name.replace(this.searchedKeyword, `<span class="ddp-txt-search">${this.searchedKeyword}</span>`);
+    } else {
+      return name;
+    }
+  }
+
+  getMetadataDescription(description: string) {
+    if (StringUtil.isNotEmpty(this.searchedKeyword) && (this.searchRange.value === ExploreDataConstant.SearchRange.ALL || this.searchRange.value === ExploreDataConstant.SearchRange.DESCRIPTION)) {
+      return '-' + description.replace(this.searchedKeyword, `<span class="ddp-txt-search">${this.searchedKeyword}</span>`);
+    } else {
+      return '-' + description;
+    }
+  }
+
+  getMetadataCreator(creator: string) {
+    if (StringUtil.isNotEmpty(this.searchedKeyword) && (this.searchRange.value === ExploreDataConstant.SearchRange.ALL || this.searchRange.value === ExploreDataConstant.SearchRange.CREATOR)) {
+      return creator.replace(this.searchedKeyword, `<span class="ddp-txt-search">${this.searchedKeyword}</span>`);
+    } else {
+      return creator;
+    }
+  }
+
+  getConvertedMetadataType(sourceType: SourceType) {
+    switch (sourceType) {
+      case SourceType.ENGINE:
+        return this.translateService.instant('msg.comm.th.ds');
+      case SourceType.JDBC:
+        return this.translateService.instant('msg.storage.li.db');
+      case SourceType.STAGEDB:
+        return this.translateService.instant('msg.storage.li.hive');
+    }
   }
 
   /**
@@ -94,8 +123,8 @@ export class ExploreDataListComponent extends AbstractComponent {
       size: this.page.size,
     };
     // if not empty search keyword
-    if (StringUtil.isNotEmpty(this.exploreDataModelService.searchKeyword)) {
-      result[this.exploreDataModelService.selectedSearchRange.value] = this.exploreDataModelService.searchKeyword.trim();
+    if (StringUtil.isNotEmpty(this.searchedKeyword)) {
+      result[this.searchRange.value] = this.exploreDataModelService.searchKeyword.trim();
     }
     if (this.exploreDataModelService.selectedLnbTab === ExploreDataConstant.LnbTab.CATALOG && !_.isNil(this.exploreDataModelService.selectedCatalog)) {
       result['catalogId'] = this.exploreDataModelService.selectedCatalog.id;

@@ -24,10 +24,10 @@ import {ExploreDataConstant} from "../constant/explore-data-constant";
 export class ExploreDataSearchComponent extends AbstractComponent {
 
   protected readonly rangeList = [
-    {name: 'All', value: ExploreDataConstant.SearchRange.ALL},
-    {name: 'Data Name', value: ExploreDataConstant.SearchRange.DATA_NAME},
-    {name: 'Description', value: ExploreDataConstant.SearchRange.DESCRIPTION},
-    {name: 'Creator', value: ExploreDataConstant.SearchRange.CREATOR},
+    {name: this.translateService.instant('msg.explore.ui.search.range.all'), value: ExploreDataConstant.SearchRange.ALL},
+    {name: this.translateService.instant('msg.explore.ui.search.range.data.name'), value: ExploreDataConstant.SearchRange.DATA_NAME},
+    {name: this.translateService.instant('msg.explore.ui.search.range.description'), value: ExploreDataConstant.SearchRange.DESCRIPTION},
+    {name: this.translateService.instant('msg.explore.ui.search.range.creator'), value: ExploreDataConstant.SearchRange.CREATOR},
   ];
 
   // data

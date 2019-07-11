@@ -94,6 +94,15 @@ export class ExploreDataLnbComponent extends AbstractComponent {
     return StringUtil.isEmpty(this.tagSearchKeyword);
   }
 
+  getTagName(name: string) {
+    // if empty search keyword
+    if (StringUtil.isEmpty(this.tagSearchKeyword)) {
+      return name;
+    } else {
+      return name.replace(this.tagSearchKeyword, `<span class="ddp-txt-search">${this.tagSearchKeyword}</span>`);
+    }
+  }
+
   protected onChangeFoldingNavigation(): void {
     this.isFoldingNavigation = !this.isFoldingNavigation;
   }
