@@ -18,6 +18,7 @@ import {NoteBook} from '../../../domain/notebook/notebook';
 import {isUndefined} from 'util';
 import {Alert} from '../../../common/util/alert.util';
 import {NotebookServerService} from '../service/notebook-server.service';
+import {StringUtil} from '../../../common/util/string.util';
 
 @Component({
   selector: 'app-add-notebook-server',
@@ -131,6 +132,11 @@ export class AddNotebookServerComponent extends AbstractComponent implements OnI
 
     if (this.notebook.url === '' || isUndefined(this.notebook.url)) {
       Alert.warning(this.translateService.instant('msg.storage.alert.url.required'));
+      return;
+    }
+
+    if (!StringUtil.isURL(this.notebook.url)) {
+      Alert.warning(this.translateService.instant('msg.dp.ui.invalid.url'));
       return;
     }
 
