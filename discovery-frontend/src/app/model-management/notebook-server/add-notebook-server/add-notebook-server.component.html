@@ -38,13 +38,9 @@
           <!-- //edit option -->
         </div>
         <div class="ddp-clear">
-          <div class="ddp-wrap-edit2 ddp-col-6">
-            <label class="ddp-label-type">{{'msg.comm.th.host' | translate}}</label>
-            <input type="text" class="ddp-input-type" placeholder="{{'msg.nbook.ui.host.ph' | translate}}" [(ngModel)]="notebook.hostname">
-          </div>
-          <div class="ddp-wrap-edit2 ddp-col-6">
-            <label class="ddp-label-type">{{'msg.comm.th.port' | translate}}</label>
-            <input type="text" class="ddp-input-type" placeholder="{{'msg.nbook.ui.port.ph' | translate}}" [(ngModel)]="notebook.port" input-mask="number">
+          <div class="ddp-wrap-edit2">
+            <label class="ddp-label-type">{{'msg.comm.th.url' | translate}}</label>
+            <input type="text" class="ddp-input-type" placeholder="{{'msg.nbook.ui.url.ph' | translate}}" [(ngModel)]="notebook.url">
           </div>
         </div>
         <div class="ddp-wrap-edit2">

@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 
-import { Injectable, Injector } from '@angular/core';
-import { AbstractService } from '../../../common/service/abstract.service';
-import { Page } from '../../../domain/common/page';
-import { CommonUtil } from '../../../common/util/common.util';
-import { NoteBook } from '../../../domain/notebook/notebook';
+import {Injectable, Injector} from '@angular/core';
+import {AbstractService} from '../../../common/service/abstract.service';
+import {Page} from '../../../domain/common/page';
+import {CommonUtil} from '../../../common/util/common.util';
+import {NoteBook} from '../../../domain/notebook/notebook';
 
 @Injectable()
 export class NotebookServerService extends AbstractService {
@@ -72,8 +72,7 @@ export class NotebookServerService extends AbstractService {
       name: notebook.name,
       type: notebook.type,
       description: notebook.description,
-      hostname: notebook.hostname,
-      port: notebook.port
+      url: notebook.url
     };
     return this.post(this.API_URL + 'connectors', params);
   }
@@ -97,8 +96,7 @@ export class NotebookServerService extends AbstractService {
       name: notebook.name,
       type: notebook.type,
       description: notebook.description,
-      hostname: notebook.hostname,
-      port: notebook.port
+      url: notebook.url
     };
     return this.patch(this.API_URL + 'connectors/' + notebook.id, params);
   }

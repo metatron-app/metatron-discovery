@@ -12,13 +12,12 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { NoteBook } from '../../../domain/notebook/notebook';
-import { isUndefined } from 'util';
-import { Alert } from '../../../common/util/alert.util';
-import { NotebookServerService } from '../service/notebook-server.service';
-import { Loading } from '../../../common/util/loading.util';
+import {Component, ElementRef, EventEmitter, Injector, OnInit, Output} from '@angular/core';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {NoteBook} from '../../../domain/notebook/notebook';
+import {isUndefined} from 'util';
+import {Alert} from '../../../common/util/alert.util';
+import {NotebookServerService} from '../service/notebook-server.service';
 
 @Component({
   selector: 'app-add-notebook-server',
@@ -126,17 +125,12 @@ export class AddNotebookServerComponent extends AbstractComponent implements OnI
 
   // 저장
   public confirm() {
-    this.notebook.hostname  = this.notebook.hostname  ? this.notebook.hostname.trim() : ''; // trim 처리
+    this.notebook.url  = this.notebook.url  ? this.notebook.url.trim() : ''; // trim 처리
     // this.notebook.port  = this.notebook.port  ? this.notebook.port.trim() : ''; // trim 처리
     this.notebook.name  = this.notebook.name  ? this.notebook.name.trim() : ''; // trim 처리
 
-    if (this.notebook.hostname === '' || isUndefined(this.notebook.hostname)) {
-      Alert.warning(this.translateService.instant('msg.storage.alert.host.required'));
-      return;
-    }
-
-    if (this.notebook.port === '' || isUndefined(this.notebook.port)) {
-      Alert.warning(this.translateService.instant('msg.storage.alert.port.required'));
+    if (this.notebook.url === '' || isUndefined(this.notebook.url)) {
+      Alert.warning(this.translateService.instant('msg.storage.alert.url.required'));
       return;
     }
 

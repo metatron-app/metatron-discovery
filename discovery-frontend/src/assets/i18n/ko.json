@@ -121,6 +121,7 @@
   "msg.comm.th.full.size" : "전체 사이즈",
   "msg.comm.th.port" : "Port",
   "msg.comm.th.host" : "Host",
+  "msg.comm.th.url" : "URL",
   "msg.comm.th.conn" : "데이터 커넥션",
   "msg.comm.th.account.type" : "계정 타입",
   "msg.comm.th.linkedws" : "연결된 워크스페이스",
@@ -715,6 +716,7 @@
   "msg.nbook.ui.by" : "by",
   "msg.nbook.ui.host.ph" : "Host 주소를 입력해 주세요",
   "msg.nbook.ui.port.ph" : "Port를 입력해 주세요",
+  "msg.nbook.ui.url.ph" : "URL을 입력해 주세요",
   "msg.nbook.ui.not.used" : "사용하지 않음",
   "msg.nbook.ui.no.nb" : "노트북이 없습니다",
 

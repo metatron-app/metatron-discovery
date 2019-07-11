@@ -84,8 +84,7 @@
         <col width="51px">
         <col width="*">
         <col width="10%">
-        <col width="10%">
-        <col width="7%">
+        <col width="17%">
         <col width="15%">
         <col width="20%">
       </colgroup>
@@ -104,10 +103,7 @@
           {{'msg.nbook.th.type' | translate}}
         </th>
         <th>
-          {{'msg.comm.th.host' | translate}}
-        </th>
-        <th>
-          {{'msg.comm.th.port' | translate}}
+          {{'msg.comm.th.url' | translate}}
         </th>
         <th>
           {{'msg.nbook.th.creator.id' | translate}}
@@ -145,13 +141,8 @@
             {{item.type}}
           </span>
         </td>
-
-
         <td>
-          {{item.hostname}}
-        </td>
-        <td>
-          {{item.port}}
+          {{item.url}}
         </td>
         <td>
           {{item.createdBy.fullName}} ({{item.createdBy.username}})

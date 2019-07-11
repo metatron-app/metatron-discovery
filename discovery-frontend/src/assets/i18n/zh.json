@@ -120,6 +120,7 @@
   "msg.comm.th.full.size": "整体大小",
   "msg.comm.th.port": "Port",
   "msg.comm.th.host": "Host",
+  "msg.comm.th.url" : "URL",
   "msg.comm.th.conn": "数据连接",
   "msg.comm.th.account.type": "账号类型",
   "msg.comm.th.linkedws": "已连接的工作区",
@@ -693,6 +694,7 @@
   "msg.nbook.ui.by": "by",
   "msg.nbook.ui.host.ph": "请输入Host地址",
   "msg.nbook.ui.port.ph": "请输入Port",
+  "msg.nbook.ui.url.ph" : "请输入网址",
   "msg.nbook.ui.not.used": "不使用",
 
   "msg.dp.alert.check.formula": "请确认公式",

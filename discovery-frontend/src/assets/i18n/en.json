@@ -121,6 +121,7 @@
   "msg.comm.th.full.size": "Full size",
   "msg.comm.th.port": "Port",
   "msg.comm.th.host": "Host",
+  "msg.comm.th.url" : "URL",
   "msg.comm.th.conn": "Data connection",
   "msg.comm.th.account.type": "Account type",
   "msg.comm.th.linkedws" : "Linked W.S",
@@ -715,6 +716,7 @@
   "msg.nbook.ui.by" : "by",
   "msg.nbook.ui.host.ph" : "Please enter a host address",
   "msg.nbook.ui.port.ph" : "Please enter a port number",
+  "msg.nbook.ui.url.ph" : "Please enter URL",
   "msg.nbook.ui.not.used" : "not used",
   "msg.nbook.ui.no.nb" : "There is no notebook",
 

@@ -70,6 +70,9 @@
                   (click)="searchZeppelin=''; searchEvent('zeppelin')"></em>
             </div>
             <!-- //검색 -->
+            <div class="ddp-option-right">
+              <a href="javascript:" class="ddp-btn-selection ddp-gray" (click)="reset()"><em class="ddp-btn-reset3"></em>{{'msg.comm.ui.resetting' | translate}}</a>
+            </div>
           </div>
 
           <div class="ddp-wrap-viewtable">
@@ -81,8 +84,7 @@
                   <colgroup>
                     <col width="51px">
                     <col width="*">
-                    <col width="25%">
-                    <col width="15%">
+                    <col width="40%">
                   </colgroup>
                   <thead>
                   <tr>
@@ -92,17 +94,11 @@
                     <th>
                       {{'msg.space.th.server' | translate}}
                     </th>
-                    <th class="ddp-cursor" (click)="changeOrder('hostname')">
-                      {{'msg.comm.th.host' | translate}}
-                      <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'hostname' || selectedContentSort.sort === 'default'"></em>
-                      <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'hostname' && selectedContentSort.sort === 'asc'"></em>
-                      <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'hostname' && selectedContentSort.sort === 'desc'"></em>
-                    </th>
-                    <th class="ddp-cursor" (click)="changeOrder('port')">
-                      {{'msg.comm.th.port' | translate}}
-                      <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'port' || selectedContentSort.sort === 'default'"></em>
-                      <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'port' && selectedContentSort.sort === 'asc'"></em>
-                      <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'port' && selectedContentSort.sort === 'desc'"></em>
+                    <th class="ddp-cursor" (click)="changeOrder('url')">
+                      {{'msg.comm.th.url' | translate}}
+                      <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.sort === 'default'"></em>
+                      <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.sort === 'asc'"></em>
+                      <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.sort === 'desc'"></em>
                     </th>
                   </tr>
                   </thead>
@@ -117,8 +113,7 @@
                   <colgroup>
                     <col width="51px">
                     <col width="*">
-                    <col width="25%">
-                    <col width="15%">
+                    <col width="40%">
                   </colgroup>
                   <tbody>
                   <tr *ngFor="let server of jupyter.servers" (click)="selectedJupyter = server" style="cursor:pointer">
@@ -135,10 +130,7 @@
                       </div>
                     </td>
                     <td>
-                      {{server.hostname}}
-                    </td>
-                    <td>
-                      {{server.port}}
+                      {{server.url}}
                     </td>
                   </tr>
                   </tbody>
@@ -151,8 +143,7 @@
                   <colgroup>
                     <col width="51px">
                     <col width="*">
-                    <col width="25%">
-                    <col width="15%">
+                    <col width="40%">
                   </colgroup>
                   <tbody>
                   <tr *ngFor="let server of zeppelin.servers" (click)="selectedZeppelin = server" style="cursor:pointer">
@@ -169,10 +160,7 @@
                       </div>
                     </td>
                     <td>
-                      {{server.hostname}}
-                    </td>
-                    <td>
-                      {{server.port}}
+                      {{server.url}}
                     </td>
                   </tr>
                   </tbody>
