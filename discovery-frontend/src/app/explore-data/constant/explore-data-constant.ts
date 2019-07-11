@@ -34,4 +34,8 @@ export namespace ExploreDataConstant {
     CATALOG = 'CATALOG',
     TAG = 'TAG'
   }
+
+  export enum BroadCastKey {
+    EXPLORE_INITIAL = 'EXPLORE_INITIAL',
+  }
 }

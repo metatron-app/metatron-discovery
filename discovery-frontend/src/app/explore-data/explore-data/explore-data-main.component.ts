@@ -19,6 +19,7 @@ import * as _ from "lodash";
 import {StringUtil} from "../../common/util/string.util";
 import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
 import {ExploreDataConstant} from "../constant/explore-data-constant";
+import {EventBroadcaster} from "../../common/event/event.broadcaster";
 
 @Component({
   selector: 'explore-data-main',
@@ -39,10 +40,10 @@ export class ExploreDataMainComponent extends AbstractComponent {
   @Output() readonly clickedMetadata = new EventEmitter();
 
   // 생성자
-  constructor(
-    protected element: ElementRef,
-    protected injector: Injector,
-    private _metadataService: MetadataService) {
+  constructor(protected element: ElementRef,
+              protected injector: Injector,
+              private broadcaster: EventBroadcaster,
+              private _metadataService: MetadataService) {
     super(element, injector);
   }
 
@@ -53,19 +54,18 @@ export class ExploreDataMainComponent extends AbstractComponent {
   // Init
   ngOnInit() {
     super.ngOnInit();
-    const init = async () => {
+    const initial = async () => {
       this.loadingShow();
       await this._setPopularMetadataList();
       await this._setUpdatedMetadataList();
       await this._setRecommendedMetadataList();
       await this._setMyFavoriteMetadataList();
       await this._setCreatorFavoriteMetadataList();
-      this.loadingHide();
     };
-    init().catch(error => this.commonExceptionHandler(error));
+    initial().then(() => this.broadcaster.broadcast(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL)).catch(() => this.broadcaster.broadcast(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL));
   }
 
-  isEmptyRecommendedMetadataList() {
+  isEmptyRecommendedMetadataList(): boolean {
     return _.isNil(this.recommendedMetadataList);
   }
 
@@ -90,8 +90,8 @@ export class ExploreDataMainComponent extends AbstractComponent {
     }
   }
 
-  onClickMetadata(metadata: Metadata) {
-    return this.clickedMetadata.emit(metadata);
+  onClickMetadata(metadata: Metadata): void {
+    this.clickedMetadata.emit(metadata);
   }
 
 
@@ -129,6 +129,4 @@ export class ExploreDataMainComponent extends AbstractComponent {
       this.recommendedMetadataList = result._embedded.metadatas;
     }
   }
-
-
 }

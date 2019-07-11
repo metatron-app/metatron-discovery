@@ -26,7 +26,7 @@ import {ExploreDataModelService} from "./service/explore-data-model.service";
   selector: 'explore-data-list',
   templateUrl: './explore-data-list.component.html',
 })
-export class ExploreDataListComponent extends AbstractComponent implements OnChanges {
+export class ExploreDataListComponent extends AbstractComponent {
 
   title: string;
   metadataList: Metadata[];
@@ -42,22 +42,13 @@ export class ExploreDataListComponent extends AbstractComponent implements OnCha
     super(element, injector);
   }
 
-  ngOnInit() {
-    super.ngOnInit();
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (!_.isNil(changes.catalog.currentValue)) {
-      this._setMetadataList(changes.catalog.currentValue.id);
-    }
-  }
-
-  initMetadataList() {
+  initMetadataList(): void {
+    this._setTitle();
     this.page.page = 0;
     this.page.size = CommonConstant.API_CONSTANT.PAGE_SIZE;
     this._setMetadataList(this._getMetadataListParams());
   }
-  
+
   getConvertedMetadataType(sourceType: SourceType) {
     switch (sourceType) {
       case SourceType.ENGINE:
@@ -93,8 +84,8 @@ export class ExploreDataListComponent extends AbstractComponent implements OnCha
     }
   }
 
-  onClickMetadata(metadata: Metadata) {
-    return this.clickedMetadata.emit(metadata);
+  onClickMetadata(metadata: Metadata): void {
+    this.clickedMetadata.emit(metadata);
   }
 
   private _getMetadataListParams() {
@@ -129,5 +120,15 @@ export class ExploreDataListComponent extends AbstractComponent implements OnCha
         this.loadingHide();
       })
       .catch(error => this.commonExceptionHandler(error));
+  }
+
+  private _setTitle(): void {
+    if (this.exploreDataModelService.selectedLnbTab === ExploreDataConstant.LnbTab.CATALOG && !_.isNil(this.exploreDataModelService.selectedCatalog)) {
+      this.title = this.exploreDataModelService.selectedCatalog.name;
+    } else if (this.exploreDataModelService.selectedLnbTab === ExploreDataConstant.LnbTab.TAG && !_.isNil(this.exploreDataModelService.selectedTag)) {
+      this.title = this.exploreDataModelService.selectedTag.name;
+    } else {
+      this.title = undefined;
+    }
   }
 }

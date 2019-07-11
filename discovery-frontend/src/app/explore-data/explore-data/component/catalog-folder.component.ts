@@ -30,6 +30,7 @@ export class CatalogFolderComponent extends AbstractComponent {
   @Input() readonly searchKeyword: string;
   @Input() readonly catalog: Catalog.Tree;
   @Input() readonly isEmptyCatalog: boolean;
+  @Input() readonly isSelected: boolean;
 
   // event
   @Output() readonly clickedCatalog = new EventEmitter();

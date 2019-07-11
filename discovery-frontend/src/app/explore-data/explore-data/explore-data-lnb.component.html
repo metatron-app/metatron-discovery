@@ -28,14 +28,19 @@
       <!-- search -->
       <div class="ddp-ui-searching">
         <em class="ddp-icon-search"></em>
-        <component-input [placeHolder]="'Search catalog'" (changeValue)="onChangeCatalogSearchKeyword($event)" [value]="catalogSearchKeyword" [autoFocus]="false"></component-input>
+        <component-input [placeHolder]="'msg.explore.ph.tab.catalogs.search' | translate" (changeValue)="onChangeCatalogSearchKeyword($event)" [value]="catalogSearchKeyword" [autoFocus]="false"></component-input>
       </div>
       <!-- //search -->
       <div class="ddp-ui-catalog-contents">
         <!-- tree -->
         <div class="ddp-ui-tree">
           <ul class="ddp-list-tree">
-            <component-catalog-folder *ngFor="let catalog of catalogList" [catalog]="catalog" (clickedCatalog)="onClickCatalog($event)" [searchKeyword]="catalogSearchKeyword"></component-catalog-folder>
+            <component-catalog-folder *ngFor="let catalog of catalogList"
+                                      [catalog]="catalog"
+                                      [isSelected]="isSelectedCatalog(catalog)"
+                                      [searchKeyword]="catalogSearchKeyword"
+                                      (clickedCatalog)="onClickCatalog($event)" >
+            </component-catalog-folder>
             <!-- is empty -->
             <component-catalog-folder *ngIf="catalogList && catalogList.length === 0" [isEmptyCatalog]="true"></component-catalog-folder>
             <!-- //is empty -->
@@ -50,16 +55,18 @@
       <!-- search -->
       <div class="ddp-ui-searching">
         <em class="ddp-icon-search"></em>
-        <component-input [placeHolder]="'Searching tags'" (changeValue)="onChangeTagSearchKeyword($event)" [value]="tagSearchKeyword" [autoFocus]="false"></component-input>
+        <component-input [placeHolder]="'msg.explore.ph.tab.tags.search' | translate" (changeValue)="onChangeTagSearchKeyword($event)" [value]="tagSearchKeyword" [autoFocus]="false"></component-input>
       </div>
       <!-- //search -->
       <div class="ddp-ui-tags">
         <ul class="ddp-list-tags">
-          <li *ngFor="let tag of tagList">
-            <div class="ddp-txt-data">
-              <span class="ddp-data-num">(11)</span>
-              <span class="ddp-data-name">{{tag.name}}</span>
-            </div>
+          <li *ngFor="let tag of tagList" [class.ddp-selected]="isSelectedTag(tag)" (click)="onClickTag(tag)">
+            <a href="javascript:">
+              <div class="ddp-txt-data">
+                <span class="ddp-data-num">({{tag.count}})</span>
+                <span class="ddp-data-name">{{tag.name}}</span>
+              </div>
+            </a>
           </li>
         </ul>
       </div>

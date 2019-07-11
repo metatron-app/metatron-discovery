@@ -244,7 +244,13 @@ export class MetadataService extends AbstractService {
     return this.get(url);
   }
 
-  public getMetadataTagList(projection: string): Promise<any> {
-    return this.get(this.URL_METADATA + `/tags?projection=${projection}`);
+  public getMetadataTagList(projection: string, params?): Promise<any> {
+    // URL
+    let url: string = this.URL_METADATA + `/tags?projection=${projection}`;
+    // if exist params
+    if (params) {
+      url += CommonUtil.objectToUrlString(params);
+    }
+    return this.get(url);
   }
 }

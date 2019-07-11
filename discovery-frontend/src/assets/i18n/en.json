@@ -4106,6 +4106,8 @@
   "msg.explore.ui.title" : "Explore Data",
   "msg.explore.ui.tab.catalogs" : "Catalogs",
   "msg.explore.ui.tab.tags" : "Tags",
+  "msg.explore.ph.tab.catalogs.search" : "Search catalog",
+  "msg.explore.ph.tab.tags.search" : "Search tag",
   "msg.explore.ui.list.recommended" : "Recommended for you",
   "msg.explore.ui.list.popular" : "Popular data",
   "msg.explore.ui.list.updated" : "New or Update",

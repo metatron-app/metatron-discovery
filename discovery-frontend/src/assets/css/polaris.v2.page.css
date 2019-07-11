@@ -8547,10 +8547,11 @@ table.ddp-table-type2 tbody tr td table.ddp-table-code tr td {background:none; c
 .ddp-list-favorite li a .ddp-data-navi {display:block; color:#adb0ba; font-size:11px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 .ddp-list-favorite li a .ddp-data-name {display:block; margin-top:2px; font-size:13px; color:#424751;}
 .ddp-wrap-catalogs .ddp-ui-tags {position:absolute; top:110px; left:0; right:0; bottom:0;overflow:auto;}
-ul.ddp-list-tags li {padding:10px 16px;}
+ul.ddp-list-tags li a {display:block; padding:10px 16px;}
 ul.ddp-list-tags li .ddp-txt-data {display:inline-block; max-width:100%; overflow:hidden;}
 ul.ddp-list-tags li .ddp-txt-data .ddp-data-num {float:right; margin-left:4px; color:#c2c3cb;}
 ul.ddp-list-tags li .ddp-txt-data .ddp-data-name {display:block; white-space:nowrap; text-overflow:ellipsis; overflow:Hidden;}
+ul.ddp-list-tags li.ddp-selected a {background-color:#f3f4f9;}
 .ddp-ui-tree {position:relative; padding:0 15px;}
 .ddp-ui-tree:before {display:inline-block;position:absolute; left:15px; right:15px; top:0; border-top:1px dashed #d0d1d8; content:'';}
 .ddp-ui-tree ul.ddp-list-tree {margin-left:-15px;}

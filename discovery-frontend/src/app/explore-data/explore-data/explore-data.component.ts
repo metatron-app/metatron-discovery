@@ -17,8 +17,10 @@ import {AbstractComponent} from '../../common/component/abstract.component';
 import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
 import {Metadata} from "../../domain/meta-data-management/metadata";
 import * as _ from 'lodash';
-import {CatalogService} from "../../meta-data-management/catalog/service/catalog.service";
 import {ExploreDataListComponent} from "./explore-data-list.component";
+import {EventBroadcaster} from "../../common/event/event.broadcaster";
+import {ExploreDataConstant} from "../constant/explore-data-constant";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-exploredata-view',
@@ -36,11 +38,14 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   stagingTypeCount: number = 0;
   databaseTypeCount: number = 0;
 
+  subscription: Subscription;
+
   // enum
   readonly EXPLORE_MODE = ExploreMode;
 
   // 생성자
   constructor(private metadataService: MetadataService,
+              private broadcaster: EventBroadcaster,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -49,23 +54,33 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   // Init
   public ngOnInit() {
     super.ngOnInit();
+    let broadCastSuccessCount: number = 0;
+    // subscribe
+    this.subscription = this.broadcaster.on(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL).subscribe(() => {
+      if (broadCastSuccessCount >= 2) {
+        this.loadingHide();
+      } else {
+        broadCastSuccessCount++;
+      }
+    });
 
-    const init = async () => {
-      this.loadingShow();
+    this.loadingShow();
+    const initial = async () => {
       await this._setMetadataSourceTypeCount();
     };
-    init().catch(error => this.commonExceptionHandler(error));
+    initial().then(() => this.broadcaster.broadcast(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL)).catch(() => this.broadcaster.broadcast(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL));
   }
 
   public ngAfterViewInit() {
     super.ngAfterViewInit();
-    $( '.ddp-layout-contents' ).addClass( 'ddp-layout-meta' )
+    $( '.ddp-layout-contents' ).addClass( 'ddp-layout-meta' );
   }
 
   // Destroy
   public ngOnDestroy() {
     super.ngOnDestroy();
-    $( '.ddp-layout-contents' ).removeClass( 'ddp-layout-meta' )
+    $( '.ddp-layout-contents' ).removeClass( 'ddp-layout-meta' );
+    this.subscription.unsubscribe();
   }
 
   @HostListener('window:scroll')
@@ -78,7 +93,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     }
   }
 
-  goToExploreMain() {
+  goToExploreMain(): void {
     this.mode = ExploreMode.MAIN;
   }
 
@@ -92,11 +107,11 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     this._exploreDataListComponent.initMetadataList();
   }
 
-  onClickMetadata(metadata: Metadata) {
+  onClickMetadata(metadata: Metadata): void {
     this.selectedMetadata = metadata
   }
 
-  onCloseMetadataContainer() {
+  onCloseMetadataContainer(): void {
     this.selectedMetadata = null;
   }
 
@@ -113,7 +128,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     }
   }
 
-  private _setExploreListMode() {
+  private _setExploreListMode(): void {
     // if MAIN component
     if (this.mode === ExploreMode.MAIN) {
       this.mode = ExploreMode.LIST;

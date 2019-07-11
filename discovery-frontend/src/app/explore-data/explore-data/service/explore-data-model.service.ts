@@ -20,6 +20,8 @@ export class ExploreDataModelService {
   }
 
   initialLnbData() {
-
+    this.selectedLnbTab = ExploreDataConstant.LnbTab.CATALOG;
+    this.selectedCatalog = undefined;
+    this.selectedTag = undefined;
   }
 }

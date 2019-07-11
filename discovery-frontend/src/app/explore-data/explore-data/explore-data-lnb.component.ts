@@ -21,6 +21,9 @@ import {Catalog} from "../../domain/catalog/catalog";
 import {StringUtil} from "../../common/util/string.util";
 import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
 import {CatalogService} from "../../meta-data-management/catalog/service/catalog.service";
+import {Tag} from "../../domain/tag/tag";
+import * as _ from 'lodash';
+import {EventBroadcaster} from "../../common/event/event.broadcaster";
 
 @Component({
   selector: 'component-explore-lnb',
@@ -30,10 +33,10 @@ export class ExploreDataLnbComponent extends AbstractComponent {
 
   selectedLnbTab: ExploreDataConstant.LnbTab = this.exploreDataModelService.selectedLnbTab;
   selectedCatalog: Catalog.Tree;
-  selectedTag;
+  selectedTag: Tag.Tree;
 
   catalogList: Catalog.Tree[];
-  tagList;
+  tagList: Tag.Tree[];
   catalogSearchKeyword: string;
   tagSearchKeyword: string;
   isFoldingNavigation: boolean;
@@ -47,6 +50,7 @@ export class ExploreDataLnbComponent extends AbstractComponent {
   constructor(private exploreDataModelService: ExploreDataModelService,
               private metadataService: MetadataService,
               private catalogService: CatalogService,
+              private broadcaster: EventBroadcaster,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -54,9 +58,11 @@ export class ExploreDataLnbComponent extends AbstractComponent {
 
   ngOnInit() {
     super.ngOnInit();
-    this._setCatalogList(Catalog.Constant.CATALOG_ROOT_ID)
-      .then(() => this.loadingHide())
-      .catch(error => this.commonExceptionHandler(error));
+    const initial = async () => {
+      await this._setCatalogList(Catalog.Constant.CATALOG_ROOT_ID);
+      await this._setTagList();
+    };
+    initial().then(() => this.broadcaster.broadcast(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL)).catch(() => this.broadcaster.broadcast(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL));
   }
 
   ngOnDestroy() {
@@ -72,6 +78,14 @@ export class ExploreDataLnbComponent extends AbstractComponent {
     return this.selectedLnbTab === ExploreDataConstant.LnbTab.CATALOG;
   }
 
+  protected isSelectedCatalog(catalog: Catalog.Tree): boolean {
+    return !_.isNil(this.selectedCatalog) && this.selectedCatalog.id === catalog.id;
+  }
+
+  protected isSelectedTag(tag: Tag.Tree): boolean {
+    return !_.isNil(this.selectedTag) && this.selectedTag.id === tag.id;
+  }
+
   protected isEmptyCatalogSearchKeyword(): boolean {
     return StringUtil.isEmpty(this.catalogSearchKeyword);
   }
@@ -85,7 +99,14 @@ export class ExploreDataLnbComponent extends AbstractComponent {
   }
 
   protected onChangeLnbTab(value: ExploreDataConstant.LnbTab): void {
-    this.selectedLnbTab = value;
+    if (this.selectedLnbTab !== value) {
+      this.selectedLnbTab = value;
+      this.exploreDataModelService.selectedLnbTab = value;
+      // if selected catalog or tag
+      if ((value === ExploreDataConstant.LnbTab.CATALOG && !_.isNil(this.selectedCatalog)) || (value === ExploreDataConstant.LnbTab.TAG && !_.isNil(this.selectedTag))) {
+        this._changedLnbData();
+      }
+    }
   }
 
   protected onChangeCatalogSearchKeyword(value: string): void {
@@ -149,13 +170,13 @@ export class ExploreDataLnbComponent extends AbstractComponent {
   }
 
   private _setTagListUsedSearch(): void {
-    // this.loadingShow();
-    // this.metadataService.getMetadataTagList({nameContains: this.catalogSearchKeyword}, 'forTreeView')
-    //   .then((result) => {
-    //     this.catalogList = result;
-    //     this.loadingHide();
-    //   })
-    //   .catch(error => this.commonExceptionHandler(error));
+    this.loadingShow();
+    this.metadataService.getMetadataTagList( 'forTreeView', {nameContains: this.tagSearchKeyword})
+      .then((result) => {
+        this.tagList = result;
+        this.loadingHide();
+      })
+      .catch(error => this.commonExceptionHandler(error));
   }
 
   private _changedLnbData(): void {
