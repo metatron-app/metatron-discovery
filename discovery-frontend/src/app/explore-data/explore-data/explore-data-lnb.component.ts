@@ -70,27 +70,27 @@ export class ExploreDataLnbComponent extends AbstractComponent {
     this.exploreDataModelService.initialLnbData();
   }
 
-  protected isSelectedTagTab(): boolean {
+  isSelectedTagTab(): boolean {
     return this.selectedLnbTab === ExploreDataConstant.LnbTab.TAG;
   }
 
-  protected isSelectedCatalogTab(): boolean {
+  isSelectedCatalogTab(): boolean {
     return this.selectedLnbTab === ExploreDataConstant.LnbTab.CATALOG;
   }
 
-  protected isSelectedCatalog(catalog: Catalog.Tree): boolean {
+  isSelectedCatalog(catalog: Catalog.Tree): boolean {
     return !_.isNil(this.selectedCatalog) && this.selectedCatalog.id === catalog.id;
   }
 
-  protected isSelectedTag(tag: Tag.Tree): boolean {
+  isSelectedTag(tag: Tag.Tree): boolean {
     return !_.isNil(this.selectedTag) && this.selectedTag.id === tag.id;
   }
 
-  protected isEmptyCatalogSearchKeyword(): boolean {
+  isEmptyCatalogSearchKeyword(): boolean {
     return StringUtil.isEmpty(this.catalogSearchKeyword);
   }
 
-  protected isEmptyTagSearchKeyword(): boolean {
+  isEmptyTagSearchKeyword(): boolean {
     return StringUtil.isEmpty(this.tagSearchKeyword);
   }
 
@@ -103,11 +103,11 @@ export class ExploreDataLnbComponent extends AbstractComponent {
     }
   }
 
-  protected onChangeFoldingNavigation(): void {
+  onChangeFoldingNavigation(): void {
     this.isFoldingNavigation = !this.isFoldingNavigation;
   }
 
-  protected onChangeLnbTab(value: ExploreDataConstant.LnbTab): void {
+  onChangeLnbTab(value: ExploreDataConstant.LnbTab): void {
     if (this.selectedLnbTab !== value) {
       this.selectedLnbTab = value;
       this.exploreDataModelService.selectedLnbTab = value;
@@ -118,7 +118,7 @@ export class ExploreDataLnbComponent extends AbstractComponent {
     }
   }
 
-  protected onChangeCatalogSearchKeyword(value: string): void {
+  onChangeCatalogSearchKeyword(value: string): void {
     this.catalogSearchKeyword = value;
     // if empty catalog search keyword
     if (this.isEmptyCatalogSearchKeyword()) {
@@ -131,7 +131,7 @@ export class ExploreDataLnbComponent extends AbstractComponent {
     }
   }
 
-  protected onChangeTagSearchKeyword(value: string): void {
+  onChangeTagSearchKeyword(value: string): void {
     this.tagSearchKeyword = value;
     // if empty tag search keyword
     if (this.isEmptyTagSearchKeyword()) {
@@ -144,13 +144,13 @@ export class ExploreDataLnbComponent extends AbstractComponent {
     }
   }
 
-  protected onClickCatalog(catalog: Catalog.Tree): void {
+  onClickCatalog(catalog: Catalog.Tree): void {
     this.selectedCatalog = catalog;
     this.exploreDataModelService.selectedCatalog = catalog;
     this._changedLnbData();
   }
 
-  protected onClickTag(tag): void {
+  onClickTag(tag): void {
     this.selectedTag = tag;
     this.exploreDataModelService.selectedTag = tag;
     this._changedLnbData();

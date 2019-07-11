@@ -8551,6 +8551,7 @@ ul.ddp-list-tags li a {display:block; padding:10px 16px;}
 ul.ddp-list-tags li .ddp-txt-data {display:inline-block; max-width:100%; overflow:hidden;}
 ul.ddp-list-tags li .ddp-txt-data .ddp-data-num {float:right; margin-left:4px; color:#c2c3cb;}
 ul.ddp-list-tags li .ddp-txt-data .ddp-data-name {display:block; white-space:nowrap; text-overflow:ellipsis; overflow:Hidden;}
+ul.ddp-list-tags li .ddp-txt-data .ddp-data-name .ddp-txt-search {color:#666db7;}
 ul.ddp-list-tags li.ddp-selected a {background-color:#f3f4f9;}
 .ddp-ui-tree {position:relative; padding:0 15px;}
 .ddp-ui-tree:before {display:inline-block;position:absolute; left:15px; right:15px; top:0; border-top:1px dashed #d0d1d8; content:'';}
@@ -8691,7 +8692,7 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
 .ddp-layout-meta .ddp-ui-contents-top {height:190px; text-align:center; background:none; box-shadow:none; border-bottom:none;}
 .ddp-layout-meta .ddp-ui-contents-top .ddp-ui-title {padding:35px 0 0 0; text-align:center; font-family:'Titillium Web'; font-size:28px;}
 .ddp-layout-meta .ddp-ui-contents-top .ddp-ui-tag {padding-top:5px; font-weight:bold; text-align:center;}
-.ddp-layout-meta .ddp-ui-contents-top .ddp-ui-tag .ddp-box-tag-value {}
+.ddp-layout-meta .ddp-ui-contents-top .ddp-ui-tag .ddp-box-tag-value.ddp-disabled {opacity:0.3;}
 .ddp-layout-meta .ddp-ui-contents-top .ddp-ui-tag .ddp-box-tag-value + .ddp-box-tag-value {margin-left:4px;}
 .ddp-meta-search {display:inline-block; margin-top:30px; border:1px solid #d0d1d9; border-radius:2px; background-color:#fff;}
 .ddp-meta-search .ddp-search-select {display:inline-block; position:relative; width:185px; padding:0 40px 0 30px; text-align:left; border-right:1px solid #d0d1d9; cursor:pointer; vertical-align:top;}

@@ -7,9 +7,9 @@
     </div>
     <!-- tag -->
     <div class="ddp-ui-tag">
-      <div class="ddp-box-tag-value ddp-datasource">{{'msg.comm.th.ds'| translate}} {{sourceTypeCount}} </div>
-      <div class="ddp-box-tag-value ddp-hive">{{'msg.storage.li.db'| translate}}  {{databaseTypeCount}}</div>
-      <div class="ddp-box-tag-value ddp-stagingdb">{{'msg.storage.li.hive'| translate}} {{stagingTypeCount}}</div>
+      <div class="ddp-box-tag-value ddp-datasource" [class.ddp-disabled]="sourceTypeCount === 0">{{'msg.comm.th.ds'| translate}} {{sourceTypeCount}} </div>
+      <div class="ddp-box-tag-value ddp-hive" [class.ddp-disabled]="databaseTypeCount === 0">{{'msg.storage.li.db'| translate}}  {{databaseTypeCount}}</div>
+      <div class="ddp-box-tag-value ddp-stagingdb" [class.ddp-disabled]="stagingTypeCount === 0">{{'msg.storage.li.hive'| translate}} {{stagingTypeCount}}</div>
     </div>
     <!-- //tag -->
     <!-- search -->

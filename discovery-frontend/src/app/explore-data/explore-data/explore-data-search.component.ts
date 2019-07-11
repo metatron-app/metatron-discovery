@@ -23,7 +23,7 @@ import {ExploreDataConstant} from "../constant/explore-data-constant";
 })
 export class ExploreDataSearchComponent extends AbstractComponent {
 
-  protected readonly rangeList = [
+  readonly rangeList = [
     {name: this.translateService.instant('msg.explore.ui.search.range.all'), value: ExploreDataConstant.SearchRange.ALL},
     {name: this.translateService.instant('msg.explore.ui.search.range.data.name'), value: ExploreDataConstant.SearchRange.DATA_NAME},
     {name: this.translateService.instant('msg.explore.ui.search.range.description'), value: ExploreDataConstant.SearchRange.DESCRIPTION},
@@ -31,10 +31,10 @@ export class ExploreDataSearchComponent extends AbstractComponent {
   ];
 
   // data
-  protected searchKeyword: string = this.exploreDataModelService.searchKeyword;
-  protected selectedSearchRange = this.exploreDataModelService.selectedSearchRange;
+  searchKeyword: string = this.exploreDataModelService.searchKeyword;
+  selectedSearchRange = this.exploreDataModelService.selectedSearchRange;
 
-  protected isShowSelectBoxList: boolean;
+  isShowSelectBoxList: boolean;
 
   @Output() readonly changedSearch = new EventEmitter();
 
@@ -51,11 +51,11 @@ export class ExploreDataSearchComponent extends AbstractComponent {
     this.exploreDataModelService.initialSearchData();
   }
 
-  protected onChangeShowSelectBoxList(): void {
+  onChangeShowSelectBoxList(): void {
     this.isShowSelectBoxList = !this.isShowSelectBoxList;
   }
 
-  protected onChangeSearchRange(range, event: MouseEvent): void {
+  onChangeSearchRange(range, event: MouseEvent): void {
     // prevent event bubbling
     event.stopImmediatePropagation();
     if (this.selectedSearchRange.value !== range.value) {
@@ -66,13 +66,13 @@ export class ExploreDataSearchComponent extends AbstractComponent {
     }
   }
 
-  protected onChangeSearchKeyword(value: string): void {
+  onChangeSearchKeyword(value: string): void {
     this.searchKeyword = value;
     this.exploreDataModelService.searchKeyword = value;
     this._changedSearch();
   }
 
-  protected closeSelectBoxList(): void {
+  closeSelectBoxList(): void {
     if (this.isShowSelectBoxList === true) {
       this.isShowSelectBoxList = undefined;
     }
