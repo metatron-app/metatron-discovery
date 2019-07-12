@@ -1,49 +1,75 @@
 <div class="ddp-wrap-tab-contents" *ngIf="metadataId">
   <div class="ddp-ui-tab-contents">
     <div class="ddp-data-details ddp-ui-preview-contents" (scroll)="onScroll()">
-      <table class="ddp-table-form ddp-table-type2 ddp-table-details ddp-inherit">
+      <table class="ddp-table-form ddp-table-type2 ddp-table-details">
         <colgroup>
-          <col width="300px">
-          <col width="300px">
-          <col width="150px">
-          <col width="150px">
-          <col width="300px">
-          <col width="150px">
-          <col width="200px">
-          <col width="200px">
+<!--          <col [style.width]="'100px'" *ngIf="isDatasourceTypeMetadata()">-->
+          <col [style.width]="'160px'">
+          <col [style.width]="'180px'">
+          <col [style.width]="'180px'">
+          <col [style.width]="'150px'">
+          <col [style.width]="'150px'">
+          <col [style.width]="'200px'">
+          <col [style.width]="'150px'">
+          <col [style.width]="'300px'">
         </colgroup>
         <thead>
         <tr>
+          <!-- role (only datasource) -->
+<!--          <th *ngIf="isDatasourceTypeMetadata()">-->
+<!--            <div class="ddp-th-long">-->
+<!--            <span class="ddp-th-txt">-->
+<!--              {{'msg.comm.th.role' | translate}}-->
+<!--            </span>-->
+<!--            </div>-->
+<!--          </th>-->
+          <!-- //role (only datasource) -->
           <th>
-            Column name
-          </th>
-          <th>
-            Logical Column Name
-          </th>
-          <th>
-            Column Dictionary
-          </th>
-          <th>
-            Type
-          </th>
-          <th>
-            Format
-          </th>
-          <th>
-            Code table
-          </th>
-          <th>
-            Description
-          </th>
-          <th> Column popularity
+            {{'msg.metadata.th.column.popularity' | translate}}
             <div class="ddp-wrap-hover-info"><em class="ddp-icon-info3"></em>
               <component-popularity-layer></component-popularity-layer>
             </div>
+          </th>
+          <th>
+            {{'msg.metadata.th.physical.name' | translate}}
+          </th>
+          <th>
+            {{'msg.metadata.th.name' | translate}}
+            <div class="ddp-wrap-hover-info"><em class="ddp-icon-info3"></em>
+              <component-logical-name-layer></component-logical-name-layer>
+            </div>
+          </th>
+          <th>
+            {{'msg.metadata.th.dictionary' | translate}}
+          </th>
+          <th>
+            {{'msg.metadata.th.logical.type'| translate}}
+          </th>
+          <th>
+            {{'msg.metadata.th.format'| translate}}
+          </th>
+          <th>
+            {{'msg.storage.ui.th.code.table' | translate}}
+          </th>
+          <th>
+            {{'msg.storage.ui.th.description' | translate}}
           </th>
         </tr>
         </thead>
         <tbody>
         <tr *ngFor="let column of columns; let index=index">
+          <td *ngIf="isDatasourceTypeMetadata()">
+          <span class="ddp-box-tag-value"
+                [class.ddp-measure]="column.role === ROLE.MEASURE"
+                [class.ddp-dimension]="column.role === ROLE.DIMENSION || column.role === ROLE.TIMESTAMP">
+            {{column.role === ROLE.MEASURE ? ('msg.comm.name.mea' | translate) : ('msg.comm.name.dim' | translate)}}
+          </span>
+          </td>
+          <td class="">
+            <div class="ddp-bar">
+              <span [style.width]="column.popularity ? column.popularity + '%' : 0 + '%'"></span>
+            </div>
+          </td>
           <td>
             {{column.physicalName}}
           </td>
@@ -54,7 +80,9 @@
             {{column.dictionary? column.dictionary.name : '-'}}
           </td>
           <td>
-            <em class="ddp-icon-type-{{getFieldTypeIconClass(column.type)}}"></em>{{column.type}}
+            <span class="ddp-txt-icon">
+              <em class="{{getFieldTypeIconClass(column.type)}}"></em>{{getConvertedType(column)}}
+            </span>
           </td>
           <td>
             {{column.format? column.format.format : '-'}}
@@ -106,11 +134,6 @@
             </div>
 
           <td>{{column.description || '-'}}</td>
-          <td class="">
-            <div class="ddp-bar">
-              <span [style.width]="column.popularity ? column.popularity + '%' : 0 + '%'"></span>
-            </div>
-          </td>
         </tr>
 
         </tbody>

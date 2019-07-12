@@ -4073,6 +4073,7 @@
   "msg.metadata.th.physical.name" : "컬럼 이름",
   "msg.metadata.th.physical.role" : "물리 롤",
   "msg.metadata.th.name" : "논리 컬럼 이름",
+  "msg.metadata.th.format" : "포맷",
   "msg.metadata.th.column.popularity" : "컬럼 인기도",
   "msg.metadata.th.column.popularity.tooltip.title" : "컬럼 인기도란?",
   "msg.metadata.th.column.popularity.tooltip.desc" : "컬럼 인기도란 개별 컬럼이 얼마나 많이 사용되는지 알 수 있는 척도입니다 아래 항목들이 인기도를 측정하기 위한 기준들 입니다.",

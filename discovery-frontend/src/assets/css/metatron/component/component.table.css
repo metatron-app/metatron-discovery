@@ -155,7 +155,6 @@ table.ddp-table-type2 tbody tr > td.ddp-disabled {cursor:no-drop !important;}
 table.ddp-table-type2 tbody tr > td.ddp-disabled:hover {background:none;}
 table.ddp-table-type2 tbody tr > td.ddp-disabled:before {position:absolute; top:0; right:0; bottom:0; left:0; z-index:15; content:''; cursor:no-drop;}
 table.ddp-table-type2 tbody tr > td.ddp-disabled em.ddp-bg-select {display:none !important;}
-
 table.ddp-table-type2 tbody tr.ddp-selected > td {padding:12px 10px 13px 10px;}
 table.ddp-table-type2 tbody tr.ddp-selected > td:first-of-type {padding-left:9px;}
 table.ddp-table-type2 tbody tr.ddp-selected > td:last-of-type {padding-right:9px;}

@@ -3,12 +3,20 @@ import {MetadataService} from "../../../meta-data-management/metadata/service/me
 import {MetadataColumn} from "../../../domain/meta-data-management/metadata-column";
 import {CodeTableService} from "../../../meta-data-management/code-table/service/code-table.service";
 import {AbstractComponent} from "../../../common/component/abstract.component";
+import {ConstantService} from "../../../shared/datasource-metadata/service/constant.service";
+import {Metadata} from "../../../domain/meta-data-management/metadata";
+import {Type} from "../../../shared/datasource-metadata/domain/type";
 
 @Component({
   selector: 'explore-metadata-columns',
   templateUrl: './metadata-columns.component.html',
 })
 export class MetadataColumnsComponent extends AbstractComponent {
+
+  readonly typeList = this.constant.getTypeFilters();
+  public readonly ROLE = Type.Role;
+
+  @Input() readonly metadata: Metadata;
 
   @Input()
   public metadataId: string;
@@ -24,10 +32,11 @@ export class MetadataColumnsComponent extends AbstractComponent {
 
   constructor(protected element: ElementRef,
               protected injector: Injector,
-              private _metadataService: MetadataService, private _codeTableService: CodeTableService) {
+              private constant: ConstantService,
+              private _metadataService: MetadataService,
+              private _codeTableService: CodeTableService) {
     super(element,injector);
   }
-
 
   ngOnInit() {
     if (this.metadataId) {
@@ -35,6 +44,13 @@ export class MetadataColumnsComponent extends AbstractComponent {
     }
   }
 
+  getConvertedType(column: MetadataColumn) {
+    return this.typeList.find(type => type.value === column.type).label;
+  }
+
+  isDatasourceTypeMetadata(): boolean {
+    return false;
+  }
 
   /**
    * Code Table 상세 팝업 오픈
