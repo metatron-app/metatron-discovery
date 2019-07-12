@@ -12,7 +12,16 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit} from '@angular/core';
+import {
+  Component, ComponentFactoryResolver, ComponentRef,
+  ElementRef,
+  HostListener,
+  Injector,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  ViewContainerRef
+} from '@angular/core';
 import {AbstractComponent} from '../../common/component/abstract.component';
 import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
 import {Metadata} from "../../domain/meta-data-management/metadata";
@@ -20,14 +29,19 @@ import * as _ from 'lodash';
 import {CatalogService} from "../../meta-data-management/catalog/service/catalog.service";
 import {Catalog} from "../../domain/catalog/catalog";
 import {StringUtil} from "../../common/util/string.util";
+import {MetadataContainerComponent} from "./popup/metadata-container.component";
 
 @Component({
   selector: 'app-exploredata-view',
   templateUrl: './explore-data.component.html',
+  entryComponents: [MetadataContainerComponent]
 })
 export class ExploreDataComponent extends AbstractComponent implements OnInit, OnDestroy {
 
-  selectedMetadata: Metadata;
+  @ViewChild('component_metadata_detail', {read: ViewContainerRef}) entry: ViewContainerRef;
+
+  entryRef: ComponentRef<MetadataContainerComponent>;
+
   selectedCatalog: Catalog.Tree;
 
   // data
@@ -46,6 +60,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   // 생성자
   constructor(private metadataService: MetadataService,
               private catalogService: CatalogService,
+              private resolver: ComponentFactoryResolver,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -116,11 +131,12 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   }
 
   onClickMetadata(metadata: Metadata) {
-    this.selectedMetadata = metadata
-  }
-
-  onCloseMetadataContainer() {
-    this.selectedMetadata = null;
+    this.entryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(MetadataContainerComponent));
+    this.entryRef.instance.initial(metadata.id);
+    this.entryRef.instance.closedPopup.subscribe(() => {
+      // close
+      this.entryRef.destroy();
+    });
   }
 
   private async _setMetadataSourceTypeCount() {

@@ -4072,6 +4072,7 @@
   "msg.metadata.th.physical.name" : "Column name",
   "msg.metadata.th.physical.role" : "Physical role",
   "msg.metadata.th.name" : "Logical column name",
+  "msg.metadata.th.format" : "Format",
   "msg.metadata.th.column.popularity" : "Column popularity",
   "msg.metadata.th.column.popularity.tooltip.title" : "What is column popularity?",
   "msg.metadata.th.column.popularity.tooltip.desc" : "The column popularity indicates how much each column is being used. The list below is a set of criteria for measuring popularity.",

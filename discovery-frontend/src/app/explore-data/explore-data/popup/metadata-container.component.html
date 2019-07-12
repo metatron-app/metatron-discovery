@@ -1,19 +1,19 @@
-<div class="ddp-pop-meta-detail" style="z-index: 125" *ngIf="metadata">
+<div class="ddp-pop-meta-detail" style="z-index: 125">
   <!-- popup -->
-  <div class="ddp-box-meta">
+  <div class="ddp-box-meta" *ngIf="isExistMetadata()">
     <a href="javascript:" class="ddp-btn-close" (click)="onClickCloseBtn()"></a>
     <!-- top -->
     <div class="ddp-pop-top">
       <!-- title -->
       <div class="ddp-ui-title">
-        <component-metadata-type-box-tag [metadata]="metadata"></component-metadata-type-box-tag>
-        <span class="ddp-label-title">{{metadata.name}}</span>
+        <component-metadata-type-box-tag [metadata]="metadataDetailData"></component-metadata-type-box-tag>
+        <span class="ddp-label-title">{{metadataDetailData.name}}</span>
         <!-- info -->
         <component-explore-data-information></component-explore-data-information>
         <!-- //info -->
         <!--<em class="ddp-icon-control-fav ddp-selected"></em>-->
         <div class="ddp-data-name">
-          by <span class="ddp-txt-name ddp-cursor" (click)="onClickCreatedBy()">{{metadata.createdBy.fullName}}</span>
+          by <span class="ddp-txt-name ddp-cursor" (click)="onClickCreatedBy()">{{metadataDetailData.createdBy.fullName}}</span>
         </div>
       </div>
       <!-- //title -->
@@ -39,22 +39,18 @@
       </div>
       <!-- //tab -->
 
-      <explore-metadata-overview
-        *ngIf="selectedTab === 0"
-        [metadataId]="metadata.id">
-      </explore-metadata-overview>
+      <explore-metadata-overview *ngIf="selectedTab === 0" [metadata]="metadataDetailData"></explore-metadata-overview>
 
       <explore-metadata-columns
         *ngIf="selectedTab === 1"
-        [metadataId]="metadata.id">
+        [metadataId]="metadataId">
       </explore-metadata-columns>
 
-      <explore-metadata-sample-data [metadata]="metadata" *ngIf="selectedTab === 2"></explore-metadata-sample-data>
+      <explore-metadata-sample-data [metadata]="metadataDetailData" *ngIf="selectedTab === 2"></explore-metadata-sample-data>
     </div>
-
   </div>
   <!-- //popup -->
-
 </div>
 
+<!--<ng-template #component_create_workbench></ng-template>-->
 <explore-workspace-uses></explore-workspace-uses>

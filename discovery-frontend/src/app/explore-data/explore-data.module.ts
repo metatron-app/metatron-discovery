@@ -41,6 +41,7 @@ import {ConstantService} from "../shared/datasource-metadata/service/constant.se
 import {MetadataModelService} from "../meta-data-management/metadata/service/metadata.model.service";
 import {ExploreDataInformationComponent} from "./explore-data/component/explore-data-information.component";
 import {ExploreDataUserCardComponent} from "./explore-data/component/explore-data-user-card.component";
+import {LogicalNameLayerComponent} from "./explore-data/component/logical-name-layer.component";
 
 @NgModule({
   imports: [
@@ -57,6 +58,7 @@ import {ExploreDataUserCardComponent} from "./explore-data/component/explore-dat
     ExploreDataUserCardComponent,
     MetadataTypeBoxTagComponent,
     PopularityLayerComponent,
+    LogicalNameLayerComponent,
     BannerComponent,
     CardComponent,
     CatalogFolderComponent,

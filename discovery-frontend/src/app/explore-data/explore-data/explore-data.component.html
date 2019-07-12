@@ -62,8 +62,4 @@
     <explore-catalog-main *ngIf="mode === EXPLORE_MODE.CATALOG" (clickedMetadata)="onClickMetadata($event)" [catalog]="selectedCatalog"></explore-catalog-main>
   </div>
 </div>
-<explore-metadata-container
-  *ngIf="selectedMetadata?.id"
-  [metadata]="selectedMetadata"
-  (closeMetadataContainer)="onCloseMetadataContainer()">
-</explore-metadata-container>
+<ng-template #component_metadata_detail></ng-template>

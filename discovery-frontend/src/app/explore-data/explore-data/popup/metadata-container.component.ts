@@ -1,76 +1,78 @@
 import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Injector,
-  Input,
-  Output,
+  Component, ComponentFactoryResolver,
+  ElementRef, EventEmitter,
+  Injector, Output,
   ViewChild,
 } from '@angular/core';
 import {Metadata} from "../../../domain/meta-data-management/metadata";
-import * as $ from "jquery";
 import {CommonUtil} from "../../../common/util/common.util";
 import {SYSTEM_PERMISSION} from "../../../common/permission/permission";
 import {WorkspaceUsesComponent} from "./workspace-uses.component";
 import {AbstractComponent} from "../../../common/component/abstract.component";
+import {MetadataService} from "../../../meta-data-management/metadata/service/metadata.service";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'explore-metadata-container',
   templateUrl: './metadata-container.component.html',
+  // entryComponents: [CreateWorkbenchComponent]
 })
 export class MetadataContainerComponent extends AbstractComponent {
 
-  @Input()
-  public metadata: Metadata;
+  metadataId: string;
+  metadataDetailData: Metadata;
+
+  @Output() readonly closedPopup = new EventEmitter();
+
+  // @ViewChild('component_create_workbench', {read: ViewContainerRef}) readonly entry: ViewContainerRef;
+  //
+  // entryRef: ComponentRef<CreateWorkbenchComponent>;
 
   @ViewChild(WorkspaceUsesComponent)
   workspaceUsesComp: WorkspaceUsesComponent;
 
-  @Output() readonly closeMetadataContainer = new EventEmitter();
-
   public selectedTab: number = 0;
 
-  public tabs: MetadataTab[];
+  public tabs: MetadataTab[] = [
+    {id: 0, label: this.translateService.instant('msg.explore.ui.detail.tab.overview'), value: 'Overview'},
+    {id: 1, label: this.translateService.instant('msg.explore.ui.detail.tab.columns'), value: 'Columns'},
+    {id: 2, label: this.translateService.instant('msg.explore.ui.detail.tab.sample'), value: 'Sample data'},
+  ];
 
   public isShowInfo: boolean = false;
 
   public infoList: MetadataInformation[];
 
-  private _$body = $('body');
-
-  constructor(
-    protected element: ElementRef,
-    protected injector: Injector) {
+  constructor(private resolver: ComponentFactoryResolver,
+              private metadataService: MetadataService,
+              protected element: ElementRef,
+              protected injector: Injector) {
     super(element, injector);
   }
 
 
   ngOnInit() {
-    this.removeBodyScrollHidden();
-    this._initView();
-  }
-
-  ngOnDestroy() {
     this.addBodyScrollHidden();
   }
 
+  ngOnDestroy() {
+    this.removeBodyScrollHidden();
+  }
 
-  private _initView() {
-    // remove outer scroll
-    this._$body.addClass('body-hidden');
+  initial(metadataId: string): void {
+    this.metadataId = metadataId;
+    this._setMetadataDetail(this.metadataId);
+  }
 
-    this.tabs = [
-      {id: 0, label: this.translateService.instant('msg.explore.ui.detail.tab.overview'), value: 'Overview'},
-      {id: 1, label: this.translateService.instant('msg.explore.ui.detail.tab.columns'), value: 'Columns'},
-      {id: 2, label: this.translateService.instant('msg.explore.ui.detail.tab.sample'), value: 'Sample data'},
-    ];
+  isExistMetadata(): boolean {
+    return !_.isNil(this.metadataDetailData);
   }
 
   /**
    * When X button is clicked
    */
   public onClickCloseBtn() {
-    this.closeMetadataContainer.emit();
+    this.closedPopup.emit();
   }
 
 
@@ -94,8 +96,14 @@ export class MetadataContainerComponent extends AbstractComponent {
    * Move to management > metadata detail
    */
   public onClickEditData() {
-    this.router.navigate(['management/metadata/metadata', this.metadata.id]).then();
+    this.router.navigate(['management/metadata/metadata', this.metadataId]).then();
   }
+
+  // onClickCreateWorkbench(): void {
+  //   this.entry.clear();
+  //   this.entryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(CreateWorkbenchComponent));
+  //   this.entryRef.instance.init();
+  // }
 
 
   /**
@@ -110,6 +118,15 @@ export class MetadataContainerComponent extends AbstractComponent {
     this.workspaceUsesComp.init({});
   }
 
+  private _setMetadataDetail(metadataId: string) {
+    this.loadingShow();
+    this.metadataService.getDetailMetaData(metadataId)
+      .then((result) => {
+        this.loadingHide();
+        this.metadataDetailData = result;
+      })
+      .catch(error => this.commonExceptionHandler(error));
+  }
 
 }
 
