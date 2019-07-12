@@ -24,6 +24,10 @@ export class RecentQueriesComponent implements OnInit {
     this.isShow = true;
   }
 
+  test() {
+    this.queries = 'tttttttt';
+  }
+
   ngOnInit() {
   }
 

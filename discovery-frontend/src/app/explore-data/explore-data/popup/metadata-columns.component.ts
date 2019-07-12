@@ -1,14 +1,14 @@
 import {Component, ElementRef, Injector, Input, OnInit, QueryList, ViewChildren} from '@angular/core';
 import {MetadataService} from "../../../meta-data-management/metadata/service/metadata.service";
 import {MetadataColumn} from "../../../domain/meta-data-management/metadata-column";
-import {AbstractPopupComponent} from "../../../common/component/abstract-popup.component";
 import {CodeTableService} from "../../../meta-data-management/code-table/service/code-table.service";
+import {AbstractComponent} from "../../../common/component/abstract.component";
 
 @Component({
   selector: 'explore-metadata-columns',
   templateUrl: './metadata-columns.component.html',
 })
-export class MetadataColumnsComponent extends AbstractPopupComponent implements OnInit {
+export class MetadataColumnsComponent extends AbstractComponent {
 
   @Input()
   public metadataId: string;

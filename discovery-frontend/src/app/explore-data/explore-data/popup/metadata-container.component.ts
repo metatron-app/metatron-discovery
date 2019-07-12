@@ -4,24 +4,21 @@ import {
   EventEmitter,
   Injector,
   Input,
-  OnInit,
   Output,
   ViewChild,
 } from '@angular/core';
 import {Metadata} from "../../../domain/meta-data-management/metadata";
-import {AbstractPopupComponent} from "../../../common/component/abstract-popup.component";
 import * as $ from "jquery";
-import {RecentQueriesComponent} from "./recent-queries.component";
 import {CommonUtil} from "../../../common/util/common.util";
 import {SYSTEM_PERMISSION} from "../../../common/permission/permission";
 import {WorkspaceUsesComponent} from "./workspace-uses.component";
+import {AbstractComponent} from "../../../common/component/abstract.component";
 
 @Component({
   selector: 'explore-metadata-container',
   templateUrl: './metadata-container.component.html',
-  entryComponents: [RecentQueriesComponent]
 })
-export class MetadataContainerComponent extends AbstractPopupComponent implements OnInit {
+export class MetadataContainerComponent extends AbstractComponent {
 
   @Input()
   public metadata: Metadata;
@@ -29,8 +26,7 @@ export class MetadataContainerComponent extends AbstractPopupComponent implement
   @ViewChild(WorkspaceUsesComponent)
   workspaceUsesComp: WorkspaceUsesComponent;
 
-  @Output()
-  public closeMetadataContainer = new EventEmitter();
+  @Output() readonly closeMetadataContainer = new EventEmitter();
 
   public selectedTab: number = 0;
 
@@ -40,6 +36,8 @@ export class MetadataContainerComponent extends AbstractPopupComponent implement
 
   public infoList: MetadataInformation[];
 
+  private _$body = $('body');
+
   constructor(
     protected element: ElementRef,
     protected injector: Injector) {
@@ -48,31 +46,24 @@ export class MetadataContainerComponent extends AbstractPopupComponent implement
 
 
   ngOnInit() {
-
+    this.removeBodyScrollHidden();
     this._initView();
+  }
 
+  ngOnDestroy() {
+    this.addBodyScrollHidden();
   }
 
 
-
-
   private _initView() {
-
     // remove outer scroll
-    $('body').removeClass('body-hidden').addClass('body-hidden');
+    this._$body.addClass('body-hidden');
 
     this.tabs = [
       {id: 0, label: this.translateService.instant('msg.explore.ui.detail.tab.overview'), value: 'Overview'},
       {id: 1, label: this.translateService.instant('msg.explore.ui.detail.tab.columns'), value: 'Columns'},
       {id: 2, label: this.translateService.instant('msg.explore.ui.detail.tab.sample'), value: 'Sample data'},
     ];
-
-    this._setMetadataInformation(this.metadata);
-  }
-
-
-  private _setMetadataInformation(metadata: Metadata) {
-    this.infoList = [];
   }
 
   /**
@@ -110,7 +101,7 @@ export class MetadataContainerComponent extends AbstractPopupComponent implement
   /**
    * Returns True is current user is manager
    */
-  public isManager() {
+  public isManagerAuth() {
     let cookiePermission: string = CommonUtil.getCurrentPermissionString();
     return (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_DATASOURCE.toString())) || (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_METADATA.toString()));
   }

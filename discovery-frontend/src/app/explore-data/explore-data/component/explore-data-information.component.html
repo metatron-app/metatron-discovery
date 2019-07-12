@@ -1,0 +1,41 @@
+<div class="ddp-wrap-info" [class.ddp-selected]="isShowInformation" (clickOutside)="closeInformation()">
+  <em class="ddp-icon-info" (click)="onChangeShowInformation()"></em>
+  <div class="ddp-box-layout4 type-info">
+    <a href="javascript:" class="ddp-icon-close" (click)="closeInformation(); $event.stopImmediatePropagation()"></a>
+    <div class="ddp-data-title">
+      Information
+    </div>
+    <div class="ddp-data-det">
+      <table class="ddp-table-pop">
+        <colgroup>
+          <col width="130px">
+          <col width="">
+        </colgroup>
+        <tbody>
+        <tr>
+          <th>Data type</th>
+          <td>Datasource (My file)</td>
+        </tr>
+        <tr>
+          <th>Size</th>
+          <td>3.12 MB
+          </td>
+        </tr>
+        <tr>
+          <th>Data Range</th>
+          <td>yyyy-MM-dd ~ yyyy-MM-dd</td>
+        </tr>
+        <tr>
+          <th>Segment Granularity</th>
+          <td>DAY</td>
+        </tr>
+        <tr>
+          <th>Query Granularity</th>
+          <td>None</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>

@@ -37,6 +37,10 @@ import {ExploreCatalogMainComponent} from "./explore-data/explore-catalog-main.c
 import {CatalogService} from "../meta-data-management/catalog/service/catalog.service";
 import {PopularityLayerComponent} from "./explore-data/component/popularity-layer.component";
 import {MetadataTypeBoxTagComponent} from "./explore-data/component/metadata-type-box-tag.component";
+import {ConstantService} from "../shared/datasource-metadata/service/constant.service";
+import {MetadataModelService} from "../meta-data-management/metadata/service/metadata.model.service";
+import {ExploreDataInformationComponent} from "./explore-data/component/explore-data-information.component";
+import {ExploreDataUserCardComponent} from "./explore-data/component/explore-data-user-card.component";
 
 @NgModule({
   imports: [
@@ -49,6 +53,8 @@ import {MetadataTypeBoxTagComponent} from "./explore-data/component/metadata-typ
     ]),
   ],
   declarations: [
+    ExploreDataInformationComponent,
+    ExploreDataUserCardComponent,
     MetadataTypeBoxTagComponent,
     PopularityLayerComponent,
     BannerComponent,
@@ -71,7 +77,9 @@ import {MetadataTypeBoxTagComponent} from "./explore-data/component/metadata-typ
     CatalogService,
     DatasourceService,
     TimezoneService,
-    CodeTableService
+    CodeTableService,
+    ConstantService,
+    MetadataModelService
   ],
 })
 export class ExploreDataModule {

@@ -113,21 +113,7 @@
             <!-- user -->
             <ul class="ddp-list-user">
               <li>
-                <div class="ddp-box-user">
-                  <div class="ddp-data-photo">
-                    <img src="../images/img_profile.png">
-                  </div>
-                  <div class="ddp-wrap-data">
-
-                    <div class="ddp-data-name">
-                      <em class="ddp-icon-control-fav ddp-fright"></em>
-                      <span class="ddp-txt-name" title="JoJohnJohnJohnJohnJohJoJohnJohnJohnJohnJohnJohnhnnJohnhn">JoJohnJohnJohnJohnJohJoJohnJohnJohnJohnJohnJohnhnnJohnhn Sm</span>
-                    </div>
-                    <div class="ddp-data-info" title="Information > DescriptionInformation > Description > Description">Information &gt; DescriptionInformation &gt; Description &gt; Description</div>
-                    <div class="ddp-data-date">yyyy-mm-dd hh:mm:ss</div>
-                  </div>
-
-                </div>
+                <component-explore-data-user-card [userName]="'userName'" [dateTime]="'1991-12-25'"></component-explore-data-user-card>
               </li>
               <li>
                 <div class="ddp-box-user">
@@ -315,4 +301,5 @@
   </div>
 </div>
 
-<explore-recent-queries></explore-recent-queries>
+<ng-template #component_recent_queries></ng-template>
+<!--<explore-recent-queries></explore-recent-queries>-->
