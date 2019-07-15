@@ -184,14 +184,21 @@ public class MetadataController {
 
   @RequestMapping(value = "/metadatas/tags", method = RequestMethod.GET)
   public ResponseEntity <?> findTagsInMetadata(@RequestParam(value = "nameContains", required = false) String nameContains,
-                                               @RequestParam(value = "projection", required = false, defaultValue = "default") String projection) {
+                                               @RequestParam(value = "projection", required = false, defaultValue = "default") String projection,
+                                               Pageable pageable) {
 
     Class projectionCls = tagProjections.getProjectionByName(projection);
     List tags;
+
+    if(pageable.getSort() == null || !pageable.getSort().iterator().hasNext()) {
+      Sort newSort = new Sort(Sort.Direction.ASC, "name");
+      pageable = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(), newSort);
+    }
+
     if(projectionCls == TagProjections.TreeProjection.class){
-      tags = tagService.getTagsWithCount(Tag.Scope.DOMAIN, DomainType.METADATA, StringUtils.isEmpty(nameContains) ? "" : nameContains);
+      tags = tagService.getTagsWithCount(Tag.Scope.DOMAIN, DomainType.METADATA, nameContains, pageable.getSort());
     } else {
-      tags = tagService.findByTagsWithDomain(Tag.Scope.DOMAIN, DomainType.METADATA, nameContains);
+      tags = tagService.findByTagsWithDomain(Tag.Scope.DOMAIN, DomainType.METADATA, nameContains, pageable.getSort());
     }
 
     return ResponseEntity.ok(
