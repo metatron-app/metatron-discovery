@@ -8716,7 +8716,7 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
 .ddp-layout-meta.ddp-scroll .ddp-ui-contents-top .ddp-ui-tag {display:inline-block; float:left; padding:33px 0;}
 .ddp-layout-meta.ddp-scroll .ddp-meta-search {position:absolute; top:15px; right:24px; margin-top:0;}
 .ddp-layout-meta.ddp-scroll .ddp-ui-contents-list.ddp-type {padding-top:134px;}
-
+.ddp-layout-meta.ddp-scroll .ddp-wrap-catalogs {top:134px;}
 .ddp-layout-meta .ddp-wrap-catalogs {top:245px; border-top:1px solid rgba(44,34,141,0.1); border-right:1px solid rgba(44,34,141,0.1);
   -moz-box-shadow: 0 1px 3px rgba(0,0,0,.15); /* drop shadow */
   -webkit-box-shadow: 0 1px 3px rgba(0,0,0,.15); /* drop shadow */
