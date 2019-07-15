@@ -148,10 +148,10 @@ public class MetadataController {
     List<String> targetUserId = null;
     if(StringUtils.isNotEmpty(keyword)){
       targetUser = userRepository.findByFullNameContainingIgnoreCaseOrIdContainingIgnoreCase(keyword, keyword);
-      targetUserId = targetUser.stream().map(user -> user.getId()).collect(Collectors.toList());
+      targetUserId = targetUser.stream().map(user -> user.getUsername()).collect(Collectors.toList());
     } else if(StringUtils.isNotEmpty(creatorContains)){
       targetUser = userRepository.findByFullNameContainingIgnoreCaseOrIdContainingIgnoreCase(creatorContains, creatorContains);
-      targetUserId = targetUser.stream().map(user -> user.getId()).collect(Collectors.toList());
+      targetUserId = targetUser.stream().map(user -> user.getUsername()).collect(Collectors.toList());
     }
 
     Page <Metadata> metadatas = metadataRepository.searchMetadatas(keyword, searchSourceType, catalogId, tag,
