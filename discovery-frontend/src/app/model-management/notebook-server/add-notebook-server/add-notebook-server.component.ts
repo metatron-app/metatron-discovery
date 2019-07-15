@@ -58,6 +58,11 @@ export class AddNotebookServerComponent extends AbstractComponent implements OnI
 
   public isShow = false;
 
+  // input error
+  public isUrlReqError: boolean;
+  public isUrlValidError: boolean;
+  public isNameError: boolean;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -98,6 +103,8 @@ export class AddNotebookServerComponent extends AbstractComponent implements OnI
     this.notebook = new NoteBook();
     this.mode = 'create';
     this.disabledFlag = false;
+
+    this.inputErrorInitialize();
   }
 
   // 업데이트.
@@ -112,11 +119,19 @@ export class AddNotebookServerComponent extends AbstractComponent implements OnI
     this.selectedNotebookServerType = notebook.type;
     this.mode = 'update';
     this.disabledFlag = true;
+
+    this.inputErrorInitialize();
   }
 
   // 닫기
   public close() {
     this.isShow = false;
+  }
+
+  public inputErrorInitialize(): void {
+    this.isUrlReqError = undefined;
+    this.isUrlValidError = undefined;
+    this.isNameError = undefined;
   }
 
   // selected 박스 선택시.
@@ -131,17 +146,19 @@ export class AddNotebookServerComponent extends AbstractComponent implements OnI
     this.notebook.name  = this.notebook.name  ? this.notebook.name.trim() : ''; // trim 처리
 
     if (this.notebook.url === '' || isUndefined(this.notebook.url)) {
-      Alert.warning(this.translateService.instant('msg.storage.alert.url.required'));
-      return;
+      this.isUrlReqError = true;
     }
 
-    if (!StringUtil.isURL(this.notebook.url)) {
-      Alert.warning(this.translateService.instant('msg.dp.ui.invalid.url'));
+    if (!this.isUrlReqError && !StringUtil.isURL(this.notebook.url)) {
+      this.isUrlValidError = true;
       return;
     }
 
     if (this.notebook.name === '' || isUndefined(this.notebook.name)) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.name.error'));
+      this.isNameError = true;
+    }
+
+    if (this.isUrlReqError || this.isUrlValidError || this.isNameError) {
       return;
     }
 
@@ -175,7 +192,6 @@ export class AddNotebookServerComponent extends AbstractComponent implements OnI
           Alert.error(error.message);
         });
     }
-
 
   }
 
