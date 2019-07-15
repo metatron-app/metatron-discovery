@@ -37,7 +37,7 @@ public interface TagRepository extends JpaRepository<Tag, String>,
       "LEFT JOIN t.domains d " +
       "where t.scope = :scope " +
       "AND t.domainType = :domainType " +
-      "AND t.name LIKE %:nameContains% " +
+      "AND UPPER(t.name) LIKE CONCAT('%', UPPER(:nameContains), '%') " +
       "GROUP BY t.id, t.name")
   List<TagTreeDTO> findWithCount(@Param("scope") Tag.Scope scope, @Param("domainType") DomainType domainType, @Param("nameContains") String nameContains);
 }
