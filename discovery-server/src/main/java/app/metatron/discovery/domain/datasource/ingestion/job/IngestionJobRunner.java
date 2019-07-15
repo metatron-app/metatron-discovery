@@ -236,14 +236,14 @@ public class IngestionJobRunner {
       results.put("summary", summary);
       results.put("history", history);
 
+      // create metadata
+      createMetadata(dataSource);
+
       ProgressResponse successResponse = new ProgressResponse(100, END_INGESTION_JOB);
       successResponse.setResults(results);
 
       sendTopic(sendTopicUri, successResponse);
       setSuccessProgress(history.getId(), summary);
-
-      // create metadata
-      createMetadata(dataSource);
 
     } catch (Exception e) {
 
