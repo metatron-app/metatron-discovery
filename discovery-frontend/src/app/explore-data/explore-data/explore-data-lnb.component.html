@@ -29,6 +29,7 @@
       <div class="ddp-ui-searching">
         <em class="ddp-icon-search"></em>
         <component-input [placeHolder]="'msg.explore.ph.tab.catalogs.search' | translate" (changeValue)="onChangeCatalogSearchKeyword($event)" [value]="catalogSearchKeyword" [autoFocus]="false"></component-input>
+        <a href="javascript:" class="ddp-btn-delete" *ngIf="!isEmptyCatalogSearchKeyword()" (click)="onChangeCatalogSearchKeyword('')"></a>
       </div>
       <!-- //search -->
       <div class="ddp-ui-catalog-contents">
@@ -56,6 +57,7 @@
       <div class="ddp-ui-searching">
         <em class="ddp-icon-search"></em>
         <component-input [placeHolder]="'msg.explore.ph.tab.tags.search' | translate" (changeValue)="onChangeTagSearchKeyword($event)" [value]="tagSearchKeyword" [autoFocus]="false"></component-input>
+        <a href="javascript:" class="ddp-btn-delete" *ngIf="!isEmptyTagSearchKeyword()" (click)="onChangeTagSearchKeyword('')"></a>
       </div>
       <!-- //search -->
       <div class="ddp-ui-tags">

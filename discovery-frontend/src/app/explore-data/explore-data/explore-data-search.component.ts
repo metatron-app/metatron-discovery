@@ -16,6 +16,7 @@ import {AbstractComponent} from "../../common/component/abstract.component";
 import {Component, ElementRef, EventEmitter, Injector, Output} from "@angular/core";
 import {ExploreDataModelService} from "./service/explore-data-model.service";
 import {ExploreDataConstant} from "../constant/explore-data-constant";
+import {StringUtil} from "../../common/util/string.util";
 
 @Component({
   selector: 'component-explore-search',
@@ -49,6 +50,10 @@ export class ExploreDataSearchComponent extends AbstractComponent {
   ngOnDestroy() {
     super.ngOnDestroy();
     this.exploreDataModelService.initialSearchData();
+  }
+
+  isEmptySearchKeyword(): boolean {
+    return StringUtil.isEmpty(this.searchKeyword);
   }
 
   onChangeShowSelectBoxList(): void {

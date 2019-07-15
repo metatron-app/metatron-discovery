@@ -8531,6 +8531,8 @@ table.ddp-table-type2 tbody tr td table.ddp-table-code tr td {background:none; c
 .ddp-wrap-catalogs .ddp-btn-folding .ddp-ui-tooltip-info.ddp-down .ddp-icon-view-top {left:16px; right:inherit;}
 .ddp-ui-searching .ddp-icon-search {display:inline-block; position:absolute; top:50%; left:11px; margin-top:-9px;  width:20px; height:19px; background:url(../images/btn_search.png) no-repeat;}
 .ddp-ui-searching input {display:block; width:100%; padding:8px 0; border:none; color:#666db7; font-size:14px; line-height:21px; background:none;}
+.ddp-ui-searching .ddp-btn-delete {display:inline-block; position:absolute; top:50%; right:5px; margin-top:-8px; width:15px; height:15px; background:url(../images/btn_close.png) no-repeat; background-position:left -132px;}
+
 .ddp-ui-catalog-contents {position:absolute; top:114px; left:0; right:0;bottom:0; overflow:auto;}
 .ddp-ui-catalog-contents.ddp-type {top:38px}
 .ddp-ui-catalog-contents.ddp-type .ddp-ui-favorite {border-top:none}
@@ -8702,8 +8704,8 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
 .ddp-meta-search .ddp-search-select.ddp-selected .ddp-wrap-popup2 {display:block;}
 .ddp-meta-search .ddp-search-b {display:inline-block; position:relative; width:515px; padding:0 0 0 40px; box-sizing:border-box;}
 .ddp-meta-search .ddp-search-b .ddp-icon-search {display:inline-block; position:absolute; top:50%; left:10px; margin-top:-9px; width:17px; height:17px; background:url(../images/btn_search.png) no-repeat; background-position:left -20px;}
-.ddp-meta-search .ddp-search-b input {display:block; width:100%; padding:15px 10px 15px 0;  font-size:16px; color:#666db7; background:none; box-sizing:border-box; border:none; font-family:'Titillium Web';}
-
+.ddp-meta-search .ddp-search-b input {display:block; width:100%; padding:15px 35px 15px 0;  font-size:16px; color:#666db7; background:none; box-sizing:border-box; border:none; font-family:'Titillium Web';}
+.ddp-meta-search .ddp-search-b .ddp-btn-delete {display:inline-block; position:absolute; top:50%; right:10px; margin-top:-8px; width:15px; height:15px; background:url(../images/btn_close.png) no-repeat; background-position:left -132px;}
 /* scroll 시 */
 .ddp-layout-meta.ddp-scroll .ddp-ui-contents-top {padding:0; height:80px; text-align:left; background-color:#fff;;
   -webkit-transition: height 0.3s; /* Safari */
