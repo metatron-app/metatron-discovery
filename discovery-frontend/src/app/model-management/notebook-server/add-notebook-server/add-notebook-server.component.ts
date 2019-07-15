@@ -18,7 +18,7 @@ import {NoteBook} from '../../../domain/notebook/notebook';
 import {isUndefined} from 'util';
 import {Alert} from '../../../common/util/alert.util';
 import {NotebookServerService} from '../service/notebook-server.service';
-import {StringUtil} from '../../../common/util/string.util';
+import * as _ from "lodash";
 
 @Component({
   selector: 'app-add-notebook-server',
@@ -110,13 +110,13 @@ export class AddNotebookServerComponent extends AbstractComponent implements OnI
   // 업데이트.
   public update(notebook: NoteBook) {
     this.isShow = true;
-    this.notebook = notebook;
-    if (notebook.type === 'jupyter') {
+    this.notebook = _.cloneDeep(notebook);
+    if (this.notebook.type === 'jupyter') {
       this.defaultIndex = 0;
-    } else if (notebook.type === 'zeppelin') {
+    } else if (this.notebook.type === 'zeppelin') {
       this.defaultIndex = 1;
     }
-    this.selectedNotebookServerType = notebook.type;
+    this.selectedNotebookServerType = this.notebook.type;
     this.mode = 'update';
     this.disabledFlag = true;
 
@@ -149,11 +149,6 @@ export class AddNotebookServerComponent extends AbstractComponent implements OnI
       this.isUrlReqError = true;
     }
 
-    if (!this.isUrlReqError && !StringUtil.isURL(this.notebook.url)) {
-      this.isUrlValidError = true;
-      return;
-    }
-
     if (this.notebook.name === '' || isUndefined(this.notebook.name)) {
       this.isNameError = true;
     }
@@ -176,7 +171,11 @@ export class AddNotebookServerComponent extends AbstractComponent implements OnI
         .catch((error) => {
           this.loadingHide();
           console.info(error);
-          Alert.error(error.message);
+          if (error.message === 'notebook url is invalid') {
+            this.isUrlValidError = true;
+          } else {
+            Alert.error(error.message);
+          }
         });
     } else if (this.mode === 'update') {
       this.notebookService.updateNotebookServer(this.notebook)
@@ -189,7 +188,11 @@ export class AddNotebookServerComponent extends AbstractComponent implements OnI
         .catch((error) => {
           this.loadingHide();
           console.info(error);
-          Alert.error(error.message);
+          if (error.message === 'notebook url is invalid') {
+            this.isUrlValidError = true;
+          } else {
+            Alert.error(error.message);
+          }
         });
     }
 

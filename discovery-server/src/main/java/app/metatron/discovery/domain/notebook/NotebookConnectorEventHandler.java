@@ -52,7 +52,7 @@ public class NotebookConnectorEventHandler {
     }
 
     private NotebookConnector parseUrl(NotebookConnector connector) {
-        Preconditions.checkNotNull(connector.getUrl(), "notebookUrl required");
+        Preconditions.checkNotNull(connector.getUrl(), "notebook url is required");
         try {
             URL aURL = new URL(connector.getUrl());
             connector.setHostname(aURL.getHost());
