@@ -1,4 +1,5 @@
 import {Type} from './type';
+import {DataStorageConstant} from "../../../data-storage/constant/data-storage-constant";
 
 export namespace Filter {
   export class Logical {
@@ -24,6 +25,16 @@ export namespace Filter {
       this.value = value;
       this.checked = checked;
       this.icon = icon;
+    }
+  }
+  
+  export class Authentication {
+    label: string;
+    value: DataStorageConstant.Dataconnection.Authentiacation;
+
+    constructor(label: string, value: DataStorageConstant.Dataconnection.Authentiacation) {
+      this.label = label;
+      this.value = value;
     }
   }
 }

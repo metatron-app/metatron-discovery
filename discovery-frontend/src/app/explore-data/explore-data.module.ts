@@ -42,10 +42,12 @@ import {MetadataModelService} from "../meta-data-management/metadata/service/met
 import {ExploreDataInformationComponent} from "./explore-data/component/explore-data-information.component";
 import {ExploreDataUserCardComponent} from "./explore-data/component/explore-data-user-card.component";
 import {LogicalNameLayerComponent} from "./explore-data/component/logical-name-layer.component";
+import {CreateWorkbenchModule} from "../workbench/component/create-workbench/refactoring/create-workbench.module";
 
 @NgModule({
   imports: [
     CommonModule,
+    CreateWorkbenchModule,
     RouterModule.forChild([
       {path: '', redirectTo: 'view', pathMatch: 'full' },
       {path: 'view', component: ExploreDataComponent},
