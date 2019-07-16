@@ -398,8 +398,20 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
     this.chartOptions = {
       backgroundColor: '#ffffff',
-      nodeScaleRatio: 1.0,
+      dataZoom: [
+        {
+          type: 'inside'
+        }
+      ],
       tooltip: { show: true },
+      toolbox: {
+        left: 'left',
+        feature: {
+          dataZoom: {
+            show: true,
+          }
+        }
+      },
       xAxis: {
         type: 'value',
         splitLine: { show: false },
@@ -425,6 +437,7 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
           hoverAnimation: true,
           roam: true,
           draggable: true,
+          nodeScaleRatio: 0.6,
           categories: [
             {
               name: NodeType[NodeType.MainNode],
