@@ -3,6 +3,7 @@ import {TranslateService} from '@ngx-translate/core';
 import * as _ from 'lodash';
 import {Type} from '../domain/type';
 import {Filter} from '../domain/filter';
+import {DataStorageConstant} from "../../../data-storage/constant/data-storage-constant";
 
 /**
  * Service to be shared by the datasource and metadata
@@ -28,6 +29,13 @@ export class ConstantService {
     new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.point'), Type.Logical.GEO_POINT, 'ddp-icon-type-point'),
     new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.polygon'), Type.Logical.GEO_POLYGON, 'ddp-icon-type-polygon'),
     new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.line'), Type.Logical.GEO_LINE, 'ddp-icon-type-line'),
+  ];
+
+  private readonly authenticationTypeFilters: Filter.Authentication[] = [
+    new Filter.Authentication(this.translateService.instant('msg.comm.ui.list.all'), DataStorageConstant.Dataconnection.Authentiacation.ALL),
+    new Filter.Authentication(this.translateService.instant('msg.storage.li.connect.always'), DataStorageConstant.Dataconnection.Authentiacation.MANUAL),
+    new Filter.Authentication(this.translateService.instant('msg.storage.li.connect.account'), DataStorageConstant.Dataconnection.Authentiacation.USERINFO),
+    new Filter.Authentication(this.translateService.instant('msg.storage.li.connect.id'), DataStorageConstant.Dataconnection.Authentiacation.DIALOG),
   ];
 
   private readonly geoCoordinates: string[] = [
@@ -103,5 +111,9 @@ export class ConstantService {
       this.typeFilters.filter(type => {
         return type.value !== Type.Logical.ALL && (type.value === Type.Logical.INTEGER || type.value === Type.Logical.DOUBLE);
       }));
+  }
+
+  public getAuthenticationTypeFilters() {
+    return _.cloneDeep(this.authenticationTypeFilters);
   }
 }

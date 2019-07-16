@@ -9,7 +9,6 @@
           <col [style.width]="'180px'">
           <col [style.width]="'150px'">
           <col [style.width]="'150px'">
-          <col [style.width]="'200px'">
           <col [style.width]="'150px'">
           <col [style.width]="'300px'">
         </colgroup>
@@ -46,9 +45,6 @@
             {{'msg.metadata.th.logical.type'| translate}}
           </th>
           <th>
-            {{'msg.metadata.th.format'| translate}}
-          </th>
-          <th>
             {{'msg.storage.ui.th.code.table' | translate}}
           </th>
           <th>
@@ -83,9 +79,6 @@
             <span class="ddp-txt-icon">
               <em class="{{getFieldTypeIconClass(column.type)}}"></em>{{getConvertedType(column)}}
             </span>
-          </td>
-          <td>
-            {{column.format? column.format.format : '-'}}
           </td>
           <td>
             <div class=" ddp-select-search ddp-pop-select"

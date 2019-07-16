@@ -1,8 +1,13 @@
 import {
-  Component, ComponentFactoryResolver,
-  ElementRef, EventEmitter,
-  Injector, Output,
+  Component,
+  ComponentFactoryResolver,
+  ComponentRef,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Output,
   ViewChild,
+  ViewContainerRef,
 } from '@angular/core';
 import {Metadata} from "../../../domain/meta-data-management/metadata";
 import {CommonUtil} from "../../../common/util/common.util";
@@ -11,11 +16,13 @@ import {WorkspaceUsesComponent} from "./workspace-uses.component";
 import {AbstractComponent} from "../../../common/component/abstract.component";
 import {MetadataService} from "../../../meta-data-management/metadata/service/metadata.service";
 import * as _ from 'lodash';
+import {CreateWorkbenchContainerComponent} from "../../../workbench/component/create-workbench/refactoring/create-workbench-container.component";
+import {CookieConstant} from "../../../common/constant/cookie.constant";
 
 @Component({
   selector: 'explore-metadata-container',
   templateUrl: './metadata-container.component.html',
-  // entryComponents: [CreateWorkbenchComponent]
+  entryComponents: [CreateWorkbenchContainerComponent]
 })
 export class MetadataContainerComponent extends AbstractComponent {
 
@@ -24,9 +31,8 @@ export class MetadataContainerComponent extends AbstractComponent {
 
   @Output() readonly closedPopup = new EventEmitter();
 
-  // @ViewChild('component_create_workbench', {read: ViewContainerRef}) readonly entry: ViewContainerRef;
-  //
-  // entryRef: ComponentRef<CreateWorkbenchComponent>;
+  @ViewChild('component_create_workbench', {read: ViewContainerRef}) readonly createWorkbenchEntry: ViewContainerRef;
+  createWorkbenchEntryRef: ComponentRef<CreateWorkbenchContainerComponent>;
 
   @ViewChild(WorkspaceUsesComponent)
   workspaceUsesComp: WorkspaceUsesComponent;
@@ -99,12 +105,23 @@ export class MetadataContainerComponent extends AbstractComponent {
     this.router.navigate(['management/metadata/metadata', this.metadataId]).then();
   }
 
-  // onClickCreateWorkbench(): void {
-  //   this.entry.clear();
-  //   this.entryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(CreateWorkbenchComponent));
-  //   this.entryRef.instance.init();
-  // }
+  onClickCreateWorkbench(): void {
+    if (this.isShowCreateWorkbench()) {
+      this.createWorkbenchEntryRef = this.createWorkbenchEntry.createComponent(this.resolver.resolveComponentFactory(CreateWorkbenchContainerComponent));
+      const workspace = JSON.parse(this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE));
+      // set data in component
+      this.createWorkbenchEntryRef.instance.setWorkspaceId(workspace.id);
+      this.createWorkbenchEntryRef.instance.setConnectionInModel(this.metadataDetailData.source.source);
+      this.createWorkbenchEntryRef.instance.accessFromExplore();
+      this.createWorkbenchEntryRef.instance.closedPopup.subscribe(result => {
+        this.createWorkbenchEntryRef.destroy();
+      });
+    }
+  }
 
+  onClickCreateWorkbook(): void {
+
+  }
 
   /**
    * Returns True is current user is manager
@@ -112,6 +129,10 @@ export class MetadataContainerComponent extends AbstractComponent {
   public isManagerAuth() {
     let cookiePermission: string = CommonUtil.getCurrentPermissionString();
     return (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_DATASOURCE.toString())) || (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_METADATA.toString()));
+  }
+
+  isShowCreateWorkbench(): boolean {
+    return Metadata.isSourceTypeIsStaging(this.metadataDetailData.sourceType) || Metadata.isSourceTypeIsJdbc(this.metadataDetailData.sourceType);
   }
 
   public onClickCreatedBy() {
