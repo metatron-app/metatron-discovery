@@ -73,7 +73,7 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
   public lineageNodes: any = [];
   public lineageEdges: any = [];
 
-  public lineageMaxDepth: number = 2;
+  public lineageMaxDepth: number = 3;
   public lineageDepth: number = 0;
   public lineageHeight: number = 0;
 
@@ -358,6 +358,20 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
     });
   } // function - initChart
 
+  public resizeEventHandler(event?: any) {
+    this.chartAreaResize();
+
+    // Check whether to put scroll bar
+    /*
+    const resize = $('.sys-lineage-right-panel').width() !== null && $('.sys-lineage-right-panel').width() / $('.ddp-lineage-view').width() > 0.5;
+    if(resize) {
+      $('.ddp-lineage-view-diagram').css('overflow-x', 'auto');
+    }else{
+      $('.ddp-lineage-view-diagram').css('overflow-x', 'hidden');
+    }
+    */
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -372,14 +386,14 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
    */
   private _initialiseChartValues() {
 
-    const SVG_LOCATION: string = 'image://' + window.location.origin + '/assets/images/mdm/png/icon_';
+    const SVG_LOCATION: string = 'image://' + window.location.origin + '/assets/images/mdm/png/';
     this.symbolInfo[NodeType[NodeType.MainNode]] = {
-      DEFAULT: SVG_LOCATION + 'table.png',
-      SELECTED: SVG_LOCATION + 'table_focus.png',
+      DEFAULT: SVG_LOCATION + 'icon_table_standard_normal.png',
+      SELECTED: SVG_LOCATION + 'icon_table_standard_focus.png',
     };
     this.symbolInfo[NodeType[NodeType.NormalNode]] = {
-      DEFAULT: SVG_LOCATION + 'table.png',
-      SELECTED: SVG_LOCATION + 'table_focus.png',
+      DEFAULT: SVG_LOCATION + 'icon_table_normal.png',
+      SELECTED: SVG_LOCATION + 'icon_table_focus.png',
     };
 
     this.chartOptions = {
@@ -520,21 +534,35 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
   private chartAreaResize(resizeCall?:boolean): void {
     if(resizeCall == undefined) resizeCall = false;
+
+    const hNodeUnit = 5;
+    const vNodeUnit = 7;
+
     const hScrollbarWith: number = 30;
-    let minHeightSize: number = this.lineageHeight < 5 ? 500 : this.lineageHeight * 100;
-    /*
-    if( this.selectedNode && this.selectedNode.metadataId ) {
-      minHeightSize = minHeightSize - 100;
+    const hSpacing: number = 2;
+    let minHeightSize: number = $('.ddp-lineage-view').height() - $('.ddp-lineage-view-toolbar').height() - hSpacing;
+    let minWidthSize: number = $('.ddp-lineage-view').width() - hScrollbarWith;
+
+    if( hNodeUnit < this.lineageHeight ) {
+      minHeightSize = minHeightSize * this.lineageHeight / hNodeUnit;
     }
-    */
-    let fixHeight: number = minHeightSize;
-    const minWidthSize: number = $('.ddp-lineage-view').width() - hScrollbarWith;
-    $('.ddp-lineage-view').css('overflow-x', 'hidden');
-    $('#chartCanvas').css('height', fixHeight+'px').css('width', minWidthSize+'px').css('overflow', 'hidden');
+    if( vNodeUnit < this.lineageDepth ) {
+      minWidthSize = minWidthSize * this.lineageDepth / vNodeUnit;
+    }
+
+    //$('.ddp-lineage-view-diagram').css('overflow-x', 'hidden');
+    const resize = $('.sys-lineage-right-panel').width() !== null && $('.sys-lineage-right-panel').width() / $('.ddp-lineage-view').width() > 0.5;
+    if(resize) {
+      $('.ddp-lineage-view-diagram').css('overflow-x', 'auto');
+    }else{
+      $('.ddp-lineage-view-diagram').css('overflow-x', 'hidden');
+    }
+
+    $('#chartCanvas').css('height', minHeightSize+'px').css('width', minWidthSize+'px').css('overflow', 'hidden');
     if($('#chartCanvas').children()!=null && $('#chartCanvas').children()!=undefined){
-      $('#chartCanvas').children().css('height', fixHeight+'px').css('width', minWidthSize+'px');}
+      $('#chartCanvas').children().css('height', minHeightSize+'px').css('width', minWidthSize+'px');}
     if($('#chartCanvas').children().children()!=null && $('#chartCanvas').children().children()!=undefined) {
-      $('#chartCanvas').children().children().css('height', fixHeight+'px').css('width', minWidthSize+'px');}
+      $('#chartCanvas').children().children().css('height', minHeightSize+'px').css('width', minWidthSize+'px');}
     $('#chartCanvas div:last-child').css('height', '');
     $('#chartCanvas div:last-child').css('width', '');
     if (resizeCall == true && this.chart != null) {this.chart.resize();}

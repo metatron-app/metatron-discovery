@@ -5239,6 +5239,11 @@ ul.ddp-list-rule2 li.ddp-disabled2 .ddp-wrap-line-add {display:block;}
 	-moz-box-shadow: inset 0 1px 3px rgba(75,81,91,.1); /* inner shadow */
 	-webkit-box-shadow: inset 0 1px 3px rgba(75,81,91,.1); /* inner shadow */}
 
+/**** lineage view  *****/
+.ddp-lineage-view {position:fixed; left:0; top:100px; right:0; bottom:0; height:100%; background-color:#fff;}
+.ddp-lineage-view .ddp-split-chart {position:relative; float:left; height:100%; width:100%;}
+.ddp-lineage-view .ddp-box-lineage-column-view {position:relative; float:left; top:0; right:0; bottom:0; height:100%; border:none;}
+
 /****	flow  *****/
 .ddp-wrap-flow2 {position:fixed; left:0; top:100px; right:0; bottom:0;background-color:#fff;}
 .ddp-wrap-flow2 .ddp-ui-number {padding:15px 14px; box-sizing:border-box;}

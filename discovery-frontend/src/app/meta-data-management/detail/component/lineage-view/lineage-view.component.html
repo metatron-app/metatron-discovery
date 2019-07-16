@@ -14,20 +14,33 @@
 
 <!-- tab contents -->
 <div [ngClass]="['ddp-ui-tab-contents']">
-  <div [ngClass]="['ddp-lineage-view']">
-    <div id="chartCanvas" style="width:100%;height:100%;overflow:hidden"></div>
+  <div class="ddp-type-contents2">
+    <div [ngClass]="['ddp-lineage-view']">
+      <!-- 다이어그램 영역 -->
+      <div class="sys-lineage-left-panel ddp-split-chart">
+        <div [ngClass]="['ddp-lineage-view-toolbar']">
+          toolbar
+        </div>
 
-    <!-- 노드 아이콘 클릭시 상세 영역 -->
-    <div *ngIf="false && selectedNode && selectedNode.metadataId"
-         class="sys-dataflow-right-panel ddp-box-lineage-column-view" >
-      <app-metadata-detail-lineagecolumnview
-        [selectedNode]="selectedNode"
-        (closeColumnView)="closeColumnView()"
-      >
-      </app-metadata-detail-lineagecolumnview>
+        <div [ngClass]="['ddp-lineage-view-diagram']">
+          <div id="chartCanvas" ></div>
+        </div>
+      </div>
+      <!-- //다이어그램 영역 -->
+
+      <!-- 노드 아이콘 클릭시 상세 영역 -->
+      <div class="sys-lineage-right-panel ddp-box-lineage-column-view"
+              *ngIf="selectedNode && selectedNode.metadataId" >
+        <app-metadata-detail-lineagecolumnview
+          [selectedNode]="selectedNode"
+          (resizeEventHandler)="resizeEventHandler($event)"
+          (closeColumnView)="closeColumnView()"
+        >
+        </app-metadata-detail-lineagecolumnview>
+      </div>
+      <!-- //노드 아이콘 클릭시 상세 영역 -->
+
     </div>
-    <!-- //노드 아이콘 클릭시 상세 영역 -->
-
   </div>
 </div>
 <!-- //tab contents -->

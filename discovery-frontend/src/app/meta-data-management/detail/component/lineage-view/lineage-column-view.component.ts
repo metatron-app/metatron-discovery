@@ -12,7 +12,7 @@
 * limitations under the License.
 */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChild, ViewChildren} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, AfterViewInit, Output, ViewChild, ViewChildren} from '@angular/core';
 import * as _ from 'lodash';
 import {AbstractComponent} from '../../../../common/component/abstract.component';
 import {InputComponent} from '../../../../common/component/input/input.component';
@@ -24,15 +24,18 @@ import {Metadata} from '../../../../domain/meta-data-management/metadata';
 
 declare let echarts;
 
+declare let Split;
+
 @Component({
   selector: 'app-metadata-detail-lineagecolumnview',
   templateUrl: './lineage-column-view.component.html'
 })
-export class LineageColumnViewComponent extends AbstractComponent implements OnInit, OnDestroy {
+export class LineageColumnViewComponent extends AbstractComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  private _split:any;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -46,7 +49,13 @@ export class LineageColumnViewComponent extends AbstractComponent implements OnI
   public selectedNode: any;
 
   @Output()
+  public resizeEventHandler = new EventEmitter();
+
+  @Output()
   public closeColumnView = new EventEmitter();
+
+  @ViewChild('columnList')
+  public columnList: ElementRef;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -68,16 +77,27 @@ export class LineageColumnViewComponent extends AbstractComponent implements OnI
 
   // Init
   public ngOnInit() {
-
     // Init
     super.ngOnInit();
   }
 
+  public ngAfterViewInit() {
+    setTimeout( () => {
+      this._split = Split(['.sys-lineage-left-panel', '.sys-lineage-right-panel'], { sizes: [80, 20], minSize: [300,300], onDragEnd : (() => {
+          this.resizeEventHandler.emit('resize');
+        }) });
+    }, 500 );
+  } // function -  ngAfterViewInit
+
   // Destory
   public ngOnDestroy() {
-
     // Destory
     super.ngOnDestroy();
+
+    if (this._split) {
+      this._split.destroy();
+      this._split = undefined;
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
