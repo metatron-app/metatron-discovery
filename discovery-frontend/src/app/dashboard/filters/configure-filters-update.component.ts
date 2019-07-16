@@ -54,6 +54,9 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
   @ViewChild(ConfigureFiltersBoundComponent)
   private _boundComp: ConfigureFiltersBoundComponent;
 
+  @ViewChild('ddpTxtSub')
+  private _ddpTxtSub: ElementRef;
+
   // 수정여부
   private _isEdit: boolean = false;
 
@@ -294,7 +297,19 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
     } else {
       this._timeComp.showComponent(board, <TimeFilter>targetFilter, this.targetField);
     }
+
+    if(this._ddpTxtSub && this.isEllipsisActive(this._ddpTxtSub)) {
+      $(this._ddpTxtSub.nativeElement).attr("title", this.dataSource.name);
+    }
   } // function - _openComponent
+
+  private isEllipsisActive(el : ElementRef) : boolean {
+    if(el.nativeElement.offsetWidth < el.nativeElement.scrollWidth) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   /**
    * 필터 대상 필드를 특정짓는다.
