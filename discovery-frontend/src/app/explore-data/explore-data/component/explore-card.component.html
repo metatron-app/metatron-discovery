@@ -37,7 +37,7 @@
       <div class="ddp-data-by" *ngIf="!isEnablePopularity()">by <strong title="{{creator}}">{{creator}}</strong></div>
       <!-- tag -->
       <div class="ddp-list-tags" *ngIf="isEnableTag()">
-        <span class="ddp-tags" *ngFor="let tag of tagList" (click)="onClickTag(tag)"># {{tag.name}}</span>
+        <span class="ddp-tags" *ngFor="let tag of tagList"># {{tag.name}}</span>
       </div>
       <!-- //tag -->
     </div>

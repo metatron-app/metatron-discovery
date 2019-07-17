@@ -68,7 +68,7 @@
 <!--          <a href="javascript:" class="ddp-btn-more">more ></a>-->
         </div>
         <ul class="ddp-list-data">
-          <li *ngFor="let metadata of favoriteMetadataList| slice:0:5">
+          <li *ngFor="let metadata of favoriteMetadataList| slice:0:4">
             <component-explore-card [iconClass]="getMetadataTypeClass(metadata)"
                             [title]="metadata.name"
                             [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
@@ -83,7 +83,7 @@
 <!--          <a href="javascript:" class="ddp-btn-more">more ></a>-->
         </div>
         <ul class="ddp-list-data">
-          <li *ngFor="let metadata of favoriteCreatorMetadataList| slice:0:5">
+          <li *ngFor="let metadata of favoriteCreatorMetadataList| slice:0:4">
             <component-explore-card [iconClass]="getMetadataTypeClass(metadata)"
                             [title]="metadata.name"
                             [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">

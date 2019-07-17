@@ -8817,7 +8817,7 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
 .ddp-wrap-meta-summary .ddp-wrap-box .ddp-list-summary li .ddp-data-txt .ddp-ui-popularity .ddp-icon-popularity
 {display:inline-block; float:left; width:18px; height:14px; margin-right:3px; background:url(../images/icon_popularity.png) no-repeat;}
 .ddp-wrap-meta-summary .ddp-wrap-box .ddp-list-summary li .ddp-data-txt .ddp-ui-popularity .ddp-bar {position:relative; top:3px; float:left; width:70px; height:10px; background-color:#e6e8f3; border-radius:2px;}
-.ddp-wrap-meta-summary .ddp-wrap-box .ddp-list-summary li .ddp-data-txt .ddp-ui-popularity .ddp-bar span {display:inline-block; height:100%; border-radius:2px; background-color:#666eb2;}
+.ddp-wrap-meta-summary .ddp-wrap-box .ddp-list-summary li .ddp-data-txt .ddp-ui-popularity .ddp-bar span {display:inline-block; position:absolute; top:0; left:0; height:100%; border-radius:2px; background-color:#666eb2;}
 .ddp-wrap-meta-summary .ddp-wrap-box .ddp-list-summary li .ddp-data-txt .ddp-ui-popularity .ddp-bar .ddp-box-layout4 {display:none; position:absolute; top:100%; margin-top:5px; text-align:left;}
 .ddp-wrap-meta-summary .ddp-wrap-box .ddp-list-summary li .ddp-data-txt .ddp-ui-popularity .ddp-bar .ddp-box-layout4.ddp-popularity {width:360px;}
 .ddp-wrap-meta-summary .ddp-wrap-box .ddp-list-summary li .ddp-data-txt .ddp-ui-popularity .ddp-bar:hover .ddp-box-layout4 {display:block;}
