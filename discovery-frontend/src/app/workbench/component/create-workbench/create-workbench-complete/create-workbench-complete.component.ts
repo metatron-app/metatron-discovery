@@ -112,7 +112,7 @@ export class CreateWorkbenchCompleteComponent extends AbstractPopupComponent imp
       // 로딩 show
       this.loadingShow();
 
-      const params = {
+      const params: {name: string, dataConnection: string, workspace: string, type: 'workbench', folderId?: string, description?: string} = {
         workspace: `/api/workspaces/${this.workspaceId}`,
         dataConnection: `/api/dataconnections/${this.workbench.dataConnection.id}`,
         name: this.name.trim(),
@@ -121,12 +121,12 @@ export class CreateWorkbenchCompleteComponent extends AbstractPopupComponent imp
 
       // 폴더아이디 존재시
       if (this.folderId) {
-        params['folderId'] = this.folderId;
+        params.folderId = this.folderId;
       }
 
       // 설명 존재시
       if (this.description) {
-        params['description'] = this.description.trim();
+        params.description = this.description.trim();
       }
 
       this.workbenchService.createWorkbench(params).then(( data:Workbench ) => {

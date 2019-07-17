@@ -47,11 +47,13 @@ import {DatetimeValidPopupComponent} from "../shared/datasource-metadata/compone
 import {FieldConfigService} from "../data-storage/service/field-config.service";
 import {DatasourceMetadataSharedModule} from "../shared/datasource-metadata/datasource-metadata-shared.module";
 import {ExploreCatalogLayerComponent} from "./explore-data/component/explore-catalog-layer.component";
+import {CreateWorkbookModule} from "../workbook/component/create-workbook/refactoring/create-workbook.module";
 
 @NgModule({
   imports: [
     CommonModule,
     CreateWorkbenchModule,
+    CreateWorkbookModule,
     DatasourceMetadataSharedModule,
     RouterModule.forChild([
       {path: '', redirectTo: 'view', pathMatch: 'full' },

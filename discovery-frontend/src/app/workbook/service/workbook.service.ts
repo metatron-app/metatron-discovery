@@ -37,6 +37,10 @@ export class WorkbookService extends AbstractService {
     return this.post(this.API_URL + 'books', book);
   }
 
+  public createWorkbook2(params: {workspace: string, name: string, type: 'workbook' | 'folder', description?: string, folderId?: string}) {
+    return this.post(this.API_URL + 'books', params);
+  }
+
   // 워크북 수정
   public updateBook(book: Book): Promise<Workbook> {
 
