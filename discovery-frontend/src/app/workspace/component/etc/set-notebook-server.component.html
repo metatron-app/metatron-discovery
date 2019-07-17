@@ -69,10 +69,6 @@
               <em class="ddp-btn-search-close"  *ngIf="searchZeppelin !== ''"
                   (click)="searchZeppelin=''; searchEvent('zeppelin')"></em>
             </div>
-            <!-- //검색 -->
-            <div class="ddp-option-right">
-              <a href="javascript:" class="ddp-btn-selection ddp-gray" (click)="reset()"><em class="ddp-btn-reset3"></em>{{'msg.comm.ui.resetting' | translate}}</a>
-            </div>
           </div>
 
           <div class="ddp-wrap-viewtable">
@@ -116,6 +112,21 @@
                     <col width="40%">
                   </colgroup>
                   <tbody>
+                  <tr (click)="reset()" style="cursor:pointer">
+                    <td class="ddp-txt-center">
+                      <div class="ddp-ui-radio">
+                        <input name="notebookServer" type="radio" [checked]="selectedJupyter.id === undefined">
+                        <i class="ddp-icon-radio"></i>
+                      </div>
+                    </td>
+                    <td>
+                      <div class=" ddp-txt-long">
+                        ({{'msg.space.ui.none' | translate}})
+                      </div>
+                    </td>
+                    <td>
+                    </td>
+                  </tr>
                   <tr *ngFor="let server of jupyter.servers" (click)="selectedJupyter = server" style="cursor:pointer">
                     <td class="ddp-txt-center">
                       <div class="ddp-ui-radio">
@@ -146,6 +157,21 @@
                     <col width="40%">
                   </colgroup>
                   <tbody>
+                  <tr (click)="reset()" style="cursor:pointer">
+                    <td class="ddp-txt-center">
+                      <div class="ddp-ui-radio">
+                        <input name="notebookServer" type="radio" [checked]="selectedZeppelin.id === undefined">
+                        <i class="ddp-icon-radio"></i>
+                      </div>
+                    </td>
+                    <td>
+                      <div class=" ddp-txt-long">
+                        ({{'msg.space.ui.none' | translate}})
+                      </div>
+                    </td>
+                    <td>
+                    </td>
+                  </tr>
                   <tr *ngFor="let server of zeppelin.servers" (click)="selectedZeppelin = server" style="cursor:pointer">
                     <td class="ddp-txt-center">
                       <div class="ddp-ui-radio">
