@@ -139,35 +139,26 @@ export class CreateWorkbookComponent extends AbstractComponent {
   }
 
   private _createWorkBook(): void {
-    if (this.isAccessFromExplore) { // used in explore
-      // #2132 생성은 개인워크스페이스로 이동해서 생성
-      const params: {name: string, id: string, type: 'workbook', description?: string} = {
-        type: 'workbook',
-        id: this.sourceId,
-        name: this.name.trim(),
-      };
-      // if not empty description
-      if (this._isNotEmptyValue(this.description)) {
-        params.description = this.description.trim();
+    this.loadingShow();
+    this.workbookService.createWorkbook2(this._getCreateWorkbookParams()).then((result:Book) => {
+      // this.createComplete.emit({ createDashboardFl: this.createDashboardFl, id: result['id'] });
+      this.loadingHide();
+      Alert.success(`'${result.name}’ ` + this.translateService.instant('msg.book.alert.create.workbook.success'));
+      if (this.isAccessFromExplore) {
+        const params: {id: string, type: 'workbook'} = {
+          type: 'workbook',
+          id: this.sourceId,
+        };
+        // set source id and table in session storage
+        sessionStorage.setItem(ExploreConstant.SessionStorageKey.CREATED_FROM_EXPLORE, JSON.stringify(params));
       }
-      // set connection id and table in session storage
-      sessionStorage.setItem(ExploreConstant.SessionStorageKey.CREATED_FROM_EXPLORE, JSON.stringify(params));
-      this.completedPopup.emit();
+      // complete
+      this.completedPopup.emit(result.id);
       // close
       this.closePopup();
-    } else { // used in workspace
-      this.loadingShow();
-      this.workbookService.createWorkbook2(this._getCreateWorkbookParams()).then((result:Book) => {
-        // this.createComplete.emit({ createDashboardFl: this.createDashboardFl, id: result['id'] });
-        this.loadingHide();
-        Alert.success(`'${result.name}’ ` + this.translateService.instant('msg.book.alert.create.workbook.success'));
-        this.completedPopup.emit(result.id);
-        // close
-        this.closePopup();
-      }).catch((error) => {
-        Alert.error(this.translateService.instant('msg.book.alert.create.workbook.fail'));
-        this.loadingHide();
-      });
-    }
+    }).catch((error) => {
+      Alert.error(this.translateService.instant('msg.book.alert.create.workbook.fail'));
+      this.loadingHide();
+    });
   }
 }

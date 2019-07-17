@@ -31,7 +31,7 @@ export class CreateWorkbenchCompleteComponent extends AbstractComponent {
   invalidDescriptionMessage: string;
 
   @Output() readonly closedPopup = new EventEmitter();
-  @Output() readonly completed = new EventEmitter();
+  @Output() readonly completedPopup = new EventEmitter();
   @Output() readonly changeStep = new EventEmitter();
 
   // 생성자
@@ -151,35 +151,27 @@ export class CreateWorkbenchCompleteComponent extends AbstractComponent {
   }
 
   private _createWorkbench(): void {
-    if (this.isAccessFromExplore) { // used in explore
-      // #2132 생성은 개인워크스페이스로 이동해서 생성
-      const params: {name: string, id: string, type: 'workbench', description?: string, table?: string} = {
-        type: 'workbench',
-        id: this.selectedConnection.id,
-        name: this.name.trim(),
-        table: this.selectedConnection.id
-      };
-      // if not empty description
-      if (this._isNotEmptyValue(this.description)) {
-        params.description = this.description.trim();
-      }
-      // set connection id and table in session storage
-      sessionStorage.setItem(ExploreConstant.SessionStorageKey.CREATED_FROM_EXPLORE, JSON.stringify(params));
-      this.completed.emit();
-      // close
-      this.close();
-    } else {  // used in workspace
-      this.loadingShow();
-      this.workbenchService.createWorkbench(this._getCreateWorkbenchParams())
-        .then(result => {
-          this.loadingHide();
-          Alert.success(`'${this.name}' ` + this.translateService.instant('msg.space.alert.workbench.create.success'));
-          this.completed.emit(result.id);
-          // close
-          this.close();
-        })
-        .catch(error => this.commonExceptionHandler(error));
-    }
+    this.loadingShow();
+    this.workbenchService.createWorkbench(this._getCreateWorkbenchParams())
+      .then(result => {
+        this.loadingHide();
+        Alert.success(`'${this.name}' ` + this.translateService.instant('msg.space.alert.workbench.create.success'));
+        // if access from explore
+        if (this.isAccessFromExplore) {
+          const params: {id: string, type: 'workbench', table?: string} = {
+            type: 'workbench',
+            id: this.selectedConnection.id,
+            table: this.selectedConnection.id
+          };
+          // set connection id and table in session storage
+          sessionStorage.setItem(ExploreConstant.SessionStorageKey.CREATED_FROM_EXPLORE, JSON.stringify(params));
+        }
+        // completed
+        this.completedPopup.emit(result.id);
+        // close
+        this.close();
+      })
+      .catch(error => this.commonExceptionHandler(error));
   }
 
   private _initView(): void {
