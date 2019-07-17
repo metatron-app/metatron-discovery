@@ -639,6 +639,7 @@ ul.ddp-list-folder-nav li a:hover {background-color:#e7e7ea}
 .ddp-type-contents.ddp-resize2 .ddp-box-popupcontents4 > .ddp-wrap-edit2:first-of-type {margin-top:0;}
 .ddp-type-contents.ddp-resize2 > .ddp-ui-buttons2,
 .ddp-type-contents.ddp-resize2 > .ddp-ui-buttons {position:fixed; bottom:0; left:0; right:0; padding-bottom:20px; background-color:#fff;}
+.ddp-type-contents.ddp-resize2 .ddp-ui-buttons.type-fix {position:fixed; bottom:0; left:0; right:0; padding-bottom:20px; background-color:#fff;}
 .ddp-type-contents.ddp-resize2 .ddp-type-contents-in {position:relative; min-height:100%; padding:356px 0 85px 0; box-sizing:border-box;}
 .ddp-type-contents.ddp-resize2 .ddp-type-contents-in.ddp-scroll {position:absolute; top:136px; left:0; right:0; bottom:78px; padding:0 !important; min-height:auto; overflow:auto;}
 .ddp-type-contents.ddp-resize2.ddp-type2 .ddp-type-contents-in {padding-top:139px;  box-sizing:border-box}

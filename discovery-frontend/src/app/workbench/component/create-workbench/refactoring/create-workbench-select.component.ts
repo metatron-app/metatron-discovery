@@ -17,12 +17,12 @@ import * as _ from 'lodash';
 export class CreateWorkbenchSelectComponent extends AbstractComponent {
 
   @Input() readonly workspaceId: string;
+  readonly authenticationTypeList = this.constant.getAuthenticationTypeFilters();
 
   connectionList;
   selectedConnection;
   // filters
   searchKeyword: string;
-  authenticationTypeList = this.constant.getAuthenticationTypeFilters();
   selectedAuthenticationType;
   connectionTypeList;
   selectedConnectionType;

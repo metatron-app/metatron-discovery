@@ -19,9 +19,7 @@ export class MetadataOverviewComponent implements OnInit, OnDestroy {
 
   entryRef: ComponentRef<RecentQueriesComponent>;
 
-  @Input()
-  public metadataId: string;
-
+  @Input() readonly metadataId: string;
   @Input() readonly metadata : Metadata;
 
   public isShowMoreCatalogs: boolean = false;
@@ -33,23 +31,20 @@ export class MetadataOverviewComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (!_.isNil(this.entryRef)) {
-      this.entryRef.destroy();
-    }
+
   }
 
   isDatasourceTypeMetadata(): boolean {
     return Metadata.isSourceTypeIsEngine(this.metadata.sourceType);
   }
 
-  onClickSeeAllRecentQueries() {
-    this.entry.clear();
-    this.entryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(RecentQueriesComponent));
-    this.entryRef.instance.init();
+  onClickSeeAllRecentDashboards(): void {
+
   }
 
-  onClickWorkspace(): void {
-
+  onClickSeeAllRecentQueries(): void {
+    this.entryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(RecentQueriesComponent));
+    this.entryRef.instance.init();
   }
 }
 

@@ -67,31 +67,13 @@
                 </div>
                 <!-- more -->
                 <!-- 클릭시 ddp-selected 추가 -->
-                <div class="ddp-ui-catalog-more" [class.ddp-selected]="isShowMoreCatalogs">
-                  <a href="javascript:"
-                     class="ddp-link-more"
-                     *ngIf="metadata.catalogs.length > 2"
-                     (click)="isShowMoreCatalogs = true">
+                <div class="ddp-ui-catalog-more" [class.ddp-selected]="catalogLayerComponent.isShowLayerPopup">
+                  <a href="javascript:" class="ddp-link-more" *ngIf="metadata.catalogs.length > 2"
+                     (click)="catalogLayerComponent.openLayerPopup()">
                     More
                   </a>
-
                   <!-- popup -->
-                  <div class="ddp-box-layout4 type-info">
-                    <a href="javascript:" class="ddp-icon-close"
-                       (click)="$event.stopImmediatePropagation(); isShowMoreCatalogs = false">
-                    </a>
-                    <div class="ddp-data-title">
-                      {{'msg.explore.ui.detail.catalogs'| translate}}
-                    </div>
-                    <div class="ddp-data-det ddp-scroll">
-                      <div class="ddp-ui-catalogs" *ngFor="let catalog of metadata.catalogs | slice:3">
-                        <div class="ddp-box-catalogs ddp-list">
-                          <span *ngFor="let hierarchy of catalog['hierarchies']">{{hierarchy.name}}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
+                  <component-explore-catalog-layer [catalogList]="metadata.catalogs" #catalogLayerComponent></component-explore-catalog-layer>
                   <!-- //popup -->
                 </div>
                 <!-- //more -->
@@ -100,15 +82,6 @@
                 -
               </ng-template>
             </td>
-          </tr>
-          <tr>
-            <th>Description</th>
-            <td>논리설명설명설명설명설명설명설명논리설명설명설명설명설명설명설명논리설명설명설명설명설명설명설명논리설명설명설명<br><br>
-
-              설명설명설명설명설명설명<br>
-              설명설명설명<br><br>
-
-              설명설명설명설명설명설명설명설명설명설명설명</td>
           </tr>
           </tbody>
         </table>
@@ -223,12 +196,10 @@
           </div>
         </div>
         <!-- //detail -->
-        <div class="ddp-detail">
-          <div class="ddp-label">Recently Used in Workbook <a href="javascript:" class="ddp-link ddp-fright">See all lists &gt;</a>
-
+        <!-- recent dashboard -->
+        <div class="ddp-detail" *ngIf="isDatasourceTypeMetadata()">
+          <div class="ddp-label">Recently Used <a href="javascript:" class="ddp-link ddp-fright">See all lists &gt;</a>
           </div>
-
-
           <div class="ddp-data-det">
             <ul class="ddp-list-graph ddp-bottom ddp-cursor">
               <li>
@@ -262,7 +233,15 @@
                 </div>
               </li>
             </ul>
-
+          </div>
+        </div>
+        <!-- //recent dashboard -->
+        <!-- recent query -->
+        <!-- //recent query -->
+        <div class="ddp-detail" *ngIf="!isDatasourceTypeMetadata()">
+          <div class="ddp-label">Recently Queries <a href="javascript:" class="ddp-link ddp-fright">See all lists &gt;</a>
+          </div>
+          <div class="ddp-data-det">
             <table class="ddp-table-detail4">
               <colgroup>
                 <col width="15%">
@@ -278,7 +257,6 @@
                 <th>User</th>
                 <th>Result</th>
                 <th>Query</th>
-
               </tr>
               </thead>
               <tbody>
@@ -294,9 +272,7 @@
                   </div>
                 </td>
               </tr>
-
               </tbody>
-
             </table>
           </div>
         </div>
@@ -307,4 +283,3 @@
 </div>
 
 <ng-template #component_recent_queries></ng-template>
-<!--<explore-recent-queries></explore-recent-queries>-->
