@@ -15,12 +15,16 @@ export class CreateWorkbenchContainerComponent extends AbstractPopupComponent {
 
   // optional
   folderId: string; // this only used in workspace
-  isAccessFromExplore: boolean; // this only used external page
+
+  // used in explore
+  isAccessFromExplore: boolean;
+  tableName: string;
 
   // enum
   CREATE_STEP = WorkbenchConstant.CreateStep;
 
   @Output() readonly closedPopup = new EventEmitter();
+  @Output() readonly completedPopup = new EventEmitter();
 
   // 생성자
   constructor(private createWorkbenchModelService: CreateWorkbenchModelService,
@@ -41,7 +45,7 @@ export class CreateWorkbenchContainerComponent extends AbstractPopupComponent {
     this.createWorkbenchModelService.initialConnectionFilters();
   }
 
-  accessFromExplore() {
+  accessFromExplore(): void {
     this.isAccessFromExplore = true;
     this.createStep = WorkbenchConstant.CreateStep.COMPLETE;
   }
@@ -52,6 +56,10 @@ export class CreateWorkbenchContainerComponent extends AbstractPopupComponent {
 
   setFolderId(folderId: string): void {
     this.folderId = folderId;
+  }
+
+  setTableName(tableName: string): void {
+    this.tableName = tableName;
   }
 
   setConnectionInModel(connection): void {
@@ -66,4 +74,7 @@ export class CreateWorkbenchContainerComponent extends AbstractPopupComponent {
     this.closedPopup.emit();
   }
 
+  completePopup(workbenchId?: string): void {
+    this.completedPopup.emit(workbenchId);
+  }
 }

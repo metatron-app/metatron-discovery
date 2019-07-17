@@ -76,6 +76,7 @@
   <!-- buttons -->
   <div class="ddp-ui-buttons type-fix">
     <a href="javascript:" class="ddp-btn-type-popup" *ngIf="!isAccessFromExplore" (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup" *ngIf="isAccessFromExplore" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
     <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [class.ddp-disabled]="!isValid()" (click)="complete()">{{'msg.comm.btn.done' | translate}}</a>
   </div>
   <!-- //buttons -->

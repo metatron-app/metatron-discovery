@@ -68,8 +68,7 @@ export class WorkbenchService extends AbstractService {
    *****************************************/
 
   // 워크벤치 생성
-  public createWorkbench(params: any): Promise<any> {
-
+  public createWorkbench(params: {name: string, dataConnection: string, workspace: string, type: 'workbench', folderId?: string, description?: string}): Promise<any> {
     return this.post(this.API_URL + 'workbenchs', params);
   }
 

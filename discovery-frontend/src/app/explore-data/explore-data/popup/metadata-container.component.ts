@@ -18,11 +18,12 @@ import {MetadataService} from "../../../meta-data-management/metadata/service/me
 import * as _ from 'lodash';
 import {CreateWorkbenchContainerComponent} from "../../../workbench/component/create-workbench/refactoring/create-workbench-container.component";
 import {CookieConstant} from "../../../common/constant/cookie.constant";
+import {CreateWorkbookComponent} from "../../../workbook/component/create-workbook/refactoring/create-workbook.component";
 
 @Component({
   selector: 'explore-metadata-container',
   templateUrl: './metadata-container.component.html',
-  entryComponents: [CreateWorkbenchContainerComponent]
+  entryComponents: [CreateWorkbenchContainerComponent, CreateWorkbookComponent]
 })
 export class MetadataContainerComponent extends AbstractComponent {
 
@@ -33,6 +34,9 @@ export class MetadataContainerComponent extends AbstractComponent {
 
   @ViewChild('component_create_workbench', {read: ViewContainerRef}) readonly createWorkbenchEntry: ViewContainerRef;
   createWorkbenchEntryRef: ComponentRef<CreateWorkbenchContainerComponent>;
+
+  @ViewChild('component_create_workbook', {read: ViewContainerRef}) readonly createWorkbookEntry: ViewContainerRef;
+  createWorkbookEntryRef: ComponentRef<CreateWorkbookComponent>;
 
   @ViewChild(WorkspaceUsesComponent)
   workspaceUsesComp: WorkspaceUsesComponent;
@@ -113,14 +117,42 @@ export class MetadataContainerComponent extends AbstractComponent {
       this.createWorkbenchEntryRef.instance.setWorkspaceId(workspace.id);
       this.createWorkbenchEntryRef.instance.setConnectionInModel(this.metadataDetailData.source.source);
       this.createWorkbenchEntryRef.instance.accessFromExplore();
-      this.createWorkbenchEntryRef.instance.closedPopup.subscribe(result => {
+      this.createWorkbenchEntryRef.instance.closedPopup.subscribe(() => {
         this.createWorkbenchEntryRef.destroy();
+      });
+      this.createWorkbenchEntryRef.instance.completedPopup.subscribe((workbenchId: string) => {
+        if (_.isNil(workbenchId)) {
+          // link to workspace
+          this.router.navigateByUrl('/workspace').then();
+        } else {
+          // link to workspace
+          this.router.navigateByUrl('/workbench/' + workbenchId).then();
+        }
       });
     }
   }
 
   onClickCreateWorkbook(): void {
-
+    if (this.isShowCreateWorkbook()) {
+      this.createWorkbookEntryRef = this.createWorkbookEntry.createComponent(this.resolver.resolveComponentFactory(CreateWorkbookComponent));
+      const workspace = JSON.parse(this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE));
+      // set data in component
+      this.createWorkbookEntryRef.instance.setWorkspaceId(workspace.id);
+      this.createWorkbookEntryRef.instance.setSourceId(this.metadataDetailData.source.source.id);
+      this.createWorkbookEntryRef.instance.accessFromExplore();
+      this.createWorkbookEntryRef.instance.closedPopup.subscribe(() => {
+        this.createWorkbookEntryRef.destroy();
+      });
+      this.createWorkbookEntryRef.instance.completedPopup.subscribe((workbookId: string) => {
+        if (_.isNil(workbookId)) {
+          // link to workspace
+          this.router.navigateByUrl('/workspace').then();
+        } else {
+          // link to workspace
+          this.router.navigateByUrl('/workbook/' + workbookId).then();
+        }
+      });
+    }
   }
 
   /**
@@ -132,7 +164,11 @@ export class MetadataContainerComponent extends AbstractComponent {
   }
 
   isShowCreateWorkbench(): boolean {
-    return Metadata.isSourceTypeIsStaging(this.metadataDetailData.sourceType) || Metadata.isSourceTypeIsJdbc(this.metadataDetailData.sourceType);
+    return Metadata.isSourceTypeIsJdbc(this.metadataDetailData.sourceType);
+  }
+
+  isShowCreateWorkbook(): boolean {
+    return Metadata.isSourceTypeIsEngine(this.metadataDetailData.sourceType);
   }
 
   public onClickCreatedBy() {

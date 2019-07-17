@@ -8,6 +8,7 @@ import {WorkbenchService} from "../../../service/workbench.service";
 import {Alert} from "../../../../common/util/alert.util";
 import {WorkbenchConstant} from "../../../workbench.constant";
 import {StorageService} from "../../../../data-storage/service/storage.service";
+import {ExploreConstant} from "../../../../explore-data/constant/explore.constant";
 
 
 @Component({
@@ -30,6 +31,7 @@ export class CreateWorkbenchCompleteComponent extends AbstractComponent {
   invalidDescriptionMessage: string;
 
   @Output() readonly closedPopup = new EventEmitter();
+  @Output() readonly completed = new EventEmitter();
   @Output() readonly changeStep = new EventEmitter();
 
   // 생성자
@@ -42,6 +44,10 @@ export class CreateWorkbenchCompleteComponent extends AbstractComponent {
 
   ngOnInit() {
     this._initView();
+  }
+
+  close(): void {
+    this.closedPopup.emit();
   }
 
   prev(): void {
@@ -105,7 +111,7 @@ export class CreateWorkbenchCompleteComponent extends AbstractComponent {
   }
 
   private _getCreateWorkbenchParams() {
-    const params = {
+    const params: {name: string, dataConnection: string, workspace: string, type: 'workbench', folderId?: string, description?: string} = {
       workspace: `/api/workspaces/${this.workspaceId}`,
       dataConnection: `/api/dataconnections/${this.selectedConnection.id}`,
       name: this.name.trim(),
@@ -113,11 +119,11 @@ export class CreateWorkbenchCompleteComponent extends AbstractComponent {
     };
     // if not empty folder id
     if (this._isNotEmptyValue(this.folderId)) {
-      params['folderId'] = this.folderId;
+      params.folderId = this.folderId;
     }
     // if not empty description
     if (this._isNotEmptyValue(this.description)) {
-      params['description'] = this.description.trim();
+      params.description = this.description.trim();
     }
     return params;
   }
@@ -145,15 +151,35 @@ export class CreateWorkbenchCompleteComponent extends AbstractComponent {
   }
 
   private _createWorkbench(): void {
-    // 로딩 show
-    this.loadingShow();
-    this.workbenchService.createWorkbench(this._getCreateWorkbenchParams())
-      .then(result => {
-        this.loadingHide();
-        Alert.success(`'${this.name}' ` + this.translateService.instant('msg.space.alert.workbench.create.success'));
-        this.closedPopup.emit();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+    if (this.isAccessFromExplore) { // used in explore
+      // #2132 생성은 개인워크스페이스로 이동해서 생성
+      const params: {name: string, id: string, type: 'workbench', description?: string, table?: string} = {
+        type: 'workbench',
+        id: this.selectedConnection.id,
+        name: this.name.trim(),
+        table: this.selectedConnection.id
+      };
+      // if not empty description
+      if (this._isNotEmptyValue(this.description)) {
+        params.description = this.description.trim();
+      }
+      // set connection id and table in session storage
+      sessionStorage.setItem(ExploreConstant.SessionStorageKey.CREATED_FROM_EXPLORE, JSON.stringify(params));
+      this.completed.emit();
+      // close
+      this.close();
+    } else {  // used in workspace
+      this.loadingShow();
+      this.workbenchService.createWorkbench(this._getCreateWorkbenchParams())
+        .then(result => {
+          this.loadingHide();
+          Alert.success(`'${this.name}' ` + this.translateService.instant('msg.space.alert.workbench.create.success'));
+          this.completed.emit(result.id);
+          // close
+          this.close();
+        })
+        .catch(error => this.commonExceptionHandler(error));
+    }
   }
 
   private _initView(): void {
