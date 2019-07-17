@@ -199,6 +199,7 @@ public class OAuth2ServerConfig {
           .antMatchers("/oauth/authorize").permitAll()
           //별도 로그인 처리
           .antMatchers("/api/oauth/client/login").permitAll()
+          .antMatchers("/api/oauth/client/logout").permitAll()
 
           //.antMatchers("/oauth/check_token").permitAll()
 
