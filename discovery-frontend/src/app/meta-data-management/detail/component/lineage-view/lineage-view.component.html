@@ -29,14 +29,14 @@
       <!-- //다이어그램 영역 -->
 
       <!-- 노드 아이콘 클릭시 상세 영역 -->
-      <div class="sys-lineage-right-panel ddp-box-lineage-column-view"
+      <div class="sys-lineage-right-panel ddp-box-lineage-detail"
               *ngIf="selectedNode && selectedNode.metadataId" >
-        <app-metadata-detail-lineagecolumnview
+        <app-metadata-detail-lineagedetail
           [selectedNode]="selectedNode"
           (resizeEventHandler)="resizeEventHandler($event)"
           (closeColumnView)="closeColumnView()"
         >
-        </app-metadata-detail-lineagecolumnview>
+        </app-metadata-detail-lineagedetail>
       </div>
       <!-- //노드 아이콘 클릭시 상세 영역 -->
 

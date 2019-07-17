@@ -27,15 +27,21 @@ declare let echarts;
 declare let Split;
 
 @Component({
-  selector: 'app-metadata-detail-lineagecolumnview',
-  templateUrl: './lineage-column-view.component.html'
+  selector: 'app-metadata-detail-lineagedetail',
+  templateUrl: './lineage-detail.component.html'
 })
-export class LineageColumnViewComponent extends AbstractComponent implements OnInit, AfterViewInit, OnDestroy {
+export class LineageDetailComponent extends AbstractComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   private _split:any;
+
+  private isMetadataNameEdit : boolean = false;
+  private metadataName : string;
+
+  @ViewChild('metaName')
+  private metaName: ElementRef;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -106,6 +112,37 @@ export class LineageColumnViewComponent extends AbstractComponent implements OnI
 
   public closeInfo() {
     this.closeColumnView.emit();
+  }
+
+  public onMetadataNameEdit($event) {
+    $event.stopPropagation();
+    this.isMetadataNameEdit = !this.isMetadataNameEdit;
+
+    if(this.metadataName !== this.selectedNode.metadata.name) {
+      this.metadataName = this.selectedNode.metadata.name;
+    }
+
+    this.changeDetect.detectChanges();
+    this.metaName.nativeElement.focus();
+  }
+
+  public setMetadataName() {
+    this.isMetadataNameEdit = false;
+    if(this.metadataName !== this.selectedNode.metadata.name) {
+      this.metadataName = this.selectedNode.metadata.name;
+    }
+  }
+
+  public updateMetadata() {
+    if (this.metadataName.trim() === '' || this.metadataName.length < 1) {
+      Alert.warning(this.translateService.instant('msg.comm.ui.create.name'));
+      return;
+    }
+
+    if (this.metadataName.length > 150) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.name.error.description'));
+      return;
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

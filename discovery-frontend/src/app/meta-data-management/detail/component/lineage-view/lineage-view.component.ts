@@ -237,6 +237,7 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
       var seriesIdx = SeriesIndex.LINEAGE_DIAGRAM;
       const option = this.chart.getOption();
       option.series[seriesIdx].data[index].symbol = this.symbolInfo[NodeType[category]]['DEFAULT'];
+      this.chart.setOption(option);
 
       this.selectedNode = null;
     }
