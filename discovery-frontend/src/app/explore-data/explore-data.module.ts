@@ -46,6 +46,7 @@ import {CreateWorkbenchModule} from "../workbench/component/create-workbench/ref
 import {DatetimeValidPopupComponent} from "../shared/datasource-metadata/component/datetime-valid-popup.component";
 import {FieldConfigService} from "../data-storage/service/field-config.service";
 import {DatasourceMetadataSharedModule} from "../shared/datasource-metadata/datasource-metadata-shared.module";
+import {ExploreCatalogLayerComponent} from "./explore-data/component/explore-catalog-layer.component";
 
 @NgModule({
   imports: [
@@ -79,6 +80,7 @@ import {DatasourceMetadataSharedModule} from "../shared/datasource-metadata/data
     WorkspaceUsesComponent,
     ExploreDataMainComponent,
     ExploreCatalogMainComponent,
+    ExploreCatalogLayerComponent,
   ],
   providers: [
     MetadataService,

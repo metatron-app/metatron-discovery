@@ -7,6 +7,7 @@ import {CommonUtil} from "../../../../common/util/common.util";
 import {WorkbenchService} from "../../../service/workbench.service";
 import {Alert} from "../../../../common/util/alert.util";
 import {WorkbenchConstant} from "../../../workbench.constant";
+import {StorageService} from "../../../../data-storage/service/storage.service";
 
 
 @Component({
@@ -75,6 +76,10 @@ export class CreateWorkbenchCompleteComponent extends AbstractComponent {
 
   isEnableUrl(): boolean {
     return StringUtil.isNotEmpty(this.selectedConnection.url);
+  }
+
+  getConvertedConnectionTypeLabel(implementor) {
+    return StorageService.connectionTypeList.find(type => type.implementor === implementor).name;
   }
 
   onChangeNameValidation(value: string): void {
