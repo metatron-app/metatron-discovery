@@ -49,7 +49,15 @@ export class MetadataColumnsComponent extends AbstractComponent {
   }
 
   isDatasourceTypeMetadata(): boolean {
-    return false;
+    return Metadata.isSourceTypeIsEngine(this.metadata.sourceType);
+  }
+
+  isTimestampTypeField(column: MetadataColumn): boolean {
+    return MetadataColumn.isTypeIsTimestamp(column);
+  }
+
+  onClickInfoIcon(column: MetadataColumn): void {
+    column.format.isShowTimestampValidPopup = true;
   }
 
   /**
