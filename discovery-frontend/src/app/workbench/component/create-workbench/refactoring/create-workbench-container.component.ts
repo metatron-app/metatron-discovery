@@ -18,6 +18,7 @@ export class CreateWorkbenchContainerComponent extends AbstractPopupComponent {
 
   // used in explore
   isAccessFromExplore: boolean;
+  schemaName: string;
   tableName: string;
 
   // enum
@@ -56,6 +57,10 @@ export class CreateWorkbenchContainerComponent extends AbstractPopupComponent {
 
   setFolderId(folderId: string): void {
     this.folderId = folderId;
+  }
+
+  setSchemaName(schemaName: string): void {
+    this.schemaName = schemaName;
   }
 
   setTableName(tableName: string): void {
