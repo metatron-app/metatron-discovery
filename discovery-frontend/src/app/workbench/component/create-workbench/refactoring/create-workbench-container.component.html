@@ -24,6 +24,8 @@
   <component-workbench-complete *ngIf="createStep === CREATE_STEP.COMPLETE"
                                 [workspaceId]="workspaceId"
                                 [folderId]="folderId"
+                                [schemaName]="schemaName"
+                                [tableName]="tableName"
                                 [isAccessFromExplore]="isAccessFromExplore"
                                 (closedPopup)="closePopup()" (completedPopup)="completePopup($event)"
                                 (changeStep)="changeStep($event)"></component-workbench-complete>

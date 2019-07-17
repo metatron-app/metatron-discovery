@@ -116,6 +116,8 @@ export class MetadataContainerComponent extends AbstractComponent {
       // set data in component
       this.createWorkbenchEntryRef.instance.setWorkspaceId(workspace.id);
       this.createWorkbenchEntryRef.instance.setConnectionInModel(this.metadataDetailData.source.source);
+      this.createWorkbenchEntryRef.instance.setSchemaName(this.metadataDetailData.source.schema);
+      this.createWorkbenchEntryRef.instance.setTableName(this.metadataDetailData.source.table);
       this.createWorkbenchEntryRef.instance.accessFromExplore();
       this.createWorkbenchEntryRef.instance.closedPopup.subscribe(() => {
         this.createWorkbenchEntryRef.destroy();

@@ -20,6 +20,8 @@ export class CreateWorkbenchCompleteComponent extends AbstractComponent {
   @Input() readonly workspaceId: string;
   @Input() readonly folderId: string;
   @Input() readonly isAccessFromExplore: boolean;
+  @Input() readonly schemaName: string;
+  @Input() readonly tableName: string;
 
   name: string;
   description: string;
@@ -158,10 +160,11 @@ export class CreateWorkbenchCompleteComponent extends AbstractComponent {
         Alert.success(`'${this.name}' ` + this.translateService.instant('msg.space.alert.workbench.create.success'));
         // if access from explore
         if (this.isAccessFromExplore) {
-          const params: {id: string, type: 'workbench', table?: string} = {
+          const params: {id: string, type: 'workbench', schema?: string, table?: string} = {
             type: 'workbench',
             id: this.selectedConnection.id,
-            table: this.selectedConnection.id
+            schema: this.schemaName,
+            table: this.tableName
           };
           // set connection id and table in session storage
           sessionStorage.setItem(ExploreConstant.SessionStorageKey.CREATED_FROM_EXPLORE, JSON.stringify(params));
