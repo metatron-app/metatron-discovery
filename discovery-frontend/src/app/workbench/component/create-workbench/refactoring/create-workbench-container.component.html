@@ -25,6 +25,6 @@
                                 [workspaceId]="workspaceId"
                                 [folderId]="folderId"
                                 [isAccessFromExplore]="isAccessFromExplore"
-                                (closedPopup)="closePopup()" (completed)="completePopup()"
+                                (closedPopup)="closePopup()" (completedPopup)="completePopup($event)"
                                 (changeStep)="changeStep($event)"></component-workbench-complete>
 </div>
