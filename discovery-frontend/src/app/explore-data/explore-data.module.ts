@@ -43,11 +43,15 @@ import {ExploreDataInformationComponent} from "./explore-data/component/explore-
 import {ExploreDataUserCardComponent} from "./explore-data/component/explore-data-user-card.component";
 import {LogicalNameLayerComponent} from "./explore-data/component/logical-name-layer.component";
 import {CreateWorkbenchModule} from "../workbench/component/create-workbench/refactoring/create-workbench.module";
+import {DatetimeValidPopupComponent} from "../shared/datasource-metadata/component/datetime-valid-popup.component";
+import {FieldConfigService} from "../data-storage/service/field-config.service";
+import {DatasourceMetadataSharedModule} from "../shared/datasource-metadata/datasource-metadata-shared.module";
 
 @NgModule({
   imports: [
     CommonModule,
     CreateWorkbenchModule,
+    DatasourceMetadataSharedModule,
     RouterModule.forChild([
       {path: '', redirectTo: 'view', pathMatch: 'full' },
       {path: 'view', component: ExploreDataComponent},

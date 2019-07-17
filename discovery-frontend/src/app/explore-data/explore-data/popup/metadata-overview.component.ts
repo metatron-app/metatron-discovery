@@ -38,6 +38,10 @@ export class MetadataOverviewComponent implements OnInit, OnDestroy {
     }
   }
 
+  isDatasourceTypeMetadata(): boolean {
+    return Metadata.isSourceTypeIsEngine(this.metadata.sourceType);
+  }
+
   onClickSeeAllRecentQueries() {
     this.entry.clear();
     this.entryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(RecentQueriesComponent));

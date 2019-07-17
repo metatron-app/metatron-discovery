@@ -3,7 +3,7 @@
     <div class="ddp-data-details ddp-ui-preview-contents" (scroll)="onScroll()">
       <table class="ddp-table-form ddp-table-type2 ddp-table-details">
         <colgroup>
-<!--          <col [style.width]="'100px'" *ngIf="isDatasourceTypeMetadata()">-->
+          <col [style.width]="'100px'" *ngIf="isDatasourceTypeMetadata()">
           <col [style.width]="'160px'">
           <col [style.width]="'180px'">
           <col [style.width]="'180px'">
@@ -15,13 +15,13 @@
         <thead>
         <tr>
           <!-- role (only datasource) -->
-<!--          <th *ngIf="isDatasourceTypeMetadata()">-->
-<!--            <div class="ddp-th-long">-->
-<!--            <span class="ddp-th-txt">-->
-<!--              {{'msg.comm.th.role' | translate}}-->
-<!--            </span>-->
-<!--            </div>-->
-<!--          </th>-->
+          <th *ngIf="isDatasourceTypeMetadata()">
+            <div class="ddp-th-long">
+            <span class="ddp-th-txt">
+              {{'msg.comm.th.role' | translate}}
+            </span>
+            </div>
+          </th>
           <!-- //role (only datasource) -->
           <th>
             {{'msg.metadata.th.column.popularity' | translate}}
@@ -55,11 +55,11 @@
         <tbody>
         <tr *ngFor="let column of columns; let index=index">
           <td *ngIf="isDatasourceTypeMetadata()">
-          <span class="ddp-box-tag-value"
-                [class.ddp-measure]="column.role === ROLE.MEASURE"
-                [class.ddp-dimension]="column.role === ROLE.DIMENSION || column.role === ROLE.TIMESTAMP">
-            {{column.role === ROLE.MEASURE ? ('msg.comm.name.mea' | translate) : ('msg.comm.name.dim' | translate)}}
-          </span>
+            <span class="ddp-box-tag-value"
+                  [class.ddp-measure]="column.role === ROLE.MEASURE"
+                  [class.ddp-dimension]="column.role === ROLE.DIMENSION || column.role === ROLE.TIMESTAMP">
+              {{column.role === ROLE.MEASURE ? ('msg.comm.name.mea' | translate) : ('msg.comm.name.dim' | translate)}}
+            </span>
           </td>
           <td class="">
             <div class="ddp-bar">
@@ -75,10 +75,16 @@
           <td>
             {{column.dictionary? column.dictionary.name : '-'}}
           </td>
-          <td>
+          <td class="ddp-inherit ddp-info">
             <span class="ddp-txt-icon">
               <em class="{{getFieldTypeIconClass(column.type)}}"></em>{{getConvertedType(column)}}
             </span>
+            <div class="ddp-ui-info" *ngIf="isTimestampTypeField(column)" [class.ddp-selected]="column.format?.isShowTimestampValidPopup">
+              <em class="ddp-icon-sinfo2" (click)="onClickInfoIcon(column)"></em>
+              <!-- format layer -->
+              <datetime-valid-popup *ngIf="isTimestampTypeField(column)" [fieldFormat]="column?.format" [isReadOnly]="true"></datetime-valid-popup>
+              <!-- //format layer -->
+            </div>
           </td>
           <td>
             <div class=" ddp-select-search ddp-pop-select"
