@@ -47,6 +47,10 @@ export class MetadataColumn {
   // Value to be used only on View
   ////////////////////////////////////////////////////////////////////////////
 
+  public static isEmptyFormat(metadataColumn: MetadataColumn) {
+    return _.isNil(metadataColumn.format);
+  }
+
   public static isGeoColumn(metadataColumn: MetadataColumn) {
     return metadataColumn.type === Type.Logical.GEO_POLYGON || metadataColumn.type === Type.Logical.GEO_POINT || metadataColumn.type === Type.Logical.GEO_LINE;
   }

@@ -6,6 +6,7 @@ import {AbstractComponent} from "../../../common/component/abstract.component";
 import {ConstantService} from "../../../shared/datasource-metadata/service/constant.service";
 import {Metadata} from "../../../domain/meta-data-management/metadata";
 import {Type} from "../../../shared/datasource-metadata/domain/type";
+import {FieldFormat} from "../../../domain/datasource/datasource";
 
 @Component({
   selector: 'explore-metadata-columns',
@@ -57,6 +58,9 @@ export class MetadataColumnsComponent extends AbstractComponent {
   }
 
   onClickInfoIcon(column: MetadataColumn): void {
+    if (MetadataColumn.isEmptyFormat(column)) {
+      column.format = new FieldFormat();
+    }
     column.format.isShowTimestampValidPopup = true;
   }
 
