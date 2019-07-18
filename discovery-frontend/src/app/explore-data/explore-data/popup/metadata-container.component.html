@@ -9,7 +9,7 @@
         <component-metadata-type-box-tag [metadata]="metadataDetailData"></component-metadata-type-box-tag>
         <span class="ddp-label-title">{{metadataDetailData.name}}</span>
         <!-- info -->
-        <component-explore-data-information></component-explore-data-information>
+        <component-explore-data-information [source]="metadataDetailData.source" [sourceType]="metadataDetailData.sourceType"></component-explore-data-information>
         <!-- //info -->
         <!--<em class="ddp-icon-control-fav ddp-selected"></em>-->
         <div class="ddp-data-name">

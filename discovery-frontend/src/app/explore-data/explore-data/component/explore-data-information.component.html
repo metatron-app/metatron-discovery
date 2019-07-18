@@ -1,6 +1,6 @@
 <div class="ddp-wrap-info" [class.ddp-selected]="isShowInformation" (clickOutside)="closeInformation()">
   <em class="ddp-icon-info" (click)="onChangeShowInformation()"></em>
-  <div class="ddp-box-layout4 type-info">
+  <div class="ddp-box-layout4 type-info" *ngIf="isShowInformation">
     <a href="javascript:" class="ddp-icon-close" (click)="closeInformation(); $event.stopImmediatePropagation()"></a>
     <div class="ddp-data-title">
       Information
@@ -13,26 +13,57 @@
         </colgroup>
         <tbody>
         <tr>
-          <th>Data type</th>
-          <td>Datasource (My file)</td>
+          <th>{{'msg.metadata.md.ui.data.type'| translate}}</th>
+          <td>{{getMetadataType()}}</td>
         </tr>
-        <tr>
-          <th>Size</th>
-          <td>3.12 MB
-          </td>
-        </tr>
-        <tr>
-          <th>Data Range</th>
-          <td>yyyy-MM-dd ~ yyyy-MM-dd</td>
-        </tr>
-        <tr>
-          <th>Segment Granularity</th>
-          <td>DAY</td>
-        </tr>
-        <tr>
-          <th>Query Granularity</th>
-          <td>None</td>
-        </tr>
+        <ng-container *ngIf="isDatasourceType()">
+          <ng-container *ngIf="isNotEmptyIngestion()">
+            <tr>
+              <th>{{'msg.storage.ui.intervals' | translate}}</th>
+              <td>{{getDataRangeLabel()}}</td>
+            </tr>
+            <tr>
+              <th>{{'msg.storage.th.segment.gran'| translate}}</th>
+              <td>{{source.source.segGranularity}}</td>
+            </tr>
+            <tr>
+              <th>{{'msg.storage.th.query.gran'| translate}}</th>
+              <td>{{source.source.granularity}}</td>
+            </tr>
+          </ng-container>
+        </ng-container>
+        <ng-container *ngIf="isDatabaseType()">
+          <tr>
+            <th>{{'msg.comm.th.host'| translate}}</th>
+            <td>{{source.source.hostname}}</td>
+          </tr>
+          <tr>
+            <th>{{'msg.comm.th.port'| translate}}</th>
+            <td>{{source.source.port}}</td>
+          </tr>
+          <tr>
+            <th>{{'msg.storage.ui.security'| translate}}</th>
+            <td>{{getConvertedAuthenticationTypeLabel()}}</td>
+          </tr>
+          <tr>
+            <th>{{'msg.storage.ui.list.schema'| translate}}</th>
+            <td>{{source.schema}}</td>
+          </tr>
+          <tr>
+            <th>{{'msg.storage.btn.table'| translate}}</th>
+            <td>{{source.table}}</td>
+          </tr>
+        </ng-container>
+        <ng-container *ngIf="isStagingDbType()">
+          <tr>
+            <th>{{'msg.storage.ui.list.schema'| translate}}</th>
+            <td>{{source.schema}}</td>
+          </tr>
+          <tr>
+            <th>{{'msg.storage.btn.table'| translate}}</th>
+            <td>{{source.table}}</td>
+          </tr>
+        </ng-container>
         </tbody>
       </table>
     </div>
