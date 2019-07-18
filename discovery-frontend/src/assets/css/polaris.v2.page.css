@@ -8739,7 +8739,7 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
 .ddp-layout-meta .ddp-wrap-catalogs ul.ddp-ui-tab li a {padding:16px 33px 15px 10px; height:41px; text-align:center;}
 .ddp-layout-meta .ddp-wrap-catalogs ul.ddp-ui-tab li.ddp-selected a:before {position:absolute; bottom:0; left:0; right:0; content:''; border-bottom:1px solid #fff; }
 .ddp-layout-meta .ddp-wrap-catalogs ul.ddp-ui-tab li:last-of-type a {border-right:none;}
-.ddp-layout-meta em.ddp-bg-back {position:fixed; top:0; left:0; right:0; bottom:0; background:url(../images/bg_meta.jpg) no-repeat; background-size:100% 100%;}
+.ddp-layout-meta em.ddp-bg-back {position:fixed; top:0; left:0; right:0; bottom:0; background:url(../images/bg_meta.png) no-repeat; background-size:100% 100%;}
 .ddp-layout-meta .ddp-view-catalog.type-view .ddp-ui-contents-list.ddp-type {padding-top:129px;}
 .ddp-layout-meta .ddp-ui-contents-list.ddp-type {padding-top:190px;}
 .ddp-layout-meta .ddp-ui-contents-list.ddp-type.ddp-close {padding-left:0;}
