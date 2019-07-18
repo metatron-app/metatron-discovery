@@ -74,7 +74,7 @@
   "msg.comm.menu.manage.prep.flow": "데이터플로우",
   "msg.comm.menu.manage.prep.set": "데이터셋",
   "msg.comm.menu.manage.prep.snapshot": "데이터 스냅샷",
-  "msg.comm.menu.manage.model" : "노트북 관리",
+  "msg.comm.menu.manage.model" : "노트북",
   "msg.comm.menu.manage.model.approval" : "모델 승인",
   "msg.comm.menu.manage.model.notebook" : "노트북 서버",
   "msg.comm.menu.manage.monitoring" : "데이터 모니터링",

@@ -183,7 +183,7 @@ export class SetNotebookServerComponent extends AbstractComponent implements OnI
       .catch((error) => {
         // 로딩 hide
         this.loadingHide();
-        Alert.error(error.details);
+        Alert.error(error.message);
       });
   }
 
