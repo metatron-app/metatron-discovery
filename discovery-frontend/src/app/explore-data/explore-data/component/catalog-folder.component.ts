@@ -17,6 +17,7 @@ import {AbstractComponent} from "../../../common/component/abstract.component";
 import {Catalog} from "../../../domain/catalog/catalog";
 import {CatalogService} from "../../../meta-data-management/catalog/service/catalog.service";
 import {StringUtil} from "../../../common/util/string.util";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'component-catalog-folder',
@@ -29,8 +30,8 @@ export class CatalogFolderComponent extends AbstractComponent {
   // data
   @Input() readonly searchKeyword: string;
   @Input() readonly catalog: Catalog.Tree;
+  @Input() readonly selectedCatalog: Catalog.Tree;
   @Input() readonly isEmptyCatalog: boolean;
-  @Input() readonly isSelected: boolean;
 
   // event
   @Output() readonly clickedCatalog = new EventEmitter();
@@ -43,6 +44,14 @@ export class CatalogFolderComponent extends AbstractComponent {
 
   isEmptySearchKeyword(): boolean {
     return StringUtil.isEmpty(this.searchKeyword);
+  }
+
+  isEmptySelectedCatalog(): boolean {
+    return _.isNil(this.selectedCatalog);
+  }
+
+  isSelectedCatalog(): boolean {
+    return !this.isEmptySelectedCatalog() && this.selectedCatalog.id === this.catalog.id;
   }
 
   onChangeFolderOpen(catalogId: string) {

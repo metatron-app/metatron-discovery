@@ -4119,5 +4119,7 @@
   "msg.explore.ui.list.updated" : "신규 또는 수정된",
   "msg.explore.ui.list.data.creator" : "데이터 등록자",
   "msg.explore.ui.list.favorite.my" : "즐겨찾기",
-  "msg.explore.ui.lnb.folding" : "폴딩"
+  "msg.explore.ui.lnb.folding" : "폴딩",
+  "msg.explore.ui.list.content.total" : "<strong>{{totalElements}}</strong>건의 검색결과가 존재합니다",
+  "msg.explore.ui.list.content.total.searched" : "<span class=\"ddp-txt-search\">'{{searchedKeyword}}'</span>에 대한 <strong>{{totalElements}}</strong>건의 검색결과가 존재합니다"
 }

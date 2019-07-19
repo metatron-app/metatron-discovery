@@ -70,9 +70,9 @@
           <ul class="ddp-list-tree">
             <component-catalog-folder *ngFor="let catalog of catalogList"
                                       [catalog]="catalog"
-                                      [isSelected]="isSelectedCatalog(catalog)"
+                                      [selectedCatalog]="selectedCatalog"
                                       [searchKeyword]="catalogSearchKeyword"
-                                      (clickedCatalog)="onClickCatalog($event)" >
+                                      (clickedCatalog)="onChangeSelectedCatalog($event)" >
             </component-catalog-folder>
             <!-- is empty -->
             <component-catalog-folder *ngIf="catalogList && catalogList.length === 0" [isEmptyCatalog]="true"></component-catalog-folder>
@@ -96,7 +96,7 @@
       <!-- //search -->
       <div class="ddp-ui-tags">
         <ul class="ddp-list-tags">
-          <li *ngFor="let tag of tagList" [class.ddp-selected]="isSelectedTag(tag)" (click)="onClickTag(tag)">
+          <li *ngFor="let tag of tagList" [class.ddp-selected]="isSelectedTag(tag)" (click)="onChangeSelectedTag(tag)">
             <a href="javascript:">
               <div class="ddp-txt-data">
                 <em class="ddp-icon-tag"></em>

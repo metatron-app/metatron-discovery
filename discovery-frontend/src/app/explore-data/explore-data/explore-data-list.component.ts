@@ -23,6 +23,8 @@ import {CommonConstant} from "../../common/constant/common.constant";
 import {ExploreDataModelService} from "./service/explore-data-model.service";
 import {StorageService} from "../../data-storage/service/storage.service";
 import {ConstantService} from "../../shared/datasource-metadata/service/constant.service";
+import {CommonUtil} from "../../common/util/common.util";
+import {Catalog} from "../../domain/catalog/catalog";
 
 @Component({
   selector: 'explore-data-list',
@@ -30,11 +32,14 @@ import {ConstantService} from "../../shared/datasource-metadata/service/constant
 })
 export class ExploreDataListComponent extends AbstractComponent {
 
-  title: string;
   metadataList: Metadata[];
 
+  // only used in UI
+  selectedLnbTab: ExploreDataConstant.LnbTab;
   searchRange;
   searchedKeyword: string;
+  selectedCatalog: Catalog.Tree;
+  selectedTag;
 
   // filters
   // TODO 추후 동적필터가 들어오게되면 제거 필요
@@ -43,6 +48,8 @@ export class ExploreDataListComponent extends AbstractComponent {
 
   // event
   @Output() readonly clickedMetadata = new EventEmitter();
+  @Output() readonly requestInitializeSelectedCatalog = new EventEmitter();
+  @Output() readonly requestInitializeSelectedTag = new EventEmitter();
 
   // 생성자
   constructor(private metadataService: MetadataService,
@@ -54,12 +61,14 @@ export class ExploreDataListComponent extends AbstractComponent {
   }
 
   initMetadataList(): void {
+    // set external data
+    this.selectedLnbTab = this.exploreDataModelService.selectedLnbTab;
     this.searchRange = this.exploreDataModelService.selectedSearchRange;
     this.searchedKeyword = this.exploreDataModelService.searchKeyword;
-    this._setTitle();
-    this.page.page = 0;
-    this.page.size = CommonConstant.API_CONSTANT.PAGE_SIZE;
-    this._setMetadataList(this._getMetadataListParams());
+    this.selectedCatalog = this.exploreDataModelService.selectedCatalog;
+    this.selectedTag = this.exploreDataModelService.selectedTag;
+    // initial metadata list
+    this._initialMetadataList();
   }
 
   isEmptyMetadataList(): boolean {
@@ -74,25 +83,49 @@ export class ExploreDataListComponent extends AbstractComponent {
     return StringUtil.isNotEmpty(metadata.description);
   }
 
+  isNotEmptySearchKeyword(): boolean {
+    return StringUtil.isNotEmpty(this.searchedKeyword);
+  }
+
+  isSelectedCatalog(): boolean {
+    return this.selectedLnbTab === ExploreDataConstant.LnbTab.CATALOG && !_.isNil(this.selectedCatalog);
+  }
+
+  isSelectedTag(): boolean {
+    return this.selectedLnbTab === ExploreDataConstant.LnbTab.TAG && !_.isNil(this.selectedTag);
+  }
+
+  getTotalElements(): string {
+    return CommonUtil.numberWithCommas(this.pageResult.totalElements);
+  }
+
+  getTotalElementsGuide() {
+    if (this.isNotEmptySearchKeyword()) {
+      return this.translateService.instant('msg.explore.ui.list.content.total.searched', {totalElements: this.getTotalElements(), searchedKeyword: this.searchedKeyword.trim()});
+    } else {
+      return this.translateService.instant('msg.explore.ui.list.content.total', {totalElements: this.getTotalElements()});
+    }
+  }
+
   getMetadataName(name: string) {
-    if (StringUtil.isNotEmpty(this.searchedKeyword) && (this.searchRange.value === ExploreDataConstant.SearchRange.ALL || this.searchRange.value === ExploreDataConstant.SearchRange.DATA_NAME)) {
-      return name.replace(this.searchedKeyword, `<span class="ddp-txt-search">${this.searchedKeyword}</span>`);
+    if (this.isNotEmptySearchKeyword() && (this.searchRange.value === ExploreDataConstant.SearchRange.ALL || this.searchRange.value === ExploreDataConstant.SearchRange.DATA_NAME)) {
+      return name.replace(this.searchedKeyword, `<span class="ddp-txt-search type-search">${this.searchedKeyword}</span>`);
     } else {
       return name;
     }
   }
 
   getMetadataDescription(description: string) {
-    if (StringUtil.isNotEmpty(this.searchedKeyword) && (this.searchRange.value === ExploreDataConstant.SearchRange.ALL || this.searchRange.value === ExploreDataConstant.SearchRange.DESCRIPTION)) {
-      return '-' + description.replace(this.searchedKeyword, `<span class="ddp-txt-search">${this.searchedKeyword}</span>`);
+    if (this.isNotEmptySearchKeyword() && (this.searchRange.value === ExploreDataConstant.SearchRange.ALL || this.searchRange.value === ExploreDataConstant.SearchRange.DESCRIPTION)) {
+      return '-' + description.replace(this.searchedKeyword, `<span class="ddp-txt-search type-search">${this.searchedKeyword}</span>`);
     } else {
       return '-' + description;
     }
   }
 
   getMetadataCreator(creator: string) {
-    if (StringUtil.isNotEmpty(this.searchedKeyword) && (this.searchRange.value === ExploreDataConstant.SearchRange.ALL || this.searchRange.value === ExploreDataConstant.SearchRange.CREATOR)) {
-      return creator.replace(this.searchedKeyword, `<span class="ddp-txt-search">${this.searchedKeyword}</span>`);
+    if (this.isNotEmptySearchKeyword() && (this.searchRange.value === ExploreDataConstant.SearchRange.ALL || this.searchRange.value === ExploreDataConstant.SearchRange.CREATOR)) {
+      return creator.replace(this.searchedKeyword, `<span class="ddp-txt-search type-search">${this.searchedKeyword}</span>`);
     } else {
       return creator;
     }
@@ -125,6 +158,16 @@ export class ExploreDataListComponent extends AbstractComponent {
     this.clickedMetadata.emit(metadata);
   }
 
+  onClickResetSelectedCatalog(): void {
+    // requesting lnb component to initialize catalog
+    this.requestInitializeSelectedCatalog.emit();
+  }
+
+  onClickResetSelectedTag(): void {
+    // requesting lnb component to initialize tag
+    this.requestInitializeSelectedTag.emit();
+  }
+
   private _getMetadataListParams() {
     const result = {
       page: this.page.page,
@@ -132,12 +175,12 @@ export class ExploreDataListComponent extends AbstractComponent {
     };
     // if not empty search keyword
     if (StringUtil.isNotEmpty(this.searchedKeyword)) {
-      result[this.searchRange.value] = this.exploreDataModelService.searchKeyword.trim();
+      result[this.searchRange.value] = this.searchedKeyword.trim();
     }
-    if (this.exploreDataModelService.selectedLnbTab === ExploreDataConstant.LnbTab.CATALOG && !_.isNil(this.exploreDataModelService.selectedCatalog)) {
-      result['catalogId'] = this.exploreDataModelService.selectedCatalog.id;
-    } else if (this.exploreDataModelService.selectedLnbTab === ExploreDataConstant.LnbTab.TAG && !_.isNil(this.exploreDataModelService.selectedTag)) {
-      result['tag'] = this.exploreDataModelService.selectedTag.name;
+    if (this.isSelectedCatalog()) {
+      result['catalogId'] = this.selectedCatalog.id;
+    } else if (this.isSelectedTag()) {
+      result['tag'] = this.selectedTag.name;
     }
     return result;
   }
@@ -159,13 +202,9 @@ export class ExploreDataListComponent extends AbstractComponent {
       .catch(error => this.commonExceptionHandler(error));
   }
 
-  private _setTitle(): void {
-    if (this.exploreDataModelService.selectedLnbTab === ExploreDataConstant.LnbTab.CATALOG && !_.isNil(this.exploreDataModelService.selectedCatalog)) {
-      this.title = this.exploreDataModelService.selectedCatalog.name;
-    } else if (this.exploreDataModelService.selectedLnbTab === ExploreDataConstant.LnbTab.TAG && !_.isNil(this.exploreDataModelService.selectedTag)) {
-      this.title = this.exploreDataModelService.selectedTag.name;
-    } else {
-      this.title = undefined;
-    }
+  private _initialMetadataList(): void {
+    this.page.page = 0;
+    this.page.size = CommonConstant.API_CONSTANT.PAGE_SIZE;
+    this._setMetadataList(this._getMetadataListParams());
   }
 }

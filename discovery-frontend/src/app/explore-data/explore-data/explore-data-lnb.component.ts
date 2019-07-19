@@ -111,6 +111,14 @@ export class ExploreDataLnbComponent extends AbstractComponent {
     }
   }
 
+  initSelectedCatalog(): void {
+    this.onChangeSelectedCatalog(undefined);
+  }
+
+  initSelectedTag(): void {
+    this.onChangeSelectedTag(undefined);
+  }
+
   onChangeFoldingNavigation(): void {
     this.isFoldingNavigation = !this.isFoldingNavigation;
   }
@@ -120,6 +128,7 @@ export class ExploreDataLnbComponent extends AbstractComponent {
       this.selectedLnbTab = value;
       this.exploreDataModelService.selectedLnbTab = value;
       // if selected catalog or tag
+      // TODO 만약 탭 선택시 재조회를 하게 요청하면 if문 제거
       if ((value === ExploreDataConstant.LnbTab.CATALOG && !_.isNil(this.selectedCatalog)) || (value === ExploreDataConstant.LnbTab.TAG && !_.isNil(this.selectedTag))) {
         this._changedLnbData();
       }
@@ -152,13 +161,13 @@ export class ExploreDataLnbComponent extends AbstractComponent {
     }
   }
 
-  onClickCatalog(catalog: Catalog.Tree): void {
+  onChangeSelectedCatalog(catalog: Catalog.Tree): void {
     this.selectedCatalog = catalog;
     this.exploreDataModelService.selectedCatalog = catalog;
     this._changedLnbData();
   }
 
-  onClickTag(tag): void {
+  onChangeSelectedTag(tag): void {
     this.selectedTag = tag;
     this.exploreDataModelService.selectedTag = tag;
     this._changedLnbData();

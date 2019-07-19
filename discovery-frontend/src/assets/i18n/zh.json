@@ -3151,5 +3151,24 @@
   "msg.metadata.ui.description": "當修改數據時,數據來源也更新。",
   "msg.metadata.ui.move.datasource": "去達塔索斯",
   "msg.metadata.th.column.logical.tooltip.title": "逻辑列名是什么？",
-  "msg.metadata.th.column.logical.tooltip.desc": "在Metatron中，逻辑列名是用户普遍所使用的列名。生成用户的商务用语或者索引时，指定逻辑名。逻辑列名是在metatron中，制作图表或者工作台时所被使用。"
+  "msg.metadata.th.column.logical.tooltip.desc": "在Metatron中，逻辑列名是用户普遍所使用的列名。生成用户的商务用语或者索引时，指定逻辑名。逻辑列名是在metatron中，制作图表或者工作台时所被使用。",
+
+  "msg.explore.ui.title" : "Explore Data",
+  "msg.explore.ui.tab.catalogs" : "Catalogs",
+  "msg.explore.ui.tab.tags" : "Tags",
+  "msg.explore.ph.tab.catalogs.search" : "Search catalog",
+  "msg.explore.ph.tab.tags.search" : "Search tag",
+  "msg.explore.ui.search.range.all" : "All",
+  "msg.explore.ui.search.range.data.name" : "Data Name",
+  "msg.explore.ui.search.range.description" : "Description",
+  "msg.explore.ui.search.range.creator" : "Creator",
+  "msg.explore.ph.search" : "Searching meta data",
+  "msg.explore.ui.list.recommended" : "Recommended for you",
+  "msg.explore.ui.list.popular" : "Popular data",
+  "msg.explore.ui.list.updated" : "New or Update",
+  "msg.explore.ui.list.data.creator" : "Data creator",
+  "msg.explore.ui.list.favorite.my" : "My favorite",
+  "msg.explore.ui.lnb.folding" : "Folding",
+  "msg.explore.ui.list.content.total" : "There are <strong>{{totalElements}}</strong> lists",
+  "msg.explore.ui.list.content.total.searched" : "There are <strong>{{totalElements}}</strong> lists by <span class=\"ddp-txt-search\">'{{searchedKeyword}}'</span>"
 }

@@ -1,17 +1,139 @@
 <div class="ddp-ui-contents-list ddp-type">
-  <div class="ddp-meta-list">
-    <div class="ddp-type-label">
-      {{title}}
-<!--      <em class="ddp-icon-fav "></em>-->
+  <!-- filters -->
+  <div class="ddp-wrap-top-filtering type-form">
+    <div class="ddp-wrap-form-filtering">
+      <!-- form -->
+      <div class="ddp-form-filtering">
+        <!-- 결과 -->
+        <!-- 클릭시 ddp-selected 추가-->
+        <div class="ddp-result-filtering">
+          <span class="ddp-txt-label">Data type:</span>
+
+          <div class="ddp-box-result ">
+            <!--
+                title -> label : 선택한 내용 으로 넣어주세요
+            -->
+            <span class="ddp-txt-result" title="Status : All">All</span>
+
+          </div>
+          <!-- popup -->
+          <div class="ddp-wrap-popup2">
+
+            <ul class="ddp-list-popup">
+
+              <li class="">
+                <a href="javascript:">
+                  <label class="ddp-label-checkbox">
+                    <input type="checkbox">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">(All)</span>
+                  </label>
+                </a>
+              </li>
+              <li class="">
+                <a href="javascript:">
+                  <label class="ddp-label-checkbox">
+                    <input type="checkbox">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">Pending</span>
+                  </label>
+                </a>
+              </li>
+              <li class="">
+                <a href="javascript:">
+                  <label class="ddp-label-checkbox">
+                    <input type="checkbox">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">Waiting</span>
+                  </label>
+                </a>
+              </li>
+              <li class="">
+                <a href="javascript:">
+                  <label class="ddp-label-checkbox">
+                    <input type="checkbox">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">Running</span>
+                  </label>
+                </a>
+              </li>
+              <li class="">
+                <a href="javascript:">
+                  <label class="ddp-label-checkbox">
+                    <input type="checkbox">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">Fail</span>
+                  </label>
+                </a>
+              </li>
+
+            </ul>
+
+          </div>
+          <!-- //popup -->
+        </div>
+        <!-- //결과 -->
+      </div>
+      <!-- //form -->
     </div>
+  </div>
+  <!-- //filters -->
+  <!-- list -->
+  <div class="ddp-meta-list">
     <!-- box list -->
-    <div class="ddp-box-list" *ngIf="!isEmptyMetadataList()">
-      <table class="ddp-table-form ddp-table-line">
+    <div class="ddp-box-list">
+      <!-- clear -->
+      <div class="ddp-clear">
+        <!-- total elements guide -->
+        <div class="ddp-data-total" [innerHTML]="getTotalElementsGuide()"></div>
+        <!-- //total elements guide -->
+        <!-- catalog keyword -->
+        <div class="ddp-data-box" *ngIf="isSelectedCatalog()">
+          <div class="ddp-ui-root">
+            <a href="javascript:" class="ddp-list-root">
+              <em class="ddp-icon-folder"></em>
+              D 사업부
+            </a>
+            <a href="javascript:" class="ddp-list-root">
+              D 사업부
+            </a>
+            <a href="javascript:" class="ddp-list-root">
+             {{selectedCatalog.name}}
+            </a>
+          </div>
+          <!-- 클릭시 ddp-selected 추가 -->
+<!--          <em class="ddp-icon-control-fav ddp-selected"></em>-->
+          <a href="javascript:" class="ddp-link-reset" (click)="onClickResetSelectedCatalog()">
+            <em class="ddp-btn-reset"></em>
+          </a>
+        </div>
+        <!-- //catalog keyword -->
+        <!-- tag keyword -->
+        <div class="ddp-data-box" *ngIf="isSelectedTag()">
+          <span class="ddp-data-tag">
+            <em class="ddp-icon-tag"></em>
+            {{selectedTag.name}}
+          </span>
+          <!-- 클릭시 ddp-selected 추가 -->
+          <a href="javascript:" class="ddp-link-reset" (click)="onClickResetSelectedTag()">
+            <em class="ddp-btn-reset"></em>
+          </a>
+        </div>
+        <!-- //tag keyword -->
+      </div>
+      <!-- //clear -->
+      <!-- empty list -->
+      <div class="ddp-no-data" *ngIf="isEmptyMetadataList()">
+        No Metadata
+      </div>
+      <!-- //empty list -->
+      <!-- list -->
+      <table class="ddp-table-form ddp-table-line" *ngIf="!isEmptyMetadataList()">
         <colgroup>
 <!--          <col width="26px">-->
           <col width="100px">
           <col width="*">
-          <col width="20%">
+          <col width="200px">
           <col width="160px">
           <col width="13%">
           <col width="180px">
@@ -95,15 +217,12 @@
         </tr>
         </tbody>
       </table>
+      <!-- //list -->
     </div>
     <!-- //box list -->
     <!-- Pagination -->
-    <ng-template #notEmptyMetadataList>
-      <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
-    </ng-template>
+    <component-pagination *ngIf="!isEmptyMetadataList()" [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
     <!-- // Pagination -->
-    <div class="ddp-data-source-none" *ngIf="isEmptyMetadataList(); else notEmptyMetadataList">
-      {{'msg.metadata.ui.no.metadata' | translate}}
-    </div>
   </div>
+  <!-- //list -->
 </div>
