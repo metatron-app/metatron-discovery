@@ -40,7 +40,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
 
   subscription: Subscription;
 
-  private readonly _$layoutContentsClass = $( '.ddp-layout-contents' );
+  readonly $layoutContentsClass = $( '.ddp-layout-contents' );
 
   // enum
   readonly EXPLORE_MODE = ExploreMode;
@@ -75,13 +75,13 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
 
   public ngAfterViewInit() {
     super.ngAfterViewInit();
-    this._$layoutContentsClass.addClass( 'ddp-layout-meta' );
+    this.$layoutContentsClass.addClass( 'ddp-layout-meta' );
   }
 
   // Destroy
   public ngOnDestroy() {
     super.ngOnDestroy();
-    this._$layoutContentsClass.removeClass( 'ddp-layout-meta' );
+    this.$layoutContentsClass.removeClass( 'ddp-layout-meta' );
     this.subscription.unsubscribe();
   }
 

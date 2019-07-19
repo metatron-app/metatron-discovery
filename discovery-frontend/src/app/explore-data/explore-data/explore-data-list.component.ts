@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
 import {AbstractComponent} from '../../common/component/abstract.component';
 import * as _ from "lodash";
 import {StringUtil} from "../../common/util/string.util";
@@ -40,6 +40,7 @@ export class ExploreDataListComponent extends AbstractComponent {
   searchedKeyword: string;
   selectedCatalog: Catalog.Tree;
   selectedTag;
+  @Input() readonly $layoutContentsClass;
 
   // filters
   // TODO 추후 동적필터가 들어오게되면 제거 필요
@@ -59,6 +60,10 @@ export class ExploreDataListComponent extends AbstractComponent {
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
+  }
+
+  ngOnDestroy() {
+    this.$layoutContentsClass.removeClass('ddp-scroll');
   }
 
   initMetadataList(): void {
@@ -190,6 +195,8 @@ export class ExploreDataListComponent extends AbstractComponent {
     this.loadingShow();
     this.metadataService.getMetaDataList(params)
       .then((result) => {
+        // add ddp-scroll class to layout
+        this.$layoutContentsClass.addClass('ddp-scroll');
         this.pageResult = result.page;
         // set metadata list
         if (result._embedded) {
