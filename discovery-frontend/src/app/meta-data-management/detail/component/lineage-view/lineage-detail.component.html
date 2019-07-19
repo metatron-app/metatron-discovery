@@ -13,30 +13,22 @@
   -->
 
 <div class="ddp-box-in">
-  <a href="javascript:" class="ddp-btn-popup-close" (click)="closeInfo()"></a>
+  <a #closeButton href="javascript:" class="ddp-btn-popup-close" (click)="closeInfo()"></a>
 
-  <div class="ddp-ui-input">
-    <div class="ddp-lineage-detail-metadata-name"
-         [class.ddp-selected]="isMetadataNameEdit"
-         (clickOutside)="isMetadataNameEdit ? setMetadataName(): null;">
-      <em class="ddp-icon-file-svg">
-      </em>
-      <div class="ddp-ui-input">
-        <input type="text" #metaName maxlength="150"
-               placeholder="metadata name"
-               (keyup.enter)="isMetadataNameEdit ? null : null;"
-               [(ngModel)]="metadataName" />
-        <span class="ddp-btn-check" (click)="$event.stopPropagation(); updateMetadata();"></span>
-      </div>
-      <span class="ddp-txt-metadataname"
-            title="{{selectedNode.metadata.name}}">
-        {{selectedNode.metadata.name}}
-        <a href="javascript:" class="ddp-link-edit"
-           (click)="!isMetadataNameEdit ? onMetadataNameEdit($event):$event.stopPropagation();">
-          <em class="ddp-icon-edit2"></em>
-        </a>
-      </span>
-    </div>
+  <div class="ddp-lineage-detail-metadata-name">
+    <em class="ddp-icon-svg">
+      <svg-icon-component [name]="'icon-db'" [isBlackAndWhite]="false"></svg-icon-component>
+    </em>
+    <span class="ddp-txt-metadataname" title="{{selectedNode.metadata.name}}">
+      {{selectedNode.metadata.name}}
+    </span>
+  </div>
+
+  <div class="ddp-data-explain">
+    <span class="ddp-txt-explain">
+      {{selectedNode.metadata.description}}
+    </span>
+    <span class="ddp-tag-target">Target System</span>
   </div>
 
   <div class="ddp-ui-databuttons ddp-type">

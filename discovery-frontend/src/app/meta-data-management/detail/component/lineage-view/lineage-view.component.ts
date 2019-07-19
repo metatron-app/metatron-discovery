@@ -299,7 +299,9 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
       if( oldSelectedNodeIdx !== null || newSelectedNodeIdx !== null ) {
         this.chart.setOption(option);
-        this.chartAreaResize();
+        setTimeout( () => {
+          this.chartAreaResize();
+        }, 500 );
       }
     });
 
@@ -407,11 +409,6 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
       tooltip: { show: true },
       toolbox: {
         left: 'left',
-        feature: {
-          dataZoom: {
-            show: true,
-          }
-        }
       },
       xAxis: {
         type: 'value',
@@ -549,28 +546,35 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
   private chartAreaResize(resizeCall?:boolean): void {
     if(resizeCall == undefined) resizeCall = false;
 
+    $('.ddp-lineage-view-diagram').css('width', $('.sys-lineage-left-panel').width() );
+    $('.ddp-lineage-view-diagram').css('height', $('.sys-lineage-left-panel').height() );
+    $('.ddp-lineage-view-diagram').css('overflow', 'auto');
+
     const hNodeUnit = 5;
     const vNodeUnit = 7;
 
     const hScrollbarWith: number = 30;
-    const hSpacing: number = 2;
-    let minHeightSize: number = $('.ddp-lineage-view').height() - $('.ddp-lineage-view-toolbar').height() - hSpacing;
+    const vScrollbarWith: number = 30;
+
+    //let minWidthSize: number = $('.sys-lineage-left-panel').width();
     let minWidthSize: number = $('.ddp-lineage-view').width() - hScrollbarWith;
+    let minHeightSize: number = $('.ddp-lineage-view').height() - vScrollbarWith;
 
     if( hNodeUnit < this.lineageHeight ) {
       minHeightSize = minHeightSize * this.lineageHeight / hNodeUnit;
     }
     if( vNodeUnit < this.lineageDepth ) {
-      minWidthSize = minWidthSize * this.lineageDepth / vNodeUnit;
+      minHeightSize = minHeightSize * hNodeUnit / this.lineageHeight;
     }
 
-    //$('.ddp-lineage-view-diagram').css('overflow-x', 'hidden');
+    /*
     const resize = $('.sys-lineage-right-panel').width() !== null && $('.sys-lineage-right-panel').width() / $('.ddp-lineage-view').width() > 0.5;
     if(resize) {
       $('.ddp-lineage-view-diagram').css('overflow-x', 'auto');
     }else{
       $('.ddp-lineage-view-diagram').css('overflow-x', 'hidden');
     }
+    */
 
     $('#chartCanvas').css('height', minHeightSize+'px').css('width', minWidthSize+'px').css('overflow', 'hidden');
     if($('#chartCanvas').children()!=null && $('#chartCanvas').children()!=undefined){

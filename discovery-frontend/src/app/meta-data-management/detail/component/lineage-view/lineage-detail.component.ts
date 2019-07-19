@@ -37,11 +37,8 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   private _split:any;
 
-  private isMetadataNameEdit : boolean = false;
-  private metadataName : string;
-
-  @ViewChild('metaName')
-  private metaName: ElementRef;
+  @ViewChild('closeButton')
+  private closeButton: ElementRef;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -59,9 +56,6 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
 
   @Output()
   public closeColumnView = new EventEmitter();
-
-  @ViewChild('columnList')
-  public columnList: ElementRef;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -92,6 +86,7 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
       this._split = Split(['.sys-lineage-left-panel', '.sys-lineage-right-panel'], { sizes: [80, 20], minSize: [300,300], onDragEnd : (() => {
           this.resizeEventHandler.emit('resize');
         }) });
+      this.resizeEventHandler.emit('resize');
     }, 500 );
   } // function -  ngAfterViewInit
 
@@ -112,37 +107,6 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
 
   public closeInfo() {
     this.closeColumnView.emit();
-  }
-
-  public onMetadataNameEdit($event) {
-    $event.stopPropagation();
-    this.isMetadataNameEdit = !this.isMetadataNameEdit;
-
-    if(this.metadataName !== this.selectedNode.metadata.name) {
-      this.metadataName = this.selectedNode.metadata.name;
-    }
-
-    this.changeDetect.detectChanges();
-    this.metaName.nativeElement.focus();
-  }
-
-  public setMetadataName() {
-    this.isMetadataNameEdit = false;
-    if(this.metadataName !== this.selectedNode.metadata.name) {
-      this.metadataName = this.selectedNode.metadata.name;
-    }
-  }
-
-  public updateMetadata() {
-    if (this.metadataName.trim() === '' || this.metadataName.length < 1) {
-      Alert.warning(this.translateService.instant('msg.comm.ui.create.name'));
-      return;
-    }
-
-    if (this.metadataName.length > 150) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.name.error.description'));
-      return;
-    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
