@@ -37,7 +37,8 @@ export class ExploreDataSearchComponent extends AbstractComponent {
 
   isShowSelectBoxList: boolean;
   isFocusSearchInput: boolean;
-  isNotEmptySearchContents: boolean;
+  isEmptySearchContents: boolean;
+
 
   @Output() readonly changedSearch = new EventEmitter();
 
@@ -60,6 +61,10 @@ export class ExploreDataSearchComponent extends AbstractComponent {
 
   isSelectedRange(range): boolean {
     return this.selectedSearchRange.value === range.value;
+  }
+
+  onChangeEmptySearchContentsPresence(isEmpty: boolean): void {
+    this.isEmptySearchContents = isEmpty;
   }
 
   onChangeShowSelectBoxList(): void {

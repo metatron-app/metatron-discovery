@@ -48,6 +48,7 @@ export class ExploreDataListComponent extends AbstractComponent {
 
   // event
   @Output() readonly clickedMetadata = new EventEmitter();
+  @Output() readonly changedMetadataPresence = new EventEmitter();
   @Output() readonly requestInitializeSelectedCatalog = new EventEmitter();
   @Output() readonly requestInitializeSelectedTag = new EventEmitter();
 
@@ -189,14 +190,15 @@ export class ExploreDataListComponent extends AbstractComponent {
     this.loadingShow();
     this.metadataService.getMetaDataList(params)
       .then((result) => {
-
         this.pageResult = result.page;
-
+        // set metadata list
         if (result._embedded) {
           this.metadataList = result._embedded.metadatas;
         } else {
           this.metadataList = [];
         }
+        // broadcast changed metadata presence
+        this.changedMetadataPresence.emit(this.isEmptyMetadataList());
         this.loadingHide();
       })
       .catch(error => this.commonExceptionHandler(error));
