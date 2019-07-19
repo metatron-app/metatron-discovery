@@ -30,6 +30,14 @@ export class ConstantService {
     new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.line'), Type.Logical.GEO_LINE, 'ddp-icon-type-line'),
   ];
 
+  //TODO 추후 동적필터가 들어오게되면 제거 필요
+  private readonly metadataFilters: Filter.Metadata[] = [
+    new Filter.Metadata(this.translateService.instant('msg.comm.ui.list.all'), Type.MetadataSource.ALL),
+    new Filter.Metadata(this.translateService.instant('msg.comm.th.ds'), Type.MetadataSource.ALL),
+    new Filter.Metadata(this.translateService.instant('msg.storage.li.db'), Type.MetadataSource.ALL),
+    new Filter.Metadata(this.translateService.instant('msg.storage.li.hive'), Type.MetadataSource.ALL)
+  ];
+
   private readonly geoCoordinates: string[] = [
     'EPSG:4326',
     'EPSG:4301'
@@ -103,5 +111,13 @@ export class ConstantService {
       this.typeFilters.filter(type => {
         return type.value !== Type.Logical.ALL && (type.value === Type.Logical.INTEGER || type.value === Type.Logical.DOUBLE);
       }));
+  }
+
+  public getMetadataTypeFilters() {
+    return _.cloneDeep(this.metadataFilters);
+  }
+
+  public getMetadataTypeFiltersExceptStaging() {
+    return _.cloneDeep(this.metadataFilters.filter(filter => filter.value !== Type.MetadataSource.STAGING));
   }
 }

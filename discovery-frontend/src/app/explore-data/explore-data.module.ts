@@ -39,6 +39,7 @@ import {MetadataSvgComponent} from "./explore-data/component/metadata-svg.compon
 import {ExploreDataSearchComponent} from "./explore-data/explore-data-search.component";
 import {ExploreDataModelService} from "./explore-data/service/explore-data-model.service";
 import {ExploreDataLnbComponent} from "./explore-data/explore-data-lnb.component";
+import {ConstantService} from "../shared/datasource-metadata/service/constant.service";
 
 @NgModule({
   imports: [
@@ -75,7 +76,8 @@ import {ExploreDataLnbComponent} from "./explore-data/explore-data-lnb.component
     DatasourceService,
     TimezoneService,
     CodeTableService,
-    ExploreDataModelService
+    ExploreDataModelService,
+    ConstantService
   ],
 })
 export class ExploreDataModule {

@@ -21,6 +21,8 @@ import {ExploreDataConstant} from "../constant/explore-data-constant";
 import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
 import {CommonConstant} from "../../common/constant/common.constant";
 import {ExploreDataModelService} from "./service/explore-data-model.service";
+import {StorageService} from "../../data-storage/service/storage.service";
+import {ConstantService} from "../../shared/datasource-metadata/service/constant.service";
 
 @Component({
   selector: 'explore-data-list',
@@ -34,12 +36,18 @@ export class ExploreDataListComponent extends AbstractComponent {
   searchRange;
   searchedKeyword: string;
 
+  // filters
+  // TODO 추후 동적필터가 들어오게되면 제거 필요
+  dataTypeFilterList = StorageService.isEnableStageDB ? this.constant.getMetadataTypeFilters() : this.constant.getMetadataTypeFiltersExceptStaging();
+  selectedDataTypeFilter;
+
   // event
   @Output() readonly clickedMetadata = new EventEmitter();
 
   // 생성자
   constructor(private metadataService: MetadataService,
               private exploreDataModelService: ExploreDataModelService,
+              private constant: ConstantService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);

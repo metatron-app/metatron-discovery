@@ -36,6 +36,8 @@ export class ExploreDataSearchComponent extends AbstractComponent {
   selectedSearchRange = this.exploreDataModelService.selectedSearchRange;
 
   isShowSelectBoxList: boolean;
+  isFocusSearchInput: boolean;
+  isNotEmptySearchContents: boolean;
 
   @Output() readonly changedSearch = new EventEmitter();
 
@@ -54,6 +56,10 @@ export class ExploreDataSearchComponent extends AbstractComponent {
 
   isEmptySearchKeyword(): boolean {
     return StringUtil.isEmpty(this.searchKeyword);
+  }
+
+  isSelectedRange(range): boolean {
+    return this.selectedSearchRange.value === range.value;
   }
 
   onChangeShowSelectBoxList(): void {
@@ -75,6 +81,10 @@ export class ExploreDataSearchComponent extends AbstractComponent {
     this.searchKeyword = value;
     this.exploreDataModelService.searchKeyword = value;
     this._changedSearch();
+  }
+
+  onChangeFocusSearchInput(flag: boolean): void {
+    this.isFocusSearchInput = flag;
   }
 
   closeSelectBoxList(): void {

@@ -94,6 +94,14 @@ export class ExploreDataLnbComponent extends AbstractComponent {
     return StringUtil.isEmpty(this.tagSearchKeyword);
   }
 
+  isNotEmptyCatalogContents(): boolean {
+    return !_.isNil(this.catalogList) && this.catalogList.length !== 0;
+  }
+
+  isNotEmptyTagContents(): boolean {
+    return !_.isNil(this.tagList) && this.tagList.length !== 0;
+  }
+
   getTagName(name: string) {
     // if empty search keyword
     if (StringUtil.isEmpty(this.tagSearchKeyword)) {
