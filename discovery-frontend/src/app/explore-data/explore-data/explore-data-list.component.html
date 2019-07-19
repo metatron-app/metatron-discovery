@@ -196,8 +196,9 @@
             </div>
           </td>
           <td>
-            <div class="ddp-wrap-tags">
-              <span class="ddp-tags" *ngFor="let tag of metadata.tags"># {{tag.name}}</span>
+            <div class="ddp-wrap-tags" *ngIf="isEnableTag(metadata)">
+              <span class="ddp-tags"># {{metadata.tags[0].name}}</span>
+              <span class="ddp-tag-more" *ngIf="isExistMoreTags(metadata)">+ {{metadata.tags.length - 1}}</span>
             </div>
           </td>
           <td>

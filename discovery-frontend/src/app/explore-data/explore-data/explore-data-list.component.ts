@@ -85,6 +85,10 @@ export class ExploreDataListComponent extends AbstractComponent {
     return !Metadata.isEmptyTags(metadata);
   }
 
+  isExistMoreTags(metadata: Metadata): boolean {
+    return metadata.tags.length > 1;
+  }
+
   isEnableDescription(metadata: Metadata): boolean {
     return StringUtil.isNotEmpty(metadata.description);
   }
