@@ -311,6 +311,7 @@
   "msg.comm.alert.error.msg": "There were problems<br>Please check the following messages:",
   "msg.comm.alert.error.btn": "Click here for details",
   "msg.comm.ui.total": "Results",
+  "msg.comm.btn.reset.all": "Reset All",
 
   "msg.lnb.btn.manual" : "Download",
   "msg.lnb.btn.manual.web" : "Online",

@@ -297,6 +297,7 @@
   "msg.comm.alert.error": "请确认报错内容",
   "msg.comm.alert.modify.success": "已保存变更内容",
   "msg.comm.btn.edit": "编辑",
+  "msg.comm.btn.reset.all": "重置所有",
 
   "msg.lnb.btn.manual" : "手册",
   "msg.lnb.btn.manual.web" : "网站",

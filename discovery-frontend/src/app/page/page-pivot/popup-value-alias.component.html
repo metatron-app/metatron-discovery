@@ -39,7 +39,12 @@
         </span>
 
       <div class="ddp-box-copy-table">
-        <span class="ddp-txt-info">{{'msg.board.datasource.alias.for.value.description' | translate}}</span>
+        <!-- button -->
+        <a href="javascript:" class="ddp-btn-bg " (click)="resetAll()">
+          <em class="ddp-icon-reset"></em>
+          {{'msg.comm.btn.reset.all' | translate}}
+        </a>
+        <!-- //button -->
         <!-- 그리드 영역 -->
         <div class="ddp-view-grid">
           <div grid-component #gridArea style="width:100%;height:100%;"></div>
