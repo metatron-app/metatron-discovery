@@ -17,40 +17,41 @@ package app.metatron.discovery.domain.dataprep;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.workspace.Book;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.PostConstruct;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties(prefix="polaris.dataprep")
+@ConfigurationProperties(prefix = "polaris.dataprep")
 public class PrepProperties {
-  public static final String LOCAL_BASE_DIR       = "polaris.dataprep.localBaseDir";
-  public static final String HADOOP_CONF_DIR      = "polaris.dataprep.hadoopConfDir";
-  public static final String STAGING_BASE_DIR     = "polaris.dataprep.stagingBaseDir";
-  public static final String S3_BASE_DIR          = "polaris.dataprep.s3BaseDir";
 
-  public static final String SAMPLING_CORES       = "polaris.dataprep.sampling.cores";
-  public static final String SAMPLING_TIMEOUT     = "polaris.dataprep.sampling.timeout";
-  public static final String SAMPLING_LIMIT_ROWS  = "polaris.dataprep.sampling.limitRows";
+  public static final String LOCAL_BASE_DIR = "polaris.dataprep.localBaseDir";
+  public static final String HADOOP_CONF_DIR = "polaris.dataprep.hadoopConfDir";
+  public static final String STAGING_BASE_DIR = "polaris.dataprep.stagingBaseDir";
+  public static final String S3_BASE_DIR = "polaris.dataprep.s3BaseDir";
+
+  public static final String SAMPLING_CORES = "polaris.dataprep.sampling.cores";
+  public static final String SAMPLING_TIMEOUT = "polaris.dataprep.sampling.timeout";
+  public static final String SAMPLING_LIMIT_ROWS = "polaris.dataprep.sampling.limitRows";
   public static final String SAMPLING_AUTO_TYPING = "polaris.dataprep.sampling.autoTyping";
 
-  public static final String STAGEDB_HOSTNAME     = "polaris.storage.stagedb.hostname";
-  public static final String STAGEDB_PORT         = "polaris.storage.stagedb.port";
-  public static final String STAGEDB_USERNAME     = "polaris.storage.stagedb.username";
-  public static final String STAGEDB_PASSWORD     = "polaris.storage.stagedb.password";
-  public static final String STAGEDB_URL          = "polaris.storage.stagedb.url";
+  public static final String STAGEDB_HOSTNAME = "polaris.storage.stagedb.hostname";
+  public static final String STAGEDB_PORT = "polaris.storage.stagedb.port";
+  public static final String STAGEDB_USERNAME = "polaris.storage.stagedb.username";
+  public static final String STAGEDB_PASSWORD = "polaris.storage.stagedb.password";
+  public static final String STAGEDB_URL = "polaris.storage.stagedb.url";
 
-  public static final String ETL_CORES            = "polaris.dataprep.etl.cores";
-  public static final String ETL_TIMEOUT          = "polaris.dataprep.etl.timeout";
-  public static final String ETL_LIMIT_ROWS       = "polaris.dataprep.etl.limitRows";
-  public static final String ETL_JAR              = "polaris.dataprep.etl.jar";
-  public static final String ETL_JVM_OPTIONS      = "polaris.dataprep.etl.jvmOptions";
-  public static final String ETL_EXPLICIT_GC      = "polaris.dataprep.etl.explicitGC";
+  public static final String ETL_CORES = "polaris.dataprep.etl.cores";
+  public static final String ETL_TIMEOUT = "polaris.dataprep.etl.timeout";
+  public static final String ETL_LIMIT_ROWS = "polaris.dataprep.etl.limitRows";
+  public static final String ETL_JVM_OPTIONS = "polaris.dataprep.etl.jvmOptions";
+  public static final String ETL_EXPLICIT_GC = "polaris.dataprep.etl.explicitGC";
+
+  public static final String ETL_SPARK_JAR = "polaris.dataprep.etl.spark.jar";
+  public static final String ETL_SPARK_PORT = "polaris.dataprep.etl.spark.port";
 
   public static String dirDataprep = "dataprep";
   public static String dirPreview = "previews";
@@ -89,58 +90,104 @@ public class PrepProperties {
 
   public String getHadoopConfDir(boolean mandatory) {
     if (mandatory && hadoopConfDir == null) {
-      throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_NOT_CONFIGURED, "Hadoop not configured");
+      throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
+          PrepMessageKey.MSG_DP_ALERT_HADOOP_NOT_CONFIGURED, "Hadoop not configured");
     }
     return hadoopConfDir;
   }
 
   public String getStagingBaseDir(boolean mandatory) {
     if (mandatory && stagingBaseDir == null) {
-      throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED, "StagingDir not configured");
+      throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
+          PrepMessageKey.MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED, "StagingDir not configured");
     }
     return stagingBaseDir;
   }
 
   public String getS3BaseDir(boolean mandatory) {
     if (mandatory && s3BaseDir == null) {
-      throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED, "S3Dir not configured");
+      throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
+          PrepMessageKey.MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED, "S3Dir not configured");
     }
     return s3BaseDir;
   }
 
   // sampling, etl cannot be null (see init())
-  public Integer getSamplingCores()      { return sampling.getCores(); }
-  public Integer getSamplingTimeout()    { return sampling.getTimeout(); }
-  public Integer getSamplingLimitRows()  { return sampling.getLimitRows(); }
-  public Boolean getSamplingAutoTyping() { return sampling.getAutoTyping(); }
+  public Integer getSamplingCores() {
+    return sampling.getCores();
+  }
 
-  public Integer getEtlCores()           { return etl.getCores(); }
-  public Integer getEtlTimeout()         { return etl.getTimeout(); }
-  public Integer getEtlLimitRows()       { return etl.getLimitRows(); }
-  public String  getEtlJar()             { return etl.getJar(); }
-  public String  getEtlJvmOptions()      { return etl.getJvmOptions(); }
-  public Boolean getEtlExplicitGC()      { return etl.getExplicitGC(); }
+  public Integer getSamplingTimeout() {
+    return sampling.getTimeout();
+  }
+
+  public Integer getSamplingLimitRows() {
+    return sampling.getLimitRows();
+  }
+
+  public Boolean getSamplingAutoTyping() {
+    return sampling.getAutoTyping();
+  }
+
+  public Integer getEtlCores() {
+    return etl.getCores();
+  }
+
+  public Integer getEtlTimeout() {
+    return etl.getTimeout();
+  }
+
+  public Integer getEtlLimitRows() {
+    return etl.getLimitRows();
+  }
+
+  public String getEtlJvmOptions() {
+    return etl.getJvmOptions();
+  }
+
+  public Boolean getEtlExplicitGC() {
+    return etl.getExplicitGC();
+  }
+
+  public String getEtlSparkJar() {
+    return etl.spark.getJar();
+  }
+
+  public String getEtlSparkPort() {
+    return etl.spark.getPort();
+  }
 
   // wrapper functions
-  public boolean isHDFSConfigured()      { return (hadoopConfDir != null && stagingBaseDir != null); }
-  public boolean isFileSnapshotEnabled() { return (true); } // always true
-  public boolean isAutoTypingEnabled()   { return sampling.getAutoTyping(); }
+  public boolean isHDFSConfigured() {
+    return (hadoopConfDir != null && stagingBaseDir != null);
+  }
+
+  public boolean isFileSnapshotEnabled() {
+    return (true);
+  } // always true
+
+  public boolean isAutoTypingEnabled() {
+    return sampling.getAutoTyping();
+  }
+
+  public boolean isSparkEngineEnabled() {
+    return (etl.spark.jar != null && etl.spark.port != null);
+  }
 
   // Everything for ETL
   public Map<String, Object> getEveryForEtl() {
     Map<String, Object> map = new HashMap();
 
-    map.put(HADOOP_CONF_DIR,     getHadoopConfDir(false));
+    map.put(HADOOP_CONF_DIR, getHadoopConfDir(false));
 
-    map.put(ETL_CORES,           getEtlCores());
-    map.put(ETL_TIMEOUT,         getEtlTimeout());
-    map.put(ETL_LIMIT_ROWS,      getEtlLimitRows());
-    map.put(ETL_JVM_OPTIONS,     getEtlJvmOptions());
-    map.put(ETL_EXPLICIT_GC,     getEtlExplicitGC());
+    map.put(ETL_CORES, getEtlCores());
+    map.put(ETL_TIMEOUT, getEtlTimeout());
+    map.put(ETL_LIMIT_ROWS, getEtlLimitRows());
+    map.put(ETL_JVM_OPTIONS, getEtlJvmOptions());
+    map.put(ETL_EXPLICIT_GC, getEtlExplicitGC());
 
     return map;
   }
-
 
   // Belows might be used only in this class
 
@@ -156,6 +203,7 @@ public class PrepProperties {
   }
 
   public static class SamplingInfo {
+
     public Integer cores;
     public Integer timeout;
     public Integer limitRows;
@@ -211,19 +259,56 @@ public class PrepProperties {
     @Override
     public String toString() {
       return String.format("SamplingInfo{cores=%d timeout=%d limitRows=%d autoTyping=%b}",
-                                         cores, timeout, limitRows, autoTyping);
+          cores, timeout, limitRows, autoTyping);
+    }
+  }
+
+  public static class SparkInfo {
+
+    public String jar;
+    public String port;
+
+    public SparkInfo() {
+    }
+
+    public String getJar() {
+      return jar;
+    }
+
+    public void setJar(String jar) {
+      this.jar = jar;
+    }
+
+    public String getPort() {
+      return port;
+    }
+
+    public void setPort(String port) {
+      this.port = port;
+    }
+
+    @Override
+    public String toString() {
+      return "SparkInfo{" +
+          "jar='" + jar + '\'' +
+          ", port='" + port + '\'' +
+          '}';
     }
   }
 
   public static class EtlInfo {
+
     public Integer cores;
     public Integer timeout;
     public Integer limitRows;
-    public String jar;
     public String jvmOptions;
     public Boolean explicitGC;
+    public SparkInfo spark;
 
     public EtlInfo() {
+      if (spark == null) {
+        spark = new SparkInfo();
+      }
     }
 
     public Integer getCores() {
@@ -247,13 +332,6 @@ public class PrepProperties {
       return limitRows;
     }
 
-    public String getJar() {
-      if (jar == null) {
-        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_EXTERNAL_JAR_NOT_CONFIGURED, "External jar not configured");
-      }
-      return jar;
-    }
-
     public String getJvmOptions() {
       if (jvmOptions == null) {
         jvmOptions = "-Xmx1g";
@@ -268,6 +346,10 @@ public class PrepProperties {
       return explicitGC;
     }
 
+    public SparkInfo getSpark() {
+      return spark;
+    }
+
     public void setCores(Integer cores) {
       this.cores = cores;
     }
@@ -280,10 +362,6 @@ public class PrepProperties {
       this.limitRows = limitRows;
     }
 
-    public void setJar(String jar) {
-      this.jar = jar;
-    }
-
     public void setJvmOptions(String jvmOptions) {
       this.jvmOptions = jvmOptions;
     }
@@ -292,32 +370,38 @@ public class PrepProperties {
       this.explicitGC = explicitGC;
     }
 
+    public void setSpark(SparkInfo spark) {
+      this.spark = spark;
+    }
+
     @Override
     public String toString() {
-      return String.format("EtlInfo{cores=%d timeout=%d jar=%s jvmOptions=%s explicitGC=%b}",
-                                    cores, timeout, jar, jvmOptions, explicitGC);
+      return String.format("EtlInfo{cores=%d timeout=%d jvmOptions=%s explicitGC=%b}",
+          cores, timeout, jvmOptions, explicitGC);
     }
   }
 
   public void setLocalBaseDir(String localBaseDir) {
-    if(null!=localBaseDir && 1<localBaseDir.length() && true==localBaseDir.endsWith(File.separator)) {
-      this.localBaseDir = localBaseDir.substring(0,localBaseDir.length());
+    if (null != localBaseDir && 1 < localBaseDir.length() && true == localBaseDir
+        .endsWith(File.separator)) {
+      this.localBaseDir = localBaseDir.substring(0, localBaseDir.length());
     } else {
       this.localBaseDir = localBaseDir;
     }
   }
 
   public void setStagingBaseDir(String stagingBaseDir) {
-    if(null!=stagingBaseDir && 1<stagingBaseDir.length() && true==stagingBaseDir.endsWith(File.separator)) {
-      this.stagingBaseDir = stagingBaseDir.substring(0,stagingBaseDir.length());
+    if (null != stagingBaseDir && 1 < stagingBaseDir.length() && true == stagingBaseDir
+        .endsWith(File.separator)) {
+      this.stagingBaseDir = stagingBaseDir.substring(0, stagingBaseDir.length());
     } else {
       this.stagingBaseDir = stagingBaseDir;
     }
   }
 
   public void setS3BaseDir(String s3BaseDir) {
-    if(null!=s3BaseDir && 1<s3BaseDir.length() && true==s3BaseDir.endsWith(File.separator)) {
-      this.s3BaseDir = s3BaseDir.substring(0,s3BaseDir.length());
+    if (null != s3BaseDir && 1 < s3BaseDir.length() && true == s3BaseDir.endsWith(File.separator)) {
+      this.s3BaseDir = s3BaseDir.substring(0, s3BaseDir.length());
     } else {
       this.s3BaseDir = s3BaseDir;
     }
@@ -373,7 +457,8 @@ public class PrepProperties {
 
   @Override
   public String toString() {
-    return String.format("PrepProperties{localBaseDir=%s stagingBaseDir=%s s3BaseDir=%s hadoopConfDir=%s sampling=%s etl=%s}",
-                                         localBaseDir, stagingBaseDir, s3BaseDir, hadoopConfDir, sampling, etl);
+    return String.format(
+        "PrepProperties{localBaseDir=%s stagingBaseDir=%s s3BaseDir=%s hadoopConfDir=%s sampling=%s etl=%s}",
+        localBaseDir, stagingBaseDir, s3BaseDir, hadoopConfDir, sampling, etl);
   }
 }

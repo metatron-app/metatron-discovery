@@ -1408,6 +1408,10 @@ public class PrepTransformService {
         }
         configuration.put("file_uri", fileUri);
       }
+
+      if (prepProperties.isSparkEngineEnabled()) {
+        configuration.put("sparkEngineEnabled", true);
+      }
     } catch (Exception e) {
       throw e;
     }
