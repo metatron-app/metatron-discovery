@@ -525,9 +525,9 @@ ul.ddp-list-typebasic.ddp-view li.ddp-selected a .ddp-icon-plus {display:block;}
 .ddp-show {display:block !important;}
 .ddp-none {display:none !important;}
 .ddp-border-none {border:none !important;}
-.ddp-txt-ellipsis {white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
+.ddp-txt-ellipsis {white-space:nowrap !important; text-overflow:ellipsis !important; overflow:hidden !important;}
 .ddp-null {color:#b8bac2 !important;font-style:italic !important;}
-.ddp-null * {color:#b8bac2 !important; font-style:italic !important;;}
+.ddp-null * {color:#b8bac2 !important; font-style:italic !important;}
 .ddp-empty {background:blue !important; opacity:0.2 !important;}
 
 .ddp-space-pre {white-space:pre !important;}
