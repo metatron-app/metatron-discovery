@@ -355,7 +355,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     };
 
     if( false===this.canUseForLineage() ) {
-      Alert.error(this.translateService.instant('msg.comm.alert.delete.fail'));
+      Alert.error(this.translateService.instant('msg.dp.alert.cannot.make.lineage'));
       return false;
     }
 
@@ -377,17 +377,22 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       return false;
     }
 
-    var requiredColumns = [
-      "description",
-      "upstreammetaid", "upstreammetaname", "upstreammetacolname",
-      "downstreammetaid", "downstreammetaname", "downstreammetacolname"
+    var requiredColumns1 = [
+      "upstreammetaid", "downstreammetaid"
     ];
-    var passed = requiredColumns.every( col => {
+    var requiredColumns2 = [
+      "upstreammetaname", "downstreammetaname"
+    ];
+    var filtered1 = this.dataset.gridResponse.colNames.filter(function(col, index, array) {
       let _col = col.toLowerCase().replace(/_/g,'');
-      return this.dataset.gridResponse.colNames.includes(_col);
+      return requiredColumns1.includes(_col);
+    });
+    var filtered2 = this.dataset.gridResponse.colNames.filter(function(col, index, array) {
+      let _col = col.toLowerCase().replace(/_/g,'');
+      return requiredColumns2.includes(_col);
     });
 
-    return passed;
+    return filtered1.length===requiredColumns1.length || filtered2.length===requiredColumns1.length;
   }
 
   /** get total bytes */
