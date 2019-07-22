@@ -45,7 +45,7 @@ export class ExploreDataListComponent extends AbstractComponent {
   // filters
   // TODO 추후 동적필터가 들어오게되면 제거 필요
   dataTypeFilterList = StorageService.isEnableStageDB ? this.constant.getMetadataTypeFilters() : this.constant.getMetadataTypeFiltersExceptStaging();
-  selectedDataTypeFilter;
+  selectedDataTypeFilter = this.constant.getMetadataTypeFiltersFirst();
 
   // event
   @Output() readonly clickedMetadata = new EventEmitter();
@@ -219,5 +219,9 @@ export class ExploreDataListComponent extends AbstractComponent {
     this.page.page = 0;
     this.page.size = CommonConstant.API_CONSTANT.PAGE_SIZE;
     this._setMetadataList(this._getMetadataListParams());
+  }
+
+  private _initialMetadataListFilter(): void {
+    this.selectedDataTypeFilter = this.dataTypeFilterList[0];
   }
 }

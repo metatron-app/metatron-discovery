@@ -6,72 +6,7 @@
       <div class="ddp-form-filtering">
         <!-- 결과 -->
         <!-- 클릭시 ddp-selected 추가-->
-        <div class="ddp-result-filtering">
-          <span class="ddp-txt-label">Data type:</span>
-
-          <div class="ddp-box-result ">
-            <!--
-                title -> label : 선택한 내용 으로 넣어주세요
-            -->
-            <span class="ddp-txt-result" title="Status : All">All</span>
-
-          </div>
-          <!-- popup -->
-          <div class="ddp-wrap-popup2">
-
-            <ul class="ddp-list-popup">
-
-              <li class="">
-                <a href="javascript:">
-                  <label class="ddp-label-checkbox">
-                    <input type="checkbox">
-                    <i class="ddp-icon-checkbox"></i>
-                    <span class="ddp-txt-checkbox">(All)</span>
-                  </label>
-                </a>
-              </li>
-              <li class="">
-                <a href="javascript:">
-                  <label class="ddp-label-checkbox">
-                    <input type="checkbox">
-                    <i class="ddp-icon-checkbox"></i>
-                    <span class="ddp-txt-checkbox">Pending</span>
-                  </label>
-                </a>
-              </li>
-              <li class="">
-                <a href="javascript:">
-                  <label class="ddp-label-checkbox">
-                    <input type="checkbox">
-                    <i class="ddp-icon-checkbox"></i>
-                    <span class="ddp-txt-checkbox">Waiting</span>
-                  </label>
-                </a>
-              </li>
-              <li class="">
-                <a href="javascript:">
-                  <label class="ddp-label-checkbox">
-                    <input type="checkbox">
-                    <i class="ddp-icon-checkbox"></i>
-                    <span class="ddp-txt-checkbox">Running</span>
-                  </label>
-                </a>
-              </li>
-              <li class="">
-                <a href="javascript:">
-                  <label class="ddp-label-checkbox">
-                    <input type="checkbox">
-                    <i class="ddp-icon-checkbox"></i>
-                    <span class="ddp-txt-checkbox">Fail</span>
-                  </label>
-                </a>
-              </li>
-
-            </ul>
-
-          </div>
-          <!-- //popup -->
-        </div>
+        <component-check-filter [filterName]="'Data type'" [filterList]="dataTypeFilterList"></component-check-filter>
         <!-- //결과 -->
       </div>
       <!-- //form -->

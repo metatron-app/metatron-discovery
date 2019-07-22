@@ -32,10 +32,9 @@ export class ConstantService {
 
   //TODO 추후 동적필터가 들어오게되면 제거 필요
   private readonly metadataFilters: Filter.Metadata[] = [
-    new Filter.Metadata(this.translateService.instant('msg.comm.ui.list.all'), Type.MetadataSource.ALL),
-    new Filter.Metadata(this.translateService.instant('msg.comm.th.ds'), Type.MetadataSource.ALL),
-    new Filter.Metadata(this.translateService.instant('msg.storage.li.db'), Type.MetadataSource.ALL),
-    new Filter.Metadata(this.translateService.instant('msg.storage.li.hive'), Type.MetadataSource.ALL)
+    new Filter.Metadata(this.translateService.instant('msg.comm.th.ds'), Type.MetadataSource.ENGINE),
+    new Filter.Metadata(this.translateService.instant('msg.storage.li.db'), Type.MetadataSource.JDBC),
+    new Filter.Metadata(this.translateService.instant('msg.storage.li.hive'), Type.MetadataSource.STAGING)
   ];
 
   private readonly geoCoordinates: string[] = [
@@ -119,5 +118,9 @@ export class ConstantService {
 
   public getMetadataTypeFiltersExceptStaging() {
     return _.cloneDeep(this.metadataFilters.filter(filter => filter.value !== Type.MetadataSource.STAGING));
+  }
+
+  public getMetadataTypeFiltersFirst() {
+    return _.cloneDeep(this.metadataFilters[0]);
   }
 }

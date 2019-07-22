@@ -40,6 +40,7 @@ import {ExploreDataSearchComponent} from "./explore-data/explore-data-search.com
 import {ExploreDataModelService} from "./explore-data/service/explore-data-model.service";
 import {ExploreDataLnbComponent} from "./explore-data/explore-data-lnb.component";
 import {ConstantService} from "../shared/datasource-metadata/service/constant.service";
+import {CheckBoxFilterComponent} from "./explore-data/component/check-box-filter.component";
 
 @NgModule({
   imports: [
@@ -53,6 +54,7 @@ import {ConstantService} from "../shared/datasource-metadata/service/constant.se
   ],
   declarations: [
     MetadataSvgComponent,
+    CheckBoxFilterComponent,
     ExploreBannerComponent,
     ExploreCardComponent,
     CatalogFolderComponent,
