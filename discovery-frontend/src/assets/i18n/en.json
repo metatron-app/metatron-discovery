@@ -3612,7 +3612,7 @@
   "msg.page.format.custom.symbol.position": "Custom Symbol Position",
   "msg.page.format.custom.symbol.position.front": "Front",
   "msg.page.format.custom.symbol.position.back": "Back",
-  "msg.page.format.numeric.alias": "CuNumber Abbreviations",
+  "msg.page.format.numeric.alias": "Number Abbreviations",
   "msg.page.format.numeric.alias.none": "None",
   "msg.page.format.numeric.alias.auto": "Automation",
   "msg.page.format.numeric.alias.kilo": "Kilo",
