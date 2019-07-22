@@ -53,6 +53,8 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
   private uriFileFormat: UriFileFormat;
 
   private _isDataprepStagingEnabled: boolean = true;
+  private _isSparkEngineEnabled: boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -77,6 +79,8 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
   public compressionType: {value:HiveFileCompression, label: string}[];
 
   public overwriteMethod: {value: AppendMode, label: string}[];
+
+  public Engine = Engine;
 
   public engineList: {value: Engine, label: string}[];
 
@@ -229,14 +233,12 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
     // file uri cannot be empty
     if (SsType.URI === this.snapshot.ssType) {
-      this.snapshot.engine = Engine.EMBEDDED;
       if (this.snapshot.storedUri.length < 1){
         this.fileUrlErrorMsg = this.translateService.instant('msg.common.ui.required');
         this.isErrorShow = true;
         return;
       }
     }
-
 
     this.loadingShow();
     this._createSnapshot(this.datasetId, this.snapshot);
@@ -355,6 +357,13 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
   }
 
+  /**
+   * Change ETL Engine
+   * @param engine
+   */
+  public changeEtlEngine(engine : Engine) {
+    this.snapshot.engine = engine;
+  }
 
   /**
    * Toggle Advanced setting button
@@ -368,9 +377,16 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    * Check if staging is enabled
    */
   public isStagingEnabled() :boolean {
-    return StorageService.isEnableStageDB && this._isDataprepStagingEnabled
+    return StorageService.isEnableStageDB && this._isDataprepStagingEnabled;
   }
 
+
+  /**
+   * Check if spark engine is enabled
+   */
+  public isSparkEnabled() :boolean {
+    return this._isSparkEngineEnabled;
+  }
 
   /**
    * Remove error msg when keydown in ssName
@@ -482,7 +498,8 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     ];
 
     this.engineList = [
-      { value : Engine.EMBEDDED, label : 'Embedded Engine' }
+      { value : Engine.EMBEDDED, label : 'Embedded Engine' },
+      { value : Engine.SPARK, label : 'Spark' }
     ];
 
   }
@@ -560,6 +577,8 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     return new Promise<any>((resolve, reject) => {
 
       this.dataflowService.getConfiguration(this.datasetId).then((conf) => {
+
+        this._isSparkEngineEnabled = conf['sparkEngineEnabled'];
 
         this.ssName = this._getDefaultSnapshotName(conf['ss_name']);
 
