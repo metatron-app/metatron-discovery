@@ -12,18 +12,19 @@ import {
 import {Metadata} from "../../../domain/meta-data-management/metadata";
 import {CommonUtil} from "../../../common/util/common.util";
 import {SYSTEM_PERMISSION} from "../../../common/permission/permission";
-import {WorkspaceUsesComponent} from "./workspace-uses.component";
 import {AbstractComponent} from "../../../common/component/abstract.component";
 import {MetadataService} from "../../../meta-data-management/metadata/service/metadata.service";
 import * as _ from 'lodash';
 import {CreateWorkbenchContainerComponent} from "../../../workbench/component/create-workbench/refactoring/create-workbench-container.component";
 import {CookieConstant} from "../../../common/constant/cookie.constant";
 import {CreateWorkbookComponent} from "../../../workbook/component/create-workbook/refactoring/create-workbook.component";
+import {Modal} from "../../../common/domain/modal";
+import {ConfirmRefModalComponent} from "../../../common/component/modal/confirm/confirm-ref.component";
 
 @Component({
   selector: 'explore-metadata-container',
   templateUrl: './metadata-container.component.html',
-  entryComponents: [CreateWorkbenchContainerComponent, CreateWorkbookComponent]
+  entryComponents: [CreateWorkbenchContainerComponent, CreateWorkbookComponent, ConfirmRefModalComponent]
 })
 export class MetadataContainerComponent extends AbstractComponent {
 
@@ -38,8 +39,8 @@ export class MetadataContainerComponent extends AbstractComponent {
   @ViewChild('component_create_workbook', {read: ViewContainerRef}) readonly createWorkbookEntry: ViewContainerRef;
   createWorkbookEntryRef: ComponentRef<CreateWorkbookComponent>;
 
-  @ViewChild(WorkspaceUsesComponent)
-  workspaceUsesComp: WorkspaceUsesComponent;
+  @ViewChild('component_confirm', {read: ViewContainerRef}) readonly confirmModalEntry: ViewContainerRef;
+  confirmModalEntryRef: ComponentRef<ConfirmRefModalComponent>;
 
   public selectedTab: number = 0;
 
@@ -111,49 +112,13 @@ export class MetadataContainerComponent extends AbstractComponent {
 
   onClickCreateWorkbench(): void {
     if (this.isShowCreateWorkbench()) {
-      this.createWorkbenchEntryRef = this.createWorkbenchEntry.createComponent(this.resolver.resolveComponentFactory(CreateWorkbenchContainerComponent));
-      const workspace = JSON.parse(this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE));
-      // set data in component
-      this.createWorkbenchEntryRef.instance.setWorkspaceId(workspace.id);
-      this.createWorkbenchEntryRef.instance.setConnectionInModel(this.metadataDetailData.source.source);
-      this.createWorkbenchEntryRef.instance.setSchemaName(this.metadataDetailData.source.schema);
-      this.createWorkbenchEntryRef.instance.setTableName(this.metadataDetailData.source.table);
-      this.createWorkbenchEntryRef.instance.accessFromExplore();
-      this.createWorkbenchEntryRef.instance.closedPopup.subscribe(() => {
-        this.createWorkbenchEntryRef.destroy();
-      });
-      this.createWorkbenchEntryRef.instance.completedPopup.subscribe((workbenchId: string) => {
-        if (_.isNil(workbenchId)) {
-          // link to workspace
-          this.router.navigateByUrl('/workspace').then();
-        } else {
-          // link to workspace
-          this.router.navigateByUrl('/workbench/' + workbenchId).then();
-        }
-      });
+      this._showConfirmComponent().then(() => this._showCreateWorkbenchComponent());
     }
   }
 
   onClickCreateWorkbook(): void {
     if (this.isShowCreateWorkbook()) {
-      this.createWorkbookEntryRef = this.createWorkbookEntry.createComponent(this.resolver.resolveComponentFactory(CreateWorkbookComponent));
-      const workspace = JSON.parse(this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE));
-      // set data in component
-      this.createWorkbookEntryRef.instance.setWorkspaceId(workspace.id);
-      this.createWorkbookEntryRef.instance.setSourceId(this.metadataDetailData.source.source.id);
-      this.createWorkbookEntryRef.instance.accessFromExplore();
-      this.createWorkbookEntryRef.instance.closedPopup.subscribe(() => {
-        this.createWorkbookEntryRef.destroy();
-      });
-      this.createWorkbookEntryRef.instance.completedPopup.subscribe((workbookId: string) => {
-        if (_.isNil(workbookId)) {
-          // link to workspace
-          this.router.navigateByUrl('/workspace').then();
-        } else {
-          // link to workspace
-          this.router.navigateByUrl('/workbook/' + workbookId).then();
-        }
-      });
+      this._showConfirmComponent().then(() => this._showCreateWorkbookComponent());
     }
   }
 
@@ -174,7 +139,7 @@ export class MetadataContainerComponent extends AbstractComponent {
   }
 
   public onClickCreatedBy() {
-    this.workspaceUsesComp.init({});
+    // TODO 해당 사용자가 가지고 있는 메타데이터 목록 팝업 보여주기
   }
 
   private _setMetadataDetail(metadataId: string) {
@@ -187,6 +152,70 @@ export class MetadataContainerComponent extends AbstractComponent {
       .catch(error => this.commonExceptionHandler(error));
   }
 
+  private _showConfirmComponent() {
+    return new Promise((resolve, reject) => {
+      // show confirm modal
+      this.confirmModalEntryRef = this.confirmModalEntry.createComponent(this.resolver.resolveComponentFactory(ConfirmRefModalComponent));
+      const modal: Modal = new Modal();
+      modal.name = this.translateService.instant('msg.explore.ui.confirm.title');
+      modal.description = this.translateService.instant('msg.explore.ui.confirm.description');
+      modal.btnName = this.translateService.instant('msg.explore.btn.confirm.done');
+      this.confirmModalEntryRef.instance.init(modal);
+      this.confirmModalEntryRef.instance.cancelEvent.subscribe(() => {
+        // destroy confirm component
+        this.confirmModalEntryRef.destroy();
+      });
+      this.confirmModalEntryRef.instance.confirmEvent.subscribe((result) => {
+        // destroy confirm component
+        this.confirmModalEntryRef.destroy();
+        resolve(result);
+      });
+    });
+  }
+
+  private _showCreateWorkbookComponent(): void {
+    this.createWorkbookEntryRef = this.createWorkbookEntry.createComponent(this.resolver.resolveComponentFactory(CreateWorkbookComponent));
+    const workspace = JSON.parse(this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE));
+    // set data in component
+    this.createWorkbookEntryRef.instance.setWorkspaceId(workspace.id);
+    this.createWorkbookEntryRef.instance.setSourceId(this.metadataDetailData.source.source.id);
+    this.createWorkbookEntryRef.instance.accessFromExplore();
+    this.createWorkbookEntryRef.instance.closedPopup.subscribe(() => {
+      this.createWorkbookEntryRef.destroy();
+    });
+    this.createWorkbookEntryRef.instance.completedPopup.subscribe((workbookId: string) => {
+      if (_.isNil(workbookId)) {
+        // link to workspace
+        this.router.navigateByUrl('/workspace').then();
+      } else {
+        // link to workspace
+        this.router.navigateByUrl('/workbook/' + workbookId).then();
+      }
+    });
+  }
+
+  private _showCreateWorkbenchComponent(): void {
+    this.createWorkbenchEntryRef = this.createWorkbenchEntry.createComponent(this.resolver.resolveComponentFactory(CreateWorkbenchContainerComponent));
+    const workspace = JSON.parse(this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE));
+    // set data in component
+    this.createWorkbenchEntryRef.instance.setWorkspaceId(workspace.id);
+    this.createWorkbenchEntryRef.instance.setConnectionInModel(this.metadataDetailData.source.source);
+    this.createWorkbenchEntryRef.instance.setSchemaName(this.metadataDetailData.source.schema);
+    this.createWorkbenchEntryRef.instance.setTableName(this.metadataDetailData.source.table);
+    this.createWorkbenchEntryRef.instance.accessFromExplore();
+    this.createWorkbenchEntryRef.instance.closedPopup.subscribe(() => {
+      this.createWorkbenchEntryRef.destroy();
+    });
+    this.createWorkbenchEntryRef.instance.completedPopup.subscribe((workbenchId: string) => {
+      if (_.isNil(workbenchId)) {
+        // link to workspace
+        this.router.navigateByUrl('/workspace').then();
+      } else {
+        // link to workspace
+        this.router.navigateByUrl('/workbench/' + workbenchId).then();
+      }
+    });
+  }
 }
 
 class MetadataTab {
