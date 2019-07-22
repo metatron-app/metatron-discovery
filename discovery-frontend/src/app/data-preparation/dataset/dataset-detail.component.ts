@@ -354,7 +354,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       'dsName': this.dataset.dsName
     };
 
-    if( false===canUseForLineage() ) {
+    if( false===this.canUseForLineage() ) {
       Alert.error(this.translateService.instant('msg.comm.alert.delete.fail'));
       return false;
     }
