@@ -354,6 +354,11 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       'dsName': this.dataset.dsName
     };
 
+    if( false===canUseForLineage() ) {
+      Alert.error(this.translateService.instant('msg.comm.alert.delete.fail'));
+      return false;
+    }
+
     this.loadingShow();
     this.datasetService.makeLineage(params)
       .then(result => {
@@ -374,8 +379,8 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
     var requiredColumns = [
       "description",
-      "upstreammetaname", "upstreammetacolname",
-      "downstreammetaname", "downstreammetacolname"
+      "upstreammetaid", "upstreammetaname", "upstreammetacolname",
+      "downstreammetaid", "downstreammetaname", "downstreammetacolname"
     ];
     var passed = requiredColumns.every( col => {
       let _col = col.toLowerCase().replace(/_/g,'');

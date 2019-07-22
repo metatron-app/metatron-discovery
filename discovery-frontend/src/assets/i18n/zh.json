@@ -704,6 +704,7 @@
   "msg.dp.alert.check.value": "请确认值",
   "msg.dp.alert.add.ds.success": "已添加数据集",
   "msg.dp.alert.apply.rule.fail": "规则使用失败",
+  "msg.dp.alert.cannot.make.lineage": "this dataset is not for lineage",
   "msg.dp.alert.command.error": "无效的Command，请确认Command",
   "msg.dp.alert.command.input.ph": "请添加Command",
   "msg.dp.alert.create-df.success": "{{value}}数据流已生成",

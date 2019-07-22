@@ -728,6 +728,7 @@
   "msg.dp.alert.check.value": "값을 확인해 주세요",
   "msg.dp.alert.add.ds.success": "데이터 셋을 추가하였습니다",
   "msg.dp.alert.apply.rule.fail" : "룰 적용에 실패하였습니다",
+  "msg.dp.alert.cannot.make.lineage": "this dataset is not for lineage",
   "msg.dp.alert.command.error" : "커맨드가 유효하지 않습니다. 커맨드를 확인해 주세요",
   "msg.dp.alert.command.input.ph" : "커맨드를 추가해 주세요",
   "msg.dp.alert.create-df.success": "{{value}} 데이터 플로우가 생성되었습니다",

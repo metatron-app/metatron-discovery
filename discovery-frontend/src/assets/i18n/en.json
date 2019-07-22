@@ -729,6 +729,7 @@
   "msg.dp.alert.check.value": "Check value",
   "msg.dp.alert.add.ds.success": "Dataset added",
   "msg.dp.alert.apply.rule.fail": "Failed to apply rules",
+  "msg.dp.alert.cannot.make.lineage": "this dataset is not for lineage",
   "msg.dp.alert.command.error" : "Command is invalid. Please check command input.",
   "msg.dp.alert.command.input.ph" : "Please insert command",
   "msg.dp.alert.create-df.success": "{{value}} dataflow created",
