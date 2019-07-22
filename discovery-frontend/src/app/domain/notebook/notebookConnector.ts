@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
 
 export class NotebookConnector extends AbstractHistoryEntity {
   public id: string;
@@ -21,4 +21,5 @@ export class NotebookConnector extends AbstractHistoryEntity {
   public description: string;
   public hostname: string;
   public port: string;
+  public url: string;
 }

@@ -2896,6 +2896,11 @@ ul.ddp-ui-tab li.ddp-selected a em.ddp-icon-zepplin {background-position:left -1
 .ddp-ui-notebook-server .ddp-type-top-option {position:relative;}
 .ddp-ui-notebook-server .ddp-type-top-option a.ddp-btn-switch {position:absolute; top:10px; right:10px;}
 .ddp-ui-notebook-server .ddp-type-top-option a.ddp-btn-switch .ddp-ui-tooltip-info.ddp-down em.ddp-icon-view-top {right:12px;}
+.ddp-ui-notebook-server .ddp-type-top-option .ddp-option-right {position:absolute; top:0; right:0;}
+.ddp-ui-notebook-server .ddp-type-top-option .ddp-option-right .ddp-btn-selection {color:#90969f}
+.ddp-ui-notebook-server .ddp-type-top-option .ddp-option-right .ddp-btn-selection:hover {color:#4b515b;}
+.ddp-ui-notebook-server .ddp-type-top-option .ddp-option-right .ddp-btn-selection .ddp-btn-reset3 {margin-right:6px; vertical-align:middle;}
+.ddp-ui-notebook-server .ddp-type-top-option .ddp-option-right .ddp-btn-selection:hover .ddp-btn-reset3 {background-position:-15px -34px;}
 .ddp-ui-notebook-server .ddp-wrap-viewtable {position:absolute; top:146px; left:0; right:0; bottom:24px; padding-bottom:45px;}
 
 /**********************************************************************************
