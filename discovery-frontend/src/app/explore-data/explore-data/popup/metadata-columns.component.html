@@ -77,7 +77,7 @@
           </td>
           <td class="ddp-inherit ddp-info">
             <span class="ddp-txt-icon">
-              <em class="{{getFieldTypeIconClass(column.type)}}"></em>{{getConvertedType(column)}}
+             <em class="{{getFieldTypeIconClass(column.type)}}"></em>{{getConvertedType(column)}}
             </span>
             <div class="ddp-ui-info" *ngIf="isTimestampTypeField(column)" [class.ddp-selected]="column.format?.isShowTimestampValidPopup">
               <em class="ddp-icon-sinfo2" (click)="onClickInfoIcon(column)"></em>

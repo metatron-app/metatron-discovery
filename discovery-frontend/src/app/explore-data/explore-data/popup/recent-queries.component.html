@@ -2,7 +2,7 @@
   <!-- top -->
   <div class="ddp-ui-top">
     <div class="ddp-data-name">
-      Recently Queries
+      {{'msg.explore.ui.detail.recent.query'| translate}}
       <div class="ddp-data-info"><em class="ddp-icon-info"></em>List up to the last 100 cases.</div>
     </div>
     <em class="ddp-btn-popup-close" (click)="closePopup()"></em>
@@ -35,8 +35,8 @@
         <td> <span class="ddp-data-state ddp-success">Success</span></td>
         <td>
           <div class="ddp-txt-long ddp-type-button">
-            <a href="javascript:" class="ddp-btn-selection ddp-fright" (click)="onClickCopy()">Copy</a>
-            <span class="ddp-txt-name" title="TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne">TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne</span>
+            <a href="javascript:" class="ddp-btn-selection ddp-fright" (click)="onClickCopy(queryElement)">Copy</a>
+            <span class="ddp-txt-name" title="TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne" #queryElement>TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne</span>
           </div>
         </td>
       </tr>

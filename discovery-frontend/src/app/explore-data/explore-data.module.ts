@@ -48,6 +48,7 @@ import {FieldConfigService} from "../data-storage/service/field-config.service";
 import {DatasourceMetadataSharedModule} from "../shared/datasource-metadata/datasource-metadata-shared.module";
 import {ExploreCatalogLayerComponent} from "./explore-data/component/explore-catalog-layer.component";
 import {CreateWorkbookModule} from "../workbook/component/create-workbook/refactoring/create-workbook.module";
+import {ConfirmRefModalComponent} from "../common/component/modal/confirm/confirm-ref.component";
 
 @NgModule({
   imports: [
@@ -63,6 +64,7 @@ import {CreateWorkbookModule} from "../workbook/component/create-workbook/refact
     ]),
   ],
   declarations: [
+    ConfirmRefModalComponent,
     ExploreDataInformationComponent,
     ExploreDataUserCardComponent,
     MetadataTypeBoxTagComponent,

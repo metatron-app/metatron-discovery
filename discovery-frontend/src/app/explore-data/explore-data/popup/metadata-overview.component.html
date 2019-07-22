@@ -62,7 +62,7 @@
               <ng-container *ngIf="metadata.catalogs.length > 0; else noCatalog">
                 <div class="ddp-ui-catalogs ddp-type" *ngFor="let catalog of metadata.catalogs | slice:0:2">
                   <div class="ddp-box-catalogs">
-                    <span *ngFor="let hierarchy of catalog['hierarchies']">{{hierarchy.name}}</span>
+                    <span *ngFor="let hierarchy of catalog.hierarchies">{{hierarchy.name}}</span>
                   </div>
                 </div>
                 <!-- more -->
@@ -90,7 +90,7 @@
       <div class="ddp-detail-view ddp-right">
         <!-- detail -->
         <div class="ddp-detail">
-          <div class="ddp-label">Top User</div>
+          <div class="ddp-label">{{'msg.explore.ui.detail.top.user'| translate}}</div>
           <div class="ddp-data-det">
             <!-- user -->
             <ul class="ddp-list-user">
@@ -98,43 +98,10 @@
                 <component-explore-data-user-card [userName]="'userName'" [dateTime]="'1991-12-25'"></component-explore-data-user-card>
               </li>
               <li>
-                <div class="ddp-box-user">
-                  <div class="ddp-data-photo">
-                    <img src="../images/img_profile.png">
-                  </div>
-                  <div class="ddp-wrap-data">
-                    <div class="ddp-data-name">John Sm <em class="ddp-icon-control-fav ddp-selected"></em></div>
-                    <div class="ddp-data-info">Information &gt; Description</div>
-                    <div class="ddp-data-date">yyyy-mm-dd hh:mm:ss</div>
-                  </div>
-
-                </div>
+                <component-explore-data-user-card [userName]="'userName'" [dateTime]="'1991-12-25'"></component-explore-data-user-card>
               </li>
               <li>
-                <div class="ddp-box-user">
-                  <div class="ddp-data-photo">
-                    <img src="../images/img_profile.png">
-                  </div>
-                  <div class="ddp-wrap-data">
-                    <div class="ddp-data-name">John Smith <em class="ddp-icon-control-fav ddp-selected"></em></div>
-                    <div class="ddp-data-info">Information &gt; Description</div>
-                    <div class="ddp-data-date">yyyy-mm-dd hh:mm:ss</div>
-                  </div>
-
-                </div>
-              </li>
-              <li>
-                <div class="ddp-box-user">
-                  <div class="ddp-data-photo">
-                    <img src="../images/img_profile.png">
-                  </div>
-                  <div class="ddp-wrap-data">
-                    <div class="ddp-data-name">John Smith <em class="ddp-icon-control-fav ddp-selected"></em></div>
-                    <div class="ddp-data-info">Information &gt; Description</div>
-                    <div class="ddp-data-date">yyyy-mm-dd hh:mm:ss</div>
-                  </div>
-
-                </div>
+                <component-explore-data-user-card [userName]="'userName'" [dateTime]="'1991-12-25'"></component-explore-data-user-card>
               </li>
             </ul>
             <!-- //user -->
@@ -143,7 +110,7 @@
         <!-- //detail -->
         <!-- detail -->
         <div class="ddp-detail">
-          <div class="ddp-label">Recently Updated</div>
+          <div class="ddp-label">{{'msg.explore.ui.detail.recent.updated'| translate}}</div>
           <div class="ddp-data-det">
             <table class="ddp-table-detail4">
               <colgroup>
@@ -156,7 +123,6 @@
                 <th>Updated contents</th>
                 <th>Updated at</th>
                 <th>User</th>
-
               </tr>
               </thead>
               <tbody>
@@ -198,7 +164,7 @@
         <!-- //detail -->
         <!-- recent dashboard -->
         <div class="ddp-detail" *ngIf="isDatasourceTypeMetadata()">
-          <div class="ddp-label">Recently Used <a href="javascript:" class="ddp-link ddp-fright">See all lists &gt;</a>
+          <div class="ddp-label">{{'msg.explore.ui.detail.recent.used'| translate}} <a href="javascript:" class="ddp-link ddp-fright" *ngIf="isShowDashboardMoreContents()">{{'msg.explore.btn.detail.more.list'| translate}} &gt;</a>
           </div>
           <div class="ddp-data-det">
             <ul class="ddp-list-graph ddp-bottom ddp-cursor">
@@ -238,8 +204,8 @@
         <!-- //recent dashboard -->
         <!-- recent query -->
         <!-- //recent query -->
-        <div class="ddp-detail" *ngIf="!isDatasourceTypeMetadata()">
-          <div class="ddp-label">Recently Queries <a href="javascript:" class="ddp-link ddp-fright">See all lists &gt;</a>
+        <div class="ddp-detail" *ngIf="isDatabaseTypeMetadata() || isStagingTypeMetadata()">
+          <div class="ddp-label">{{'msg.explore.ui.detail.recent.query'| translate}} <a href="javascript:" class="ddp-link ddp-fright" *ngIf="isShowQueryMoreContents()" (click)="onClickSeeAllRecentQueries()">{{'msg.explore.btn.detail.more.list'| translate}} &gt;</a>
           </div>
           <div class="ddp-data-det">
             <table class="ddp-table-detail4">

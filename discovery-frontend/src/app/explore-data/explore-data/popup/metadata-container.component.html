@@ -19,9 +19,9 @@
       <!-- //title -->
       <!-- right -->
       <div class="ddp-right">
-        <a href="javascript:" class="ddp-btn-pop" (click)="onClickEditData()" *ngIf="isManagerAuth()">Edit data</a>
-        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" *ngIf="isShowCreateWorkbench()" (click)="onClickCreateWorkbench()"><em class="ddp-icon-add2"></em>Make workbench</a>
-        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" *ngIf="isShowCreateWorkbook()" (click)="onClickCreateWorkbook()"><em class="ddp-icon-add2"></em>Make workbook</a>
+        <a href="javascript:" class="ddp-btn-pop" (click)="onClickEditData()" *ngIf="isManagerAuth()">{{'msg.explore.btn.detail.edit.data'| translate}}</a>
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" *ngIf="isShowCreateWorkbench()" (click)="onClickCreateWorkbench()"><em class="ddp-icon-add2"></em>{{'msg.explore.btn.detail.make.bench'| translate}}</a>
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" *ngIf="isShowCreateWorkbook()" (click)="onClickCreateWorkbook()"><em class="ddp-icon-add2"></em>{{'msg.explore.btn.detail.make.book'| translate}}</a>
       </div>
       <!-- //right -->
 
@@ -49,4 +49,4 @@
 
 <ng-template #component_create_workbench></ng-template>
 <ng-template #component_create_workbook></ng-template>
-<explore-workspace-uses></explore-workspace-uses>
+<ng-template #component_confirm></ng-template>

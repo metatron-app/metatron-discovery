@@ -38,6 +38,24 @@ export class MetadataOverviewComponent implements OnInit, OnDestroy {
     return Metadata.isSourceTypeIsEngine(this.metadata.sourceType);
   }
 
+  isDatabaseTypeMetadata(): boolean {
+    return Metadata.isSourceTypeIsJdbc(this.metadata.sourceType);
+  }
+
+  isStagingTypeMetadata(): boolean {
+    return Metadata.isSourceTypeIsStaging(this.metadata.sourceType);
+  }
+
+  isShowDashboardMoreContents(): boolean {
+    // TODO dashborad 가 4건 이상
+    return true;
+  }
+
+  isShowQueryMoreContents(): boolean {
+// TODO query 가 4건 이상
+    return true;
+  }
+
   onClickSeeAllRecentDashboards(): void {
 
   }

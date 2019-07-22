@@ -4,7 +4,6 @@ import {ClipboardService} from "ngx-clipboard";
 import {Alert} from "../../../common/util/alert.util";
 
 @Component({
-  selector: 'explore-recent-queries',
   templateUrl: './recent-queries.component.html',
 })
 export class RecentQueriesComponent implements OnInit {
@@ -43,8 +42,8 @@ export class RecentQueriesComponent implements OnInit {
     })
   }
 
-  onClickCopy() {
-    this._clipboardService.copyFromContent( 'hi' );
+  onClickCopy(queryElement: Element) {
+    this._clipboardService.copyFromContent(queryElement.textContent);
   }
 
 }

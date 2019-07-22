@@ -4124,5 +4124,16 @@
   "msg.explore.ui.detail.description" : "설명",
   "msg.explore.ui.detail.tags" : "태그",
   "msg.explore.ui.detail.catalogs" : "카탈로그",
-  "msg.explore.ui.detail.popularity" : "데이터 인기도"
+  "msg.explore.ui.detail.popularity" : "데이터 인기도",
+  "msg.explore.btn.detail.edit.data" : "데이터 수정",
+  "msg.explore.btn.detail.make.book" : "워크북 생성",
+  "msg.explore.btn.detail.make.bench" : "워크벤치 생성",
+  "msg.explore.ui.detail.top.user" : "최고 사용자",
+  "msg.explore.ui.detail.recent.updated" : "최근 수정",
+  "msg.explore.ui.detail.recent.used" : "최근 사용",
+  "msg.explore.ui.detail.recent.query" : "최근 질의",
+  "msg.explore.btn.detail.more.list" : "모든 목록 보기",
+  "msg.explore.ui.confirm.title" : "현재 화면을 닫고 이동하시겠습니까?",
+  "msg.explore.ui.confirm.description" : "취소를 선택하면 이동하지 않습니다.",
+  "msg.explore.btn.confirm.done" : "현재창 닫고 이동"
 }
