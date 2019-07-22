@@ -128,9 +128,9 @@
             <i class="ddp-icon-checkbox"></i>
           </div>
         </td>
-        <td title="{{ item.hasOwnProperty('description') == true && item.description != '' ? item.name+'-'+item.description : item.name}}">
+        <td title="{{ item.hasOwnProperty('description') && item.description != '' ? item.name+'-'+item.description : item.name}}">
           <div class=" ddp-txt-long">{{item.name}}<span class="ddp-txt-colortype" *ngIf="item.hasOwnProperty('description') == false"></span>
-            <span class="ddp-txt-colortype" *ngIf="item.hasOwnProperty('description') == true && item.description != ''">-{{item.description}}</span>
+            <span class="ddp-txt-colortype" *ngIf="item.hasOwnProperty('description') && item.description != ''">-{{item.description}}</span>
           </div>
         </td>
         <td>

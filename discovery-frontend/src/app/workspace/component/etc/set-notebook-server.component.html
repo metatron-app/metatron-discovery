@@ -135,12 +135,12 @@
                       </div>
                     </td>
                     <td>
-                      <div class=" ddp-txt-long">
+                      <div class=" ddp-txt-long" title="{{ server.hasOwnProperty('description') && server.description != '' ? server.name+'-'+server.description : server.name}}">
                         {{server.name}}
                         <span class="ddp-txt-colortype" *ngIf="server.description">-{{server.description}}</span>
                       </div>
                     </td>
-                    <td>
+                    <td class="ddp-txt-ellipsis" title="{{server.url}}">
                       {{server.url}}
                     </td>
                   </tr>
@@ -180,12 +180,12 @@
                       </div>
                     </td>
                     <td>
-                      <div class=" ddp-txt-long">
+                      <div class=" ddp-txt-long" title="{{ server.hasOwnProperty('description') && server.description != '' ? server.name+'-'+server.description : server.name}}">
                         {{server.name}}
                         <span class="ddp-txt-colortype" *ngIf="server.description">-{{server.description}}</span>
                       </div>
                     </td>
-                    <td>
+                    <td class="ddp-txt-ellipsis" title="{{server.url}}">
                       {{server.url}}
                     </td>
                   </tr>
