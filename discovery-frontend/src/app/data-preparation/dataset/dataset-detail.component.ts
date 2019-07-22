@@ -374,10 +374,13 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
     var requiredColumns = [
       "description",
-      "upstream_meta_name", "upstream_meta_col_name",
-      "downstream_meta_name", "downstream_meta_col_name"
+      "upstreammetaname", "upstreammetacolname",
+      "downstreammetaname", "downstreammetacolname"
     ];
-    var passed = requiredColumns.every( col => this.dataset.gridResponse.colNames.includes(col) );
+    var passed = requiredColumns.every( col => {
+      let _col = col.toLowerCase().replace(/_/g,'');
+      return this.dataset.gridResponse.colNames.includes(_col);
+    });
 
     return passed;
   }
