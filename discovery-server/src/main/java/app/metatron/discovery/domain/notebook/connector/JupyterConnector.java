@@ -126,7 +126,7 @@ public class JupyterConnector extends NotebookConnector implements NotebookActio
                 builder.run();
                 return tempFilePath + getFileExtension(notebook.getKernelType());
             } catch (Exception e1) {
-                throw new RuntimeException("Fail to convert notebook to script from " + hostname);
+                throw new RuntimeException("Fail to convert notebook to script from " + getUrl());
             }
         }
     }
@@ -209,7 +209,7 @@ public class JupyterConnector extends NotebookConnector implements NotebookActio
                 // 3. 이름 바꾸기
                 String srcPath = response
                         .map(jupyterResponse -> jupyterResponse.getPath())
-                        .orElseThrow(() -> new RuntimeException("Fail to create directory of jupyter from " + hostname));
+                        .orElseThrow(() -> new RuntimeException("Fail to create directory of jupyter from " + getUrl()));
 
                 notebookRequest = Maps.newHashMap();
                 notebookRequest.put("path", workspaceId);
@@ -221,9 +221,9 @@ public class JupyterConnector extends NotebookConnector implements NotebookActio
                 response = httpRepository.call(patchUrl.toUriString(), HttpMethod.PATCH, patchEntity, JupyterConnector.JupyterResponse.class, true);
                 response
                         .map(jupyterResponse -> jupyterResponse.getPath())
-                        .orElseThrow(() -> new RuntimeException("Fail to create directory of jupyter from " + hostname));
+                        .orElseThrow(() -> new RuntimeException("Fail to create directory of jupyter from " + getUrl()));
             } else {
-                throw new RuntimeException("Fail to create directory of jupyter from " + hostname);
+                throw new RuntimeException("Fail to create directory of jupyter from " + getUrl());
             }
         }
     }
@@ -250,7 +250,7 @@ public class JupyterConnector extends NotebookConnector implements NotebookActio
         // 2. 빈 파일 이름 변경 (PATCH)
         String srcPath = response
                 .map(jupyterResponse -> jupyterResponse.getPath())
-                .orElseThrow(() -> new RuntimeException("Fail to create notebook of jupyter from " + hostname));
+                .orElseThrow(() -> new RuntimeException("Fail to create notebook of jupyter from " + getUrl()));
 
         notebookRequest = Maps.newHashMap();
         notebookRequest.put("path", notebook.getWorkspace().getId() + File.separator + UUID.randomUUID().toString() + ".ipynb");
@@ -264,7 +264,7 @@ public class JupyterConnector extends NotebookConnector implements NotebookActio
         // 3. 데이터 소스 로딩 관련 Cell 추가 (PUT)
         String destPath = response
                 .map(jupyterResponse -> jupyterResponse.getPath())
-                .orElseThrow(() -> new RuntimeException("Fail to create notebook of jupyter from " + hostname));
+                .orElseThrow(() -> new RuntimeException("Fail to create notebook of jupyter from " + getUrl()));
 
         notebookRequest = Maps.newHashMap();
         notebookRequest.put("type", "notebook");
@@ -280,7 +280,7 @@ public class JupyterConnector extends NotebookConnector implements NotebookActio
         // 4. 결과 받기
         return response
                 .map(jupyterResponse -> jupyterResponse.getPath())
-                .orElseThrow(() -> new RuntimeException("Fail to create notebook of jupyter from " + hostname));
+                .orElseThrow(() -> new RuntimeException("Fail to create notebook of jupyter from " + getUrl()));
     }
 
     /**

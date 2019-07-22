@@ -82,10 +82,9 @@
     <table class="ddp-table-form ddp-table-type3" *ngIf="resultData.length > 0">
       <colgroup>
         <col width="51px">
+        <col width="20%">
+        <col width="10%">
         <col width="*">
-        <col width="10%">
-        <col width="10%">
-        <col width="7%">
         <col width="15%">
         <col width="20%">
       </colgroup>
@@ -104,10 +103,7 @@
           {{'msg.nbook.th.type' | translate}}
         </th>
         <th>
-          {{'msg.comm.th.host' | translate}}
-        </th>
-        <th>
-          {{'msg.comm.th.port' | translate}}
+          {{'msg.comm.th.url' | translate}}
         </th>
         <th>
           {{'msg.nbook.th.creator.id' | translate}}
@@ -132,9 +128,9 @@
             <i class="ddp-icon-checkbox"></i>
           </div>
         </td>
-        <td>
+        <td title="{{ item.hasOwnProperty('description') && item.description != '' ? item.name+'-'+item.description : item.name}}">
           <div class=" ddp-txt-long">{{item.name}}<span class="ddp-txt-colortype" *ngIf="item.hasOwnProperty('description') == false"></span>
-            <span class="ddp-txt-colortype" *ngIf="item.hasOwnProperty('description') == true && item.description != ''">-{{item.description}}</span>
+            <span class="ddp-txt-colortype" *ngIf="item.hasOwnProperty('description') && item.description != ''">-{{item.description}}</span>
           </div>
         </td>
         <td>
@@ -145,13 +141,8 @@
             {{item.type}}
           </span>
         </td>
-
-
-        <td>
-          {{item.hostname}}
-        </td>
-        <td>
-          {{item.port}}
+        <td class="ddp-txt-ellipsis" title="{{item.url}}">
+          {{item.url}}
         </td>
         <td>
           {{item.createdBy.fullName}} ({{item.createdBy.username}})

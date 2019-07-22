@@ -38,18 +38,23 @@
           <!-- //edit option -->
         </div>
         <div class="ddp-clear">
-          <div class="ddp-wrap-edit2 ddp-col-6">
-            <label class="ddp-label-type">{{'msg.comm.th.host' | translate}}</label>
-            <input type="text" class="ddp-input-type" placeholder="{{'msg.nbook.ui.host.ph' | translate}}" [(ngModel)]="notebook.hostname">
-          </div>
-          <div class="ddp-wrap-edit2 ddp-col-6">
-            <label class="ddp-label-type">{{'msg.comm.th.port' | translate}}</label>
-            <input type="text" class="ddp-input-type" placeholder="{{'msg.nbook.ui.port.ph' | translate}}" [(ngModel)]="notebook.port" input-mask="number">
+          <div class="ddp-wrap-edit2" [class.ddp-error]="isUrlReqError || isUrlValidError">
+            <label class="ddp-label-type">{{'msg.comm.th.url' | translate}}</label>
+            <input type="text" class="ddp-input-type" placeholder="{{'msg.nbook.ui.url.ph' | translate}}"
+                   [(ngModel)]="notebook.url" (ngModelChange)="notebook.url = $event; isUrlReqError = undefined; isUrlValidError = undefined;">
+            <!-- error -->
+            <span class="ddp-ui-error" *ngIf="isUrlReqError">{{'msg.storage.alert.url.required' | translate}}</span>
+            <span class="ddp-ui-error" *ngIf="isUrlValidError">{{'msg.dp.ui.invalid.url' | translate}}</span>
+            <!-- error -->
           </div>
         </div>
-        <div class="ddp-wrap-edit2">
+        <div class="ddp-wrap-edit2" [class.ddp-error]="isNameError">
           <label class="ddp-label-type">{{'msg.comm.ui.name' | translate}}</label>
-          <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.ui.create.name' | translate}}" [(ngModel)]="notebook.name">
+          <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.ui.create.name' | translate}}"
+                 [(ngModel)]="notebook.name" (ngModelChange)="notebook.name = $event; isNameError = undefined;">
+          <!-- error -->
+          <span class="ddp-ui-error" *ngIf="isNameError">{{'msg.dp.alert.name.error' | translate}}</span>
+          <!-- error -->
         </div>
         <div class="ddp-wrap-edit2">
           <label class="ddp-label-type">{{'msg.comm.ui.description' | translate}}</label>
