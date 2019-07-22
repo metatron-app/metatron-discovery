@@ -242,7 +242,17 @@ public class LineageEdgeService {
 
     List<LineageEdge> newEdges = new ArrayList();
 
+    // NOTE:
+    // Delete all for easy test. (Not we don't have a way to delete a wrong edge.
+    // We'll upsert again when lineage list page comes. (UI job)
+    edgeRepository.deleteAll();
+
     for (Row row : df.rows) {
+      if (getValue(row, "upstream_meta_id") != null) {
+        // TODO: Column dependency rows are ignored for now.
+        continue;
+      }
+
       String upstreamMetaId = getMetaIdByRow(row, true);
       String downstreamMetaId = getMetaIdByRow(row, false);
       String description = (String) row.get("description");
@@ -265,8 +275,7 @@ public class LineageEdgeService {
     }
 
     String col = (String) row.get(colName);
-    if (col.length() == 0) {
-      LOGGER.error("Column from lineage map file is empty: " + colName);
+    if (col == null || col.length() == 0) {
       return null;
     }
 
@@ -276,26 +285,18 @@ public class LineageEdgeService {
   private String getMetaIdByRow(Row row, boolean upstream) {
     String metaId;
     String metaName;
-    String metaColName;
 
     if (upstream) {
       metaId = getValue(row, "upstream_meta_id");
       metaName = getValue(row, "upstream_meta_name");
-      metaColName = getValue(row, "upstream_meta_col_name");
     } else {
       metaId = getValue(row, "downstream_meta_id");
       metaName = getValue(row, "downstream_meta_name");
-      metaColName = getValue(row, "downstream_meta_col_name");
     }
 
     // When ID is known
     if (metaId != null) {
       return metaId;
-    }
-
-    // When metaColName exists, the target is a metadata column.
-    if (metaColName != null) {
-      metaName = metaColName;
     }
 
     List<Metadata> metadatas = metadataRepository.findByName(metaName);
