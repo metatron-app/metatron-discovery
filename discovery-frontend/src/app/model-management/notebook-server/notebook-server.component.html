@@ -82,11 +82,11 @@
     <table class="ddp-table-form ddp-table-type3" *ngIf="resultData.length > 0">
       <colgroup>
         <col width="51px">
-        <col width="20%">
-        <col width="10%">
         <col width="*">
-        <col width="15%">
-        <col width="20%">
+        <col width="130px">
+        <col width="300px">
+        <col width="200px">
+        <col width="250px">
       </colgroup>
       <thead>
       <tr>
@@ -105,18 +105,18 @@
         <th>
           {{'msg.comm.th.url' | translate}}
         </th>
-        <th>
-          {{'msg.nbook.th.creator.id' | translate}}
-          <!--<em class="ddp-icon-array-default2"></em>-->
-          <!--<em class="ddp-icon-array-asc2" style="display:none;"></em>-->
-          <!--<em class="ddp-icon-array-des2" style="display:none;"></em>-->
-        </th>
-
         <th (click)="onClickSort('modifiedTime')">
-          {{'msg.nbook.th.last.updated' | translate}}
+          {{'msg.comm.ui.list.updated' | translate}}
           <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'modifiedTime' || selectedContentSort.sort === 'default'"></em>
           <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'asc'"></em>
           <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'desc'"></em>
+        </th>
+
+        <th (click)="onClickSort('createdTime')">
+          {{'msg.comm.ui.list.created' | translate}}
+          <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'createdTime' || selectedContentSort.sort === 'default'"></em>
+          <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>
+          <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'desc'"></em>
         </th>
       </tr>
       </thead>
@@ -144,11 +144,14 @@
         <td class="ddp-txt-ellipsis" title="{{item.url}}">
           {{item.url}}
         </td>
-        <td>
-          {{item.createdBy.fullName}} ({{item.createdBy.username}})
+        <td class="ddp-txt-ellipsis" title="{{item.modifiedTime | mdate: 'YYYY-MM-DD HH:mm'}} {{'msg.nbook.ui.by' | translate}} {{item.modifiedBy.fullName}}">
+          {{item.modifiedTime | mdate: 'YYYY-MM-DD HH:mm'}}  <em class="ddp-icon-by">{{'msg.nbook.ui.by' | translate}}</em>{{item.modifiedBy.fullName}}
+
         </td>
         <td>
-          {{item.modifiedTime | date : 'yyyy-MM-dd'}}  <em class="ddp-icon-by">{{'msg.nbook.ui.by' | translate}}</em>{{item.modifiedBy.fullName}}
+          <div class="ddp-txt-ellipsis" style="padding-right:20px;" title="{{item.createdTime | mdate: 'YYYY-MM-DD HH:mm'}} {{'msg.nbook.ui.by' | translate}} {{item.createdBy.fullName}}">
+            {{item.createdTime | mdate: 'YYYY-MM-DD HH:mm'}}  <em class="ddp-icon-by">{{'msg.nbook.ui.by' | translate}}</em>{{item.createdBy.fullName}}
+          </div>
           <div class="ddp-btn-control">
             <em class="ddp-icon-control-cut" (click)="confirmDelete($event, item.id)"></em>
           </div>
