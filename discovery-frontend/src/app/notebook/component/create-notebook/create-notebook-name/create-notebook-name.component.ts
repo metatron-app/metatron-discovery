@@ -12,15 +12,15 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, Input, OnInit } from '@angular/core';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
-import { PopupService } from '../../../../common/service/popup.service';
-import { NoteBook } from '../../../../domain/notebook/notebook';
-import { NotebookService } from '../../../service/notebook.service';
-import { Alert } from '../../../../common/util/alert.util';
-import { isUndefined } from 'util';
-import { CommonConstant } from '../../../../common/constant/common.constant';
+import {Component, ElementRef, Injector, Input, OnInit} from '@angular/core';
+import {AbstractPopupComponent} from '../../../../common/component/abstract-popup.component';
+import {PopupService} from '../../../../common/service/popup.service';
+import {NoteBook} from '../../../../domain/notebook/notebook';
+import {NotebookService} from '../../../service/notebook.service';
+import {Alert} from '../../../../common/util/alert.util';
+import {isUndefined} from 'util';
+import {CommonConstant} from '../../../../common/constant/common.constant';
+import * as $ from "jquery";
 
 @Component({
   selector: 'app-create-notebook-name',
@@ -166,6 +166,7 @@ export class CreateNotebookNameComponent extends AbstractPopupComponent implemen
     this.name = this.name ? this.name.trim() : ''; // trim 처리
     if (this.name === '') {
       this.showError = true;
+      $(".ddp-type-contents").animate({ scrollTop: $('.ddp-type-contents').height() }, 1000);
       return;
     }
     if (isUndefined(this.selectedServerType)) {
