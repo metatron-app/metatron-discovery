@@ -141,7 +141,7 @@ export class FormatOptionConverter {
    * @returns {any}
    */
   public static getFormatValue(value: any, format: UIChartFormatItem, baseline?: number): string {
-    if (value === 'Infinity' || value === 'NaN') {
+    if (value === 'Infinity' || value === '-Infinity' || value === 'NaN') {
       return value;
     }
 
