@@ -54,7 +54,7 @@ public class AuditPredicate {
     }
 
     if(elapsedTime != null){
-      builder = builder.and(audit.elapsedTime.gt(elapsedTime));
+      builder = builder.and(audit.elapsedTime.goe(elapsedTime));
     }
 
     builder = builder.and(audit.query.isNotNull());
