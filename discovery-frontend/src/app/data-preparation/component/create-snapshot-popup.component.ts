@@ -589,7 +589,10 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
         this._getStagingDb();
 
+        // default: URI & EMBBEDED
         this.changeSsType(SsType.URI);
+        this.changeEtlEngine(Engine.EMBEDDED);
+
 
         this.loadingHide();
         resolve();
