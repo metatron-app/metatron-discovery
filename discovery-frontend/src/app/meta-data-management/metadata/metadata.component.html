@@ -75,6 +75,10 @@
       <div class="ddp-ui-rightoption">
         <span *ngIf="getTotalContentsCount > 1" class="ddp-data-total" [innerHTML]="'msg.metadata.ui.lists' | translate : { value : getTotalContentsCount }"></span>
         <span *ngIf="getTotalContentsCount <= 1" class="ddp-data-total" [innerHTML]="'msg.metadata.ui.list' | translate : { value : getTotalContentsCount }"></span>
+        <component-sorting [sortList]="sortList"
+                           [selectedSort]="selectedSort"
+                           (changedSort)="changeSort($event)">
+        </component-sorting>
         <a href="javascript:" class="ddp-btn-link" (click)="createNewMetadata()"><em class="ddp-icon-link-add"></em>{{'msg.metadata.md.btn.create.md' | translate}}</a>
       </div>
       <!-- //right -->
@@ -88,7 +92,6 @@
       <col width="150px">
       <col width="150px">
       <col width="200px">
-      <col width="250px">
     </colgroup>
     <thead>
     <tr>
@@ -126,12 +129,6 @@
       <th>
         {{'msg.comm.th.updated' | translate}}
       </th>
-      <th (click)="onClickSort('createdTime')" class="ddp-cursor">
-        {{'msg.comm.ui.list.created' | translate}}
-        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'createdTime' || selectedContentSort.sort === 'default'"></em>
-        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>
-        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'desc'"></em>
-      </th>
     </tr>
     </thead>
     <tbody>
@@ -159,9 +156,6 @@
       </td>
       <td>
         {{ metadata.modifiedTime | mdate:'YYYY-MM-DD HH:mm' }} by {{ metadata.modifiedBy.fullName }}
-      </td>
-      <td>
-        {{ metadata.createdTime | mdate:'YYYY-MM-DD HH:mm' }} by {{ metadata.createdBy.fullName }}
         <div class="ddp-btn-control" *ngIf="METADATA_SOURCE_TYPE.ENGINE !== metadata.sourceType">
           <em class="ddp-icon-control-cut" (click)="confirmDelete($event,metadata)"></em>
         </div>

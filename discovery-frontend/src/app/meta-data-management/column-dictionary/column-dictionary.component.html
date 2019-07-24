@@ -75,7 +75,7 @@
         {{'msg.metadata.ui.dictionary.create.type' | translate}}
       </th>
       <th>
-        {{'msg.metadata.th.dictionary.created' | translate}}
+        {{'msg.metadata.th.dictionary.updated' | translate}}
       </th>
     </tr>
     </thead>
@@ -91,7 +91,7 @@
         {{dictionary.logicalType}}
       </td>
       <td>
-        {{dictionary.createdTime | mdate:'YYYY-MM-DD HH:mm'}}
+        {{dictionary.modifiedTime | mdate:'YYYY-MM-DD HH:mm'}} by {{ dictionary.modifiedBy.fullName }}
         <div class="ddp-btn-control" (click)="onClickDeleteColumnDictionary(dictionary)">
           <em class="ddp-icon-control-cut"></em>
         </div>

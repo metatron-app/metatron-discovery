@@ -25,6 +25,7 @@ import {CreateColumnDictionaryComponent} from './create-column-dictionary/create
 import {ActivatedRoute} from "@angular/router";
 import * as _ from 'lodash';
 import {PeriodData} from "../../common/value/period.data.value";
+import {Subscription} from "rxjs";
 
 declare let moment: any;
 
@@ -72,13 +73,15 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
   public defaultDate: PeriodData;
 
   // sort
-  public sortList = [
-    {name: 'Name Ascending', value: 'logicalName,asc'},
-    {name: 'Name Descending', value: 'logicalName,desc'},
-    {name: 'Create Ascending', value: 'createdTime,asc'},
-    {name: 'Create Descending', value: 'createdTime,desc'},
+  readonly sortList = [
+    {name: this.translateService.instant('msg.comm.ui.sort.name.asc'), value: 'logicalName,asc'},
+    {name: this.translateService.instant('msg.comm.ui.sort.name.desc'), value: 'logicalName,desc'},
+    {name: this.translateService.instant('msg.comm.ui.sort.updated.asc'), value: 'modifiedTime,asc'},
+    {name: this.translateService.instant('msg.comm.ui.sort.updated.desc'), value: 'modifiedTime,desc'},
   ];
-  public selectedSort;
+  selectedSort;
+
+  private _paginationSubscription$: Subscription;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -94,58 +97,52 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   public ngOnInit() {
-
-    super.ngOnInit();
-
     this._initView();
+    // Get query param from url
+    this._paginationSubscription$ = this._activatedRoute.queryParams.subscribe((params) => {
 
-    this.subscriptions.push(
-      // Get query param from url
-      this._activatedRoute.queryParams.subscribe((params) => {
+      if (!_.isEmpty(params)) {
 
-        if (!_.isEmpty(params)) {
-
-          if (!isNullOrUndefined(params['size'])) {
-            this.page.size = params['size'];
-          }
-
-          if (!isNullOrUndefined(params['page'])) {
-            this.page.page = params['page'];
-          }
-
-          if (!isNullOrUndefined(params['logicalNameContains'])) {
-            this.searchText = params['logicalNameContains'];
-          }
-
-          if (!_.isNil(params['sort'])) {
-            this.selectedSort = this.sortList.find(sort => sort.value === params['sort']);
-          }
-
-          const from = params['from'];
-          const to = params['to'];
-
-          this._selectedDate = new PeriodData;
-          this._selectedDate.startDate = from;
-          this._selectedDate.endDate = to;
-
-          this._selectedDate.startDateStr = decodeURIComponent(from);
-          this._selectedDate.endDateStr = decodeURIComponent(to);
-          this._selectedDate.type = params['type'];
-          this.defaultDate = this._selectedDate;
-          this.safelyDetectChanges();
-
+        if (!isNullOrUndefined(params['size'])) {
+          this.page.size = params['size'];
         }
 
-        this._getColumnDictionaryList();
+        if (!isNullOrUndefined(params['page'])) {
+          this.page.page = params['page'];
+        }
 
-      })
-    )
+        if (!isNullOrUndefined(params['logicalNameContains'])) {
+          this.searchText = params['logicalNameContains'];
+        }
+
+        if (!_.isNil(params['sort'])) {
+          this.selectedSort = this.sortList.find(sort => sort.value === params['sort']);
+        }
+
+        const from = params['from'];
+        const to = params['to'];
+
+        this._selectedDate = new PeriodData;
+        this._selectedDate.startDate = from;
+        this._selectedDate.endDate = to;
+
+        this._selectedDate.startDateStr = decodeURIComponent(from);
+        this._selectedDate.endDateStr = decodeURIComponent(to);
+        this._selectedDate.type = params['type'];
+        this.defaultDate = this._selectedDate;
+        this.safelyDetectChanges();
+
+      }
+      this._getColumnDictionaryList();
+    });
   }
 
   public ngOnDestroy() {
-
-    super.ngOnDestroy();
+    if (!_.isNil(this._paginationSubscription$)) {
+      this._paginationSubscription$.unsubscribe();
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -233,7 +230,7 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
    */
   public onClickResetFilters(): void {
     // 정렬 초기화
-    this.selectedSort = this.sortList[0];
+    this.selectedSort = this.sortList[1];
     // create date 초기화
     this._selectedDate = null;
     // date 필터 created update 설정 default created로 설정
@@ -332,7 +329,7 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
     // 검색어 초기화
     this.searchText = '';
     // 정렬 초기화
-    this.selectedSort = this.sortList[0];
+    this.selectedSort = this.sortList[1];
   }
 
   /**

@@ -49,6 +49,10 @@
       <!-- right -->
       <div class="ddp-ui-rightoption">
         <span class="ddp-data-total" [innerHTML]="'msg.metadata.ui.codetable.lists' | translate : { value : getTotalContentsCount }"></span>
+        <component-sorting [sortList]="sortList"
+                           [selectedSort]="selectedSort"
+                           (changedSort)="changeSort($event)">
+        </component-sorting>
         <a href="javascript:" class="ddp-btn-link" (click)="onClickCreateCodeTable()"><em class="ddp-icon-link-add"></em>{{'msg.metadata.ui.codetable.create.btn' | translate}}</a>
       </div>
       <!-- //right -->
@@ -63,20 +67,14 @@
     </colgroup>
     <thead>
     <tr>
-      <th class="ddp-cursor" (click)="onClickSort('name')">
+      <th>
         {{'msg.metadata.th.codetable.table.name' | translate}}
-        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'name' || selectedContentSort.sort === 'default'"></em>
-        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'asc'"></em>
-        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'desc'"></em>
       </th>
       <th>
         {{'msg.metadata.th.codetable.description' | translate}}
       </th>
-      <th class="ddp-cursor" (click)="onClickSort('createdTime')">
-        {{'msg.metadata.th.codetable.created' | translate}}
-        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'createdTime' || selectedContentSort.sort === 'default'"></em>
-        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>
-        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'desc'"></em>
+      <th>
+        {{'msg.metadata.th.codetable.updated' | translate}}
       </th>
     </tr>
     </thead>
@@ -89,7 +87,7 @@
         <span class="ddp-txt-long">{{codeTable.description}}</span>
       </td>
       <td>
-        {{codeTable.createdTime | mdate:'YYYY-MM-DD HH:mm'}}
+        {{codeTable.modifiedTime | mdate:'YYYY-MM-DD HH:mm'}} by {{ codeTable.modifiedBy.fullName }}
         <div class="ddp-btn-control" (click)="onClickDeleteCodeTable(codeTable)">
           <em class="ddp-icon-control-cut"></em>
         </div>

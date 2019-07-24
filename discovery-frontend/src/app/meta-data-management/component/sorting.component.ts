@@ -24,22 +24,22 @@ export class SortingComponent extends AbstractComponent {
     super(element, injector);
   }
 
-  protected isSelectedSort(sort): boolean {
+  isSelectedSort(sort): boolean {
     return sort.value === this.selectedSort.value;
   }
 
 
-  protected closeLayer() {
+  closeLayer() {
     if (this.isShowLayer === true) {
       this.isShowLayer = undefined;
     }
   }
 
-  protected changeLayerState() {
+  changeLayerState() {
     this.isShowLayer = !this.isShowLayer;
   }
 
-  protected changeSort(sort, event: MouseEvent) {
+  changeSort(sort, event: MouseEvent) {
     // prevent event bubbling
     event.stopImmediatePropagation();
     // change sort

@@ -25,6 +25,7 @@ import {ActivatedRoute} from "@angular/router";
 import {isNullOrUndefined} from "util";
 import * as _ from 'lodash';
 import {PeriodData} from "../../common/value/period.data.value";
+import {Subscription} from "rxjs";
 
 declare let moment: any;
 
@@ -67,11 +68,20 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
 
   public searchText: string;
 
-  public selectedContentSort: Order = new Order();
-
   public selectedType:PeriodType;
 
   public defaultDate: PeriodData;
+
+  // sort
+  readonly sortList = [
+    {name: this.translateService.instant('msg.comm.ui.sort.name.asc'), value: 'name,asc'},
+    {name: this.translateService.instant('msg.comm.ui.sort.name.desc'), value: 'name,desc'},
+    {name: this.translateService.instant('msg.comm.ui.sort.updated.asc'), value: 'modifiedTime,asc'},
+    {name: this.translateService.instant('msg.comm.ui.sort.updated.desc'), value: 'modifiedTime,desc'},
+  ];
+  selectedSort;
+
+  private _paginationSubscription$: Subscription;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -88,62 +98,53 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public ngOnInit() {
-
-    super.ngOnInit();
-
     this._initView();
-
     // Get query param from url
-    this.subscriptions.push(
-      this._activatedRoute.queryParams.subscribe((params) => {
+    this._paginationSubscription$ =this._activatedRoute.queryParams.subscribe((params) => {
 
-        if (!_.isEmpty(params)) {
+      if (!_.isEmpty(params)) {
 
-          if (!isNullOrUndefined(params['size'])) {
-            this.page.size = params['size'];
-          }
-
-          if (!isNullOrUndefined(params['page'])) {
-            this.page.page = params['page'];
-          }
-
-
-          if (!isNullOrUndefined(params['nameContains'])) {
-            this.searchText = params['nameContains'];
-          }
-
-          const sort = params['sort'];
-          if (!isNullOrUndefined(sort)) {
-            const sortInfo = decodeURIComponent(sort).split(',');
-            this.selectedContentSort.key = sortInfo[0];
-            this.selectedContentSort.sort = sortInfo[1];
-          }
-
-          const from = params['from'];
-          const to = params['to'];
-
-          this._selectedDate = new PeriodData();
-          this._selectedDate.startDate = from;
-          this._selectedDate.endDate = to;
-
-          this._selectedDate.startDateStr = decodeURIComponent(from);
-          this._selectedDate.endDateStr = decodeURIComponent(to);
-          this._selectedDate.type = params['type'];
-          this.defaultDate = this._selectedDate;
-          this.safelyDetectChanges();
-
+        if (!isNullOrUndefined(params['size'])) {
+          this.page.size = params['size'];
         }
 
-        this._getCodeTableList();
-      })
-    );
+        if (!isNullOrUndefined(params['page'])) {
+          this.page.page = params['page'];
+        }
+
+
+        if (!isNullOrUndefined(params['nameContains'])) {
+          this.searchText = params['nameContains'];
+        }
+
+        if (!_.isNil(params['sort'])) {
+          this.selectedSort = this.sortList.find(sort => sort.value === params['sort']);
+        }
+
+        const from = params['from'];
+        const to = params['to'];
+
+        this._selectedDate = new PeriodData();
+        this._selectedDate.startDate = from;
+        this._selectedDate.endDate = to;
+
+        this._selectedDate.startDateStr = decodeURIComponent(from);
+        this._selectedDate.endDateStr = decodeURIComponent(to);
+        this._selectedDate.type = params['type'];
+        this.defaultDate = this._selectedDate;
+        this.safelyDetectChanges();
+
+      }
+
+      this._getCodeTableList();
+    });
 
   }
 
   public ngOnDestroy() {
-
-    super.ngOnDestroy();
-
+    if (!_.isNil(this._paginationSubscription$)) {
+      this._paginationSubscription$.unsubscribe();
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -226,8 +227,8 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
    * 필터링 초기화 버튼 클릭 이벤트
    */
   public onClickResetFilters(): void {
-    // 정렬
-    this.selectedContentSort = new Order();
+    // 정렬 초기화
+    this.selectedSort = this.sortList[3];
     // create date 초기화
     this._selectedDate = null;
     // date 필터 created update 설정 default created로 설정
@@ -239,37 +240,6 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
     // date 필터 init
     this.periodComponent.setAll();
 
-    this.reloadPage();
-  }
-
-
-  /**
-   * 정렬 버튼 클릭
-   * @param {string} key
-   */
-  public onClickSort(key: string): void {
-
-    // 초기화
-    this.selectedContentSort.sort = this.selectedContentSort.key !== key ? 'default' : this.selectedContentSort.sort;
-    // 정렬 정보 저장
-    this.selectedContentSort.key = key;
-
-    if (this.selectedContentSort.key === key) {
-      // asc, desc
-      switch (this.selectedContentSort.sort) {
-        case 'asc':
-          this.selectedContentSort.sort = 'desc';
-          break;
-        case 'desc':
-          this.selectedContentSort.sort = 'asc';
-          break;
-        case 'default':
-          this.selectedContentSort.sort = 'desc';
-          break;
-      }
-    }
-
-    // 페이지 초기화 후 재조회
     this.reloadPage();
   }
 
@@ -342,7 +312,7 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
     // 검색어 초기화
     this.searchText = '';
     // 정렬 초기화
-    this.selectedContentSort = new Order();
+    this.selectedSort = this.sortList[3];
   }
 
   /**
@@ -363,6 +333,11 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
    */
   public onCreateComplete() {
     this.loadingHide();
+    this.reloadPage();
+  }
+
+  changeSort(sort) {
+    this.selectedSort = sort;
     this.reloadPage();
   }
 
@@ -419,6 +394,7 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
     const params = {
       size: this.page.size,
       page: this.page.page,
+      sort: this.selectedSort.value,
       pseudoParam : (new Date()).getTime()
     };
     // 검색어
@@ -438,14 +414,6 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
     } else {
       params['type'] = 'ALL';
     }
-
-    this.selectedContentSort.sort !== 'default' && (params['sort'] = this.selectedContentSort.key + ',' + this.selectedContentSort.sort);
-
     return params;
   }
-}
-
-class Order {
-  key: string = 'name';
-  sort: string = 'asc';
 }
