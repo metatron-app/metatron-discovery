@@ -90,6 +90,8 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
 
     // Init
     super.ngOnInit();
+    // loading hide
+    this.loadingHide();
 
     this._initView();
 
