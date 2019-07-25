@@ -20,9 +20,9 @@ import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_LIMIT_RO
 import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_TIMEOUT;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_HOSTNAME;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_METADATA_URI;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PASSWORD;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PORT;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_URL;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_USERNAME;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
@@ -151,7 +151,7 @@ public class TeddyExecutor {
     hivePort = (Integer) prepPropertiesInfo.get(STAGEDB_PORT);
     hiveUsername = (String) prepPropertiesInfo.get(STAGEDB_USERNAME);
     hivePassword = (String) prepPropertiesInfo.get(STAGEDB_PASSWORD);
-    hiveCustomUrl = (String) prepPropertiesInfo.get(STAGEDB_URL);
+    hiveCustomUrl = (String) prepPropertiesInfo.get(STAGEDB_METADATA_URI);
 
     cores = (Integer) prepPropertiesInfo.get(ETL_CORES);
     timeout = (Integer) prepPropertiesInfo.get(ETL_TIMEOUT);
@@ -172,8 +172,10 @@ public class TeddyExecutor {
       Map<String, Object> prepPropertiesInfo = GlobalObjectMapper.readValue(argv[1], HashMap.class);
       Map<String, Object> datasetInfo = GlobalObjectMapper.readValue(argv[2], HashMap.class);
       Map<String, Object> snapshotInfo = GlobalObjectMapper.readValue(argv[3], HashMap.class);
-      restAPIserverPort = argv[4];
-      oauth_token = argv[5];
+      Map<String, Object> callbackInfo = GlobalObjectMapper.readValue(argv[4], HashMap.class);
+
+      restAPIserverPort = (String) callbackInfo.get("port");
+      oauth_token = (String) callbackInfo.get("oauth_token");
 
       setPrepPropertiesInfo(prepPropertiesInfo);
 
@@ -385,7 +387,8 @@ public class TeddyExecutor {
     createHiveSnapshotInternal(ssId, masterFullDsId, ruleStrings, partKeys, database, tableName,
         extHdfsDir, format, compression);
 
-    String jsonColDescs = GlobalObjectMapper.getDefaultMapper().writeValueAsString(finalDf.colDescs);
+    String jsonColDescs = GlobalObjectMapper.getDefaultMapper()
+        .writeValueAsString(finalDf.colDescs);
     updateSnapshot("custom", "{'colDescs':" + jsonColDescs + "}", ssId);
 
     // master를 비롯해서, 스냅샷 생성을 위해 새로 만들어진 모든 full dataset을 제거
@@ -507,7 +510,8 @@ public class TeddyExecutor {
             int partSize = rowcnt / cores + 1;  // +1 to prevent being 0
 
             // Outer joins cannot be parallelized. (But, implemented as prepare-gather structure)
-            if (rule.getName().equals("join") && ((Join) rule).getJoinType().equalsIgnoreCase("INNER") == false) {
+            if (rule.getName().equals("join")
+                && ((Join) rule).getJoinType().equalsIgnoreCase("INNER") == false) {
               partSize = rowcnt;
             }
 

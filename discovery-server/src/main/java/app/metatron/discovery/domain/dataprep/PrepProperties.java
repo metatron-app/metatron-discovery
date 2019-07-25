@@ -42,7 +42,7 @@ public class PrepProperties {
   public static final String STAGEDB_PORT = "polaris.storage.stagedb.port";
   public static final String STAGEDB_USERNAME = "polaris.storage.stagedb.username";
   public static final String STAGEDB_PASSWORD = "polaris.storage.stagedb.password";
-  public static final String STAGEDB_URL = "polaris.storage.stagedb.url";
+  public static final String STAGEDB_METADATA_URI = "polaris.storage.stagedb.metadata.uri";
 
   public static final String ETL_CORES = "polaris.dataprep.etl.cores";
   public static final String ETL_TIMEOUT = "polaris.dataprep.etl.timeout";
@@ -54,6 +54,7 @@ public class PrepProperties {
   public static final String ETL_SPARK_PORT = "polaris.dataprep.etl.spark.port";
   public static final String ETL_SPARK_APP_NAME = "polaris.dataprep.etl.spark.appName";
   public static final String ETL_SPARK_MASTER = "polaris.dataprep.etl.spark.master";
+  public static final String ETL_SPARK_WAREHOUSE_DIR = "polaris.dataprep.etl.spark.warehouseDir";
 
   public static String dirDataprep = "dataprep";
   public static String dirPreview = "previews";
@@ -167,6 +168,10 @@ public class PrepProperties {
     return etl.spark.getMaster();
   }
 
+  public String getEtlSparkWarehouseDir() {
+    return etl.spark.getWarehouseDir();
+  }
+
   // wrapper functions
   public boolean isHDFSConfigured() {
     return (hadoopConfDir != null && stagingBaseDir != null);
@@ -198,6 +203,7 @@ public class PrepProperties {
     map.put(ETL_SPARK_PORT, getEtlSparkPort());
     map.put(ETL_SPARK_APP_NAME, getEtlSparkAppName());
     map.put(ETL_SPARK_MASTER, getEtlSparkMaster());
+    map.put(ETL_SPARK_WAREHOUSE_DIR, getEtlSparkWarehouseDir());
 
     return map;
   }
@@ -282,6 +288,7 @@ public class PrepProperties {
     public String port;
     public String appName;
     public String master;
+    public String warehouseDir;
 
     public SparkInfo() {
     }
@@ -324,6 +331,17 @@ public class PrepProperties {
       this.master = master;
     }
 
+    public String getWarehouseDir() {
+      if (warehouseDir == null) {
+        warehouseDir = "hdfs://localhost:9000/user/hive/warehouse";
+      }
+      return warehouseDir;
+    }
+
+    public void setWarehouseDir(String warehouseDir) {
+      this.warehouseDir = warehouseDir;
+    }
+
     @Override
     public String toString() {
       return "SparkInfo{" +
@@ -331,6 +349,7 @@ public class PrepProperties {
           ", port='" + port + '\'' +
           ", appName='" + appName + '\'' +
           ", master='" + master + '\'' +
+          ", warehouseDir='" + warehouseDir + '\'' +
           '}';
     }
   }

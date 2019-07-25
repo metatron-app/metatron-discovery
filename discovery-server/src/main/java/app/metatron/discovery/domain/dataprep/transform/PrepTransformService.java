@@ -16,9 +16,9 @@ package app.metatron.discovery.domain.dataprep.transform;
 
 import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_SPARK_PORT;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_HOSTNAME;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_METADATA_URI;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PASSWORD;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PORT;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_URL;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_USERNAME;
 import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.IMPORTED;
 import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.WRANGLED;
@@ -35,7 +35,6 @@ import app.metatron.discovery.domain.dataprep.PrepSwapRequest;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
-import app.metatron.discovery.domain.dataprep.entity.PrSnapshot.ENGINE;
 import app.metatron.discovery.domain.dataprep.entity.PrTransformRule;
 import app.metatron.discovery.domain.dataprep.etl.TeddyExecutor;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
@@ -57,6 +56,7 @@ import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection;
 import com.facebook.presto.jdbc.internal.guava.collect.Lists;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -88,13 +88,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.StandardEnvironment;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 public class PrepTransformService {
@@ -206,7 +201,10 @@ public class PrepTransformService {
       mapEveryForEtl.put(STAGEDB_PORT, stageDB.getPort());
       mapEveryForEtl.put(STAGEDB_USERNAME, stageDB.getUsername());
       mapEveryForEtl.put(STAGEDB_PASSWORD, stageDB.getPassword());
-      mapEveryForEtl.put(STAGEDB_URL, stageDB.getUrl());
+
+      if (ssType.equals("SPARK")) {
+        mapEveryForEtl.put(STAGEDB_METADATA_URI, stageDB.getMetastoreUri());
+      }
     }
 
     return GlobalObjectMapper.getDefaultMapper().writeValueAsString(mapEveryForEtl);
@@ -235,11 +233,24 @@ public class PrepTransformService {
         map.put("storedUri", storedUri);
         break;
       case STAGING_DB:
-        map.put("stagingBaseDir", prepProperties.getStagingBaseDir(true));
         map.put("partitionColNames", requestPost.getPartitionColNames());
         map.put("appendMode", appendMode.name());
         map.put("dbName", requestPost.getDbName());
         map.put("tblName", requestPost.getTblName());
+
+        switch (engine.name()) {
+          case "EMBEDDED":
+            map.put("stagingBaseDir", prepProperties.getStagingBaseDir(true));
+            break;
+          case "SPARK":
+            map.put("polaris.dataprep.etl.spark.warehouseDir",
+                prepProperties.getEtlSparkWarehouseDir());
+            map.put("polaris.storage.stagedb.metastore.uri",
+                storageProperties.getStagedb().getMetastoreUri());
+            break;
+          default:
+            assert false : engine.name();
+        }
         break;
       default:
         assert false : ssType;
@@ -247,6 +258,15 @@ public class PrepTransformService {
 
     return GlobalObjectMapper.getDefaultMapper().writeValueAsString(map);
   }
+
+  private String getJsonCallbackInfo(String oauth_token) throws JsonProcessingException {
+    Map<String, Object> map = new HashMap();
+    map.put("port", getServerPort());
+    map.put("oauth_token", oauth_token);
+
+    return GlobalObjectMapper.getDefaultMapper().writeValueAsString(map);
+  }
+
 
   public PrepTransformService() {
   }
@@ -970,23 +990,24 @@ public class PrepTransformService {
     return GlobalObjectMapper.getDefaultMapper().writeValueAsString(datasetInfo);
   }
 
-  String runTransformer(String wrangledDsId, PrepSnapshotRequestPost requestPost, String ssId,
+  private void runTransformer(String wrangledDsId, PrepSnapshotRequestPost requestPost, String ssId,
       String authorization) throws Throwable {
 
     String jsonPrepPropertiesInfo = getJsonPrepPropertiesInfo(wrangledDsId, requestPost);
     String jsonDatasetInfo = getJsonDatasetInfo(wrangledDsId);
     String jsonSnapshotInfo = getJsonSnapshotInfo(requestPost, ssId);
+    String jsonCallbackInfo = getJsonCallbackInfo(authorization);
 
     switch (requestPost.getEngine()) {
       case EMBEDDED:
-        return runTeddy(jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo, authorization);
+        runTeddy(jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo, jsonCallbackInfo);
+        break;
       case SPARK:
-        return runSpark(jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo, authorization);
+        runSpark(jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo, jsonCallbackInfo);
+        break;
       default:
         assert false : requestPost.getEngine();
     }
-
-    return "CANNOT_REACH_HERE";
   }
 
   private String getServerPort() {
@@ -999,28 +1020,30 @@ public class PrepTransformService {
         .getProperty("local.server.port").toString();
   }
 
-  private String runTeddy(String jsonPrepPropertiesInfo, String jsonDatasetInfo,
-      String jsonSnapshotInfo, String authorization) throws Throwable {
+  private void runTeddy(String jsonPrepPropertiesInfo, String jsonDatasetInfo,
+      String jsonSnapshotInfo, String jsonCallbackInfo) throws Throwable {
     LOGGER.info("runTeddy(): engine=embedded");
 
     Future<String> future = teddyExecutor.run(
         new String[]{"embedded", jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo,
-            getServerPort(), authorization});
+            jsonCallbackInfo});
 
     LOGGER.debug("runTeddy(): (Future) result from teddyExecutor: " + future.toString());
-    return "RUNNING";
   }
 
-  private String runSpark(String jsonPrepPropertiesInfo, String jsonDatasetInfo,
-      String jsonSnapshotInfo, String authorization) throws Throwable {
+  private void runSpark(String jsonPrepPropertiesInfo, String jsonDatasetInfo,
+      String jsonSnapshotInfo, String jsonCallbackInfo) throws Throwable {
+    ObjectMapper mapper = GlobalObjectMapper.getDefaultMapper();
     LOGGER.info("runSpark(): engine=spark");
 
     // Spark engine gets arguments as Map not as JSON string.
     // TODO: This is natural. Embbeded engine should do like this too.
-    Map<String, Object> prepPropertiesInfo = GlobalObjectMapper.readValue(jsonPrepPropertiesInfo, HashMap.class);
-    Map<String, Object> datasetInfo = GlobalObjectMapper.readValue(jsonDatasetInfo, HashMap.class);
-    Map<String, Object> snapshotInfo = GlobalObjectMapper.readValue(jsonSnapshotInfo, HashMap.class);
-    Map<String, Object> callbackInfo = GlobalObjectMapper.readValue(authorization, HashMap.class);
+
+    Map<String, Object> prepPropertiesInfo = mapper
+        .readValue(jsonPrepPropertiesInfo, HashMap.class);
+    Map<String, Object> datasetInfo = mapper.readValue(jsonDatasetInfo, HashMap.class);
+    Map<String, Object> snapshotInfo = mapper.readValue(jsonSnapshotInfo, HashMap.class);
+    Map<String, Object> callbackInfo = mapper.readValue(jsonCallbackInfo, HashMap.class);
 
     // TODO: fork if not running
 
@@ -1064,8 +1087,6 @@ public class PrepTransformService {
     }
 
     LOGGER.debug("runSpark(): done with statusCode " + con.getResponseCode());
-
-    return "RUNNING";
   }
 
 
@@ -1234,8 +1255,8 @@ public class PrepTransformService {
 
     if (requestPost.getSsType() == PrSnapshot.SS_TYPE.URI ||
         requestPost.getSsType() == PrSnapshot.SS_TYPE.STAGING_DB) {
-      String result = runTransformer(wrangledDsId, requestPost, snapshot.getSsId(), authorization);
-      LOGGER.info("transform_snapshot(): return from runTransformer(): " + result);
+      runTransformer(wrangledDsId, requestPost, snapshot.getSsId(), authorization);
+      LOGGER.info("transform_snapshot(): snapshot generation successfully start");
 
       allFullDsIds = new ArrayList<>();   // for backward-compatability
     } else {
