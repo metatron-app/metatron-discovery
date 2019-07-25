@@ -20,7 +20,7 @@ import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_LIMIT_RO
 import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_TIMEOUT;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_HOSTNAME;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_METADATA_URI;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_METASTORE_URI;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PASSWORD;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PORT;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_USERNAME;
@@ -151,7 +151,7 @@ public class TeddyExecutor {
     hivePort = (Integer) prepPropertiesInfo.get(STAGEDB_PORT);
     hiveUsername = (String) prepPropertiesInfo.get(STAGEDB_USERNAME);
     hivePassword = (String) prepPropertiesInfo.get(STAGEDB_PASSWORD);
-    hiveCustomUrl = (String) prepPropertiesInfo.get(STAGEDB_METADATA_URI);
+    hiveCustomUrl = (String) prepPropertiesInfo.get(STAGEDB_METASTORE_URI);
 
     cores = (Integer) prepPropertiesInfo.get(ETL_CORES);
     timeout = (Integer) prepPropertiesInfo.get(ETL_TIMEOUT);
@@ -169,10 +169,10 @@ public class TeddyExecutor {
     String ssId = "";
 
     try {
-      Map<String, Object> prepPropertiesInfo = GlobalObjectMapper.readValue(argv[1], HashMap.class);
-      Map<String, Object> datasetInfo = GlobalObjectMapper.readValue(argv[2], HashMap.class);
-      Map<String, Object> snapshotInfo = GlobalObjectMapper.readValue(argv[3], HashMap.class);
-      Map<String, Object> callbackInfo = GlobalObjectMapper.readValue(argv[4], HashMap.class);
+      Map<String, Object> prepPropertiesInfo = GlobalObjectMapper.readValue(argv[0], HashMap.class);
+      Map<String, Object> datasetInfo = GlobalObjectMapper.readValue(argv[1], HashMap.class);
+      Map<String, Object> snapshotInfo = GlobalObjectMapper.readValue(argv[2], HashMap.class);
+      Map<String, Object> callbackInfo = GlobalObjectMapper.readValue(argv[3], HashMap.class);
 
       restAPIserverPort = (String) callbackInfo.get("port");
       oauth_token = (String) callbackInfo.get("oauth_token");
@@ -189,7 +189,7 @@ public class TeddyExecutor {
       String ssType = (String) snapshotInfo.get("ssType");
 
       if (ssType.equals(PrSnapshot.SS_TYPE.URI.name())) {
-        result = createUriSnapshot(argv);
+        result = createUriSnapshot(datasetInfo, snapshotInfo);
       } else if (ssType.equals(PrSnapshot.SS_TYPE.STAGING_DB.name())) {
         result = createStagingDbSnapshot(hadoopConfDir, datasetInfo, snapshotInfo);
       } else {
@@ -308,11 +308,9 @@ public class TeddyExecutor {
     return df.rows.size();
   }
 
-  private Future<String> createUriSnapshot(String[] argv) throws Throwable {
+  private Future<String> createUriSnapshot(Map<String, Object> datasetInfo,
+      Map<String, Object> snapshotInfo) throws Throwable {
     LOGGER.info("createUriSnapshot(): started");
-
-    Map<String, Object> datasetInfo = GlobalObjectMapper.readValue(argv[2], HashMap.class);
-    Map<String, Object> snapshotInfo = GlobalObjectMapper.readValue(argv[3], HashMap.class);
 
     // master dataset 정보에 모든 upstream 정보도 포함되어있음.
     String ssId = (String) snapshotInfo.get("ssId");

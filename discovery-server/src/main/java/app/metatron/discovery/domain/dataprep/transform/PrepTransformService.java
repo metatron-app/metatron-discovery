@@ -14,9 +14,8 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
-import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_SPARK_PORT;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_HOSTNAME;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_METADATA_URI;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_METASTORE_URI;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PASSWORD;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PORT;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_USERNAME;
@@ -35,7 +34,9 @@ import app.metatron.discovery.domain.dataprep.PrepSwapRequest;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
+import app.metatron.discovery.domain.dataprep.entity.PrSnapshot.ENGINE;
 import app.metatron.discovery.domain.dataprep.entity.PrTransformRule;
+import app.metatron.discovery.domain.dataprep.etl.SparkExecutor;
 import app.metatron.discovery.domain.dataprep.etl.TeddyExecutor;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
@@ -58,14 +59,9 @@ import com.facebook.presto.jdbc.internal.guava.collect.Lists;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -101,6 +97,9 @@ public class PrepTransformService {
 
   @Autowired(required = false)
   TeddyExecutor teddyExecutor;
+
+  @Autowired(required = false)
+  SparkExecutor sparkExecutor;
 
   @Autowired
   PrepHistogramService prepHistogramService;
@@ -202,8 +201,8 @@ public class PrepTransformService {
       mapEveryForEtl.put(STAGEDB_USERNAME, stageDB.getUsername());
       mapEveryForEtl.put(STAGEDB_PASSWORD, stageDB.getPassword());
 
-      if (ssType.equals("SPARK")) {
-        mapEveryForEtl.put(STAGEDB_METADATA_URI, stageDB.getMetastoreUri());
+      if (engine == ENGINE.SPARK) {
+        mapEveryForEtl.put(STAGEDB_METASTORE_URI, stageDB.getMetastoreUri());
       }
     }
 
@@ -238,19 +237,7 @@ public class PrepTransformService {
         map.put("dbName", requestPost.getDbName());
         map.put("tblName", requestPost.getTblName());
 
-        switch (engine.name()) {
-          case "EMBEDDED":
-            map.put("stagingBaseDir", prepProperties.getStagingBaseDir(true));
-            break;
-          case "SPARK":
-            map.put("polaris.dataprep.etl.spark.warehouseDir",
-                prepProperties.getEtlSparkWarehouseDir());
-            map.put("polaris.storage.stagedb.metastore.uri",
-                storageProperties.getStagedb().getMetastoreUri());
-            break;
-          default:
-            assert false : engine.name();
-        }
+        map.put("stagingBaseDir", prepProperties.getStagingBaseDir(true));
         break;
       default:
         assert false : ssType;
@@ -1025,7 +1012,7 @@ public class PrepTransformService {
     LOGGER.info("runTeddy(): engine=embedded");
 
     Future<String> future = teddyExecutor.run(
-        new String[]{"embedded", jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo,
+        new String[]{jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo,
             jsonCallbackInfo});
 
     LOGGER.debug("runTeddy(): (Future) result from teddyExecutor: " + future.toString());
@@ -1033,60 +1020,67 @@ public class PrepTransformService {
 
   private void runSpark(String jsonPrepPropertiesInfo, String jsonDatasetInfo,
       String jsonSnapshotInfo, String jsonCallbackInfo) throws Throwable {
+
+    Future<String> future = sparkExecutor.run(
+        new String[]{jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo,
+            jsonCallbackInfo});
+
+    LOGGER.debug("runSpark(): (Future) result from sparkExecutor: " + future.toString());
+
     ObjectMapper mapper = GlobalObjectMapper.getDefaultMapper();
     LOGGER.info("runSpark(): engine=spark");
 
     // Spark engine gets arguments as Map not as JSON string.
     // TODO: This is natural. Embbeded engine should do like this too.
 
-    Map<String, Object> prepPropertiesInfo = mapper
-        .readValue(jsonPrepPropertiesInfo, HashMap.class);
-    Map<String, Object> datasetInfo = mapper.readValue(jsonDatasetInfo, HashMap.class);
-    Map<String, Object> snapshotInfo = mapper.readValue(jsonSnapshotInfo, HashMap.class);
-    Map<String, Object> callbackInfo = mapper.readValue(jsonCallbackInfo, HashMap.class);
-
-    // TODO: fork if not running
-
-    // Send spark request
-    Map<String, Object> args = new HashMap();
-
-    args.put("prepProperties", prepPropertiesInfo);
-    args.put("datasetInfo", datasetInfo);
-    args.put("snapshotInfo", snapshotInfo);
-    args.put("callbackInfo", callbackInfo);
-
-    URL url = new URL("http://localhost:" + prepPropertiesInfo.get(ETL_SPARK_PORT) + "/run");
-    HttpURLConnection con = (HttpURLConnection) url.openConnection();
-
-    con.setRequestMethod("POST");
-    con.setRequestProperty("Content-Type", "application/json; utf-8");
-    con.setRequestProperty("Accept", "application/json");
-    con.setDoOutput(true);
-
-    String jsonArgs = GlobalObjectMapper.getDefaultMapper().writeValueAsString(args);
-
-    try (OutputStream os = con.getOutputStream()) {
-      byte[] input = jsonArgs.getBytes("utf-8");
-      os.write(input, 0, input.length);
-    }
-
-    StringBuilder response = new StringBuilder();
-    InputStreamReader reader = new InputStreamReader(con.getInputStream(), "utf-8");
-
-    try (BufferedReader br = new BufferedReader(reader)) {
-      String responseLine;
-
-      while (true) {
-        responseLine = br.readLine();
-        if (responseLine == null) {
-          break;
-        }
-        response.append(responseLine.trim());
-      }
-      System.out.println(response.toString());
-    }
-
-    LOGGER.debug("runSpark(): done with statusCode " + con.getResponseCode());
+//    Map<String, Object> prepPropertiesInfo = mapper
+//        .readValue(jsonPrepPropertiesInfo, HashMap.class);
+//    Map<String, Object> datasetInfo = mapper.readValue(jsonDatasetInfo, HashMap.class);
+//    Map<String, Object> snapshotInfo = mapper.readValue(jsonSnapshotInfo, HashMap.class);
+//    Map<String, Object> callbackInfo = mapper.readValue(jsonCallbackInfo, HashMap.class);
+//
+//    // TODO: fork if not running
+//
+//    // Send spark request
+//    Map<String, Object> args = new HashMap();
+//
+//    args.put("prepProperties", prepPropertiesInfo);
+//    args.put("datasetInfo", datasetInfo);
+//    args.put("snapshotInfo", snapshotInfo);
+//    args.put("callbackInfo", callbackInfo);
+//
+//    URL url = new URL("http://localhost:" + prepPropertiesInfo.get(ETL_SPARK_PORT) + "/run");
+//    HttpURLConnection con = (HttpURLConnection) url.openConnection();
+//
+//    con.setRequestMethod("POST");
+//    con.setRequestProperty("Content-Type", "application/json; utf-8");
+//    con.setRequestProperty("Accept", "application/json");
+//    con.setDoOutput(true);
+//
+//    String jsonArgs = GlobalObjectMapper.getDefaultMapper().writeValueAsString(args);
+//
+//    try (OutputStream os = con.getOutputStream()) {
+//      byte[] input = jsonArgs.getBytes("utf-8");
+//      os.write(input, 0, input.length);
+//    }
+//
+//    StringBuilder response = new StringBuilder();
+//    InputStreamReader reader = new InputStreamReader(con.getInputStream(), "utf-8");
+//
+//    try (BufferedReader br = new BufferedReader(reader)) {
+//      String responseLine;
+//
+//      while (true) {
+//        responseLine = br.readLine();
+//        if (responseLine == null) {
+//          break;
+//        }
+//        response.append(responseLine.trim());
+//      }
+//      System.out.println(response.toString());
+//    }
+//
+//    LOGGER.debug("runSpark(): done with statusCode " + con.getResponseCode());
   }
 
 

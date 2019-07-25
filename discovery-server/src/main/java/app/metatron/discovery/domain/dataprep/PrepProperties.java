@@ -42,7 +42,7 @@ public class PrepProperties {
   public static final String STAGEDB_PORT = "polaris.storage.stagedb.port";
   public static final String STAGEDB_USERNAME = "polaris.storage.stagedb.username";
   public static final String STAGEDB_PASSWORD = "polaris.storage.stagedb.password";
-  public static final String STAGEDB_METADATA_URI = "polaris.storage.stagedb.metadata.uri";
+  public static final String STAGEDB_METASTORE_URI = "polaris.storage.stagedb.metastore.uri";
 
   public static final String ETL_CORES = "polaris.dataprep.etl.cores";
   public static final String ETL_TIMEOUT = "polaris.dataprep.etl.timeout";
