@@ -1413,7 +1413,7 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 
 .ddp-area-boardside .ddp-ui-divide .ddp-none-bar.ddp-select-bar:hover,
 .ddp-dropdown-filter.ddp-selected .ddp-none-bar.ddp-select-bar {background-color:#dfe0e4;}
-.ddp-dropdown-filter {position:relative;}
+.ddp-dropdown-filter {position:relative; margin-bottom:-20px;}
 .ddp-dropdown-filter.ddp-selected .ddp-select-bar .ddp-icon-view {transform:rotate(180deg);}
 .ddp-dropdown-filter .ddp-wrap-popup2 {display:none; width:238px;position:absolute; top:100%; left:-14px; padding:6px 0;}
 .ddp-dropdown-filter .ddp-wrap-popup2 .ddp-label-type {padding:10px 12px 3px 12px; color:#b7b9c2; font-size:12px;}
@@ -1559,7 +1559,7 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 .ddp-add-filter ul.ddp-list-filter li .ddp-btn-edit:hover {background-position-x:-52px;}
 
 .ddp-filter1 {position:relative; height:100%; padding:60px 0 0 0; box-sizing:border-box;}
-
+.ddp-filter1 .ddp-dropdown-filter {margin-bottom:0;}
 .ddp-filter1 .ddp-wrap-setting {padding:8px 25px; width:100%;background-color:#f6f6f7; overflow:hidden; box-sizing:border-box;}
 .ddp-filter1 .ddp-wrap-setting .ddp-wrap-edit .ddp-label-type {padding-right:15px; letter-spacing:-1px;}
 .ddp-filter1 .ddp-wrap-setting .ddp-wrap-edit .ddp-ui-edit-option .ddp-type-selectbox {width:148px; background-color:#fff;}
