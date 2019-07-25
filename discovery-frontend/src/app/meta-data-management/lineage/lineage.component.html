@@ -1,0 +1,518 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- //top -->
+<div class="ddp-ui-contents-list type-list">
+  <div class="ddp-wrap-top-filtering">
+    <!-- filter search -->
+    <div class="ddp-filter-search ddp-fright">
+      <div class="ddp-form-filter-search type-auto">
+        <!-- span 에 placeholder 내용 넣어주세요 (가변으로 하기 위해서) -->
+        <input type="text" placeholder="Search data">
+        <span class="ddp-text-placeholder">Search data</span>
+        <a href="javascript:" class="ddp-btn-delete"></a>
+      </div>
+    </div>
+    <!-- //filter search -->
+
+    <div class="ddp-wrap-form-filtering">
+      <!-- more -->
+
+      <!-- 클릭시 ddp-selected 추가 -->
+      <div class="ddp-filter-more ">
+        <a href="javascript:" class="ddp-btn-filter-more"></a>
+        <div class="ddp-result-filtering ">
+          <div class="ddp-box-result ">
+            <!-- popup -->
+            <div class="ddp-wrap-popup2 ">
+
+                                        <span class="ddp-txt-label2">
+                                            Filter
+                                        </span>
+              <ul class="ddp-list-popup">
+                <li class="">
+                  <a href="javascript:">
+                    <label class="ddp-label-checkbox">
+                      <input type="checkbox">
+                      <i class="ddp-icon-checkbox"></i>
+                      <span class="ddp-txt-checkbox">최근 본</span>
+                    </label>
+                  </a>
+                </li>
+                <li class="">
+                  <a href="javascript:">
+                    <label class="ddp-label-checkbox">
+                      <input type="checkbox">
+                      <i class="ddp-icon-checkbox"></i>
+                      <span class="ddp-txt-checkbox">최근 업데이트된</span>
+                    </label>
+                  </a>
+                </li>
+                <li class="">
+                  <a href="javascript:">
+                    <label class="ddp-label-checkbox">
+                      <input type="checkbox">
+                      <i class="ddp-icon-checkbox"></i>
+                      <span class="ddp-txt-checkbox">최근 등록된</span>
+                    </label>
+                  </a>
+                </li>
+              </ul>
+              <span class="ddp-txt-label2">
+                                            Criteria
+                                        </span>
+              <ul class="ddp-list-popup">
+
+                <li class="">
+                  <a href="javascript:">
+                    <label class="ddp-label-checkbox">
+                      <input type="checkbox">
+                      <i class="ddp-icon-checkbox"></i>
+                      <span class="ddp-txt-checkbox">Data type</span>
+                    </label>
+                  </a>
+                </li>
+                <li class="">
+                  <a href="javascript:">
+                    <label class="ddp-label-checkbox">
+                      <input type="checkbox">
+                      <i class="ddp-icon-checkbox"></i>
+                      <span class="ddp-txt-checkbox">Ingestion type</span>
+                    </label>
+                  </a>
+                </li>
+                <li class="">
+                  <a href="javascript:">
+                    <label class="ddp-label-checkbox">
+                      <input type="checkbox">
+                      <i class="ddp-icon-checkbox"></i>
+                      <span class="ddp-txt-checkbox">Size</span>
+                    </label>
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <!-- //popup -->
+          </div>
+        </div>
+      </div>
+      <!-- //more -->
+      <!-- form -->
+      <div class="ddp-form-filtering">
+        <!--<script>-->
+        <!--$(function(){-->
+        <!--$('.ddp-result-filtering.ddp-selected').each(function(){-->
+        <!--var $labelWidth = $(this).find('.ddp-txt-label').outerWidth();-->
+
+        <!--$(this).find('.ddp-box-result').css({-->
+        <!--'max-width' : 70+$labelWidth,-->
+        <!--'margin-left' : -$labelWidth-->
+        <!--});-->
+        <!--});-->
+        <!--})-->
+        <!--</script>-->
+        <!-- 결과 -->
+        <!-- 클릭시 ddp-selected 추가-->
+        <div class="ddp-result-filtering ">
+          <span class="ddp-txt-label">Status:</span>
+
+          <div class="ddp-box-result ">
+
+            <!--
+                title -> label : 선택한 내용 으로 넣어주세요
+            -->
+            <span class="ddp-txt-result" title="Status : All">All</span>
+
+          </div>
+          <!-- popup -->
+          <div class="ddp-wrap-popup2 ">
+            <!-- search -->
+            <div class="ddp-pop-search">
+              <!--
+                  input placeholder -> Search (label명 복수로 써주세요 ex: Search creators 이런식으로 복수로
+              -->
+              <input type="text" placeholder="Search Status">
+            </div>
+            <!-- //search -->
+            <ul class="ddp-list-popup">
+
+              <li class="">
+                <a href="javascript:">
+                  <label class="ddp-label-checkbox">
+                    <input type="checkbox">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">(All)</span>
+                  </label>
+                </a>
+              </li>
+            </ul>
+            <span class="ddp-txt-label2">
+                                                    Me
+                                                </span>
+            <ul class="ddp-list-popup">
+
+              <li class="">
+                <a href="javascript:">
+                  <label class="ddp-label-checkbox">
+                    <input type="checkbox">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">최근 본</span>
+                  </label>
+                </a>
+              </li>
+              <li class="">
+                <a href="javascript:">
+                  <label class="ddp-label-checkbox">
+                    <input type="checkbox">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">최근 업데이트된</span>
+                  </label>
+                </a>
+              </li>
+              <li class="">
+                <a href="javascript:">
+                  <label class="ddp-label-checkbox">
+                    <input type="checkbox">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">최근 등록된</span>
+                  </label>
+                </a>
+              </li>
+            </ul>
+
+          </div>
+          <!-- //popup -->
+        </div>
+        <!-- //결과 -->
+
+      </div>
+      <!-- //form -->
+      <!-- form -->
+      <div class="ddp-form-filtering">
+        <!-- 결과 -->
+        <!-- 클릭시 ddp-selected 추가 -->
+        <div class="ddp-result-filtering ">
+          <span class="ddp-txt-label">Status:</span>
+
+          <div class="ddp-box-result ">
+            <!--
+                title -> label : 선택한 내용 으로 넣어주세요
+            -->
+            <span class="ddp-txt-result" title="Status : All">All</span>
+
+          </div>
+          <a href="javascript:" class="ddp-btn-del"></a>
+          <!-- popup -->
+          <div class="ddp-wrap-popup2 ">
+            <!-- search -->
+            <div class="ddp-pop-search">
+              <!--
+                  input placeholder -> Search (label명 복수로 써주세요 ex: Search creators 이런식으로 복수로
+              -->
+              <input type="text" placeholder="Search Status">
+            </div>
+            <!-- //search -->
+            <ul class="ddp-list-popup">
+
+              <li class="">
+                <a href="javascript:">
+                  <label class="ddp-label-checkbox">
+                    <input type="checkbox">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">(All)</span>
+                  </label>
+                </a>
+              </li>
+            </ul>
+            <span class="ddp-txt-label2">
+                                                            Me
+                                                        </span>
+            <ul class="ddp-list-popup">
+
+              <li class="">
+                <a href="javascript:">
+                  <label class="ddp-label-checkbox">
+                    <input type="checkbox">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">최근 본</span>
+                  </label>
+                </a>
+              </li>
+              <li class="">
+                <a href="javascript:">
+                  <label class="ddp-label-checkbox">
+                    <input type="checkbox">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">최근 업데이트된</span>
+                  </label>
+                </a>
+              </li>
+              <li class="">
+                <a href="javascript:">
+                  <label class="ddp-label-checkbox">
+                    <input type="checkbox">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">최근 등록된</span>
+                  </label>
+                </a>
+              </li>
+            </ul>
+
+          </div>
+          <!-- //popup -->
+        </div>
+        <!-- //결과 -->
+
+      </div>
+      <!-- //form -->
+
+      <!-- form -->
+      <div class="ddp-form-filtering">
+        <!-- 결과 -->
+        <div class="ddp-result-filtering type-date">
+          <span class="ddp-txt-label">Creation date :</span>
+          <div class="ddp-box-result ">
+            <span class="ddp-txt-result">2018-18-18 12:00 ~ 2019-19-19-12:00</span>
+
+          </div>
+
+          <!-- popup -->
+          <div class="ddp-wrap-popup2 ddp-date">
+            <ul class="ddp-list-popup">
+
+              <li class="">
+                <a href="javascript:">
+                  <label class="ddp-label-radio">
+                    <input type="radio">
+                    <i class="ddp-icon-radio"></i>
+                    <span class="ddp-txt-radio">(All)</span>
+                  </label>
+                </a>
+              </li>
+              <li class="">
+                <a href="javascript:">
+                  <label class="ddp-label-radio">
+                    <input type="radio">
+                    <i class="ddp-icon-radio"></i>
+                    <span class="ddp-txt-radio">Today</span>
+                  </label>
+                </a>
+              </li>
+              <li class="">
+                <a href="javascript:">
+                  <label class="ddp-label-radio">
+                    <input type="radio">
+                    <i class="ddp-icon-radio"></i>
+                    <span class="ddp-txt-radio">Last 7 days</span>
+                  </label>
+                </a>
+              </li>
+              <li class="">
+                <a href="javascript:">
+                  <div class="ddp-wrap-between">
+                    <label class="ddp-label-radio">
+                      <input type="radio">
+                      <i class="ddp-icon-radio"></i>
+                      <span class="ddp-txt-radio">Between</span>
+                    </label>
+                    <!-- dateinfo -->
+                    <div class="ddp-wrap-dateinfo">
+                      <div class="ddp-ui-dateinfo">
+                        <span class="ddp-txt-date">from</span>
+                        <div class="ddp-box-dateinfo ddp-clear">
+
+                          <input type="text" class="ddp-input-calen ddp-full" value="2016-01-10">
+
+                        </div>
+                      </div>
+
+                      <div class="ddp-ui-dateinfo">
+                        <span class="ddp-txt-date">to</span>
+                        <div class="ddp-box-dateinfo ddp-clear">
+
+                          <input type="text" class="ddp-input-calen ddp-full " value="2016-01-10">
+
+                        </div>
+                      </div>
+                    </div>
+                    <!-- //dateinfo -->
+                  </div>
+                </a>
+              </li>
+            </ul>
+
+          </div>
+          <!-- //popup -->
+        </div>
+        <!-- //결과 -->
+      </div>
+      <!-- //form -->
+    </div>
+
+  </div>
+  <div class="ddp-filter-option">
+    <span class="ddp-data-total type-right">There are <strong>4</strong>model</span>
+    <div class="ddp-form-buttons">
+      <a href="javascript:" class="ddp-btn-selection ddp-line "><em class="ddp-icon-edit3"></em>Edit Lineage</a>
+      <a href="#" class=" ddp-btn-pop ddp-bg-black">New</a>
+    </div>
+  </div>
+  <table class="ddp-table-form ddp-table-type3 type-table">
+    <colgroup>
+      <col width="85px">
+      <col width="13%">
+      <col width="10%">
+      <col width="10%">
+      <col width="13%">
+      <col width="10%">
+      <col width="10%">
+      <col width="210">
+    </colgroup>
+    <thead>
+    <tr>
+      <th class="ddp-border-right">
+        Type
+      </th>
+      <th>
+        <strong>From Domain</strong> (schema)
+      </th>
+      <th>
+        From Data
+      </th>
+      <th class="ddp-border-right">
+        From Column
+      </th>
+      <th>
+        <strong>To Domain</strong> (schema)
+      </th>
+      <th>
+        To Data
+      </th>
+      <th>
+        To Column
+      </th>
+      <th>
+        Updated
+        <em class="ddp-icon-array-default2"></em>
+        <em class="ddp-icon-array-asc2" style="display:none;"></em>
+        <em class="ddp-icon-array-des2" style="display:none;"></em>
+      </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td class="ddp-border-right ddp-txt-center">
+        <span class="ddp-tag-type type-column">Column</span>
+      </td>
+      <td>
+        <div class="ddp-ui-flex">
+                            <span class="ddp-txt-data">
+                                System 010101010101
+                                <span class="ddp-txt-colortype">(dbname01)</span>
+                            </span>
+        </div>
+      </td>
+      <td>
+        <div class="ddp-ui-flex">
+          New datasource
+        </div>
+      </td>
+      <td class="ddp-border-right">
+        <div class="ddp-ui-flex">
+          NewColumn 01
+        </div>
+      </td>
+      <td>
+        <div class="ddp-ui-flex">
+                            <span class="ddp-txt-data">
+                                System 010101010101
+                                <span class="ddp-txt-colortype">(dbname01)</span>
+                            </span>
+        </div>
+      </td>
+      <td>
+        <div class="ddp-ui-flex">
+          New datasource
+        </div>
+      </td>
+      <td>
+        <div class="ddp-ui-flex">
+          NewColumn 01
+        </div>
+      </td>
+      <td class="ddp-data-last">
+        2017-7-13 14:35  <em class="ddp-icon-by">by</em>오상식
+        <div class="ddp-btn-control">
+          <em class="ddp-icon-control-cut"></em>
+        </div>
+      </td>
+
+    </tr>
+    <tr>
+      <td class="ddp-border-right ddp-txt-center">
+        <span class="ddp-tag-type type-metadata">Metadata</span>
+      </td>
+      <td>
+        <div class="ddp-ui-flex">
+                            <span class="ddp-txt-data">
+                                System 010101010101
+                                <span class="ddp-txt-colortype">(dbname01)</span>
+                            </span>
+        </div>
+      </td>
+      <td>
+        <div class="ddp-ui-flex">
+          New datasource
+        </div>
+      </td>
+      <td class="ddp-border-right">
+        <div class="ddp-ui-flex">
+          NewColumn 01
+        </div>
+      </td>
+      <td>
+        <div class="ddp-ui-flex">
+                            <span class="ddp-txt-data">
+                                System 010101010101
+                                <span class="ddp-txt-colortype">(dbname01)</span>
+                            </span>
+        </div>
+      </td>
+      <td>
+        <div class="ddp-ui-flex">
+          New datasource
+        </div>
+      </td>
+      <td>
+        <div class="ddp-ui-flex">
+          NewColumn 01
+        </div>
+      </td>
+      <td class="ddp-data-last">
+        2017-7-13 14:35  <em class="ddp-icon-by">by</em>오상식
+        <div class="ddp-btn-control">
+          <em class="ddp-icon-control-cut"></em>
+        </div>
+      </td>
+
+    </tr>
+
+
+    </tbody>
+
+  </table>
+  <div class="ddp-box-add-link">
+    <span class="ddp-link-type">More <em class="ddp-icon-view"></em></span>
+  </div>
+</div>

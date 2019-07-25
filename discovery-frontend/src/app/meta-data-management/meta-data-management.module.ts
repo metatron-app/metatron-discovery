@@ -24,6 +24,11 @@ import {CodeTableComponent} from './code-table/code-table.component';
 import {DetailCodeTableComponent} from './code-table/detail-code-table/detail-code-table.component';
 import {CreateCodeTableComponent} from './code-table/create-code-table/create-code-table.component';
 import {CodeTableService} from './code-table/service/code-table.service';
+
+import {LineageComponent} from './lineage/lineage.component';
+import {DetailLineageComponent} from './lineage/detail-lineage/detail-lineage.component';
+import {LineageService} from './lineage/service/lineage.service';
+
 import {ColumnDictionaryService} from './column-dictionary/service/column-dictionary.service';
 import {LinkedColumnDictionaryComponent} from './component/linked-column-dictionary/linked-column-dictionary.component';
 import {LinkedMetadataComponent} from './component/linked-metadata-columns/linked-metadata.component';
@@ -61,6 +66,7 @@ import {CreateMetadataModule} from "./metadata/create-metadata/create-metadata.m
         canActivate: [MetadataManagementGuard],
       },
       {path: 'code-table/:codeTableId', component: DetailCodeTableComponent, canActivate: [MetadataManagementGuard]},
+      {path: 'lineage/:lineageId', component: DetailLineageComponent, canActivate: [MetadataManagementGuard]},
     ]),
   ],
   declarations: [
@@ -85,7 +91,9 @@ import {CreateMetadataModule} from "./metadata/create-metadata/create-metadata.m
     ChooseCodeTableComponent,
     // 컬럼 사전 선택 텀포넌트
     ChooseColumnDictionaryComponent,
-
+    //리니지
+    LineageComponent,
+    DetailLineageComponent,
     SelectCatalogComponent,
     CatalogComponent,
   ],
@@ -94,6 +102,8 @@ import {CreateMetadataModule} from "./metadata/create-metadata/create-metadata.m
     CodeTableService,
     // 컬럼 사전 서비스
     ColumnDictionaryService,
+    // 리니지 서비스
+    LineageService,
     // 메타데이터 서비스
     MetadataService,
     // 데이터소스 서비스

@@ -3937,6 +3937,7 @@
   "msg.metadata.ui.title" : "Explore Data",
   "msg.metadata.ui.codetable.title" : "Code Table",
   "msg.metadata.ui.dictionary.title" : "Column Dictionary",
+  "msg.metadata.ui.lineage.title" : "Lineage",
   "msg.metadata.ui.codetable.search.ph" : "Search by Code Table",
   "msg.metadata.ui.codetable.lists" : "There are <strong>{{value}}</strong> lists",
   "msg.metadata.ui.codetable.create.btn" : "Create New Code Table",

@@ -33,6 +33,7 @@ export class MetaDataManagementComponent extends AbstractComponent {
     {id: 'column-dictionary'},
     {id: 'code-table'},
     {id: 'catalog'},
+    {id: 'lineage'},
   ];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

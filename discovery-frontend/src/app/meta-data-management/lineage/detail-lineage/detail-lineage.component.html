@@ -1,0 +1,249 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-contents2">
+  <div class="ddp-top-flow">
+    <!-- navi wrap -->
+    <div class="ddp-wrap-navi">
+      <a href="javascript:" class="ddp-btn-back" (click)="onClickPrevButton()"></a>
+      <!-- navi -->
+      <div class="ddp-ui-naviarea ">
+        <!-- name -->
+        <!-- 클릭시 ddp-selected 추가 -->
+        <div class="ddp-box-navi ddp-">
+          <!-- 상세 내용이 없을 경우 ddp-full 추가 -->
+          <div class="ddp-wrap-naviname">
+            <span class="ddp-data-naviname ddp-readonly">{{codeTable.name}}</span>
+          </div>
+        </div>
+        <!-- //name -->
+      </div>
+      <!-- //navi -->
+    </div>
+    <!-- //navi wrap -->
+  </div>
+  <!-- 상세 -->
+  <div class="ddp-wrap-datadetail ddp-meta">
+    <!-- option -->
+    <div class="ddp-ui-option ddp-clear">
+      <!-- edit -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{'msg.metadata.ui.codetable.detail.created.on' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option">
+          <div class="ddp-data-txt">
+            {{codeTable.createdTime | mdate:'YYYY-MM-DD HH:mm'}} {{'msg.metadata.ui.codetable.detail.by' | translate}}
+            <div class="ddp-wrap-link-detail2">
+              <a href="javascript:" class="ddp-link-info">{{codeTable.createdBy?.fullName}}</a>
+              <user-information [name]="codeTable.createdBy?.fullName"
+                                [id]="codeTable.createdBy?.username"
+                                [email]="codeTable.createdBy?.email">
+              </user-information>
+            </div>
+          </div>
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //edit -->
+      <!-- edit -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{'msg.metadata.ui.codetable.detail.updated.on' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option">
+          <div class="ddp-data-txt">
+            {{codeTable.modifiedTime | mdate:'YYYY-MM-DD HH:mm'}} {{'msg.metadata.ui.codetable.detail.by' | translate}}
+            <div class="ddp-wrap-link-detail2">
+              <a href="javascript:" class="ddp-link-info">{{codeTable.modifiedBy?.fullName}}</a>
+              <user-information [name]="codeTable.modifiedBy?.fullName"
+                                [id]="codeTable.modifiedBy?.username"
+                                [email]="codeTable.modifiedBy?.email">
+              </user-information>
+            </div>
+          </div>
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //edit -->
+      <!-- right -->
+      <div class="ddp-ui-rightoption">
+        <a href="javascript:" class="ddp-btn-selection ddp-reject" (click)="onClickDeleteCodeTable()"><em class="ddp-icon-delete"></em>{{'msg.metadata.ui.codetable.detail.delete.code.table' | translate}}</a>
+      </div>
+      <!-- //right -->
+    </div>
+    <!-- //option -->
+    <div class="ddp-ui-datadetail">
+      <label class="ddp-label-detail">{{'msg.metadata.ui.codetable.create.table.information' | translate}}</label>
+      <table class="ddp-table-detail">
+        <colgroup>
+          <col width="160px">
+          <col width="*">
+        </colgroup>
+        <tbody>
+        <tr>
+          <th>
+            {{'msg.metadata.ui.codetable.create.table.name' | translate}}
+          </th>
+          <td>
+            <!-- 클릭시 ddp-selected 추가 -->
+            <div class="ddp-txt-edit" [class.ddp-selected]="nameEditFl" (clickOutside)="nameEditFl = false">
+              <!-- data -->
+              <span class="ddp-data-name" (click)="onChangeNameMode()">
+                {{codeTable.name}}
+                <em class="ddp-icon-edit2"></em>
+            </span>
+              <!-- //data -->
+              <!-- edit -->
+              <div class="ddp-wrap-input">
+                <component-input
+                  [compType]="'default'"
+                  [value]="reName"
+                  [placeHolder]="'msg.comm.ui.create.name' | translate"
+                  (changeValue)="reName = $event; onClickUpdateName();">
+                </component-input>
+                <span class="ddp-btn-check" (click)="onClickUpdateName()"></span>
+              </div>
+              <!-- //edit -->
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <th>
+            {{'msg.metadata.ui.codetable.create.description' | translate}}
+          </th>
+          <td>
+            <!-- 클릭시 ddp-selected 추가 -->
+            <div class="ddp-txt-edit" [class.ddp-selected]="descEditFl" (clickOutside)="descEditFl = false">
+              <!-- data -->
+              <span class="ddp-data-name" (click)="onChangeDescMode()">
+              {{codeTable.description}}
+                <em class="ddp-icon-edit2"></em>
+            </span>
+              <!-- //data -->
+              <!-- edit -->
+              <div class="ddp-wrap-input">
+
+                <component-input
+                  [compType]="'default'"
+                  [value]="reDesc"
+                  [placeHolder]="'msg.comm.ui.create.desc' | translate"
+                  (changeValue)="reDesc = $event; onClickUpdateDesc();">
+                </component-input>
+                <span class="ddp-btn-check" (click)="onClickUpdateDesc()"></span>
+              </div>
+              <!-- //edit -->
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <!-- table detail -->
+      <div class="ddp-wrap-table-detail">
+        <div class="ddp-type-plan">
+          <label class="ddp-label-detail">{{'msg.metadata.ui.codetable.detail.used.column.dictionary' | translate}} ({{linkedDictionaryTotalCount}})</label>
+        </div>
+        <table class="ddp-table-form ddp-table-type3 ddp-full ddp-cursor-none">
+          <colgroup>
+            <col width="23%">
+            <col width="23%">
+            <col width="*">
+          </colgroup>
+          <thead>
+          <tr>
+            <th>
+              {{'msg.metadata.th.dictionary.column.name' | translate}}
+            </th>
+            <th>
+              {{'msg.metadata.ui.dictionary.create.recommendation.column.name' | translate}}
+            </th>
+            <th>
+              {{'msg.metadata.th.dictionary.description' | translate}}
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let dictionary of getLinkedColumnDictionaryList()">
+            <td>
+              {{dictionary.logicalName}}
+            </td>
+            <td>
+              {{dictionary.name}}
+            </td>
+            <td>
+           <span class=" ddp-txt-long">
+              {{dictionary.description}}
+           </span>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+        <!-- 더보기 -->
+        <a href="javascript:" class="ddp-btn-moretype2"
+           *ngIf="linkedDictionaryList.length > 3"
+           (click)="onClickUsedInColumnDictionaryMoreList()">{{'msg.comm.ui.more' | translate}} &gt;</a>
+        <!-- //더보기 -->
+      </div>
+      <!-- //table detail -->
+      <!-- Code Table -->
+      <div class="ddp-wrap-table-detail">
+        <div class="ddp-wrap-codetable">
+
+          <label class="ddp-label-detail">{{'msg.metadata.ui.codetable.create.code-table' | translate}}</label>
+          <!-- option -->
+          <span class="ddp-list-option"></span>
+          <!-- //option -->
+          <!-- box -->
+          <div class="ddp-box-code">
+
+            <div class="ddp-clear ddp-list-label">
+              <div class="ddp-col-5">{{'msg.metadata.ui.codetable.create.code' | translate}} </div>
+              <div class="ddp-col-7">{{'msg.metadata.ui.codetable.create.value' | translate}} </div>
+            </div>
+            <!-- list -->
+            <div class="ddp-clear ddp-list-code" *ngFor="let pair of codeList">
+              <div class="ddp-col-5">
+                <input type="text" class="ddp-input-typebasic ddp-full" [(ngModel)]="pair.code" (keypress)="onKeypressCodePair(pair)">
+              </div>
+              <div class="ddp-col-7">
+                <input type="text" class="ddp-input-typebasic ddp-full" [(ngModel)]="pair.value" (keypress)="onKeypressCodePair(pair)">
+              </div>
+              <a href="javascript:" class="ddp-icon-close" (click)="onClickDeleteCode(pair)" *ngIf="isShowDeleteCodePair()"></a>
+              <span class="ddp-data-error" *ngIf="pair['invalid']"> {{'msg.metadata.ui.codetable.create.valid.code-value.required' | translate}}</span>
+            </div>
+            <!-- //list -->
+            <a href="javascript:" class="ddp-btn-add" (click)="onClickAddCode()"><em class="ddp-icon-plus"></em> {{'msg.metadata.ui.codetable.create.add.btn' | translate}}</a>
+          </div>
+          <!-- //box -->
+          <div class="ddp-txt-right">
+            <a href="javascript:" class="ddp-btn-pop  ddp-type" (click)="onClickResetCodeTable()"><em class="ddp-btn-reset"></em>{{'msg.metadata.ui.codetable.detail.restore.btn' | translate}}</a>
+            <a href="javascript:" class="ddp-btn-pop ddp-bg-black ddp-type" (click)="onClickSaveCodeTable()"><em class="ddp-icon-checked"></em>{{'msg.metadata.ui.codetable.detail.code.table.save.btn' | translate}}</a>
+          </div>
+        </div>
+      </div>
+      <!-- //Code Table -->
+    </div>
+  </div>
+  <!-- //상세 -->
+</div>
+
+<!-- 코드 테이블 삭제 모달 -->
+<app-delete-modal (deleteConfirm)="deleteCodeTable()"></app-delete-modal>
+<!-- //코드 테이블 삭제 모달 -->
+
+<!-- 코드 테이블 변경 확인 모달 -->
+<app-confirm-modal (confirm)="confirmHandler($event)"></app-confirm-modal>
+<!-- //코드 테이블 변경 확인 모달 -->
+
+<!-- 연결된 컬럼 사전 목록 -->
+<app-linked-column-dictionary></app-linked-column-dictionary>
+<!-- //연결된 컬럼 사전 목록 -->
