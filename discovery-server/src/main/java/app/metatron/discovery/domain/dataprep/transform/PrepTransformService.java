@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
+import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_SPARK_PORT;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_HOSTNAME;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PASSWORD;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PORT;
@@ -34,6 +35,7 @@ import app.metatron.discovery.domain.dataprep.PrepSwapRequest;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
+import app.metatron.discovery.domain.dataprep.entity.PrSnapshot.ENGINE;
 import app.metatron.discovery.domain.dataprep.entity.PrTransformRule;
 import app.metatron.discovery.domain.dataprep.etl.TeddyExecutor;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
@@ -56,9 +58,14 @@ import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection
 import com.facebook.presto.jdbc.internal.guava.collect.Lists;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Maps;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -81,8 +88,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.StandardEnvironment;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 public class PrepTransformService {
@@ -231,16 +243,6 @@ public class PrepTransformService {
         break;
       default:
         assert false : ssType;
-    }
-
-    if (engine == PrSnapshot.ENGINE.TWINKLE) {
-      map.put("codec", requestPost.getHiveFileCompression().name().toLowerCase());
-      map.put("mode",
-          requestPost.getAppendMode().name().toLowerCase());    // Twinkle demands to lower;
-      map.put("driver-class-name", datasourceDriverClassName);
-      map.put("url", datasourceUrl);
-      map.put("username", datasourceUsername);
-      map.put("password", datasourcePassword);
     }
 
     return GlobalObjectMapper.getDefaultMapper().writeValueAsString(map);
@@ -976,10 +978,10 @@ public class PrepTransformService {
     String jsonSnapshotInfo = getJsonSnapshotInfo(requestPost, ssId);
 
     switch (requestPost.getEngine()) {
-      case TWINKLE:
-        assert false : "Spark engine not supported for a while";
       case EMBEDDED:
         return runTeddy(jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo, authorization);
+      case SPARK:
+        return runSpark(jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo, authorization);
       default:
         assert false : requestPost.getEngine();
     }
@@ -1008,6 +1010,64 @@ public class PrepTransformService {
     LOGGER.debug("runTeddy(): (Future) result from teddyExecutor: " + future.toString());
     return "RUNNING";
   }
+
+  private String runSpark(String jsonPrepPropertiesInfo, String jsonDatasetInfo,
+      String jsonSnapshotInfo, String authorization) throws Throwable {
+    LOGGER.info("runSpark(): engine=spark");
+
+    // Spark engine gets arguments as Map not as JSON string.
+    // TODO: This is natural. Embbeded engine should do like this too.
+    Map<String, Object> prepPropertiesInfo = GlobalObjectMapper.readValue(jsonPrepPropertiesInfo, HashMap.class);
+    Map<String, Object> datasetInfo = GlobalObjectMapper.readValue(jsonDatasetInfo, HashMap.class);
+    Map<String, Object> snapshotInfo = GlobalObjectMapper.readValue(jsonSnapshotInfo, HashMap.class);
+    Map<String, Object> callbackInfo = GlobalObjectMapper.readValue(authorization, HashMap.class);
+
+    // TODO: fork if not running
+
+    // Send spark request
+    Map<String, Object> args = new HashMap();
+
+    args.put("prepProperties", prepPropertiesInfo);
+    args.put("datasetInfo", datasetInfo);
+    args.put("snapshotInfo", snapshotInfo);
+    args.put("callbackInfo", callbackInfo);
+
+    URL url = new URL("http://localhost:" + prepPropertiesInfo.get(ETL_SPARK_PORT) + "/run");
+    HttpURLConnection con = (HttpURLConnection) url.openConnection();
+
+    con.setRequestMethod("POST");
+    con.setRequestProperty("Content-Type", "application/json; utf-8");
+    con.setRequestProperty("Accept", "application/json");
+    con.setDoOutput(true);
+
+    String jsonArgs = GlobalObjectMapper.getDefaultMapper().writeValueAsString(args);
+
+    try (OutputStream os = con.getOutputStream()) {
+      byte[] input = jsonArgs.getBytes("utf-8");
+      os.write(input, 0, input.length);
+    }
+
+    StringBuilder response = new StringBuilder();
+    InputStreamReader reader = new InputStreamReader(con.getInputStream(), "utf-8");
+
+    try (BufferedReader br = new BufferedReader(reader)) {
+      String responseLine;
+
+      while (true) {
+        responseLine = br.readLine();
+        if (responseLine == null) {
+          break;
+        }
+        response.append(responseLine.trim());
+      }
+      System.out.println(response.toString());
+    }
+
+    LOGGER.debug("runSpark(): done with statusCode " + con.getResponseCode());
+
+    return "RUNNING";
+  }
+
 
   private void checkHiveNamingRule(String dsId)
       throws IOException, CannotSerializeIntoJsonException {

@@ -52,6 +52,8 @@ public class PrepProperties {
 
   public static final String ETL_SPARK_JAR = "polaris.dataprep.etl.spark.jar";
   public static final String ETL_SPARK_PORT = "polaris.dataprep.etl.spark.port";
+  public static final String ETL_SPARK_APP_NAME = "polaris.dataprep.etl.spark.appName";
+  public static final String ETL_SPARK_MASTER = "polaris.dataprep.etl.spark.master";
 
   public static String dirDataprep = "dataprep";
   public static String dirPreview = "previews";
@@ -157,6 +159,14 @@ public class PrepProperties {
     return etl.spark.getPort();
   }
 
+  public String getEtlSparkAppName() {
+    return etl.spark.getAppName();
+  }
+
+  public String getEtlSparkMaster() {
+    return etl.spark.getMaster();
+  }
+
   // wrapper functions
   public boolean isHDFSConfigured() {
     return (hadoopConfDir != null && stagingBaseDir != null);
@@ -185,6 +195,9 @@ public class PrepProperties {
     map.put(ETL_LIMIT_ROWS, getEtlLimitRows());
     map.put(ETL_JVM_OPTIONS, getEtlJvmOptions());
     map.put(ETL_EXPLICIT_GC, getEtlExplicitGC());
+    map.put(ETL_SPARK_PORT, getEtlSparkPort());
+    map.put(ETL_SPARK_APP_NAME, getEtlSparkAppName());
+    map.put(ETL_SPARK_MASTER, getEtlSparkMaster());
 
     return map;
   }
@@ -267,6 +280,8 @@ public class PrepProperties {
 
     public String jar;
     public String port;
+    public String appName;
+    public String master;
 
     public SparkInfo() {
     }
@@ -287,11 +302,35 @@ public class PrepProperties {
       this.port = port;
     }
 
+    public String getAppName() {
+      if (appName == null) {
+        appName = "DiscoverySparkEngine";
+      }
+      return appName;
+    }
+
+    public void setAppName(String appName) {
+      this.appName = appName;
+    }
+
+    public String getMaster() {
+      if (master == null) {
+        master = "local";
+      }
+      return master;
+    }
+
+    public void setMaster(String master) {
+      this.master = master;
+    }
+
     @Override
     public String toString() {
       return "SparkInfo{" +
           "jar='" + jar + '\'' +
           ", port='" + port + '\'' +
+          ", appName='" + appName + '\'' +
+          ", master='" + master + '\'' +
           '}';
     }
   }
