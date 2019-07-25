@@ -16,6 +16,9 @@
 /* 05_매니지먼트_00데이터저장소_02데이터소스상세 */
 @import url('page/metatron.page.05Management_datasourceDetail.css');
 
+/* 05_매니지먼트_00메타데이터 */
+@import url('page/metatron.page.05Management_metadata.css');
+
 /* 99_데이터프리퍼레이션_01데이터플로우_03룰2 */
 @import url('page/metatron.page.99Preperation_dataflow_rule.css');
 
