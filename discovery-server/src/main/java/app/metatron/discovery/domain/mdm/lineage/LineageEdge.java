@@ -39,6 +39,9 @@ public class LineageEdge extends AbstractHistoryEntity {
   @Column(name = "downstream_meta_id")
   private String downstreamMetaId;
 
+  @Column(name = "tier")
+  private Long tier;
+
   @Lob
   @Column(name = "description")
   private String description;
@@ -46,10 +49,12 @@ public class LineageEdge extends AbstractHistoryEntity {
   public LineageEdge() {
   }
 
-  public LineageEdge(String upstreamMetaId, String downstreamMetaId, String description) {
+  public LineageEdge(String upstreamMetaId, String downstreamMetaId, Long tier,
+      String description) {
     this();
     this.upstreamMetaId = upstreamMetaId;
     this.downstreamMetaId = downstreamMetaId;
+    this.tier = tier;
     this.description = description;
   }
 
@@ -77,6 +82,14 @@ public class LineageEdge extends AbstractHistoryEntity {
     this.downstreamMetaId = downstreamMetaId;
   }
 
+  public Long getTier() {
+    return tier;
+  }
+
+  public void setTier(Long tier) {
+    this.tier = tier;
+  }
+
   public String getDescription() {
     return description;
   }
@@ -91,6 +104,7 @@ public class LineageEdge extends AbstractHistoryEntity {
         "edgeId='" + edgeId + '\'' +
         ", upstreamMetaId='" + upstreamMetaId + '\'' +
         ", downstreamMetaId='" + downstreamMetaId + '\'' +
+        ", tier=" + tier +
         ", description='" + description + '\'' +
         '}';
   }

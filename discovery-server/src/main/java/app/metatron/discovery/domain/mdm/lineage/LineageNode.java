@@ -18,72 +18,45 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LineageMapNode implements Serializable {
-  private String metaId;
-  private String description;
+public class LineageNode implements Serializable, Comparable<LineageNode> {
 
-  private List<LineageMapNode> upstreamMapNodes;
-  private List<LineageMapNode> downstreamMapNodes;
+  private String metaId;
+
+  private List<LineageNode> upstreamMapNodes;
+  private List<LineageNode> downstreamMapNodes;
 
   private boolean circuit;
 
   private String metaName;  // This is optional.
 
-  public LineageMapNode() {
+  private Integer depth;
+  private Integer pos;
+
+  public LineageNode() {
     metaId = null;
-    description = null;
     upstreamMapNodes = new ArrayList();
     downstreamMapNodes = new ArrayList();
     circuit = false;
+    this.depth = 7;
   }
 
-  public LineageMapNode(String metaId) {
+  public LineageNode(String metaId, String metaName, int depth) {
     this();
     this.metaId = metaId;
-  }
-
-  public LineageMapNode(String metaId, String description) {
-    this(metaId);
-    this.description = description;
-  }
-
-  public LineageMapNode(String metaId, String description, String metaName) {
-    this(metaId, description);
     this.metaName = metaName;
+    this.depth = depth;
   }
 
   public String getMetaId() {
     return metaId;
   }
 
-  public void setMetaId(String metaId) {
-    this.metaId = metaId;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public List<LineageMapNode> getUpstreamMapNodes() {
+  public List<LineageNode> getUpstreamMapNodes() {
     return upstreamMapNodes;
   }
 
-  public void setUpstreamMapNodes(
-      List<LineageMapNode> upstreamMapNodes) {
-    this.upstreamMapNodes = upstreamMapNodes;
-  }
-
-  public List<LineageMapNode> getDownstreamMapNodes() {
+  public List<LineageNode> getDownstreamMapNodes() {
     return downstreamMapNodes;
-  }
-
-  public void setDownstreamMapNodes(
-      List<LineageMapNode> downstreamMapNodes) {
-    this.downstreamMapNodes = downstreamMapNodes;
   }
 
   public boolean isCircuit() {
@@ -102,15 +75,39 @@ public class LineageMapNode implements Serializable {
     this.metaName = metaName;
   }
 
+  public Integer getDepth() {
+    return depth;
+  }
+
+  public void setDepth(Integer depth) {
+    this.depth = depth;
+  }
+
+  public Integer getPos() {
+    return pos;
+  }
+
+  public void setPos(Integer pos) {
+    this.pos = pos;
+  }
+
   @Override
   public String toString() {
-    return "LineageMapNode{" +
+    return "LineageNode{" +
         "metaId='" + metaId + '\'' +
-        ", description='" + description + '\'' +
-        ", upstreamMapNodes=" + upstreamMapNodes +
-        ", downstreamMapNodes=" + downstreamMapNodes +
         ", circuit=" + circuit +
         ", metaName='" + metaName + '\'' +
         '}';
+  }
+
+  @Override
+  public int compareTo(LineageNode node) {
+    if (this.depth > node.getDepth()) {
+      return -1;
+    } else if (this.depth == node.getDepth()) {
+      return 0;
+    } else {
+      return 1;
+    }
   }
 }

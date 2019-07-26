@@ -27,6 +27,7 @@ import app.metatron.discovery.domain.dataprep.transform.PrepTransformService;
 import app.metatron.discovery.domain.mdm.Metadata;
 import app.metatron.discovery.domain.mdm.MetadataRepository;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -56,11 +57,11 @@ public class LineageEdgeService {
   }
 
   @Transactional(rollbackFor = Exception.class)
-  public LineageEdge createEdge(String upstreamMetaId, String downstreamMetaId, String description)
+  public LineageEdge createEdge(String upstreamMetaId, String downstreamMetaId, long tier, String description)
       throws Exception {
     LOGGER.trace("createEdge(): start");
 
-    LineageEdge lineageEdge = new LineageEdge(upstreamMetaId, downstreamMetaId, description);
+    LineageEdge lineageEdge = new LineageEdge(upstreamMetaId, downstreamMetaId, tier, description);
     edgeRepository.saveAndFlush(lineageEdge);
 
     LOGGER.trace("createEdge(): end");
@@ -83,64 +84,6 @@ public class LineageEdgeService {
 
     LOGGER.trace("getEdge(): end");
     return lineageEdge;
-  }
-
-  private void addMapNodeRecursive(LineageMapNode node, boolean upward,
-      List<String> visitedMetaIds) {
-    String metaId = node.getMetaId();
-    List<LineageEdge> edges;
-    LineageMapNode newNode;
-
-    // Edges that have A as downstream are upstream edges of A, vice versa.
-    if (upward) {
-      edges = edgeRepository.findByDownstreamMetaId(metaId);
-    } else {
-      edges = edgeRepository.findByUpstreamMetaId(metaId);
-    }
-
-    // Once started upward, we only find upstreams, and upstreams of upstreams, and so on.
-    // We are not interested the downstreams of any upstreams. Vice versa.
-    for (LineageEdge edge : edges) {
-      if (upward) {
-        String upstreamMetaName = getMetaName(edge.getUpstreamMetaId());
-        newNode = new LineageMapNode(edge.getUpstreamMetaId(), edge.getDescription(), upstreamMetaName);
-        node.getUpstreamMapNodes().add(newNode);
-      } else {
-        String downstreamMetaName = getMetaName(edge.getDownstreamMetaId());
-        newNode = new LineageMapNode(edge.getDownstreamMetaId(), edge.getDescription(), downstreamMetaName);
-        node.getDownstreamMapNodes().add(newNode);
-      }
-
-      if (visitedMetaIds.contains(newNode.getMetaId())) {
-        newNode.setCircuit(true);
-        continue;
-      } else {
-        visitedMetaIds.add(newNode.getMetaId());
-      }
-
-      addMapNodeRecursive(newNode, upward, visitedMetaIds);
-    }
-  }
-
-  private String getMetaName(String metaId) {
-    List<Metadata> metadatas = metadataRepository.findById(metaId);
-    return metadatas.get(0).getName();
-  }
-
-  public LineageMapNode getLineageMap(String metaId) {
-    LOGGER.trace("getLineageMap(): start");
-
-    List<String> visitedMetaIds = new ArrayList();
-    visitedMetaIds.add(metaId);
-
-    String metaName = getMetaName(metaId);
-    LineageMapNode topNode = new LineageMapNode(metaId, null, metaName);
-
-    addMapNodeRecursive(topNode, true, visitedMetaIds);
-    addMapNodeRecursive(topNode, false, visitedMetaIds);
-
-    LOGGER.trace("getLineageMap(): end");
-    return topNode;
   }
 
   public List<LineageEdge> loadLineageMapDsByDsName(String wrangledDsName) {
@@ -170,9 +113,10 @@ public class LineageEdgeService {
     return a == null ? false : a.equals(b);
   }
 
-  private LineageEdge findOrNew(String upstreamMetaId, String downstreamMetaId, String description) {
+  private LineageEdge findOrNew(String upstreamMetaId, String downstreamMetaId, long tier,
+      String description) {
     List<LineageEdge> edges = edgeRepository.findAll();
-    LineageEdge newEdge = new LineageEdge(upstreamMetaId, downstreamMetaId, description);
+    LineageEdge newEdge = new LineageEdge(upstreamMetaId, downstreamMetaId, tier, description);
 
     for (LineageEdge edge : edges) {
       if (isSame(edge.getUpstreamMetaId(), upstreamMetaId) &&
@@ -190,20 +134,21 @@ public class LineageEdgeService {
    *
    * For metadata dependency we use 7 Columns below:
    *
-   * - upstream_meta_name, downstream_meta_name - upstream_col_name, downstream_col_name - description - (upstream_id, downstream_id)
+   * - upstream_meta_name, downstream_meta_name - upstream_col_name, downstream_col_name -
+   * description - (upstream_id, downstream_id)
    *
-   * If upstream_col_name exists, then it's dependency between columns. If not, it's between metadata.
-   * When find by name: - if cannot find any, then throw an exception. - if multiple metadata found,
-   * use the ids. That means if there is an id, then we don't find by name. - if ids are not
-   * provided, throw an exception.
+   * If upstream_col_name exists, then it's dependency between columns. If not, it's between
+   * metadata. When find by name: - if cannot find any, then throw an exception. - if multiple
+   * metadata found, use the ids. That means if there is an id, then we don't find by name. - if ids
+   * are not provided, throw an exception.
    *
    * NOTE: IT'S RARE THAT A NON-TEST SYSTEM HAS METADATA WITH THE SAME NAMES.
    *
    * Belows are examples. (Each ids are omitted.)
    *
    * +---------------------+-------------------+---------------+-------------+--------------------+
-   * | upstream_meta_name      | upstream_col_name     | downstream_meta_name  | downstream_col_name | description        |
-   * +---------------------+-------------------+---------------+-------------+--------------------+
+   * | upstream_meta_name      | upstream_col_name     | downstream_meta_name  | downstream_col_name
+   * | description        | +---------------------+-------------------+---------------+-------------+--------------------+
    * | Imported dataset #1 |                   | Hive table #1 |             | Cleansing #1       |
    * | Hive table #2       |                   | Hive table #1 |             | UPDATE SQL #1      |
    * | Hive table #1       |                   | Datasource #1 |             | Batch ingestion #1 |
@@ -213,8 +158,8 @@ public class LineageEdgeService {
    * (Datasource #1) / (Hive table #2) ---(UPDATE SQL #1)------/
    *
    * +---------------------+-------------------+---------------+-------------+--------------------+
-   * | upstream_meta_name      | upstream_col_name     | downstream_meta_name  | downstream_col_name | description        |
-   * +---------------------+-------------------+---------------+-------------+--------------------+
+   * | upstream_meta_name      | upstream_col_name     | downstream_meta_name  | downstream_col_name
+   * | description        | +---------------------+-------------------+---------------+-------------+--------------------+
    * | Imported dataset #1 | col_1             | Hive table #1 | col_1       | Cleansing #1       |
    * | Imported dataset #1 | col_2             | Hive table #1 | col_2       | Cleansing #1       |
    * | Hive table #2       | rebate            | Hive table #1 | col_2       | UPDATE SQL #1      |
@@ -255,10 +200,11 @@ public class LineageEdgeService {
 
       String upstreamMetaId = getMetaIdByRow(row, true);
       String downstreamMetaId = getMetaIdByRow(row, false);
+      long tier = (long) row.get("tier");
       String description = (String) row.get("description");
 
       // Over write if exists. (UPSERT)
-      LineageEdge edge = findOrNew(upstreamMetaId, downstreamMetaId, description);
+      LineageEdge edge = findOrNew(upstreamMetaId, downstreamMetaId, tier, description);
 
       edgeRepository.save(edge);
       newEdges.add(edge);

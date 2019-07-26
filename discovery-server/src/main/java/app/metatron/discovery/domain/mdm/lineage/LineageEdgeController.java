@@ -52,17 +52,21 @@ public class LineageEdgeController {
   @Autowired
   ProjectionFactory projectionFactory;
 
+  @Autowired
+  LineageMapService lineageMapService;
+
   public LineageEdgeController() {
   }
 
   @RequestMapping(path = "/list", method = RequestMethod.GET)
-  public @ResponseBody
+  public
+  @ResponseBody
   ResponseEntity<?> getLineages(
       @RequestParam(value = "desc", required = false) String desc,
       @RequestParam(value = "projection", required = false, defaultValue = "default") String projection,
       Pageable pageable,
       PersistentEntityResourceAssembler resourceAssembler
-      ) {
+  ) {
 
     Page<LineageEdge> pages = this.lineageEdgeRepository.findAll(pageable);
 
@@ -76,9 +80,11 @@ public class LineageEdgeController {
     try {
       String upstreamMetaId = request.get("upstreamMetaId");
       String downstreamMetaId = request.get("downstreamMetaId");
+      long tier = Long.valueOf(request.get("tier"));
       String description = request.get("description");
 
-      lineageEdge = lineageEdgeService.createEdge(upstreamMetaId, downstreamMetaId, description);
+      lineageEdge = lineageEdgeService
+          .createEdge(upstreamMetaId, downstreamMetaId, tier, description);
     } catch (Exception e) {
       LOGGER.error("create(): caught an exception: ", e);
     }
@@ -102,9 +108,9 @@ public class LineageEdgeController {
 
   @RequestMapping(value = "/map/{metaId}", method = RequestMethod.GET, produces = "application/json", consumes = "application/json")
   public ResponseEntity<?> getLineageMap(@PathVariable("metaId") String metaId) {
-    LineageMapNode lineageMapNode = lineageEdgeService.getLineageMap(metaId);
+    LineageMap map = lineageMapService.getLineageMap(metaId);
 
-    return ResponseEntity.ok(lineageMapNode);
+    return ResponseEntity.ok(map);
   }
 
   // Load a lineaged map dataset named "dsName" (default=DEFAULT_LINEAGE_MAP), return the new edges created by this.
