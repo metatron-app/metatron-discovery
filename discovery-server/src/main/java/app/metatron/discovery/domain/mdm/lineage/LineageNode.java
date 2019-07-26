@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.mdm.lineage;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,10 @@ public class LineageNode implements Serializable, Comparable<LineageNode> {
 
   private String metaId;
 
+  @JsonIgnore
   private List<LineageNode> upstreamMapNodes;
+
+  @JsonIgnore
   private List<LineageNode> downstreamMapNodes;
 
   private boolean circuit;
