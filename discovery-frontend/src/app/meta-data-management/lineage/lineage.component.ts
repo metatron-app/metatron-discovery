@@ -20,7 +20,6 @@ import {LineageService} from './service/lineage.service';
 import {Lineage} from '../../domain/meta-data-management/lineage';
 import {PeriodComponent, PeriodType} from '../../common/component/period/period.component';
 import {Alert} from '../../common/util/alert.util';
-// import {CreateLineageComponent} from './create-lineage/create-lineage.component';
 import {ActivatedRoute} from "@angular/router";
 import {isNullOrUndefined} from "util";
 import * as _ from 'lodash';
@@ -189,6 +188,13 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
   | Public Method - event
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  public onChangedSearchKeyword(keyword: string): void {
+    // set search keyword
+    this.searchText = keyword;
+    // reload page
+    this.reloadPage(true);
+  }
+
   /**
    * 코드 테이블 생성 클릭 이벤트
    */
@@ -200,9 +206,9 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
    * 리니지 상세정보 클릭 이벤트
    * @param {string} lineageId
    */
-  public onClickDetailCodeTable(lineageId: string): void {
+  public onClickDetailLineage(lineageId: string): void {
     // 상세화면으로 이동
-    this.router.navigate(['management/metadata/code-table', lineageId]).then();
+    this.router.navigate(['management/metadata/lineage', lineageId]).then();
   }
 
   /**
@@ -324,6 +330,11 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
       {queryParams: this._searchParams, replaceUrl: true}
     ).then();
   } // function - reloadPage
+
+  public isEmptyList(): boolean {
+    return this.lineageList.length === 0;
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -343,6 +354,8 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
     this.searchText = '';
     // 정렬 초기화
     this.selectedContentSort = new Order();
+    // 페이지당 갯수 10
+    this.page.size = 10;
   }
 
   /**
@@ -387,7 +400,7 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
       // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다.
       if (this.page.page > 0 &&
         isNullOrUndefined(result['_embedded']) ||
-        (!isNullOrUndefined(result['_embedded']) && result['_embedded'].codetables.length === 0))
+        (!isNullOrUndefined(result['_embedded']) && result['_embedded'].lineageedges.length === 0))
       {
         this.page.page = result.page.number - 1;
         this._getLineageList();
@@ -397,7 +410,7 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
 
       this.pageResult = result.page;
 
-      this.lineageList = result['_embedded'] ? this.lineageList.concat(result['_embedded'].codetables) : [];
+      this.lineageList = result['_embedded'] ? this.lineageList.concat(result['_embedded'].lineageedges) : [];
 
       this.loadingHide();
 
@@ -418,28 +431,12 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
   private _getLineageListParams(): any {
     const params = {
       size: this.page.size,
-      page: this.page.page,
-      pseudoParam : (new Date()).getTime()
+      page: this.page.page
     };
-    // 검색어
+
     if (!isNullOrUndefined(this.searchText) && this.searchText.trim() !== '') {
       params['nameContains'] = this.searchText.trim();
     }
-    // date
-    if (this._selectedDate && this._selectedDate.type !== 'ALL') {
-      params['searchDateBy'] = 'CREATED';
-      params['type'] = this._selectedDate.type;
-      if (this._selectedDate.startDateStr) {
-        params['from'] = moment(this._selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
-      }
-      if (this._selectedDate.endDateStr) {
-        params['to'] = moment(this._selectedDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
-      }
-    } else {
-      params['type'] = 'ALL';
-    }
-
-    this.selectedContentSort.sort !== 'default' && (params['sort'] = this.selectedContentSort.key + ',' + this.selectedContentSort.sort);
 
     return params;
   }

@@ -24,7 +24,7 @@ export class LineageService extends AbstractService {
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // code table URL
-  private URL_CODETABLE = this.API_URL + 'codetables';
+  private URL_LINEAGE = this.API_URL + 'metadatas/lineages';
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -57,7 +57,7 @@ export class LineageService extends AbstractService {
    * @returns {Promise<any>}
    */
   public createLineage(params: object): Promise<any> {
-    return this.post(this.URL_CODETABLE, params);
+    return this.post(this.URL_LINEAGE, params);
   }
 
   /**
@@ -67,7 +67,7 @@ export class LineageService extends AbstractService {
    * @returns {Promise<any>}
    */
   public getLineageList(params: object, projection: string = 'forListView'): Promise<any> {
-    let url = this.URL_CODETABLE + `?projection=${projection}`;
+    let url = this.URL_LINEAGE + `/list?projection=${projection}`;
     url += '&' + CommonUtil.objectToUrlString(params);
     return this.get(url);
   }
@@ -79,7 +79,7 @@ export class LineageService extends AbstractService {
    * @returns {Promise<any>}
    */
   public getLineageDetail(tableId: string, projection: string = 'forDetailView'): Promise<any> {
-    return this.get(this.URL_CODETABLE + `/${tableId}?projection=${projection}`);
+    return this.get(this.URL_LINEAGE + `/${tableId}?projection=${projection}`);
   }
 
   /**
@@ -89,7 +89,7 @@ export class LineageService extends AbstractService {
    * @returns {Promise<any>}
    */
   public updateLineage(tableId: string, params: object): Promise<any> {
-    return this.patch(this.URL_CODETABLE + `/${tableId}`, params);
+    return this.patch(this.URL_LINEAGE + `/${tableId}`, params);
   }
 
   /**
@@ -98,6 +98,6 @@ export class LineageService extends AbstractService {
    * @returns {Promise<any>}
    */
   public deleteLineage(tableId: string): Promise<any> {
-    return this.delete(this.URL_CODETABLE + `/${tableId}`);
+    return this.delete(this.URL_LINEAGE + `/${tableId}`);
   }
 }

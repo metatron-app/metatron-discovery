@@ -1,5 +1,8 @@
 @charset "utf-8";
 
+/**** lineage list  *****/
+.ddp-lineage-list .ddp-lineage-none {position:relative; float:left; width:100%; padding:28px 53px 28px 0; color:#9c9c9c; font-size:14px; box-sizing:border-box;}
+
 /**** lineage view  *****/
 
 .ddp-flow-option {margin:9px 8px; padding:6px 0; background-color:#f6f6f7;}

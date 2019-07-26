@@ -20,12 +20,19 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.projection.ProjectionFactory;
+import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @RequestMapping(value = "/metadatas/lineages")
 @RepositoryRestController
@@ -36,7 +43,30 @@ public class LineageEdgeController {
   @Autowired
   LineageEdgeService lineageEdgeService;
 
+  @Autowired
+  LineageEdgeRepository lineageEdgeRepository;
+
+  @Autowired
+  PagedResourcesAssembler pagedResourcesAssembler;
+
+  @Autowired
+  ProjectionFactory projectionFactory;
+
   public LineageEdgeController() {
+  }
+
+  @RequestMapping(path = "/list", method = RequestMethod.GET)
+  public @ResponseBody
+  ResponseEntity<?> getLineages(
+      @RequestParam(value = "desc", required = false) String desc,
+      @RequestParam(value = "projection", required = false, defaultValue = "default") String projection,
+      Pageable pageable,
+      PersistentEntityResourceAssembler resourceAssembler
+      ) {
+
+    Page<LineageEdge> pages = this.lineageEdgeRepository.findAll(pageable);
+
+    return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(pages, resourceAssembler));
   }
 
   @RequestMapping(value = "/edges", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
