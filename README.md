@@ -107,7 +107,7 @@ This project welcomes contributions and suggestions. If you encounter any bugs o
 
 Question
 ----------------------------
-Need help using Metatron Discovery? Check our [FAQs](https://metatron.app/discussion) or ask away on our [discussion forum](https://groups.google.com/d/forum/metatron-discovery)! Our fellow community members will be glad to help you out! Or you can check out our [user manual on our website](https://metatron.app/documents/) as well.
+Need help using Metatron Discovery? Check our [FAQs](https://metatron.app/discussion) or ask away on our [discussion forum](https://groups.google.com/d/forum/metatron-discovery)! Our fellow community members will be glad to help you out! Or you can check out our [user manual on our website](https://metatron.app/documents) as well.
 
 License
 ----------------------------

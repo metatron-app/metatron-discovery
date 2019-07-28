@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnInit, ViewChild } from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { ImplementorType, Dataconnection } from '../../domain/dataconnection/dataconnection';
-import { DataconnectionService } from '../../dataconnection/service/dataconnection.service';
-import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
-import { Modal } from '../../common/domain/modal';
-import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
-import { StringUtil } from '../../common/util/string.util';
+import {Component, ElementRef, Injector, OnInit, ViewChild} from '@angular/core';
+import {AbstractComponent} from '../../common/component/abstract.component';
+import {Dataconnection, ImplementorType} from '../../domain/dataconnection/dataconnection';
+import {DataconnectionService} from '../../dataconnection/service/dataconnection.service';
+import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
+import {Modal} from '../../common/domain/modal';
+import {MomentDatePipe} from '../../common/pipe/moment.date.pipe';
+import {StringUtil} from '../../common/util/string.util';
 import {CreateConnectionComponent} from "./create-connection.component";
 import {UpdateConnectionComponent} from "./update-connection.component";
 import {CriterionComponent} from "../component/criterion/criterion.component";
@@ -195,9 +195,9 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
    */
   public onClickRemoveConnection(connection: Dataconnection): void {
     const modal = new Modal();
-    modal.name = this.translateService.instant('msg.storage.ui.dconn.delete.title');
-    modal.description = this.translateService.instant('msg.storage.ui.delete.title');
-    modal.btnName = this.translateService.instant('msg.storage.ui.dconn.delete.btn');
+    modal.name = this.translateService.instant('msg.storage.ui.dconn.del.title');
+    modal.description = this.translateService.instant('msg.storage.ui.dconn.del.description');
+    modal.btnName = this.translateService.instant('msg.storage.btn.dconn.del');
     // set connection id
     modal.data = connection.id;
     // 팝업 창 오픈

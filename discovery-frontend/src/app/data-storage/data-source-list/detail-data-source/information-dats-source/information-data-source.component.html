@@ -28,7 +28,7 @@
   </div>
   <!-- datadetail -->
   <div class="ddp-ui-datadetail ddp-border-none">
-    <a href="javascript:" class="ddp-btn-solid2 ddp-dark type-link" (click)="onClickLinkMasterData()" *ngIf="metaData">{{'msg.storage.btn.master.data.link' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-solid2 ddp-dark type-link" (click)="onClickLinkMetadata()" *ngIf="isShowLinkMetadata()">{{'msg.storage.btn.master.data.link' | translate}}</a>
     <label class="ddp-label-detail">{{'msg.storage.ui.data.info' | translate}}</label>
     <table class="ddp-table-detail">
       <colgroup>

@@ -83,6 +83,9 @@
         <li (click)="tab = 'columnSchema'" [ngClass]="{'ddp-selected': tab === 'columnSchema'}">
           <a href="javascript:">{{'msg.metadata.th.col-schema' | translate}}</a>
         </li>
+        <li (click)="tab = 'lineageView'" [ngClass]="{'ddp-selected': tab === 'lineageView'}">
+          <a href="javascript:">{{'msg.metadata.th.lineage-view' | translate}}</a>
+        </li>
       </ul>
     </div>
     <!-- //tab -->
@@ -90,6 +93,7 @@
       <app-metadata-detail-information *ngIf="tab === 'information'" [isNameEdit]="isNameEdit" (openAddCataglog)="openCatalog()"></app-metadata-detail-information>
       <metadata-grid-component *ngIf="tab === 'grid'"></metadata-grid-component>
       <app-metadata-detail-columnschema *ngIf="tab === 'columnSchema'" [isNameEdit]="isNameEdit" (chooseCodeTableEvent)="openCodeTable($event)" (chooseDictionaryEvent)="openDictionary($event)"></app-metadata-detail-columnschema>
+      <app-metadata-detail-lineageview *ngIf="tab === 'lineageView'" [isNameEdit]="isNameEdit" ></app-metadata-detail-lineageview>
     </div>
   </div>
 </div>

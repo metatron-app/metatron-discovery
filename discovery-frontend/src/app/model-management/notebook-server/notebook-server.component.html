@@ -83,11 +83,10 @@
       <colgroup>
         <col width="51px">
         <col width="*">
-        <col width="10%">
-        <col width="10%">
-        <col width="7%">
-        <col width="15%">
-        <col width="20%">
+        <col width="130px">
+        <col width="300px">
+        <col width="200px">
+        <col width="250px">
       </colgroup>
       <thead>
       <tr>
@@ -104,23 +103,20 @@
           {{'msg.nbook.th.type' | translate}}
         </th>
         <th>
-          {{'msg.comm.th.host' | translate}}
+          {{'msg.comm.th.url' | translate}}
         </th>
-        <th>
-          {{'msg.comm.th.port' | translate}}
-        </th>
-        <th>
-          {{'msg.nbook.th.creator.id' | translate}}
-          <!--<em class="ddp-icon-array-default2"></em>-->
-          <!--<em class="ddp-icon-array-asc2" style="display:none;"></em>-->
-          <!--<em class="ddp-icon-array-des2" style="display:none;"></em>-->
-        </th>
-
         <th (click)="onClickSort('modifiedTime')">
-          {{'msg.nbook.th.last.updated' | translate}}
+          {{'msg.comm.ui.list.updated' | translate}}
           <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'modifiedTime' || selectedContentSort.sort === 'default'"></em>
           <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'asc'"></em>
           <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'desc'"></em>
+        </th>
+
+        <th (click)="onClickSort('createdTime')">
+          {{'msg.comm.ui.list.created' | translate}}
+          <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'createdTime' || selectedContentSort.sort === 'default'"></em>
+          <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>
+          <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'desc'"></em>
         </th>
       </tr>
       </thead>
@@ -132,9 +128,9 @@
             <i class="ddp-icon-checkbox"></i>
           </div>
         </td>
-        <td>
+        <td title="{{ item.hasOwnProperty('description') && item.description != '' ? item.name+'-'+item.description : item.name}}">
           <div class=" ddp-txt-long">{{item.name}}<span class="ddp-txt-colortype" *ngIf="item.hasOwnProperty('description') == false"></span>
-            <span class="ddp-txt-colortype" *ngIf="item.hasOwnProperty('description') == true && item.description != ''">-{{item.description}}</span>
+            <span class="ddp-txt-colortype" *ngIf="item.hasOwnProperty('description') && item.description != ''">-{{item.description}}</span>
           </div>
         </td>
         <td>
@@ -145,19 +141,17 @@
             {{item.type}}
           </span>
         </td>
+        <td class="ddp-txt-ellipsis" title="{{item.url}}">
+          {{item.url}}
+        </td>
+        <td class="ddp-txt-ellipsis" title="{{item.modifiedTime | mdate: 'YYYY-MM-DD HH:mm'}} {{'msg.nbook.ui.by' | translate}} {{item.modifiedBy.fullName}}">
+          {{item.modifiedTime | mdate: 'YYYY-MM-DD HH:mm'}}  <em class="ddp-icon-by">{{'msg.nbook.ui.by' | translate}}</em>{{item.modifiedBy.fullName}}
 
-
-        <td>
-          {{item.hostname}}
         </td>
         <td>
-          {{item.port}}
-        </td>
-        <td>
-          {{item.createdBy.fullName}} ({{item.createdBy.username}})
-        </td>
-        <td>
-          {{item.modifiedTime | date : 'yyyy-MM-dd'}}  <em class="ddp-icon-by">{{'msg.nbook.ui.by' | translate}}</em>{{item.modifiedBy.fullName}}
+          <div class="ddp-txt-ellipsis" style="padding-right:20px;" title="{{item.createdTime | mdate: 'YYYY-MM-DD HH:mm'}} {{'msg.nbook.ui.by' | translate}} {{item.createdBy.fullName}}">
+            {{item.createdTime | mdate: 'YYYY-MM-DD HH:mm'}}  <em class="ddp-icon-by">{{'msg.nbook.ui.by' | translate}}</em>{{item.createdBy.fullName}}
+          </div>
           <div class="ddp-btn-control">
             <em class="ddp-icon-control-cut" (click)="confirmDelete($event, item.id)"></em>
           </div>

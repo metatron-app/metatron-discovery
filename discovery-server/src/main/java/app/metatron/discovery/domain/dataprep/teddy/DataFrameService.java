@@ -108,6 +108,11 @@ public class DataFrameService {
         if (DataFrame.isParallelizable(rule)) {
           int partSize = rowcnt / cores + 1;  // +1 to prevent being 0
 
+          // Outer joins cannot be parallelized. (But, implemented as prepare-gather structure)
+          if (rule.getName().equals("join") && ((Join) rule).getJoinType().equalsIgnoreCase("INNER") == false) {
+            partSize = rowcnt;
+          }
+
           for (int rowno = 0; rowno < rowcnt; rowno += partSize) {
             LOGGER.debug("applyRuleString(): add thread: rowno={} partSize={} rowcnt={}", rowno, partSize, rowcnt);
             futures.add(gatherAsync(df, newDf, preparedArgs, rowno, Math.min(partSize, rowcnt - rowno), limitRows));

@@ -14,10 +14,16 @@
 
 package app.metatron.discovery.domain.notebook;
 
+import com.google.common.base.Preconditions;
+
 import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
 import org.springframework.data.rest.core.annotation.HandleBeforeDelete;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
+
+import java.net.URL;
+
+import app.metatron.discovery.common.exception.MetatronException;
 
 /**
  * Created by james on 2017. 8. 4..
@@ -28,11 +34,13 @@ public class NotebookConnectorEventHandler {
     @HandleBeforeCreate
 //    @PreAuthorize("hasPermission(#notebookConnector, 'PERM_SYSTEM_WRITE_WORKSPACE')")
     public void checkCreateAuthority(NotebookConnector connector) {
+        connector = parseUrl(connector);
     }
 
     @HandleBeforeSave
 //    @PreAuthorize("hasPermission(#notebookConnector, 'PERM_SYSTEM_WRITE_WORKSPACE')")
     public void checkUpdateAuthority(NotebookConnector connector) {
+        connector = parseUrl(connector);
     }
 
     @HandleBeforeDelete
@@ -41,6 +49,26 @@ public class NotebookConnectorEventHandler {
         for(Notebook notebook : connector.getNotebooks()) {
             connector.deleteNotebook(notebook.getaLink());
         }
+    }
+
+    private NotebookConnector parseUrl(NotebookConnector connector) {
+        Preconditions.checkNotNull(connector.getUrl(), "notebook url is required");
+        try {
+            URL aURL = new URL(connector.getUrl());
+            connector.setHostname(aURL.getHost());
+            if (aURL.getPort() == -1) {
+                if ("http".equals(aURL.getProtocol())) {
+                    connector.setPort(80);
+                } else if ("https".equals(aURL.getProtocol())) {
+                    connector.setPort(443);
+                }
+            } else {
+                connector.setPort(aURL.getPort());
+            }
+        } catch (Exception e) {
+            throw new MetatronException("notebook url is invalid");
+        }
+        return connector;
     }
 
 }

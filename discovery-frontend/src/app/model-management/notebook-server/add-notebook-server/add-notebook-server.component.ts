@@ -12,13 +12,13 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { NoteBook } from '../../../domain/notebook/notebook';
-import { isUndefined } from 'util';
-import { Alert } from '../../../common/util/alert.util';
-import { NotebookServerService } from '../service/notebook-server.service';
-import { Loading } from '../../../common/util/loading.util';
+import {Component, ElementRef, EventEmitter, Injector, OnInit, Output} from '@angular/core';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {NoteBook} from '../../../domain/notebook/notebook';
+import {isUndefined} from 'util';
+import {Alert} from '../../../common/util/alert.util';
+import {NotebookServerService} from '../service/notebook-server.service';
+import * as _ from "lodash";
 
 @Component({
   selector: 'app-add-notebook-server',
@@ -57,6 +57,11 @@ export class AddNotebookServerComponent extends AbstractComponent implements OnI
   public disabledFlag: boolean = true;
 
   public isShow = false;
+
+  // input error
+  public isUrlReqError: boolean;
+  public isUrlValidError: boolean;
+  public isNameError: boolean;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -98,25 +103,35 @@ export class AddNotebookServerComponent extends AbstractComponent implements OnI
     this.notebook = new NoteBook();
     this.mode = 'create';
     this.disabledFlag = false;
+
+    this.inputErrorInitialize();
   }
 
   // 업데이트.
   public update(notebook: NoteBook) {
     this.isShow = true;
-    this.notebook = notebook;
-    if (notebook.type === 'jupyter') {
+    this.notebook = _.cloneDeep(notebook);
+    if (this.notebook.type === 'jupyter') {
       this.defaultIndex = 0;
-    } else if (notebook.type === 'zeppelin') {
+    } else if (this.notebook.type === 'zeppelin') {
       this.defaultIndex = 1;
     }
-    this.selectedNotebookServerType = notebook.type;
+    this.selectedNotebookServerType = this.notebook.type;
     this.mode = 'update';
     this.disabledFlag = true;
+
+    this.inputErrorInitialize();
   }
 
   // 닫기
   public close() {
     this.isShow = false;
+  }
+
+  public inputErrorInitialize(): void {
+    this.isUrlReqError = undefined;
+    this.isUrlValidError = undefined;
+    this.isNameError = undefined;
   }
 
   // selected 박스 선택시.
@@ -126,22 +141,19 @@ export class AddNotebookServerComponent extends AbstractComponent implements OnI
 
   // 저장
   public confirm() {
-    this.notebook.hostname  = this.notebook.hostname  ? this.notebook.hostname.trim() : ''; // trim 처리
+    this.notebook.url  = this.notebook.url  ? this.notebook.url.trim() : ''; // trim 처리
     // this.notebook.port  = this.notebook.port  ? this.notebook.port.trim() : ''; // trim 처리
     this.notebook.name  = this.notebook.name  ? this.notebook.name.trim() : ''; // trim 처리
 
-    if (this.notebook.hostname === '' || isUndefined(this.notebook.hostname)) {
-      Alert.warning(this.translateService.instant('msg.storage.alert.host.required'));
-      return;
-    }
-
-    if (this.notebook.port === '' || isUndefined(this.notebook.port)) {
-      Alert.warning(this.translateService.instant('msg.storage.alert.port.required'));
-      return;
+    if (this.notebook.url === '' || isUndefined(this.notebook.url)) {
+      this.isUrlReqError = true;
     }
 
     if (this.notebook.name === '' || isUndefined(this.notebook.name)) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.name.error'));
+      this.isNameError = true;
+    }
+
+    if (this.isUrlReqError || this.isUrlValidError || this.isNameError) {
       return;
     }
 
@@ -159,7 +171,11 @@ export class AddNotebookServerComponent extends AbstractComponent implements OnI
         .catch((error) => {
           this.loadingHide();
           console.info(error);
-          Alert.error(error.message);
+          if (error.message === 'notebook url is invalid') {
+            this.isUrlValidError = true;
+          } else {
+            Alert.error(error.message);
+          }
         });
     } else if (this.mode === 'update') {
       this.notebookService.updateNotebookServer(this.notebook)
@@ -172,10 +188,13 @@ export class AddNotebookServerComponent extends AbstractComponent implements OnI
         .catch((error) => {
           this.loadingHide();
           console.info(error);
-          Alert.error(error.message);
+          if (error.message === 'notebook url is invalid') {
+            this.isUrlValidError = true;
+          } else {
+            Alert.error(error.message);
+          }
         });
     }
-
 
   }
 

@@ -102,6 +102,24 @@ public class MetadataRepositoryImpl extends QueryDslRepositorySupport implements
   }
 
   @Override
+  public List<Metadata> findByName(String name) {
+    QMetadata qMetadata = QMetadata.metadata;
+
+    JPQLQuery query = from(qMetadata).distinct().where(qMetadata.name.eq(name));
+
+    return query.fetch();
+  }
+
+  @Override
+  public List<Metadata> findById(String id) {
+    QMetadata qMetadata = QMetadata.metadata;
+
+    JPQLQuery query = from(qMetadata).distinct().where(qMetadata.id.eq(id));
+
+    return query.fetch();
+  }
+
+  @Override
   public List<MetadataStatsDto> countBySourceType() {
     NumberPath<Long> aliasCount = Expressions.numberPath(Long.class, "count");
     QMetadata qMetadata = QMetadata.metadata;

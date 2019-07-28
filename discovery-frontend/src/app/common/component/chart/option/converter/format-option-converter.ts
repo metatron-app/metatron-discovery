@@ -13,19 +13,28 @@
  */
 
 import {BaseOption} from "../base-option";
-import {UIOption, UIChartColorByDimension} from "../ui-option";
+import {UIChartColorByDimension, UIOption} from "../ui-option";
 import * as _ from 'lodash';
 import {Series} from "../define/series";
 import {
-  UIFormatType, UIFormatCurrencyType, CHART_STRING_DELIMITER, ChartColorType, UIFormatSymbolPosition,
-  UIFormatNumericAliasType, UIChartDataLabelDisplayType, ChartAxisLabelType, AxisType, ChartType, ShelveType
+  AxisType,
+  CHART_STRING_DELIMITER,
+  ChartAxisLabelType,
+  ChartColorType,
+  ChartType,
+  ShelveType,
+  UIChartDataLabelDisplayType,
+  UIFormatCurrencyType,
+  UIFormatNumericAliasType,
+  UIFormatSymbolPosition,
+  UIFormatType
 } from '../define/common';
 import {PivotTableInfo} from "../../base-chart";
 import {UIChartFormat, UIChartFormatItem} from "../ui-option/ui-format";
-import { UIChartDataLabel } from '../ui-option/ui-datalabel';
-import { UIChartAxis, UIChartAxisLabelValue } from '../ui-option/ui-axis';
-import { Pivot } from '../../../../../domain/workbook/configurations/pivot';
-import { Field } from '../../../../../domain/workbook/configurations/field/field';
+import {UIChartDataLabel} from '../ui-option/ui-datalabel';
+import {UIChartAxis, UIChartAxisLabelValue} from '../ui-option/ui-axis';
+import {Pivot} from '../../../../../domain/workbook/configurations/pivot';
+import {Field} from '../../../../../domain/workbook/configurations/field/field';
 
 /**
  * 수자 포맷 옵션 컨버터
@@ -132,6 +141,9 @@ export class FormatOptionConverter {
    * @returns {any}
    */
   public static getFormatValue(value: any, format: UIChartFormatItem, baseline?: number): string {
+    if (value === 'Infinity' || value === '-Infinity' || value === 'NaN') {
+      return value;
+    }
 
     if (!format) return;
 

@@ -66,11 +66,13 @@ public abstract class NotebookConnector extends AbstractHistoryEntity implements
     protected String description;
 
     @Column(name = "nc_hostname")
-    @NotNull
     protected String hostname;
 
     @Column(name = "nc_port")
     protected Integer port;
+
+    @Column(name = "nc_url")
+    protected String url;
 
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinTable(name = "connector_workspace",
@@ -100,11 +102,15 @@ public abstract class NotebookConnector extends AbstractHistoryEntity implements
     @JsonIgnore
     public String getConnectionUrl(String path) {
         StringBuilder builder = new StringBuilder();
-        builder.append("http://");
-        builder.append(hostname);
+        if (StringUtils.isNotEmpty(url)) {
+            builder.append(url);
+        } else {
+            builder.append("http://");
+            builder.append(hostname);
 
-        if (port != null) {
-            builder.append(":").append(port);
+            if (port != null) {
+                builder.append(":").append(port);
+            }
         }
 
         if (StringUtils.isNotEmpty(path)) {
@@ -177,6 +183,16 @@ public abstract class NotebookConnector extends AbstractHistoryEntity implements
     public void setPort(Integer port) {
         this.port = port;
     }
+
+    public String getUrl() {
+        if (StringUtils.isNotEmpty(url)) {
+            return url;
+        } else {
+            return getConnectionUrl(null);
+        }
+    }
+
+    public void setUrl(String url) { this.url = url; }
 
     public Set<Workspace> getWorkspaces() {
         return workspaces;

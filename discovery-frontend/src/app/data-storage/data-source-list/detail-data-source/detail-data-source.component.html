@@ -127,6 +127,7 @@
                                [timestampColumn]="timestampColumn"
                                [metaData]="metaData"
                                [isShowModifiedGuideMessage]="nameFl"
+                               (changedDatasourceStatus)="changedDatasourceStatus()"
                                [(mode)]="mode"
                                (confirm)="confirmModalOpen($event)"
       ></information-data-source>
