@@ -106,7 +106,7 @@
   </ng-template>
 </div>
 <!-- 코드 테이블 생성 컴포넌트 -->
-<app-create-code-table (createComplete)="onCreateComplete()"></app-create-code-table>
+<app-create-code-table (createComplete)="onCreateComplete($event)"></app-create-code-table>
 <!-- //코드 테이블 생성 컴포넌트 -->
 <!-- 코드 테이블 삭제 모달 -->
 <app-delete-modal (deleteConfirm)="deleteCodeTable($event)"></app-delete-modal>

@@ -286,7 +286,7 @@ export class CreateCodeTableComponent extends AbstractComponent implements OnIni
       Alert.success(
         this.translateService.instant('msg.metadata.ui.codetable.create.success', {value: this.tableName.trim()}));
       // close
-      this.createComplete.emit();
+      this.createComplete.emit(result.id);
       this.onClickCancel();
     }).catch((error) => {
       // 로딩 hide

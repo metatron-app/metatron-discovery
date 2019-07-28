@@ -331,9 +331,8 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
   /**
    * After creating code table
    */
-  public onCreateComplete() {
-    this.loadingHide();
-    this.reloadPage();
+  public onCreateComplete(codeTableId: string) {
+    this.onClickDetailCodeTable(codeTableId);
   }
 
   changeSort(sort) {
