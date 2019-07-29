@@ -107,7 +107,8 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
     this._initialiseChartValues();
 
-    this.getLineageMap();
+    this.getLineageMapNew();
+    //this.getLineageMap();
   }
 
   // Destory
@@ -140,6 +141,49 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
     return lineageNode;
   }
+
+  /**
+   * Get lineage map
+   */
+  public getLineageMapNew() {
+
+    let metadataId = this.metaDataModelService.getMetadata().id;
+    this.lineageViewService.getLineageMapForMetadata(metadataId).then((result) => {
+      this.lineageNodes = [];
+      this.lineageEdges = [];
+
+      if (result) {
+        let indexX = 0;
+        for(var nodeList of result.nodeGrid) {
+          let indexY = 0;
+          for(var node of nodeList) {
+            var _node = _.cloneDeep(node);
+            _node.metadataId = node.metaId;
+            _node.positionX = indexX;
+            _node.positionY = indexY;
+
+            this.lineageNodes.push( _node );
+            indexY++;
+          }
+          indexX++;
+        }
+
+        for(var edge of result.needEdges) {
+          var _edge = _.cloneDeep(edge);
+          _edge.source = edge.upstreamMetaId;
+          _edge.target = edge.downstreamMetaId;
+
+          this.lineageEdges.push( _edge );
+        }
+
+        this.drawChart();
+      } else {
+      }
+    }).catch((error) => {
+      console.error(error);
+    });
+
+  } // function - getLineageMapNew
 
   /**
    * Get lineage map
@@ -457,7 +501,7 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
                 formatter: (params) => {
                   return [
                     '{title|Main Node}',
-                    '{large|'+params.data.metadata.name+'}'
+                    '{large|'+params.data.metaName+'}'
                   ].join('\n');
                 },
                 rich: {
@@ -491,7 +535,7 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
                 offset: [0, 50],
                 color: '#000',
                 formatter: (params) => {
-                  return params.data.metadata.name;
+                  return params.data.metaName;
                 }
               }
             }
@@ -507,7 +551,7 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
           tooltip: {
             formatter: (params) => {
               if( params.dataType==='node' ) {
-                return params.data.metadata.name;
+                return params.data.metaName;
               } else if( params.dataType==='edge' ) {
                 var sourceId = params.data.source;
                 var targetId = params.data.target;
@@ -515,9 +559,9 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
                 var targetName = null;
                 this.lineageNodes.forEach( (node) => {
                   if(node.metadataId==sourceId) {
-                    sourceName = node.metadata.name;
+                    sourceName = node.name;
                   } else if(node.metadataId==targetId) {
-                    targetName = node.metadata.name;
+                    targetName = node.name;
                   }
                 });
                 return sourceName +' to '+ targetName;
