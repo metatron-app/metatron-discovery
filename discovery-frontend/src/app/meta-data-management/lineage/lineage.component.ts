@@ -18,6 +18,7 @@ import {Modal} from '../../common/domain/modal';
 import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
 import {LineageService} from './service/lineage.service';
 import {Lineage} from '../../domain/meta-data-management/lineage';
+import {EditLineagePopup} from './component/edit-lineage-popup.component';
 import {PeriodComponent, PeriodType} from '../../common/component/period/period.component';
 import {Alert} from '../../common/util/alert.util';
 import {ActivatedRoute} from "@angular/router";
@@ -36,6 +37,9 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  @ViewChild(EditLineagePopup)
+  private editLineagePopup: EditLineagePopup;
 
   // 생성 컴포넌트
   // @ViewChild(CreateLineageComponent)
@@ -193,6 +197,15 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
     this.searchText = keyword;
     // reload page
     this.reloadPage(true);
+  }
+
+  /**
+   * 코드 테이블 편집 클릭 이벤트
+   */
+  public onClickEditLineage(): void {
+    this.editLineagePopup.init({
+      name: 'edit'
+    });
   }
 
   /**

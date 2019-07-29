@@ -3941,6 +3941,7 @@
   "msg.metadata.lineage.th.edge" : "Lineage",
   "msg.metadata.lineage.th.from" : "From",
   "msg.metadata.lineage.th.to" : "To",
+  "msg.metadata.ui.lineage.edit" : "Edit Lineage",
   "msg.metadata.ui.lineage.title" : "리니지",
   "msg.metadata.ui.lineage.lists" : "There are <strong>{{value}}</strong> lists",
   "msg.metadata.ui.lineage.search.ph": "Search lineage by name",

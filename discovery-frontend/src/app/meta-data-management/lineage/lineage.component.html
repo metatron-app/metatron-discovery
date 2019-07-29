@@ -44,7 +44,7 @@
     <div class="ddp-filter-option">
       <span class="ddp-data-total ddp-only" [innerHtml]="'msg.storage.ui.list.length' | translate: {value: pageResult.totalElements || 0}"></span>
       <div class="ddp-form-buttons">
-        <a href="javascript:" class="ddp-btn-selection ddp-line"><em class="ddp-icon-edit3"></em>Edit Lineage</a>
+        <a href="javascript:" class="ddp-btn-selection ddp-line" (click)="onClickEditLineage();"><em class="ddp-icon-edit3"></em>Edit Lineage</a>
         <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="onClickCreateLineage();"><em class="ddp-icon-add2"></em>{{'msg.comm.btn.new' | translate}}</a>
       </div>
     </div>
@@ -95,3 +95,6 @@
   </div>
 
 </div>
+
+<edit-lineage-popup>
+</edit-lineage-popup>

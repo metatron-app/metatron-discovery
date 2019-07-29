@@ -1,0 +1,71 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-wrap-layout-popup" *ngIf="isShow">
+  <div class="ddp-ui-layout-popup">
+    <div class="ddp-box-popup3 ">
+      <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+
+      <div class="ddp-ui-popup-title">
+        <span class="ddp-txt-title-name">{{'msg.dp.ui.lineage.edit' | translate}}</span>
+        <div class="ddp-ui-pop-buttons">
+          <a href="javascript:" class="ddp-btn-pop" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+          <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="close()">{{'msg.comm.btn.save' | translate}}</a>
+        </div>
+      </div>
+
+      <div class="ddp-lineage-none" *ngIf="isEmptyList(); else existList">
+        {{'msg.comm.ui.no.rslt' | translate}}
+      </div>
+
+      <ng-template #existList>
+        <table class="ddp-table-form ddp-table-type3 type-table">
+          <colgroup>
+            <col width="*">
+            <col width="40%">
+            <col width="40%">
+          </colgroup>
+          <thead>
+          <tr>
+            <th>
+              {{'msg.metadata.lineage.th.edge' | translate}}
+            </th>
+            <th class="ddp-border-right">
+              <strong>{{'msg.metadata.lineage.th.from' | translate}}</strong>
+            </th>
+            <th class="ddp-border-right">
+              <strong>{{'msg.metadata.lineage.th.to' | translate}}</strong>
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let lineage of lineageList" (click)="onClickDetailLineage(lineage.edgeId)">
+            <td>
+              {{lineage.description}}
+            </td>
+            <td class="ddp-border-right">
+              {{lineage.upstreamMetaId}}
+            </td>
+            <td class="ddp-border-right">
+              {{lineage.downstreamMetaId}}
+            </td>
+          </tr>
+          </tbody>
+        </table>
+
+      </ng-template>
+
+    </div>
+  </div>
+</div>

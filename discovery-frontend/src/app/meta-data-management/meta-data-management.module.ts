@@ -28,6 +28,7 @@ import {CodeTableService} from './code-table/service/code-table.service';
 import {LineageComponent} from './lineage/lineage.component';
 import {DetailLineageComponent} from './lineage/detail-lineage/detail-lineage.component';
 import {LineageService} from './lineage/service/lineage.service';
+import {EditLineagePopup} from './lineage/component/edit-lineage-popup.component';
 
 import {ColumnDictionaryService} from './column-dictionary/service/column-dictionary.service';
 import {LinkedColumnDictionaryComponent} from './component/linked-column-dictionary/linked-column-dictionary.component';
@@ -94,6 +95,7 @@ import {CreateMetadataModule} from "./metadata/create-metadata/create-metadata.m
     //리니지
     LineageComponent,
     DetailLineageComponent,
+    EditLineagePopup,
     SelectCatalogComponent,
     CatalogComponent,
   ],
