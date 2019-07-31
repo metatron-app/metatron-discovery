@@ -1688,6 +1688,7 @@
   "msg.storage.create.dsource.title": "소스 타입을 선택해 주세요",
   "msg.storage.li.file": "파일",
   "msg.storage.li.db": "데이터베이스",
+  "msg.storage.li.etc": "기타",
   "msg.storage.li.ss": "데이터스냅샷",
   "msg.storage.li.druid": "메타트론 엔진",
   "msg.storage.li.stream": "실시간",

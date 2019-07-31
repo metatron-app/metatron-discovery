@@ -289,6 +289,8 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
         return this.translateService.instant('msg.storage.li.db');
       case SourceType.STAGEDB:
         return this.translateService.instant('msg.storage.li.hive');
+      case SourceType.ETC:
+        return this.translateService.instant('msg.storage.li.etc');
     }
   }
 
@@ -300,6 +302,8 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
         return 'ddp-hive';
       case SourceType.STAGEDB:
         return 'ddp-stagingdb';
+      case SourceType.ETC:
+        return 'ddp-etc';
     }
   }
 
@@ -568,11 +572,13 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
         {label: this.translateService.instant('msg.comm.th.ds'), value: SourceType.ENGINE},
         {label: this.translateService.instant('msg.storage.li.db'), value: SourceType.JDBC},
         {label: this.translateService.instant('msg.storage.li.hive'), value: SourceType.STAGING},
+        {label: this.translateService.instant('msg.storage.li.etc'), value: SourceType.ETC},
       ]
       : [
         {label: 'All', value: ''},
         {label: this.translateService.instant('msg.comm.th.ds'), value: SourceType.ENGINE},
         {label: this.translateService.instant('msg.storage.li.db'), value: SourceType.JDBC},
+        {label: this.translateService.instant('msg.storage.li.etc'), value: SourceType.ETC},
       ];
 
     this.sourceType = '';

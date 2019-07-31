@@ -1690,6 +1690,7 @@
   "msg.storage.create.dsource.title": "Select source type",
   "msg.storage.li.file": "My File",
   "msg.storage.li.db": "Database",
+  "msg.storage.li.etc": "ETC",
   "msg.storage.li.ss": "Data Snapshot",
   "msg.storage.li.druid": "Metatron Engine",
   "msg.storage.li.stream": "Stream",

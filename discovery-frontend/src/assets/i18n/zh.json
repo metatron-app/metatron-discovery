@@ -1578,6 +1578,7 @@
   "msg.storage.create.dsource.title": "请选择数据类型",
   "msg.storage.li.file": "文件",
   "msg.storage.li.db": "数据库",
+  "msg.storage.li.etc": "ETC",
   "msg.storage.li.ss": "Data Snapshot",
   "msg.storage.li.druid": "Metatron Engine",
   "msg.storage.li.stream": "实时",

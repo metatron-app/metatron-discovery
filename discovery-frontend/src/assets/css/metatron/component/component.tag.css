@@ -37,9 +37,11 @@
 .ddp-box-tag-value.ddp-datasource,
 .ddp-box-tag-value.ddp-hive,
 .ddp-box-tag-value.ddp-stagingdb {display:inline-block; min-width:61px; padding:0 3px; text-align:center; font-size:10px;}
+.ddp-box-tag-value.ddp-etc,
 .ddp-box-tag-value.ddp-datasource {border:1px solid #50549a; color:#50549a;}
 .ddp-box-tag-value.ddp-hive {border:1px solid #f6a300; color:#f6a300;}
 .ddp-box-tag-value.ddp-stagingdb {border:1px solid #17a5ae; color:#17a5ae;}
+.ddp-box-tag-value.ddp-etc {border:1px solid #50549a; color:#50549a;}
 
 .ddp-box-power {display:inline-block; padding:2px 4px 1px 4px; width:60px; border-radius:2px; color:#fff; font-size:10px; text-align:center; box-sizing:border-box; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
 .ddp-box-power.ddp-watcher {background-color:#b7b9c2;}
