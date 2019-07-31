@@ -48,7 +48,7 @@ Screenshots
 ### Manage Datasources
 <kbd><img title="Datasource-detail" src="https://user-images.githubusercontent.com/6300003/44200028-95729380-a180-11e8-95fb-070d7ed0d260.png"></kbd><br />
 
-### Manage Engine Performance (Comming Soon)
+### Manage Engine Performance (Coming Soon)
 <kbd><img title="Metatron-engine-monitoring" src="https://user-images.githubusercontent.com/6300003/53152270-73a70d00-35f8-11e9-8412-096e6099adab.png"></kbd><br />
 
 ### Connect Database
