@@ -41,6 +41,7 @@ import {ExploreDataModelService} from "./explore-data/service/explore-data-model
 import {ExploreDataLnbComponent} from "./explore-data/explore-data-lnb.component";
 import {ConstantService} from "../shared/datasource-metadata/service/constant.service";
 import {CheckBoxFilterComponent} from "./explore-data/component/check-box-filter.component";
+import {MetadataTypeBoxTagComponent} from "./explore-data/component/metadata-type-box-tag.component";
 
 @NgModule({
   imports: [
@@ -70,7 +71,8 @@ import {CheckBoxFilterComponent} from "./explore-data/component/check-box-filter
     ExploreDataMainComponent,
     ExploreDataListComponent,
     ExploreDataSearchComponent,
-    ExploreDataLnbComponent
+    ExploreDataLnbComponent,
+    MetadataTypeBoxTagComponent
   ],
   providers: [
     MetadataService,

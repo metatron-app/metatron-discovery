@@ -25,15 +25,12 @@
         <!-- catalog keyword -->
         <div class="ddp-data-box" *ngIf="isSelectedCatalog()">
           <div class="ddp-ui-root">
-            <a href="javascript:" class="ddp-list-root">
-              <em class="ddp-icon-folder"></em>
-              D 사업부
-            </a>
-            <a href="javascript:" class="ddp-list-root">
-              D 사업부
-            </a>
-            <a href="javascript:" class="ddp-list-root">
-             {{selectedCatalog.name}}
+            <a *ngFor="let tree of treeHierarchy; let i = index"
+               href="javascript:"
+               class="ddp-list-root"
+               (click)="onChangeSelectedCatalog(tree)">
+              <em *ngIf="i == 0" class="ddp-icon-folder"></em>
+              {{tree.name}}
             </a>
           </div>
           <!-- 클릭시 ddp-selected 추가 -->
@@ -122,7 +119,7 @@
 <!--          <td class="ddp-txt-center"><em class="ddp-icon-fav ddp-selected"></em></td>-->
           <!-- //favorite -->
           <td>
-            <span class="ddp-box-tag-value ddp-datasource">{{getConvertedMetadataType(metadata.sourceType)}}</span>
+            <component-metadata-type-box-tag [metadata]="metadata"></component-metadata-type-box-tag>
           </td>
           <td>
             <div class="ddp-txt-long">

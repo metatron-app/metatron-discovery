@@ -22,8 +22,14 @@
     <component-explore-lnb #lnbComponent (changedLnbData)="onChangedLnbData()"></component-explore-lnb>
     <!-- //lnb -->
     <explore-data-main *ngIf="mode === EXPLORE_MODE.MAIN" (clickedMetadata)="onClickMetadata($event)"></explore-data-main>
-    <explore-data-list *ngIf="mode === EXPLORE_MODE.LIST" (clickedMetadata)="onClickMetadata($event)" [$layoutContentsClass]="$layoutContentsClass"
-                       (requestInitializeSelectedCatalog)="lnbComponent.initSelectedCatalog()" (requestInitializeSelectedTag)="lnbComponent.initSelectedTag()" (changedMetadataPresence)="searchComponent.onChangeEmptySearchContentsPresence($event)"></explore-data-list>
+    <explore-data-list
+      *ngIf="mode === EXPLORE_MODE.LIST"
+      (clickedMetadata)="onClickMetadata($event)"
+      [$layoutContentsClass]="$layoutContentsClass"
+      (requestInitializeSelectedCatalog)="lnbComponent.initSelectedCatalog()"
+      (requestInitializeSelectedTag)="lnbComponent.initSelectedTag()"
+      (requestChangeSelectedCatalog)="lnbComponent.onChangeSelectedCatalog($event)"
+      (changedMetadataPresence)="searchComponent.onChangeEmptySearchContentsPresence($event)"></explore-data-list>
   </div>
 </div>
 <explore-metadata-container

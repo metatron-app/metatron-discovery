@@ -16,7 +16,7 @@ import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@ang
 import {AbstractComponent} from '../../common/component/abstract.component';
 import * as _ from "lodash";
 import {StringUtil} from "../../common/util/string.util";
-import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
+import {Metadata} from "../../domain/meta-data-management/metadata";
 import {ExploreDataConstant} from "../constant/explore-data-constant";
 import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
 import {CommonConstant} from "../../common/constant/common.constant";
@@ -25,6 +25,7 @@ import {StorageService} from "../../data-storage/service/storage.service";
 import {ConstantService} from "../../shared/datasource-metadata/service/constant.service";
 import {CommonUtil} from "../../common/util/common.util";
 import {Catalog} from "../../domain/catalog/catalog";
+import {CatalogService} from "../../meta-data-management/catalog/service/catalog.service";
 
 @Component({
   selector: 'explore-data-list',
@@ -40,6 +41,8 @@ export class ExploreDataListComponent extends AbstractComponent {
   searchedKeyword: string;
   selectedCatalog: Catalog.Tree;
   selectedTag;
+  treeHierarchy: Catalog.Tree[];
+
   @Input() readonly $layoutContentsClass;
 
   // filters
@@ -52,11 +55,13 @@ export class ExploreDataListComponent extends AbstractComponent {
   @Output() readonly changedMetadataPresence = new EventEmitter();
   @Output() readonly requestInitializeSelectedCatalog = new EventEmitter();
   @Output() readonly requestInitializeSelectedTag = new EventEmitter();
+  @Output() readonly requestChangeSelectedCatalog = new EventEmitter();
 
   // 생성자
   constructor(private metadataService: MetadataService,
               private exploreDataModelService: ExploreDataModelService,
               private constant: ConstantService,
+              private catalogService: CatalogService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -66,15 +71,25 @@ export class ExploreDataListComponent extends AbstractComponent {
     this.$layoutContentsClass.removeClass('ddp-scroll');
   }
 
-  initMetadataList(): void {
+   initMetadataList() {
+    this.loadingShow();
     // set external data
     this.selectedLnbTab = this.exploreDataModelService.selectedLnbTab;
     this.searchRange = this.exploreDataModelService.selectedSearchRange;
     this.searchedKeyword = this.exploreDataModelService.searchKeyword;
     this.selectedCatalog = this.exploreDataModelService.selectedCatalog;
     this.selectedTag = this.exploreDataModelService.selectedTag;
-    // initial metadata list
-    this._initialMetadataList();
+
+    const initial = async () => {
+      if (this.selectedCatalog != undefined) {
+        this.treeHierarchy = await this.catalogService.getTreeCatalogs(this.selectedCatalog.id, true);
+      }
+      await this._initialMetadataList();
+    };
+
+     initial().then(() => {
+        this.loadingHide();
+      }).catch(error => this.commonExceptionHandler(error));
   }
 
   isEmptyMetadataList(): boolean {
@@ -141,26 +156,20 @@ export class ExploreDataListComponent extends AbstractComponent {
     }
   }
 
-  getConvertedMetadataType(sourceType: SourceType) {
-    switch (sourceType) {
-      case SourceType.ENGINE:
-        return this.translateService.instant('msg.comm.th.ds');
-      case SourceType.JDBC:
-        return this.translateService.instant('msg.storage.li.db');
-      case SourceType.STAGEDB:
-        return this.translateService.instant('msg.storage.li.hive');
-    }
-  }
-
   /**
    * More connection click event
    */
   changePage(data: { page: number, size: number }): void {
     // if more metadata list
     if (data) {
+      this.loadingShow();
       this.page.page = data.page;
       this.page.size = data.size;
-      this._setMetadataList(this._getMetadataListParams());
+      this._setMetadataList(this._getMetadataListParams())
+        .then(() => {
+        this.loadingHide();
+        })
+        .catch(error => this.commonExceptionHandler(error));
     }
   }
 
@@ -176,6 +185,12 @@ export class ExploreDataListComponent extends AbstractComponent {
   onClickResetSelectedTag(): void {
     // requesting lnb component to initialize tag
     this.requestInitializeSelectedTag.emit();
+  }
+
+  onChangeSelectedCatalog(catalog: Catalog.Tree): void {
+    if (this.selectedCatalog.id !== catalog.id) {
+      this.requestChangeSelectedCatalog.emit(catalog);
+    }
   }
 
   private _getMetadataListParams() {
@@ -195,10 +210,9 @@ export class ExploreDataListComponent extends AbstractComponent {
     return result;
   }
 
-  private _setMetadataList(params) {
-    this.loadingShow();
-    this.metadataService.getMetaDataList(params)
-      .then((result) => {
+  private async _setMetadataList(params) {
+    const result = await this.metadataService.getMetaDataList(params)
+      if(!_.isNil(result)) {
         // add ddp-scroll class to layout
         this.$layoutContentsClass.addClass('ddp-scroll');
         this.pageResult = result.page;
@@ -210,18 +224,12 @@ export class ExploreDataListComponent extends AbstractComponent {
         }
         // broadcast changed metadata presence
         this.changedMetadataPresence.emit(this.isEmptyMetadataList());
-        this.loadingHide();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+      }
   }
 
-  private _initialMetadataList(): void {
+  private async _initialMetadataList(){
     this.page.page = 0;
     this.page.size = CommonConstant.API_CONSTANT.PAGE_SIZE;
-    this._setMetadataList(this._getMetadataListParams());
-  }
-
-  private _initialMetadataListFilter(): void {
-    this.selectedDataTypeFilter = this.dataTypeFilterList[0];
+    await this._setMetadataList(this._getMetadataListParams());
   }
 }

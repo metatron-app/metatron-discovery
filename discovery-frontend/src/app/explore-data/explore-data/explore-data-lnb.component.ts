@@ -24,6 +24,7 @@ import {CatalogService} from "../../meta-data-management/catalog/service/catalog
 import {Tag} from "../../domain/tag/tag";
 import * as _ from 'lodash';
 import {EventBroadcaster} from "../../common/event/event.broadcaster";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'component-explore-lnb',

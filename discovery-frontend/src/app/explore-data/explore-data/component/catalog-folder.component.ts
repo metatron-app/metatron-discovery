@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output} from "@angular/core";
 import {AbstractComponent} from "../../../common/component/abstract.component";
 import {Catalog} from "../../../domain/catalog/catalog";
 import {CatalogService} from "../../../meta-data-management/catalog/service/catalog.service";
@@ -23,10 +23,7 @@ import * as _ from 'lodash';
   selector: 'component-catalog-folder',
   templateUrl: 'catalog-folder.component.html'
 })
-export class CatalogFolderComponent extends AbstractComponent {
-
-  isOpened: boolean;
-
+export class CatalogFolderComponent extends AbstractComponent implements OnInit {
   // data
   @Input() readonly searchKeyword: string;
   @Input() readonly catalog: Catalog.Tree;
@@ -40,6 +37,10 @@ export class CatalogFolderComponent extends AbstractComponent {
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
+  }
+
+  ngOnInit() {
+
   }
 
   isEmptySearchKeyword(): boolean {
@@ -58,11 +59,11 @@ export class CatalogFolderComponent extends AbstractComponent {
     // stop bubbling
     event.stopImmediatePropagation();
     // if is not opened
-    if (!this.isOpened) {
+    if (!this.catalog.isOpened) {
       // set catalog list in child
       this._setCatalogList(catalogId);
     }
-    this.isOpened = !this.isOpened;
+    this.catalog.isOpened= !this.catalog.isOpened;
   }
 
   onClickCatalog(catalog) {

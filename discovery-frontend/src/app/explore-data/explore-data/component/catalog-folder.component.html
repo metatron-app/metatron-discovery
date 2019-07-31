@@ -1,4 +1,4 @@
-<li [class.ddp-open]="isOpened" *ngIf="!isEmptyCatalog" [class.ddp-selected]="isSelectedCatalog()">
+<li [class.ddp-open]="catalog.isOpened" *ngIf="!isEmptyCatalog" [class.ddp-selected]="isSelectedCatalog()">
   <a href="javascript:" class="ddp-depth" (click)="onClickCatalog(catalog)">
     <em class="ddp-view" (click)="onChangeFolderOpen(catalog.id)" *ngIf="isEmptySearchKeyword() && catalog.countOfChild !== 0"></em>
     <div class="ddp-txt-link">
