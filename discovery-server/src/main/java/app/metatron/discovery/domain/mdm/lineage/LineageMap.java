@@ -57,6 +57,12 @@ public class LineageMap implements Serializable {
   }
 
   void findOrigins(LineageNode node, int depth) {
+    // A node that makes a circuit cannot be the origin.
+    if (visitedMetaIds.contains(node.getMetaId())) {
+      return;
+    }
+    visitedMetaIds.add(node.getMetaId());
+
     if (node.getUpstreamMapNodes().size() == 0) {
       node.setDepth(depth);
       origins.add(node);

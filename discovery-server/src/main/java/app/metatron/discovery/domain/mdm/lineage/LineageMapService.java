@@ -58,14 +58,19 @@ public class LineageMapService {
 
     map.setDepthAdjustment();
 
+    map.visitedMetaIds.clear();
     for (LineageNode node : map.origins) {
       addNodeRecursive(map, node);
     }
 
+    // TODO: If a node is a downstream of another node, re-place it next to the upstream.
+
+    // TODO: Sort nodes in each depth. longest-downsteram first
+
     return map;
   }
 
-  private long getMinTier(List<LineageEdge> edges) {
+  private Long getMinTier(List<LineageEdge> edges) {
     Long min = null;
 
     for (LineageEdge edge : edges) {
@@ -81,7 +86,7 @@ public class LineageMapService {
     return min;
   }
 
-  private long getMaxTier(List<LineageEdge> edges) {
+  private Long getMaxTier(List<LineageEdge> edges) {
     Long max = null;
 
     for (LineageEdge edge : edges) {
@@ -102,12 +107,15 @@ public class LineageMapService {
     String metaId = node.getMetaId();
     List<LineageEdge> edges;
     LineageNode newNode;
+    int newDepth;
 
     // Edges that have A as downstream are upstream edges of A, vice versa.
     if (upward) {
       edges = edgeRepository.findByDownstreamMetaId(metaId);
+      newDepth = depth - 1;
     } else {
       edges = edgeRepository.findByUpstreamMetaId(metaId);
+      newDepth = depth + 1;
     }
 
     // Once started upward, we only find upstreams, and upstreams of upstreams, and so on.
@@ -122,7 +130,7 @@ public class LineageMapService {
           continue;
         }
         String upstreamMetaName = getMetaName(edge.getUpstreamMetaId());
-        newNode = new LineageNode(edge.getUpstreamMetaId(), upstreamMetaName, depth + 1);
+        newNode = new LineageNode(edge.getUpstreamMetaId(), upstreamMetaName, newDepth);
         node.getUpstreamMapNodes().add(newNode);
         newNode.getDownstreamMapNodes().add(node);
       } else {
@@ -134,7 +142,7 @@ public class LineageMapService {
           continue;
         }
         String downstreamMetaName = getMetaName(edge.getDownstreamMetaId());
-        newNode = new LineageNode(edge.getDownstreamMetaId(), downstreamMetaName, depth + 1);
+        newNode = new LineageNode(edge.getDownstreamMetaId(), downstreamMetaName, newDepth);
         node.getDownstreamMapNodes().add(newNode);
         newNode.getUpstreamMapNodes().add(node);
       }
@@ -142,6 +150,7 @@ public class LineageMapService {
       totalEdges.add(edge);
 
       if (visitedMetaIds.contains(newNode.getMetaId())) {
+        // FIXME: set the upstream/downstream of the exist node toward this.
         newNode.setCircuit(true);
         continue;
       } else {
@@ -149,7 +158,7 @@ public class LineageMapService {
       }
 
       Long nextTier = upward ? getMinTier(edges) : getMaxTier(edges);
-      addMapNodeRecursive(totalEdges, newNode, upward, visitedMetaIds, depth + 1, nextTier);
+      addMapNodeRecursive(totalEdges, newNode, upward, visitedMetaIds, newDepth, nextTier);
     }
   }
 

@@ -113,7 +113,7 @@ public class LineageEdgeService {
     return a == null ? false : a.equals(b);
   }
 
-  private LineageEdge findOrNew(String upstreamMetaId, String downstreamMetaId, long tier,
+  private LineageEdge findOrNew(String upstreamMetaId, String downstreamMetaId, Long tier,
       String description) {
     List<LineageEdge> edges = edgeRepository.findAll();
     LineageEdge newEdge = new LineageEdge(upstreamMetaId, downstreamMetaId, tier, description);
@@ -200,7 +200,11 @@ public class LineageEdgeService {
 
       String upstreamMetaId = getMetaIdByRow(row, true);
       String downstreamMetaId = getMetaIdByRow(row, false);
-      long tier = (long) row.get("tier");
+
+      Long tier = null;
+      if (df.colNames.contains("tier")) {
+        tier = (Long) row.get("tier");
+      }
       String description = (String) row.get("description");
 
       // Over write if exists. (UPSERT)
