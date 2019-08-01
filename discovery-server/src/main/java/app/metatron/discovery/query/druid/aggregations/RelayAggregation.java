@@ -74,7 +74,7 @@ public class RelayAggregation implements Aggregation {
     return relayType;
   }
 
-  public enum Relaytype {
-    FIRST, LAST;
+  public enum RelayType {
+    FIRST, LAST, TIME_MAX, TIME_MIN
   }
 }
