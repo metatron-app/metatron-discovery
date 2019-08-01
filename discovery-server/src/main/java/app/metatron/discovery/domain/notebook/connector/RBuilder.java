@@ -137,12 +137,12 @@ public class RBuilder extends JupyterBuilder {
       int cPort = cUrl.getPort() == -1 ? 80 : cUrl.getPort();
       List<String> query = new ArrayList<>(Arrays.asList(
           "library(RMetis)"
-          , "dataset <- " + typeOfDataset + ".get(client.url('" + cUrl.getHost() + "'," + cPort + "), '" + notebook.getDsId() + "')"
+          , "dataset <- " + typeOfDataset + ".get(client.url('" + cUrl.getHost() + "'," + cPort + "), '" + notebook.getDsId() + "')" + System.lineSeparator()
           // Support some comments about R functions
-          , "# If you want to using the full url of Discovery, use client.full.url function"
-          , "# dataset <- " + typeOfDataset + ".get(client.full.url('http(s)://" + cUrl.getHost() + ":" + cPort + "'), '" + notebook.getDsId() + "')"
-          , "# If you want to pass parameters on the API call, use set_params function"
-          , "# dataset <- " + typeOfDataset + ".get(client.url('" + cUrl.getHost() + "'," + cPort + "), '" + notebook.getDsId() + "', set_params(limit=10000,intervals='2019-07-01T00:00:00/2019-07-02T00:00:00'))"
+          + "# If you want to using the full url of Discovery, use client.full.url function" + System.lineSeparator()
+          + "# dataset <- " + typeOfDataset + ".get(client.full.url('http(s)://" + cUrl.getHost() + ":" + cPort + "'), '" + notebook.getDsId() + "')" + System.lineSeparator()
+          + "# If you want to pass parameters on the API call, use set_params function" + System.lineSeparator()
+          + "# dataset <- " + typeOfDataset + ".get(client.url('" + cUrl.getHost() + "'," + cPort + "), '" + notebook.getDsId() + "', set_params(limit=10000,intervals='2019-07-01T00:00:00/2019-07-02T00:00:00'))"
           ));
       return query;
     } catch (MalformedURLException e) {
