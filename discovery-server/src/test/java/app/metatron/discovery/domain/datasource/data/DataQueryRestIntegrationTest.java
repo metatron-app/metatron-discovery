@@ -214,6 +214,41 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  public void searchQueryForSalesLast() throws JsonProcessingException {
+
+    DataSource dataSource1 = new DefaultDataSource("sales_geo");
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(1000);
+
+    List<Filter> filters = Lists.newArrayList();
+
+    List<Field> projections = Lists.newArrayList(
+        new DimensionField("Category"),
+        new MeasureField("Sales", MeasureField.AggregationType.LAST)
+    );
+
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, projections, limit);
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .body(request)
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("size()", is(3))
+      .log().all();
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void searchQuerySelectForSales() throws JsonProcessingException {
 
     DataSource dataSource1 = new DefaultDataSource("sales_geo");
@@ -2021,7 +2056,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
                                             new MeasureField("amt", null, MeasureField.AggregationType.NONE));
 
     //    MapViewLayer layer1 = new MapViewLayer("layer1", "estate", fields, new LayerView.ClusteringLayerView("geohex", 5));
-    MapViewLayer layer1 = new MapViewLayer("layer1", "estate", fields, new LayerView.AbbreviatedView("h3", 12, RelayAggregation.Relaytype.FIRST.name()));
+    MapViewLayer layer1 = new MapViewLayer("layer1", "estate", fields, new LayerView.AbbreviatedView("h3", 12, RelayAggregation.RelayType.FIRST.name()));
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
