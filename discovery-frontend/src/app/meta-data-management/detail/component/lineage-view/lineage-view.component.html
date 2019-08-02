@@ -19,10 +19,8 @@
     <div [ngClass]="['ddp-lineage-view-toolbar']">
       <div class="ddp-flow-option ddp-clear">
         <div class="ddp-fleft">
-          <!-- edit -->
           <div class="ddp-wrap-edit">
             <label class="ddp-label-type">Depth</label>
-            <!-- edit option -->
             <div class="ddp-ui-edit-option ddp-inline">
               <label class="ddp-label-radio">
                 <input type="radio">
@@ -36,41 +34,29 @@
               </label>
 
             </div>
-            <!-- //edit option -->
           </div>
-          <!-- //edit -->
-          <!-- edit -->
+
           <div class="ddp-wrap-edit">
             <label class="ddp-label-type">Alignment</label>
-            <!-- edit option -->
             <div class="ddp-ui-edit-option">
-              <!-- selectbox -->
-              <!-- 선택시 : ddp-selected 추가 -->
-              <div class="ddp-type-selectbox">
-                <span class="ddp-txt-selectbox">Center</span>
-                <ul class="ddp-list-selectbox ddp-selectdown">
-                  <li>
-                    <a href="#">
-                      Center
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#">
-                      2
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#">
-                      3
-                    </a>
-                  </li>
-                </ul>
-              </div>
-              <!-- //selectbox -->
+              <component-select
+                [array]="alignmentList"
+                [viewKey]="'label'"
+                (onSelected)="onChangeAlignment($event)">
+              </component-select>
             </div>
-            <!-- //edit option -->
           </div>
-          <!-- //edit -->
+
+          <div class="ddp-wrap-edit">
+            <label class="ddp-label-type">Node Count</label>
+            <div class="ddp-ui-edit-option">
+              <component-select
+                [array]="nodeCountList"
+                [viewKey]="'label'"
+                (onSelected)="onChangeNodeCount($event)">
+              </component-select>
+            </div>
+          </div>
         </div>
         <div class="ddp-fright">
           <a href="javascript:" class="ddp-box-btn2 ddp-box-selected">

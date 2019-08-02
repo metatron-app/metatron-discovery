@@ -73,14 +73,19 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
   public lineageNodes: any = [];
   public lineageEdges: any = [];
 
-  public lineageMaxDepth: number = 3;
   public lineageDepth: number = 0;
   public lineageHeight: number = 0;
+
+  public nodeCount: number;
+  public alignment: string;
 
   @Input()
   public isNameEdit: boolean;
 
   public selectedNode: any = null;
+
+  public nodeCountList: any[];
+  public alignmentList: any[];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -105,10 +110,10 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
     // Init
     super.ngOnInit();
 
+    this._initValues();
     this._initialiseChartValues();
 
-    this.getLineageMapNew();
-    //this.getLineageMap();
+    this.getLineageMap();
   }
 
   // Destory
@@ -145,8 +150,9 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
   /**
    * Get lineage map
    */
-  public getLineageMapNew() {
-
+  public getLineageMap() {
+    let nodeCount = this.nodeCount;
+    let alignment = this.alignment;
     let metadataId = this.metaDataModelService.getMetadata().id;
     this.lineageViewService.getLineageMapForMetadata(metadataId).then((result) => {
       this.lineageNodes = [];
@@ -183,95 +189,7 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
       console.error(error);
     });
 
-  } // function - getLineageMapNew
-
-  /**
-   * Get lineage map
-   */
-  public getLineageMap() {
-
-    let metadataId = this.metaDataModelService.getMetadata().id;
-    this.lineageViewService.getLineageMapForMetadata(metadataId).then((result) => {
-      this.lineageNodes = [];
-      this.lineageEdges = [];
-
-      if (result) {
-        this.makeLineageFromMap(result);
-
-        // 임시방편 : 데모용
-        setTimeout(() => {
-          console.log(this.awaitCount);
-          if(this.awaitCount==0) {
-            this.drawChart();
-          }
-        }, 500);
-      } else {
-      }
-    }).catch((error) => {
-      console.error(error);
-    });
-
   } // function - getLineageMap
-
-  /**
-   * Make lineage from map
-   */
-  public makeLineageFromMap(mapRoot: any) {
-
-    let lineageNode = this.constructLineageNode( mapRoot.metaId, this.lineageMaxDepth, 0 );
-    this.lineageNodes.push( lineageNode );
-
-    this.makeLineageNode( lineageNode, -1, mapRoot ); // forward
-    this.makeLineageNode( lineageNode, 1, mapRoot ); // toward
-
-    console.log( this.lineageNodes );
-    console.log( this.lineageEdges );
-  } // function - makeLineageMap
-
-  public makeLineageNode( lineageNode: any, direction: number, mapNode: any ) {
-    var positionX = lineageNode.positionX + direction;
-    if( positionX<0 || (this.lineageMaxDepth*2+1)<positionX ) {
-      return;
-    }
-
-    let followNodes = null;
-    if(direction === -1) { // forward
-      followNodes = mapNode.upstreamMapNodes.filter(node => node.circuit == false);
-    } else { // toward
-      followNodes = mapNode.downstreamMapNodes.filter(node => node.circuit == false);
-    }
-
-    var ignoreCircuit : boolean = false;
-    if(ignoreCircuit != false) {
-      if(direction === -1) { // forward
-        followNodes = mapNode.upstreamMapNodes;
-      } else { // toward
-        followNodes = mapNode.downstreamMapNodes;
-      }
-    }
-
-    if( followNodes && followNodes.length>0 ) {
-      for( var followNode of followNodes ) {
-        var positionY = 0;
-        var siblings = this.lineageNodes.filter( node => node.positionX == positionX );
-        if( siblings ) {
-          positionY = siblings.length;
-        }
-        let _lineageNode = this.constructLineageNode( followNode.metaId, positionX, positionY );
-        this.lineageNodes.push( _lineageNode );
-
-        let sourceNode = direction==1?lineageNode:_lineageNode;
-        let targetNode = direction==1?_lineageNode:lineageNode;
-        let _lineageEdge = {
-          'source': sourceNode.metadataId,
-          'target': targetNode.metadataId
-        };
-        this.lineageEdges.push( _lineageEdge );
-
-        this.makeLineageNode( _lineageNode, direction, followNode );
-      }
-    }
-  }
 
   public closeColumnView() {
     if( this.selectedNode !== null ) {
@@ -417,6 +335,13 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
     }
   }
 
+  public onChangeAlignment(_alignment: any) {
+    this.alignment = _alignment.value;
+  }
+  public onChangeNodeCount(_nodeCount: any) {
+    this.nodeCount = _nodeCount.value;
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -424,6 +349,23 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  private _initValues() {
+    this.nodeCountList = [
+      {label:'3', value : 3},
+      {label:'5', value : 5},
+      {label:'7', value : 7},
+      {label:'9', value : 9}
+    ];
+    this.nodeCount = this.nodeCountList[1].value;
+
+    this.alignmentList = [
+      {label:'Center', value : 'Center'},
+      {label:'Left', value : 'Left'},
+      {label:'Right', value : 'Right'},
+    ];
+    this.alignment = this.alignmentList[0].value;
+  }
 
   /**
    * Initialise chart values and options
