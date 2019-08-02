@@ -49,7 +49,7 @@
         <spring.data.rest.version>2.6.8.RELEASE</spring.data.rest.version>
         <spring.security.version>4.1.3.RELEASE</spring.security.version>
         <spring.security.jwt.version>1.0.8.RELEASE</spring.security.jwt.version>
-        <spring.security.oauth.version>2.0.11.RELEASE</spring.security.oauth.version>
+        <spring.security.oauth.version>2.0.17.RELEASE</spring.security.oauth.version>
         <spring.session.version>1.3.0.RELEASE</spring.session.version>
 
         <!-- WAS -->
@@ -73,7 +73,8 @@
         <!-- test library versions -->
         <junit.version>4.12</junit.version>
 
-        <jackson.version>2.8.10</jackson.version>
+        <jackson.version>2.9.9</jackson.version>
+        <jackson.databind.version>2.9.9.2</jackson.databind.version>
 
         <metatron.metis.version>2.0.0-SNAPSHOT</metatron.metis.version>
 
@@ -463,7 +464,7 @@
             <dependency>
                 <groupId>com.mchange</groupId>
                 <artifactId>c3p0</artifactId>
-                <version>0.9.5.2</version>
+                <version>0.9.5.3</version>
             </dependency>
 
             <dependency>
@@ -506,7 +507,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
+                <version>${jackson.databind.version}</version>
             </dependency>
 
             <dependency>
@@ -579,7 +580,7 @@
             <dependency>
                 <groupId>commons-fileupload</groupId>
                 <artifactId>commons-fileupload</artifactId>
-                <version>1.2</version>
+                <version>1.3.3</version>
             </dependency>
 
             <dependency>
