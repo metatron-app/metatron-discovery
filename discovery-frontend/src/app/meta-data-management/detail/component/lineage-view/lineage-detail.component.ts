@@ -51,6 +51,8 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
   @Input()
   public selectedNode: any;
 
+  public selectedNodeMetadata: Metadata;
+
   @Output()
   public resizeEventHandler = new EventEmitter();
 
@@ -79,6 +81,8 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
   public ngOnInit() {
     // Init
     super.ngOnInit();
+
+    this.getMetadata(this.selectedNode.metadataId);
   }
 
   public ngAfterViewInit() {
@@ -101,9 +105,21 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
     }
   }
 
+  public ngOnChanges(changedInput: any) {
+    if( changedInput.selectedNode ) {
+      this.getMetadata(changedInput.selectedNode.currentValue.metadataId);
+    }
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  public getMetadata(metadataId: string) {
+    this.metadataService.getDetailMetaData(metadataId).then((result) => {
+      this.selectedNodeMetadata = result;
+    });
+  }
 
   public closeInfo() {
     this.closeColumnView.emit();

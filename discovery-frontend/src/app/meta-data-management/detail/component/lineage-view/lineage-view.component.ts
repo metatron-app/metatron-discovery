@@ -409,14 +409,12 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
     this.chartAreaResize();
 
     // Check whether to put scroll bar
-    /*
     const resize = $('.sys-lineage-right-panel').width() !== null && $('.sys-lineage-right-panel').width() / $('.ddp-lineage-view').width() > 0.5;
     if(resize) {
       $('.ddp-lineage-view-diagram').css('overflow-x', 'auto');
     }else{
       $('.ddp-lineage-view-diagram').css('overflow-x', 'hidden');
     }
-    */
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
