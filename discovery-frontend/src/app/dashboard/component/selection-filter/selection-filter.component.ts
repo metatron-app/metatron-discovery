@@ -77,9 +77,9 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
       this.broadCaster.on<any>('CHART_SELECTION_FILTER').subscribe(data => {
         // 셀렉션 필터에게 넘겨 줌
         this.changeFilter(data.select);
+
       })
     );
-
     this.init();
   }
 
@@ -173,6 +173,7 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
     this._removeFieldInChartSelections(selectionFilter);
 
     if (changeFlag) {
+      // this.broadCaster.broadcast('TREE_MAP_FILTER_REMOVE_BUTTON_CLICKED');
       this._broadcastSelection(this._getApiFilters());
     }
   } // function - remove

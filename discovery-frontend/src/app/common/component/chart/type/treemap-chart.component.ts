@@ -44,6 +44,7 @@ import { Field } from '../../../../domain/workbook/configurations/field/field';
 import { UIChartColor, UIChartColorByValue, UIChartColorGradationByValue } from '../option/ui-option/ui-color';
 import { ColorOptionConverter } from '../option/converter/color-option-converter';
 import Tooltip = OptionGenerator.Tooltip;
+import {EventBroadcaster} from "../../../event/event.broadcaster";
 
 @Component({
   selector: 'treemap-chart',
@@ -55,6 +56,7 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   private _prevTreePath:string[] = [];
+  // private _subscriptions: Subscription[] = [];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -71,6 +73,7 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
   // 생성자
   constructor(
     protected elementRef: ElementRef,
+    protected broadCaster: EventBroadcaster,
     protected injector: Injector ) {
 
     super(elementRef, injector);
@@ -82,7 +85,6 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
 
   // Init
   public ngOnInit() {
-
     // Init
     super.ngOnInit();
   }
@@ -138,8 +140,8 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
    */
   public addChartSelectEventListener(): void {
     this.chart.off('click');
+    let currTreePath = [];
     this.chart.on('click', (params) => {
-
       let selectMode: ChartSelectMode;
       let selectedColValues: string[] = [];
       let selectedRowValues: string[] = [];
@@ -147,10 +149,16 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
       // 데이터가 아닌 빈 공백을 클릭했다면
       // 모든 데이터 선택효과를 해제하며 필터에서 제거.
       if (_.isNull(params)) {
-        selectMode = ChartSelectMode.CLEAR;
+        if (currTreePath.length > 0) {
+          selectMode = ChartSelectMode.CLEAR;
+          this.draw();
+          selectedColValues = [];
+          selectedRowValues = [];
+          this._prevTreePath = [];
+        }
       } else if (params !== null) {
-        // UI에 전송할 선택정보 설정
-        const currTreePath = params.treePathInfo.map( item => item.name );
+        // // UI에 전송할 선택정보 설정
+        currTreePath = params.treePathInfo.map( item => item.name );
         if (this._prevTreePath.length < currTreePath.length) {
           // 선택 처리
           selectMode = ChartSelectMode.ADD;
@@ -184,10 +192,10 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
 
       // 자기자신을 선택시 externalFilters는 false로 설정
       if (this.params.externalFilters) this.params.externalFilters = false;
-
       // UI에 전송할 선택정보 설정
       const selectData = this.setSelectData(params, selectedColValues, selectedRowValues);
 
+      console.log(new ChartSelectInfo(selectMode, selectData, this.params));
       // 이벤트 데이터 전송
       this.chartSelectInfo.emit(new ChartSelectInfo(selectMode, selectData, this.params));
 
@@ -455,7 +463,7 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
         }
         return label;
 
-      // 선택된 display label이 없는경우 빈값 리턴
+        // 선택된 display label이 없는경우 빈값 리턴
       } else {
         return label;
       }
@@ -491,7 +499,7 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
         if (1 == params.data.depth) {
           pivotTarget = this.pivot.columns;
 
-        // 2depth이후의 경우 rows에서 선반 target 설정
+          // 2depth이후의 경우 rows에서 선반 target 설정
         } else {
           pivotTarget = this.pivot.rows;
         }

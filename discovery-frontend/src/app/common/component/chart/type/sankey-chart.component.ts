@@ -516,11 +516,10 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
   public addChartSelectEventListener(): void {
     this.chart.off('click');
     this.chart.on('click', (params) => {
-
-      if(params.dataType == 'node') {
-        // 의사 결정될때까지 사용
-        return;
-      }
+      // if(params.dataType == 'node') {
+      //   // 의사 결정될때까지 사용
+      //   return;
+      // }
 
       let selectMode: ChartSelectMode;
       let selectDataList = [];
@@ -543,6 +542,20 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
           seriesItem.links.forEach((item) => {
             item['lineStyle']['opacity'] = 0.2;
           });
+        });
+
+        // 노드 초기화
+        series.forEach(series => {
+          series.data.forEach(data => {
+            delete data.selected;
+          })
+        });
+
+        // 엣지 초기화
+        series.forEach(series => {
+          series.links.forEach(item => {
+            delete item.selected;
+          })
         });
 
         // 차트에서 선택한 데이터가 없음을 설정

@@ -594,7 +594,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     else if (_.eq(data.mode, ChartSelectMode.CLEAR)) {
 
       // 셀력션 데이터 치환
-      data.mode = ChartSelectMode.SUBTRACT;
+      // data.mode = ChartSelectMode.SUBTRACT;
       data.data = this._selectFilterList;
 
       // 저장된 필터 목록 초기화

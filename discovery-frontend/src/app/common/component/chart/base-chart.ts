@@ -81,6 +81,8 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  private selectedFilterCount: number = 0;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -2438,7 +2440,6 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   public addChartSelectEventListener(): void {
     this.chart.off('click');
     this.chart.on('click', (params) => {
-
       let selectMode: ChartSelectMode;
       let selectedColValues: string[];
       let selectedRowValues: string[];
@@ -2447,9 +2448,12 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       const series = this.chartOption.series;
       // 데이터가 아닌 빈 공백을 클릭했다면
       // 모든 데이터 선택효과를 해제하며 필터에서 제거.
-      if (_.isNull(params)) {
+      if (_.isNull(params) && this.selectedFilterCount > 0) {
         selectMode = ChartSelectMode.CLEAR;
         this.chartOption = this.selectionClear(this.chartOption);
+        this.selectedFilterCount = 0;
+        this.draw();
+
         // return;
       } else if (params != null) {
 
@@ -2464,10 +2468,12 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
         if (isSelected) {
           // 선택 해제
+          this.selectedFilterCount--;
           selectMode = ChartSelectMode.SUBTRACT;
           this.chartOption = this.selectionSubstract(this.chartOption, targetData);
         } else {
           // 선택 처리
+          this.selectedFilterCount++;
           selectMode = ChartSelectMode.ADD;
           this.chartOption = this.selectionAdd(this.chartOption, targetData, false);
         }
@@ -2500,7 +2506,6 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
       // UI에 전송할 선택정보 설정
       const selectData = this.setSelectData(params, selectedColValues, selectedRowValues);
-
       // 차트에 적용
       this.apply(false);
       this.lastDrawSeries = _.cloneDeep(this.chartOption['series']);
@@ -2518,70 +2523,79 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   public addChartMultiSelectEventListener(): void {
     this.chart.off('brushDragEnd');
     this.chart.on('brushDragEnd', (params) => {
-
       let selectDataList = [];
 
       const selectedBrushData: any = params.brushSelectData[0].selected;
-
+      let selectMode: ChartSelectMode;
       // 선택된값이 없는경우
       if (!selectedBrushData.some(item => item.dataIndex && 0 < item.dataIndex.length)) {
+        selectMode = ChartSelectMode.CLEAR;
+
+        // 브러쉬 영역 삭제
+        this.chartOption = this.selectionClear(this.chartOption);
+        this.draw();
+        this.chart.clearBrush();
+
+      } else {
+        selectMode = ChartSelectMode.ADD;
+
         // 브러쉬 영역 삭제
         this.chart.clearBrush();
-        return;
-      }
 
-      // 브러쉬 영역 삭제
-      this.chart.clearBrush();
+        // 선택효과 처리
+        this.chartOption = this.selectionAdd(this.chartOption, selectedBrushData, true);
 
-      // 선택효과 처리
-      this.chartOption = this.selectionAdd(this.chartOption, selectedBrushData, true);
+        // 열 선반 데이터 요소
+        const cols = this.pivotInfo.cols;
+        // 행 선반 데이터 요소
+        const rows = this.pivotInfo.rows;
+        // 교차선반 데이터 요소 ( scatter )
+        const aggs = this.pivotInfo.aggs;
 
-      // 열 선반 데이터 요소
-      const cols = this.pivotInfo.cols;
-      // 행 선반 데이터 요소
-      const rows = this.pivotInfo.rows;
-      // 교차선반 데이터 요소 ( scatter )
-      const aggs = this.pivotInfo.aggs;
+        const setData = ((colIdxList, fields: Field[], shelveData: string[], dataAlter?: Field[], shelveAlterData?: string[]) => {
 
-      const setData = ((colIdxList, fields: Field[], shelveData: string[], dataAlter?: Field[], shelveAlterData?: string[]) => {
+          let returnList = [];
 
-        let returnList = [];
+          colIdxList.forEach((colIdx) => {
+            const dataName = !_.isEmpty(shelveData) ? shelveData[colIdx] : shelveAlterData[colIdx];
+            _.split(dataName, CHART_STRING_DELIMITER).map((name, idx) => {
 
-        colIdxList.forEach((colIdx) => {
-          const dataName = !_.isEmpty(shelveData) ? shelveData[colIdx] : shelveAlterData[colIdx];
-          _.split(dataName, CHART_STRING_DELIMITER).map((name, idx) => {
 
-            // filter관련 데이터 변경
-            const fieldItem = !_.isEmpty(fields) ? fields[idx] : dataAlter[idx];
+              // filter관련 데이터 변경
+              const fieldItem = !_.isEmpty(fields) ? fields[idx] : dataAlter[idx];
 
-            // selectDataList에 해당 name의 값이 없을때 selectDataList에 추가
-            if (-1 === returnList.findIndex(obj => obj.name === fieldItem.name)) {
-              const resultItem = _.cloneDeep(fieldItem);
-              resultItem['data'] = [];
-              returnList.push(resultItem);
-            }
+              // selectDataList에 해당 name의 값이 없을때 selectDataList에 추가
+              if (-1 === returnList.findIndex(obj => obj.name === fieldItem.name)) {
+                const resultItem = _.cloneDeep(fieldItem);
+                resultItem['data'] = [];
+                returnList.push(resultItem);
+              }
 
-            // 기존데이터에 신규데이터 추가
-            returnList[idx].data = _.union(returnList[idx].data, [name]);
+              // 기존데이터에 신규데이터 추가
+              returnList[idx].data = _.union(returnList[idx].data, [name]);
+            });
           });
+
+          return returnList;
         });
 
-        return returnList;
-      });
+        // UI에 전송할 선택정보 설정
+        selectedBrushData.forEach((selected) => {
+          // Empty Space 눌렀을 때 초기화 하기 위한 selectedFilterCount++
+          this.selectedFilterCount++;
+          // 해당 시리즈의 선택한 데이터 인덱스 모음
+          const colIdxList = selected.dataIndex;
 
-      // UI에 전송할 선택정보 설정
-      selectedBrushData.forEach((selected) => {
-        // 해당 시리즈의 선택한 데이터 인덱스 모음
-        const colIdxList = selected.dataIndex;
-
-        if (colIdxList && colIdxList.length > 0) {
-          selectDataList = _.union(selectDataList, setData(colIdxList, this.pivot.columns, cols, this.pivot.aggregations, aggs));
-          // 행값이 있을때에만 실행
-          if (this.pivot.rows && this.pivot.rows.length > 0) {
-            selectDataList = _.union(selectDataList, setData([selected.seriesIndex], this.pivot.rows, rows));
+          if (colIdxList && colIdxList.length > 0) {
+            selectDataList = _.union(selectDataList, setData(colIdxList, this.pivot.columns, cols, this.pivot.aggregations, aggs));
+            // 행값이 있을때에만 실행
+            if (this.pivot.rows && this.pivot.rows.length > 0) {
+              selectDataList = _.union(selectDataList, setData([selected.seriesIndex], this.pivot.rows, rows));
+            }
           }
-        }
-      });
+        });
+      }
+
 
       // 자기자신을 선택시 externalFilters는 false로 설정
       if (this.params.externalFilters) this.params.externalFilters = false;
@@ -2592,7 +2606,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
       // 이벤트 데이터 전송
       this.params['selectType'] = 'MULTI';
-      this.chartSelectInfo.emit(new ChartSelectInfo(ChartSelectMode.ADD, selectDataList, this.params));
+      this.chartSelectInfo.emit(new ChartSelectInfo(selectMode, selectDataList, this.params));
     });
   }
 
