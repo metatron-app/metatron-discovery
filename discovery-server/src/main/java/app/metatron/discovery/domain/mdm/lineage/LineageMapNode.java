@@ -19,15 +19,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LineageNode implements Serializable, Comparable<LineageNode> {
+public class LineageMapNode implements Serializable, Comparable<LineageMapNode> {
 
   private String metaId;
 
   @JsonIgnore
-  private List<LineageNode> upstreamMapNodes;
+  private List<LineageMapNode> upstreamMapNodes;
 
   @JsonIgnore
-  private List<LineageNode> downstreamMapNodes;
+  private List<LineageMapNode> downstreamMapNodes;
 
   private boolean circuit;
 
@@ -36,7 +36,7 @@ public class LineageNode implements Serializable, Comparable<LineageNode> {
   private Integer depth;
   private Integer pos;
 
-  public LineageNode() {
+  public LineageMapNode() {
     metaId = null;
     upstreamMapNodes = new ArrayList();
     downstreamMapNodes = new ArrayList();
@@ -44,7 +44,7 @@ public class LineageNode implements Serializable, Comparable<LineageNode> {
     this.depth = 7;
   }
 
-  public LineageNode(String metaId, String metaName, int depth) {
+  public LineageMapNode(String metaId, String metaName, int depth) {
     this();
     this.metaId = metaId;
     this.metaName = metaName;
@@ -55,11 +55,11 @@ public class LineageNode implements Serializable, Comparable<LineageNode> {
     return metaId;
   }
 
-  public List<LineageNode> getUpstreamMapNodes() {
+  public List<LineageMapNode> getUpstreamMapNodes() {
     return upstreamMapNodes;
   }
 
-  public List<LineageNode> getDownstreamMapNodes() {
+  public List<LineageMapNode> getDownstreamMapNodes() {
     return downstreamMapNodes;
   }
 
@@ -97,7 +97,7 @@ public class LineageNode implements Serializable, Comparable<LineageNode> {
 
   @Override
   public String toString() {
-    return "LineageNode{" +
+    return "LineageMapNode{" +
         "metaId='" + metaId + '\'' +
         ", circuit=" + circuit +
         ", metaName='" + metaName + '\'' +
@@ -105,7 +105,7 @@ public class LineageNode implements Serializable, Comparable<LineageNode> {
   }
 
   @Override
-  public int compareTo(LineageNode node) {
+  public int compareTo(LineageMapNode node) {
     if (this.depth > node.getDepth()) {
       return -1;
     } else if (this.depth == node.getDepth()) {

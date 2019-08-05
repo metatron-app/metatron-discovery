@@ -37,11 +37,11 @@ public class LineageMapService {
   public LineageMapService() {
   }
 
-  void addNodeRecursive(LineageMap map, LineageNode node) {
+  void addNodeRecursive(LineageMap map, LineageMapNode node) {
     map.addNode(node.getDepth() + map.getDepthAdjustment(), node);
     map.visitedMetaIds.add(node.getMetaId());
 
-    for (LineageNode child : node.getDownstreamMapNodes()) {
+    for (LineageMapNode child : node.getDownstreamMapNodes()) {
       if (map.visitedMetaIds.contains(child.getMetaId())) {
         continue;
       }
@@ -52,14 +52,14 @@ public class LineageMapService {
   public LineageMap getLineageMap(String metaId) {
     LineageMap map = new LineageMap();  // depthLimit
 
-    LineageNode topNode = getTopNode(map.getNeedEdges(), metaId);
+    LineageMapNode topNode = getTopNode(map.getNeedEdges(), metaId);
 
     map.findOrigins(topNode, LineageMap.INITIAL_DEPTH);
 
     map.setDepthAdjustment();
 
     map.visitedMetaIds.clear();
-    for (LineageNode node : map.origins) {
+    for (LineageMapNode node : map.origins) {
       addNodeRecursive(map, node);
     }
 
@@ -102,11 +102,11 @@ public class LineageMapService {
     return max;
   }
 
-  private void addMapNodeRecursive(List<LineageEdge> totalEdges, LineageNode node, boolean upward,
+  private void addMapNodeRecursive(List<LineageEdge> totalEdges, LineageMapNode node, boolean upward,
       List<String> visitedMetaIds, int depth, Long lastTier) {
     String metaId = node.getMetaId();
     List<LineageEdge> edges;
-    LineageNode newNode;
+    LineageMapNode newNode;
     int newDepth;
 
     // Edges that have A as downstream are upstream edges of A, vice versa.
@@ -130,7 +130,7 @@ public class LineageMapService {
           continue;
         }
         String upstreamMetaName = getMetaName(edge.getUpstreamMetaId());
-        newNode = new LineageNode(edge.getUpstreamMetaId(), upstreamMetaName, newDepth);
+        newNode = new LineageMapNode(edge.getUpstreamMetaId(), upstreamMetaName, newDepth);
         node.getUpstreamMapNodes().add(newNode);
         newNode.getDownstreamMapNodes().add(node);
       } else {
@@ -142,7 +142,7 @@ public class LineageMapService {
           continue;
         }
         String downstreamMetaName = getMetaName(edge.getDownstreamMetaId());
-        newNode = new LineageNode(edge.getDownstreamMetaId(), downstreamMetaName, newDepth);
+        newNode = new LineageMapNode(edge.getDownstreamMetaId(), downstreamMetaName, newDepth);
         node.getDownstreamMapNodes().add(newNode);
         newNode.getUpstreamMapNodes().add(node);
       }
@@ -167,14 +167,14 @@ public class LineageMapService {
     return metadatas.get(0).getName();
   }
 
-  public LineageNode getTopNode(List<LineageEdge> totalEdges, String metaId) {
+  public LineageMapNode getTopNode(List<LineageEdge> totalEdges, String metaId) {
     LOGGER.trace("getTopNode(): start");
 
     List<String> visitedMetaIds = new ArrayList();
     visitedMetaIds.add(metaId);
 
     String metaName = getMetaName(metaId);
-    LineageNode topNode = new LineageNode(metaId, metaName, 0);
+    LineageMapNode topNode = new LineageMapNode(metaId, metaName, 0);
 
     addMapNodeRecursive(totalEdges, topNode, true, visitedMetaIds, 0, null);
     addMapNodeRecursive(totalEdges, topNode, false, visitedMetaIds, 0, getMaxTier(totalEdges));

@@ -22,13 +22,13 @@ import java.util.List;
 
 public class LineageMap implements Serializable {
 
-  List<List<LineageNode>> nodeGrid;
+  List<List<LineageMapNode>> nodeGrid;
   List<LineageEdge> needEdges;
   Integer depthLimit;
   int depthAdjustment;
 
   @JsonIgnore
-  List<LineageNode> origins;
+  List<LineageMapNode> origins;
 
   @JsonIgnore
   List<String> visitedMetaIds;
@@ -48,7 +48,7 @@ public class LineageMap implements Serializable {
     this.depthLimit = depthLimit;
   }
 
-  public List<List<LineageNode>> getNodeGrid() {
+  public List<List<LineageMapNode>> getNodeGrid() {
     return nodeGrid;
   }
 
@@ -56,7 +56,7 @@ public class LineageMap implements Serializable {
     return needEdges;
   }
 
-  void findOrigins(LineageNode node, int depth) {
+  void findOrigins(LineageMapNode node, int depth) {
     // A node that makes a circuit cannot be the origin.
     if (visitedMetaIds.contains(node.getMetaId())) {
       return;
@@ -68,7 +68,7 @@ public class LineageMap implements Serializable {
       origins.add(node);
     }
 
-    for (LineageNode n : node.getUpstreamMapNodes()) {
+    for (LineageMapNode n : node.getUpstreamMapNodes()) {
       findOrigins(n, depth - 1);
     }
 
@@ -87,12 +87,12 @@ public class LineageMap implements Serializable {
     nodeGrid.add(new ArrayList());
   }
 
-  void addNode(int depth, LineageNode node) {
+  void addNode(int depth, LineageMapNode node) {
     while (nodeGrid.size() <= depth) {
       addColumn();
     }
 
-    List<LineageNode> column = nodeGrid.get(depth);
+    List<LineageMapNode> column = nodeGrid.get(depth);
     column.add(node);
   }
 }
