@@ -91,7 +91,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
   public isSelectDataflowOpen: boolean = false;
 
-  public isForLineage: boolean = false;
+  public isForLineage: boolean = true;
 
   // dataflow id str
   public dfStr : string;
@@ -693,8 +693,6 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
         if (this.dataset.dsType === DsType.WRANGLED) {
           this._setRuleList(this.dataset.transformRules);
         }
-
-        this.isForLineage = this.canUseForLineage();
 
         this.loadingHide();
 
