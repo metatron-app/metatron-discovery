@@ -230,7 +230,7 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
    */
   public onClickResetFilters(): void {
     // 정렬 초기화
-    this.selectedSort = this.sortList[1];
+    this.selectedSort = this.sortList[SortMode.NAME_ASCENDING];
     // create date 초기화
     this._selectedDate = null;
     // date 필터 created update 설정 default created로 설정
@@ -329,7 +329,7 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
     // 검색어 초기화
     this.searchText = '';
     // 정렬 초기화
-    this.selectedSort = this.sortList[1];
+    this.selectedSort = this.sortList[SortMode.NAME_ASCENDING];
   }
 
   /**
@@ -423,4 +423,13 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
     }
     return params;
   }
+
 }
+
+enum SortMode {
+  NAME_ASCENDING = 0,
+  NAME_DESCENDING = 1,
+  UPDATE_ASCENDING = 2,
+  UPDATE_DESCENDING = 3
+}
+
