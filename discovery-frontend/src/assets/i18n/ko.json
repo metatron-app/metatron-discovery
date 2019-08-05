@@ -1790,6 +1790,7 @@
   "msg.storage.alert.dsource.del.success" : "데이터소스가 삭제되었습니다",
   "msg.storage.alert.dsource.update.success" :"데이터소스가 수정되었습니다",
   "msg.storage.alert.insert.name" :"데이터소스 이름을 입력해 주세요",
+  "msg.storage.alert.detail.confirm" :"현재 화면을 닫고 이동하시겠습니까?",
   "msg.storage.ui.dsource.del.title" : "정말 삭제하시겠습니까?",
   "msg.storage.ui.dsource.del.description" : "데이터소스가 삭제되며 해당 데이터소스가 사용된 대시보드를 사용하실 수 없습니다",
   "msg.storage.btn.dsource.del" : "데이터소스 삭제",

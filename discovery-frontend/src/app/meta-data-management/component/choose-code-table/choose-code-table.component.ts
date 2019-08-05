@@ -22,6 +22,7 @@ import {ColumnDictionaryService} from '../../column-dictionary/service/column-di
 import * as _ from 'lodash';
 import {Alert} from '../../../common/util/alert.util';
 import {CodeValuePair} from '../../../domain/meta-data-management/code-value-pair';
+import {TranslateService} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-choose-code-table',
@@ -78,6 +79,7 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
   constructor(
     private _columnDictionaryService: ColumnDictionaryService,
     private _codeTableService: CodeTableService,
+    private _translateService: TranslateService,
     protected element: ElementRef,
     protected injector: Injector) {
     super(element, injector);
@@ -278,7 +280,9 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
    */
   public onClickCodeTableDetails(codeTable: CodeTable): void {
     // 해당 코드 테이블 상세화면으로 이동
-    this.router.navigate(['management/metadata/code-table', codeTable.id]);
+    if (confirm(this._translateService.instant('msg.storage.alert.detail.confirm'))) {
+      this.router.navigate(['management/metadata/code-table', codeTable.id]);
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -330,16 +334,14 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
     // 로딩 show
     this.loadingShow();
     // 현재 컬럼사전에 선택한 코드 테이블 연결
-    this._columnDictionaryService.linkCodeTableWithColumnDictionary(this._dictionaryId, this.selectedCodeTable.id).
-      then((result) => {
-        // 로딩 hide
-        this.loadingHide();
-        // alert
-        Alert.success(this.translateService.instant('msg.comm.alert.confirm.success'));
-        // close
-        this._emitCodeTable();
-      }).
-      catch(error => this.commonExceptionHandler(error));
+    this._columnDictionaryService.linkCodeTableWithColumnDictionary(this._dictionaryId, this.selectedCodeTable.id).then((result) => {
+      // 로딩 hide
+      this.loadingHide();
+      // alert
+      Alert.success(this.translateService.instant('msg.comm.alert.confirm.success'));
+      // close
+      this._emitCodeTable();
+    }).catch(error => this.commonExceptionHandler(error));
   }
 
   /**
