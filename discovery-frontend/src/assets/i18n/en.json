@@ -316,7 +316,7 @@
 
   "msg.lnb.btn.manual" : "Download",
   "msg.lnb.btn.manual.web" : "Online",
-  "msg.lnb.btn.workspace-list" : "Workspace list >>",
+  "msg.lnb.btn.workspace-list" : "Workspace list",
   "msg.lnb.label.set-favorite-workspace" : "Set favorite public workspaces.",
   "msg.lnb.label.help" : "User guide",
   "msg.lnb.label.contact" : "Contact",
