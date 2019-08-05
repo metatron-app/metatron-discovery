@@ -12,27 +12,23 @@
  * limitations under the License.
  */
 
-package app.metatron.discovery.domain.mdm;
+package app.metatron.discovery.domain.mdm.lineage;
 
-import app.metatron.discovery.common.exception.ErrorCodes;
+import app.metatron.discovery.common.exception.MetatronException;
+import app.metatron.discovery.domain.mdm.MetadataErrorCodes;
 
-public enum MetadataErrorCodes implements ErrorCodes {
+public class LineageException extends MetatronException {
 
-  METADATA_COMMON_ERROR("MD001"),
-  DUPLICATED_CATALOG_NAME("MD002"),
-  LINEAGE_COLUMN_MISSING("MD003"),
-  LINEAGE_DATASET_ERROR("MD004"),
-  LINEAGE_CANNOT_CREATE_EDGE("MD004"),
-  ;
 
-  String errorCode;
-
-  MetadataErrorCodes(String errorCode) {
-    this.errorCode = errorCode;
+  public LineageException(MetadataErrorCodes code, String message) {
+    super(code, message);
   }
 
-  @Override
-  public String getCode() {
-    return errorCode;
+  public LineageException(MetadataErrorCodes code, Throwable cause) {
+    super(code, cause);
+  }
+
+  public LineageException(MetadataErrorCodes code, String message, Throwable cause) {
+    super(code, message, cause);
   }
 }

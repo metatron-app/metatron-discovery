@@ -176,8 +176,8 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
         for(var edge of result.needEdges) {
           var _edge = _.cloneDeep(edge);
-          _edge.source = edge.upstreamMetaId;
-          _edge.target = edge.downstreamMetaId;
+          _edge.source = edge.frMetaId;
+          _edge.target = edge.toMetaId;
 
           this.lineageEdges.push( _edge );
         }

@@ -24,10 +24,10 @@ public class LineageMapNode implements Serializable, Comparable<LineageMapNode> 
   private String metaId;
 
   @JsonIgnore
-  private List<LineageMapNode> upstreamMapNodes;
+  private List<LineageMapNode> frMapNodes;
 
   @JsonIgnore
-  private List<LineageMapNode> downstreamMapNodes;
+  private List<LineageMapNode> toMapNodes;
 
   private boolean circuit;
 
@@ -38,8 +38,8 @@ public class LineageMapNode implements Serializable, Comparable<LineageMapNode> 
 
   public LineageMapNode() {
     metaId = null;
-    upstreamMapNodes = new ArrayList();
-    downstreamMapNodes = new ArrayList();
+    frMapNodes = new ArrayList();
+    toMapNodes = new ArrayList();
     circuit = false;
     this.depth = 7;
   }
@@ -55,12 +55,12 @@ public class LineageMapNode implements Serializable, Comparable<LineageMapNode> 
     return metaId;
   }
 
-  public List<LineageMapNode> getUpstreamMapNodes() {
-    return upstreamMapNodes;
+  public List<LineageMapNode> getFrMapNodes() {
+    return frMapNodes;
   }
 
-  public List<LineageMapNode> getDownstreamMapNodes() {
-    return downstreamMapNodes;
+  public List<LineageMapNode> getToMapNodes() {
+    return toMapNodes;
   }
 
   public boolean isCircuit() {

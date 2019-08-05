@@ -354,11 +354,6 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       'dsName': this.dataset.dsName
     };
 
-    if( false===this.canUseForLineage() ) {
-      Alert.error(this.translateService.instant('msg.dp.alert.cannot.make.lineage'));
-      return false;
-    }
-
     this.loadingShow();
     this.datasetService.makeLineage(params)
       .then(result => {
@@ -370,29 +365,6 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
         let prep_error = this.dataprepExceptionHandler(error);
         PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
-  }
-
-  public canUseForLineage() {
-    if (this.dataset.dsType!==DsType.WRANGLED || !this.dataset.gridResponse.colNames ) {
-      return false;
-    }
-
-    var requiredColumns1 = [
-      "upstreammetaid", "downstreammetaid"
-    ];
-    var requiredColumns2 = [
-      "upstreammetaname", "downstreammetaname"
-    ];
-    var filtered1 = this.dataset.gridResponse.colNames.filter(function(col, index, array) {
-      let _col = col.toLowerCase().replace(/_/g,'');
-      return requiredColumns1.includes(_col);
-    });
-    var filtered2 = this.dataset.gridResponse.colNames.filter(function(col, index, array) {
-      let _col = col.toLowerCase().replace(/_/g,'');
-      return requiredColumns2.includes(_col);
-    });
-
-    return filtered1.length===requiredColumns1.length || filtered2.length===requiredColumns1.length;
   }
 
   /** get total bytes */

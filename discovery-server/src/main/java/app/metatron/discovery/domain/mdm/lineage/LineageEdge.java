@@ -24,7 +24,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "lineage_edge")
+@Table(name = "mdm_lineage_edge")
 public class LineageEdge extends AbstractHistoryEntity {
 
   @Id
@@ -33,29 +33,27 @@ public class LineageEdge extends AbstractHistoryEntity {
   @Column(name = "edge_id")
   private String edgeId;
 
-  @Column(name = "upstream_meta_id")
-  private String upstreamMetaId;
+  @Column(name = "fr_meta_id")
+  private String frMetaId;
 
-  @Column(name = "downstream_meta_id")
-  private String downstreamMetaId;
+  @Column(name = "to_meta_id")
+  private String toMetaId;
 
   @Column(name = "tier")
   private Long tier;
 
   @Lob
   @Column(name = "description")
-  private String description;
+  private String desc;
 
   public LineageEdge() {
   }
 
-  public LineageEdge(String upstreamMetaId, String downstreamMetaId, Long tier,
-      String description) {
-    this();
-    this.upstreamMetaId = upstreamMetaId;
-    this.downstreamMetaId = downstreamMetaId;
+  public LineageEdge(String frMetaId, String toMetaId, Long tier, String desc) {
+    this.frMetaId = frMetaId;
+    this.toMetaId = toMetaId;
     this.tier = tier;
-    this.description = description;
+    this.desc = desc;
   }
 
   public String getEdgeId() {
@@ -66,20 +64,20 @@ public class LineageEdge extends AbstractHistoryEntity {
     this.edgeId = edgeId;
   }
 
-  public String getUpstreamMetaId() {
-    return upstreamMetaId;
+  public String getFrMetaId() {
+    return frMetaId;
   }
 
-  public void setUpstreamMetaId(String upstreamMetaId) {
-    this.upstreamMetaId = upstreamMetaId;
+  public void setFrMetaId(String frMetaId) {
+    this.frMetaId = frMetaId;
   }
 
-  public String getDownstreamMetaId() {
-    return downstreamMetaId;
+  public String getToMetaId() {
+    return toMetaId;
   }
 
-  public void setDownstreamMetaId(String downstreamMetaId) {
-    this.downstreamMetaId = downstreamMetaId;
+  public void setToMetaId(String toMetaId) {
+    this.toMetaId = toMetaId;
   }
 
   public Long getTier() {
@@ -90,22 +88,22 @@ public class LineageEdge extends AbstractHistoryEntity {
     this.tier = tier;
   }
 
-  public String getDescription() {
-    return description;
+  public String getDesc() {
+    return desc;
   }
 
-  public void setDescription(String description) {
-    this.description = description;
+  public void setDesc(String desc) {
+    this.desc = desc;
   }
 
   @Override
   public String toString() {
     return "LineageEdge{" +
         "edgeId='" + edgeId + '\'' +
-        ", upstreamMetaId='" + upstreamMetaId + '\'' +
-        ", downstreamMetaId='" + downstreamMetaId + '\'' +
+        ", frMetaId='" + frMetaId + '\'' +
+        ", toMetaId='" + toMetaId + '\'' +
         ", tier=" + tier +
-        ", description='" + description + '\'' +
+        ", desc='" + desc + '\'' +
         '}';
   }
 }

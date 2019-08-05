@@ -92,11 +92,11 @@ public class LineageEdgeRestIntegrationTest extends AbstractRestIntegrationTest 
     return readResponse.jsonPath().getMap("");
   }
 
-  private void createLineageEdge(String upstreamMetaId, String downstreamMetaId, String description) {
+  private void createLineageEdge(String frMetaId, String toMetaId, String desc) {
     Map<String, Object> request = Maps.newHashMap();
-    request.put("upstreamMetaId", upstreamMetaId);
-    request.put("downstreamMetaId", downstreamMetaId);
-    request.put("description", description);
+    request.put("frMetaId", frMetaId);
+    request.put("toMetaId", toMetaId);
+    request.put("desc", desc);
 
     // @formatter:off
     Response createRes =

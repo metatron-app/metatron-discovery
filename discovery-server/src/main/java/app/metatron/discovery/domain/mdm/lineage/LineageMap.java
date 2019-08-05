@@ -40,7 +40,7 @@ public class LineageMap implements Serializable {
     needEdges = new ArrayList();
     origins = new ArrayList();
     visitedMetaIds = new ArrayList();
-    depthLimit = 7;   // up + myself + down
+    depthLimit = 7;   // upstream + myself + downstream
   }
 
   public LineageMap(int depthLimit) {
@@ -63,12 +63,12 @@ public class LineageMap implements Serializable {
     }
     visitedMetaIds.add(node.getMetaId());
 
-    if (node.getUpstreamMapNodes().size() == 0) {
+    if (node.getFrMapNodes().size() == 0) {
       node.setDepth(depth);
       origins.add(node);
     }
 
-    for (LineageMapNode n : node.getUpstreamMapNodes()) {
+    for (LineageMapNode n : node.getFrMapNodes()) {
       findOrigins(n, depth - 1);
     }
 

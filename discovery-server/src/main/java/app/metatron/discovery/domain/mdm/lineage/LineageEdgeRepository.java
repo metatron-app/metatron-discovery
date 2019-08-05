@@ -22,7 +22,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
     excerptProjection = LineageEdgeProjections.DefaultProjection.class)
 public interface LineageEdgeRepository extends JpaRepository<LineageEdge, String> {
 
-  List<LineageEdge> findByUpstreamMetaId(String upstreamMetaId);
+  List<LineageEdge> findByFrMetaId(String upstreamMetaId);
 
-  List<LineageEdge> findByDownstreamMetaId(String downstreamMetaId);
+  List<LineageEdge> findByToMetaId(String downstreamMetaId);
 }

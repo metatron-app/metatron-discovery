@@ -7,16 +7,16 @@ public class LineageEdgeProjections extends BaseProjections {
   @Projection(types = LineageEdge.class, name = "default")
   public interface DefaultProjection {
     String getEdgeId();
-    String getUpstreamMetaId();
-    String getDownstreamMetaId();
-    String getDescription();
+    String getFrMetaId();
+    String getToMetaId();
+    String getDesc();
   }
 
   @Projection(types = LineageEdge.class, name = "forListView")
   public interface ForListViewProjection {
     String getEdgeId();
-    String getUpstreamMetaId();
-    String getDownstreamMetaId();
-    String getDescription();
+    String getFrMetaId();
+    String getToMetaId();
+    String getDesc();
   }
 }
