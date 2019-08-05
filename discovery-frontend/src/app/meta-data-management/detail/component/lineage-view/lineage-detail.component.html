@@ -45,10 +45,15 @@
   <div class="ddp-wrap-part ddp-bg">
     <div class="ddp-ui-preview">
       <div class="ddp-txt-title">
-        Data preview
+        {{'msg.dp.ui.data.preview' | translate}}
       </div>
 
       <div class="ddp-box-preview">
+        <div class="ddp-ui-empty" *ngIf="emptyGrid">
+          {{'msg.dp.ui.no.preview' | translate}}
+        </div>
+        <div class="ddp-box-gridarea" #previewGrid grid-component style="width:100%; height: 100%;" [hidden]="emptyGrid"></div>
+        <!--
         <div *ngIf="selectedNodeMetadata.columns">
           <ul>
             <li *ngFor="let column of selectedNodeMetadata.columns">
@@ -56,7 +61,6 @@
             </li>
           </ul>
         </div>
-        <!--
         <metadata-grid-component></metadata-grid-component>
         -->
       </div>

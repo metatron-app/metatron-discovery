@@ -65,17 +65,17 @@
           </a>
           <ul class="ddp-list-tab-button">
             <li class="ddp-selected">
-              <a href="javascript:"><em class="ddp-icon-lineage-depth"></em></a>
+              <a (click)="viewType=ViewType.Diagram;" href="javascript:"><em class="ddp-icon-lineage-depth"></em></a>
               <div class="ddp-ui-tooltip-info">
                 <em class="ddp-icon-view-top"></em>
-                depth
+                Diagram
               </div>
             </li>
             <li>
-              <a href="javascript:"><em class="ddp-icon-lineage-grid"></em></a>
+              <a (click)="viewType=ViewType.Grid;" href="javascript:"><em class="ddp-icon-lineage-grid"></em></a>
               <div class="ddp-ui-tooltip-info">
                 <em class="ddp-icon-view-top"></em>
-                grid
+                Grid
               </div>
             </li>
           </ul>
@@ -104,8 +104,8 @@
         </app-metadata-detail-lineagedetail>
       </div>
       <!-- //노드 아이콘 클릭시 상세 영역 -->
-
     </div>
+
   </div>
 </div>
 <!-- //tab contents -->

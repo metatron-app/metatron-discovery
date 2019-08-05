@@ -34,6 +34,11 @@ enum SeriesIndex {
   LINEAGE_DIAGRAM = 0
 };
 
+enum ViewType {
+  Diagram = 0,
+  Grid = 1
+};
+
 @Component({
   selector: 'app-metadata-detail-lineageview',
   templateUrl: './lineage-view.component.html'
@@ -58,6 +63,8 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
   // 노드 아이콘 경로
   private symbolInfo: any = {};
+
+  private viewType: ViewType;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -365,6 +372,8 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
       {label:'Right', value : 'Right'},
     ];
     this.alignment = this.alignmentList[0].value;
+
+    this.viewType = ViewType.Diagram;
   }
 
   /**

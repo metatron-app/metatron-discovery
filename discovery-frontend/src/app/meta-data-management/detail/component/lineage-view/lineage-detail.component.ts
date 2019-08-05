@@ -21,6 +21,9 @@ import {MetadataService} from '../../../metadata/service/metadata.service';
 import {MetadataModelService} from '../../../metadata/service/metadata.model.service';
 import {Alert} from '../../../../common/util/alert.util';
 import {Metadata} from '../../../../domain/meta-data-management/metadata';
+import {GridComponent} from '../../../../common/component/grid/grid.component';
+import {GridOption} from '../../../../common/component/grid/grid.option';
+import {header, SlickGridHeader} from '../../../../common/component/grid/grid.header';
 
 declare let echarts;
 
@@ -40,6 +43,9 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
   @ViewChild('closeButton')
   private closeButton: ElementRef;
 
+  @ViewChild('previewGrid')
+  private gridComponent: GridComponent;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -47,6 +53,8 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  public emptyGrid : boolean = false;
 
   @Input()
   public selectedNode: any;
@@ -81,6 +89,8 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
   public ngOnInit() {
     // Init
     super.ngOnInit();
+
+    this.emptyGrid = false;
 
     this.getMetadata(this.selectedNode.metadataId);
   }
@@ -119,7 +129,53 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
     this.metadataService.getDetailMetaData(metadataId).then((result) => {
       this.selectedNodeMetadata = result;
     });
+
+    const limit : number = 32;
+    this.metadataService.getMetadataSampleData(metadataId, limit).then((result) => {
+      this.updateGrid( result.data );
+    });
   }
+
+  private updateGrid(data: any) {
+    if(this.gridComponent===undefined || this.gridComponent===null) { return; }
+
+    // 헤더정보 생성
+    const headers: header[] = data.columnDescriptions.map((column: any) => {
+      return new SlickGridHeader()
+        .Id(column.name)
+        .Name('<span style="padding-left:20px;"><em class="' + column.type + '"></em>' + column.name + '</span>')
+        .Field(column.name)
+        .Behavior('select')
+        .Selectable(false)
+        .CssClass('cell-selection')
+        .Resizable(true)
+        .Unselectable(true)
+        .Sortable(false)
+        .Formatter((function (scope) {
+          return function (row, cell, value) {
+            return value;
+          };
+        })(this))
+        .build();
+    });
+
+    let rows: any[] = data.rows.map((values: any, index: number) => {
+      let row : any = {};
+      values.values.map((val:any,idx:number) => {
+        row[data.columnNames[idx]] = val;
+      });
+      row.id = index;
+      return row;
+    });
+
+    this.gridComponent.create(headers, rows, new GridOption()
+      .SyncColumnCellResize(true)
+      .NullCellStyleActivate(true)
+      .EnableColumnReorder(false)
+      .build()
+    );
+  }
+
 
   public closeInfo() {
     this.closeColumnView.emit();
