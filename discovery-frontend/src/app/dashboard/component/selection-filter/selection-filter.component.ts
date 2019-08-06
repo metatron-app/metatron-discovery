@@ -128,8 +128,18 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
         });
       }
     } else if (select.mode === ChartSelectMode.CLEAR) {
-      // 초기화
-      this.init();
+      // 클릭된 차트의 param의 selectFilterList가 있으면
+      if (select.params.selectFilterListList.length > 0) {
+        // 해당 된 분류만 this.selectionFilterList만 삭제한다
+        select.params.selectFilterListList.forEach(filterList => {
+          this.selectionFilterList = this.selectionFilterList.filter((item) => {
+            return item.field !== filterList.name;
+          });
+        });
+      } else {
+        // 초기화
+        this.init();
+      }
     }
 
     this._broadcastSelection({ filters: this._getApiFilters(), chartSelectInfo: select });
