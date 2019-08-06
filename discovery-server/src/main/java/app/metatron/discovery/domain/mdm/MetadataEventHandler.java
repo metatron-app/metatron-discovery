@@ -182,6 +182,11 @@ public class MetadataEventHandler {
             metadata.addColumn(metadataColumn);
           }
         }
+
+        Map<String, Object> detailInfo = jdbcConnectionService.showTableDescription(jdbcDataConnection, schema, tableName);
+        if(detailInfo != null){
+          metadataSource.setSourceInfo(GlobalObjectMapper.writeValueAsString(detailInfo));
+        }
       }
     } else if (metadataSource.getType() == Metadata.SourceType.STAGEDB) {
 
