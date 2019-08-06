@@ -82,7 +82,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   private selectedFilterCount: number = 0;
-
+  private init: boolean = true;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -787,8 +787,9 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     ////////////////////////////////////////////////////////
 
     // 차트의 기본옵션을 생성한다.
-    this.chartOption = this.initOption();
-
+    if (this.init) {
+      this.chartOption = this.initOption();
+    }
     // 차트 기본설정 정보를 변환
     this.chartOption = this.convertBasic();
 
@@ -817,10 +818,13 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
     ////////////////////////////////////////////////////////
     // series
-    ////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////\
 
     // 차트 시리즈 정보를 변환
-    this.chartOption = this.convertSeries();
+    if (this.init) {
+      this.chartOption = this.convertSeries();
+      this.init = false;
+    }
 
     ////////////////////////////////////////////////////////
     // tooltip
@@ -2452,6 +2456,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         selectMode = ChartSelectMode.CLEAR;
         this.chartOption = this.selectionClear(this.chartOption);
         this.selectedFilterCount = 0;
+        this.init = true;
         this.draw();
 
         // return;
@@ -2533,6 +2538,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
         // 브러쉬 영역 삭제
         this.chartOption = this.selectionClear(this.chartOption);
+        this.init = true;
         this.draw();
         this.chart.clearBrush();
 
