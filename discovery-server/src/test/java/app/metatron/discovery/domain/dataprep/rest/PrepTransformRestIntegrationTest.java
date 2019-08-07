@@ -53,28 +53,28 @@ public class PrepTransformRestIntegrationTest extends AbstractRestIntegrationTes
     RestAssured.port = serverPort;
   }
 
-  private final String KEY_RULE_CUR_IDX          = "ruleCurIdx";
-  private final String KEY_TRANSFORM_RULES = "transformRules";
-  private final String KEY_RULE_CUR_STRING_INFOS = "ruleStringInfos";
-  private final String KEY_RULE_STRING           = "ruleString";
-  private final String KEY_VALID                 = "valid";
-  private final String KEY_OP                    = "op";
-  private final String KEY_EXCEPTION_CLASS_NAME  = "exceptionClassName";
-  private final String KEY_ERROR_MSG             = "errorMsg";
-  private final String KEY_FILENAME_BEFORE_UPLOAD    = "filenameBeforeUpload";
-  private final String KEY_STOURED_URI           = "storedUri";
+  private final String KEY_RULE_CUR_IDX           = "ruleCurIdx";
+  private final String KEY_TRANSFORM_RULES        = "transformRules";
+  private final String KEY_RULE_CUR_STRING_INFOS  = "ruleStringInfos";
+  private final String KEY_RULE_STRING            = "ruleString";
+  private final String KEY_VALID                  = "valid";
+  private final String KEY_OP                     = "op";
+  private final String KEY_EXCEPTION_CLASS_NAME   = "exceptionClassName";
+  private final String KEY_ERROR_MSG              = "errorMsg";
+  private final String KEY_FILENAME_BEFORE_UPLOAD = "filenameBeforeUpload";
+  private final String KEY_STOURED_URI            = "storedUri";
   /*
-  private final String KEY_FILEKEY               = "filekey";
-  private final String KEY_FILENAME              = "filename";
+  private final String KEY_FILEKEY                = "filekey";
+  private final String KEY_FILENAME               = "filename";
   */
-  private final String KEY_DS_ID                 = "dsId";
-  private final String KEY__LINKS_SELF_HREF      = "_links.self.href";
-  private final String KEY_DF_ID                 = "dfId";
-  private final String KEY_WRANGLED_DS_ID        = "wrangledDsId";
-  private final String KEY_SHEETS                = "sheets";
-  private final String KEY_SS_ID                 = "ssId";
-  private final String KEY_DS_NAME               = "dsName";
-  private final String KEY_TARGET_LINES          = "targetLines";
+  private final String KEY_DS_ID                  = "dsId";
+  private final String KEY__LINKS_SELF_HREF       = "_links.self.href";
+  private final String KEY_DF_ID                  = "dfId";
+  private final String KEY_WRANGLED_DS_ID         = "wrangledDsId";
+  private final String KEY_SHEETS                 = "sheets";
+  private final String KEY_SS_ID                  = "ssId";
+  private final String KEY_DS_NAME                = "dsName";
+  private final String KEY_TARGET_LINES           = "targetLines";
 
   @Test
   @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})

@@ -16,6 +16,7 @@
 import { AbstractComponent } from '../../../../../../common/component/abstract.component';
 import { Component, ElementRef, HostListener, Injector, ViewChild } from '@angular/core';
 import { DatasourceService } from '../../../../../../datasource/service/datasource.service';
+import {DataStorageConstant} from "../../../../../constant/data-storage-constant";
 
 @Component({
   selector: 'ingestion-log-details',
@@ -39,9 +40,12 @@ export class IngestionLogComponent extends AbstractComponent {
   // historyId
   public historyId: string;
   // ingestionProgress
-  public ingestionProgress: string;
+  public ingestionProgress: DataStorageConstant.Datasource.IngestionStep;
   // failResults object
   public failResultsObject: any;
+
+  // enum
+  readonly INGESTION_STEP = DataStorageConstant.Datasource.IngestionStep;
 
 
   // 생성자
@@ -77,7 +81,7 @@ export class IngestionLogComponent extends AbstractComponent {
     // is get all log
     this._isGetAllLog = false;
     // get ingestion result details
-    if (historyId && this.ingestionProgress === 'ENGINE_RUNNING_TASK') {
+    if (historyId && this.ingestionProgress === DataStorageConstant.Datasource.IngestionStep.ENGINE_RUNNING_TASK) {
       this._getIngestionDetails(this._datasourceId, this.historyId);
     }
   }
@@ -129,9 +133,9 @@ export class IngestionLogComponent extends AbstractComponent {
   private _initView(): void {
     // init
     this.detailDatas = [];
-    this.historyId = null;
-    this.ingestionProgress = null;
-    this.failResultsObject = null;
+    this.historyId = undefined;
+    this.ingestionProgress = undefined;
+    this.failResultsObject = undefined;
   }
 
 

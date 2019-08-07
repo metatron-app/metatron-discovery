@@ -608,7 +608,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void getDataFromDataSources() {
 
-    String datasourceId = "ds-37";
+    String datasourceId = "ds-gis-37";
 
     //    SearchQueryRequest request = new SearchQueryRequest();
     //    request.setFilters(Lists.newArrayList(new InclusionFilter("Category", Lists.newArrayList("Office Supplies"))));
@@ -619,6 +619,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
       .auth().oauth2(oauth_token)
       .contentType(ContentType.JSON)
       .queryParam("limit", 5)
+      .queryParam("intervals", "2011-01-01/2012-01-01")
       //.body(request)
       .log().all()
     .when()
@@ -3514,7 +3515,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
     //
     List<String> wktList = Lists.newArrayList(
-            "MULTIPOINT((3.5 5.6),(4.8 10.5))"
+        "MULTIPOINT((3.5 5.6),(4.8 10.5))"
     );
 
     // @formatter:off

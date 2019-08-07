@@ -506,19 +506,19 @@ public class PrepTransformService {
     }
   }
 
-  private DataFrame load_internal(String dsId) throws IOException, CannotSerializeIntoJsonException {
-    return load_internal(dsId, false);
+  public DataFrame loadWrangledDataset(String dsId) throws IOException, CannotSerializeIntoJsonException {
+    return loadWrangledDataset(dsId, false);
   }
 
-  private DataFrame load_internal(String dsId, boolean compaction) throws IOException, CannotSerializeIntoJsonException {
+  private DataFrame loadWrangledDataset(String dsId, boolean compaction) throws IOException, CannotSerializeIntoJsonException {
     if (teddyImpl.revisionSetCache.containsKey(dsId)) {
       if (compaction && !onlyAppend(dsId)) {
-        LOGGER.trace("load_internal(): dataset will be uncached and reloaded: dsId={}", dsId);
+        LOGGER.trace("loadWrangledDataset(): dataset will be uncached and reloaded: dsId={}", dsId);
       } else {
         return teddyImpl.getCurDf(dsId);
       }
     }
-    LOGGER.trace("load_internal(): start: dsId={}", dsId);
+    LOGGER.trace("loadWrangledDataset(): start: dsId={}", dsId);
 
     DataFrame gridResponse;
 
@@ -554,7 +554,7 @@ public class PrepTransformService {
       List<String> upstreamDsIds = transformRuleService.getUpstreamDsIds(ruleString);
 
       for (String upstreamDsId : upstreamDsIds) {
-        load_internal(upstreamDsId);
+        loadWrangledDataset(upstreamDsId);
         totalTargetDsIds.add(upstreamDsId);
 
         PrDataset targetDataset = datasetRepository.findRealOne(datasetRepository.findOne(upstreamDsId));
@@ -564,7 +564,7 @@ public class PrepTransformService {
 
     // 적용할 rule string이 없으면 그냥 리턴.
     if (ruleStrings.size() == 0) {
-      LOGGER.trace("load_internal(): end (no rules to apply)");
+      LOGGER.trace("loadWrangledDataset(): end (no rules to apply)");
       return teddyImpl.getCurDf(dsId);
     }
 
@@ -576,7 +576,7 @@ public class PrepTransformService {
     updateTransformRules(dsId);
     adjustStageIdx(dsId, ruleStrings.size() - 1, true);
 
-    LOGGER.trace("load_internal(): end (applied rules)");
+    LOGGER.trace("loadWrangledDataset(): end (applied rules)");
     return gridResponse;
   }
 
@@ -661,7 +661,7 @@ public class PrepTransformService {
     assert dataset != null : dsId;
 
     // dataset이 loading되지 않았으면 loading
-    load_internal(dsId);      // TODO: do compaction (only when UI requested explicitly)
+    loadWrangledDataset(dsId);      // TODO: do compaction (only when UI requested explicitly)
 
     PrepTransformResponse response = null;
     int origStageIdx = teddyImpl.getCurStageIdx(dsId);
@@ -669,7 +669,7 @@ public class PrepTransformService {
     // join이나 union의 경우, 대상 dataset들도 loading
     if (ruleString != null) {
       for (String upstreamDsId : transformRuleService.getUpstreamDsIds(ruleString)) {
-        load_internal(upstreamDsId);
+        loadWrangledDataset(upstreamDsId);
       }
     }
 
@@ -771,7 +771,7 @@ public class PrepTransformService {
     LOGGER.trace("transform_histogram(): start: dsId={} curRevIdx={} stageIdx={} colnos={} colWidths={}",
                  dsId, teddyImpl.getCurRevIdx(dsId), stageIdx, colnos, colWidths);
 
-    load_internal(dsId);
+    loadWrangledDataset(dsId);
 
     assert stageIdx != null;
     assert stageIdx >= 0 : stageIdx;
@@ -848,7 +848,7 @@ public class PrepTransformService {
 
   // transform_timestampFormat
   public Map<String, Object> transform_timestampFormat(String dsId, List<String> colNames) throws  Exception{
-    load_internal(dsId);
+    loadWrangledDataset(dsId);
 
     DataFrame df = teddyImpl.getCurDf(dsId);
     Map<String, Object> response = new HashMap<>();
@@ -1034,7 +1034,7 @@ public class PrepTransformService {
       throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_INVALID_SNAPSHOT_NAME);
     }
 
-    load_internal(wrangledDsId);
+    loadWrangledDataset(wrangledDsId);
 
     if (requestPost.getSsType() == PrSnapshot.SS_TYPE.STAGING_DB) {
       checkHiveNamingRule(wrangledDsId);
@@ -1167,7 +1167,7 @@ public class PrepTransformService {
     PrepTransformResponse response;
 
     try {
-      load_internal(dsId);
+      loadWrangledDataset(dsId);
 
       response = fetch_internal(dsId, stageIdx);
     } catch (CannotSerializeIntoJsonException e) {

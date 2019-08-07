@@ -39,16 +39,39 @@ INSERT INTO mdm_catalog_tree(catalog_ancestor, catalog_descendant, catalog_depth
 ('catalog1_1', 'catalog1_1_1', 1),
 ('catalog1', 'catalog1_1_1', 2);
 
+INSERT INTO datasource(id, ds_name, ds_engine_name, ds_owner_id, ds_desc, ds_type, ds_src_type,ds_conn_type, ds_granularity, ds_status, ds_published, version, created_time, created_by, modified_time, modified_by) values
+('ds_mdm_01_id', 'ds_mdm_01', 'ds_mdm_01', 'polaris', 'Dummy datasource #1', 'MASTER', 'IMPORT', 'ENGINE', 'DAY', 'ENABLED', true, 1.0, NOW(), 'polaris',  NOW(), 'polaris'),
+('ds_mdm_02_id', 'ds_mdm_02', 'ds_mdm_02', 'polaris', 'Dummy datasource #2', 'MASTER', 'IMPORT', 'ENGINE', 'DAY', 'ENABLED', true, 1.0, NOW(), 'polaris',  NOW(), 'polaris'),
+('ds_mdm_03_id', 'ds_mdm_03', 'ds_mdm_03', 'polaris', 'Dummy datasource #3', 'MASTER', 'IMPORT', 'ENGINE', 'DAY', 'ENABLED', true, 1.0, NOW(), 'polaris',  NOW(), 'polaris'),
+('ds_mdm_04_id', 'ds_mdm_04', 'ds_mdm_04', 'polaris', 'Dummy datasource #4', 'MASTER', 'IMPORT', 'ENGINE', 'DAY', 'ENABLED', true, 1.0, NOW(), 'polaris',  NOW(), 'polaris'),
+('ds_mdm_05_id', 'ds_mdm_05', 'ds_mdm_05', 'polaris', 'Dummy datasource #5', 'MASTER', 'IMPORT', 'ENGINE', 'DAY', 'ENABLED', true, 1.0, NOW(), 'polaris',  NOW(), 'polaris'),
+('ds_mdm_06_id', 'ds_mdm_06', 'ds_mdm_06', 'polaris', 'Dummy datasource #6', 'MASTER', 'IMPORT', 'ENGINE', 'DAY', 'ENABLED', true, 1.0, NOW(), 'polaris',  NOW(), 'polaris'),
+('ds_mdm_07_id', 'ds_mdm_07', 'ds_mdm_07', 'polaris', 'Dummy datasource #7', 'MASTER', 'IMPORT', 'ENGINE', 'DAY', 'ENABLED', true, 1.0, NOW(), 'polaris',  NOW(), 'polaris'),
+('ds_mdm_08_id', 'ds_mdm_08', 'ds_mdm_08', 'polaris', 'Dummy datasource #8', 'MASTER', 'IMPORT', 'ENGINE', 'DAY', 'ENABLED', true, 1.0, NOW(), 'polaris',  NOW(), 'polaris'),
+('ds_mdm_09_id', 'ds_mdm_09', 'ds_mdm_09', 'polaris', 'Dummy datasource #9', 'MASTER', 'IMPORT', 'ENGINE', 'DAY', 'ENABLED', true, 1.0, NOW(), 'polaris',  NOW(), 'polaris');
+
 INSERT INTO mdm_metadata_source(id, meta_source_type, meta_source_name, meta_source_id, meta_source_schema, meta_source_table, created_by, created_time, modified_by, modified_time, version) values
 ('test_engine_source_01', 'ENGINE', 'engine_datasource_01', 'source_id_1', null, null, 'admin', NOW(),'admin', NOW(), 1.0),
 ('test_engine_source_02', 'ENGINE', 'engine_datasource_02', 'source_id_2', null, null,'admin', NOW(),'admin', NOW(), 1.0),
-('test_engine_source_03', 'JDBC', 'engine_datasource_02', 'source_id_3', 'test_schema1', 'test_table1', 'admin', NOW(),'admin', NOW(), 1.0);
+('test_engine_source_03', 'JDBC', 'engine_datasource_02', 'source_id_3', 'test_schema1', 'test_table1', 'admin', NOW(),'admin', NOW(), 1.0),
+('test_engine_source_04', 'JDBC', 'engine_datasource_04', 'source_id_4', 'test_schema1', 'test_table1', 'admin', NOW(),'admin', NOW(), 1.0),
+('test_engine_source_05', 'JDBC', 'engine_datasource_05', 'source_id_5', 'test_schema1', 'test_table1', 'admin', NOW(),'admin', NOW(), 1.0),
+('test_engine_source_06', 'JDBC', 'engine_datasource_06', 'source_id_6', 'test_schema1', 'test_table1', 'admin', NOW(),'admin', NOW(), 1.0),
+('test_engine_source_07', 'JDBC', 'engine_datasource_07', 'source_id_7', 'test_schema1', 'test_table1', 'admin', NOW(),'admin', NOW(), 1.0),
+('test_engine_source_08', 'JDBC', 'engine_datasource_08', 'source_id_8', 'test_schema1', 'test_table1', 'admin', NOW(),'admin', NOW(), 1.0),
+('test_engine_source_09', 'JDBC', 'engine_datasource_09', 'source_id_9', 'test_schema1', 'test_table1', 'admin', NOW(),'admin', NOW(), 1.0);
 
 
 INSERT INTO mdm_metadata(id, meta_name, meta_desc, meta_source_type, source_id, created_by, created_time, modified_by, modified_time, version) values
 ('test_meta1', 'Test metadata 1', 'meta description1', 'ENGINE', 'test_engine_source_01', 'admin', NOW(),'admin', NOW(), 1.0),
 ('test_meta2', 'Test metadata 2', 'meta description2', 'ENGINE', 'test_engine_source_02', 'admin', NOW(),'admin', NOW(), 1.0),
-('test_meta3', 'Test metadata 3', 'meta description3', 'ENGINE', 'test_engine_source_03', 'admin', NOW(),'admin', NOW(), 1.0);
+('test_meta3', 'Test metadata 3', 'meta description3', 'ENGINE', 'test_engine_source_03', 'admin', NOW(),'admin', NOW(), 1.0),
+('test_meta4', 'Test metadata 4', 'meta description4', 'ENGINE', 'test_engine_source_04', 'admin', NOW(),'admin', NOW(), 1.0),
+('test_meta5', 'Test metadata 5', 'meta description5', 'ENGINE', 'test_engine_source_05', 'admin', NOW(),'admin', NOW(), 1.0),
+('test_meta6', 'Test metadata 6', 'meta description6', 'ENGINE', 'test_engine_source_06', 'admin', NOW(),'admin', NOW(), 1.0),
+('test_meta7', 'Test metadata 7', 'meta description7', 'ENGINE', 'test_engine_source_07', 'admin', NOW(),'admin', NOW(), 1.0),
+('test_meta8', 'Test metadata 8', 'meta description8', 'ENGINE', 'test_engine_source_08', 'admin', NOW(),'admin', NOW(), 1.0),
+('test_meta9', 'Test metadata 9', 'meta description9', 'ENGINE', 'test_engine_source_09', 'admin', NOW(),'admin', NOW(), 1.0);
 
 INSERT INTO mdm_metadata_column(id, meta_id, column_physical_type, column_physical_name, dictionary_id, column_type, column_name, column_format, table_id, column_seq) values
 (100011, 'test_meta1', 'STRING', 'pcolumn01', 'test_dictionary1', null, null, null, null, 1),

@@ -34,7 +34,9 @@ import static com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY;
  * Created by kyungtaak on 2016. 1. 5..
  */
 @Entity
-@Table(name = "user_group_member")
+@Table(name = "user_group_member", indexes = {
+    @Index(name = "i_user_member_id", columnList = "member_id")
+})
 public class GroupMember implements MetatronDomain<Long> {
 
   @Id

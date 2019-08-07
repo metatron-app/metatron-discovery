@@ -91,21 +91,21 @@ public class MeasureField extends Field {
     super.alias = alias;
     super.ref = ref;
 
-    if(StringUtils.isNotEmpty(aggregationType)) {
+    if (StringUtils.isNotEmpty(aggregationType)) {
       this.aggregationType = EnumUtils.getUpperCaseEnum(AggregationType.class, aggregationType, SUM);
     }
 
     this.format = format;
 
     Map<String, String> parsedMap = Maps.newHashMap();
-    if(StringUtils.isNotEmpty(options)) {
+    if (StringUtils.isNotEmpty(options)) {
       this.options = options;
       parsedMap = PolarisUtils.splitToMap(options, ",", "=");
     }
 
     switch (this.aggregationType) {
       case PERCENTILE:
-        if(parsedMap.containsKey("value")) {
+        if (parsedMap.containsKey("value")) {
           setParamValue("value", Double.parseDouble(parsedMap.get("value")));
         } else {
           setParamValue("value", 0.75); // 기본값 처리
@@ -149,7 +149,7 @@ public class MeasureField extends Field {
 
   @JsonIgnore
   public void setParamValue(String key, Object value) {
-    if(param == null) {
+    if (param == null) {
       param = Maps.newHashMap();
     }
 
@@ -158,7 +158,7 @@ public class MeasureField extends Field {
 
   @JsonIgnore
   public <T> T getParamValue(String key) {
-    if(param == null || key == null) {
+    if (param == null || key == null) {
       return null;
     }
 
@@ -169,7 +169,7 @@ public class MeasureField extends Field {
   public String getAlias() {
 
     if (StringUtils.isEmpty(alias)) {
-      if(aggregationType == null || aggregationType == NONE) {
+      if (aggregationType == null || aggregationType == NONE) {
         alias = getColunm();
       } else {
         alias = aggregationType.name() + "(" + getColunm() + ")";
@@ -181,12 +181,11 @@ public class MeasureField extends Field {
 
   /**
    * for following ui naming rule case of user-defined field
-   * @return
    */
   public String getUserDefinedAlias() {
 
     if (StringUtils.isEmpty(alias)) {
-      if(aggregationType == null || aggregationType == NONE) {
+      if (aggregationType == null || aggregationType == NONE) {
         alias = name;
       } else {
         alias = aggregationType.name() + "(" + name + ")";
@@ -226,7 +225,7 @@ public class MeasureField extends Field {
    * 집합함수 Enum Type
    */
   public enum AggregationType {
-    NONE, MIN, MAX, COUNT, COUNTD, SUM, AVG, STDDEV, MEDIAN, AREA, RANGE, PERCENTILE, // 사용자 노출 타입
+    NONE, MIN, MAX, COUNT, COUNTD, SUM, AVG, STDDEV, MEDIAN, AREA, RANGE, PERCENTILE, FIRST, LAST, // 사용자 노출 타입
     SLOPE,
     VARIATION, APPROX,  // Ingestion 타입
     COMPLEX             // 계산식내 집계함수 포함 경우

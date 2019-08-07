@@ -33,5 +33,9 @@ public interface MetadataRepositoryExtends {
 
   List<Metadata> findBySource(List<String> sourceIds);
 
+  List<Metadata> findByName(String name);
+
+  List<Metadata> findById(String id);
+
   List<MetadataStatsDto> countBySourceType();
 }

@@ -91,6 +91,8 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
   public isSelectDataflowOpen: boolean = false;
 
+  public isForLineage: boolean = false;
+
   // dataflow id str
   public dfStr : string;
 
@@ -344,6 +346,40 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
     this.changeDetect.detectChanges();
     this.dsDesc.nativeElement.focus();
+  }
+
+  public makeLineage() {
+    var params = {
+      'dsId': this.dataset.dsId,
+      'dsName': this.dataset.dsName
+    };
+
+    this.loadingShow();
+    this.datasetService.makeLineage(params)
+      .then(result => {
+        this.loadingHide();
+        Alert.success(this.translateService.instant('msg.dp.alert.create-lineage.success',{value:result.length}));
+      })
+      .catch((error) => {
+        this.loadingHide();
+        let prep_error = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      });
+  }
+
+  public canUseForLineage() {
+    if (this.dataset.dsType!==DsType.WRANGLED || !this.dataset.gridResponse.colNames ) {
+      return false;
+    }
+
+    var requiredColumns = [
+      "description",
+      "upstream_meta_name", "upstream_meta_col_name",
+      "downstream_meta_name", "downstream_meta_col_name"
+    ];
+    var passed = requiredColumns.every( col => this.dataset.gridResponse.colNames.includes(col) );
+
+    return passed;
   }
 
   /** get total bytes */
@@ -672,6 +708,8 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
         if (this.dataset.dsType === DsType.WRANGLED) {
           this._setRuleList(this.dataset.transformRules);
         }
+
+        this.isForLineage = this.canUseForLineage();
 
         this.loadingHide();
 

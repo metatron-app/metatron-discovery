@@ -12,17 +12,25 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, HostListener, Injector, Output, ViewChild } from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { GridComponent } from '../../common/component/grid/grid.component';
-import { GRID_EDIT_TYPE, header, SlickGridHeader } from '../../common/component/grid/grid.header';
-import { GridOption } from '../../common/component/grid/grid.option';
-import { Field, FieldValueAlias } from '../../domain/datasource/datasource';
-import { DatasourceAliasService } from '../../datasource/service/datasource-alias.service';
-import { DatasourceService } from '../../datasource/service/datasource.service';
-import { BoardDataSource } from '../../domain/dashboard/dashboard';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  Output,
+  ViewChild
+} from '@angular/core';
+import {AbstractComponent} from '../../common/component/abstract.component';
+import {GridComponent} from '../../common/component/grid/grid.component';
+import {GRID_EDIT_TYPE, header, SlickGridHeader} from '../../common/component/grid/grid.header';
+import {GridOption} from '../../common/component/grid/grid.option';
+import {Field, FieldValueAlias} from '../../domain/datasource/datasource';
+import {DatasourceAliasService} from '../../datasource/service/datasource-alias.service';
+import {DatasourceService} from '../../datasource/service/datasource.service';
+import {BoardDataSource} from '../../domain/dashboard/dashboard';
 import * as _ from 'lodash';
-import { DashboardUtil } from '../../dashboard/util/dashboard.util';
+import {DashboardUtil} from '../../dashboard/util/dashboard.util';
 
 @Component({
   selector: 'popup-value-alias',
@@ -145,6 +153,10 @@ export class PopupValueAliasComponent extends AbstractComponent {
    * done 버튼 클릭시
    */
   public done() {
+    if (this.gridComponent) {
+      $(this.gridComponent.grid.getActiveCellNode()).removeClass('ddp-selected');
+      this.gridComponent.grid.getEditorLock().commitCurrentEdit();
+    }
 
     // 그리드 데이터를 valueAlias 로 변환
     this._gridData.forEach(item => {
@@ -168,6 +180,10 @@ export class PopupValueAliasComponent extends AbstractComponent {
       });
     }
   } // function - done
+
+  public resetAll() {
+    this._setGrid(this._fieldValueAlias);
+  }
 
   @HostListener('click', ['$event.target'])
   public clickOther(target) {

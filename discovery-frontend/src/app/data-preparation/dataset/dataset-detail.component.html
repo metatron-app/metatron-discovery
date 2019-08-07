@@ -25,8 +25,9 @@
         <a href="javascript:" class="ddp-btn-info" (click)="showOption($event);" [class.ddp-selected]="isDatasetOptionShow"><em class="ddp-icon-myinfo"></em></a>
         <div class="ddp-data-box" *ngIf="isDatasetOptionShow" (clickOutside)="hideOption();">
 
-          <a href="javascript:" class="ddp-list-link" (click)="confirmDelete($event,dataset)"><em class="ddp-icon-delete"></em>{{'msg.dp.ui.ds.del' | translate}}</a>
           <a href="javascript:" class="ddp-list-link" *ngIf="'WRANGLED' === dataset.dsType.toString()" (click)="createSnapshot()"><em class="ddp-icon-create"></em>{{'msg.dp.ui.create.ss' | translate }}</a>
+          <a href="javascript:" class="ddp-list-link" (click)="makeLineage()" *ngIf="isForLineage"><em class="ddp-icon-create"></em>{{'msg.dp.ui.create.lineage.data' | translate}}</a>
+          <a href="javascript:" class="ddp-list-link" (click)="confirmDelete($event,dataset)"><em class="ddp-icon-delete"></em>{{'msg.dp.ui.ds.del' | translate}}</a>
           <span class="ddp-data-by">
           {{'msg.common.ui.created' | translate: { createdTime : dataset.createdTime | mdate:'YYYY-MM-DD HH:mm', fullName :dataset.createdBy.fullName } }}
         </span>

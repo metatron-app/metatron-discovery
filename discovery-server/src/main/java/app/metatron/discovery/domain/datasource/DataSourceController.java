@@ -108,6 +108,7 @@ import app.metatron.discovery.domain.workbench.WorkbenchProperties;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
 import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
+import app.metatron.discovery.domain.workbook.configurations.filter.IntervalFilter;
 import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.CommonsCsvProcessor;
 import app.metatron.discovery.util.ExcelProcessor;
@@ -433,6 +434,7 @@ public class DataSourceController {
   public @ResponseBody
   ResponseEntity<?> getDataFromDatasource(@PathVariable("id") String id,
                                           @RequestParam(value = "limit", required = false) Integer limit,
+                                          @RequestParam(value = "intervals", required = false) List<String> intervals,
                                           @RequestBody(required = false) SearchQueryRequest request) {
 
     DataSource dataSource = dataSourceRepository.findOne(id);
@@ -466,6 +468,13 @@ public class DataSourceController {
         limit = 1000000;
       }
       request.setLimits(new Limit(limit));
+    }
+
+    if (CollectionUtils.isNotEmpty(intervals)) {
+      List<Field> timestampFields = dataSource.getFieldByRole(Field.FieldRole.TIMESTAMP);
+
+      IntervalFilter intervalFilter = new IntervalFilter(timestampFields.get(0).getName(), intervals);
+      request.addFilters(intervalFilter);
     }
 
     return ResponseEntity.ok(engineQueryService.search(request));
@@ -1129,20 +1138,20 @@ public class DataSourceController {
       throw new ResourceNotFoundException(id);
     }
 
-    if(reingestionRequest.getIngestionInfo() instanceof  LocalFileIngestionInfo) {
+    if (reingestionRequest.getIngestionInfo() instanceof LocalFileIngestionInfo) {
       IngestionInfo ingestionInfo = reingestionRequest.getIngestionInfo();
       LocalFileIngestionInfo localFileIngestionInfo = (LocalFileIngestionInfo) dataSource.getIngestionInfo();
       localFileIngestionInfo.setPath(((LocalFileIngestionInfo) ingestionInfo).getPath());
       localFileIngestionInfo.setUploadFileName(((LocalFileIngestionInfo) ingestionInfo).getUploadFileName());
       localFileIngestionInfo.setRemoveFirstRow(((LocalFileIngestionInfo) ingestionInfo).getRemoveFirstRow());
       localFileIngestionInfo.setFormat(ingestionInfo.getFormat());
-      if(ingestionInfo.getIntervals() != null){
+      if (ingestionInfo.getIntervals() != null) {
         localFileIngestionInfo.setIntervals(ingestionInfo.getIntervals());
       }
       dataSource.setIngestionInfo(localFileIngestionInfo);
     }
 
-    if(!reingestionRequest.getPatches().isEmpty()) {
+    if (!reingestionRequest.getPatches().isEmpty()) {
       for (CollectionPatch patch : reingestionRequest.getPatches()) {
         dataSource.getFields().add(new Field(patch));
         LOGGER.debug("Add field in datasource({})", dataSource.getId());

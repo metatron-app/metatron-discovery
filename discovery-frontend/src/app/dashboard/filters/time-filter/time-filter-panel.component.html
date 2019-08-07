@@ -105,15 +105,15 @@
 <!-- // 상단 영역 -->
 
 <!-- 내용 영역 -->
-<div *ngIf="isShowFilter" class="ddp-contents-divide">
+<div *ngIf="isShowFilter" class="ddp-contents-divide" style="margin-top:20px;">
   <!-- 연속 형식 - None Granularity -->
   <div *ngIf="!isDiscontinuousFilter && isContinuousByAll" class="ddp-ui-divide">
     <!-- 탭 영역 -->
     <div class="ddp-toggle">
       <ul class="ddp-list-buttons ddp-tab3" >
-        <li (click)="setTimeAllFilter()" [class.ddp-selected]="isAllType">All time</li>
-        <li (click)="setTimeRelativeFilter()" [class.ddp-selected]="isRelativeType">Relative</li>
-        <li (click)="setTimeRangeFilter()" [class.ddp-selected]="isRangeType">Specific</li>
+        <li (click)="setTimeAllFilter()" [class.ddp-selected]="isAllType" style="font-size: 11px;">All time</li>
+        <li (click)="setTimeRelativeFilter()" [class.ddp-selected]="isRelativeType" style="font-size: 11px;">Relative</li>
+        <li (click)="setTimeRangeFilter()" [class.ddp-selected]="isRangeType" style="font-size: 11px;">Specific</li>
       </ul>
     </div>
     <!-- // 탭 영역 -->

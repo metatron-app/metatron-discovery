@@ -548,10 +548,11 @@ export class LabelChartComponent extends BaseChart implements OnInit, OnDestroy,
 
       // KPI Info
       let kpi: KPI = new KPI();
-      let kpiValue: number = _.sum(this.data.columns[num].value);
+      //let kpiValue: number = _.sum(this.data.columns[num].value);
 
       // 텍스트 Value
       kpi.title = this.fieldInfo.aggs[num];
+      let kpiValue: number = _.sum(this.data.columns.find(item => item.name === kpi.title).value);
       kpi.isPositive = kpiValue >= 0;
       kpi.value = FormatOptionConverter.getFormatValue(kpiValue, format);
 

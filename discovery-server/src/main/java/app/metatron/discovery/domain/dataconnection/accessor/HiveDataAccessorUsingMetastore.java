@@ -60,8 +60,17 @@ public class HiveDataAccessorUsingMetastore extends HiveDataAccessor {
                                        Integer pageNumber) {
     HiveMetaStoreJdbcClient hiveMetaStoreJdbcClient = this.getHiveMetaStoreJdbcClient();
 
+    if(pageSize == null){
+      pageSize = 5000;
+    }
+
+    if(pageNumber == null){
+      pageNumber = 0;
+    }
+
     List<Map<String, Object>> tableNames
         = hiveMetaStoreJdbcClient.getTable(schemaPattern, tableNamePattern, null, pageSize, pageNumber);
+    Integer tableCount = hiveMetaStoreJdbcClient.getTableCount(schemaPattern, tableNamePattern, null);
 
     //exclude table
     List<String> excludeTables = getExcludeTables();
@@ -73,7 +82,7 @@ public class HiveDataAccessorUsingMetastore extends HiveDataAccessor {
 
     Map<String, Object> databaseMap = new LinkedHashMap<>();
     databaseMap.put("tables", tableNames);
-    databaseMap.put("page", createPageInfoMap(tableNames.size(), tableNames.size(), 0));
+    databaseMap.put("page", createPageInfoMap(pageSize, tableCount, pageNumber));
     return databaseMap;
   }
 

@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import { Book } from '../workspace/book';
-import { Datasource } from '../datasource/datasource';
+import {Book} from '../workspace/book';
+import {Datasource} from '../datasource/datasource';
 
 export class NoteBook extends Book {
   public refId: string;
@@ -30,6 +30,7 @@ export class NoteBook extends Book {
   public dsName: string;
   public hostname: string;
   public port: string;
+  public url: string;
   public datasource: Datasource;
 
   // datasource 생성시 경로 변수수

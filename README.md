@@ -1,5 +1,19 @@
 <img title="logo-metatron" src="https://user-images.githubusercontent.com/6300003/44013820-f7647c96-9f02-11e8-8066-1c97f8b1662c.png" alt="metatron-discovery-logo" width="400px">
 
+:exclamation: Notice
+------------------
+**Respecting the community's voice, we keep contacting GitHub team about the repository reset procedure and any concern or comment on this issue. But we have not received the GitHub team’s response yet. We will keep informed of GitHub’s feedback and we will follow GitHub’s guidelines.**
+
+**In order to minimize the impact of initialization, we have asked GitHub for the procedure. However, regardless of whether we receive a response, we will reset the repository by changing the repository from public -> private -> public on August 14 (Wednesday, Korean Time).**
+
+**In addition, we have found out that this method has some other outcomes which initialize the Watch release and Forks also. We will check more and re-announce it soon.**
+
+**We will continuously listen to and respect the community's voice and will put our best efforts to abide by the open-source ecosystem spirit.**
+
+**Once again we are deeply sorry and apologize for this issue.**
+
+------------------
+
 **Metatron Discovery** is an end-to-end big data self discovery solution.
 To learn more about it, visit our [web site](https://metatron.app). Check [our blog](https://metatron.app/index.php/blog/) for upcoming events and development news.
 
@@ -48,7 +62,7 @@ Screenshots
 ### Manage Datasources
 <kbd><img title="Datasource-detail" src="https://user-images.githubusercontent.com/6300003/44200028-95729380-a180-11e8-95fb-070d7ed0d260.png"></kbd><br />
 
-### Manage Engine Performance (Comming Soon)
+### Manage Engine Performance (Coming Soon)
 <kbd><img title="Metatron-engine-monitoring" src="https://user-images.githubusercontent.com/6300003/53152270-73a70d00-35f8-11e9-8412-096e6099adab.png"></kbd><br />
 
 ### Connect Database
@@ -107,7 +121,7 @@ This project welcomes contributions and suggestions. If you encounter any bugs o
 
 Question
 ----------------------------
-Need help using Metatron Discovery? Check our [FAQs](https://metatron.app/discussion) or ask away on our [discussion forum](https://groups.google.com/d/forum/metatron-discovery)! Our fellow community members will be glad to help you out! Or you can check out our [user manual on our website](https://metatron.app/documents/) as well.
+Need help using Metatron Discovery? Check our [FAQs](https://metatron.app/discussion) or ask away on our [discussion forum](https://groups.google.com/d/forum/metatron-discovery)! Our fellow community members will be glad to help you out! Or you can check out our [user manual on our website](https://metatron.app/documents) as well.
 
 License
 ----------------------------

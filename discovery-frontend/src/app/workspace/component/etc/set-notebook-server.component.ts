@@ -12,14 +12,23 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, Renderer2 } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { NotebookServerService } from '../../../model-management/notebook-server/service/notebook-server.service';
-import { Page, PageResult } from '../../../domain/common/page';
-import { NotebookConnector } from '../../../domain/notebook/notebookConnector';
-import { WorkspaceService } from '../../service/workspace.service';
-import { Alert } from '../../../common/util/alert.util';
-import { NotebookService } from '../../../notebook/service/notebook.service';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  OnDestroy,
+  OnInit,
+  Output,
+  Renderer2
+} from '@angular/core';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {NotebookServerService} from '../../../model-management/notebook-server/service/notebook-server.service';
+import {Page, PageResult} from '../../../domain/common/page';
+import {NotebookConnector} from '../../../domain/notebook/notebookConnector';
+import {WorkspaceService} from '../../service/workspace.service';
+import {Alert} from '../../../common/util/alert.util';
+import {NotebookService} from '../../../notebook/service/notebook.service';
 
 @Component({
   selector: 'app-set-notebook-server',
@@ -174,7 +183,7 @@ export class SetNotebookServerComponent extends AbstractComponent implements OnI
       .catch((error) => {
         // 로딩 hide
         this.loadingHide();
-        Alert.error(error.details);
+        Alert.error(error.message);
       });
   }
 
@@ -232,6 +241,14 @@ export class SetNotebookServerComponent extends AbstractComponent implements OnI
     this.getNotebookServers(this.selectedTab);
   }
 
+  public reset() {
+    if (this.selectedTab === 'jupyter') {
+      this.selectedJupyter = new NotebookConnector();
+    } else {
+      this.selectedZeppelin = new NotebookConnector();
+    }
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -259,8 +276,11 @@ export class SetNotebookServerComponent extends AbstractComponent implements OnI
     page.sort = this.selectedContentSort.key + ',' + this.selectedContentSort.sort;
     let pageResult = server === 'jupyter' ? this.jupyter.pageResult : this.zeppelin.pageResult;
     const searchText = server === 'jupyter' ? this.searchJupyter : this.searchZeppelin;
+    const options = {
+      sort : 'hostname,' + this.selectedContentSort.sort
+    };
 
-    this.notebookServerService.getNotebookServerTypeList(searchText, server, page, 'default')
+    this.notebookServerService.getNotebookServerTypeList(searchText, server, page, 'default', options)
       .then((servers) => {
 
         // 페이지 객체 저장
@@ -314,5 +334,5 @@ class Server {
 
 class Order {
   key: string = 'name';
-  sort: string = 'asc';
+  sort: string = 'default';
 }
