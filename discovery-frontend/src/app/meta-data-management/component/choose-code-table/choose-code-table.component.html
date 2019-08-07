@@ -104,7 +104,7 @@
                         <div class="ddp-data-title">
                           {{'msg.metadata.ui.codetable.choose.code.table.preview.title' | translate}}
                         </div>
-                        <div class="ddp-data-code">
+                        <div class="ddp-data-code" (click)="$event.stopImmediatePropagation();">
                           <table class="ddp-table-code ddp-inherit">
                             <colgroup>
                               <col width="90px">

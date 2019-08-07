@@ -279,6 +279,7 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
    * @param {CodeTable} codeTable
    */
   public onClickCodeTableDetails(codeTable: CodeTable): void {
+    event.stopImmediatePropagation();
     // 해당 코드 테이블 상세화면으로 이동
     if (confirm(this._translateService.instant('msg.storage.alert.detail.confirm'))) {
       this.router.navigate(['management/metadata/code-table', codeTable.id]);
