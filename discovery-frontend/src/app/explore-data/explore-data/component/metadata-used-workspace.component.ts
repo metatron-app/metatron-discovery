@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Output} from "@angular/core";
+import {Component, ElementRef, EventEmitter, Injector, Output} from "@angular/core";
 import {AbstractComponent} from "../../../common/component/abstract.component";
 
 @Component({
@@ -8,6 +8,11 @@ import {AbstractComponent} from "../../../common/component/abstract.component";
 export class MetadataUsedWorkspaceComponent extends AbstractComponent {
 
   workspaceList;
+
+  constructor(protected element: ElementRef,
+              protected injector: Injector) {
+    super(element, injector);
+  }
 
   @Output() readonly closedPopup = new EventEmitter();
 

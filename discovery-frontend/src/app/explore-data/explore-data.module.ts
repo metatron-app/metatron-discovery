@@ -49,6 +49,7 @@ import {DatasourceMetadataSharedModule} from "../shared/datasource-metadata/data
 import {ExploreCatalogLayerComponent} from "./explore-data/component/explore-catalog-layer.component";
 import {CreateWorkbookModule} from "../workbook/component/create-workbook/refactoring/create-workbook.module";
 import {ConfirmRefModalComponent} from "../common/component/modal/confirm/confirm-ref.component";
+import {MetadataUsedWorkspaceComponent} from "./explore-data/component/metadata-used-workspace.component";
 
 @NgModule({
   imports: [
@@ -80,6 +81,7 @@ import {ConfirmRefModalComponent} from "../common/component/modal/confirm/confir
     MetadataColumnsComponent,
     MetadataOverviewComponent,
     MetadataSampleDataComponent,
+    MetadataUsedWorkspaceComponent,
     RecentQueriesComponent,
     WorkspaceUsesComponent,
     ExploreDataMainComponent,
