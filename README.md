@@ -103,6 +103,23 @@ If the build succeeds, you can find an archive file under "discovery-distributio
 ### Start up the Metatron Discovery
 Untar the archive binary file of Metatron Discovery.
 <pre><code>$ tar zxf metatron-discovery-{VERSION}-{TIMESTAMP}-bin.tar.gz</code></pre>
+
+#### Configuration (optional)
+Metatron Discovery loads its configuration from the files under “/conf” directory by default. We already wrote some frequent configurations in the template files. For your own configuration of Metatron Discovery application, you should create a new configuration file with reference to the pre-distributed template file as belows. In the generated setting file, refer to [the configuration guide](https://github.com/metatron-app/metatron-discovery/blob/master/discovery-server/src/main/asciidoc/application-config-guide.adoc) and specify detailed setting information.
+
+<pre><code>$ cp ./conf/application-config.templete.yaml ./conf/application-config.yaml</code></pre>
+
+To configure the environment in which the server is running, you need to configure server memory or classpath settings by editing the “metatron-env.sh” file.
+
+<pre><code>$ cp ./conf/metatron-env.sh.templete ./conf/metatron-env.sh</code></pre>
+
+For example, if you want to use MySQL and increase the memory, you should set it as below. See the comments in the file “metatron-env.sh.templete” for more information.
+```
+export METATRON_JAVA_OPTS=-Xms4g -Xmx4g
+export METATRON_DB_TYPE=mysql
+```
+
+#### Run Metatron Discovery
 Initialize and run with the following command.
 <pre><code>$ bin/metatron.sh --init start</code></pre>
 > :warning: Cautions! `--init` option initialize whole data.  
