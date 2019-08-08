@@ -100,8 +100,8 @@
                       <a href="javascript:" (click)="onClickCodeTablePreview(table)">{{'msg.metadata.ui.codetable.choose.code.table.preview' | translate}}</a>
                       <!-- popup -->
                       <div class="ddp-box-layout4" style="">
-                        <a href="javascript:" class="ddp-btn-close" (click)="$event.stopImmediatePropagation(); table['previewShowFl'] = false"></a>
-                        <div class="ddp-data-title">
+                        <a href="javascript:" class="ddp-btn-close" (click)="onClickPreviewPopupClose(table)"></a>
+                        <div class="ddp-data-title" (click)="$event.stopImmediatePropagation();">
                           {{'msg.metadata.ui.codetable.choose.code.table.preview.title' | translate}}
                         </div>
                         <div class="ddp-data-code" (click)="$event.stopImmediatePropagation();">

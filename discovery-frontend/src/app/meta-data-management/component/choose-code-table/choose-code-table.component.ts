@@ -45,6 +45,9 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
   // 코드 테이블의 조직 상세정보
   private _codeTableDetailList: CodeTable[];
 
+  // Preview popup이 띄워져 있는지 체크하는 flag
+  private _isPreviewPopupShowed: boolean = false;
+
   // 코드 테이블 생성 컴포넌트
   @ViewChild(CreateCodeTableComponent)
   private _createCodeTableComp: CreateCodeTableComponent;
@@ -262,16 +265,23 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
    * @param {CodeTable} codeTable
    */
   public onClickCodeTablePreview(codeTable: CodeTable): void {
-    // 이벤트 버블링 stop
-    event.stopImmediatePropagation();
 
-    const index = _.findIndex(this._codeTableDetailList, (item) => {
-      return codeTable.id === item.id;
-    });
-    // 해당 코드 정보가 존재하지 않는다면 조회
-    index === -1 && this._getDetailCodeTable(codeTable.id);
-    // show flag
-    codeTable['previewShowFl'] = true;
+    if (!this._isPreviewPopupShowed) {
+      // preview popup이 띄워져 있다고 flag 바꿈
+      this._isPreviewPopupShowed = true;
+
+      // 이벤트 버블링 stop
+      event.stopImmediatePropagation();
+
+      const index = _.findIndex(this._codeTableDetailList, (item) => {
+        return codeTable.id === item.id;
+      });
+      // 해당 코드 정보가 존재하지 않는다면 조회
+      index === -1 && this._getDetailCodeTable(codeTable.id);
+      // show flag
+      codeTable['previewShowFl'] = true;
+    }
+
   }
 
   /**
@@ -284,6 +294,16 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
     if (confirm(this._translateService.instant('msg.storage.alert.detail.confirm'))) {
       this.router.navigate(['management/metadata/code-table', codeTable.id]);
     }
+  }
+  /**
+   * 코드 Preview Popup close 버튼 클릭 이벤트
+   * @param {CodeTable} codeTable
+   */
+
+  public onClickPreviewPopupClose(codeTable: CodeTable) {
+    event.stopImmediatePropagation();
+    codeTable['previewShowFl'] = false;
+    this._isPreviewPopupShowed = false;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
