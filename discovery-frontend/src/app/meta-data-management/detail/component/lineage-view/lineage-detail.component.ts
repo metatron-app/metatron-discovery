@@ -20,7 +20,7 @@ import {LineageViewService} from '../../service/lineage-view.service';
 import {MetadataService} from '../../../metadata/service/metadata.service';
 import {MetadataModelService} from '../../../metadata/service/metadata.model.service';
 import {Alert} from '../../../../common/util/alert.util';
-import {Metadata} from '../../../../domain/meta-data-management/metadata';
+import {Metadata, SourceType} from '../../../../domain/meta-data-management/metadata';
 import {GridComponent} from '../../../../common/component/grid/grid.component';
 import {GridOption} from '../../../../common/component/grid/grid.option';
 import {header, SlickGridHeader} from '../../../../common/component/grid/grid.header';
@@ -125,6 +125,22 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  get sourceType(): string {
+    if( this.selectedNodeMetadata ) {
+      switch (this.selectedNodeMetadata.sourceType) {
+        case SourceType.ENGINE:
+          return this.translateService.instant('msg.comm.th.ds');
+        case SourceType.JDBC:
+          return this.translateService.instant('msg.storage.li.db');
+        case SourceType.STAGEDB:
+          return this.translateService.instant('msg.storage.li.hive');
+        case SourceType.ETC:
+          return this.translateService.instant('msg.storage.li.etc');
+      }
+    }
+    return '';
+  }
+
   public getMetadata(metadataId: string) {
     this.metadataService.getDetailMetaData(metadataId).then((result) => {
       this.selectedNodeMetadata = result;
@@ -176,6 +192,15 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
     );
   }
 
+  public gotoLineage() {
+    if( this.selectedNode!==null ) {
+      let metadataId = this.selectedNode.metadataId;
+
+      this.router.routeReuseStrategy.shouldReuseRoute = () => false;
+      this.router.onSameUrlNavigation = 'reload';
+      this.router.navigate(['management/metadata/metadata', metadataId, {tab: 'lineageView'} ]);
+    }
+  }
 
   public closeInfo() {
     this.closeColumnView.emit();

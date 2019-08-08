@@ -64,7 +64,7 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
   // 노드 아이콘 경로
   private symbolInfo: any = {};
 
-  private viewType: ViewType;
+  public viewType: ViewType;
 
   public readonly VIEW_TYPE = ViewType;
 
@@ -90,6 +90,9 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
   @Input()
   public isNameEdit: boolean;
+
+  @Input()
+  public metadataLoaded: boolean;
 
   public selectedNode: any = null;
 
@@ -121,8 +124,6 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
     this._initValues();
     this._initialiseChartValues();
-
-    this.getLineageMap();
   }
 
   // Destory
@@ -130,6 +131,12 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
     // Destory
     super.ngOnDestroy();
+  }
+
+  public ngOnChanges(changedInput: any) {
+    if( changedInput.metadataLoaded && changedInput.metadataLoaded.currentValue===true ) {
+      this.getLineageMap();
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

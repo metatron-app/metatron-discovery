@@ -37,7 +37,7 @@
         <a href="javscript:" class="ddp-btn-line ddp-full">View column lineage</a>
       </div>
       <div class="ddp-col-6">
-        <a href="javscript:" class="ddp-btn-solid ddp-bg-black ddp-full">Go to Metadata</a>
+        <a (click)="gotoLineage();" href="javscript:" class="ddp-btn-solid ddp-bg-black ddp-full">Go to Metadata</a>
       </div>
     </div>
   </div>
@@ -71,15 +71,15 @@
         Type
       </dt>
       <dd>
-        {{selectedNodeMetadata.sourceType}}
+        {{sourceType}}
       </dd>
     </dl>
     <dl class="ddp-dl-detail">
       <dt>
-        Size
+        Summary
       </dt>
       <dd>
-        {{selectedNodeMetadata.columns?selectedNodeMetadata.columns.length:0}}
+        {{selectedNodeMetadata.columns?selectedNodeMetadata.columns.length:0}} columns
       </dd>
     </dl>
   </div>
