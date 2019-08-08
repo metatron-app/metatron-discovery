@@ -66,6 +66,8 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
   private viewType: ViewType;
 
+  public readonly VIEW_TYPE = ViewType;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -133,26 +135,6 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  private awaitCount = 0;
-  public constructLineageNode(metaId: string, x: number, y: number) {
-    let lineageNode = {
-      'metadataId': metaId,
-      'positionX': x,
-      'positionY': y
-    };
-
-    this.awaitCount++;
-    this.metadataService.getDetailMetaData(metaId).then((result) => {
-      lineageNode['metadata'] = result;
-      this.awaitCount--;
-    }).catch((error) => {
-      console.error(error);
-      this.awaitCount--;
-    });
-
-    return lineageNode;
-  }
 
   /**
    * Get lineage map
