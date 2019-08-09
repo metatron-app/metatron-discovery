@@ -39,14 +39,15 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
 
   // mode
   private _mode: string;
+
   // origin selected code table
   private _originSelectedCodeTable: CodeTable;
 
   // 코드 테이블의 조직 상세정보
   private _codeTableDetailList: CodeTable[];
 
-  // Preview popup이 띄워져 있는지 체크하는 flag
-  private _isPreviewPopupShowed: boolean = false;
+  // index of the preview popup now showing
+  private _previewPopupNowShowing: number = -1;
 
   // 코드 테이블 생성 컴포넌트
   @ViewChild(CreateCodeTableComponent)
@@ -261,27 +262,30 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
   }
 
   /**
-   * preview 클릭 이벤트
-   * @param {CodeTable} codeTable
+   * preview button click event
+   * @param {number} idx
    */
-  public onClickCodeTablePreview(codeTable: CodeTable): void {
-
-    if (!this._isPreviewPopupShowed) {
-      // preview popup이 띄워져 있다고 flag 바꿈
-      this._isPreviewPopupShowed = true;
-
-      // 이벤트 버블링 stop
-      event.stopImmediatePropagation();
-
-      const index = _.findIndex(this._codeTableDetailList, (item) => {
-        return codeTable.id === item.id;
-      });
-      // 해당 코드 정보가 존재하지 않는다면 조회
-      index === -1 && this._getDetailCodeTable(codeTable.id);
-      // show flag
-      codeTable['previewShowFl'] = true;
+  public onClickCodeTablePreview(idx: number): void {
+    // if any popup is shown now
+    if (this._previewPopupNowShowing !== -1) {
+      // hide popup
+      this.codeTableList[this._previewPopupNowShowing]['previewShowFl'] = false;
     }
+    // save the index of popup which will appear
+    this._previewPopupNowShowing = idx;
 
+    // stop event bubbling
+    event.stopImmediatePropagation();
+
+    const index = _.findIndex(this._codeTableDetailList, (item) => {
+      return this.codeTableList[idx].id === item.id;
+    });
+
+    // 해당 코드 정보가 존재하지 않는다면 조회
+    index === -1 && this._getDetailCodeTable(this.codeTableList[idx].id);
+
+    // show flag
+    this.codeTableList[idx]['previewShowFl'] = true;
   }
 
   /**
@@ -303,7 +307,7 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
   public onClickPreviewPopupClose(codeTable: CodeTable) {
     event.stopImmediatePropagation();
     codeTable['previewShowFl'] = false;
-    this._isPreviewPopupShowed = false;
+    this._previewPopupNowShowing = -1;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
