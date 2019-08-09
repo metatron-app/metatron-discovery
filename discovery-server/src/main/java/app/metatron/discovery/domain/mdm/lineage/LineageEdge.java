@@ -39,6 +39,18 @@ public class LineageEdge extends AbstractHistoryEntity {
   @Column(name = "to_meta_id")
   private String toMetaId;
 
+  @Column(name = "fr_meta_name")
+  private String frMetaName;
+
+  @Column(name = "to_meta_name")
+  private String toMetaName;
+
+  @Column(name = "fr_col_name")
+  private String frColName;
+
+  @Column(name = "to_col_name")
+  private String toColName;
+
   @Column(name = "tier")
   private Long tier;
 
@@ -49,11 +61,26 @@ public class LineageEdge extends AbstractHistoryEntity {
   public LineageEdge() {
   }
 
-  public LineageEdge(String frMetaId, String toMetaId, Long tier, String desc) {
+  public LineageEdge(String frMetaId, String toMetaId, String frMetaName, String toMetaName,
+      Long tier, String desc) {
+    this();
     this.frMetaId = frMetaId;
     this.toMetaId = toMetaId;
+    this.frMetaId = frMetaId;
+    this.toMetaId = toMetaId;
+    this.frMetaName = frMetaName;
+    this.toMetaName = toMetaName;
+    this.frColName = frColName;
+    this.toColName = toColName;
     this.tier = tier;
     this.desc = desc;
+  }
+
+  public LineageEdge(String frMetaId, String toMetaId, String frMetaName, String toMetaName,
+      String frColName, String toColName, Long tier, String desc) {
+    this(frMetaId, toMetaId, frMetaName, toMetaName, tier, desc);
+    this.frColName = frColName;
+    this.toColName = toColName;
   }
 
   public String getEdgeId() {
@@ -80,6 +107,38 @@ public class LineageEdge extends AbstractHistoryEntity {
     this.toMetaId = toMetaId;
   }
 
+  public String getFrMetaName() {
+    return frMetaName;
+  }
+
+  public void setFrMetaName(String frMetaName) {
+    this.frMetaName = frMetaName;
+  }
+
+  public String getToMetaName() {
+    return toMetaName;
+  }
+
+  public void setToMetaName(String toMetaName) {
+    this.toMetaName = toMetaName;
+  }
+
+  public String getFrColName() {
+    return frColName;
+  }
+
+  public void setFrColName(String frColName) {
+    this.frColName = frColName;
+  }
+
+  public String getToColName() {
+    return toColName;
+  }
+
+  public void setToColName(String toColName) {
+    this.toColName = toColName;
+  }
+
   public Long getTier() {
     return tier;
   }
@@ -102,6 +161,10 @@ public class LineageEdge extends AbstractHistoryEntity {
         "edgeId='" + edgeId + '\'' +
         ", frMetaId='" + frMetaId + '\'' +
         ", toMetaId='" + toMetaId + '\'' +
+        ", frMetaName='" + frMetaName + '\'' +
+        ", toMetaName='" + toMetaName + '\'' +
+        ", frColName='" + frColName + '\'' +
+        ", toColName='" + toColName + '\'' +
         ", tier=" + tier +
         ", desc='" + desc + '\'' +
         '}';

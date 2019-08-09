@@ -9,6 +9,10 @@ public class LineageEdgeProjections extends BaseProjections {
     String getEdgeId();
     String getFrMetaId();
     String getToMetaId();
+    String getFrMetaName();
+    String getToMetaName();
+    String getFrColName();
+    String getToColName();
     String getDesc();
   }
 
@@ -17,6 +21,10 @@ public class LineageEdgeProjections extends BaseProjections {
     String getEdgeId();
     String getFrMetaId();
     String getToMetaId();
+    String getFrMetaName();
+    String getToMetaName();
+    String getFrColName();
+    String getToColName();
     String getDesc();
   }
 }

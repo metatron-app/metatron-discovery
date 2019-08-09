@@ -29,8 +29,6 @@ public class LineageMapNode implements Serializable, Comparable<LineageMapNode> 
   @JsonIgnore
   private List<LineageMapNode> toMapNodes;
 
-  private boolean circuit;
-
   private String metaName;  // This is optional.
 
   private Integer depth;
@@ -40,7 +38,6 @@ public class LineageMapNode implements Serializable, Comparable<LineageMapNode> 
     metaId = null;
     frMapNodes = new ArrayList();
     toMapNodes = new ArrayList();
-    circuit = false;
     this.depth = 7;
   }
 
@@ -61,14 +58,6 @@ public class LineageMapNode implements Serializable, Comparable<LineageMapNode> 
 
   public List<LineageMapNode> getToMapNodes() {
     return toMapNodes;
-  }
-
-  public boolean isCircuit() {
-    return circuit;
-  }
-
-  public void setCircuit(boolean circuit) {
-    this.circuit = circuit;
   }
 
   public String getMetaName() {
@@ -99,7 +88,6 @@ public class LineageMapNode implements Serializable, Comparable<LineageMapNode> 
   public String toString() {
     return "LineageMapNode{" +
         "metaId='" + metaId + '\'' +
-        ", circuit=" + circuit +
         ", metaName='" + metaName + '\'' +
         '}';
   }

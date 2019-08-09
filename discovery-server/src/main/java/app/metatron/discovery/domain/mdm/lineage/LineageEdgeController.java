@@ -14,8 +14,6 @@
 
 package app.metatron.discovery.domain.mdm.lineage;
 
-import static app.metatron.discovery.domain.mdm.MetadataErrorCodes.LINEAGE_CANNOT_CREATE_EDGE;
-
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -73,25 +71,6 @@ public class LineageEdgeController {
     Page<LineageEdge> pages = this.lineageEdgeRepository.findAll(pageable);
 
     return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(pages, resourceAssembler));
-  }
-
-  @RequestMapping(value = "/edges", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-  public ResponseEntity<?> createEdge(@RequestBody Map<String, String> request) {
-    LineageEdge lineageEdge = null;
-
-    try {
-      String frMetaId = request.get("frMetaId");
-      String toMetaId = request.get("toMetaId");
-      Long tier = request.get("tier") == null ? null : Long.valueOf(request.get("tier"));
-      String desc = request.get("desc");
-
-      lineageEdge = lineageEdgeService.createEdge(frMetaId, toMetaId, tier, desc);
-    } catch (Exception e) {
-      LOGGER.error("caught an exception: ", e);
-      throw new LineageException(LINEAGE_CANNOT_CREATE_EDGE, "Error while creating an edge");
-    }
-
-    return ResponseEntity.created(URI.create("")).body(lineageEdge);
   }
 
   @RequestMapping(value = "/edges", method = RequestMethod.GET, produces = "application/json", consumes = "application/json")

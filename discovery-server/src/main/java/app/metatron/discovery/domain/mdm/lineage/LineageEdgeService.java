@@ -16,6 +16,10 @@ package app.metatron.discovery.domain.mdm.lineage;
 
 import static app.metatron.discovery.domain.mdm.MetadataErrorCodes.LINEAGE_COLUMN_MISSING;
 import static app.metatron.discovery.domain.mdm.MetadataErrorCodes.LINEAGE_DATASET_ERROR;
+import static app.metatron.discovery.domain.mdm.lineage.LineageNode.FR_META_ID;
+import static app.metatron.discovery.domain.mdm.lineage.LineageNode.FR_META_NAME;
+import static app.metatron.discovery.domain.mdm.lineage.LineageNode.TO_META_ID;
+import static app.metatron.discovery.domain.mdm.lineage.LineageNode.TO_META_NAME;
 
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE;
@@ -36,7 +40,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class LineageEdgeService {
@@ -56,18 +59,6 @@ public class LineageEdgeService {
   PrepTransformService prepTransformService;
 
   public LineageEdgeService() {
-  }
-
-  @Transactional(rollbackFor = Exception.class)
-  public LineageEdge createEdge(String frMetaId, String toMetaId, Long tier, String desc)
-      throws Exception {
-    LOGGER.trace("createEdge(): start");
-
-    LineageEdge lineageEdge = new LineageEdge(frMetaId, toMetaId, tier, desc);
-    edgeRepository.saveAndFlush(lineageEdge);
-
-    LOGGER.trace("createEdge(): end");
-    return lineageEdge;
   }
 
   public List<LineageEdge> listEdge() {
@@ -116,10 +107,14 @@ public class LineageEdgeService {
   }
 
   private LineageEdge findOrNew(String frMetaId, String toMetaId, Long tier, String desc) {
-    List<LineageEdge> edges = edgeRepository.findAll();
-    LineageEdge newEdge = new LineageEdge(frMetaId, toMetaId, tier, desc);
+    Metadata frMeta = metadataRepository.findOne(frMetaId);
+    Metadata toMeta = metadataRepository.findOne(toMetaId);
+    String frMetaName = frMeta.getName();
+    String toMetaName = toMeta.getName();
 
-    for (LineageEdge edge : edges) {
+    LineageEdge newEdge = new LineageEdge(frMetaId, toMetaId, frMetaName, toMetaName, tier, desc);
+
+    for (LineageEdge edge : edgeRepository.findAll()) {
       if (isSame(edge.getFrMetaId(), frMetaId) &&
           isSame(edge.getToMetaId(), toMetaId) &&
           isSame(edge.getDesc(), desc)) {
@@ -197,6 +192,10 @@ public class LineageEdgeService {
 
       String frMetaId = getMetaIdByRow(row, true);
       String toMetaId = getMetaIdByRow(row, false);
+      String frMetaName = getValue(row, "frMetaName", true);
+      String toMetaName = getValue(row, "toMetaName", true);
+      String frColName = getValue(row, "frColName", false);
+      String toColName = getValue(row, "toColName", false);
 
       Long tier = null;
       if (df.colNames.contains("tier")) {
@@ -238,11 +237,11 @@ public class LineageEdgeService {
     String metaName;
 
     if (upstream) {
-      metaId = getValue(row, "fr_meta_id", false);
-      metaName = getValue(row, "fr_meta_name", true);
+      metaId = getValue(row, FR_META_ID, false);
+      metaName = getValue(row, FR_META_NAME, true);
     } else {
-      metaId = getValue(row, "to_meta_id", false);
-      metaName = getValue(row, "to_meta_name", true);
+      metaId = getValue(row, TO_META_ID, false);
+      metaName = getValue(row, TO_META_NAME, true);
     }
 
     // When ID is known
@@ -261,5 +260,4 @@ public class LineageEdgeService {
     // Return the first one. If duplicated, ignore the rest.
     return metadatas.get(0).getId();
   }
-
 }

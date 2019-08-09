@@ -69,7 +69,7 @@ public class LineageNode implements Serializable {
 
   @Override
   public String toString() {
-    return "LineageNode{" +
+    return "LineageMapNode{" +
         "metaId='" + metaId + '\'' +
         ", metaName='" + metaName + '\'' +
         ", colName='" + colName + '\'' +

@@ -151,8 +151,7 @@ public class LineageMapService {
       totalEdges.add(edge);
 
       if (visitedMetaIds.contains(newNode.getMetaId())) {
-        // FIXME: set the upstream/downstream of the exist node toward this.
-        newNode.setCircuit(true);
+        // FIXME: logic for circuit will be changed soon (with tier)
         continue;
       } else {
         visitedMetaIds.add(newNode.getMetaId());
