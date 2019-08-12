@@ -67,45 +67,6 @@ public class NotebookConnectorRestIntegrationTest extends AbstractRestIntegratio
     }
 
     /**
-     * 관리자 > 서버 리스트 화면 > 노트북 서버 생성 > Connection Test
-     */
-    @Test
-    @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
-    public void checkConnection() {
-        String hostname = "jupyter.mcloud.sktelecom.com";
-        String port = "80";
-        // @formatter:off
-        given()
-          .auth().oauth2(oauth_token)
-          .contentType(ContentType.JSON)
-        .when()
-          .get("/api/connectors/status/{hostname}/{port}", hostname, port)
-        .then()
-          .log().all();
-        // @formatter:on
-    }
-
-    /**
-     * 관리자 > 서버 리스트 화면 > 노트북 서버 상세조회 or 수정 화면 > Validation Test
-     */
-    @Test
-    @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
-    public void checkValidation() {
-        TestUtils.printTestTitle("1. 서버 가용성 확인");
-        String connectorId = "notebook-jupyter-00";
-        // @formatter:off
-        given()
-                .auth().oauth2(oauth_token)
-                .contentType(ContentType.JSON)
-                .when()
-                .get("/api/connectors/validation/{id}", connectorId)
-                .then()
-                .statusCode(HttpStatus.SC_OK)
-                .log().all();
-        // @formatter:on
-    }
-
-    /**
      * 관리자 > 서버 리스트 화면 > 노트북 서버 일괄 삭제 (multiple)
      */
     @Test
