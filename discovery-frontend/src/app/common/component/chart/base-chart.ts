@@ -821,9 +821,8 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     ////////////////////////////////////////////////////////\
 
     // 차트 시리즈 정보를 변환
-    if (this.init) {
+    if (this.init || this.selectedFilterCount == 0) {
       this.chartOption = this.convertSeries();
-      this.init = false;
     }
 
     ////////////////////////////////////////////////////////
@@ -1405,9 +1404,11 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     if ((this.isUpdateRedraw && initFl) || this.params.externalFilters) {
       // 차트 제거
       this.chart.dispose();
-
       // Chart Instance 생성
       this.chart = this.echarts.init(this.$element.find('.chartCanvas')[0], 'exntu');
+    } else if (this.init) {
+      this.initOption();
+      this.init = false;
     }
 
     console.info(this.chartOption);
@@ -2457,7 +2458,6 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         this.chartOption = this.selectionClear(this.chartOption);
         this.selectedFilterCount = 0;
         this.init = true;
-        this.draw();
 
         // return;
       } else if (params != null) {
@@ -2541,7 +2541,6 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         this.init = true;
         this.draw();
         this.chart.clearBrush();
-
       } else {
         selectMode = ChartSelectMode.ADD;
 
