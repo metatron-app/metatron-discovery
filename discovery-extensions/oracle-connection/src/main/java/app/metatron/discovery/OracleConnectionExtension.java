@@ -360,7 +360,7 @@ public class OracleConnectionExtension extends Plugin {
     @Override
     public String getCharToDateStmt(JdbcConnectInformation connectInfo, String timeStr, String timeFormat) {
       StringBuilder builder = new StringBuilder();
-      builder.append("TO_DATE('").append(timeStr).append("', ");
+      builder.append("TO_DATE(").append(timeStr).append(", ");
 
       builder.append("'");
       if(DEFAULT_FORMAT.equals(timeFormat)) {
