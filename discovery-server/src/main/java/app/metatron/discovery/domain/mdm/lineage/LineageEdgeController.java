@@ -14,9 +14,11 @@
 
 package app.metatron.discovery.domain.mdm.lineage;
 
+import app.metatron.discovery.domain.mdm.lineage.LineageMap.ALIGNMENT;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +57,8 @@ public class LineageEdgeController {
   @Autowired
   LineageMapService lineageMapService;
 
+  private static final int DEFAULT_NODE_CNT = 7;
+
   public LineageEdgeController() {
   }
 
@@ -88,8 +92,38 @@ public class LineageEdgeController {
   }
 
   @RequestMapping(value = "/map/{metaId}", method = RequestMethod.GET, produces = "application/json", consumes = "application/json")
-  public ResponseEntity<?> getLineageMap(@PathVariable("metaId") String metaId) {
-    LineageMap map = lineageMapService.getLineageMap(metaId);
+  public ResponseEntity<?> getLineageMap(@PathVariable("metaId") String metaId,
+      @RequestParam(value = "nodeCnt", required = false) String strNodeCnt,
+      @RequestParam(value = "alignment", required = false) String strAlignment) {
+
+    int nodeCnt;
+
+    if (strNodeCnt != null
+        && StringUtils.isNumeric(strNodeCnt)
+        && Integer.valueOf(strNodeCnt) > 0
+        && Integer.valueOf(strNodeCnt) < 20) {
+      nodeCnt = Integer.valueOf(strNodeCnt);
+    } else {
+      nodeCnt = DEFAULT_NODE_CNT;
+    }
+
+    ALIGNMENT alignment;
+    if (strAlignment == null) {
+      alignment = ALIGNMENT.CENTER;
+    } else {
+      switch (strAlignment) {
+        case "LEFT":
+          alignment = ALIGNMENT.LEFT;
+          break;
+        case "RIGHT":
+          alignment = ALIGNMENT.RIGHT;
+          break;
+        default:
+          alignment = ALIGNMENT.CENTER;
+      }
+    }
+
+    LineageMap map = lineageMapService.getLineageMap(metaId, nodeCnt, alignment);
 
     return ResponseEntity.ok(map);
   }
@@ -110,3 +144,4 @@ public class LineageEdgeController {
     return ResponseEntity.created(URI.create("")).body(newEdges);
   }
 }
+

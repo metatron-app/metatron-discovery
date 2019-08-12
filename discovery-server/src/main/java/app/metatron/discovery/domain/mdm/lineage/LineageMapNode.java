@@ -14,50 +14,27 @@
 
 package app.metatron.discovery.domain.mdm.lineage;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 public class LineageMapNode implements Serializable, Comparable<LineageMapNode> {
 
   private String metaId;
-
-  @JsonIgnore
-  private List<LineageMapNode> frMapNodes;
-
-  @JsonIgnore
-  private List<LineageMapNode> toMapNodes;
-
   private String metaName;  // This is optional.
-
-  private Integer depth;
-  private Integer pos;
+  private int depth;
+  private int pos;
 
   public LineageMapNode() {
-    metaId = null;
-    frMapNodes = new ArrayList();
-    toMapNodes = new ArrayList();
-    this.depth = 7;
   }
 
-  public LineageMapNode(String metaId, String metaName, int depth) {
-    this();
+  public LineageMapNode(String metaId, String metaName) {
     this.metaId = metaId;
     this.metaName = metaName;
-    this.depth = depth;
+    this.depth = -1;
+    this.pos = -1;
   }
 
   public String getMetaId() {
     return metaId;
-  }
-
-  public List<LineageMapNode> getFrMapNodes() {
-    return frMapNodes;
-  }
-
-  public List<LineageMapNode> getToMapNodes() {
-    return toMapNodes;
   }
 
   public String getMetaName() {
@@ -68,20 +45,28 @@ public class LineageMapNode implements Serializable, Comparable<LineageMapNode> 
     this.metaName = metaName;
   }
 
-  public Integer getDepth() {
+  public int getDepth() {
     return depth;
   }
 
-  public void setDepth(Integer depth) {
+  public void setDepth(int depth) {
     this.depth = depth;
   }
 
-  public Integer getPos() {
+  public int getPos() {
     return pos;
   }
 
-  public void setPos(Integer pos) {
+  public void setPos(int pos) {
     this.pos = pos;
+  }
+
+  public void incrDepth() {
+    depth++;
+  }
+
+  public void incrPos() {
+    pos++;
   }
 
   @Override
