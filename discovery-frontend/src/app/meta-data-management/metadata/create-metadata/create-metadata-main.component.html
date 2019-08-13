@@ -35,7 +35,7 @@
       </div>
       <!-- button -->
       <div class="ddp-ui-buttons">
-        <a href="javascript:" class="ddp-btn-type-popup" (click)="cancelCreate()">{{'msg.comm.btn.cancl' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-type-popup" (click)="closeCreate()">{{'msg.comm.btn.cancl' | translate}}</a>
       </div>
       <!-- //button -->
     </div>
@@ -46,25 +46,25 @@
 <create-metadata-db-connection *ngIf="step === CREATE_STEP.DB_CONNECTION"
                                [createData]="createData"
                                (changeStep)="changeStep($event)"
-                               (cancel)="cancelCreate()"></create-metadata-db-connection>
+                               (cancel)="closeCreate()"></create-metadata-db-connection>
 <create-metadata-db-select *ngIf="step === CREATE_STEP.DB_SELECT"
                            [createData]="createData"
                            (changeStep)="changeStep($event)"
-                           (cancel)="cancelCreate()"></create-metadata-db-select>
+                           (cancel)="closeCreate()"></create-metadata-db-select>
 <create-metadata-db-complete *ngIf="step === CREATE_STEP.DB_COMPLETE"
                              [createData]="createData"
                              (changeStep)="changeStep($event)"
-                             (cancel)="cancelCreate()"
-                             (complete)="createCompleted()"></create-metadata-db-complete>
+                             (cancel)="closeCreate()"
+                             (complete)="createCompleted($event)"></create-metadata-db-complete>
 <!-- //DB -->
 <!-- Staging -->
 <create-metadata-staging-select *ngIf="step === CREATE_STEP.STAGING_SELECT"
                            [createData]="createData"
                            (changeStep)="changeStep($event)"
-                           (cancel)="cancelCreate()"></create-metadata-staging-select>
+                           (cancel)="closeCreate()"></create-metadata-staging-select>
 <create-metadata-staging-complete *ngIf="step === CREATE_STEP.STAGING_COMPLETE"
                              [createData]="createData"
                              (changeStep)="changeStep($event)"
-                             (cancel)="cancelCreate()"
-                             (complete)="createCompleted()"></create-metadata-staging-complete>
+                             (cancel)="closeCreate()"
+                             (complete)="createCompleted($event)"></create-metadata-staging-complete>
 <!-- //Staging -->
