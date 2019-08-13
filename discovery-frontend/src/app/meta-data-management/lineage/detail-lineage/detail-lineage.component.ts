@@ -18,7 +18,7 @@ import {Location} from '@angular/common';
 import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';
 import {LineageService} from '../service/lineage.service';
 import {ActivatedRoute} from '@angular/router';
-import {Lineage} from '../../../domain/meta-data-management/lineage';
+import {LineageEdge} from '../../../domain/meta-data-management/lineage';
 import {CodeValuePair} from '../../../domain/meta-data-management/code-value-pair';
 import {Alert} from '../../../common/util/alert.util';
 import {Modal} from '../../../common/domain/modal';
@@ -41,7 +41,7 @@ export class DetailLineageComponent extends AbstractComponent implements OnInit,
   // 코드 테이블 아이디
   private _lineageId: string;
   // 코드 테이블 상세정보 origin
-  private _originLineage: Lineage;
+  private _originLineage: LineageEdge;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -52,7 +52,7 @@ export class DetailLineageComponent extends AbstractComponent implements OnInit,
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 코드 테이블 상세정보
-  public lineage: Lineage;
+  public lineage: LineageEdge;
   // 코드 목록
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -117,8 +117,8 @@ export class DetailLineageComponent extends AbstractComponent implements OnInit,
    */
   private _initView(): void {
     // 상세정보 초기화
-    this.lineage = new Lineage();
-    this._originLineage = new Lineage();
+    this.lineage = new LineageEdge();
+    this._originLineage = new LineageEdge();
   }
 
 }

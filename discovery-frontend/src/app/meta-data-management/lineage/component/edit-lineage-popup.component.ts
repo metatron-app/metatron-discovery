@@ -35,7 +35,7 @@ import {AbstractPopupComponent} from '../../../common/component/abstract-popup.c
 import {PopupService} from '../../../common/service/popup.service';
 import {Modal} from "../../../common/domain/modal";
 import {LineageService} from '../service/lineage.service';
-import {Lineage} from '../../../domain/meta-data-management/lineage';
+import {LineageEdge} from '../../../domain/meta-data-management/lineage';
 
 @Component({
   selector: 'edit-lineage-popup',
@@ -55,7 +55,7 @@ export class EditLineagePopup extends AbstractPopupComponent implements OnInit,O
 
   public isShow : boolean = false;
 
-  public lineageList: Lineage[];
+  public lineageList: LineageEdge[];
 
   public searchText: string;
 

@@ -13,25 +13,14 @@
  */
 
 import { AbstractHistoryEntity } from '../common/abstract-history-entity';
-import { Metadata } from './metadata';
 
-export class Lineage extends AbstractHistoryEntity {
-  // id
-  public id: string;
-  // from domain 명
-  public fromodomain: string;
-  // from schema
-  public fromschema: string;
-  //
-  public fromdata: Metadata;
-  //
-  public fromcolumn: string;
-  // to domain 명
-  public toodomain: string;
-  // to schema
-  public toschema: string;
-  //
-  public todata: Metadata;
-  //
-  public tocolumn: string;
+export class LineageEdge extends AbstractHistoryEntity {
+  public desc: string;
+  public edgeId: string;
+  public frMetaId: string;
+  public frMetaName: string;
+  public frColName: string;
+  public toMetaId: string;
+  public toMetaName: string;
+  public toColName: string;
 }

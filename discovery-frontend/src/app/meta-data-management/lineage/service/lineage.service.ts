@@ -60,6 +60,10 @@ export class LineageService extends AbstractService {
     return this.post(this.URL_LINEAGE, params);
   }
 
+  public createLineages(params: object): Promise<any> {
+    return this.post(this.URL_LINEAGE + `/edges`, params);
+  }
+
   /**
    * 코드테이블 목록 조회
    * @param {Object} params
@@ -97,7 +101,7 @@ export class LineageService extends AbstractService {
    * @param {string} tableId
    * @returns {Promise<any>}
    */
-  public deleteLineage(tableId: string): Promise<any> {
-    return this.delete(this.URL_LINEAGE + `/${tableId}`);
+  public deleteLineage(edgeId: string): Promise<any> {
+    return this.delete(this.URL_LINEAGE + `/edges/${edgeId}`);
   }
 }

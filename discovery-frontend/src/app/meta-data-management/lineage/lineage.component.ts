@@ -14,11 +14,15 @@
 
 import {AbstractComponent} from '../../common/component/abstract.component';
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Subscription} from 'rxjs/Subscription';
+import {SubscribeArg} from '../../common/domain/subscribe-arg';
 import {Modal} from '../../common/domain/modal';
+import {PopupService} from '../../common/service/popup.service';
 import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
 import {LineageService} from './service/lineage.service';
-import {Lineage} from '../../domain/meta-data-management/lineage';
+import {LineageEdge} from '../../domain/meta-data-management/lineage';
 import {EditLineagePopup} from './component/edit-lineage-popup.component';
+import {CreateLineageComponent} from './component/create-lineage.component';
 import {PeriodComponent, PeriodType} from '../../common/component/period/period.component';
 import {Alert} from '../../common/util/alert.util';
 import {ActivatedRoute} from "@angular/router";
@@ -41,9 +45,8 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
   @ViewChild(EditLineagePopup)
   private editLineagePopup: EditLineagePopup;
 
-  // 생성 컴포넌트
-  // @ViewChild(CreateLineageComponent)
-  // private _createLineageComp: CreateLineageComponent;
+  @ViewChild(CreateLineageComponent)
+  private createLineageComp: CreateLineageComponent;
 
   // 삭제 컴포넌트
   @ViewChild(DeleteModalComponent)
@@ -54,6 +57,9 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
 
   // 검색 파라메터
   private _searchParams: { [key: string]: string };
+
+  private popupSubscription: Subscription;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -62,11 +68,14 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  // popup status
+  public step: string;
+
   // period component
   @ViewChild(PeriodComponent)
   public periodComponent: PeriodComponent;
 
-  public lineageList: Lineage[];
+  public lineageList: LineageEdge[];
 
   public searchText: string;
 
@@ -76,12 +85,16 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
 
   public defaultDate: PeriodData;
 
+  // popup status
+  public isCreatingLineage: boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   constructor(
     private _lineageService: LineageService,
     private _activatedRoute: ActivatedRoute,
+    private popupService: PopupService,
     protected element: ElementRef,
     protected injector: Injector) {
     super(element, injector);
@@ -95,6 +108,14 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
     super.ngOnInit();
 
     this._initView();
+
+    // After creating dataset
+    this.popupSubscription = this.popupService.view$.subscribe((data: SubscribeArg) => {
+      this.step = data.name;
+      if (this.step === 'complete-lineage-create') {
+        this.reloadPage(true);
+      }
+    });
 
     // Get query param from url
     this.subscriptions.push(
@@ -156,27 +177,21 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
    * 리니지 제거
    * @param {Modal} modal
    */
-  public deleteLineage(modal: Modal): void {
+  public deleteLineageEdge(modal: Modal): void {
 
     this.loadingShow();
 
-    this._lineageService.deleteLineage(modal['lineageId']).then(() => {
-
+    this._lineageService.deleteLineage(modal['edgeId']).then(() => {
       this.loadingHide();
 
-      Alert.success(this.translateService.instant('msg.metadata.ui.codetable.delete.success',
-        {value: modal['codeTableName']}));
+      Alert.success(this.translateService.instant('msg.metadata.ui.lineage.delete.edge.success', {value: modal['description']}));
       if (this.page.page > 0 && this.lineageList.length === 1) {
         this.page.page = this.page.page - 1;
       }
       this.reloadPage(false);
-
     }).catch((error) => {
-
       this.loadingHide();
       this.commonExceptionHandler(error);
-
-
     });
   }
 
@@ -199,20 +214,14 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
     this.reloadPage(true);
   }
 
-  /**
-   * 코드 테이블 편집 클릭 이벤트
-   */
   public onClickEditLineage(): void {
     this.editLineagePopup.init({
       name: 'edit'
     });
   }
 
-  /**
-   * 코드 테이블 생성 클릭 이벤트
-   */
   public onClickCreateLineage(): void {
-    // this._createLineageComp.init();
+    this.step = 'upload-file';
   }
 
   /**
@@ -226,18 +235,17 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
 
   /**
    * 리니지 삭제 클릭 이벤트
-   * @param {Lineage} lineage
+   * @param {LineageEdge} lineageEdge
    */
-  public onClickDeleteLineage(lineage: Lineage): void {
-    // event stop
-    event.stopImmediatePropagation();
+  public onClickDeleteLineage(event, lineageEdge: LineageEdge ): void {
+    event.stopPropagation();
 
     const modal = new Modal();
-    modal.name = this.translateService.instant('msg.metadata.ui.codetable.delete.title');
-    // modal.description = codeTable.name;
-    // modal.btnName = this.translateService.instant('msg.comm.ui.del');
-    // modal['codeTableId'] = codeTable.id;
-    // modal['codeTableName'] = codeTable.name;
+    modal.description = lineageEdge.desc;
+    modal.name = this.translateService.instant('msg.metadata.ui.lineage.delete.edge');
+    modal.btnName = this.translateService.instant('msg.comm.btn.modal.done');
+
+    modal['edgeId'] = lineageEdge.edgeId;
     this._deleteComp.init(modal);
   }
 
@@ -346,6 +354,13 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
 
   public isEmptyList(): boolean {
     return this.lineageList.length === 0;
+  }
+
+  public getLineageType(lineage: LineageEdge) {
+    if( lineage.frColName && lineage.toColName ) {
+      return 'column';
+    }
+    return 'metadata';
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

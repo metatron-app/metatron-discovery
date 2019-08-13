@@ -88,6 +88,9 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
   public nodeCount: number;
   public alignment: string;
 
+  public defaultNodeCountIndex = 1;
+  public defaultAlignmentIndex = 0;
+
   @Input()
   public isNameEdit: boolean;
 
@@ -110,7 +113,10 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
     protected metadataService: MetadataService,
     public metaDataModelService: MetadataModelService,
     protected injector: Injector) {
+
     super(element, injector);
+
+    this._initValues();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -122,7 +128,6 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
     // Init
     super.ngOnInit();
 
-    this._initValues();
     this._initialiseChartValues();
   }
 
@@ -150,7 +155,7 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
     let nodeCount = this.nodeCount;
     let alignment = this.alignment;
     let metadataId = this.metaDataModelService.getMetadata().id;
-    this.lineageViewService.getLineageMapForMetadata(metadataId).then((result) => {
+    this.lineageViewService.getLineageMapForMetadata(metadataId,nodeCount,alignment).then((result) => {
       this.lineageNodes = [];
       this.lineageEdges = [];
 
@@ -332,10 +337,16 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
   }
 
   public onChangeAlignment(_alignment: any) {
-    this.alignment = _alignment.value;
+    if(this.alignment !== _alignment.value) {
+      this.alignment = _alignment.value;
+      this.getLineageMap();
+    }
   }
   public onChangeNodeCount(_nodeCount: any) {
-    this.nodeCount = _nodeCount.value;
+    if( this.nodeCount !== _nodeCount.value) {
+      this.nodeCount = _nodeCount.value;
+      this.getLineageMap();
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -353,14 +364,14 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
       {label:'7', value : 7},
       {label:'9', value : 9}
     ];
-    this.nodeCount = this.nodeCountList[1].value;
+    this.nodeCount = this.nodeCountList[this.defaultNodeCountIndex].value;
 
     this.alignmentList = [
       {label:'Center', value : 'Center'},
       {label:'Left', value : 'Left'},
       {label:'Right', value : 'Right'},
     ];
-    this.alignment = this.alignmentList[0].value;
+    this.alignment = this.alignmentList[this.defaultAlignmentIndex].value;
 
     this.viewType = ViewType.Diagram;
   }
@@ -423,7 +434,7 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
               name: NodeType[NodeType.MainNode],
               //symbol: 'roundRect',
               symbol: this.symbolInfo[NodeType[NodeType.MainNode]]['DEFAULT'],
-              symbolSize: [70,70],
+              symbolSize: [50,50],
               symbolOffset: [0,0],
               itemStyle: {
                 color: 'rgba(0, 0, 0, 0.0)',

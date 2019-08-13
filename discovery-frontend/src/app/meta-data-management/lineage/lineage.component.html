@@ -44,7 +44,9 @@
     <div class="ddp-filter-option">
       <span class="ddp-data-total ddp-only" [innerHtml]="'msg.storage.ui.list.length' | translate: {value: pageResult.totalElements || 0}"></span>
       <div class="ddp-form-buttons">
+        <!--
         <a href="javascript:" class="ddp-btn-selection ddp-line" (click)="onClickEditLineage();"><em class="ddp-icon-edit3"></em>Edit Lineage</a>
+        -->
         <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="onClickCreateLineage();"><em class="ddp-icon-add2"></em>{{'msg.comm.btn.new' | translate}}</a>
       </div>
     </div>
@@ -57,8 +59,11 @@
       <table class="ddp-table-form ddp-table-type3 type-table">
         <colgroup>
           <col width="*">
-          <col width="40%">
-          <col width="40%">
+          <col width="20%">
+          <col width="15%">
+          <col width="20%">
+          <col width="15%">
+          <col width="20%">
         </colgroup>
         <thead>
         <tr>
@@ -69,20 +74,41 @@
             <strong>{{'msg.metadata.lineage.th.from' | translate}}</strong>
           </th>
           <th class="ddp-border-right">
+            <strong>{{'msg.metadata.lineage.th.from.col' | translate}}</strong>
+          </th>
+          <th class="ddp-border-right">
             <strong>{{'msg.metadata.lineage.th.to' | translate}}</strong>
+          </th>
+          <th class="ddp-border-right">
+            <strong>{{'msg.metadata.lineage.th.to.col' | translate}}</strong>
+          </th>
+          <th class="ddp-border-right">
+            <strong>{{'msg.metadata.lineage.th.desc' | translate}}</strong>
           </th>
         </tr>
         </thead>
         <tbody>
         <tr *ngFor="let lineage of lineageList" (click)="onClickDetailLineage(lineage.edgeId)">
           <td>
-            {{lineage.description}}
+            {{getLineageType(lineage)}}
           </td>
           <td class="ddp-border-right">
-            {{lineage.frMetaId}}
+            {{lineage.frMetaName}}
           </td>
           <td class="ddp-border-right">
-            {{lineage.toMetaId}}
+            {{lineage.frColName}}
+          </td>
+          <td class="ddp-border-right">
+            {{lineage.toMetaName}}
+          </td>
+          <td class="ddp-border-right">
+            {{lineage.toColName}}
+          </td>
+          <td class="ddp-border-right">
+            {{lineage.desc}}
+            <div class="ddp-btn-control">
+              <em class="ddp-icon-control-cut" (click)="onClickDeleteLineage($event,lineage);"></em>
+            </div>
           </td>
         </tr>
         </tbody>
@@ -96,5 +122,6 @@
 
 </div>
 
-<edit-lineage-popup>
-</edit-lineage-popup>
+<app-create-lineage [step]="step"></app-create-lineage>
+<app-delete-modal (deleteConfirm)="deleteLineageEdge($event)"></app-delete-modal>
+<edit-lineage-popup></edit-lineage-popup>

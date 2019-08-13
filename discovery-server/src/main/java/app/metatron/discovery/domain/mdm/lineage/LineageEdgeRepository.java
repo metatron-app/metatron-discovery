@@ -25,4 +25,6 @@ public interface LineageEdgeRepository extends JpaRepository<LineageEdge, String
   List<LineageEdge> findByFrMetaId(String upstreamMetaId);
 
   List<LineageEdge> findByToMetaId(String downstreamMetaId);
+
+  List<LineageEdge> findByFrMetaIdAndToMetaId(String upstreamMetaId, String downstreamMetaId);
 }

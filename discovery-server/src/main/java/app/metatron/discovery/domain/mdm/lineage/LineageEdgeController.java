@@ -15,10 +15,22 @@
 package app.metatron.discovery.domain.mdm.lineage;
 
 import app.metatron.discovery.domain.mdm.lineage.LineageMap.ALIGNMENT;
+import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
+import app.metatron.discovery.domain.mdm.Metadata;
+import app.metatron.discovery.domain.mdm.MetadataRepository;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,13 +40,16 @@ import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequestMapping(value = "/metadatas/lineages")
 @RepositoryRestController
@@ -47,6 +62,9 @@ public class LineageEdgeController {
 
   @Autowired
   LineageEdgeRepository lineageEdgeRepository;
+
+  @Autowired
+  MetadataRepository metadataRepository;
 
   @Autowired
   PagedResourcesAssembler pagedResourcesAssembler;
@@ -143,5 +161,116 @@ public class LineageEdgeController {
 
     return ResponseEntity.created(URI.create("")).body(newEdges);
   }
+
+  @RequestMapping(value="/edges", method = RequestMethod.POST)
+  public @ResponseBody
+  ResponseEntity<?>  postLineageEdges(
+      @RequestBody List<Resource<LineageEdge>> lineageEdgeResources,
+      PersistentEntityResourceAssembler resourceAssembler
+  ) {
+    List<LineageEdge> lineageEdges = Lists.newArrayList();
+    try {
+      Iterator<Resource<LineageEdge>> iterator = lineageEdgeResources.iterator();
+      while(iterator.hasNext()) {
+        LineageEdge lineageEdge = iterator.next().getContent();
+
+        List<Metadata> frMetadatas = this.metadataRepository.findByName(lineageEdge.getFrMetaName());
+        if (frMetadatas.size() == 0) {
+          LOGGER.error(String.format("postLineageEdges(): frMetadata %s not found: ignored", lineageEdge.getFrMetaName()));
+          continue;
+        } else {
+          lineageEdge.setFrMetaId(frMetadatas.get(0).getId());
+        }
+        List<Metadata> toMetadatas = this.metadataRepository.findByName(lineageEdge.getToMetaName());
+        if (toMetadatas.size() == 0) {
+          LOGGER.error(String.format("postLineageEdges(): toMetadata %s not found: ignored", lineageEdge.getToMetaName()));
+          continue;
+        } else {
+          lineageEdge.setToMetaId(toMetadatas.get(0).getId());
+        }
+        List<LineageEdge> _lineageEdges = this.lineageEdgeRepository.findByFrMetaIdAndToMetaId(lineageEdge.getFrMetaId(), lineageEdge.getToMetaId());
+        for(LineageEdge _lineageEdge : _lineageEdges ) {
+          if( lineageEdge.getFrMetaName().equalsIgnoreCase(_lineageEdge.getFrMetaName()) &&
+              lineageEdge.getFrColName().equalsIgnoreCase(_lineageEdge.getFrColName()) &&
+              lineageEdge.getToMetaName().equalsIgnoreCase(_lineageEdge.getToMetaName()) &&
+              lineageEdge.getToColName().equalsIgnoreCase(_lineageEdge.getToColName()) &&
+              lineageEdge.getTier() == _lineageEdge.getTier() &&
+              lineageEdge.getDesc().equalsIgnoreCase(_lineageEdge.getDesc())
+          ) {
+            lineageEdge = _lineageEdge;
+            break;
+          }
+        }
+
+        lineageEdges.add( this.lineageEdgeRepository.save(lineageEdge) );
+      }
+    } catch (Exception e) {
+      LOGGER.error("postLineageEdges(): caught an exception: ", e);
+    }
+
+    return ResponseEntity.created(URI.create("")).body(lineageEdges);
+  }
+
+  @RequestMapping(value = "/file_upload", method = RequestMethod.POST, produces = "application/json")
+  public @ResponseBody ResponseEntity<?> file_upload(
+      @RequestPart("file") MultipartFile file
+  ) {
+    Map<String, Object> response = Maps.newHashMap();
+    List<String> header = Lists.newArrayList();
+    List<Map<String,Object>> rows = Lists.newArrayList();
+    try {
+      InputStream is = file.getInputStream();
+      InputStreamReader isr = PrepCsvUtil.getReaderAfterDetectingCharset(is,null);
+
+      CSVParser parser = CSVParser.parse(isr, CSVFormat.DEFAULT.withDelimiter(',').withEscape('\\'));
+
+      Iterator<CSVRecord> iter = parser.iterator();
+
+      if (iter.hasNext()) {
+        CSVRecord csvRow = iter.next();
+        int colCnt = csvRow.size();
+        for (int i = 0; i < colCnt; i++) {
+          header.add(i, csvRow.get(i));
+        }
+
+        while (true) {
+          if (!iter.hasNext()) {
+            break;
+          }
+
+          csvRow = iter.next();
+          colCnt = csvRow.size();
+          Map<String,Object> row = Maps.newHashMap();
+          for (int i = 0; i < colCnt; i++) {
+            row.put(header.get(i), csvRow.get(i) );
+          }
+          rows.add(row);
+        }
+      }
+
+      response.put("header",header);
+      response.put("rows",rows);
+    } catch (IOException e) {
+      LOGGER.error("file_upload POST(): caught an exception: ", e);
+    } catch (IllegalStateException e) {
+      LOGGER.error("file_upload POST(): caught an exception: ", e);
+    } catch (Exception e) {
+      LOGGER.error("file_upload POST(): caught an exception: ", e);
+    }
+
+    return ResponseEntity.ok().body(response);
+  }
+
+  @RequestMapping(value = "/edges/{edgeId}", method = RequestMethod.DELETE, produces = "application/json", consumes = "application/json")
+  public @ResponseBody ResponseEntity<?> deleteEdge( @PathVariable("edgeId") String edgeId) {
+    Map<String, Object> response = Maps.newHashMap();
+
+    this.lineageEdgeRepository.delete(edgeId);
+
+    response.put("deleted",edgeId);
+
+    return ResponseEntity.ok().body(response);
+  }
+
 }
 
