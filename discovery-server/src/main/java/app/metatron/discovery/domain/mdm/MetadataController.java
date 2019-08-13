@@ -14,18 +14,6 @@
 
 package app.metatron.discovery.domain.mdm;
 
-import app.metatron.discovery.common.entity.DomainType;
-import app.metatron.discovery.common.entity.SearchParamValidator;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.common.data.projection.DataGrid;
-import app.metatron.discovery.domain.CollectionPatch;
-import app.metatron.discovery.domain.datasource.DataSourceService;
-import app.metatron.discovery.domain.tag.Tag;
-import app.metatron.discovery.domain.tag.TagProjections;
-import app.metatron.discovery.domain.tag.TagService;
-import app.metatron.discovery.util.HttpUtils;
-import app.metatron.discovery.util.ProjectionUtils;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -45,15 +33,33 @@ import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.LinkedHashMap;
-import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
+
+import app.metatron.discovery.common.data.projection.DataGrid;
+import app.metatron.discovery.common.entity.DomainType;
+import app.metatron.discovery.common.entity.SearchParamValidator;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.CollectionPatch;
+import app.metatron.discovery.domain.datasource.DataSourceService;
+import app.metatron.discovery.domain.tag.Tag;
+import app.metatron.discovery.domain.tag.TagProjections;
+import app.metatron.discovery.domain.tag.TagService;
+import app.metatron.discovery.util.HttpUtils;
+import app.metatron.discovery.util.ProjectionUtils;
 
 @RepositoryRestController
 public class MetadataController {
@@ -74,7 +80,6 @@ public class MetadataController {
 
   @Autowired
   MetadataPopularityRepository metadataPopularityRepository;
-
 
   @Autowired
   PagedResourcesAssembler pagedResourcesAssembler;
@@ -406,4 +411,29 @@ public class MetadataController {
 
     return null;
   }
+
+  @RequestMapping(path = "/metadatas/{metadataId}/users/frequency", method = RequestMethod.GET)
+  public ResponseEntity <?> getFrequentUser(@PathVariable("metadataId") String metadataId){
+    //getting metadata from id
+    Metadata metadata = metadataRepository.findOne(metadataId);
+    if (metadata == null) {
+      throw new ResourceNotFoundException(metadataId);
+    }
+
+    List<?> accessTop3List = metadataService.getFrequentUser(metadata, 3);
+    return ResponseEntity.ok(accessTop3List);
+  }
+
+  @RequestMapping(path = "/metadatas/{metadataId}/history", method = RequestMethod.GET)
+  public ResponseEntity <?> getRecentlyUpdateUser(@PathVariable("metadataId") String metadataId){
+    //getting metadata from id
+    Metadata metadata = metadataRepository.findOne(metadataId);
+    if (metadata == null) {
+      throw new ResourceNotFoundException(metadataId);
+    }
+
+    List<?> updateHistoryList = metadataService.getUpdateHistory(metadata);
+    return ResponseEntity.ok(updateHistoryList);
+  }
+
 }

@@ -14,10 +14,13 @@
 
 package app.metatron.discovery.domain.mdm;
 
+import com.google.common.collect.Lists;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,15 +41,25 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import app.metatron.discovery.common.data.projection.DataGrid;
 import app.metatron.discovery.common.data.projection.Row;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.activities.ActivityStream;
+import app.metatron.discovery.domain.activities.ActivityStreamRepository;
+import app.metatron.discovery.domain.activities.spec.ActivityType;
+import app.metatron.discovery.domain.activities.spec.Actor;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
 import app.metatron.discovery.domain.datasource.DataSource;
+import app.metatron.discovery.domain.datasource.DataSourceRepository;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcCSVWriter;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
 import app.metatron.discovery.domain.datasource.data.DataSourceValidator;
@@ -58,6 +71,12 @@ import app.metatron.discovery.domain.mdm.preview.MetadataJdbcDataPreview;
 import app.metatron.discovery.domain.mdm.source.MetaSourceService;
 import app.metatron.discovery.domain.mdm.source.MetadataSource;
 import app.metatron.discovery.domain.storage.StorageProperties;
+import app.metatron.discovery.domain.user.CachedUserService;
+import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.workbench.Workbench;
+import app.metatron.discovery.domain.workbench.WorkbenchRepository;
+import app.metatron.discovery.domain.workbook.DashBoard;
+import app.metatron.discovery.domain.workbook.DashboardRepository;
 import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
 
 
@@ -87,6 +106,22 @@ public class MetadataService implements ApplicationEventPublisherAware {
 
   @Autowired
   DataSourceValidator dataSourceValidator;
+
+  @Autowired
+  DataSourceRepository dataSourceRepository;
+
+  @Autowired
+  ActivityStreamRepository activityStreamRepository;
+
+  @Autowired
+  CachedUserService cachedUserService;
+
+  @Autowired
+  DashboardRepository dashboardRepository;
+
+  @Autowired
+  WorkbenchRepository workbenchRepository;
+
 
   private ApplicationEventPublisher publisher;
 
@@ -448,5 +483,111 @@ public class MetadataService implements ApplicationEventPublisherAware {
 
     queryString = jdbcConnectionService.generateSelectQuery(jdbcConnection, schema, type, query, null);
     return queryString;
+  }
+
+  public List<?> getFrequentUser(Metadata metadata, int maxCount){
+    Metadata.SourceType sourceType = metadata.getSourceType();
+    LOGGER.debug("Getting frequent top 3 user about : {}", sourceType);
+
+    List<Map> accessTop3List = new ArrayList<>();
+    switch (sourceType){
+      case ENGINE:
+        //getting DataSourceId
+        String dataSourceId = metadata.getSource().getSourceId();
+
+        //getting Dashboard list that use the datasource
+        Set<DashBoard> dashboardsInDataSource = dataSourceRepository.findDashboardsInDataSource(dataSourceId);
+
+        //extract dashboard id
+        List<String> dashboardIdList = dashboardsInDataSource.stream()
+                                                             .map(dashBoard -> dashBoard.getId())
+                                                             .collect(Collectors.toList());
+
+        //we need just VIEW Action
+        List<ActivityType> activityTypes = Lists.newArrayList(ActivityType.VIEW);
+
+        //between 1 month
+        DateTime toDatetime = DateTime.now();
+        DateTime fromDatetime = toDatetime.minusMonths(1);
+
+        List<Map<String, Object>> activityInfoList
+            = activityStreamRepository.getActivityCountByUser(dashboardIdList, activityTypes, Actor.ActorType.PERSON,
+                                                              fromDatetime, toDatetime);
+
+        LOGGER.debug("Activity Count By User List : {}", activityInfoList.size());
+
+        //top 3
+        for(int i = 0; i < Math.min(maxCount, activityInfoList.size()); i++){
+          Map<String, Object> activityInfo = activityInfoList.get(i);
+          Long activityId = (Long) activityInfo.get("ID");
+          Long activityCount = (Long) activityInfo.get("CNT");
+
+          //get Recent Activity
+          ActivityStream activityStream = activityStreamRepository.findOne(activityId);
+
+          LOGGER.debug("User({}), Count({}), Date({})", activityStream.getActor(), activityCount, activityStream.getPublishedTime());
+
+          //get user info
+          User actor = cachedUserService.findUser(activityStream.getActor());
+          //get dashboard info
+
+          DashBoard dashBoard = dashboardRepository.findOne(activityStream.getObjectId());
+
+          Map<String, Object> accessMap = new HashMap<>();
+          accessMap.put("user", actor);
+          accessMap.put("dashboard", dashBoard);
+          accessMap.put("count", activityCount);
+          accessMap.put("lastPublishedTime", activityStream.getPublishedTime());
+
+          accessTop3List.add(accessMap);
+        }
+        break;
+      case STAGEDB:
+        break;
+      case JDBC:
+        int topCnt = getRandomNumberInRange(0, 3);
+        List<Workbench> workbenches = workbenchRepository.findAll();
+
+        for(int i = 0; i < Math.min(topCnt, workbenches.size()); ++i){
+          Map<String, Object> top1User = new HashMap<>();
+          top1User.put("count", 10);
+          top1User.put("lastPublishedTime", DateTime.now());
+          top1User.put("user", cachedUserService.findUser("admin"));
+          top1User.put("workbench", workbenches.get(i));
+          accessTop3List.add(top1User);
+        }
+        break;
+      default:
+
+        break;
+    }
+    return accessTop3List;
+  }
+
+  private int getRandomNumberInRange(int min, int max) {
+
+    if (min >= max) {
+      throw new IllegalArgumentException("max must be greater than min");
+    }
+
+    Random r = new Random();
+    return r.nextInt((max - min) + 1) + min;
+  }
+
+  public List<?> getUpdateHistory(Metadata metadata){
+    List<Map> updatedList = new ArrayList<>();
+    int cnt = getRandomNumberInRange(1, 5);
+    for(int i = 0; i < cnt; ++i){
+      Map<String, Object> top1User = new HashMap<>();
+      top1User.put("createdTime", DateTime.now());
+      top1User.put("user", cachedUserService.findUser("admin"));
+      if(i == 0){
+        top1User.put("contents", "initial created.");
+      } else {
+        top1User.put("contents", "modified" + i);
+      }
+      updatedList.add(top1User);
+    }
+    return updatedList;
   }
 }
