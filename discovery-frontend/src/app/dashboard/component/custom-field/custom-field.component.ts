@@ -60,6 +60,8 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  protected expressionStringDelimiter = '#';
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -116,14 +118,15 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
 
 
   /*** 계산식 필드 , 가상 컬럼***/
-
-    // 함수목록
+  // 함수목록
   public calculationFunctions: CommonCode[];
 
   // 카테고리 목록
   public calculationCategory: CommonCode[];
   // 카테고리 목록
   public oriCalculationCategory: CommonCode[];
+  // 카테고리 목록
+  public selCalculationCategory: CommonCode[];
 
   // 카테고리 인덱스
   public categoryDefaultIndex: number = -1;
@@ -257,7 +260,13 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
    */
   public setSearchText(srchText:string) {
     this.calFuncSearchText = srchText;
+    $('div.ddp-ui-dropdown').addClass('ddp-selected');
   } // function - setSearchText
+
+  public setSelectedCategory(selectedCategory:CommonCode) {
+    this.selectedCategory = selectedCategory;
+    $('div.ddp-ui-dropdown').addClass('ddp-selected');
+  }
 
   // 카테고리에 카테고리별 함수 추가
   public setFunctionsInCategory(init: boolean = false) {
@@ -278,6 +287,16 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
     } else {
       this.calculationCategory = this.oriCalculationCategory;
     }
+
+    this.selCalculationCategory = _.cloneDeep(this.calculationCategory).sort((c1, c2) => {
+      if (c2.commonCode === 'ETC' || c1.commonCode === 'all') {
+        return -1;
+      }
+      if (c1.commonCode === 'ETC' || c2.commonCode === 'all') {
+        return 1;
+      }
+      return c1.commonCode > c2.commonCode ? 1 : -1;
+    });
 
   }
 
@@ -422,8 +441,8 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
     this.dashboardService.getCalculationFunction().then((result) => {
 
       // 펑션 데이터 셋팅
-      if (result.hasOwnProperty('_embedded') && result['_embedded'].hasOwnProperty('commonCodes')) {
-        this.calculationFunctions = result['_embedded']['commonCodes'];
+      if (result != null) {
+        this.calculationFunctions = result;
 
         // 검색 키를 맞춰줘야 하기 때문에 name추가
         this.calculationFunctions.forEach((item) => {
@@ -506,6 +525,8 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
 
     // 검증 버튼 활성화
     this.calValidButtonCheck();
+    event.stopPropagation();
+    event.preventDefault();
   }
 
   // 컬럼 클릭
@@ -673,6 +694,58 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
     } else {
       return false;
     }
+  }
+
+  public getDescription(commonCode: CommonCode): string {
+    return this.getLanguage() === 'ko' ? commonCode.description : commonCode.descriptionEn;
+  }
+
+  public getApiHtml(commonCode: CommonCode): string {
+    let html = '<span class="ddp-ui-det-title">API</span>';
+    let apiList: string[] = _.split(commonCode.api, this.expressionStringDelimiter);
+    html += apiList[0];
+    if (apiList.length > 1) {
+      for( let num: number = 1 ; num < apiList.length ; num++ ) {
+        html += '<br/>';
+        html += apiList[num];
+      }
+    }
+
+    if (StringUtil.isEmpty(commonCode.param)) {
+      return html;
+    } else {
+      let paramList: string[] = _.split((this.getLanguage() === 'ko' ? commonCode.param : commonCode.paramEn), this.expressionStringDelimiter);
+      html += '<ul class="ddp-list-det">';
+      for( let num: number = 0 ; num < paramList.length ; num++ ) {
+        html += '<li>';
+        html += paramList[num];
+        html += '</li>';
+      }
+      html += '</ul>';
+      return html;
+    }
+  }
+
+  public getExampleHtml(commonCode: CommonCode): string {
+    let html = '<span class="ddp-ui-det-title">Example</span>';
+    let exampleList: string[] = _.split((this.getLanguage() === 'ko' ? commonCode.example : commonCode.exampleEn), this.expressionStringDelimiter);
+    for( let num: number = 0 ; num < exampleList.length ; num++ ) {
+      html += '<div class="ddp-txt-list">';
+      html += exampleList[num];
+      html += '</div>';
+    }
+    return html;
+  }
+
+  public clickCategory($event) {
+    const $targetElm = $( $event.target ).parent();
+
+    if (!$targetElm.hasClass( 'ddp-selected' )) {
+      $targetElm.addClass( 'ddp-selected' );
+    } else {
+      $targetElm.removeClass( 'ddp-selected' );
+    }
+
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

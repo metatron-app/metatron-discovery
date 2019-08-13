@@ -25,18 +25,18 @@
       </div>
 
       <!-- det -->
-      <div class="ddp-ui-info-det" *ngIf="isCalFuncSuccess !== 'S'">
+      <div class="ddp-ui-info-det" *ngIf="isCalFuncSuccess === 'F'">
         <em class="ddp-icon-error-info"></em> {{'msg.board.custom.ui.val.un.check' | translate}}
       </div>
       <div class="ddp-ui-info-det" *ngIf="isCalFuncSuccess === 'S' && (columnName == null ||  columnName.trim() === '')">
         <em class="ddp-icon-error-info"></em> {{'msg.board.custom.ui.column.empty' | translate}}
       </div>
-      <div class="ddp-ui-info-det" *ngIf="isCalFuncSuccess === 'S' && isReservedFieldName(columnName)">
+      <div class="ddp-ui-info-det" *ngIf="(isCalFuncSuccess == null || isCalFuncSuccess === 'S') && isReservedFieldName(columnName)">
         <em class="ddp-icon-error-info"></em> {{'msg.board.custom.ui.column.reserved' | translate}}
       </div>
     </div>
     <!-- //title -->
-    <div class="ddp-ui-popup-contents">
+    <div class="ddp-ui-popup-contents page-flex">
 
       <!-- edit -->
       <div class="ddp-wrap-edit3">
@@ -69,198 +69,228 @@
         </div>
         <!-- //계산식입력 -->
         <!-- 계산식 검색 -->
-        <div class="ddp-ui-account-search ddp-clear">
-          <div class="ddp-label-pop-title">
-            {{'msg.board.custom.th.recommendation' | translate}}
-          </div>
-          <!-- add list -->
-          <div class="ddp-wrap-add-list">
-            <!-- top -->
-            <div class="ddp-ui-top">
-              <span class="ddp-ui-sub-title">{{'msg.board.custom.th.add.column' | translate}}</span>
-              <!-- page -->
-              <div class="ddp-ui-page">
-                <a href="javascript:" class="ddp-btn-prev" [ngClass]="{'ddp-disabled' : currentPage === 1}"  (click)="setFieldPage(currentPage-1, 'prev')"></a>
-                <span class="ddp-data-page"><em>{{currentPage}}</em>/<em>{{lastPage}}</em></span>
-                <a href="javascript:" class="ddp-btn-next ddp-disabled" [ngClass]="{'ddp-disabled' : currentPage == lastPage}" (click)="setFieldPage(currentPage+1, 'next')"></a>
-              </div>
-              <!-- //page -->
-            </div>
-            <!-- //top -->
+        <div class="ddp-ui-account-search">
+          <div class="ddp-clear">
 
-            <ul class="ddp-list-typebasic ddp-typeicon">
-              <li *ngFor="let field of pagedFields" (click)="selectColumn(field)">
-                <a href="javascript:">
-                  <em ngClass="{{DashboardUtil.getFieldIconClass(findNameForIcon(field.type, field.logicalType?.toString()))}}"></em>
-                  <span class="ddp-data-name" *ngIf="field.ref">{{field.ref}}.</span>
-                  {{field.name}}
-                  <em class="ddp-icon-plus"></em>
-                </a>
-              </li>
-            </ul>
-
-          </div>
-          <!-- //add list -->
-
-          <!-- formula -->
-          <div class="ddp-wrap-formula">
-            <!-- top -->
-            <div class="ddp-ui-top">
-              <span class="ddp-ui-sub-title">{{'msg.board.custom.th.add.formula' | translate}}</span>
-
-            </div>
-            <!-- //top -->
-            <div class="ddp-view-formula">
-              <div class="ddp-ui-formula">
-                <!-- 검색 -->
-                <component-input
-                  [compType]="'search'"
-                  [value]="calFuncSearchText"
-                  [immediately]="true"
-                  [placeHolder]="'msg.board.custom.ui.placeholder' | translate"
-                  (changeValue)="setSearchText($event)"></component-input>
-                <!-- //검색 -->
-
-                <!-- select box -->
-                <!-- 클릭시 ddp-selected 추가 -->
-                <component-select *ngIf="calculationCategory && categoryDefaultIndex != -1" #categorySelect
-                                  [array]="calculationCategory"
-                                  [viewKey]="'commonCodeNm'"
-                                  [defaultIndex]="categoryDefaultIndex"
-                                  (onSelected)="selectedCategory = $event"
-                ></component-select>
-                <!-- //select box -->
-                <!-- list -->
-                <div class="ddp-ui-typebasic" (mouseleave)="setCalculationDesciption(null, false)">
-                  <div *ngFor="let category of calculationCategory
-                | baseFilter : ['commonCodeNm', 'ALL', true]
-                | baseFilter : ['commonCode', selectedCategory.commonCode]">
-                    <span class="ddp-list-name">{{category.commonCodeNm}}</span>
-                    <ul class="ddp-list-typebasic ddp-typeplus">
-                      <li *ngFor="let calFunction of category['calculationFunctions']
-                    | baseFilter : ['commonValue', calFuncSearchText]"
-                          (mouseenter)="setCalculationDesciption(calFunction, true)"
-                          (click)="selectedCalculationFunction(calFunction)">
-                        <a href="javascript:" (click)="selectFunction(calFunction)">
-                          {{calFunction.commonValue}}
-                          <em class="ddp-icon-plus"></em>
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-                <!-- list -->
-
-            </div>
-
-              <!-- 설명 -->
-              <div class="ddp-ui-detail">
-                <em class="ddp-btn-close" *ngIf="selectedFunction" (click)="selectedFunction = null;setCalculationDesciption(null, false)"></em>
-                <span class="ddp-ui-det-title">{{categoryDescription.commonValue}}</span>
-                <span class="ddp-ui-det-category">{{categoryDescription.categoryCommonCodeNm}}</span>
-                <span class="ddp-txt-det" [innerHtml]="categoryDescription.description"></span>
-              </div>
-              <!-- //설명 -->
-            </div>
-
-
-          </div>
-          <!-- //formula -->
-
-        </div>
-        <!-- //계산식 검색 -->
-      </div>
-      <div [hidden]="selectedColumnType !== columnType.PARAMETER">
-        <!-- userfield -->
-        <div class="ddp-ui-userfield ddp-celar">
-          <!-- setting -->
-          <div class="ddp-ui-setting">
-
-            <!-- edit -->
-            <div class="ddp-wrap-edit3">
-              <label class="ddp-label-type">DefaultLvalue</label>
-              <!-- edit option -->
-              <div class="ddp-ui-edit-option">
-                <div class="ddp-ui-option-in">
-                  <input type="text" class="ddp-input-typebasic" placeholder="DefaultLvalue" [(ngModel)]="defaultParamValue"/>
-                </div>
-              </div>
-              <!-- //edit option -->
-            </div>
-            <!-- //edit -->
-            <!-- edit -->
-            <div class="ddp-wrap-edit3">
-
-              <span class="ddp-ui-label-name">ValueLrange</span>
-
-              <div class="ddp-ui-sub-edit ddp-clear">
-                <label class="ddp-label-subtype">Minimum</label>
-                <!-- edit option -->
-                <div class="ddp-ui-edit-suboption">
-                  <div class="ddp-ui-option-in">
-                    <input type="text" class="ddp-input-typebasic" placeholder="Minimum" [(ngModel)]="minPramValue" />
-                  </div>
-                </div>
-                <!-- //edit option -->
-              </div>
-              <div class="ddp-ui-sub-edit ddp-clear">
-                <label class="ddp-label-subtype">Maximum</label>
-                <!-- edit option -->
-                <div class="ddp-ui-edit-suboption">
-                  <div class="ddp-ui-option-in">
-                    <input type="text" class="ddp-input-typebasic" placeholder="Maximum" [(ngModel)]="maxPramValue" />
-                  </div>
-                </div>
-                <!-- //edit option -->
-              </div>
-            </div>
-            <!-- //edit -->
-
-          </div>
-          <!-- //setting -->
-
-          <div class="ddp-ui-account-search">
             <div class="ddp-label-pop-title">
-              Recommendation
+              {{'msg.board.custom.th.recommendation' | translate}}
             </div>
+            <div class="ddp-wrap-form-list">
+            <!-- add list -->
+              <div class="ddp-wrap-add-list">
+                <!-- top -->
+                <div class="ddp-ui-top">
+                  <span class="ddp-ui-sub-title">{{'msg.board.custom.th.add.column' | translate}}</span>
+                  <!-- page -->
+                  <div class="ddp-ui-page">
+                    <a href="javascript:" class="ddp-btn-prev" [ngClass]="{'ddp-disabled' : currentPage === 1}"  (click)="setFieldPage(currentPage-1, 'prev')"></a>
+                    <span class="ddp-data-page"><em>{{currentPage}}</em>/<em>{{lastPage}}</em></span>
+                    <a href="javascript:" class="ddp-btn-next ddp-disabled" [ngClass]="{'ddp-disabled' : currentPage == lastPage}" (click)="setFieldPage(currentPage+1, 'next')"></a>
+                  </div>
+                  <!-- //page -->
+                </div>
+                <!-- //top -->
 
-            <div class="ddp-wrap-add-list">
+                <ul class="ddp-list-typebasic ddp-typeicon">
+                  <li *ngFor="let field of pagedFields" (click)="selectColumn(field)">
+                    <a href="javascript:">
+                      <em ngClass="{{DashboardUtil.getFieldIconClass(findNameForIcon(field.type, field.logicalType?.toString()))}}"></em>
+                      <span class="ddp-data-name" *ngIf="field.ref">{{field.ref}}.</span>
+                      {{field.name}}
+                      <em class="ddp-icon-plus"></em>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+            </div>
+            <!-- //add list -->
+
+            <!-- formula -->
+            <div class="ddp-wrap-formula">
               <!-- top -->
               <div class="ddp-ui-top">
-                <span class="ddp-ui-sub-title">Add column</span>
-                <!-- page -->
-                <div class="ddp-ui-page">
-                  <a href="javascript:" class="ddp-btn-prev" [ngClass]="{'ddp-disabled' : currentPage === 1}"  (click)="setFieldPage(currentPage-1, 'prev')"></a>
-                  <span class="ddp-data-page"><em>{{currentPage}}</em>/<em>{{lastPage}}</em></span>
-                  <a href="javascript:" class="ddp-btn-next ddp-disabled" [ngClass]="{'ddp-disabled' : currentPage == lastPage}" (click)="setFieldPage(currentPage+1, 'next')"></a>
-                </div>
-                <!-- //page -->
+                <span class="ddp-ui-sub-title">{{'msg.board.custom.th.add.formula' | translate}}</span>
+
               </div>
               <!-- //top -->
+              <div class="ddp-view-formula type-view">
+                <div class="ddp-ui-option">
+                  <!-- 검색 -->
+                  <div class="ddp-type-search">
+                    <component-input
+                      [compType]="'default'"
+                      [value]="calFuncSearchText"
+                      [immediately]="true"
+                      [isEnableDelete]="true"
+                      [placeHolder]="'msg.board.custom.ui.placeholder' | translate"
+                      (changeValue)="setSearchText($event)"></component-input>
+                  </div>
+                  <!-- //검색 -->
 
-              <ul class="ddp-list-typebasic ddp-typeicon">
-                <li *ngFor="let field of pagedFields" (click)="selecteParamColumn(field)">
-                  <a href="javascript:">
-                    <em class="ddp-icon-type-ab"  *ngIf="field.type === 'TEXT' || field.type === 'USER_DEFINED'"></em>
-                    <em class="ddp-icon-type-local" *ngIf="field.type === 'LNG' || field.type === 'LNT'"></em>
-                    <em class="ddp-icon-type-calen" *ngIf="field.type === 'TIMESTAMP'"></em>
-                    <em class="ddp-icon-type-sharp" *ngIf="field.type === 'INT' || field.type === 'DOUBLE' || field.type === 'CALCULATED'"></em>
-                    <em class="ddp-icon-type-point" *ngIf="field.logicalType.toString() === 'GEO_POINT'"></em>
-                    <em class="ddp-icon-type-line" *ngIf="field.logicalType.toString() === 'GEO_LINE'"></em>
-                    <em class="ddp-icon-type-polygon" *ngIf="field.logicalType.toString() === 'GEO_POLYGON'"></em>
-                    {{field.name}}
-                    <span class="ddp-data-value">1~100</span>
-                    <em class="ddp-icon-plus"></em>
-                  </a>
-                </li>
-              </ul>
+                  <!-- edit -->
+                  <div class="ddp-wrap-edit3">
+                    <label class="ddp-label-type">Function category</label>
+                    <!-- edit option -->
+                    <div class="ddp-ui-edit-option">
+                      <!-- select box -->
+                      <!-- 클릭시 ddp-selected 추가 -->
+                      <component-select *ngIf="selCalculationCategory && categoryDefaultIndex != -1" #categorySelect
+                                        [array]="selCalculationCategory"
+                                        [viewKey]="'commonCodeNm'"
+                                        [defaultIndex]="categoryDefaultIndex"
+                                        (onSelected)="setSelectedCategory($event)"
+                      ></component-select>
+                      <!-- //select box -->
+                    </div>
+                    <!-- //edit option -->
+                  </div>
+                  <!-- //edit -->
+
+                </div>
+                <!-- //formula -->
+
+                <!-- 설명 삭제시  ddp-full 추가 -->
+                <div class="ddp-ui-formula ">
+                  <!-- list -->
+                  <div class="ddp-ui-typebasic">
+                    <div *ngFor="let category of calculationCategory
+                    | baseFilter : ['commonCodeNm', 'ALL', true]
+                    | baseFilter : ['commonCode', selectedCategory.commonCode]"
+                         class="ddp-ui-dropdown ddp-selected">
+                      <span class="ddp-list-name" (click)="clickCategory($event)">{{category.commonCodeNm}}</span>
+                      <ul class="ddp-list-typebasic ddp-typeplus ddp-view">
+                        <li *ngFor="let calFunction of category['calculationFunctions']
+                      | baseFilter : ['commonValue', calFuncSearchText]"
+                            (mouseenter)="setCalculationDesciption(calFunction, true)"
+                            (mouseleave)="setCalculationDesciption(null, false)">
+                          <a href="javascript:" style="cursor: default">
+                            {{calFunction.commonValue}}
+                            <em class="ddp-icon-plus ddp-cursor" (click)="selectedCalculationFunction(calFunction); selectFunction(calFunction)"></em>
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                    <!-- list -->
+                  </div>
+                  <!-- //formula -->
+                </div>
+
+                <!-- 설명 -->
+                <div class="ddp-ui-detail">
+                  <div class="ddp-data-empty" [style.display]="categoryDescription.commonValue == undefined ? 'table' : 'none'">
+                    <div class="ddp-data-contents">Select a function</div>
+                  </div>
+                  <span class="ddp-ui-det-title"[style.display]="categoryDescription.commonValue == undefined ? 'none' : 'block'">Description</span>
+                    {{getDescription(categoryDescription)}}
+                  <!-- part -->
+                  <span class="ddp-txt-part"[style.display]="categoryDescription.commonValue == undefined ? 'none' : 'block'"
+                        [innerHtml]="getApiHtml(categoryDescription)"></span>
+                  <!-- //part -->
+                  <!-- part -->
+                  <span class="ddp-txt-part"[style.display]="categoryDescription.commonValue == undefined ? 'none' : 'block'"
+                        [innerHtml]="getExampleHtml(categoryDescription)"></span>
+                  <!-- //part -->
+                </div>
+                <!-- //설명 -->
+              </div>
+
             </div>
+            <!-- //계산식 검색 -->
+          </div>
+          <div [hidden]="selectedColumnType !== columnType.PARAMETER">
+            <!-- userfield -->
+            <div class="ddp-ui-userfield ddp-celar">
+              <!-- setting -->
+              <div class="ddp-ui-setting">
+
+                <!-- edit -->
+                <div class="ddp-wrap-edit3">
+                  <label class="ddp-label-type">DefaultLvalue</label>
+                  <!-- edit option -->
+                  <div class="ddp-ui-edit-option">
+                    <div class="ddp-ui-option-in">
+                      <input type="text" class="ddp-input-typebasic" placeholder="DefaultLvalue" [(ngModel)]="defaultParamValue"/>
+                    </div>
+                  </div>
+                  <!-- //edit option -->
+                </div>
+                <!-- //edit -->
+                <!-- edit -->
+                <div class="ddp-wrap-edit3">
+
+                  <span class="ddp-ui-label-name">ValueLrange</span>
+
+                  <div class="ddp-ui-sub-edit ddp-clear">
+                    <label class="ddp-label-subtype">Minimum</label>
+                    <!-- edit option -->
+                    <div class="ddp-ui-edit-suboption">
+                      <div class="ddp-ui-option-in">
+                        <input type="text" class="ddp-input-typebasic" placeholder="Minimum" [(ngModel)]="minPramValue" />
+                      </div>
+                    </div>
+                    <!-- //edit option -->
+                  </div>
+                  <div class="ddp-ui-sub-edit ddp-clear">
+                    <label class="ddp-label-subtype">Maximum</label>
+                    <!-- edit option -->
+                    <div class="ddp-ui-edit-suboption">
+                      <div class="ddp-ui-option-in">
+                        <input type="text" class="ddp-input-typebasic" placeholder="Maximum" [(ngModel)]="maxPramValue" />
+                      </div>
+                    </div>
+                    <!-- //edit option -->
+                  </div>
+                </div>
+                <!-- //edit -->
+
+              </div>
+              <!-- //setting -->
+
+              <div class="ddp-ui-account-search">
+                <div class="ddp-label-pop-title">
+                  Recommendation
+                </div>
+
+                <div class="ddp-wrap-add-list">
+                  <!-- top -->
+                  <div class="ddp-ui-top">
+                    <span class="ddp-ui-sub-title">Add column</span>
+                    <!-- page -->
+                    <div class="ddp-ui-page">
+                      <a href="javascript:" class="ddp-btn-prev" [ngClass]="{'ddp-disabled' : currentPage === 1}"  (click)="setFieldPage(currentPage-1, 'prev')"></a>
+                      <span class="ddp-data-page"><em>{{currentPage}}</em>/<em>{{lastPage}}</em></span>
+                      <a href="javascript:" class="ddp-btn-next ddp-disabled" [ngClass]="{'ddp-disabled' : currentPage == lastPage}" (click)="setFieldPage(currentPage+1, 'next')"></a>
+                    </div>
+                    <!-- //page -->
+                  </div>
+                  <!-- //top -->
+
+                  <ul class="ddp-list-typebasic ddp-typeicon">
+                    <li *ngFor="let field of pagedFields" (click)="selecteParamColumn(field)">
+                      <a href="javascript:">
+                        <em class="ddp-icon-type-ab"  *ngIf="field.type === 'TEXT' || field.type === 'USER_DEFINED'"></em>
+                        <em class="ddp-icon-type-local" *ngIf="field.type === 'LNG' || field.type === 'LNT'"></em>
+                        <em class="ddp-icon-type-calen" *ngIf="field.type === 'TIMESTAMP'"></em>
+                        <em class="ddp-icon-type-sharp" *ngIf="field.type === 'INT' || field.type === 'DOUBLE' || field.type === 'CALCULATED'"></em>
+                        <em class="ddp-icon-type-point" *ngIf="field.logicalType.toString() === 'GEO_POINT'"></em>
+                        <em class="ddp-icon-type-line" *ngIf="field.logicalType.toString() === 'GEO_LINE'"></em>
+                        <em class="ddp-icon-type-polygon" *ngIf="field.logicalType.toString() === 'GEO_POLYGON'"></em>
+                        {{field.name}}
+                        <span class="ddp-data-value">1~100</span>
+                        <em class="ddp-icon-plus"></em>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <!-- //userfield -->
           </div>
         </div>
-        <!-- //userfield -->
       </div>
-    </div>
 
+    </div>
   </div>
 </div>
 

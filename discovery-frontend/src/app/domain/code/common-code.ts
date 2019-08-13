@@ -22,4 +22,10 @@ export class CommonCode {
   public commonCodeSNO: string;
   public commonUseFl: string;
   public description: string;
+  public api: string;
+  public param: string;
+  public example: string;
+  public descriptionEn: string;
+  public paramEn: string;
+  public exampleEn: string;
 }
