@@ -1,4 +1,3 @@
-
 <!--
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -23,43 +22,45 @@
       disabled="true"
     ></component-select>
   </div>
-  <div class=""style="clear:both; padding:20px 0 0 0;">
-  <div style="position:relative; width : 300px">
-    <div>셀렉트</div>
-    <component-select
-      [array]="selectStringArray"
-      (onSelected)="onSelected($event)"
+  <div class="" style="clear:both; padding:20px 0 0 0;">
+    <div style="position:relative; width : 300px">
+      <div>셀렉트</div>
+      <component-select
+        [array]="selectStringArray"
+        (onSelected)="onSelected($event)"
       ></component-select>
-  </div>
-  <div class=""style="clear:both; padding:20px 0 0 0;">
+    </div>
+    <div class="" style="clear:both; padding:20px 0 0 0;">
 
-  <div style="position:relative; width : 300px">
-    <div>셀렉트</div>
-    <component-select
-    [array]="selectModelArray"
-    [viewKey]="'username'"
-    [isUpSelect]="true"
-    (onSelected)="onSelected($event)"
-    ></component-select>
-  </div>
-  <!-- //edit -->
-  <div class=""style="clear:both; padding:20px 0 0 0;">
+      <div style="position:relative; width : 300px">
+        <div>셀렉트</div>
+        <component-select
+          [array]="selectModelArray"
+          [viewKey]="'username'"
+          [isUpSelect]="true"
+          (onSelected)="onSelected($event)"
+        ></component-select>
+      </div>
+      <!-- //edit -->
+      <div class="" style="clear:both; padding:20px 0 0 0;">
+
+      </div>
+      <div>기간1</div>
+      <component-period
+        [withTime]="false"
+        [returnFormat]="'YYYYMMDD'"
+        (changeDate)="changeDate($event)"
+      ></component-period>
+      <!-- //edit -->
+      <div class="" style="clear:both; padding:20px 0 0 0;">
+
+      </div>
+      <div>기간2</div>
+      <component-period
+        (changeDate)="changeDate($event)"
+      ></component-period>
+
+    </div>
 
   </div>
-  <div>기간1</div>
-  <component-period
-    [withTime]="false"
-    [returnFormat]="'YYYYMMDD'"
-    (changeDate)="changeDate($event)"
-  ></component-period>
-  <!-- //edit -->
-  <div class=""style="clear:both; padding:20px 0 0 0;">
-
-  </div>
-  <div>기간2</div>
-  <component-period
-    (changeDate)="changeDate($event)"
-  ></component-period>
-
 </div>
-

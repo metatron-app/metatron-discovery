@@ -306,7 +306,7 @@
 
   "msg.lnb.btn.manual" : "手册",
   "msg.lnb.btn.manual.web" : "网站",
-  "msg.lnb.btn.workspace-list": "工作区目录 >>",
+  "msg.lnb.btn.workspace-list": "工作区目录",
   "msg.lnb.label.set-favorite-workspace": "设置常用共享工作区",
   "msg.lnb.label.help": "帮助",
   "msg.lnb.label.contact" : "联系",

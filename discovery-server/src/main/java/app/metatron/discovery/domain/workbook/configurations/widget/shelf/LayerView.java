@@ -144,17 +144,17 @@ public interface LayerView extends Serializable {
 
   class AbbreviatedView extends HashLayerView implements LayerView {
 
-    RelayAggregation.Relaytype relayType;
+    RelayAggregation.RelayType relayType;
 
     @JsonCreator
     public AbbreviatedView(@JsonProperty("method") String method,
                            @JsonProperty("precision") Integer precision,
                            @JsonProperty("relayType") String relayType) {
       super(method, precision);
-      this.relayType = EnumUtils.getUpperCaseEnum(RelayAggregation.Relaytype.class, relayType);
+      this.relayType = EnumUtils.getUpperCaseEnum(RelayAggregation.RelayType.class, relayType);
     }
 
-    public RelayAggregation.Relaytype getRelayType() {
+    public RelayAggregation.RelayType getRelayType() {
       return relayType;
     }
   }

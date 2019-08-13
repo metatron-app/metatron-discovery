@@ -94,7 +94,7 @@ public class GroupService {
    */
   public List<Group> getJoinedGroups(String username) {
 
-    Iterable<Group> groups = groupRepository.findAll(GroupPredicate.searchGroupByMemberId(username));
+    Iterable<Group> groups = groupRepository.findJoinedGroups(username);
 
     return Lists.newArrayList(groups);
   }

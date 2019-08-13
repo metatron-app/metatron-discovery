@@ -253,8 +253,8 @@ then the Select statement is performed; otherwise, the GroupBy statement is perf
 
 |aggregationType
 |Eumn
-|(measure) the type of aggregation, "NONE", "MIN", "MAX", "COUNT", "SUM", "AVG", "STDDEV", "MEDIAN", "AREA", "RANGE", "PERCENTILE"
-|
+|(measure) the type of aggregation, "NONE", "MIN", "MAX", "COUNT", "SUM", "AVG", "STDDEV", "MEDIAN", "AREA", "RANGE", "PERCENTILE", "FIRST", "LAST"
+| For "first", "last" aggregation, It queries the result sorted by the timestamp role column
 
 |options
 |String
