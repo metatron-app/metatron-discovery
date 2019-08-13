@@ -330,6 +330,7 @@ public class QueryEditorController {
     String csvFilePath = csvPath + File.separator + fileName + "_" + Calendar.getInstance().getTime().getTime() + ".csv";
 
     createCSVFile(query, webSocketId, connectionId, fileName, csvFilePath);
+
     HttpUtils.downloadCSVFile(response, fileName, csvFilePath, "text/csv; charset=utf-8");
   }
 
@@ -419,17 +420,7 @@ public class QueryEditorController {
     String csvFilePath = (String) requestParam.get("csvFilePath");
     String fileName = (String) requestParam.get("fileName");
 
-    if(StringUtils.isEmpty(fileName)){
-      fileName = "noname";
-    }
-
-    String csvBaseDir = workbenchProperties.getTempCSVPath();
-    if(!csvBaseDir.endsWith(File.separator)){
-      csvBaseDir = csvBaseDir + File.separator;
-    }
-    String filePath = csvBaseDir + csvFilePath;
-
-    HttpUtils.downloadCSVFile(response, fileName, filePath, "text/csv");
+    downloadCSV(csvFilePath, fileName, response);
   }
 
   @RequestMapping(path = "/queryeditors/{id}/query/download/csv", method = RequestMethod.POST,
@@ -441,15 +432,28 @@ public class QueryEditorController {
     String csvFilePath = (String) requestBody.get("csvFilePath");
     String fileName = (String) requestBody.get("fileName");
 
+    downloadCSV(csvFilePath, fileName, response);
+  }
+
+  private void downloadCSV(String csvFilePath, String fileName, HttpServletResponse response) throws IOException {
     if(StringUtils.isEmpty(fileName)){
       fileName = "noname";
     }
+
+    Assert.isTrue(!csvFilePath.isEmpty(), "Parameter 'csvFilePath' is empty.");
 
     String csvBaseDir = workbenchProperties.getTempCSVPath();
     if(!csvBaseDir.endsWith(File.separator)){
       csvBaseDir = csvBaseDir + File.separator;
     }
     String filePath = csvBaseDir + csvFilePath;
+
+    File file = new File(filePath);
+    if (file == null || !csvFilePath.equals(file.getName())) {
+      LOGGER.error("csvFilePath : {} : fileName : {}", csvFilePath, file.getName());
+      throw new WorkbenchException(WorkbenchErrorCodes.CSV_FILE_NOT_FOUND, "CSV Download Failed");
+    }
+
     HttpUtils.downloadCSVFile(response, fileName, filePath, "text/csv; charset=utf-8");
   }
 
