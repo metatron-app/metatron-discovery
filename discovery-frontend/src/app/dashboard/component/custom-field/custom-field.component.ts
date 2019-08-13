@@ -697,7 +697,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
   }
 
   public getDescription(commonCode: CommonCode): string {
-    return this.getLanguage() === 'ko' ? commonCode.description : commonCode.descriptionEn;
+    return this.translateService.currentLang === 'ko' ? commonCode.description : commonCode.descriptionEn;
   }
 
   public getApiHtml(commonCode: CommonCode): string {
@@ -714,7 +714,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
     if (StringUtil.isEmpty(commonCode.param)) {
       return html;
     } else {
-      let paramList: string[] = _.split((this.getLanguage() === 'ko' ? commonCode.param : commonCode.paramEn), this.expressionStringDelimiter);
+      let paramList: string[] = _.split((this.translateService.currentLang === 'ko' ? commonCode.param : commonCode.paramEn), this.expressionStringDelimiter);
       html += '<ul class="ddp-list-det">';
       for( let num: number = 0 ; num < paramList.length ; num++ ) {
         html += '<li>';
@@ -728,7 +728,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
 
   public getExampleHtml(commonCode: CommonCode): string {
     let html = '<span class="ddp-ui-det-title">Example</span>';
-    let exampleList: string[] = _.split((this.getLanguage() === 'ko' ? commonCode.example : commonCode.exampleEn), this.expressionStringDelimiter);
+    let exampleList: string[] = _.split((this.translateService.currentLang === 'ko' ? commonCode.example : commonCode.exampleEn), this.expressionStringDelimiter);
     for( let num: number = 0 ; num < exampleList.length ; num++ ) {
       html += '<div class="ddp-txt-list">';
       html += exampleList[num];
