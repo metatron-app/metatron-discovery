@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -37,17 +38,20 @@ public class ExpressionService {
 
   @PostConstruct
   public void setup() {
-    String targetFile = getClass().getClassLoader()
-                                  .getResource("templates/expression/expressions.csv").getPath();
+    try {
+      CommonsCsvProcessor commonsCsvProcessor = new CommonsCsvProcessor(getClass().getClassLoader()
+                                                                                  .getResource("templates/expression/expressions.csv").toURI())
+          .withHeader(true)
+          .maxRowCount(143L)
+          .parse(",");
 
-    CommonsCsvProcessor commonsCsvProcessor = new CommonsCsvProcessor("file://" + targetFile)
-        .withHeader(true)
-        .maxRowCount(143L)
-        .parse(",");
+      IngestionDataResultResponse resultResponse = commonsCsvProcessor.ingestionDataResultResponse();
 
-    IngestionDataResultResponse resultResponse = commonsCsvProcessor.ingestionDataResultResponse();
+      commonCodeList = Arrays.asList(GlobalObjectMapper.readValue(GlobalObjectMapper.writeValueAsString(resultResponse.getData()), CommonCode[].class));
+    } catch (URISyntaxException e) {
+      LOGGER.error(e.getMessage());
+    }
 
-    commonCodeList = Arrays.asList(GlobalObjectMapper.readValue(GlobalObjectMapper.writeValueAsString(resultResponse.getData()), CommonCode[].class));
   }
 
   public List<CommonCode> getCommonCodeList() {
