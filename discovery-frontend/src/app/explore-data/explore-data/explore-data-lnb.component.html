@@ -36,33 +36,27 @@
         </div>
         <!-- //search -->
         <!-- favorite -->
-        <!--                                <div class="ddp-ui-favorite">-->
-        <!--                                    <div class="ddp-ui-label"><em class="ddp-icon-favorite"></em>Favorite</div>-->
-        <!--                                    <ul class="ddp-list-favorite">-->
-        <!--                                        <li>-->
-        <!--                                            <a href="javascript:">-->
-        <!--                                                <em class="ddp-icon-folder-type"></em>-->
-        <!--                                                <div class="ddp-data-txt">-->
-        <!--                                                    <span class="ddp-data-navi">-->
-        <!--                                                        Abc사업부 > ABbde팀 > ABC파트Abc사업부 > ABbde팀 > ABC파트Abc사업부 > ABbde팀 > ABC파트-->
-        <!--                                                    </span>-->
-        <!--                                                    <span class="ddp-data-name">A 사업부</span>-->
-        <!--                                                </div>-->
-        <!--                                            </a>-->
-        <!--                                        </li>-->
-        <!--                                        <li>-->
-        <!--                                            <a href="javascript:">-->
-        <!--                                                <em class="ddp-icon-folder"></em>-->
-        <!--                                                <div class="ddp-data-txt">-->
-        <!--                                                    <span class="ddp-data-navi">-->
-        <!--                                                        Abc사업부 > ABbde팀 > ABC파트Abc사업부 > ABbde팀 > ABC파트Abc사업부 > ABbde팀 > ABC파트-->
-        <!--                                                    </span>-->
-        <!--                                                    <span class="ddp-data-name">A 사업부</span>-->
-        <!--                                                </div>-->
-        <!--                                            </a>-->
-        <!--                                        </li>-->
-        <!--                                    </ul>-->
-        <!--                                </div>-->
+        <div class="ddp-ui-favorite">
+          <div class="ddp-ui-label"><em class="ddp-icon-favorite"></em>Favorite({{ favoriteDataList.length }})</div>
+          <div class="ddp-favorite-nodata" *ngIf="favoriteDataList.length === 0">
+            No favorite data
+          </div>
+          <ul class="ddp-list-favorite" *ngIf="favoriteDataList.length > 0">
+            <li *ngFor="let favoriteData of favoriteDataList">
+              <a href="javascript:">
+                <em class="ddp-icon-folder-type"></em>
+                <div class="ddp-data-txt">
+                  <span class="ddp-data-navi">
+                      {{ favoriteData.path }}
+                  </span>
+                  <span class="ddp-data-name">
+                    {{ favoriteData.name }}
+                  </span>
+                </div>
+              </a>
+            </li>
+          </ul>
+        </div>
 
         <!-- //favorite -->
         <!-- tree -->

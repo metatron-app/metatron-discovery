@@ -37,6 +37,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   sourceTypeCount: number = 0;
   stagingTypeCount: number = 0;
   databaseTypeCount: number = 0;
+  datasetTypeCount: number = 0;
 
   subscription: Subscription;
 
@@ -83,16 +84,6 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     super.ngOnDestroy();
     this.$layoutContentsClass.removeClass( 'ddp-layout-meta' );
     this.subscription.unsubscribe();
-  }
-
-  @HostListener('window:scroll')
-  onScrolled() {
-    if($(window).scrollTop() > 0){
-      $('.ddp-layout-contents').addClass('ddp-scroll');
-    }
-    else if($(window).scrollTop() === 0) {
-      $('.ddp-layout-contents').removeClass('ddp-scroll');
-    }
   }
 
   goToExploreMain(): void {

@@ -42,6 +42,14 @@ export class ExploreDataLnbComponent extends AbstractComponent {
   tagSearchKeyword: string;
   isFoldingNavigation: boolean;
 
+  // Dummy data before api
+  favoriteDataList = [
+    {
+      path: "daf",
+      name: "daf",
+    }
+  ];
+
   @Output() readonly changedLnbData = new EventEmitter();
 
   // enum

@@ -1,4 +1,4 @@
-<div class="ddp-ui-contents-list ddp-type ">
+<div exploreDataScroll class="ddp-ui-contents-list ddp-type ">
   <!-- banner -->
   <div class="ddp-ui-banner">
     <div class="ddp-type-label">
@@ -27,73 +27,86 @@
   <!-- summary -->
   <div class="ddp-wrap-meta-summary">
     <!-- wrap box -->
-    <div class="ddp-wrap-box">
-      <div class="ddp-box-summary">
-        <div class="ddp-type-summary-label">{{'msg.explore.ui.list.popular' | translate}}</div>
-        <div class="ddp-wrap-summary">
-          <ul class="ddp-list-summary ddp-clear" *ngFor="let pairPopularMetadata of popularMetadataList">
-            <li *ngFor="let metadata of pairPopularMetadata">
-              <component-explore-card [iconClass]="getMetadataTypeClass(metadata)"
-                              [title]="metadata.name" [description]="metadata.description"
-                              [tagList]="metadata.tags"
-                              [popularity]="metadata.popularity"
-                              [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
-              </component-explore-card>
-            </li>
-          </ul>
+    <div class="ddp-wrap-box ddp-clear">
+      <div class="ddp-box-in">
+        <div class="ddp-box-summary">
+          <div class="ddp-type-summary-label">{{'msg.explore.ui.list.popular' | translate}}</div>
+          <div class="ddp-wrap-summary">
+            <ul class="ddp-list-summary ddp-clear" *ngFor="let pairPopularMetadata of popularMetadataList">
+              <li *ngFor="let metadata of pairPopularMetadata">
+                <component-explore-card [iconClass]="getMetadataTypeClass(metadata)"
+                                [title]="metadata.name" [description]="metadata.description"
+                                [tagList]="metadata.tags"
+                                [popularity]="metadata.popularity"
+                                [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
+                </component-explore-card>
+              </li>
+              <li *ngFor="let metadata of pairPopularMetadata">
+                <component-explore-card [iconClass]="getMetadataTypeClass(metadata)"
+                                        [title]="metadata.name" [description]="metadata.description"
+                                        [tagList]="metadata.tags"
+                                        [popularity]="metadata.popularity"
+                                        [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
+                </component-explore-card>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
-      <div class="ddp-box-summary">
-        <div class="ddp-type-summary-label">{{'msg.explore.ui.list.updated' | translate}}</div>
-        <div class="ddp-wrap-summary">
-          <ul class="ddp-list-summary ddp-clear" *ngFor="let pairUpdatedMetadata of updatedMetadataList">
-            <li *ngFor="let metadata of pairUpdatedMetadata">
-              <component-explore-card [iconClass]="getMetadataTypeClass(metadata)"
-                              [title]="metadata.name" [description]="metadata.description"
-                              [tagList]="metadata.tags"
-                              [popularity]="metadata.popularity"
-                              [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
-              </component-explore-card>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <!-- //wrap box -->
-    <!-- wrap summary list -->
-    <div class="ddp-wrap-list-summary">
       <!-- summary list -->
       <div class="ddp-ui-list-summary">
         <div class="ddp-type-summary-label">{{'msg.explore.ui.list.favorite.my' | translate}}
-<!--          <a href="javascript:" class="ddp-btn-more">more ></a>-->
+          <a href="javascript:" class="ddp-btn-more">more ></a>
         </div>
         <ul class="ddp-list-data">
           <li *ngFor="let metadata of favoriteMetadataList| slice:0:4">
             <component-explore-card [iconClass]="getMetadataTypeClass(metadata)"
-                            [title]="metadata.name"
-                            [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
-            </component-explore-card>
-          </li>
-        </ul>
-      </div>
-      <!-- //summary list -->
-      <!-- summary list -->
-      <div class="ddp-ui-list-summary">
-        <div class="ddp-type-summary-label">{{'msg.explore.ui.list.data.creator' | translate}}
-<!--          <a href="javascript:" class="ddp-btn-more">more ></a>-->
-        </div>
-        <ul class="ddp-list-data">
-          <li *ngFor="let metadata of favoriteCreatorMetadataList| slice:0:4">
-            <component-explore-card [iconClass]="getMetadataTypeClass(metadata)"
-                            [title]="metadata.name"
-                            [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
+                                    [title]="metadata.name"
+                                    [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
             </component-explore-card>
           </li>
         </ul>
       </div>
       <!-- //summary list -->
     </div>
-    <!-- //wrap summary list -->
+    <div class="ddp-wrap-box ddp-clear">
+      <div class="ddp-box-in">
+        <div class="ddp-box-summary">
+          <div class="ddp-type-summary-label">{{'msg.explore.ui.list.updated' | translate}}
+          </div>
+          <div class="ddp-wrap-summary">
+            <ul class="ddp-list-summary ddp-clear" *ngFor="let pairUpdatedMetadata of updatedMetadataList">
+              <li *ngFor="let metadata of pairUpdatedMetadata">
+                <component-explore-card [iconClass]="getMetadataTypeClass(metadata)"
+                                [title]="metadata.name" [description]="metadata.description"
+                                [tagList]="metadata.tags"
+                                [popularity]="metadata.popularity"
+                                [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
+                </component-explore-card>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- summary list -->
+      <div class="ddp-ui-list-summary">
+        <div class="ddp-type-summary-label">{{'msg.explore.ui.list.favorite.creator' | translate}}
+          <a href="javascript:" class="ddp-btn-more">more ></a>
+        </div>
+        <ul class="ddp-list-data">
+          <li *ngFor="let metadata of favoriteCreatorMetadataList| slice:0:4">
+            <component-explore-card
+              [iconClass]="getMetadataTypeClass(metadata)"
+              [title]="metadata.name"
+              [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
+            </component-explore-card>
+          </li>
+        </ul>
+      </div>
+      <!-- //summary list -->
+    </div>
+    <!-- //wrap box -->
+
   </div>
   <!-- //summary -->
 </div>
