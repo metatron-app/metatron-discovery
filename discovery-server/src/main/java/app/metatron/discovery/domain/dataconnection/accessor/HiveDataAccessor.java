@@ -14,19 +14,6 @@
 
 package app.metatron.discovery.domain.dataconnection.accessor;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.pf4j.Extension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.dataconnection.dialect.HiveDialect;
 import app.metatron.discovery.domain.datasource.Field;
@@ -37,6 +24,14 @@ import app.metatron.discovery.extension.dataconnection.jdbc.accessor.AbstractJdb
 import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionErrorCodes;
 import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionException;
 import app.metatron.discovery.util.AuthUtils;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.pf4j.Extension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -54,12 +49,13 @@ public class HiveDataAccessor extends AbstractJdbcDataAccessor {
     List<String> databaseNames = (List) databaseMap.get("databases");
     //filter personal database
     String loginUserId = AuthUtils.getAuthUserName();
+
     if(StringUtils.isNotEmpty(loginUserId)
-        && HiveDialect.isSupportSaveAsHiveTable(connectionInfo)) {
-      databaseNames
-          = filterOtherPersonalDatabases(databaseNames,
-                                         connectionInfo.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_PERSONAL_DATABASE_PREFIX),
-                                         HiveNamingRule.replaceNotAllowedCharacters(loginUserId));
+        && HiveDialect.isSupportSaveAsHiveTable(connectionInfo)
+        && AuthUtils.getPermissions().contains("PERM_SYSTEM_MANAGE_SYSTEM") == false) {
+      databaseNames = filterOtherPersonalDatabases(databaseNames,
+          connectionInfo.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_PERSONAL_DATABASE_PREFIX),
+          HiveNamingRule.replaceNotAllowedCharacters(loginUserId));
     }
 
     int databaseCount = databaseNames.size();

@@ -17,11 +17,12 @@ package app.metatron.discovery.domain.workbench;
 import app.metatron.discovery.common.exception.ErrorCodes;
 
 public enum WorkbenchErrorCodes implements ErrorCodes {
-
   QUERY_STATUS_ERROR_CODE("WB0001"),
   DATASOURCE_NOT_EXISTED("WB0002"),
   CSV_FILE_NOT_FOUND("WB0003"),
-  TABLE_ALREADY_EXISTS("WB0004");
+  TABLE_ALREADY_EXISTS("WB0004"),
+  NO_OTHER_DATABASE_PERMISSION("WB0005"),
+  TABLE_SCHEMA_DOES_NOT_MATCH("WB0006");
 
   String errorCode;
 

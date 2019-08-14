@@ -14,10 +14,17 @@
 
 package app.metatron.discovery.domain.workbench;
 
+import app.metatron.discovery.AbstractRestIntegrationTest;
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.core.oauth.OAuthRequest;
+import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.dialect.HiveDialect;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceManager;
+import app.metatron.discovery.domain.workspace.folder.Folder;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hive.jdbc.HiveDriver;
 import org.apache.http.HttpStatus;
@@ -39,16 +46,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.*;
-
-import app.metatron.discovery.AbstractRestIntegrationTest;
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.core.oauth.OAuthRequest;
-import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
-import app.metatron.discovery.domain.dataconnection.DataConnection;
-import app.metatron.discovery.domain.dataconnection.dialect.HiveDialect;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceManager;
-import app.metatron.discovery.domain.workspace.folder.Folder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
@@ -493,15 +494,20 @@ public class WorkbenchRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "polaris", value = {"PERM_WORKSPACE_WRITE_BOOK"})
-  public void importFileToPersonalDatabase_when_csv_file() throws IOException {
+  public void importFileToPersonalDatabase_when_import_type_new_and_csv_file() throws IOException {
     // given
     final String webSocketId = "test-ws";
     final String fileName = "product_sales.csv";
-    final String hdfsConfPath = "/tmp/hdfs-conf";
+    final String loginUserId = "polaris";
     Files.copy(Paths.get(getClass().getClassLoader().getResource(fileName).getPath()),
         Paths.get(String.format("%s/%s", workbenchProperties.getTempCSVPath(), fileName)), REPLACE_EXISTING);
 
-    final String loginUserId = "polaris";
+    // setUp hdsf conf files
+    Files.createDirectories(Paths.get("/tmp", "hdfs-conf"));
+    Files.copy(Paths.get("src","test","resources", "hdfs", "conf", "core-site.xml"),
+        Paths.get("/tmp", "hdfs-conf", "core-site.xml"), REPLACE_EXISTING);
+    Files.copy(Paths.get("src","test","resources", "hdfs", "conf", "hdfs-site.xml"),
+        Paths.get("/tmp", "hdfs-conf", "hdfs-site.xml"), REPLACE_EXISTING);
 
     DataConnection hiveConnection = new DataConnection("HIVE");
     hiveConnection.setUsername("read_only");
@@ -509,19 +515,20 @@ public class WorkbenchRestIntegrationTest extends AbstractRestIntegrationTest {
     hiveConnection.setHostname("localhost");
     hiveConnection.setPort(10000);
     hiveConnection.setProperties("{" +
-        "  \"metatron.hdfs.conf.path\": \"" + hdfsConfPath + "\"," +
+        "  \"metatron.hdfs.conf.path\": \"/tmp/hdfs-conf\"," +
         "  \"metatron.hive.admin.name\": \"hive_admin\"," +
         "  \"metatron.hive.admin.password\": \"1111\"," +
         "  \"metatron.personal.database.prefix\": \"private\"" +
         "}");
     workbenchDataSourceManager.createDataSourceInfo(hiveConnection, webSocketId);
-
-    cleanUpHivePersonalDatabaseTestFixture(hiveConnection, loginUserId);
+    cleanUpHivePersonalDatabaseTestFixture(hiveConnection, "private_polaris");
 
     // REST when, then
     final String workbenchId = "workbench-05";
     final String requestBody = "{" +
         "  \"type\": \"csv\"," +
+        "  \"importType\": \"new\"," +
+        "  \"databaseName\": \"private_polaris\"," +
         "  \"tableName\": \"product_sales_2018\"," +
         "  \"firstRowHeadColumnUsed\": true," +
         "  \"filePath\": \"" + String.format("%s/%s", workbenchProperties.getTempCSVPath(), fileName) + "\"," +
@@ -540,7 +547,118 @@ public class WorkbenchRestIntegrationTest extends AbstractRestIntegrationTest {
         .statusCode(HttpStatus.SC_NO_CONTENT);
   }
 
-  private void cleanUpHivePersonalDatabaseTestFixture(DataConnection hiveConnection, String loginUserId) {
+  @Test
+  @OAuthRequest(username = "polaris", value = {"PERM_WORKSPACE_WRITE_BOOK"})
+  public void importFileToPersonalDatabase_when_import_type_new_and_csv_file_with_partition_column() throws IOException {
+    // given
+    final String webSocketId = "test-ws";
+    final String fileName = "product_sales.csv";
+    final String loginUserId = "polaris";
+    Files.copy(Paths.get(getClass().getClassLoader().getResource(fileName).getPath()),
+        Paths.get(String.format("%s/%s", workbenchProperties.getTempCSVPath(), fileName)), REPLACE_EXISTING);
+
+    // setUp hdsf conf files
+    Files.createDirectories(Paths.get("/tmp", "hdfs-conf"));
+    Files.copy(Paths.get("src","test","resources", "hdfs", "conf", "core-site.xml"),
+        Paths.get("/tmp", "hdfs-conf", "core-site.xml"), REPLACE_EXISTING);
+    Files.copy(Paths.get("src","test","resources", "hdfs", "conf", "hdfs-site.xml"),
+        Paths.get("/tmp", "hdfs-conf", "hdfs-site.xml"), REPLACE_EXISTING);
+
+    DataConnection hiveConnection = new DataConnection("HIVE");
+    hiveConnection.setUsername("read_only");
+    hiveConnection.setPassword("1111");
+    hiveConnection.setHostname("localhost");
+    hiveConnection.setPort(10000);
+    hiveConnection.setProperties("{" +
+        "  \"metatron.hdfs.conf.path\": \"/tmp/hdfs-conf\"," +
+        "  \"metatron.hive.admin.name\": \"hive_admin\"," +
+        "  \"metatron.hive.admin.password\": \"1111\"," +
+        "  \"metatron.personal.database.prefix\": \"private\"" +
+        "}");
+    workbenchDataSourceManager.createDataSourceInfo(hiveConnection, webSocketId);
+    cleanUpHivePersonalDatabaseTestFixture(hiveConnection, "private_polaris");
+
+    // REST when, then
+    final String workbenchId = "workbench-05";
+    final String requestBody = "{" +
+        "  \"type\": \"csv\"," +
+        "  \"importType\": \"new\"," +
+        "  \"databaseName\": \"private_polaris\"," +
+        "  \"tableName\": \"product_sales_2018\"," +
+        "  \"tablePartitionColumn\": \"time\"," +
+        "  \"firstRowHeadColumnUsed\": true," +
+        "  \"filePath\": \"" + String.format("%s/%s", workbenchProperties.getTempCSVPath(), fileName) + "\"," +
+        "  \"loginUserId\": \"" + loginUserId + "\"," +
+        "  \"webSocketId\": \"" + webSocketId + "\"" +
+        "}";
+
+    given()
+        .auth().oauth2(oauth_token)
+        .contentType(ContentType.JSON)
+        .body(requestBody)
+    .when()
+        .post("/api/workbenchs/{id}/import/files", workbenchId)
+    .then()
+        .log().all()
+        .statusCode(HttpStatus.SC_NO_CONTENT);
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"PERM_WORKSPACE_WRITE_BOOK", "PERM_SYSTEM_MANAGE_DATASOURCE"})
+  public void importFileToPersonalDatabase_when_import_type_new_csv_file_with_other_database() throws IOException {
+    // given
+    final String webSocketId = "test-ws";
+    final String fileName = "product_sales.csv";
+    final String loginUserId = "polaris";
+    Files.copy(Paths.get(getClass().getClassLoader().getResource(fileName).getPath()),
+        Paths.get(String.format("%s/%s", workbenchProperties.getTempCSVPath(), fileName)), REPLACE_EXISTING);
+
+    // setUp hdsf conf files
+    Files.createDirectories(Paths.get("/tmp", "hdfs-conf"));
+    Files.copy(Paths.get("src","test","resources", "hdfs", "conf", "core-site.xml"),
+        Paths.get("/tmp", "hdfs-conf", "core-site.xml"), REPLACE_EXISTING);
+    Files.copy(Paths.get("src","test","resources", "hdfs", "conf", "hdfs-site.xml"),
+        Paths.get("/tmp", "hdfs-conf", "hdfs-site.xml"), REPLACE_EXISTING);
+
+    DataConnection hiveConnection = new DataConnection("HIVE");
+    hiveConnection.setUsername("read_only");
+    hiveConnection.setPassword("1111");
+    hiveConnection.setHostname("localhost");
+    hiveConnection.setPort(10000);
+    hiveConnection.setProperties("{" +
+        "  \"metatron.hdfs.conf.path\": \"/tmp/hdfs-conf\"," +
+        "  \"metatron.hive.admin.name\": \"hive_admin\"," +
+        "  \"metatron.hive.admin.password\": \"1111\"," +
+        "  \"metatron.personal.database.prefix\": \"private\"" +
+        "}");
+    workbenchDataSourceManager.createDataSourceInfo(hiveConnection, webSocketId);
+    cleanUpHivePersonalDatabaseTestFixture(hiveConnection, "private_polaris");
+
+    // REST when, then
+    final String workbenchId = "workbench-05";
+    final String requestBody = "{" +
+        "  \"type\": \"csv\"," +
+        "  \"importType\": \"new\"," +
+        "  \"databaseName\": \"private_test\"," +
+        "  \"tableName\": \"product_sales_2018\"," +
+        "  \"firstRowHeadColumnUsed\": true," +
+        "  \"filePath\": \"" + String.format("%s/%s", workbenchProperties.getTempCSVPath(), fileName) + "\"," +
+        "  \"loginUserId\": \"" + loginUserId + "\"," +
+        "  \"webSocketId\": \"" + webSocketId + "\"" +
+        "}";
+
+    given()
+        .auth().oauth2(oauth_token)
+        .contentType(ContentType.JSON)
+        .body(requestBody)
+    .when()
+        .post("/api/workbenchs/{id}/import/files", workbenchId)
+    .then()
+        .log().all()
+        .statusCode(HttpStatus.SC_NO_CONTENT);
+  }
+
+  private void cleanUpHivePersonalDatabaseTestFixture(DataConnection hiveConnection, String cleanDatabase) {
     final String URL = String.format("jdbc:hive2://%s:%s", hiveConnection.getHostname(), hiveConnection.getPort());
 
     Connection conn = null;
@@ -551,9 +669,8 @@ public class WorkbenchRestIntegrationTest extends AbstractRestIntegrationTest {
           hiveConnection.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_ADMIN_PASSWORD));
 
       StringBuffer script = new StringBuffer();
-      script.append(String.format("DROP DATABASE IF EXISTS %s_%s CASCADE;",
-          hiveConnection.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_PERSONAL_DATABASE_PREFIX),
-          loginUserId));
+      script.append(String.format("DROP DATABASE IF EXISTS %s CASCADE;", cleanDatabase));
+      script.append("DROP DATABASE IF EXISTS private_test CASCADE; CREATE DATABASE private_test;");
 
       ScriptUtils.executeSqlScript(conn, new InputStreamResource(new ByteArrayInputStream(script.toString().getBytes())));
     } catch(Exception e){

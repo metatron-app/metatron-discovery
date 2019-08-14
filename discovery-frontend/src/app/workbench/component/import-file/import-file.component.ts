@@ -37,6 +37,9 @@ import {header, SlickGridHeader} from "../../../common/component/grid/grid.heade
 import {WorkbenchService} from "../../service/workbench.service";
 import {CommonUtil} from "../../../common/util/common.util";
 import {StringUtil} from "../../../common/util/string.util";
+import {SYSTEM_PERMISSION} from "../../../common/permission/permission";
+import {DataconnectionService} from "../../../dataconnection/service/dataconnection.service";
+import {Dataconnection} from "../../../domain/dataconnection/dataconnection";
 
 @Component({
   selector: 'app-import-file',
@@ -46,6 +49,9 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  @Input()
+  public dataConnection: Dataconnection;
 
   @Input()
   public workbenchId: string = '';
@@ -62,10 +68,22 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
   // 업로드 결과
   private uploadResult: any;
 
+  public importTypes: any[] = [{name: '새로운 테이블로 저장', value: ImportType.NEW}, {name: '기존 테이블에 덮어쓰기', value: ImportType.OVERWRITE}];
+  public selectedImportType : ImportType;
+
   public importingTableName: string = '';
   public errMsgImportingTableName: string = '';
   public isInvalidImportingTableName: boolean = false;
   public importFile: ImportFile;
+  public tablePartitionColumns: string[] = ['사용하지 않음'];
+  public selectedTablePartitionColumn: string = '';
+
+  public databases: string[] = ['개인데이터베이스'];
+  public selectedDatabaseName: string = '';
+
+  public tables: string[] = [];
+  public selectedTableName: string = '';
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -76,7 +94,6 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
 
   // Change Detect
   public changeDetect: ChangeDetectorRef;
-
 
   // 파일 업로드
   public uploader: FileUploader;
@@ -107,6 +124,7 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
 
   // 생성자
   constructor(private workbenchService: WorkbenchService,
+              private dataconnectionService: DataconnectionService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -149,6 +167,7 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
     this.uploader.onCompleteAll = () => {
       if (this.uploadResult && this.uploadResult.success) {
         this.getFileData();
+        this.getDatabases();
       }
     };
 
@@ -206,12 +225,20 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
       }
 
       const params = {
-        tableName: this.importingTableName.trim(),
+        importType: this.selectedImportType,
+        databaseName: (StringUtil.isEmpty(this.selectedDatabaseName) || this.selectedDatabaseName == '개인데이터베이스')  ? getPersonalDatabaseName(this.dataConnection) : this.selectedDatabaseName.trim(),
+        webSocketId: this.webSocketId,
         firstRowHeadColumnUsed: !this.createHeadColumnFl,
         filePath: this.importFile.filepath,
-        loginUserId: CommonUtil.getLoginUserId(),
-        webSocketId: this.webSocketId
       };
+
+      if(this.selectedImportType === ImportType.NEW) {
+        params['tableName'] = this.importingTableName.trim();
+        params['tablePartitionColumn'] = this.selectedTablePartitionColumn.trim() === '사용하지 않음' ? '' : this.selectedTablePartitionColumn.trim();
+
+      } else {
+        params['tableName'] = this.selectedTableName;
+      }
 
       if(this.isExcelFile()) {
         params['type'] = 'excel';
@@ -240,6 +267,9 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
           switch (error.code) {
             case "WB0004":
               Alert.error(this.translateService.instant('msg.bench.alert.already-exists-table'));
+              break;
+            case "WB0006":
+              Alert.error('불러온 파일 컬럼과 덮어쓰려는 테이블의 컬럼이 일치하지 않습니다.');
               break;
             default:
               this.commonExceptionHandler(error);
@@ -316,21 +346,26 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
    * @returns {boolean}
    */
   public getDoneValidation(): boolean {
-    if (StringUtil.isEmpty(this.importingTableName)) {
-      this.isInvalidImportingTableName = true;
-      this.errMsgImportingTableName = this.translateService.instant('msg.common.ui.required');
-      return false;
-    } else {
-      if(StringUtil.isAlphaNumericUnderscore(this.importingTableName) === false) {
+    if(this.selectedImportType === ImportType.NEW) {
+      if (StringUtil.isEmpty(this.importingTableName)) {
         this.isInvalidImportingTableName = true;
-        this.errMsgImportingTableName = this.translateService.instant('msg.bench.alert.invalid-hive-name-rule', {
-          value: 'Table'
-        });
+        this.errMsgImportingTableName = this.translateService.instant('msg.common.ui.required');
+        return false;
+      } else {
+        if(StringUtil.isAlphaNumericUnderscore(this.importingTableName) === false) {
+          this.isInvalidImportingTableName = true;
+          this.errMsgImportingTableName = this.translateService.instant('msg.bench.alert.invalid-hive-name-rule', {
+            value: 'Table'
+          });
+          return false;
+        }
+      }
+      this.isInvalidImportingTableName = false;
+    } else {
+      if(StringUtil.isEmpty(this.selectedTableName)) {
         return false;
       }
     }
-
-    this.isInvalidImportingTableName = false;
 
     // 선택한 파일이 존재하는지
     if (this.importFile.filename
@@ -454,6 +489,40 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
     this.getFileData();
   }
 
+  public onSelectedTablePartitionColumn(data : any) {
+    this.selectedTablePartitionColumn = data;
+  }
+
+  public hasOtherDatabaseImportedPermission() {
+    return CommonUtil.isValidPermission(SYSTEM_PERMISSION.MANAGE_SYSTEM) ? true : false;
+  }
+
+  public onSelectedDatabaseName(databaseName : any) {
+    this.selectedDatabaseName = databaseName;
+    if(this.selectedImportType === ImportType.OVERWRITE) {
+      this.getTables(databaseName);
+    }
+  }
+
+  public onSelectedImportType(data: any) {
+    this.selectedImportType = data.value;
+    if(data.value == ImportType.OVERWRITE) {
+      const personalDatabaseName = getPersonalDatabaseName(this.dataConnection);
+      this.getTables(personalDatabaseName);
+    }
+
+    this.selectedDatabaseName = '';
+    this.selectedTablePartitionColumn = '';
+  }
+
+  public isSelectedImportTypeNew() {
+    return this.selectedImportType === ImportType.NEW;
+  }
+
+  public onSelectedTableName(tableName : any) {
+    this.selectedTableName = tableName;
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -558,6 +627,8 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
         // 로딩 hide
         this.loadingHide();
 
+        this.tablePartitionColumns = ["사용하지 않음"];
+
         if (result['success'] === false) {
           Alert.warning(this.translateService.instant('msg.storage.alert.file.import.error'));
           return;
@@ -596,6 +667,8 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
             this.isInvalidImportingTableName = false;
           }
         }
+
+        this.tablePartitionColumns = this.tablePartitionColumns.concat(this.importFile.fields);
       })
       .catch((error) => {
         // 로딩 hide
@@ -623,12 +696,45 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
     return params;
   }
 
+  private getDatabases() {
+    if(this.hasOtherDatabaseImportedPermission()) {
+      this.dataconnectionService.getDatabaseListInConnection(this.dataConnection.id, {
+        webSocketId: this.webSocketId,
+        loginUserId: CommonUtil.getLoginUserId()
+      }).then((result) => {
+        this.databases = ['개인데이터베이스'];
+        this.databases = this.databases.concat(result.databases);
+      }).catch((error) => {
+        console.log(error);
+      });
+    }
+  }
+
+  private getTables(databaseName: string) {
+    this.tables = [];
+    this.dataconnectionService.getTableListInConnection(this.dataConnection.id, databaseName, null)
+      .then((result) => {
+        if(result.tables) {
+          this.tables = result.tables;
+          if(this.tables.length > 0) {
+            this.selectedTableName = this.tables[0];
+          } else {
+            this.selectedTableName = '';
+          }
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method - init
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   private initView() {
     this.allowFileType = ['csv', 'text/csv', 'xls', 'xlsx', 'application/vnd.ms-excel'];
+    this.selectedImportType = ImportType.NEW;
   }
 }
 
@@ -652,4 +758,12 @@ class ImportFile {
   }
 }
 
+export enum ImportType {
+  NEW = <any>'new',
+  OVERWRITE = <any>'overwrite',
+}
 
+export function getPersonalDatabaseName(dataConnection: Dataconnection) {
+  const personalDatabasePrefix = dataConnection.properties['metatron.personal.database.prefix'];
+  return personalDatabasePrefix + "_" + CommonUtil.getLoginUserId().replace(/[^A-Za-z0-9]/gi, "_");
+}

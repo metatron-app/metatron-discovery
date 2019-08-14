@@ -776,6 +776,7 @@
 <app-save-as-hive-table (saveSucceed)="saveAsHiveTableSucceed()"></app-save-as-hive-table>
 
 <app-import-file *ngIf="importFile"
+                 [dataConnection]="this.workbench.dataConnection"
                  [workbenchId]="workbenchId"
                  [webSocketId]="websocketId"
                  (close)="importFile = false"

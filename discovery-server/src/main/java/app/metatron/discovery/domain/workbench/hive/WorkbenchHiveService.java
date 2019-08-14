@@ -28,11 +28,15 @@ import app.metatron.discovery.domain.workbench.WorkbenchProperties;
 import app.metatron.discovery.domain.workbench.dto.ImportCsvFile;
 import app.metatron.discovery.domain.workbench.dto.ImportExcelFile;
 import app.metatron.discovery.domain.workbench.dto.ImportFile;
+import app.metatron.discovery.domain.workbench.hive.scriptgenerator.AbstractSaveAsTableScriptGenerator;
+import app.metatron.discovery.domain.workbench.hive.scriptgenerator.SaveAsDefaultTableScriptGenerator;
+import app.metatron.discovery.domain.workbench.hive.scriptgenerator.SaveAsPartitionTableScriptGenerator;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceManager;
 import app.metatron.discovery.util.csv.CsvTemplate;
 import app.metatron.discovery.util.excel.ExcelTemplate;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +68,8 @@ public class WorkbenchHiveService {
 
   private MetatronProperties metatronProperties;
 
+  private JdbcConnectionService connectionService;
+
   @Autowired
   public void setWorkbenchProperties(WorkbenchProperties workbenchProperties) {
     this.workbenchProperties = workbenchProperties;
@@ -84,23 +90,53 @@ public class WorkbenchHiveService {
     this.metatronProperties = metatronProperties;
   }
 
-  public void importFileToPersonalDatabase(DataConnection hiveConnection, ImportFile importFile) {
-    DataTable dataTable = convertUploadFileToDataTable(importFile);
-
-    String hdfsDataFilePath = dataTableHiveRepository.saveToHdfs(hiveConnection, new Path(workbenchProperties.getTempDataTableHdfsPath()), dataTable);
-
-    SavingHiveTable savingHiveTable = new SavingHiveTable();
-    savingHiveTable.setTableName(importFile.getTableName());
-    savingHiveTable.setDataTable(dataTable);
-    savingHiveTable.setHdfsDataFilePath(hdfsDataFilePath);
-    savingHiveTable.setWebSocketId(importFile.getWebSocketId());
-    savingHiveTable.setLoginUserId(importFile.getLoginUserId());
-    saveAsHiveTableFromHdfsDataTable(hiveConnection, savingHiveTable);
+  @Autowired
+  public void setConnectionService(JdbcConnectionService connectionService) {
+    this.connectionService = connectionService;
   }
 
-  private void saveAsHiveTableFromHdfsDataTable(DataConnection hiveConnection, SavingHiveTable savingHiveTable) {
-    String saveAsTableScript = generateSaveAsTableScript(hiveConnection, savingHiveTable);
-    WorkbenchDataSource dataSourceInfo = workbenchDataSourceManager.findDataSourceInfo(savingHiveTable.getWebSocketId());
+  public void importFileToDatabase(DataConnection hiveConnection, ImportFile importFile) {
+    final DataTable dataTable = convertUploadFileToDataTable(importFile);
+
+    if(importFile.isTableOverwrite()) {
+      validateTableSchema(hiveConnection, importFile.getDatabaseName(), importFile.getTableName(), dataTable.getFields());
+    }
+
+    final String savedHDFSDataFilePath = dataTableHiveRepository.saveToHdfs(hiveConnection, new Path(workbenchProperties.getTempDataTableHdfsPath()), dataTable);
+
+    SavingHiveTable savingHiveTable = new SavingHiveTable(importFile, savedHDFSDataFilePath, dataTable);
+    saveAsHiveTableFromHdfsDataTable(importFile.getWebSocketId(), hiveConnection, savingHiveTable);
+  }
+
+  private void validateTableSchema(DataConnection hiveConnection, String database, String table, List<String> fields) {
+    List<Map<String, Object>> columns = connectionService.getTableColumnNames(hiveConnection, null, database, table, null, null);
+    List<String> columnNames = columns.stream().map(col -> (String)col.get("columnName")).collect(Collectors.toList());
+
+    columnNames.forEach(col -> {
+      if(fields.contains(col) == false) {
+        throw new WorkbenchException(WorkbenchErrorCodes.TABLE_SCHEMA_DOES_NOT_MATCH, "Table schema does not match.");
+      }
+    });
+  }
+
+  private void saveAsHiveTableFromHdfsDataTable(String webSocketId, DataConnection hiveConnection, SavingHiveTable savingHiveTable) {
+    if(savingHiveTable.isTableOverwrite()) {
+      final String tablePartitionColumn = findTablePartitionColumn(hiveConnection, savingHiveTable.getDatabaseName(), savingHiveTable.getTableName());
+      if(StringUtils.isNotEmpty(tablePartitionColumn)) {
+        savingHiveTable.setTablePartitionColumn(tablePartitionColumn);
+      }
+    }
+
+    AbstractSaveAsTableScriptGenerator tableScriptGenerator;
+    if(savingHiveTable.isPartitioningTable()) {
+      tableScriptGenerator = new SaveAsPartitionTableScriptGenerator(savingHiveTable);
+    } else {
+      tableScriptGenerator = new SaveAsDefaultTableScriptGenerator(savingHiveTable);
+    }
+    final String saveAsTableScript = tableScriptGenerator.generate();
+    LOGGER.info("Generated Save as Hive Table script : " + saveAsTableScript);
+
+    WorkbenchDataSource dataSourceInfo = workbenchDataSourceManager.findDataSourceInfo(webSocketId);
     Connection secondaryConnection = dataSourceInfo.getSecondaryConnection();
 
     List<String> queryList = Arrays.asList(saveAsTableScript.split(";"));
@@ -108,40 +144,25 @@ public class WorkbenchHiveService {
       try {
         jdbcConnectionService.executeUpdate(hiveConnection, secondaryConnection, query);
       } catch(Exception e) {
+
+        String rollbackScript = tableScriptGenerator.rollbackScript();
+        if(StringUtils.isNotEmpty(rollbackScript)) {
+          List<String> rollbackQueris = Arrays.asList(saveAsTableScript.split(";"));
+          rollbackQueris.forEach(rollbackQuery -> {
+            try {
+              jdbcConnectionService.executeUpdate(hiveConnection, secondaryConnection, rollbackQuery);
+            } catch(Exception re) {
+              LOGGER.error("rollback error", re);
+            }
+          });
+        }
+
         if(e.getMessage().indexOf("AlreadyExistsException") > -1) {
           throw new WorkbenchException(WorkbenchErrorCodes.TABLE_ALREADY_EXISTS, "Table already exists.");
         }
         throw new MetatronException(GlobalErrorCodes.DEFAULT_GLOBAL_ERROR_CODE, "Failed save as hive table.", e);
       }
     }
-  }
-
-  private String generateSaveAsTableScript(DataConnection hiveConnection, SavingHiveTable savingHiveTable) {
-    StringBuffer script = new StringBuffer();
-    // 1. Create Database
-    final String personalDatabaseName = String.format("%s_%s", hiveConnection.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_PERSONAL_DATABASE_PREFIX),
-        HiveNamingRule.replaceNotAllowedCharacters(savingHiveTable.getLoginUserId()));
-    script.append(String.format("CREATE DATABASE IF NOT EXISTS %s;", personalDatabaseName));
-
-    // 2. Create Table
-    List<String> fields = savingHiveTable.getDataTable().getFields();
-    String storedDataFilePath = savingHiveTable.getHdfsDataFilePath();
-
-    String columns = fields.stream().map(header -> {
-      if(header.contains(".")) {
-        return String.format("`%s`", header.substring(header.indexOf(".") + 1, header.length()));
-      } else {
-        return String.format("`%s`", header);
-      }
-    }).collect(Collectors.joining(" STRING, ", "", " STRING"));
-    script.append(String.format("CREATE TABLE %s.%s (%s) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\\001' LINES TERMINATED BY '\\n';",
-        personalDatabaseName, savingHiveTable.getTableName(), columns));
-
-    // 3. Load Data to Table
-    script.append(String.format("LOAD DATA INPATH '%s' OVERWRITE INTO TABLE %s.%s;", storedDataFilePath, personalDatabaseName, savingHiveTable.getTableName()));
-
-    LOGGER.info("Save as Hive Table Query : " + script.toString());
-    return script.toString();
   }
 
   private DataTable convertUploadFileToDataTable(ImportFile importFile) {
@@ -207,6 +228,26 @@ public class WorkbenchHiveService {
 
     List<String> fields = headers.values().stream().collect(Collectors.toList());
     return new DataTable(fields, records);
+  }
+
+  private String findTablePartitionColumn(DataConnection dataConnection, String database, String table) {
+    Map<String, Object> tableInfoMap = connectionService.showTableDescription(dataConnection, null, database, table);
+
+    boolean partitionInfoStartFlag = false;
+    String partitionColumn = "";
+    for ( Map.Entry<String, Object> entry : tableInfoMap.entrySet() ) {
+      if(entry.getKey().contains("# Partition Information")) {
+        partitionInfoStartFlag = true;
+        continue;
+      }
+
+      if(partitionInfoStartFlag == true) {
+        partitionColumn = entry.getKey();
+        break;
+      }
+    }
+
+    return partitionColumn;
   }
 
 }

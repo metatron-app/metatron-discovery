@@ -113,7 +113,7 @@ public class WorkbenchController {
       throw new BadRequestException("Only Hive Connection supported save as hive table is allowed.");
     }
 
-    workbenchHiveService.importFileToPersonalDatabase(dataConnection, importFile);
+    workbenchHiveService.importFileToDatabase(dataConnection, importFile);
 
     return ResponseEntity.noContent().build();
   }

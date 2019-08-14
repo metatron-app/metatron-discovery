@@ -17,6 +17,8 @@ import {WorkbenchService} from "../../service/workbench.service";
 import {StringUtil} from "../../../common/util/string.util";
 import {CommonUtil} from "app/common/util/common.util";
 import {Alert} from "../../../common/util/alert.util";
+import {getPersonalDatabaseName, ImportType} from "../import-file/import-file.component";
+import {Dataconnection} from "../../../domain/dataconnection/dataconnection";
 
 @Component({
   selector: 'app-save-as-hive-table',
@@ -34,6 +36,7 @@ export class SaveAsHiveTableComponent extends AbstractComponent implements OnIni
   private csvFilePath: string = '';
   private webSocketId: string = '';
   private workbenchId: string = '';
+  private dataConnection: Dataconnection;
 
   @Output()
   saveSucceed = new EventEmitter<string>();
@@ -62,12 +65,13 @@ export class SaveAsHiveTableComponent extends AbstractComponent implements OnIni
     super.ngOnDestroy();
   }
 
-  public init(workbenchId: string, csvFilePath: string, webSocketId: string) {
+  public init(workbenchId: string, csvFilePath: string, webSocketId: string, dataConnection: Dataconnection) {
     this.isShow = true;
     this.tableName = '';
     this.workbenchId = workbenchId;
     this.csvFilePath = csvFilePath;
     this.webSocketId = webSocketId;
+    this.dataConnection = dataConnection;
   }
 
   // 닫기
@@ -95,6 +99,8 @@ export class SaveAsHiveTableComponent extends AbstractComponent implements OnIni
     if (this.validation()) {
       const params = {
         type: 'csv',
+        importType: ImportType.NEW,
+        databaseName: getPersonalDatabaseName(this.dataConnection),
         tableName: this.tableName.trim(),
         firstRowHeadColumnUsed: true,
         filePath: this.csvFilePath,

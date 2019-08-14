@@ -17,9 +17,19 @@
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- //닫기 버튼 -->
   <div class="ddp-icon-name">
-    <div class="ddp-ui-name2 ddp-type3">
+    <div class="ddp-ui-name2 ddp-type3" style="padding-bottom: 0px;">
       {{'msg.bench.ui.import-file.title' | translate}}
-      <span class="ddp-txt-info ddp-type">{{'msg.storage.create-dsource-sel.sub.title' | translate}}</span>
+      <span class="ddp-txt-info ddp-type" *ngIf="!isSuccessFileUpload()">
+        {{'msg.storage.create-dsource-sel.sub.title' | translate}}
+      </span>
+      <span class="ddp-txt-info ddp-type" *ngIf="isSuccessFileUpload()">
+        <div class="ddp-form-label2">
+          <label class="ddp-label-type">불러오기 유형</label>
+          <div class="ddp-wrap-dropdown">
+              <component-select [array]="importTypes" [noWrapFl]="true" viewKey="name" (onSelected)="onSelectedImportType($event)"></component-select>
+          </div>
+        </div>
+      </span>
     </div>
   </div>
   <!-- contents in  -->
@@ -49,14 +59,51 @@
     <!-- //파일 선택하기전 -->
     <!-- 파일 선택한 후 -->
     <div class="ddp-box-popupcontents ddp-wrap-file-create" *ngIf="isSuccessFileUpload()">
-      <div class="ddp-wrap-edit3 ddp-type">
-        <label class="ddp-label-type">{{'msg.bench.ui.save-as-hive-table.table-name' | translate}}</label>
-        <div class="ddp-ui-edit-option">
-          <div class="ddp-input-apply">
-            <input class="ddp-input-txt" type="text" placeholder="{{'msg.bench.ui.save-as-hive-table.table-name.ph' | translate}}"
+      <div class="ddp-type-top-option ddp-clear" *ngIf="isSelectedImportTypeNew() === true">
+        <div class="ddp-form-search ddp-fleft">
+          <em class="ddp-icon-widget-dataview" style="position: absolute; top: 30%; left: 60px; margin-top: -6px;width: 12px;height: 12px;"></em>
+          <div class="ddp-wrap-edit3">
+            <label class="ddp-label-type" style="width: 60px;">테이블명</label>
+            <input type="text" placeholder="테이블명을 입력해 주세요."
                    [(ngModel)]="importingTableName" (focus)="isInvalidImportingTableName=false">
+            <span class="ddp-ui-error"
+                  [ngStyle]="{ 'display': 'inline', visibility : isInvalidImportingTableName ? 'visible' : 'hidden'}">
+              {{errMsgImportingTableName}}
+            </span>
           </div>
-        <span *ngIf="isInvalidImportingTableName" class="ddp-ui-error" style="display: inline">{{errMsgImportingTableName}}</span>
+        </div>
+        <div class="ddp-ui-rightoption">
+          <div class="ddp-form-label2 ddp-fleft"><label class="ddp-label-type">파티션 컬럼</label>
+            <div class="ddp-wrap-dropdown">
+              <component-select [array]="tablePartitionColumns" (onSelected)="onSelectedTablePartitionColumn($event)"></component-select>
+            </div>
+          </div>
+          <div class="ddp-form-label2 ddp-fleft" *ngIf="hasOtherDatabaseImportedPermission()">
+            <label class="ddp-label-type">데이터베이스</label>
+            <div class="ddp-wrap-dropdown">
+              <component-select [array]="databases" (onSelected)="onSelectedDatabaseName($event)"></component-select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ddp-type-top-option ddp-clear" *ngIf="isSelectedImportTypeNew() === false">
+        <div class="ddp-form-search ddp-fleft">
+          <em class="ddp-icon-widget-dataview" style="position: absolute; top: 30%; left: 60px; margin-top: -6px;width: 12px;height: 12px;"></em>
+          <div class="ddp-wrap-edit3">
+            <label class="ddp-label-type" style="width: 60px;">테이블명</label>
+            <div class="ddp-wrap-dropdown">
+              <component-select [array]="tables" (onSelected)="onSelectedTableName($event)"></component-select>
+            </div>
+          </div>
+        </div>
+        <div class="ddp-ui-rightoption">
+          <div class="ddp-form-label2 ddp-fleft" *ngIf="hasOtherDatabaseImportedPermission()">
+            <label class="ddp-label-type">데이터베이스</label>
+            <div class="ddp-wrap-dropdown">
+              <component-select [array]="databases" (onSelected)="onSelectedDatabaseName($event)"></component-select>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -67,7 +114,7 @@
           <em class="ddp-icon-file2"></em>{{getFileName}}
         </div>
         <!-- //name -->
-        <div class="ddp-txt-file-info" style="top: 60px;">
+        <div class="ddp-txt-file-info" style="top: 90px;">
           <div class="ddp-link-file">
             <input type="file" ng2FileSelect [uploader]="uploader">
             {{'msg.storage.ui.dsource.create.file.import' | translate}}
@@ -179,9 +226,9 @@
         </div>
         <!-- //헤드컬럼 설정 -->
         <!--<div class="ddp-wrap-edit3 ddp-type">-->
-          <!--<div class="ddp-ui-info-det2">-->
-            <!--<em class="ddp-icon-sinfo2"></em>{{'msg.storage.ui.dsource.create.file.column.head.description' | translate}}-->
-          <!--</div>-->
+        <!--<div class="ddp-ui-info-det2">-->
+        <!--<em class="ddp-icon-sinfo2"></em>{{'msg.storage.ui.dsource.create.file.column.head.description' | translate}}-->
+        <!--</div>-->
         <!--</div>-->
       </div>
     </div>

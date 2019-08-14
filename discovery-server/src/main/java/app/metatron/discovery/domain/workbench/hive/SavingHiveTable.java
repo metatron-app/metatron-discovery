@@ -14,50 +14,69 @@
 
 package app.metatron.discovery.domain.workbench.hive;
 
+import app.metatron.discovery.domain.workbench.dto.ImportFile;
+import org.apache.commons.lang3.StringUtils;
+
 public class SavingHiveTable {
+  private String importType;
+  private String databaseName;
   private String tableName;
-  private String webSocketId;
-  private String loginUserId;
+  private String tablePartitionColumn;
   private DataTable dataTable;
   private String hdfsDataFilePath;
+
+  public SavingHiveTable(final ImportFile importFile, final String hdfsDataFilePath, final DataTable dataTable) {
+//    if(StringUtils.isNotEmpty(importFile.getDatabaseName())) {
+//      if(AuthUtils.getPermissions().contains("PERM_SYSTEM_MANAGE_DATASOURCE")) {
+//        this.databaseName = importFile.getDatabaseName();
+//      } else {
+//        throw new WorkbenchException(WorkbenchErrorCodes.NO_OTHER_DATABASE_PERMISSION, "No other database permissions.");
+//      }
+//    } else {
+//      this.databaseName = String.format("%s_%s", personalDatabasePrefix, importFile.getLoginUserId());
+//    }
+
+    this.importType = importFile.getImportType();
+    this.databaseName = importFile.getDatabaseName();
+    this.tableName = importFile.getTableName();
+    this.tablePartitionColumn = importFile.getTablePartitionColumn();
+    this.hdfsDataFilePath = hdfsDataFilePath;
+    this.dataTable = dataTable;
+  }
 
   public String getTableName() {
     return tableName;
   }
 
-  public void setTableName(String tableName) {
-    this.tableName = tableName;
-  }
-
-  public String getWebSocketId() {
-    return webSocketId;
-  }
-
-  public void setWebSocketId(String webSocketId) {
-    this.webSocketId = webSocketId;
-  }
-
-  public String getLoginUserId() {
-    return loginUserId;
-  }
-
-  public void setLoginUserId(String loginUserId) {
-    this.loginUserId = loginUserId;
+  public String getTablePartitionColumn() {
+    return tablePartitionColumn;
   }
 
   public DataTable getDataTable() {
     return dataTable;
   }
 
-  public void setDataTable(DataTable dataTable) {
-    this.dataTable = dataTable;
-  }
-
   public String getHdfsDataFilePath() {
     return hdfsDataFilePath;
   }
 
-  public void setHdfsDataFilePath(String hdfsDataFilePath) {
-    this.hdfsDataFilePath = hdfsDataFilePath;
+  public String getDatabaseName() {
+    return databaseName;
+  }
+
+  public boolean isPartitioningTable() {
+    return StringUtils.isNotEmpty(this.tablePartitionColumn);
+  }
+
+  public boolean isTableOverwrite() {
+    return importType.equalsIgnoreCase("overwrite");
+  }
+
+  public String getImportType() {
+    return importType;
+  }
+
+  public void setTablePartitionColumn(String tablePartitionColumn) {
+    this.tablePartitionColumn = tablePartitionColumn;
   }
 }
