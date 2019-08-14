@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, HostListener, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {NavigationEnd} from '@angular/router';
 import {AbstractComponent} from '../../../../common/component/abstract.component';
 import {WorkspaceService} from '../../../../workspace/service/workspace.service';
@@ -69,7 +69,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   public permission = {
     myWorkspace: false,
     workspace: false,
-    exploreData: false,
+    exploreData: true,
     exploreDataView: true,
     exploreFavorite: true,
     management: false,

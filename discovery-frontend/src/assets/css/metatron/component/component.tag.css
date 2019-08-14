@@ -16,11 +16,6 @@
 .ddp-list-tags .ddp-tag-default:before {display:inline-block; position:absolute; top:5px; left:9px; content:'#'; color:#666fad; font-size:13px;}
 .ddp-list-tags .ddp-tag-default input {display:block; width:100%; border:none; background:none;color:#666fad; font-size:13px;}
 
-.ddp-list-tags .ddp-ui-add-button {display:inline-block; margin:3px 6px 3px 0;}
-.ddp-list-tags .ddp-ui-add-button .ddp-btn-add {display:inline-block; padding:5px 8px; border:1px solid #d0d1d7; border-radius:4px; color:#90969f; font-size:12px;}
-.ddp-list-tags .ddp-ui-add-button .ddp-btn-add:hover {border:1px solid #b7b9c1;color:#4b515b;}
-.ddp-list-tags .ddp-ui-add-button .ddp-btn-add em.ddp-icon-plus {display:inline-block; width:13px; height:13px; margin-right:5px; background:url(../../../images/icon_add.png) no-repeat; background-position:-84px -22px; vertical-align:middle;}
-
 /**************************************************************
     box-tag
 **************************************************************/

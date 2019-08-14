@@ -13,7 +13,7 @@ export class MetadataDetailHeaderComponent extends AbstractComponent implements 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  private profileOpened: boolean = false;
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -22,6 +22,7 @@ export class MetadataDetailHeaderComponent extends AbstractComponent implements 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public profileOpened: boolean = false;
 
   onClickProfile() {
     this.profileOpened = !this.profileOpened;

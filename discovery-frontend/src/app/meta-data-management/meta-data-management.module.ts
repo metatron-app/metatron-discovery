@@ -43,6 +43,11 @@ import {MetadataManagementGuard} from '../common/gaurd/metadata-management.guard
 import {DetailModule} from './detail/detail.module';
 import {DatasourceMetadataSharedModule} from '../shared/datasource-metadata/datasource-metadata-shared.module';
 import {CreateMetadataModule} from "./metadata/create-metadata/create-metadata.module";
+import {MetadataDetailInformationComponent} from "./metadata/component/metadata-detail-information.component";
+import {MetadataDetailTopComponent} from "./metadata/component/metadata-detail-top.component";
+import {MetadataDetailHeaderComponent} from "./metadata/component/metadata-detail-header.component";
+import {MetadataDetailHeaderLnbComponent} from "./metadata/component/metadata-detail-header-lnb.component";
+import {LayoutModule} from "../layout/layout/layout.module";
 
 @NgModule({
   imports: [
@@ -51,6 +56,7 @@ import {CreateMetadataModule} from "./metadata/create-metadata/create-metadata.m
     DatasourceShareModule,
     DatasourceMetadataSharedModule,
     CreateMetadataModule,
+    LayoutModule,
     RouterModule.forChild([
       {path: '', component: MetaDataManagementComponent, canActivate: [MetadataManagementGuard]},
       {path: ':tabId', component: MetaDataManagementComponent, canActivate: [MetadataManagementGuard]},
@@ -88,6 +94,12 @@ import {CreateMetadataModule} from "./metadata/create-metadata/create-metadata.m
 
     SelectCatalogComponent,
     CatalogComponent,
+    // Metadata Detail
+    MetadataDetailTopComponent,
+    MetadataDetailHeaderComponent,
+    MetadataDetailHeaderLnbComponent,
+    // Metadata Detail Tabs
+    MetadataDetailInformationComponent
   ],
   providers: [
     // 코드 테이블 서비스

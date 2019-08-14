@@ -21,6 +21,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public isEditDescription: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
  | Constructor
@@ -42,5 +43,17 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
 
   public ngOnDestroy() {
     super.ngOnDestroy();
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Public Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  public toggleEditDescriptionFlag(): void {
+    this.isEditDescription = !this.isEditDescription;
+    // set show modified guide message
+    // this.isShowModifiedGuideMessage = true;
+    // set desc text
+    // this.descriptionChangeText = this.datasource.description;
   }
 }

@@ -130,7 +130,7 @@
 .ddp-wrap-edit3 .ddp-wrap-hover-info .ddp-icon-info3 {display:inline-block; position:relative; top:-1px; width:11px; height:11px; background:url(../../../images/icon_que.png) no-repeat; background-position:left -12px;}
 .ddp-wrap-edit3 .ddp-wrap-hover-info .ddp-box-layout4 {display:none; position:absolute; top:-15px; left:20px; width:320px;}
 .ddp-wrap-edit3 .ddp-wrap-hover-info:hover .ddp-box-layout4 {display:block;}
-
+.ddp-wrap-edit3 .ddp-ui-edit-option .ddp-apply .ddp-type-search {float:left;}
 
 .ddp-wrap-edit3 .ddp-ui-edit-suboption {overflow:hidden;}
 .ddp-wrap-edit3 .ddp-ui-edit-option .ddp-ui-option-in .ddp-input-typebasic {margin-top:-9px;}

@@ -36,6 +36,7 @@ import {Metadata, SourceType} from '../../domain/meta-data-management/metadata';
 })
 export class MetadataDetailComponent extends AbstractComponent implements OnInit, OnDestroy {
 
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -133,6 +134,13 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   } // function - goBack
 
   /**
+   * Change current selected tab
+   */
+  public changeTab(tab: string) {
+    this.tab = tab;
+  }
+
+  /**
    * Get metadata detail information
    */
   public getMetadataDetail() {
@@ -141,6 +149,7 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
       this.loadingHide();
       if (result) {
         this.metadataModelService.setMetadata(result);
+        console.log(result);
       }
     }).catch(() => {
       this.loadingHide();
@@ -279,4 +288,5 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
 }
+
 

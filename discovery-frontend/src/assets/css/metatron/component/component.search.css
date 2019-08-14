@@ -72,7 +72,8 @@
 .ddp-select-search.ddp-selected .ddp-box-layout4 {display:block; z-index:20;}
 .ddp-select-search.ddp-selected a.ddp-ui-search2 {text-decoration:underline;}
 .ddp-select-search.ddp-selected .ddp-ui-search2 span.ddp-icon-search {background-color:#e3e3e8;}
-
+.ddp-type-search.type-box {border:1px solid #d0d1d8; border-radius:2px; padding-left:35px; box-sizing:border-box;}
+.ddp-type-search.type-box:before {left:12px;}
 .ddp-type-search {position:relative; padding:0 20px 0 23px;}
 .ddp-type-search:before {display:Inline-block; position:absolute; top:50%; left:0; width:14px; height:14px; margin-top:-7px; background:url(../../../images/icon_search.png) no-repeat; background-position:-15px -12px; content:'';}
 .ddp-type-search .ddp-btn-delete {display:none; position:absolute; top:50%; right:0; margin-top:-8px; width:15px; height:15px; background:url(../../../images/btn_close.png) no-repeat; background-position:left -132px;}

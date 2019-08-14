@@ -88,7 +88,7 @@
             <!--
                    edit 클릭시 ddp-edit 추가
                -->
-            <div class="ddp-edit-description ddp-edit ">
+            <div class="ddp-edit-description" [ngClass]="{'ddp-edit': isEditDescription}">
               <!-- data -->
               <div class="ddp-data-description">
                 <div class="ddp-txt-description">
@@ -101,7 +101,7 @@
                   설명 설명 설명 설명 설명 설명 설명 설명 설명 설명
                   최대 500자
                 </div>
-                <a href="javascript:" class="ddp-btn-edit"><em class="ddp-icon-edit"></em>Edit</a>
+                <a href="javascript:" (click)="toggleEditDescriptionFlag()" class="ddp-btn-edit" ><em class="ddp-icon-edit"></em>Edit</a>
               </div>
               <!-- //data -->
               <div class="ddp-box-textarea">
@@ -112,7 +112,7 @@
                       설명최대 500자</textarea>
                 <div class="ddp-textarea-buttons">
 
-                  <a href="javascript:" class="ddp-box-btn"><em class="ddp-icon-cancel"></em></a>
+                  <a href="javascript:" class="ddp-box-btn" (click)="toggleEditDescriptionFlag()"><em class="ddp-icon-cancel"></em></a>
                   <a href="javascript:" class="ddp-box-btn "><em class="ddp-icon-check"></em></a>
                 </div>
               </div>
