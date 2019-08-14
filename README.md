@@ -1,21 +1,7 @@
 <img title="logo-metatron" src="https://user-images.githubusercontent.com/6300003/44013820-f7647c96-9f02-11e8-8066-1c97f8b1662c.png" alt="metatron-discovery-logo" width="400px">
 
-:exclamation: Notice
-------------------
-Respecting the community's voice, we keep contacting GitHub team about the repository reset procedure and any concern or comment on this issue. But we have not received the GitHub team’s response yet. We will keep informed of GitHub’s feedback and we will follow GitHub’s guidelines.
-
-In order to minimize the impact of initialization, we have asked GitHub for the procedure. However, regardless of whether we receive a response, we will reset the repository by changing the repository from public -> private -> public on August 14 (Wednesday, Korean Time).
-
-In addition, we have found out that this method has some other outcomes which initialize the Watch release and Forks also. We will check more and re-announce it soon.
-
-We will continuously listen to and respect the community's voice and will put our best efforts to abide by the open-source ecosystem spirit.
-
-Once again we are deeply sorry and apologize for this issue.
-
-:exclamation: Additional Notice
-------------------
-**By this reset, it is expected that not only GitHub Star but also Watch and Fork will be initialized, but Issue bulletin will remain. Please re-register it after the repository reset, if you need.**
-**We will inform you once more if there is any additional updates.**
+[NOTICE] Respecting the [community's voice](https://github.com/metatron-app/metatron-discovery/issues/2431), repository reset has been completed and Stars have been initialized.
+But Watch and Fork have also been initialized with Star, so please re-register it if you need.
 
 ------------------
 
