@@ -85,13 +85,13 @@ export class LineageViewService extends AbstractService {
   public getLineageMapForMetadata(metadataId: string, nodeCnt: number, alignment: string, projection: string = 'forDetailView'): Promise<any> {
     let url = this.URL_LINEAGENODE + `/map/${metadataId}`;
     if(nodeCnt && alignment) {
-      url = url + `?nodeCnt=` +nodeCnt+ `&alignment=`+alignment;
+      url = url + `?nodeCnt=` +nodeCnt+ `&alignment=`+alignment.toUpperCase();
     } else if(nodeCnt) {
       url = url + `?nodeCnt=` +nodeCnt;
     } else if(alignment) {
-      url = url + `?alignment=` +alignment;
+      url = url + `?alignment=` +alignment.toUpperCase();
     }
-    return this.get(this.URL_LINEAGENODE + `/map/${metadataId}?nodeCnt=`+nodeCnt+`&alignment=`+alignment);
+    return this.get(url);
   }
 
   /**
