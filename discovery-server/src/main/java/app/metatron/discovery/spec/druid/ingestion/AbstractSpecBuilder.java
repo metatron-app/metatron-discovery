@@ -40,6 +40,7 @@ import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.JsonFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.OrcFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.ParquetFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.rule.EvaluationRule;
 import app.metatron.discovery.domain.datasource.ingestion.rule.IngestionRule;
 import app.metatron.discovery.domain.datasource.ingestion.rule.ReplaceNullRule;
@@ -58,6 +59,8 @@ import app.metatron.discovery.spec.druid.ingestion.index.LuceneIndexStrategy;
 import app.metatron.discovery.spec.druid.ingestion.index.LuceneIndexing;
 import app.metatron.discovery.spec.druid.ingestion.index.SecondaryIndexing;
 import app.metatron.discovery.spec.druid.ingestion.parser.*;
+
+import static app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo.IngestionScope.ALL;
 
 public class AbstractSpecBuilder {
 
@@ -139,6 +142,12 @@ public class AbstractSpecBuilder {
       granularitySpec.setRollup(false);
     } else {
       granularitySpec.setRollup(dataSource.getIngestionInfo().getRollup());
+    }
+
+    // Set Append
+    if (dataSource.getIngestionInfo() instanceof BatchIngestionInfo
+        && ((BatchIngestionInfo) dataSource.getIngestionInfo()).getRange() == ALL) {
+      granularitySpec.setAppend(false);
     }
 
     dataSchema.setGranularitySpec(granularitySpec);
