@@ -1,0 +1,138 @@
+<!-- lnb -->
+<!-- menu 클릭시 ddp-selected 추가 -->
+<div class="ddp-layout-lnb" [ngClass]="{'ddp-selected': show}">
+  <a href="javascript:" class="ddp-btn-lnbmenu" (click)="onLnbButtonClicked()"></a>
+
+  <ul class="ddp-list-lnb">
+    <li>
+      <div class="ddp-wrap-listmenu">
+        <a href="javascript:">
+          <span class="ddp-txt-lnbmenu">WORKSPACE</span>
+          <em class="ddp-icon-menuview"></em>
+        </a>
+        <!-- sub -->
+        <div class="ddp-list-sub">
+          <span class="ddp-txt-title"><em class="ddp-icon-personal"></em> 개인 워크스페이스</span>
+          <ul class="ddp-list-submenu">
+            <!-- 선택시 : ddp-selected -->
+            <li class="ddp-selected">
+              <a href="javascript:">
+                <span class="ddp-data-listmenu ">Nick's 워크스페이스 <em class="ddp-icon-new">NEW</em></span>
+              </a>
+            </li>
+          </ul>
+          <span class="ddp-txt-title">
+                                <em class="ddp-icon-share"></em> 공유 워크스페이스
+                                <em class="ddp-icon-fav"></em>
+                            </span>
+          <ul class="ddp-list-submenu">
+            <li>
+              <a href="javascript:">
+                <!-- new 일때 ddp-new -->
+                <span class="ddp-data-listmenu ddp-new">Nick's 워크스페이스 <em class="ddp-icon-new">NEW</em></span>
+              </a>
+            </li>
+            <li>
+              <a href="javascript:">
+                <span class="ddp-data-listmenu">전략 1팀 데이터 </span>
+                <em class="ddp-icon-afav"></em>
+              </a>
+            </li>
+            <li class="ddp-selected">
+              <a href="javascript:">
+                <span class="ddp-data-listmenu">전략 2팀 데이터 </span>
+              </a>
+            </li>
+          </ul>
+
+        </div>
+        <!-- //sub -->
+      </div>
+
+    </li>
+    <!-- 클릭시 ddp-selected 추가 -->
+    <li class="ddp-selected">
+      <div class="ddp-wrap-listmenu">
+        <a href="javascript:">
+          <span class="ddp-txt-lnbmenu">MANAGEMENT</span>
+          <em class="ddp-icon-menuview"></em>
+        </a>
+        <!-- sub -->
+        <div class="ddp-list-sub">
+          <!-- submenu -->
+          <ul class="ddp-list-sublnb">
+            <li>
+              <a href="javascript:">
+                <em class="ddp-icon-dot"></em>
+                Data Storage
+              </a>
+            </li>
+            <li>
+              <a href="javascript:">
+                <em class="ddp-icon-dot"></em>
+                Data Preparation
+              </a>
+            </li>
+            <li>
+              <a href="javascript:">
+                <em class="ddp-icon-dot"></em>
+                Data Settings
+              </a>
+            </li>
+            <!-- 선택시 ddp-selected -->
+            <li class="ddp-selected">
+              <a href="javascript:">
+                <em class="ddp-icon-dot"></em>
+                Data Monitoring
+              </a>
+            </li>
+          </ul>
+          <!-- //submenu -->
+        </div>
+        <!-- //sub -->
+      </div>
+    </li>
+    <li>
+      <div class="ddp-wrap-listmenu">
+        <a href="javascript:">
+          <span class="ddp-txt-lnbmenu">ADMINSTRATION</span>
+          <em class="ddp-icon-menuview"></em>
+        </a>
+        <!-- sub -->
+        <div class="ddp-list-sub">
+          <!-- submenu -->
+          <ul class="ddp-list-sublnb">
+            <li>
+              <a href="javascript:">
+                <em class="ddp-icon-dot"></em>
+                Data Storage
+              </a>
+            </li>
+            <li>
+              <a href="javascript:">
+                <em class="ddp-icon-dot"></em>
+                Data Preparation
+              </a>
+            </li>
+            <li>
+              <a href="javascript:">
+                <em class="ddp-icon-dot"></em>
+                Data Settings
+              </a>
+            </li>
+            <!-- 선택시 ddp-selected -->
+            <li class="ddp-selected">
+              <a href="javascript:">
+                <em class="ddp-icon-dot"></em>
+                Data Monitoring
+              </a>
+            </li>
+          </ul>
+          <!-- //submenu -->
+        </div>
+        <!-- //sub -->
+      </div>
+    </li>
+  </ul>
+</div>
+<!-- //lnb -->

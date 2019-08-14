@@ -1,0 +1,67 @@
+<!-- top -->
+<div class="ddp-top-flow">
+  <!-- 수정 data -->
+  <div class="ddp-data-form">
+    <span class="ddp-txt-date">최근수정 2017.03.06 08:22:35 by kko by kko by kk</span>
+
+
+    <!-- more -->
+    <!-- more 버튼 클릭시 ddp-selected 추가 -->
+    <div class="ddp-ui-more" [ngClass]="{'ddp-selected': more}" (click)="onMoreButtonClicked()">
+      <a href="javascript:" class="ddp-icon-more"></a>
+      <!-- popup -->
+      <div class="ddp-data-box">
+        <a href="#" class="ddp-list-link"><em class="ddp-icon-drop-re"></em>Re-Ingestion</a>
+        <a href="#" class="ddp-list-link"><em class="ddp-icon-delete"></em>Delete this request</a>
+        <span class="ddp-data-by">생성 2017.03.06 06:09:35 by오상식</span>
+      </div>
+      <!-- //popup -->
+    </div>
+    <!-- //more -->
+  </div>
+  <!-- //수정 data -->
+  <!-- navi wrap -->
+  <div class="ddp-wrap-navi">
+    <a href="javascript:" class="ddp-btn-back" (click)="goBack()"></a>
+    <!-- navi -->
+    <div class="ddp-ui-naviarea">
+      <!-- name -->
+      <!-- 클릭시 ddp-selected 추가 -->
+      <div class="ddp-box-navi ddp-">
+        <div class="ddp-wrap-naviname">
+              <span class="ddp-data-naviname">New Dashboard 01
+                <em class="ddp-icon-edit2"></em>
+              </span>
+        </div>
+        <!-- 편집 input -->
+        <div class="ddp-wrap-input">
+          <input type="text" class="ddp-input-navi" placeholder="ew Dashboard 01">
+          <span class="ddp-btn-check"></span>
+        </div>
+        <!-- //편집 input -->
+
+      </div>
+      <!-- //name -->
+
+      <!-- description -->
+      <!-- 클릭시 ddp-selected 추가 -->
+      <div class="ddp-box-navidet ddp-">
+        <div class="ddp-wrap-navidet">
+              <span class="ddp-data-navidet">description description description description
+                <em class="ddp-icon-edit2"></em>
+              </span>
+        </div>
+        <!-- 편집 input -->
+        <div class="ddp-wrap-input">
+          <textarea type="text" class="ddp-input-navi" placeholder="">escription description des</textarea>
+          <span class="ddp-btn-check"></span>
+        </div>
+        <!-- //편집 input -->
+      </div>
+      <!-- //description -->
+    </div>
+    <!-- //navi -->
+  </div>
+  <!-- //navi wrap -->
+</div>
+<!-- //top -->
