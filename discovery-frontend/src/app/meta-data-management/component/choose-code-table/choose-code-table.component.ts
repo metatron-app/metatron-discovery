@@ -23,6 +23,8 @@ import * as _ from 'lodash';
 import {Alert} from '../../../common/util/alert.util';
 import {CodeValuePair} from '../../../domain/meta-data-management/code-value-pair';
 import {TranslateService} from "@ngx-translate/core";
+import {ConfirmModalComponent} from "../../../common/component/modal/confirm/confirm.component";
+import {Modal} from "../../../common/domain/modal";
 
 @Component({
   selector: 'app-choose-code-table',
@@ -52,6 +54,10 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
   // 코드 테이블 생성 컴포넌트
   @ViewChild(CreateCodeTableComponent)
   private _createCodeTableComp: CreateCodeTableComponent;
+
+  // Modal Component
+  @ViewChild(ConfirmModalComponent)
+  private confirmModal: ConfirmModalComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -294,10 +300,19 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
    */
   public onClickCodeTableDetails(codeTable: CodeTable): void {
     event.stopImmediatePropagation();
-    // 해당 코드 테이블 상세화면으로 이동
-    if (confirm(this._translateService.instant('msg.storage.alert.detail.confirm'))) {
-      this.router.navigate(['management/metadata/code-table', codeTable.id]);
-    }
+
+    const modal = new Modal();
+    modal.name = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.name');
+    modal.description = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.description');
+    modal.btnName = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.btn');
+    modal.isShowCancel = true;
+    modal.data = {
+      id: codeTable.id
+    };
+
+    this.confirmModal.init(modal);
+
+
   }
   /**
    * 코드 Preview Popup close 버튼 클릭 이벤트
@@ -308,6 +323,10 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
     event.stopImmediatePropagation();
     codeTable['previewShowFl'] = false;
     this._previewPopupNowShowing = -1;
+  }
+
+  public confirmHandler() {
+    this.router.navigate(['management/metadata/code-table', this.selectedCodeTable['id']]);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

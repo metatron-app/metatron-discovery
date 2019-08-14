@@ -190,7 +190,7 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
    */
   public onClickPrevButton(): void {
     // 코드 테이블 목록 화면으로 이동
-    this._location.back();
+    this.router.navigate(['management/metadata/code-table']).then();
   }
 
   /**
