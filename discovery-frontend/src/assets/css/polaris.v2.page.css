@@ -4801,10 +4801,10 @@ table.ddp-table-order tr td {padding:13px 13px; border-top:1px solid #e7e7ea; fo
 .ddp-wrap-popup2.ddp-types.ddp-accout-popup ul.ddp-list-popup li a {white-space:normal;}
 .ddp-ui-account-search {position:absolute; top:410px; left:0; right:0; bottom:0; padding:0 50px 30px 50px; box-sizing:border-box;}
 .ddp-ui-popup-contents.page-flex {display:flex; flex-direction: column;}
-.page-flex .ddp-ui-accout-textarea {display:flex;flex:1 1 0; margin-bottom:20px;}
+.page-flex .ddp-ui-accout-textarea {display:flex;flex:1 1 0; margin-bottom:20px; height:250px;}
 .page-flex .ddp-ui-account-search{display:flex; flex:1 1 0; height:100%; position:relative; top:0; left:0; right:0; bottom:0; padding:0 0 30px 0;}
 .page-flex .ddp-ui-formula {margin-top:-32px; padding-top:32px;}
-.page-flex .ddp-ui-formula .ddp-ui-typebasic {top:32px;}
+.page-flex .ddp-ui-formula .ddp-ui-typebasic {top:37px;}
 
 .ddp-ui-account-search .ddp-wrap-form-list {float:left; height:100%; margin-top:-30px; padding:30px 0 0 0; box-sizing:border-box;}
 .ddp-ui-account-search .ddp-wrap-add-list {position:relative; float:left; width:305px; height:100%;border-right:1px solid #e7e7ea;  box-sizing:Border-box; z-index:1;}
@@ -4830,14 +4830,14 @@ table.ddp-table-order tr td {padding:13px 13px; border-top:1px solid #e7e7ea; fo
 .ddp-ui-formula.ddp-full {width:100%;}
 .ddp-view-formula {position:relative; height:100%; margin-top:-28px; padding-top:28px; box-sizing:border-box;}
 .ddp-view-formula .ddp-ui-option {float:left; position:relative; width:100%; z-index:2;}
-.ddp-view-formula .ddp-ui-option .ddp-type-search {float:left; width:250px; box-sizing:border-box;}
+.ddp-view-formula .ddp-ui-option .ddp-type-search {float:left; width:240px; box-sizing:border-box;}
 .ddp-view-formula .ddp-ui-option .ddp-wrap-edit3 {float:right; width:auto; margin-bottom:0;}
 .ddp-view-formula .ddp-ui-option .ddp-wrap-edit3 label.ddp-label-type {width:auto; padding-right:6px;}
 .ddp-view-formula .ddp-ui-option .ddp-wrap-edit3 .ddp-type-selectbox {width:155px;}
 .ddp-ui-formula .ddp-form-search {width:100%; margin-bottom:13px;}
 .ddp-ui-formula .ddp-ui-typebasic {position:absolute; top:80px; left:0; right:0; bottom:0; overflow-y:auto;}
 
-.ddp-view-formula .ddp-ui-detail {position:absolute; top:70px; left:270px; bottom:0; right:0; padding:0 10px 20px 10px; box-sizing:border-box; border:1px solid #e7e7ea; border-bottom:none; overflow-y:auto; color:#90969f; font-size:13px;}
+.ddp-view-formula .ddp-ui-detail {position:absolute; top:65px; left:270px; bottom:0; right:0; padding:0 10px 20px 10px; box-sizing:border-box; border:1px solid #e7e7ea; border-bottom:none; overflow-y:auto; color:#90969f; font-size:13px;}
 .ddp-view-formula .ddp-ui-detail .ddp-txt-part {display:block;}
 .ddp-view-formula .ddp-ui-detail .ddp-txt-part .ddp-txt-list {display:block; padding-top:10px;}
 .ddp-view-formula .ddp-ui-detail .ddp-txt-part .ddp-txt-list:first-of-type {padding-top:0;}
