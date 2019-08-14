@@ -132,8 +132,8 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
           }
 
 
-          if (!isNullOrUndefined(params['nameContains'])) {
-            this.searchText = params['nameContains'];
+          if (!isNullOrUndefined(params['descContains'])) {
+            this.searchText = params['descContains'];
           }
 
           const sort = params['sort'];
@@ -188,7 +188,7 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
       if (this.page.page > 0 && this.lineageList.length === 1) {
         this.page.page = this.page.page - 1;
       }
-      this.reloadPage(false);
+      this.reloadPage();
     }).catch((error) => {
       this.loadingHide();
       this.commonExceptionHandler(error);
@@ -346,6 +346,7 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
   public reloadPage(isFirstPage: boolean = true) {
     (isFirstPage) && (this.page.page = 0);
     this._searchParams = this._getLineageListParams();
+    this.router.routeReuseStrategy.shouldReuseRoute = () => false;
     this.router.navigate(
       [this.router.url.replace(/\?.*/gi, '')],
       {queryParams: this._searchParams, replaceUrl: true}
@@ -463,7 +464,7 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
     };
 
     if (!isNullOrUndefined(this.searchText) && this.searchText.trim() !== '') {
-      params['nameContains'] = this.searchText.trim();
+      params['descContains'] = this.searchText.trim();
     }
 
     return params;

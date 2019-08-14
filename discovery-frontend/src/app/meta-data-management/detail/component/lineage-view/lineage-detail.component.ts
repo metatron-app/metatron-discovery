@@ -197,7 +197,6 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
       let metadataId = this.selectedNode.metadataId;
 
       this.router.routeReuseStrategy.shouldReuseRoute = () => false;
-      this.router.onSameUrlNavigation = 'reload';
       this.router.navigate(['management/metadata/metadata', metadataId, {tab: 'lineageView'} ]);
     }
   }

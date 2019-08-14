@@ -76,14 +76,8 @@ export class LineageService extends AbstractService {
     return this.get(url);
   }
 
-  /**
-   * Lineage 상세조회
-   * @param {string} tableId
-   * @param {string} projection
-   * @returns {Promise<any>}
-   */
-  public getLineageDetail(tableId: string, projection: string = 'forDetailView'): Promise<any> {
-    return this.get(this.URL_LINEAGE + `/${tableId}?projection=${projection}`);
+  public getLineageDetail(lineageEdgeId: string, projection: string = 'default'): Promise<any> {
+    return this.get(this.URL_LINEAGE + `/edges/${lineageEdgeId}?projection=${projection}`);
   }
 
   /**

@@ -38,10 +38,7 @@ export class DetailLineageComponent extends AbstractComponent implements OnInit,
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 코드 테이블 아이디
   private _lineageId: string;
-  // 코드 테이블 상세정보 origin
-  private _originLineage: LineageEdge;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -51,9 +48,7 @@ export class DetailLineageComponent extends AbstractComponent implements OnInit,
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 코드 테이블 상세정보
-  public lineage: LineageEdge;
-  // 코드 목록
+  public lineageEdge: LineageEdge;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -79,11 +74,8 @@ export class DetailLineageComponent extends AbstractComponent implements OnInit,
     super.ngOnInit();
 
     this._activatedRoute.params.subscribe((params) => {
-      // ui init
-      this._initView();
-      // lineage id
       this._lineageId = params['lineageId'];
-      // 현재 코드테이블 상세조회
+      this.getLineageEdge(this._lineageId);
     });
 
   }
@@ -102,6 +94,10 @@ export class DetailLineageComponent extends AbstractComponent implements OnInit,
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - event
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public onClickPrevButton(): void {
+    this._location.back();
+    //this.router.navigate(['management/metadata/lineage']).then();
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
@@ -111,14 +107,15 @@ export class DetailLineageComponent extends AbstractComponent implements OnInit,
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  /**
-   * ui init
-   * @private
-   */
-  private _initView(): void {
-    // 상세정보 초기화
-    this.lineage = new LineageEdge();
-    this._originLineage = new LineageEdge();
+  private getLineageEdge(lineageId: string): void {
+    this.loadingShow();
+    this._lineageService.getLineageDetail(lineageId).then((result) => {
+      this.lineageEdge = result;
+      this.loadingHide();
+    }).catch((error) => {
+      this.loadingHide();
+      this.commonExceptionHandler(error);
+    });
   }
 
 }

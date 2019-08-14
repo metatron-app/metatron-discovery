@@ -84,13 +84,18 @@ public class LineageEdgeController {
   public
   @ResponseBody
   ResponseEntity<?> getLineages(
-      @RequestParam(value = "desc", required = false) String desc,
+      @RequestParam(value = "descContains", required = false, defaultValue = "") String descContains,
       @RequestParam(value = "projection", required = false, defaultValue = "default") String projection,
       Pageable pageable,
       PersistentEntityResourceAssembler resourceAssembler
   ) {
 
-    Page<LineageEdge> pages = this.lineageEdgeRepository.findAll(pageable);
+    Page<LineageEdge> pages = null;
+    if(descContains.isEmpty()==true) {
+      pages = this.lineageEdgeRepository.findAll(pageable);
+    } else {
+      pages = this.lineageEdgeRepository.findByDescContaining(descContains, pageable);
+    }
 
     return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(pages, resourceAssembler));
   }

@@ -502,17 +502,16 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
               if( params.dataType==='node' ) {
                 return params.data.metaName;
               } else if( params.dataType==='edge' ) {
-                var sourceId = params.data.source;
-                var targetId = params.data.target;
-                var sourceName = null;
-                var targetName = null;
-                this.lineageNodes.forEach( (node) => {
-                  if(node.metadataId==sourceId) {
-                    sourceName = node.name;
-                  } else if(node.metadataId==targetId) {
-                    targetName = node.name;
-                  }
-                });
+                var sourceName = params.data.frMetaName;
+                var targetName = params.data.toMetaName;
+                var sourceColName = params.data.frColName;
+                if(0<sourceColName.length) {
+                  sourceName = sourceName +'('+ sourceColName +')';
+                }
+                var targetColName = params.data.toColName;
+                if(0<targetColName.length) {
+                  targetName = targetName +'('+ targetColName +')';
+                }
                 return sourceName +' to '+ targetName;
               }
               return null;
