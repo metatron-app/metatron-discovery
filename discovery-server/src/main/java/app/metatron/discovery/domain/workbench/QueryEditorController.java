@@ -449,7 +449,7 @@ public class QueryEditorController {
     String filePath = csvBaseDir + csvFilePath;
 
     File file = new File(filePath);
-    if (file == null || !csvFilePath.equals(file.getName())) {
+    if (!file.exists() || !csvFilePath.equals(file.getName())) {
       LOGGER.error("csvFilePath : {} : fileName : {}", csvFilePath, file.getName());
       throw new WorkbenchException(WorkbenchErrorCodes.CSV_FILE_NOT_FOUND, "CSV Download Failed");
     }
