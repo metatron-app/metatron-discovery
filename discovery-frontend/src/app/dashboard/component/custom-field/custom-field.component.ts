@@ -700,14 +700,14 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
     return this.translateService.currentLang === 'ko' ? commonCode.description : commonCode.descriptionEn;
   }
 
-  public getApiHtml(commonCode: CommonCode): string {
-    let html = '<span class="ddp-ui-det-title">API</span>';
-    let apiList: string[] = _.split(commonCode.api, this.expressionStringDelimiter);
-    html += apiList[0];
-    if (apiList.length > 1) {
-      for( let num: number = 1 ; num < apiList.length ; num++ ) {
+  public getSyntaxHtml(commonCode: CommonCode): string {
+    let html = '<span class="ddp-ui-det-title">Syntax</span>';
+    let syntaxList: string[] = _.split(commonCode.syntax, this.expressionStringDelimiter);
+    html += syntaxList[0];
+    if (syntaxList.length > 1) {
+      for( let num: number = 1 ; num < syntaxList.length ; num++ ) {
         html += '<br/>';
-        html += apiList[num];
+        html += syntaxList[num];
       }
     }
 

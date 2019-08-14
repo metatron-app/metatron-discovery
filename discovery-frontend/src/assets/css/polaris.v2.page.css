@@ -4840,7 +4840,7 @@ table.ddp-table-order tr td {padding:13px 13px; border-top:1px solid #e7e7ea; fo
 .ddp-view-formula .ddp-ui-detail {position:absolute; top:70px; left:270px; bottom:0; right:0; padding:0 10px 20px 10px; box-sizing:border-box; border:1px solid #e7e7ea; border-bottom:none; overflow-y:auto; color:#90969f; font-size:13px;}
 .ddp-view-formula .ddp-ui-detail .ddp-txt-part {display:block;}
 .ddp-view-formula .ddp-ui-detail .ddp-txt-part .ddp-txt-list {display:block; padding-top:10px;}
-.ddp-view-formula .ddp-ui-detail .ddp-txt-part .ddp-txt-list:first-of-type {padding-top:0px;}
+.ddp-view-formula .ddp-ui-detail .ddp-txt-part .ddp-txt-list:first-of-type {padding-top:0;}
 .ddp-view-formula .ddp-ui-detail .ddp-txt-part .ddp-txt-list .ddp-txt-sub-det {color:#83ae4a}
 .ddp-view-formula .ddp-ui-detail .ddp-btn-close {display:inline-block; position:absolute; right:27px; top:19px; width:16px; height:16px; background:url(../images/btn_close.png) no-repeat; cursor: pointer;}
 .ddp-view-formula .ddp-ui-detail .ddp-ui-det-title {display:block; padding:15px 0 5px 0; color:#4b515b; font-size:13px; font-weight:bold;}

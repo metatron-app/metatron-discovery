@@ -72,7 +72,7 @@ public class CommonCode extends AbstractHistoryEntity implements MetatronDomain<
     private String description;
 
     @Transient
-    private String api;
+    private String syntax;
 
     @Transient
     private String example;
@@ -159,9 +159,9 @@ public class CommonCode extends AbstractHistoryEntity implements MetatronDomain<
         this.description = description;
     }
 
-    public String getApi() { return api; }
+    public String getSyntax() { return syntax; }
 
-    public void setApi(String api) { this.api = api; }
+    public void setSyntax(String syntax) { this.syntax = syntax; }
 
     public String getExample() { return example; }
 
@@ -195,7 +195,7 @@ public class CommonCode extends AbstractHistoryEntity implements MetatronDomain<
                 ", commonUseFl='" + commonUseFl + '\'' +
                 ", commonValue='" + commonValue + '\'' +
                 ", description='" + description + '\'' +
-                ", api='" + api + '\'' +
+                ", syntax='" + syntax + '\'' +
                 ", param='" + param + '\'' +
                 ", example='" + example + '\'' +
                 '}';
