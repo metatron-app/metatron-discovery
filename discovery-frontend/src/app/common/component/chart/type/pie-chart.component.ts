@@ -42,6 +42,7 @@ import {UIOption} from '../option/ui-option';
 import {UIChartFormat} from '../option/ui-option/ui-format';
 import {LegendOptionConverter} from '../option/converter/legend-option-converter';
 import optGen = OptionGenerator;
+import {EventBroadcaster} from "../../../event/event.broadcaster";
 
 @Component({
   selector: 'pie-chart',
@@ -51,9 +52,10 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
 
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector) {
+    protected injector: Injector,
+    protected broadCaster: EventBroadcaster) {
 
-    super(elementRef, injector);
+    super(elementRef, injector, broadCaster);
   }
 
   // Init

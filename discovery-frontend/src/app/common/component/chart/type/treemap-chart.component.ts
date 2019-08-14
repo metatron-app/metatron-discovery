@@ -73,10 +73,10 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected broadCaster: EventBroadcaster,
-    protected injector: Injector ) {
+    protected injector: Injector,
+    protected broadCaster: EventBroadcaster) {
 
-    super(elementRef, injector);
+    super(elementRef, injector, broadCaster);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

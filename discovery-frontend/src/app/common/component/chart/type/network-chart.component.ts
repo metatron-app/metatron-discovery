@@ -43,6 +43,7 @@ import { ColorOptionConverter } from '../option/converter/color-option-converter
 import { UIChartColorByDimension, UIChartFormat, UIChartFormatItem, UIOption } from '../option/ui-option';
 import { LegendOptionConverter } from '../option/converter/legend-option-converter';
 import { LabelOptionConverter } from '../option/converter/label-option-converter';
+import {EventBroadcaster} from "../../../event/event.broadcaster";
 
 declare let echarts: any;
 
@@ -55,6 +56,8 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  private refresh: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -71,9 +74,10 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector ) {
+    protected injector: Injector,
+    protected broadCaster: EventBroadcaster) {
 
-    super(elementRef, injector);
+    super(elementRef, injector, broadCaster);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -82,9 +86,15 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
 
   // Init
   public ngOnInit() {
-
     // Init
     super.ngOnInit();
+    this.resetSubscription.unsubscribe();
+    this.subscriptions.push(
+      this.broadCaster.on("RESET_FILTER").subscribe(() => {
+        // this.refresh = true;
+        // this.addChartSelectEventListener();
+      })
+    )
   }
 
   // Destory
@@ -628,11 +638,12 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
       // current chart seires
       const series = this.chartOption.series;
       // when click empty space, clear dimmed style, remove filter
-      if (this.isSelected && _.isNull(params)) {
+      if (this.isSelected && _.isNull(params) || this.refresh) {
         selectMode = ChartSelectMode.CLEAR;
         this.chartOption = this.selectionClear(this.chartOption);
 
         this.isSelected = false;
+        this.refresh = false;
       } else if (params != null) {
 
         // parameter 정보를 기반으로 시리즈정보 설정

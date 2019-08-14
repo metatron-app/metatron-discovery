@@ -42,6 +42,7 @@ import { AxisOptionConverter } from '../option/converter/axis-option-converter';
 import { Axis } from '../option/define/axis';
 import { DataZoomType } from '../option/define/datazoom';
 import { UIOption } from '../option/ui-option';
+import {EventBroadcaster} from "../../../event/event.broadcaster";
 
 @Component({
   selector: 'combine-chart',
@@ -75,9 +76,10 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector ) {
+    protected injector: Injector,
+    protected broadCaster: EventBroadcaster) {
 
-    super(elementRef, injector);
+    super(elementRef, injector, broadCaster);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

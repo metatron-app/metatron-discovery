@@ -37,6 +37,7 @@ import * as _ from 'lodash';
 import { UIChartColorByCell, UIOption } from '../option/ui-option';
 import { UIGridChart } from '../option/ui-option/ui-grid-chart';
 import { UIChartColorGradationByCell } from '../option/ui-option/ui-color';
+import {EventBroadcaster} from "../../../event/event.broadcaster";
 
 declare let pivot: any;
 
@@ -73,9 +74,10 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector ) {
+    protected injector: Injector,
+    protected broadCaster: EventBroadcaster) {
 
-    super(elementRef, injector);
+    super(elementRef, injector, broadCaster);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

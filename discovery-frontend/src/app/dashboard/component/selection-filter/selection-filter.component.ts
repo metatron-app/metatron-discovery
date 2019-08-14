@@ -150,10 +150,11 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
    * 필터 리셋
    */
   public resetFilter(shouldEmit: boolean = true) {
-    this.init();
-    if (shouldEmit) {
-      this._broadcastSelection(this._getApiFilters());
-    }
+    // this.init();
+    this.broadCaster.broadcast('RESET_FILTER');
+    // if (shouldEmit) {
+    //   this._broadcastSelection(this._getApiFilters());
+    // }
   } // function - resetFilter
 
   /**
@@ -162,7 +163,7 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
   public init() {
     this.selectionFilterList = [];
     this._chartSelectionList = [];
-    this.changeDetect.detectChanges();
+    // this.changeDetect.detectChanges();
   } // function - init
 
   /**

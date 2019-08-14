@@ -41,6 +41,7 @@ import {Axis} from '../option/define/axis';
 import {AxisOptionConverter} from '../option/converter/axis-option-converter';
 import { LabelOptionConverter } from '../option/converter/label-option-converter';
 import { TooltipOptionConverter } from '../option/converter/tooltip-option-converter';
+import {EventBroadcaster} from "../../../event/event.broadcaster";
 
 @Component({
   selector: 'bar-chart',
@@ -73,9 +74,10 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector ) {
+    protected injector: Injector,
+    protected broadCaster: EventBroadcaster) {
 
-    super(elementRef, injector);
+    super(elementRef, injector, broadCaster);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

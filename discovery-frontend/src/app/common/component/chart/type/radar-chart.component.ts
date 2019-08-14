@@ -32,6 +32,7 @@ import {LabelOptionConverter} from "../option/converter/label-option-converter";
 import {FormatOptionConverter} from "../option/converter/format-option-converter";
 import { UIChartFormat } from '../option/ui-option/ui-format';
 import { UIOption } from '../option/ui-option';
+import {EventBroadcaster} from "../../../event/event.broadcaster";
 
 @Component({
   selector: 'radar-chart',
@@ -56,10 +57,12 @@ export class RadarChartComponent extends BaseChart implements OnInit, OnDestroy,
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(protected elementRef: ElementRef,
-              protected injector: Injector) {
+  constructor(
+    protected elementRef: ElementRef,
+    protected injector: Injector,
+    protected broadCaster: EventBroadcaster) {
 
-    super(elementRef, injector);
+    super(elementRef, injector, broadCaster);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -64,6 +64,7 @@ import {UIPolygonLayer} from '../../option/ui-option/map/ui-polygon-layer';
 import {UITileLayer} from '../../option/ui-option/map/ui-tile-layer';
 import {ColorOptionConverter} from '../../option/converter/color-option-converter';
 import {CommonConstant} from "../../../../constant/common.constant";
+import {EventBroadcaster} from "../../../../event/event.broadcaster";
 
 declare let ol;
 
@@ -202,8 +203,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector) {
-    super(elementRef, injector);
+    protected injector: Injector,
+    protected broadCaster: EventBroadcaster) {
+
+    super(elementRef, injector, broadCaster);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
