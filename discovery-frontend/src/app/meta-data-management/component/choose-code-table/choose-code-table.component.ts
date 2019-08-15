@@ -272,6 +272,7 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
    * @param {number} idx
    */
   public onClickCodeTablePreview(idx: number): void {
+    this.selectedCodeTable = this.codeTableList[idx];
     // if any popup is shown now
     if (this._previewPopupNowShowing !== -1) {
       // hide popup
@@ -311,8 +312,6 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
     };
 
     this.confirmModal.init(modal);
-
-
   }
   /**
    * 코드 Preview Popup close 버튼 클릭 이벤트
@@ -323,10 +322,12 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
     event.stopImmediatePropagation();
     codeTable['previewShowFl'] = false;
     this._previewPopupNowShowing = -1;
+    this.selectedCodeTable = null;
   }
 
   public confirmHandler() {
     this.router.navigate(['management/metadata/code-table', this.selectedCodeTable['id']]);
+    this.selectedCodeTable = null;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
