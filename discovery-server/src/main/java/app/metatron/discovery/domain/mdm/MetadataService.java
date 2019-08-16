@@ -73,11 +73,19 @@ import app.metatron.discovery.domain.mdm.source.MetadataSource;
 import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.domain.user.CachedUserService;
 import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.workbench.QueryEditor;
+import app.metatron.discovery.domain.workbench.QueryHistory;
+import app.metatron.discovery.domain.workbench.QueryHistoryRepository;
 import app.metatron.discovery.domain.workbench.Workbench;
 import app.metatron.discovery.domain.workbench.WorkbenchRepository;
 import app.metatron.discovery.domain.workbook.DashBoard;
 import app.metatron.discovery.domain.workbook.DashboardRepository;
+import app.metatron.discovery.domain.workbook.WorkBook;
+import app.metatron.discovery.domain.workspace.Workspace;
+import app.metatron.discovery.domain.workspace.WorkspacePermissions;
+import app.metatron.discovery.domain.workspace.WorkspaceService;
 import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
+import app.metatron.discovery.util.HibernateUtils;
 
 
 @Component
@@ -121,6 +129,12 @@ public class MetadataService implements ApplicationEventPublisherAware {
 
   @Autowired
   WorkbenchRepository workbenchRepository;
+
+  @Autowired
+  QueryHistoryRepository queryHistoryRepository;
+
+  @Autowired
+  WorkspaceService workspaceService;
 
 
   private ApplicationEventPublisher publisher;
@@ -487,9 +501,9 @@ public class MetadataService implements ApplicationEventPublisherAware {
 
   public List<?> getFrequentUser(Metadata metadata, int maxCount){
     Metadata.SourceType sourceType = metadata.getSourceType();
-    LOGGER.debug("Getting frequent top 3 user about : {}", sourceType);
+    LOGGER.debug("Getting frequent top {} user about : {}", maxCount, sourceType);
 
-    List<Map> accessTop3List = new ArrayList<>();
+    List<Map> frequentUserList = new ArrayList<>();
     switch (sourceType){
       case ENGINE:
         //getting DataSourceId
@@ -529,39 +543,71 @@ public class MetadataService implements ApplicationEventPublisherAware {
 
           //get user info
           User actor = cachedUserService.findUser(activityStream.getActor());
-          //get dashboard info
 
+          //get dashboard info
           DashBoard dashBoard = dashboardRepository.findOne(activityStream.getObjectId());
+
+          //get Workbook
+          WorkBook workbook = HibernateUtils.unproxy(dashBoard.getWorkBook());
+
+          //get Workspace Permission
+          Workspace workspace = workbook.getWorkspace();
+          Boolean hasPermission = getWorkspacePermission(workspace, WorkspacePermissions.PERM_WORKSPACE_VIEW_WORKBOOK);
 
           Map<String, Object> accessMap = new HashMap<>();
           accessMap.put("user", actor);
           accessMap.put("dashboard", dashBoard);
+          accessMap.put("workbook", workbook);
+          accessMap.put("hasPermission", hasPermission);
           accessMap.put("count", activityCount);
           accessMap.put("lastPublishedTime", activityStream.getPublishedTime());
 
-          accessTop3List.add(accessMap);
+          frequentUserList.add(accessMap);
         }
         break;
       case STAGEDB:
         break;
       case JDBC:
-        int topCnt = getRandomNumberInRange(0, 3);
-        List<Workbench> workbenches = workbenchRepository.findAll();
+        //getting DataConnectionId
+        String dataConnectionId = metadata.getSource().getSourceId();
 
-        for(int i = 0; i < Math.min(topCnt, workbenches.size()); ++i){
-          Map<String, Object> top1User = new HashMap<>();
-          top1User.put("count", 10);
-          top1User.put("lastPublishedTime", DateTime.now());
-          top1User.put("user", cachedUserService.findUser("admin"));
-          top1User.put("workbench", workbenches.get(i));
-          accessTop3List.add(top1User);
+        List queryHistoryCountByUser
+            = queryHistoryRepository.countHistoryByUserAndDataConnection(DateTime.now().minusMonths(100), dataConnectionId);
+
+        //top 3
+        for(int i = 0; i < Math.min(maxCount, queryHistoryCountByUser.size()); i++){
+          Map<String, Object> queryHistoryInfo = (Map) queryHistoryCountByUser.get(i);
+          Long queryHistoryId = (Long) queryHistoryInfo.get("ID");
+          Long queryHistoryCount = (Long) queryHistoryInfo.get("CNT");
+
+          //get RecentQueryHistory
+          QueryHistory queryHistory = queryHistoryRepository.findOne(queryHistoryId);
+
+          QueryEditor queryEditor = queryHistory.getQueryEditor();
+
+          Workbench workbench = queryEditor == null ? null : queryEditor.getWorkbench();
+
+          //get user info
+          User actor = cachedUserService.findUser(queryHistory.getCreatedBy());
+
+          //get Workspace Permission
+          Workspace workspace = workbench.getWorkspace();
+          Boolean hasPermission = getWorkspacePermission(workspace, WorkspacePermissions.PERM_WORKSPACE_VIEW_WORKBENCH);
+
+          Map<String, Object> accessMap = new HashMap<>();
+          accessMap.put("user", actor);
+          accessMap.put("workbench", HibernateUtils.unproxy(workbench));
+          accessMap.put("count", queryHistoryCount);
+          accessMap.put("hasPermission", hasPermission);
+          accessMap.put("lastPublishedTime", queryHistory.getCreatedTime());
+          frequentUserList.add(accessMap);
         }
         break;
       default:
 
         break;
     }
-    return accessTop3List;
+    return frequentUserList;
   }
 
   private int getRandomNumberInRange(int min, int max) {
@@ -589,5 +635,14 @@ public class MetadataService implements ApplicationEventPublisherAware {
       updatedList.add(top1User);
     }
     return updatedList;
+  }
+
+  public Boolean getWorkspacePermission(Workspace workspace, String permission){
+    Boolean hasPermission = false;
+    if(workspace.getActive()){
+      Set<String> permissions = workspaceService.getPermissions(workspace);
+      hasPermission = permissions.contains(permission);
+    }
+    return hasPermission;
   }
 }

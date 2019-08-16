@@ -420,8 +420,8 @@ public class MetadataController {
       throw new ResourceNotFoundException(metadataId);
     }
 
-    List<?> accessTop3List = metadataService.getFrequentUser(metadata, 3);
-    return ResponseEntity.ok(accessTop3List);
+    List<?> frequentUserList = metadataService.getFrequentUser(metadata, 3);
+    return ResponseEntity.ok(frequentUserList);
   }
 
   @RequestMapping(path = "/metadatas/{metadataId}/history", method = RequestMethod.GET)
