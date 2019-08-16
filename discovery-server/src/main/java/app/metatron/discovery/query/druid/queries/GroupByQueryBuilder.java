@@ -167,7 +167,7 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
 
   private Having having;
 
-  private RelayAggregation.Relaytype relayType;
+  private RelayAggregation.RelayType relayType;
 
   private List<String> percentPartitionExprs = Lists.newArrayList(
       "#_ = " + new RunningSumFunc("_").toExpression(),
@@ -195,7 +195,7 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
     enableMapLayer(layer);
     if (layer.getView() instanceof LayerView.AbbreviatedView) {
       LayerView.AbbreviatedView abbrView = (LayerView.AbbreviatedView) layer.getView();
-      relayType = abbrView.getRelayType() == null ? RelayAggregation.Relaytype.FIRST : abbrView.getRelayType();
+      relayType = abbrView.getRelayType() == null ? RelayAggregation.RelayType.TIME_MAX : abbrView.getRelayType();
     }
     return this;
   }

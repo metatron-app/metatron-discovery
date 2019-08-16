@@ -202,4 +202,89 @@
 
 
 ============================================================================
+   Metatron Discovery SUBCOMPONENTS:
+
+   The Metatron Discovery project contains subcomponents with separate copyright
+   notices and license terms. Your use of the source code for the these
+   subcomponents is subject to the terms and conditions of the following
+   licenses.
+
+========================================================================
+Apache licenses
+========================================================================
+
+The following components are provided under the Apache License. See project link for details.
+The text of each license is also included at licenses/LICENSE-[project]-[version].txt.
+
+    (Apache 2.0) guava (http://code.google.com/p/guava-libraries)
+    (Apache 2.0) jackson (http://github.com/FasterXML/jackson)
+    (Apache 2.0) failsafe (http://github.com/jhalterman/failsafe/)
+    (Apache 2.0) spring boot (http://projects.spring.io/spring-boot/)
+    (Apache 2.0) spring security (http://spring.io/spring-security)
+    (Apache 2.0) infinispan (http://www.infinispan.org)
+    (Apache 2.0) joda-time (http://www.joda.org)
+    (Apache 2.0) quartz (http://www.quartz-scheduler.org) - http://www.quartz-scheduler.org/overview/license.html
+    (Apache 2.0) querydsl (http://www.querydsl.com)
+    (Apache 2.0) thymeleaf (http://www.thymeleaf.org)
+    (Apache 2.0) jsqlparser (https://github.com/JSQLParser/JSqlParser)
+    (Apache 2.0) imgscalr (http://www.thebuzzmedia.com/software/imgscalr-java-image-scaling-library/)
+    (Apache 2.0) jadira-usertype (http://jadira.sourceforge.net/index.html)
+    (Apache 2.0) echart (https://echarts.apache.org)
+
+========================================================================
+MIT licenses
+========================================================================
+
+The following components are provided under the MIT License. See project link for details.
+The text of each license is also included at licenses/LICENSE-[project]-[version].txt.
+
+    (The MIT License) slf4j (http://www.slf4j.org) - https://www.slf4j.org/license.html 
+    (The MIT License) jquery (https://jquery.org) - https://jquery.org/license/
+    (The MIT License) angular (https://angular.io/) - https://angular.io/license
+    (The MIT License) turfjs (https://turfjs.org/)
+    (The MIT License) lodash (https://lodash.com/)
+    (The MIT License) stompjs (https://github.com/stomp-js)
+    (The MIT License) codemirror (https://codemirror.net/)
+
+========================================================================
+BSD licenses
+========================================================================
+The following components are provided under the BSD license.  See file headers and project links for details.
+
+  (The BSD License) antlr (http://www.antlr.org) - http://www.antlr.org/license.html
+
+========================================================================
+BSD 3-Clause licenses
+========================================================================
+The following components are provided under the BSD 3-Clause license.  See file headers and project links for details.
+
+  (BSD 3 Clause) jsch (http://www.jcraft.com/jsch/) - http://www.jcraft.com/jsch/LICENSE.txt
+
+========================================================================
+GNU Library General Public License
+========================================================================
+The following components are provided under the GNU Library General Public License.  See file headers and project links for details.
+
+  (GNU Library General Public License v2.1 or later) hibernate (http://hibernate.org) - https://hibernate.org/community/license/
+  (GNU General Public License, version 2.0) mysql connector/j (http://dev.mysql.com/doc/connector-j/en/)
+
+========================================================================
+Eclipse Public License - v 1.0
+========================================================================
+The following components are provided under the Eclipse Public License, version 1.0.  See file headers and project links for details.
+
+  (Eclipse Public License) logback (http://logback.qos.ch) - https://logback.qos.ch/license.html
+  (Eclipse Public License) h2 (http://www.h2database.com) - http://www.h2database.com/html/license.html
+
+========================================================================
+ The Open Font License
+========================================================================
+
+The following components are provided under the Open Font License. See project link for details.
+The text of each license is also included at licenses/LICENSE-[project]-[version].txt.
+
+    (OFL) Titillium Web (https://fonts.google.com/specimen/Titillium+Web) - http://scripts.sil.org/OFL
+    (OFL) Spoqa Han Sans (https://spoqa.github.io/spoqa-han-sans)
+    (OFL) NanumBarunGothic (https://hangeul.naver.com/2017/nanum)
+
 

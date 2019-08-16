@@ -25,6 +25,7 @@ import * as _ from 'lodash';
 import {StorageService} from '../../data-storage/service/storage.service';
 import {ActivatedRoute} from "@angular/router";
 import {CreateMetadataMainComponent} from "./create-metadata/create-metadata-main.component";
+import {Subscription} from "rxjs";
 
 declare let $;
 
@@ -69,8 +70,6 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   public selectedCatalogId: string;
   public catalogs: any;
 
-  public selectedContentSort: Order = new Order();
-
   // Unclassified 선택 여부
   public isUnclassifiedSelected: boolean = false;
 
@@ -81,6 +80,17 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    * Metadata SourceType Enum
    */
   public readonly METADATA_SOURCE_TYPE = SourceType;
+
+  // sort
+  readonly sortList = [
+    {name: this.translateService.instant('msg.comm.ui.sort.name.asc'), value: 'name,asc'},
+    {name: this.translateService.instant('msg.comm.ui.sort.name.desc'), value: 'name,desc'},
+    {name: this.translateService.instant('msg.comm.ui.sort.updated.asc'), value: 'modifiedTime,asc'},
+    {name: this.translateService.instant('msg.comm.ui.sort.updated.desc'), value: 'modifiedTime,desc'},
+  ];
+  selectedSort;
+
+  private _paginationSubscription$: Subscription;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -102,14 +112,9 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
 
   // Init
   public ngOnInit() {
-    // Init
-    super.ngOnInit();
-
     this._initView();
-
-    this.subscriptions.push(
-      // Get query param from url
-      this._activatedRoute.queryParams.subscribe((params) => {
+    // Get query param from url
+    this._paginationSubscription$ = this._activatedRoute.queryParams.subscribe((params) => {
 
         if (!_.isEmpty(params)) {
 
@@ -133,11 +138,8 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
             });
           }
 
-          const sort = params['sort'];
-          if (!isNullOrUndefined(sort)) {
-            const sortInfo = decodeURIComponent(sort).split(',');
-            this.selectedContentSort.key = sortInfo[0];
-            this.selectedContentSort.sort = sortInfo[1];
+          if (!_.isNil(params['sort'])) {
+            this.selectedSort = this.sortList.find(sort => sort.value === params['sort']);
           }
 
         }
@@ -162,14 +164,13 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
           })
 
 
-      })
-    );
-
-
+      });
   }
 
   public ngOnDestroy() {
-    super.ngOnDestroy();
+    if (!_.isNil(this._paginationSubscription$)) {
+      this._paginationSubscription$.unsubscribe();
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -239,36 +240,6 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     } else {
       catalog.isOpen = !catalog.isOpen;
     }
-  }
-
-  /**
-   * 정렬 버튼 클릭
-   * @param {string} key
-   */
-  public onClickSort(key: string): void {
-
-    // 초기화
-    this.selectedContentSort.sort = this.selectedContentSort.key !== key ? 'default' : this.selectedContentSort.sort;
-    // 정렬 정보 저장
-    this.selectedContentSort.key = key;
-
-    if (this.selectedContentSort.key === key) {
-      // asc, desc
-      switch (this.selectedContentSort.sort) {
-        case 'asc':
-          this.selectedContentSort.sort = 'desc';
-          break;
-        case 'desc':
-          this.selectedContentSort.sort = 'asc';
-          break;
-        case 'default':
-          this.selectedContentSort.sort = 'desc';
-          break;
-      }
-    }
-
-    // 페이지 초기화 후 재조회
-    this.reloadPage();
   }
 
   /**
@@ -554,6 +525,19 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     ).then();
   } // function - reloadPage
 
+  createdMetadata(metadataId?: string) {
+    if (_.isNil(metadataId)) {
+      this.reloadPage(true);
+    } else {  // if exist metadataId, go to detail page
+      this.router.navigate(['management/metadata/metadata', metadataId]);
+    }
+  }
+
+  changeSort(sort) {
+    this.selectedSort = sort;
+    this.reloadPage();
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -584,10 +568,6 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     this.sourceType = '';
     this.listSearchText = '';
 
-    // 정렬 초기화
-    this.selectedContentSort = new Order();
-    this.selectedContentSort.key = 'createdTime';
-    this.selectedContentSort.sort = 'desc';
 
     this.tagsList = [{name: 'All', id: ''}];
     this.tagDefaultIndex = 0;
@@ -599,6 +579,8 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     //   this.getCatalogList();
     // }
 
+    // 정렬 초기화
+    this.selectedSort = this.sortList[3];
   }
 
   /**
@@ -755,7 +737,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     const params = {
       size: this.pageResult.size,
       page: this.pageResult.number,
-      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort,
+      sort: this.selectedSort.value,
     };
 
     // 검색어
@@ -776,6 +758,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     const params = {
       page: this.page.page,
       size: this.page.size,
+      sort: this.selectedSort.value,
       pseudoParam : (new Date()).getTime()
     };
 
@@ -799,8 +782,6 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     //   params['catalogId'] = this.selectedCatalogId;
     // }
 
-    this.selectedContentSort.sort !== 'default' && (params['sort'] = this.selectedContentSort.key + ',' + this.selectedContentSort.sort);
-
     return params;
   }
 
@@ -808,11 +789,6 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   | Private Method - getter
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-}
-
-class Order {
-  key: string = 'logicalName';
-  sort: string = 'asc';
 }
 
 class SelectedMetadata {

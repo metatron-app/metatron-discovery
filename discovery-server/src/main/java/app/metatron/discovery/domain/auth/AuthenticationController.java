@@ -35,6 +35,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.codec.Base64;
+import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.client.BaseClientDetails;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.saml.SAMLCredential;
@@ -290,6 +291,54 @@ public class AuthenticationController {
     }
 
     return mav;
+  }
+
+  @RequestMapping(value = "/oauth/client/logout")
+  public void oauthLogout(HttpServletRequest request, HttpServletResponse response) {
+    try {
+      Cookie cookie = new Cookie("LOGIN_TOKEN", null);
+      cookie.setPath("/");
+      cookie.setMaxAge(0) ;
+      response.addCookie(cookie);
+
+      cookie = new Cookie("LOGIN_TOKEN_TYPE", null);
+      cookie.setPath("/");
+      cookie.setMaxAge(0) ;
+      response.addCookie(cookie);
+
+      cookie = new Cookie("REFRESH_LOGIN_TOKEN", null);
+      cookie.setPath("/");
+      cookie.setMaxAge(0) ;
+      response.addCookie(cookie);
+
+      cookie = new Cookie("LOGIN_USER_ID", null);
+      cookie.setPath("/");
+      cookie.setMaxAge(0) ;
+      response.addCookie(cookie);
+
+      String clientId = request.getParameter("client_id");
+      ClientDetails clientDetails = jdbcClientDetailsService.loadClientByClientId(clientId);
+      if (clientDetails == null) {
+        response.sendRedirect("/");
+      } else {
+        String redirect_uri = request.getParameter("redirect_uri");
+        if (StringUtils.isEmpty(redirect_uri)) {
+          redirect_uri = String.valueOf(clientDetails.getRegisteredRedirectUri().toArray()[0]);
+        }
+        StringBuffer stringBuffer = new StringBuffer("/oauth/authorize?response_type=code&client_id=");
+        stringBuffer.append(clientId);
+        stringBuffer.append("&redirect_uri=");
+        stringBuffer.append(redirect_uri);
+        stringBuffer.append("&scope=");
+        stringBuffer.append(StringUtils.join(clientDetails.getScope(), " "));
+
+        response.sendRedirect(stringBuffer.toString());
+      }
+
+    } catch (Exception e) {
+      throw new MetatronException(e);
+    }
+
   }
 
 }

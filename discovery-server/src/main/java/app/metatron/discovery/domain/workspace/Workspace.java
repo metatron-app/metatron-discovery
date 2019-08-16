@@ -124,6 +124,7 @@ public class Workspace extends AbstractHistoryEntity implements MetatronDomain<S
   @OneToMany(mappedBy = "workspace", cascade = {CascadeType.ALL}, orphanRemoval = true)
   @RestResource(exported = false, path = "members")
   @BatchSize(size = 100)
+  @JsonBackReference
   Set<WorkspaceMember> members;
 
   @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})

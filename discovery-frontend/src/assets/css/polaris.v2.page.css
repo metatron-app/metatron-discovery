@@ -4795,6 +4795,10 @@ table.ddp-table-order tr td {padding:13px 13px; border-top:1px solid #e7e7ea; fo
 .ddp-data-alias-column {position:relative; padding-left:19px; font-size:14px; font-weight:bold;}
 .ddp-data-alias-column em[class*="ddp-icon-type"] {left:0}
 .ddp-box-copy-table {position:absolute; top:153px; left:50px; right:50px; bottom:57px; padding-bottom:42px; border:1px solid  #b7b9c2;}
+.ddp-box-copy-table .ddp-btn-bg {position:absolute; top:-38px; right:0; padding:7px 12px; border-radius:2px; color:#90969f;}
+.ddp-box-copy-table .ddp-btn-bg .ddp-icon-reset {display:inline-block; margin-right:3px; width:14px; height:13px; background:url(../images/icon_reset.png) no-repeat; background-position:-16px -20px; vertical-align:middle;}
+.ddp-box-copy-table .ddp-btn-bg:hover {color:#4b515b;}
+.ddp-box-copy-table .ddp-btn-bg:hover .ddp-icon-reset {background-position:-15px -34px;}
 .ddp-box-copy-table .ddp-txt-info {position:absolute; top:-33px; right:0; font-size:12px; color:#b7b9c2;}
 .ddp-box-copy-table .ddp-btn-bg {position:absolute; top:-38px; right:0; padding:7px 12px; border-radius:2px; color:#90969f;}
 .ddp-box-copy-table .ddp-btn-bg .ddp-icon-reset {display:inline-block; margin-right:3px; width:14px; height:13px; background:url(../images/icon_reset.png) no-repeat; background-position:-16px -20px; vertical-align:middle;}

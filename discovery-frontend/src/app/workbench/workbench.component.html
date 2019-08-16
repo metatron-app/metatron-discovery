@@ -226,7 +226,7 @@
                   <li *ngFor="let item of getFilteringList(textList, editorListObj)"
                       (click)="tabChangeHandler(findIndexInList(textList, item), false, item )"
                       [ngClass]="{'ddp-selected': item['selected'],'ddp-edit': item['editorMode']}">
-                    <div class="ddp-data-tab">
+                    <div class="ddp-data-tab" [title]="item['name']">
                       {{item['name']}}
                       <!-- more -->
                       <div class="ddp-wrap-morebutton">

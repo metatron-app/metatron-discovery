@@ -104,7 +104,12 @@ export class CreateMetadataStagingCompleteComponent extends AbstractComponent {
       .then(result => {
         this.loadingHide();
         Alert.success(this.translateService.instant('msg.metadata.alert.create.success'));
-        this.complete.emit();
+        // if created metadata only one
+        if (result.length === 1) {
+          this.complete.emit(result[0].id);
+        } else {
+          this.complete.emit();
+        }
       })
       .catch(error => this.commonExceptionHandler(error));
   }

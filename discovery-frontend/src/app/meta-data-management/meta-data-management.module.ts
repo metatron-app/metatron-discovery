@@ -52,6 +52,7 @@ import {MetadataManagementGuard} from '../common/gaurd/metadata-management.guard
 import {DetailModule} from './detail/detail.module';
 import {DatasourceMetadataSharedModule} from '../shared/datasource-metadata/datasource-metadata-shared.module';
 import {CreateMetadataModule} from "./metadata/create-metadata/create-metadata.module";
+import {SortingComponent} from "./component/sorting.component";
 
 @NgModule({
   imports: [
@@ -74,6 +75,7 @@ import {CreateMetadataModule} from "./metadata/create-metadata/create-metadata.m
     ]),
   ],
   declarations: [
+    SortingComponent,
     // 메타데이터 매니지먼트
     MetaDataManagementComponent,
     // 메타데이터

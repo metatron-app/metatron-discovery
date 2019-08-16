@@ -112,6 +112,12 @@ public class MetadataService implements ApplicationEventPublisherAware {
    * Save using datasource information
    */
   public void saveFromDataSource(DataSource dataSource) {
+    Optional <Metadata> metadataExist = findByDataSource(dataSource.getId());
+
+    if (metadataExist.isPresent()) {
+      return;
+    }
+
     // make metadata from datasource
     Metadata metadata = new Metadata(dataSource);
 
@@ -124,8 +130,8 @@ public class MetadataService implements ApplicationEventPublisherAware {
    * Update from updated datasource
    */
   public void updateFromDataSource(DataSource dataSource, boolean includeFields) {
-
     Optional <Metadata> metadata = findByDataSource(dataSource.getId());
+
     if (!metadata.isPresent()) {
       return;
     }

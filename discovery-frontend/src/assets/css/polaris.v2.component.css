@@ -431,9 +431,9 @@ ul.ddp-list-typebasic.ddp-view li.ddp-selected a .ddp-icon-plus {display:block;}
 .ddp-show {display:block !important;}
 .ddp-none {display:none !important;}
 .ddp-border-none {border:none !important;}
-.ddp-txt-ellipsis {white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
+.ddp-txt-ellipsis {white-space:nowrap !important; text-overflow:ellipsis !important; overflow:hidden !important;}
 .ddp-null {color:#b8bac2 !important;font-style:italic !important;}
-.ddp-null * {color:#b8bac2 !important; font-style:italic !important;;}
+.ddp-null * {color:#b8bac2 !important; font-style:italic !important;}
 .ddp-empty {background:blue !important; opacity:0.2 !important;}
 
 .ddp-space-pre {white-space:pre !important;}
@@ -542,7 +542,7 @@ ul.ddp-list-typebasic.ddp-view li.ddp-selected a .ddp-icon-plus {display:block;}
 .cp-default {display:none !important;}
 
 #gradX2 {padding:10px 0 20px 0; text-align:center;}
-#gradX2 .gradx {display:inline-block; width:220px; border:none; padding:0; background:none; cursor:none;}
+#gradX2 .gradx {display:inline-block; width:223px!important; border:none; padding:0; background:none; cursor:none;}
 #gradX2 .gradx_container {padding:0; margin:0; border:none; background:none; }
 #gradX2 .gradx_panel {width:220px; height:29px; cursor:default;}
 #gradX2 .gradx_start_sliders {position:relative; height:0px; margin-top:0px; margin-left:-2px;background:none; box-shadow:none; border:none; cursor:default;}

@@ -272,7 +272,7 @@ export class DataconnectionService extends AbstractService {
     const params = {
       database: databaseName
     };
-    return this.post(this.API_URL + 'connections/query/hive/tables', params)
+    return this.post(this.API_URL + 'connections/query/hive/tables?size=5000', params)
   }
 
   /**

@@ -46,6 +46,7 @@ import {FieldConfigService} from "../../service/field-config.service";
 import {StringUtil} from "../../../common/util/string.util";
 import {DatasourceService} from "../../../datasource/service/datasource.service";
 import {TimeZoneObject, TimezoneService} from "../../service/timezone.service";
+import {GranularityService} from "../../service/granularity.service";
 
 declare const moment;
 
@@ -125,6 +126,7 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
               private fieldConfigService: FieldConfigService,
               private datasourceService: DatasourceService,
               private timezoneService: TimezoneService,
+              private granularityService: GranularityService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -262,7 +264,7 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
   public getDefaultIngestionRuleValue(): string | number {
     switch (this.selectedField.logicalType) {
       case LogicalType.TIMESTAMP:
-        return (this.selectedField.format && this.selectedField.format.type === FieldFormatType.DATE_TIME) ? this.dataList[0] : this._currentMilliseconds;
+        return (this.selectedField.format && this.selectedField.format.type === FieldFormatType.DATE_TIME) ? this.granularityService.getAvailableStartData(this.dataList, 0) : this._currentMilliseconds;
       case LogicalType.BOOLEAN:
         return 'false';
       case LogicalType.TEXT:
