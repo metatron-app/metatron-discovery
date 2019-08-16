@@ -14,10 +14,10 @@
 
 package app.metatron.discovery.domain.mdm.lineage;
 
-import app.metatron.discovery.domain.mdm.lineage.LineageMap.ALIGNMENT;
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.mdm.Metadata;
 import app.metatron.discovery.domain.mdm.MetadataRepository;
+import app.metatron.discovery.domain.mdm.lineage.LineageMap.ALIGNMENT;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.io.IOException;
@@ -27,10 +27,10 @@ import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,6 +100,28 @@ public class LineageEdgeController {
     return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(pages, resourceAssembler));
   }
 
+  @RequestMapping(value = "/edges", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+  public ResponseEntity<?> createEdge(@RequestBody Map<String, String> request) {
+    LineageEdge lineageEdge = null;
+
+    try {
+      String frMetaId = request.get("frMetaId");
+      String toMetaId = request.get("toMetaId");
+      String frMetaName = request.get("frMetaName");
+      String toMetaName = request.get("toMetaName");
+      String frColName = request.get("frColName");
+      String toColName = request.get("toColName");
+      Long tier = Long.parseLong(request.get("tier"));
+      String desc = request.get("desc");
+
+      lineageEdge = lineageEdgeService.createEdge(frMetaId, toMetaId, frMetaName, toMetaName, frColName, toColName, tier, desc);
+    } catch (Exception e) {
+      LOGGER.error("create(): caught an exception: ", e);
+    }
+
+    return ResponseEntity.created(URI.create("")).body(lineageEdge);
+  }
+
   @RequestMapping(value = "/edges", method = RequestMethod.GET, produces = "application/json", consumes = "application/json")
   public ResponseEntity<?> listEdge() {
     List<LineageEdge> edges = lineageEdgeService.listEdge();
@@ -167,14 +189,16 @@ public class LineageEdgeController {
     return ResponseEntity.created(URI.create("")).body(newEdges);
   }
 
-  @RequestMapping(value="/edges", method = RequestMethod.POST)
+  @RequestMapping(value="/edge_list", method = RequestMethod.POST)
   public @ResponseBody
-  ResponseEntity<?>  postLineageEdges(
+  ResponseEntity<?>  postLineageEdgeList(
       @RequestBody List<Resource<LineageEdge>> lineageEdgeResources,
       PersistentEntityResourceAssembler resourceAssembler
   ) {
     List<LineageEdge> lineageEdges = Lists.newArrayList();
     try {
+      this.lineageEdgeRepository.deleteAll();
+
       Iterator<Resource<LineageEdge>> iterator = lineageEdgeResources.iterator();
       while(iterator.hasNext()) {
         LineageEdge lineageEdge = iterator.next().getContent();
@@ -192,19 +216,6 @@ public class LineageEdgeController {
           continue;
         } else {
           lineageEdge.setToMetaId(toMetadatas.get(0).getId());
-        }
-        List<LineageEdge> _lineageEdges = this.lineageEdgeRepository.findByFrMetaIdAndToMetaId(lineageEdge.getFrMetaId(), lineageEdge.getToMetaId());
-        for(LineageEdge _lineageEdge : _lineageEdges ) {
-          if( lineageEdge.getFrMetaName().equalsIgnoreCase(_lineageEdge.getFrMetaName()) &&
-              lineageEdge.getFrColName().equalsIgnoreCase(_lineageEdge.getFrColName()) &&
-              lineageEdge.getToMetaName().equalsIgnoreCase(_lineageEdge.getToMetaName()) &&
-              lineageEdge.getToColName().equalsIgnoreCase(_lineageEdge.getToColName()) &&
-              lineageEdge.getTier() == _lineageEdge.getTier() &&
-              lineageEdge.getDesc().equalsIgnoreCase(_lineageEdge.getDesc())
-          ) {
-            lineageEdge = _lineageEdge;
-            break;
-          }
         }
 
         lineageEdges.add( this.lineageEdgeRepository.save(lineageEdge) );

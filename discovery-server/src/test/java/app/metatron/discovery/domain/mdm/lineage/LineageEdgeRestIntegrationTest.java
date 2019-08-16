@@ -96,6 +96,11 @@ public class LineageEdgeRestIntegrationTest extends AbstractRestIntegrationTest 
     Map<String, Object> request = Maps.newHashMap();
     request.put("frMetaId", frMetaId);
     request.put("toMetaId", toMetaId);
+    request.put("frMetaName", null);
+    request.put("toMetaName", null);
+    request.put("frColName", null);
+    request.put("toColName", null);
+    request.put("tier", 1);
     request.put("desc", desc);
 
     // @formatter:off

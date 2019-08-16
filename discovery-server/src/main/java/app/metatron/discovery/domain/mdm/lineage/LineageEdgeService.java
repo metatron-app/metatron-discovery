@@ -16,8 +16,10 @@ package app.metatron.discovery.domain.mdm.lineage;
 
 import static app.metatron.discovery.domain.mdm.MetadataErrorCodes.LINEAGE_COLUMN_MISSING;
 import static app.metatron.discovery.domain.mdm.MetadataErrorCodes.LINEAGE_DATASET_ERROR;
+import static app.metatron.discovery.domain.mdm.lineage.LineageNode.FR_COL_NAME;
 import static app.metatron.discovery.domain.mdm.lineage.LineageNode.FR_META_ID;
 import static app.metatron.discovery.domain.mdm.lineage.LineageNode.FR_META_NAME;
+import static app.metatron.discovery.domain.mdm.lineage.LineageNode.TO_COL_NAME;
 import static app.metatron.discovery.domain.mdm.lineage.LineageNode.TO_META_ID;
 import static app.metatron.discovery.domain.mdm.lineage.LineageNode.TO_META_NAME;
 
@@ -40,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class LineageEdgeService {
@@ -59,6 +62,20 @@ public class LineageEdgeService {
   PrepTransformService prepTransformService;
 
   public LineageEdgeService() {
+  }
+
+  @Transactional(rollbackFor = Exception.class)
+  public LineageEdge createEdge(String frMetaId, String toMetaId,
+      String frMetaName, String toMetaName, String frColName, String toColName,
+      Long tier, String desc)
+      throws Exception {
+    LOGGER.trace("createEdge(): start");
+
+    LineageEdge lineageEdge = new LineageEdge(frMetaId, toMetaId, frMetaName, toMetaName, frColName, toColName, tier, desc);
+    edgeRepository.saveAndFlush(lineageEdge);
+
+    LOGGER.trace("createEdge(): end");
+    return lineageEdge;
   }
 
   public List<LineageEdge> listEdge() {
@@ -185,17 +202,17 @@ public class LineageEdgeService {
     edgeRepository.deleteAll();
 
     for (Row row : df.rows) {
-      if (getValue(row, "fr_col_name", false) != null) {
+      if (getValue(row, FR_COL_NAME, false) != null) {
         // TODO: Column dependency rows are ignored for now.
         continue;
       }
 
       String frMetaId = getMetaIdByRow(row, true);
       String toMetaId = getMetaIdByRow(row, false);
-      String frMetaName = getValue(row, "frMetaName", true);
-      String toMetaName = getValue(row, "toMetaName", true);
-      String frColName = getValue(row, "frColName", false);
-      String toColName = getValue(row, "toColName", false);
+      String frMetaName = getValue(row, FR_META_NAME, true);
+      String toMetaName = getValue(row, TO_META_NAME, true);
+      String frColName = getValue(row, FR_COL_NAME, false);
+      String toColName = getValue(row, TO_COL_NAME, false);
 
       Long tier = null;
       if (df.colNames.contains("tier")) {

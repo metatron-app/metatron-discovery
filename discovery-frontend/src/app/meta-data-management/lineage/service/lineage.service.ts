@@ -61,7 +61,7 @@ export class LineageService extends AbstractService {
   }
 
   public createLineages(params: object): Promise<any> {
-    return this.post(this.URL_LINEAGE + `/edges`, params);
+    return this.post(this.URL_LINEAGE + `/edge_list`, params);
   }
 
   /**
