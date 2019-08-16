@@ -310,7 +310,10 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
     modal.data = {
       id: codeTable.id
     };
+    // notice i navigate from column dictionary page
+    this._codeTableService.fromColumnDictionary = true;
 
+    // show modal
     this.confirmModal.init(modal);
   }
   /**
