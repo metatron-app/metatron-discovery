@@ -208,6 +208,7 @@ public class WorkspaceController {
    * @param myWorkspace
    * @param nameContains
    * @param pageable
+   * @param projection
    * @param resourceAssembler
    * @return
    * */
@@ -224,7 +225,6 @@ public class WorkspaceController {
     Page<Workspace> publicWorkspaces = workspaceService.getPublicWorkspaces(
         onlyFavorite, myWorkspace, published, nameContains, pageable);
 
-    //return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(publicWorkspaces, resourceAssembler));
     return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(ProjectionUtils.toPageResource(projectionFactory,
                                                                                                     workspaceProjections.getProjectionByName(projection),
                                                                                                     publicWorkspaces)));
@@ -375,7 +375,9 @@ public class WorkspaceController {
    *
    * @param workspaceId
    * @param type
+   * @param connType
    * @param onlyPublic
+   * @param status
    * @param nameContains
    * @param pageable
    * @param resourceAssembler
@@ -465,7 +467,8 @@ public class WorkspaceController {
   }
 
   /**
-   * @param workspaceId workspace Id
+   * @param workspaceId
+   * @param type
    */
   @RequestMapping(path = "/workspaces/{workspaceId}/connectors", method = RequestMethod.GET)
   public @ResponseBody
@@ -610,8 +613,8 @@ public class WorkspaceController {
   }
 
   /**
-   *
-   *
+   * @param bookId
+   * @param excludes
    * @param publicType
    * @param nameContains
    * @param pageable

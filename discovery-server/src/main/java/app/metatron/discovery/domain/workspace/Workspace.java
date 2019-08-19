@@ -15,7 +15,6 @@
 package app.metatron.discovery.domain.workspace;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -51,16 +50,12 @@ import app.metatron.discovery.domain.MetatronDomain;
 import app.metatron.discovery.domain.context.ContextEntity;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.datasource.DataSource;
-import app.metatron.discovery.domain.notebook.Notebook;
 import app.metatron.discovery.domain.notebook.NotebookConnector;
 import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.user.UserProfile;
 import app.metatron.discovery.domain.user.role.Role;
 import app.metatron.discovery.domain.user.role.RoleSet;
-import app.metatron.discovery.domain.workbench.Workbench;
-import app.metatron.discovery.domain.workbook.WorkBook;
 import app.metatron.discovery.domain.workbook.WorkBookSummary;
-import app.metatron.discovery.domain.workspace.folder.Folder;
 
 import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
 import static com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY;
@@ -202,73 +197,6 @@ public class Workspace extends AbstractHistoryEntity implements MetatronDomain<S
 
     return this.books.stream()
                      .map((book) -> WorkBookSummary.valueOf(book)).collect(Collectors.toList());
-
-  }
-
-  /**
-   * Book 타입별 Count 정보 가져오기
-   *
-   * @return book 요약 정보
-   */
-  public Map<String, Integer> countOfBookByType() {
-
-    int countOfFolder = 0;
-    int countOfWorkBook = 0;
-    int countOfWorkBench = 0;
-    int countOfNotebook = 0;
-
-    if (this.books != null) {
-      for (Book book : this.books) {
-        if (book instanceof Folder) {
-          countOfFolder++;
-        } else if (book instanceof WorkBook) {
-          countOfWorkBook++;
-        } else if (book instanceof Workbench) {
-          countOfWorkBench++;
-        } else if (book instanceof Notebook) {
-          countOfNotebook++;
-        }
-      }
-    }
-
-    Map<String, Integer> result = Maps.newHashMap();
-    result.put("folder", countOfFolder);
-    result.put("workBook", countOfWorkBook);
-    result.put("workBench", countOfWorkBench);
-    result.put("notebook", countOfNotebook);
-
-    return result;
-
-  }
-
-  /**
-   * Member 타입별 Count 정보 가져오기
-   *
-   * @return book 요약 정보
-   */
-  public Map<String, Integer> countOfMemberType() {
-
-    int countOfGroup = 0;
-    int countOfUser = 0;
-
-    if (this.members != null) {
-      for (WorkspaceMember member : this.members) {
-        if (member.getMemberType() == null) {
-          continue;
-        }
-        if (member.getMemberType() == WorkspaceMember.MemberType.GROUP) {
-          countOfGroup++;
-        } else {
-          countOfUser++;
-        }
-      }
-    }
-
-    Map<String, Integer> result = Maps.newHashMap();
-    result.put("group", countOfGroup);
-    result.put("user", countOfUser);
-
-    return result;
 
   }
 
@@ -453,6 +381,9 @@ public class Workspace extends AbstractHistoryEntity implements MetatronDomain<S
   }
 
   public Boolean getPublished() {
+    if (published == null) {
+      return false;
+    }
     return published;
   }
 
