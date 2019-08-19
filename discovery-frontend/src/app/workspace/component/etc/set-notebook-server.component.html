@@ -69,7 +69,6 @@
               <em class="ddp-btn-search-close"  *ngIf="searchZeppelin !== ''"
                   (click)="searchZeppelin=''; searchEvent('zeppelin')"></em>
             </div>
-            <!-- //검색 -->
           </div>
 
           <div class="ddp-wrap-viewtable">
@@ -81,8 +80,7 @@
                   <colgroup>
                     <col width="51px">
                     <col width="*">
-                    <col width="25%">
-                    <col width="15%">
+                    <col width="40%">
                   </colgroup>
                   <thead>
                   <tr>
@@ -92,17 +90,11 @@
                     <th>
                       {{'msg.space.th.server' | translate}}
                     </th>
-                    <th class="ddp-cursor" (click)="changeOrder('hostname')">
-                      {{'msg.comm.th.host' | translate}}
-                      <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'hostname' || selectedContentSort.sort === 'default'"></em>
-                      <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'hostname' && selectedContentSort.sort === 'asc'"></em>
-                      <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'hostname' && selectedContentSort.sort === 'desc'"></em>
-                    </th>
-                    <th class="ddp-cursor" (click)="changeOrder('port')">
-                      {{'msg.comm.th.port' | translate}}
-                      <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'port' || selectedContentSort.sort === 'default'"></em>
-                      <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'port' && selectedContentSort.sort === 'asc'"></em>
-                      <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'port' && selectedContentSort.sort === 'desc'"></em>
+                    <th class="ddp-cursor" (click)="changeOrder('url')">
+                      {{'msg.comm.th.url' | translate}}
+                      <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.sort === 'default'"></em>
+                      <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.sort === 'asc'"></em>
+                      <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.sort === 'desc'"></em>
                     </th>
                   </tr>
                   </thead>
@@ -117,10 +109,24 @@
                   <colgroup>
                     <col width="51px">
                     <col width="*">
-                    <col width="25%">
-                    <col width="15%">
+                    <col width="40%">
                   </colgroup>
                   <tbody>
+                  <tr (click)="reset()" style="cursor:pointer">
+                    <td class="ddp-txt-center">
+                      <div class="ddp-ui-radio">
+                        <input name="notebookServer" type="radio" [checked]="selectedJupyter.id === undefined">
+                        <i class="ddp-icon-radio"></i>
+                      </div>
+                    </td>
+                    <td>
+                      <div class=" ddp-txt-long">
+                        ({{'msg.space.ui.none' | translate}})
+                      </div>
+                    </td>
+                    <td>
+                    </td>
+                  </tr>
                   <tr *ngFor="let server of jupyter.servers" (click)="selectedJupyter = server" style="cursor:pointer">
                     <td class="ddp-txt-center">
                       <div class="ddp-ui-radio">
@@ -129,16 +135,13 @@
                       </div>
                     </td>
                     <td>
-                      <div class=" ddp-txt-long">
+                      <div class=" ddp-txt-long" title="{{ server.hasOwnProperty('description') && server.description != '' ? server.name+'-'+server.description : server.name}}">
                         {{server.name}}
                         <span class="ddp-txt-colortype" *ngIf="server.description">-{{server.description}}</span>
                       </div>
                     </td>
-                    <td>
-                      {{server.hostname}}
-                    </td>
-                    <td>
-                      {{server.port}}
+                    <td class="ddp-txt-ellipsis" title="{{server.url}}">
+                      {{server.url}}
                     </td>
                   </tr>
                   </tbody>
@@ -151,10 +154,24 @@
                   <colgroup>
                     <col width="51px">
                     <col width="*">
-                    <col width="25%">
-                    <col width="15%">
+                    <col width="40%">
                   </colgroup>
                   <tbody>
+                  <tr (click)="reset()" style="cursor:pointer">
+                    <td class="ddp-txt-center">
+                      <div class="ddp-ui-radio">
+                        <input name="notebookServer" type="radio" [checked]="selectedZeppelin.id === undefined">
+                        <i class="ddp-icon-radio"></i>
+                      </div>
+                    </td>
+                    <td>
+                      <div class=" ddp-txt-long">
+                        ({{'msg.space.ui.none' | translate}})
+                      </div>
+                    </td>
+                    <td>
+                    </td>
+                  </tr>
                   <tr *ngFor="let server of zeppelin.servers" (click)="selectedZeppelin = server" style="cursor:pointer">
                     <td class="ddp-txt-center">
                       <div class="ddp-ui-radio">
@@ -163,16 +180,13 @@
                       </div>
                     </td>
                     <td>
-                      <div class=" ddp-txt-long">
+                      <div class=" ddp-txt-long" title="{{ server.hasOwnProperty('description') && server.description != '' ? server.name+'-'+server.description : server.name}}">
                         {{server.name}}
                         <span class="ddp-txt-colortype" *ngIf="server.description">-{{server.description}}</span>
                       </div>
                     </td>
-                    <td>
-                      {{server.hostname}}
-                    </td>
-                    <td>
-                      {{server.port}}
+                    <td class="ddp-txt-ellipsis" title="{{server.url}}">
+                      {{server.url}}
                     </td>
                   </tr>
                   </tbody>

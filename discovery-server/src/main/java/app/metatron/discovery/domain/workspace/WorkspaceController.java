@@ -32,6 +32,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.rest.webmvc.PersistentEntityResource;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
@@ -88,6 +89,7 @@ import app.metatron.discovery.domain.workbook.DashboardRepository;
 import app.metatron.discovery.domain.workbook.WorkBook;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.util.AuthUtils;
+import app.metatron.discovery.util.ProjectionUtils;
 
 import static app.metatron.discovery.domain.workspace.Workspace.PublicType.PRIVATE;
 import static java.util.stream.Collectors.toList;
@@ -146,9 +148,13 @@ public class WorkspaceController {
   @Autowired
   HttpRepository httpRepository;
 
-
   @Autowired
   DataConnectionRepository dataConnectionRepository;
+
+  @Autowired
+  ProjectionFactory projectionFactory;
+
+  WorkspaceProjections workspaceProjections = new WorkspaceProjections();
 
   public WorkspaceController() {
   }
@@ -212,12 +218,16 @@ public class WorkspaceController {
       @RequestParam(required = false) Boolean myWorkspace,
       @RequestParam(required = false) Boolean published,
       @RequestParam(required = false) String nameContains,
+      @RequestParam(value = "projection", required = false, defaultValue = "default") String projection,
       Pageable pageable, PersistentEntityResourceAssembler resourceAssembler) {
 
     Page<Workspace> publicWorkspaces = workspaceService.getPublicWorkspaces(
         onlyFavorite, myWorkspace, published, nameContains, pageable);
 
-    return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(publicWorkspaces, resourceAssembler));
+    //return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(publicWorkspaces, resourceAssembler));
+    return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(ProjectionUtils.toPageResource(projectionFactory,
+                                                                                                    workspaceProjections.getProjectionByName(projection),
+                                                                                                    publicWorkspaces)));
   }
 
   @RequestMapping(path = "/workspaces", method = RequestMethod.GET)

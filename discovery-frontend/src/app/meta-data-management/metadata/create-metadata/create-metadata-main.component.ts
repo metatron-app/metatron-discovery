@@ -63,17 +63,17 @@ export class CreateMetadataMainComponent extends AbstractComponent {
     this.step = step;
   }
 
-  cancelCreate() {
+  closeCreate() {
     // step initial
     this.step = undefined;
     // data initial
     this.createData = undefined;
   }
 
-  createCompleted() {
-    // cancel create
-    this.cancelCreate();
-    this.createdComplete.emit();
+  createCompleted(metadataId?: string) {
+    // close create
+    this.closeCreate();
+    this.createdComplete.emit(metadataId);
   }
 
   onSelectCreateType(step: MetadataConstant.CreateStep): void {

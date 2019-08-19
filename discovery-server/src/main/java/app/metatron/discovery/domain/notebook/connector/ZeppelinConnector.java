@@ -118,9 +118,9 @@ public class ZeppelinConnector extends NotebookConnector implements NotebookActi
 
             return response
                     .map(zeppelinResponse -> (String) zeppelinResponse.getBody())
-                    .orElseThrow(() -> new RuntimeException("Fail to create notebook of zeppelin from " + hostname));
+                    .orElseThrow(() -> new RuntimeException("Fail to create notebook of zeppelin from " + getUrl()));
         } catch (MalformedURLException e) {
-            throw new RuntimeException("Fail to create notebook of zeppelin from " + hostname);
+            throw new RuntimeException("Fail to create notebook of zeppelin from " + getUrl());
         }
     }
 
@@ -139,7 +139,7 @@ public class ZeppelinConnector extends NotebookConnector implements NotebookActi
             Optional<ZeppelinResponse> response = httpRepository.call(notebookId, HttpMethod.DELETE, entity, ZeppelinResponse.class);
 
             response.filter(zeppelinResponse -> "OK".equals(zeppelinResponse.getStatus()))
-                    .orElseThrow(() -> new RuntimeException("Fail to delete notebook of zeppelin from " + hostname));
+                    .orElseThrow(() -> new RuntimeException("Fail to delete notebook of zeppelin from " + getUrl()));
         } catch (Exception e) {
             LOGGER.warn("No content to delete.");
         }
@@ -163,7 +163,7 @@ public class ZeppelinConnector extends NotebookConnector implements NotebookActi
                     .call(targetUrl.toUriString(), HttpMethod.POST, entity, ZeppelinResponse.class);
 
             response.filter(zeppelinResponse -> "OK".equals(zeppelinResponse.getStatus()))
-                    .orElseThrow(() -> new RuntimeException("Fail to run notebook of zeppelin from " + hostname));
+                    .orElseThrow(() -> new RuntimeException("Fail to run notebook of zeppelin from " + getUrl()));
 
             return "The job in zeppelin has called successfully.";
         } catch (Exception e) {
@@ -211,7 +211,7 @@ public class ZeppelinConnector extends NotebookConnector implements NotebookActi
 
         return response
                 .map(zeppelinResponse2 -> zeppelinResponse2.getBody())
-                .orElseThrow(() -> new RuntimeException("Fail to create notebook of zeppelin from " + hostname));
+                .orElseThrow(() -> new RuntimeException("Fail to create notebook of zeppelin from " + getUrl()));
     }
 
     /**
@@ -233,7 +233,7 @@ public class ZeppelinConnector extends NotebookConnector implements NotebookActi
             Optional<ZeppelinResponse> response = httpRepository.call(targetUrl.toUriString(), HttpMethod.DELETE, entity, ZeppelinResponse.class);
 
             response.filter(zeppelinResponse -> "OK".equals(zeppelinResponse.getStatus()))
-                    .orElseThrow(() -> new RuntimeException("Fail to delete notebook of zeppelin from " + hostname));
+                    .orElseThrow(() -> new RuntimeException("Fail to delete notebook of zeppelin from " + getUrl()));
         } catch (Exception e) {
             LOGGER.warn("No paragraph to delete.");
         }
@@ -264,7 +264,7 @@ public class ZeppelinConnector extends NotebookConnector implements NotebookActi
                 .call(targetUrl.toUriString(), HttpMethod.POST, entity, ZeppelinResponse.class);
 
         response.filter(zeppelinResponse -> ("OK".equals(zeppelinResponse.getStatus()) || "CREATED".equals(zeppelinResponse.getStatus())))
-                .orElseThrow(() -> new RuntimeException("Fail to create a new paragraph in notebook of zeppelin from " + hostname));
+                .orElseThrow(() -> new RuntimeException("Fail to create a new paragraph in notebook of zeppelin from " + getUrl()));
     }
 
     @Override

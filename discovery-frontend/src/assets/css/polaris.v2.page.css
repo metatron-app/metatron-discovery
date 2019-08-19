@@ -1413,7 +1413,7 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 
 .ddp-area-boardside .ddp-ui-divide .ddp-none-bar.ddp-select-bar:hover,
 .ddp-dropdown-filter.ddp-selected .ddp-none-bar.ddp-select-bar {background-color:#dfe0e4;}
-.ddp-dropdown-filter {position:relative;}
+.ddp-dropdown-filter {position:relative; margin-bottom:-20px;}
 .ddp-dropdown-filter.ddp-selected .ddp-select-bar .ddp-icon-view {transform:rotate(180deg);}
 .ddp-dropdown-filter .ddp-wrap-popup2 {display:none; width:238px;position:absolute; top:100%; left:-14px; padding:6px 0;}
 .ddp-dropdown-filter .ddp-wrap-popup2 .ddp-label-type {padding:10px 12px 3px 12px; color:#b7b9c2; font-size:12px;}
@@ -1559,7 +1559,7 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 .ddp-add-filter ul.ddp-list-filter li .ddp-btn-edit:hover {background-position-x:-52px;}
 
 .ddp-filter1 {position:relative; height:100%; padding:60px 0 0 0; box-sizing:border-box;}
-
+.ddp-filter1 .ddp-dropdown-filter {margin-bottom:0;}
 .ddp-filter1 .ddp-wrap-setting {padding:8px 25px; width:100%;background-color:#f6f6f7; overflow:hidden; box-sizing:border-box;}
 .ddp-filter1 .ddp-wrap-setting .ddp-wrap-edit .ddp-label-type {padding-right:15px; letter-spacing:-1px;}
 .ddp-filter1 .ddp-wrap-setting .ddp-wrap-edit .ddp-ui-edit-option .ddp-type-selectbox {width:148px; background-color:#fff;}
@@ -2896,6 +2896,11 @@ ul.ddp-ui-tab li.ddp-selected a em.ddp-icon-zepplin {background-position:left -1
 .ddp-ui-notebook-server .ddp-type-top-option {position:relative;}
 .ddp-ui-notebook-server .ddp-type-top-option a.ddp-btn-switch {position:absolute; top:10px; right:10px;}
 .ddp-ui-notebook-server .ddp-type-top-option a.ddp-btn-switch .ddp-ui-tooltip-info.ddp-down em.ddp-icon-view-top {right:12px;}
+.ddp-ui-notebook-server .ddp-type-top-option .ddp-option-right {position:absolute; top:0; right:0;}
+.ddp-ui-notebook-server .ddp-type-top-option .ddp-option-right .ddp-btn-selection {color:#90969f}
+.ddp-ui-notebook-server .ddp-type-top-option .ddp-option-right .ddp-btn-selection:hover {color:#4b515b;}
+.ddp-ui-notebook-server .ddp-type-top-option .ddp-option-right .ddp-btn-selection .ddp-btn-reset3 {margin-right:6px; vertical-align:middle;}
+.ddp-ui-notebook-server .ddp-type-top-option .ddp-option-right .ddp-btn-selection:hover .ddp-btn-reset3 {background-position:-15px -34px;}
 .ddp-ui-notebook-server .ddp-wrap-viewtable {position:absolute; top:146px; left:0; right:0; bottom:24px; padding-bottom:45px;}
 
 /**********************************************************************************
@@ -5860,7 +5865,6 @@ ul.ddp-list-top-tab li.ddp-selected a {border-bottom:3px solid #666eb2; color:#6
 .ddp-ui-contents-list .ddp-ui-option span.ddp-data-total.ddp-only:after {display:none;}
 .ddp-ui-contents-list .ddp-ui-option span.ddp-data-total.ddp-type:after {display:none}
 .ddp-ui-contents-list .ddp-ui-option .ddp-list-option {position:relative; float:left; padding:0 17px 0 17px;}
-
 .ddp-ui-contents-list .ddp-ui-option .ddp-list-option .ddp-wrap-info {display:inline-block; position:relative; top:2px; vertical-align:top;}
 .ddp-ui-contents-list .ddp-ui-option .ddp-list-option .ddp-wrap-info .ddp-icon-info  {display:inline-block; width:13px; height:13px; background:url(../images/icon_info.png) no-repeat; background-position:-14px -30px; cursor:pointer;}
 .ddp-ui-contents-list .ddp-ui-option .ddp-list-option .ddp-wrap-info .ddp-icon-info:hover {background-position:-28px -30px;}
@@ -5879,6 +5883,8 @@ ul.ddp-list-top-tab li.ddp-selected a {border-bottom:3px solid #666eb2; color:#6
 .ddp-ui-contents-list .ddp-ui-option a.ddp-btn-link.ddp-disabled,
 .ddp-ui-contents-list .ddp-ui-option a.ddp-btn-link.ddp-disabled:hover {color:#90969f; opacity:0.5; cursor: no-drop;}
 .ddp-ui-contents-list .ddp-ui-option a.ddp-btn-link em.ddp-icon-link-add {display:inline-block; width:13px; height:13px; background:url(../images/icon_add.png) no-repeat; background-position:left -22px;}
+
+.ddp-ui-contents-list .ddp-ui-option .ddp-ui-sort.type-option { margin:-13px 0 0 0;}
 .ddp-ui-contents-list .ddp-ui-option a.ddp-link-reset {color:#90969f; font-size:12px;}
 .ddp-ui-contents-list .ddp-ui-option a.ddp-link-reset:hover {color:#4b515b;}
 .ddp-ui-contents-list .ddp-ui-option a.ddp-link-reset em.ddp-btn-reset3 {position:relative; top:-1px; margin-right:6px; vertical-align: middle;}

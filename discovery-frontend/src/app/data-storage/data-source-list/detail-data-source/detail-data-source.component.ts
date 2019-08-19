@@ -147,8 +147,10 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
         .then((datasource: Datasource) => {
           // create q
           const q = [];
-          // get meta data
-          q.push(this._getDatasourceMetadata(this.datasourceId));
+          // if datasource status ENABLED
+          if (datasource.status === Status.ENABLED) {
+            q.push(this._getDatasourceMetadata(this.datasourceId));
+          }
           // if datasource status not DISABLED
           if (datasource.status !== Status.DISABLED) {
             // history params
@@ -402,6 +404,12 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - event
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  changedDatasourceStatus() {
+    this._getDatasourceMetadata(this.datasourceId)
+      .then(() => this.loadingHide())
+      .catch(error => this.commonExceptionHandler(error));
+  }
 
   // 뒤로가기
   public prevDatasourceList(): void {

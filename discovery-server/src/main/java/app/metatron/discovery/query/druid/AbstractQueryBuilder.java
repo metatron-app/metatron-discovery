@@ -85,15 +85,7 @@ import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFor
 import app.metatron.discovery.domain.workbook.configurations.format.UnixTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.LayerView;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.MapViewLayer;
-import app.metatron.discovery.query.druid.aggregations.AreaAggregation;
-import app.metatron.discovery.query.druid.aggregations.CountAggregation;
-import app.metatron.discovery.query.druid.aggregations.GenericMaxAggregation;
-import app.metatron.discovery.query.druid.aggregations.GenericMinAggregation;
-import app.metatron.discovery.query.druid.aggregations.GenericSumAggregation;
-import app.metatron.discovery.query.druid.aggregations.HyperUniqueAggregation;
-import app.metatron.discovery.query.druid.aggregations.RangeAggregation;
-import app.metatron.discovery.query.druid.aggregations.SketchAggregation;
-import app.metatron.discovery.query.druid.aggregations.VarianceAggregation;
+import app.metatron.discovery.query.druid.aggregations.*;
 import app.metatron.discovery.query.druid.datasource.QueryDataSource;
 import app.metatron.discovery.query.druid.datasource.TableDataSource;
 import app.metatron.discovery.query.druid.extractionfns.LookupFunction;
@@ -805,9 +797,11 @@ public abstract class AbstractQueryBuilder {
       case VARIATION:
         aggregations.add(new VarianceAggregation(aliasName, fieldName));
         break;
-      case APPROX:
+      case FIRST:
+        aggregations.add(new RelayAggregation(aliasName, fieldName, "double", RelayAggregation.RelayType.TIME_MIN.name()));
         break;
-      case COMPLEX:
+      case LAST:
+        aggregations.add(new RelayAggregation(aliasName, fieldName, "double", RelayAggregation.RelayType.TIME_MAX.name()));
         break;
     }
 

@@ -12,14 +12,22 @@
  * limitations under the License.
  */
 
-import {AbstractHistoryEntity} from '../common/abstract-history-entity';
+package app.metatron.discovery.domain.notebook;
 
-export class NotebookConnector extends AbstractHistoryEntity {
-  public id: string;
-  public type: string;
-  public name: string;
-  public description: string;
-  public hostname: string;
-  public port: string;
-  public url: string;
+import app.metatron.discovery.common.exception.ErrorCodes;
+
+public enum NotebookErrorCodes implements ErrorCodes {
+
+  CONNECTION_ERROR_CODE("NB0001");
+
+  String errorCode;
+
+  NotebookErrorCodes(String errorCode) {
+    this.errorCode = errorCode;
+  }
+
+  @Override
+  public String getCode() {
+    return errorCode;
+  }
 }

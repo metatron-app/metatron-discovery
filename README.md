@@ -1,5 +1,10 @@
 <img title="logo-metatron" src="https://user-images.githubusercontent.com/6300003/44013820-f7647c96-9f02-11e8-8066-1c97f8b1662c.png" alt="metatron-discovery-logo" width="400px">
 
+[NOTICE] Respecting the [community's voice](https://github.com/metatron-app/metatron-discovery/issues/2431), repository reset has been completed and Stars have been initialized.
+But Watch and Fork have also been initialized with Star, so please re-register it if you need.
+
+------------------
+
 **Metatron Discovery** is an end-to-end big data self discovery solution.
 To learn more about it, visit our [web site](https://metatron.app). Check [our blog](https://metatron.app/index.php/blog/) for upcoming events and development news.
 
@@ -48,7 +53,7 @@ Screenshots
 ### Manage Datasources
 <kbd><img title="Datasource-detail" src="https://user-images.githubusercontent.com/6300003/44200028-95729380-a180-11e8-95fb-070d7ed0d260.png"></kbd><br />
 
-### Manage Engine Performance (Comming Soon)
+### Manage Engine Performance (Coming Soon)
 <kbd><img title="Metatron-engine-monitoring" src="https://user-images.githubusercontent.com/6300003/53152270-73a70d00-35f8-11e9-8412-096e6099adab.png"></kbd><br />
 
 ### Connect Database
@@ -89,6 +94,23 @@ If the build succeeds, you can find an archive file under "discovery-distributio
 ### Start up the Metatron Discovery
 Untar the archive binary file of Metatron Discovery.
 <pre><code>$ tar zxf metatron-discovery-{VERSION}-{TIMESTAMP}-bin.tar.gz</code></pre>
+
+#### Configuration (optional)
+Metatron Discovery loads its configuration from the files under “/conf” directory by default. We already wrote some frequent configurations in the template files. For your own configuration of Metatron Discovery application, you should create a new configuration file with reference to the pre-distributed template file as belows. In the generated setting file, refer to [the configuration guide](https://github.com/metatron-app/metatron-discovery/blob/master/discovery-server/src/main/asciidoc/application-config-guide.adoc) and specify detailed setting information.
+
+<pre><code>$ cp ./conf/application-config.templete.yaml ./conf/application-config.yaml</code></pre>
+
+To configure the environment in which the server is running, you need to configure server memory or classpath settings by editing the “metatron-env.sh” file.
+
+<pre><code>$ cp ./conf/metatron-env.sh.templete ./conf/metatron-env.sh</code></pre>
+
+For example, if you want to use MySQL and increase the memory, you should set it as below. See the comments in the file “metatron-env.sh.templete” for more information.
+```
+export METATRON_JAVA_OPTS=-Xms4g -Xmx4g
+export METATRON_DB_TYPE=mysql
+```
+
+#### Run Metatron Discovery
 Initialize and run with the following command.
 <pre><code>$ bin/metatron.sh --init start</code></pre>
 > :warning: Cautions! `--init` option initialize whole data.  
@@ -107,7 +129,7 @@ This project welcomes contributions and suggestions. If you encounter any bugs o
 
 Question
 ----------------------------
-Need help using Metatron Discovery? Check our [FAQs](https://metatron.app/discussion) or ask away on our [discussion forum](https://groups.google.com/d/forum/metatron-discovery)! Our fellow community members will be glad to help you out! Or you can check out our [user manual on our website](https://metatron.app/documents/) as well.
+Need help using Metatron Discovery? Check our [FAQs](https://metatron.app/discussion) or ask away on our [discussion forum](https://groups.google.com/d/forum/metatron-discovery)! Our fellow community members will be glad to help you out! Or you can check out our [user manual on our website](https://metatron.app/documents) as well.
 
 License
 ----------------------------
