@@ -90,22 +90,24 @@ public class PrepRuleChecker {
     Expression type = sort.getType();
     if (type == null || (type instanceof Constant.StringExpr && ((Constant.StringExpr) type)
         .getEscapedValue().equalsIgnoreCase("DESC"))) {
-    } else {
-      LOGGER.error("confirmRuleStringForException(): sort type is not valid");
-      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SORT_TYPE);
+      return;
     }
+
+    LOGGER.error("confirmRuleStringForException(): sort type is not valid");
+    throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+        PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SORT_TYPE);
   }
 
   private static void checkDrop(Drop drop) {
     Expression col = drop.getCol();
     if (col instanceof Identifier.IdentifierExpr
         || col instanceof Identifier.IdentifierArrayExpr) {
-    } else {
-      LOGGER.error("confirmRuleStringForException(): drop col is not valid");
-      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_DROP_COL);
+      return;
     }
+
+    LOGGER.error("confirmRuleStringForException(): drop col is not valid");
+    throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+        PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_DROP_COL);
   }
 
   private static void checkKeep(Keep keep) {
@@ -452,71 +454,91 @@ public class PrepRuleChecker {
     try {
       Rule rule = new RuleVisitorParser().parse(ruleString);
 
-      if (rule.getName().equals("move")) {
-        checkMove((Move) rule);
-      } else if (rule.getName().equals("sort")) {
-        checkSort((Sort) rule);
-      } else if (rule.getName().equals("drop")) {
-        checkDrop((Drop) rule);
-      } else if (rule.getName().equals("keep")) {
-        checkKeep((Keep) rule);
-      } else if (rule.getName().equals("delete")) {
-        checkDelete((Delete) rule);
-      } else if (rule.getName().equals("flatten")) {
-        checkFlatten((Flatten) rule);
-      } else if (rule.getName().equals("header")) {
-        checkHeader((Header) rule);
-      } else if (rule.getName().equals("rename")) {
-        checkRename((Rename) rule);
-      } else if (rule.getName().equals("replace")) {
-        checkReplace((Replace) rule);
-      } else if (rule.getName().equals("settype")) {
-        checkSetType((SetType) rule);
-      } else if (rule.getName().equals("setformat")) {
-        checkSetFormat((SetFormat) rule);
-      } else if (rule.getName().equals("set")) {
-        checkSet((Set) rule);
-      } else if (rule.getName().equals("countpattern")) {
-        checkCountPattern((CountPattern) rule);
-      } else if (rule.getName().equals("derive")) {
-        checkDerive((Derive) rule);
-      } else if (rule.getName().equals("merge")) {
-        checkMerge((Merge) rule);
-      } else if (rule.getName().equals("unnest")) {
-        checkUnnest((Unnest) rule);
-      } else if (rule.getName().equals("extract")) {
-        checkExtract((Extract) rule);
-      } else if (rule.getName().equals("aggregate")) {
-        checkAggregate((Aggregate) rule);
-      } else if (rule.getName().equals("split")) {
-        checkSplit((Split) rule);
-      } else if (rule.getName().equals("nest")) {
-        checkNest((Nest) rule);
-      } else if (rule.getName().equals("pivot")) {
-        checkPivot((Pivot) rule);
-      } else if (rule.getName().equals("unpivot")) {
-        checkUnpivot((Unpivot) rule);
-      } else if (rule.getName().equals("join")) {
-        checkJoin((Join) rule);
-      } else if (rule.getName().equals("window")) {
-        checkWindow((Window) rule);
-      } else {
-        LOGGER.error("confirmRuleStringForException(): ruleName is wrong - " + rule.getName());
-        throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-            PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED, "ruleName is wrong");
+      switch (rule.getName()) {
+        case "move":
+          checkMove((Move) rule);
+          break;
+        case "sort":
+          checkSort((Sort) rule);
+          break;
+        case "drop":
+          checkDrop((Drop) rule);
+          break;
+        case "keep":
+          checkKeep((Keep) rule);
+          break;
+        case "delete":
+          checkDelete((Delete) rule);
+          break;
+        case "flatten":
+          checkFlatten((Flatten) rule);
+          break;
+        case "header":
+          checkHeader((Header) rule);
+          break;
+        case "rename":
+          checkRename((Rename) rule);
+          break;
+        case "replace":
+          checkReplace((Replace) rule);
+          break;
+        case "settype":
+          checkSetType((SetType) rule);
+          break;
+        case "setformat":
+          checkSetFormat((SetFormat) rule);
+          break;
+        case "set":
+          checkSet((Set) rule);
+          break;
+        case "countpattern":
+          checkCountPattern((CountPattern) rule);
+          break;
+        case "derive":
+          checkDerive((Derive) rule);
+          break;
+        case "merge":
+          checkMerge((Merge) rule);
+          break;
+        case "unnest":
+          checkUnnest((Unnest) rule);
+          break;
+        case "extract":
+          checkExtract((Extract) rule);
+          break;
+        case "aggregate":
+          checkAggregate((Aggregate) rule);
+          break;
+        case "split":
+          checkSplit((Split) rule);
+          break;
+        case "nest":
+          checkNest((Nest) rule);
+          break;
+        case "pivot":
+          checkPivot((Pivot) rule);
+          break;
+        case "unpivot":
+          checkUnpivot((Unpivot) rule);
+          break;
+        case "join":
+          checkJoin((Join) rule);
+          break;
+        case "window":
+          checkWindow((Window) rule);
+          break;
+        default:
+          LOGGER.error("confirmRuleStringForException(): ruleName is wrong - " + rule.getName());
+          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED, "ruleName is wrong");
       }
-    } catch (PrepException e) {
-      throw e;
     } catch (RuleException e) {
-      throw PrepException
-          .create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, TeddyException.fromRuleException(e));
+      // Convert exceptions of Teddy package into Data-prep exceptions, that can be handled in UI.
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          TeddyException.fromRuleException(e));
     } catch (NumberFormatException e) {
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
           PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_NUMBER_FORMAT, e.getMessage());
-    } catch (Exception e) {
-      LOGGER.error("confirmRuleStringForException(): caught an exception: ", e);
-      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED, e.getMessage());
     }
   }
 
