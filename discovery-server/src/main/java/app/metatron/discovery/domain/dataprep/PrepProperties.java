@@ -333,7 +333,7 @@ public class PrepProperties {
 
     public String getWarehouseDir() {
       if (warehouseDir == null) {
-        warehouseDir = "hdfs://localhost:9000/user/hive/warehouse";
+        warehouseDir = "file:///tmp";
       }
       return warehouseDir;
     }
