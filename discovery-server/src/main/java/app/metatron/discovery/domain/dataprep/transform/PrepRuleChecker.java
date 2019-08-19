@@ -450,88 +450,91 @@ public class PrepRuleChecker {
     }
   }
 
+  private static void switchAndCheck(Rule rule) {
+    switch (rule.getName()) {
+      case "move":
+        checkMove((Move) rule);
+        break;
+      case "sort":
+        checkSort((Sort) rule);
+        break;
+      case "drop":
+        checkDrop((Drop) rule);
+        break;
+      case "keep":
+        checkKeep((Keep) rule);
+        break;
+      case "delete":
+        checkDelete((Delete) rule);
+        break;
+      case "flatten":
+        checkFlatten((Flatten) rule);
+        break;
+      case "header":
+        checkHeader((Header) rule);
+        break;
+      case "rename":
+        checkRename((Rename) rule);
+        break;
+      case "replace":
+        checkReplace((Replace) rule);
+        break;
+      case "settype":
+        checkSetType((SetType) rule);
+        break;
+      case "setformat":
+        checkSetFormat((SetFormat) rule);
+        break;
+      case "set":
+        checkSet((Set) rule);
+        break;
+      case "countpattern":
+        checkCountPattern((CountPattern) rule);
+        break;
+      case "derive":
+        checkDerive((Derive) rule);
+        break;
+      case "merge":
+        checkMerge((Merge) rule);
+        break;
+      case "unnest":
+        checkUnnest((Unnest) rule);
+        break;
+      case "extract":
+        checkExtract((Extract) rule);
+        break;
+      case "aggregate":
+        checkAggregate((Aggregate) rule);
+        break;
+      case "split":
+        checkSplit((Split) rule);
+        break;
+      case "nest":
+        checkNest((Nest) rule);
+        break;
+      case "pivot":
+        checkPivot((Pivot) rule);
+        break;
+      case "unpivot":
+        checkUnpivot((Unpivot) rule);
+        break;
+      case "join":
+        checkJoin((Join) rule);
+        break;
+      case "window":
+        checkWindow((Window) rule);
+        break;
+      default:
+        LOGGER.error("confirmRuleStringForException(): ruleName is wrong - " + rule.getName());
+        throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+            PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED, "ruleName is wrong");
+    }
+  }
+
+
   public static void confirmRuleStringForException(String ruleString) {
     try {
-      Rule rule = new RuleVisitorParser().parse(ruleString);
-
-      switch (rule.getName()) {
-        case "move":
-          checkMove((Move) rule);
-          break;
-        case "sort":
-          checkSort((Sort) rule);
-          break;
-        case "drop":
-          checkDrop((Drop) rule);
-          break;
-        case "keep":
-          checkKeep((Keep) rule);
-          break;
-        case "delete":
-          checkDelete((Delete) rule);
-          break;
-        case "flatten":
-          checkFlatten((Flatten) rule);
-          break;
-        case "header":
-          checkHeader((Header) rule);
-          break;
-        case "rename":
-          checkRename((Rename) rule);
-          break;
-        case "replace":
-          checkReplace((Replace) rule);
-          break;
-        case "settype":
-          checkSetType((SetType) rule);
-          break;
-        case "setformat":
-          checkSetFormat((SetFormat) rule);
-          break;
-        case "set":
-          checkSet((Set) rule);
-          break;
-        case "countpattern":
-          checkCountPattern((CountPattern) rule);
-          break;
-        case "derive":
-          checkDerive((Derive) rule);
-          break;
-        case "merge":
-          checkMerge((Merge) rule);
-          break;
-        case "unnest":
-          checkUnnest((Unnest) rule);
-          break;
-        case "extract":
-          checkExtract((Extract) rule);
-          break;
-        case "aggregate":
-          checkAggregate((Aggregate) rule);
-          break;
-        case "split":
-          checkSplit((Split) rule);
-          break;
-        case "nest":
-          checkNest((Nest) rule);
-          break;
-        case "pivot":
-          checkPivot((Pivot) rule);
-          break;
-        case "unpivot":
-          checkUnpivot((Unpivot) rule);
-          break;
-        case "join":
-          checkJoin((Join) rule);
-          break;
-        case "window":
-          checkWindow((Window) rule);
-          break;
-        default:
-          LOGGER.error("confirmRuleStringForException(): ruleName is wrong - " + rule.getName());
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED, "ruleName is wrong");
-      }
+      switchAndCheck(new RuleVisitorParser().parse(ruleString));
     } catch (RuleException e) {
       // Convert exceptions of Teddy package into Data-prep exceptions, that can be handled in UI.
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
