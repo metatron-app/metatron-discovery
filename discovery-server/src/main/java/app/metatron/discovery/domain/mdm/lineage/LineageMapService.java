@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.mdm.lineage;
 
+import static app.metatron.discovery.domain.mdm.MetadataErrorCodes.LINEAGE_NODE_COUNT_DONE;
+
 import app.metatron.discovery.domain.mdm.Metadata;
 import app.metatron.discovery.domain.mdm.MetadataRepository;
 import app.metatron.discovery.domain.mdm.lineage.LineageMap.ALIGNMENT;
@@ -50,6 +52,10 @@ public class LineageMapService {
     List<LineageMapNode> col = map.nodeGrid.get(map.getCurColNo());
     boolean found = false;
 
+    if (map.getAlignment() == ALIGNMENT.LEFT) {   // No upstream is needed.
+      return false;
+    }
+
     for (LineageMapNode node : col) {
       String metaId = node.getMetaId();
       List<LineageEdge> edges = getUpstreamEdgesOf(metaId);
@@ -73,6 +79,10 @@ public class LineageMapService {
     List<LineageMapNode> col = map.nodeGrid.get(map.getCurColNo());
     boolean found = false;
 
+    if (map.getAlignment() == ALIGNMENT.RIGHT) {   // No downstream is needed.
+      return false;
+    }
+
     for (LineageMapNode node : col) {
       String metaId = node.getMetaId();
       List<LineageEdge> edges = getDownstreamEdgesOf(metaId);
@@ -93,22 +103,34 @@ public class LineageMapService {
 
   public LineageMap getLineageMap(String metaId, int nodeCnt, ALIGNMENT alignment) {
     LineageMap map = new LineageMap(nodeCnt, alignment);
+    boolean found;
 
     LineageMapNode masterNode = new LineageMapNode(metaId, getMetaName(metaId));
 
     map.addColBefore();
     map.addFrNode(masterNode, null);
 
-    boolean found;
-    do {
-      found = addUpstreamOfCol(map);
-    } while (found);
+    try {
+      do {
+        found = addUpstreamOfCol(map);
+      } while (found);
+    } catch (LineageException e) {
+      if (e.getCode() != LINEAGE_NODE_COUNT_DONE) {
+        throw e;
+      }
+    }
 
     map.setCurColNo(map.getMasterColNo());
 
-    do {
-      found = addDownstreamOfCol(map);
-    } while (found);
+    try {
+      do {
+        found = addDownstreamOfCol(map);
+      } while (found);
+    } catch (LineageException e) {
+      if (e.getCode() != LINEAGE_NODE_COUNT_DONE) {
+        throw e;
+      }
+    }
 
     // TODO: If a node is a downstream of another node, re-place it next to the upstream.
 

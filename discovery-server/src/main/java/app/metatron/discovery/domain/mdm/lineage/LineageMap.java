@@ -14,6 +14,11 @@
 
 package app.metatron.discovery.domain.mdm.lineage;
 
+import static app.metatron.discovery.domain.mdm.lineage.LineageMap.ALIGNMENT.CENTER;
+import static app.metatron.discovery.domain.mdm.lineage.LineageMap.ALIGNMENT.LEFT;
+import static app.metatron.discovery.domain.mdm.lineage.LineageMap.ALIGNMENT.RIGHT;
+
+import app.metatron.discovery.domain.mdm.MetadataErrorCodes;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -45,7 +50,15 @@ public class LineageMap implements Serializable {
   @JsonIgnore
   private ALIGNMENT alignment;
 
+  @JsonIgnore
+  private int beforeNodeCnt;
+
+  @JsonIgnore
+  private int afterNodeCnt;
+
   public LineageMap(int maxColCnt, ALIGNMENT alignment) {
+    assert maxColCnt % 2 == 1 : maxColCnt;
+
     nodeGrid = new ArrayList();
     needEdges = new ArrayList();
     curColNo = 0;
@@ -53,6 +66,8 @@ public class LineageMap implements Serializable {
     masterColNo = 0;
     this.maxColCnt = maxColCnt;
     this.alignment = alignment;
+    beforeNodeCnt = -1;   // We use addColBefore() for the current node.
+    afterNodeCnt = 0;
   }
 
   public List<List<LineageMapNode>> getNodeGrid() {
@@ -79,12 +94,22 @@ public class LineageMap implements Serializable {
     return masterColNo;
   }
 
+  public ALIGNMENT getAlignment() {
+    return alignment;
+  }
+
   public void setCurColNo(int curColNo) {
     this.curColNo = curColNo;
   }
 
   // This function is meant to be called before any downstream processing.
   public void addColBefore() {
+    assert alignment != LEFT;
+    int beforeLimit = alignment == CENTER ? maxColCnt / 2 : maxColCnt - 1;
+    if (beforeNodeCnt == beforeLimit) {
+      throw new LineageException(MetadataErrorCodes.LINEAGE_NODE_COUNT_DONE, "Before count done");
+    }
+    beforeNodeCnt++;
     nodeGrid.add(curColNo, new ArrayList());
     masterColNo = curColCnt;
     curColCnt++;
@@ -100,6 +125,13 @@ public class LineageMap implements Serializable {
 
   // This function is meant to be called all after upstream process done.
   public void addColAfter() {
+    assert alignment != RIGHT;
+    int afterLimit = alignment == CENTER ? maxColCnt / 2 : maxColCnt - 1;
+    if (afterNodeCnt == afterLimit) {
+      throw new LineageException(MetadataErrorCodes.LINEAGE_NODE_COUNT_DONE, "After count done");
+    }
+    afterNodeCnt++;
+
     nodeGrid.add(new ArrayList());
     curColNo = curColCnt;
     curColCnt++;
