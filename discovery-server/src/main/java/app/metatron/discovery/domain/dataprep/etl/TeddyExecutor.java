@@ -632,6 +632,62 @@ public class TeddyExecutor {
     return newFullDsId;
   }
 
+  private String processArray(ColumnDescription colDesc) {
+    ColumnType uniformSubType = colDesc.hasUniformSubType();
+    String strType;
+
+    switch (uniformSubType) {
+      case STRING:
+        strType = "array<string>";
+        break;
+      case LONG:
+        strType = "array<bigint>";
+        break;
+      case DOUBLE:
+        strType = "array<double>";
+        break;
+      case BOOLEAN:
+        strType = "array<boolean>";
+        break;
+      case TIMESTAMP:
+        strType = "array<timestamp>";
+        break;
+      default:
+        StringBuffer sb = new StringBuffer();
+        sb.append("struct<");
+        for (int i = 0; i < colDesc.getArrColDesc().size(); i++) {
+          ColumnDescription subColDesc = colDesc.getArrColDesc().get(i);
+          if (i > 0) {
+            sb.append(",");
+          }
+          sb.append(String
+              .format("c%d:%s", i, fromColumnTypetoHiveType(subColDesc.getType(), subColDesc)));
+        }
+        strType = sb.append(">").toString();
+        break;
+    }
+    return strType;
+  }
+
+  private String processMap(ColumnDescription colDesc) {
+    ColumnType uniformSubType = colDesc.hasUniformSubType();
+
+    StringBuffer sb = new StringBuffer();
+    sb.append("struct<");
+
+    List<String> keys = colDesc.getMapColDesc().keySet().stream().collect(Collectors.toList());
+    for (int i = 0; i < keys.size(); i++) {
+      String key = keys.get(i);
+      ColumnDescription subColDesc = colDesc.getMapColDesc().get(key);
+      if (i > 0) {
+        sb.append(",");
+      }
+      sb.append(String
+          .format("%s:%s", key, fromColumnTypetoHiveType(subColDesc.getType(), subColDesc)));
+    }
+    return sb.append(">").toString();
+  }
+
   public String fromColumnTypetoHiveType(ColumnType colType, ColumnDescription colDesc) {
     switch (colType) {
       case STRING:
@@ -645,46 +701,9 @@ public class TeddyExecutor {
       case TIMESTAMP:
         return "timestamp";
       case ARRAY:
-        ColumnType uniformSubType = colDesc.hasUniformSubType();
-        switch (uniformSubType) {
-          case STRING:
-            return "array<string>";
-          case LONG:
-            return "array<bigint>";
-          case DOUBLE:
-            return "array<double>";
-          case BOOLEAN:
-            return "array<boolean>";
-          case TIMESTAMP:
-            return "array<timestamp>";
-          default:
-                        /* fall through */
-        }
-        StringBuffer sb = new StringBuffer();
-        sb.append("struct<");
-        for (int i = 0; i < colDesc.getArrColDesc().size(); i++) {
-          ColumnDescription subColDesc = colDesc.getArrColDesc().get(i);
-          if (i > 0) {
-            sb.append(",");
-          }
-          sb.append(String
-              .format("c%d:%s", i, fromColumnTypetoHiveType(subColDesc.getType(), subColDesc)));
-        }
-        return sb.append(">").toString();
+        return processArray(colDesc);
       case MAP:
-        sb = new StringBuffer();
-        sb.append("struct<");
-        List<String> keys = colDesc.getMapColDesc().keySet().stream().collect(Collectors.toList());
-        for (int i = 0; i < keys.size(); i++) {
-          String key = keys.get(i);
-          ColumnDescription subColDesc = colDesc.getMapColDesc().get(key);
-          if (i > 0) {
-            sb.append(",");
-          }
-          sb.append(String
-              .format("%s:%s", key, fromColumnTypetoHiveType(subColDesc.getType(), subColDesc)));
-        }
-        return sb.append(">").toString();
+        return processMap(colDesc);
       case UNKNOWN:
         assert false : colType;
     }

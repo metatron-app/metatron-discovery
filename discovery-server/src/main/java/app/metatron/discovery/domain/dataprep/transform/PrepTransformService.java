@@ -649,13 +649,8 @@ public class PrepTransformService {
     }
   }
 
-  // transform (PUT)
-  @Transactional(rollbackFor = Exception.class)
-  public PrepTransformResponse transform(String dsId, OP_TYPE op, Integer stageIdx,
-      String ruleString, String jsonRuleString, boolean suppress) throws Exception {
-    LOGGER.trace("transform(): start: dsId={} op={} stageIdx={} ruleString={} jsonRuleString={}",
-        dsId, op, stageIdx, ruleString, jsonRuleString);
-
+  private int preTransform(String dsId, OP_TYPE op, String ruleString)
+      throws CannotSerializeIntoJsonException, IOException {
     if (op == OP_TYPE.APPEND || op == OP_TYPE.UPDATE || op == OP_TYPE.PREVIEW) {
       PrepRuleChecker.confirmRuleStringForException(ruleString);
 
@@ -670,7 +665,6 @@ public class PrepTransformService {
     // dataset이 loading되지 않았으면 loading
     loadWrangledDataset(dsId);      // TODO: do compaction (only when UI requested explicitly)
 
-    PrepTransformResponse response = null;
     int origStageIdx = teddyImpl.getCurStageIdx(dsId);
 
     // join이나 union의 경우, 대상 dataset들도 loading
@@ -679,6 +673,18 @@ public class PrepTransformService {
         loadWrangledDataset(upstreamDsId);
       }
     }
+
+    return origStageIdx;
+  }
+
+  // transform (PUT)
+  @Transactional(rollbackFor = Exception.class)
+  public PrepTransformResponse transform(String dsId, OP_TYPE op, Integer stageIdx,
+      String ruleString, String jsonRuleString, boolean suppress) throws Exception {
+    LOGGER.trace("transform(): start: dsId={} op={} stageIdx={} ruleString={} jsonRuleString={}",
+        dsId, op, stageIdx, ruleString, jsonRuleString);
+
+    int origStageIdx = preTransform(dsId, op, ruleString);
 
     // 아래 각 case에서 ruleCurIdx, matrixResponse는 채워서 리턴
     // rule list는 transform()을 마칠 때에 채움. 모든 op에 대해 동일하기 때문에.
@@ -717,13 +723,23 @@ public class PrepTransformService {
         adjustStageIdx(dsId, stageIdx, true);
         break;
       case PREVIEW:
-        response = new PrepTransformResponse(teddyImpl.preview(dsId, stageIdx, ruleString));
-        break;
+        LOGGER.trace("transform(): preview end");
+        return new PrepTransformResponse(teddyImpl.preview(dsId, stageIdx, ruleString));
       case NOT_USED:
       default:
         throw new IllegalArgumentException("invalid transform op: " + op.toString());
     }
 
+    LOGGER.trace("transform(): end");
+    return postTransform(dsId, op);
+  }
+
+  private PrepTransformResponse postTransform(String dsId, OP_TYPE op)
+      throws CannotSerializeIntoJsonException, JsonProcessingException {
+    PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
+    assert dataset != null : dsId;
+
+    PrepTransformResponse response = null;
     switch (op) {
       case APPEND:
       case DELETE:
@@ -747,8 +763,6 @@ public class PrepTransformService {
     response.setRuleCurIdx(dataset.getRuleCurIdx());
     response.setTransformRules(getRulesInOrder(dsId), teddyImpl.isUndoable(dsId),
         teddyImpl.isRedoable(dsId));
-
-    LOGGER.trace("transform(): end");
     return response;
   }
 
@@ -1031,7 +1045,8 @@ public class PrepTransformService {
     LOGGER.info("runSpark(): engine=spark");
 
     // Spark engine gets arguments as Map not as JSON string.
-    // TODO: This is natural. Embbeded engine should do like this too.
+
+    // TO-DO: This is natural. Embbeded engine should do like this too.
 
 //    Map<String, Object> prepPropertiesInfo = mapper
 //        .readValue(jsonPrepPropertiesInfo, HashMap.class);
@@ -1039,7 +1054,7 @@ public class PrepTransformService {
 //    Map<String, Object> snapshotInfo = mapper.readValue(jsonSnapshotInfo, HashMap.class);
 //    Map<String, Object> callbackInfo = mapper.readValue(jsonCallbackInfo, HashMap.class);
 //
-//    // TODO: fork if not running
+//    // TO-DO: fork if not running
 //
 //    // Send spark request
 //    Map<String, Object> args = new HashMap();

@@ -47,14 +47,14 @@ public class SparkExecutor {
     Map<String, Object> callbackInfo = GlobalObjectMapper.readValue(argv[3], HashMap.class);
 
     // Spark engine gets arguments as Map not as JSON string.
-    // TODO: This is natural. Embbeded engine should do like this too.
+    // TO-DO: This is natural. Embbeded engine should do like this too.
 
 //    Map<String, Object> prepPropertiesInfo = mapper.readValue(jsonPrepPropertiesInfo, HashMap.class);
 //    Map<String, Object> datasetInfo = mapper.readValue(jsonDatasetInfo, HashMap.class);
 //    Map<String, Object> snapshotInfo = mapper.readValue(jsonSnapshotInfo, HashMap.class);
 //    Map<String, Object> callbackInfo = mapper.readValue(jsonCallbackInfo, HashMap.class);
 
-    // TODO: fork if not running
+    // TO-DO: fork if not running
 
     // Send spark request
     Map<String, Object> args = new HashMap();

@@ -63,375 +63,443 @@ public class PrepRuleChecker {
   private PrepRuleChecker() {
   }
 
+  private static void checkMove(Move move) {
+    String after = move.getAfter();
+    String before = move.getBefore();
+    if ((null == after || after.isEmpty()) && (null == before || before.isEmpty())) {
+      LOGGER.error("confirmRuleStringForException(): move before and after is empty");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_MOVE_BEFORE_AND_AFTER);
+    }
+    Expression expression = move.getCol();
+    if (null == expression) {
+      LOGGER.error("confirmRuleStringForException(): move expression is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_MOVE_EXPRESSION);
+    }
+  }
+
+  private static void checkSort(Sort sort) {
+    Expression order = sort.getOrder();
+    if (!(order instanceof Identifier.IdentifierExpr || order instanceof Identifier.IdentifierArrayExpr)) {
+      LOGGER.error("confirmRuleStringForException(): sort order is not valid");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SORT_ORDER);
+    }
+
+    Expression type = sort.getType();
+    if (type == null || (type instanceof Constant.StringExpr && ((Constant.StringExpr) type)
+        .getEscapedValue().equalsIgnoreCase("DESC"))) {
+    } else {
+      LOGGER.error("confirmRuleStringForException(): sort type is not valid");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SORT_TYPE);
+    }
+  }
+
+  private static void checkDrop(Drop drop) {
+    Expression col = drop.getCol();
+    if (col instanceof Identifier.IdentifierExpr
+        || col instanceof Identifier.IdentifierArrayExpr) {
+    } else {
+      LOGGER.error("confirmRuleStringForException(): drop col is not valid");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_DROP_COL);
+    }
+  }
+
+  private static void checkKeep(Keep keep) {
+    Expression expression = keep.getRow();
+    if (null == expression) {
+      LOGGER.error("confirmRuleStringForException(): keep expression is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_KEEP_EXPRESSION);
+    }
+  }
+
+  private static void checkDelete(Delete delete) {
+    Expression expression = delete.getRow();
+    if (null == expression) {
+      LOGGER.error("confirmRuleStringForException(): delete expression is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_DELETE_EXPRESSION);
+    }
+  }
+
+  private static void checkFlatten(Flatten flatten) {
+    String col = flatten.getCol();
+    if (null == col || 0 == col.length()) {
+      LOGGER.error("confirmRuleStringForException(): flatten col is wrong");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_FLATTEN_COL);
+    }
+  }
+
+  private static void checkHeader(Header header) {
+    Long rowNum = header.getRownum();
+    if (null == rowNum || rowNum < 0) {
+      LOGGER.error("confirmRuleStringForException(): header rowNum is wrong");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_HEADER_ROWNUM);
+    }
+  }
+
+  private static void checkRename(Rename rename) {
+    Expression col = rename.getCol();
+    Expression to = rename.getTo();
+    if (null == col) {
+      LOGGER.error("confirmRuleStringForException(): rename col is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_RENAME_COL);
+    }
+    if (null == to) {
+      LOGGER.error("confirmRuleStringForException(): rename to is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_RENAME_TO);
+    }
+  }
+
+  private static void checkReplace(Replace replace) {
+    Expression after = replace.getAfter();
+    Expression before = replace.getBefore();
+    Expression col = replace.getCol();
+    boolean global = replace.getGlobal();
+    boolean ignoreCase = replace.getIgnoreCase();
+    Expression on = replace.getOn();
+    Expression quote = replace.getQuote();
+    Expression row = replace.getRow();
+    Constant with = replace.getWith();
+    if (null == col) {
+      LOGGER.error("confirmRuleStringForException(): replace col is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_REPLACE_COL);
+    }
+    if (null == on) {
+      LOGGER.error("confirmRuleStringForException(): replace on is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_REPLACE_ON);
+    }
+  }
+
+  private static void checkSetType(SetType setType) {
+    Expression col = setType.getCol();
+    String format = setType.getFormat();
+    String type = setType.getType();
+    if (null == col) {
+      LOGGER.error("confirmRuleStringForException(): settype col is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SETTYPE_COL);
+    }
+    if (null == type) {
+      LOGGER.error("confirmRuleStringForException(): settype type is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SETTYPE_TYPE);
+    }
+  }
+
+  private static void checkSetFormat(SetFormat setFormat) {
+    Expression col = setFormat.getCol();
+    String format = setFormat.getFormat();
+
+    if (null == col) {
+      LOGGER.error("confirmRuleStringForException(): setformat col is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SETFORMAT_COL);
+    }
+    if (null == format) {
+      LOGGER.error("confirmRuleStringForException(): setformat format is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SETFORMAT_FORMAT);
+    }
+  }
+
+  private static void checkSet(Set set) {
+    Expression col = set.getCol();
+    Expression row = set.getRow();
+    Expression value = set.getValue();
+    if (null == col) {
+      LOGGER.error("confirmRuleStringForException(): set col is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SET_COL);
+    }
+    if (null == value) {
+      LOGGER.error("confirmRuleStringForException(): set value is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SET_VALUE);
+    }
+  }
+
+  private static void checkCountPattern(CountPattern countPattern) {
+    Expression after = countPattern.getAfter();
+    Expression before = countPattern.getBefore();
+    Expression col = countPattern.getCol();
+    Boolean ignoreCase = countPattern.getIgnoreCase();
+    Expression on = countPattern.getOn();
+    Expression quote = countPattern.getQuote();
+    if (null == col) {
+      LOGGER.error("confirmRuleStringForException(): countpattern col is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_COUNTPATTERN_COL);
+    }
+    if (null == on) {
+      LOGGER.error("confirmRuleStringForException(): countpattern on is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_COUNTPATTERN_ON);
+    }
+  }
+
+  private static void checkDerive(Derive derive) {
+    String as = derive.getAs();
+    Expression value = derive.getValue();
+    if (null == as) {
+      LOGGER.error("confirmRuleStringForException(): derive as col is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_DERIVE_AS);
+    }
+    if (null == value) {
+      LOGGER.error("confirmRuleStringForException(): derive value is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_DERIVE_VALUE);
+    }
+  }
+
+  private static void checkMerge(Merge merge) {
+    String as = merge.getAs();
+    Expression col = merge.getCol();
+    String with = merge.getWith();
+    if (null == as) {
+      LOGGER.error("confirmRuleStringForException(): merge as is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_MERGE_AS);
+    }
+    if (null == col) {
+      LOGGER.error("confirmRuleStringForException(): merge col is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_MERGE_COL);
+    }
+    if (null == with) {
+      LOGGER.error("confirmRuleStringForException(): merge with is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_MERGE_WITH);
+    }
+  }
+
+  private static void checkUnnest(Unnest unnest) {
+    String col = unnest.getCol();
+    Expression idx = unnest.getIdx();
+    String into = unnest.getInto();
+    if (null == idx) {
+      LOGGER.error("confirmRuleStringForException(): unnest idx is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_UNNEST_IDX);
+    }
+    if (null == into) {
+      LOGGER.error("confirmRuleStringForException(): unnest into is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_UNNEST_INTO);
+    }
+  }
+
+  private static void checkExtract(Extract extract) {
+    Expression col = extract.getCol();
+    Boolean IgnoreCase = extract.getIgnoreCase();
+    Integer limit = extract.getLimit();
+    Expression on = extract.getOn();
+    Expression quote = extract.getQuote();
+    if (null == col) {
+      LOGGER.error("confirmRuleStringForException(): extract col is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_EXTRACT_COL);
+    }
+    if (null == limit) {
+      LOGGER.error("confirmRuleStringForException(): extract limit is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_EXTRACT_LIMIT);
+    }
+    if (null == on) {
+      LOGGER.error("confirmRuleStringForException(): extract on is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_EXTRACT_ON);
+    }
+  }
+
+  private static void checkAggregate(Aggregate aggregate) {
+    Expression group = aggregate.getGroup();
+    Expression value = aggregate.getValue();
+    if (null == group) {
+      LOGGER.error("confirmRuleStringForException(): aggregate group is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_AGGREGATE_GROUP);
+    }
+    if (null == value) {
+      LOGGER.error("confirmRuleStringForException(): aggregate value is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_AGGREGATE_VALUE);
+    }
+  }
+
+  private static void checkSplit(Split split) {
+    Expression col = split.getCol();
+    Boolean ignoreCase = split.getIgnoreCase();
+    Integer limit = split.getLimit();
+    Expression on = split.getOn();
+    Expression quote = split.getQuote();
+    if (null == col) {
+      LOGGER.error("confirmRuleStringForException(): split col is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SPLIT_COL);
+    }
+    if (null == limit) {
+      LOGGER.error("confirmRuleStringForException(): split limit is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SPLIT_LIMIT);
+    }
+    if (null == on) {
+      LOGGER.error("confirmRuleStringForException(): split on is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SPLIT_ON);
+    }
+  }
+
+  private static void checkNest(Nest nest) {
+    String as = nest.getAs();
+    Expression col = nest.getCol();
+    String into = nest.getInto();
+    if (null == as) {
+      LOGGER.error("confirmRuleStringForException(): nest as is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_NEST_AS);
+    }
+    if (null == col) {
+      LOGGER.error("confirmRuleStringForException(): nest col is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_NEST_COL);
+    }
+    if (null == into) {
+      LOGGER.error("confirmRuleStringForException(): nest into is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_NEST_INTO);
+    }
+  }
+
+  private static void checkPivot(Pivot pivot) {
+    Expression col = pivot.getCol();
+    Expression group = pivot.getGroup();
+    Integer limit = pivot.getLimit();
+    Expression value = pivot.getValue();
+    if (null == col) {
+      LOGGER.error("confirmRuleStringForException(): pivot col is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_PIVOT_COL);
+    }
+    if (null == group) {
+      LOGGER.error("confirmRuleStringForException(): pivot group is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_PIVOT_GROUP);
+    }
+    if (null == value) {
+      LOGGER.error("confirmRuleStringForException(): pivot value is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_PIVOT_VALUE);
+    }
+  }
+
+  private static void checkUnpivot(Unpivot unpivot) {
+    Expression col = unpivot.getCol();
+    Integer groupEvery = unpivot.getGroupEvery();
+    if (null == col) {
+      LOGGER.error("confirmRuleStringForException(): unpivot col is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_UNPIVOT_COL);
+    }
+    if (null == groupEvery) {
+      LOGGER.error("confirmRuleStringForException(): unpivot groupEvery is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_UNPIVOT_GROUPEVERY);
+    }
+  }
+
+  private static void checkJoin(Join join) {
+    Expression condition = join.getCondition();
+    Expression dataset2 = join.getDataset2();
+    String joinType = join.getJoinType();
+    Expression leftSelectCol = join.getLeftSelectCol();
+    Expression rightSelectCol = join.getRightSelectCol();
+    if (null == dataset2) {
+      LOGGER.error("confirmRuleStringForException(): join col is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_JOIN_DATASET2);
+    }
+    if (null == joinType) {
+      LOGGER.error("confirmRuleStringForException(): join joinType is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_JOIN_JOINTYPE);
+    }
+  }
+
+  private static void checkWindow(Window window) {
+    Expression order = window.getOrder();
+    Expression value = window.getValue();
+    if (null == value || !(value instanceof Expr.FunctionExpr
+        || value instanceof Expr.FunctionArrayExpr)) {
+      LOGGER.error("confirmRuleStringForException(): window value is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+          PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_WINDOW_VALUE);
+    }
+  }
+
   public static void confirmRuleStringForException(String ruleString) {
     try {
       Rule rule = new RuleVisitorParser().parse(ruleString);
 
       if (rule.getName().equals("move")) {
-        Move move = (Move) rule;
-        String after = move.getAfter();
-        String before = move.getBefore();
-        if ((null == after || after.isEmpty()) && (null == before || before.isEmpty())) {
-          LOGGER.error("confirmRuleStringForException(): move before and after is empty");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_MOVE_BEFORE_AND_AFTER);
-        }
-        Expression expression = move.getCol();
-        if (null == expression) {
-          LOGGER.error("confirmRuleStringForException(): move expression is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_MOVE_EXPRESSION);
-        }
+        checkMove((Move) rule);
       } else if (rule.getName().equals("sort")) {
-        Sort sort = (Sort) rule;
-        Expression order = sort.getOrder();
-        if (order instanceof Identifier.IdentifierExpr
-            || order instanceof Identifier.IdentifierArrayExpr) {
-        } else {
-          LOGGER.error("confirmRuleStringForException(): sort order is not valid");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SORT_ORDER);
-        }
-
-        Expression type = sort.getType();
-        if (type == null || (type instanceof Constant.StringExpr && ((Constant.StringExpr) type)
-            .getEscapedValue().equalsIgnoreCase("DESC"))) {
-        } else {
-          LOGGER.error("confirmRuleStringForException(): sort type is not valid");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SORT_TYPE);
-        }
-      } else if (rule.getName().equals("union")) {
+        checkSort((Sort) rule);
       } else if (rule.getName().equals("drop")) {
-        Drop drop = (Drop) rule;
-        Expression col = drop.getCol();
-        if (col instanceof Identifier.IdentifierExpr
-            || col instanceof Identifier.IdentifierArrayExpr) {
-        } else {
-          LOGGER.error("confirmRuleStringForException(): drop col is not valid");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_DROP_COL);
-        }
+        checkDrop((Drop) rule);
       } else if (rule.getName().equals("keep")) {
-        Keep keep = (Keep) rule;
-        Expression expression = keep.getRow();
-        if (null == expression) {
-          LOGGER.error("confirmRuleStringForException(): keep expression is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_KEEP_EXPRESSION);
-        }
+        checkKeep((Keep) rule);
       } else if (rule.getName().equals("delete")) {
-        Delete delete = (Delete) rule;
-        Expression expression = delete.getRow();
-        if (null == expression) {
-          LOGGER.error("confirmRuleStringForException(): delete expression is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_DELETE_EXPRESSION);
-        }
+        checkDelete((Delete) rule);
       } else if (rule.getName().equals("flatten")) {
-        Flatten flatten = (Flatten) rule;
-        String col = flatten.getCol();
-        if (null == col || 0 == col.length()) {
-          LOGGER.error("confirmRuleStringForException(): flatten col is wrong");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_FLATTEN_COL);
-        }
+        checkFlatten((Flatten) rule);
       } else if (rule.getName().equals("header")) {
-        Header header = (Header) rule;
-        Long rowNum = header.getRownum();
-        if (null == rowNum || rowNum < 0) {
-          LOGGER.error("confirmRuleStringForException(): header rowNum is wrong");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_HEADER_ROWNUM);
-        }
+        checkHeader((Header) rule);
       } else if (rule.getName().equals("rename")) {
-        Rename rename = (Rename) rule;
-        Expression col = rename.getCol();
-        Expression to = rename.getTo();
-        if (null == col) {
-          LOGGER.error("confirmRuleStringForException(): rename col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_RENAME_COL);
-        }
-        if (null == to) {
-          LOGGER.error("confirmRuleStringForException(): rename to is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_RENAME_TO);
-        }
+        checkRename((Rename) rule);
       } else if (rule.getName().equals("replace")) {
-        Replace replace = (Replace) rule;
-        Expression after = replace.getAfter();
-        Expression before = replace.getBefore();
-        Expression col = replace.getCol();
-        boolean global = replace.getGlobal();
-        boolean ignoreCase = replace.getIgnoreCase();
-        Expression on = replace.getOn();
-        Expression quote = replace.getQuote();
-        Expression row = replace.getRow();
-        Constant with = replace.getWith();
-        if (null == col) {
-          LOGGER.error("confirmRuleStringForException(): replace col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_REPLACE_COL);
-        }
-        if (null == on) {
-          LOGGER.error("confirmRuleStringForException(): replace on is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_REPLACE_ON);
-        }
+        checkReplace((Replace) rule);
       } else if (rule.getName().equals("settype")) {
-        SetType setType = (SetType) rule;
-        Expression col = setType.getCol();
-        String format = setType.getFormat();
-        String type = setType.getType();
-        if (null == col) {
-          LOGGER.error("confirmRuleStringForException(): settype col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SETTYPE_COL);
-        }
-        if (null == type) {
-          LOGGER.error("confirmRuleStringForException(): settype type is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SETTYPE_TYPE);
-        }
+        checkSetType((SetType) rule);
       } else if (rule.getName().equals("setformat")) {
-        SetFormat setFormat = (SetFormat) rule;
-        Expression col = setFormat.getCol();
-        String format = setFormat.getFormat();
-
-        if (null == col) {
-          LOGGER.error("confirmRuleStringForException(): setformat col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SETFORMAT_COL);
-        }
-        if (null == format) {
-          LOGGER.error("confirmRuleStringForException(): setformat format is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SETFORMAT_FORMAT);
-        }
+        checkSetFormat((SetFormat) rule);
       } else if (rule.getName().equals("set")) {
-        Set set = (Set) rule;
-        Expression col = set.getCol();
-        Expression row = set.getRow();
-        Expression value = set.getValue();
-        if (null == col) {
-          LOGGER.error("confirmRuleStringForException(): set col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SET_COL);
-        }
-        if (null == value) {
-          LOGGER.error("confirmRuleStringForException(): set value is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SET_VALUE);
-        }
+        checkSet((Set) rule);
       } else if (rule.getName().equals("countpattern")) {
-        CountPattern countPattern = (CountPattern) rule;
-        Expression after = countPattern.getAfter();
-        Expression before = countPattern.getBefore();
-        Expression col = countPattern.getCol();
-        Boolean ignoreCase = countPattern.getIgnoreCase();
-        Expression on = countPattern.getOn();
-        Expression quote = countPattern.getQuote();
-        if (null == col) {
-          LOGGER.error("confirmRuleStringForException(): countpattern col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_COUNTPATTERN_COL);
-        }
-        if (null == on) {
-          LOGGER.error("confirmRuleStringForException(): countpattern on is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_COUNTPATTERN_ON);
-        }
+        checkCountPattern((CountPattern) rule);
       } else if (rule.getName().equals("derive")) {
-        Derive derive = (Derive) rule;
-        String as = derive.getAs();
-        Expression value = derive.getValue();
-        if (null == as) {
-          LOGGER.error("confirmRuleStringForException(): derive as col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_DERIVE_AS);
-        }
-        if (null == value) {
-          LOGGER.error("confirmRuleStringForException(): derive value is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_DERIVE_VALUE);
-        }
+        checkDerive((Derive) rule);
       } else if (rule.getName().equals("merge")) {
-        Merge merge = (Merge) rule;
-        String as = merge.getAs();
-        Expression col = merge.getCol();
-        String with = merge.getWith();
-        if (null == as) {
-          LOGGER.error("confirmRuleStringForException(): merge as is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_MERGE_AS);
-        }
-        if (null == col) {
-          LOGGER.error("confirmRuleStringForException(): merge col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_MERGE_COL);
-        }
-        if (null == with) {
-          LOGGER.error("confirmRuleStringForException(): merge with is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_MERGE_WITH);
-        }
+        checkMerge((Merge) rule);
       } else if (rule.getName().equals("unnest")) {
-        Unnest unnest = (Unnest) rule;
-        String col = unnest.getCol();
-        Expression idx = unnest.getIdx();
-        String into = unnest.getInto();
-        if (null == idx) {
-          LOGGER.error("confirmRuleStringForException(): unnest idx is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_UNNEST_IDX);
-        }
-        if (null == into) {
-          LOGGER.error("confirmRuleStringForException(): unnest into is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_UNNEST_INTO);
-        }
+        checkUnnest((Unnest) rule);
       } else if (rule.getName().equals("extract")) {
-        Extract extract = (Extract) rule;
-        Expression col = extract.getCol();
-        Boolean IgnoreCase = extract.getIgnoreCase();
-        Integer limit = extract.getLimit();
-        Expression on = extract.getOn();
-        Expression quote = extract.getQuote();
-        if (null == col) {
-          LOGGER.error("confirmRuleStringForException(): extract col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_EXTRACT_COL);
-        }
-        if (null == limit) {
-          LOGGER.error("confirmRuleStringForException(): extract limit is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_EXTRACT_LIMIT);
-        }
-        if (null == on) {
-          LOGGER.error("confirmRuleStringForException(): extract on is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_EXTRACT_ON);
-        }
+        checkExtract((Extract) rule);
       } else if (rule.getName().equals("aggregate")) {
-
-        Aggregate aggregate = (Aggregate) rule;
-        Expression group = aggregate.getGroup();
-        Expression value = aggregate.getValue();
-        if (null == group) {
-          LOGGER.error("confirmRuleStringForException(): aggregate group is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_AGGREGATE_GROUP);
-        }
-        if (null == value) {
-          LOGGER.error("confirmRuleStringForException(): aggregate value is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_AGGREGATE_VALUE);
-        }
+        checkAggregate((Aggregate) rule);
       } else if (rule.getName().equals("split")) {
-        Split split = (Split) rule;
-        Expression col = split.getCol();
-        Boolean ignoreCase = split.getIgnoreCase();
-        Integer limit = split.getLimit();
-        Expression on = split.getOn();
-        Expression quote = split.getQuote();
-        if (null == col) {
-          LOGGER.error("confirmRuleStringForException(): split col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SPLIT_COL);
-        }
-        if (null == limit) {
-          LOGGER.error("confirmRuleStringForException(): split limit is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SPLIT_LIMIT);
-        }
-        if (null == on) {
-          LOGGER.error("confirmRuleStringForException(): split on is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SPLIT_ON);
-        }
+        checkSplit((Split) rule);
       } else if (rule.getName().equals("nest")) {
-        Nest nest = (Nest) rule;
-        String as = nest.getAs();
-        Expression col = nest.getCol();
-        String into = nest.getInto();
-        if (null == as) {
-          LOGGER.error("confirmRuleStringForException(): nest as is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_NEST_AS);
-        }
-        if (null == col) {
-          LOGGER.error("confirmRuleStringForException(): nest col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_NEST_COL);
-        }
-        if (null == into) {
-          LOGGER.error("confirmRuleStringForException(): nest into is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_NEST_INTO);
-        }
+        checkNest((Nest) rule);
       } else if (rule.getName().equals("pivot")) {
-        Pivot pivot = (Pivot) rule;
-        Expression col = pivot.getCol();
-        Expression group = pivot.getGroup();
-        Integer limit = pivot.getLimit();
-        Expression value = pivot.getValue();
-        if (null == col) {
-          LOGGER.error("confirmRuleStringForException(): pivot col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_PIVOT_COL);
-        }
-        if (null == group) {
-          LOGGER.error("confirmRuleStringForException(): pivot group is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_PIVOT_GROUP);
-        }
-        if (null == value) {
-          LOGGER.error("confirmRuleStringForException(): pivot value is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_PIVOT_VALUE);
-        }
+        checkPivot((Pivot) rule);
       } else if (rule.getName().equals("unpivot")) {
-        Unpivot unpivot = (Unpivot) rule;
-        Expression col = unpivot.getCol();
-        Integer groupEvery = unpivot.getGroupEvery();
-        if (null == col) {
-          LOGGER.error("confirmRuleStringForException(): unpivot col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_UNPIVOT_COL);
-        }
-        if (null == groupEvery) {
-          LOGGER.error("confirmRuleStringForException(): unpivot groupEvery is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_UNPIVOT_GROUPEVERY);
-        }
+        checkUnpivot((Unpivot) rule);
       } else if (rule.getName().equals("join")) {
-        Join join = (Join) rule;
-        Expression condition = join.getCondition();
-        Expression dataset2 = join.getDataset2();
-        String joinType = join.getJoinType();
-        Expression leftSelectCol = join.getLeftSelectCol();
-        Expression rightSelectCol = join.getRightSelectCol();
-        if (null == dataset2) {
-          LOGGER.error("confirmRuleStringForException(): join col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_JOIN_DATASET2);
-        }
-        if (null == joinType) {
-          LOGGER.error("confirmRuleStringForException(): join joinType is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_JOIN_JOINTYPE);
-        }
+        checkJoin((Join) rule);
       } else if (rule.getName().equals("window")) {
-        Window window = (Window) rule;
-        Expression order = window.getOrder();
-        Expression value = window.getValue();
-        if (null == value || !(value instanceof Expr.FunctionExpr
-            || value instanceof Expr.FunctionArrayExpr)) {
-          LOGGER.error("confirmRuleStringForException(): window value is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_WINDOW_VALUE);
-        }
+        checkWindow((Window) rule);
       } else {
         LOGGER.error("confirmRuleStringForException(): ruleName is wrong - " + rule.getName());
         throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
