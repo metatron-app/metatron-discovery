@@ -752,4 +752,36 @@ public class MetadataRestIntegrationTest extends AbstractRestIntegrationTest {
     // @formatter:on
   }
 
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER"})
+  public void createLegacyMetadataTest() {
+
+    TestUtils.printTestTitle("Legacy metadata 생성");
+
+    Map<String, Object> reqMedataMap = Maps.newHashMap();
+    reqMedataMap.put("name", "Legacy metadata");
+    reqMedataMap.put("description", "Legacy Description");
+
+    Map<String, Object> engineSourceMap = Maps.newHashMap();
+    engineSourceMap.put("type","ETC");
+    engineSourceMap.put("name","LEGACY_TABLE");
+
+    reqMedataMap.put("sourceType", "ETC");
+    reqMedataMap.put("source", engineSourceMap);
+
+    // @formatter:off
+    Response createRes =
+      given()
+        .auth().oauth2(oauth_token)
+        .body(reqMedataMap)
+        .contentType(ContentType.JSON)
+        .log().all()
+      .when()
+        .post("/api/metadatas");
+
+    createRes.then()
+        .statusCode(HttpStatus.SC_CREATED)
+      .log().all();
+    // @formatter:on
+  }
 }

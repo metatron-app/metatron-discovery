@@ -22,9 +22,11 @@ export namespace MetadataConstant {
     STAGING_SELECT = 'STAGING_SELECT',
     STAGING_COMPLETE = 'STAGING_COMPLETE',
   }
-  
+
   export enum SourceType {
     JDBC = 'JDBC',
-    STAGEDB = 'STAGEDB'
+    STAGEDB = 'STAGEDB',
+    ENGINE = 'ENGINE',
+    ETC = 'ETC'
   }
 }

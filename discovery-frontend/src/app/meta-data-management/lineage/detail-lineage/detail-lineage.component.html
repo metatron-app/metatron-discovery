@@ -1,0 +1,110 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+
+<div class="ddp-type-contents2">
+  <div class="ddp-top-flow">
+    <!-- navi wrap -->
+    <div class="ddp-wrap-navi">
+      <a href="javascript:" class="ddp-btn-back" (click)="onClickPrevButton()"></a>
+      <!-- navi -->
+      <div class="ddp-ui-naviarea ">
+        <!-- name -->
+        <!-- 클릭시 ddp-selected 추가 -->
+        <div class="ddp-box-navi ddp-">
+          <!-- 상세 내용이 없을 경우 ddp-full 추가 -->
+          <div class="ddp-wrap-naviname">
+            <span class="ddp-data-naviname ddp-readonly">Lineage Edge</span>
+          </div>
+        </div>
+        <!-- //name -->
+      </div>
+      <!-- //navi -->
+    </div>
+    <!-- //navi wrap -->
+  </div>
+
+  <!-- 상세 -->
+  <div class="ddp-wrap-datadetail ddp-meta">
+    <div>
+      <table *ngIf="lineageEdge" class="ddp-table-form ddp-table-type3 type-table">
+        <colgroup>
+          <col width="20%">
+          <col width="*">
+        </colgroup>
+        <thead>
+        <tr>
+          <th>
+            Key
+          </th>
+          <th class="ddp-border-right">
+            Value
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>
+            description
+          </td>
+          <td class="ddp-border-right">
+            {{lineageEdge.desc}}
+          </td>
+        </tr>
+        <tr>
+          <td>
+            frMetaName
+          </td>
+          <td class="ddp-border-right">
+            {{lineageEdge.frMetaName}}
+          </td>
+        </tr>
+        <tr *ngIf="lineageEdge.frColName">
+          <td>
+            frColName
+          </td>
+          <td class="ddp-border-right">
+            {{lineageEdge.frColName}}
+          </td>
+        </tr>
+        <tr>
+          <td>
+            toMetaName
+          </td>
+          <td class="ddp-border-right">
+            {{lineageEdge.toMetaName}}
+          </td>
+        </tr>
+        <tr *ngIf="lineageEdge.toColName">
+          <td>
+            toColName
+          </td>
+          <td class="ddp-border-right">
+            {{lineageEdge.toColName}}
+          </td>
+        </tr>
+        <tr>
+          <td>
+            tier
+          </td>
+          <td class="ddp-border-right">
+            {{lineageEdge.tier}}
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,106 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-box-in" *ngIf="selectedNodeMetadata">
+  <a #closeButton href="javascript:" class="ddp-btn-popup-close" (click)="closeInfo()"></a>
+
+  <div class="ddp-lineage-detail-metadata-name">
+    <em class="ddp-icon-svg">
+      <svg-icon-component [name]="'icon-db'" [isBlackAndWhite]="false"></svg-icon-component>
+    </em>
+    <span class="ddp-txt-metadataname" title="{{selectedNodeMetadata.name}}">
+      {{selectedNodeMetadata.name}}
+    </span>
+  </div>
+
+  <div class="ddp-data-explain">
+    <span class="ddp-txt-explain">
+      {{selectedNodeMetadata.name}}
+    </span>
+    <span class="ddp-tag-target">Target System</span>
+  </div>
+
+  <div class="ddp-ui-databuttons ddp-type">
+    <div class="ddp-databuttons ddp-clear">
+      <div class="ddp-col-6">
+        <a href="javscript:" class="ddp-btn-line ddp-full">View column lineage</a>
+      </div>
+      <div class="ddp-col-6">
+        <a (click)="gotoLineage();" href="javscript:" class="ddp-btn-solid ddp-bg-black ddp-full">Go to Metadata</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="ddp-wrap-part ddp-bg">
+    <div class="ddp-ui-preview">
+      <div class="ddp-txt-title">
+        {{'msg.dp.ui.data.preview' | translate}}
+      </div>
+
+      <div class="ddp-box-preview">
+        <div class="ddp-ui-empty" *ngIf="emptyGrid">
+          {{'msg.dp.ui.no.preview' | translate}}
+        </div>
+        <div class="ddp-box-gridarea" #previewGrid grid-component style="width:100%; height: 100%;" [hidden]="emptyGrid"></div>
+        <!--
+        <div *ngIf="selectedNodeMetadata.columns">
+          <ul>
+            <li *ngFor="let column of selectedNodeMetadata.columns">
+              <span>{{column.name}}</span> ( <span>{{column.type}}</span> )
+            </li>
+          </ul>
+        </div>
+        <metadata-grid-component></metadata-grid-component>
+        -->
+      </div>
+    </div>
+
+    <dl class="ddp-dl-detail">
+      <dt>
+        Type
+      </dt>
+      <dd>
+        {{sourceType}}
+      </dd>
+    </dl>
+    <dl class="ddp-dl-detail">
+      <dt>
+        Summary
+      </dt>
+      <dd>
+        {{selectedNodeMetadata.columns?selectedNodeMetadata.columns.length:0}} columns
+      </dd>
+    </dl>
+  </div>
+
+  <div class="ddp-wrap-date">
+    <dl class="ddp-dl-detail type-date">
+      <dt>
+        Created on
+      </dt>
+      <dd>
+        {{selectedNodeMetadata.createdTime}} <span class="ddp-data-by">by {{selectedNodeMetadata.createdBy.username}}</span>
+      </dd>
+    </dl>
+    <dl class="ddp-dl-detail type-date">
+      <dt>
+        Updated on
+      </dt>
+      <dd>
+        {{selectedNodeMetadata.modifiedTime}} <span class="ddp-data-by">by {{selectedNodeMetadata.modifiedBy.username}}</span>
+      </dd>
+    </dl>
+  </div>
+
+</div>

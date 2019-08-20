@@ -14,19 +14,99 @@
 
 <!-- tab contents -->
 <div [ngClass]="['ddp-ui-tab-contents']">
-  <div [ngClass]="['ddp-lineage-view']">
-    <div id="chartCanvas" style="width:100%;height:100%;overflow:hidden"></div>
+  <div class="ddp-type-contents2">
+    <!-- //툴바 영역 -->
+    <div [ngClass]="['ddp-lineage-view-toolbar']">
+      <div class="ddp-flow-option ddp-clear">
+        <div class="ddp-fleft">
+          <div class="ddp-wrap-edit">
+            <label class="ddp-label-type">Depth</label>
+            <div class="ddp-ui-edit-option ddp-inline">
+              <label class="ddp-label-radio">
+                <input type="radio">
+                <i class="ddp-icon-radio"></i>
+                <span class="ddp-txt-radio">Default depth</span>
+              </label>
+              <label class="ddp-label-radio">
+                <input type="radio">
+                <i class="ddp-icon-radio"></i>
+                <span class="ddp-txt-radio">All</span>
+              </label>
 
-    <!-- 노드 아이콘 클릭시 상세 영역 -->
-    <div *ngIf="false && selectedNode && selectedNode.metadataId"
-         class="sys-dataflow-right-panel ddp-box-lineage-column-view" >
-      <app-metadata-detail-lineagecolumnview
-        [selectedNode]="selectedNode"
-        (closeColumnView)="closeColumnView()"
-      >
-      </app-metadata-detail-lineagecolumnview>
+            </div>
+          </div>
+
+          <div class="ddp-wrap-edit">
+            <label class="ddp-label-type">Alignment</label>
+            <div class="ddp-ui-edit-option">
+              <component-select
+                [defaultIndex]="defaultAlignmentIndex"
+                [array]="alignmentList"
+                [viewKey]="'label'"
+                (onSelected)="onChangeAlignment($event)">
+              </component-select>
+            </div>
+          </div>
+
+          <div class="ddp-wrap-edit">
+            <label class="ddp-label-type">Node Count</label>
+            <div class="ddp-ui-edit-option">
+              <component-select
+                [defaultIndex]="defaultNodeCountIndex"
+                [array]="nodeCountList"
+                [viewKey]="'label'"
+                (onSelected)="onChangeNodeCount($event)">
+              </component-select>
+            </div>
+          </div>
+        </div>
+        <div class="ddp-fright">
+          <a href="javascript:" class="ddp-box-btn2 ddp-box-selected">
+            <em class="ddp-icon-widget-gridsave"></em>
+            Download
+          </a>
+          <ul class="ddp-list-tab-button">
+            <li class="ddp-selected">
+              <a (click)="viewType=VIEW_TYPE.Diagram;" href="javascript:"><em class="ddp-icon-lineage-depth"></em></a>
+              <div class="ddp-ui-tooltip-info">
+                <em class="ddp-icon-view-top"></em>
+                Diagram
+              </div>
+            </li>
+            <li>
+              <a (click)="viewType=VIEW_TYPE.Grid;" href="javascript:"><em class="ddp-icon-lineage-grid"></em></a>
+              <div class="ddp-ui-tooltip-info">
+                <em class="ddp-icon-view-top"></em>
+                Grid
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
-    <!-- //노드 아이콘 클릭시 상세 영역 -->
+    <!-- //툴바 영역 -->
+
+    <div [ngClass]="['ddp-lineage-view']">
+      <!-- 다이어그램 영역 -->
+      <div class="sys-lineage-left-panel ddp-split-chart">
+        <div [ngClass]="['ddp-lineage-view-diagram']">
+          <div id="chartCanvas" ></div>
+        </div>
+      </div>
+      <!-- //다이어그램 영역 -->
+
+      <!-- 노드 아이콘 클릭시 상세 영역 -->
+      <div class="sys-lineage-right-panel ddp-box-lineage-detail"
+              *ngIf="selectedNode && selectedNode.metadataId" >
+        <app-metadata-detail-lineagedetail
+          [selectedNode]="selectedNode"
+          (resizeEventHandler)="resizeEventHandler($event)"
+          (closeColumnView)="closeColumnView()"
+        >
+        </app-metadata-detail-lineagedetail>
+      </div>
+      <!-- //노드 아이콘 클릭시 상세 영역 -->
+    </div>
 
   </div>
 </div>
