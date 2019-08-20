@@ -20,9 +20,9 @@ import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_LIMIT_RO
 import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_TIMEOUT;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_HOSTNAME;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_METASTORE_URI;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PASSWORD;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PORT;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_URL;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_USERNAME;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
@@ -151,7 +151,7 @@ public class TeddyExecutor {
     hivePort = (Integer) prepPropertiesInfo.get(STAGEDB_PORT);
     hiveUsername = (String) prepPropertiesInfo.get(STAGEDB_USERNAME);
     hivePassword = (String) prepPropertiesInfo.get(STAGEDB_PASSWORD);
-    hiveCustomUrl = (String) prepPropertiesInfo.get(STAGEDB_URL);
+    hiveCustomUrl = (String) prepPropertiesInfo.get(STAGEDB_METASTORE_URI);
 
     cores = (Integer) prepPropertiesInfo.get(ETL_CORES);
     timeout = (Integer) prepPropertiesInfo.get(ETL_TIMEOUT);
@@ -169,11 +169,13 @@ public class TeddyExecutor {
     String ssId = "";
 
     try {
-      Map<String, Object> prepPropertiesInfo = GlobalObjectMapper.readValue(argv[1], HashMap.class);
-      Map<String, Object> datasetInfo = GlobalObjectMapper.readValue(argv[2], HashMap.class);
-      Map<String, Object> snapshotInfo = GlobalObjectMapper.readValue(argv[3], HashMap.class);
-      restAPIserverPort = argv[4];
-      oauth_token = argv[5];
+      Map<String, Object> prepPropertiesInfo = GlobalObjectMapper.readValue(argv[0], HashMap.class);
+      Map<String, Object> datasetInfo = GlobalObjectMapper.readValue(argv[1], HashMap.class);
+      Map<String, Object> snapshotInfo = GlobalObjectMapper.readValue(argv[2], HashMap.class);
+      Map<String, Object> callbackInfo = GlobalObjectMapper.readValue(argv[3], HashMap.class);
+
+      restAPIserverPort = (String) callbackInfo.get("port");
+      oauth_token = (String) callbackInfo.get("oauth_token");
 
       setPrepPropertiesInfo(prepPropertiesInfo);
 
@@ -187,7 +189,7 @@ public class TeddyExecutor {
       String ssType = (String) snapshotInfo.get("ssType");
 
       if (ssType.equals(PrSnapshot.SS_TYPE.URI.name())) {
-        result = createUriSnapshot(argv);
+        result = createUriSnapshot(datasetInfo, snapshotInfo);
       } else if (ssType.equals(PrSnapshot.SS_TYPE.STAGING_DB.name())) {
         result = createStagingDbSnapshot(hadoopConfDir, datasetInfo, snapshotInfo);
       } else {
@@ -306,11 +308,9 @@ public class TeddyExecutor {
     return df.rows.size();
   }
 
-  private Future<String> createUriSnapshot(String[] argv) throws Throwable {
+  private Future<String> createUriSnapshot(Map<String, Object> datasetInfo,
+      Map<String, Object> snapshotInfo) throws Throwable {
     LOGGER.info("createUriSnapshot(): started");
-
-    Map<String, Object> datasetInfo = GlobalObjectMapper.readValue(argv[2], HashMap.class);
-    Map<String, Object> snapshotInfo = GlobalObjectMapper.readValue(argv[3], HashMap.class);
 
     // master dataset 정보에 모든 upstream 정보도 포함되어있음.
     String ssId = (String) snapshotInfo.get("ssId");
@@ -385,7 +385,8 @@ public class TeddyExecutor {
     createHiveSnapshotInternal(ssId, masterFullDsId, ruleStrings, partKeys, database, tableName,
         extHdfsDir, format, compression);
 
-    String jsonColDescs = GlobalObjectMapper.getDefaultMapper().writeValueAsString(finalDf.colDescs);
+    String jsonColDescs = GlobalObjectMapper.getDefaultMapper()
+        .writeValueAsString(finalDf.colDescs);
     updateSnapshot("custom", "{'colDescs':" + jsonColDescs + "}", ssId);
 
     // master를 비롯해서, 스냅샷 생성을 위해 새로 만들어진 모든 full dataset을 제거
@@ -507,7 +508,8 @@ public class TeddyExecutor {
             int partSize = rowcnt / cores + 1;  // +1 to prevent being 0
 
             // Outer joins cannot be parallelized. (But, implemented as prepare-gather structure)
-            if (rule.getName().equals("join") && ((Join) rule).getJoinType().equalsIgnoreCase("INNER") == false) {
+            if (rule.getName().equals("join")
+                && ((Join) rule).getJoinType().equalsIgnoreCase("INNER") == false) {
               partSize = rowcnt;
             }
 
@@ -630,6 +632,62 @@ public class TeddyExecutor {
     return newFullDsId;
   }
 
+  private String processArray(ColumnDescription colDesc) {
+    ColumnType uniformSubType = colDesc.hasUniformSubType();
+    String strType;
+
+    switch (uniformSubType) {
+      case STRING:
+        strType = "array<string>";
+        break;
+      case LONG:
+        strType = "array<bigint>";
+        break;
+      case DOUBLE:
+        strType = "array<double>";
+        break;
+      case BOOLEAN:
+        strType = "array<boolean>";
+        break;
+      case TIMESTAMP:
+        strType = "array<timestamp>";
+        break;
+      default:
+        StringBuffer sb = new StringBuffer();
+        sb.append("struct<");
+        for (int i = 0; i < colDesc.getArrColDesc().size(); i++) {
+          ColumnDescription subColDesc = colDesc.getArrColDesc().get(i);
+          if (i > 0) {
+            sb.append(",");
+          }
+          sb.append(String
+              .format("c%d:%s", i, fromColumnTypetoHiveType(subColDesc.getType(), subColDesc)));
+        }
+        strType = sb.append(">").toString();
+        break;
+    }
+    return strType;
+  }
+
+  private String processMap(ColumnDescription colDesc) {
+    ColumnType uniformSubType = colDesc.hasUniformSubType();
+
+    StringBuffer sb = new StringBuffer();
+    sb.append("struct<");
+
+    List<String> keys = colDesc.getMapColDesc().keySet().stream().collect(Collectors.toList());
+    for (int i = 0; i < keys.size(); i++) {
+      String key = keys.get(i);
+      ColumnDescription subColDesc = colDesc.getMapColDesc().get(key);
+      if (i > 0) {
+        sb.append(",");
+      }
+      sb.append(String
+          .format("%s:%s", key, fromColumnTypetoHiveType(subColDesc.getType(), subColDesc)));
+    }
+    return sb.append(">").toString();
+  }
+
   public String fromColumnTypetoHiveType(ColumnType colType, ColumnDescription colDesc) {
     switch (colType) {
       case STRING:
@@ -643,46 +701,9 @@ public class TeddyExecutor {
       case TIMESTAMP:
         return "timestamp";
       case ARRAY:
-        ColumnType uniformSubType = colDesc.hasUniformSubType();
-        switch (uniformSubType) {
-          case STRING:
-            return "array<string>";
-          case LONG:
-            return "array<bigint>";
-          case DOUBLE:
-            return "array<double>";
-          case BOOLEAN:
-            return "array<boolean>";
-          case TIMESTAMP:
-            return "array<timestamp>";
-          default:
-                        /* fall through */
-        }
-        StringBuffer sb = new StringBuffer();
-        sb.append("struct<");
-        for (int i = 0; i < colDesc.getArrColDesc().size(); i++) {
-          ColumnDescription subColDesc = colDesc.getArrColDesc().get(i);
-          if (i > 0) {
-            sb.append(",");
-          }
-          sb.append(String
-              .format("c%d:%s", i, fromColumnTypetoHiveType(subColDesc.getType(), subColDesc)));
-        }
-        return sb.append(">").toString();
+        return processArray(colDesc);
       case MAP:
-        sb = new StringBuffer();
-        sb.append("struct<");
-        List<String> keys = colDesc.getMapColDesc().keySet().stream().collect(Collectors.toList());
-        for (int i = 0; i < keys.size(); i++) {
-          String key = keys.get(i);
-          ColumnDescription subColDesc = colDesc.getMapColDesc().get(key);
-          if (i > 0) {
-            sb.append(",");
-          }
-          sb.append(String
-              .format("%s:%s", key, fromColumnTypetoHiveType(subColDesc.getType(), subColDesc)));
-        }
-        return sb.append(">").toString();
+        return processMap(colDesc);
       case UNKNOWN:
         assert false : colType;
     }

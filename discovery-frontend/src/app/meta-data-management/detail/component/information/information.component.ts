@@ -132,6 +132,8 @@ export class InformationComponent extends AbstractComponent implements OnInit, O
         return this.translateService.instant('msg.storage.li.db');
       case SourceType.STAGEDB:
         return this.translateService.instant('msg.storage.li.hive');
+      case SourceType.ETC:
+        return this.translateService.instant('msg.storage.li.etc');
     }
   }
 

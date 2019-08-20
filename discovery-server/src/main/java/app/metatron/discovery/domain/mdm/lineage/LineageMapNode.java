@@ -15,83 +15,26 @@
 package app.metatron.discovery.domain.mdm.lineage;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
-public class LineageMapNode implements Serializable {
+public class LineageMapNode implements Serializable, Comparable<LineageMapNode> {
+
   private String metaId;
-  private String description;
-
-  private List<LineageMapNode> upstreamMapNodes;
-  private List<LineageMapNode> downstreamMapNodes;
-
-  private boolean circuit;
-
   private String metaName;  // This is optional.
+  private int depth;
+  private int pos;
 
   public LineageMapNode() {
-    metaId = null;
-    description = null;
-    upstreamMapNodes = new ArrayList();
-    downstreamMapNodes = new ArrayList();
-    circuit = false;
   }
 
-  public LineageMapNode(String metaId) {
-    this();
+  public LineageMapNode(String metaId, String metaName) {
     this.metaId = metaId;
-  }
-
-  public LineageMapNode(String metaId, String description) {
-    this(metaId);
-    this.description = description;
-  }
-
-  public LineageMapNode(String metaId, String description, String metaName) {
-    this(metaId, description);
     this.metaName = metaName;
+    this.depth = -1;
+    this.pos = -1;
   }
 
   public String getMetaId() {
     return metaId;
-  }
-
-  public void setMetaId(String metaId) {
-    this.metaId = metaId;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public List<LineageMapNode> getUpstreamMapNodes() {
-    return upstreamMapNodes;
-  }
-
-  public void setUpstreamMapNodes(
-      List<LineageMapNode> upstreamMapNodes) {
-    this.upstreamMapNodes = upstreamMapNodes;
-  }
-
-  public List<LineageMapNode> getDownstreamMapNodes() {
-    return downstreamMapNodes;
-  }
-
-  public void setDownstreamMapNodes(
-      List<LineageMapNode> downstreamMapNodes) {
-    this.downstreamMapNodes = downstreamMapNodes;
-  }
-
-  public boolean isCircuit() {
-    return circuit;
-  }
-
-  public void setCircuit(boolean circuit) {
-    this.circuit = circuit;
   }
 
   public String getMetaName() {
@@ -102,15 +45,46 @@ public class LineageMapNode implements Serializable {
     this.metaName = metaName;
   }
 
+  public int getDepth() {
+    return depth;
+  }
+
+  public void setDepth(int depth) {
+    this.depth = depth;
+  }
+
+  public int getPos() {
+    return pos;
+  }
+
+  public void setPos(int pos) {
+    this.pos = pos;
+  }
+
+  public void incrDepth() {
+    depth++;
+  }
+
+  public void incrPos() {
+    pos++;
+  }
+
   @Override
   public String toString() {
     return "LineageMapNode{" +
         "metaId='" + metaId + '\'' +
-        ", description='" + description + '\'' +
-        ", upstreamMapNodes=" + upstreamMapNodes +
-        ", downstreamMapNodes=" + downstreamMapNodes +
-        ", circuit=" + circuit +
         ", metaName='" + metaName + '\'' +
         '}';
+  }
+
+  @Override
+  public int compareTo(LineageMapNode node) {
+    if (this.depth > node.getDepth()) {
+      return -1;
+    } else if (this.depth == node.getDepth()) {
+      return 0;
+    } else {
+      return 1;
+    }
   }
 }

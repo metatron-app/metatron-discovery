@@ -14,18 +14,6 @@
 
 package app.metatron.discovery.domain.mdm;
 
-import app.metatron.discovery.common.entity.DomainType;
-import app.metatron.discovery.common.entity.SearchParamValidator;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.common.data.projection.DataGrid;
-import app.metatron.discovery.domain.CollectionPatch;
-import app.metatron.discovery.domain.datasource.DataSourceService;
-import app.metatron.discovery.domain.tag.Tag;
-import app.metatron.discovery.domain.tag.TagProjections;
-import app.metatron.discovery.domain.tag.TagService;
-import app.metatron.discovery.util.HttpUtils;
-import app.metatron.discovery.util.ProjectionUtils;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -45,15 +33,33 @@ import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.LinkedHashMap;
-import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
+
+import app.metatron.discovery.common.data.projection.DataGrid;
+import app.metatron.discovery.common.entity.DomainType;
+import app.metatron.discovery.common.entity.SearchParamValidator;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.CollectionPatch;
+import app.metatron.discovery.domain.datasource.DataSourceService;
+import app.metatron.discovery.domain.tag.Tag;
+import app.metatron.discovery.domain.tag.TagProjections;
+import app.metatron.discovery.domain.tag.TagService;
+import app.metatron.discovery.util.HttpUtils;
+import app.metatron.discovery.util.ProjectionUtils;
 
 @RepositoryRestController
 public class MetadataController {
@@ -134,7 +140,6 @@ public class MetadataController {
 
     return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(metadatas, resourceAssembler));
   }
-
 
   @RequestMapping(value = "/metadatas/metasources/{sourceId}", method = RequestMethod.POST)
   public ResponseEntity <?> findMetadataByOriginSource(@PathVariable("sourceId") String sourceId,
@@ -373,7 +378,7 @@ public class MetadataController {
     }
 
     DataGrid result = metadataService.getDataGrid(metadata, limit);
-    responseMap.put("size", result.getRows() == null ? 0 : result.getRows().size());
+    responseMap.put("size", result == null || result.getRows() == null ? 0 : result.getRows().size());
     responseMap.put("data", result);
 
     return ResponseEntity.ok(responseMap);

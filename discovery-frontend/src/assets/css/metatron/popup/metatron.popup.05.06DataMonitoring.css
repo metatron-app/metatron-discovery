@@ -1,0 +1,14 @@
+@charset "utf-8";
+
+/**************************************************************
+  Page : 05_06DataMonitoring_01overview_01DruidInfo_popup
+**************************************************************/
+.ddp-pop-preview.ddp-type.page-information {left:170px; right:170px;}
+.ddp-wrap-informaiton {padding:0 20px; height:100%; box-sizing:border-box; overflow:auto;}
+.ddp-wrap-informaiton .ddp-ui-detail {padding-bottom:20px; margin-bottom:20px; border-top:1px solid #e7e7ea;}
+.ddp-wrap-informaiton .ddp-ui-detail:first-of-type {border-top:none;}
+
+
+
+
+
