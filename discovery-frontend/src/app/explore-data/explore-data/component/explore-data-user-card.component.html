@@ -1,12 +1,35 @@
-<div class="ddp-box-user">
+<!-- SourceType is ENGINE(Datasource) -->
+<div class="ddp-box-user" *ngIf="sourceType.toString() === 'ENGINE'">
   <div class="ddp-data-photo">
-    <img src="../images/img_profile.png">
+    <img src="../../../../assets/images/img_photo.png">
   </div>
   <div class="ddp-wrap-data">
-    <div class="ddp-data-name">{{userName}}
+    <div class="ddp-data-name">{{ topUser['user']['fullName'] }}
 <!--      <em class="ddp-icon-control-fav ddp-selected"></em>-->
     </div>
-    <div class="ddp-data-info">Information &gt; Description</div>
-    <div class="ddp-data-date">{{dateTime | mdate:'YYYY-MM-DD HH:mm:ss'}}</div>
+    <div class="ddp-data-info">
+      {{ topUser['dashboard']['workBook'] ?
+          topUser['dashboard']['workBook'] + " > " + topUser['dashboard']['name']
+        : topUser['dashboard']['name']
+      }}
+    </div>
+    <div class="ddp-data-date">{{ topUser['lastPublishedTime'] | mdate:'YYYY-MM-DD HH:mm:ss'}}</div>
   </div>
 </div>
+<!-- SourceType is ENGINE(Datasource) -->
+
+<!-- SourceType is JDBC(Database) -->
+<div class="ddp-box-user" *ngIf="sourceType.toString() === 'JDBC' || sourceType.toString() === 'STAGEDB'">
+  <div class="ddp-data-photo">
+    <img src="../../../../assets/images/img_photo.png">
+  </div>
+  <div class="ddp-wrap-data">
+    <div class="ddp-data-name">{{ topUser['user']['fullName'] }}
+      <!--      <em class="ddp-icon-control-fav ddp-selected"></em>-->
+    </div>
+    <div class="ddp-data-info">{{ topUser['workbench']['name'] }}</div>
+    <div class="ddp-data-date">{{ topUser['lastPublishedTime'] | mdate:'YYYY-MM-DD HH:mm:ss'}}</div>
+  </div>
+</div>
+<!-- SourceType is JDBC(Database) -->
+

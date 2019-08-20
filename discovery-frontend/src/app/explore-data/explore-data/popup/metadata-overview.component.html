@@ -94,14 +94,11 @@
           <div class="ddp-data-det">
             <!-- user -->
             <ul class="ddp-list-user">
-              <li>
-                <component-explore-data-user-card [userName]="'userName'" [dateTime]="'1991-12-25'"></component-explore-data-user-card>
-              </li>
-              <li>
-                <component-explore-data-user-card [userName]="'userName'" [dateTime]="'1991-12-25'"></component-explore-data-user-card>
-              </li>
-              <li>
-                <component-explore-data-user-card [userName]="'userName'" [dateTime]="'1991-12-25'"></component-explore-data-user-card>
+              <li *ngFor="let topUser of topUserList">
+                <component-explore-data-user-card
+                  [topUser]="topUser"
+                  [sourceType]="metadata.sourceType">
+                </component-explore-data-user-card>
               </li>
             </ul>
             <!-- //user -->
@@ -127,32 +124,13 @@
               </thead>
               <tbody>
 
-              <tr>
-                <td><span class="ddp-txt-long" title="InformatiInformationInformationInformationInformationon">InformatiInformationInformationInfoInformatiInformationInformationInformationInformationonrmationInformationon &gt; Description1 &gt; Description3 &gt; Description6</span></td>
-                <td>yyyy-mm-dd hh:mm:ss</td>
+              <tr *ngFor="let recentlyUpdated of recentlyUpdatedList">
+                <td><span class="ddp-txt-long" title="{{  recentlyUpdated['contents'] }}">{{ recentlyUpdated['contents'] }}</span></td>
+                <td> {{ recentlyUpdated['createdTime'] }}</td>
                 <td>
                   <div class="ddp-txt-long">
                     <em class="ddp-icon-control-fav ddp-fright"></em>
-                    <span class="ddp-txt-name" title="TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne">TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne</span>
-                  </div>
-                </td>
-              </tr><tr>
-                <td><span class="ddp-txt-long" title="InformatiInformationInformationInformationInformationon">InformatiInformationInformationInfoInformatiInformationInformationInformationInformationonrmationInformationon &gt; Description1 &gt; Description3 &gt; Description6</span></td>
-                <td>yyyy-mm-dd hh:mm:ss</td>
-                <td>
-                  <div class="ddp-txt-long">
-                    <em class="ddp-icon-control-fav ddp-fright"></em>
-                    <span class="ddp-txt-name" title="TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne">TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne</span>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td><span class="ddp-txt-long" title="InformatiInionInfoInfo">InformatiInionInfoInfo</span></td>
-                <td>yyyy-mm-dd hh:mm:ss</td>
-                <td>
-                  <div class="ddp-txt-long">
-                    <em class="ddp-icon-control-fav ddp-fright ddp-selected"></em>
-                    <span class="ddp-txt-name" title="TammarneyTamTamm">TammarneyTamTamm</span>
+                    <span class="ddp-txt-name" title="{{ recentlyUpdated['user']['fullName'] }}">{{ recentlyUpdated['user']['fullName'] }}</span>
                   </div>
                 </td>
               </tr>
@@ -164,7 +142,12 @@
         <!-- //detail -->
         <!-- recent dashboard -->
         <div class="ddp-detail" *ngIf="isDatasourceTypeMetadata()">
-          <div class="ddp-label">{{'msg.explore.ui.detail.recent.used'| translate}} <a href="javascript:" class="ddp-link ddp-fright" *ngIf="isShowDashboardMoreContents()">{{'msg.explore.btn.detail.more.list'| translate}} &gt;</a>
+          <div class="ddp-label">
+            {{'msg.explore.ui.detail.recent.used'| translate}}
+            <a href="javascript:"
+               class="ddp-link ddp-fright"
+               *ngIf="isShowDashboardMoreContents()"
+               (click)="onClickSeeAllRecentQueries()">{{'msg.explore.btn.detail.more.list'| translate}} &gt;</a>
           </div>
           <div class="ddp-data-det">
             <ul class="ddp-list-graph ddp-bottom ddp-cursor">
@@ -201,11 +184,16 @@
             </ul>
           </div>
         </div>
-        <!-- //recent dashboard -->
-        <!-- recent query -->
-        <!-- //recent query -->
+<!--        &lt;!&ndash; //recent dashboard &ndash;&gt;-->
+<!--        &lt;!&ndash; recent query &ndash;&gt;-->
+<!--        &lt;!&ndash; //recent query &ndash;&gt;-->
         <div class="ddp-detail" *ngIf="isDatabaseTypeMetadata() || isStagingTypeMetadata()">
-          <div class="ddp-label">{{'msg.explore.ui.detail.recent.query'| translate}} <a href="javascript:" class="ddp-link ddp-fright" *ngIf="isShowQueryMoreContents()" (click)="onClickSeeAllRecentQueries()">{{'msg.explore.btn.detail.more.list'| translate}} &gt;</a>
+          <div class="ddp-label">
+            {{'msg.explore.ui.detail.recent.query'| translate}}
+            <a href="javascript:"
+               class="ddp-link ddp-fright"
+               *ngIf="isShowQueryMoreContents()"
+               (click)="onClickSeeAllRecentQueries()">{{'msg.explore.btn.detail.more.list'| translate}} &gt;</a>
           </div>
           <div class="ddp-data-det">
             <table class="ddp-table-detail4">
@@ -226,15 +214,15 @@
               </tr>
               </thead>
               <tbody>
-              <tr>
-                <td>yyyy-mm-dd hh:mm:ss</td>
-                <td>SUMMARY</td>
-                <td>John Smith</td>
-                <td> <span class="ddp-data-state ddp-success">Success</span></td>
+              <tr *ngFor="let recentQuery of recentlyQueriesForDataBase['_embedded']['queryhistories']">
+                <td>{{ recentQuery['createdTime'] }}</td>
+                <td>TYPE</td>
+                <td>{{ recentQuery['createdBy']['fullName'] }}</td>
+                <td> <span class="ddp-data-state" [ngClass]="recentQuery.queryResultStatus === 'SUCCESS' ? 'ddp-success' : 'ddp-fail'">{{ recentQuery.queryResultStatus === 'SUCCESS'? 'Success' : 'Fail' }}</span></td>
                 <td>
                   <div class="ddp-txt-long ddp-type-button">
                     <a href="javascript:" class="ddp-btn-selection ddp-fright">Copy</a>
-                    <span class="ddp-txt-name" title="TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne">TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne</span>
+                    <span class="ddp-txt-name" title="">{{ recentQuery['query'] }}</span>
                   </div>
                 </td>
               </tr>
@@ -243,7 +231,7 @@
           </div>
         </div>
       </div>
-      <!-- //detail view -->
+<!--      &lt;!&ndash; //detail view &ndash;&gt;-->
     </div>
   </div>
 </div>

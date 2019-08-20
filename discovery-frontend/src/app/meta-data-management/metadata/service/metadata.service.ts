@@ -243,4 +243,23 @@ export class MetadataService extends AbstractService {
     }
     return this.get(url);
   }
+
+  /**
+   * Get Top user in Metadata Detail
+   * @param {string} metaDataId
+   * @returns {Promise<any>}
+   */
+  public getTopUserInMetadataDetail(metaDataId: string): Promise<any> {
+    return this.get(this.URL_METADATA + `/${metaDataId}/users/frequency`);
+  }
+
+  /**
+   * Get Recently Updated in Metadata Detail Info
+   * @param {string} metaDataId
+   * @returns {Observable<any>}
+   */
+  public getRecentlyUpdatedInMetadataDetail(metaDataId: string): Promise<any> {
+    return this.get(this.URL_METADATA + `/${metaDataId}/history`);
+  }
+
 }

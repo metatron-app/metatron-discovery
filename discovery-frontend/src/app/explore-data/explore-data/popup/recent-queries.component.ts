@@ -1,7 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {DatasourceService} from "../../../datasource/service/datasource.service";
 import {ClipboardService} from "ngx-clipboard";
-import {Alert} from "../../../common/util/alert.util";
 
 @Component({
   templateUrl: './recent-queries.component.html',
@@ -12,6 +11,9 @@ export class RecentQueriesComponent implements OnInit {
   datasourceId: string;
 
   queries: any;
+
+  recentlyQueriesForDataSource;
+  recentlyQueriesForDataBase;
 
   public isShow: boolean = false;
 

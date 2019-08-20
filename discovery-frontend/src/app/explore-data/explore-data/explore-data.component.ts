@@ -13,7 +13,9 @@
  */
 
 import {
-  Component, ComponentFactoryResolver, ComponentRef,
+  Component,
+  ComponentFactoryResolver,
+  ComponentRef,
   ElementRef,
   HostListener,
   Injector,
@@ -24,12 +26,13 @@ import {
 } from '@angular/core';
 import {AbstractComponent} from '../../common/component/abstract.component';
 import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
-import {Metadata} from "../../domain/meta-data-management/metadata";
+import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
 import * as _ from 'lodash';
 import {CatalogService} from "../../meta-data-management/catalog/service/catalog.service";
 import {Catalog} from "../../domain/catalog/catalog";
 import {StringUtil} from "../../common/util/string.util";
 import {MetadataContainerComponent} from "./popup/metadata-container.component";
+import {DatasourceService} from "../../datasource/service/datasource.service";
 
 @Component({
   selector: 'app-exploredata-view',
@@ -54,6 +57,169 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
 
   isFoldingNavigation: boolean;
 
+  public topUserListDummy = [
+    {
+      "count": 4,
+      "lastPublishedTime": "2019-08-08T01:23:58.000Z",
+      "user": {
+        "createdBy": "admin",
+        "createdTime": "2019-06-26T14:17:19.000Z",
+        "modifiedBy": "admin",
+        "modifiedTime": "2019-06-26T14:17:19.000Z",
+        "id": "polaris",
+        "username": "polaris",
+        "fullName": "Polaris",
+        "email": "polaris@metatron.com",
+        "status": "ACTIVATED",
+        "passMailer": false,
+        "enabled": true
+      },
+      "dashboard": {
+        "createdBy": "admin",
+        "createdTime": "2019-07-03T05:48:11.000Z",
+        "modifiedBy": "admin",
+        "modifiedTime": "2019-07-03T06:07:45.000Z",
+        "id": "3206b6c8-dd8f-4193-9df5-15e4e869ac87",
+        "name": "asdasd",
+        "configuration": {
+          "options": {
+            "layout": {
+              "layoutType": "FIT_TO_SCREEN",
+              "widgetPadding": 5
+            },
+            "widget": {
+              "showTitle": "BY_WIDGET",
+              "showLegend": "BY_WIDGET",
+              "showMinimap": "BY_WIDGET"
+            }
+          },
+          "widgets": [],
+          "dataSource": {
+            "joins": [],
+            "temporary": false,
+            "id": "ds-gis-37",
+            "name": "sales_geo",
+            "uiDescription": "Sales data (2011~2014)",
+            "type": "default"
+          },
+          "filters": [],
+          "content": [],
+          "userDefinedFields": [
+            {
+              "oriColumnName": "MEASURE_1",
+              "useChart": false,
+              "useFilter": false,
+              "useChartFilter": false,
+              "type": "user_expr",
+              "role": "MEASURE",
+              "dataSource": "sales_geo",
+              "alias": "count",
+              "name": "count",
+              "expr": "COUNTOF( \"City\"  )",
+              "aggregated": true
+            },
+            {
+              "oriColumnName": "",
+              "useChart": false,
+              "useFilter": false,
+              "useChartFilter": false,
+              "type": "user_expr",
+              "role": "MEASURE",
+              "dataSource": "sales_geo",
+              "alias": "MEASURE_1",
+              "name": "MEASURE_1",
+              "expr": "\"Quantity\"",
+              "aggregated": false
+            }
+          ]
+        },
+        "seq": 4,
+        "workBook": null,
+        "widgets": null
+      }
+    },
+    {
+      "count": 1,
+      "lastPublishedTime": "2019-07-29T01:47:42.000Z",
+      "user": {
+        "createdBy": "admin",
+        "createdTime": "2019-06-26T14:17:19.000Z",
+        "modifiedBy": "admin",
+        "modifiedTime": "2019-06-26T14:17:19.000Z",
+        "id": "admin",
+        "username": "admin",
+        "fullName": "Administrator",
+        "email": "admin@metatron.com",
+        "status": "ACTIVATED",
+        "passMailer": false,
+        "enabled": true
+      },
+      "dashboard": {
+        "createdBy": "admin",
+        "createdTime": "2019-07-03T05:48:11.000Z",
+        "modifiedBy": "admin",
+        "modifiedTime": "2019-07-03T06:07:45.000Z",
+        "id": "3206b6c8-dd8f-4193-9df5-15e4e869ac87",
+        "name": "asdasd",
+        "configuration": {
+          "options": {
+            "layout": {
+              "layoutType": "FIT_TO_SCREEN",
+              "widgetPadding": 5
+            },
+            "widget": {
+              "showTitle": "BY_WIDGET",
+              "showLegend": "BY_WIDGET",
+              "showMinimap": "BY_WIDGET"
+            }
+          },
+          "widgets": [],
+          "dataSource": {
+            "joins": [],
+            "temporary": false,
+            "id": "ds-gis-37",
+            "name": "sales_geo",
+            "uiDescription": "Sales data (2011~2014)",
+            "type": "default"
+          },
+          "filters": [],
+          "content": [],
+          "userDefinedFields": [
+            {
+              "oriColumnName": "MEASURE_1",
+              "useChart": false,
+              "useFilter": false,
+              "useChartFilter": false,
+              "type": "user_expr",
+              "role": "MEASURE",
+              "dataSource": "sales_geo",
+              "alias": "count",
+              "name": "count",
+              "expr": "COUNTOF( \"City\"  )",
+              "aggregated": true
+            },
+            {
+              "oriColumnName": "",
+              "useChart": false,
+              "useFilter": false,
+              "useChartFilter": false,
+              "type": "user_expr",
+              "role": "MEASURE",
+              "dataSource": "sales_geo",
+              "alias": "MEASURE_1",
+              "name": "MEASURE_1",
+              "expr": "\"Quantity\"",
+              "aggregated": false
+            }
+          ]
+        },
+        "seq": 4,
+        "workBook": 'MyWorkBOok',
+        "widgets": null
+      }
+    }
+  ];
+
   // enum
   readonly EXPLORE_MODE = ExploreMode;
 
@@ -61,6 +227,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   constructor(private metadataService: MetadataService,
               private catalogService: CatalogService,
               private resolver: ComponentFactoryResolver,
+              private dataSourceService: DatasourceService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -131,12 +298,63 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   }
 
   onClickMetadata(metadata: Metadata) {
-    this.entryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(MetadataContainerComponent));
-    this.entryRef.instance.initial(metadata.id);
-    this.entryRef.instance.closedPopup.subscribe(() => {
-      // close
-      this.entryRef.destroy();
-    });
+    // declare variables needed for metadata-container(modal) component
+    let metadataDetail;
+    let recentlyQueriesForDatabase;
+    let recentlyQueriesForDataSource;
+    let topUserList;
+    let recentlyUpdatedList;
+
+    // get datas...
+    const getRecentlyQueriesForDatabase = async () => {
+      recentlyQueriesForDatabase = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.source.id, this.page.page, this.page.size, this.page.sort)
+        .catch(error => this.commonExceptionHandler(error));
+    };
+
+    const getRecentlyQueriesForDataSource = async () => {
+      recentlyQueriesForDataSource = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDataSource(metadataDetail.source.source.id, this.page.page, this.page.size, this.page.sort)
+        .catch(error => this.commonExceptionHandler(error));
+    };
+
+    // TODO: Engine Case topUserList is dummy data - api is not working
+    const getTopUser = async () => {
+      topUserList = await this.metadataService.getTopUserInMetadataDetail(metadata.id).catch(() => {
+
+      });
+      topUserList = topUserList === undefined ? this.topUserListDummy : topUserList;
+    };
+
+    const getRecentlyUpdatedList = async () => {
+      recentlyUpdatedList = await this.metadataService.getRecentlyUpdatedInMetadataDetail(metadata.id).catch(error => this.commonExceptionHandler(error));
+    };
+
+    // get metadataDetail to use datasourceService which is using metadataDetail
+    this.metadataService.getDetailMetaData(metadata.id).then(async (result) => {
+      metadataDetail = result;
+
+      await getTopUser();
+      await getRecentlyUpdatedList().catch(error => this.commonExceptionHandler(error));
+
+      if (metadata.sourceType === SourceType.ENGINE) {
+        await getRecentlyQueriesForDataSource().catch(error => this.commonExceptionHandler(error));
+        this.entryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(MetadataContainerComponent));
+        this.entryRef.instance.metadataDetailData = metadataDetail;
+        this.entryRef.instance.topUserList = topUserList;
+        this.entryRef.instance.recentlyUpdatedList = recentlyUpdatedList;
+        this.entryRef.instance.recentlyQueriesForDataSource = recentlyQueriesForDataSource;
+      } else if (metadata.sourceType === SourceType.JDBC || metadata.sourceType === SourceType.STAGEDB) {
+        await getRecentlyQueriesForDatabase().catch(error => this.commonExceptionHandler(error));
+        this.entryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(MetadataContainerComponent));
+        this.entryRef.instance.metadataDetailData = metadataDetail;
+        this.entryRef.instance.topUserList = topUserList;
+        this.entryRef.instance.recentlyUpdatedList = recentlyUpdatedList;
+        this.entryRef.instance.recentlyQueriesForDataBase = recentlyQueriesForDatabase;
+      }
+      this.entryRef.instance.closedPopup.subscribe(() => {
+        // close
+        this.entryRef.destroy();
+      });
+    }).catch(error => this.commonExceptionHandler(error));
   }
 
   private async _setMetadataSourceTypeCount() {

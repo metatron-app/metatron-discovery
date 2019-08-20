@@ -39,9 +39,20 @@
         </ul>
       </div>
       <!-- //tab -->
-      <explore-metadata-overview *ngIf="selectedTab === 0" [metadata]="metadataDetailData"></explore-metadata-overview>
-      <explore-metadata-columns  *ngIf="selectedTab === 1" [metadata]="metadataDetailData" [metadataId]="metadataId"></explore-metadata-columns>
-      <explore-metadata-sample-data [metadata]="metadataDetailData" *ngIf="selectedTab === 2"></explore-metadata-sample-data>
+      <explore-metadata-overview
+        *ngIf="selectedTab === 0"
+        [metadata]="metadataDetailData"
+        [topUserList]="topUserList"
+        [recentlyUpdatedList]="recentlyUpdatedList"
+        [recentlyQueriesForDataBase]="recentlyQueriesForDataBase"
+        [recentlyQueriesForDataSource]="recentlyQueriesForDataSource"></explore-metadata-overview>
+      <explore-metadata-columns
+        *ngIf="selectedTab === 1"
+        [metadata]="metadataDetailData"
+        [metadataId]="metadataId"></explore-metadata-columns>
+      <explore-metadata-sample-data
+        [metadata]="metadataDetailData"
+        *ngIf="selectedTab === 2"></explore-metadata-sample-data>
     </div>
   </div>
   <!-- //popup -->

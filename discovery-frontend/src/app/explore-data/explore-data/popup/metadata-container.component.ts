@@ -53,6 +53,10 @@ export class MetadataContainerComponent extends AbstractComponent {
   public isShowInfo: boolean = false;
 
   public infoList: MetadataInformation[];
+  public topUserList = [];
+  public recentlyUpdatedList = [];
+  public recentlyQueriesForDataSource = [];
+  public recentlyQueriesForDataBase = [];
 
   constructor(private resolver: ComponentFactoryResolver,
               private metadataService: MetadataService,
@@ -70,9 +74,16 @@ export class MetadataContainerComponent extends AbstractComponent {
     this.removeBodyScrollHidden();
   }
 
-  initial(metadataId: string): void {
-    this.metadataId = metadataId;
-    this._setMetadataDetail(this.metadataId);
+  initial(metadataDetail: any, topUserList: any, recentlyUpdatedList: any, recentlyQueryForDatabase?: any, recentlyQueryForDataSource?: any): void {
+    this.metadataDetailData = metadataDetail;
+    this.topUserList = topUserList;
+    this.recentlyUpdatedList = recentlyUpdatedList;
+
+    if (recentlyQueryForDatabase) {
+      this.recentlyQueriesForDataBase = recentlyQueryForDatabase;
+    } else if (recentlyQueryForDataSource) {
+      this.recentlyQueriesForDataSource = recentlyQueryForDataSource;
+    }
   }
 
   isExistMetadata(): boolean {

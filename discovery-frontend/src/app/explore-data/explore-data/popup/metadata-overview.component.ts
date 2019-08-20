@@ -21,10 +21,15 @@ export class MetadataOverviewComponent implements OnInit, OnDestroy {
 
   @Input() readonly metadataId: string;
   @Input() readonly metadata : Metadata;
+  @Input() readonly topUserList;
+  @Input() readonly recentlyUpdatedList;
+  @Input() readonly recentlyQueriesForDataSource;
+  @Input() readonly recentlyQueriesForDataBase;
 
   public isShowMoreCatalogs: boolean = false;
 
-  constructor(private resolver: ComponentFactoryResolver) {
+  constructor(
+    private resolver: ComponentFactoryResolver) {
   }
 
   ngOnInit(): void {
@@ -62,6 +67,11 @@ export class MetadataOverviewComponent implements OnInit, OnDestroy {
 
   onClickSeeAllRecentQueries(): void {
     this.entryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(RecentQueriesComponent));
+    if (this.isDatasourceTypeMetadata()) {
+      this.entryRef.instance.recentlyQueriesForDataSource = this.recentlyQueriesForDataSource;
+    } else if (this.isDatabaseTypeMetadata() || this.isStagingTypeMetadata()) {
+      this.entryRef.instance.recentlyQueriesForDataBase = this.recentlyQueriesForDataBase;
+    }
     this.entryRef.instance.init();
   }
 }

@@ -27,33 +27,38 @@
         <th>Query</th>
       </tr>
       </thead>
-      <tbody>
-      <tr>
-        <td>yyyy-mm-dd hh:mm:ss</td>
-        <td>SUMMARY</td>
-        <td>John Smith</td>
-        <td> <span class="ddp-data-state ddp-success">Success</span></td>
+      <!--  if sourceType is ENGINE(dataSource)    -->
+      <tbody *ngIf="recentlyQueriesForDataSource">
+      <tr *ngFor="let recentQuery of recentlyQueriesForDataSource['_embedded']['datasourcequeryhistories']">
+        <td>{{ recentQuery.createdTime }}</td>
+        <td>{{ recentQuery.queryType }}</td>
+        <td>{{ recentQuery.creator.fullName }}</td>
+        <td> <span class="ddp-data-state" [ngClass]="recentQuery.succeed ? 'ddp-success' : 'ddp-fail'">{{ recentQuery.succeed ? 'Success' : 'Fail' }}</span></td>
         <td>
           <div class="ddp-txt-long ddp-type-button">
             <a href="javascript:" class="ddp-btn-selection ddp-fright" (click)="onClickCopy(queryElement)">Copy</a>
-            <span class="ddp-txt-name" title="TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne" #queryElement>TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne</span>
+            <span class="ddp-txt-name" title="{{ recentQuery.query }}" #queryElement>{{ recentQuery.query }}</span>
           </div>
         </td>
       </tr>
-      <tr>
-        <td>yyyy-mm-dd hh:mm:ss</td>
-        <td>SUMMARY</td>
-        <td>John Smith</td>
-        <td> <span class="ddp-data-state ddp-fail">fail</span></td>
+      <!--  if sourceType is ENGINE(dataSource)    -->
+      <!--  if sourceType is JDBC(database)    -->
+      </tbody>
+      <tbody *ngIf="recentlyQueriesForDataBase">
+      <tr *ngFor="let recentQuery of recentlyQueriesForDataBase['_embedded']['queryhistories']">
+        <td>{{ recentQuery['createdTime'] }}</td>
+        <td>Type</td>
+        <td>{{ recentQuery['createdBy']['fullName'] }}</td>
+        <td> <span class="ddp-data-state" [ngClass]="recentQuery.queryResultStatus === 'SUCCESS' ? 'ddp-success' : 'ddp-fail'">{{ recentQuery.queryResultStatus === 'SUCCESS'? 'Success' : 'Fail' }}</span></td>
         <td>
           <div class="ddp-txt-long ddp-type-button">
             <a href="javascript:" class="ddp-btn-selection ddp-fright">Copy</a>
-            <span class="ddp-txt-name" title="TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne">TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne</span>
+            <span class="ddp-txt-name" title="{{ recentQuery.query }}" #queryElement>{{ recentQuery['query'] }}</span>
           </div>
         </td>
       </tr>
       </tbody>
-
+      <!--  if sourceType is JDBC(database)    -->
     </table>
 
   </div>
