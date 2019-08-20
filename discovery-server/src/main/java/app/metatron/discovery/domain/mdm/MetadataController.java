@@ -371,6 +371,20 @@ public class MetadataController {
       }
     });
 
+    //if list's size less than page's size, getting latest metadata
+    int metadataSize = metadatas == null ? 0 : metadatas.size();
+    int requiredMetadataSize = pageable.getPageSize() - metadataSize;
+    if(requiredMetadataSize > 0){
+      List<Metadata> latestMetadata = metadataRepository.findTop10ByOrderByCreatedTimeDesc();
+      for(int i = 0; i < requiredMetadataSize; ++i){
+        if(i < latestMetadata.size()){
+          metadatas.add(latestMetadata.get(i));
+        } else {
+          break;
+        }
+      }
+    }
+
     Page<Metadata> metadataPage = new PageImpl<Metadata>(metadatas, pageable, metadataPopularityList.getTotalElements());
     Page<Metadata> metadataResourced = ProjectionUtils.toPageResource(projectionFactory,
                                                                       metadataProjections.getProjectionByName("forListView"),
