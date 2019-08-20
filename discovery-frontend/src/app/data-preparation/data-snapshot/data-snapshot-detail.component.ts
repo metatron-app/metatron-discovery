@@ -612,7 +612,11 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     let sourceInfo = this.selectedDataSnapshot.sourceInfo;
 
     if( isUndefined(sourceInfo) ) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.info'));
+      //Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.info'));
+      this.originDsInfo.dsName = '';
+      this.originDsInfo.qryStmt = null;
+      this.originDsInfo.filePath = null;
+      this.originDsInfo.createdTime = null;
     } else {
       if( isUndefined(sourceInfo.origDsName) ) {
         Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.name'));
