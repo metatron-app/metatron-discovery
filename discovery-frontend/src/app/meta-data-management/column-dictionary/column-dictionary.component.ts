@@ -157,14 +157,16 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
     this.loadingShow();
     // 컬럼 사전 제거
     this._columnDictionaryService.deleteColumnDictionary(modal['dictionaryId'])
-      .then((result) => {
+      .then(() => {
 
         this.loadingHide();
 
         // alert
         Alert.success(this.translateService.instant(
           'msg.metadata.ui.dictionary.delete.success',
-          modal['dictionaryName']));
+          { value: modal['dictionaryName'] }
+          )
+        );
 
         if (this.page.page !== 0 && this.columnDictionaryList.length === 1) {
           this.page.page = this.page.page - 1;
