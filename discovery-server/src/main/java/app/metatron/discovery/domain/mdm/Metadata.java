@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotBlank;
 
 import java.util.List;
@@ -39,6 +40,7 @@ import app.metatron.discovery.domain.mdm.catalog.Catalog;
 import app.metatron.discovery.domain.mdm.source.MetadataSource;
 
 @Entity
+@Audited(withModifiedFlag = true)
 @Table(name="mdm_metadata")
 public class Metadata extends AbstractHistoryEntity implements MetatronDomain<String> {
 

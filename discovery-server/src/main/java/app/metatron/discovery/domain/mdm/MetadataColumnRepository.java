@@ -16,6 +16,7 @@ package app.metatron.discovery.domain.mdm;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QueryDslPredicateExecutor;
+import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 /**
@@ -24,6 +25,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 @RepositoryRestResource(path = "metacolumns", itemResourceRel = "metacolumn", collectionResourceRel = "metacolumns",
     excerptProjection = MetadataColumnProjections.DefaultProjection.class)
 public interface MetadataColumnRepository extends JpaRepository<MetadataColumn, Long>,
-    QueryDslPredicateExecutor<MetadataColumn>, MetadataColumnRepositoryExtends {
+    QueryDslPredicateExecutor<MetadataColumn>, MetadataColumnRepositoryExtends, RevisionRepository<MetadataColumn, Long, Long> {
 
 }

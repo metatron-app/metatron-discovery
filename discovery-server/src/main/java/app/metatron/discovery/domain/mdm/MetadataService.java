@@ -20,6 +20,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.RevisionType;
+import org.hibernate.envers.query.AuditEntity;
+import org.hibernate.envers.query.AuditQuery;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +45,7 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +75,7 @@ import app.metatron.discovery.domain.mdm.preview.MetadataEngineDataPreview;
 import app.metatron.discovery.domain.mdm.preview.MetadataJdbcDataPreview;
 import app.metatron.discovery.domain.mdm.source.MetaSourceService;
 import app.metatron.discovery.domain.mdm.source.MetadataSource;
+import app.metatron.discovery.domain.revision.MetatronRevisionEntity;
 import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.domain.user.CachedUserService;
 import app.metatron.discovery.domain.user.User;
@@ -110,6 +116,9 @@ public class MetadataService implements ApplicationEventPublisherAware {
   MetadataRepository metadataRepository;
 
   @Autowired
+  MetadataColumnRepository metadataColumnRepository;
+
+  @Autowired
   EngineQueryService engineQueryService;
 
   @Autowired
@@ -136,6 +145,8 @@ public class MetadataService implements ApplicationEventPublisherAware {
   @Autowired
   WorkspaceService workspaceService;
 
+  @Autowired
+  AuditReader auditReader;
 
   private ApplicationEventPublisher publisher;
 
@@ -621,20 +632,58 @@ public class MetadataService implements ApplicationEventPublisherAware {
   }
 
   public List<?> getUpdateHistory(Metadata metadata){
-    List<Map> updatedList = new ArrayList<>();
-    int cnt = getRandomNumberInRange(1, 5);
-    for(int i = 0; i < cnt; ++i){
-      Map<String, Object> top1User = new HashMap<>();
-      top1User.put("createdTime", DateTime.now());
-      top1User.put("user", cachedUserService.findUser("admin"));
-      if(i == 0){
-        top1User.put("contents", "initial created.");
+    List<Map> historyList = new ArrayList<>();
+
+    //metadata revision list
+    AuditQuery metadataAuditQuery = auditReader.createQuery().forRevisionsOfEntity(Metadata.class, false, true);
+    metadataAuditQuery.setMaxResults(5);
+    List<Object[]> metadataList = metadataAuditQuery.getResultList();
+
+    metadataList.stream().forEach(objectArr -> {
+      Metadata metadataEntity = (Metadata) objectArr[0];
+      MetatronRevisionEntity revisionEntity = (MetatronRevisionEntity) objectArr[1];
+      RevisionType revisionType = (RevisionType) objectArr[2];
+
+      Map<String, Object> revisionMap = new HashMap<>();
+      revisionMap.put("createdTime", revisionEntity.getRevisionDate());
+      revisionMap.put("user", cachedUserService.findUser(revisionEntity.getUsername()));
+      revisionMap.put("contents", "Metadata Changed.");
+      revisionMap.put("revisionType", revisionType);
+      historyList.add(revisionMap);
+    });
+
+    //metadata column revision list
+    AuditQuery auditQuery = auditReader.createQuery().forRevisionsOfEntity(MetadataColumn.class, false, true);
+    auditQuery.add(AuditEntity.relatedId("metadata").eq(metadata.getId()));
+    auditQuery.setMaxResults(5);
+    List<Object[]> columnList = auditQuery.getResultList();
+
+    columnList.stream().forEach(objectArr -> {
+      MetadataColumn metadataColumn = (MetadataColumn) objectArr[0];
+      MetatronRevisionEntity revisionEntity = (MetatronRevisionEntity) objectArr[1];
+      RevisionType revisionType = (RevisionType) objectArr[2];
+
+      Map<String, Object> revisionMap = new HashMap<>();
+      revisionMap.put("createdTime", revisionEntity.getRevisionDate());
+      revisionMap.put("user", cachedUserService.findUser(revisionEntity.getUsername()));
+      revisionMap.put("contents", "Column (" + metadataColumn.getPhysicalName() + ") Changed.");
+      revisionMap.put("revisionType", revisionType);
+      historyList.add(revisionMap);
+    });
+
+    //order by createdTime desc
+    historyList.sort((a, b) -> {
+      Date aDate = (Date) a.get("createdTime");
+      Date bDate = (Date) b.get("createdTime");
+      if(aDate.getTime() == bDate.getTime()){
+        return 0;
+      } else if(aDate.getTime() > bDate.getTime()){
+        return -1;
       } else {
-        top1User.put("contents", "modified" + i);
+        return 1;
       }
-      updatedList.add(top1User);
-    }
-    return updatedList;
+    });
+    return historyList;
   }
 
   public Boolean getWorkspacePermission(Workspace workspace, String permission){

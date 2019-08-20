@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.rest.core.annotation.RestResource;
 
@@ -39,6 +41,7 @@ import app.metatron.discovery.domain.MetatronDomain;
 import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
 
 @Entity
+@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 @Table(name = "mdm_column_dictionary")
 public class ColumnDictionary extends AbstractHistoryEntity implements MetatronDomain<String> {
 

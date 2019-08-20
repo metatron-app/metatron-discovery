@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.rest.core.annotation.RestResource;
 
@@ -45,6 +47,7 @@ import app.metatron.discovery.domain.mdm.Metadata;
  * Catalog of metadata
  */
 @Entity
+@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 @Table(name="mdm_catalog")
 public class Catalog extends AbstractHistoryEntity {
 
