@@ -394,11 +394,6 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
     this.chartOptions = {
       backgroundColor: '#ffffff',
-      dataZoom: [
-        {
-          type: 'inside'
-        }
-      ],
       tooltip: { show: true },
       toolbox: {
         left: 'left',
