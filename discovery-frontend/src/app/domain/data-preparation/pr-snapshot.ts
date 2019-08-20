@@ -125,7 +125,8 @@ export enum HiveFileFormat {
 }
 
 export enum Engine {
-  EMBEDDED = <any>'EMBEDDED'
+  EMBEDDED = <any>'EMBEDDED',
+  SPARK = <any>'SPARK'
 }
 
 export enum Status {
