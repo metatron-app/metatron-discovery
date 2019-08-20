@@ -33,10 +33,10 @@
 
   <div class="ddp-ui-databuttons ddp-type">
     <div class="ddp-databuttons ddp-clear">
-      <div class="ddp-col-6">
+      <div [ngClass]="(selectedNode.metadataId!==mainMetadataId)?'ddp-col-6':'ddp-col-12'">
         <a href="javscript:" class="ddp-btn-line ddp-full">View column lineage</a>
       </div>
-      <div class="ddp-col-6">
+      <div *ngIf="selectedNode.metadataId!==mainMetadataId" class="ddp-col-6">
         <a (click)="gotoLineage();" href="javscript:" class="ddp-btn-solid ddp-bg-black ddp-full">Go to Metadata</a>
       </div>
     </div>
