@@ -105,11 +105,11 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
 
     // Chart Instance 생성
     pivot.ui.style.summaryLabel = {
-      SUM : this.translateService.instant('msg.page.calrow.label.operator.sum'),
-      AVERAGE : this.translateService.instant('msg.page.calrow.label.operator.average'),
-      MAX : this.translateService.instant('msg.page.calrow.label.operator.max'),
-      MIN : this.translateService.instant('msg.page.calrow.label.operator.min'),
-      COUNT : this.translateService.instant('msg.page.calrow.label.operator.count')
+      SUM : this.translateService.instant('msg.page.calc.label.operator.sum'),
+      AVERAGE : this.translateService.instant('msg.page.calc.label.operator.average'),
+      MAX : this.translateService.instant('msg.page.calc.label.operator.max'),
+      MIN : this.translateService.instant('msg.page.calc.label.operator.min'),
+      COUNT : this.translateService.instant('msg.page.calc.label.operator.count')
     };
     this.chart = new pivot.ui.pivot.Viewer(this.$element.find('.chartCanvas')[0]);
 
@@ -496,6 +496,21 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
         this.gridModel.totalValueStyle.align.hAlign = totalValueStyle.hAlign;
         this.gridModel.totalValueStyle.align.vAlign = totalValueStyle.vAlign;
       }
+      // 연산열 설정
+      if ((<UIGridChart>this.uiOption).showCalculatedColumnStyle) {
+        const showCalculatedColumnStyle = (<UIGridChart>this.uiOption).showCalculatedColumnStyle;
+
+        this.gridModel.showCalculatedColumnStyle = (<UIGridChart>this.uiOption).showCalculatedColumnStyle;
+        this.gridModel.showCalculatedColumnStyle.font = {};
+        this.gridModel.showCalculatedColumnStyle.font.size = this.setFontSize(showCalculatedColumnStyle.fontSize);
+        this.gridModel.showCalculatedColumnStyle.font.color = showCalculatedColumnStyle.fontColor;
+        this.gridModel.showCalculatedColumnStyle.font.styles = showCalculatedColumnStyle.fontStyles;
+
+        this.gridModel.showCalculatedColumnStyle.align = {};
+        this.gridModel.showCalculatedColumnStyle.align.hAlign = showCalculatedColumnStyle.hAlign;
+        this.gridModel.showCalculatedColumnStyle.align.vAlign = showCalculatedColumnStyle.vAlign;
+      }
+
 
       // 숫자 포멧 설정
       this.gridModel.format = this.uiOption.valueFormat;

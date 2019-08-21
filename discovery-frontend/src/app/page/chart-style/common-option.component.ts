@@ -899,7 +899,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
   public gridViewType(gridType: GridViewType): void {
 
     // 수식이 들어간 measure인 경우, 연산행이 true인경우 리턴
-    if (this.isNoOriginData || this.uiOption['totalValueStyle']) return;
+    if (this.isNoOriginData || this.uiOption['totalValueStyle'] || this.uiOption['showCalculatedColumnStyle']) return;
 
     // TODO 원본 데이터일때 가로보기 기능이 불가함
     // if (_.eq((<UIGridChart>this.uiOption).measureLayout, UIOrient.HORIZONTAL) && _.eq(gridType, GridViewType.MASTER)) {
