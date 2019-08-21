@@ -1,8 +1,5 @@
 <img title="logo-metatron" src="https://user-images.githubusercontent.com/6300003/44013820-f7647c96-9f02-11e8-8066-1c97f8b1662c.png" alt="metatron-discovery-logo" width="400px">
 
-[NOTICE] Respecting the [community's voice](https://github.com/metatron-app/metatron-discovery/issues/2431), repository reset has been completed and Stars have been initialized.
-But Watch and Fork have also been initialized with Star, so please re-register it if you need.
-
 ------------------
 
 **Metatron Discovery** is an end-to-end big data self discovery solution.
