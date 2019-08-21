@@ -12,9 +12,9 @@
   ~ limitations under the License.
   -->
 <div class="ddp-layout-wrap page-datasource-detail">
-  <app-metadata-management-metadata-detail-header></app-metadata-management-metadata-detail-header>
+  <app-metadata-management-metadata-detail-header ></app-metadata-management-metadata-detail-header>
   <div class="ddp-type-contents2">
-    <app-metadata-management-metadata-detail-top></app-metadata-management-metadata-detail-top>
+    <app-metadata-management-metadata-detail-top *ngIf="metadata"></app-metadata-management-metadata-detail-top>
 
     <div class="ddp-wrap-datadetail ddp-size-resize">
       <!-- tab -->
@@ -23,38 +23,39 @@
           <li
             (click)="changeTab('information')"
             [ngClass]="{'ddp-selected': tab === 'information'}">
-            <a href="javascript:">{{'msg.comm.menu.manage.metadata.metadata.detail.information' | translate}}</a>
+            <a href="javascript:">{{'msg.metadata.metadata.detail.information' | translate}}</a>
           </li>
           <li
             (click)="changeTab('data-grid')"
             [ngClass]="{'ddp-selected': tab === 'data-grid'}">
-            <a href="javascript:">{{'msg.comm.menu.manage.metadata.metadata.detail.data-grid' | translate}}</a>
+            <a href="javascript:">{{'msg.metadata.metadata.detail.data-grid' | translate}}</a>
           </li>
           <li
             (click)="changeTab('column-details')"
             [ngClass]="{'ddp-selected': tab === 'column-details'}">
-            <a href="javascript:">{{'msg.comm.menu.manage.metadata.metadata.detail.column-details' | translate}}</a>
+            <a href="javascript:">{{'msg.metadata.metadata.detail.column-details' | translate}}</a>
           </li>
           <li
             (click)="changeTab('monitoring')"
             [ngClass]="{'ddp-selected': tab === 'monitoring'}">
-            <a href="javascript:">{{'msg.comm.menu.manage.metadata.metadata.detail.monitoring' | translate}}</a>
+            <a href="javascript:">{{'msg.metadata.metadata.detail.monitoring' | translate}}</a>
           </li>
           <li
             (click)="changeTab('lineage')"
             [ngClass]="{'ddp-selected': tab === 'lineage'}">
-            <a href="javascript:">{{'msg.comm.menu.manage.metadata.metadata.detail.lineage' | translate}}</a>
+            <a href="javascript:">{{'msg.metadata.metadata.detail.lineage' | translate}}</a>
           </li>
           <li
             (click)="changeTab('dictionary')"
             [ngClass]="{'ddp-selected': tab === 'dictionary'}">
-            <a href="javascript:">{{'msg.comm.menu.manage.metadata.metadata.detail.dictionary' | translate}}</a>
+            <a href="javascript:">{{'msg.metadata.metadata.detail.dictionary' | translate}}</a>
           </li>
         </ul>
         <a href="#" class="ddp-btn-bg ddp-config"><em class="ddp-icon-option"></em>Ingestion config.</a>
       </div>
       <!-- //tab -->
-      <app-metadata-management-metadata-detail-information *ngIf="tab ==='information'"></app-metadata-management-metadata-detail-information>
+      <app-metadata-management-metadata-detail-information
+        *ngIf="tab ==='information' && metadata"></app-metadata-management-metadata-detail-information>
     </div>
   </div>
 </div>

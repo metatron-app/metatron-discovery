@@ -73,6 +73,41 @@ export class MetadataModelService extends AbstractService {
    * @param {Metadata} metadata
    */
   public setMetadata(metadata: Metadata): void {
+    // metadata.source.sourceInfo = {
+    //   "Partition Fields":[
+    //
+    //   ],
+    //   "Detail Information":{
+    //     "Database:":"default",
+    //     "Owner:":"hive",
+    //     "CreateTime:":"Wed Jul 17 13:46:48 KST 2019",
+    //     "LastAccessTime:":"UNKNOWN",
+    //     "Retention:":"0",
+    //     "Location:":"hdfs://localhost:9000/user/hive/warehouse/sales25",
+    //     "Table Type:":"MANAGED_TABLE",
+    //     "Table Parameters:":null,
+    //     "COLUMN_STATS_ACCURATE":"{\\\"BASIC_STATS\\\":\\\"true\\\"}",
+    //     "numFiles":"0",
+    //     "numRows":"0",
+    //     "rawDataSize":"0",
+    //     "totalSize":"0",
+    //     "transient_lastDdlTime":"1563338808"
+    //   },
+    //   "Storage Information":{
+    //     "SerDe Library:":"org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe",
+    //     "InputFormat:":"org.apache.hadoop.mapred.TextInputFormat",
+    //     "OutputFormat:":"org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat",
+    //     "Compressed:":"No",
+    //     "Num Buckets:":"-1",
+    //     "Bucket Columns:":"[]",
+    //     "Sort Columns:":"[]",
+    //     "Storage Desc Params:":null,
+    //     "serialization.format":"1"
+    //   },
+    //   "Partition Information":{
+    //   },
+    //   "schema":"default"
+    // };
     this._selectedMetadata = metadata;
   }
 

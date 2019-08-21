@@ -76,6 +76,8 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
 
   public selectedMetadataId: string;
 
+  public metadata: Metadata;
+
   // 이름 에디팅여부
   public isNameEdit: boolean = false;
   public isDescEdit: boolean = false;
@@ -148,6 +150,7 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
     this.metadataService.getDetailMetaData(this.selectedMetadataId).then((result) => {
       this.loadingHide();
       if (result) {
+        this.metadata = result;
         this.metadataModelService.setMetadata(result);
         console.log(result);
       }

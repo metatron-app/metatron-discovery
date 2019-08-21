@@ -2,8 +2,9 @@
 <div class="ddp-top-flow">
   <!-- 수정 data -->
   <div class="ddp-data-form">
-    <span class="ddp-txt-date">최근수정 2017.03.06 08:22:35 by kko by kko by kk</span>
-
+    <span class="ddp-txt-date">
+      {{ this.translateService.instant('msg.metadata.ui.recent.update', { modifiedTime: metadata.modifiedTime, modifiedBy: metadata.modifiedBy.fullName }) }}
+    </span>
 
     <!-- more -->
     <!-- more 버튼 클릭시 ddp-selected 추가 -->
@@ -11,9 +12,10 @@
       <a href="javascript:" class="ddp-icon-more"></a>
       <!-- popup -->
       <div class="ddp-data-box">
-        <a href="#" class="ddp-list-link"><em class="ddp-icon-drop-re"></em>Re-Ingestion</a>
-        <a href="#" class="ddp-list-link"><em class="ddp-icon-delete"></em>Delete this request</a>
-        <span class="ddp-data-by">생성 2017.03.06 06:09:35 by오상식</span>
+        <a href="#" class="ddp-list-link"><em class="ddp-icon-delete"></em>{{ 'msg.metadata.metadata.detail.ui.delete.metadata.and.source' | translate }}</a>
+        <span class="ddp-data-by">
+          {{ this.translateService.instant('msg.metadata.ui.recent.update', { modifiedTime: metadata.modifiedTime, modifiedBy: metadata.modifiedBy.fullName }) }}
+        </span>
       </div>
       <!-- //popup -->
     </div>
@@ -27,16 +29,16 @@
     <div class="ddp-ui-naviarea">
       <!-- name -->
       <!-- 클릭시 ddp-selected 추가 -->
-      <div class="ddp-box-navi ddp-">
+      <div class="ddp-box-navi" [class.ddp-selected]="editNameFlag" (click)="onClickEditName()">
         <div class="ddp-wrap-naviname">
-              <span class="ddp-data-naviname">New Dashboard 01
-                <em class="ddp-icon-edit2"></em>
+              <span class="ddp-data-naviname">{{ editName }}
+                <em class="ddp-icon-edit2" ></em>
               </span>
         </div>
         <!-- 편집 input -->
         <div class="ddp-wrap-input">
-          <input type="text" class="ddp-input-navi" placeholder="ew Dashboard 01">
-          <span class="ddp-btn-check"></span>
+          <input type="text" class="ddp-input-navi" placeholder="" [(ngModel)]="editName" value="{{ editName }}">
+          <span class="ddp-btn-check" (click)="onClickUpdateEditingName()"></span>
         </div>
         <!-- //편집 input -->
 
@@ -45,16 +47,16 @@
 
       <!-- description -->
       <!-- 클릭시 ddp-selected 추가 -->
-      <div class="ddp-box-navidet ddp-">
+      <div class="ddp-box-navidet" [class.ddp-selected]="editDescriptionFlag" (click)="onClickEditDescription()">
         <div class="ddp-wrap-navidet">
-              <span class="ddp-data-navidet">description description description description
+              <span class="ddp-data-navidet">{{ metadata.description }}
                 <em class="ddp-icon-edit2"></em>
               </span>
         </div>
         <!-- 편집 input -->
         <div class="ddp-wrap-input">
-          <textarea type="text" class="ddp-input-navi" placeholder="">escription description des</textarea>
-          <span class="ddp-btn-check"></span>
+          <textarea type="text" class="ddp-input-navi" placeholder="" [(ngModel)]="editDescription" >{{ editDescription }}</textarea>
+          <span class="ddp-btn-check" (click)="onClickUpdateEditingDescription()"></span>
         </div>
         <!-- //편집 input -->
       </div>

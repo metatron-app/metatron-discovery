@@ -31,7 +31,7 @@ export class MetadataSource extends AbstractHistoryEntity {
   // metadata source table
   public table: string;
   // metadata source detail
-  public sourceInfo: string;
+  public sourceInfo: any;
   // Datasource
   public source: Datasource | Dataconnection;
 
