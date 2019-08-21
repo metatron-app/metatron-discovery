@@ -197,9 +197,8 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
       var index = this.selectedNode.index;
       var category = this.selectedNode.category;
 
-      var seriesIdx = SeriesIndex.LINEAGE_DIAGRAM;
       const option = this.chart.getOption();
-      option.series[seriesIdx].data[index].symbol = this.symbolInfo[NodeType[category]]['DEFAULT'];
+      option.series[SeriesIndex.LINEAGE_DIAGRAM].data[index].symbol = this.symbolInfo[NodeType[category]]['DEFAULT'];
       this.chart.setOption(option);
 
       this.selectedNode = null;
@@ -217,6 +216,42 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
     node.symbolOffset = categories[node.category].symbolOffset;
   }
 
+  public selectNode(selectIndex) {
+    let oldSelectedNodeIdx = this.selectedNode!==null?this.selectedNode.index:null;
+    let newSelectedNodeIdx = null;
+
+    let seriesIdx = SeriesIndex.LINEAGE_DIAGRAM;
+
+    const option = this.chart.getOption();
+    if(selectIndex!==null) {
+      option.series[seriesIdx].data.map((node, idx) => {
+        if(idx===selectIndex) {
+          newSelectedNodeIdx = idx;
+        }
+      });
+    }
+
+    if( oldSelectedNodeIdx !== null ) {
+      var category = option.series[seriesIdx].data[oldSelectedNodeIdx].category;
+      option.series[seriesIdx].data[oldSelectedNodeIdx].symbol = this.symbolInfo[NodeType[category]]['DEFAULT'];
+
+      this.selectedNode = null;
+    }
+    if( newSelectedNodeIdx !== null ) {
+      var category = option.series[seriesIdx].data[newSelectedNodeIdx].category;
+      option.series[seriesIdx].data[newSelectedNodeIdx].symbol = this.symbolInfo[NodeType[category]]['SELECTED'];
+
+      this.selectedNode = option.series[seriesIdx].data[newSelectedNodeIdx];
+    }
+
+    if( oldSelectedNodeIdx !== null || newSelectedNodeIdx !== null ) {
+      this.chart.setOption(option);
+      setTimeout( () => {
+        this.chartAreaResize();
+      }, 500 );
+    }
+  }
+
   /**
    * 차트 그리기
    */
@@ -232,42 +267,16 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
     this.chart.off('click');
     this.chart.on('click', (params) => {
-
-      let oldSelectedNodeIdx = this.selectedNode!==null?this.selectedNode.index:null;
-      let newSelectedNodeIdx = null;
-
-      const option = this.chart.getOption();
+      let paramIdx = null;
       if(params!==null && params.componentType==='series' && params.seriesIndex===seriesIdx) {
         if( params.dataType==='node' ) {
-          option.series[seriesIdx].data.map((node, idx) => {
-            if(idx===params.dataIndex) {
-              newSelectedNodeIdx = idx;
-            }
-          });
+          paramIdx = params.dataIndex;
         }
       }
-
-      if( oldSelectedNodeIdx !== null ) {
-        var category = option.series[seriesIdx].data[oldSelectedNodeIdx].category;
-        option.series[seriesIdx].data[oldSelectedNodeIdx].symbol = this.symbolInfo[NodeType[category]]['DEFAULT'];
-
-        this.selectedNode = null;
-      }
-      if( newSelectedNodeIdx !== null ) {
-        var category = option.series[seriesIdx].data[newSelectedNodeIdx].category;
-        option.series[seriesIdx].data[newSelectedNodeIdx].symbol = this.symbolInfo[NodeType[category]]['SELECTED'];
-
-        this.selectedNode = option.series[seriesIdx].data[newSelectedNodeIdx];
-      }
-
-      if( oldSelectedNodeIdx !== null || newSelectedNodeIdx !== null ) {
-        this.chart.setOption(option);
-        setTimeout( () => {
-          this.chartAreaResize();
-        }, 500 );
-      }
+      this.selectNode(paramIdx);
     });
 
+    let thisIndex = null;
     this.lineageDepth = 0;
     this.lineageHeight = 0;
     this.chartNodes = this.lineageNodes.map((_node,idx) => {
@@ -282,6 +291,7 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
       /* main node */
       if( node.metadataId === this.metaDataModelService.getMetadata().id ) {
+        thisIndex = idx;
         node.category = NodeType.MainNode;
       } else {
         node.category = NodeType.NormalNode;
@@ -317,6 +327,10 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
     this.chartAreaResize(true);
 
     let $chart = this;
+
+    if(thisIndex) {
+      this.selectNode(thisIndex);
+    }
 
     $(window).off('resize');
     $(window).on('resize', function (event) {
