@@ -80,14 +80,50 @@
               <div class="ddp-wrap-add-list">
                 <!-- top -->
                 <div class="ddp-ui-top">
-                  <span class="ddp-ui-sub-title">{{'msg.board.custom.th.add.column' | translate}}</span>
-                  <!-- page -->
-                  <div class="ddp-ui-page">
-                    <a href="javascript:" class="ddp-btn-prev" [ngClass]="{'ddp-disabled' : currentPage === 1}"  (click)="setFieldPage(currentPage-1, 'prev')"></a>
-                    <span class="ddp-data-page"><em>{{currentPage}}</em>/<em>{{lastPage}}</em></span>
-                    <a href="javascript:" class="ddp-btn-next ddp-disabled" [ngClass]="{'ddp-disabled' : currentPage == lastPage}" (click)="setFieldPage(currentPage+1, 'next')"></a>
+                  <span class="ddp-ui-sub-title">Add column</span>
+
+                  <!-- sort -->
+                  <!-- 클릭시 ddp-selected 추가 -->
+                  <div class="ddp-ui-sort" [ngClass]="{'ddp-selected' : isOrdering}" (click)="isOrdering = !isOrdering">
+                    <a href="javascript:" class="ddp-icon-sort"></a>
+                    <!-- hover -->
+                    <div class="ddp-ui-tooltip-info">
+                      <em class="ddp-icon-view-top"></em>
+                      Ordering
+                    </div>
+                    <!-- //hover -->
+                    <!-- popup -->
+                    <div class="ddp-wrap-popup2">
+                        <span class="ddp-txt-label2">
+                            Order by
+                        </span>
+                      <ul class="ddp-list-popup">
+                        <li [ngClass]="{'ddp-selected' : orderingMode === 'DATA'}" (click)="setOrdering('DATA')">
+                          <a href="javascript:">
+                            In order of data
+                            <em class="ddp-icon-check"></em>
+                          </a>
+                        </li>
+                        <li [ngClass]="{'ddp-selected' : orderingMode === 'AZ'}" (click)="setOrdering('AZ')">
+                          <a href="javascript:">
+                            A-Z
+                            <em class="ddp-icon-check"></em>
+                          </a>
+                        </li>
+                        <li [ngClass]="{'ddp-selected' : orderingMode === 'ZA'}" (click)="setOrdering('ZA')">
+                          <a href="javascript:">
+                            Z-A
+                            <em class="ddp-icon-check"></em>
+                          </a>
+                        </li>
+
+                      </ul>
+                    </div>
+                    <!-- //popup -->
+
                   </div>
-                  <!-- //page -->
+                  <!-- //sort -->
+
                 </div>
                 <!-- //top -->
 
@@ -101,6 +137,14 @@
                     </a>
                   </li>
                 </ul>
+
+                <!-- page -->
+                <div class="ddp-ui-page">
+                  <a href="javascript:" class="ddp-btn-prev" [ngClass]="{'ddp-disabled' : currentPage === 1}"  (click)="setFieldPage(currentPage-1, 'prev')"></a>
+                  <span class="ddp-data-page"><em>{{currentPage}}</em>/<em>{{lastPage}}</em></span>
+                  <a href="javascript:" class="ddp-btn-next ddp-disabled" [ngClass]="{'ddp-disabled' : currentPage == lastPage}" (click)="setFieldPage(currentPage+1, 'next')"></a>
+                </div>
+                <!-- //page -->
               </div>
 
             </div>
@@ -256,17 +300,53 @@
                   <!-- top -->
                   <div class="ddp-ui-top">
                     <span class="ddp-ui-sub-title">Add column</span>
-                    <!-- page -->
-                    <div class="ddp-ui-page">
-                      <a href="javascript:" class="ddp-btn-prev" [ngClass]="{'ddp-disabled' : currentPage === 1}"  (click)="setFieldPage(currentPage-1, 'prev')"></a>
-                      <span class="ddp-data-page"><em>{{currentPage}}</em>/<em>{{lastPage}}</em></span>
-                      <a href="javascript:" class="ddp-btn-next ddp-disabled" [ngClass]="{'ddp-disabled' : currentPage == lastPage}" (click)="setFieldPage(currentPage+1, 'next')"></a>
+
+                    <!-- sort -->
+                    <!-- 클릭시 ddp-selected 추가 -->
+                    <div class="ddp-ui-sort" [ngClass]="{'ddp-selected' : isOrdering}" (click)="isOrdering = !isOrdering">
+                      <a href="javascript:" class="ddp-icon-sort"></a>
+                      <!-- hover -->
+                      <div class="ddp-ui-tooltip-info">
+                        <em class="ddp-icon-view-top"></em>
+                        Ordering
+                      </div>
+                      <!-- //hover -->
+                      <!-- popup -->
+                      <div class="ddp-wrap-popup2">
+                        <span class="ddp-txt-label2">
+                            Order by
+                        </span>
+                        <ul class="ddp-list-popup">
+                          <li [ngClass]="{'ddp-selected' : orderingMode === 'DATA'}" (click)="setOrdering('DATA')">
+                            <a href="javascript:">
+                              In order of data
+                              <em class="ddp-icon-check"></em>
+                            </a>
+                          </li>
+                          <li [ngClass]="{'ddp-selected' : orderingMode === 'AZ'}" (click)="setOrdering('AZ')">
+                            <a href="javascript:">
+                              A-Z
+                              <em class="ddp-icon-check"></em>
+                            </a>
+                          </li>
+                          <li [ngClass]="{'ddp-selected' : orderingMode === 'ZA'}" (click)="setOrdering('ZA')">
+                            <a href="javascript:">
+                              Z-A
+                              <em class="ddp-icon-check"></em>
+                            </a>
+                          </li>
+
+                        </ul>
+                      </div>
+                      <!-- //popup -->
+
                     </div>
-                    <!-- //page -->
+                    <!-- //sort -->
+
                   </div>
                   <!-- //top -->
 
-                  <ul class="ddp-list-typebasic ddp-typeicon">
+                  <ul class="ddp-list-typebasic ddp-typeicon type-page">
                     <li *ngFor="let field of pagedFields" (click)="selecteParamColumn(field)">
                       <a href="javascript:">
                         <em class="ddp-icon-type-ab"  *ngIf="field.type === 'TEXT' || field.type === 'USER_DEFINED'"></em>
@@ -282,6 +362,14 @@
                       </a>
                     </li>
                   </ul>
+
+                  <!-- page -->
+                  <div class="ddp-ui-page">
+                    <a href="javascript:" class="ddp-btn-prev" [ngClass]="{'ddp-disabled' : currentPage === 1}"  (click)="setFieldPage(currentPage-1, 'prev')"></a>
+                    <span class="ddp-data-page"><em>{{currentPage}}</em>/<em>{{lastPage}}</em></span>
+                    <a href="javascript:" class="ddp-btn-next ddp-disabled" [ngClass]="{'ddp-disabled' : currentPage == lastPage}" (click)="setFieldPage(currentPage+1, 'next')"></a>
+                  </div>
+                  <!-- //page -->
                 </div>
               </div>
             </div>

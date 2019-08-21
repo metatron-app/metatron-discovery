@@ -4842,11 +4842,13 @@ table.ddp-table-order tr td {padding:13px 13px; border-top:1px solid #e7e7ea; fo
 
 .ddp-ui-account-search .ddp-wrap-form-list {float:left; height:100%; margin-top:-30px; padding:30px 0 0 0; box-sizing:border-box;}
 .ddp-ui-account-search .ddp-wrap-add-list {position:relative; float:left; width:305px; height:100%;border-right:1px solid #e7e7ea;  box-sizing:Border-box; z-index:1;}
-
+.ddp-ui-account-search .ddp-wrap-add-list .ddp-ui-page {position:absolute; bottom:15px; left:10px;}
 .ddp-wrap-add-list .ddp-ui-top {position:relative;}
 .ddp-wrap-add-list .ddp-ui-top .ddp-ui-sub-title {padding-left:10px;}
+.ddp-wrap-add-list .ddp-ui-top .ddp-ui-sort {position:absolute; top:-10px; right:20px; margin-top:0;}
 .ddp-wrap-add-list .ddp-ui-top .ddp-ui-page {position:absolute; top:10px; right:20px;}
 .ddp-wrap-add-list ul.ddp-list-typebasic {position:absolute; top:40px; left:0; right:22px; bottom:0; overflow-y:auto;}
+.ddp-wrap-add-list ul.ddp-list-typebasic.type-page {bottom:36px;}
 .ddp-wrap-formula {float:left; position:relative; width:100%; height:100%; margin:-30px 0 0 -305px;padding:30px 0 0 325px; border-bottom:1px solid #e7e7ea; box-sizing:border-box;}
 
 @keyframes boxSize {

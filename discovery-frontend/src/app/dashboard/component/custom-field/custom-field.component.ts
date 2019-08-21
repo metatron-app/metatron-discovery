@@ -103,7 +103,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
   public columnType = ColumnType;
 
   // 필드 페이지 사이
-  public pageSize = 13;
+  public pageSize = 8;
 
   // 현재 페이지
   public currentPage = 1;
@@ -116,6 +116,9 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
 
   public oriColumnName: string = '';
 
+  public isOrdering = false;
+
+  public orderingMode = 'DATA';
 
   /*** 계산식 필드 , 가상 컬럼***/
   // 함수목록
@@ -151,6 +154,8 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
 
   // 페이징된 필드
   public pagedFields: Field[];
+
+  public orderingFields: Field[] = [];
 
   // 자동완성 엘리먼트
   public autocompletor: any;
@@ -328,6 +333,16 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
 
   // 페이징처리
   public setFieldPage(page: number, type?: string) {
+    this.orderingFields = _.cloneDeep(this.fields);
+    if (this.orderingMode != 'DATA') {
+      this.orderingFields = this.orderingFields.sort((a:Field, b:Field) => {
+        if (this.orderingMode === 'AZ') {
+          return a.name > b.name ? 1 : -1;
+        } else {
+          return a.name < b.name ? 1 : -1;
+        }
+      })
+    }
 
     // 더이상 페이지가 없을 경우 리턴
     if (type === 'prev') {
@@ -340,18 +355,23 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
     let start = 0;
     let end = 0;
     // 필드 페이징
-    if (this.fields.hasOwnProperty('length')) {
+    if (this.orderingFields.hasOwnProperty('length')) {
       // 총사이즈
-      const totalFieldsSize:number = this.fields.length;
+      const totalFieldsSize:number = this.orderingFields.length;
       // 마지막 페이지 계산
       this.lastPage = Math.ceil( totalFieldsSize / this.pageSize );
 
       start = ( page - 1 ) * this.pageSize;
       end = start + this.pageSize;
 
-      this.pagedFields = this.fields.slice(start, end);   // 현재 페이지에 맞게 데이터 자르기
+      this.pagedFields = this.orderingFields.slice(start, end);   // 현재 페이지에 맞게 데이터 자르기
     }
   } // function - setFieldPage
+
+  public setOrdering(ordering: string) {
+    this.orderingMode = ordering;
+    this.setFieldPage(1);
+  } // function - setOrdering
 
   // 자동완성 필터리스트 셋팅
   public setFilters() {
