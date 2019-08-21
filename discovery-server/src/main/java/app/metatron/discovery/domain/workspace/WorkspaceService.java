@@ -621,6 +621,32 @@ public class WorkspaceService {
     return publicWorkspaces;
   }
 
+  public Map<String, Long> countOfBookByType(Workspace workspace) {
+    Map<String, Long> countOfBook = workspaceRepository.countByBookType(workspace);
+
+    Map<String, Long> result = Maps.newHashMap();
+    result.put("folder", countOfBook.get("folder") == null ? 0L : countOfBook.get("folder"));
+    result.put("workBook", countOfBook.get("workbook") == null ? 0L : countOfBook.get("workbook"));
+    result.put("workBench", countOfBook.get("workbench") == null ? 0L : countOfBook.get("workbench"));
+    result.put("notebook", countOfBook.get("notebook") == null ? 0L : countOfBook.get("notebook"));
+
+    return result;
+  }
+
+  public Map<String, Long> countByMemberType(Workspace workspace, boolean includePublished) {
+    Map<WorkspaceMember.MemberType, Long> countOfMember = Maps.newHashMap();
+
+    if (Workspace.PublicType.SHARED.equals(workspace.getPublicType()) && (includePublished || !workspace.getPublished())) {
+      countOfMember = workspaceRepository.countByMemberType(workspace);
+    }
+
+    Map<String, Long> result = Maps.newHashMap();
+    result.put("group", countOfMember.get(WorkspaceMember.MemberType.GROUP) == null ? 0L : countOfMember.get(WorkspaceMember.MemberType.GROUP));
+    result.put("user", countOfMember.get(WorkspaceMember.MemberType.USER) == null ? 0L : countOfMember.get(WorkspaceMember.MemberType.USER));
+
+    return result;
+  }
+
   private Predicate getPublicWorkspacePredicate(Boolean onlyFavorite,
                                                 Boolean myWorkspace,
                                                 Boolean published,
