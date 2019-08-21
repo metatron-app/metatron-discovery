@@ -6,7 +6,7 @@ But Watch and Fork have also been initialized with Star, so please re-register i
 ------------------
 
 **Metatron Discovery** is an end-to-end big data self discovery solution.
-To learn more about it, visit our [web site](https://metatron.app). Check [our blog](https://metatron.app/index.php/blog/) for upcoming events and development news.
+To learn more about it, visit our [web site](https://metatron.app). Check [our blog](https://metatron.app/index.php/blog/) for upcoming events and development news. Also if you got stuck when using Metatron Discovery, please leave your problem on our [user forum](https://groups.google.com/forum/#!forum/metatron-discovery).
 
 
 Strengths
@@ -68,8 +68,9 @@ Screenshots
 ### SQL in Druid
 <kbd><img title="query-monitoring" src="https://user-images.githubusercontent.com/8841220/53787073-f917af00-3f60-11e9-9e11-a9dfe82a99da.png"><br /></kbd>
 
-Installation
+Installation ([Guide Video](https://www.youtube.com/watch?v=wVpgnHgzDOk))
 ----------------------------
+
 ### Requirements
 - MacOS / Linux (Redhat, CentOS)
 - JDK 1.8
