@@ -115,11 +115,11 @@ public class WorkspaceProjections extends BaseProjections {
 
     Boolean getLinked();
 
-    @Value("#{target.countOfBookByType()}")
-    Map<String, Integer> getCountByBookType();
+    @Value("#{@workspaceService.countOfBookByType(target)}")
+    Map<String, Long> getCountByBookType();
 
-    @Value("#{target.countOfMemberType()}")
-    Map<String, Integer> getCountByMemberType();
+    @Value("#{@workspaceService.countByMemberType(target, true)}")
+    Map<String, Long> getCountByMemberType();
 
     DateTime getLastAccessedTime();
 
@@ -226,11 +226,11 @@ public class WorkspaceProjections extends BaseProjections {
     @Value("#{@workspaceService.countAvailableWorkspaces(target.id)}")
     Integer getCountOfDataSources();
 
-    @Value("#{target.countOfBookByType()}")
-    Map<String, Integer> getCountByBookType();
+    @Value("#{@workspaceService.countOfBookByType(target)}")
+    Map<String, Long> getCountByBookType();
 
-    @Value("#{target.countOfMemberType()}")
-    Map<String, Integer> getCountByMemberType();
+    @Value("#{@workspaceService.countByMemberType(target, true)}")
+    Map<String, Long> getCountByMemberType();
 
     @Value("#{@bookTreeService.findSubBooksInfoForView(target.id, true, 'LIST', target.bookType)}")
     List<Map<String, Object>> getBooks();
@@ -292,11 +292,11 @@ public class WorkspaceProjections extends BaseProjections {
     @Value("#{@workspaceService.countAvailableWorkspaces(target.id)}")
     Integer getCountOfDataSources();
 
-    @Value("#{target.countOfBookByType()}")
-    Map<String, Integer> getCountByBookType();
+    @Value("#{@workspaceService.countOfBookByType(target)}")
+    Map<String, Long> getCountByBookType();
 
-    @Value("#{target.countOfMemberType()}")
-    Map<String, Integer> getCountByMemberType();
+    @Value("#{@workspaceService.countByMemberType(target, true)}")
+    Map<String, Long> getCountByMemberType();
 
     Set<NotebookConnector> getConnectors();
 

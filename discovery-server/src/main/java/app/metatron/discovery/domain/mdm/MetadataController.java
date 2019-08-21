@@ -161,7 +161,6 @@ public class MetadataController {
     return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(metadatas, resourceAssembler));
   }
 
-
   @RequestMapping(value = "/metadatas/metasources/{sourceId}", method = RequestMethod.POST)
   public ResponseEntity <?> findMetadataByOriginSource(@PathVariable("sourceId") String sourceId,
                              @RequestBody(required = false) Map <String, Object> requestParam,
@@ -427,7 +426,7 @@ public class MetadataController {
     }
 
     DataGrid result = metadataService.getDataGrid(metadata, limit);
-    responseMap.put("size", result.getRows() == null ? 0 : result.getRows().size());
+    responseMap.put("size", result == null || result.getRows() == null ? 0 : result.getRows().size());
     responseMap.put("data", result);
 
     return ResponseEntity.ok(responseMap);

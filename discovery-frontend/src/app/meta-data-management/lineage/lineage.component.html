@@ -1,0 +1,127 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div [ngClass]="['ddp-lineage-list']">
+
+  <div class="ddp-ui-contents-list type-list">
+    <div class="ddp-wrap-top-filtering">
+      <!-- filter search -->
+      <div class="ddp-filter-search ddp-fright">
+        <div class="ddp-form-filter-search type-auto">
+          <component-input
+            [autoFocus]="false"
+            [isEnableDelete]="true"
+            [value]="searchText"
+            [placeHolder]="'msg.metadata.ui.lineage.search.ph' | translate"
+            (changeValue)="onChangedSearchKeyword($event)">
+          </component-input>
+        </div>
+        <a href="javascript:" class="ddp-btn-selection" (click)="reloadPage(true)">{{'msg.comm.btn.search' | translate}}</a>
+      </div>
+      <!-- //filter search -->
+
+      <div class="ddp-wrap-form-filtering">
+        <div class="ddp-filter-more ">
+        </div>
+        <div class="ddp-form-filtering">
+          <div class="ddp-result-filtering ">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ddp-filter-option">
+      <span class="ddp-data-total ddp-only" [innerHtml]="'msg.storage.ui.list.length' | translate: {value: pageResult.totalElements || 0}"></span>
+      <div class="ddp-form-buttons">
+        <!--
+        <a href="javascript:" class="ddp-btn-selection ddp-line" (click)="onClickEditLineage();"><em class="ddp-icon-edit3"></em>Edit Lineage</a>
+        -->
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="onClickCreateLineage();"><em class="ddp-icon-add2"></em>{{'msg.comm.btn.new' | translate}}</a>
+      </div>
+    </div>
+
+    <div class="ddp-lineage-none" *ngIf="isEmptyList(); else existList">
+      {{'msg.comm.ui.no.rslt' | translate}}
+    </div>
+
+    <ng-template #existList>
+      <table class="ddp-table-form ddp-table-type3 type-table">
+        <colgroup>
+          <col width="*">
+          <col width="20%">
+          <col width="15%">
+          <col width="20%">
+          <col width="15%">
+          <col width="20%">
+        </colgroup>
+        <thead>
+        <tr>
+          <th>
+            {{'msg.metadata.lineage.th.edge' | translate}}
+          </th>
+          <th class="ddp-border-right">
+            <strong>{{'msg.metadata.lineage.th.from' | translate}}</strong>
+          </th>
+          <th class="ddp-border-right">
+            <strong>{{'msg.metadata.lineage.th.from.col' | translate}}</strong>
+          </th>
+          <th class="ddp-border-right">
+            <strong>{{'msg.metadata.lineage.th.to' | translate}}</strong>
+          </th>
+          <th class="ddp-border-right">
+            <strong>{{'msg.metadata.lineage.th.to.col' | translate}}</strong>
+          </th>
+          <th class="ddp-border-right">
+            <strong>{{'msg.metadata.lineage.th.desc' | translate}}</strong>
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let lineage of lineageList" (click)="onClickDetailLineage(lineage.edgeId)">
+          <td>
+            {{getLineageType(lineage)}}
+          </td>
+          <td class="ddp-border-right">
+            {{lineage.frMetaName}}
+          </td>
+          <td class="ddp-border-right">
+            {{lineage.frColName}}
+          </td>
+          <td class="ddp-border-right">
+            {{lineage.toMetaName}}
+          </td>
+          <td class="ddp-border-right">
+            {{lineage.toColName}}
+          </td>
+          <td class="ddp-border-right">
+            {{lineage.desc}}
+            <div class="ddp-btn-control">
+              <em class="ddp-icon-control-cut" (click)="onClickDeleteLineage($event,lineage);"></em>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <!-- Pagination -->
+      <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+      <!-- // Pagination -->
+    </ng-template>
+
+  </div>
+
+</div>
+
+<app-create-lineage [step]="step"></app-create-lineage>
+<app-delete-modal (deleteConfirm)="deleteLineageEdge($event)"></app-delete-modal>
+<edit-lineage-popup></edit-lineage-popup>

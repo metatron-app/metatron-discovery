@@ -20,9 +20,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
-import org.springframework.http.HttpMethod;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Set;
 
@@ -118,22 +115,6 @@ public abstract class NotebookConnector extends AbstractHistoryEntity implements
         }
 
         return builder.toString();
-    }
-
-    @JsonIgnore
-    public boolean checkValidation() {
-        boolean retValue = false;
-        try {
-            UriComponents getUrl = UriComponentsBuilder
-                    .fromHttpUrl(getConnectionUrl(""))
-                    .build();
-            httpRepository.call(getUrl.toUriString(), HttpMethod.GET, null, String.class);
-            retValue = true;
-        } catch (RuntimeException re) {
-            retValue = false;
-        } finally {
-            return retValue;
-        }
     }
 
     public String getId() {

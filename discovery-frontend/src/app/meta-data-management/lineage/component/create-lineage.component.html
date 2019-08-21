@@ -12,16 +12,5 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-lineage-column-view" style="background-color:#eeeeee; height:100px">
-  <div style="position:relative; float:right;">
-    <a href="javascript:" class="ddp-btn-popup-close" (click)="closeInfo()"></a>
-  </div>
-
-  <div *ngIf="this.selectedNode.metadata">
-    <ul>
-      <li *ngFor="let column of this.selectedNode.metadata.columns">
-        <span>{{column.name}}</span> ( <span>{{column.type}}</span> )
-      </li>
-    </ul>
-  </div>
-</div>
+<app-create-lineage-upload-file *ngIf="step==='upload-file'" [(lineageData)]="lineageData" (close)="init();"></app-create-lineage-upload-file>
+<app-create-lineage-confirm-grid *ngIf="step==='confirm-grid'" [lineageData]="lineageData" (close)="init();"></app-create-lineage-confirm-grid>

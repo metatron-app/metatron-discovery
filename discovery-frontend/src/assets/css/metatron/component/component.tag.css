@@ -39,11 +39,14 @@
 .ddp-box-tag-value.ddp-hive,
 .ddp-box-tag-value.ddp-stagingdb,
 .ddp-box-tag-value.ddp-dataset{display:inline-block; min-width:61px; padding:0 3px; text-align:center; font-size:10px;}
-.ddp-box-tag-value.ddp-datasource {border:1px solid #313869; color:#313869;}
+.ddp-box-tag-value.ddp-etc,
+.ddp-box-tag-value.ddp-datasource {border:1px solid #50549a; color:#50549a;}
 .ddp-box-tag-value.ddp-hive {border:1px solid #f6a300; color:#f6a300;}
 .ddp-box-tag-value.ddp-stagingdb {border:1px solid #8476df; color:#8476df;}
 .ddp-box-tag-value.ddp-database {border:1px solid #5b8fe4; color:#5b8fe4;}
 .ddp-box-tag-value.ddp-dataset {border:1px solid #46a8be; color:#46a8be;}
+.ddp-box-tag-value.ddp-etc {border:1px solid #50549a; color:#50549a;}
+
 .ddp-box-power {display:inline-block; padding:2px 4px 1px 4px; width:60px; border-radius:2px; color:#fff; font-size:10px; text-align:center; box-sizing:border-box; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
 .ddp-box-power.ddp-watcher {background-color:#b7b9c2;}
 .ddp-box-power.ddp-editor {background-color:#b7b9c2;}
