@@ -1485,7 +1485,7 @@
   "msg.board.ui.use.filter" : "filter is in use. Please disable it and try again.",
   "msg.board.ui.not.delete.custom" : "Can not delete custom fields",
   "msg.board.custom.ui.column.empty" : "Please fill in column name",
-  "msg.board.custom.ui.column.reserved" : "This column name can not be a reserved word(count, __time, timestamp)",
+  "msg.board.custom.ui.column.reserved" : "‘count’, ‘__time’, ‘timestamp’ are internal terms of the metatron engine and can not be used as column names.",
   "msg.board.custom.ui.val.un.check" : "Please proceed to validate the condition",
   "msg.board.custom.th.title" : "Custom column",
   "msg.board.custom.th.role" : "Role",

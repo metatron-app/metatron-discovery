@@ -1381,7 +1381,7 @@
   "msg.board.ui.use.filter": "过滤器正在使用中，请解除使用后再次尝试",
   "msg.board.ui.not.delete.custom": "不可删除用户定义字段",
   "msg.board.custom.ui.column.empty": "请输入列",
-  "msg.board.custom.ui.column.reserved" : "此列名称不能是保留字。(count, __time, timestamp)",
+  "msg.board.custom.ui.column.reserved" : "‘count’, ‘__time’, ‘timestamp’是metatron引擎的内部术语，不能用作列名。",
   "msg.board.custom.ui.val.un.check": "请验证条件",
   "msg.board.custom.th.title": "用户列",
   "msg.board.custom.th.role": "作用",
