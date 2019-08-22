@@ -90,8 +90,6 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
   protected echarts: any = echarts;
 
-  protected resetSubscription: Subscription;
-
   // 차트를 그리기 위한 기반 데이터
   protected data: any;
   protected originalData: any;
@@ -698,8 +696,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector,
-    protected broadCaster: EventBroadcaster) {
+    protected injector: Injector) {
 
     super(elementRef, injector);
   }
@@ -731,21 +728,6 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     });
 
     this.subscriptions.push(windowResizeSubscribe);
-
-      this.subscriptions.push(
-        this.resetSubscription = this.broadCaster.on("RESET_FILTER").subscribe(() => {
-          if (this.chartOption) {
-            console.log(this.chartOption.type);
-            if (this.chartOption.type !== ChartType.NETWORK) {
-              this.chartOption = this.selectionClear(this.chartOption);
-              this.selectedFilterCount = 0;
-              this.init = true;
-              this.chartSelectInfo.emit(new ChartSelectInfo(ChartSelectMode.CLEAR, null, this.params));
-            }
-          }
-        })
-      );
-
   }
 
   // Destory

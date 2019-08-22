@@ -137,10 +137,9 @@ export class LabelChartComponent extends BaseChart implements OnInit, OnDestroy,
   constructor(
     private datasourceService: DatasourceService,
     protected elementRef: ElementRef,
-    protected injector: Injector,
-    protected broadCaster: EventBroadcaster) {
+    protected injector: Injector,) {
 
-    super(elementRef, injector, broadCaster);
+    super(elementRef, injector);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

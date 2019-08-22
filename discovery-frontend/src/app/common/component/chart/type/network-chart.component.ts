@@ -72,12 +72,12 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
+
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector,
-    protected broadCaster: EventBroadcaster) {
+    protected injector: Injector) {
 
-    super(elementRef, injector, broadCaster);
+    super(elementRef, injector);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -88,13 +88,6 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
   public ngOnInit() {
     // Init
     super.ngOnInit();
-    this.resetSubscription.unsubscribe();
-    this.subscriptions.push(
-      this.broadCaster.on("RESET_FILTER").subscribe(() => {
-        // this.refresh = true;
-        // this.addChartSelectEventListener();
-      })
-    )
   }
 
   // Destory

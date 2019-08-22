@@ -50,12 +50,12 @@ import {EventBroadcaster} from "../../../event/event.broadcaster";
 })
 export class PieChartComponent extends BaseChart implements OnInit, AfterViewInit {
 
+
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector,
-    protected broadCaster: EventBroadcaster) {
+    protected injector: Injector) {
 
-    super(elementRef, injector, broadCaster);
+    super(elementRef, injector);
   }
 
   // Init

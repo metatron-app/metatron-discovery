@@ -90,12 +90,10 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector,
-    protected broadCaster: EventBroadcaster) {
+    protected injector: Injector) {
 
-    super(elementRef, injector, broadCaster);
+    super(elementRef, injector);
   }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Getter & Setter
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

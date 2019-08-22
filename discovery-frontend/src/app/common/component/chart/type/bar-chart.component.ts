@@ -74,10 +74,9 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector,
-    protected broadCaster: EventBroadcaster) {
+    protected injector: Injector,) {
 
-    super(elementRef, injector, broadCaster);
+    super(elementRef, injector);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
