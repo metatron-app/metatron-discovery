@@ -13,10 +13,12 @@
  */
 
 import {AbstractComponent} from "../../common/component/abstract.component";
-import {Component, ElementRef, EventEmitter, Injector, Output} from "@angular/core";
+import {Component, ElementRef, EventEmitter, HostListener, Injector, Output} from "@angular/core";
 import {ExploreDataModelService} from "./service/explore-data-model.service";
 import {ExploreDataConstant} from "../constant/explore-data-constant";
 import {StringUtil} from "../../common/util/string.util";
+
+declare let $;
 
 @Component({
   selector: 'component-explore-search',
@@ -25,10 +27,22 @@ import {StringUtil} from "../../common/util/string.util";
 export class ExploreDataSearchComponent extends AbstractComponent {
 
   readonly rangeList = [
-    {name: this.translateService.instant('msg.explore.ui.search.range.all'), value: ExploreDataConstant.SearchRange.ALL},
-    {name: this.translateService.instant('msg.explore.ui.search.range.data.name'), value: ExploreDataConstant.SearchRange.DATA_NAME},
-    {name: this.translateService.instant('msg.explore.ui.search.range.description'), value: ExploreDataConstant.SearchRange.DESCRIPTION},
-    {name: this.translateService.instant('msg.explore.ui.search.range.creator'), value: ExploreDataConstant.SearchRange.CREATOR},
+    {
+      name: this.translateService.instant('msg.explore.ui.search.range.all'),
+      value: ExploreDataConstant.SearchRange.ALL
+    },
+    {
+      name: this.translateService.instant('msg.explore.ui.search.range.data.name'),
+      value: ExploreDataConstant.SearchRange.DATA_NAME
+    },
+    {
+      name: this.translateService.instant('msg.explore.ui.search.range.description'),
+      value: ExploreDataConstant.SearchRange.DESCRIPTION
+    },
+    {
+      name: this.translateService.instant('msg.explore.ui.search.range.creator'),
+      value: ExploreDataConstant.SearchRange.CREATOR
+    },
   ];
 
   // data
@@ -39,6 +53,7 @@ export class ExploreDataSearchComponent extends AbstractComponent {
   isFocusSearchInput: boolean;
   isEmptySearchContents: boolean;
 
+  readonly $layoutContents = $('.ddp-layout-contents');
 
   @Output() readonly changedSearch = new EventEmitter();
 
@@ -52,7 +67,19 @@ export class ExploreDataSearchComponent extends AbstractComponent {
 
   ngOnDestroy() {
     super.ngOnDestroy();
+    this.$layoutContents.removeClass('ddp-scroll');
     this.exploreDataModelService.initialSearchData();
+  }
+
+
+  @HostListener('window:scroll', ['$event'])
+  protected scrollWindow(event) {
+    const windowScrollTop = $(window).scrollTop();
+    if (windowScrollTop > 0) {
+      this.$layoutContents.addClass('ddp-scroll');
+    } else {
+      this.$layoutContents.removeClass('ddp-scroll');
+    }
   }
 
   isEmptySearchKeyword(): boolean {

@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {AbstractComponent} from '../../common/component/abstract.component';
 import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
 import {Metadata} from "../../domain/meta-data-management/metadata";
@@ -27,7 +27,7 @@ import {Subscription} from "rxjs";
   templateUrl: './explore-data.component.html',
 })
 export class ExploreDataComponent extends AbstractComponent implements OnInit, OnDestroy {
-  
+
   @ViewChild(ExploreDataListComponent)
   private readonly _exploreDataListComponent: ExploreDataListComponent;
 
