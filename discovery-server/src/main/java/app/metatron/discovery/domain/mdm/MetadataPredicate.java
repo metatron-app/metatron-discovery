@@ -86,7 +86,11 @@ public class MetadataPredicate {
     }
 
     if(catalogId != null) {
-      builder.and(qMetadata.catalogs.any().id.eq(catalogId));
+      if(catalogId.isEmpty()){
+        builder.and(qMetadata.catalogs.isEmpty());
+      } else {
+        builder.and(qMetadata.catalogs.any().id.eq(catalogId));
+      }
     }
 
     if(StringUtils.isNotEmpty(keyword)){
