@@ -432,7 +432,7 @@ public class MetadataController {
       throw new ResourceNotFoundException(metadataId);
     }
 
-    List<?> updateHistoryList = metadataService.getUpdateHistory(metadata);
+    List<?> updateHistoryList = metadataService.getUpdateHistory(metadata, 5);
     return ResponseEntity.ok(updateHistoryList);
   }
 

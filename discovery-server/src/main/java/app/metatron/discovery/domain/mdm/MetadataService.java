@@ -631,31 +631,50 @@ public class MetadataService implements ApplicationEventPublisherAware {
     return r.nextInt((max - min) + 1) + min;
   }
 
-  public List<?> getUpdateHistory(Metadata metadata){
+  public List<?> getUpdateHistory(Metadata metadata, int limit){
     List<Map> historyList = new ArrayList<>();
 
     //metadata revision list
-    AuditQuery metadataAuditQuery = auditReader.createQuery().forRevisionsOfEntity(Metadata.class, false, true);
-    metadataAuditQuery.setMaxResults(5);
+    AuditQuery metadataAuditQuery = auditReader.createQuery()
+                                               .forRevisionsOfEntityWithChanges(Metadata.class, true)
+                                               .add(AuditEntity.id().eq(metadata.getId()))
+                                               .addOrder(AuditEntity.revisionNumber().desc());
+    if(limit > 0){
+      metadataAuditQuery.setMaxResults(limit);
+    }
     List<Object[]> metadataList = metadataAuditQuery.getResultList();
 
     metadataList.stream().forEach(objectArr -> {
       Metadata metadataEntity = (Metadata) objectArr[0];
       MetatronRevisionEntity revisionEntity = (MetatronRevisionEntity) objectArr[1];
       RevisionType revisionType = (RevisionType) objectArr[2];
+      String contents = "";
+      if(revisionType == RevisionType.ADD){
+        contents = "Metadata Created.";
+      } else if(revisionType == RevisionType.DEL){
+        contents = "Metadata Deleted.";
+      } else if(revisionType == RevisionType.MOD){
+        Set<String> propertiesChanged = (Set<String>) objectArr[3];
+        contents = "Metadata Changed." +
+            " Fields : " + StringUtils.join(propertiesChanged, ",") + "";
+      }
 
       Map<String, Object> revisionMap = new HashMap<>();
       revisionMap.put("createdTime", revisionEntity.getRevisionDate());
       revisionMap.put("user", cachedUserService.findUser(revisionEntity.getUsername()));
-      revisionMap.put("contents", "Metadata Changed.");
+      revisionMap.put("contents", contents);
       revisionMap.put("revisionType", revisionType);
       historyList.add(revisionMap);
     });
 
     //metadata column revision list
-    AuditQuery auditQuery = auditReader.createQuery().forRevisionsOfEntity(MetadataColumn.class, false, true);
-    auditQuery.add(AuditEntity.relatedId("metadata").eq(metadata.getId()));
-    auditQuery.setMaxResults(5);
+    AuditQuery auditQuery = auditReader.createQuery()
+                                       .forRevisionsOfEntityWithChanges(MetadataColumn.class, true)
+                                       .add(AuditEntity.relatedId("metadata").eq(metadata.getId()))
+                                       .addOrder(AuditEntity.revisionNumber().desc());
+    if(limit > 0){
+      auditQuery.setMaxResults(limit);
+    }
     List<Object[]> columnList = auditQuery.getResultList();
 
     columnList.stream().forEach(objectArr -> {
@@ -663,10 +682,22 @@ public class MetadataService implements ApplicationEventPublisherAware {
       MetatronRevisionEntity revisionEntity = (MetatronRevisionEntity) objectArr[1];
       RevisionType revisionType = (RevisionType) objectArr[2];
 
+      String contents = "";
+      if(revisionType == RevisionType.ADD){
+        contents = "Column Created.";
+      } else if(revisionType == RevisionType.DEL){
+        contents = "Column Deleted.";
+      } else if(revisionType == RevisionType.MOD){
+        Set<String> propertiesChanged = (Set<String>) objectArr[3];
+        contents = "Column Changed." +
+            " Column : " + metadataColumn.getPhysicalName() +
+            ", Fields : " + StringUtils.join(propertiesChanged, ",");
+      }
+
       Map<String, Object> revisionMap = new HashMap<>();
       revisionMap.put("createdTime", revisionEntity.getRevisionDate());
       revisionMap.put("user", cachedUserService.findUser(revisionEntity.getUsername()));
-      revisionMap.put("contents", "Column (" + metadataColumn.getPhysicalName() + ") Changed.");
+      revisionMap.put("contents", contents);
       revisionMap.put("revisionType", revisionType);
       historyList.add(revisionMap);
     });
@@ -683,6 +714,13 @@ public class MetadataService implements ApplicationEventPublisherAware {
         return 1;
       }
     });
+
+    if(limit > 0 && historyList.size() > limit){
+      while(historyList.size() > limit){
+        historyList.remove(historyList.size() - 1);
+      }
+    }
+
     return historyList;
   }
 
