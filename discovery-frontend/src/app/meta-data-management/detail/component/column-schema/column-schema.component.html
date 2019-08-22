@@ -64,9 +64,7 @@
       <!-- //label -->
       <!-- label -->
       <div class="ddp-wrap-edit">
-        <label class="ddp-label-type">
-          {{'msg.storage.ui.type' | translate}}
-        </label>
+        <label class="ddp-label-type"> {{'msg.storage.ui.type' | translate}} </label>
         <!-- edit option -->
         <div class="ddp-ui-edit-option"
              (click)="isShowTypeFilters = !isShowTypeFilters"
@@ -117,12 +115,12 @@
     </div>
     <!-- //option -->
   </div>
-  <div class="ddp-data-details ddp-ui-preview-contents"
-       [class.ddp-info]="true"
+
+  <div class="ddp-data-details ddp-ui-preview-contents ddp-info"
        [class.ddp-info2]="isSaveInvalid"
        (scroll)="onScrollColumnView()">
     <!-- header -->
-    <table class="ddp-table-form" [ngClass]="['ddp-table-type2', 'ddp-table-details', 'ddp-inheribt']">
+    <table class="ddp-table-form ddp-table-type2 ddp-table-details ddp-inherit" >
       <colgroup>
         <col [style.width]="'100px'" *ngIf="hasMetadataColumnInDatasource()">
         <col [style.width]="'160px'">
