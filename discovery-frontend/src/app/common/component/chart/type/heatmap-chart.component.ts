@@ -36,6 +36,7 @@ import { BaseChart, ChartSelectInfo, PivotTableInfo } from '../base-chart';
 import { BaseOption } from '../option/base-option';
 import { UIChartFormat } from '../option/ui-option/ui-format';
 import { FormatOptionConverter } from '../option/converter/format-option-converter';
+import {EventBroadcaster} from "../../../event/event.broadcaster";
 
 @Component({
   selector: 'heatmap-chart',
@@ -62,9 +63,10 @@ export class HeatMapChartComponent extends BaseChart implements OnInit, AfterVie
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector ) {
+    protected injector: Injector,
+    protected broadCaster: EventBroadcaster) {
 
-    super(elementRef, injector);
+    super(elementRef, injector, broadCaster);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

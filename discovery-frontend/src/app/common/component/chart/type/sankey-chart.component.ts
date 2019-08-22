@@ -37,6 +37,7 @@ import {UIChartColorByDimension, UIChartFormat, UIChartFormatItem, UIOption} fro
 import {FormatOptionConverter} from '../option/converter/format-option-converter';
 import {LabelOptionConverter} from '../option/converter/label-option-converter';
 import {Series} from '../option/define/series';
+import {EventBroadcaster} from "../../../event/event.broadcaster";
 
 @Component({
   selector: 'sankey-chart',
@@ -67,9 +68,10 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector) {
+    protected injector: Injector,
+    protected broadCaster: EventBroadcaster) {
 
-    super(elementRef, injector);
+    super(elementRef, injector, broadCaster);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

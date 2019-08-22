@@ -28,6 +28,7 @@ import {OptionGenerator} from '../option/util/option-generator';
 import {Pivot} from "../../../../domain/workbook/configurations/pivot";
 import {ColorOptionConverter} from "../option/converter/color-option-converter";
 import * as _ from 'lodash';
+import {EventBroadcaster} from "../../../event/event.broadcaster";
 
 @Component({
   selector: 'wordcloud-chart',
@@ -54,9 +55,10 @@ export class WordCloudChartComponent extends BaseChart implements OnInit, OnDest
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector ) {
+    protected injector: Injector,
+    protected broadCaster: EventBroadcaster) {
 
-    super(elementRef, injector);
+    super(elementRef, injector, broadCaster);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -33,6 +33,7 @@ import {BaseOption} from '../option/base-option';
 import {FormatOptionConverter} from "../option/converter/format-option-converter";
 import {UIChartFormat} from '../option/ui-option/ui-format';
 import {UIWaterfallChart} from '../option/ui-option/ui-waterfall-chart';
+import {EventBroadcaster} from "../../../event/event.broadcaster";
 
 @Component({
   selector: 'waterfall-chart',
@@ -59,9 +60,10 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector) {
+    protected injector: Injector,
+    protected broadCaster: EventBroadcaster) {
 
-    super(elementRef, injector);
+    super(elementRef, injector, broadCaster);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

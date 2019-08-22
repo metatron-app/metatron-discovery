@@ -55,6 +55,7 @@ import {UIChartAxis, UIChartAxisGrid, UIChartAxisLabelValue} from "../option/ui-
 import {AxisOptionConverter} from "../option/converter/axis-option-converter";
 import {Axis as AxisDefine} from "../option/define/axis";
 import {DataZoomType} from '../option/define/datazoom';
+import {EventBroadcaster} from "../../../event/event.broadcaster";
 
 const transparentSymbolImage: string = 'image://' + window.location.origin + '/assets/images/icon_transparent_symbol.png';
 
@@ -87,8 +88,12 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(protected elementRef: ElementRef, protected injector: Injector) {
-    super(elementRef, injector);
+  constructor(
+    protected elementRef: ElementRef,
+    protected injector: Injector,
+    protected broadCaster: EventBroadcaster) {
+
+    super(elementRef, injector, broadCaster);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -56,6 +56,7 @@ import {PageWidget} from "../../../../domain/dashboard/widget/page-widget";
 import {Field, FieldRole, LogicalType} from "../../../../domain/datasource/datasource";
 import {Field as AbstractField} from '../../../../domain/workbook/configurations/field/field';
 import {TimestampField} from "../../../../domain/workbook/configurations/field/timestamp-field";
+import {EventBroadcaster} from "../../../event/event.broadcaster";
 
 export class KPI {
   public show: boolean;
@@ -136,9 +137,10 @@ export class LabelChartComponent extends BaseChart implements OnInit, OnDestroy,
   constructor(
     private datasourceService: DatasourceService,
     protected elementRef: ElementRef,
-    protected injector: Injector ) {
+    protected injector: Injector,
+    protected broadCaster: EventBroadcaster) {
 
-    super(elementRef, injector);
+    super(elementRef, injector, broadCaster);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

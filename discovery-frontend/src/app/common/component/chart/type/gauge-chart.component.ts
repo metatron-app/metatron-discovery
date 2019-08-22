@@ -45,6 +45,7 @@ import {UIScatterChart} from '../option/ui-option/ui-scatter-chart';
 import optGen = OptionGenerator;
 import UI = OptionGenerator.UI;
 import {DIRECTION, Sort} from '../../../../domain/workbook/configurations/sort';
+import {EventBroadcaster} from "../../../event/event.broadcaster";
 
 @Component({
   selector: 'gauge-chart',
@@ -74,9 +75,10 @@ export class GaugeChartComponent extends BaseChart {
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector) {
+    protected injector: Injector,
+    protected broadCaster: EventBroadcaster) {
 
-    super(elementRef, injector);
+    super(elementRef, injector, broadCaster);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

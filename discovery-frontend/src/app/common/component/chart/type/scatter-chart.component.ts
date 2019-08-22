@@ -42,6 +42,7 @@ import {UIChartAxisGrid} from "../option/ui-option/ui-axis";
 import {AxisOptionConverter} from "../option/converter/axis-option-converter";
 import {Axis} from "../option/define/axis";
 import {DataZoomType} from '../option/define/datazoom';
+import {EventBroadcaster} from "../../../event/event.broadcaster";
 
 @Component({
   selector: 'scatter-chart',
@@ -68,9 +69,10 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector ) {
+    protected injector: Injector,
+    protected broadCaster: EventBroadcaster) {
 
-    super(elementRef, injector);
+    super(elementRef, injector, broadCaster);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
