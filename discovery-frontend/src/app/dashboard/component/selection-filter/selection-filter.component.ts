@@ -149,11 +149,9 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
   /**
    * 필터 리셋
    */
-  public resetFilter(shouldEmit: boolean = true) {
-    this.init();
-    if (shouldEmit) {
-      this._broadcastSelection(this._getApiFilters());
-    }
+  public resetFilter() {
+    // broadcast 'REFRESH_CHARTS' event
+    this.broadCaster.broadcast("REFRESH_CHARTS");
   } // function - resetFilter
 
   /**

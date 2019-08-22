@@ -306,6 +306,19 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       this._getComments();
     });
 
+   /*
+    * Subscribe 'REFRESH_CHARTS' broadcasting event from 'selection-filter Component'
+    * router's default option doesn't allow reload same route, so change this default option to reload same route.
+    */
+    this.broadCaster.on('REFRESH_CHARTS').subscribe(() => {
+      this.router.routeReuseStrategy.shouldReuseRoute = () => {
+        return false;
+      };
+      // reload using router.navigate
+      this.router.navigateByUrl('/', ).then(() =>
+      this.router.navigateByUrl(`/workbook/${this.workbookId}`));
+    });
+
     // z-index 이슈를 해결하기 위한 코드
     $('.ddp-layout-contents').addClass('ddp-layout-board');
 

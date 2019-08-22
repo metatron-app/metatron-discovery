@@ -362,7 +362,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
     this.fullSizeWidget = null;
     this.datasourceStatus = TempDsStatus.ENABLE;
     if (this.selectionFilter) {
-      this.selectionFilter.resetFilter(false);
+      this.selectionFilter.resetFilter();
     }
 
     const dashboard = this.dashboard;
