@@ -189,8 +189,17 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
    * 이전으로 돌아가기 버튼 클릭 이벤트
    */
   public onClickPrevButton(): void {
-    // 코드 테이블 목록 화면으로 이동
-    this._location.back();
+   /**
+    * if using router.navigate, can't conserve previous page's state
+    * However, using _location.back() can conserve.
+    */
+    if (this._codeTableService.fromColumnDictionary) {
+      this.router.navigate(['management/metadata/code-table']).then();
+      this._codeTableService.fromColumnDictionary = false;
+    } else {
+      this._location.back();
+    }
+
   }
 
   /**

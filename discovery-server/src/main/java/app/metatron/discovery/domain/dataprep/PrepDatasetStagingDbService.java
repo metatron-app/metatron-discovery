@@ -56,6 +56,7 @@ import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.ServletOutputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hive.jdbc.HiveConnection;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -69,6 +70,8 @@ public class PrepDatasetStagingDbService {
     private static Logger LOGGER = LoggerFactory.getLogger(PrepDatasetStagingDbService.class);
 
     private String hiveDefaultHDFSPath=null;
+    private Pattern queryStmtPattern = Pattern.compile("(.*\\s*);\\s*$");
+    private Pattern queryStmtLimitPattern = Pattern.compile(".*limit\\p{Space}+[0-9]+\\p{Space}*$");
 
     @Autowired(required = false)
     PrepProperties prepProperties;
@@ -212,6 +215,28 @@ public class PrepDatasetStagingDbService {
         return response;
     }
 
+    private String getSQLString(String queryStmt, String size) {
+        String stmt = queryStmt;
+        Matcher m = queryStmtPattern.matcher(stmt);
+        if (m.matches()) {
+            stmt = m.group(1);
+        }
+
+        if (queryStmtLimitPattern.matcher(stmt.toLowerCase()).matches()) {
+            return stmt;
+        }
+
+        return stmt + " LIMIT " + size;
+    }
+
+    private String getSQLString(String queryStmt, String size, String dbName, String tblName) {
+        if (StringUtils.isNotEmpty(queryStmt)) {
+            return getSQLString(queryStmt, size);
+        }
+
+        return "SELECT * FROM " + dbName + "." + tblName + " LIMIT " + size;
+    }
+
     // FIXME: connectUrl에 명시된 server에 hiveserver2가 돌고 있어야 한다.
     public Map<String, Object> getPreviewStagedb(String queryStmt, String dbName, String tblName, String size) throws SQLException {
 
@@ -220,7 +245,7 @@ public class PrepDatasetStagingDbService {
         try {
             int limitSize = Integer.parseInt(size);
 
-            if(dbName==null || dbName.isEmpty()) {
+            if (StringUtils.isEmpty(dbName)) {
                 dbName = "default";
             }
 
@@ -244,25 +269,7 @@ public class PrepDatasetStagingDbService {
             String username = stageDataConnection.getUsername();
             String password = stageDataConnection.getPassword();
             String customUrl = stageDataConnection.getUrl();
-            String sql = null;
-            if(queryStmt!=null && false==queryStmt.isEmpty()) {
-                // 자바 정규식 치환 문법 맞아도 오지게도 안먹힘. 그냥 substring으로 추출
-                String pattern0 = ".*\\s*;\\s*$";
-                if(true==queryStmt.matches(pattern0)) {
-                    queryStmt = queryStmt.substring(0,queryStmt.lastIndexOf(";"));
-                }
-
-                String pattern = ".*limit\\p{Space}+[0-9]+\\p{Space}*$";
-                Pattern p = Pattern.compile(pattern);
-                Matcher m = p.matcher(queryStmt.toLowerCase());
-                if(true==m.matches()) {
-                    sql = queryStmt;
-                } else {
-                    sql = queryStmt + " LIMIT " + size;
-                }
-            } else {
-                sql = "SELECT * FROM " + dbName +"."+ tblName + " LIMIT " + size;
-            }
+            String sql = getSQLString(queryStmt, size, dbName, tblName);
 
             Connection connection = null;
             if (customUrl != null) {
@@ -337,7 +344,7 @@ public class PrepDatasetStagingDbService {
         try {
             int limitSize = Integer.parseInt(size);
 
-            if(dbName==null || dbName.isEmpty()) {
+            if (StringUtils.isEmpty(dbName)) {
                 dbName = "default";
             }
 
@@ -357,25 +364,7 @@ public class PrepDatasetStagingDbService {
             String username = stageDataConnection.getUsername();
             String password = stageDataConnection.getPassword();
             String customUrl = stageDataConnection.getUrl();
-            String sql = null;
-            if(queryStmt!=null && false==queryStmt.isEmpty()) {
-                // 자바 정규식 치환 문법 맞아도 오지게도 안먹힘. 그냥 substring으로 추출
-                String pattern0 = ".*\\s*;\\s*$";
-                if(true==queryStmt.matches(pattern0)) {
-                    queryStmt = queryStmt.substring(0,queryStmt.lastIndexOf(";"));
-                }
-
-                String pattern = ".*limit\\p{Space}+[0-9]+\\p{Space}*$";
-                Pattern p = Pattern.compile(pattern);
-                Matcher m = p.matcher(queryStmt.toLowerCase());
-                if(true==m.matches()) {
-                    sql = queryStmt;
-                } else {
-                    sql = queryStmt + " LIMIT " + size;
-                }
-            } else {
-                sql = "SELECT * FROM " + dbName +"."+ tblName + " LIMIT " + size;
-            }
+            String sql = getSQLString(queryStmt, size, dbName, tblName);
 
             Connection connection;
             if (customUrl != null) {
@@ -437,24 +426,13 @@ public class PrepDatasetStagingDbService {
             String tblName = dataset.getTblName();
             String dbName = dataset.getDbName();
             String sql = null;
-            if(dataset.getRsType() == QUERY) {
-                if(dbName==null || true==dbName.isEmpty()) {
+            if (dataset.getRsType() == QUERY) {
+                if (StringUtils.isEmpty(dbName)) {
                     dbName = "default";
                 }
-                if(queryStmt!=null && false==queryStmt.isEmpty()) {
-                    String pattern0 = ".*\\s*;\\s*$";
-                    if(true==queryStmt.matches(pattern0)) {
-                        queryStmt = queryStmt.substring(0,queryStmt.lastIndexOf(";"));
-                    }
 
-                    String pattern = ".*limit\\p{Space}+[0-9]+\\p{Space}*$";
-                    Pattern p = Pattern.compile(pattern);
-                    Matcher m = p.matcher(queryStmt.toLowerCase());
-                    if(true==m.matches()) {
-                        sql = queryStmt;
-                    } else {
-                        sql = queryStmt + " LIMIT " + size;
-                    }
+                if (StringUtils.isNotEmpty(queryStmt)) {
+                    sql = getSQLString(queryStmt, size);
                 }
             } else {
                 sql = "SELECT * FROM " + tblName + " LIMIT " + size;

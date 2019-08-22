@@ -46,10 +46,10 @@
               <i class="ddp-icon-radio"></i>
               <span class="ddp-txt-radio">{{'msg.dp.ui.file-system' | translate }}</span>
             </label>
-            <label class="ddp-label-radio ddp-inline" *ngIf="isStagingEnabled()">
-              <input type="radio" name="snapshotFormatRadio" (change)="changeSsType(SsType.STAGING_DB)">
+            <label class="ddp-label-radio ddp-inline">
+              <input type="radio" name="snapshotFormatRadio" [disabled]="false===isStagingEnabled()" (change)="changeSsType(SsType.STAGING_DB)">
               <i class="ddp-icon-radio"></i>
-              <span class="ddp-txt-radio">{{ 'msg.dp.th.hive' | translate }}</span>
+              <span class="ddp-txt-radio">{{ 'msg.dp.th.stagingdb' | translate }}</span>
             </label>
           </div>
           <!-- //edit option -->
@@ -69,25 +69,48 @@
             </component-select>
             <!-- //selectbox -->
           </div>
-          <!-- edit -->
-          <div class="ddp-wrap-edit3 ddp-type">
-            <label class="ddp-label-type">{{'msg.dp.th.file-format' | translate}}</label>
-            <!-- selectbox -->
-            <component-select
-              [array]="fileFormat"
-              [isUpSelect]="false"
-              [viewKey]="'label'"
-              [isFull]="true"
-              (onSelected)="onSelected($event,'format')">
-            </component-select>
-            <!-- //selectbox -->
-            <!-- //edit option -->
-          </div>
           <!-- 고급설정 -->
           <!-- ddplink-high 클릭시 ddp-selected 추가 -->
           <div class="ddp-wrap-high" [ngClass]="{ 'ddp-selected' : isAdvancedPrefOpen }">
             <div class="ddp-ui-high-option">
               <a href="javascript:" class="ddp-link-high" (click)="toggleAdvancedSettingBtn()">{{'msg.dp.btn.advanced.settings' | translate }}<em class="ddp-icon-view"></em></a>
+            </div>
+            <div class="ddp-high-setting">
+              <!-- edit -->
+              <div class="ddp-wrap-edit3 ddp-type ddp-mgb20">
+                <label class="ddp-label-type">{{'msg.dp.th.ss.etl-engine' | translate}}</label>
+                <!-- edit option -->
+                <div class="ddp-ui-edit-option">
+                  <label class="ddp-label-radio ddp-inline">
+                    <input type="radio" checked (change)="changeEtlEngine(Engine.EMBEDDED)" name="EtlEngineRadio">
+                    <i class="ddp-icon-radio"></i>
+                    <span class="ddp-txt-radio">{{'msg.dp.th.ss.etl-engine.embedded' | translate }}</span>
+                  </label>
+                  <label class="ddp-label-radio ddp-inline">
+                    <input type="radio" [disabled]="false===isSparkEnabled()" (change)="changeEtlEngine(Engine.SPARK)" name="EtlEngineRadio">
+                    <i class="ddp-icon-radio"></i>
+                    <span class="ddp-txt-radio">{{'msg.dp.th.ss.etl-engine.spark' | translate }}</span>
+                  </label>
+                </div>
+                <!-- //edit option -->
+              </div>
+            </div>
+            <!-- //edit -->
+            <div class="ddp-high-setting">
+              <!-- edit -->
+              <div class="ddp-wrap-edit3 ddp-type">
+                <label class="ddp-label-type">{{'msg.dp.th.file-format' | translate}}</label>
+                <!-- selectbox -->
+                <component-select
+                  [array]="fileFormat"
+                  [isUpSelect]="false"
+                  [viewKey]="'label'"
+                  [isFull]="true"
+                  (onSelected)="onSelected($event,'format')">
+                </component-select>
+                <!-- //selectbox -->
+                <!-- //edit option -->
+              </div>
             </div>
             <div class="ddp-high-setting">
               <div class="ddp-wrap-edit3 ddp-type">
@@ -141,6 +164,7 @@
             </div>
             <div class="ddp-high-setting">
               <!-- edit -->
+              <!--
               <div class="ddp-wrap-edit3 ddp-type">
                 <label class="ddp-label-type">{{ 'msg.dp.ui.etl-engine' | translate }}</label>
                 <component-select
@@ -151,9 +175,30 @@
                   (onSelected)="onSelected($event,'engine')"
                 >
                 </component-select>
+              </div>
+              -->
+              <!-- //edit option -->
 
+              <!-- edit -->
+              <div class="ddp-wrap-edit3 ddp-type ddp-mgb20">
+                <label class="ddp-label-type">{{'msg.dp.th.ss.etl-engine' | translate}}</label>
+                <!-- edit option -->
+                <div class="ddp-ui-edit-option">
+                  <label class="ddp-label-radio ddp-inline">
+                    <input type="radio" checked (change)="changeEtlEngine(Engine.EMBEDDED)" name="EtlEngineRadio">
+                    <i class="ddp-icon-radio"></i>
+                    <span class="ddp-txt-radio">{{'msg.dp.th.ss.etl-engine.embedded' | translate }}</span>
+                  </label>
+                  <label class="ddp-label-radio ddp-inline">
+                    <input type="radio" (change)="changeEtlEngine(Engine.SPARK)" name="EtlEngineRadio">
+                    <i class="ddp-icon-radio"></i>
+                    <span class="ddp-txt-radio">{{'msg.dp.th.ss.etl-engine.spark' | translate }}</span>
+                  </label>
+                </div>
                 <!-- //edit option -->
               </div>
+              <!-- //edit -->
+
               <div class="ddp-wrap-edit3 ddp-type">
                 <label class="ddp-label-type">{{'msg.dp.th.file-format' | translate}}</label>
                 <!-- selectbox -->
