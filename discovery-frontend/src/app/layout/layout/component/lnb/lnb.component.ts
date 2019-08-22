@@ -69,7 +69,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   public permission = {
     myWorkspace: false,
     workspace: false,
-    exploreData: true,
+    exploreData: false,
     exploreDataView: true,
     exploreFavorite: true,
     management: false,
