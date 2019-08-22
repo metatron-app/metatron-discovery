@@ -24,7 +24,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "lineage_edge")
+@Table(name = "mdm_lineage_edge")
 public class LineageEdge extends AbstractHistoryEntity {
 
   @Id
@@ -33,24 +33,54 @@ public class LineageEdge extends AbstractHistoryEntity {
   @Column(name = "edge_id")
   private String edgeId;
 
-  @Column(name = "upstream_meta_id")
-  private String upstreamMetaId;
+  @Column(name = "fr_meta_id")
+  private String frMetaId;
 
-  @Column(name = "downstream_meta_id")
-  private String downstreamMetaId;
+  @Column(name = "to_meta_id")
+  private String toMetaId;
+
+  @Column(name = "fr_meta_name")
+  private String frMetaName;
+
+  @Column(name = "to_meta_name")
+  private String toMetaName;
+
+  @Column(name = "fr_col_name")
+  private String frColName;
+
+  @Column(name = "to_col_name")
+  private String toColName;
+
+  @Column(name = "tier")
+  private Long tier;
 
   @Lob
   @Column(name = "description")
-  private String description;
+  private String desc;
 
   public LineageEdge() {
   }
 
-  public LineageEdge(String upstreamMetaId, String downstreamMetaId, String description) {
+  public LineageEdge(String frMetaId, String toMetaId, String frMetaName, String toMetaName,
+      Long tier, String desc) {
     this();
-    this.upstreamMetaId = upstreamMetaId;
-    this.downstreamMetaId = downstreamMetaId;
-    this.description = description;
+    this.frMetaId = frMetaId;
+    this.toMetaId = toMetaId;
+    this.frMetaId = frMetaId;
+    this.toMetaId = toMetaId;
+    this.frMetaName = frMetaName;
+    this.toMetaName = toMetaName;
+    this.frColName = frColName;
+    this.toColName = toColName;
+    this.tier = tier;
+    this.desc = desc;
+  }
+
+  public LineageEdge(String frMetaId, String toMetaId, String frMetaName, String toMetaName,
+      String frColName, String toColName, Long tier, String desc) {
+    this(frMetaId, toMetaId, frMetaName, toMetaName, tier, desc);
+    this.frColName = frColName;
+    this.toColName = toColName;
   }
 
   public String getEdgeId() {
@@ -61,37 +91,82 @@ public class LineageEdge extends AbstractHistoryEntity {
     this.edgeId = edgeId;
   }
 
-  public String getUpstreamMetaId() {
-    return upstreamMetaId;
+  public String getFrMetaId() {
+    return frMetaId;
   }
 
-  public void setUpstreamMetaId(String upstreamMetaId) {
-    this.upstreamMetaId = upstreamMetaId;
+  public void setFrMetaId(String frMetaId) {
+    this.frMetaId = frMetaId;
   }
 
-  public String getDownstreamMetaId() {
-    return downstreamMetaId;
+  public String getToMetaId() {
+    return toMetaId;
   }
 
-  public void setDownstreamMetaId(String downstreamMetaId) {
-    this.downstreamMetaId = downstreamMetaId;
+  public void setToMetaId(String toMetaId) {
+    this.toMetaId = toMetaId;
   }
 
-  public String getDescription() {
-    return description;
+  public String getFrMetaName() {
+    return frMetaName;
   }
 
-  public void setDescription(String description) {
-    this.description = description;
+  public void setFrMetaName(String frMetaName) {
+    this.frMetaName = frMetaName;
+  }
+
+  public String getToMetaName() {
+    return toMetaName;
+  }
+
+  public void setToMetaName(String toMetaName) {
+    this.toMetaName = toMetaName;
+  }
+
+  public String getFrColName() {
+    return frColName;
+  }
+
+  public void setFrColName(String frColName) {
+    this.frColName = frColName;
+  }
+
+  public String getToColName() {
+    return toColName;
+  }
+
+  public void setToColName(String toColName) {
+    this.toColName = toColName;
+  }
+
+  public Long getTier() {
+    return tier;
+  }
+
+  public void setTier(Long tier) {
+    this.tier = tier;
+  }
+
+  public String getDesc() {
+    return desc;
+  }
+
+  public void setDesc(String desc) {
+    this.desc = desc;
   }
 
   @Override
   public String toString() {
     return "LineageEdge{" +
         "edgeId='" + edgeId + '\'' +
-        ", upstreamMetaId='" + upstreamMetaId + '\'' +
-        ", downstreamMetaId='" + downstreamMetaId + '\'' +
-        ", description='" + description + '\'' +
+        ", frMetaId='" + frMetaId + '\'' +
+        ", toMetaId='" + toMetaId + '\'' +
+        ", frMetaName='" + frMetaName + '\'' +
+        ", toMetaName='" + toMetaName + '\'' +
+        ", frColName='" + frColName + '\'' +
+        ", toColName='" + toColName + '\'' +
+        ", tier=" + tier +
+        ", desc='" + desc + '\'' +
         '}';
   }
 }

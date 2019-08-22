@@ -65,7 +65,7 @@ public class SelectQueryBuilder {
 
       if(field.getFormatObject() instanceof UnixTimeFormat){
         builder.append(projectionName);
-        builder.append(" >= ");
+        builder.append(" > ");
         builder.append(jdbcDialect.getCharToUnixTimeStmt(connectInformation, "'" + lastIncremetalTime + "'"));
 
         if(((UnixTimeFormat) field.getFormatObject()).getUnit() == TimeUnits.MILLISECOND){
@@ -80,7 +80,7 @@ public class SelectQueryBuilder {
           builder.append(" ");
         }
 
-        builder.append(">= ");
+        builder.append("> ");
         builder.append(jdbcDialect.getCharToDateStmt(connectInformation, "'" + lastIncremetalTime + "'", JdbcDialect.DEFAULT_FORMAT));
         builder.append(" ");
       }

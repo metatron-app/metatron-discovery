@@ -70,7 +70,6 @@ public class MetadataEventHandler {
   public void handleBeforeCreate(Metadata metadata) {
 
     MetadataSource metadataSource = metadata.getSource();
-
     if (metadataSource.getType() == Metadata.SourceType.ENGINE) {
 
       // Check engine datasource info.
@@ -234,9 +233,6 @@ public class MetadataEventHandler {
       detailInfo.put("Partition Fields", hiveTableInformation.getPartitionFields());
 
       metadataSource.setSourceInfo(GlobalObjectMapper.writeValueAsString(detailInfo));
-
-    } else {
-      throw new IllegalArgumentException("Not support source type.");
     }
   }
 

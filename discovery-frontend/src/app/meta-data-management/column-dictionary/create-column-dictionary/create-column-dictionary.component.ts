@@ -351,9 +351,9 @@ export class CreateColumnDictionaryComponent extends AbstractComponent implement
         this.translateService.instant('msg.metadata.ui.dictionary.create.success', {value: this.logicalName.trim()}));
       // 로딩 hide
       this.loadingHide();
-      // close
-      this.createComplete.emit();
       this.onClickCancel();
+      // close
+      this.createComplete.emit(result.id);
     }).catch(error => this.commonExceptionHandler(error));
   }
 

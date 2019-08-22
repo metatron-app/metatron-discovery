@@ -56,6 +56,11 @@
       <!-- //tab -->
       <app-metadata-management-metadata-detail-information
         *ngIf="tab ==='information' && metadata"></app-metadata-management-metadata-detail-information>
+    <div class="ddp-wrap-tab-contents">
+      <app-metadata-detail-information *ngIf="tab === 'information'" [isNameEdit]="isNameEdit" (openAddCataglog)="openCatalog()"></app-metadata-detail-information>
+      <metadata-grid-component *ngIf="tab === 'grid'"></metadata-grid-component>
+      <app-metadata-detail-columnschema *ngIf="tab === 'columnSchema'" [isNameEdit]="isNameEdit" (chooseCodeTableEvent)="openCodeTable($event)" (chooseDictionaryEvent)="openDictionary($event)"></app-metadata-detail-columnschema>
+      <app-metadata-detail-lineageview *ngIf="tab === 'lineageView'" [isNameEdit]="isNameEdit" [metadataLoaded]="metadataLoaded" ></app-metadata-detail-lineageview>
     </div>
   </div>
 </div>

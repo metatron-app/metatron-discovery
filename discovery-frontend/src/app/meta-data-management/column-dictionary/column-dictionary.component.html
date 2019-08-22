@@ -49,6 +49,10 @@
       <!-- right -->
       <div class="ddp-ui-rightoption">
         <span class="ddp-data-total" [innerHTML]="'msg.metadata.ui.dictionary.lists' | translate : { value : getTotalContentsCount }"></span>
+        <component-sorting [sortList]="sortList"
+                           [selectedSort]="selectedSort"
+                           (changedSort)="changeSort($event)">
+        </component-sorting>
         <a href="javascript:" class="ddp-btn-link" (click)="onClickCreateColumnDictionary()"><em class="ddp-icon-link-add"></em>{{'msg.metadata.ui.dictionary.create.btn'| translate}}</a>
       </div>
       <!-- //right -->
@@ -63,20 +67,15 @@
     </colgroup>
     <thead>
     <tr>
-      <th class="ddp-cursor" (click)="onClickSort('logicalName')">
+      <th>
         {{'msg.metadata.th.dictionary.column.name' | translate}}
-        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'logicalName' || selectedContentSort.sort === 'default'"></em>
-        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'logicalName' && selectedContentSort.sort === 'asc'"></em>
-        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'logicalName' && selectedContentSort.sort === 'desc'"></em>
+
       </th>
       <th>
         {{'msg.metadata.ui.dictionary.create.type' | translate}}
       </th>
-      <th class="ddp-cursor" (click)="onClickSort('createdTime')">
-        {{'msg.metadata.th.dictionary.created' | translate}}
-        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'createdTime' || selectedContentSort.sort === 'default'"></em>
-        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>
-        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'desc'"></em>
+      <th>
+        {{'msg.metadata.th.dictionary.updated' | translate}}
       </th>
     </tr>
     </thead>
@@ -92,7 +91,7 @@
         {{dictionary.logicalType}}
       </td>
       <td>
-        {{dictionary.createdTime | mdate:'YYYY-MM-DD HH:mm'}}
+        {{dictionary.modifiedTime | mdate:'YYYY-MM-DD HH:mm'}} by {{ dictionary.modifiedBy.fullName }}
         <div class="ddp-btn-control" (click)="onClickDeleteColumnDictionary(dictionary)">
           <em class="ddp-icon-control-cut"></em>
         </div>
@@ -112,7 +111,7 @@
 </div>
 
 <!-- 컬럼 사전 생성 컴포넌트 -->
-<app-create-column-dictionary (createComplete)="onCreateComplete()"></app-create-column-dictionary>
+<app-create-column-dictionary (createComplete)="onCreateComplete($event)"></app-create-column-dictionary>
 <!-- //컬럼 사전 생성 컴포넌트 -->
 
 <!-- 컬럼 사전 삭제 모달 -->

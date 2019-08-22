@@ -88,6 +88,8 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   public name: string;
   public desc: string;
 
+  public metadataLoaded: boolean = false;
+
   /**
    * Metadata SourceType Enum
    */
@@ -109,6 +111,10 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
     this.activatedRoute.params.subscribe((params) => {
 
       this.selectedMetadataId = params['metadataId'];
+      if( params['tab'] ) {
+        this.tab = params['tab'];
+        this.metadataLoaded = false;
+      }
 
       this.getMetadataDetail();
     });
@@ -132,7 +138,8 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
    * Go back
    */
   public goBack() {
-    this._location.back();
+    this.router.navigate(['management/metadata/metadata']);
+    //this._location.back();
   } // function - goBack
 
   /**
@@ -152,7 +159,7 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
       if (result) {
         this.metadata = result;
         this.metadataModelService.setMetadata(result);
-        console.log(result);
+        this.metadataLoaded = true;
       }
     }).catch(() => {
       this.loadingHide();

@@ -257,7 +257,7 @@ public class Metadata extends AbstractHistoryEntity implements MetatronDomain<St
   }
 
   public enum SourceType {
-    ENGINE, JDBC, STAGEDB
+    ENGINE, JDBC, STAGEDB, ETC
   }
 
 }
