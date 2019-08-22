@@ -41,6 +41,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -356,6 +357,9 @@ public class MetadataController {
                                                     .collect(Collectors.toList());
 
     List metadatas = metadataRepository.findAll(metadataId);
+    if(metadatas.isEmpty()){
+      metadatas = new ArrayList();
+    }
 
     //order by populraity
     metadatas.sort((a, b) -> {
