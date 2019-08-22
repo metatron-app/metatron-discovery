@@ -32,15 +32,15 @@ ul.ddp-list-typebasic.ddp-view li.ddp-selected a .ddp-icon-plus {display:block;}
 .ddp-ui-typebasic .ddp-ui-dropdown.ddp-selected span.ddp-list-name:before {width:7px; height:4px; margin-top:-2px;background-position-y:-118px;}
 .ddp-ui-typebasic .ddp-ui-dropdown .ddp-list-typebasic {display:none;}
 .ddp-ui-typebasic .ddp-ui-dropdown.ddp-selected .ddp-list-typebasic {display:block;}
-.ddp-ui-typebasic .ddp-ui-dropdown ul.ddp-list-typebasic.ddp-view {padding-left:25px;}
+.ddp-ui-typebasic .ddp-ui-dropdown ul.ddp-list-typebasic.ddp-view {padding-left:20px;}
+.ddp-ui-typebasic .ddp-ui-dropdown ul.ddp-list-typebasic.ddp-view li a {cursor: default;padding-left:5px;}
 .ddp-ui-typebasic .ddp-ui-dropdown ul.ddp-list-typebasic.ddp-view li a:hover {background-color:#f2f1f8;}
 .ddp-ui-typebasic .ddp-ui-dropdown ul.ddp-list-typebasic.ddp-view li.ddp-selected a {background-color:#9ca2cc; color:#fff;}
 .ddp-ui-typebasic .ddp-ui-dropdown ul.ddp-list-typebasic.ddp-view li.ddp-selected a .ddp-icon-plus {background-position-x:-16px;}
 
-
-    /**************************************************************
-        대시보드 열람 dropdown slider
-    **************************************************************/
+/**************************************************************
+	대시보드 열람 dropdown slider
+**************************************************************/
 
 .ddp-type-selectbox.ddp-type-filter em.ddp-icon-sclose2 {display:none; position:absolute; top:-4px; right:-4px; width:14px; height:14px;background:url(../images/btn_sclose.png) no-repeat; background-position:-15px -131px;}
 .ddp-type-selectbox.ddp-type-filter em.ddp-icon-sclose2:hover {background-position:0px -131px;}
