@@ -1,13 +1,13 @@
 <!-- top -->
 <div class="ddp-top-flow">
-  <!-- 수정 data -->
+  <!-- Edit data -->
   <div class="ddp-data-form">
     <span class="ddp-txt-date">
       {{ this.translateService.instant('msg.metadata.ui.recent.update', { modifiedTime: metadata.modifiedTime, modifiedBy: metadata.modifiedBy.fullName }) }}
     </span>
 
     <!-- more -->
-    <!-- more 버튼 클릭시 ddp-selected 추가 -->
+    <!-- add ddp-selected when more button clicked -->
     <div class="ddp-ui-more" [ngClass]="{'ddp-selected': more}" (click)="onMoreButtonClicked()">
       <a href="javascript:" class="ddp-icon-more"></a>
       <!-- popup -->
@@ -21,44 +21,44 @@
     </div>
     <!-- //more -->
   </div>
-  <!-- //수정 data -->
+  <!-- //Edit data -->
   <!-- navi wrap -->
   <div class="ddp-wrap-navi">
     <a href="javascript:" class="ddp-btn-back" (click)="goBack()"></a>
     <!-- navi -->
     <div class="ddp-ui-naviarea">
       <!-- name -->
-      <!-- 클릭시 ddp-selected 추가 -->
+      <!-- add ddp-selected when clicked -->
       <div class="ddp-box-navi" [class.ddp-selected]="editNameFlag" (click)="onClickEditName()">
         <div class="ddp-wrap-naviname">
               <span class="ddp-data-naviname">{{ editName }}
                 <em class="ddp-icon-edit2" ></em>
               </span>
         </div>
-        <!-- 편집 input -->
+        <!-- Edit input -->
         <div class="ddp-wrap-input">
           <input type="text" class="ddp-input-navi" placeholder="" [(ngModel)]="editName" value="{{ editName }}">
           <span class="ddp-btn-check" (click)="onClickUpdateEditingName()"></span>
         </div>
-        <!-- //편집 input -->
+        <!-- //Edit input -->
 
       </div>
       <!-- //name -->
 
       <!-- description -->
-      <!-- 클릭시 ddp-selected 추가 -->
+      <!-- add ddp-selected when clicked -->
       <div class="ddp-box-navidet" [class.ddp-selected]="editDescriptionFlag" (click)="onClickEditDescription()">
         <div class="ddp-wrap-navidet">
               <span class="ddp-data-navidet">{{ metadata.description }}
                 <em class="ddp-icon-edit2"></em>
               </span>
         </div>
-        <!-- 편집 input -->
+        <!-- Edit input -->
         <div class="ddp-wrap-input">
           <textarea type="text" class="ddp-input-navi" placeholder="" [(ngModel)]="editDescription" >{{ editDescription }}</textarea>
           <span class="ddp-btn-check" (click)="onClickUpdateEditingDescription()"></span>
         </div>
-        <!-- //편집 input -->
+        <!-- Edit input -->
       </div>
       <!-- //description -->
     </div>

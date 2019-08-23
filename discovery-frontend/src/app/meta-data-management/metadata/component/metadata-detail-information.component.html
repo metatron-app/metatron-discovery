@@ -144,7 +144,7 @@
         </tr>
         </tbody>
       </table>
-      <!-- ENGINE이 아니고 JDBC(hive) 또는 stageDB 일 때     -->
+      <!-- If sourceType is not ENGINE, but JDBC(hive) or stageDB     -->
       <div class="ddp-wrap-detail-sub"
            *ngIf="metadata.sourceType !== sourceType.ENGINE
            && (dataType === 'Staging DB' || dataType === 'Database(Hive)')
@@ -251,9 +251,9 @@
           </tbody>
         </table>
       </div>
-      <!-- ENGINE이 아니고 JDBC(hive) 또는 stageDB 일 때     -->
+      <!-- If sourceType is not ENGINE, but JDBC(hive) or stageDB     -->
 
-      <!-- ENGINE이 아니고 JDBC(hive) AND stageDB 아닐때   -->
+      <!-- If sourceType is not  ENGINE, JDBC(hive), stageDB     -->
       <div class="ddp-wrap-detail-sub"
            *ngIf="metadata.sourceType !== sourceType.ENGINE
            && dataType !== 'Database(Hive)'
@@ -354,7 +354,7 @@
           </tbody>
         </table>
       </div>
-      <!-- ENGINE이 아니고 JDBC(hive) AND stageDB 아닐때   -->
+      <!-- If sourceType is not  ENGINE, JDBC(hive), stageDB     -->
     </div>
 
   </div>

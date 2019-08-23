@@ -55,8 +55,6 @@ import {CreateMetadataModule} from "./metadata/create-metadata/create-metadata.m
 import {SortingComponent} from "./component/sorting.component";
 import {MetadataDetailInformationComponent} from "./metadata/component/metadata-detail-information.component";
 import {MetadataDetailTopComponent} from "./metadata/component/metadata-detail-top.component";
-import {MetadataDetailHeaderComponent} from "./metadata/component/metadata-detail-header.component";
-import {MetadataDetailHeaderLnbComponent} from "./metadata/component/metadata-detail-header-lnb.component";
 import {LayoutModule} from "../layout/layout/layout.module";
 
 @NgModule({
@@ -114,8 +112,6 @@ import {LayoutModule} from "../layout/layout/layout.module";
     CatalogComponent,
     // Metadata Detail
     MetadataDetailTopComponent,
-    MetadataDetailHeaderComponent,
-    MetadataDetailHeaderLnbComponent,
     // Metadata Detail Tabs
     MetadataDetailInformationComponent
   ],
