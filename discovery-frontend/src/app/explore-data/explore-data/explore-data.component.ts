@@ -57,169 +57,6 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
 
   isFoldingNavigation: boolean;
 
-  public topUserListDummy = [
-    {
-      "count": 4,
-      "lastPublishedTime": "2019-08-08T01:23:58.000Z",
-      "user": {
-        "createdBy": "admin",
-        "createdTime": "2019-06-26T14:17:19.000Z",
-        "modifiedBy": "admin",
-        "modifiedTime": "2019-06-26T14:17:19.000Z",
-        "id": "polaris",
-        "username": "polaris",
-        "fullName": "Polaris",
-        "email": "polaris@metatron.com",
-        "status": "ACTIVATED",
-        "passMailer": false,
-        "enabled": true
-      },
-      "dashboard": {
-        "createdBy": "admin",
-        "createdTime": "2019-07-03T05:48:11.000Z",
-        "modifiedBy": "admin",
-        "modifiedTime": "2019-07-03T06:07:45.000Z",
-        "id": "3206b6c8-dd8f-4193-9df5-15e4e869ac87",
-        "name": "asdasd",
-        "configuration": {
-          "options": {
-            "layout": {
-              "layoutType": "FIT_TO_SCREEN",
-              "widgetPadding": 5
-            },
-            "widget": {
-              "showTitle": "BY_WIDGET",
-              "showLegend": "BY_WIDGET",
-              "showMinimap": "BY_WIDGET"
-            }
-          },
-          "widgets": [],
-          "dataSource": {
-            "joins": [],
-            "temporary": false,
-            "id": "ds-gis-37",
-            "name": "sales_geo",
-            "uiDescription": "Sales data (2011~2014)",
-            "type": "default"
-          },
-          "filters": [],
-          "content": [],
-          "userDefinedFields": [
-            {
-              "oriColumnName": "MEASURE_1",
-              "useChart": false,
-              "useFilter": false,
-              "useChartFilter": false,
-              "type": "user_expr",
-              "role": "MEASURE",
-              "dataSource": "sales_geo",
-              "alias": "count",
-              "name": "count",
-              "expr": "COUNTOF( \"City\"  )",
-              "aggregated": true
-            },
-            {
-              "oriColumnName": "",
-              "useChart": false,
-              "useFilter": false,
-              "useChartFilter": false,
-              "type": "user_expr",
-              "role": "MEASURE",
-              "dataSource": "sales_geo",
-              "alias": "MEASURE_1",
-              "name": "MEASURE_1",
-              "expr": "\"Quantity\"",
-              "aggregated": false
-            }
-          ]
-        },
-        "seq": 4,
-        "workBook": null,
-        "widgets": null
-      }
-    },
-    {
-      "count": 1,
-      "lastPublishedTime": "2019-07-29T01:47:42.000Z",
-      "user": {
-        "createdBy": "admin",
-        "createdTime": "2019-06-26T14:17:19.000Z",
-        "modifiedBy": "admin",
-        "modifiedTime": "2019-06-26T14:17:19.000Z",
-        "id": "admin",
-        "username": "admin",
-        "fullName": "Administrator",
-        "email": "admin@metatron.com",
-        "status": "ACTIVATED",
-        "passMailer": false,
-        "enabled": true
-      },
-      "dashboard": {
-        "createdBy": "admin",
-        "createdTime": "2019-07-03T05:48:11.000Z",
-        "modifiedBy": "admin",
-        "modifiedTime": "2019-07-03T06:07:45.000Z",
-        "id": "3206b6c8-dd8f-4193-9df5-15e4e869ac87",
-        "name": "asdasd",
-        "configuration": {
-          "options": {
-            "layout": {
-              "layoutType": "FIT_TO_SCREEN",
-              "widgetPadding": 5
-            },
-            "widget": {
-              "showTitle": "BY_WIDGET",
-              "showLegend": "BY_WIDGET",
-              "showMinimap": "BY_WIDGET"
-            }
-          },
-          "widgets": [],
-          "dataSource": {
-            "joins": [],
-            "temporary": false,
-            "id": "ds-gis-37",
-            "name": "sales_geo",
-            "uiDescription": "Sales data (2011~2014)",
-            "type": "default"
-          },
-          "filters": [],
-          "content": [],
-          "userDefinedFields": [
-            {
-              "oriColumnName": "MEASURE_1",
-              "useChart": false,
-              "useFilter": false,
-              "useChartFilter": false,
-              "type": "user_expr",
-              "role": "MEASURE",
-              "dataSource": "sales_geo",
-              "alias": "count",
-              "name": "count",
-              "expr": "COUNTOF( \"City\"  )",
-              "aggregated": true
-            },
-            {
-              "oriColumnName": "",
-              "useChart": false,
-              "useFilter": false,
-              "useChartFilter": false,
-              "type": "user_expr",
-              "role": "MEASURE",
-              "dataSource": "sales_geo",
-              "alias": "MEASURE_1",
-              "name": "MEASURE_1",
-              "expr": "\"Quantity\"",
-              "aggregated": false
-            }
-          ]
-        },
-        "seq": 4,
-        "workBook": 'MyWorkBOok',
-        "widgets": null
-      }
-    }
-  ];
-
   // enum
   readonly EXPLORE_MODE = ExploreMode;
 
@@ -316,12 +153,11 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
         .catch(error => this.commonExceptionHandler(error));
     };
 
-    // TODO: Engine Case topUserList is dummy data - api is not working
     const getTopUser = async () => {
       topUserList = await this.metadataService.getTopUserInMetadataDetail(metadata.id).catch(() => {
 
       });
-      topUserList = topUserList === undefined ? this.topUserListDummy : topUserList;
+      topUserList = topUserList === undefined ? [] : topUserList;
     };
 
     const getRecentlyUpdatedList = async () => {
@@ -342,6 +178,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
         this.entryRef.instance.topUserList = topUserList;
         this.entryRef.instance.recentlyUpdatedList = recentlyUpdatedList;
         this.entryRef.instance.recentlyQueriesForDataSource = recentlyQueriesForDataSource;
+        this.entryRef.instance.metadataId = metadata.id;
       } else if (metadata.sourceType === SourceType.JDBC || metadata.sourceType === SourceType.STAGEDB) {
         await getRecentlyQueriesForDatabase().catch(error => this.commonExceptionHandler(error));
         this.entryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(MetadataContainerComponent));
@@ -349,6 +186,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
         this.entryRef.instance.topUserList = topUserList;
         this.entryRef.instance.recentlyUpdatedList = recentlyUpdatedList;
         this.entryRef.instance.recentlyQueriesForDataBase = recentlyQueriesForDatabase;
+        this.entryRef.instance.metadataId = metadata.id;
       }
       this.entryRef.instance.closedPopup.subscribe(() => {
         // close

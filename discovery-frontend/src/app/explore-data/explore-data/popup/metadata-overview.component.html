@@ -260,7 +260,7 @@
               </thead>
               <tbody>
               <tr *ngFor="let recentQuery of recentlyQueriesForDataSource['_embedded']['datasourcequeryhistories'] | slice:0:5 ">
-                <td>{{ recentQuery.createdTime }}</td>
+                <td>{{ recentQuery.createdTime.length > 17 ? recentQuery.createdTime.substring(0, 17) + '···' : recentQuery.createdTime }}</td>
                 <td>{{ recentQuery.queryType }}</td>
                 <td>{{ recentQuery.creator.fullName }}</td>
                 <td> <span class="ddp-data-state" [ngClass]="recentQuery.succeed ? 'ddp-success' : 'ddp-fail'">{{ recentQuery.succeed ? 'Success' : 'Fail' }}</span></td>
