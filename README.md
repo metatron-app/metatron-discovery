@@ -1,12 +1,9 @@
 <img title="logo-metatron" src="https://user-images.githubusercontent.com/6300003/44013820-f7647c96-9f02-11e8-8066-1c97f8b1662c.png" alt="metatron-discovery-logo" width="400px">
 
-[NOTICE] Respecting the [community's voice](https://github.com/metatron-app/metatron-discovery/issues/2431), repository reset has been completed and Stars have been initialized.
-But Watch and Fork have also been initialized with Star, so please re-register it if you need.
-
 ------------------
 
 **Metatron Discovery** is an end-to-end big data self discovery solution.
-To learn more about it, visit our [web site](https://metatron.app). Check [our blog](https://metatron.app/index.php/blog/) for upcoming events and development news.
+To learn more about it, visit our [web site](https://metatron.app). Check [our blog](https://metatron.app/index.php/blog/) for upcoming events and development news. Also if you got stuck when using Metatron Discovery, please leave your problem on our [user forum](https://groups.google.com/forum/#!forum/metatron-discovery).
 
 
 Strengths
@@ -70,6 +67,10 @@ Screenshots
 
 Installation
 ----------------------------
+
+### [Guide Video](https://www.youtube.com/watch?v=wVpgnHgzDOk)
+- Only the Korean description is available for now.
+
 ### Requirements
 - MacOS / Linux (Redhat, CentOS)
 - JDK 1.8
