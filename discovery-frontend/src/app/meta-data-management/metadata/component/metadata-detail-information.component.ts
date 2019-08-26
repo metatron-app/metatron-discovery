@@ -47,6 +47,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
 
   public catalogSearchText: string = '';
   public searchCatalogList: any[] = [];
+  public isSearchCatalog:boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
  | Constructor
@@ -205,6 +206,13 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
 
   public tagClickOutsideEvent() {
     this.tagValue = '';
+  }
+
+  public showSearchCatalog(event:MouseEvent) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    this.catalogSearchText = '';
+    this.isSearchCatalog = true;
   }
 
   public selectCatalog(item) {

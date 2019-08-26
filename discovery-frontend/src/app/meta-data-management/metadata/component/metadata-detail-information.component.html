@@ -72,8 +72,10 @@
               </span>
             </div>
           </div>
-          <div class="ddp-apply ddp-clear type-catalog">
-            <div class="ddp-type-search type-box" [class.ddp-selected]="'' !== catalogSearchText">
+          <div class="ddp-apply ddp-clear type-catalog" style="margin-top:6px;">
+            <div *ngIf="isSearchCatalog; else catalogAddButton"
+                 (clickOutside)="isSearchCatalog = false"
+                 [class.ddp-selected]="'' !== catalogSearchText" class="ddp-type-search type-box" >
               <component-input
                 [compType]="'default'"
                 [value]="catalogSearchText"
@@ -96,6 +98,13 @@
                 </ul>
               </div>
             </div>
+            <ng-template #catalogAddButton>
+              <a (click)="showSearchCatalog($event)"
+                 href="javascript:" class="ddp-btn-add"
+                 style="margin-left:0;">
+                <em class="ddp-icon-plus"></em>{{'msg.comm.btn.add'|translate}}
+              </a>
+            </ng-template>
           </div>
         </td>
       </tr>
