@@ -112,7 +112,7 @@
             <table class="ddp-table-detail4">
               <colgroup>
                 <col width="*">
-                <col width="20%">
+                <col width="30%">
                 <col width="20%">
               </colgroup>
               <thead>
@@ -192,14 +192,13 @@
             {{'msg.explore.ui.detail.recent.query'| translate}}
             <a href="javascript:"
                class="ddp-link ddp-fright"
-               *ngIf="recentlyQueriesForDataSource.length > 4"
+               *ngIf="recentlyQueriesForDataBase.length > 4"
                (click)="onClickSeeAllRecentQueries()">{{'msg.explore.btn.detail.more.list'| translate}} &gt;</a>
           </div>
           <div class="ddp-data-det">
             <table class="ddp-table-detail4">
               <colgroup>
-                <col width="15%">
-                <col width="15%">
+                <col width="30%">
                 <col width="20%">
                 <col width="150px">
                 <col width="*">
@@ -207,16 +206,14 @@
               <thead>
               <tr>
                 <th>{{ 'msg.explore.ui.detail.tab.overview.date' | translate }}</th>
-                <th>{{ 'msg.explore.ui.detail.tab.overview.type' | translate }}</th>
                 <th>{{ 'msg.explore.ui.detail.tab.overview.user' | translate }}</th>
                 <th>{{ 'msg.explore.ui.detail.tab.overview.result' | translate }}</th>
                 <th>{{ 'msg.explore.ui.detail.tab.overview.query' | translate }}</th>
               </tr>
               </thead>
               <tbody>
-              <tr *ngFor="let recentQuery of recentlyQueriesForDataBase">
-                <td >{{ recentQuery.createdTime.length > 17 ? recentQuery.createdTime.substring(0, 17) + '···' : recentQuery.createdTime }}</td>
-                <td>TYPE</td>
+              <tr *ngFor="let recentQuery of recentlyQueriesForDataBase | slice:0:5">
+                <td >{{ recentQuery.createdTime }}</td>
                 <td>{{ recentQuery['createdBy']['fullName'] }}</td>
                 <td> <span class="ddp-data-state" [ngClass]="recentQuery.queryResultStatus === 'SUCCESS' ? 'ddp-success' : 'ddp-fail'">{{ recentQuery.queryResultStatus === 'SUCCESS'? 'Success' : 'Fail' }}</span></td>
                 <td>
@@ -243,8 +240,7 @@
           <div class="ddp-data-det">
             <table class="ddp-table-detail4">
               <colgroup>
-                <col width="15%">
-                <col width="15%">
+                <col width="35%">
                 <col width="20%">
                 <col width="150px">
                 <col width="*">
@@ -252,7 +248,6 @@
               <thead>
               <tr>
                 <th>{{ 'msg.explore.ui.detail.tab.overview.date' | translate }}</th>
-                <th>{{ 'msg.explore.ui.detail.tab.overview.type' | translate }}</th>
                 <th>{{ 'msg.explore.ui.detail.tab.overview.user' | translate }}</th>
                 <th>{{ 'msg.explore.ui.detail.tab.overview.result' | translate }}</th>
                 <th>{{ 'msg.explore.ui.detail.tab.overview.query' | translate }}</th>
@@ -260,8 +255,7 @@
               </thead>
               <tbody>
               <tr *ngFor="let recentQuery of recentlyQueriesForDataSource | slice:0:5 ">
-                <td>{{ recentQuery.createdTime.length > 17 ? recentQuery.createdTime.substring(0, 17) + '···' : recentQuery.createdTime }}</td>
-                <td>{{ recentQuery.queryType }}</td>
+                <td>{{ recentQuery.createdTime }}</td>
                 <td>{{ recentQuery.creator.fullName }}</td>
                 <td> <span class="ddp-data-state" [ngClass]="recentQuery.succeed ? 'ddp-success' : 'ddp-fail'">{{ recentQuery.succeed ? 'Success' : 'Fail' }}</span></td>
                 <td>

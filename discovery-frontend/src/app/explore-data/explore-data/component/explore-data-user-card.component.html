@@ -9,7 +9,7 @@
     </div>
     <div class="ddp-data-info">
       {{ topUser['dashboard']['workBook'] ?
-          topUser['dashboard']['workBook'] + " > " + topUser['dashboard']['name']
+          topUser['dashboard']['workBook']['name'] + " > " + topUser['dashboard']['name']
         : topUser['dashboard']['name']
       }}
     </div>

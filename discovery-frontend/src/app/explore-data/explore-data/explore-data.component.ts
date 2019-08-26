@@ -143,9 +143,15 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     let recentlyUpdatedList;
 
     // get datas...
-    const getRecentlyQueriesForDatabase = async () => {
-      recentlyQueriesForDatabase = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.source.id, this.page.page, this.page.size, this.page.sort)
-        .catch(error => this.commonExceptionHandler(error));
+    const getRecentlyQueriesForDatabase = async (sourcetype: SourceType) => {
+      if (sourcetype === SourceType.STAGEDB) {
+        recentlyQueriesForDatabase = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.id, this.page.page, this.page.size, this.page.sort)
+          .catch(error => this.commonExceptionHandler(error));
+      } else {
+        recentlyQueriesForDatabase = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.source.id, this.page.page, this.page.size, this.page.sort)
+          .catch(error => this.commonExceptionHandler(error));
+      }
+
     };
 
     const getRecentlyQueriesForDataSource = async () => {
@@ -182,7 +188,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
         }
         this.entryRef.instance.metadataId = metadata.id;
       } else if (metadata.sourceType === SourceType.JDBC || metadata.sourceType === SourceType.STAGEDB) {
-        await getRecentlyQueriesForDatabase();
+        await getRecentlyQueriesForDatabase(metadata.sourceType);
         this.entryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(MetadataContainerComponent));
         this.entryRef.instance.metadataDetailData = metadataDetail;
         this.entryRef.instance.topUserList = topUserList;
