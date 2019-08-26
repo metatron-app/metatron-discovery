@@ -126,7 +126,8 @@
 
               <tr *ngFor="let recentlyUpdated of recentlyUpdatedList">
                 <td><span class="ddp-txt-long" title="{{  recentlyUpdated['contents'] }}">{{ recentlyUpdated['contents'] }}</span></td>
-                <td> {{ recentlyUpdated['createdTime'] }}</td>
+                <td> {{ recentlyUpdated['createdTime'] | mdate:'YYYY-MM-DD HH:mm:ss' }}</td>
+
                 <td>
                   <div class="ddp-txt-long">
                     <em class="ddp-icon-control-fav ddp-fright"></em>
@@ -213,7 +214,7 @@
               </thead>
               <tbody>
               <tr *ngFor="let recentQuery of recentlyQueriesForDataBase | slice:0:5">
-                <td >{{ recentQuery.createdTime }}</td>
+                <td >{{ recentQuery.createdTime | mdate:'YYYY-MM-DD HH:mm:ss' }}</td>
                 <td>{{ recentQuery['createdBy']['fullName'] }}</td>
                 <td> <span class="ddp-data-state" [ngClass]="recentQuery.queryResultStatus === 'SUCCESS' ? 'ddp-success' : 'ddp-fail'">{{ recentQuery.queryResultStatus === 'SUCCESS'? 'Success' : 'Fail' }}</span></td>
                 <td>
@@ -255,7 +256,7 @@
               </thead>
               <tbody>
               <tr *ngFor="let recentQuery of recentlyQueriesForDataSource | slice:0:5 ">
-                <td>{{ recentQuery.createdTime }}</td>
+                <td>{{ recentQuery.createdTime | mdate:'YYYY-MM-DD HH:mm:ss' }}</td>
                 <td>{{ recentQuery.creator.fullName }}</td>
                 <td> <span class="ddp-data-state" [ngClass]="recentQuery.succeed ? 'ddp-success' : 'ddp-fail'">{{ recentQuery.succeed ? 'Success' : 'Fail' }}</span></td>
                 <td>
