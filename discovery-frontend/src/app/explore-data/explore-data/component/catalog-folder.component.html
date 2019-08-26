@@ -13,7 +13,7 @@
   <!-- //sub catalog -->
 </li>
 <li class="ddp-unclass" *ngIf="isEmptyCatalog">
-  <a href="javascript:">
+  <a (click)="onClickCatalog(catalog)" href="javascript:">
     <div class="ddp-txt-link">
       <em class="ddp-icon-question"></em>
       Unclassified

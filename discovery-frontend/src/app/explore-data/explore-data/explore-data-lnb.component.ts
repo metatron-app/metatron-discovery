@@ -24,7 +24,6 @@ import {CatalogService} from "../../meta-data-management/catalog/service/catalog
 import {Tag} from "../../domain/tag/tag";
 import * as _ from 'lodash';
 import {EventBroadcaster} from "../../common/event/event.broadcaster";
-import {Subscription} from "rxjs";
 
 @Component({
   selector: 'component-explore-lnb',
@@ -43,19 +42,12 @@ export class ExploreDataLnbComponent extends AbstractComponent {
   isFoldingNavigation: boolean;
 
   // Dummy data before api
-  favoriteDataList = [
-    {
-      path: "daf",
-      name: "daf",
-    }
-  ];
+  favoriteDataList = [];
 
   @Output() readonly changedLnbData = new EventEmitter();
 
-  // enum
   readonly EXPLORE_LNB_MODE = ExploreDataConstant.LnbTab;
 
-  // 생성자
   constructor(private exploreDataModelService: ExploreDataModelService,
               private metadataService: MetadataService,
               private catalogService: CatalogService,
@@ -137,7 +129,6 @@ export class ExploreDataLnbComponent extends AbstractComponent {
       this.selectedLnbTab = value;
       this.exploreDataModelService.selectedLnbTab = value;
       // if selected catalog or tag
-      // TODO 만약 탭 선택시 재조회를 하게 요청하면 if문 제거
       if ((value === ExploreDataConstant.LnbTab.CATALOG && !_.isNil(this.selectedCatalog)) || (value === ExploreDataConstant.LnbTab.TAG && !_.isNil(this.selectedTag))) {
         this._changedLnbData();
       }

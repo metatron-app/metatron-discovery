@@ -35,7 +35,9 @@
           </div>
         </div>
         <!-- //search -->
+
         <!-- favorite -->
+        <!--
         <div class="ddp-ui-favorite">
           <div class="ddp-ui-label"><em class="ddp-icon-favorite"></em>Favorite({{ favoriteDataList.length }})</div>
           <div class="ddp-favorite-nodata" *ngIf="favoriteDataList.length === 0">
@@ -57,8 +59,9 @@
             </li>
           </ul>
         </div>
-
+        -->
         <!-- //favorite -->
+
         <!-- tree -->
         <div class="ddp-ui-tree">
           <ul class="ddp-list-tree">
@@ -69,8 +72,9 @@
                                       (clickedCatalog)="onChangeSelectedCatalog($event)" >
             </component-catalog-folder>
             <!-- is empty -->
-            <component-catalog-folder *ngIf="catalogList && catalogList.length === 0" [isEmptyCatalog]="true"></component-catalog-folder>
-            <!-- //is empty -->
+            <component-catalog-folder [isEmptyCatalog]="true"
+                                      (clickedCatalog)="onChangeSelectedCatalog($event)" ></component-catalog-folder>
+            <!-- // is empty -->
           </ul>
         </div>
         <!-- //tree -->
