@@ -105,6 +105,21 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
 
   public complete() {
     let params = this.lineageData.rows;
+    for(let edge of params) {
+      if(!edge.frMetaId && !edge.frMetaName) {
+        Alert.error('frMetaName is needed');
+        return;
+      }
+      if(!edge.toMetaId && !edge.toMetaName) {
+        Alert.error('toMetaName is needed');
+        return;
+      }
+      if(!edge.tier) {
+        Alert.error('tier field of number type is needed');
+        return;
+      }
+    }
+
     this._lineageService.createLineages(params).then((result) => {
       this.loadingHide();
 
