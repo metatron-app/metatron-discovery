@@ -104,10 +104,9 @@
                 <em class="ddp-icon-search"></em>
                 <input #inputSearch
                        [ngModel]="searchDatabaseText"
-                       (keypress)="onSearchDatabase($event)"
-                       (keyup.esc)="onSearchDatabaseInit()"
+                       (keyup)="onSearchDatabaseKeypress($event)"
                        type="text" placeholder="{{'msg.bench.ui.db.name.search'|translate}}">
-                <em class="ddp-btn-search-close" *ngIf="searchDatabaseText !== ''" (click)="onSearchDatabaseInit()"></em>
+                <em class="ddp-btn-search-close" *ngIf="searchDatabaseText !== ''" (click)="onSearchDatabaseClear($event)"></em>
               </div>
               <!-- //search -->
             </div>
