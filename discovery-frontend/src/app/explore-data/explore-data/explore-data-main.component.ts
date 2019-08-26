@@ -98,7 +98,7 @@ export class ExploreDataMainComponent extends AbstractComponent {
   private async _setPopularMetadataList() {
     const result = await this._metadataService.getMetadataListByPopularity({size: 6, page: 0});
     if (!_.isNil(result._embedded)) {
-      this.popularMetadataList = _.chunk(result._embedded.metadatas, 1);
+      this.popularMetadataList = _.chunk(result._embedded.metadatas, 2);
     }
   }
 

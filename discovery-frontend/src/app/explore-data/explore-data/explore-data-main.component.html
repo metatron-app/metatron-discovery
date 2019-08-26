@@ -41,14 +41,6 @@
                                 [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
                 </component-explore-card>
               </li>
-              <li *ngFor="let metadata of pairPopularMetadata">
-                <component-explore-card [iconClass]="getMetadataTypeClass(metadata)"
-                                        [title]="metadata.name" [description]="metadata.description"
-                                        [tagList]="metadata.tags"
-                                        [popularity]="metadata.popularity"
-                                        [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
-                </component-explore-card>
-              </li>
             </ul>
           </div>
         </div>
