@@ -65,8 +65,11 @@ Screenshots
 ### SQL in Druid
 <kbd><img title="query-monitoring" src="https://user-images.githubusercontent.com/8841220/53787073-f917af00-3f60-11e9-9e11-a9dfe82a99da.png"><br /></kbd>
 
-Installation ([Guide Video](https://www.youtube.com/watch?v=wVpgnHgzDOk))
+Installation
 ----------------------------
+
+### [Guide Video](https://www.youtube.com/watch?v=wVpgnHgzDOk)
+- Only the Korean description is available for now.
 
 ### Requirements
 - MacOS / Linux (Redhat, CentOS)
