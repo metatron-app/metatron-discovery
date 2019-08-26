@@ -1,23 +1,17 @@
 <!-- tab contents -->
-<div class="ddp-ui-tab-contents" style="display:;">
+<div class="ddp-ui-tab-contents" >
   <div class="ddp-box-message">
-
-    <!-- synch -->
     <div class="ddp-box-synch type-info">
       <div class="ddp-txt-synch">
         <em class="ddp-icon-info"></em>
         {{ "msg.metadata.ui.notice" | translate }}
       </div>
-
     </div>
-    <!-- //synch -->
-
   </div>
   <!-- datadetail -->
   <div class="ddp-ui-datadetail ddp-border-none">
     <!-- button -->
-    <div class="ddp-btn-detail">
-      <a href="javascript:" class="ddp-btn-line" >{{ 'msg.comm.btn.previous' | translate }}</a>
+    <div *ngIf="'ENGINE' === metadata.sourceType?.toString()" class="ddp-btn-detail">
       <a href="javascript:" class="ddp-btn-solid2 ddp-dark" (click)="onClickGoToDatasourceButton()">{{ 'msg.metadata.ui.move.datasource' | translate }}</a>
     </div>
     <!-- //button -->
@@ -44,29 +38,72 @@
         <th>{{ 'msg.metadata.md.ui.tags' | translate }}</th>
         <td>
           <div class="ddp-list-tags">
-            <div class="ddp-tags" *ngFor="let tag of metadata.tags" ># {{ tag }} <a href="javascript:" class="ddp-btn-delete"></a></div>
+            <div class="ddp-tags" *ngFor="let tag of metadata.tags" [ngClass]="{'ddp-tags' : tag.name !== '','ddp-tag-default': tag.name === ''}"># {{tag.name}}
+              <a href="javascript:" class="ddp-btn-delete" (click)="deleteTag(tag)" *ngIf="'' !== tag.name"></a>
+            </div>
+          </div>
+          <div class="ddp-tag-default ddp-wrap-drop-search" [ngClass]="{'ddp-selected': filteredTagsList.length > 0}" (clickOutside)="tagClickOutsideEvent()">
+            <component-input
+              [compType]="'default'"
+              [value]="tagValue"
+              [immediately]="true"
+              [placeHolder]="'msg.metadata.ui.enter.tag' | translate"
+              (changeValue)="tagValue = $event;"
+              (pressEnter)="addTag()">
+            </component-input>
+            <div class="ddp-ui-drop-search">
+              <ul class="ddp-list-selectbox2">
+                <li *ngFor="let tag of filteredTagsList" (click)="setTagValue(tag)">
+                  {{tag}}
+                </li>
+              </ul>
+            </div>
           </div>
         </td>
       </tr>
       <tr>
         <th>{{ 'msg.metadata.md.th.catalogs' | translate }}</th>
         <td>
-          <div class="ddp-wrap-catalogs2">
+          <div *ngIf="metadata.catalogs && 0 < metadata.catalogs.length; else emptyCatalogs" class="ddp-wrap-catalogs2">
             <div class="ddp-ui-catalogs2" *ngFor="let catalog of metadata.catalogs">
               <em class="ddp-icon-folder-type"></em>
-              <span *ngFor="let hierarchy of catalog['hierarchies']">{{ hierarchy.name }}</span>
+              <span *ngFor="let hierarchy of catalog['hierarchies']; let isLast = last"> {{ hierarchy.name }}
+                <a *ngIf="isLast" (click)="deleteCatalogFromMetadata(catalog.id)" href="javascript:" class="ddp-btn-delete"></a>
+              </span>
             </div>
-<!--              <div class="ddp-ui-catalogs2 ddp-unclass">-->
-<!--                <em class="ddp-icon-question2"></em>-->
-<!--                unclassified-->
-<!--              </div>-->
           </div>
-          <div class="ddp-apply ddp-clear">
-            <div class="ddp-type-search type-box ddp-col-6">
-              <input type="text" placeholder="Search Column">
-              <a href="javascript:" class="ddp-btn-delete"></a>
+          <ng-template #emptyCatalogs>
+            <div class="ddp-wrap-catalogs2">
+              <div class="ddp-ui-catalogs2 ddp-unclass">
+                <em class="ddp-icon-question2"></em>
+                Unclassified
+              </div>
             </div>
-            <a href="javascript:" class="ddp-btn-add"><em class="ddp-icon-plus"></em> {{ 'msg.comm.btn.add' | translate }}</a>
+          </ng-template>
+          <div class="ddp-apply ddp-clear type-catalog">
+            <div class="ddp-type-search type-box" [class.ddp-selected]="'' !== catalogSearchText">
+              <component-input
+                [compType]="'default'"
+                [value]="catalogSearchText"
+                [immediately]="true"
+                [placeHolder]="'msg.metadata.ui.search.column.ph' | translate"
+                (changeValue)="changeInputCatalog($event);">
+              </component-input>
+              <div class="ddp-box-layout4 type-button">
+                <div class="ddp-data-title"> Popular catelogs </div>
+                <ul class="ddp-list-popup ddp-wrap-catalogs2">
+                  <li *ngFor="let catalog of searchCatalogList">
+                    <a (click)="selectCatalog(catalog)" href="javascript:">
+                      <div class="ddp-ui-catalogs2">
+                        <em class="ddp-icon-folder-type"></em>
+                        <span *ngFor="let hierarchyItem of catalog.hierarchies" >{{hierarchyItem.name}}</span>
+                      </div>
+                      <em class="ddp-icon-check"></em>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
         </td>
       </tr>
@@ -75,9 +112,7 @@
           {{ 'msg.metadata.metadata.detail.ui.description' | translate }}
         </th>
         <td>
-          <!--
-                 edit 클릭시 ddp-edit 추가
-             -->
+          <div *ngIf="metadata.description === '' " class="ddp-data-none">{{ 'msg.metadata.metadata.detail.ui.no.description' | translate }}</div>
           <div class="ddp-edit-description" [ngClass]="{'ddp-edit': isEditDescription}">
             <!-- data -->
             <div class="ddp-data-description">
@@ -95,8 +130,6 @@
               </div>
             </div>
           </div>
-
-          <div *ngIf="metadata.description === '' " class="ddp-data-none">{{ 'msg.metadata.metadata.detail.ui.no.description' | translate }}</div>
         </td>
       </tr>
       </tbody>
@@ -288,7 +321,7 @@
           </tr>
           <tr>
             <th>{{ 'msg.metadata.metadata.detail.ui.version' | translate }}</th>
-            <td><a href="javascript:" class="ddp-link-url2">{{ metadata['source']['sourceInfo']['VERSION'] }}</a></td>
+            <td>{{ metadata['source']['sourceInfo']['VERSION'] }}</td>
           </tr>
           <tr>
             <th>{{ 'msg.metadata.metadata.detail.ui.row.format' | translate }}</th>

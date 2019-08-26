@@ -3928,6 +3928,7 @@
   "msg.metadata.ui.create.main.title" : "Create metadata",
   "msg.metadata.ui.create.connection.sub" : "Please set data connection",
   "msg.metadata.ui.create.data.sub" : "Please select data",
+  "msg.metadata.ui.search.column.ph" : "Search column",
   "msg.metadata.ui.create.complete.sub" : "Please complete metadata creation",
   "msg.metadata.btn.create.connection.link.preset" : "Go to set up DB connection",
   "msg.metadata.ui.create.none.table.list" : "No table list. Please choose another schema",
