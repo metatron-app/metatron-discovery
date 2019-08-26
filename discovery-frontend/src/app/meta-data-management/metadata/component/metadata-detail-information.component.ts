@@ -15,7 +15,7 @@ import {isUndefined} from "util";
     selector: 'app-metadata-management-metadata-detail-information',
     templateUrl: './metadata-detail-information.component.html',
     styles: [
-      '.ddp-ui-catalogs2 span a.ddp-btn-delete {display:none; position:absolute; top:-4px; right:-17px; content:\'\'; width:14px; height:14px; background:url(assets/images/btn_sclose.png) no-repeat; background-position:0 -131px;}',
+      '.ddp-ui-catalogs2 span a.ddp-btn-delete {display:block; position:absolute; top:1px; right:-20px; content:\'\'; width:14px; height:14px; background:url(assets/images/btn_sclose.png) no-repeat; background-position:0 -131px;}',
       '.ddp-ui-catalogs2:hover span a.ddp-btn-delete {display:block;}'
     ]
   }
@@ -218,6 +218,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   public selectCatalog(item) {
     this.loadingShow();
     this.metadataService.linkMetadataWithCatalog(this.metadata.id, item.id).then(() => {
+      this.isSearchCatalog = false;
       this.catalogSearchText = '';
       Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
       this._getMetadataDetail();
