@@ -14,66 +14,34 @@
 
 <em class="ddp-bg-back"></em>
 <div class="ddp-ui-contents-in ddp-pad0 ddp-scroll">
-  <!-- top -->
-  <div class="ddp-layout-top-menu ddp-clear">
-    <!-- label -->
-    <div class="ddp-top-label">
-      Meta data
-    </div>
-    <!-- //label -->
-    <!-- menu -->
-    <div class="ddp-top-menu">
-      <ul class="ddp-list-top-menu">
-        <li [class.ddp-selected]="tabId === 'metadata'">
-          <a href="javascript:" (click)="gotoTab('metadata')">{{'msg.comm.menu.manage.metadata.metadata' | translate}}</a>
-        </li>
-        <li [class.ddp-selected]="tabId === 'column-dictionary'">
-          <a href="javascript:" (click)="gotoTab('column-dictionary')">{{'msg.metadata.ui.dictionary.title' | translate}}</a>
-        </li>
-        <li [class.ddp-selected]="tabId === 'code-table'">
-          <a href="javascript:" (click)="gotoTab('code-table')">{{'msg.metadata.ui.codetable.title' | translate}}</a>
-        </li>
-        <li [class.ddp-selected]="tabId === 'lineage'">
-          <a href="javascript:" (click)="gotoTab('lineage')">{{'msg.metadata.ui.lineage.title' | translate}}</a>
-        </li>
-        <li [class.ddp-selected]="tabId === 'catalog'">
-          <a href="javascript:" (click)="gotoTab('catalog')">{{'msg.metadata.ui.catalog' | translate }}</a>
-        </li>
-      </ul>
 
+  <!-- top -->
+  <div class="ddp-ui-contents-top">
+    <div class="ddp-ui-title">
+      {{'msg.comm.menu.manage.metadata' | translate}}
     </div>
-    <!-- menu -->
-    <!-- option -->
-    <div class="ddp-ui-header-option">
-      <a href="javascript:" class="ddp-link-info"></a>
-      <!--
-          클릭시 ddp-selected 추가
-      -->
-      <div class="ddp-ui-more ">
-        <a href="javascript:" class="ddp-icon-more"></a>
-        <!-- popup -->
-        <div class="ddp-wrap-popup2 ddp-types">
-          <ul class="ddp-list-popup">
-            <li>
-              <a href="javascript:">
-                <em class="ddp-icon-drop-cluster"></em>
-                Set Druid Cluster
-              </a>
-            </li>
-            <li>
-              <a href="javascript:">
-                <em class="ddp-icon-drop-guide"></em>
-                Druid Guide
-              </a>
-            </li>
-          </ul>
-        </div>
-        <!-- //popup -->
-      </div>
-    </div>
-    <!-- //option -->
+    <!-- tab -->
+    <ul class="ddp-list-top-tab">
+      <li [class.ddp-selected]="tabId === 'metadata'">
+        <a href="javascript:" (click)="gotoTab('metadata')">{{'msg.comm.menu.manage.metadata.metadata' | translate}}</a>
+      </li>
+      <li [class.ddp-selected]="tabId === 'column-dictionary'">
+        <a href="javascript:" (click)="gotoTab('column-dictionary')">{{'msg.metadata.ui.dictionary.title' | translate}}</a>
+      </li>
+      <li [class.ddp-selected]="tabId === 'code-table'">
+        <a href="javascript:" (click)="gotoTab('code-table')">{{'msg.metadata.ui.codetable.title' | translate}}</a>
+      </li>
+      <li [class.ddp-selected]="tabId === 'lineage'">
+        <a href="javascript:" (click)="gotoTab('lineage')">{{'msg.metadata.ui.lineage.title' | translate}}</a>
+      </li>
+      <li [class.ddp-selected]="tabId === 'catalog'">
+        <a href="javascript:" (click)="gotoTab('catalog')">{{'msg.metadata.ui.catalog' | translate }}</a>
+      </li>
+    </ul>
+    <!-- //tab -->
+
   </div>
-  <!-- //top -->
+
   <!-- metadata -->
   <app-metadata *ngIf="tabId === 'metadata'"></app-metadata>
   <!-- //metadatra -->
