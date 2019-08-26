@@ -56,6 +56,8 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
 
   public emptyGrid : boolean = false;
 
+  public mainMetadataId: string = null;
+
   @Input()
   public selectedNode: any;
 
@@ -89,6 +91,8 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
   public ngOnInit() {
     // Init
     super.ngOnInit();
+
+    this.mainMetadataId = this.metaDataModelService.getMetadata().id;
 
     this.emptyGrid = false;
 

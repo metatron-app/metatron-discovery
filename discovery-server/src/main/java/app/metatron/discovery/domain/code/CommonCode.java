@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.code;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.Column;
@@ -23,6 +24,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import app.metatron.discovery.domain.AbstractHistoryEntity;
 import app.metatron.discovery.domain.MetatronDomain;
@@ -68,6 +70,24 @@ public class CommonCode extends AbstractHistoryEntity implements MetatronDomain<
     @Lob
     @Column(name = "DESCRIPTION")
     private String description;
+
+    @Transient
+    private String syntax;
+
+    @Transient
+    private String example;
+
+    @Transient
+    private String param;
+
+    @Transient
+    private String descriptionEn;
+
+    @Transient
+    private String paramEn;
+
+    @Transient
+    private String exampleEn;
 
     public Long getId() {
         return id;
@@ -133,13 +153,35 @@ public class CommonCode extends AbstractHistoryEntity implements MetatronDomain<
         this.commonValue = commonValue;
     }
 
-    public String getDescription() {
-        return description;
-    }
+    public String getDescription() { return description; }
 
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public String getSyntax() { return syntax; }
+
+    public void setSyntax(String syntax) { this.syntax = syntax; }
+
+    public String getExample() { return example; }
+
+    public void setExample(String example) { this.example = example; }
+
+    public String getDescriptionEn() { return StringUtils.isBlank(descriptionEn) ? description : descriptionEn; }
+
+    public void setDescriptionEn(String descriptionEn) { this.descriptionEn = descriptionEn; }
+
+    public String getParam() { return param; }
+
+    public void setParam(String param) { this.param = param; }
+
+    public String getParamEn() { return StringUtils.isBlank(paramEn) ? param : paramEn; }
+
+    public void setParamEn(String paramEn) { this.paramEn = paramEn; }
+
+    public String getExampleEn() { return StringUtils.isBlank(exampleEn) ? example : exampleEn; }
+
+    public void setExampleEn(String exampleEn) { this.exampleEn = exampleEn; }
 
     @Override
     public String toString() {
@@ -153,6 +195,9 @@ public class CommonCode extends AbstractHistoryEntity implements MetatronDomain<
                 ", commonUseFl='" + commonUseFl + '\'' +
                 ", commonValue='" + commonValue + '\'' +
                 ", description='" + description + '\'' +
+                ", syntax='" + syntax + '\'' +
+                ", param='" + param + '\'' +
+                ", example='" + example + '\'' +
                 '}';
     }
 }
