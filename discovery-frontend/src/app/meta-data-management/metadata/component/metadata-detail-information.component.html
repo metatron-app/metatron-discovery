@@ -64,7 +64,7 @@
       <tr>
         <th>{{ 'msg.metadata.md.th.catalogs' | translate }}</th>
         <td>
-          <div *ngIf="metadata.catalogs && 0 < metadata.catalogs.length; else emptyCatalogs" class="ddp-wrap-catalogs2">
+          <div *ngIf="metadata.catalogs && 0 < metadata.catalogs.length;" class="ddp-wrap-catalogs2">
             <div class="ddp-ui-catalogs2" *ngFor="let catalog of metadata.catalogs">
               <em class="ddp-icon-folder-type"></em>
               <span *ngFor="let hierarchy of catalog['hierarchies']; let isLast = last"> {{ hierarchy.name }}
@@ -72,14 +72,6 @@
               </span>
             </div>
           </div>
-          <ng-template #emptyCatalogs>
-            <div class="ddp-wrap-catalogs2">
-              <div class="ddp-ui-catalogs2 ddp-unclass">
-                <em class="ddp-icon-question2"></em>
-                Unclassified
-              </div>
-            </div>
-          </ng-template>
           <div class="ddp-apply ddp-clear type-catalog">
             <div class="ddp-type-search type-box" [class.ddp-selected]="'' !== catalogSearchText">
               <component-input
@@ -90,7 +82,7 @@
                 (changeValue)="changeInputCatalog($event);">
               </component-input>
               <div class="ddp-box-layout4 type-button">
-                <div class="ddp-data-title"> Popular catelogs </div>
+                <div class="ddp-data-title"> Popular catalogs </div>
                 <ul class="ddp-list-popup ddp-wrap-catalogs2">
                   <li *ngFor="let catalog of searchCatalogList">
                     <a (click)="selectCatalog(catalog)" href="javascript:">
@@ -116,9 +108,7 @@
           <div class="ddp-edit-description" [ngClass]="{'ddp-edit': isEditDescription}">
             <!-- data -->
             <div class="ddp-data-description">
-              <div class="ddp-txt-description">
-                {{ this.descriptionChangeText }}
-              </div>
+              <div class="ddp-txt-description" [innerText]="descriptionChangeText"></div>
               <a href="javascript:" (click)="toggleEditDescriptionFlag()" class="ddp-btn-edit" ><em class="ddp-icon-edit"></em>Edit</a>
             </div>
             <!-- //data -->

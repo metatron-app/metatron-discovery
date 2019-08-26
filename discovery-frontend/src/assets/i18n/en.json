@@ -4188,6 +4188,7 @@
   "msg.metadata.metadata.detail.ui.create.options" : "Create Options",
   "msg.metadata.metadata.detail.ui.table.comment" : "Table Comment",
   "msg.metadata.metadata.detail.ui.delete.metadata.and.source" : "Delete this metadata and source",
+  "msg.metadata.metadata.detail.ui.alert.metadata.modified" : "Metadata modified",
   "msg.metadata.ui.recent.update": "Recent Update '{{modifiedTime}}' by '{{modifiedBy}}'",
   "msg.catalog.alert.catalog.already.exists" : "Catalog already exists",
   "msg.catalog.alert.catalog.create.success" : "'{{value}}' catalog is created.",

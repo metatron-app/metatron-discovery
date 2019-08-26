@@ -3236,5 +3236,7 @@
   "msg.metadata.metadata.detail.ui.table.collation" : "Table Collation",
   "msg.metadata.metadata.detail.ui.checksum" : "CheckSum",
   "msg.metadata.metadata.detail.ui.create.options" : "Create Options",
-  "msg.metadata.metadata.detail.ui.table.comment" : "Table Comment"
+  "msg.metadata.metadata.detail.ui.table.comment" : "Table Comment",
+  "msg.metadata.metadata.detail.ui.delete.metadata.and.source" : "Delete this metadata and source",
+  "msg.metadata.metadata.detail.ui.alert.metadata.modified" : "Metadata modified"
 }

@@ -4189,9 +4189,10 @@
   "msg.metadata.metadata.detail.ui.checksum" : "체크섬",
   "msg.metadata.metadata.detail.ui.create.options" : "생성 옵션",
   "msg.metadata.metadata.detail.ui.table.comment" : "테이블 댓글",
+  "msg.metadata.metadata.detail.ui.delete.metadata.and.source" : "메타데이터와 소스 삭제 완료",
+  "msg.metadata.metadata.detail.ui.alert.metadata.modified" : "메타데이터 수정 완료",
   "msg.catalog.alert.catalog.already.exists" : "카달로그가 이미 있습니다",
   "msg.catalog.alert.catalog.create.success" : "'{{value}}' 카달로그가 생성되었습니다.",
-
   "msg.explore.ui.title" : "데이터 탐색",
   "msg.explore.ui.tab.catalogs" : "카탈로그",
   "msg.explore.ui.tab.tags" : "태그",

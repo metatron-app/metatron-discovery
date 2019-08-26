@@ -129,7 +129,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     // update the data in DB
     this.metadataService.updateMetadata(this.metadata.id,  {description: this.descriptionChangeText.trim()} )
       .then(() => {
-        Alert.success(this.translateService.instant('msg.storage.alert.dsource.update.success'));
+        Alert.success(this.translateService.instant('msg.metadata.metadata.detail.ui.alert.metadata.modified'));
         this.metadata.description = this.descriptionChangeText;
         this.metadataModelService.setMetadata(this.metadata);
         this.loadingHide();

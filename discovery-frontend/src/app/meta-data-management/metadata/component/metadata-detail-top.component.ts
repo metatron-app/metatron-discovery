@@ -80,7 +80,7 @@ export class MetadataDetailTopComponent extends AbstractComponent implements OnI
     // update the data in DB
     this.datasourceService.updateDatasource(this.metadata.source.source.id, {name: this.editName.trim()})
       .then(() => {
-        Alert.success(this.translateService.instant('msg.storage.alert.dsource.update.success'));
+        Alert.success(this.translateService.instant('msg.metadata.metadata.detail.ui.alert.metadata.modified'));
         this.metadata.name = this.editName;
         this.metadataModelService.setMetadata(this.metadata);
         this.loadingHide();
