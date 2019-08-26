@@ -1,11 +1,13 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, ElementRef, Injector, Input, OnInit} from '@angular/core';
 import {DatasourceService} from "../../../datasource/service/datasource.service";
 import {ClipboardService} from "ngx-clipboard";
+import {Alert} from "../../../common/util/alert.util";
+import {AbstractComponent} from "../../../common/component/abstract.component";
 
 @Component({
   templateUrl: './recent-queries.component.html',
 })
-export class RecentQueriesComponent implements OnInit {
+export class RecentQueriesComponent extends AbstractComponent implements OnInit {
 
   @Input()
   datasourceId: string;
@@ -18,8 +20,11 @@ export class RecentQueriesComponent implements OnInit {
   public isShow: boolean = false;
 
   constructor(private _datasourceService: DatasourceService,
-              private _clipboardService: ClipboardService) { }
-
+              private _clipboardService: ClipboardService,
+              protected element: ElementRef,
+              protected injector: Injector) {
+    super(element, injector);
+  }
 
   public init() {
     this.isShow = true;
@@ -44,8 +49,9 @@ export class RecentQueriesComponent implements OnInit {
     })
   }
 
-  onClickCopy(queryElement: Element) {
-    this._clipboardService.copyFromContent(queryElement.textContent);
+  onClickCopy(query: string) {
+    this._clipboardService.copyFromContent(query);
+    Alert.success(this.translateService.instant('msg.storage.alert.clipboard.copy'));
   }
 
 }

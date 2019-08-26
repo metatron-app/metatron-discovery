@@ -36,8 +36,8 @@
         <td> <span class="ddp-data-state" [ngClass]="recentQuery.succeed ? 'ddp-success' : 'ddp-fail'">{{ recentQuery.succeed ? 'Success' : 'Fail' }}</span></td>
         <td>
           <div class="ddp-txt-long ddp-type-button">
-            <a href="javascript:" class="ddp-btn-selection ddp-fright" (click)="onClickCopy(queryElement)">Copy</a>
-            <span class="ddp-txt-name" title="{{ recentQuery.query }}" #queryElement>{{ recentQuery.query }}</span>
+            <a href="javascript:" class="ddp-btn-selection ddp-fright" (click)="onClickCopy(recentQuery.query)">Copy</a>
+            <span class="ddp-txt-name" title="{{ recentQuery.query }}">{{ recentQuery.query }}</span>
           </div>
         </td>
       </tr>
@@ -52,8 +52,8 @@
         <td> <span class="ddp-data-state" [ngClass]="recentQuery.queryResultStatus === 'SUCCESS' ? 'ddp-success' : 'ddp-fail'">{{ recentQuery.queryResultStatus === 'SUCCESS'? 'Success' : 'Fail' }}</span></td>
         <td>
           <div class="ddp-txt-long ddp-type-button">
-            <a href="javascript:" class="ddp-btn-selection ddp-fright">Copy</a>
-            <span class="ddp-txt-name" title="{{ recentQuery.query }}" #queryElement>{{ recentQuery['query'] }}</span>
+            <a href="javascript:" class="ddp-btn-selection ddp-fright" (click)="onClickCopy(recentQuery.query)">Copy</a>
+            <span class="ddp-txt-name" title="{{ recentQuery.query }}">{{ recentQuery['query'] }}</span>
           </div>
         </td>
       </tr>

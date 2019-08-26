@@ -89,7 +89,7 @@
       <!-- detail view -->
       <div class="ddp-detail-view ddp-right">
         <!-- detail -->
-        <div class="ddp-detail">
+        <div *ngIf="topUserList.length !== 0" class="ddp-detail">
           <div class="ddp-label">{{'msg.explore.ui.detail.top.user'| translate}}</div>
           <div class="ddp-data-det">
             <!-- user -->
@@ -146,8 +146,8 @@
             {{'msg.explore.ui.detail.recent.used'| translate}}
             <a href="javascript:"
                class="ddp-link ddp-fright"
-               *ngIf="isShowDashboardMoreContents()"
-               (click)="onClickSeeAllRecentQueries()">{{'msg.explore.btn.detail.more.list'| translate}} &gt;</a>
+               *ngIf="isShowQueryMoreContents() && recentlyQueriesForDataSource['_embedded'].length <= 5"
+               (click)="onClickSeeAllRecentDashboards()">{{'msg.explore.btn.detail.more.list'| translate}} &gt;</a>
           </div>
           <div class="ddp-data-det">
             <ul class="ddp-list-graph ddp-bottom ddp-cursor">
@@ -187,12 +187,12 @@
 <!--        &lt;!&ndash; //recent dashboard &ndash;&gt;-->
 <!--        &lt;!&ndash; recent query &ndash;&gt;-->
 <!--        &lt;!&ndash; //recent query &ndash;&gt;-->
-        <div class="ddp-detail" *ngIf="(isDatabaseTypeMetadata() || isStagingTypeMetadata()) && recentlyQueriesForDataBase['_embedded'] != undefined">
+        <div class="ddp-detail" *ngIf="( isDatabaseTypeMetadata() || isStagingTypeMetadata()) && (recentlyQueriesForDataBase['_embedded'] !== undefined )">
           <div class="ddp-label">
             {{'msg.explore.ui.detail.recent.query'| translate}}
             <a href="javascript:"
                class="ddp-link ddp-fright"
-               *ngIf="isShowQueryMoreContents()"
+               *ngIf="isShowQueryMoreContents() && recentlyQueriesForDataSource['_embedded']['queryhistories'].length > 4"
                (click)="onClickSeeAllRecentQueries()">{{'msg.explore.btn.detail.more.list'| translate}} &gt;</a>
           </div>
           <div class="ddp-data-det">
@@ -221,8 +221,53 @@
                 <td> <span class="ddp-data-state" [ngClass]="recentQuery.queryResultStatus === 'SUCCESS' ? 'ddp-success' : 'ddp-fail'">{{ recentQuery.queryResultStatus === 'SUCCESS'? 'Success' : 'Fail' }}</span></td>
                 <td>
                   <div class="ddp-txt-long ddp-type-button">
-                    <a href="javascript:" class="ddp-btn-selection ddp-fright">Copy</a>
+                    <a href="javascript:" class="ddp-btn-selection ddp-fright" (click)="copyToClipboard(recentQuery['query'])">Copy</a>
                     <span class="ddp-txt-name" title="">{{ recentQuery['query'] }}</span>
+                  </div>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="ddp-detail" *ngIf="( isDatasourceTypeMetadata() && (recentlyQueriesForDataSource['_embedded'] !== undefined ))">
+          <div class="ddp-label">
+            {{'msg.explore.ui.detail.recent.query'| translate}}
+            <a
+               href="javascript:"
+               class="ddp-link ddp-fright"
+               *ngIf="isShowQueryMoreContents() && recentlyQueriesForDataSource['_embedded']['datasourcequeryhistories'].length > 4"
+               (click)="onClickSeeAllRecentQueries()">{{'msg.explore.btn.detail.more.list'| translate}} &gt;</a>
+          </div>
+          <div class="ddp-data-det">
+            <table class="ddp-table-detail4">
+              <colgroup>
+                <col width="15%">
+                <col width="15%">
+                <col width="20%">
+                <col width="150px">
+                <col width="*">
+              </colgroup>
+              <thead>
+              <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>User</th>
+                <th>Result</th>
+                <th>Query</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let recentQuery of recentlyQueriesForDataSource['_embedded']['datasourcequeryhistories'] | slice:0:5 ">
+                <td>{{ recentQuery.createdTime }}</td>
+                <td>{{ recentQuery.queryType }}</td>
+                <td>{{ recentQuery.creator.fullName }}</td>
+                <td> <span class="ddp-data-state" [ngClass]="recentQuery.succeed ? 'ddp-success' : 'ddp-fail'">{{ recentQuery.succeed ? 'Success' : 'Fail' }}</span></td>
+                <td>
+                  <div class="ddp-txt-long ddp-type-button">
+                    <a href="javascript:" class="ddp-btn-selection ddp-fright" (click)="copyToClipboard(recentQuery.query)">Copy</a>
+                    <span class="ddp-txt-name" title="{{ recentQuery.query }}">{{ recentQuery.query }}</span>
                   </div>
                 </td>
               </tr>
