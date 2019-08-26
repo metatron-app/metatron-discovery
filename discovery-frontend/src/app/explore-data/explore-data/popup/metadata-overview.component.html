@@ -187,7 +187,7 @@
 <!--        &lt;!&ndash; //recent dashboard &ndash;&gt;-->
 <!--        &lt;!&ndash; recent query &ndash;&gt;-->
 <!--        &lt;!&ndash; //recent query &ndash;&gt;-->
-        <div class="ddp-detail" *ngIf="isDatabaseTypeMetadata() || isStagingTypeMetadata()">
+        <div class="ddp-detail" *ngIf="(isDatabaseTypeMetadata() || isStagingTypeMetadata()) && recentlyQueriesForDataBase['_embedded'] != undefined">
           <div class="ddp-label">
             {{'msg.explore.ui.detail.recent.query'| translate}}
             <a href="javascript:"
