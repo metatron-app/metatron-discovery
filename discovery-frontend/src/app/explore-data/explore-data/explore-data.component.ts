@@ -172,27 +172,31 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
       await getRecentlyUpdatedList().catch(error => this.commonExceptionHandler(error));
 
       if (metadata.sourceType === SourceType.ENGINE) {
-        await getRecentlyQueriesForDataSource().catch(error => this.commonExceptionHandler(error));
+        await getRecentlyQueriesForDataSource();
         this.entryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(MetadataContainerComponent));
         this.entryRef.instance.metadataDetailData = metadataDetail;
         this.entryRef.instance.topUserList = topUserList;
         this.entryRef.instance.recentlyUpdatedList = recentlyUpdatedList;
-        this.entryRef.instance.recentlyQueriesForDataSource = recentlyQueriesForDataSource;
+        if (recentlyQueriesForDataSource['_embedded']) {
+          this.entryRef.instance.recentlyQueriesForDataSource = recentlyQueriesForDataSource['_embedded']['datasourcequeryhistories'];
+        }
         this.entryRef.instance.metadataId = metadata.id;
       } else if (metadata.sourceType === SourceType.JDBC || metadata.sourceType === SourceType.STAGEDB) {
-        await getRecentlyQueriesForDatabase().catch(error => this.commonExceptionHandler(error));
+        await getRecentlyQueriesForDatabase();
         this.entryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(MetadataContainerComponent));
         this.entryRef.instance.metadataDetailData = metadataDetail;
         this.entryRef.instance.topUserList = topUserList;
         this.entryRef.instance.recentlyUpdatedList = recentlyUpdatedList;
-        this.entryRef.instance.recentlyQueriesForDataBase = recentlyQueriesForDatabase;
+        if (recentlyQueriesForDatabase['_embedded']) {
+          this.entryRef.instance.recentlyQueriesForDataBase = recentlyQueriesForDatabase['_embedded']['queryhistories'];
+        }
         this.entryRef.instance.metadataId = metadata.id;
       }
       this.entryRef.instance.closedPopup.subscribe(() => {
         // close
         this.entryRef.destroy();
       });
-    }).catch(error => this.commonExceptionHandler(error));
+    }).catch(error => console.log(error));
   }
 
   private async _setMetadataSourceTypeCount() {

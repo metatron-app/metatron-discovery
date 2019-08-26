@@ -29,7 +29,7 @@
       </thead>
       <!--  if sourceType is ENGINE(dataSource)    -->
       <tbody *ngIf="recentlyQueriesForDataSource">
-      <tr *ngFor="let recentQuery of recentlyQueriesForDataSource['_embedded']['datasourcequeryhistories']">
+      <tr *ngFor="let recentQuery of recentlyQueriesForDataSource">
         <td>{{ recentQuery.createdTime }}</td>
         <td>{{ recentQuery.queryType }}</td>
         <td>{{ recentQuery.creator.fullName }}</td>
@@ -45,7 +45,7 @@
       <!--  if sourceType is JDBC(database)    -->
       </tbody>
       <tbody *ngIf="recentlyQueriesForDataBase">
-      <tr *ngFor="let recentQuery of recentlyQueriesForDataBase['_embedded']['queryhistories']">
+      <tr *ngFor="let recentQuery of recentlyQueriesForDataBase">
         <td>{{ recentQuery['createdTime'] }}</td>
         <td>Type</td>
         <td>{{ recentQuery['createdBy']['fullName'] }}</td>

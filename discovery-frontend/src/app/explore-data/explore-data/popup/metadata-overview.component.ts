@@ -23,10 +23,10 @@ export class MetadataOverviewComponent extends AbstractComponent implements OnIn
 
   @Input() readonly metadataId: string;
   @Input() readonly metadata : Metadata;
-  @Input() readonly topUserList;
-  @Input() readonly recentlyUpdatedList;
-  @Input() readonly recentlyQueriesForDataSource;
-  @Input() readonly recentlyQueriesForDataBase;
+  @Input() readonly topUserList = [];
+  @Input() readonly recentlyUpdatedList = [];
+  @Input() readonly recentlyQueriesForDataSource = [];
+  @Input() readonly recentlyQueriesForDataBase = [];
 
   public isShowMoreCatalogs: boolean = false;
 
@@ -60,11 +60,6 @@ export class MetadataOverviewComponent extends AbstractComponent implements OnIn
 
   isShowDashboardMoreContents(): boolean {
     // TODO dashborad 가 4건 이상
-    return true;
-  }
-
-  isShowQueryMoreContents(): boolean {
-  // TODO query 가 4건 이상
     return true;
   }
 
