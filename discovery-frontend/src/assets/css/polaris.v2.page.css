@@ -6784,8 +6784,8 @@ ul.ddp-ui-tab.ddp-type li .ddp-box-layout4.ddp-information a {padding:0px; borde
 
 
 .ddp-wrap-workbench .ddp-layout-table {display:table; width:100%; height:100%;}
-.ddp-wrap-workbench .ddp-ui-benchlnb {display:table-cell; position:relative; width:455px; min-width:455px;  height:100%; background-color:#35393f; vertical-align: top; z-index:20;}
-.ddp-wrap-workbench .ddp-ui-benchlnb.ddp-fold {width:280px; min-width:260px;}
+.ddp-wrap-workbench .ddp-ui-benchlnb {display:table-cell; position:relative; width:455px;height:100%; background-color:#35393f; vertical-align: top; z-index:20;}
+.ddp-wrap-workbench .ddp-ui-benchlnb.ddp-fold {width:280px;}
 .ddp-wrap-workbench .ddp-ui-benchlnb.ddp-fold .ddp-view-benchlnb {width:100%;}
 .ddp-wrap-workbench .ddp-ui-benchlnb.ddp-fold .ddp-ui-benchtable {display:none;}
 .ddp-wrap-workbench .ddp-ui-benchlnb .ddp-view-benchlnb {position:relative; float:left; height:100%; width:55%;}
