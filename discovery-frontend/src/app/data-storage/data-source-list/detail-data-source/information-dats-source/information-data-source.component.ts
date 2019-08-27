@@ -252,7 +252,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    * Update datasource description
    */
   public updateSourceDescription(): void {
-    // 설명 길이 체크
+    // Check length of description
     if (CommonUtil.getByte(this.descriptionChangeText.trim()) > 450) {
       Alert.warning(this.translateService.instant('msg.alert.edit.description.len'));
       return;

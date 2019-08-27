@@ -353,12 +353,14 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
   public onChangeAlignment(_alignment: any) {
     if(this.alignment !== _alignment.value) {
       this.alignment = _alignment.value;
+      this.selectedNode = null;
       this.getLineageMap();
     }
   }
   public onChangeNodeCount(_nodeCount: any) {
     if( this.nodeCount !== _nodeCount.value) {
       this.nodeCount = _nodeCount.value;
+      this.selectedNode = null;
       this.getLineageMap();
     }
   }
@@ -514,11 +516,11 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
                 var sourceName = params.data.frMetaName;
                 var targetName = params.data.toMetaName;
                 var sourceColName = params.data.frColName;
-                if(0<sourceColName.length) {
+                if(sourceColName && 0<sourceColName.length) {
                   sourceName = sourceName +'('+ sourceColName +')';
                 }
                 var targetColName = params.data.toColName;
-                if(0<targetColName.length) {
+                if(targetColName && 0<targetColName.length) {
                   targetName = targetName +'('+ targetColName +')';
                 }
                 return sourceName +' to '+ targetName;

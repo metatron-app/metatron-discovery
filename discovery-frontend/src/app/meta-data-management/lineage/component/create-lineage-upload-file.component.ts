@@ -110,7 +110,7 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
         max_file_size : 0,
         prevent_duplicate: true,
         mime_types: [
-          {title: "Lineage Edge files", extensions: "csv"}
+          {title: "Lineage Edge files", extensions: "csv,txt"}
         ],
 
       },

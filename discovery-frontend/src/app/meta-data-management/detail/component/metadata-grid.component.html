@@ -102,8 +102,14 @@
     </div>
     <!-- //option -->
     <!-- fix grid -->
+    <!--
     <div class="ddp-fix-grid meta-grid-type" grid-component
          [class.meta-grid]="isDatasourceTypeMetadata()" [class.ddp-msg-info1]="isDatasourceTypeMetadata() && !isExistCreatedField" [class.ddp-msg-info2]="isDatasourceTypeMetadata() && isLinkedSourceType() && isExistCreatedField"
+         (onHeaderRowCellRendered)="extendGridHeader($event)">
+    </div>
+    -->
+    <div class="ddp-fix-grid meta-grid-type" grid-component
+         [class.meta-grid]="isDatasourceTypeMetadata()" [class.ddp-msg-info2]="isDatasourceTypeMetadata() && isLinkedSourceType() && isExistCreatedField"
          (onHeaderRowCellRendered)="extendGridHeader($event)">
     </div>
     <!-- //fix grid -->

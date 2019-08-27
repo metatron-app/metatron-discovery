@@ -63,6 +63,9 @@ public class MetadataSourceProjections extends BaseProjections {
     DateTime getCreatedTime();
 
     DateTime getModifiedTime();
+
+    @Value("#{target.getSourceInfoObject()}")
+    Object getSourceInfo();
   }
 
 }
