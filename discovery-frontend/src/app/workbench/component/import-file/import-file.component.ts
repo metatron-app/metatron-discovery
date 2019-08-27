@@ -41,6 +41,8 @@ import {SYSTEM_PERMISSION} from "../../../common/permission/permission";
 import {DataconnectionService} from "../../../dataconnection/service/dataconnection.service";
 import {Dataconnection} from "../../../domain/dataconnection/dataconnection";
 
+const PERSONAL_DATABASE_NAME = "개인데이터베이스";
+
 @Component({
   selector: 'app-import-file',
   templateUrl: './import-file.component.html',
@@ -78,7 +80,7 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
   public tablePartitionColumns: string[] = ['사용하지 않음'];
   public selectedTablePartitionColumn: string = '';
 
-  public databases: string[] = ['개인데이터베이스'];
+  public databases: string[] = [PERSONAL_DATABASE_NAME];
   public selectedDatabaseName: string = '';
 
   public tables: string[] = [];
@@ -226,7 +228,7 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
 
       const params = {
         importType: this.selectedImportType,
-        databaseName: (StringUtil.isEmpty(this.selectedDatabaseName) || this.selectedDatabaseName == '개인데이터베이스')  ? getPersonalDatabaseName(this.dataConnection) : this.selectedDatabaseName.trim(),
+        databaseName: (StringUtil.isEmpty(this.selectedDatabaseName) || this.selectedDatabaseName == PERSONAL_DATABASE_NAME)  ? getPersonalDatabaseName(this.dataConnection) : this.selectedDatabaseName.trim(),
         webSocketId: this.webSocketId,
         firstRowHeadColumnUsed: !this.createHeadColumnFl,
         filePath: this.importFile.filepath,
@@ -498,9 +500,14 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
   }
 
   public onSelectedDatabaseName(databaseName : any) {
-    this.selectedDatabaseName = databaseName;
+    if(databaseName === PERSONAL_DATABASE_NAME) {
+      this.selectedDatabaseName = getPersonalDatabaseName(this.dataConnection);
+    } else {
+      this.selectedDatabaseName = databaseName;
+    }
+    this.selectedTableName = '';
     if(this.selectedImportType === ImportType.OVERWRITE) {
-      this.getTables(databaseName);
+        this.getTables(this.selectedDatabaseName);
     }
   }
 
@@ -702,7 +709,7 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
         webSocketId: this.webSocketId,
         loginUserId: CommonUtil.getLoginUserId()
       }).then((result) => {
-        this.databases = ['개인데이터베이스'];
+        this.databases = [PERSONAL_DATABASE_NAME];
         this.databases = this.databases.concat(result.databases);
       }).catch((error) => {
         console.log(error);
@@ -711,9 +718,11 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
   }
 
   private getTables(databaseName: string) {
+    this.loadingShow();
     this.tables = [];
     this.dataconnectionService.getTableListInConnection(this.dataConnection.id, databaseName, null)
       .then((result) => {
+        this.loadingHide();
         if(result.tables) {
           this.tables = result.tables;
           if(this.tables.length > 0) {
@@ -724,14 +733,13 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
         }
       })
       .catch((error) => {
-        console.log(error);
+        this.commonExceptionHandler(error);
       });
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method - init
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   private initView() {
     this.allowFileType = ['csv', 'text/csv', 'xls', 'xlsx', 'application/vnd.ms-excel'];
     this.selectedImportType = ImportType.NEW;
