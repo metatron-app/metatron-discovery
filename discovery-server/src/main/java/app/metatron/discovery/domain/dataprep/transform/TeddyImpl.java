@@ -486,7 +486,7 @@ public class TeddyImpl {
       setTypeRules.add(ruleString);
       columnNames.clear();
 
-      DataFrame newDf = dataFrameService.applyRule(df, ruleString);
+      DataFrame newDf = dataFrameService.applyRule(df, ruleString, null);
 
       columnNames.addAll(newDf.colNames);
     }
@@ -627,7 +627,7 @@ public class TeddyImpl {
 
     List<String> ruleStrings = getAutoTypingRules(df);
     for (String ruleString : ruleStrings) {
-      df = dataFrameService.applyRule(df, ruleString);
+      df = dataFrameService.applyRule(df, ruleString, null);
     }
 
     return df;

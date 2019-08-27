@@ -84,10 +84,6 @@ public class DataFrameService {
     }
   }
 
-  public DataFrame applyRule(DataFrame df, String ruleString) throws TeddyException {
-    return applyRule(df, ruleString, null);
-  }
-
   public DataFrame applyRuleInternal(DataFrame df, String ruleString, List<DataFrame> slaveDfs, Integer cores, Integer timeout, Integer limitRows) throws TeddyException {
     LOGGER.trace("applyRule(): start");
 
