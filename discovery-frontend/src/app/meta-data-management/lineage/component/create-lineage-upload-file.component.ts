@@ -42,6 +42,9 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
   private drop_container: ElementRef;
 
   public unsupportedFileView: boolean = false;
+  public unsupportedFileMsg: string = null;
+  public invalidFileView: boolean = false;
+  public invalidFileMsg: string = null;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -149,7 +152,10 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
         Error: (up, err) => {
           switch (err.code){
             case -601:
-              //Alert.error(this.translateService.instant('format.wrong'));
+              this.unsupportedFileMsg = this.translateService.instant(
+                                          'msg.lineage.ui.alert.wrong.file.format', {value:err.file.type} );
+              this.unsupportedFileView = true;
+              this._unsupportedFileView();
               break;
             case -100:
               console.log('GENERIC_ERROR', err);
@@ -158,7 +164,16 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
               console.log('HTTP_ERROR', err);
               if (err.response) {
                 const res = JSON.parse(err.response);
-                Alert.error(this.translateService.instant(res.message));
+                if(res.code==='MD007') {
+                  this.invalidFileMsg = this.translateService.instant(
+                                          'msg.lineage.ui.alert.invalid.file.format', {value:res.details} );
+                  this.invalidFileView = true;
+                  this._invalidFileView();
+                } else if(res.code.startsWith('MD')===true) {
+                  Alert.error(this.translateService.instant(res.details));
+                } else {
+                  Alert.error(this.translateService.instant(res.message));
+                }
               }
               break;
             case -300:
@@ -237,5 +252,22 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  private _unsupportedFileView(){
+    if (this.unsupportedFileView) {
+      setTimeout(() => {
+        this.unsupportedFileView = false;
+        this.unsupportedFileMsg = null;
+      }, 3000);
+    }
+  }
+
+  private _invalidFileView(){
+    if (this.invalidFileView) {
+      setTimeout(() => {
+        this.invalidFileView = false;
+        this.invalidFileMsg = null;
+      }, 3000);
+    }
+  }
 }
 

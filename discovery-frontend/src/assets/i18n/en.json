@@ -545,6 +545,8 @@
   "msg.lineage.ui.download.title.path" :"PATH",
   "msg.lineage.ui.download.title.placeholder" :"Search Lineage",
   "msg.lineage.ui.property.title.log-type" :"Log type",
+  "msg.lineage.ui.alert.wrong.file.format" :"Unsupported file format. ( {{value}} ).",
+  "msg.lineage.ui.alert.invalid.file.format" :"Invalid file format. {{value}}.",
 
   "msg.bench.alert.socket.link.fail.retry": "Attempt to reconnect due to failure of web socket connection.",
   "msg.bench.alert.close.editortab.fail": "Could not close editor tab.",

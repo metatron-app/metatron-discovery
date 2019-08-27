@@ -45,7 +45,12 @@
       <!-- //file create -->
       <div class="ddp-box-synch type-error" [ngStyle]="{'visibility': unsupportedFileView?'visible':'hidden'}">
         <div class="ddp-txt-synch">
-          <em class="ddp-icon-info"></em>{{'msg.dp.ui.file.upload.explain.unsupported' | translate}}
+          <em class="ddp-icon-info"></em>{{unsupportedFileMsg}}
+        </div>
+      </div>
+      <div class="ddp-box-synch type-error" [ngStyle]="{'visibility': invalidFileView?'visible':'hidden'}">
+        <div class="ddp-txt-synch">
+          <em class="ddp-icon-info"></em>{{invalidFileMsg}}
         </div>
       </div>
     </div>

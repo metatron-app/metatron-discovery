@@ -24,6 +24,8 @@ public enum MetadataErrorCodes implements ErrorCodes {
   LINEAGE_DATASET_ERROR("MD004"),
   LINEAGE_CANNOT_CREATE_EDGE("MD005"),
   LINEAGE_NODE_COUNT_DONE("MD006"),
+  LINEAGE_INVALID_FORMAT("MD007"),
+  LINEAGE_FILE_UPLOAD_ERROR("MD008"),
   ;
 
   String errorCode;

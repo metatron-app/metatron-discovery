@@ -16,6 +16,7 @@ package app.metatron.discovery.domain.mdm.lineage;
 
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.mdm.Metadata;
+import app.metatron.discovery.domain.mdm.MetadataErrorCodes;
 import app.metatron.discovery.domain.mdm.MetadataRepository;
 import app.metatron.discovery.domain.mdm.lineage.LineageMap.ALIGNMENT;
 import com.google.common.collect.Lists;
@@ -231,6 +232,22 @@ public class LineageEdgeController {
   public @ResponseBody ResponseEntity<?> file_upload(
       @RequestPart("file") MultipartFile file
   ) {
+    LineageException lineageException = null;
+
+    int frMetaIdIndex = -1;
+    int frMetaNameIndex = -1;
+    int toMetaIdIndex = -1;
+    int toMetaNameIndex = -1;
+
+    boolean useMetaId = false;
+    boolean useMetaName = false;
+
+    int rowCount = 0;
+    int frMetaIdCount = 0;
+    int frMetaNameCount = 0;
+    int toMetaIdCount = 0;
+    int toMetaNameCount = 0;
+
     Map<String, Object> response = Maps.newHashMap();
     List<String> header = Lists.newArrayList();
     List<Map<String,Object>> rows = Lists.newArrayList();
@@ -246,7 +263,19 @@ public class LineageEdgeController {
         CSVRecord csvRow = iter.next();
         int colCnt = csvRow.size();
         for (int i = 0; i < colCnt; i++) {
-          header.add(i, csvRow.get(i));
+          String colName = (String)csvRow.get(i);
+          header.add(i, colName);
+          if(colName.equalsIgnoreCase("frMetaId")==true) { frMetaIdIndex = i; }
+          else if(colName.equalsIgnoreCase("frMetaName")==true) { frMetaNameIndex = i; }
+          else if(colName.equalsIgnoreCase("toMetaId")==true) { toMetaIdIndex = i; }
+          else if(colName.equalsIgnoreCase("toMetaName")==true) { toMetaNameIndex = i; }
+        }
+        if(frMetaIdIndex!=-1 && toMetaIdIndex!=-1) {
+          useMetaId = true;
+        } else if(frMetaNameIndex!=-1 && toMetaNameIndex!=-1) {
+          useMetaName = true;
+        } else {
+          throw new LineageException(MetadataErrorCodes.LINEAGE_INVALID_FORMAT,"metaIds or metaNames are required");
         }
 
         while (true) {
@@ -256,22 +285,50 @@ public class LineageEdgeController {
 
           csvRow = iter.next();
           colCnt = csvRow.size();
-          Map<String,Object> row = Maps.newHashMap();
+          Map<String, Object> row = Maps.newHashMap();
           for (int i = 0; i < colCnt; i++) {
-            row.put(header.get(i), csvRow.get(i) );
+            Object col = csvRow.get(i);
+            row.put(header.get(i), col);
+
+            if(i==frMetaIdIndex && col!=null) { frMetaIdCount++; }
+            else if(i==frMetaNameIndex && col!=null) { frMetaNameCount++; }
+            else if(i==toMetaIdIndex && col!=null) { toMetaIdCount++; }
+            else if(i==toMetaNameIndex && col!=null) { toMetaNameCount++; }
           }
           rows.add(row);
+          rowCount++;
         }
+
+        if(useMetaId==true && 0<rowCount && rowCount==frMetaIdCount && rowCount==toMetaIdCount) {
+          response.put("useMetaId",rowCount);
+        } else if(useMetaName==true && 0<rowCount && rowCount==frMetaNameCount && rowCount==toMetaNameCount) {
+          response.put("useMetaName",rowCount);
+        } else {
+          throw new LineageException(MetadataErrorCodes.LINEAGE_INVALID_FORMAT,"metaIds or metaNames are required");
+        }
+      } else {
+        throw new LineageException(MetadataErrorCodes.LINEAGE_COLUMN_MISSING,"no entry");
       }
 
       response.put("header",header);
       response.put("rows",rows);
+
+    } catch (LineageException e) {
+      LOGGER.error("file_upload POST(): caught an exception: ", e);
+      lineageException = e;
     } catch (IOException e) {
       LOGGER.error("file_upload POST(): caught an exception: ", e);
+      lineageException = new LineageException(MetadataErrorCodes.LINEAGE_FILE_UPLOAD_ERROR,e.getMessage());
     } catch (IllegalStateException e) {
       LOGGER.error("file_upload POST(): caught an exception: ", e);
+      lineageException = new LineageException(MetadataErrorCodes.LINEAGE_FILE_UPLOAD_ERROR,e.getMessage());
     } catch (Exception e) {
       LOGGER.error("file_upload POST(): caught an exception: ", e);
+      lineageException = new LineageException(MetadataErrorCodes.LINEAGE_FILE_UPLOAD_ERROR,e.getMessage());
+    }
+
+    if(lineageException!=null) {
+      throw lineageException;
     }
 
     return ResponseEntity.ok().body(response);
