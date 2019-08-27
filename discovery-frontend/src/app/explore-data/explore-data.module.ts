@@ -43,15 +43,11 @@ import {ConstantService} from "../shared/datasource-metadata/service/constant.se
 import {CheckBoxFilterComponent} from "./explore-data/component/check-box-filter.component";
 import {MetadataTypeBoxTagComponent} from "./explore-data/component/metadata-type-box-tag.component";
 import {PopularityLayerComponent} from "./explore-data/component/popularity-layer.component";
-import {MetadataTypeBoxTagComponent} from "./explore-data/component/metadata-type-box-tag.component";
-import {ConstantService} from "../shared/datasource-metadata/service/constant.service";
 import {MetadataModelService} from "../meta-data-management/metadata/service/metadata.model.service";
 import {ExploreDataInformationComponent} from "./explore-data/component/explore-data-information.component";
 import {ExploreDataUserCardComponent} from "./explore-data/component/explore-data-user-card.component";
 import {LogicalNameLayerComponent} from "./explore-data/component/logical-name-layer.component";
 import {CreateWorkbenchModule} from "../workbench/component/create-workbench/refactoring/create-workbench.module";
-import {DatetimeValidPopupComponent} from "../shared/datasource-metadata/component/datetime-valid-popup.component";
-import {FieldConfigService} from "../data-storage/service/field-config.service";
 import {DatasourceMetadataSharedModule} from "../shared/datasource-metadata/datasource-metadata-shared.module";
 import {ExploreCatalogLayerComponent} from "./explore-data/component/explore-catalog-layer.component";
 import {CreateWorkbookModule} from "../workbook/component/create-workbook/refactoring/create-workbook.module";
@@ -78,8 +74,6 @@ import {MetadataUsedWorkspaceComponent} from "./explore-data/component/metadata-
     MetadataTypeBoxTagComponent,
     PopularityLayerComponent,
     LogicalNameLayerComponent,
-    BannerComponent,
-    CardComponent,
     MetadataSvgComponent,
     CheckBoxFilterComponent,
     ExploreBannerComponent,
@@ -96,7 +90,6 @@ import {MetadataUsedWorkspaceComponent} from "./explore-data/component/metadata-
     RecentQueriesComponent,
     WorkspaceUsesComponent,
     ExploreDataMainComponent,
-    ExploreCatalogMainComponent,
     ExploreCatalogLayerComponent,
     ExploreDataListComponent,
     ExploreDataSearchComponent,
@@ -110,7 +103,7 @@ import {MetadataUsedWorkspaceComponent} from "./explore-data/component/metadata-
     TimezoneService,
     CodeTableService,
     ExploreDataModelService,
-    ConstantService
+    ConstantService,
     CodeTableService,
     ConstantService,
     MetadataModelService

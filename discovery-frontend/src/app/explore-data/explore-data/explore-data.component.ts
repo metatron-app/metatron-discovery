@@ -17,7 +17,6 @@ import {
   ComponentFactoryResolver,
   ComponentRef,
   ElementRef,
-  HostListener,
   Injector,
   OnDestroy,
   OnInit,
@@ -28,9 +27,6 @@ import {AbstractComponent} from '../../common/component/abstract.component';
 import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
 import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
 import * as _ from 'lodash';
-import {CatalogService} from "../../meta-data-management/catalog/service/catalog.service";
-import {Catalog} from "../../domain/catalog/catalog";
-import {StringUtil} from "../../common/util/string.util";
 import {MetadataContainerComponent} from "./popup/metadata-container.component";
 import {DatasourceService} from "../../datasource/service/datasource.service";
 import {ExploreDataListComponent} from "./explore-data-list.component";
@@ -53,7 +49,6 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   entryRef: ComponentRef<MetadataContainerComponent>;
 
   selectedMetadata: Metadata;
-  selectedCatalog: Catalog.Tree;
 
   // data
   mode: ExploreMode = ExploreMode.MAIN;
@@ -123,11 +118,6 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   onChangedLnbData(): void {
     this._setExploreListMode();
     this._exploreDataListComponent.initMetadataList();
-  }
-
-  onClickCatalog(catalog: Catalog.Tree): void {
-    this.mode = ExploreMode.CATALOG;
-    this.selectedCatalog = catalog;
   }
 
   onClickMetadata(metadata: Metadata) {
