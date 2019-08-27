@@ -53,6 +53,9 @@ import {DetailModule} from './detail/detail.module';
 import {DatasourceMetadataSharedModule} from '../shared/datasource-metadata/datasource-metadata-shared.module';
 import {CreateMetadataModule} from "./metadata/create-metadata/create-metadata.module";
 import {SortingComponent} from "./component/sorting.component";
+import {MetadataDetailInformationComponent} from "./metadata/component/metadata-detail-information.component";
+import {MetadataDetailTopComponent} from "./metadata/component/metadata-detail-top.component";
+import {LayoutModule} from "../layout/layout/layout.module";
 
 @NgModule({
   imports: [
@@ -61,6 +64,7 @@ import {SortingComponent} from "./component/sorting.component";
     DatasourceShareModule,
     DatasourceMetadataSharedModule,
     CreateMetadataModule,
+    LayoutModule,
     RouterModule.forChild([
       {path: '', component: MetaDataManagementComponent, canActivate: [MetadataManagementGuard]},
       {path: ':tabId', component: MetaDataManagementComponent, canActivate: [MetadataManagementGuard]},
@@ -106,6 +110,10 @@ import {SortingComponent} from "./component/sorting.component";
     CreateLineageConfirmGridComponent,
     SelectCatalogComponent,
     CatalogComponent,
+    // Metadata Detail
+    MetadataDetailTopComponent,
+    // Metadata Detail Tabs
+    MetadataDetailInformationComponent
   ],
   providers: [
     // 코드 테이블 서비스

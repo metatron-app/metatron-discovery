@@ -22,7 +22,7 @@
         <!-- edit option -->
         <div class="ddp-ui-edit-option">
           <!-- selectbox -->
-          <!-- 선택시 : ddp-selected 추가 -->
+          <!-- add ddp-selected when clicked-->
           <component-select
             [defaultIndex]="typeDefaultIndex"
             [array]="sourceTypeList"
@@ -59,7 +59,7 @@
     <!-- //option -->
     <!-- option -->
     <div class="ddp-ui-option ddp-optiontype ddp-clear">
-      <!-- 검색 -->
+      <!-- search -->
       <div class="ddp-form-search ddp-fleft">
         <em class="ddp-icon-search"></em>
         <component-input
@@ -70,7 +70,7 @@
           (changeValue)="listSearchText = $event; onSearchText();">
         </component-input>
       </div>
-      <!-- //검색 -->
+      <!-- //search -->
       <!-- right -->
       <div class="ddp-ui-rightoption">
         <span *ngIf="getTotalContentsCount > 1" class="ddp-data-total" [innerHTML]="'msg.metadata.ui.lists' | translate : { value : getTotalContentsCount }"></span>
@@ -167,7 +167,7 @@
   <div class="ddp-data-source-none" *ngIf="metadatas && metadatas.length === 0; else yesMd">
     {{'msg.metadata.ui.no.metadata' | translate}}
   </div>
-  <!-- //데이터 없음 -->
+  <!-- //no data -->
 
   <ng-template #yesMd>
     <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>

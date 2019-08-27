@@ -96,6 +96,9 @@ const layoutRoutes: Routes = [
     ProfileComponent,
     ChangePasswordComponent
   ],
+  exports: [
+   LNBComponent
+  ],
   providers: [
     CookieService,
     UserService,

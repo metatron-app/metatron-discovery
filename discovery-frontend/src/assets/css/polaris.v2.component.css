@@ -645,6 +645,19 @@ ul.ddp-list-typebasic.ddp-view li.ddp-selected a .ddp-icon-plus {display:block;}
 .datepicker--day-name {color:#666eb2;}
 
 /**************************************************************
+    background multi
+**************************************************************/
+table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-icon-popularity,
+.ddp-wrap-datadetail .ddp-ui-information .ddp-ui-popularity .ddp-icon-popularity {display:inline-block; width:18px; height:14px; background:url(../images/icon_popularity.png) no-repeat;}
+
+.ddp-wrap-edit3 .ddp-ui-edit-option .ddp-apply .ddp-btn-add .ddp-icon-plus,
+table.ddp-table-detail tr td .ddp-apply .ddp-btn-add .ddp-icon-plus,
+.ddp-list-tags .ddp-ui-add-button .ddp-btn-add em.ddp-icon-plus{background:url(../images/icon_add.png) no-repeat; }
+.ddp-wrap-edit3 .ddp-ui-edit-option .ddp-apply .ddp-btn-add .ddp-icon-plus,
+table.ddp-table-detail tr td .ddp-apply .ddp-btn-add .ddp-icon-plus {display:inline-block; width:13px; height:13px; background-position:-42px -22px;}
+
+
+/**************************************************************
   gradation
 **************************************************************/
 .gradx_add_slider {display:none;}

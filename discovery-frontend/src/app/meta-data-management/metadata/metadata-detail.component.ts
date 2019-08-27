@@ -36,6 +36,7 @@ import {Metadata, SourceType} from '../../domain/meta-data-management/metadata';
 })
 export class MetadataDetailComponent extends AbstractComponent implements OnInit, OnDestroy {
 
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -74,6 +75,8 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   public isContextMenuShow: boolean = false;
 
   public selectedMetadataId: string;
+
+  public metadata: Metadata;
 
   // 이름 에디팅여부
   public isNameEdit: boolean = false;
@@ -140,6 +143,13 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   } // function - goBack
 
   /**
+   * Change current selected tab
+   */
+  public changeTab(tab: string) {
+    this.tab = tab;
+  }
+
+  /**
    * Get metadata detail information
    */
   public getMetadataDetail() {
@@ -147,6 +157,7 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
     this.metadataService.getDetailMetaData(this.selectedMetadataId).then((result) => {
       this.loadingHide();
       if (result) {
+        this.metadata = result;
         this.metadataModelService.setMetadata(result);
         this.metadataLoaded = true;
       }
@@ -287,4 +298,5 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
 }
+
 

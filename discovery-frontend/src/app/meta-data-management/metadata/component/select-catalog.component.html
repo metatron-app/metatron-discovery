@@ -34,12 +34,12 @@
           <div class="ddp-data-create">
             <a href="javascript:" class="ddp-btn-back" *ngIf="isRoot()" (click)="goBack()"></a>
             <span class="ddp-data-name">{{currentRoot.name}}</span>
-            <!-- 편집 -->
+            <!-- edit -->
             <div class="ddp-data-input" *ngIf="isCreateCatalog">
               <input type="text" placeholder="{{'msg.metadata.catalog.ui.name.ph' | translate }}" #newCatalogName (keypress)="createCatalogByKeypress($event)">
               <em class="ddp-icon-control-check" (click)="createCatalogDone()"></em>
             </div>
-            <!-- //편집 -->
+            <!-- //edit -->
           </div>
           <!-- //create -->
         </div>
@@ -47,17 +47,17 @@
         <div class="ddp-select-catalog" *ngIf="!isCreateCatalog">
           <ul class="ddp-list-workspace">
             <!--
-                edit 클릭할때 ddp-box-edit 추가
-                sub 메뉴 있을때 ddp-sub 추가
+                add ddp-box-eddit when edit clicked
+                add ddp-sub when sub menu is exist
             -->
             <li class="ddp-txt" *ngIf="catalogs.length === 0 && !isRoot()">
               <a href="javascript:">
                 <em class="ddp-icon-question2"></em>
                 <div class="ddp-wrap-name ">
-                  <!-- new 일때 ddp-data-new 추가 -->
+                  <!-- add ddp-data-new if newly created -->
                   <span class="ddp-data-name "><span class="ddp-data-in">{{'msg.metadata.ui.unclassified' | translate }}</span></span>
                 </div>
-                <!-- 편집 -->
+                <!-- edit -->
               </a>
             </li>
             <li [ngClass]="{'ddp-selected':selectedCatalog && selectedCatalog.id === catalog.id && !catalog.editing, 'ddp-box-edit': catalog.editing, 'ddp-sub':catalog }"
@@ -67,15 +67,15 @@
               <a href="javascript:">
                 <em class="ddp-icon-folder"></em>
                 <div class="ddp-wrap-name">
-                  <!-- new 일때 ddp-data-new 추가 -->
+                  <!-- add ddp-data-new if newly created -->
                   <span class="ddp-data-name"><span class="ddp-data-in">{{catalog.name}}</span></span>
                 </div>
-                <!-- 편집 -->
+                <!-- edit -->
                 <div class="ddp-data-input" *ngIf="catalog.editing">
                   <input type="text" placeholder="{{'msg.metadata.catalog.ui.name.ph' | translate }}" value="{{catalog.name}}" #catalogInput (keyup.enter)="updateCatalog(catalog,index)">
                   <em class="ddp-icon-control-check" (click)="updateCatalog(catalog, index)"></em>
                 </div>
-                <!-- //편집 -->
+                <!-- //edit -->
                 <div class="ddp-btn-control"></div>
                 <em class="ddp-view" (click)="catalogDetail(catalog)"></em>
               </a>

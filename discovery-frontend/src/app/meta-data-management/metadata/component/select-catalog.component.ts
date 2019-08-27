@@ -43,23 +43,23 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
   @ViewChild(DeleteModalComponent)
   public deleteModalComponent: DeleteModalComponent;
 
-  // 화면 show/hide
+  // screen show/hide
   public showFlag: boolean = false;
 
   public catalogs: any;
   public metadatas: any;
 
-  // 선택된 카타로그 한개
+  // selected cataglog
   public selectedCatalog: Catalog;
 
   public isCreateCatalog: boolean = false;
 
   public isEditCatalogName: boolean = false;
 
-  // 현재 보고있는 root
+  // current root
   public currentRoot: any = {name: 'Root', id: 'ROOT'};
 
-  // 뒤로가기를 하기 위한 path 저장
+  // save path to go back
   public catalogPath: any = [{name: 'Root', id: 'ROOT'}];
 
   public selectedContentSort: Order = new Order();
@@ -75,7 +75,6 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 생성자
   constructor(
     protected element: ElementRef,
     protected catalogService: CatalogService,
@@ -106,8 +105,8 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-   * 팝업 초기화
-   * @param isClose 팝업을 닫을때인지 ?
+   * initialize popup
+   * @param isClose: close or open popup flag
    */
   public init(isClose?: boolean) {
 
@@ -132,7 +131,7 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
   }
 
   /**
-   * 새로운 카타로그를 만들수 있는지 확인 (3depth 까지만 가능)
+   * Check if create new catalog is possible (upto 3 depth is possible)
    */
   public isCreateAllowed() {
     if (this.isCreateCatalog) {
@@ -141,7 +140,7 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
   }
 
   /**
-   * new catalog 버튼 클릭시 새로운 카타로그를 만들수 있는 input box show
+   * if new catalog button clicked, show input box to make new catalog
    */
   public createCatalog() {
     if (this.catalogPath.length === 4) {
@@ -151,7 +150,7 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
   }
 
   /**
-   * 새로운 카타로그 생성 API 호출
+   * Call api to make new catalog
    */
   public createCatalogDone() {
     if (!isUndefined(this.newCatalogName.nativeElement.value) && this.newCatalogName.nativeElement.value.trim() !==
@@ -181,7 +180,7 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
   }
 
   /**
-   * 루트 폴더인지 확인
+   * Check if root folder
    */
   public isRoot() {
     if (this.isCreateCatalog) {
@@ -192,7 +191,7 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
   }
 
   /**
-   * 뒤로 가기 버튼 클릭 시
+   * When back button is clicked
    */
   public goBack() {
 
@@ -215,7 +214,7 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
   }
 
   /**
-   * Rename catalog 카타로그 이름 수정
+   * Rename catalog
    * @param catalog
    * @param index
    */
@@ -244,7 +243,7 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
   } // function - updateCatalog
 
   /**
-   * Cancel editing 수정 취소
+   * Cancel editing
    * @param catalog
    */
   public cancelEditing(catalog) {
@@ -257,7 +256,7 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
   } // function - cancelEditing
 
   /**
-   * 카타로그 Add 버튼 클릭 시
+   * When catalog add button is clicked
    */
   public addCatalog() {
     if (isUndefined(this.selectedCatalog.name)) {
@@ -287,7 +286,7 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
   }
 
   /**
-   * 메타데이터 reload
+   * Metadata reload
    */
   public getMetadataDetail() {
     this.loadingShow();
@@ -303,7 +302,7 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
   } // function - getMetadataDetail
 
   /**
-   * 카타로그 선택
+   * Select Catalog
    * @param catalog
    */
   public selectCatalog(catalog) {
@@ -313,7 +312,7 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
   }
 
   /**
-   * > 클릭시 (하위 메타데이터 불러오가)
+   * When '>' clicked load child metadata
    * @param catalog
    */
   public catalogDetail(catalog) {
@@ -341,7 +340,7 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
   }
 
   /**
-   * 메타데이터 리스트 불러오기
+   * Load Metadata List
    */
   public getCatalogList() {
     this.loadingShow();
@@ -361,7 +360,7 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
   }
 
   /**
-   * 하위 메타데이터 불러오기
+   * Load child metadata
    * @param catalogId
    */
   public showChildren(catalogId: string) {
@@ -373,7 +372,7 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
   }
 
   /**
-   * 메타데이터 이름 수정 버튼 클릭시
+   * When edit metadata's name button clicked
    * @param catalog
    */
   public editCatalog(catalog) {
@@ -383,7 +382,7 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
   }
 
   /**
-   * 메타데이터 삭제 모달 오픈
+   * Show delete metadata modal
    */
   public confirmDelete(catalog) {
     this.selectedCatalog = _.cloneDeep(catalog);
@@ -395,11 +394,11 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
         modal.name += ' ' + this.translateService.instant('msg.metadata.catalog.delete.header-plural');
       }
 
-      // 데이터가 1개 ~ 3개일때
+      // if data count is 1 ~ 3
       if (result.length > 1 && result.length < 4) {
         this.metadatas = `${result.join(', ')}`;
       }
-      // 데이터가 3개 이상일 때
+      // if data count is more than 3
       else if (result.length > 3) {
         this.metadatas = `${result.splice(0, 3).join(', ')} ...`;
       }
@@ -411,7 +410,7 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
   } // function - confirmDelete
 
   /**
-   * 메타데이터 삭제 완료 (모달에서 확인 클릭시)
+   * Delete metadata complete ( when confirm button clicked in modal )
    */
   public deleteCatalog() {
     this.loadingShow();
