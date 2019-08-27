@@ -93,4 +93,12 @@ public interface UserRepository extends JpaRepository<User, String>, QueryDslPre
   @RestResource(exported = false)
   @Query("SELECT user FROM User user WHERE user.username IN (:usernames)")
   List<User> findByUsernames(@Param("usernames") List<String> usernames);
+
+  /**
+   * 사용자 Fullname, id 검색
+   * @param userName
+   * @param userId
+   * @return
+   */
+  List<User> findByFullNameContainingIgnoreCaseOrIdContainingIgnoreCase(String userName, String userId);
 }

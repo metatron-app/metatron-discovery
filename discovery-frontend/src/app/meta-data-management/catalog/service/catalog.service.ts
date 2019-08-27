@@ -15,6 +15,7 @@
 import {Injectable, Injector} from '@angular/core';
 import {CommonUtil} from '../../../common/util/common.util';
 import {AbstractService} from '../../../common/service/abstract.service';
+import {Catalog} from "../../../domain/catalog/catalog";
 
 @Injectable()
 export class CatalogService extends AbstractService {
@@ -49,6 +50,8 @@ export class CatalogService extends AbstractService {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  public selectedCatalog: Catalog.Tree;
 
   /**
    * 카타로그 생성
@@ -93,12 +96,21 @@ export class CatalogService extends AbstractService {
   }
 
   /**
-   * 전체 카테고리를 트리로 조회합니다.
+   * 전체 카탈로그를 트리로 조회합니다.
    * @param id
-   * @return
+   * @param includeAllHierarchies
+   * @return 카탈로그 트리 배열
+   * [{
+        "id": "1e7d0003-6375-447a-a51a-e041db5116a5",
+        "name": "bbb"
+    }],
    */
-  public getTreeCatalogs(id: string): Promise<any> {
-    return this.get(this.URL_CATALOG + `/${id}/tree`);
+  public getTreeCatalogs(id: string, includeAllHierarchies?: boolean): Promise<any> {
+    if (includeAllHierarchies) {
+      return this.get(this.URL_CATALOG + `/${id}/tree/?includeAllHierarchies=${includeAllHierarchies}`);
+    } else {
+      return this.get(this.URL_CATALOG + `/${id}/tree`);
+    }
   }
 
   /**

@@ -1,4 +1,5 @@
 /*
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,31 +13,29 @@
  * limitations under the License.
  */
 
-package app.metatron.discovery.domain.tag;
-
-import org.springframework.data.rest.core.config.Projection;
-
-import app.metatron.discovery.common.BaseProjections;
-
-public class TagProjections extends BaseProjections {
-
-  @Projection(types = Tag.class, name = "default")
-  public interface DefaultProjection {
-
-    String getId();
-
-    String getName();
-
+export namespace ExploreDataConstant {
+  export namespace Metadata {
+    export enum TypeIconClass {
+      DATASOURCE = 'type-datasource',
+      DATABASE = 'type-database',
+      STAGING_DB = 'type-stagingdb',
+      DATA_SET = 'type-dataset',
+    }
   }
 
-  @Projection(types = Tag.class, name = "forTreeView")
-  public interface TreeProjection {
-
-    String getId();
-
-    String getName();
-
-    Long getCount();
+  export enum SearchRange {
+    ALL = 'keyword',
+    DATA_NAME = 'nameContains',
+    DESCRIPTION = 'descContains',
+    CREATOR = 'creatorContains',
   }
 
+  export enum LnbTab {
+    CATALOG = 'CATALOG',
+    TAG = 'TAG'
+  }
+
+  export enum BroadCastKey {
+    EXPLORE_INITIAL = 'EXPLORE_INITIAL',
+  }
 }

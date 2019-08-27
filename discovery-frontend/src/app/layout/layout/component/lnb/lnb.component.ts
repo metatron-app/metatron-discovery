@@ -71,7 +71,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     workspace: false,
     exploreData: false,
     exploreDataView: true,
-    exploreFavorite: true,
+    exploreFavorite: false,
     management: false,
     managementDatasource: false,
     managementMetadata: false,

@@ -4,6 +4,8 @@ export namespace Catalog {
     name: string;
     id: string;
     child: Tree;
+    // Only used UI
+    isOpened?: boolean;
   }
   
   export namespace Constant {

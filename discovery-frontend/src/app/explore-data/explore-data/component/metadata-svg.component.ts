@@ -12,31 +12,19 @@
  * limitations under the License.
  */
 
-package app.metatron.discovery.domain.tag;
+import {Component, Input} from "@angular/core";
+import {ExploreDataConstant} from "../../constant/explore-data-constant";
 
-import org.springframework.data.rest.core.config.Projection;
+@Component({
+  selector: 'component-metadata-svg',
+  templateUrl: 'metadata-svg.component.html'
+})
+export class MetadataSvgComponent {
 
-import app.metatron.discovery.common.BaseProjections;
+  @Input() readonly iconClass: ExploreDataConstant.Metadata.TypeIconClass;
 
-public class TagProjections extends BaseProjections {
+  readonly METADATA_TYPE = ExploreDataConstant.Metadata.TypeIconClass;
 
-  @Projection(types = Tag.class, name = "default")
-  public interface DefaultProjection {
-
-    String getId();
-
-    String getName();
-
+  constructor() {
   }
-
-  @Projection(types = Tag.class, name = "forTreeView")
-  public interface TreeProjection {
-
-    String getId();
-
-    String getName();
-
-    Long getCount();
-  }
-
 }
