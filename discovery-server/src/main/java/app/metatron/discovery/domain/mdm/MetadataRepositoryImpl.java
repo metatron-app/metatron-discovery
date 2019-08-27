@@ -71,6 +71,39 @@ public class MetadataRepositoryImpl extends QueryDslRepositorySupport implements
 
   }
 
+  public Page<Metadata> searchMetadatas(String keyword, Metadata.SourceType sourceType, String catalogId, String tag,
+                                        String nameContains, String descContains, List<String> userIds,
+                                        String searchDateBy, DateTime from, DateTime to, Pageable pageable) {
+
+    QMetadata qMetadata = QMetadata.metadata;
+    QTagDomain qTagDomain = QTagDomain.tagDomain;
+
+    JPQLQuery<Metadata> query;
+    if(StringUtils.isNotEmpty(tag)) {
+      query = from(qMetadata, qTagDomain).select(qMetadata)
+                                         .where(qMetadata.id.eq(qTagDomain.domainId))
+                                         .where(qTagDomain.tag.name.eq(tag));
+    } else {
+      query = from(qMetadata);
+    }
+
+    query.where(MetadataPredicate.searchList(keyword, sourceType, catalogId, nameContains, descContains,
+                                             userIds, searchDateBy, from, to));
+
+    Long total = query.fetchCount();
+
+    List<Metadata> contents;
+    if(total > pageable.getOffset()) {
+      query = getQuerydsl().applyPagination(pageable, query);
+      contents = query.fetch();
+    } else {
+      contents = Lists.newArrayList();
+    }
+
+    return new PageImpl<>(contents, pageable, total);
+
+  }
+
   @Override
   public List<Metadata> findBySource(String sourceId, String schema, List<String> table) {
     QMetadata qMetadata = QMetadata.metadata;

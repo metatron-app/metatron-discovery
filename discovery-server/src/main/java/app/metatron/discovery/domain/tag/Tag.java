@@ -146,6 +146,14 @@ public class Tag implements MetatronDomain<String> {
     this.createdTime = createdTime;
   }
 
+  public List<TagDomain> getDomains() {
+    return domains;
+  }
+
+  public void setDomains(List<TagDomain> domains) {
+    this.domains = domains;
+  }
+
   @Override
   public String toString() {
     return "Tag{" +

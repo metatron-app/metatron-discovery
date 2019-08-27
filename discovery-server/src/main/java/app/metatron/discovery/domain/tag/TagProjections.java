@@ -29,4 +29,14 @@ public class TagProjections extends BaseProjections {
 
   }
 
+  @Projection(types = Tag.class, name = "forTreeView")
+  public interface TreeProjection {
+
+    String getId();
+
+    String getName();
+
+    Long getCount();
+  }
+
 }

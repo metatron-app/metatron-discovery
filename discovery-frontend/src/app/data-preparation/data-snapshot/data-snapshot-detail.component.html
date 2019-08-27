@@ -233,7 +233,7 @@
             </dt>
             <dd>
 
-              <div class="ddp-ui-sub">
+              <div class="ddp-ui-sub" *ngIf="originDsInfo.dsName">
                 <span class="ddp-data-sub">{{'msg.board.th.datasource' | translate}} <em class="ddp-data-result">{{ originDsInfo.dsName }}</em></span>
               </div>
               <div class="ddp-ui-sub" *ngIf="originDsInfo.qryStmt">
@@ -242,7 +242,7 @@
               <div class="ddp-ui-sub" *ngIf="originDsInfo.filePath">
                 <span class="ddp-data-sub">{{'msg.dp.th.file.path' | translate}} <em class="ddp-data-result">{{ originDsInfo.filePath }}</em></span>
               </div>
-              <div class="ddp-ui-sub">
+              <div class="ddp-ui-sub" *ngIf="originDsInfo.createdTime">
                 <span class="ddp-data-sub">{{'msg.comm.ui.list.created' | translate}} <em class="ddp-data-result">{{originDsInfo.createdTime | mdate:'YYYY-MM-DD HH:mm'}}</em></span>
               </div>
             </dd>

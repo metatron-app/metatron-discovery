@@ -18,6 +18,8 @@ import {MetadataService} from "../../meta-data-management/metadata/service/metad
 import * as _ from "lodash";
 import {StringUtil} from "../../common/util/string.util";
 import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
+import {ExploreDataConstant} from "../constant/explore-data-constant";
+import {EventBroadcaster} from "../../common/event/event.broadcaster";
 
 @Component({
   selector: 'explore-data-main',
@@ -26,19 +28,22 @@ import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
 export class ExploreDataMainComponent extends AbstractComponent {
 
   recommendedMetadataList: Metadata[];
-  popularMetadataList: Metadata[];
-  updatedMetadataList: Metadata[];
+  popularMetadataList: Metadata[][];
+  updatedMetadataList: Metadata[][];
   favoriteMetadataList: Metadata[];
   favoriteCreatorMetadataList: Metadata[];
+
+  // banner icon
+  bannerIconList = _.shuffle(['type-banner02', 'type-banner03', 'type-banner04', 'type-banner05']);
 
   // event
   @Output() readonly clickedMetadata = new EventEmitter();
 
   // 생성자
-  constructor(
-    protected element: ElementRef,
-    protected injector: Injector,
-    private _metadataService: MetadataService) {
+  constructor(protected element: ElementRef,
+              protected injector: Injector,
+              private broadcaster: EventBroadcaster,
+              private _metadataService: MetadataService) {
     super(element, injector);
   }
 
@@ -49,19 +54,18 @@ export class ExploreDataMainComponent extends AbstractComponent {
   // Init
   ngOnInit() {
     super.ngOnInit();
-    const init = async () => {
+    const initial = async () => {
       this.loadingShow();
       await this._setPopularMetadataList();
-      await this._updatedMetadataList();
+      await this._setUpdatedMetadataList();
       await this._setRecommendedMetadataList();
       await this._setMyFavoriteMetadataList();
       await this._setCreatorFavoriteMetadataList();
-      this.loadingHide();
     };
-    init().catch(error => this.commonExceptionHandler(error));
+    initial().then(() => this.broadcaster.broadcast(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL)).catch(() => this.broadcaster.broadcast(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL));
   }
 
-  isEmptyRecommendedMetadataList() {
+  isEmptyRecommendedMetadataList(): boolean {
     return _.isNil(this.recommendedMetadataList);
   }
 
@@ -73,47 +77,35 @@ export class ExploreDataMainComponent extends AbstractComponent {
     return StringUtil.isNotEmpty(metadata.description);
   }
 
-  getMetadataIcon(metadata: Metadata): string {
+  getMetadataTypeClass(metadata: Metadata): ExploreDataConstant.Metadata.TypeIconClass {
     switch (metadata.sourceType) {
       case SourceType.ENGINE:
-        return 'ddp-icon-datasource';
+        return ExploreDataConstant.Metadata.TypeIconClass.DATASOURCE;
       case SourceType.JDBC:
-        return 'ddp-icon-database';
+        return ExploreDataConstant.Metadata.TypeIconClass.DATABASE;
       case SourceType.STAGEDB:
-        return 'ddp-icon-stagingdb';
+        return ExploreDataConstant.Metadata.TypeIconClass.STAGING_DB;
       default:
-        return '';
+        return ExploreDataConstant.Metadata.TypeIconClass.DATABASE;
     }
   }
 
-  getMetadataImage(metadata: Metadata): string {
-    switch (metadata.sourceType) {
-      case SourceType.ENGINE:
-        return 'ddp-data-images type-datasource';
-      case SourceType.JDBC:
-        return 'ddp-data-images type-database';
-      case SourceType.STAGEDB:
-        return 'ddp-data-images type-stagingdb';
-      default:
-        return 'ddp-data-images type-database';
-    }
+  onClickMetadata(metadata: Metadata): void {
+    this.clickedMetadata.emit(metadata);
   }
 
-  onClickMetadata(metadata: Metadata) {
-    return this.clickedMetadata.emit(metadata);
-  }
 
   private async _setPopularMetadataList() {
-    const result = await this._metadataService.getMetadataListByPopularity({size: 10, page: 0});
+    const result = await this._metadataService.getMetadataListByPopularity({size: 6, page: 0});
     if (!_.isNil(result._embedded)) {
-      this.popularMetadataList = result._embedded.metadatas;
+      this.popularMetadataList = _.chunk(result._embedded.metadatas, 2);
     }
   }
 
-  private async _updatedMetadataList() {
-    const result = await this._metadataService.getMetaDataList({size: 10, page: 0, sort: 'modifiedTime,desc'});
+  private async _setUpdatedMetadataList() {
+    const result = await this._metadataService.getMetaDataList({size: 6, page: 0, sort: 'modifiedTime,desc'});
     if (!_.isNil(result._embedded)) {
-      this.updatedMetadataList = result._embedded.metadatas;
+      this.updatedMetadataList = _.chunk(result._embedded.metadatas, 2);
     }
   }
 
@@ -137,6 +129,4 @@ export class ExploreDataMainComponent extends AbstractComponent {
       this.recommendedMetadataList = result._embedded.metadatas;
     }
   }
-
-
 }

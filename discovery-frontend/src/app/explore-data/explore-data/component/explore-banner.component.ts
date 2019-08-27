@@ -16,23 +16,23 @@ import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@ang
 import {AbstractComponent} from "../../../common/component/abstract.component";
 import * as _ from "lodash";
 import {StringUtil} from "../../../common/util/string.util";
+import {ExploreDataConstant} from "../../constant/explore-data-constant";
 
 @Component({
-  selector: 'component-card',
-  templateUrl: 'card.component.html'
+  selector: 'component-explore-banner',
+  templateUrl: 'explore-banner.component.html'
 })
-export class CardComponent extends AbstractComponent {
+export class ExploreBannerComponent extends AbstractComponent {
 
   // class
-  @Input() readonly imageClass: string;
+  @Input() readonly bannerClass: string;
+  @Input() readonly iconClass: ExploreDataConstant.Metadata.TypeIconClass;
   // data
   @Input() readonly title: string;
   @Input() readonly description: string;
   @Input() readonly tagList;
-  @Input() readonly popularity: number;
-  @Input() readonly creator: string;
   // event
-  @Output() readonly clickedCard = new EventEmitter();
+  @Output() readonly clickedBanner = new EventEmitter();
   @Output() readonly clickedTag = new EventEmitter();
 
   constructor(protected element: ElementRef,
@@ -40,8 +40,8 @@ export class CardComponent extends AbstractComponent {
     super(element, injector);
   }
 
-  onClickCard() {
-    this.clickedCard.emit();
+  onClickBanner() {
+    this.clickedBanner.emit();
   }
 
   onClickTag(tag) {
@@ -55,9 +55,5 @@ export class CardComponent extends AbstractComponent {
 
   isEnableDescription(): boolean {
     return StringUtil.isNotEmpty(this.description);
-  }
-
-  isEnablePopularity(): boolean {
-    return !_.isNil(this.popularity);
   }
 }

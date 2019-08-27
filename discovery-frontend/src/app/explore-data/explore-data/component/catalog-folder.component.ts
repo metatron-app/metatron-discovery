@@ -12,23 +12,23 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output} from "@angular/core";
 import {AbstractComponent} from "../../../common/component/abstract.component";
 import {Catalog} from "../../../domain/catalog/catalog";
 import {CatalogService} from "../../../meta-data-management/catalog/service/catalog.service";
 import {StringUtil} from "../../../common/util/string.util";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'component-catalog-folder',
   templateUrl: 'catalog-folder.component.html'
 })
-export class CatalogFolderComponent extends AbstractComponent {
-
-  isOpened: boolean;
-
+export class CatalogFolderComponent extends AbstractComponent implements OnInit {
   // data
   @Input() readonly searchKeyword: string;
   @Input() readonly catalog: Catalog.Tree;
+  @Input() readonly selectedCatalog: Catalog.Tree;
+  @Input() readonly isEmptyCatalog: boolean;
 
   // event
   @Output() readonly clickedCatalog = new EventEmitter();
@@ -39,19 +39,31 @@ export class CatalogFolderComponent extends AbstractComponent {
     super(element, injector);
   }
 
+  ngOnInit() {
+
+  }
+
   isEmptySearchKeyword(): boolean {
     return StringUtil.isEmpty(this.searchKeyword);
+  }
+
+  isEmptySelectedCatalog(): boolean {
+    return _.isNil(this.selectedCatalog);
+  }
+
+  isSelectedCatalog(): boolean {
+    return !this.isEmptySelectedCatalog() && this.selectedCatalog.id === this.catalog.id;
   }
 
   onChangeFolderOpen(catalogId: string) {
     // stop bubbling
     event.stopImmediatePropagation();
     // if is not opened
-    if (!this.isOpened) {
+    if (!this.catalog.isOpened) {
       // set catalog list in child
       this._setCatalogList(catalogId);
     }
-    this.isOpened = !this.isOpened;
+    this.catalog.isOpened= !this.catalog.isOpened;
   }
 
   onClickCatalog(catalog) {

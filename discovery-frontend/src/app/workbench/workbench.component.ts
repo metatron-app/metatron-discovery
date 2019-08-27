@@ -1731,6 +1731,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       downloadCsvForm.attr('action', CommonConstant.API_CONSTANT.API_URL + `queryeditors/${this.selectedEditorId}/query/download/csv`);
       downloadCsvForm.submit();
       this.intervalDownload = setInterval(() => that.checkQueryStatus(), 1000);
+
+      // 에러처리
+      $('#'+$('#downloadCsvForm').attr('target')).off('load').on('load', function(){
+        Alert.error(JSON.parse($(this).contents().find("body").text()).details);
+      });
     } catch (e) {
       // 재현이 되지 않음.
       console.info('다운로드 에러' + e);

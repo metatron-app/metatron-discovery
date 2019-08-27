@@ -62,8 +62,9 @@ table.ddp-table-form tbody tr td .ddp-txt-long .ddp-data-long {display:block; ov
 table.ddp-table-form tbody tr td .ddp-txt-long.ddp-type {overflow:initial;}
 table.ddp-table-form tr td .ddp-wrap-long .ddp-box-tag {position:relative; top:3px; margin-right:13px;}
 
-
+table.ddp-table-form tr td .ddp-txt-colortype .ddp-txt-search{font-size:13px; color:#666db7;}
 table.ddp-table-form tr td .ddp-txt-search {font-size:14px; color:#666db7;}
+table.ddp-table-form tr td .ddp-txt-search.type-search {padding:2px 3px 1px 3px;font-size:13px; color:#666eb2; font-weight:bold; background-color:rgba(210, 204, 255, 0.4)}
 table.ddp-table-form tr td.ddp-data-none {color:#b7b9c3; text-align:center;}
 table.ddp-table-form tr td.ddp-nodata {color:#b7bac1; font-size:13px;}
 table.ddp-table-form tr th .ddp-wrap-hover-info {display:inline-block; margin-left:3px;position:Relative; cursor:pointer;}

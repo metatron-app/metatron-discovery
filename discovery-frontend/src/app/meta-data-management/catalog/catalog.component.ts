@@ -50,32 +50,23 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
   @ViewChild('searchInput')
   public searchInput: ElementRef;
 
-  // 카타로그, 메타데이터 리스트
   public catalogs: Catalog[];
   public metadatas: any;
 
-  // 정렬
   public selectedContentSort: Order = new Order();
 
-  // 선택된 카타로그 한개
   public selectedCatalog: Catalog;
 
-  // 검색어
   public searchText: string;
 
-  // 뒤로가기를 하기 위한 path 저장
   public catalogPath: any = [{name: 'Root', id: 'ROOT'}];
 
-  // 현재 보고있는 root
   public currentRoot: any = {name: 'Root', id: 'ROOT'};
 
-  // 새로만드냐
   public isCreateCatalog: boolean = false;
 
-  // 편집중이냐
   public isEditCatalogName: boolean = false;
 
-  // 카타로그 리스트가 페이징이 있는 상태인지 확인
   public isCatalogPaging: boolean = false;
 
   public inProcess: boolean = false;
@@ -83,7 +74,6 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 생성자
   constructor(
     protected element: ElementRef,
     protected catalogService: CatalogService,
@@ -95,18 +85,13 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // Init
   public ngOnInit() {
-    // Init
     super.ngOnInit();
 
     this.initView();
   }
 
-  // Destory
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
   }
 
@@ -114,9 +99,6 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  /**
-   * 카타로그 검색 및 날짜로 검색
-   */
   public searchCatalog() {
     this.loadingShow();
     this.catalogService.getCatalogs(this._getCatalogParams()).then((result) => {

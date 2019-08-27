@@ -19,13 +19,15 @@ import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
+import java.util.List;
+
 /**
  * Created by kyungtaak on 2016. 8. 30..
  */
 @RepositoryRestResource(path = "metadatas", itemResourceRel = "metadata", collectionResourceRel = "metadatas",
     excerptProjection = MetadataProjections.DefaultProjection.class)
-public interface MetadataRepository extends JpaRepository<Metadata, String>, QueryDslPredicateExecutor<Metadata>,
-    MetadataRepositoryExtends, RevisionRepository<Metadata, String, Long>
-{
+public interface MetadataRepository extends JpaRepository<Metadata, String>,
+    QueryDslPredicateExecutor<Metadata>, MetadataRepositoryExtends, RevisionRepository<Metadata, String, Long> {
 
+  List<Metadata> findTop10ByOrderByCreatedTimeDesc();
 }

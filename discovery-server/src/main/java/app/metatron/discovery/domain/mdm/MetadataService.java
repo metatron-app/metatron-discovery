@@ -310,9 +310,6 @@ public class MetadataService implements ApplicationEventPublisherAware {
       resultDataGrid = metadataJdbcDataPreview;
     }
 
-    if(resultDataGrid == null){
-      throw new IllegalArgumentException("SourceType (" + metadataSource.getType() + ") is not supported.");
-    }
     return resultDataGrid;
   }
 

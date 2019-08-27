@@ -120,7 +120,7 @@ public class PrSnapshot extends AbstractHistoryEntity {
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
     public enum ENGINE {
         EMBEDDED,
-        TWINKLE;
+        SPARK;
 
         @JsonValue
         public String toJson() {

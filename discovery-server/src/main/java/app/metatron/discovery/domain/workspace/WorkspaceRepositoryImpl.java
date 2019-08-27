@@ -140,8 +140,20 @@ public class WorkspaceRepositoryImpl extends QueryDslRepositorySupport implement
     QBook qBook = QBook.book;
 
     Map<String, Long> result = from(qBook).where(qBook.workspace.eq(workspace))
-                                          .groupBy(qBook.type)
+                                          .groupBy(qBook.type).orderBy(qBook.workspace.id.asc())
                                           .transform(GroupBy.groupBy(qBook.type).as(qBook.count()));
+
+    return result;
+  }
+
+  @Override
+  public Map<WorkspaceMember.MemberType, Long> countByMemberType(Workspace workspace) {
+    QWorkspaceMember qWorkspaceMember = QWorkspaceMember.workspaceMember;
+
+    Map<WorkspaceMember.MemberType, Long> result = from(qWorkspaceMember).where(qWorkspaceMember.workspace.eq(workspace))
+                                                                         .groupBy(qWorkspaceMember.memberType).orderBy(qWorkspaceMember.workspace.id.asc())
+                                                                         .transform(GroupBy.groupBy(qWorkspaceMember.memberType)
+                                                                                           .as(qWorkspaceMember.count()));
 
     return result;
   }

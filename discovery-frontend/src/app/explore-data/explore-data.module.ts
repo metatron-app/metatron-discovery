@@ -28,13 +28,20 @@ import {WorkspaceUsesComponent} from "./explore-data/popup/workspace-uses.compon
 import {MetadataService} from "../meta-data-management/metadata/service/metadata.service";
 import {DatasourceService} from "../datasource/service/datasource.service";
 import {TimezoneService} from "../data-storage/service/timezone.service";
-import {BannerComponent} from "./explore-data/component/banner.component";
-import {CardComponent} from "./explore-data/component/card.component";
+import {ExploreBannerComponent} from "./explore-data/component/explore-banner.component";
+import {ExploreCardComponent} from "./explore-data/component/explore-card.component";
 import {CodeTableService} from "../meta-data-management/code-table/service/code-table.service";
 import {ExploreDataMainComponent} from "./explore-data/explore-data-main.component";
 import {CatalogFolderComponent} from "./explore-data/component/catalog-folder.component";
-import {ExploreCatalogMainComponent} from "./explore-data/explore-catalog-main.component";
+import {ExploreDataListComponent} from "./explore-data/explore-data-list.component";
 import {CatalogService} from "../meta-data-management/catalog/service/catalog.service";
+import {MetadataSvgComponent} from "./explore-data/component/metadata-svg.component";
+import {ExploreDataSearchComponent} from "./explore-data/explore-data-search.component";
+import {ExploreDataModelService} from "./explore-data/service/explore-data-model.service";
+import {ExploreDataLnbComponent} from "./explore-data/explore-data-lnb.component";
+import {ConstantService} from "../shared/datasource-metadata/service/constant.service";
+import {CheckBoxFilterComponent} from "./explore-data/component/check-box-filter.component";
+import {MetadataTypeBoxTagComponent} from "./explore-data/component/metadata-type-box-tag.component";
 import {PopularityLayerComponent} from "./explore-data/component/popularity-layer.component";
 import {MetadataTypeBoxTagComponent} from "./explore-data/component/metadata-type-box-tag.component";
 import {ConstantService} from "../shared/datasource-metadata/service/constant.service";
@@ -73,6 +80,10 @@ import {MetadataUsedWorkspaceComponent} from "./explore-data/component/metadata-
     LogicalNameLayerComponent,
     BannerComponent,
     CardComponent,
+    MetadataSvgComponent,
+    CheckBoxFilterComponent,
+    ExploreBannerComponent,
+    ExploreCardComponent,
     CatalogFolderComponent,
     ExploreDataComponent,
     FavoriteDataComponent,
@@ -87,12 +98,19 @@ import {MetadataUsedWorkspaceComponent} from "./explore-data/component/metadata-
     ExploreDataMainComponent,
     ExploreCatalogMainComponent,
     ExploreCatalogLayerComponent,
+    ExploreDataListComponent,
+    ExploreDataSearchComponent,
+    ExploreDataLnbComponent,
+    MetadataTypeBoxTagComponent
   ],
   providers: [
     MetadataService,
     CatalogService,
     DatasourceService,
     TimezoneService,
+    CodeTableService,
+    ExploreDataModelService,
+    ConstantService
     CodeTableService,
     ConstantService,
     MetadataModelService

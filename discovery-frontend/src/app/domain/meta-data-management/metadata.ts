@@ -57,5 +57,6 @@ export enum SourceType {
   ENGINE = <any>'ENGINE',
   STAGING = <any>'STAGEDB',
   STAGEDB = <any>'STAGEDB',
-  JDBC = <any>'JDBC'
+  JDBC = <any>'JDBC',
+  ETC = <any>'ETC'
 }

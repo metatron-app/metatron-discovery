@@ -38,6 +38,12 @@ export class ConstantService {
     new Filter.Authentication(this.translateService.instant('msg.storage.li.connect.id'), DataStorageConstant.Dataconnection.Authentiacation.DIALOG),
   ];
 
+  private readonly metadataFilters: Filter.Metadata[] = [
+    new Filter.Metadata(this.translateService.instant('msg.comm.th.ds'), Type.MetadataSource.ENGINE),
+    new Filter.Metadata(this.translateService.instant('msg.storage.li.db'), Type.MetadataSource.JDBC),
+    new Filter.Metadata(this.translateService.instant('msg.storage.li.hive'), Type.MetadataSource.STAGING)
+  ];
+
   private readonly geoCoordinates: string[] = [
     'EPSG:4326',
     'EPSG:4301'
@@ -115,5 +121,17 @@ export class ConstantService {
 
   public getAuthenticationTypeFilters() {
     return _.cloneDeep(this.authenticationTypeFilters);
+  }
+
+  public getMetadataTypeFilters() {
+    return _.cloneDeep(this.metadataFilters);
+  }
+
+  public getMetadataTypeFiltersExceptStaging() {
+    return _.cloneDeep(this.metadataFilters.filter(filter => filter.value !== Type.MetadataSource.STAGING));
+  }
+
+  public getMetadataTypeFiltersFirst() {
+    return _.cloneDeep(this.metadataFilters[0]);
   }
 }

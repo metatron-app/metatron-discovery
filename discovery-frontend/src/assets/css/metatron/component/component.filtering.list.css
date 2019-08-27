@@ -54,3 +54,11 @@
 .ddp-filter-option {padding:18px 0 11px 0; text-align:right;}
 .ddp-filter-option .ddp-btn-pop {padding:8px 9px;}
 .ddp-filter-option .ddp-data-total {position:relative; top:8px; float:left;}
+
+
+.ddp-wrap-top-filtering.type-form {margin:0; padding:0 24px; min-height:42px; background-color:#515979;}
+.ddp-wrap-top-filtering.type-form .ddp-form-filtering .ddp-result-filtering .ddp-txt-label {color:#fff; opacity:0.4;}
+.ddp-wrap-top-filtering.type-form .ddp-form-filtering .ddp-result-filtering .ddp-box-result .ddp-txt-result {color:#fff;}
+.ddp-wrap-top-filtering.type-form .ddp-form-filtering .ddp-result-filtering .ddp-box-result:before {background-position:-32px top;}
+
+.ddp-wrap-top-filtering.type-form .ddp-wrap-form-filtering {padding:8px 0; margin-bottom:15px;}
