@@ -1406,6 +1406,8 @@
   "msg.board.create.association-key" : "연결 키",
   "msg.board.create.guide-msg1" : "데이터 소스의 가장자리에서 드래그하십시오.",
   "msg.board.create.guide-msg2" : "다른 데이터소스로 연결합니다.",
+  "msg.board.create.confirm.del_ds.main" : "데이터소스를 삭제하시겠습니까?",
+  "msg.board.create.confirm.del_ds.sub" : "데이터소스간에 설정된 관계도 함께 삭제됩니다",
   "msg.board.download.title-org" : "원본데이터 다운로드",
   "msg.board.download.title-aggr" : "집계데이터 다운로드",
   "msg.board.download.desc" : "최대 1,000,000 건(rows)까지 다운로드됩니다.<br>1,000,000 건(rows) 이상의 데이터는 관리자에게 문의해 주세요.",
