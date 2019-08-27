@@ -12,14 +12,15 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit} from '@angular/core';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {AbstractComponent} from '../../common/component/abstract.component';
 import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
 import {Metadata} from "../../domain/meta-data-management/metadata";
 import * as _ from 'lodash';
-import {CatalogService} from "../../meta-data-management/catalog/service/catalog.service";
-import {Catalog} from "../../domain/catalog/catalog";
-import {StringUtil} from "../../common/util/string.util";
+import {ExploreDataListComponent} from "./explore-data-list.component";
+import {EventBroadcaster} from "../../common/event/event.broadcaster";
+import {ExploreDataConstant} from "../constant/explore-data-constant";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-exploredata-view',
@@ -27,25 +28,27 @@ import {StringUtil} from "../../common/util/string.util";
 })
 export class ExploreDataComponent extends AbstractComponent implements OnInit, OnDestroy {
 
-  selectedMetadata: Metadata;
-  selectedCatalog: Catalog.Tree;
+  @ViewChild(ExploreDataListComponent)
+  private readonly _exploreDataListComponent: ExploreDataListComponent;
 
+  selectedMetadata: Metadata;
   // data
   mode: ExploreMode = ExploreMode.MAIN;
   sourceTypeCount: number = 0;
   stagingTypeCount: number = 0;
   databaseTypeCount: number = 0;
-  catalogList: Catalog.Tree;
-  catalogSearchKeyword: string;
+  datasetTypeCount: number = 0;
 
-  isFoldingNavigation: boolean;
+  subscription: Subscription;
+
+  readonly $layoutContentsClass = $( '.ddp-layout-contents' );
 
   // enum
   readonly EXPLORE_MODE = ExploreMode;
 
   // 생성자
   constructor(private metadataService: MetadataService,
-              private catalogService: CatalogService,
+              private broadcaster: EventBroadcaster,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -54,72 +57,54 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   // Init
   public ngOnInit() {
     super.ngOnInit();
+    let broadCastSuccessCount: number = 0;
+    // subscribe
+    this.subscription = this.broadcaster.on(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL).subscribe(() => {
+      if (broadCastSuccessCount >= 2) {
+        this.loadingHide();
+      } else {
+        broadCastSuccessCount++;
+      }
+    });
 
-    const init = async () => {
-      this.loadingShow();
+    this.loadingShow();
+    const initial = async () => {
       await this._setMetadataSourceTypeCount();
-      await this._setCatalogList(Catalog.Constant.CATALOG_ROOT_ID);
     };
-    init().catch(error => this.commonExceptionHandler(error));
+    initial().then(() => this.broadcaster.broadcast(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL)).catch(() => this.broadcaster.broadcast(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL));
   }
 
   public ngAfterViewInit() {
     super.ngAfterViewInit();
-    $( '.ddp-layout-contents' ).addClass( 'ddp-layout-meta' )
+    this.$layoutContentsClass.addClass( 'ddp-layout-meta' );
   }
 
   // Destroy
   public ngOnDestroy() {
     super.ngOnDestroy();
-    $( '.ddp-layout-contents' ).removeClass( 'ddp-layout-meta' )
+    this.$layoutContentsClass.removeClass( 'ddp-layout-meta' );
+    this.subscription.unsubscribe();
   }
 
-  @HostListener('window:scroll')
-  onScrolled() {
-    if($(window).scrollTop() > 0){
-      $('.ddp-layout-contents').addClass('ddp-scroll');
-    }
-    else if($(window).scrollTop() === 0) {
-      $('.ddp-layout-contents').removeClass('ddp-scroll');
-    }
-  }
-
-  isEmptyCatalogSearchKeyword(): boolean {
-    return StringUtil.isEmpty(this.catalogSearchKeyword);
-  }
-
-  onChangeTab() {
-    // TODO 임시
+  goToExploreMain(): void {
     this.mode = ExploreMode.MAIN;
   }
 
-  onChangeFoldingNavigation(): void {
-    this.isFoldingNavigation = !this.isFoldingNavigation;
+  onChangedSearch(): void {
+    this._setExploreListMode();
+    this._exploreDataListComponent.initMetadataList();
   }
 
-  onChangeCatalogSearchValue(value: string): void {
-    this.catalogSearchKeyword = value;
-    // if empty catalog search keyword
-    if (this.isEmptyCatalogSearchKeyword()) {
-      this.loadingShow();
-      this._setCatalogList(Catalog.Constant.CATALOG_ROOT_ID)
-        .then(() => this.loadingHide())
-        .catch(error => this.commonExceptionHandler(error));
-    } else {
-      this._setCatalogListUsedSearch();
-    }
+  onChangedLnbData(): void {
+    this._setExploreListMode();
+    this._exploreDataListComponent.initMetadataList();
   }
 
-  onClickCatalog(catalog: Catalog.Tree): void {
-    this.mode = ExploreMode.CATALOG;
-    this.selectedCatalog = catalog;
-  }
-
-  onClickMetadata(metadata: Metadata) {
+  onClickMetadata(metadata: Metadata): void {
     this.selectedMetadata = metadata
   }
 
-  onCloseMetadataContainer() {
+  onCloseMetadataContainer(): void {
     this.selectedMetadata = null;
   }
 
@@ -136,25 +121,16 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     }
   }
 
-  private async _setCatalogList(catalogId: string) {
-    const result = await this.catalogService.getTreeCatalogs(catalogId);
-    if (catalogId === Catalog.Constant.CATALOG_ROOT_ID) {
-      this.catalogList = result;
+  private _setExploreListMode(): void {
+    // if MAIN component
+    if (this.mode === ExploreMode.MAIN) {
+      this.mode = ExploreMode.LIST;
+      this.safelyDetectChanges();
     }
-  }
-
-  private _setCatalogListUsedSearch(): void {
-    this.loadingShow();
-    this.catalogService.getCatalogs({nameContains: this.catalogSearchKeyword}, 'forSimpleTreeView')
-      .then((result) => {
-        this.catalogList = result;
-        this.loadingHide();
-      })
-      .catch(error => this.commonExceptionHandler(error));
   }
 }
 
 enum ExploreMode {
   MAIN = 'MAIN',
-  CATALOG = 'CATALOG'
+  LIST = 'LIST'
 }

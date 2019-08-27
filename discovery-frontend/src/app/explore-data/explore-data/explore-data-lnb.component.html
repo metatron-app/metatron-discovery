@@ -1,0 +1,111 @@
+<div class="ddp-wrap-catalogs ">
+  <div class="ddp-wrap-tabs ddp-clear">
+    <ul class="ddp-ui-tab">
+      <li [class.ddp-selected]="isSelectedCatalogTab()" (click)="onChangeLnbTab(EXPLORE_LNB_MODE.CATALOG)">
+        <a href="javascript:">{{'msg.explore.ui.tab.catalogs' | translate}}</a>
+      </li>
+      <li [class.ddp-selected]="isSelectedTagTab()" (click)="onChangeLnbTab(EXPLORE_LNB_MODE.TAG)">
+        <a href="javascript:">{{'msg.explore.ui.tab.tags' | translate}}</a>
+      </li>
+    </ul>
+  </div>
+  <!-- //tab -->
+  <div class="ddp-wrap-folding">
+    <!-- 폴딩 -->
+    <a href="javascript:" class="ddp-btn-folding ddp-hover-tooltip" (click)="onChangeFoldingNavigation()">
+      <!-- tooltip -->
+      <div class="ddp-ui-tooltip-info ddp-down">
+        <em class="ddp-icon-view-top"></em>
+        {{'msg.explore.ui.lnb.folding'| translate}}
+      </div>
+      <!-- //tooltip -->
+    </a>
+    <!-- //폴딩 -->
+  </div>
+  <div class="ddp-wrap-tab-contents">
+    <!-- catalog -->
+    <div class="ddp-ui-tab-contents" *ngIf="isSelectedCatalogTab()">
+      <div class="ddp-ui-catalog-contents ddp-type">
+        <!-- search -->
+        <div class="ddp-wrap-searching">
+          <div class="ddp-ui-searching" [class.type-search]="!isEmptyCatalogSearchKeyword() && isNotEmptyCatalogContents()">
+            <em class="ddp-icon-search"></em>
+            <component-input [placeHolder]="'msg.explore.ph.tab.catalogs.search' | translate" (changeValue)="onChangeCatalogSearchKeyword($event)" [value]="catalogSearchKeyword" [autoFocus]="false"></component-input>
+            <a href="javascript:" class="ddp-btn-delete" *ngIf="!isEmptyCatalogSearchKeyword()" (click)="onChangeCatalogSearchKeyword('')"></a>
+          </div>
+        </div>
+        <!-- //search -->
+
+        <!-- favorite -->
+        <!--
+        <div class="ddp-ui-favorite">
+          <div class="ddp-ui-label"><em class="ddp-icon-favorite"></em>Favorite({{ favoriteDataList.length }})</div>
+          <div class="ddp-favorite-nodata" *ngIf="favoriteDataList.length === 0">
+            No favorite data
+          </div>
+          <ul class="ddp-list-favorite" *ngIf="favoriteDataList.length > 0">
+            <li *ngFor="let favoriteData of favoriteDataList">
+              <a href="javascript:">
+                <em class="ddp-icon-folder-type"></em>
+                <div class="ddp-data-txt">
+                  <span class="ddp-data-navi">
+                      {{ favoriteData.path }}
+                  </span>
+                  <span class="ddp-data-name">
+                    {{ favoriteData.name }}
+                  </span>
+                </div>
+              </a>
+            </li>
+          </ul>
+        </div>
+        -->
+        <!-- //favorite -->
+
+        <!-- tree -->
+        <div class="ddp-ui-tree">
+          <ul class="ddp-list-tree">
+            <component-catalog-folder *ngFor="let catalog of catalogList"
+                                      [catalog]="catalog"
+                                      [selectedCatalog]="selectedCatalog"
+                                      [searchKeyword]="catalogSearchKeyword"
+                                      (clickedCatalog)="onChangeSelectedCatalog($event)" >
+            </component-catalog-folder>
+            <!-- is empty -->
+            <component-catalog-folder [isEmptyCatalog]="true"
+                                      (clickedCatalog)="onChangeSelectedCatalog($event)" ></component-catalog-folder>
+            <!-- // is empty -->
+          </ul>
+        </div>
+        <!-- //tree -->
+      </div>
+    </div>
+    <!-- //catalog -->
+    <!-- tags -->
+    <div class="ddp-ui-tab-contents" *ngIf="isSelectedTagTab()">
+      <!-- search -->
+      <div class="ddp-wrap-searching">
+        <div class="ddp-ui-searching" [class.type-search]="!isEmptyTagSearchKeyword() && isNotEmptyTagContents()">
+          <em class="ddp-icon-search"></em>
+          <component-input [placeHolder]="'msg.explore.ph.tab.tags.search' | translate" (changeValue)="onChangeTagSearchKeyword($event)" [value]="tagSearchKeyword" [autoFocus]="false"></component-input>
+          <a href="javascript:" class="ddp-btn-delete" *ngIf="!isEmptyTagSearchKeyword()" (click)="onChangeTagSearchKeyword('')"></a>
+        </div>
+      </div>
+      <!-- //search -->
+      <div class="ddp-ui-tags">
+        <ul class="ddp-list-tags">
+          <li *ngFor="let tag of tagList" [class.ddp-selected]="isSelectedTag(tag)" (click)="onChangeSelectedTag(tag)">
+            <a href="javascript:">
+              <div class="ddp-txt-data">
+                <em class="ddp-icon-tag"></em>
+                <span class="ddp-data-num">({{tag.count}})</span>
+                <span class="ddp-data-name" [innerHTML]="getTagName(tag.name)"></span>
+              </div>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <!-- //tags -->
+  </div>
+</div>

@@ -138,13 +138,18 @@ public class CatalogController {
    */
   @RequestMapping(path = "/catalogs/{catalogId}/tree", method = RequestMethod.GET)
   public @ResponseBody
-  ResponseEntity<?> findCatalogForTree(@PathVariable("catalogId") String catalogId) {
+  ResponseEntity<?> findCatalogForTree(@PathVariable("catalogId") String catalogId,
+                                       @RequestParam(value = "includeAllHierarchies", required = false, defaultValue = "false") Boolean includeAllHierarchies) {
 
     if (!Catalog.ROOT.equals(catalogId) && catalogRepository.findOne(catalogId) == null) {
       throw new ResourceNotFoundException(catalogId);
     }
 
-    return ResponseEntity.ok(catalogService.findSubCatalogsForTreeView(catalogId));
+    if(includeAllHierarchies){
+      return ResponseEntity.ok(catalogService.findHierarchies(catalogId));
+    } else {
+      return ResponseEntity.ok(catalogService.findSubCatalogsForTreeView(catalogId));
+    }
   }
 
   @RequestMapping(path = {"/catalogs/{fromCatalogIds}/move", "/catalogs/{fromCatalogIds}/move/{toCatalogId}"}, method = RequestMethod.POST)

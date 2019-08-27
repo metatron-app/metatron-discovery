@@ -1,0 +1,25 @@
+<div class="ddp-meta-search">
+  <!-- select box -->
+  <div class="ddp-search-select " [class.ddp-selected]="isShowSelectBoxList" (click)="onChangeShowSelectBoxList()" (clickOutside)="closeSelectBoxList()">
+    <span class="ddp-data">{{selectedSearchRange.name}}</span>
+    <div class="ddp-wrap-popup2">
+      <ul class="ddp-list-popup">
+        <li *ngFor="let range of rangeList" [class.ddp-selected]="isSelectedRange(range)" (click)="onChangeSearchRange(range, $event)">
+          <a href="javascript:">
+            {{range.name}}
+            <em class="ddp-icon-check"></em>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!-- //select box -->
+  <!-- search form -->
+  <div class="ddp-search-b" [class.type-search]="!isEmptySearchKeyword() && !isEmptySearchContents" [class.type-focus]="isFocusSearchInput">
+    <em class="ddp-icon-search"></em>
+    <component-input [placeHolder]="'msg.explore.ph.search' | translate" (changeValue)="onChangeSearchKeyword($event)" [value]="searchKeyword" [autoFocus]="false"
+                     (inputFocus)="onChangeFocusSearchInput(true)" (inputBlur)="onChangeFocusSearchInput(false)"></component-input>
+    <a href="javascript:" class="ddp-btn-delete" *ngIf="!isEmptySearchKeyword()" (click)="onChangeSearchKeyword('')"></a>
+  </div>
+  <!-- //search form -->
+</div>

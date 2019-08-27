@@ -1,0 +1,25 @@
+<div class="ddp-result-filtering" [class.ddp-selected]="isShowFilterList" (click)="onChangeShowFilterList()" (clickOutside)="closeFilterList()">
+  <span class="ddp-txt-label" *ngIf="isEmptySelectedFilters()">{{filterName}}:</span>
+
+  <div class="ddp-box-result ">
+    <!--
+        title -> label : 선택한 내용 으로 넣어주세요
+    -->
+    <span class="ddp-txt-result" [title]="getSelectedFilters()">{{getSelectedFilters()}}</span>
+  </div>
+  <!-- popup -->
+  <div class="ddp-wrap-popup2">
+    <ul class="ddp-list-popup">
+      <li class="" *ngFor="let filter of filterList">
+        <a href="javascript:" (click)="onChangeSelectedFilter(filter)">
+          <label class="ddp-label-checkbox" >
+            <input type="checkbox" [checked]="isCheckedFilter(filter)">
+            <i class="ddp-icon-checkbox"></i>
+            <span class="ddp-txt-checkbox">{{filter.label}}</span>
+          </label>
+        </a>
+      </li>
+    </ul>
+  </div>
+  <!-- //popup -->
+</div>

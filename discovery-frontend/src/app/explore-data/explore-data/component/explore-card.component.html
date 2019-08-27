@@ -1,6 +1,8 @@
 <a href="javascript:" (click)="onClickCard()">
   <div class="ddp-wrap-data">
-    <span [ngClass]="imageClass"></span>
+    <span class="ddp-data-images type-svg" [ngClass]="iconClass">
+      <component-metadata-svg [iconClass]="iconClass"></component-metadata-svg>
+    </span>
     <div class="ddp-data-txt">
       <!-- title -->
       <div class="ddp-data-name" title="{{title}}">{{title}}</div>
@@ -35,7 +37,7 @@
       <div class="ddp-data-by" *ngIf="!isEnablePopularity()">by <strong title="{{creator}}">{{creator}}</strong></div>
       <!-- tag -->
       <div class="ddp-list-tags" *ngIf="isEnableTag()">
-        <span class="ddp-tags" *ngFor="let tag of tagList" (click)="onClickTag(tag)"># {{tag.name}}</span>
+        <span class="ddp-tags" *ngFor="let tag of tagList"># {{tag.name}}</span>
       </div>
       <!-- //tag -->
     </div>
