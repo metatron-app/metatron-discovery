@@ -227,10 +227,10 @@ public class PrDatasetRestIntegrationTest extends AbstractRestIntegrationTest {
     Map<String, Object> response = make_dataset_static(oauth_token,
         "src/test/resources/test_dataprep.csv",
         null, null);
-    List<PrDataset> datasets = (List<PrDataset>) response.get("datasets");
-    for (PrDataset dataset : datasets) {
-      if (dataset.getDsType() == DS_TYPE.IMPORTED) {
-        return dataset.getDsId();
+    List<Map<String, Object>> datasets = (List<Map<String, Object>>) response.get("datasets");
+    for (Map<String, Object> dataset : datasets) {
+      if (dataset.get("dsType").equals(DS_TYPE.IMPORTED.name())) {
+        return (String) dataset.get("dsId");
       }
     }
     assert false : response;

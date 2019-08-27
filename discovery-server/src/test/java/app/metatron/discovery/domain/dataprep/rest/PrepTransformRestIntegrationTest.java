@@ -71,7 +71,7 @@ public class PrepTransformRestIntegrationTest extends AbstractRestIntegrationTes
   private final String KEY__LINKS_SELF_HREF       = "_links.self.href";
   private final String KEY_DF_ID                  = "dfId";
   private final String KEY_WRANGLED_DS_ID         = "wrangledDsId";
-  private final String KEY_SHEETS                 = "sheets";
+  private final String KEY_SHEETS                 = "sheetNames";
   private final String KEY_SS_ID                  = "ssId";
   private final String KEY_DS_NAME                = "dsName";
   private final String KEY_TARGET_LINES           = "targetLines";
@@ -869,7 +869,7 @@ public class PrepTransformRestIntegrationTest extends AbstractRestIntegrationTes
     String filenameBeforeUpload = response.path("filenameBeforeUpload");
     String storedUri = response.path("storedUri");
 
-    response = createFileImportedDataset(dsName, filenameBeforeUpload, storedUri, "CSV", null);
+    response = createFileImportedDataset(dsName, filenameBeforeUpload, storedUri, "CSV");
     String importedDsId = response.path(KEY_DS_ID);
     String dataset_href = response.path(KEY__LINKS_SELF_HREF);
 
@@ -893,7 +893,7 @@ public class PrepTransformRestIntegrationTest extends AbstractRestIntegrationTes
     String filenameBeforeUpload = response.path("filenameBeforeUpload");
     String storedUri = response.path("storedUri");
 
-    response = createFileImportedDataset(dsName, filenameBeforeUpload, storedUri, "EXCEL", null);
+    response = createFileImportedDataset(dsName, filenameBeforeUpload, storedUri, "EXCEL");
     String importedDsId = response.path(KEY_DS_ID);
     String dataset_href = response.path(KEY__LINKS_SELF_HREF);
 
@@ -915,9 +915,8 @@ public class PrepTransformRestIntegrationTest extends AbstractRestIntegrationTes
 
     String filenameBeforeUpload = response.path("filenameBeforeUpload");
     String storedUri = response.path("storedUri");
-    List<String> sheets = response.path(KEY_SHEETS);
 
-    response = createFileImportedDataset(dsName, filenameBeforeUpload, storedUri, "JSON", null);
+    response = createFileImportedDataset(dsName, filenameBeforeUpload, storedUri, "JSON");
     String importedDsId = response.path(KEY_DS_ID);
     String dataset_href = response.path(KEY__LINKS_SELF_HREF);
 
@@ -975,7 +974,8 @@ public class PrepTransformRestIntegrationTest extends AbstractRestIntegrationTes
   }
 
   private Response createFileImportedDataset(String dsName, String filenameBeforeUpload, String storedUri,
-                                             String fileFormat, String sheetName) {
+                                             String fileFormat) {
+    Response dataset_post_response1 = null;
     Map<String, Object> dataset_post_body = Maps.newHashMap();
 
     dataset_post_body.put("dsName", dsName);
@@ -1003,9 +1003,31 @@ public class PrepTransformRestIntegrationTest extends AbstractRestIntegrationTes
               .log().all()
               .extract()
               .response();
-      List<String> sheetNames = grid_get_response.path(KEY_SHEETS);
-      sheetName = sheetNames.get(0);
-      dataset_post_body.put("sheetName", sheetName);
+
+      for (String sheetName : (List<String>) grid_get_response.path(KEY_SHEETS)) {
+        dataset_post_body.put("sheetName", sheetName);
+
+        Response dataset_post_response = given()
+                .auth()
+                .oauth2(oauth_token)
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .when()
+                .content(dataset_post_body)
+                .post("/api/preparationdatasets")
+                .then()
+                .statusCode(HttpStatus.SC_OK)
+                .log().all()
+                .extract()
+                .response();
+
+        assert dataset_post_response.path("errorMsg") == null : dataset_post_response;
+
+        if (dataset_post_response1 == null) {
+          dataset_post_response1 = dataset_post_response;
+        }
+      }
+      return dataset_post_response1;
     }
 
     /*
@@ -1031,13 +1053,6 @@ public class PrepTransformRestIntegrationTest extends AbstractRestIntegrationTes
       .log().all()
       .extract()
       .response();
-
-    String importedDsId = dataset_post_response.path(KEY_DS_ID);
-    String dataset_href = dataset_post_response.path("_links.self.href");
-
-    Map<String, Object> ret = Maps.newHashMap();
-    ret.put("importedDsId", importedDsId);
-    ret.put("dataset_href", dataset_href);
 
     assert dataset_post_response.path("errorMsg") == null : dataset_post_response;
     return dataset_post_response;
