@@ -1,0 +1,41 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-selectbox" [class.ddp-selected]="isListShow" [class.ddp-disabled]="isDisableList" [ngClass]="SELECT_BOX_WRAP_ELEMENT" (click)="onChangeListShow($event)" #wrapElement>
+  <span class="ddp-txt-selectbox" [ngClass]="SELECT_BOX_LABEL_ELEMENT"  *ngIf="!isEnableIcon">{{isOnlyStringList ? selectedFilter : selectedFilter.label}}</span>
+  <span class="ddp-txt-selectbox" [ngClass]="SELECT_BOX_LABEL_ELEMENT" *ngIf="isEnableIcon">
+    <span class="ddp-type-txt" [ngClass]="SELECT_BOX_ICON_WRAP_ELEMENT">
+        <em *ngIf="isNotEmptyValue(selectedFilter.icon)" class="{{selectedFilter.icon}}" [ngClass]="SELECT_BOX_ICON_ELEMENT"></em>
+      {{selectedFilter.label}}
+    </span>
+  </span>
+  <ul class="ddp-list-selectbox ddp-selectdown" *ngIf="!isEnableIcon" #listElement>
+    <li *ngFor="let filter of filterList">
+      <a href="javascript:" (click)="onChangedFilter(filter)">
+        {{isOnlyStringList ? filter : filter.label}}
+      </a>
+    </li>
+  </ul>
+  <div class="ddp-wrap-popup2 ddp-types" *ngIf="isEnableIcon" #listElement>
+    <ul class="ddp-list-popup">
+      <li [class.ddp-selected]="selectedFilter.value === filter.value" *ngFor="let filter of filterList">
+        <a href="javascript:" (click)="onChangedFilter(filter)">
+          <em class="{{filter.icon}}"  *ngIf="isNotEmptyValue(filter.icon)"></em>
+          {{filter.label}}
+          <em class="ddp-icon-check" *ngIf="selectedFilter.value === filter.value"></em>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>

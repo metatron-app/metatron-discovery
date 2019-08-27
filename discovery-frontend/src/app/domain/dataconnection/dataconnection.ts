@@ -90,21 +90,23 @@ export class InputSpec {
 }
 
 export enum ImplementorType {
-  H2 = <any>'H2',
-  MYSQL = <any>'MYSQL',
-  ORACLE = <any>'ORACLE',
-  TIBERO = <any>'TIBERO',
-  HIVE = <any>'HIVE',
-  HAWQ = <any>'HAWQ',
-  POSTGRESQL = <any>'POSTGRESQL',
-  MSSQL = <any>'MSSQL',
-  PRESTO = <any>'PRESTO',
-  PHOENIX = <any>'PHOENIX',
-  NVACCEL = <any>'NVACCEL',
-  STAGE = <any>'STAGE',
-  DRUID = <any>'DRUID',
-  FILE = <any>'FILE',
-  NONE = <any>'NONE'
+  H2 = 'H2',
+  MYSQL = 'MYSQL',
+  ORACLE = 'ORACLE',
+  TIBERO = 'TIBERO',
+  HIVE = 'HIVE',
+  HAWQ = 'HAWQ',
+  POSTGRESQL = 'POSTGRESQL',
+  MSSQL = 'MSSQL',
+  PRESTO = 'PRESTO',
+  PHOENIX ='PHOENIX',
+  NVACCEL = 'NVACCEL',
+  STAGE = 'STAGE',
+  DRUID = 'DRUID',
+  FILE = 'FILE',
+  NONE = 'NONE',
+  // only used in UI
+  ALL = 'ALL'
 }
 
 
@@ -119,6 +121,7 @@ export enum Scope {
   EXTENSION = 'EXTENSION'
 }
 
+// TODO 추후 DataStorageConstant.Dataconnection.Authentiacation 변경 요구
 export enum AuthenticationType {
   USERINFO = <any>'USERINFO',
   MANUAL = <any>'MANUAL',

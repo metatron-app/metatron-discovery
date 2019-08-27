@@ -3,6 +3,7 @@ import {TranslateService} from '@ngx-translate/core';
 import * as _ from 'lodash';
 import {Type} from '../domain/type';
 import {Filter} from '../domain/filter';
+import {DataStorageConstant} from "../../../data-storage/constant/data-storage-constant";
 
 /**
  * Service to be shared by the datasource and metadata
@@ -30,7 +31,13 @@ export class ConstantService {
     new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.line'), Type.Logical.GEO_LINE, 'ddp-icon-type-line'),
   ];
 
-  //TODO 추후 동적필터가 들어오게되면 제거 필요
+  private readonly authenticationTypeFilters: Filter.Authentication[] = [
+    new Filter.Authentication(this.translateService.instant('msg.comm.ui.list.all'), DataStorageConstant.Dataconnection.Authentiacation.ALL),
+    new Filter.Authentication(this.translateService.instant('msg.storage.li.connect.always'), DataStorageConstant.Dataconnection.Authentiacation.MANUAL),
+    new Filter.Authentication(this.translateService.instant('msg.storage.li.connect.account'), DataStorageConstant.Dataconnection.Authentiacation.USERINFO),
+    new Filter.Authentication(this.translateService.instant('msg.storage.li.connect.id'), DataStorageConstant.Dataconnection.Authentiacation.DIALOG),
+  ];
+
   private readonly metadataFilters: Filter.Metadata[] = [
     new Filter.Metadata(this.translateService.instant('msg.comm.th.ds'), Type.MetadataSource.ENGINE),
     new Filter.Metadata(this.translateService.instant('msg.storage.li.db'), Type.MetadataSource.JDBC),
@@ -110,6 +117,10 @@ export class ConstantService {
       this.typeFilters.filter(type => {
         return type.value !== Type.Logical.ALL && (type.value === Type.Logical.INTEGER || type.value === Type.Logical.DOUBLE);
       }));
+  }
+
+  public getAuthenticationTypeFilters() {
+    return _.cloneDeep(this.authenticationTypeFilters);
   }
 
   public getMetadataTypeFilters() {

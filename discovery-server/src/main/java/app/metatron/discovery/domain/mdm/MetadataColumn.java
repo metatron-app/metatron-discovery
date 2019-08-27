@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.format.support.DefaultFormattingConversionService;
@@ -42,6 +43,7 @@ import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
 
 @Entity
+@Audited(withModifiedFlag = true)
 @Table(name = "mdm_metadata_column")
 public class MetadataColumn implements MetatronDomain<Long>  {
 

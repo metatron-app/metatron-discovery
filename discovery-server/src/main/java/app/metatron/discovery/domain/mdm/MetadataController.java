@@ -463,4 +463,29 @@ public class MetadataController {
 
     return null;
   }
+
+  @RequestMapping(path = "/metadatas/{metadataId}/users/frequency", method = RequestMethod.GET)
+  public ResponseEntity <?> getFrequentUser(@PathVariable("metadataId") String metadataId){
+    //getting metadata from id
+    Metadata metadata = metadataRepository.findOne(metadataId);
+    if (metadata == null) {
+      throw new ResourceNotFoundException(metadataId);
+    }
+
+    List<?> frequentUserList = metadataService.getFrequentUser(metadata, 3);
+    return ResponseEntity.ok(frequentUserList);
+  }
+
+  @RequestMapping(path = "/metadatas/{metadataId}/history", method = RequestMethod.GET)
+  public ResponseEntity <?> getRecentlyUpdateUser(@PathVariable("metadataId") String metadataId){
+    //getting metadata from id
+    Metadata metadata = metadataRepository.findOne(metadataId);
+    if (metadata == null) {
+      throw new ResourceNotFoundException(metadataId);
+    }
+
+    List<?> updateHistoryList = metadataService.getUpdateHistory(metadata, 5);
+    return ResponseEntity.ok(updateHistoryList);
+  }
+
 }

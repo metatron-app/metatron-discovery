@@ -1,55 +1,90 @@
 import {
-  Component,
-  Input,
+  Component, ComponentFactoryResolver, ComponentRef, ElementRef, Injector,
+  Input, OnDestroy,
   OnInit,
-  ViewChild,
+  ViewChild, ViewContainerRef,
 } from '@angular/core';
-import {MetadataService} from "../../../meta-data-management/metadata/service/metadata.service";
 import {RecentQueriesComponent} from "./recent-queries.component";
 import {Metadata} from "../../../domain/meta-data-management/metadata";
+import {Alert} from "../../../common/util/alert.util";
+import {ClipboardService} from "ngx-clipboard";
+import {AbstractComponent} from "../../../common/component/abstract.component";
 
 @Component({
   selector: 'explore-metadata-overview',
   templateUrl: './metadata-overview.component.html',
+  entryComponents: [RecentQueriesComponent]
 })
-export class MetadataOverviewComponent implements OnInit {
+export class MetadataOverviewComponent extends AbstractComponent implements OnInit, OnDestroy {
 
-  @ViewChild(RecentQueriesComponent)
-  recentQueries: RecentQueriesComponent;
+  @ViewChild('component_recent_queries', {read: ViewContainerRef}) entry: ViewContainerRef;
 
+  entryRef: ComponentRef<RecentQueriesComponent>;
 
-  @Input()
-  public metadataId: string;
-
-  public metadata : Metadata;
+  @Input() readonly metadataId: string;
+  @Input() readonly metadata : Metadata;
+  @Input() readonly topUserList = [];
+  @Input() readonly recentlyUpdatedList = [];
+  @Input() readonly recentlyQueriesForDataSource = [];
+  @Input() readonly recentlyQueriesForDataBase = [];
 
   public isShowMoreCatalogs: boolean = false;
 
-  constructor(private _metadataService: MetadataService) {
+  constructor(
+    private clipboardService: ClipboardService,
+    protected element: ElementRef,
+    protected injector: Injector,
+    private resolver: ComponentFactoryResolver) {
+    super(element, injector);
+  }
+
+  ngOnInit(): void {
 
   }
 
-  ngOnInit() {
-    if (this.metadataId) {
-      this.getMetadataDetail(this.metadataId);
+  ngOnDestroy(): void {
+
+  }
+
+  isDatasourceTypeMetadata(): boolean {
+    return Metadata.isSourceTypeIsEngine(this.metadata.sourceType);
+  }
+
+  isDatabaseTypeMetadata(): boolean {
+    return Metadata.isSourceTypeIsJdbc(this.metadata.sourceType);
+  }
+
+  isStagingTypeMetadata(): boolean {
+    return Metadata.isSourceTypeIsStaging(this.metadata.sourceType);
+  }
+
+  isShowDashboardMoreContents(): boolean {
+    // TODO dashborad 가 4건 이상
+    return true;
+  }
+
+  onClickSeeAllRecentDashboards(): void {
+
+  }
+
+  onClickSeeAllRecentQueries(): void {
+    this.entryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(RecentQueriesComponent));
+    if (this.isDatasourceTypeMetadata()) {
+      this.entryRef.instance.recentlyQueriesForDataSource = this.recentlyQueriesForDataSource;
+    } else if (this.isDatabaseTypeMetadata() || this.isStagingTypeMetadata()) {
+      this.entryRef.instance.recentlyQueriesForDataBase = this.recentlyQueriesForDataBase;
     }
+    this.entryRef.instance.init();
   }
 
-
-  getMetadataDetail(metadataId: string) {
-    this._metadataService.getDetailMetaData(metadataId)
-      .then((result) => {
-        this.metadata = result;
-      })
+  /**
+   * copy clipboard
+   */
+  public copyToClipboard(query: string) {
+    this.clipboardService.copyFromContent( query );
+    // alert
+    Alert.success(this.translateService.instant('msg.storage.alert.clipboard.copy'));
   }
-
-  onClickSeeAllRecentQueries() {
-    this.recentQueries.init();
-  }
-
-
-
-
 }
 
 

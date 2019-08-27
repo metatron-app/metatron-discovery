@@ -111,7 +111,7 @@
         </label>
         <div class="ddp-type-format" (click)="onChangeEnableUnixType(); $event.preventDefault()">
           <label class="ddp-label-checkbox">
-            <input type="checkbox" [checked]=" fieldFormat.type === FIELD_FORMAT_TYPE.UNIX_TIME">
+            <input type="checkbox" [checked]=" fieldFormat.type === FIELD_FORMAT_TYPE.UNIX_TIME" [disabled]="isReadOnly">
             <i class="ddp-icon-checkbox"></i>
             <span class="ddp-txt-checkbox">{{'msg.storage.ui.enable.unix' | translate}}</span>
           </label>
@@ -124,10 +124,10 @@
           <!-- input text 입력시 ddp-edit 추가 -->
           <!-- TODO 추후 데이터소스 연결시 isDisableValidation 제거-->
           <div class="ddp-input-apply">
-            <input type="text" placeholder="{{'msg.storage.ph.time.format' | translate}}" class="ddp-input-txt" [(ngModel)]="fieldFormat.format" (ngModelChange)="onChangedFormatText($event)">
-            <em class="ddp-icon-apply" (click)="onClickFormatValidation()" *ngIf="!isDisableValidation"></em>
+            <input type="text" placeholder="{{'msg.storage.ph.time.format' | translate}}" class="ddp-input-txt" [(ngModel)]="fieldFormat.format" (ngModelChange)="onChangedFormatText($event)" [readOnly]="isReadOnly">
+            <em class="ddp-icon-apply" (click)="onClickFormatValidation()" *ngIf="!isDisableValidation && !isReadOnly"></em>
           </div>
-          <div class="ddp-txt-error" *ngIf="!isDisableValidation && fieldFormat.isValidFormat === false">
+          <div class="ddp-txt-error" *ngIf="(!isDisableValidation && !isReadOnly) && fieldFormat.isValidFormat === false">
             <em class="ddp-icon-error-s"></em>{{fieldFormat.formatValidMessage}}
           </div>
         </div>
@@ -137,7 +137,7 @@
         <ul class="ddp-list-checktype" *ngIf="fieldFormat.type === FIELD_FORMAT_TYPE.UNIX_TIME">
           <li *ngFor="let type of formatUnitList">
             <label class="ddp-label-radio" (click)="onChangeUnixType(type)">
-              <input type="radio" [checked]="fieldFormat.unit === type.value">
+              <input type="radio" [checked]="fieldFormat.unit === type.value" [disabled]="isReadOnly && fieldFormat.unit !== type.value">
               <i class="ddp-icon-radio"></i>
               <span class="ddp-txt-radio">{{type.label}}</span>
             </label>

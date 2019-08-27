@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.envers.Audited;
 
 import javax.persistence.*;
 
@@ -28,6 +29,7 @@ import app.metatron.discovery.domain.AbstractHistoryEntity;
 import app.metatron.discovery.domain.mdm.Metadata;
 
 @Entity
+@Audited(withModifiedFlag = true)
 @Table(name = "mdm_metadata_source")
 public class MetadataSource extends AbstractHistoryEntity {
 

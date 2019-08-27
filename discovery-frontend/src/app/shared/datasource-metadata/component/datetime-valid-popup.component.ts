@@ -41,6 +41,8 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
   // TODO 추후 데이터소스 연결시 isDisableValidation 제거
   @Input() readonly isDisableValidation: boolean;
 
+  @Input() readonly isReadOnly: boolean;
+
   // valid default format
   public defaultFormat: string;
   // format
@@ -195,38 +197,40 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
    * Change enable Unix type
    */
   public onChangeEnableUnixType(): void {
-    // if format type is DATE_TIME
-    if (this.fieldFormat.type === FieldFormatType.DATE_TIME) {
-      // set prev format
-      this.prevFormat = this.fieldFormat.format;
-      // remove date type properties
-      this.fieldFormat.removeDateTypeProperties();
-      // set timezone disable
-      this.fieldFormat.disableTimezone();
-      // init format unit
-      this.fieldFormat.unitInitialize();
-      // remove format valid message property
-      delete this.fieldFormat.formatValidMessage;
-      // set time format valid TRUE
-      this.fieldFormat.isValidFormat = true;
-      // set type
-      this.fieldFormat.type = FieldFormatType.UNIX_TIME;
-    } else if (this.fieldFormat.type === FieldFormatType.UNIX_TIME) { // if format type is UNIX_TIME
-      // remove unix type properties
-      this.fieldFormat.removeUnixTypeProperties();
-      // remove format valid property
-      delete this.fieldFormat.isValidFormat;
-      // set format
-      this.fieldFormat.format = this.prevFormat;
-      // set validation message
-      this.fieldFormat.formatValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.required.check');
-      // set type
-      this.fieldFormat.type = FieldFormatType.DATE_TIME;
-    }
+    if (!this.isReadOnly) {
+      // if format type is DATE_TIME
+      if (this.fieldFormat.type === FieldFormatType.DATE_TIME) {
+        // set prev format
+        this.prevFormat = this.fieldFormat.format;
+        // remove date type properties
+        this.fieldFormat.removeDateTypeProperties();
+        // set timezone disable
+        this.fieldFormat.disableTimezone();
+        // init format unit
+        this.fieldFormat.unitInitialize();
+        // remove format valid message property
+        delete this.fieldFormat.formatValidMessage;
+        // set time format valid TRUE
+        this.fieldFormat.isValidFormat = true;
+        // set type
+        this.fieldFormat.type = FieldFormatType.UNIX_TIME;
+      } else if (this.fieldFormat.type === FieldFormatType.UNIX_TIME) { // if format type is UNIX_TIME
+        // remove unix type properties
+        this.fieldFormat.removeUnixTypeProperties();
+        // remove format valid property
+        delete this.fieldFormat.isValidFormat;
+        // set format
+        this.fieldFormat.format = this.prevFormat;
+        // set validation message
+        this.fieldFormat.formatValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.required.check');
+        // set type
+        this.fieldFormat.type = FieldFormatType.DATE_TIME;
+      }
 
-    // TODO 추후 데이터소스 연결시 isDisableValidation 제거
-    if (this.isDisableValidation) {
-      this.changedFieldFormat.emit(this.fieldFormat);
+      // TODO 추후 데이터소스 연결시 isDisableValidation 제거
+      if (this.isDisableValidation) {
+        this.changedFieldFormat.emit(this.fieldFormat);
+      }
     }
   }
 
@@ -235,7 +239,7 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
    * @param {{label: string; value: FieldFormatUnit}} type
    */
   public onChangeUnixType(type: { label: string, value: FieldFormatUnit }) {
-    if (this.fieldFormat.unit !== type.value) {
+    if (!this.isReadOnly && this.fieldFormat.unit !== type.value) {
       // change unit
       this.fieldFormat.unit = type.value;
       // set time format valid TRUE

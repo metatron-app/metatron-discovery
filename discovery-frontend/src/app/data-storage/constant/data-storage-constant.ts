@@ -47,4 +47,14 @@ export namespace DataStorageConstant {
       FIELD = 'FIELD'
     }
   }
+
+  export namespace Dataconnection {
+    export enum Authentiacation {
+      USERINFO = 'USERINFO',
+      MANUAL = 'MANUAL',
+      DIALOG = 'DIALOG',
+      // only used UI
+      ALL = 'ALL'
+    }
+  }
 }

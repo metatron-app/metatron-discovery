@@ -2,7 +2,7 @@
   <!-- top -->
   <div class="ddp-ui-top">
     <div class="ddp-data-name">
-      Recently Queries
+      {{'msg.explore.ui.detail.recent.query'| translate}}
       <div class="ddp-data-info"><em class="ddp-icon-info"></em>List up to the last 100 cases.</div>
     </div>
     <em class="ddp-btn-popup-close" (click)="closePopup()"></em>
@@ -27,33 +27,38 @@
         <th>Query</th>
       </tr>
       </thead>
-      <tbody>
-      <tr>
-        <td>yyyy-mm-dd hh:mm:ss</td>
-        <td>SUMMARY</td>
-        <td>John Smith</td>
-        <td> <span class="ddp-data-state ddp-success">Success</span></td>
+      <!--  if sourceType is ENGINE(dataSource)    -->
+      <tbody *ngIf="recentlyQueriesForDataSource">
+      <tr *ngFor="let recentQuery of recentlyQueriesForDataSource">
+        <td>{{ recentQuery.createdTime | mdate:'YYYY-MM-DD HH:mm:ss' }}</td>
+        <td>{{ recentQuery.queryType }}</td>
+        <td>{{ recentQuery.creator.fullName }}</td>
+        <td> <span class="ddp-data-state" [ngClass]="recentQuery.succeed ? 'ddp-success' : 'ddp-fail'">{{ recentQuery.succeed ? 'Success' : 'Fail' }}</span></td>
         <td>
           <div class="ddp-txt-long ddp-type-button">
-            <a href="javascript:" class="ddp-btn-selection ddp-fright" (click)="onClickCopy()">Copy</a>
-            <span class="ddp-txt-name" title="TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne">TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne</span>
+            <a href="javascript:" class="ddp-btn-selection ddp-fright" (click)="onClickCopy(recentQuery.query)">Copy</a>
+            <span class="ddp-txt-name" title="{{ recentQuery.query }}">{{ recentQuery.query }}</span>
           </div>
         </td>
       </tr>
-      <tr>
-        <td>yyyy-mm-dd hh:mm:ss</td>
-        <td>SUMMARY</td>
-        <td>John Smith</td>
-        <td> <span class="ddp-data-state ddp-fail">fail</span></td>
+      <!--  if sourceType is ENGINE(dataSource)    -->
+      <!--  if sourceType is JDBC(database)    -->
+      </tbody>
+      <tbody *ngIf="recentlyQueriesForDataBase">
+      <tr *ngFor="let recentQuery of recentlyQueriesForDataBase">
+        <td>{{ recentQuery['createdTime'] | mdate:'YYYY-MM-DD HH:mm:ss'}}</td>
+        <td>Type</td>
+        <td>{{ recentQuery['createdBy']['fullName'] }}</td>
+        <td> <span class="ddp-data-state" [ngClass]="recentQuery.queryResultStatus === 'SUCCESS' ? 'ddp-success' : 'ddp-fail'">{{ recentQuery.queryResultStatus === 'SUCCESS'? 'Success' : 'Fail' }}</span></td>
         <td>
           <div class="ddp-txt-long ddp-type-button">
-            <a href="javascript:" class="ddp-btn-selection ddp-fright">Copy</a>
-            <span class="ddp-txt-name" title="TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne">TammarneyTamTammarneyTammarneTammarneyTammarneTammarneyTammarneTammarneyTammarnemarne</span>
+            <a href="javascript:" class="ddp-btn-selection ddp-fright" (click)="onClickCopy(recentQuery.query)">Copy</a>
+            <span class="ddp-txt-name" title="{{ recentQuery.query }}">{{ recentQuery['query'] }}</span>
           </div>
         </td>
       </tr>
       </tbody>
-
+      <!--  if sourceType is JDBC(database)    -->
     </table>
 
   </div>

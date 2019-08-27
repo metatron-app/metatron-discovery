@@ -14,9 +14,6 @@
 
 package app.metatron.discovery.domain.datasource;
 
-import app.metatron.discovery.domain.context.ContextDomainRepository;
-import app.metatron.discovery.domain.workspace.Workspace;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -28,6 +25,10 @@ import org.springframework.data.rest.core.annotation.RestResource;
 
 import java.util.List;
 import java.util.Set;
+
+import app.metatron.discovery.domain.context.ContextDomainRepository;
+import app.metatron.discovery.domain.workbook.DashBoard;
+import app.metatron.discovery.domain.workspace.Workspace;
 
 /**
  * DataSourceRepository
@@ -139,4 +140,8 @@ public interface DataSourceRepository extends JpaRepository<DataSource, String>,
   @RestResource(exported = false)
   @Query("SELECT DISTINCT ds.workspaces FROM DataSource ds where ds.id = :id")
   Set<Workspace> findWorkspacesInDataSource(@Param("id") String id);
+
+  @RestResource(exported = false)
+  @Query("SELECT DISTINCT ds.dashBoards FROM DataSource ds where ds.id = :id")
+  Set<DashBoard> findDashboardsInDataSource(@Param("id") String id);
 }

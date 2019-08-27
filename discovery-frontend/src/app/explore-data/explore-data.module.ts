@@ -42,10 +42,24 @@ import {ExploreDataLnbComponent} from "./explore-data/explore-data-lnb.component
 import {ConstantService} from "../shared/datasource-metadata/service/constant.service";
 import {CheckBoxFilterComponent} from "./explore-data/component/check-box-filter.component";
 import {MetadataTypeBoxTagComponent} from "./explore-data/component/metadata-type-box-tag.component";
+import {PopularityLayerComponent} from "./explore-data/component/popularity-layer.component";
+import {MetadataModelService} from "../meta-data-management/metadata/service/metadata.model.service";
+import {ExploreDataInformationComponent} from "./explore-data/component/explore-data-information.component";
+import {ExploreDataUserCardComponent} from "./explore-data/component/explore-data-user-card.component";
+import {LogicalNameLayerComponent} from "./explore-data/component/logical-name-layer.component";
+import {CreateWorkbenchModule} from "../workbench/component/create-workbench/refactoring/create-workbench.module";
+import {DatasourceMetadataSharedModule} from "../shared/datasource-metadata/datasource-metadata-shared.module";
+import {ExploreCatalogLayerComponent} from "./explore-data/component/explore-catalog-layer.component";
+import {CreateWorkbookModule} from "../workbook/component/create-workbook/refactoring/create-workbook.module";
+import {ConfirmRefModalComponent} from "../common/component/modal/confirm/confirm-ref.component";
+import {MetadataUsedWorkspaceComponent} from "./explore-data/component/metadata-used-workspace.component";
 
 @NgModule({
   imports: [
     CommonModule,
+    CreateWorkbenchModule,
+    CreateWorkbookModule,
+    DatasourceMetadataSharedModule,
     RouterModule.forChild([
       {path: '', redirectTo: 'view', pathMatch: 'full' },
       {path: 'view', component: ExploreDataComponent},
@@ -54,6 +68,12 @@ import {MetadataTypeBoxTagComponent} from "./explore-data/component/metadata-typ
     ]),
   ],
   declarations: [
+    ConfirmRefModalComponent,
+    ExploreDataInformationComponent,
+    ExploreDataUserCardComponent,
+    MetadataTypeBoxTagComponent,
+    PopularityLayerComponent,
+    LogicalNameLayerComponent,
     MetadataSvgComponent,
     CheckBoxFilterComponent,
     ExploreBannerComponent,
@@ -66,9 +86,11 @@ import {MetadataTypeBoxTagComponent} from "./explore-data/component/metadata-typ
     MetadataColumnsComponent,
     MetadataOverviewComponent,
     MetadataSampleDataComponent,
+    MetadataUsedWorkspaceComponent,
     RecentQueriesComponent,
     WorkspaceUsesComponent,
     ExploreDataMainComponent,
+    ExploreCatalogLayerComponent,
     ExploreDataListComponent,
     ExploreDataSearchComponent,
     ExploreDataLnbComponent,
@@ -81,7 +103,10 @@ import {MetadataTypeBoxTagComponent} from "./explore-data/component/metadata-typ
     TimezoneService,
     CodeTableService,
     ExploreDataModelService,
-    ConstantService
+    ConstantService,
+    CodeTableService,
+    ConstantService,
+    MetadataModelService
   ],
 })
 export class ExploreDataModule {

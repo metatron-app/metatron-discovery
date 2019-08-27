@@ -12,11 +12,23 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {
+  Component,
+  ComponentFactoryResolver,
+  ComponentRef,
+  ElementRef,
+  Injector,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  ViewContainerRef
+} from '@angular/core';
 import {AbstractComponent} from '../../common/component/abstract.component';
 import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
-import {Metadata} from "../../domain/meta-data-management/metadata";
+import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
 import * as _ from 'lodash';
+import {MetadataContainerComponent} from "./popup/metadata-container.component";
+import {DatasourceService} from "../../datasource/service/datasource.service";
 import {ExploreDataListComponent} from "./explore-data-list.component";
 import {EventBroadcaster} from "../../common/event/event.broadcaster";
 import {ExploreDataConstant} from "../constant/explore-data-constant";
@@ -25,13 +37,19 @@ import {Subscription} from "rxjs";
 @Component({
   selector: 'app-exploredata-view',
   templateUrl: './explore-data.component.html',
+  entryComponents: [MetadataContainerComponent]
 })
 export class ExploreDataComponent extends AbstractComponent implements OnInit, OnDestroy {
+
+  @ViewChild('component_metadata_detail', {read: ViewContainerRef}) entry: ViewContainerRef;
 
   @ViewChild(ExploreDataListComponent)
   private readonly _exploreDataListComponent: ExploreDataListComponent;
 
+  entryRef: ComponentRef<MetadataContainerComponent>;
+
   selectedMetadata: Metadata;
+
   // data
   mode: ExploreMode = ExploreMode.MAIN;
   sourceTypeCount: number = 0;
@@ -48,6 +66,8 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
 
   // 생성자
   constructor(private metadataService: MetadataService,
+              private resolver: ComponentFactoryResolver,
+              private dataSourceService: DatasourceService,
               private broadcaster: EventBroadcaster,
               protected element: ElementRef,
               protected injector: Injector) {
@@ -100,8 +120,75 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     this._exploreDataListComponent.initMetadataList();
   }
 
-  onClickMetadata(metadata: Metadata): void {
-    this.selectedMetadata = metadata
+  onClickMetadata(metadata: Metadata) {
+    // declare variables needed for metadata-container(modal) component
+    let metadataDetail;
+    let recentlyQueriesForDatabase;
+    let recentlyQueriesForDataSource;
+    let topUserList;
+    let recentlyUpdatedList;
+
+    // get datas...
+    const getRecentlyQueriesForDatabase = async (sourcetype: SourceType) => {
+      if (sourcetype === SourceType.STAGEDB) {
+        recentlyQueriesForDatabase = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.id, this.page.page, this.page.size, this.page.sort)
+          .catch(error => this.commonExceptionHandler(error));
+      } else {
+        recentlyQueriesForDatabase = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.source.id, this.page.page, this.page.size, this.page.sort)
+          .catch(error => this.commonExceptionHandler(error));
+      }
+
+    };
+
+    const getRecentlyQueriesForDataSource = async () => {
+      recentlyQueriesForDataSource = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDataSource(metadataDetail.source.source.id, this.page.page, this.page.size, this.page.sort)
+        .catch(error => this.commonExceptionHandler(error));
+    };
+
+    const getTopUser = async () => {
+      topUserList = await this.metadataService.getTopUserInMetadataDetail(metadata.id).catch(() => {
+
+      });
+      topUserList = topUserList === undefined ? [] : topUserList;
+    };
+
+    const getRecentlyUpdatedList = async () => {
+      recentlyUpdatedList = await this.metadataService.getRecentlyUpdatedInMetadataDetail(metadata.id).catch(error => this.commonExceptionHandler(error));
+    };
+
+    // get metadataDetail to use datasourceService which is using metadataDetail
+    this.metadataService.getDetailMetaData(metadata.id).then(async (result) => {
+      metadataDetail = result;
+
+      await getTopUser();
+      await getRecentlyUpdatedList().catch(error => this.commonExceptionHandler(error));
+
+      if (metadata.sourceType === SourceType.ENGINE) {
+        await getRecentlyQueriesForDataSource();
+        this.entryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(MetadataContainerComponent));
+        this.entryRef.instance.metadataDetailData = metadataDetail;
+        this.entryRef.instance.topUserList = topUserList;
+        this.entryRef.instance.recentlyUpdatedList = recentlyUpdatedList;
+        if (recentlyQueriesForDataSource['_embedded']) {
+          this.entryRef.instance.recentlyQueriesForDataSource = recentlyQueriesForDataSource['_embedded']['datasourcequeryhistories'];
+        }
+        this.entryRef.instance.metadataId = metadata.id;
+      } else if (metadata.sourceType === SourceType.JDBC || metadata.sourceType === SourceType.STAGEDB) {
+        await getRecentlyQueriesForDatabase(metadata.sourceType);
+        this.entryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(MetadataContainerComponent));
+        this.entryRef.instance.metadataDetailData = metadataDetail;
+        this.entryRef.instance.topUserList = topUserList;
+        this.entryRef.instance.recentlyUpdatedList = recentlyUpdatedList;
+        if (recentlyQueriesForDatabase['_embedded']) {
+          this.entryRef.instance.recentlyQueriesForDataBase = recentlyQueriesForDatabase['_embedded']['queryhistories'];
+        }
+        this.entryRef.instance.metadataId = metadata.id;
+      }
+      this.entryRef.instance.closedPopup.subscribe(() => {
+        // close
+        this.entryRef.destroy();
+      });
+    }).catch(error => console.log(error));
   }
 
   onCloseMetadataContainer(): void {

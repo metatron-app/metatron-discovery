@@ -14,10 +14,17 @@
 
 package app.metatron.discovery.domain.mdm;
 
+import com.google.common.collect.Lists;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.RevisionType;
+import org.hibernate.envers.query.AuditEntity;
+import org.hibernate.envers.query.AuditQuery;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,15 +45,26 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import app.metatron.discovery.common.data.projection.DataGrid;
 import app.metatron.discovery.common.data.projection.Row;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.activities.ActivityStream;
+import app.metatron.discovery.domain.activities.ActivityStreamRepository;
+import app.metatron.discovery.domain.activities.spec.ActivityType;
+import app.metatron.discovery.domain.activities.spec.Actor;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
 import app.metatron.discovery.domain.datasource.DataSource;
+import app.metatron.discovery.domain.datasource.DataSourceRepository;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcCSVWriter;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
 import app.metatron.discovery.domain.datasource.data.DataSourceValidator;
@@ -57,8 +75,23 @@ import app.metatron.discovery.domain.mdm.preview.MetadataEngineDataPreview;
 import app.metatron.discovery.domain.mdm.preview.MetadataJdbcDataPreview;
 import app.metatron.discovery.domain.mdm.source.MetaSourceService;
 import app.metatron.discovery.domain.mdm.source.MetadataSource;
+import app.metatron.discovery.domain.revision.MetatronRevisionEntity;
 import app.metatron.discovery.domain.storage.StorageProperties;
+import app.metatron.discovery.domain.user.CachedUserService;
+import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.workbench.QueryEditor;
+import app.metatron.discovery.domain.workbench.QueryHistory;
+import app.metatron.discovery.domain.workbench.QueryHistoryRepository;
+import app.metatron.discovery.domain.workbench.Workbench;
+import app.metatron.discovery.domain.workbench.WorkbenchRepository;
+import app.metatron.discovery.domain.workbook.DashBoard;
+import app.metatron.discovery.domain.workbook.DashboardRepository;
+import app.metatron.discovery.domain.workbook.WorkBook;
+import app.metatron.discovery.domain.workspace.Workspace;
+import app.metatron.discovery.domain.workspace.WorkspacePermissions;
+import app.metatron.discovery.domain.workspace.WorkspaceService;
 import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
+import app.metatron.discovery.util.HibernateUtils;
 
 
 @Component
@@ -83,10 +116,37 @@ public class MetadataService implements ApplicationEventPublisherAware {
   MetadataRepository metadataRepository;
 
   @Autowired
+  MetadataColumnRepository metadataColumnRepository;
+
+  @Autowired
   EngineQueryService engineQueryService;
 
   @Autowired
   DataSourceValidator dataSourceValidator;
+
+  @Autowired
+  DataSourceRepository dataSourceRepository;
+
+  @Autowired
+  ActivityStreamRepository activityStreamRepository;
+
+  @Autowired
+  CachedUserService cachedUserService;
+
+  @Autowired
+  DashboardRepository dashboardRepository;
+
+  @Autowired
+  WorkbenchRepository workbenchRepository;
+
+  @Autowired
+  QueryHistoryRepository queryHistoryRepository;
+
+  @Autowired
+  WorkspaceService workspaceService;
+
+  @Autowired
+  AuditReader auditReader;
 
   private ApplicationEventPublisher publisher;
 
@@ -445,5 +505,228 @@ public class MetadataService implements ApplicationEventPublisherAware {
 
     queryString = jdbcConnectionService.generateSelectQuery(jdbcConnection, schema, type, query, null);
     return queryString;
+  }
+
+  public List<?> getFrequentUser(Metadata metadata, int maxCount){
+    Metadata.SourceType sourceType = metadata.getSourceType();
+    LOGGER.debug("Getting frequent top {} user about : {}", maxCount, sourceType);
+
+    List<Map> frequentUserList = new ArrayList<>();
+    switch (sourceType){
+      case ENGINE:
+        //getting DataSourceId
+        String dataSourceId = metadata.getSource().getSourceId();
+
+        //getting Dashboard list that use the datasource
+        Set<DashBoard> dashboardsInDataSource = dataSourceRepository.findDashboardsInDataSource(dataSourceId);
+
+        //extract dashboard id
+        List<String> dashboardIdList = dashboardsInDataSource.stream()
+                                                             .map(dashBoard -> dashBoard.getId())
+                                                             .collect(Collectors.toList());
+
+        //we need just VIEW Action
+        List<ActivityType> activityTypes = Lists.newArrayList(ActivityType.VIEW);
+
+        //between 1 month
+        DateTime toDatetime = DateTime.now();
+        DateTime fromDatetime = toDatetime.minusMonths(1);
+
+        List<Map<String, Object>> activityInfoList
+            = activityStreamRepository.getActivityCountByUser(dashboardIdList, activityTypes, Actor.ActorType.PERSON,
+                                                              fromDatetime, toDatetime);
+
+        LOGGER.debug("Activity Count By User List : {}", activityInfoList.size());
+
+        //top 3
+        for(int i = 0; i < Math.min(maxCount, activityInfoList.size()); i++){
+          Map<String, Object> activityInfo = activityInfoList.get(i);
+          Long activityId = (Long) activityInfo.get("ID");
+          Long activityCount = (Long) activityInfo.get("CNT");
+
+          //get Recent Activity
+          ActivityStream activityStream = activityStreamRepository.findOne(activityId);
+
+          LOGGER.debug("User({}), Count({}), Date({})", activityStream.getActor(), activityCount, activityStream.getPublishedTime());
+
+          //get user info
+          User actor = cachedUserService.findUser(activityStream.getActor());
+
+          //get dashboard info
+          DashBoard dashBoard = dashboardRepository.findOne(activityStream.getObjectId());
+
+          //get Workbook
+          WorkBook workbook = HibernateUtils.unproxy(dashBoard.getWorkBook());
+
+          //get Workspace Permission
+          Workspace workspace = workbook.getWorkspace();
+          Boolean hasPermission = getWorkspacePermission(workspace, WorkspacePermissions.PERM_WORKSPACE_VIEW_WORKBOOK);
+
+          Map<String, Object> accessMap = new HashMap<>();
+          accessMap.put("user", actor);
+          accessMap.put("dashboard", dashBoard);
+          accessMap.put("workbook", workbook);
+          accessMap.put("hasPermission", hasPermission);
+          accessMap.put("count", activityCount);
+          accessMap.put("lastPublishedTime", activityStream.getPublishedTime());
+
+          frequentUserList.add(accessMap);
+        }
+        break;
+      case STAGEDB:
+        break;
+      case JDBC:
+        //getting DataConnectionId
+        String dataConnectionId = metadata.getSource().getSourceId();
+
+        List queryHistoryCountByUser
+            = queryHistoryRepository.countHistoryByUserAndDataConnection(DateTime.now().minusMonths(100), dataConnectionId);
+
+        //top 3
+        for(int i = 0; i < Math.min(maxCount, queryHistoryCountByUser.size()); i++){
+          Map<String, Object> queryHistoryInfo = (Map) queryHistoryCountByUser.get(i);
+          Long queryHistoryId = (Long) queryHistoryInfo.get("ID");
+          Long queryHistoryCount = (Long) queryHistoryInfo.get("CNT");
+
+          //get RecentQueryHistory
+          QueryHistory queryHistory = queryHistoryRepository.findOne(queryHistoryId);
+
+          QueryEditor queryEditor = queryHistory.getQueryEditor();
+
+          Workbench workbench = queryEditor == null ? null : queryEditor.getWorkbench();
+
+          //get user info
+          User actor = cachedUserService.findUser(queryHistory.getCreatedBy());
+
+          //get Workspace Permission
+          Workspace workspace = workbench.getWorkspace();
+          Boolean hasPermission = getWorkspacePermission(workspace, WorkspacePermissions.PERM_WORKSPACE_VIEW_WORKBENCH);
+
+          Map<String, Object> accessMap = new HashMap<>();
+          accessMap.put("user", actor);
+          accessMap.put("workbench", HibernateUtils.unproxy(workbench));
+          accessMap.put("count", queryHistoryCount);
+          accessMap.put("hasPermission", hasPermission);
+          accessMap.put("lastPublishedTime", queryHistory.getCreatedTime());
+          frequentUserList.add(accessMap);
+        }
+        break;
+      default:
+
+        break;
+    }
+    return frequentUserList;
+  }
+
+  private int getRandomNumberInRange(int min, int max) {
+
+    if (min >= max) {
+      throw new IllegalArgumentException("max must be greater than min");
+    }
+
+    Random r = new Random();
+    return r.nextInt((max - min) + 1) + min;
+  }
+
+  public List<?> getUpdateHistory(Metadata metadata, int limit){
+    List<Map> historyList = new ArrayList<>();
+
+    //metadata revision list
+    AuditQuery metadataAuditQuery = auditReader.createQuery()
+                                               .forRevisionsOfEntityWithChanges(Metadata.class, true)
+                                               .add(AuditEntity.id().eq(metadata.getId()))
+                                               .addOrder(AuditEntity.revisionNumber().desc());
+    if(limit > 0){
+      metadataAuditQuery.setMaxResults(limit);
+    }
+    List<Object[]> metadataList = metadataAuditQuery.getResultList();
+
+    metadataList.stream().forEach(objectArr -> {
+      Metadata metadataEntity = (Metadata) objectArr[0];
+      MetatronRevisionEntity revisionEntity = (MetatronRevisionEntity) objectArr[1];
+      RevisionType revisionType = (RevisionType) objectArr[2];
+      String contents = "";
+      if(revisionType == RevisionType.ADD){
+        contents = "Metadata Created.";
+      } else if(revisionType == RevisionType.DEL){
+        contents = "Metadata Deleted.";
+      } else if(revisionType == RevisionType.MOD){
+        Set<String> propertiesChanged = (Set<String>) objectArr[3];
+        contents = "Metadata Changed." +
+            " Fields : " + StringUtils.join(propertiesChanged, ",") + "";
+      }
+
+      Map<String, Object> revisionMap = new HashMap<>();
+      revisionMap.put("createdTime", revisionEntity.getRevisionDate());
+      revisionMap.put("user", cachedUserService.findUser(revisionEntity.getUsername()));
+      revisionMap.put("contents", contents);
+      revisionMap.put("revisionType", revisionType);
+      historyList.add(revisionMap);
+    });
+
+    //metadata column revision list
+    AuditQuery auditQuery = auditReader.createQuery()
+                                       .forRevisionsOfEntityWithChanges(MetadataColumn.class, true)
+                                       .add(AuditEntity.relatedId("metadata").eq(metadata.getId()))
+                                       .addOrder(AuditEntity.revisionNumber().desc());
+    if(limit > 0){
+      auditQuery.setMaxResults(limit);
+    }
+    List<Object[]> columnList = auditQuery.getResultList();
+
+    columnList.stream().forEach(objectArr -> {
+      MetadataColumn metadataColumn = (MetadataColumn) objectArr[0];
+      MetatronRevisionEntity revisionEntity = (MetatronRevisionEntity) objectArr[1];
+      RevisionType revisionType = (RevisionType) objectArr[2];
+
+      String contents = "";
+      if(revisionType == RevisionType.ADD){
+        contents = "Column Created.";
+      } else if(revisionType == RevisionType.DEL){
+        contents = "Column Deleted.";
+      } else if(revisionType == RevisionType.MOD){
+        Set<String> propertiesChanged = (Set<String>) objectArr[3];
+        contents = "Column Changed." +
+            " Column : " + metadataColumn.getPhysicalName() +
+            ", Fields : " + StringUtils.join(propertiesChanged, ",");
+      }
+
+      Map<String, Object> revisionMap = new HashMap<>();
+      revisionMap.put("createdTime", revisionEntity.getRevisionDate());
+      revisionMap.put("user", cachedUserService.findUser(revisionEntity.getUsername()));
+      revisionMap.put("contents", contents);
+      revisionMap.put("revisionType", revisionType);
+      historyList.add(revisionMap);
+    });
+
+    //order by createdTime desc
+    historyList.sort((a, b) -> {
+      Date aDate = (Date) a.get("createdTime");
+      Date bDate = (Date) b.get("createdTime");
+      if(aDate.getTime() == bDate.getTime()){
+        return 0;
+      } else if(aDate.getTime() > bDate.getTime()){
+        return -1;
+      } else {
+        return 1;
+      }
+    });
+
+    if(limit > 0 && historyList.size() > limit){
+      while(historyList.size() > limit){
+        historyList.remove(historyList.size() - 1);
+      }
+    }
+
+    return historyList;
+  }
+
+  public Boolean getWorkspacePermission(Workspace workspace, String permission){
+    Boolean hasPermission = false;
+    if(workspace.getActive()){
+      Set<String> permissions = workspaceService.getPermissions(workspace);
+      hasPermission = permissions.contains(permission);
+    }
+    return hasPermission;
   }
 }

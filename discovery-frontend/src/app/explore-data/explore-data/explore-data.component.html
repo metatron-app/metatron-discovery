@@ -33,8 +33,4 @@
       (changedMetadataPresence)="searchComponent.onChangeEmptySearchContentsPresence($event)"></explore-data-list>
   </div>
 </div>
-<explore-metadata-container
-  *ngIf="selectedMetadata?.id"
-  [metadata]="selectedMetadata"
-  (closeMetadataContainer)="onCloseMetadataContainer()">
-</explore-metadata-container>
+<ng-template #component_metadata_detail></ng-template>
