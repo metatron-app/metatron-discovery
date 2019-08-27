@@ -19,21 +19,15 @@ import java.util.List;
 
 public class PrepSnapshotResponse implements Serializable {
   String ssId;
-  List<String> fullDsIds;
   String ssName;
 
-  public PrepSnapshotResponse(String ssId, List<String> fullDsIds, String ssName) {
+  public PrepSnapshotResponse(String ssId, String ssName) {
     this.ssId = ssId;
-    this.fullDsIds = fullDsIds;
     this.ssName = ssName;
   }
 
   public String getSsId() {
     return ssId;
-  }
-
-  public List<String> getFullDsIds() {
-    return fullDsIds;
   }
 
   public String getSsName() {

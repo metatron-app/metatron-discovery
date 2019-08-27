@@ -167,7 +167,7 @@ public class PrepTransformRestIntegrationTest extends AbstractRestIntegrationTes
     transform(wrangledDsId, "APPEND", ruleCurIdx++, rule1);
     transform(wrangledDsId, "APPEND", ruleCurIdx++, rule2);
 
-    response = generateFileSnapshot(wrangledDsId, "CSV", "NONE", true);
+    response = generateFileSnapshot(wrangledDsId, "CSV", 5);
     String ssId = response.path(KEY_SS_ID);
     assert ssId != null;
 
@@ -201,12 +201,9 @@ public class PrepTransformRestIntegrationTest extends AbstractRestIntegrationTes
     transform(wrangledDsId, "APPEND", ruleCurIdx++, rule2);
     transform(wrangledDsId, "JUMP", offsetIdx+1, null);
 
-    response = generateFileSnapshot(wrangledDsId, "CSV", "NONE", true);
+    response = generateFileSnapshot(wrangledDsId, "CSV", 5);
     String ssId = response.path(KEY_SS_ID);
     assert ssId != null;
-
-    response = getSnapshotDetail(ssId);
-    assert response.path(KEY_DS_NAME).equals("simple dataset") : response.path(KEY_DS_NAME);
   }
 
   @Test
@@ -1229,15 +1226,29 @@ public class PrepTransformRestIntegrationTest extends AbstractRestIntegrationTes
     return load_response;
   }
 
-  private Response generateFileSnapshot(String wrangledDsId, String format, String compression, boolean profile) {
+  private Response generateFileSnapshot(String wrangledDsId, String uriFileFormat, int limitSec) {
+    Response config_get_response = given()
+            .auth()
+            .oauth2(oauth_token)
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .when()
+            .get("/api/preparationdatasets/" + wrangledDsId + "/transform/configuration")
+            .then()
+            .statusCode(HttpStatus.SC_OK)
+            .log().all()
+            .extract()
+            .response();
+
+    String ssName = config_get_response.path("ss_name");
+    String storedUri = config_get_response.path("file_uri.LOCAL");
+
     Map<String, Object> transform_snapshot_request = Maps.newHashMap();
-    transform_snapshot_request.put("ssName", "test snapshot");
+    transform_snapshot_request.put("ssName", "ssName");
     transform_snapshot_request.put("ssType", "URI");
-    transform_snapshot_request.put("storageType", "LOCAL");
+    transform_snapshot_request.put("storedUri", storedUri);
     transform_snapshot_request.put("uriFileFormat", "CSV");
-    transform_snapshot_request.put("hiveFileCompression", "NONE");
     transform_snapshot_request.put("engine", "EMBEDDED");
-    transform_snapshot_request.put("isCancel", false);
 
     Response transform_snapshot_response = given()
       .auth()
@@ -1253,23 +1264,31 @@ public class PrepTransformRestIntegrationTest extends AbstractRestIntegrationTes
       .extract()
       .response();
 
-    assert transform_snapshot_response.path("errorMsg") == null : transform_snapshot_response;
+    String ssId = transform_snapshot_response.path("ssId");
 
-    List<String> fullDsIds = transform_snapshot_response.path("fullDsIds");
-    for (String dsId : fullDsIds) {
-      given()
-        .auth()
-        .oauth2(oauth_token)
-        .when()
-        .delete("/api/preparationdatasets/" + dsId)
-        .then()
-        .statusCode(HttpStatus.SC_OK)
-        .log().all()
-        .extract()
-        .response();
+    // Wait for limit seconds.
+    try {
+      Thread.sleep(limitSec * 1000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
     }
 
-    return transform_snapshot_response;
+    Response snapshot_get_response = given()
+            .auth()
+            .oauth2(oauth_token)
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .when()
+            .content(transform_snapshot_request)
+            .get("/api/preparationsnapshots/" + ssId)
+            .then()
+            .statusCode(HttpStatus.SC_OK)
+            .log().all()
+            .extract()
+            .response();
+
+    assert snapshot_get_response.path("status").equals("SUCCEEDED") : snapshot_get_response;
+    return snapshot_get_response;
   }
 
   private Response getSnapshotDetail(String ssId) {

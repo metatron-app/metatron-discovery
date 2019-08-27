@@ -1134,7 +1134,6 @@ public class PrepTransformService {
   public PrepSnapshotResponse transform_snapshot(String wrangledDsId,
       PrepSnapshotRequestPost requestPost, String authorization) throws Throwable {
     PrepSnapshotResponse response;
-    List<String> allFullDsIds;
     PrSnapshot snapshot = new PrSnapshot();
     PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(wrangledDsId));
 
@@ -1266,15 +1265,13 @@ public class PrepTransformService {
         requestPost.getSsType() == PrSnapshot.SS_TYPE.STAGING_DB) {
       runTransformer(wrangledDsId, requestPost, snapshot.getSsId(), authorization);
       LOGGER.info("transform_snapshot(): snapshot generation successfully start");
-
-      allFullDsIds = new ArrayList<>();   // for backward-compatability
     } else {
       throw new IllegalArgumentException(requestPost.toString());
     }
 
     snapshotRepository.saveAndFlush(snapshot);
 
-    response = new PrepSnapshotResponse(snapshot.getSsId(), allFullDsIds, snapshot.getSsName());
+    response = new PrepSnapshotResponse(snapshot.getSsId(), snapshot.getSsName());
 
     LOGGER.trace("transform_snapshot(): end");
     return response;
