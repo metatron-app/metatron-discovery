@@ -29,7 +29,6 @@ export class CriterionComponent extends AbstractComponent {
 
   @Input()
   public readonly criterionApiFunc;
-
   // used criterion list
   public usedCriterionList: Criteria.ListCriterion[];
   // extension criterion list
@@ -61,6 +60,10 @@ export class CriterionComponent extends AbstractComponent {
     // if exist extension criterion list in criterion list param
     if (!_.isNil(extensionCriterion)) {
       this._extensionCriterionList = _.cloneDeep(extensionCriterion.subCriteria);
+      // add source type filter as default filter
+      this.usedCriterionList.push(this._extensionCriterionList.find(extensionCriterion => {
+        return extensionCriterion.criterionKey === Criteria.ListCriterionKey.SOURCE_TYPE
+      }))
     }
     // if exist default filters
     if (!_.isNil(criterionResult.defaultFilters) && criterionResult.defaultFilters.length > 0) {
@@ -107,6 +110,7 @@ export class CriterionComponent extends AbstractComponent {
    * @param {Criteria.ListCriterion} criterion
    */
   public addExtensionCriterion(criterion: Criteria.ListCriterion): void {
+    console.log(criterion);
     // add criterion in used criterion list
     this.usedCriterionList.push(criterion);
     // if not exist extensions
