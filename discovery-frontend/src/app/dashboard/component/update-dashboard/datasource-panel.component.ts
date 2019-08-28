@@ -100,6 +100,9 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
   public dataSourceList: Datasource[] = [];
   public dataSource: Datasource;
 
+  public isSelectedDimension:boolean = true;
+  public isSelectedMeasure:boolean = true;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Input&Output Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
