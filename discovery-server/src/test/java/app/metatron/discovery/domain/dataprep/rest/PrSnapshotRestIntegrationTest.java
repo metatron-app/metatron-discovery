@@ -168,7 +168,7 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
         return dataflow_post_response;
     }
 
-    public String make_snapshot(PrSnapshot.SS_TYPE ssType) {
+    public String make_snapshot(int limitSec) {
         Response dataset_post_response = make_dataset();
         String importedDsId = dataset_post_response.path("dsId");
 
@@ -194,22 +194,37 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
                 .response();
 
         String wrangledDsId = transform_post_response.path("wrangledDsId");
-        Integer ruleCurIdx = transform_post_response.path("ruleCurIdx");
 
-        PrepSnapshotRequestPost data = new PrepSnapshotRequestPost();
-        data.setSsName("test_snapshot");
-        data.setEngine(PrSnapshot.ENGINE.EMBEDDED);
-        data.setSsType(ssType);
-        data.setHiveFileFormat(PrSnapshot.HIVE_FILE_FORMAT.CSV);
-        data.setHiveFileCompression(PrSnapshot.HIVE_FILE_COMPRESSION.NONE);
-
-        Response snapshot_post_response = given()
+        Response config_get_response = given()
                 .auth()
                 .oauth2(oauth_token)
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .when()
-                .content(data)
+                .get("/api/preparationdatasets/" + wrangledDsId + "/transform/configuration")
+                .then()
+                .statusCode(HttpStatus.SC_OK)
+                .log().all()
+                .extract()
+                .response();
+
+        String ssName = config_get_response.path("ss_name");
+        String storedUri = config_get_response.path("file_uri.LOCAL");
+
+        Map<String, Object> transform_snapshot_request = Maps.newHashMap();
+        transform_snapshot_request.put("ssName", ssName);
+        transform_snapshot_request.put("ssType", "URI");
+        transform_snapshot_request.put("storedUri", storedUri);
+        transform_snapshot_request.put("uriFileFormat", "CSV");
+        transform_snapshot_request.put("engine", "EMBEDDED");
+
+        Response transform_snapshot_response = given()
+                .auth()
+                .oauth2(oauth_token)
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .when()
+                .content(transform_snapshot_request)
                 .post("/api/preparationdatasets/" + wrangledDsId + "/transform/snapshot")
                 .then()
                 .statusCode(HttpStatus.SC_OK)
@@ -217,22 +232,37 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
                 .extract()
                 .response();
 
-        String ssId = snapshot_post_response.path("ssId");
+        String ssId = transform_snapshot_response.path("ssId");
 
-        // snapshot을 생성하는 과정이 비동기이기 때문에, 기다리지 않고 테스트를 종료하면, 제대로 snapshot 생성 과정이 중단된다.
+        // Wait for limit seconds.
         try {
-            Thread.sleep(5000);
+            Thread.sleep(limitSec * 1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        return ssId;
+        Response snapshot_get_response = given()
+                .auth()
+                .oauth2(oauth_token)
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .when()
+                .content(transform_snapshot_request)
+                .get("/api/preparationsnapshots/" + ssId)
+                .then()
+                .statusCode(HttpStatus.SC_OK)
+                .log().all()
+                .extract()
+                .response();
+
+        assert snapshot_get_response.path("status").equals("SUCCEEDED") : snapshot_get_response;
+        return snapshot_get_response.path("ssId");
     }
 
     @Test
     @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
     public void preparationsnapshots_GET_FILE_type() throws JsonProcessingException {
-        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI);
+        String ssId = make_snapshot(5);
         given()
                 .auth()
                 .oauth2(oauth_token)
@@ -247,7 +277,7 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
     @Test
     @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
     public void preparationsnapshots_GET_HDFS_type() throws JsonProcessingException {
-        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI);
+        String ssId = make_snapshot(5);
         given()
                 .auth()
                 .oauth2(oauth_token)
@@ -262,7 +292,7 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
     @Test
     @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
     public void preparationsnapshots_Id_GET() throws JsonProcessingException {
-        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI);
+        String ssId = make_snapshot(5);
         given()
                 .auth()
                 .oauth2(oauth_token)
@@ -279,7 +309,7 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
     @Test
     @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
     public void preparationsnapshots_DELETE() throws JsonProcessingException {
-        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI);
+        String ssId = make_snapshot(5);
 
         given()
                 .auth()
@@ -296,7 +326,7 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
     @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
     public void preparationdatasets_POST_makeSnapshot() throws JsonProcessingException {
 
-        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI);
+        String ssId = make_snapshot(5);
         LOGGER.debug("snapshot ID is " + ssId);
     }
 
@@ -304,104 +334,7 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
     @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
     public void preparationsnapshot_contents_GET() throws JsonProcessingException {
 
-        Response dataset_post_response = make_dataset();
-        String importedDsId = dataset_post_response.path("dsId");
-
-        Response dataflow_post_response = make_dataflow(dataset_post_response);
-
-        Map<String, Object> transform_post_body = Maps.newHashMap();
-        String dfId = dataflow_post_response.path("dfId");
-        transform_post_body.put("dfId", dfId);
-
-        // CREATE WRANGLED DATASET
-        Response transform_post_response = given()
-                .auth()
-                .oauth2(oauth_token)
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .when()
-                .content(transform_post_body)
-                .post("/api/preparationdatasets/" + importedDsId + "/transform")
-                .then()
-                .statusCode(HttpStatus.SC_OK)
-                .log().all()
-                .extract()
-                .response();
-
-        String wrangledDsId = transform_post_response.path("wrangledDsId");
-
-        Map<String, Object> transform_put_body = Maps.newHashMap();
-        transform_put_body.put("count", "100");
-        transform_put_body.put("op", "APPEND");
-        transform_put_body.put("ruleIdx", 1);
-        transform_put_body.put("ruleString", "rename col: column1 to: 'user_id'");
-
-        // APPEND #1 - RENAME
-        Response transform_put_response = given()
-                .auth()
-                .oauth2(oauth_token)
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .when()
-                .content(transform_put_body)
-                .put("/api/preparationdatasets/" + wrangledDsId + "/transform")
-                .then()
-                .statusCode(HttpStatus.SC_OK)
-                .log().all()
-                .extract()
-                .response();
-
-        List<Map<String, Object>> transformRules = transform_put_response.path("transformRules");
-
-        transform_put_body.put("count", "100");
-        transform_put_body.put("op", "APPEND");
-        transform_put_body.put("ruleIdx", 2);
-        transform_put_body.put("ruleString", "rename col: column2 to: 'birth_day'");
-
-        // APPEND #2 - RENAME
-        Response transform_put_response2 = given()
-                .auth()
-                .oauth2(oauth_token)
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .when()
-                .content(transform_put_body)
-                .put("/api/preparationdatasets/" + wrangledDsId + "/transform")
-                .then()
-                .statusCode(HttpStatus.SC_OK)
-                .log().all()
-                .extract()
-                .response();
-
-
-        PrepSnapshotRequestPost data = new PrepSnapshotRequestPost();
-        data.setSsName("test_snapshot");
-        data.setEngine(PrSnapshot.ENGINE.EMBEDDED);
-        data.setSsType(PrSnapshot.SS_TYPE.URI);
-
-        Response snapshot_post_response = given()
-                .auth()
-                .oauth2(oauth_token)
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .when()
-                .content(data)
-                .post("/api/preparationdatasets/" + wrangledDsId + "/transform/snapshot")
-                .then()
-                .statusCode(HttpStatus.SC_OK)
-                .log().all()
-                .extract()
-                .response();
-
-        String ssId = snapshot_post_response.path("ssId");
-        String stored_uri = snapshot_post_response.path("storedUri");
-
-        // snapshot을 생성하는 과정이 비동기이기 때문에, 기다리지 않고 테스트를 종료하면, 제대로 snapshot 생성 과정이 중단된다.
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        String ssId = make_snapshot(5);
 
         // first call, target means count of rows
         Response snapshot_get_response = given()

@@ -88,18 +88,4 @@ public class ApacheCommonsCsvInputTest {
     assertEquals(result.grid.size(), 4);
     assertTrue(result.grid.get(3)[7].contains("\"quote\""));
   }
-
-  @Test
-  public void test_unmatched_quotes() {
-    String strUri = buildStrUrlFromResourceDir("csv/unmatched_quotes.csv");
-    boolean error = false;
-
-    try {
-      PrepCsvUtil.parse(strUri, ",", 10000, null, null, true, false);
-    } catch (NoSuchElementException e) {
-      error = true;
-    }
-
-    assertTrue(error);
-  }
 }

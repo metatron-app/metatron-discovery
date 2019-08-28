@@ -84,16 +84,9 @@ public class DataFrameService {
     }
   }
 
-  public DataFrame applyRule(DataFrame df, String ruleString) throws TeddyException {
-    return applyRule(df, ruleString, null);
-  }
-
-  public DataFrame applyRule(DataFrame df, String ruleString, List<DataFrame> slaveDfs) throws TeddyException {
+  public DataFrame applyRuleInternal(DataFrame df, String ruleString, List<DataFrame> slaveDfs, Integer cores, Integer timeout, Integer limitRows) throws TeddyException {
     LOGGER.trace("applyRule(): start");
 
-    Integer cores = prepProperties.getSamplingCores();
-    Integer timeout = prepProperties.getSamplingTimeout();
-    Integer limitRows = prepProperties.getSamplingLimitRows();
 
     List<Future<List<Row>>> futures = new ArrayList<>();
     Rule rule = new RuleVisitorParser().parse(ruleString);
@@ -153,6 +146,14 @@ public class DataFrameService {
 
     LOGGER.trace("applyRule(): end (parallel)");
     return newDf;
+  }
+
+  public DataFrame applyRule(DataFrame df, String ruleString, List<DataFrame> slaveDfs) throws TeddyException {
+    Integer cores = prepProperties.getSamplingCores();
+    Integer timeout = prepProperties.getSamplingTimeout();
+    Integer limitRows = prepProperties.getSamplingLimitRows();
+
+    return applyRuleInternal(df, ruleString, slaveDfs, cores, timeout, limitRows);
   }
 
   @Async("prepThreadPoolTaskExecutor")

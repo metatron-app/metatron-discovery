@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import javax.servlet.ServletOutputStream;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -196,11 +197,20 @@ public class PrepCsvUtil {
       } catch (IllegalStateException e) {
         e.printStackTrace();
         // suppress
+        continue;
+      } catch (NoSuchElementException e) {
+        e.printStackTrace();
+        // suppress
+        continue;
       }
 
       try {
         csvRow = iter.next();
       } catch (IllegalStateException e) {
+        e.printStackTrace();
+        // suppress
+        continue;
+      } catch (NoSuchElementException e) {
         e.printStackTrace();
         // suppress
         continue;

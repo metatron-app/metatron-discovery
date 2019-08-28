@@ -80,7 +80,13 @@ public class DfSet extends DataFrame {
     }
 
     for (int colno = 0; colno < prevDf.getColCnt(); colno++) {
-      addColumn(prevDf.getColName(colno), prevDf.getColDesc(colno));
+      if (replacedColExprs.containsKey(colno)) {
+        // Column type can be changed according to the result values.
+        // This is the same behavior to Apache Spark.
+        addColumn(prevDf.getColName(colno), prevDf.decideType_internal(replacedColExprs.get(colno)));
+      } else {
+        addColumn(prevDf.getColName(colno), prevDf.getColDesc(colno));
+      }
     }
 
     preparedArgs.add(targetColnos);
