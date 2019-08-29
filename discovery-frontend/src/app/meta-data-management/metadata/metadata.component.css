@@ -1,0 +1,5 @@
+
+:host /deep/ table.ddp-table-line thead tr th {color:#4b515b; font-size:12px; font-weight:normal; border-top:1px solid #d2d3d9; border-bottom:1px solid #d2d3d9; background-color:#f8f8f8;}
+:host /deep/ table.ddp-table-line thead tr th:first-of-type {padding-left:20px; border-left:1px solid #d2d3d9;}
+:host /deep/ table.ddp-table-line thead tr th:last-of-type {border-right:1px solid #d2d3d9;}
+:host /deep/ table.ddp-table-line thead tr th .ddp-txt-colortype {color:#b7b9c2;}
