@@ -165,9 +165,15 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   public isShareType: boolean = false;
 
   // 필터 보이기/감추기
-  public contentFilter: any[];
+  public contentFilter: any[] = [
+    {key: 'all', value: this.translateService.instant('msg.comm.ui.list.dropbox.all')},
+    {key: 'workbook', value: this.translateService.instant('msg.comm.ui.list.dropbox.workbook')},
+    {key: 'notebook', value: this.translateService.instant('msg.comm.ui.list.dropbox.notebook')},
+    {key: 'workbench', value: this.translateService.instant('msg.comm.ui.list.dropbox.workbench')},
+  ];
+
   // 선택한 필터 키
-  public selectedContentFilter: any;
+  public selectedContentFilter: any = this.contentFilter[0];
 
   // 정렬
   public contentSort: any[];
@@ -349,6 +355,17 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
         .then((folder) => {
           // 홀더 저장
           this.folder = folder;
+
+          this.contentFilter.forEach(filter => {
+            filter.key === 'all'
+              ? filter.value = this.translateService.instant('msg.comm.ui.list.dropbox.all', { value: this.folder.books.filter(book => book.type !== 'folder').length })
+              : filter.value = this.translateService.instant('msg.comm.ui.list.dropbox.' + filter.key, { value: this.folder.books.filter(book => book.type !== 'folder' && book.type === filter.key).length })
+          });
+
+          this.selectedContentFilter = this.contentFilter[3];
+
+          this.safelyDetectChanges();
+
           // 저장된 폴더 구조 추적
           this._traceFolderHierarchies();
           // 로딩 hide
@@ -1544,6 +1561,14 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
           });
         }
 
+        this.contentFilter.forEach(filter => {
+          filter.key === 'all'
+            ? filter.value = this.translateService.instant('msg.comm.ui.list.dropbox.all', { value: this.workspace.books.filter(book => book.type !== 'folder').length })
+            : filter.value = this.translateService.instant('msg.comm.ui.list.dropbox.' + filter.key, { value: this.workspace.books.filter(book => (book.type !== 'folder') && book.type === filter.key).length })
+        });
+
+        this.selectedContentFilter = this.contentFilter[3];
+
       } else {
         // 워크스페이스 이름
         this.workspaceName = workspace.name;
@@ -1608,14 +1633,6 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
       this.countByBookType = new CountByBookType();
       this.owner = new UserProfile();
       this.isRoot = true;
-
-      this.contentFilter = [
-        {key: 'all', value: this.translateService.instant('msg.comm.ui.list.all')},
-        {key: 'workbook', value: this.translateService.instant('msg.comm.ui.list.workbook')},
-        {key: 'notebook', value: this.translateService.instant('msg.comm.ui.list.notebook')},
-        {key: 'workbench', value: this.translateService.instant('msg.comm.ui.list.workbench')},
-      ];
-      this.selectedContentFilter = this.contentFilter[0];
 
       this.contentSort = [
         {key: 'name', value: this.translateService.instant('msg.comm.ui.list.name.asc'), type: 'asc'},
@@ -1707,9 +1724,10 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     } else {
       filteredList = this.folder.books.filter((book: Book) => book.name.toLowerCase().includes(this.srchText.toLowerCase()));
     }
+
     if ('all' !== this.selectedContentFilter.key) {
       filteredList = filteredList.filter((book: Book) => {
-        return book.type === this.selectedContentFilter.key || 'folder' === book.type
+        return book.type.includes(this.selectedContentFilter.key)  || book.type.includes('folder')
       });
     }
     return filteredList;
