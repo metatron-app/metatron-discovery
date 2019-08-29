@@ -192,11 +192,13 @@
                     {{'msg.comm.menu.manage.metadata.lineage' | translate}}
                   </a>
                 </li>
+                <!--
                 <li>
                   <a href="javascript:" (click)="move('management/metadata/catalog')">
                     {{'msg.comm.menu.manage.metadata.catalog' | translate}}
                   </a>
                 </li>
+                -->
               </ul>
             </li>
             <li *ngIf="permission.managementDatasource" [ngClass]="{'ddp-selected': lnbManager.management.dataStorage.fold == false}">
