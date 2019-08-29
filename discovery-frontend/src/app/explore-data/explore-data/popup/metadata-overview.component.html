@@ -79,7 +79,7 @@
                 <!-- //more -->
               </ng-container>
               <ng-template #noCatalog>
-                -
+                Unclassified
               </ng-template>
             </td>
           </tr>
@@ -199,8 +199,8 @@
           <div class="ddp-data-det">
             <table class="ddp-table-detail4">
               <colgroup>
-                <col width="30%">
-                <col width="20%">
+                <col width="15%">
+                <col width="10%">
                 <col width="150px">
                 <col width="*">
               </colgroup>
@@ -241,14 +241,16 @@
           <div class="ddp-data-det">
             <table class="ddp-table-detail4">
               <colgroup>
-                <col width="35%">
-                <col width="20%">
+                <col width="15%">
+                <col width="10%">
+                <col width="10%">
                 <col width="150px">
                 <col width="*">
               </colgroup>
               <thead>
               <tr>
                 <th>{{ 'msg.explore.ui.detail.tab.overview.date' | translate }}</th>
+                <th>{{ 'msg.explore.ui.detail.tab.overview.type' | translate }}</th>
                 <th>{{ 'msg.explore.ui.detail.tab.overview.user' | translate }}</th>
                 <th>{{ 'msg.explore.ui.detail.tab.overview.result' | translate }}</th>
                 <th>{{ 'msg.explore.ui.detail.tab.overview.query' | translate }}</th>
@@ -257,6 +259,7 @@
               <tbody>
               <tr *ngFor="let recentQuery of recentlyQueriesForDataSource | slice:0:5 ">
                 <td>{{ recentQuery.createdTime | mdate:'YYYY-MM-DD HH:mm:ss' }}</td>
+                <td>{{ recentQuery.queryType }}</td>
                 <td>{{ recentQuery.creator.fullName }}</td>
                 <td> <span class="ddp-data-state" [ngClass]="recentQuery.succeed ? 'ddp-success' : 'ddp-fail'">{{ recentQuery.succeed ? 'Success' : 'Fail' }}</span></td>
                 <td>
