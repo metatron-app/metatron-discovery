@@ -6,10 +6,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class SaveAsPartitionTableScriptGenerator extends AbstractSaveAsTableScriptGenerator {
-  private final String TMP_TABLE_NAME = UUID.randomUUID().toString().replace("-", "_") + "_import_file_tmp";
+  private final String TMP_TABLE_NAME;
 
   public SaveAsPartitionTableScriptGenerator(SavingHiveTable savingHiveTable) {
     super(savingHiveTable);
+    this.TMP_TABLE_NAME = UUID.randomUUID().toString().replace("-", "_") + "_import_file_tmp";
   }
 
   @Override
@@ -58,9 +59,9 @@ public class SaveAsPartitionTableScriptGenerator extends AbstractSaveAsTableScri
 
   @Override
   public String rollbackScript() {
-    StringBuffer script = new StringBuffer();
-    script.append(String.format("DROP TABLE %s.%s;", savingHiveTable.getDatabaseName(), TMP_TABLE_NAME));
+    StringBuffer rollbackScript = new StringBuffer();
+    rollbackScript.append(String.format("DROP TABLE %s.%s;", savingHiveTable.getDatabaseName(), TMP_TABLE_NAME));
 
-    return script.toString();
+    return rollbackScript.toString();
   }
 }

@@ -147,8 +147,8 @@ public class WorkbenchHiveService {
 
         String rollbackScript = tableScriptGenerator.rollbackScript();
         if(StringUtils.isNotEmpty(rollbackScript)) {
-          List<String> rollbackQueris = Arrays.asList(saveAsTableScript.split(";"));
-          rollbackQueris.forEach(rollbackQuery -> {
+          List<String> rollbackQueries = Arrays.asList(rollbackScript.split(";"));
+          rollbackQueries.forEach(rollbackQuery -> {
             try {
               jdbcConnectionService.executeUpdate(hiveConnection, secondaryConnection, rollbackQuery);
             } catch(Exception re) {
