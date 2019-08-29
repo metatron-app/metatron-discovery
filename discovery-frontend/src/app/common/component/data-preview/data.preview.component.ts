@@ -1112,10 +1112,12 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     // 메타데이터가 존재한다면
     if (this.isExistMetaData(source)) {
       const fieldMetaData: MetadataColumn = _.find(source.uiMetaData.columns, {'physicalName': field.name});
-      // code table
-      field['codeTable'] = fieldMetaData.codeTable;
-      // dictionary
-      field['dictionary'] = fieldMetaData.dictionary;
+      if (!_.isUndefined(fieldMetaData)) {
+        // code table
+        field['codeTable'] = fieldMetaData.codeTable;
+        // dictionary
+        field['dictionary'] = fieldMetaData.dictionary;
+      }
     }
   }
 
