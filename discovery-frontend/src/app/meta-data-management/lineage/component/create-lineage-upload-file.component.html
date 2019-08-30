@@ -26,8 +26,27 @@
   <!-- contents in  -->
   <div class="ddp-type-contents-in ddp-full">
     <div class="ddp-box-popupcontents type-info">
+
       <!-- file create -->
       <div class="ddp-box-file-create">
+
+        <!-- file -->
+        <div class="ddp-file-progress" *ngIf="uploadedFile">
+          <!-- name -->
+          <div class="ddp-file-name">
+            <em class="ddp-icon-flow-svg">
+              <svg-icon-component [name]="uploadedFile.format" [isBlackAndWhite]="true"></svg-icon-component>
+            </em>
+
+            <div class="ddp-data-filename">
+              <span class="ddp-txt-subname">{{uploadedFile.format}}</span>
+              <span class="ddp-txt-filename">{{uploadedFile.fileName}}</span>
+
+            </div>
+            <span class="ddp-data-size">{{formatBytes(uploadedFile.size,1)}}</span>
+          </div>
+        </div>
+        <!-- file -->
 
         <div class="ddp-box-default" #drop_container >
           <div class="ddp-txt-file-info" >

@@ -65,6 +65,8 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
 
   public changeDetect: ChangeDetectorRef;
 
+  public uploadedFile: any;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -123,6 +125,7 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
         },
 
         FilesAdded: (up, files) => {
+          this.uploadedFile = null;
           this.lineageData = null;
           this.startUpload();
         },
@@ -134,7 +137,26 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
         },
 
         UploadComplete: (up, files) => {
-          this.next();
+          if(files[0]) {
+            this.uploadedFile = {};
+            if(files[0].name) {
+              let fileName = files[0].name;
+              this.uploadedFile.fileName = fileName;
+              let len = fileName.length;
+              if( 3<len ) {
+                let lastDot = fileName.lastIndexOf('.');
+                let ext = fileName.substring(lastDot, len).toLowerCase();
+
+                this.uploadedFile.format = this.getFileFormat( ext );
+              }
+            }
+            if(files[0].size) {
+              this.uploadedFile.size = files[0].size;
+            }
+          } else {
+            this.uploadedFile = null;
+          }
+
           this.changeDetect.detectChanges();
         },
 
@@ -164,12 +186,7 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
               console.log('HTTP_ERROR', err);
               if (err.response) {
                 const res = JSON.parse(err.response);
-                if(res.code==='MD007') {
-                  this.invalidFileMsg = this.translateService.instant(
-                                          'msg.lineage.ui.alert.invalid.file.format', {value:res.details} );
-                  this.invalidFileView = true;
-                  this._invalidFileView();
-                } else if(res.code.startsWith('MD')===true) {
+                if(res.code.startsWith('MD')===true) {
                   Alert.error(this.translateService.instant(res.details));
                 } else {
                   Alert.error(this.translateService.instant(res.message));
@@ -244,6 +261,39 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
     });
   }
 
+  public getFileFormat(fileExtension: string) {
+    let svgName: string = 'CSV';
+
+    if(fileExtension) {
+      let fileType : string = fileExtension.toUpperCase();
+      switch(fileType) {
+        case 'CSV':
+          svgName = 'CSV';
+          break;
+        case 'TXT':
+          svgName = 'TXT';
+          break;
+        case 'JSON':
+          svgName = 'JSON';
+          break;
+        case 'XLSX':
+          svgName = 'EXCEL';
+          break;
+        case 'XLS':
+          svgName = 'EXCEL';
+          break;
+      }
+    }
+
+    return svgName;
+  }
+
+  public formatBytes(a,b) { // a=크기 , b=소숫점자릿
+    if(0==a) return "0 Bytes";
+    let c=1024,d=b||2,e=["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"],f=Math.floor(Math.log(a)/Math.log(c));
+    return parseFloat((a/Math.pow(c,f)).toFixed(d))+" "+e[f]
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -269,5 +319,5 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
       }, 3000);
     }
   }
-}
 
+}

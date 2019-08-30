@@ -54,6 +54,8 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
   @Input()
   public lineageData: any;
 
+  private isWell: boolean;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -75,8 +77,12 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
   public ngOnInit() {
     super.ngOnInit();
 
+    this.isWell = false;
+
     if(this.lineageData) {
       this.updateGrid(this.lineageData);
+
+      this.isWell = this.checkData( this.lineageData );
     }
   }
 
@@ -178,5 +184,45 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
       .build()
     );
   }
+
+  private checkData(data: any) : boolean {
+    if(data===undefined || data===null) { return false; }
+
+    var frMetaIdIndex = -1;
+    var frMetaNameIndex = -1;
+    var toMetaIdIndex = -1;
+    var toMetaNameIndex = -1;
+
+    var useMetaId = false;
+    var useMetaName = false;
+
+    var rowCount = 0;
+
+    data.header.map((column: any, index:number) => {
+      if(column==='frMetaId') { frMetaIdIndex = index; }
+      else if(column==='frMetaName') { frMetaNameIndex = index; }
+      else if(column==='toMetaId') { toMetaIdIndex = index; }
+      else if(column==='toMetaName') { toMetaNameIndex = index; }
+    });
+
+    if(frMetaIdIndex!=-1 && toMetaIdIndex!=-1) {
+      useMetaId = true;
+    } else if(frMetaNameIndex!=-1 && toMetaNameIndex!=-1) {
+      useMetaName = true;
+    }
+
+    data.rows.map((values: any, index: number) => {
+      if( values['frMetaId']&&values['toMetaId']) {
+        rowCount++;
+      } else if(values['frMetaName']&&values['toMetaName']) {
+        rowCount++;
+      }
+    });
+
+    if( data.rows.length!==rowCount ) {
+      Alert.error(`total ${data.rows.length!} rows, but ${rowCount} rows are right`);
+    }
+  }
+
 }
 

@@ -274,8 +274,6 @@ public class LineageEdgeController {
           useMetaId = true;
         } else if(frMetaNameIndex!=-1 && toMetaNameIndex!=-1) {
           useMetaName = true;
-        } else {
-          throw new LineageException(MetadataErrorCodes.LINEAGE_INVALID_FORMAT,"metaIds or metaNames are required");
         }
 
         while (true) {
@@ -303,8 +301,6 @@ public class LineageEdgeController {
           response.put("useMetaId",rowCount);
         } else if(useMetaName==true && 0<rowCount && rowCount==frMetaNameCount && rowCount==toMetaNameCount) {
           response.put("useMetaName",rowCount);
-        } else {
-          throw new LineageException(MetadataErrorCodes.LINEAGE_INVALID_FORMAT,"metaIds or metaNames are required");
         }
       } else {
         throw new LineageException(MetadataErrorCodes.LINEAGE_COLUMN_MISSING,"no entry");
