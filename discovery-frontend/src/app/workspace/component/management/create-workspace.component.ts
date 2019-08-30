@@ -164,19 +164,21 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
     this.workspaceService.getSharedWorkspaces('forListView', this.params).then(workspaces => {
       if (workspaces['_embedded']) {
         this.sharedWorkspaceList = workspaces['_embedded']['workspaces'];
+
+        // check if name is in use and set isInvalidName flag according to the condition
+        this.isInvalidName = this.sharedWorkspaceList.some((workspace) => {
+          if (workspace.name === newWorkspaceName) {
+            this.errMsgName = this.translateService.instant('msg.comm.ui.workspace.name.duplicated');
+            return true;
+          }
+        });
       }
     }).catch(() => {
         Alert.error(this.translateService.instant('msg.space.alert.retrieve'));
         this.loadingHide();
       });
 
-    // check if name is in use and set isInvalidName flag according to the condition
-    this.isInvalidName = this.sharedWorkspaceList.some((workspace) => {
-      if (workspace.name === newWorkspaceName) {
-        this.errMsgName = this.translateService.instant('msg.comm.ui.workspace.name.duplicated');
-        return true;
-      }
-    });
+
     this.loadingHide();
   }
 
@@ -216,7 +218,6 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
    * 공유 워크스페이스 생성
    */
   public createShareWorkspace() {
-    console.log(this.disableCreateWorkspace);
     if( this.disableCreateWorkspace ) {
       this.shareWorkspace.name = this.shareWorkspace.name ? this.shareWorkspace.name.trim() : '';
       // check if name is empty
