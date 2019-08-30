@@ -108,7 +108,7 @@
         <!-- detail -->
         <div class="ddp-detail">
           <div class="ddp-label">{{'msg.explore.ui.detail.recent.updated'| translate}}</div>
-          <div class="ddp-data-det">
+          <div class="ddp-data-det" *ngIf="recentlyUpdatedList.length !== 0">
             <table class="ddp-table-detail4">
               <colgroup>
                 <col width="*">
@@ -123,15 +123,13 @@
               </tr>
               </thead>
               <tbody>
-
               <tr *ngFor="let recentlyUpdated of recentlyUpdatedList">
                 <td><span class="ddp-txt-long" title="{{  recentlyUpdated['contents'] }}">{{ recentlyUpdated['contents'] }}</span></td>
                 <td> {{ recentlyUpdated['createdTime'] | mdate:'YYYY-MM-DD HH:mm:ss' }}</td>
-
                 <td>
                   <div class="ddp-txt-long">
 <!--                    <em class="ddp-icon-control-fav ddp-fright"></em>-->
-                    <span class="ddp-txt-name" title="{{ recentlyUpdated['user']['fullName'] }}">{{ recentlyUpdated['user']['fullName'] }}</span>
+                    <span class="ddp-txt-link type-default" title="{{ recentlyUpdated['user']['fullName'] }}">{{ recentlyUpdated['user']['fullName'] }}</span>
                   </div>
                 </td>
               </tr>
@@ -139,6 +137,7 @@
 
             </table>
           </div>
+          <div *ngIf="recentlyUpdatedList.length === 0">no used</div>
         </div>
         <!-- //detail -->
         <!-- recent dashboard -->
@@ -185,9 +184,9 @@
 <!--            </ul>-->
 <!--          </div>-->
 <!--        </div>-->
-<!--        &lt;!&ndash; //recent dashboard &ndash;&gt;-->
-<!--        &lt;!&ndash; recent query &ndash;&gt;-->
-<!--        &lt;!&ndash; //recent query &ndash;&gt;-->
+<!--        // recent dashboard -->
+<!--        // recent query -->
+
         <div class="ddp-detail" *ngIf="( isDatabaseTypeMetadata() || isStagingTypeMetadata()) && (recentlyQueriesForDataBase.length !== 0)">
           <div class="ddp-label">
             {{'msg.explore.ui.detail.recent.query'| translate}}
@@ -196,7 +195,7 @@
                *ngIf="recentlyQueriesForDataBase.length > 4"
                (click)="onClickSeeAllRecentQueries()">{{'msg.explore.btn.detail.more.list'| translate}} &gt;</a>
           </div>
-          <div class="ddp-data-det">
+          <div class="ddp-data-det" *ngIf="recentlyQueriesForDataSource.length === 0 || recentlyQueriesForDataBase.length === 0">
             <table class="ddp-table-detail4">
               <colgroup>
                 <col width="15%">
@@ -238,7 +237,7 @@
                *ngIf="recentlyQueriesForDataSource.length > 4"
                (click)="onClickSeeAllRecentQueries()">{{'msg.explore.btn.detail.more.list'| translate}} &gt;</a>
           </div>
-          <div class="ddp-data-det">
+          <div class="ddp-data-det" *ngIf="recentlyQueriesForDataSource.length === 0 || recentlyQueriesForDataBase.length === 0">
             <table class="ddp-table-detail4">
               <colgroup>
                 <col width="15%">
@@ -273,11 +272,11 @@
             </table>
           </div>
         </div>
-        <div class="ddp-detail" *ngIf="recentlyQueriesForDataSource.length === 0 && recentlyQueriesForDataBase.length === 0 ">
+        <div class="ddp-detail" *ngIf="recentlyQueriesForDataBase.length === 0 && recentlyQueriesForDataSource.length === 0">
           <div class="ddp-label">
             {{'msg.explore.ui.detail.recent.query'| translate}}
-            <div>no used</div>
           </div>
+          <div >no used</div>
         </div>
       </div>
 <!--      &lt;!&ndash; //detail view &ndash;&gt;-->

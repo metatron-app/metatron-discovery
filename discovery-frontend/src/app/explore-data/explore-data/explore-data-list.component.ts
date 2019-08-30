@@ -174,6 +174,7 @@ export class ExploreDataListComponent extends AbstractComponent {
   }
 
   onClickMetadata(metadata: Metadata): void {
+    this.loadingShow();
     this.clickedMetadata.emit(metadata);
   }
 
