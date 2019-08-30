@@ -36,13 +36,16 @@ public class PostgresqlDataAccessor extends AbstractJdbcDataAccessor {
   public Map<String, Object> getDatabases(String catalog, String schemaPattern, Integer pageSize, Integer pageNumber) {
     Map<String, Object> databaseMap = new LinkedHashMap<>();
 
+    String schemaCountQuery = dialect.getDataBaseCountQuery(connectionInfo, catalog, schemaPattern, getExcludeSchemas());
     String schemaListQuery = dialect.getDataBaseQuery(connectionInfo, catalog, schemaPattern, getExcludeSchemas(), pageSize, pageNumber);
 
+    LOGGER.debug("Execute Schema Count query : {}", schemaCountQuery);
     LOGGER.debug("Execute Schema List query : {}", schemaListQuery);
 
     int databaseCount = 0;
     List<String> databaseNames = null;
     try {
+      databaseCount = this.executeQueryForObject(this.getConnection(), schemaCountQuery, Integer.class);
       databaseNames = this.executeQueryForList(this.getConnection(), schemaListQuery, (resultSet, i) -> resultSet.getString(1));
     } catch (Exception e) {
       LOGGER.error("Fail to get list of database : {}", e.getMessage());
@@ -50,18 +53,8 @@ public class PostgresqlDataAccessor extends AbstractJdbcDataAccessor {
                                             "Fail to get list of database : " + e.getMessage());
     }
 
-    List<String> excludeSchemas = getExcludeSchemas();
-    if (excludeSchemas != null) {
-      //filter after query execute for hive
-      databaseNames = databaseNames.stream()
-                                   .filter(databaseName -> excludeSchemas.indexOf(databaseName) < 0)
-                                   .collect(Collectors.toList());
-    }
-
-    databaseCount = databaseNames.size();
-
     databaseMap.put("databases", databaseNames);
-    databaseMap.put("page", createPageInfoMap(databaseCount, databaseCount, 0));
+    databaseMap.put("page", createPageInfoMap(pageSize, databaseCount, pageNumber));
     return databaseMap;
   }
 
