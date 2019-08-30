@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.repository.support.QueryDslRepositorySupport;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import app.metatron.discovery.common.entity.DomainType;
 
@@ -89,8 +90,13 @@ public class TagRepositoryImpl extends QueryDslRepositorySupport implements TagR
       subQuery.where(qTagDomain.tag.name.in(tags));
     }
 
-    JPADeleteClause deleteClause = delete(qTagDomain).where(qTagDomain.id.in(subQuery));
+    JPQLQuery<TagDomain> selectQuery = from(qTagDomain).where(qTagDomain.id.in(subQuery));
+    List<TagDomain> list = selectQuery.fetch();
+    List<Long> tagDomainIdList = list.stream()
+                                     .map(tagDomain -> tagDomain.getId())
+                                     .collect(Collectors.toList());
 
+    JPADeleteClause deleteClause = delete(qTagDomain).where(qTagDomain.id.in(tagDomainIdList));
     return deleteClause.execute();
   }
 }
