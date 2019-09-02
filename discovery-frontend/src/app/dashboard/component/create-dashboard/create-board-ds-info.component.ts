@@ -242,6 +242,7 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
    */
   public changeTab(tabName: Tab) {
     this.selectedTab = tabName;
+    this.safelyDetectChanges();
     (Tab.PREVIEW === tabName) && (this._loadGridData());
   } // function - changeTab
 
