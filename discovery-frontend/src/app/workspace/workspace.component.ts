@@ -362,8 +362,6 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
               : filter.value = this.translateService.instant('msg.comm.ui.list.dropbox.' + filter.key, { value: this.folder.books.filter(book => book.type !== 'folder' && book.type === filter.key).length })
           });
 
-          this.selectedContentFilter = this.contentFilter[3];
-
           this.safelyDetectChanges();
 
           // 저장된 폴더 구조 추적
@@ -1566,8 +1564,6 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
             ? filter.value = this.translateService.instant('msg.comm.ui.list.dropbox.all', { value: this.workspace.books.filter(book => book.type !== 'folder').length })
             : filter.value = this.translateService.instant('msg.comm.ui.list.dropbox.' + filter.key, { value: this.workspace.books.filter(book => (book.type !== 'folder') && book.type === filter.key).length })
         });
-
-        this.selectedContentFilter = this.contentFilter[3];
 
       } else {
         // 워크스페이스 이름
