@@ -61,7 +61,7 @@ export class Stats {
 }
 
 // timestamp만 가지고 있는 값
-class Segments {
+export class Segments {
   // interval
   public interval: string;
   // last access time
