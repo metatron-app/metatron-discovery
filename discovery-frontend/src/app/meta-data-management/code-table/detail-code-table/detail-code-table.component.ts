@@ -44,8 +44,6 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
   private _originCodeTable: CodeTable;
   // 코드 목록 origin
   private _originCodeList: CodeValuePair[] = [];
-  // Code list modified flag
-  private isCodeListModified: boolean = false;
   // 삭제 컴포넌트
   @ViewChild(DeleteModalComponent)
   private _deleteComp: DeleteModalComponent;
@@ -69,6 +67,8 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
   public linkedDictionaryList: ColumnDictionary[] = [];
   // 연결된 컬럼사전 목록 수
   public linkedDictionaryTotalCount: number = 0;
+  // Code list modified flag
+  public isCodeListModified: boolean = false;
 
   // re name
   public reName: string = '';
