@@ -106,8 +106,22 @@ public class AuditController {
 
     SearchParamValidator.range(null, from, to);
 
+    Predicate searchPredicated = null;
+    //If the sort condition is cpu usage or memory usage, the data is retrieved as a valid list.
+    if(pageable != null && pageable.getSort() != null){
+      Sort sort = pageable.getSort();
+      Sort.Order vcoreOrder = sort.getOrderFor("incrementVcoreSeconds");
+      Sort.Order memoryOrder = sort.getOrderFor("incrementMemorySeconds");
+
+      if(vcoreOrder != null || memoryOrder != null){
+        searchPredicated = AuditPredicate.searchListWithValidResource(searchKeyword, searchStatus, searchAuditType, from, to, user, elapsedTime);
+      }
+    }
+
     // Get Predicate
-    Predicate searchPredicated = AuditPredicate.searchList(searchKeyword, searchStatus, searchAuditType, from, to, user, elapsedTime);
+    if(searchPredicated == null){
+      searchPredicated = AuditPredicate.searchList(searchKeyword, searchStatus, searchAuditType, from, to, user, elapsedTime);
+    }
 
     // 기본 정렬 조건 셋팅
     if(pageable.getSort() == null || !pageable.getSort().iterator().hasNext()) {
@@ -312,7 +326,8 @@ public class AuditController {
     SearchParamValidator.range(null, from, to);
 
     // Get Predicate
-    Predicate searchPredicated = AuditPredicate.searchList(null, null, auditType, from, to, user, null);
+    Predicate searchPredicated
+        = AuditPredicate.searchListWithValidResource(null, null, auditType, from, to, user, null);
 
     if(pageable == null){
       pageable = new PageRequest(0, 10);
