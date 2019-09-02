@@ -17,11 +17,15 @@ package app.metatron.discovery.util;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import com.ibm.icu.text.CharsetDetector;
+import com.ibm.icu.text.CharsetMatch;
+
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.io.ByteOrderMark;
-import org.apache.commons.io.input.BOMInputStream;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.ContentSummary;
@@ -32,16 +36,10 @@ import org.datanucleus.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -83,6 +81,10 @@ public class CommonsCsvProcessor {
   private List<String> columnNames;
 
   private List<String[]> rows;
+
+  private String charset;
+
+  private static final String[] SUPPORTED_ENCODING = {"UTF-8", "ISO-8859-1", "US-ASCII", "UTF-16", "UTF-16BE", "UTF-16LE"};
 
   public CommonsCsvProcessor() {
     // empty constructor
@@ -149,6 +151,7 @@ public class CommonsCsvProcessor {
   public void loadStream() {
 
     String scheme = csvUri.getScheme() == null ? "file" : csvUri.getScheme();
+    String charset;
 
     switch (scheme) {
       case "hdfs":
@@ -165,6 +168,7 @@ public class CommonsCsvProcessor {
         }
 
         FSDataInputStream his;
+        FSDataInputStream dhis;
         try {
           if (enableTotalCnt) {
             ContentSummary cSummary = hdfsFs.getContentSummary(path);
@@ -172,11 +176,13 @@ public class CommonsCsvProcessor {
           }
 
           his = hdfsFs.open(path);
+          dhis = hdfsFs.open(path);
         } catch (IOException e) {
           throw new CommonsCsvException("Cannot read file : " + path, e);
         }
 
-        detectingCharset(his);
+        charset = detectingCharset(dhis);
+        setStreamReader(his, charset);
         break;
 
       case "file":
@@ -186,13 +192,17 @@ public class CommonsCsvProcessor {
         }
 
         FileInputStream fis;
+        FileInputStream dfis;
+
         try {
           fis = new FileInputStream(file);
+          dfis = new FileInputStream(file);
         } catch (FileNotFoundException e) {
           throw new CommonsCsvException("Cannot read file : " + file.getAbsolutePath(), e);
         }
 
-        detectingCharset(fis);
+        charset = detectingCharset(dfis);
+        setStreamReader(fis, charset);
         break;
 
       default:
@@ -200,33 +210,40 @@ public class CommonsCsvProcessor {
     }
   }
 
-  public void detectingCharset(InputStream is) {
+  public String detectingCharset(InputStream is) {
 
-    BOMInputStream bis;
-    String charset = null;
+    CharsetDetector detector;
+    CharsetMatch match;
 
     try {
+      byte[] byteData = new byte[is.available()];
+      is.read(byteData);
+      is.close();
 
-      bis = new BOMInputStream(is, true, ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
+      detector = new CharsetDetector();
 
-      if (bis.hasBOM() == false || bis.hasBOM(ByteOrderMark.UTF_8)) {
-        charset = "UTF-8";
-      } else if (bis.hasBOM(ByteOrderMark.UTF_16LE) || bis.hasBOM(ByteOrderMark.UTF_16BE)) {
-        charset = "UTF-16";
-      } else if (bis.hasBOM(ByteOrderMark.UTF_32LE) || bis.hasBOM(ByteOrderMark.UTF_32BE)) {
-        charset = "UTF-32";
+      detector.setText(byteData);
+      match = detector.detect();
+      String charset = match.getName();
+
+      if (!Charset.isSupported(charset)) {
+        throw new CommonsCsvException("Unsupported character set : " + charset);
       }
 
-      streamReader = new InputStreamReader(bis, charset);
-
-    } catch (UnsupportedEncodingException e) {
-      throw new CommonsCsvException("Unsupported charecter set : " + charset);
-    } catch (NullPointerException e) {
-      throw new CommonsCsvException("Unknown BOM");
+      return charset;
     } catch (IOException e) {
       throw new CommonsCsvException("Fail to read csv file : " + csvUri.toString(), e);
     }
 
+  }
+
+  public void setStreamReader(InputStream is, String charset) {
+    try {
+      this.charset = charset;
+      streamReader = new InputStreamReader(is, this.charset);
+    } catch (UnsupportedEncodingException e) {
+      throw new CommonsCsvException("Unsupported character set : " + charset);
+    }
   }
 
   public char unescapedDelimiter(String strDelim) {
@@ -241,15 +258,15 @@ public class CommonsCsvProcessor {
       return unescaped.charAt(0);
     }
 
-    throw new CommonsCsvException("Invalid delimeter : " + strDelim);
+    throw new CommonsCsvException("Invalid delimiter : " + strDelim);
   }
 
-  public CommonsCsvProcessor parse(String delimeter) {
+  public CommonsCsvProcessor parse(String delimiter) {
 
     CSVParser parser;
     try {
       parser = CSVParser.parse(streamReader,
-                               CSVFormat.DEFAULT.withDelimiter(unescapedDelimiter(delimeter)).withEscape('\\'));  // \", "" both become " by default
+                               CSVFormat.DEFAULT.withDelimiter(unescapedDelimiter(delimiter)).withEscape('\\'));  // \", "" both become " by default
     } catch (IOException e) {
       throw new CommonsCsvException("Fail to parse csv file", e);
     }
@@ -337,7 +354,7 @@ public class CommonsCsvProcessor {
 
     FileValidationResponse isParsable = new FileValidationResponse(true);
 
-    return new IngestionDataResultResponse(fields, resultRows, totalRows, isParsable);
+    return new IngestionDataResultResponse(fields, resultRows, totalRows, isParsable, charset);
   }
 
   private List<Field> makeField() {
@@ -422,6 +439,24 @@ public class CommonsCsvProcessor {
       return count == 0 ? 1 : count;
     } finally {
       is.close();
+    }
+  }
+
+  public static boolean isSupportedCharset(String charset) {
+    return ArrayUtils.contains(SUPPORTED_ENCODING, charset);
+  }
+
+  public static String writeUTF8File(String originalFilePath, String charset) {
+    try {
+      String filePath = System.getProperty("java.io.tmpdir") + File.separator + "_" + FilenameUtils.getName(originalFilePath);
+      Reader reader = new InputStreamReader(new FileInputStream(new File(originalFilePath)), charset);
+      Writer writer = new OutputStreamWriter(new FileOutputStream(new File(filePath)), "UTF-8");
+      IOUtils.copy(reader, writer);
+      writer.close();
+      reader.close();
+      return filePath;
+    } catch (IOException e) {
+      throw new CommonsCsvException("Fail to write csv file : " + originalFilePath, e);
     }
   }
 

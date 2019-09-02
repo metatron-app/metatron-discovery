@@ -24,6 +24,8 @@ public class ExcelFileFormat implements FileFormat {
 
   int sheetIndex;
 
+  String sheetName;
+
   public ExcelFileFormat() {
   }
 
@@ -43,4 +45,8 @@ public class ExcelFileFormat implements FileFormat {
   public void setSheetIndex(int sheetIndex) {
     this.sheetIndex = sheetIndex;
   }
+
+  public String getSheetName() { return sheetName; }
+
+  public void setSheetName(String sheetName) { this.sheetName = sheetName; }
 }
