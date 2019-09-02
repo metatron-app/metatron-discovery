@@ -68,6 +68,15 @@
                 </div>
               </div>
               <!-- //사용자 정보 미리보기 -->
+              <!-- 연결키 정보 -->
+              <div *ngIf="field['assInfo']" class="ddp-wrap-user-preview">
+                <em class="ddp-icon-control-link ddp-type"></em>
+                <div class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-top"></em>
+                  <span *ngFor="let info of field['assInfo']" class="ddp-txt-tooltip">{{info}}</span>
+                </div>
+              </div>
+              <!-- // 연결키 정보 -->
               <em class="ddp-icon-control-filter ddp-type"
                   *ngIf="!field.useChartFilter" (click)="toggleFilter($event,field)"
                   [ngClass]="{'ddp-selected' : field.useFilter}" ></em>
@@ -129,6 +138,15 @@
                 </div>
               </div>
               <!-- //사용자 정보 미리보기 -->
+              <!-- 연결키 정보 -->
+              <div *ngIf="field['assInfo']" class="ddp-wrap-user-preview">
+                <em class="ddp-icon-control-link ddp-type"></em>
+                <div class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-top"></em>
+                  <span *ngFor="let info of field['assInfo']" class="ddp-txt-tooltip">{{info}}</span>
+                </div>
+              </div>
+              <!-- // 연결키 정보 -->
               <em *ngIf="!field.useChartFilter && !field['isCustomMeasure']" (click)="toggleFilter($event,field)"
                   [ngClass]="{'ddp-selected' : field.useFilter, 'ddp-disabled' : field.aggregated}"
                   class="ddp-icon-control-filter ddp-type" ></em>

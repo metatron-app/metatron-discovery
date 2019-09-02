@@ -491,36 +491,59 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
       this._setUseChart(this._totalFields);
       this._setUseFilter(this._totalFields);
 
-      this.dimensionFields = this._totalFields.filter(item => item.role !== FieldRole.MEASURE);
-      this.measureFields = this._totalFields.filter(item => item.role === FieldRole.MEASURE);
+      const dsList = this.dashboard.dataSources;
+      const currentEngineName = this.dataSource.engineName;
+      const associations
+        = this.dashboard.configuration.dataSource.associations
+        .filter( item => item.source === currentEngineName || item.target === currentEngineName );
+      if( associations && 0 < associations.length ) {
+        this._totalFields.forEach( field => {
+          associations.forEach( ass => {
+            const colPairKeys:string[] = Object.keys( ass.columnPair );
+            if( currentEngineName === ass.source ) {
+              const pairKey = colPairKeys.find( item => field.name === item );
+              if( pairKey ) {
+                ( field['assInfo'] ) || ( field['assInfo'] = [] );
+                field['assInfo'].push(  dsList.find( ds => ds.engineName === ass.target ).name + ' : ' + ass.columnPair[pairKey] );
+              }
+            } else if( currentEngineName === ass.target ) {
+              const pairItem = colPairKeys.find( item => field.name === ass.columnPair[item] );
+              if( pairItem ) {
+                ( field['assInfo'] ) || ( field['assInfo'] = [] );
+                field['assInfo'].push(  dsList.find( ds => ds.engineName === ass.source ).name + ' : ' + pairItem );
+              }
+            }
+          })
+        });
+      }
 
-      let dimensionFields = _.cloneDeep(this.dimensionFields);
-      let measureFields = _.cloneDeep(this.measureFields);
+      this.dimensionFields = _.cloneDeep(this._totalFields.filter(item => item.role !== FieldRole.MEASURE));
+      this.measureFields = _.cloneDeep(this._totalFields.filter(item => item.role === FieldRole.MEASURE));
 
       if (searchText) {
         searchText = searchText.toLowerCase();
-        dimensionFields = dimensionFields.filter(item => item.name.toLowerCase().includes(searchText));
-        measureFields = measureFields.filter(item => item.name.toLowerCase().includes(searchText));
+        this.dimensionFields = this.dimensionFields.filter(item => item.name.toLowerCase().includes(searchText));
+        this.measureFields = this.measureFields.filter(item => item.name.toLowerCase().includes(searchText));
       }
 
-      if (this.DIM_PAGE_SIZE < dimensionFields.length) {
+      if (this.DIM_PAGE_SIZE < this.dimensionFields.length) {
         this.dimPage = 1;
-        this.dimTotalPage = Math.ceil(dimensionFields.length / this.DIM_PAGE_SIZE);
-        this.displayDimensions = dimensionFields.slice(0, this.DIM_PAGE_SIZE);
+        this.dimTotalPage = Math.ceil(this.dimensionFields.length / this.DIM_PAGE_SIZE);
+        this.displayDimensions = this.dimensionFields.slice(0, this.DIM_PAGE_SIZE);
       } else {
         this.dimPage = 1;
         this.dimTotalPage = 1;
-        this.displayDimensions = dimensionFields;
+        this.displayDimensions = this.dimensionFields;
       }
 
-      if (this.MEA_PAGE_SIZE < measureFields.length) {
+      if (this.MEA_PAGE_SIZE < this.measureFields.length) {
         this.meaPage = 1;
-        this.meaTotalPage = Math.ceil(measureFields.length / this.MEA_PAGE_SIZE);
-        this.displayMeasures = measureFields.slice(0, this.MEA_PAGE_SIZE);
+        this.meaTotalPage = Math.ceil(this.measureFields.length / this.MEA_PAGE_SIZE);
+        this.displayMeasures = this.measureFields.slice(0, this.MEA_PAGE_SIZE);
       } else {
         this.meaPage = 1;
         this.meaTotalPage = 1;
-        this.displayMeasures = measureFields;
+        this.displayMeasures = this.measureFields;
       }
 
     }
