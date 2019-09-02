@@ -28,6 +28,7 @@ import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -264,7 +265,7 @@ public class LineageEdgeController {
         int colCnt = csvRow.size();
         for (int i = 0; i < colCnt; i++) {
           String colName = (String)csvRow.get(i);
-          header.add(i, colName);
+          header.add(i, colName.trim());
           if(colName.equalsIgnoreCase("frMetaId")==true) { frMetaIdIndex = i; }
           else if(colName.equalsIgnoreCase("frMetaName")==true) { frMetaNameIndex = i; }
           else if(colName.equalsIgnoreCase("toMetaId")==true) { toMetaIdIndex = i; }
@@ -328,6 +329,25 @@ public class LineageEdgeController {
     }
 
     return ResponseEntity.ok().body(response);
+  }
+
+  @RequestMapping(value="/download_sample",method = RequestMethod.GET)
+  public @ResponseBody
+  ResponseEntity<?> getDownload(
+      HttpServletResponse response
+  ) {
+    try {
+      String downloadFileName="lineage_sample.csv";
+      String csv = new String("frMetaName, toMetaName, desc\nmeta A, meta B, A to B");
+      response.getOutputStream().print(csv);
+
+      response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", downloadFileName));
+    } catch (Exception e) {
+      LOGGER.error("getDownload(): caught an exception: ", e);
+      throw new LineageException(MetadataErrorCodes.METADATA_COMMON_ERROR,e.getMessage());
+    }
+
+    return null;
   }
 
   @RequestMapping(value = "/edges/{edgeId}", method = RequestMethod.DELETE, produces = "application/json", consumes = "application/json")

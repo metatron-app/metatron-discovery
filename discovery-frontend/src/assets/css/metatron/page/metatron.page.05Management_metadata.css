@@ -6,6 +6,8 @@
 .ddp-lineage-list .ddp-lineage-none {position:relative; float:left; width:100%; padding:28px 53px 28px 0; color:#9c9c9c; font-size:14px; box-sizing:border-box;}
 
 .ddp-lineage-create-confirm-grid .ddp-box-preview {height:100%; margin-bottom:10px; border:1px solid #e7e7ea; overflow:auto; color:#4b515b; font-size:12px; line-height:18px; background-color:#fff; box-sizing:border-box;}
+.ddp-lineage-create-confirm-grid .ddp-box-gridarea {height:100%; width: 100%; }
+.ddp-lineage-create-confirm-grid .ddp-box-invalid {height:100%; width: 100%; }
 
 /**** lineage view  *****/
 
@@ -120,3 +122,7 @@
 .ddp-box-lineage-detail .ddp-data-detail dl.ddp-dl-detail2 dt {float:Left; padding-right:5px; color:#4b515b; font-size:12px;}
 .ddp-box-lineage-detail .ddp-data-detail dl.ddp-dl-detail2 dd {display:block; color:#4b515b; font-size:12px; font-weight:300; overflow:hidden;}
 
+
+.ddp-lineage-create .ddp-box-file-create {height:400px;margin-bottom:4px;}
+.ddp-lineage-create .ddp-box-upload {display:table-row;text-align:center;}
+.ddp-lineage-create .ddp-data-filename {display:inline; margin:10px;}

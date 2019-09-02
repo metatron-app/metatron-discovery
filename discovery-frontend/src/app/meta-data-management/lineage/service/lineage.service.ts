@@ -15,6 +15,9 @@
 import {Injectable, Injector} from '@angular/core';
 import {AbstractService} from '../../../common/service/abstract.service';
 import {CommonUtil} from '../../../common/util/common.util';
+import { HttpHeaders } from '@angular/common/http';
+import { CookieConstant } from '../../../common/constant/cookie.constant';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class LineageService extends AbstractService {
@@ -62,6 +65,24 @@ export class LineageService extends AbstractService {
 
   public createLineages(params: object): Promise<any> {
     return this.post(this.URL_LINEAGE + `/edge_list`, params);
+  }
+
+  public downloadSample(): Observable<any> {
+    let headers = new HttpHeaders({
+      'Accept': 'application/csv',
+      'Content-Type': 'application/octet-binary',
+      'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
+    });
+
+    let option: Object = {
+      headers: headers,
+      responseType: 'blob'
+    };
+
+    return this.http.get(this.URL_LINEAGE + `/download_sample`, option)
+      .map((res) => {
+        return new Blob([res], { type: 'application/csv' })
+      });
   }
 
   /**

@@ -20,8 +20,10 @@ import {CookieConstant} from '../../../common/constant/cookie.constant';
 import {isUndefined} from 'util';
 import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';
 import {Modal} from '../../../common/domain/modal';
+import {LineageService} from '../service/lineage.service';
 import * as _ from 'lodash';
 import {Alert} from "../../../common/util/alert.util";
+import {saveAs} from 'file-saver';
 
 declare let plupload: any;
 
@@ -41,10 +43,8 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
   @ViewChild('drop_container')
   private drop_container: ElementRef;
 
-  public unsupportedFileView: boolean = false;
-  public unsupportedFileMsg: string = null;
-  public invalidFileView: boolean = false;
-  public invalidFileMsg: string = null;
+  public errorView: boolean = false;
+  public errorMsg: string = null;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -67,12 +67,15 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
 
   public uploadedFile: any;
 
+  public createType : string = 'file';
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
   constructor( private popupService: PopupService,
+              private lineageService: LineageService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -98,6 +101,14 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  public downloadSample() {
+    let downloadFileName = "lineage_sample.csv"
+    this.lineageService.downloadSample().subscribe((sampleFile) => {
+      saveAs(sampleFile, downloadFileName);
+    });
+  }
+
   public initPlupload() {
 
     this.chunk_uploader = new plupload.Uploader({
@@ -132,15 +143,10 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
 
         FileUploaded: (up, file, info)=>{
           this.lineageData = JSON.parse(info.response);
-          this.lineageDataChange.emit(this.lineageData);
-          this.changeDetect.detectChanges();
-        },
-
-        UploadComplete: (up, files) => {
-          if(files[0]) {
+          if(file) {
             this.uploadedFile = {};
-            if(files[0].name) {
-              let fileName = files[0].name;
+            if(file.name) {
+              let fileName = file.name;
               this.uploadedFile.fileName = fileName;
               let len = fileName.length;
               if( 3<len ) {
@@ -150,14 +156,19 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
                 this.uploadedFile.format = this.getFileFormat( ext );
               }
             }
-            if(files[0].size) {
-              this.uploadedFile.size = files[0].size;
+            if(file.size) {
+              this.uploadedFile.size = file.size;
             }
           } else {
             this.uploadedFile = null;
           }
+          this.lineageData.uploaded = this.uploadedFile;
 
+          this.lineageDataChange.emit(this.lineageData);
           this.changeDetect.detectChanges();
+        },
+
+        UploadComplete: (up, files) => {
         },
 
         /* error define
@@ -174,30 +185,13 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
         Error: (up, err) => {
           switch (err.code){
             case -601:
-              this.unsupportedFileMsg = this.translateService.instant(
-                                          'msg.lineage.ui.alert.wrong.file.format', {value:err.file.type} );
-              this.unsupportedFileView = true;
-              this._unsupportedFileView();
-              break;
-            case -100:
-              console.log('GENERIC_ERROR', err);
-              break;
-            case -200:
-              console.log('HTTP_ERROR', err);
-              if (err.response) {
-                const res = JSON.parse(err.response);
-                if(res.code.startsWith('MD')===true) {
-                  Alert.error(this.translateService.instant(res.details));
-                } else {
-                  Alert.error(this.translateService.instant(res.message));
-                }
-              }
-              break;
-            case -300:
-              console.log('IO_ERROR', err);
+              this.errorMsg = this.translateService.instant(
+                                'msg.lineage.ui.alert.wrong.file.format', {value:err.file.type} );
+              this.errorView = true;
+              this._errorView();
               break;
             default:
-              console.log('unknow error', err);
+              Alert.error(this.translateService.instant(err.message));
               break;
           }
         }
@@ -302,20 +296,11 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  private _unsupportedFileView(){
-    if (this.unsupportedFileView) {
+  private _errorView(){
+    if (this.errorView) {
       setTimeout(() => {
-        this.unsupportedFileView = false;
-        this.unsupportedFileMsg = null;
-      }, 3000);
-    }
-  }
-
-  private _invalidFileView(){
-    if (this.invalidFileView) {
-      setTimeout(() => {
-        this.invalidFileView = false;
-        this.invalidFileMsg = null;
+        this.errorView = false;
+        this.errorMsg = null;
       }, 3000);
     }
   }

@@ -1,0 +1,32 @@
+<div class="ddp-wrap-layout-popup ddp-scroll-popup">
+  <div class="ddp-ui-layout-popup">
+    <div class="ddp-pop-contents">
+      <div class="ddp-box-popup ddp-popup-type " style="">
+
+        <!-- title -->
+        <div class="ddp-pop-title">{{'msg.metadata.ui.lineage.create.sel.type' | translate}}</div>
+        <!-- //title -->
+        <div class="ddp-pop-detail">
+          <!-- 데이터 선택 -->
+          <div class="ddp-ui-data-select">
+            <a href="javascript:" class="ddp-btn-select"
+               (click)="setCreateType('file')"
+               [ngClass]="{'ddp-selected':createType=='file'}">
+              <em class="ddp-icon-boxbtn-file2"></em>
+              {{'msg.metadata.ui.lineage.create.type.file' | translate}}
+              <em class="ddp-icon-check"></em>
+            </a>
+          </div>
+          <!-- //데이터 선택 -->
+
+        </div>
+
+        <!-- button -->
+        <div class="ddp-ui-buttons">
+          <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+        </div>
+        <!-- //button -->
+      </div>
+    </div>
+  </div>
+</div>

@@ -12,15 +12,17 @@
 * limitations under the License.
 */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, Output, OnInit } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-
+import {
+  Component, ElementRef, HostListener, Injector, OnDestroy, OnInit
+} from '@angular/core';
+import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
+import { PopupService } from '../../../common/service/popup.service';
 
 @Component({
-  selector: 'app-create-lineage',
-  templateUrl: './create-lineage.component.html',
+  selector: 'app-create-lineage-select-type',
+  templateUrl: './create-lineage-select-type.component.html',
 })
-export class CreateLineageComponent extends AbstractComponent implements  OnInit {
+export class CreateLineageSelectTypeComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -33,33 +35,32 @@ export class CreateLineageComponent extends AbstractComponent implements  OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  @Input()
-  public step: string;
-
-  public lineageData: any;
-
+  public createType : string = '';
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  constructor(protected elementRef: ElementRef,
+  // 생성자
+  constructor(private popupService: PopupService,
+              private datasetService : DatasetService,
+              protected elementRef: ElementRef,
               protected injector: Injector) {
-    super(elementRef, injector);
 
-    this.lineageData = null;
+    super(elementRef, injector);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Override Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // Init
   public ngOnInit() {
-    // Init
+
     super.ngOnInit();
 
-    this.init();
   }
 
+  // Destory
   public ngOnDestroy() {
     super.ngOnDestroy();
   }
@@ -67,10 +68,48 @@ export class CreateLineageComponent extends AbstractComponent implements  OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * 다음 단계로 이동
+   */
+  public next() {
+    switch (this.createType) {
+      case 'file' :
+        this.popupService.notiPopup({
+          name: 'upload-file',
+          data: null
+        });
+        break;
+    }
+  } // function - next
 
-  public onLineageDataChange(lineageData: any) {
-    this.lineageData = lineageData;
+  public setCreateType(type: string) {
+    this.createType = type;
+    this.next();
   }
+
+
+  /**
+   * 창 닫기
+   */
+  public close() {
+    super.close();
+
+    this.popupService.notiPopup({
+      name: 'close-create',
+      data: null
+    });
+  } // function - close
+
+
+
+  /**
+   * ESC로 창 닫기
+   * @param {KeyboardEvent} event
+   */
+  @HostListener('document:keydown.escape', ['$event'])
+  public onKeydownHandler(event: KeyboardEvent) {
+    event.keyCode === 27 ? this.close() : null;
+  } // function - onKeydownHandler
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
@@ -79,10 +118,5 @@ export class CreateLineageComponent extends AbstractComponent implements  OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 팝업끼리 관리하는 모델들 초기화
-  public init() {
-    this.lineageData = null;
-  }
 
 }

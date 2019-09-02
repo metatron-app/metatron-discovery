@@ -25,6 +25,7 @@ import {DeleteModalComponent} from '../../../common/component/modal/delete/delet
 import {Modal} from '../../../common/domain/modal';
 import * as _ from 'lodash';
 import {Alert} from "../../../common/util/alert.util";
+import {saveAs} from 'file-saver';
 import {LineageService} from '../service/lineage.service';
 import {LineageEdge} from '../../../domain/meta-data-management/lineage';
 
@@ -43,6 +44,8 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
   @ViewChild('previewGrid')
   private gridComponent: GridComponent;
 
+  private isWell: boolean;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -54,7 +57,11 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
   @Input()
   public lineageData: any;
 
-  private isWell: boolean;
+  @Input()
+  public step: string;
+
+  public errorView: boolean = false;
+  public errorMsg: string = null;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -62,7 +69,7 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
 
   // 생성자
   constructor( private popupService: PopupService,
-              private _lineageService: LineageService,
+              private lineageService: LineageService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -79,11 +86,7 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
 
     this.isWell = false;
 
-    if(this.lineageData) {
-      this.updateGrid(this.lineageData);
-
-      this.isWell = this.checkData( this.lineageData );
-    }
+    this.setData();
   }
 
   public ngOnDestroy() {
@@ -102,6 +105,13 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  public downloadSample() {
+    let downloadFileName = "lineage_sample.csv"
+    this.lineageService.downloadSample().subscribe((sampleFile) => {
+      saveAs(sampleFile, downloadFileName);
+    });
+  }
+
   public prev() {
     this.popupService.notiPopup({
       name: 'upload-file',
@@ -112,7 +122,7 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
   public complete() {
     let params = this.lineageData.rows;
 
-    this._lineageService.createLineages(params).then((result) => {
+    this.lineageService.createLineages(params).then((result) => {
       this.loadingHide();
 
       this.popupService.notiPopup({
@@ -143,6 +153,14 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  private setData() {
+    if(this.lineageData) {
+      this.updateGrid(this.lineageData);
+
+      this.isWell = this.checkData( this.lineageData );
+    }
+  }
 
   private updateGrid(data: any) {
     if(this.gridComponent===undefined || this.gridComponent===null) { return; }
@@ -186,7 +204,8 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
   }
 
   private checkData(data: any) : boolean {
-    if(data===undefined || data===null) { return false; }
+    var ret :boolean = false;
+    if(data===undefined || data===null) { return ret; }
 
     var frMetaIdIndex = -1;
     var frMetaNameIndex = -1;
@@ -219,9 +238,23 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
       }
     });
 
-    if( data.rows.length!==rowCount ) {
-      Alert.error(`total ${data.rows.length!} rows, but ${rowCount} rows are right`);
+    if( frMetaNameIndex===-1 || toMetaNameIndex===-1 ) {
+      if( frMetaIdIndex===-1 || toMetaIdIndex===-1 ) {
+        this.errorMsg = `'frMetaName' and 'toMetaName' are required`;
+        this.errorView = true;
+        ret = false;
+      }
+    } else if( data.rows.length!==rowCount ) {
+      this.errorMsg = `total ${data.rows.length!} rows, but ${rowCount} rows are right`;
+      this.errorView = true;
+      ret = false;
+    } else {
+      this.errorMsg = null;
+      this.errorView = false;
+      ret = true;
     }
+
+    return ret;
   }
 
 }

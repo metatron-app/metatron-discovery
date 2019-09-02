@@ -10,17 +10,51 @@
       <em class="ddp-bg-order-line2-type2"></em>
     </div>
   </div>
+
   <!-- contents in  -->
-  <div class="ddp-type-contents-in ddp-full">
-    <div class="ddp-box-popupcontents type-info">
-      <div class="ddp-box-preview">
-        <div class="ddp-ui-empty" *ngIf="!lineageData">
-          {{'msg.dp.ui.no.preview' | translate}}
+  <div class="ddp-type-contents-in ddp-sheet-resize">
+    <div class="ddp-box-popupcontents ddp-wrap-file-create2 ddp-flex">
+
+      <!-- upload box -->
+      <div class="ddp-box-upload">
+        <!-- name -->
+        <div class="ddp-data-load-name" *ngIf="lineageData.uploaded">
+          <em class="ddp-icon-flow-svg">
+            <svg-icon-component [name]="lineageData.uploaded.format" [isBlackAndWhite]="true"></svg-icon-component>
+          </em>
+          {{lineageData.uploaded.fileName}}
         </div>
-        <div class="ddp-box-gridarea" #previewGrid grid-component style="width:100%; height: 100%;" [hidden]="!lineageData"></div>
+        <!-- //name -->
       </div>
+      <!-- //upload box -->
+
+      <div class="ddp-wrap-variable type-vertical">
+        <!-- wrap sheet -->
+        <div class="ddp-wrap-sheet">
+          <div class="ddp-ui-empty" *ngIf="!lineageData">
+            <span class="ddp-txt-result"> {{'msg.dp.ui.no.preview' | translate}} </span>
+            <a href="javascript:" class="ddp-btn-selection ddp-line" (click)="downloadSample();"><em class="ddp-icon-download2"></em>Download Sample</a>
+          </div>
+          <div class="ddp-box-gridarea" #previewGrid grid-component [hidden]="!isWell"></div>
+          <div class="ddp-box-invalid" [hidden]="isWell">
+            <span class="ddp-txt-result type-error">
+              Invalid File Format
+            </span>
+            <a href="javascript:" class="ddp-btn-selection ddp-line" (click)="downloadSample();"><em class="ddp-icon-download2"></em>Download Sample</a>
+          </div>
+        </div>
+        <!-- //wrap sheet -->
+      </div>
+
+      <div class="ddp-box-synch type-error" [ngStyle]="{'visibility': errorView?'visible':'hidden'}">
+        <div class="ddp-txt-synch">
+          <em class="ddp-icon-info"></em>{{errorMsg}}
+        </div>
+      </div>
+
     </div>
   </div>
+
 
   <div class="ddp-ui-buttons">
     <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{ 'msg.comm.btn.previous' | translate }}</a>

@@ -11,43 +11,43 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<div class="ddp-type-contents ddp-resize2 ddp-type2 popup-prep-create">
+<div class="ddp-lineage-create">
+<div class="ddp-type-contents ddp-resize2 ddp-type2">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- //닫기 버튼 -->
   <div class="ddp-icon-name">
-    <div class="ddp-ui-name2 ddp-type2">
-      {{'msg.metadata.ui.lineage.create.edge.upload' | translate}}
-      <span class="ddp-txt-info ddp-type">upload a file</span>
-      <em class="ddp-bg-order-line2-type"></em>
+    <div class="ddp-ui-name2 ddp-type3">
+      {{'msg.metadata.ui.lineage.create.edge.upload' | translate : {value: createType} }}
+      <span class="ddp-txt-info ddp-type">Please upload file</span>
+      <em class="ddp-bg-order-line2-type1"></em>
     </div>
   </div>
   <!-- contents in  -->
   <div class="ddp-type-contents-in ddp-full">
-    <div class="ddp-box-popupcontents type-info">
+    <div class="ddp-box-popupcontents type-file">
+      <!--
+      <div class="ddp-box-sample-download">
+        <span>You must complete the file type correctly before you can register it. Please refer to the sample file.</span>
+      </div>
+      -->
 
       <!-- file create -->
-      <div class="ddp-box-file-create">
+      <div class="ddp-box-file-create ddp-file-single">
 
-        <!-- file -->
-        <div class="ddp-file-progress" *ngIf="uploadedFile">
-          <!-- name -->
-          <div class="ddp-file-name">
+        <div class="ddp-box-upload" *ngIf="uploadedFile">
+          <div class="ddp-data-load-name">
             <em class="ddp-icon-flow-svg">
               <svg-icon-component [name]="uploadedFile.format" [isBlackAndWhite]="true"></svg-icon-component>
             </em>
-
             <div class="ddp-data-filename">
-              <span class="ddp-txt-subname">{{uploadedFile.format}}</span>
               <span class="ddp-txt-filename">{{uploadedFile.fileName}}</span>
-
             </div>
             <span class="ddp-data-size">{{formatBytes(uploadedFile.size,1)}}</span>
           </div>
         </div>
-        <!-- file -->
 
+        <!-- default -->
         <div class="ddp-box-default" #drop_container >
           <div class="ddp-txt-file-info" >
             <div class="ddp-link-file">
@@ -60,18 +60,23 @@
             .txt .csv formats are allowed
           </div>
         </div>
+        <!-- //default -->
       </div>
       <!-- //file create -->
-      <div class="ddp-box-synch type-error" [ngStyle]="{'visibility': unsupportedFileView?'visible':'hidden'}">
+      <!-- synch -->
+      <div class="ddp-box-synch type-info">
         <div class="ddp-txt-synch">
-          <em class="ddp-icon-info"></em>{{unsupportedFileMsg}}
+          <em class="ddp-icon-info2"></em>
+          You must complete the file type correctly before you can register it. Please refer to the sample file.
+        </div>
+        <a href="javascript:" class="ddp-link" (click)="downloadSample();"><em class="ddp-icon-download2 type-download"></em>Download Sample</a>
+      </div>
+      <div class="ddp-box-synch type-error" [ngStyle]="{'visibility': errorView?'visible':'hidden'}">
+        <div class="ddp-txt-synch">
+          <em class="ddp-icon-info"></em>{{errorMsg}}
         </div>
       </div>
-      <div class="ddp-box-synch type-error" [ngStyle]="{'visibility': invalidFileView?'visible':'hidden'}">
-        <div class="ddp-txt-synch">
-          <em class="ddp-icon-info"></em>{{invalidFileMsg}}
-        </div>
-      </div>
+      <!-- //synch -->
     </div>
   </div>
   <!-- //contents in  -->
@@ -83,4 +88,5 @@
   </div>
   <!-- //buttons -->
 
+</div>
 </div>
