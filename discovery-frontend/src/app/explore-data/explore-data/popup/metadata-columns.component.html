@@ -23,20 +23,29 @@
             </div>
           </th>
           <!-- //role (only datasource) -->
-          <th>
+          <th (click)="toggleSortOption('popularity')">
             {{'msg.metadata.th.column.popularity' | translate}}
             <div class="ddp-wrap-hover-info"><em class="ddp-icon-info3"></em>
               <component-popularity-layer></component-popularity-layer>
             </div>
+            <em class="ddp-icon-array-default2" *ngIf="sortOptions.popularity.option === 'default'"></em>
+            <em class="ddp-icon-array-asc2" *ngIf="sortOptions.popularity.option === 'asc'"></em>
+            <em class="ddp-icon-array-des2" *ngIf="sortOptions.popularity.option === 'desc'"></em>
           </th>
-          <th>
+          <th (click)="toggleSortOption('physicalName')">
             {{'msg.metadata.th.physical.name' | translate}}
+            <em class="ddp-icon-array-default2" *ngIf="sortOptions.physicalName.option === 'default'"></em>
+            <em class="ddp-icon-array-asc2" *ngIf="sortOptions.physicalName.option === 'asc'"></em>
+            <em class="ddp-icon-array-des2" *ngIf="sortOptions.physicalName.option === 'desc'"></em>
           </th>
-          <th>
+          <th (click)="toggleSortOption('name')">
             {{'msg.metadata.th.name' | translate}}
             <div class="ddp-wrap-hover-info"><em class="ddp-icon-info3"></em>
               <component-logical-name-layer></component-logical-name-layer>
             </div>
+            <em class="ddp-icon-array-default2" *ngIf="sortOptions.name.option === 'default'"></em>
+            <em class="ddp-icon-array-asc2" *ngIf="sortOptions.name.option === 'asc'"></em>
+            <em class="ddp-icon-array-des2" *ngIf="sortOptions.name.option === 'desc'"></em>
           </th>
           <th>
             {{'msg.metadata.th.dictionary' | translate}}
