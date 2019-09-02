@@ -247,15 +247,17 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
     this.isCodeListModified = false;
 
     // if length of _originCodeList and codeList is different => set flag true
-    this.isCodeListModified = this.codeList.length !== this._originCodeList.length;
-
-    // check if something is changed
-    this.codeList.forEach((code, index) => {
-      if (code.code !== this._originCodeList[index].code || code.value !== this._originCodeList[index].value) {
-        this.isCodeListModified = true;
+    if (this.codeList.length !== this._originCodeList.length) {
+      this.isCodeListModified = true;
+      return;
+    } else if (this.codeList.length === this._originCodeList.length) {
+      // check if something is changed
+      for (let i = 0; i < this.codeList.length; i++) {
+        if (this.codeList[i].code !== this._originCodeList[i].code || this.codeList[i].value !== this._originCodeList[i].value) {
+          this.isCodeListModified = true;
+        }
       }
-    });
-
+    }
   }
 
   /**
