@@ -23,8 +23,8 @@ import * as _ from 'lodash';
 import {Alert} from '../../../common/util/alert.util';
 import {CodeValuePair} from '../../../domain/meta-data-management/code-value-pair';
 import {TranslateService} from "@ngx-translate/core";
-import {ConfirmModalComponent} from "../../../common/component/modal/confirm/confirm.component";
 import {Modal} from "../../../common/domain/modal";
+import {CommonUtil} from "../../../common/util/common.util";
 
 @Component({
   selector: 'app-choose-code-table',
@@ -54,10 +54,6 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
   // 코드 테이블 생성 컴포넌트
   @ViewChild(CreateCodeTableComponent)
   private _createCodeTableComp: CreateCodeTableComponent;
-
-  // Modal Component
-  @ViewChild(ConfirmModalComponent)
-  private confirmModal: ConfirmModalComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -302,34 +298,30 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
   public onClickCodeTableDetails(codeTable: CodeTable): void {
     event.stopImmediatePropagation();
 
+    // notice i navigate from column dictionary page
+    this._codeTableService.fromColumnDictionary = true;
+
     const modal = new Modal();
     modal.name = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.name');
     modal.description = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.description');
     modal.btnName = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.btn');
     modal.isShowCancel = true;
-    modal.data = {
-      id: codeTable.id
+    modal.data = { id: codeTable.id };
+    modal.afterConfirm = () => {
+      this.router.navigate(['management/metadata/code-table', this.selectedCodeTable['id']]);
+      this.selectedCodeTable = null;
     };
-    // notice i navigate from column dictionary page
-    this._codeTableService.fromColumnDictionary = true;
-
-    // show modal
-    this.confirmModal.init(modal);
+    CommonUtil.confirm(modal);
   }
+
   /**
    * 코드 Preview Popup close 버튼 클릭 이벤트
    * @param {CodeTable} codeTable
    */
-
   public onClickPreviewPopupClose(codeTable: CodeTable) {
     event.stopImmediatePropagation();
     codeTable['previewShowFl'] = false;
     this._previewPopupNowShowing = -1;
-    this.selectedCodeTable = null;
-  }
-
-  public confirmHandler() {
-    this.router.navigate(['management/metadata/code-table', this.selectedCodeTable['id']]);
     this.selectedCodeTable = null;
   }
 

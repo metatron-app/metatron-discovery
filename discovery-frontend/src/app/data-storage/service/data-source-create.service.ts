@@ -261,6 +261,7 @@ export class DataSourceCreateService {
     } else {
       // add sheetIndex
       format['sheetIndex'] = fileData.fileResult.sheets.findIndex(sheet => sheet === fileData.fileResult.selectedSheet);
+      format['sheetName'] = fileData.fileResult.selectedSheet.sheetName;
     }
     return format;
   }
@@ -495,6 +496,7 @@ export interface FileDetail {
   data: any[];
   fields: any[];
   headers?: any[];
+  charset: string;
   success?: boolean;
   totalRows?: number;
   isParsable: {valid: boolean, warning?: string};

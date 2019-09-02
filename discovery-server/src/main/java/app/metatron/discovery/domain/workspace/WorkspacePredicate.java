@@ -40,7 +40,7 @@ public class WorkspacePredicate {
     BooleanBuilder builder = new BooleanBuilder();
     QWorkspace workspace = QWorkspace.workspace;
 
-    if(StringUtils.isNotEmpty(username)) {
+    if (StringUtils.isNotEmpty(username)) {
       if (memberIds == null) {
         memberIds = Lists.newArrayList(username);
       } else if (!memberIds.contains(username)) {
@@ -61,18 +61,18 @@ public class WorkspacePredicate {
       }
     }
 
-    if(published != null) {
+    if (published != null) {
       // published 상태는 하위 호환을 위하여 published 값이 null 인 경우도 false 로 인식
-      if(published) {
+      if (published) {
         builder.and(workspace.published.isTrue());
       } else {
         builder.andAnyOf(workspace.published.isNull(), workspace.published.isFalse());
       }
     }
 
-    if(active != null) {
+    if (active != null) {
       // active 상태는 하위 호환을 위하여 active 값이 null 인 경우도 true로 인식
-      if(active) {
+      if (active) {
         builder.andAnyOf(workspace.active.isNull(), workspace.active.isTrue());
       } else {
         builder.and(workspace.active.isFalse());
@@ -105,11 +105,11 @@ public class WorkspacePredicate {
     QWorkspace workspace = QWorkspace.workspace;
 
     if (publicType != null) {
-      builder = builder.and(workspace.publicType.eq(publicType));
+      builder.and(workspace.publicType.eq(publicType));
     }
 
     if (StringUtils.isNotEmpty(nameContains)) {
-      builder = builder.and(workspace.name.containsIgnoreCase(nameContains));
+      builder.and(workspace.name.containsIgnoreCase(nameContains));
     }
 
     return builder;
@@ -121,9 +121,9 @@ public class WorkspacePredicate {
     QWorkspace workspace = QWorkspace.workspace;
 
     builder.and(searchPublicTypeAndNameContains(publicType, nameContains));
-    if(active != null) {
+    if (active != null) {
       // active 상태는 하위 호환을 위하여 active 값이 null 인 경우도 true로 인식
-      if(active) {
+      if (active) {
         builder.andAnyOf(workspace.active.isNull(), workspace.active.isTrue());
       } else {
         builder.and(workspace.active.isFalse());
@@ -138,19 +138,37 @@ public class WorkspacePredicate {
     BooleanBuilder builder = new BooleanBuilder();
     QWorkspace workspace = QWorkspace.workspace;
 
-    if(StringUtils.isNotEmpty(searchDateBy)) {
-      if(from == null || to == null) {
-        throw new IllegalArgumentException("from/to required.");
-      }
-
-      if("CREATED".equalsIgnoreCase(searchDateBy)) {
-        builder = builder.and(workspace.createdTime.between(from, to));
-      } else if("MODIFIED".equalsIgnoreCase(searchDateBy)) {
-        builder = builder.and(workspace.modifiedTime.between(from, to));
-      } else if("LASTACCESSED".equalsIgnoreCase(searchDateBy)) {
-        builder = builder.and(workspace.lastAccessedTime.between(from, to));
-      } else {
-        throw new IllegalArgumentException("'searchDateBy' accepts only three types(lastAccessed, created, modified).");
+    if (StringUtils.isNotEmpty(searchDateBy)) {
+      switch (searchDateBy.toUpperCase()) {
+        case "CREATED":
+          if (from != null && to != null) {
+            builder.and(workspace.createdTime.between(from, to));
+          } else if (from != null) {
+            builder.and(workspace.createdTime.goe(from));
+          } else if (to != null) {
+            builder.and(workspace.createdTime.loe(to));
+          }
+          break;
+        case "MODIFIED":
+          if (from != null && to != null) {
+            builder.and(workspace.modifiedTime.between(from, to));
+          } else if (from != null) {
+            builder.and(workspace.modifiedTime.goe(from));
+          } else if (to != null) {
+            builder.and(workspace.modifiedTime.loe(to));
+          }
+          break;
+        case "LASTACCESSED":
+          if (from != null && to != null) {
+            builder.and(workspace.lastAccessedTime.between(from, to));
+          } else if (from != null) {
+            builder.and(workspace.lastAccessedTime.goe(from));
+          } else if (to != null) {
+            builder.and(workspace.lastAccessedTime.loe(to));
+          }
+          break;
+        default:
+          throw new IllegalArgumentException("'searchDateBy' accepts only three types(lastAccessed, created, modified).");
       }
     }
 
@@ -162,17 +180,17 @@ public class WorkspacePredicate {
     BooleanBuilder builder = new BooleanBuilder();
     QWorkspace workspace = QWorkspace.workspace;
 
-    builder = builder.and(searchPublicTypeAndNameContains(publicType, nameContains));
+    builder.and(searchPublicTypeAndNameContains(publicType, nameContains));
 
     switch (linkedType.toUpperCase()) {
       case "DATASOURCE":
-        builder = builder.and(workspace.dataSources.any().id.eq(linkedId));
+        builder.and(workspace.dataSources.any().id.eq(linkedId));
         break;
       case "CONNECTION":
-        builder = builder.and(workspace.dataConnections.any().id.eq(linkedId));
+        builder.and(workspace.dataConnections.any().id.eq(linkedId));
         break;
       case "CONNECTOR":
-        builder = builder.and(workspace.connectors.any().id.eq(linkedId));
+        builder.and(workspace.connectors.any().id.eq(linkedId));
         break;
       default:
         throw new BadRequestException("Not supported type of link. choose one of datasource, connection, connector");
@@ -189,11 +207,11 @@ public class WorkspacePredicate {
     BooleanBuilder builder = new BooleanBuilder();
     QWorkspace workspace = QWorkspace.workspace;
 
-    if(CollectionUtils.isNotEmpty(joinedWorkspaceIds)) {
+    if (CollectionUtils.isNotEmpty(joinedWorkspaceIds)) {
       builder.and(workspace.id.in(joinedWorkspaceIds));
     }
 
-    if(CollectionUtils.isNotEmpty(dataSourceIds)) {
+    if (CollectionUtils.isNotEmpty(dataSourceIds)) {
       builder.and(workspace.dataSources.any().id.in(dataSourceIds));
     }
 

@@ -12,7 +12,7 @@
       <a href="javascript:" class="ddp-icon-more"></a>
       <!-- popup -->
       <div class="ddp-data-box">
-        <a href="#" class="ddp-list-link"><em class="ddp-icon-delete"></em>{{ 'msg.metadata.metadata.detail.ui.delete.metadata.and.source' | translate }}</a>
+        <a *ngIf="!isEngineSource" (click)="deleteMetadata()" href="javascript:" class="ddp-list-link"><em class="ddp-icon-delete"></em>{{ 'msg.metadata.metadata.detail.ui.delete.metadata' | translate }}</a>
         <span class="ddp-data-by">
           {{ this.translateService.instant('msg.metadata.ui.recent.update', { modifiedTime: metadata.modifiedTime, modifiedBy: metadata.modifiedBy.fullName }) }}
         </span>

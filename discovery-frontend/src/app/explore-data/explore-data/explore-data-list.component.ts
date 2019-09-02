@@ -156,6 +156,14 @@ export class ExploreDataListComponent extends AbstractComponent {
     }
   }
 
+  getTooltipValue(metadata): string {
+    let result = metadata.name;
+    if (metadata.description) {
+      result += ` - ${metadata.description}`;
+    }
+    return result;
+  }
+
   /**
    * More connection click event
    */
@@ -174,6 +182,7 @@ export class ExploreDataListComponent extends AbstractComponent {
   }
 
   onClickMetadata(metadata: Metadata): void {
+    this.loadingShow();
     this.clickedMetadata.emit(metadata);
   }
 

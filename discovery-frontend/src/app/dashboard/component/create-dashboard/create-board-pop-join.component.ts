@@ -356,13 +356,30 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
     }
   } // function - selectJoinColumn
 
+  public isValidJoinKeys() {
+    if('' !== this.editingJoin.leftJoinKey.trim() && '' !== this.editingJoin.rightJoinKey.trim()) {
+      const leftField = this.getGridFields(this.editingJoin.left.uiFields).find( item => item.name === this.editingJoin.leftJoinKey );
+      const rightField = this.getGridFields(this.editingJoin.right.uiFields).find( item => item.name === this.editingJoin.rightJoinKey );
+      if( leftField && rightField ) {
+        const numberTypes = ['INT', 'INTEGER', 'LONG', 'DOUBLE', 'FLOAT' ];
+        const leftType = leftField.logicalType ? ( -1 < numberTypes.indexOf(leftField.logicalType.toString()) ? 'number' : leftField.logicalType.toString() ) : '';
+        const rightType = rightField.logicalType ? ( -1 < numberTypes.indexOf(rightField.logicalType.toString()) ? 'number' : rightField.logicalType.toString() ) : '';
+        return leftType === rightType;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
   /**
    * 조인키를 추가한다.
    */
   public addToJoinKeys() {
 
     // validation
-    if ('' === this.editingJoin.leftJoinKey.trim() || '' === this.editingJoin.rightJoinKey.trim()) {
+    if (!this.isValidJoinKeys()) {
       this.editingJoin.joinChooseColumnErrorFl = true;
       return;
     }
@@ -487,7 +504,6 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
   private _initPreview() {
     (this.joinPreview) && (this.joinPreview.destroy());
     this.isEmptyPreviewGrid = false;
-    this.editingJoin.previewGridFl = false;
   } // function - _initPreview
 
   /**
@@ -538,7 +554,6 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
           joinInfo.joinAlias = 'join_' + (paramJoins.length + 1);
           paramJoins.push(joinInfo);
         }
-
       }
 
       // 조회 상태 저장
@@ -548,7 +563,6 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
 
       this._queryData(paramJoins).then((data) => {
         this.editingJoin.columnCnt = data[1].length;
-        this.editingJoin.previewGridFl = true;
 
         if (0 < data[0].length && 0 < data[1].length) {
           this.isEmptyPreviewGrid = false;
@@ -742,8 +756,6 @@ class EditJoin {
 
   public columnCnt: number = 0;
   public rowNum: number = 1000;
-
-  public previewGridFl: boolean = false;
 
   public tempJoinMappings: JoinMapping[];
 

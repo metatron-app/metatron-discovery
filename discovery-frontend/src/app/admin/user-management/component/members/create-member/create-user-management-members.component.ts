@@ -12,13 +12,13 @@
  * limitations under the License.
  */
 
-import { AbstractUserManagementComponent } from '../../../abstract.user-management.component';
-import { Component, ElementRef, EventEmitter, Injector, Output } from '@angular/core';
-import { User } from '../../../../../domain/user/user';
-import { isUndefined } from 'util';
-import { StringUtil } from '../../../../../common/util/string.util';
-import { Alert } from '../../../../../common/util/alert.util';
-import { CommonUtil } from '../../../../../common/util/common.util';
+import {AbstractUserManagementComponent} from '../../../abstract.user-management.component';
+import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
+import {User} from '../../../../../domain/user/user';
+import {isUndefined} from 'util';
+import {StringUtil} from '../../../../../common/util/string.util';
+import {Alert} from '../../../../../common/util/alert.util';
+import {CommonUtil} from '../../../../../common/util/common.util';
 
 @Component({
   selector: 'app-create-user-management-members',
@@ -192,7 +192,7 @@ export class CreateUserManagementMembersComponent extends AbstractUserManagement
       return;
     }
     // id 형식 확인
-    if (!StringUtil.isId(this.userId)) {
+    if (!StringUtil.isId(this.userId) || CommonUtil.getByte(this.userId.trim()) < 3  || CommonUtil.getByte(this.userId.trim()) > 20) {
       this.resultId = false;
       this.idMessage = this.translateService.instant('LOGIN_JOIN_VALID_ID');
       return;

@@ -223,6 +223,9 @@ public class WorkspaceProjections extends BaseProjections {
     @Value("#{target.favorite == null ? @workspaceFavoriteRepository.isFavoritWorkspace(target.id, T(app.metatron.discovery.util.AuthUtils).getAuthUserName()) : target.favorite}")
     Boolean getFavorite();
 
+    @Value("#{(target.publicType.toString() == 'SHARED') ? @workspaceFavoriteRepository.countDistinctByWorkspaceId(target.id) : 0}")
+    Long getCountOfFavoties();
+
     @Value("#{@workspaceService.countAvailableWorkspaces(target.id)}")
     Integer getCountOfDataSources();
 

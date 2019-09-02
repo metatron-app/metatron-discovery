@@ -35,7 +35,8 @@
           <!-- edit option -->
           <div class="ddp-ui-edit-option ddp-type">
             <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{'msg.metadata.ph.dictionary.create.column.name' | translate}}"
-                   (keypress)="onKeypressLogicalName()"
+                   (focusout)="doneLogicNameValidation()"
+                   (keyup)="onKeypressLogicalName()"
                    [(ngModel)]="logicalName">
             <span class="ddp-data-error" *ngIf="logicalNameValidationMsg"> {{logicalNameValidationMsg}}</span>
           </div>
@@ -49,7 +50,8 @@
           <div class="ddp-ui-edit-option ddp-type">
             <input type="text" class="ddp-input-typebasic ddp-full"
                    placeholder="{{'msg.metadata.ph.dictionary.create.recommendation.column.name' | translate}}"
-                   (keypress)="onKeypressColumnName()"
+                   (focusout)="doneColNameValidation()"
+                   (keyup)="onKeypressColumnName()"
                    [(ngModel)]="columnName">
             <span class="ddp-data-error" *ngIf="columnNameValidationMsg"> {{columnNameValidationMsg}}</span>
           </div>
@@ -63,7 +65,8 @@
           <div class="ddp-ui-edit-option ddp-type">
             <input type="text" class="ddp-input-typebasic ddp-full"
                    placeholder="{{'msg.metadata.ph.dictionary.create.recommendation.short.name' | translate}}"
-                   (keypress)="onKeypressShortName()"
+                   (focusout)="doneShortNameValidation()"
+                   (keyup)="onKeypressShortName()"
                    [(ngModel)]="shortName">
             <span class="ddp-data-error" *ngIf="shortNameValidationMsg"> {{shortNameValidationMsg}}</span>
           </div>
@@ -77,7 +80,8 @@
           <div class="ddp-ui-edit-option ddp-type">
             <textarea class="ddp-textarea" rows="3"
                       placeholder="{{'msg.comm.ui.create.desc' | translate}}"
-                      (keypress)="onKeypressDescription()"
+                      (focusout)="doneDescValidation()"
+                      (keyup)="onKeypressDescription()"
                       [(ngModel)]="description"></textarea>
             <span class="ddp-data-error" *ngIf="descriptionValidationMsg"> {{descriptionValidationMsg}}</span>
           </div>
