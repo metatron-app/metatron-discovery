@@ -3676,7 +3676,7 @@
   "msg.page.prediction.sub.menu": "Prediction line",
   "msg.page.prediction.span.active": "Activation",
   "msg.page.prediction.active.first.description": "Charts that can use predictive lines",
-  "msg.page.prediction.active.last.description": "Line chart",
+  "msg.page.prediction.active.last.description": "Linear chart with date / time dimension values",
   "msg.page.prediction.algorithm.name": "Holt-Winters",
   "msg.page.prediction.span.interval": "Period",
   "msg.page.prediction.span.slider.title": "Confidence interval",
