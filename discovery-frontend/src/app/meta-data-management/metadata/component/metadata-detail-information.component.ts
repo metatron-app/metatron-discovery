@@ -1,4 +1,4 @@
-import {Component, ElementRef, Injector, OnDestroy, OnInit} from "@angular/core";
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from "@angular/core";
 import {AbstractComponent} from "../../../common/component/abstract.component";
 import {MetadataService} from "../service/metadata.service";
 import {ActivatedRoute} from "@angular/router";
@@ -16,7 +16,8 @@ import {isUndefined} from "util";
     templateUrl: './metadata-detail-information.component.html',
     styles: [
       '.ddp-ui-catalogs2 span a.ddp-btn-delete {display:block; position:absolute; top:1px; right:-20px; content:\'\'; width:14px; height:14px; background:url(assets/images/btn_sclose.png) no-repeat; background-position:0 -131px;}',
-      '.ddp-ui-catalogs2:hover span a.ddp-btn-delete {display:block;}'
+      '.ddp-ui-catalogs2:hover span a.ddp-btn-delete {display:block;}',
+      '.ddp-type-search .ddp-box-layout4 { overflow-y: auto; height: 200px; padding-bottom: 0px !important; }'
     ]
   }
 )
@@ -24,6 +25,8 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @ViewChild('descInput')
+  private _descInput: ElementRef;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -47,7 +50,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
 
   public catalogSearchText: string = '';
   public searchCatalogList: any[] = [];
-  public isSearchCatalog:boolean = false;
+  public isSearchCatalog: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
  | Constructor
@@ -74,12 +77,12 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     // initialize textarea text
     this.descriptionChangeText = this.metadata.description;
 
-   /**
-    *  if sourceType is datasource(ENGINE), set css class according to status
-    *  if sourceType is not datasource(ENGINE) hide <tr></tr>
-    */
+    /**
+     *  if sourceType is datasource(ENGINE), set css class according to status
+     *  if sourceType is not datasource(ENGINE) hide <tr></tr>
+     */
     if (this.metadata.sourceType === this.sourceType.ENGINE) {
-      this.statusClass = 'ddp-data-status ' +  'ddp-' + ((this.metadata.source.source) as Datasource).status.toString().toLowerCase();
+      this.statusClass = 'ddp-data-status ' + 'ddp-' + ((this.metadata.source.source) as Datasource).status.toString().toLowerCase();
     }
 
     switch (this.metadata.sourceType) {
@@ -121,6 +124,8 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     // Check text length
     if (CommonUtil.getByte(this.descriptionChangeText.trim()) > 450) {
       Alert.warning(this.translateService.instant('msg.alert.edit.description.len'));
+      $(this._descInput.nativeElement).trigger('focus');
+      this.loadingHide();
       return;
     }
 
@@ -128,7 +133,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     this.isEditDescription = !this.isEditDescription;
 
     // update the data in DB
-    this.metadataService.updateMetadata(this.metadata.id,  {description: this.descriptionChangeText.trim()} )
+    this.metadataService.updateMetadata(this.metadata.id, {description: this.descriptionChangeText.trim()})
       .then(() => {
         Alert.success(this.translateService.instant('msg.metadata.metadata.detail.ui.alert.metadata.modified'));
         this.metadata.description = this.descriptionChangeText;
@@ -168,7 +173,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   }
 
   public deleteTag(tag) {
-    this.metadataService.deleteTagFromMetadata(this.metadataModelService.getMetadata().id, [ tag.name ]).then(() => {
+    this.metadataService.deleteTagFromMetadata(this.metadataModelService.getMetadata().id, [tag.name]).then(() => {
       this._getMetadataDetail();
     }).catch((err) => {
       console.info('error -> ', err);
@@ -186,7 +191,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     }
     if (!this.tagFlag) {
       this.tagFlag = true;
-      this.metadataService.addTagToMetadata(this.metadataModelService.getMetadata().id, [ this.tagValue ]).then(() => {
+      this.metadataService.addTagToMetadata(this.metadataModelService.getMetadata().id, [this.tagValue]).then(() => {
         this.tagValue = '';
         this.isAddTag = false;
         this._getMetadataDetail();
@@ -208,7 +213,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     this.tagValue = '';
   }
 
-  public showSearchCatalog(event:MouseEvent) {
+  public showSearchCatalog(event: MouseEvent) {
     event.preventDefault();
     event.stopImmediatePropagation();
     this.catalogSearchText = '';
@@ -236,7 +241,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   }
 
   public changeInputCatalog(inputVal) {
-    if( this.catalogSearchText !== inputVal ) {
+    if (this.catalogSearchText !== inputVal) {
       this.catalogSearchText = inputVal;
       this.safelyDetectChanges();
       this.catalogService.getCatalogs(this._getCatalogParams()).then((result) => {
@@ -246,7 +251,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   }
 
   private _getCatalogParams(): Object {
-    const params = { size: 1000000, page: 0 };
+    const params = {size: 1000000, page: 0};
     if (!isUndefined(this.catalogSearchText) && this.catalogSearchText.trim() !== '') {
       params['nameContains'] = this.catalogSearchText.trim();
     }

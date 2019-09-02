@@ -8,6 +8,7 @@ import {MetadataModelService} from "../service/metadata.model.service";
 import {CommonUtil} from "../../../common/util/common.util";
 import {Alert} from "../../../common/util/alert.util";
 import {DatasourceService} from "../../../datasource/service/datasource.service";
+import {Modal} from "../../../common/domain/modal";
 
 @Component(
   {
@@ -16,17 +17,6 @@ import {DatasourceService} from "../../../datasource/service/datasource.service"
   }
 )
 export class MetadataDetailTopComponent extends AbstractComponent implements OnInit, OnDestroy {
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   public more: boolean = false;
   public metadata: Metadata;
@@ -34,16 +24,31 @@ export class MetadataDetailTopComponent extends AbstractComponent implements OnI
   public editNameFlag: boolean = false;
   public editDescription: string;
   public editName: string;
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Methods
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  /**
-   * Go back
-   */
+  public deleteMetadata() {
+    const modal = new Modal();
+    modal.name = this.translateService.instant('msg.comm.ui.del.description');
+    modal.btnName = this.translateService.instant('msg.comm.btn.del');
+    modal.afterConfirm = () => {
+      this.loadingShow();
+      this.metadataService.deleteMetaData(this.metadata.id)
+        .then(() => {
+          Alert.success(this.translateService.instant('msg.comm.alert.delete.success'));
+          this.loadingHide();
+          this.goBack();
+        })
+        .catch((error) => this.commonExceptionHandler(error));
+    };
+    CommonUtil.confirm(modal);
+  }
+
   public goBack() {
     this._location.back();
-  } // function - goBack
+  }
+
+  public get isEngineSource() {
+    return this.metadata.sourceType == SourceType.ENGINE;
+  }
 
   public onMoreButtonClicked() {
     this.more = !this.more;
@@ -51,15 +56,14 @@ export class MetadataDetailTopComponent extends AbstractComponent implements OnI
 
   public onClickEditName() {
     event.stopImmediatePropagation();
-    if (this.metadata.sourceType == SourceType.ENGINE){
+    if (this.isEngineSource) {
       this.editNameFlag = true;
     }
-
   }
 
   public onClickEditDescription() {
     event.stopImmediatePropagation();
-    if (this.metadata.sourceType == SourceType.ENGINE){
+    if (this.isEngineSource) {
       this.editDescriptionFlag = true;
     }
 
@@ -112,9 +116,6 @@ export class MetadataDetailTopComponent extends AbstractComponent implements OnI
       .catch((error) => this.commonExceptionHandler(error));
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
- | Constructor
- |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   constructor(
     private _location: Location,
     protected element: ElementRef,
@@ -126,9 +127,6 @@ export class MetadataDetailTopComponent extends AbstractComponent implements OnI
     super(element, injector);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Override Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public ngOnInit() {
     super.ngOnInit();
 

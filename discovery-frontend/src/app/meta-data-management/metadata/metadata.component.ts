@@ -26,12 +26,14 @@ import {StorageService} from '../../data-storage/service/storage.service';
 import {ActivatedRoute} from "@angular/router";
 import {CreateMetadataMainComponent} from "./create-metadata/create-metadata-main.component";
 import {Subscription} from "rxjs";
+import {StringUtil} from "../../common/util/string.util";
 
 declare let $;
 
 @Component({
   selector: 'app-metadata',
-  templateUrl: './metadata.component.html',
+  styleUrls: ['./metadata.component.css'],
+  templateUrl: './metadata.component.html'
 })
 export class MetadataComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -56,7 +58,6 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
 
   // 리스트, 카달로그 검색어
   public listSearchText: string;
-  public catalogSearchText: string;
 
   public selectedMetadata: SelectedMetadata;
   public metadatas: Metadata[];
@@ -208,13 +209,8 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    * Refresh filter
    */
   public refreshFilter() {
-
     this._initView();
     this.reloadPage();
-
-    // if (getMetadataList !== false) {
-    //   this.getMetadataInCatalog();
-    // }
   }
 
   /**
@@ -222,34 +218,30 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    */
   public createNewMetadata() {
     this._selectDatatypeComponent.init();
-
   }
 
-  /**
-   * 하위 데이터 불러오기
-   * @param event
-   * @param catalog
-   */
-  public getChildren(event, catalog) {
-    event.stopImmediatePropagation();
-    if (!this.catalogSearchText) {
-      if (catalog.hasChild) {
-        catalog.isOpen = !catalog.isOpen;
-        this.showChildren(catalog);
-      }
+  getMetadataCreator(creator: string) {
+    if (this.isNotEmptySearchKeyword() ) {
+      return creator.replace(this.listSearchText, `<span class="ddp-txt-search type-search">${this.listSearchText}</span>`);
     } else {
-      catalog.isOpen = !catalog.isOpen;
+      return creator;
     }
   }
 
-  /**
-   * Unclassified 메탸데이터 불러오기
-   */
-  public getUnclassifiedMetadata() {
-    this.selectedCatalogId = '__EMPTY';
-    this._refreshSelectedCatalog();
-    this.isUnclassifiedSelected = true;
-    this.getMetadataList();
+  getMetadataDescription(description: string) {
+    if (this.isNotEmptySearchKeyword() ) {
+      return '-' + description.replace(this.listSearchText, `<span class="ddp-txt-search type-search">${this.listSearchText}</span>`);
+    } else {
+      return '-' + description;
+    }
+  }
+
+  getMetadataName(name: string) {
+    if (this.isNotEmptySearchKeyword() ) {
+      return name.replace(this.listSearchText, `<span class="ddp-txt-search type-search">${this.listSearchText}</span>`);
+    } else {
+      return name;
+    }
   }
 
   getMetadataType(metadata: Metadata): string {
@@ -344,6 +336,22 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
       this.loadingHide();
 
     });
+  }
+
+  isEnableTag(metadata: Metadata): boolean {
+    return !Metadata.isEmptyTags(metadata);
+  }
+
+  isExistMoreTags(metadata: Metadata): boolean {
+    return metadata.tags.length > 1;
+  }
+
+  isEnableDescription(metadata: Metadata): boolean {
+    return StringUtil.isNotEmpty(metadata.description);
+  }
+
+  isNotEmptySearchKeyword(): boolean {
+    return StringUtil.isNotEmpty(this.listSearchText);
   }
 
   /**
@@ -458,23 +466,6 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   public onSearchTextInit(): void {
     this._searchText('');
   }
-
-  /**
-   * 코드 테이블 이름 검색
-   * @param {KeyboardEvent} event
-   */
-  public onCatalogSearchText(event: KeyboardEvent): void {
-    event.keyCode === 13 && this._catalogSearchText(event.target['value']);
-  }
-
-  // /**
-  //  * 코드 테이블 이름 초기화 후 검색
-  //  */
-  // public onCatalogSearchTextInit(): void {
-  //   // this._catalogSearchText('');
-  //   this.catalogSearchText = '';
-  //   this.refreshFilter(,true);
-  // }
 
   public getMetadataTags(): Promise<any> {
     return new Promise((resolve, reject) => {
@@ -615,140 +606,6 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   }
 
   /**
-   * 검색어로 카달로그 이름 검색
-   * @param {string} keyword
-   * @private
-   */
-  private _catalogSearchText(keyword: string): void {
-    // key word
-    this.catalogSearchText = keyword;
-    // 페이지 초기화 후 재조회
-    this._searchCatalog();
-
-  }
-
-  /**
-   * 검색어로 카달로그 검색
-   * @private
-   */
-  private _searchCatalog() {
-    this.catalogService.getCatalogs(this._getCatalogParams()).then((result) => {
-      if (result) {
-        this._setCatalogHierarchies(result).then((result1) => {
-          this.catalogs = [];
-          result1.forEach((item, index) => {
-            item.forEach((item1) => {
-              if (!item1.hasOwnProperty('parentId')) {
-                this.catalogs.push(item1);
-              } else {
-                let list = result1[index - 1].map((catalog) => {
-                  return catalog.id;
-                });
-                if (!this.catalogs[list.indexOf(item1.parentId)].children) {
-                  this.catalogs[list.indexOf(item1.parentId)].children = [];
-                }
-                this.catalogs[list.indexOf(item1.parentId)].hasChild = true;
-                this.catalogs[list.indexOf(item1.parentId)].children.push(item1);
-                this.catalogs[list.indexOf(item1.parentId)].isOpen = true;
-              }
-            });
-
-          });
-          this.catalogs = _.sortBy(this.catalogs, o => o.name);
-          this.catalogs.forEach((item, index) => {
-            if (item.children) {
-              item.children = _.sortBy(item.children, o => o.name);
-            }
-          });
-        });
-        this.metadatas = [];
-        this.isUnclassifiedSelected = false;
-      }
-    }).catch((error) => {
-
-    });
-  }
-
-  /**
-   * 검색어를 html tag로 감싸다
-   * @param name
-   * @returns string
-   * @private
-   */
-  private _surroundSearchTextWithTag(name): any {
-    return name.replace(new RegExp(this.catalogSearchText, 'gi'),
-      `<span class="ddp-txt-search">${this.catalogSearchText}</span>`);
-  }
-
-  /**
-   * 검색 후 트리구조로 만들기
-   * @param results
-   * @returns promise object
-   * @private
-   */
-  private _setCatalogHierarchies(results): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.catalogs = [];
-
-      results.forEach((result) => {
-        result['hierarchies'].forEach((hierarchy, index) => {
-
-          if (!this.catalogs[index]) {
-            this.catalogs.push([]);
-          }
-          if (this.catalogs[index !== 0 ? index - 1 : 0].length > 0) {
-            let list = this.catalogs[index].map((c) => {
-              return c.id;
-            });
-            if (list.indexOf(hierarchy.id) === -1) {
-              if (index !== 0) {
-                this.catalogs[index].push({
-                  parentId: result['hierarchies'][index - 1].id,
-                  id: hierarchy.id,
-                  name: this._surroundSearchTextWithTag(hierarchy.name),
-                  hasChild: hierarchy.hasChild,
-                });
-              } else {
-
-                this.catalogs[index].push({
-                  id: hierarchy.id,
-                  name: this._surroundSearchTextWithTag(hierarchy.name),
-                  hasChild: hierarchy.hasChild,
-                });
-              }
-            }
-          } else {
-            this.catalogs[index].push(
-              {id: hierarchy.id, name: this._surroundSearchTextWithTag(hierarchy.name), hasChild: hierarchy.hasChild});
-          }
-        });
-      });
-      resolve(this.catalogs);
-    });
-  }
-
-  /**
-   * get params for meta data list
-   * @returns object
-   * @private
-   */
-  private _getCatalogParams(): Object {
-
-    const params = {
-      size: this.pageResult.size,
-      page: this.pageResult.number,
-      sort: this.selectedSort.value,
-    };
-
-    // 검색어
-    if (!isUndefined(this.catalogSearchText) && this.catalogSearchText.trim() !== '') {
-      params['nameContains'] = this.catalogSearchText.trim();
-    }
-
-    return params;
-  }
-
-  /**
    * get params for meta data list
    * @returns object
    * @private
@@ -776,11 +633,6 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     if (!isUndefined(this.tag) && this.tag.trim() !== '') {
       params['tag'] = this.tag.trim();
     }
-
-    // // 카달로그
-    // if (this.selectedCatalogId !== null && !isUndefined(this.selectedCatalogId)) {
-    //   params['catalogId'] = this.selectedCatalogId;
-    // }
 
     return params;
   }

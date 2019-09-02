@@ -47,7 +47,6 @@
         <!-- navi -->
         <div class="ddp-ui-naviarea">
           <!-- name -->
-          <!-- 클릭시 ddp-selected 추가 -->
           <div class="ddp-box-navi" [ngClass]="{'ddp-selected' : nameFl}" (clickOutside)="nameFl = false">
             <div class="ddp-wrap-naviname" (click)="changeNameMode()">
               <span class="ddp-data-naviname">{{datasource.name}}
