@@ -21,7 +21,8 @@
       <!-- list -->
       <ul class="ddp-list-popup">
         <li  *ngFor="let criterion of criterionList">
-          <a href="javascript:" (click)="onChangeCheckedCriterion(criterion); $event.preventDefault()">
+
+          <a *ngIf="criterion.criterionKey !== 'SOURCE_TYPE'" href="javascript:" (click)="onChangeCheckedCriterion(criterion); $event.preventDefault()">
             <label class="ddp-label-checkbox">
               <input type="checkbox" [checked]="isCheckedCriterion(criterion)">
               <i class="ddp-icon-checkbox"></i>
