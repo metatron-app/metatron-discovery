@@ -14,7 +14,7 @@
 
 import { Filter } from './filter';
 
-export class BoundFilter extends Filter{
+export class BoundFilter extends Filter {
 
   public min: number;
   public max: number;
