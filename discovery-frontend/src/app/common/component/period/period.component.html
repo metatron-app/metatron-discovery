@@ -53,11 +53,11 @@
     <div class="ddp-ui-calen ddp-clear" style="width:320px;">
 
       <div class="ddp-box-calen">
-        <input #startPickerInput type="text" class="ddp-input-typebasic ddp-data-calen" placeholder="yyyy-MM-dd hh:mm" readonly/>
+        <input #startPickerInput type="text" class="ddp-input-typebasic ddp-data-calen" placeholder="{{startPlaceholder}}" readonly/>
       </div>
       <span class="ddp-bar">~</span>
       <div class="ddp-box-calen">
-        <input #endPickerInput type="text" class="ddp-input-typebasic ddp-data-calen" placeholder="yyyy-MM-dd hh:mm" readonly/>
+        <input #endPickerInput type="text" class="ddp-input-typebasic ddp-data-calen" placeholder="{{endPlaceholder}}" readonly/>
       </div>
     </div>
     <a href="javascript:" class="ddp-btn-line-s" (click)="done()">{{'msg.page.btn.apply' | translate}}</a>

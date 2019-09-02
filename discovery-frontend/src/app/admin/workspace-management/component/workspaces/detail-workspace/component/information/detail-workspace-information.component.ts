@@ -50,6 +50,7 @@ export class DetailWorkspaceInformationComponent extends AbstractComponent {
 
   @Input('workspace')
   public set setWorkspace(workspace) {
+    console.log(workspace);
     // 워크스페이스 상세정보
     this.workspace = workspace;
     // role set 정보
