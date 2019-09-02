@@ -5,9 +5,9 @@
   </div>
   <div class="ddp-wrap-data">
     <div class="ddp-data-name">{{ topUser['user']['fullName'] }}
-<!--      <em class="ddp-icon-control-fav ddp-selected"></em>-->
+      <em class="ddp-icon-control-fav"></em>
     </div>
-    <div class="ddp-data-info">
+    <div class="ddp-data-info" to hide underline >
       {{ topUser['dashboard']['workBook'] ?
           topUser['dashboard']['workBook']['name'] + " > " + topUser['dashboard']['name']
         : topUser['dashboard']['name']

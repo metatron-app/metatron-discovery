@@ -612,25 +612,28 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     let sourceInfo = this.selectedDataSnapshot.sourceInfo;
 
     if( isUndefined(sourceInfo) ) {
-      //Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.info'));
-      this.originDsInfo.dsName = '';
+      this.originDsInfo.dsName = null;
       this.originDsInfo.qryStmt = null;
-      this.originDsInfo.filePath = null;
+      this.originDsInfo.storedUri = null;
       this.originDsInfo.createdTime = null;
     } else {
       if( isUndefined(sourceInfo.origDsName) ) {
-        Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.name'));
-        this.originDsInfo.dsName = '';
+        this.originDsInfo.dsName = null;
       } else {
         this.originDsInfo.dsName = sourceInfo.origDsName;
       }
       if( isUndefined(sourceInfo.origDsQueryStmt) ) {
-        Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.querystmt'));
+        this.originDsInfo.qryStmt = null;
       } else {
         this.originDsInfo.qryStmt = sourceInfo.origDsQueryStmt;
       }
+      if( isUndefined(sourceInfo.origDsStoredUri) ) {
+        this.originDsInfo.storedUri = null;
+      } else {
+        this.originDsInfo.storedUri = sourceInfo.origDsStoredUri;
+      }
       if( isUndefined(sourceInfo.origDsCreatedTime) ) {
-        Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.createdtime'));
+        this.originDsInfo.createdTime = null;
       } else {
         this.originDsInfo.createdTime = sourceInfo.origDsCreatedTime;
       }

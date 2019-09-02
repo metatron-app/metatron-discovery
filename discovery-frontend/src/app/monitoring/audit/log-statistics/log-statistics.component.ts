@@ -268,11 +268,13 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
             series: [
               {
                 name: 'Success', type: 'bar', stack: 'count', data: result.series.SUCCESS,
-                itemStyle: { normal: { color: '#4c92e0' } }
+                itemStyle: { normal: { color: '#4c92e0' } },
+                cursor: 'default'
               },
               {
                 name: 'Fail', type: 'bar', stack: 'count', data: result.series.FAIL,
-                itemStyle: { normal: { color: '#eb5f58' } }
+                itemStyle: { normal: { color: '#eb5f58' } },
+                cursor: 'default'
               }
             ]
           });
