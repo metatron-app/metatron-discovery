@@ -119,7 +119,7 @@ public class ColumnDictionary extends AbstractHistoryEntity implements MetatronD
    * Linked Code Table
    */
   @RestResource(path = "codetable")
-  @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH })
+  @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH })
   @JoinColumn(name = "table_id", referencedColumnName = "id")
   @JsonBackReference("dictionary_codeTable")
   private CodeTable codeTable;
@@ -131,7 +131,7 @@ public class ColumnDictionary extends AbstractHistoryEntity implements MetatronD
   private List<MetadataColumn> columns;
 
   @PreRemove
-  private void removeColumnDictFromChilds(){
+  private void removeColumnDictFromChildren(){
     columns.forEach(metadataColumn -> {
       if(metadataColumn.getDictionary().id.equals(this.id)){
         metadataColumn.setDictionary(null);

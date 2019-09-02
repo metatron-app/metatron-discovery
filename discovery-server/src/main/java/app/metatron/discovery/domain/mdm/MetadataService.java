@@ -525,6 +525,11 @@ public class MetadataService implements ApplicationEventPublisherAware {
                                                              .map(dashBoard -> dashBoard.getId())
                                                              .collect(Collectors.toList());
 
+        //If no dashboard uses this data source, it returns an empty list.
+        if(dashboardsInDataSource.isEmpty()){
+          break;
+        }
+
         //we need just VIEW Action
         List<ActivityType> activityTypes = Lists.newArrayList(ActivityType.VIEW);
 
