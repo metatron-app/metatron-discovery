@@ -264,8 +264,10 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
    * 이전 코드 테이블로 되돌리기
    */
   public onClickResetCodeTable(): void {
-    this.codeList = _.cloneDeep(this._originCodeList);
-    this.isCodeListModified = false;
+    if (this.isCodeListModified) {
+      this.codeList = _.cloneDeep(this._originCodeList);
+      this.isCodeListModified = false;
+    }
   }
 
   /**
@@ -273,7 +275,7 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
    */
   public onClickSaveCodeTable(): void {
     // code list validation
-    if (this._codeListValidation()) {
+    if (this._codeListValidation() && this.isCodeListModified) {
       this.isCodeListModified = false;
 
       // update code table
