@@ -768,6 +768,10 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
 
   }
 
+  public checkCategory(calFunction:any[]): string {
+    return calFunction.filter(item=> item['commonValue'].toLowerCase().indexOf(this.calFuncSearchText.toLowerCase()) !== -1).length > 0 ? 'block' : 'none';
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
