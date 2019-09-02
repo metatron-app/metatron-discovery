@@ -84,6 +84,8 @@
         [customDateTypeList]="customDateTypeList"
         [roundSecond]="true"
         [selectedDate]="initialPeriodData?.dateType ? initialPeriodData?.dateType : 'CREATED'"
+        [startPlaceholder]="'msg.storage.ui.criterion.time.past' | translate"
+        [endPlaceholder]="'msg.storage.ui.criterion.time.current' | translate"
         (changeDate)="onFilterDate($event)"
         [title]="'msg.storage.ui.list.date' | translate"
       ></component-period>
