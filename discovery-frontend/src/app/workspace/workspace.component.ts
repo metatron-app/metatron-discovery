@@ -356,13 +356,13 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
           // 홀더 저장
           this.folder = folder;
 
-          this.contentFilter.forEach(filter => {
-            filter.key === 'all'
-              ? filter.value = this.translateService.instant('msg.comm.ui.list.dropbox.all', { value: this.folder.books.filter(book => book.type !== 'folder').length })
-              : filter.value = this.translateService.instant('msg.comm.ui.list.dropbox.' + filter.key, { value: this.folder.books.filter(book => book.type !== 'folder' && book.type === filter.key).length })
-          });
-
-          this.selectedContentFilter = this.contentFilter[3];
+          // this.contentFilter.forEach(filter => {
+          //   filter.key === 'all'
+          //     ? filter.value = this.translateService.instant('msg.comm.ui.list.dropbox.all', { value: this.folder.books.filter(book => book.type !== 'folder').length })
+          //     : filter.value = this.translateService.instant('msg.comm.ui.list.dropbox.' + filter.key, { value: this.folder.books.filter(book => book.type !== 'folder' && book.type === filter.key).length })
+          // });
+          //
+          // this.selectedContentFilter = this.contentFilter[3];
 
           this.safelyDetectChanges();
 
@@ -1561,13 +1561,13 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
           });
         }
 
-        this.contentFilter.forEach(filter => {
-          filter.key === 'all'
-            ? filter.value = this.translateService.instant('msg.comm.ui.list.dropbox.all', { value: this.workspace.books.filter(book => book.type !== 'folder').length })
-            : filter.value = this.translateService.instant('msg.comm.ui.list.dropbox.' + filter.key, { value: this.workspace.books.filter(book => (book.type !== 'folder') && book.type === filter.key).length })
-        });
-
-        this.selectedContentFilter = this.contentFilter[3];
+        // this.contentFilter.forEach(filter => {
+        //   filter.key === 'all'
+        //     ? filter.value = this.translateService.instant('msg.comm.ui.list.dropbox.all', { value: this.workspace.books.filter(book => book.type !== 'folder').length })
+        //     : filter.value = this.translateService.instant('msg.comm.ui.list.dropbox.' + filter.key, { value: this.workspace.books.filter(book => (book.type !== 'folder') && book.type === filter.key).length })
+        // });
+        //
+        // this.selectedContentFilter = this.contentFilter[3];
 
       } else {
         // 워크스페이스 이름
