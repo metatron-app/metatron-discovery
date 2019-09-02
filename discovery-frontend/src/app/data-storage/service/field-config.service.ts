@@ -140,7 +140,8 @@ export class FieldConfigService extends AbstractService {
         fieldFormat.isValidFormat = false;
         // set time fieldFormat valid message
         fieldFormat.formatValidMessage = this._translateSvc.instant('msg.storage.ui.schema.column.no.data');
-        resolve(fieldFormat);
+        reject(fieldFormat);
+        return;
       } else {  // if exist fieldFormat data list
         const params: {samples: string[], format?: string} = {
           samples: dateList.slice(0,19)
@@ -153,7 +154,8 @@ export class FieldConfigService extends AbstractService {
             fieldFormat.isValidFormat = false;
             // set time fieldFormat valid message
             fieldFormat.formatValidMessage = this._translateSvc.instant('msg.common.ui.required');
-            resolve(fieldFormat);
+            reject(fieldFormat);
+            return;
           } else {  // if not empty fieldFormat
             // set fieldFormat in params
             (params.format = fieldFormat.format);

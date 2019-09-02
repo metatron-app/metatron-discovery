@@ -437,7 +437,8 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
       removeFirstRow: this.getFileData.isFirstHeaderRow,
       path: this.getFileData.fileResult.filePath,
       rollup: this.getIngestionData.selectedRollUpType.value,
-      uploadFileName: this.getFileData.fileResult.fileName
+      uploadFileName: this.getFileData.fileResult.fileName,
+      charset: this.getFileData.selectedFileDetailData.charset
     };
     // advanced
     if (this.getIngestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)).length > 0) {
