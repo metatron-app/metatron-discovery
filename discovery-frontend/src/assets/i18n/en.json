@@ -1411,6 +1411,8 @@
   "msg.board.create.association-key" : "Association key",
   "msg.board.create.guide-msg1" : "Click on a datasource and drag the edge",
   "msg.board.create.guide-msg2" : "to another datasource to connect them",
+  "msg.board.create.confirm.del_ds.main" : "Are you sure you want to unlink the datasource?",
+  "msg.board.create.confirm.del_ds.sub" : "The relationship established between datasources are also closed.",
   "msg.board.download.title-org" : "Download original data",
   "msg.board.download.title-aggr" : "Download aggregated data",
   "msg.board.download.desc" : "Able to download up to 1,000,000 rows.<br>Please contact your administrator for above 1,000,000 rows.",

@@ -25,7 +25,7 @@
     </div>
     <!-- //title -->
     <!-- contents -->
-    <div class="ddp-box-pop-contents">
+    <div class="ddp-box-pop-contents" [style.bottom]="editingJoin.joinInfoList.length !== 0 ? '' : '0px'">
 
       <!-- Join Popup Left Grid -->
       <div class="ddp-ui-part">
@@ -210,7 +210,9 @@
             <!-- //select box -->
           </div>
           <!-- //join form -->
-          <a href="javascript:" class="ddp-btn-solid" (click)="addToJoinKeys()">{{'msg.board.ui.add.join.keys' | translate}}</a>
+          <a (click)="addToJoinKeys()"
+             [class.ddp-disabled]="!this.isValidJoinKeys()"
+             href="javascript:" class="ddp-btn-solid" >{{'msg.board.ui.add.join.keys' | translate}}</a>
         </div>
         <!-- // join keys -->
 
@@ -224,12 +226,13 @@
         </div>
       </div>
       <!-- //join keys -->
-
     </div>
     <!-- //contents -->
-    <div class="ddp-ui-join-type">
+
+    <!-- Select join type area -->
+    <div *ngIf="editingJoin.joinInfoList.length !== 0" class="ddp-ui-join-type">
       <div class="ddp-ui-data-join">
-        <!-- data join -->
+        <!-- Join type area -->
         <div class="ddp-data-join">
           <span class="ddp-ui-label">{{'msg.board.th.join.type' | translate}}</span>
           <ul class="ddp-list-join">
@@ -238,33 +241,29 @@
                 <em class="ddp-icon-joininner"></em>
                 {{'msg.board.ui.join.type.inner' | translate}}
               </a>
-
             </li>
             <li [class.ddp-selected]="editingJoin.selectedJoinType === 'left'" (click)="changeJoinType('left')">
               <a href="javascript:">
                 <em class="ddp-icon-joinleft"></em>
                 {{'msg.board.ui.join.type.left' | translate}}
               </a>
-
             </li>
             <li class="ddp-disabled">
               <a href="javascript:">
                 <em class="ddp-icon-joinright"></em>
                 {{'msg.board.ui.join.type.right' | translate}}
               </a>
-
             </li>
             <li class="ddp-disabled">
               <a href="javascript:">
                 <em class="ddp-icon-joinouter"></em>
                 {{'msg.board.ui.join.type.fullouter' | translate}}
               </a>
-
             </li>
           </ul>
         </div>
-        <!-- //data join -->
-        <!-- data join -->
+        <!-- // Join type area -->
+        <!-- Join key list -->
         <div class="ddp-data-join">
           <span class="ddp-ui-label">{{'msg.board.ui.join.keys' | translate : { value : editingJoin.joinInfoList.length} }}</span>
           <!-- nodata -->
@@ -282,22 +281,18 @@
               <em class="ddp-icon-control-cut" (click)="removeJoinInfoList(idx)"></em>
             </li>
           </ul>
-
-
         </div>
-        <!-- //data join -->
+        <!-- // Join key list -->
       </div>
-
     </div>
+    <!-- Select join type area -->
 
-
-    <div class="ddp-box-resultpreview">
+    <!-- Preview Grid -->
+    <div *ngIf="editingJoin.joinInfoList.length !== 0" class="ddp-box-resultpreview">
       <!-- top -->
       <div class="ddp-ui-pop-top">
         <span class="ddp-txt-title">{{'msg.board.ui.join.preview.rslt' | translate}}</span>
         <div class="ddp-wrap-grid-option">
-
-
           <div class="ddp-part-right">
             <!--<div class="ddp-data-form">-->
             <!--<strong>432.3</strong>-->
@@ -319,9 +314,6 @@
       </div>
       <!-- //top -->
 
-      <div class="ddp-ui-grid-form" style="background-color: #ffffff; z-index: 2;" [hidden]="editingJoin.previewGridFl">
-        <!-- empty-->
-      </div>
       <div class="ddp-ui-grid-form" >
         <!-- No Data -->
         <div class="ddp-data-empty" *ngIf="isEmptyPreviewGrid">
@@ -332,6 +324,8 @@
       </div>
 
     </div>
+    <!-- // Preview Grid -->
 
   </div>
+
 </div>

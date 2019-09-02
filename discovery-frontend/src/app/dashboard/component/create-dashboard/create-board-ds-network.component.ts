@@ -33,6 +33,7 @@ import { Filter } from '../../../domain/workbook/configurations/filter/filter';
 import { CreateBoardPopRelationComponent } from './create-board-pop-relation.component';
 import { isNullOrUndefined } from 'util';
 import { CommonUtil } from '../../../common/util/common.util';
+import {Modal} from "../../../common/domain/modal";
 
 declare const vis;
 
@@ -132,8 +133,20 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     // 데이터 소스 삭제
     this.subscriptions.push(
       this.broadCaster.on('CREATE_BOARD_REMOVE_DS').subscribe((data: { dataSourceId: string }) => {
-        this.selectedDataSource = null;
-        this._removeDataSource(data.dataSourceId);
+        if( this._relations.some(item =>  (item.ui.source.id === data.dataSourceId || item.ui.target.id === data.dataSourceId) ) ) {
+          const modal = new Modal();
+          modal.name = this.translateService.instant('msg.board.create.confirm.del_ds.main');
+          modal.description = this.translateService.instant('msg.board.create.confirm.del_ds.sub');
+          modal.btnName = this.translateService.instant('msg.comm.btn.del');
+          modal.afterConfirm = () => {
+            this.selectedDataSource = null;
+            this._removeDataSource(data.dataSourceId);
+          };
+          CommonUtil.confirm(modal);
+        } else {
+          this.selectedDataSource = null;
+          this._removeDataSource(data.dataSourceId);
+        }
       })
     );
 
