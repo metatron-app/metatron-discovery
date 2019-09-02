@@ -12,9 +12,18 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { AbstractComponent } from '../abstract.component';
-import { PickerSettings } from '../../../domain/common/datepicker.settings';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
+import {AbstractComponent} from '../abstract.component';
+import {PickerSettings} from '../../../domain/common/datepicker.settings';
 
 declare let moment: any;
 declare let $: any;
@@ -111,6 +120,12 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
   @Input()
   public customDateTypeList: {label: string, value: string}[];
 
+  @Input()
+  public startPlaceholder?: string = 'yyyy-MM-dd hh:mm';
+
+  @Input()
+  public endPlaceholder?: string = 'yyyy-MM-dd hh:mm';
+
   // 변경 이벤트
   @Output() public changeDate = new EventEmitter();
 
@@ -149,15 +164,16 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
     }
 
     // Default 값이 있는지 체크 (paging처리 하면서 추가)
-    let isDefaultValue: boolean;
-    isDefaultValue = false;
-
+    let isDefaultValue: boolean = false;
     if (this.startDateDefault && this.endDateDefault) {
-
       // startDateDefault & endDateDefault 있다면 this.defaultType 사용
       isDefaultValue = true;
 
       startInitialValue = moment(this.startDateDefault);
+      endInitialValue = moment(this.endDateDefault);
+    } else if (this.startDateDefault) {
+      startInitialValue = moment(this.startDateDefault);
+    } else if (this.endDateDefault) {
       endInitialValue = moment(this.endDateDefault);
     }
 
@@ -314,6 +330,8 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
       } else {
         endDateStr = moment(this._endDate).format(this.returnFormat);
       }
+    } else {
+      endDateStr = null;
     }
 
     const returnData = {

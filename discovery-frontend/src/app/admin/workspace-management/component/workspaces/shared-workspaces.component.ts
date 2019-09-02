@@ -12,18 +12,18 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { Component, ElementRef, Injector, ViewChild } from '@angular/core';
-import { WorkspaceService } from '../../../../workspace/service/workspace.service';
-import { Alert } from '../../../../common/util/alert.util';
-import { PublicType, WorkspaceAdmin } from '../../../../domain/workspace/workspace';
-import { PeriodComponent } from '../../../../common/component/period/period.component';
-import { Modal } from '../../../../common/domain/modal';
-import { ConfirmModalComponent } from '../../../../common/component/modal/confirm/confirm.component';
-import { PeriodData } from '../../../../common/value/period.data.value';
-import { Page } from "../../../../domain/common/page";
-import { ActivatedRoute } from "@angular/router";
-import { isNullOrUndefined } from "util";
+import {AbstractComponent} from '../../../../common/component/abstract.component';
+import {Component, ElementRef, Injector, ViewChild} from '@angular/core';
+import {WorkspaceService} from '../../../../workspace/service/workspace.service';
+import {Alert} from '../../../../common/util/alert.util';
+import {PublicType, WorkspaceAdmin} from '../../../../domain/workspace/workspace';
+import {PeriodComponent} from '../../../../common/component/period/period.component';
+import {Modal} from '../../../../common/domain/modal';
+import {ConfirmModalComponent} from '../../../../common/component/modal/confirm/confirm.component';
+import {PeriodData} from '../../../../common/value/period.data.value';
+import {Page} from "../../../../domain/common/page";
+import {ActivatedRoute} from "@angular/router";
+import {isNullOrUndefined} from "util";
 
 declare let moment: any;
 
@@ -146,15 +146,18 @@ export class SharedWorkspacesComponent extends AbstractComponent {
         this._filterDate.dateType = searchDateBy;
         const from = params['from'];
         const to = params['to'];
-        if (!isNullOrUndefined(searchDateBy) && !isNullOrUndefined(from) && !isNullOrUndefined(to)) {
+        if (!isNullOrUndefined(from)) {
           this._filterDate.startDate = from;
-          this._filterDate.endDate = to;
-          this._filterDate.type = params['type'];
           this._filterDate.startDateStr = decodeURIComponent(from);
-          this._filterDate.endDateStr = decodeURIComponent(to);
-          this.initialPeriodData = this._filterDate;
-          this.safelyDetectChanges();
         }
+        if (!isNullOrUndefined(to)) {
+          this._filterDate.endDate = to;
+          this._filterDate.endDateStr = decodeURIComponent(to);
+        }
+
+        this._filterDate.type = params['type'];
+        this.initialPeriodData = this._filterDate;
+        this.safelyDetectChanges();
 
         // 워크스페이스 리스트 조회
         this._getWorkspaceListInServer();

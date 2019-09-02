@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnInit, OnDestroy, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, ElementRef, Injector, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import {ConnectionType, Datasource, Status} from '../../../domain/datasource/datasource';
 import { StringUtil } from '../../../common/util/string.util';
@@ -113,23 +113,16 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
   public open(workspaceId: string, dataSourceIds: string[]) {
     this._workspaceId = workspaceId;
 
+    // 데이터 초기화
     this.summaryTargetDsId = '';
-
-    // 기존에 선택되었던 데이터소스 아이디 목록 저장
-    this._prevDataSourceIds = dataSourceIds;
-
-    // 정렬
-    this.selectedContentSort.key = 'modifiedTime';
-    this.selectedContentSort.sort = 'desc';
-
-    // 공개여부 토글
-    this.searchPublished = false;
-
-    // page 설정
-    this.page.page = 0;
+    this._prevDataSourceIds = dataSourceIds;    // 기존에 선택되었던 데이터소스 아이디 목록 저장
+    this.selectedContentSort.key = 'modifiedTime';  // 정렬 키
+    this.selectedContentSort.sort = 'desc';         // 정렬 방식
+    this.searchPublished = false;                   // 공개여부 토글
+    this.page.page = 0;                             // page 설정
     this.page.size = 20;
-
-    // 데이터초기화
+    this.searchText = '';
+    this.searchType = '';
     this._selectedDataSources = [];
 
     this.isShow = true;

@@ -20,7 +20,7 @@
       <label *ngIf="isManageMember" class="ddp-label-checkbox ddp-type2">
         <input type="checkbox" [checked]="workspace.published" (click)="toggleWorkspacePublished()">
         <i class="ddp-icon-checkbox"></i>
-        <span class="ddp-txt-checkbox">{{'msg.space.ui.allow_all_member'|translate}}</span>
+        <span class="ddp-txt-checkbox">{{'msg.space.ui.allow.all.member'|translate}}</span>
       </label>
       <a href="javascript:" *ngIf="isManageMember" class="ddp-link-setting" (click)="close(true)">
         <em class="ddp-icon-setting"></em>{{'msg.space.btn.setting' | translate}}

@@ -104,6 +104,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
   public isValidFile: boolean;
   public isValidDelimiter: boolean;
   public isValidSeparator: boolean;
+  public globalErrorMessage: string;
 
   public ingestionStatus: string;
   public ingestionPopup: boolean = false;
@@ -144,7 +145,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
     // set file result
     this.fileResult = this.sourceData.uploadData.fileResult;
     // 현재 페이지 데이터소스 파일보가 있다면
-    if (this.sourceData.hasOwnProperty('fileData')) {
+    if (this.sourceData.hasOwnProperty('fileData') && !isNullOrUndefined(this.sourceData.fileData.selectedFileDetailData)) {
       // init data
       this._initData(_.cloneDeep(this.sourceData.fileData));
     } else {
@@ -337,6 +338,13 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
     if (event && 13 !== event.keyCode) {
       return;
     }
+
+    if (_.isNil(this.delimiter) || this.delimiter === '') {
+      this.globalErrorMessage = undefined;
+      this.isValidDelimiter = false;
+      return;
+    }
+
     // file data 조회
     this._setFileDetail(true);
   }
@@ -350,8 +358,23 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
     if (event && 13 !== event.keyCode) {
       return;
     }
+
+    if (_.isNil(this.separator) || this.separator === '') {
+      this.globalErrorMessage = undefined;
+      this.isValidSeparator = false;
+      return;
+    }
+
     // file data 조회
     this._setFileDetail(true);
+  }
+
+  public get getValidMessage() {
+    if ((_.isNil(this.delimiter) || this.delimiter === '') ||(_.isNil(this.separator) || this.separator === '')) {
+      return this.translateService.instant('msg.common.ui.required');
+    } else {
+      return this.translateService.instant('msg.storage.ui.schema.valid.desc');
+    }
   }
 
   /**
@@ -410,6 +433,14 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
       segmentGranularity => segmentGranularity.value.toString() === this.sourceData.datasource.segGranularity.toString()).label;
   }
 
+  public get getErrorMessage() {
+    if (isNullOrUndefined(this.globalErrorMessage)) {
+      return this.isCsvFile() ? this.selectedFileDetailData.errorMessage : this.fileResult.selectedSheet.errorMessage;
+    } else {
+      return this.globalErrorMessage;
+    }
+  }
+
   /**
    * 스키마 설정 화면으로 이동
    * @private
@@ -445,8 +476,10 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
     // 현재 페이지의 데이터소스 생성정보 저장
     this._saveFileData(this.sourceData);
     // set field list, field data
-    this.sourceData.fieldList = this.selectedFileDetailData.fields;
-    this.sourceData.fieldData = this.selectedFileDetailData.data;
+    if (!isNullOrUndefined(this.selectedFileDetailData)) {
+      this.sourceData.fieldList = this.selectedFileDetailData.fields;
+      this.sourceData.fieldData = this.selectedFileDetailData.data;
+    }
   }
 
   /**
@@ -599,6 +632,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
    * @private
    */
   private _setFileDetail(initRowNum?: boolean): void {
+    this.globalErrorMessage = undefined;
     // init selected file detail data
     this.selectedFileDetailData = undefined;
     // grid hide
@@ -650,7 +684,14 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
           this.selectedFileDetailData.errorMessage = this._dataSourceCreateService.getFileErrorMessage(result.isParsable.warning);
         }
       })
-      .catch(error => this.commonExceptionHandler(error));
+      .catch(error => {
+        if (!isNullOrUndefined(error.message)) {
+          this.loadingHide();
+          this.globalErrorMessage = error.message;
+        } else {
+          this.commonExceptionHandler(error)
+        }
+      });
   }
 
   /**
@@ -672,9 +713,6 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
     }
     return params;
   }
-
-
-
 
   /**
    * init source file data
@@ -780,7 +818,8 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
       format: this._dataSourceCreateService.getFileFormatParams(this._getFileFormat(), this.sourceData.fileData),
       removeFirstRow: this.isFirstHeaderRow,
       path: this.sourceData.fileData.fileResult.filePath,
-      uploadFileName: this.sourceData.fileData.fileResult.fileName
+      uploadFileName: this.sourceData.fileData.fileResult.fileName,
+      charset: this.selectedFileDetailData.charset
     };
 
     if (!_.isNil(this.selectedTimestampField)) {

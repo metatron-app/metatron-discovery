@@ -22,6 +22,8 @@
         [defaultType]="initialPeriodData?.type"
         [title]="'msg.groups.th.create.date' | translate"
         [roundSecond]="true"
+        [startPlaceholder]="'msg.storage.ui.criterion.time.past' | translate"
+        [endPlaceholder]="'msg.storage.ui.criterion.time.current' | translate"
         (changeDate)="onFilterDate($event)"
         [returnFormat]="'YYYY-MM-DDTHH:mm:ss.sssZ'" ></component-period>
       <!-- //edit -->

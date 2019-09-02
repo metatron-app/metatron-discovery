@@ -146,9 +146,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     };
 
     const getTopUser = async () => {
-      topUserList = await this.metadataService.getTopUserInMetadataDetail(metadata.id).catch(() => {
-
-      });
+      topUserList = await this.metadataService.getTopUserInMetadataDetail(metadata.id).catch(error => this.commonExceptionHandler(error));
       topUserList = topUserList === undefined ? [] : topUserList;
     };
 
@@ -161,7 +159,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
       metadataDetail = result;
 
       await getTopUser();
-      await getRecentlyUpdatedList().catch(error => this.commonExceptionHandler(error));
+      await getRecentlyUpdatedList();
 
       if (metadata.sourceType === SourceType.ENGINE) {
         await getRecentlyQueriesForDataSource();
@@ -184,6 +182,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
         }
         this.entryRef.instance.metadataId = metadata.id;
       }
+      this.loadingHide();
       this.entryRef.instance.closedPopup.subscribe(() => {
         // close
         this.entryRef.destroy();

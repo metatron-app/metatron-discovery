@@ -104,10 +104,9 @@
                 <em class="ddp-icon-search"></em>
                 <input #inputSearch
                        [ngModel]="searchDatabaseText"
-                       (keypress)="onSearchDatabase($event)"
-                       (keyup.esc)="onSearchDatabaseInit()"
+                       (keyup)="onSearchDatabaseKeypress($event)"
                        type="text" placeholder="{{'msg.bench.ui.db.name.search'|translate}}">
-                <em class="ddp-btn-search-close" *ngIf="searchDatabaseText !== ''" (click)="onSearchDatabaseInit()"></em>
+                <em class="ddp-btn-search-close" *ngIf="searchDatabaseText !== ''" (click)="onSearchDatabaseClear($event)"></em>
               </div>
               <!-- //search -->
             </div>
@@ -214,33 +213,33 @@
           <!-- detail -->
           <div class="ddp-wrap-detail-column" style="top: 0px;" *ngIf="schemaTableMetadataList.length !== 0">
 
-          <!-- detail -->
-          <div class="ddp-ui-detail ddp-clear ddp-padt0" *ngFor="let result of schemaTableMetadataList">
-          <!-- col -->
-            <div class="ddp-col-12">
-            <div class="ddp-ui-title" [hidden]="result.label == undefined">
-              {{result.label}}
+            <!-- detail -->
+            <div class="ddp-ui-detail ddp-clear ddp-padt0" *ngFor="let result of schemaTableMetadataList">
+              <!-- col -->
+              <div class="ddp-col-12">
+                <div class="ddp-ui-title" [hidden]="result.label == undefined">
+                  {{result.label}}
+                </div>
+                <table class="ddp-table-detail2">
+                  <colgroup>
+                    <col width="40%">
+                    <col width="*">
+                  </colgroup>
+                  <tbody>
+                  <tr *ngFor="let data of result.data">
+                    <th>
+                      {{data.itemKey}}
+                    </th>
+                    <td>
+                      {{data.item}}
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+              <!-- //col -->
             </div>
-            <table class="ddp-table-detail2">
-              <colgroup>
-                <col width="40%">
-                <col width="*">
-              </colgroup>
-              <tbody>
-                <tr *ngFor="let data of result.data">
-                <th>
-                  {{data.itemKey}}
-                </th>
-                <td>
-                  {{data.item}}
-                </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <!-- //col -->
-          </div>
-          <!-- //detail -->
+            <!-- //detail -->
 
           </div>
           <!-- //detail -->
@@ -249,22 +248,22 @@
 
           <!--<div class="ddp-wrap-datadetail ddp-full" *ngIf="schemaTableMetadataList.length !== 0">-->
 
-            <!--<table class="ddp-table-detail">-->
-              <!--<colgroup>-->
-                <!--<col width="40%">-->
-                <!--<col width="*">-->
-              <!--</colgroup>-->
-              <!--<tbody>-->
-              <!--<tr *ngFor="let item of schemaTableMetadataList">-->
-                <!--<th>-->
-                  <!--{{item.itemKey}}-->
-                <!--</th>-->
-                <!--<td>-->
-                  <!--{{item.item}}-->
-                <!--</td>-->
-              <!--</tr>-->
-              <!--</tbody>-->
-            <!--</table>-->
+          <!--<table class="ddp-table-detail">-->
+          <!--<colgroup>-->
+          <!--<col width="40%">-->
+          <!--<col width="*">-->
+          <!--</colgroup>-->
+          <!--<tbody>-->
+          <!--<tr *ngFor="let item of schemaTableMetadataList">-->
+          <!--<th>-->
+          <!--{{item.itemKey}}-->
+          <!--</th>-->
+          <!--<td>-->
+          <!--{{item.item}}-->
+          <!--</td>-->
+          <!--</tr>-->
+          <!--</tbody>-->
+          <!--</table>-->
 
           <!--</div>-->
 

@@ -12,12 +12,23 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, Renderer2 } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { WorkspaceService } from '../../service/workspace.service';
-import { Alert } from '../../../common/util/alert.util';
-import { PermissionChecker, Workspace } from '../../../domain/workspace/workspace';
-import { Page } from '../../../domain/common/page';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  OnDestroy,
+  OnInit,
+  Output,
+  Renderer2
+} from '@angular/core';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {WorkspaceService} from '../../service/workspace.service';
+import {Alert} from '../../../common/util/alert.util';
+import {PermissionChecker, Workspace} from '../../../domain/workspace/workspace';
+import {Page} from '../../../domain/common/page';
+import {Modal} from "../../../common/domain/modal";
+import {CommonUtil} from "../../../common/util/common.util";
 
 @Component({
   selector: 'app-shared-member',
@@ -142,22 +153,43 @@ export class SharedMemberComponent extends AbstractComponent implements OnInit, 
    * 워크스페이스 전체 공개 여부
    */
   public toggleWorkspacePublished() {
-    this.loadingShow();
     this.workspace.published = !this.workspace.published;
-    this.workspaceService.updateWorkspace(
-      this.workspace.id,
-      (<any>{ published: this.workspace.published })
-    ).then(() => {
-      // 로딩 hide
-      this.loadingHide();
-      // 수정 알림
-      Alert.success(this.translateService.instant('msg.space.alert.edit.workspace.success'));
-    }).catch((error) => {
-      // 로딩 hide
-      this.loadingHide();
-      // 수정 알림
-      Alert.error(this.translateService.instant('msg.space.alert.edit.workspace.fail'));
-    });
+    let confirmTitle, confirmDesc, confirmBtn, alertSuccess;
+    if (this.workspace.published) {
+      confirmTitle = 'msg.space.alert.allow.all.member.title';
+      confirmDesc = 'msg.space.alert.allow.all.member.desc';
+      confirmBtn = 'msg.space.alert.allow.all.member.btn';
+      alertSuccess = 'msg.space.alert.allow.all.member.success';
+    } else {
+      confirmTitle = 'msg.space.alert.allow.not.member.title';
+      confirmDesc = 'msg.space.alert.allow.not.member.desc';
+      confirmBtn = 'msg.space.alert.allow.not.member.btn';
+      alertSuccess = 'msg.space.alert.allow.not.member.success';
+    }
+
+    const modal = new Modal();
+    modal.name = this.translateService.instant(confirmTitle,{value: this.workspace.name});
+    modal.description = this.translateService.instant(confirmDesc);
+    modal.btnName = this.translateService.instant(confirmBtn);
+    modal.afterConfirm = () => {
+      this.loadingShow();
+      this.workspaceService.updateWorkspace(
+        this.workspace.id,
+        (<any>{ published: this.workspace.published })
+      ).then(() => {
+        // 로딩 hide
+        this.loadingHide();
+        // 수정 알림
+        Alert.success(this.translateService.instant(alertSuccess));
+      }).catch((error) => {
+        // 로딩 hide
+        this.loadingHide();
+        // 수정 알림
+        Alert.error(this.translateService.instant('msg.space.alert.edit.workspace.fail'));
+      });
+    }
+    CommonUtil.confirm(modal);
+
   } // function - toggleWorkspacePublished
 
   /**
