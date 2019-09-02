@@ -166,6 +166,9 @@
                   <div class="ddp-txt-error" *ngIf="cronValidationResult === false">
                     <em class="ddp-icon-error-s"></em>{{cronValidationMessage}}
                   </div>
+                  <div class="ddp-ui-message" *ngIf="cronValidationResult === true">
+                    <span class="ddp-data-ok"><em class="ddp-icon-ok"></em>ok Table list detail</span>
+                  </div>
                 </ng-container>
                 <!-- //crontab (EXPR) -->
               </div>
