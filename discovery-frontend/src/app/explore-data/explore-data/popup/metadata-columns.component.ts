@@ -78,7 +78,7 @@ export class MetadataColumnsComponent extends AbstractComponent {
   }
 
   /**
-   * Code Table 상세 팝업 오픈
+   * Code Table open detail popup
    * @param column
    * @param idx
    */
@@ -119,13 +119,19 @@ export class MetadataColumnsComponent extends AbstractComponent {
     });
   }
 
+  /**
+   * Sort column clicked
+   * @param tyoe
+   */
   public toggleSortOption(type: string) {
+    // Initialize every column's option except selected column
     Object.keys(this.sortOptions).forEach(key => {
       if (key !== type) {
         this.sortOptions[key].option = 'default';
       }
     });
 
+    // Change options according to selected column
     switch (type) {
       case 'popularity':
         if (this.sortOptions.popularity.option === 'none') {
@@ -167,8 +173,16 @@ export class MetadataColumnsComponent extends AbstractComponent {
     }
   }
 
+  /**
+   * Sort column array
+   * @param type
+   * @param option
+   */
+
   public sortColumns(type: string, option: string) {
+    // Check if columns array has more than one element
     if (this.columns.length > 1) {
+      // Sort...
       switch (type) {
         case 'popularity':
           if (option === 'asc') {
