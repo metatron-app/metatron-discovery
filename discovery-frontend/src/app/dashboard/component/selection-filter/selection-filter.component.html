@@ -20,9 +20,27 @@
     <em class="ddp-bg-shadow"></em>
   </div>
   <!-- //button -->
+
   <div class="ddp-wrap-board-filter" [class.ddp-initial]="scrollFreezing">
     <!-- filter list -->
     <div class="ddp-list-board-filter ddp-clear">
+
+      <!-- Global Filters -->
+      <div *ngIf="dashboard && 0 < boardFilters.length" class="ddp-box-board-time">
+        <a href="javascript:" class="ddp-btn-time"><em class="ddp-icon-time4"></em></a>
+        <!-- tooltip -->
+        <div class="ddp-ui-tooltip-info" >
+          <em class="ddp-icon-view-top"></em>
+          <!--<span class="ddp-tooltip-label">Data range</span>-->
+          <dl *ngFor="let filter of boardFilters" class="ddp-dl-info">
+            <dt> {{filter.field}}, {{filter['dsName']}} </dt>
+            <dd [innerHTML]="filter['panelContents']" ></dd>
+          </dl>
+        </div>
+        <!-- //tooltip -->
+      </div>
+      <!-- // Global Filters -->
+
       <div class="ddp-box-board-filter" *ngIf="selectionFilterList.length == 0">
         <div class="ddp-box-dataselect">
           {{'msg.board.filter.sel.data' | translate}}
