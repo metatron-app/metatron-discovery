@@ -49,6 +49,8 @@ import {CommonUtil} from '../../../../common/util/common.util';
 import {Metadata} from "../../../../domain/meta-data-management/metadata";
 import {SsType} from "../../../../domain/data-preparation/pr-snapshot";
 import {DataStorageConstant} from "../../../constant/data-storage-constant";
+import * as moment from 'moment';
+import {Segments} from "../../../../domain/datasource/stats";
 
 declare let echarts: any;
 
@@ -150,6 +152,10 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   public isEditSourceDescription: boolean = false;
   // advanced setting show flag
   public isShowAdvancedSetting: boolean = false;
+
+  public detailFl: boolean = false;
+
+  public histogramSegment: Segments[];
 
   // process step
   public ingestionProcessStatusStep: number = 0;
@@ -671,6 +677,19 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
     }
   }
 
+  public convertTime(date:string, granularityType:GranularityType): string {
+    if (granularityType === GranularityType.YEAR) {
+      return moment(date).format('YYYY');
+    } else if (granularityType === GranularityType.MONTH) {
+      return moment(date).format('YYYY-MM');
+    } else if (granularityType === GranularityType.DAY) {
+      return moment(date).format('YYYY-MM- DD');
+    } else if (granularityType === GranularityType.HOUR) {
+      return moment(date).format('YYYY-MM-DD hh');
+    }
+    return date;
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -706,13 +725,20 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   private getBarOption(timeStats: any) {
     // bar option
     const barOption = _.cloneDeep(this.barOption);
+    this.histogramSegment = timeStats.segments;
 
     // timestamp
     barOption.xAxis[0].data = timeStats.segments.map((item) => {
-      return item.interval.split('/')[0];
+      return this.convertTime(item.interval.split('/')[0], this.getSegGranularity);
     });
     barOption.series[0].data = timeStats.segments.map((item) => {
       return item.rows;
+    });
+
+    barOption.tooltip.formatter = ((params): any => {
+      const segmentsData = timeStats.segments[params[0].dataIndex];
+      return this.convertTime(segmentsData.interval.split('/')[0], this.getSegGranularity) + '<br/>' + params[0].marker
+          + segmentsData.rows + ' row counts (' + this.bytesToSize(segmentsData.serializedSize) + ')';
     });
 
     return barOption;

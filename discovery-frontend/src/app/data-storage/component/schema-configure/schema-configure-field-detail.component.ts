@@ -580,6 +580,11 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
         this.selectedField.ingestionRule.isValidReplaceValue = true;
         break;
       case LogicalType.TIMESTAMP:
+        if (this.selectedField.format.type != FieldFormatType.UNIX_TIME && StringUtil.isEmpty(this.selectedField.format.format)) {
+          this.selectedField.ingestionRule.replaceValidationMessage = this.translateService.instant('msg.common.ui.required');
+          this.selectedField.ingestionRule.isValidReplaceValue = false;
+          return;
+        }
         // if not pass format validation
         if (!this.selectedField.format.isValidFormat) {
           this.selectedField.ingestionRule.replaceValidationMessage = this.translateService.instant('msg.storage.ui.schema.valid.timestamp.pre.valid');

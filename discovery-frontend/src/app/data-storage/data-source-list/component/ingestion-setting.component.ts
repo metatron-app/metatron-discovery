@@ -31,7 +31,6 @@ import {
 import * as _ from 'lodash';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
 import {StringUtil} from '../../../common/util/string.util';
-import {Alert} from '../../../common/util/alert.util';
 import {DataconnectionService} from '../../../dataconnection/service/dataconnection.service';
 import {CommonUtil} from '../../../common/util/common.util';
 import {GranularityObject, GranularityService} from '../../service/granularity.service';
@@ -338,8 +337,6 @@ export class IngestionSettingComponent extends AbstractComponent {
       this._saveIngestionData(this._sourceData);
       // move to next staff
       this.nextStep.emit();
-    } else {
-      Alert.error(this.translateService.instant('msg.comm.alert.error'));
     }
   }
 
@@ -784,6 +781,9 @@ export class IngestionSettingComponent extends AbstractComponent {
    */
   private _isEnableNext(): boolean {
     // If create type is DB and source type is ENGINE
+    if (_.isNil(this.cronValidationResult)) {
+      this.cronValidation();
+    }
     if (this.createType === 'DB' && this.getConnectionType() === 'ENGINE' && (
         (this.selectedIngestionType.value === 'batch' && (this.isMaxRowOverValue('ingestionPeriodRow', 5000000) || (this.selectedBatchType.value === 'EXPR' && !this.cronValidationResult)))
         || (this.selectedIngestionType.value === 'single' && this.selectedIngestionScopeType.value === 'ROW' && this.isMaxRowOverValue('ingestionOnceRow', 10000))

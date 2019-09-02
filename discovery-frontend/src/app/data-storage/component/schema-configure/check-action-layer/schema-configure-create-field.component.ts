@@ -19,7 +19,8 @@ import {StringUtil} from "../../../../common/util/string.util";
 import {Type} from "../../../../shared/datasource-metadata/domain/type";
 import {
   DerivationRule,
-  Field, FieldFormat,
+  Field,
+  FieldFormat,
   FieldRole,
   IngestionRule,
   LogicalType
@@ -170,6 +171,8 @@ export class SchemaConfigureCreateFieldComponent extends AbstractComponent {
    * Close create field popup
    */
   public closeCreateFieldPopup(): void {
+    // init view
+    this._initView();
     this.isShowCreateField = false;
   }
 
@@ -278,8 +281,6 @@ export class SchemaConfigureCreateFieldComponent extends AbstractComponent {
     if (this._isEnableCreateField()) {
       // create field
       this._createField();
-      // init view
-      this._initView();
       // close
       this.closeCreateFieldPopup();
     }
@@ -425,6 +426,7 @@ export class SchemaConfigureCreateFieldComponent extends AbstractComponent {
     }
     // broadcast to DATASOURCE_CREATED_FIELD
     this.broadCaster.broadcast(DataStorageConstant.Datasource.BroadcastKey.DATASOURCE_CREATED_FIELD, field);
+    this._originFieldList.push(field);
   }
 
   /**

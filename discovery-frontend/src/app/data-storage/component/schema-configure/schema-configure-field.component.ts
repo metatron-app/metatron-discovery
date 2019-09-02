@@ -13,7 +13,7 @@
  */
 
 import {AbstractComponent} from "../../../common/component/abstract.component";
-import {Component, ElementRef, Injector, Input, Renderer, Renderer2, ViewChild} from "@angular/core";
+import {Component, ElementRef, Injector, Input, ViewChild} from "@angular/core";
 import {EventBroadcaster} from "../../../common/event/event.broadcaster";
 import {DataStorageConstant} from "../../constant/data-storage-constant";
 import {Filter} from "../../../shared/datasource-metadata/domain/filter";
@@ -22,7 +22,8 @@ import {
   ConnectionType,
   Field,
   FieldFormat,
-  FieldFormatType} from "../../../domain/datasource/datasource";
+  FieldFormatType
+} from "../../../domain/datasource/datasource";
 import {StringUtil} from "../../../common/util/string.util";
 import {ConstantService} from "../../../shared/datasource-metadata/service/constant.service";
 import {SchemaConfigureDeletePopupComponent} from "./check-action-layer/schema-configure-delete-popup.component";
@@ -515,14 +516,16 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
     return fieldList.reduce((acc, field) => {
       // if field is TIMESTAMP, format type is DATE_TIME, not check time format
       if (Field.isTimestampTypeField(field) && field.format.isDateTime() && !field.format.isValidFormat) {
-        field.format.isValidFormat = false;
-        field.format.formatValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
+        if (_.isNil(field.format.formatValidMessage)) {
+          field.format.formatValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
+        }
         acc = true;
       }
       // if exist ingestion rule, ingestion rule type is REPLACE, not check replace value
       if (!Field.isEmptyIngestionRule(field) && field.ingestionRule.isReplaceType() && !field.ingestionRule.isValidReplaceValue) {
-        field.ingestionRule.isValidReplaceValue = false;
-        field.ingestionRule.replaceValidationMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
+        if (_.isNil(field.ingestionRule.replaceValidationMessage)) {
+          field.ingestionRule.replaceValidationMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
+        }
         acc = true;
       }
       if (this.isGeoFormatError(field)) {

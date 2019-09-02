@@ -12,19 +12,19 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { PeriodComponent } from '../../../../common/component/period/period.component';
-import { PeriodData } from '../../../../common/value/period.data.value';
-import { ConfirmModalComponent } from '../../../../common/component/modal/confirm/confirm.component';
-import { Modal } from '../../../../common/domain/modal';
-import { PermissionService } from '../../../../user/service/permission.service';
-import { RoleSet, RoleSetScope } from '../../../../domain/user/role/roleSet';
-import { Alert } from '../../../../common/util/alert.util';
-import { CreatePermissionSchemaComponent } from './create-permission-schema.component';
-import { Page } from '../../../../domain/common/page';
-import { ActivatedRoute } from "@angular/router";
-import { isNullOrUndefined } from "util";
+import {AbstractComponent} from '../../../../common/component/abstract.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {PeriodComponent} from '../../../../common/component/period/period.component';
+import {PeriodData} from '../../../../common/value/period.data.value';
+import {ConfirmModalComponent} from '../../../../common/component/modal/confirm/confirm.component';
+import {Modal} from '../../../../common/domain/modal';
+import {PermissionService} from '../../../../user/service/permission.service';
+import {RoleSet, RoleSetScope} from '../../../../domain/user/role/roleSet';
+import {Alert} from '../../../../common/util/alert.util';
+import {CreatePermissionSchemaComponent} from './create-permission-schema.component';
+import {Page} from '../../../../domain/common/page';
+import {ActivatedRoute} from "@angular/router";
+import {isNullOrUndefined} from "util";
 
 declare let moment: any;
 
@@ -125,17 +125,20 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
         this._filterDate = new PeriodData();
 
         this._filterDate.type = 'ALL';
-        if (!isNullOrUndefined(from) && !isNullOrUndefined(to)) {
+        if (!isNullOrUndefined(from)) {
+          this.periodComponent.startDateDefault =
           this._filterDate.startDate = from;
-          this._filterDate.endDate = to;
-
-          this._filterDate.dateType = 'CREATED';
           this._filterDate.startDateStr = decodeURIComponent(from);
-          this._filterDate.endDateStr = decodeURIComponent(to);
-          this._filterDate.type = params['type'];
-          this.initialPeriodData = this._filterDate;
-          this.safelyDetectChanges();
         }
+        if (!isNullOrUndefined(to)) {
+          this._filterDate.endDate = to;
+          this._filterDate.endDateStr = decodeURIComponent(to);
+        }
+
+        this._filterDate.dateType = 'CREATED';
+        this._filterDate.type = params['type'];
+        this.initialPeriodData = this._filterDate;
+        this.safelyDetectChanges();
         // 퍼미션 스키마 조회
         this._getRoleSetList();
       })
@@ -506,7 +509,9 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
       if (this._filterDate.startDateStr) {
         params['from'] = moment(this._filterDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
-      params['to'] = moment(this._filterDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+      if (this._filterDate.endDateStr) {
+        params['to'] = moment(this._filterDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+      }
     }
 
     return params;

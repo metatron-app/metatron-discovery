@@ -89,6 +89,14 @@
         <!-- //이메일 보내기 -->
       </td>
     </tr>
+    <tr *ngIf="isPublicWorkspace()">
+      <th>
+        {{'msg.spaces.shared.detail.statistics.favorite.count' | translate}}
+      </th>
+      <td>
+        {{workspace.countOfFavoties}}
+      </td>
+    </tr>
 
     </tbody>
   </table>
