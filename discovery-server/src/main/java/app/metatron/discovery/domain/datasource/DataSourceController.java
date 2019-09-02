@@ -1023,6 +1023,9 @@ public class DataSourceController {
                                                  "Column Index : " + e.getColumnIndex() + ",\n" +
                                                  "Char Index : " + e.getCharIndex()
           , e.getCause());
+    } catch (CommonsCsvProcessor.CommonsCsvException e) {
+      LOGGER.error("Failed to parse file ({}) : {}", fileKey, e.getMessage());
+      throw new DataSourceIngestionException(e.getMessage(), e.getCause());
     } catch (Exception e) {
       LOGGER.error("Failed to parse file ({}) : {}", fileKey, e.getMessage());
       throw new DataSourceIngestionException("Fail to parse file.", e.getCause());

@@ -102,7 +102,7 @@ public class MetadataPredicate {
         builder = builder.and(qMetadata.name.containsIgnoreCase(nameContains));
       }
 
-      if(userIds != null && userIds.size() > 0) {
+      if(userIds != null) {
         builder = builder.and(qMetadata.createdBy.in(userIds));
       }
 

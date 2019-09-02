@@ -24,8 +24,12 @@
       <!-- edit -->
       <div class="ddp-wrap-edit2" [class.ddp-error]="isInvalidName">
         <label class="ddp-label-type">{{'msg.comm.ui.name' | translate}}</label>
-        <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.ui.create.name' | translate}}"
-               [(ngModel)] = "data.name" (focus)="isInvalidName=false" maxlength="50" />
+        <input type="text"
+               class="ddp-input-type"
+               placeholder="{{'msg.comm.ui.create.name' | translate}}"
+               [ngModel] = "data.name"
+               (ngModelChange)="nameChange($event)"
+               (focus)="isInvalidName=false" maxlength="50" />
         <!-- error -->
         <span class="ddp-ui-error">{{errMsgName}}</span>
         <!-- error -->
@@ -50,7 +54,6 @@
     <div class="ddp-ui-buttons">
       <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
       <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black"
-         [class.ddp-disabled]="isInvalidName || isInvalidDesc || !data.name || '' === data.name"
          (click)="updateWorkspace()">{{'msg.comm.btn.done' | translate}}</a>
     </div>
     <!-- //button -->

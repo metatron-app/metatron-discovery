@@ -119,7 +119,7 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
               protected renderer: Renderer2,
               protected element: ElementRef,
               protected injector: Injector,
-              private workspaceService: WorkspaceService,) {
+              private workspaceService: WorkspaceService) {
     super(element, injector);
   }
 
@@ -158,6 +158,14 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
     this.sharedWorkspaceManager = CommonUtil.isValidPermission(SYSTEM_PERMISSION.MANAGE_SHARED_WORKSPACE);
     // 공유 워크스페이스 조회
     this.getSharedWorkspace(0);
+  }
+
+  /**
+   * After create a workspace navigate to detail page of workspace just created
+   * @param {string} id
+   */
+  public onWorkspaceCreateComplete(id: string) {
+    this.router.navigate(['/workspace', id]);
   }
 
   /**
@@ -215,6 +223,7 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
 
   // 공유 워크스페이스 생성 이벤트
   public createWorkspace() {
+    this.createWorkspaceComp.sharedWorkspaceList = this.sharedWorkspace;
     this.createWorkspaceComp.init();
   }
 

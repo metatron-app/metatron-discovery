@@ -222,6 +222,70 @@ export class CreateColumnDictionaryComponent extends AbstractComponent implement
     this.selectedCodeTable = codeTable;
   }
 
+  public doneLogicNameValidation():boolean {
+    // 논리명 비어있는지 확인
+    if (this.logicalName.trim() === '') {
+      // message
+      this.logicalNameValidationMsg = this.translateService.instant(
+        'msg.metadata.ui.dictionary.create.valid.logical.name.required');
+      // return
+      return false;
+    }
+    // 논리명 자리수 계산
+    if (CommonUtil.getByte(this.logicalName.trim()) > 150) {
+      // message
+      this.logicalNameValidationMsg = this.translateService.instant(
+        'msg.metadata.ui.dictionary.create.valid.logical.name.length');
+      // return
+      return false;
+    }
+    return true;
+  }
+
+  public doneColNameValidation():boolean {
+    // 컬럼명 비어있는지 확인
+    if (this.columnName.trim() === '') {
+      // message
+      this.columnNameValidationMsg = this.translateService.instant(
+        'msg.metadata.ui.dictionary.create.valid.column.name.required');
+      // return
+      return false;
+    }
+    // 컬럼명 자리수 계산
+    if (CommonUtil.getByte(this.columnName.trim()) > 150) {
+      // message
+      this.columnNameValidationMsg = this.translateService.instant(
+        'msg.metadata.ui.dictionary.create.valid.column.name.length');
+      // return
+      return false;
+    }
+    return true;
+  }
+
+  public doneShortNameValidation():boolean {
+    // 약어가 자리수 계산
+    if (CommonUtil.getByte(this.shortName.trim()) > 150) {
+      // message
+      this.shortNameValidationMsg = this.translateService.instant(
+        'msg.metadata.ui.dictionary.create.valid.short.name.length');
+      // return
+      return false;
+    }
+    return true;
+  }
+
+  public doneDescValidation():boolean {
+    // 설명 자리수 계산
+    if (CommonUtil.getByte(this.description.trim()) > 150) {
+      // message
+      this.descriptionValidationMsg = this.translateService.instant(
+        'msg.metadata.ui.dictionary.create.valid.desc.length');
+      // return
+      return false;
+    }
+    return true;
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -263,55 +327,10 @@ export class CreateColumnDictionaryComponent extends AbstractComponent implement
    * @private
    */
   private _doneValidation(): boolean {
-    // 논리명 비어있는지 확인
-    if (this.logicalName.trim() === '') {
-      // message
-      this.logicalNameValidationMsg = this.translateService.instant(
-        'msg.metadata.ui.dictionary.create.valid.logical.name.required');
-      // return
-      return false;
-    }
-    // 논리명 자리수 계산
-    if (CommonUtil.getByte(this.logicalName.trim()) > 150) {
-      // message
-      this.logicalNameValidationMsg = this.translateService.instant(
-        'msg.metadata.ui.dictionary.create.valid.logical.name.length');
-      // return
-      return false;
-    }
-    // 컬럼명 비어있는지 확인
-    if (this.columnName.trim() === '') {
-      // message
-      this.columnNameValidationMsg = this.translateService.instant(
-        'msg.metadata.ui.dictionary.create.valid.column.name.required');
-      // return
-      return false;
-    }
-    // 컬럼명 자리수 계산
-    if (CommonUtil.getByte(this.columnName.trim()) > 150) {
-      // message
-      this.columnNameValidationMsg = this.translateService.instant(
-        'msg.metadata.ui.dictionary.create.valid.column.name.length');
-      // return
-      return false;
-    }
-    // 약어가 자리수 계산
-    if (CommonUtil.getByte(this.shortName.trim()) > 150) {
-      // message
-      this.shortNameValidationMsg = this.translateService.instant(
-        'msg.metadata.ui.dictionary.create.valid.short.name.length');
-      // return
-      return false;
-    }
-    // 설명 자리수 계산
-    if (CommonUtil.getByte(this.description.trim()) > 150) {
-      // message
-      this.descriptionValidationMsg = this.translateService.instant(
-        'msg.metadata.ui.dictionary.create.valid.desc.length');
-      // return
-      return false;
-    }
-    return true;
+    return this.doneLogicNameValidation()
+      && this.doneColNameValidation()
+      && this.doneShortNameValidation()
+      && this.doneDescValidation();
   }
 
   /**

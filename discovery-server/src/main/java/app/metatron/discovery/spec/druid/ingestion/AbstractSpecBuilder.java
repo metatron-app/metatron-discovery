@@ -320,6 +320,7 @@ public class AbstractSpecBuilder {
           }
 
           csvStreamParser.setSkipHeaderRecord(skipHeaderRow);
+          csvStreamParser.setCharset(((LocalFileIngestionInfo) ingestionInfo).getCharset());
         }
 
         if (fileFormat instanceof CsvFileFormat) {

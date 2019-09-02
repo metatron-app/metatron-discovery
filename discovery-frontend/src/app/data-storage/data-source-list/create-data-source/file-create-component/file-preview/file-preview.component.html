@@ -126,7 +126,7 @@
                 <em class="ddp-icon-apply" (click)="onChangeDelimiter()"></em>
               </div>
               <!-- //apply -->
-              <span class="ddp-ui-error" *ngIf="isValidDelimiter === false">{{'msg.storage.ui.schema.valid.desc' | translate}}</span>
+              <span class="ddp-ui-error" *ngIf="isValidDelimiter === false">{{getValidMessage}}</span>
             </div>
             <!-- //edit option -->
           </div>
@@ -144,7 +144,7 @@
                 <em class="ddp-icon-apply" (click)="onChangeSeparator()"></em>
               </div>
               <!-- //apply -->
-              <span class="ddp-ui-error" *ngIf="isValidSeparator === false">{{'msg.storage.ui.schema.valid.desc' | translate}}</span>
+              <span class="ddp-ui-error" *ngIf="isValidSeparator === false">{{getValidMessage}}</span>
             </div>
             <!-- //edit option -->
           </div>
@@ -160,10 +160,10 @@
       </div>
       <!-- info message -->
       <div class="ddp-wrap-message">
-        <div class="ddp-box-synch type-error" *ngIf="isCsvFile() ? (selectedFileDetailData && selectedFileDetailData.isParsable && !selectedFileDetailData.isParsable.valid) : !fileResult.selectedSheet.valid">
+        <div class="ddp-box-synch type-error" *ngIf="globalErrorMessage || (isCsvFile() ? (selectedFileDetailData && selectedFileDetailData.isParsable && !selectedFileDetailData.isParsable.valid) : !fileResult.selectedSheet.valid)">
           <div class="ddp-txt-synch">
             <em class="ddp-icon-info"></em>
-            {{isCsvFile() ? selectedFileDetailData.errorMessage : fileResult.selectedSheet.errorMessage}}
+            {{getErrorMessage}}
           </div>
         </div>
         <div class="ddp-box-synch " *ngIf="ingestionStatus === 'overwrite' || ingestionStatus === 'newcolumn'">
@@ -187,7 +187,7 @@
   <div class="ddp-ui-buttons">
     <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
     <!-- disabled 시 ddp-disabled 추가 -->
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [class.ddp-disabled]="selectedFileDetailData === undefined" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
   </div>
   <!-- //buttons -->
 

@@ -84,7 +84,6 @@
                 (changeValue)="changeInputCatalog($event);">
               </component-input>
               <div class="ddp-box-layout4 type-button">
-                <div class="ddp-data-title"> Popular catalogs </div>
                 <ul class="ddp-list-popup ddp-wrap-catalogs2">
                   <li *ngFor="let catalog of searchCatalogList">
                     <a (click)="selectCatalog(catalog)" href="javascript:">
@@ -122,7 +121,7 @@
             </div>
             <!-- //data -->
             <div class="ddp-box-textarea">
-              <textarea [(ngModel)]="descriptionChangeText">{{ this.descriptionChangeText }}</textarea>
+              <textarea #descInput [(ngModel)]="descriptionChangeText">{{ this.descriptionChangeText }}</textarea>
               <div class="ddp-textarea-buttons">
                 <a href="javascript:" class="ddp-box-btn" (click)="toggleEditDescriptionFlag()"><em class="ddp-icon-cancel"></em></a>
                 <a href="javascript:" class="ddp-box-btn" (click)="onUpdateSourceDescriptionClicked()"><em class="ddp-icon-check"></em></a>

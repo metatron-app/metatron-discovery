@@ -27,7 +27,8 @@
     <div class="ddp-wrap-edit2" [class.ddp-error]="isInvalidName">
       <label class="ddp-label-type">{{'msg.comm.ui.name' | translate}}</label>
       <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.ui.create.name' | translate}}"
-             [(ngModel)]="shareWorkspace.name" (focus)="isInvalidName=false" maxlength="50" />
+             (ngModelChange)="nameChange($event)"
+             [ngModel]="shareWorkspace.name" maxlength="50" />
       <span class="ddp-ui-error">{{errMsgName}}</span>
     </div>
     <!-- // 이름 입력 -->
@@ -121,7 +122,6 @@
   <div class="ddp-ui-buttons">
     <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
     <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black"
-       [class.ddp-disabled]="disableCreateWorkspace"
        (click)="createShareWorkspace()">{{'msg.comm.btn.done' | translate}}</a>
   </div>
   <!-- // 버튼 영역 -->

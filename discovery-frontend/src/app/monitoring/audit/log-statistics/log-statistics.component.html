@@ -118,49 +118,49 @@
         </div>
         <div class="ddp-fix-size">
           <table class="ddp-table-form ddp-table-type3">
-          <colgroup>
-            <col width="*">
+            <colgroup>
+              <col width="*">
 
-            <col width="190px">
-            <col width="100px">
-            <col width="90px">
-            <col width="96px">
-          </colgroup>
-          <thead>
-          <tr>
-            <th>
-              {{'msg.statistics.th.query' | translate}}
-            </th>
-            <th>
-              {{'msg.statistics.th.query.time' | translate}}
-            </th>
-            <th>
-              {{'msg.statistics.th.user' | translate}}
-            </th>
-            <th>
-              {{'msg.statistics.th.result' | translate}}
-            </th>
-            <th>
-              {{'msg.statistics.th.elapsed.time' | translate}}
-            </th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr *ngFor="let data of queryLists.countQueryTimeList" (click)="auditDetailOpen(data.id)">
-            <td class="ddp-hover-tooltip" >
-              <span class="ddp-txt-long">{{data.jobName}}</span>
-              <div class="ddp-ui-tooltip-info ddp-down">
-                <em class="ddp-icon-view-top"></em>
-                {{data.jobName}}
-              </div>
-            </td>
-            <td>
-              <span class="ddp-txt-long">{{data.startTime | mdate: 'YYYY-MM-DD HH:mm'}}</span>
-            </td>
-            <td>
-              <span class="ddp-txt-long">{{data.user}}</span>
-            </td>
-            <td>
+              <col width="190px">
+              <col width="100px">
+              <col width="90px">
+              <col width="96px">
+            </colgroup>
+            <thead>
+            <tr>
+              <th>
+                {{'msg.statistics.th.query' | translate}}
+              </th>
+              <th>
+                {{'msg.statistics.th.query.time' | translate}}
+              </th>
+              <th>
+                {{'msg.statistics.th.user' | translate}}
+              </th>
+              <th>
+                {{'msg.statistics.th.result' | translate}}
+              </th>
+              <th>
+                {{'msg.statistics.th.elapsed.time' | translate}}
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let data of queryLists.countQueryTimeList" (click)="auditDetailOpen(data.id)">
+              <td class="ddp-hover-tooltip" >
+                <span class="ddp-txt-long">{{data.jobName}}</span>
+                <div class="ddp-ui-tooltip-info ddp-down">
+                  <em class="ddp-icon-view-top"></em>
+                  {{data.jobName}}
+                </div>
+              </td>
+              <td>
+                <span class="ddp-txt-long">{{data.startTime | mdate: 'YYYY-MM-DD HH:mm'}}</span>
+              </td>
+              <td>
+                <span class="ddp-txt-long">{{data.user}}</span>
+              </td>
+              <td>
               <span class="ddp-data-state"
                     [class.ddp-fail]="data.status && data.status.toString() === 'FAIL'"
                     [class.ddp-success]="data.status && data.status.toString() === 'SUCCESS'"
@@ -168,15 +168,15 @@
                     [class.ddp-cancelled]="data.status && data.status.toString() === 'CANCELLED'">
                 {{data.status}}
               </span>
-            </td>
-            <td>
-              <span class="ddp-txt-long">{{convertMilliseconds(data.elapsedTime)}}</span>
-            </td>
-          </tr>
+              </td>
+              <td>
+                <span class="ddp-txt-long">{{convertMilliseconds(data.elapsedTime)}}</span>
+              </td>
+            </tr>
 
-          </tbody>
+            </tbody>
 
-        </table>
+          </table>
           <div class="ddp-nodata" *ngIf="queryLists.countQueryTimeList.length === 0">{{'msg.storage.ui.no.data' | translate}}</div>
         </div>
       </div>
@@ -189,35 +189,35 @@
         </div>
         <div class="ddp-fix-size">
           <table class="ddp-table-form ddp-table-type3 ddp-cursor-none">
-          <colgroup>
-            <col width="*">
-            <col width="98px">
-          </colgroup>
-          <thead>
-          <tr>
-            <th>
-              {{'msg.statistics.th.query' | translate}}
-            </th>
-            <th>
-              {{'msg.statistics.th.count' | translate}}
-            </th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr *ngFor="let data of queryLists.countSuccessList">
-            <td class="ddp-hover-tooltip" >
-              <span class="ddp-txt-long">{{data.keyword}}</span>
-              <div class="ddp-ui-tooltip-info ddp-down">
-                <em class="ddp-icon-view-top"></em>
-                {{data.keyword}}
-              </div>
-            </td>
-            <td>
-              <span class="ddp-txt-long">{{data.count}}</span>
-            </td>
-          </tr>
-          </tbody>
-        </table>
+            <colgroup>
+              <col width="*">
+              <col width="98px">
+            </colgroup>
+            <thead>
+            <tr>
+              <th>
+                {{'msg.statistics.th.query' | translate}}
+              </th>
+              <th>
+                {{'msg.statistics.th.count' | translate}}
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let data of queryLists.countSuccessList">
+              <td class="ddp-hover-tooltip" >
+                <span class="ddp-txt-long">{{data.keyword}}</span>
+                <div class="ddp-ui-tooltip-info ddp-down">
+                  <em class="ddp-icon-view-top"></em>
+                  {{data.keyword}}
+                </div>
+              </td>
+              <td>
+                <span class="ddp-txt-long">{{data.count}}</span>
+              </td>
+            </tr>
+            </tbody>
+          </table>
           <div class="ddp-nodata" *ngIf="queryLists.countSuccessList.length === 0">{{'msg.storage.ui.no.data' | translate}}</div>
         </div>
       </div>
@@ -235,50 +235,50 @@
         </div>
         <div class="ddp-fix-size">
           <table class="ddp-table-form ddp-table-type3">
-          <colgroup>
-            <col width="*">
-            <col width="190px">
-            <col width="100px">
-            <col width="90px">
-            <col width="96px">
-          </colgroup>
-          <thead>
-          <tr>
-            <th>
-              {{'msg.statistics.th.query' | translate}}
-            </th>
-            <th>
-              {{'msg.statistics.th.query.time' | translate}}
-            </th>
-            <th>
-              {{'msg.statistics.th.user' | translate}}
-            </th>
-            <th>
-              {{'msg.statistics.th.result' | translate}}
-            </th>
-            <th>
-              {{'msg.statistics.th.row.count' | translate}}
-            </th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr *ngFor="let data of queryLists.countNumRowsList" (click)="auditDetailOpen(data.id)">
-            <td class="ddp-hover-tooltip" >
-              <span class="ddp-txt-long">{{data.jobName}}</span>
-              <div class="ddp-ui-tooltip-info ddp-down">
-                <em class="ddp-icon-view-top"></em>
-                {{data.jobName}}
-              </div>
-            </td>
-            <td>
-              <span class="ddp-txt-long">{{data.startTime | mdate: 'YYYY-MM-DD HH:mm'}}</span>
-            </td>
-            <td>
+            <colgroup>
+              <col width="*">
+              <col width="190px">
+              <col width="100px">
+              <col width="90px">
+              <col width="96px">
+            </colgroup>
+            <thead>
+            <tr>
+              <th>
+                {{'msg.statistics.th.query' | translate}}
+              </th>
+              <th>
+                {{'msg.statistics.th.query.time' | translate}}
+              </th>
+              <th>
+                {{'msg.statistics.th.user' | translate}}
+              </th>
+              <th>
+                {{'msg.statistics.th.result' | translate}}
+              </th>
+              <th>
+                {{'msg.statistics.th.row.count' | translate}}
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let data of queryLists.countNumRowsList" (click)="auditDetailOpen(data.id)">
+              <td class="ddp-hover-tooltip" >
+                <span class="ddp-txt-long">{{data.jobName}}</span>
+                <div class="ddp-ui-tooltip-info ddp-down">
+                  <em class="ddp-icon-view-top"></em>
+                  {{data.jobName}}
+                </div>
+              </td>
+              <td>
+                <span class="ddp-txt-long">{{data.startTime | mdate: 'YYYY-MM-DD HH:mm'}}</span>
+              </td>
+              <td>
               <span class="ddp-txt-long">
               {{data.user}}
               </span>
-            </td>
-            <td>
+              </td>
+              <td>
               <span class="ddp-data-state"
                     [class.ddp-fail]="data.status && data.status.toString() === 'FAIL'"
                     [class.ddp-success]="data.status && data.status.toString() === 'SUCCESS'"
@@ -286,13 +286,13 @@
                     [class.ddp-cancelled]="data.status && data.status.toString() === 'CANCELLED'">
                 {{data.status}}
               </span>
-            </td>
-            <td>
-              <span class="ddp-txt-long">{{data.numRows | numberCommas}}</span>
-            </td>
-          </tr>
-          </tbody>
-        </table>
+              </td>
+              <td>
+                <span class="ddp-txt-long">{{data.numRows | numberCommas}}</span>
+              </td>
+            </tr>
+            </tbody>
+          </table>
           <div class="ddp-nodata" *ngIf="queryLists.countNumRowsList.length === 0">{{'msg.storage.ui.no.data' | translate}}</div>
         </div>
       </div>
@@ -305,34 +305,34 @@
         </div>
         <div class="ddp-fix-size">
           <table class="ddp-table-form ddp-table-type3 ddp-cursor-none">
-          <colgroup>
-            <col width="*">
-            <col width="98px">
-          </colgroup>
-          <thead>
-          <tr>
-            <th>
-              {{'msg.statistics.th.query' | translate}}
-            </th>
-            <th>
-              {{'msg.statistics.th.count' | translate}}
-            </th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr *ngFor="let data of queryLists.countFailList">
-            <td class="ddp-hover-tooltip" >
-              <span class="ddp-txt-long">{{data.keyword}}</span>
-              <div class="ddp-ui-tooltip-info ddp-down">
-                <em class="ddp-icon-view-top"></em>
-                {{data.keyword}}
-              </div>
-            </td>
-            <td>
-              <span class="ddp-txt-long">{{data.count}}</span>
-            </td>
-          </tr>
-          </tbody>
+            <colgroup>
+              <col width="*">
+              <col width="98px">
+            </colgroup>
+            <thead>
+            <tr>
+              <th>
+                {{'msg.statistics.th.query' | translate}}
+              </th>
+              <th>
+                {{'msg.statistics.th.count' | translate}}
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let data of queryLists.countFailList">
+              <td class="ddp-hover-tooltip" >
+                <span class="ddp-txt-long">{{data.keyword}}</span>
+                <div class="ddp-ui-tooltip-info ddp-down">
+                  <em class="ddp-icon-view-top"></em>
+                  {{data.keyword}}
+                </div>
+              </td>
+              <td>
+                <span class="ddp-txt-long">{{data.count}}</span>
+              </td>
+            </tr>
+            </tbody>
 
           </table>
           <div class="ddp-nodata" *ngIf="queryLists.countFailList.length === 0">{{'msg.storage.ui.no.data' | translate}}</div>
@@ -342,7 +342,7 @@
     </div>
     <!-- //clear -->
 
-    <div class="ddp-clear">
+    <div class="ddp-clear" *ngIf="queryLists.totalMemoryUsageList.length !== 0">
       <!-- col -->
       <div class="ddp-col-6">
         <div class="ddp-data-title">
@@ -355,116 +355,116 @@
             <col width="190px">
             <col width="80px">
             <col width="96px">
-          </colgroup>
-          <thead>
-          <tr>
-            <th>
-              {{'msg.statistics.th.query' | translate}}
-            </th>
-            <th>
-              {{'msg.log.th.application.id' | translate}}
-            </th>
-            <th>
-              {{'msg.log.th.queue' | translate}}
-            </th>
-            <th>
-              {{'msg.statistics.th.memory' | translate}}
-              <div class="ddp-wrap-hover-info">
-                <em class="ddp-icon-info3"></em>
-                <!-- popup -->
-                <div class="ddp-box-layout4">
-                  <div class="ddp-data-det">
-                    Memory unit is MB.
+            </colgroup>
+            <thead>
+            <tr>
+              <th>
+                {{'msg.statistics.th.query' | translate}}
+              </th>
+              <th>
+                {{'msg.log.th.application.id' | translate}}
+              </th>
+              <th>
+                {{'msg.log.th.queue' | translate}}
+              </th>
+              <th>
+                {{'msg.statistics.th.memory' | translate}}
+                <div class="ddp-wrap-hover-info">
+                  <em class="ddp-icon-info3"></em>
+                  <!-- popup -->
+                  <div class="ddp-box-layout4">
+                    <div class="ddp-data-det">
+                      Memory unit is MB.
+                    </div>
                   </div>
+                  <!-- //popup -->
                 </div>
-                <!-- //popup -->
-              </div>
-            </th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr *ngFor="let data of queryLists.totalMemoryUsageList" (click)="auditDetailOpen(data.id)">
-            <td class="ddp-hover-tooltip" >
-              <span class="ddp-txt-long">{{data.query}}</span>
-              <div class="ddp-ui-tooltip-info ddp-down">
-                <em class="ddp-icon-view-top"></em>
-                {{data.query}}
-              </div>
-            </td>
-            <td><span class="ddp-txt-long">{{data.applicationId || '-' }}</span></td>
-            <td><span class="ddp-txt-long">{{data.queue || '-' }}</span></td>
-            <td><span class="ddp-txt-long">{{data.incrementMemorySeconds || '-'  | numberCommas}}</span></td>
-          </tr>
-          </tbody>
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let data of queryLists.totalMemoryUsageList" (click)="auditDetailOpen(data.id)">
+              <td class="ddp-hover-tooltip" >
+                <span class="ddp-txt-long">{{data.query}}</span>
+                <div class="ddp-ui-tooltip-info ddp-down">
+                  <em class="ddp-icon-view-top"></em>
+                  {{data.query}}
+                </div>
+              </td>
+              <td><span class="ddp-txt-long">{{data.applicationId || '-' }}</span></td>
+              <td><span class="ddp-txt-long">{{data.queue || '-' }}</span></td>
+              <td><span class="ddp-txt-long">{{data.incrementMemorySeconds || '-'  | numberCommas}}</span></td>
+            </tr>
+            </tbody>
 
-        </table>
+          </table>
           <div class="ddp-nodata" *ngIf="queryLists.totalMemoryUsageList.length === 0">{{'msg.storage.ui.no.data' | translate}}</div>
         </div>
       </div>
       <!-- //col -->
       <!-- col -->
-      <div class="ddp-col-6">
+      <div class="ddp-col-6" *ngIf="queryLists.totalCPUUsageList.length !== 0">
         <div class="ddp-data-title">
           {{'msg.statistics.th.total.cpu.usage' | translate }}
           <a href="javascript:" class="ddp-more" *ngIf="queryLists.totalCPUUsageList.length !== 0" (click)="openPopupDetail({name : 'msg.statistics.th.total.cpu.usage', label :'incrementVcoreSeconds', arrayList : 'totalCPUUsageList'},{name : 'incrementVcoreSeconds', size : 15 , sort : 'desc'})">{{'msg.comm.ui.more' | translate}}</a>
         </div>
         <div class="ddp-fix-size">
           <table class="ddp-table-form ddp-table-type3">
-          <colgroup>
-            <col width="*">
-            <col width="190px">
-            <col width="80px">
-            <col width="96px">
-          </colgroup>
-          <thead>
-          <tr>
-            <th>
-              {{'msg.statistics.th.query' | translate}}
-            </th>
-            <th>
-              {{'msg.log.th.application.id' | translate}}
-            </th>
-            <th>
-              {{'msg.log.th.queue' | translate}}
-            </th>
-            <th>
-              {{'msg.statistics.th.cpu' | translate}}
-              <div class="ddp-wrap-hover-info">
-                <em class="ddp-icon-info3"></em>
-                <!-- popup -->
-                <div class="ddp-box-layout4">
-                  <div class="ddp-data-det">
-                    CPU unit is vCore. vCore means virtual core
+            <colgroup>
+              <col width="*">
+              <col width="190px">
+              <col width="80px">
+              <col width="96px">
+            </colgroup>
+            <thead>
+            <tr>
+              <th>
+                {{'msg.statistics.th.query' | translate}}
+              </th>
+              <th>
+                {{'msg.log.th.application.id' | translate}}
+              </th>
+              <th>
+                {{'msg.log.th.queue' | translate}}
+              </th>
+              <th>
+                {{'msg.statistics.th.cpu' | translate}}
+                <div class="ddp-wrap-hover-info">
+                  <em class="ddp-icon-info3"></em>
+                  <!-- popup -->
+                  <div class="ddp-box-layout4">
+                    <div class="ddp-data-det">
+                      CPU unit is vCore. vCore means virtual core
+                    </div>
                   </div>
+                  <!-- //popup -->
                 </div>
-                <!-- //popup -->
-              </div>
-            </th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr *ngFor="let data of queryLists.totalCPUUsageList" (click)="auditDetailOpen(data.id)">
-            <td class="ddp-hover-tooltip" >
-              <span class="ddp-txt-long">{{data.query}}</span>
-              <div class="ddp-ui-tooltip-info ddp-down">
-                <em class="ddp-icon-view-top"></em>
-                {{data.query}}
-              </div>
-            </td>
-            <td><span class="ddp-txt-long">{{data.applicationId || '-' }}</span></td>
-            <td><span class="ddp-txt-long">{{data.queue || '-' }}</span></td>
-            <td><span class="ddp-txt-long">{{data.incrementVcoreSeconds || '-'  | numberCommas}}</span></td>
-          </tr>
-          </tbody>
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let data of queryLists.totalCPUUsageList" (click)="auditDetailOpen(data.id)">
+              <td class="ddp-hover-tooltip" >
+                <span class="ddp-txt-long">{{data.query}}</span>
+                <div class="ddp-ui-tooltip-info ddp-down">
+                  <em class="ddp-icon-view-top"></em>
+                  {{data.query}}
+                </div>
+              </td>
+              <td><span class="ddp-txt-long">{{data.applicationId || '-' }}</span></td>
+              <td><span class="ddp-txt-long">{{data.queue || '-' }}</span></td>
+              <td><span class="ddp-txt-long">{{data.incrementVcoreSeconds || '-'  | numberCommas}}</span></td>
+            </tr>
+            </tbody>
 
-        </table>
+          </table>
           <div class="ddp-nodata" *ngIf="queryLists.totalCPUUsageList.length === 0">{{'msg.storage.ui.no.data' | translate}}</div>
         </div>
       </div>
       <!-- //col -->
     </div>
 
-    <div class="ddp-clear">
+    <div class="ddp-clear" *ngIf="queryLists.resourceList.length !== 0">
       <!-- col -->
       <div class="ddp-col-6">
         <div class="ddp-data-title">
@@ -473,63 +473,63 @@
         </div>
         <div class="ddp-fix-size">
           <table class="ddp-table-form ddp-table-type3 ddp-cursor-none">
-          <colgroup>
-            <col width="*">
-            <col width="30%">
-            <col width="30%">
-          </colgroup>
-          <thead>
-          <tr>
-            <th>
-              {{'msg.log.th.queue' | translate}}
-            </th>
-            <th>
-              {{'msg.statistics.th.mem.usage' | translate}}
-              <div class="ddp-wrap-hover-info">
-                <em class="ddp-icon-info3"></em>
-                <!-- popup -->
-                <div class="ddp-box-layout4">
-                  <div class="ddp-data-det">
-                    Memory unit is MB.
+            <colgroup>
+              <col width="*">
+              <col width="30%">
+              <col width="30%">
+            </colgroup>
+            <thead>
+            <tr>
+              <th>
+                {{'msg.log.th.queue' | translate}}
+              </th>
+              <th>
+                {{'msg.statistics.th.mem.usage' | translate}}
+                <div class="ddp-wrap-hover-info">
+                  <em class="ddp-icon-info3"></em>
+                  <!-- popup -->
+                  <div class="ddp-box-layout4">
+                    <div class="ddp-data-det">
+                      Memory unit is MB.
+                    </div>
                   </div>
+                  <!-- //popup -->
                 </div>
-                <!-- //popup -->
-              </div>
-            </th>
-            <th>
-              {{'msg.statistics.th.cpu.usage' | translate}}
-              <div class="ddp-wrap-hover-info">
-                <em class="ddp-icon-info3"></em>
-                <!-- popup -->
-                <div class="ddp-box-layout4">
-                  <div class="ddp-data-det">
-                    CPU unit is vCore. vCore means virtual core
+              </th>
+              <th>
+                {{'msg.statistics.th.cpu.usage' | translate}}
+                <div class="ddp-wrap-hover-info">
+                  <em class="ddp-icon-info3"></em>
+                  <!-- popup -->
+                  <div class="ddp-box-layout4">
+                    <div class="ddp-data-det">
+                      CPU unit is vCore. vCore means virtual core
+                    </div>
                   </div>
+                  <!-- //popup -->
                 </div>
-                <!-- //popup -->
-              </div>
-            </th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr  *ngFor="let data of queryLists.resourceList">
-            <td class="ddp-hover-tooltip" >
-              <span class="ddp-txt-long">{{data.keyword}}</span>
-              <div class="ddp-ui-tooltip-info ddp-down">
-                <em class="ddp-icon-view-top"></em>
-                {{data.keyword}}
-              </div>
-            </td>
-            <td>
-              <span class="ddp-txt-long">{{data.sumMemorySeconds || '-' | numberCommas}}</span>
-            </td>
-            <td>
-              <span class="ddp-txt-long">{{data.sumVCoreSeconds || '-' | numberCommas}}</span>
-            </td>
-          </tr>
-          </tbody>
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr  *ngFor="let data of queryLists.resourceList">
+              <td class="ddp-hover-tooltip" >
+                <span class="ddp-txt-long">{{data.keyword}}</span>
+                <div class="ddp-ui-tooltip-info ddp-down">
+                  <em class="ddp-icon-view-top"></em>
+                  {{data.keyword}}
+                </div>
+              </td>
+              <td>
+                <span class="ddp-txt-long">{{data.sumMemorySeconds || '-' | numberCommas}}</span>
+              </td>
+              <td>
+                <span class="ddp-txt-long">{{data.sumVCoreSeconds || '-' | numberCommas}}</span>
+              </td>
+            </tr>
+            </tbody>
 
-        </table>
+          </table>
           <div class="ddp-nodata" *ngIf="queryLists.resourceList.length === 0">{{'msg.storage.ui.no.data' | translate}}</div>
         </div>
       </div>
@@ -542,8 +542,8 @@
 
 <!-- audit 디테일 페이지 -->
 <!--<app-job-detail *ngIf="mode==='detail-job-log'"-->
-                <!--[setAuditId]="selectedId"-->
-                <!--(close)="mode=''"></app-job-detail>-->
+<!--[setAuditId]="selectedId"-->
+<!--(close)="mode=''"></app-job-detail>-->
 <app-log-statistics-detail *ngIf="isDetailPopupOpen"
                            (closeOutput)="closeDetail()"
                            [statisticsData]="statisticsData"

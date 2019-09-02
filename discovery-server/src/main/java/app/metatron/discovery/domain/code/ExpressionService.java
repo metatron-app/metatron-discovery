@@ -37,17 +37,22 @@ public class ExpressionService {
 
   @PostConstruct
   public void setup() {
-    CommonsCsvProcessor commonsCsvProcessor = new CommonsCsvProcessor();
-    commonsCsvProcessor.detectingCharset(getClass().getClassLoader()
-                                                   .getResourceAsStream("templates/expression/expressions.csv"));
-    commonsCsvProcessor = commonsCsvProcessor
-        .withHeader(true)
-        .maxRowCount(143L)
-        .parse(",");
+    try {
+      CommonsCsvProcessor commonsCsvProcessor = new CommonsCsvProcessor();
+      commonsCsvProcessor.setStreamReader(getClass().getClassLoader()
+                                                    .getResourceAsStream("templates/expression/expressions.csv"), "UTF-8");
 
-    IngestionDataResultResponse resultResponse = commonsCsvProcessor.ingestionDataResultResponse();
+      commonsCsvProcessor = commonsCsvProcessor
+          .withHeader(true)
+          .maxRowCount(143L)
+          .parse(",");
 
-    commonCodeList = Arrays.asList(GlobalObjectMapper.readValue(GlobalObjectMapper.writeValueAsString(resultResponse.getData()), CommonCode[].class));
+      IngestionDataResultResponse resultResponse = commonsCsvProcessor.ingestionDataResultResponse();
+
+      commonCodeList = Arrays.asList(GlobalObjectMapper.readValue(GlobalObjectMapper.writeValueAsString(resultResponse.getData()), CommonCode[].class));
+    } catch (Exception e) {
+      LOGGER.error(e.getMessage());
+    }
 
   }
 

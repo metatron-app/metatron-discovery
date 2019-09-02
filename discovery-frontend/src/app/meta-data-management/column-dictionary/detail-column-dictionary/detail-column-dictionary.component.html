@@ -19,13 +19,21 @@
     <div class="ddp-wrap-navi">
       <a href="javascript:" class="ddp-btn-back" (click)="onClickPrevButton()"></a>
       <!-- navi -->
-      <div class="ddp-ui-naviarea ">
+      <div class="ddp-ui-naviarea">
         <!-- name -->
-        <!-- 클릭시 ddp-selected 추가 -->
-        <div class="ddp-box-navi ddp-">
-          <!-- 상세 내용이 없을 경우 ddp-full 추가 -->
-          <div class="ddp-wrap-naviname">
-            <span class="ddp-data-naviname ddp-readonly">{{columnDictionary.logicalName}}</span>
+        <div class="ddp-box-navi" [ngClass]="{'ddp-selected' : logicalNameEditFl}" (clickOutside)="logicalNameEditFl = false">
+          <div class="ddp-wrap-naviname" (click)="changeLogicalNameMode()">
+              <span class="ddp-data-naviname">{{columnDictionary.logicalName}}
+                <em class="ddp-icon-edit2"></em></span>
+          </div>
+          <div class="ddp-wrap-input">
+            <component-input
+              [value]="reLogicalName"
+              [inputClass]="'ddp-input-navi'"
+              [placeHolder]="'msg.comm.ui.create.name' | translate"
+              (changeValue)="onChangedSourceLogicalName($event)">
+            </component-input>
+            <span class="ddp-btn-check" (click)="onClickUpdateLogicalName()"></span>
           </div>
         </div>
         <!-- //name -->
@@ -96,34 +104,6 @@
         <tbody>
         <tr>
           <th>
-            {{'msg.metadata.ui.dictionary.create.column.name' | translate}}
-          </th>
-          <td>
-            <!-- 클릭시 ddp-selected 추가 -->
-            <div class="ddp-txt-edit" [class.ddp-selected]="logicalNameEditFl" (clickOutside)="logicalNameEditFl = false">
-              <!-- data -->
-              <span class="ddp-data-name" (click)="onChangeLogicalNameMode()">
-              {{columnDictionary.logicalName}}
-                <em class="ddp-icon-edit2"></em>
-            </span>
-              <!-- //data -->
-
-              <!-- edit -->
-              <div class="ddp-wrap-input">
-                <component-input
-                  [compType]="'default'"
-                  [value]="reLogicalName"
-                  [placeHolder]="'msg.metadata.ph.dictionary.create.column.name' | translate"
-                  (changeValue)="reLogicalName = $event; onClickUpdateLogicalName();">
-                </component-input>
-                <span class="ddp-btn-check" (click)="onClickUpdateLogicalName()"></span>
-              </div>
-              <!-- //edit -->
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <th>
             {{'msg.metadata.ui.dictionary.create.recommendation.column.name' | translate}}
           </th>
           <td>
@@ -187,19 +167,18 @@
               <span class="ddp-data-name"
                     [class.ddp-data-none]="!description"
                     (click)="onChangeDescMode()">
-              <span [innerHtml]="description && description.length > 0 ? description : ('msg.metadata.ui.codetable.detail.used.column.dictionary.no.description' | translate)"></span>
-              <em class="ddp-icon-edit2"></em>
-            </span>
+                <span [innerHtml]="description && description.length > 0 ? description : ('msg.metadata.ui.codetable.detail.used.column.dictionary.no.description' | translate)"></span>
+                <em class="ddp-icon-edit2"></em>
+              </span>
               <!-- //data -->
               <!-- edit -->
-              <div class="ddp-wrap-input">
+              <div class="ddp-wrap-input sys-desc-input">
                 <component-input
-                  [compType]="'default'"
+                  [compType]="'apply'"
                   [value]="reDesc"
                   [placeHolder]="'msg.comm.ui.create.desc' | translate"
-                  (changeValue)="reDesc = $event; onClickUpdateDescription();">
+                  (changeValue)="onClickUpdateDescription($event);" >
                 </component-input>
-                <span class="ddp-btn-check" (click)="onClickUpdateDescription()"></span>
               </div>
               <!-- //edit -->
             </div>
