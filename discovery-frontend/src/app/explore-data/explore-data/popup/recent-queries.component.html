@@ -8,13 +8,13 @@
     <em class="ddp-btn-popup-close" (click)="closePopup()"></em>
   </div>
   <!-- //top -->
-  <!-- cpmtemts -->
-  <div class="ddp-ui-preview-contents ">
-    <table class="ddp-table-form ddp-table-type3">
+  <!--  if sourceType is ENGINE(dataSource)    -->
+  <div class="ddp-ui-preview-contents">
+    <table class="ddp-table-form ddp-table-type3" *ngIf="recentlyQueriesForDataSource.length > 0">
       <colgroup>
         <col width="15%">
-        <col width="15%">
-        <col width="20%">
+        <col width="10%">
+        <col width="10%">
         <col width="150px">
         <col width="*">
       </colgroup>
@@ -28,7 +28,7 @@
       </tr>
       </thead>
       <!--  if sourceType is ENGINE(dataSource)    -->
-      <tbody *ngIf="recentlyQueriesForDataSource">
+      <tbody >
       <tr *ngFor="let recentQuery of recentlyQueriesForDataSource">
         <td>{{ recentQuery.createdTime | mdate:'YYYY-MM-DD HH:mm:ss' }}</td>
         <td>{{ recentQuery.queryType }}</td>
@@ -42,12 +42,29 @@
         </td>
       </tr>
       <!--  if sourceType is ENGINE(dataSource)    -->
-      <!--  if sourceType is JDBC(database)    -->
-      </tbody>
-      <tbody *ngIf="recentlyQueriesForDataBase">
+    </table>
+  </div>
+
+  <!--  if sourceType is JDBC(database) || StageDB    -->
+  <div class="ddp-ui-preview-contents" *ngIf="recentlyQueriesForDataBase.length > 0">
+    <table class="ddp-table-form ddp-table-type3">
+      <colgroup>
+        <col width="15%">
+        <col width="10%">
+        <col width="150px">
+        <col width="*">
+      </colgroup>
+      <thead>
+      <tr>
+        <th>Date</th>
+        <th>User</th>
+        <th>Result</th>
+        <th>Query</th>
+      </tr>
+      </thead>
+      <tbody>
       <tr *ngFor="let recentQuery of recentlyQueriesForDataBase">
         <td>{{ recentQuery['createdTime'] | mdate:'YYYY-MM-DD HH:mm:ss'}}</td>
-        <td>Type</td>
         <td>{{ recentQuery['createdBy']['fullName'] }}</td>
         <td> <span class="ddp-data-state" [ngClass]="recentQuery.queryResultStatus === 'SUCCESS' ? 'ddp-success' : 'ddp-fail'">{{ recentQuery.queryResultStatus === 'SUCCESS'? 'Success' : 'Fail' }}</span></td>
         <td>
@@ -58,9 +75,11 @@
         </td>
       </tr>
       </tbody>
-      <!--  if sourceType is JDBC(database)    -->
     </table>
 
   </div>
+  <!--  if sourceType is JDBC(database)    -->
+
+
   <!-- //cpmtemts -->
 </div>
