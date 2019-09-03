@@ -160,11 +160,15 @@
                     <input type="text" class="ddp-input-txt" placeholder="{{'msg.storage.ui.crontab.ph' | translate}}"
                            [ngModel]="cronText"
                            (ngModelChange)="cronText = $event; cronValidationResult = null"
-                           (keypress)="onKeyPressCronText($event)">
+                           (keypress)="onKeyPressCronText($event)"
+                           (focusout)="cronValidation()">
                     <em class="ddp-icon-apply" (click)="cronValidation()"></em>
                   </div>
                   <div class="ddp-txt-error" *ngIf="cronValidationResult === false">
                     <em class="ddp-icon-error-s"></em>{{cronValidationMessage}}
+                  </div>
+                  <div class="ddp-ui-message" *ngIf="cronValidationResult === true">
+                    <span class="ddp-data-ok"><em class="ddp-icon-ok"></em>{{'msg.storage.ui.cron.valid' | translate}}</span>
                   </div>
                 </ng-container>
                 <!-- //crontab (EXPR) -->
