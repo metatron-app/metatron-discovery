@@ -162,6 +162,7 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
 
     // get workspaces which contains keyword(newWorkspaceName)
     this.workspaceService.getSharedWorkspaces('forListView', this.params).then(workspaces => {
+      // check if embedded is exist
       if (workspaces['_embedded']) {
         this.sharedWorkspaceList = workspaces['_embedded']['workspaces'];
 
@@ -172,6 +173,8 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
             return true;
           }
         });
+      } else {
+        this.isInvalidName = false;
       }
     }).catch(() => {
         Alert.error(this.translateService.instant('msg.space.alert.retrieve'));
