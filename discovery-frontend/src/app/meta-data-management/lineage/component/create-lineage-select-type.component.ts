@@ -42,7 +42,6 @@ export class CreateLineageSelectTypeComponent extends AbstractPopupComponent imp
 
   // 생성자
   constructor(private popupService: PopupService,
-              private datasetService : DatasetService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 

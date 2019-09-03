@@ -26,11 +26,13 @@
   <!-- contents in  -->
   <div class="ddp-type-contents-in ddp-full">
     <div class="ddp-box-popupcontents type-file">
-      <!--
-      <div class="ddp-box-sample-download">
-        <span>You must complete the file type correctly before you can register it. Please refer to the sample file.</span>
+      <div class="ddp-box-synch type-info">
+        <div class="ddp-txt-synch">
+          <em class="ddp-icon-info2"></em>
+          You must complete the file type correctly before you can register it. Please refer to the sample file.
+        </div>
+        <a href="javascript:" class="ddp-link" (click)="downloadSample();"><em class="ddp-icon-download2 type-download"></em>Download Sample</a>
       </div>
-      -->
 
       <!-- file create -->
       <div class="ddp-box-file-create ddp-file-single">
@@ -64,13 +66,6 @@
       </div>
       <!-- //file create -->
       <!-- synch -->
-      <div class="ddp-box-synch type-info">
-        <div class="ddp-txt-synch">
-          <em class="ddp-icon-info2"></em>
-          You must complete the file type correctly before you can register it. Please refer to the sample file.
-        </div>
-        <a href="javascript:" class="ddp-link" (click)="downloadSample();"><em class="ddp-icon-download2 type-download"></em>Download Sample</a>
-      </div>
       <div class="ddp-box-synch type-error" [ngStyle]="{'visibility': errorView?'visible':'hidden'}">
         <div class="ddp-txt-synch">
           <em class="ddp-icon-info"></em>{{errorMsg}}

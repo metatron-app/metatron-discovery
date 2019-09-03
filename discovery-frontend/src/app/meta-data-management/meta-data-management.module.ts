@@ -30,6 +30,7 @@ import {DetailLineageComponent} from './lineage/detail-lineage/detail-lineage.co
 import {LineageService} from './lineage/service/lineage.service';
 import {EditLineagePopup} from './lineage/component/edit-lineage-popup.component';
 import {CreateLineageComponent} from './lineage/component/create-lineage.component';
+import {CreateLineageSelectTypeComponent} from './lineage/component/create-lineage-select-type.component';
 import {CreateLineageUploadFileComponent} from './lineage/component/create-lineage-upload-file.component';
 import {CreateLineageConfirmGridComponent} from './lineage/component/create-lineage-confirm-grid.component';
 
@@ -106,6 +107,7 @@ import {LayoutModule} from "../layout/layout/layout.module";
     DetailLineageComponent,
     EditLineagePopup,
     CreateLineageComponent,
+    CreateLineageSelectTypeComponent,
     CreateLineageUploadFileComponent,
     CreateLineageConfirmGridComponent,
     SelectCatalogComponent,

@@ -44,8 +44,6 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
   @ViewChild('previewGrid')
   private gridComponent: GridComponent;
 
-  private isWell: boolean;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -59,6 +57,8 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
 
   @Input()
   public step: string;
+
+  public isWell: boolean;
 
   public errorView: boolean = false;
   public errorMsg: string = null;
