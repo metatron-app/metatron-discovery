@@ -29,6 +29,7 @@ export class CriterionComponent extends AbstractComponent {
 
   @Input()
   public readonly criterionApiFunc;
+
   // used criterion list
   public usedCriterionList: Criteria.ListCriterion[];
   // extension criterion list
@@ -60,7 +61,6 @@ export class CriterionComponent extends AbstractComponent {
     // if exist extension criterion list in criterion list param
     if (!_.isNil(extensionCriterion)) {
       this._extensionCriterionList = _.cloneDeep(extensionCriterion.subCriteria);
-      this.changedFilter.emit();
     }
     // if exist default filters
     if (!_.isNil(criterionResult.defaultFilters) && criterionResult.defaultFilters.length > 0) {
