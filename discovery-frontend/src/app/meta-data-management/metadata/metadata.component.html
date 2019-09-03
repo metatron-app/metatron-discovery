@@ -87,11 +87,11 @@
   </div>
   <table class="ddp-table-form ddp-table-line" *ngIf="metadatas && metadatas.length > 0">
     <colgroup>
-      <col width="100px">
+      <col width="120px">
       <col width="*">
       <col width="150px">
       <col width="150px">
-      <col width="250px">
+      <col width="200px">
     </colgroup>
     <thead>
     <tr>
@@ -126,9 +126,6 @@
         </div>
       </th>
       <th>
-        {{'msg.storage.ui.criterion.modifier' | translate}}
-      </th>
-      <th>
         {{'msg.comm.th.updated' | translate}}
       </th>
     </tr>
@@ -161,10 +158,7 @@
         </div>
       </td>
       <td>
-        <span class="ddp-txt-long" title="{{metadata?.modifiedBy?.fullName}}" [innerHTML]="getMetadataCreator(metadata?.modifiedBy?.fullName)"></span>
-      </td>
-      <td>
-        {{metadata.modifiedTime | mdate: 'YYYY-MM-DD HH:mm'}}
+        {{ metadata.modifiedTime | mdate:'YYYY-MM-DD HH:mm' }} by {{ metadata.modifiedBy.fullName }}
         <div class="ddp-btn-control" *ngIf="METADATA_SOURCE_TYPE.ENGINE !== metadata.sourceType">
           <em class="ddp-icon-control-cut" (click)="confirmDelete($event,metadata)"></em>
         </div>
