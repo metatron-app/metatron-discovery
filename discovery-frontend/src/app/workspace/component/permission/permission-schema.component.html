@@ -74,7 +74,7 @@
       </td>
       <!-- // User Role -->
       <!-- Set Default Role -->
-      <td (click)="clickDefaultRole( role )">
+      <td (click)="clickDefaultRole(idx)">
         <span *ngIf="!editMode && role.defaultRole" class="ddp-select-role"></span>
         <label *ngIf="editMode" class="ddp-label-radio2">
           <input name="checkDefaultRole" type="radio" [disabled]="!editMode" [checked]="role.defaultRole">
@@ -156,7 +156,7 @@
       <td *ngIf="editMode">
         <a (click)="removeRole(idx)"
            (mouseenter)="role['hover'] = true" (mouseleave)="role['hover'] = false"
-           href="javascript:" class="ddp-delete" ></a>
+           href="javascript:" class="ddp-delete" *ngIf="!role.defaultRole"></a>
       </td>
     </tr>
     <tr *ngIf="editMode">
