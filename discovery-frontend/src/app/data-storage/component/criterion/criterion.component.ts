@@ -29,6 +29,7 @@ export class CriterionComponent extends AbstractComponent {
 
   @Input()
   public readonly criterionApiFunc;
+
   // used criterion list
   public usedCriterionList: Criteria.ListCriterion[];
   // extension criterion list
@@ -54,25 +55,12 @@ export class CriterionComponent extends AbstractComponent {
    * @param {{criteria: Criteria.ListCriterion[]; defaultFilters: Criteria.ListFilter[]}} criterionResult
    */
   public initCriterionList(criterionResult: Criteria.Criterion): void {
-
-    // add source type in default criteria
-    criterionResult.criteria.push(criterionResult.criteria[4].subCriteria[2]);
-
-    // remove source type criterion in MORE subcriteria
-    criterionResult.criteria[4].subCriteria.slice(2);
     // set used criterion list
     this.usedCriterionList = _.cloneDeep(criterionResult.criteria);
-
     const extensionCriterion = this.usedCriterionList.find(filter => filter.criterionKey === Criteria.ListCriterionKey.MORE && !_.isNil(filter.subCriteria));
     // if exist extension criterion list in criterion list param
     if (!_.isNil(extensionCriterion)) {
       this._extensionCriterionList = _.cloneDeep(extensionCriterion.subCriteria);
-
-      this._extensionCriterionList.reduce(([], extensionCriterion) => {
-        return extensionCriterion.criterionKey !== "SOURCE_TYPE" ?  extensionCriterion : null;
-      });
-
-      this.changedFilter.emit();
     }
     // if exist default filters
     if (!_.isNil(criterionResult.defaultFilters) && criterionResult.defaultFilters.length > 0) {
@@ -167,7 +155,6 @@ export class CriterionComponent extends AbstractComponent {
    */
   public isExtensionCriterion(criterion: Criteria.ListCriterion): boolean {
     // do not allow remove source type from default criterion
-    if (criterion.criterionKey === "SOURCE_TYPE") return false;
     return this._extensionCriterionList.findIndex(extensionCriterion => extensionCriterion.criterionKey === criterion.criterionKey) !== -1;
   }
 
