@@ -155,7 +155,6 @@ export class CriterionComponent extends AbstractComponent {
    */
   public isExtensionCriterion(criterion: Criteria.ListCriterion): boolean {
     // do not allow remove source type from default criterion
-    if (criterion.criterionKey === "SOURCE_TYPE") return false;
     return this._extensionCriterionList.findIndex(extensionCriterion => extensionCriterion.criterionKey === criterion.criterionKey) !== -1;
   }
 
