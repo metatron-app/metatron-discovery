@@ -3,7 +3,7 @@
   <!-- Edit data -->
   <div class="ddp-data-form">
     <span class="ddp-txt-date">
-      {{ this.translateService.instant('msg.metadata.ui.recent.update', { modifiedTime: metadata.modifiedTime, modifiedBy: metadata.modifiedBy.fullName }) }}
+      {{ 'msg.metadata.metadata.detail.ui.recent.update' | translate }} {{ metadata.modifiedTime | mdate:'YYYY-MM-DD HH:mm' }} by {{ metadata.modifiedBy.fullName }}
     </span>
 
     <!-- more -->
@@ -14,7 +14,7 @@
       <div class="ddp-data-box">
         <a *ngIf="!isEngineSource" (click)="deleteMetadata()" href="javascript:" class="ddp-list-link"><em class="ddp-icon-delete"></em>{{ 'msg.metadata.metadata.detail.ui.delete.metadata' | translate }}</a>
         <span class="ddp-data-by">
-          {{ this.translateService.instant('msg.metadata.ui.recent.update', { modifiedTime: metadata.modifiedTime, modifiedBy: metadata.modifiedBy.fullName }) }}
+          {{ 'msg.metadata.metadata.detail.ui.created.at' | translate }} {{ metadata.createdTime | mdate:'YYYY-MM-DD HH:mm' }} by {{ metadata.modifiedBy.fullName }}
         </span>
       </div>
       <!-- //popup -->

@@ -4172,6 +4172,8 @@
   "msg.metadata.metadata.detail.ui.database" : "데이터베이스",
   "msg.metadata.metadata.detail.ui.owner" : "소유자",
   "msg.metadata.metadata.detail.ui.create.time" : "생성 시간",
+  "msg.metadata.metadata.detail.ui.recent.update" : "최근 업데이트",
+  "msg.metadata.metadata.detail.ui.created.at" : "생성 시간",
   "msg.metadata.metadata.detail.ui.last.access.time" : "최근 접근 시간",
   "msg.metadata.metadata.detail.ui.retention" : "보유",
   "msg.metadata.metadata.detail.ui.location" : "장소",

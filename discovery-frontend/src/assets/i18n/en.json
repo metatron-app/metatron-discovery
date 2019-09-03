@@ -4170,6 +4170,8 @@
   "msg.metadata.metadata.detail.ui.database" : "Database",
   "msg.metadata.metadata.detail.ui.owner" : "Owner",
   "msg.metadata.metadata.detail.ui.create.time" : "CreateTime",
+  "msg.metadata.metadata.detail.ui.created.at" : "Created at",
+  "msg.metadata.metadata.detail.ui.recent.update" : "Recent Update",
   "msg.metadata.metadata.detail.ui.last.access.time" : "LastAccessTime",
   "msg.metadata.metadata.detail.ui.retention" : "Retention",
   "msg.metadata.metadata.detail.ui.location" : "Location",
@@ -4208,9 +4210,10 @@
   "msg.metadata.metadata.detail.ui.table.comment" : "Table Comment",
   "msg.metadata.metadata.detail.ui.delete.metadata" : "Delete this metadata",
   "msg.metadata.metadata.detail.ui.alert.metadata.modified" : "Metadata modified",
-  "msg.metadata.ui.recent.update": "Recent Update '{{modifiedTime}}' by '{{modifiedBy}}'",
+
   "msg.catalog.alert.catalog.already.exists" : "Catalog already exists",
   "msg.catalog.alert.catalog.create.success" : "'{{value}}' catalog is created.",
+
 
   "msg.explore.ui.title" : "Explore Data",
   "msg.explore.ui.tab.catalogs" : "Catalogs",

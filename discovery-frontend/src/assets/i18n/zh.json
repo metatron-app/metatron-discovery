@@ -3225,6 +3225,8 @@
   "msg.metadata.metadata.detail.ui.database" : "Database",
   "msg.metadata.metadata.detail.ui.owner" : "Owner",
   "msg.metadata.metadata.detail.ui.create.time" : "CreateTime",
+  "msg.metadata.metadata.detail.ui.created.at" : "Created at",
+  "msg.metadata.metadata.detail.ui.recent.update" : "Recent Update",
   "msg.metadata.metadata.detail.ui.last.access.time" : "LastAccessTime",
   "msg.metadata.metadata.detail.ui.retention" : "Retention",
   "msg.metadata.metadata.detail.ui.location" : "Location",
