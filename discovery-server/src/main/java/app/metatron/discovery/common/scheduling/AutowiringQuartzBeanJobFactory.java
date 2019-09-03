@@ -21,10 +21,9 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 
 /**
- * Created by kyungtaak on 2016. 8. 13..
+ * Enable to inject @autowired annotation within 'Quartz' job class
  */
-public class AutowiringSpringBeanJobFactory extends SpringBeanJobFactory
-        implements ApplicationContextAware {
+public class AutowiringQuartzBeanJobFactory extends SpringBeanJobFactory implements ApplicationContextAware {
 
   private transient AutowireCapableBeanFactory beanFactory;
 
@@ -34,8 +33,7 @@ public class AutowiringSpringBeanJobFactory extends SpringBeanJobFactory
   }
 
   @Override
-  protected Object createJobInstance(final TriggerFiredBundle bundle)
-          throws Exception {
+  protected Object createJobInstance(final TriggerFiredBundle bundle) throws Exception {
     final Object job = super.createJobInstance(bundle);
     beanFactory.autowireBean(job);
     return job;

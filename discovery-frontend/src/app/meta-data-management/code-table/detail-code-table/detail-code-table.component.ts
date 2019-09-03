@@ -47,9 +47,6 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
   // 삭제 컴포넌트
   @ViewChild(DeleteModalComponent)
   private _deleteComp: DeleteModalComponent;
-  // 확인 컴포넌트
-  @ViewChild(ConfirmModalComponent)
-  private _confirmComp: ConfirmModalComponent;
   // 연결된 컬럼 사전 전체목록 컴포넌트
   @ViewChild(LinkedColumnDictionaryComponent)
   private _linkedColumnDictionaryComp: LinkedColumnDictionaryComponent;
@@ -70,6 +67,8 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
   public linkedDictionaryList: ColumnDictionary[] = [];
   // 연결된 컬럼사전 목록 수
   public linkedDictionaryTotalCount: number = 0;
+  // Code list modified flag
+  public isCodeListModified: boolean = false;
 
   // re name
   public reName: string = '';
@@ -152,20 +151,6 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
   }
 
   /**
-   * 확인 이벤트 핸들러
-   * @param {Modal} modal
-   */
-  public confirmHandler(modal: Modal): void {
-    // 코드 테이블 업데이트
-    switch (modal.data) {
-      case 'CODE':
-        // 코드 테이블 업데이트
-        this._updateCodesInCodeTable();
-        return;
-    }
-  }
-
-  /**
    * 코드 테이블 쌍이 하나 이상인지
    * @returns {boolean}
    */
@@ -242,6 +227,9 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
     this.codeList.splice(_.findIndex(this.codeList, (item) => {
       return item === code;
     }), 1);
+
+    // check if codeList is modified
+    this.checkIfCodeListModified();
   }
 
   /**
@@ -249,13 +237,37 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
    */
   public onClickAddCode(): void {
     this.codeList.push(new CodeValuePair());
+    this.isCodeListModified = true;
+  }
+
+  /**
+   * Check if code list is modified
+   */
+  public checkIfCodeListModified() {
+    this.isCodeListModified = false;
+
+    // if length of _originCodeList and codeList is different => set flag true
+    if (this.codeList.length !== this._originCodeList.length) {
+      this.isCodeListModified = true;
+      return;
+    } else if (this.codeList.length === this._originCodeList.length) {
+      // check if something is changed
+      for (let i = 0; i < this.codeList.length; i++) {
+        if (this.codeList[i].code !== this._originCodeList[i].code || this.codeList[i].value !== this._originCodeList[i].value) {
+          this.isCodeListModified = true;
+        }
+      }
+    }
   }
 
   /**
    * 이전 코드 테이블로 되돌리기
    */
   public onClickResetCodeTable(): void {
-    this.codeList = _.cloneDeep(this._originCodeList);
+    if (this.isCodeListModified) {
+      this.codeList = _.cloneDeep(this._originCodeList);
+      this.isCodeListModified = false;
+    }
   }
 
   /**
@@ -263,16 +275,12 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
    */
   public onClickSaveCodeTable(): void {
     // code list validation
-    if (this._codeListValidation()) {
-      const modal: Modal = new Modal();
-      modal.name = this.translateService.instant('msg.comm.ui.confirm.title');
-      modal.description = this.translateService.instant('msg.comm.ui.confirm.desc');
-      modal.btnName = this.translateService.instant('msg.comm.btn.confirm.done');
-      modal.btnCancel = this.translateService.instant('msg.comm.btn.confirm.cancel');
-      // code
-      modal.data = 'CODE';
-      // 확인 컴포넌트 열기
-      this._confirmComp.init(modal);
+    if (this._codeListValidation() && this.isCodeListModified) {
+      this.isCodeListModified = false;
+
+      // update code table
+      this._updateCodesInCodeTable();
+      return;
     }
   }
 
@@ -336,9 +344,14 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
   /**
    * code table validation init
    * @param {CodeValuePair} pair
+   * @param {number} index
    */
-  public onKeypressCodePair(pair: CodeValuePair): void {
+  public onChangeCodePair(pair: CodeValuePair, index: number): void {
     pair['invalid'] && (pair['invalid'] = null);
+    this.codeList[index].code = pair.code;
+    this.codeList[index].value = pair.value;
+
+    this.checkIfCodeListModified();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

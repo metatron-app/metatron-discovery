@@ -12,15 +12,24 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, Input, OnDestroy, OnInit, HostListener } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { RoleSet } from '../../../domain/user/role/roleSet';
-import { Role } from 'app/domain/user/role/role';
-import { PermissionService } from '../../../user/service/permission.service';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit
+} from '@angular/core';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {RoleSet} from '../../../domain/user/role/roleSet';
+import {Role} from 'app/domain/user/role/role';
+import {PermissionService} from '../../../user/service/permission.service';
 import * as _ from 'lodash';
-import { CommonUtil } from 'app/common/util/common.util';
-import { WORKSPACE_PERMISSION } from 'app/common/permission/permission';
+import {CommonUtil} from 'app/common/util/common.util';
+import {WORKSPACE_PERMISSION} from 'app/common/permission/permission';
 import {isNullOrUndefined} from "util";
+import {Alert} from "../../../common/util/alert.util";
 
 @Component({
   selector: 'app-permission-schema',
@@ -215,10 +224,10 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
    * defaultRole 체크 클릭 ( 수정모드일때만 동작 )
    * @param {Role} selectedRole
    */
-  public clickDefaultRole(selectedRole: Role) {
+  public clickDefaultRole(idx: number) {
     if (this.editMode) {
-      this.editRoleSet.roles.forEach(item => {
-        item.defaultRole = (item.name === selectedRole.name);
+      this.editRoleSet.roles.forEach((item, index) => {
+        item.defaultRole = (index === idx);
       });
     }
   } // function - clickDefaultRole
@@ -245,6 +254,7 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
           roles[idx]['error'] = true;
           this.errorMsg = errMsg;
           this.loadingHide();
+          Alert.fail(this.translateService.instant('msg.comm.alert.error'));
           return Promise.reject(errMsg);
         }
         if (prevName === roles[idx].name.trim()) {
@@ -253,6 +263,7 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
           roles[idx]['error'] = true;
           this.errorMsg = errMsg;
           this.loadingHide();
+          Alert.fail(this.translateService.instant('msg.comm.alert.error'));
           return Promise.reject(errMsg);
         }
         if (!roles[idx].permissionNames || 1 > roles[idx].permissionNames.length) {
@@ -261,6 +272,7 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
           roles[idx]['error'] = true;
           this.errorMsg = errMsg;
           this.loadingHide();
+          Alert.fail(this.translateService.instant('msg.comm.alert.error'));
           return Promise.reject(errMsg);
         }
 
@@ -271,12 +283,14 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
         const errMsg: string = this.translateService.instant('msg.permission.alert.require-default');
         this.errorMsg = errMsg;
         this.loadingHide();
+        Alert.fail(this.translateService.instant('msg.comm.alert.error'));
         return Promise.reject(errMsg);
       }
     } else {
       const errMsg: string = this.translateService.instant('msg.permission.alert.require-role');
       this.errorMsg = errMsg;
       this.loadingHide();
+      Alert.fail(this.translateService.instant('msg.comm.alert.error'));
       return Promise.reject(errMsg);
     }
 

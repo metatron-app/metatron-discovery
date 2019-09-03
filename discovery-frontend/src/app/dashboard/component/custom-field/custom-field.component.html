@@ -201,7 +201,7 @@
                     <div *ngFor="let category of calculationCategory
                     | baseFilter : ['commonCodeNm', 'ALL', true]
                     | baseFilter : ['commonCode', selectedCategory.commonCode]"
-                         class="ddp-ui-dropdown ddp-selected">
+                         class="ddp-ui-dropdown ddp-selected" [style.display]="checkCategory(category['calculationFunctions'])">
                       <span class="ddp-list-name" (click)="clickCategory($event)">{{category.commonCodeNm}}</span>
                       <ul class="ddp-list-typebasic ddp-typeplus ddp-view">
                         <li *ngFor="let calFunction of category['calculationFunctions']
