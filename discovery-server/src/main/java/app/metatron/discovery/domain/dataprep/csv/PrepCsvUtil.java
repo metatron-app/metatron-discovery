@@ -5,6 +5,8 @@ import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import com.ibm.icu.text.CharsetDetector;
+import com.ibm.icu.text.CharsetMatch;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -19,6 +21,7 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
@@ -79,6 +82,19 @@ public class PrepCsvUtil {
     return reader;
   }
 
+  private static InputStreamReader getReaderWithCharset(InputStream is, String strUri, String charset) {
+    InputStreamReader reader;
+
+    try {
+      reader = new InputStreamReader(is, charset);
+    } catch (IOException e) {
+      e.printStackTrace();
+      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_READ_CSV,
+              String.format("%s (charset: %s)", strUri, charset));
+    }
+
+    return reader;
+  }
 
   private static char getUnescapedDelimiter(String strDelim) {
     assert strDelim.length() != 0;
@@ -95,6 +111,36 @@ public class PrepCsvUtil {
     throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_DELIMITER, HADOOP_CONF_DIR);
   }
 
+  // Almost same to CommonsCsvProcessor.detectingCharset()
+  // We have to unify both codes.
+  private static String detectingCharset(InputStream is, String strUri) {
+
+    CharsetDetector detector;
+    CharsetMatch match;
+
+    try {
+      byte[] byteData = new byte[is.available()];
+      is.read(byteData);
+      is.close();
+
+      detector = new CharsetDetector();
+
+      detector.setText(byteData);
+      match = detector.detect();
+      String charset = match.getName();
+
+      if (!Charset.isSupported(charset)) {
+        throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
+                PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_CHARSET, charset);
+      }
+
+      return charset;
+    } catch (IOException e) {
+      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
+              PrepMessageKey.MSG_DP_ALERT_FAILED_TO_READ_CSV, strUri);
+    }
+
+  }
 
   /**
    * @param strUri      URI as String (to be java.net.URI)
@@ -112,6 +158,7 @@ public class PrepCsvUtil {
     PrepCsvParseResult result = new PrepCsvParseResult();
     Reader reader;
     URI uri;
+    String charset;
 
     LOGGER.debug("PrepCsvUtil.parse(): strUri={} strDelim={} conf={}", strUri, strDelim, conf);
 
@@ -140,6 +187,7 @@ public class PrepCsvUtil {
         }
 
         FSDataInputStream his;
+        FSDataInputStream dhis;
         try {
           if (onlyCount) {
             ContentSummary cSummary = hdfsFs.getContentSummary(path);
@@ -147,12 +195,14 @@ public class PrepCsvUtil {
           }
 
           his = hdfsFs.open(path);
+          dhis = hdfsFs.open(path);
         } catch (IOException e) {
           e.printStackTrace();
           throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_HDFS_PATH, strUri);
         }
 
-        reader = getReaderAfterDetectingCharset(his, strUri);
+        charset = detectingCharset(dhis, strUri);
+        reader = getReaderWithCharset(his, strUri, charset);
         break;
 
       case "file":
@@ -162,14 +212,17 @@ public class PrepCsvUtil {
         }
 
         FileInputStream fis;
+        FileInputStream dfis;
         try {
           fis = new FileInputStream(file);
+          dfis = new FileInputStream(file);
         } catch (FileNotFoundException e) {
           e.printStackTrace();
           throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, strUri);
         }
 
-        reader = getReaderAfterDetectingCharset(fis, strUri);
+        charset = detectingCharset(dfis, strUri);
+        reader = getReaderWithCharset(fis, strUri, charset);
         break;
 
       default:
