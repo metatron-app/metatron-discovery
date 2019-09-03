@@ -338,7 +338,13 @@ public class LineageEdgeController {
   ) {
     try {
       String downloadFileName="lineage_sample.csv";
-      String csv = new String("frMetaName, toMetaName, desc\nmeta A, meta B, A to B");
+      String csv = new String( "frMetaName,toMetaName,desc\n"
+          + "activity_stream,audit,cherry-pick\n"
+          + "datasource,common_code,control\n"
+          + "datasource,dashboard,serve\n"
+          + "dashboard,activity_stream,log\n"
+          + "common_code,activity_stream,log");
+
       response.getOutputStream().print(csv);
 
       response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", downloadFileName));
