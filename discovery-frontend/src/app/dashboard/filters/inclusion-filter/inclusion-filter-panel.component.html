@@ -15,6 +15,7 @@
 <!-- 상단 영역 -->
 <div class="ddp-ui-divide">
   <div class="ddp-ui-down-title2 ddp-flex" [attr.data-gl-dragsource]="isDraggable ? 'enable' : 'disable'"
+       [class.ddp-selected]="isNewFilter"
        [ngStyle]="!isDashboardMode ? { cursor : 'default' } : {}">
 
     <!-- 필드 이름 표시 영역 -->
@@ -156,7 +157,7 @@
         <!-- //popup -->
       </div>
     </div>
-    
+
     <div class="ddp-no-result" *ngIf="pageCandidateList == null || pageCandidateList.length == 0">
       <div class="ddp-wrap-info" *ngIf="isOverCandidateWarning">
         <div class="ddp-ui-info">

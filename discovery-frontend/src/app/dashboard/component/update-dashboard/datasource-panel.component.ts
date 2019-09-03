@@ -376,6 +376,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
     } else {  // 추가
       field.useFilter = true;
 
+      this.showDatasourcePanel = false;
       // 시간일 경우
       if (field.logicalType === LogicalType.TIMESTAMP) {
         this.onUpdateFilter.emit(FilterUtil.getTimeAllFilter(field));
@@ -491,30 +492,32 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
       this._setUseChart(this._totalFields);
       this._setUseFilter(this._totalFields);
 
-      const dsList = this.dashboard.dataSources;
-      const currentEngineName = this.dataSource.engineName;
-      const associations
-        = this.dashboard.configuration.dataSource.associations
-        .filter( item => item.source === currentEngineName || item.target === currentEngineName );
-      if( associations && 0 < associations.length ) {
-        this._totalFields.forEach( field => {
-          associations.forEach( ass => {
-            const colPairKeys:string[] = Object.keys( ass.columnPair );
-            if( currentEngineName === ass.source ) {
-              const pairKey = colPairKeys.find( item => field.name === item );
-              if( pairKey ) {
-                ( field['assInfo'] ) || ( field['assInfo'] = [] );
-                field['assInfo'].push(  dsList.find( ds => ds.engineName === ass.target ).name + ' : ' + ass.columnPair[pairKey] );
+      if( this.dashboard.configuration.dataSource.associations ) {
+        const dsList = this.dashboard.dataSources;
+        const currentEngineName = this.dataSource.engineName;
+        const associations
+          = this.dashboard.configuration.dataSource.associations
+          .filter( item => item.source === currentEngineName || item.target === currentEngineName );
+        if( associations && 0 < associations.length ) {
+          this._totalFields.forEach( field => {
+            associations.forEach( ass => {
+              const colPairKeys:string[] = Object.keys( ass.columnPair );
+              if( currentEngineName === ass.source ) {
+                const pairKey = colPairKeys.find( item => field.name === item );
+                if( pairKey ) {
+                  ( field['assInfo'] ) || ( field['assInfo'] = [] );
+                  field['assInfo'].push(  dsList.find( ds => ds.engineName === ass.target ).name + ' : ' + ass.columnPair[pairKey] );
+                }
+              } else if( currentEngineName === ass.target ) {
+                const pairItem = colPairKeys.find( item => field.name === ass.columnPair[item] );
+                if( pairItem ) {
+                  ( field['assInfo'] ) || ( field['assInfo'] = [] );
+                  field['assInfo'].push(  dsList.find( ds => ds.engineName === ass.source ).name + ' : ' + pairItem );
+                }
               }
-            } else if( currentEngineName === ass.target ) {
-              const pairItem = colPairKeys.find( item => field.name === ass.columnPair[item] );
-              if( pairItem ) {
-                ( field['assInfo'] ) || ( field['assInfo'] = [] );
-                field['assInfo'].push(  dsList.find( ds => ds.engineName === ass.source ).name + ' : ' + pairItem );
-              }
-            }
-          })
-        });
+            })
+          });
+        }
       }
 
       this.dimensionFields = _.cloneDeep(this._totalFields.filter(item => item.role !== FieldRole.MEASURE));
