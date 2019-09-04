@@ -265,7 +265,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
       if(fileName===null) {
         fileName = this.snapshot.storedUri.substring(slashIndex+1);
       }
-      let replacedFileName = fileName.replace(/[^\w_.가-힣]/gi, "_");
+      let replacedFileName = fileName.replace(/[^\w_.ㄱ-힣]/gi, "_");
 
       this.snapshot.storedUri = this.snapshot.storedUri.substring(0,slashIndex+1) + replacedFileName;
     }
