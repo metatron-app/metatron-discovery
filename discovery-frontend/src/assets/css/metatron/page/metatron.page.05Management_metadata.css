@@ -133,4 +133,4 @@
 .ddp-lineage-create .ddp-box-upload {display:table-row;text-align:center;}
 .ddp-lineage-create .ddp-box-file-create.ddp-file-single .ddp-file-progress {display:table-cell;vertical-align:middle;text-align:center;}
 .ddp-lineage-create .ddp-box-default {display:table-cell;}
-.ddp-lineage-create .ddp-data-filename {display:inline; margin:10px;}
+.ddp-lineage-create .ddp-data-filename {display:inline-block; margin:10px;}
