@@ -8871,7 +8871,9 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
 .ddp-box-banner .ddp-ui-banner-link.type-banner03 {background:url(../images/bg_banner03.png) no-repeat; background-size:100% 100%;}
 .ddp-box-banner .ddp-ui-banner-link.type-banner04 {background:url(../images/bg_banner04.png) no-repeat; background-size:100% 100%;}
 .ddp-box-banner .ddp-ui-banner-link.type-banner05 {background:url(../images/bg_banner05.png) no-repeat; background-size:100% 100%;}
-.ddp-box-banner .ddp-banner-list [class*="ddp-ui-banner-link"] .ddp-banner-title {position:relative; padding-left:66px;}
+.ddp-box-banner .ddp-banner-list [class*="ddp-ui-banner-link"] .ddp-banner-title {position:relative; padding:0 10px 0 66px;width:100%; box-sizing:border-box;}
+
+.ddp-box-banner .ddp-banner-list [class*="ddp-ui-banner-link"] .ddp-banner-title .ddp-txt-data {display:block; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
 .ddp-box-banner .ddp-banner-list .ddp-banner-title [class*="ddp-data-images"] {display:inline-block;position:absolute; top:50%; left:29px; margin-top:-16px;}
 
 .ddp-box-banner .ddp-banner-list .ddp-banner-title [class*="ddp-data-images"].type-svg {background:none;}

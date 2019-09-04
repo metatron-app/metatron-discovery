@@ -3,7 +3,10 @@
     <span class="ddp-data-images type-svg" [ngClass]="iconClass">
       <component-metadata-svg [iconClass]="iconClass"></component-metadata-svg>
     </span>
-    {{title}}
+    <span class="ddp-txt-data">
+      {{title}}
+    </span>
+
   </div>
   <div class="ddp-txt-detail" *ngIf="isEnableDescription" [innerHTML]="description"></div>
   <div class="ddp-banner-tags" *ngIf="isEnableTag">
