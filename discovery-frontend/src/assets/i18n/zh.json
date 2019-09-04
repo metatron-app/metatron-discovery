@@ -2119,7 +2119,7 @@
   "msg.storage.ui.criterion.all": "ALL",
   "msg.storage.ui.criterion.search": "Search {{value}}",
   "msg.storage.ui.criterion.open-data": "Open Data",
-  "msg.storage.ui.criterion.modified-time": "Modified time",
+  "msg.storage.ui.criterion.modified-time": "Updated time",
   "msg.storage.ui.criterion.auth-type": "Security",
   "msg.storage.ui.criterion.implementor": "DB type",
   "msg.storage.ui.source.type.volatility": "Volatility",

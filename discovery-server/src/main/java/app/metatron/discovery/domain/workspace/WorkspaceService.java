@@ -672,6 +672,35 @@ public class WorkspaceService {
               : builder.andAnyOf(workspace.published.isNull(), workspace.published.isFalse());
     }
 
+    BooleanExpression memberIn = workspace.id
+        .in(JPAExpressions.select(workspace.id)
+                          .from(workspace)
+                          .innerJoin(workspace.members)
+                          .where(workspace.members.any().memberId.in(targets)));
+    if (myWorkspace != null) {
+      if(published == null) {
+        if(myWorkspace) {
+          builder.and(pOwnerEq);
+        } else {
+          builder.andAnyOf(memberIn, workspace.published.isTrue());
+        }
+      } else {
+        builder.and(pOwnerEq);
+        builder.and(pPublished);
+
+        if(!myWorkspace) {
+          builder.and(memberIn);
+        }
+      }
+    } else {
+      if (published == null) {
+        builder.andAnyOf(memberIn, workspace.ownerId.eq(username), workspace.published.isTrue());
+      } else {
+        builder.and(pPublished);
+      }
+
+    }
+
     if (onlyFavorite) {
       BooleanExpression favorite = workspace.id
               .in(JPAExpressions.select(workspace.id)
@@ -685,36 +714,6 @@ public class WorkspaceService {
 
       if (published != null) {
         builder.and(pPublished);
-      }
-    } else {
-
-      BooleanExpression memberIn = workspace.id
-              .in(JPAExpressions.select(workspace.id)
-                      .from(workspace)
-                      .innerJoin(workspace.members)
-                      .where(workspace.members.any().memberId.in(targets)));
-      if (myWorkspace != null) {
-        if(published == null) {
-          if(myWorkspace) {
-            builder.and(pOwnerEq);
-          } else {
-            builder.andAnyOf(memberIn, workspace.published.isTrue());
-          }
-        } else {
-          builder.and(pOwnerEq);
-          builder.and(pPublished);
-
-          if(!myWorkspace) {
-            builder.and(memberIn);
-          }
-        }
-      } else {
-        if (published == null) {
-          builder.andAnyOf(memberIn, workspace.ownerId.eq(username), workspace.published.isTrue());
-        } else {
-          builder.and(pPublished);
-        }
-
       }
     }
 

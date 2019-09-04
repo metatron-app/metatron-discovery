@@ -225,21 +225,14 @@ public class DataConnectionFilterService {
         criterion.addFilter(new ListFilter(criterionKey, "workspace",
                 myWorkspace.getId(), myWorkspace.getName()));
 
-        //owner public workspace not published
-        List<Workspace> ownerPublicWorkspaces
-            = workspaceService.getPublicWorkspaces(false, true, false, null);
-        for(Workspace workspace : ownerPublicWorkspaces){
+        //member public workspace not published
+        List<Workspace> memberPublicWorkspaces
+            = workspaceService.getPublicWorkspaces(false, null, null, null);
+        for(Workspace workspace : memberPublicWorkspaces){
           criterion.addFilter(new ListFilter(criterionKey, "workspace",
                                              workspace.getId(), workspace.getName()));
         }
 
-        //member public workspace not published
-        List<Workspace> memberPublicWorkspaces
-                = workspaceService.getPublicWorkspaces(false, false, false, null);
-        for(Workspace workspace : memberPublicWorkspaces){
-          criterion.addFilter(new ListFilter(criterionKey, "workspace",
-                  workspace.getId(), workspace.getName()));
-        }
         break;
       default:
         break;
