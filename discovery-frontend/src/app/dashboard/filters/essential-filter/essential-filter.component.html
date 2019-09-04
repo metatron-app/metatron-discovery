@@ -14,7 +14,7 @@
 
 <div class="ddp-layout-popuptype" >
   <em class="ddp-bg-popup"></em>
-  <div class="ddp-ui-popup ddp-ui-popup-join">
+  <div *ngIf="0 < essentialFilters.length" class="ddp-ui-popup ddp-ui-popup-join">
     <!-- 상단 제목/버튼 영역 -->
     <div class="ddp-ui-popup-title">
       <span class="ddp-txt-title-name">
@@ -73,7 +73,6 @@
     <!-- // 목록 영역 -->
   </div>
 </div>
-
 
 <!-- 데이터소스 생성 진행 프로그레스 표시 영역 -->
 <div *ngIf="isShowProgress" class="ddp-wrap-loading" style="z-index: 140;">

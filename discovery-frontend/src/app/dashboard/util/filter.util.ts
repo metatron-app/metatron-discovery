@@ -69,6 +69,7 @@ export class FilterUtil {
    */
   public static getPanelContentsList(filterList: Filter[], dashboard: Dashboard, inclusionFilterFunc: Function) {
     filterList.forEach((filter: Filter) => {
+      filter['dsName'] = dashboard.dataSources.find( item => item.engineName === filter.dataSource ).name;
       filter['fieldObj'] = DashboardUtil.getFieldByName(dashboard, filter.dataSource, filter.field, filter.ref);
       if ('include' === filter.type) {
         (inclusionFilterFunc) && (inclusionFilterFunc(<InclusionFilter>filter, filter['fieldObj']));

@@ -242,6 +242,7 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
    */
   public changeTab(tabName: Tab) {
     this.selectedTab = tabName;
+    this.safelyDetectChanges();
     (Tab.PREVIEW === tabName) && (this._loadGridData());
   } // function - changeTab
 
@@ -265,13 +266,15 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
 
   /**
    * Grid Row 설정
-   * @param {number} event
+   * @param {number} inputRowNum
    */
-  public setGridRow(event: number) {
-    // Row 설정
-    this.rowNum = event;
-    // 조회
-    this._loadGridData();
+  public setGridRow(inputRowNum: number) {
+    if( Number(inputRowNum) !== this.rowNum ) {
+      // Row 설정
+      this.rowNum = Number(inputRowNum);
+      // 조회
+      this._loadGridData();
+    }
   } // function - setGridRow
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

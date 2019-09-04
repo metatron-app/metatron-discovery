@@ -690,15 +690,15 @@
     <!-- Create Buttons -->
     <div class="ddp-bottom-right">
       <a *ngIf="permissionChecker && permissionChecker.isWriteWorkbook()"
-         draggable="false" href="javascript:" class="ddp-btn-solid2 ddp-dark" (click)="createWorkbook()">
+         draggable="false" href="javascript:" class="ddp-btn-solid2 ddp-bg-black" (click)="createWorkbook()">
         <em class="ddp-icon-btnplus"></em>{{'msg.space.btn.workbook' | translate}}
       </a>
       <a *ngIf="isSetNotebookServer && permissionChecker && permissionChecker.isWriteNotebook()"
-         draggable="false" href="javascript:" class="ddp-btn-solid2 ddp-dark" (click)="createNotebook()">
+         draggable="false" href="javascript:" class="ddp-btn-solid2 ddp-bg-black" (click)="createNotebook()">
         <em class="ddp-icon-btnplus"></em>{{'msg.space.btn.notebook' | translate}}
       </a>
       <a *ngIf="permissionChecker && permissionChecker.isWriteWorkbench()"
-         draggable="false" href="javascript:" class="ddp-btn-solid2 ddp-dark" (click)="createWorkbench()">
+         draggable="false" href="javascript:" class="ddp-btn-solid2 ddp-bg-black" (click)="createWorkbench()">
         <em class="ddp-icon-btnplus"></em>{{'msg.space.btn.workbench' | translate}}
       </a>
     </div>

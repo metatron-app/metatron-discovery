@@ -80,6 +80,7 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
   public isRelativeType: boolean = false;         // Relative Time Filter
   public isRangeType: boolean = false;            // Range Time Filter
   public isListType: boolean = false;             // List Time Filter
+  public isNewFilter:boolean = false;
 
   @Input('filter')
   public originalFilter: TimeFilter;
@@ -113,6 +114,16 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
     super.ngAfterViewInit();
     // 컴포넌트 초기화
     this._initialize(this.originalFilter);
+
+    if( this.originalFilter['isNew'] ) {
+      this.isNewFilter = true;
+      this.safelyDetectChanges();
+      delete this.originalFilter['isNew'];
+      setTimeout( () => {
+        this.isNewFilter = false;
+        this.safelyDetectChanges();
+      }, 1500 );
+    }
 
     // 위젯에서 필터를 업데이트 popup은 아니지만 동일한 기능이 필요해서 popupService를 사용
     const popupSubscribe = this.popupService.filterView$.subscribe((data: SubscribeArg) => {
