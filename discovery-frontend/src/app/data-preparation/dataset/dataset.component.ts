@@ -268,7 +268,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
     const modal = new Modal();
     modal.name = this.translateService.instant('msg.comm.ui.del.description');
     modal.description = this.translateService.instant('msg.dp.alert.ds.del.description');
-    modal.btnName = this.translateService.instant('msg.comm.btn.modal.done');
+    modal.btnName = this.translateService.instant('msg.comm.ui.confirm');
 
     this.selectedDeletedsId = dataset.dsId;
     this.deleteModalComponent.init(modal);
