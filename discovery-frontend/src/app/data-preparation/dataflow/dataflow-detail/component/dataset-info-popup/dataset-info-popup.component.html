@@ -71,19 +71,20 @@
 
     <div class="ddp-databuttons ddp-clear" *ngIf="selectedDataSet.dsType && selectedDataSet.dsType.toString()=== 'IMPORTED'">
       <div class="ddp-col-6">
-        <a href="javascript:" class="ddp-btn-line ddp-full" (click)="dataSwap('imported')">
+        <a href="javascript:" class="ddp-btn-line ddp-full" title="{{'msg.dp.ui.swap.dataset' | translate }}" (click)="dataSwap('imported')">
           {{'msg.dp.ui.swap.dataset' | translate }}
         </a>
       </div>
       <div class="ddp-col-6">
         <a href="javascript:"
            class="ddp-btn-solid ddp-bg-black ddp-full"
+           style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;"
+           title="{{'msg.dp.btn.new.ds' | translate}}"
            (click)="datasetEventHandler.emit()">
           {{'msg.dp.btn.new.ds' | translate}}
         </a>
       </div>
     </div>
-
 
     <!-- 클릭시 ddp-selected 추가 -->
     <div class="ddp-more"
