@@ -112,7 +112,7 @@
           {{ 'msg.metadata.metadata.detail.ui.description' | translate }}
         </th>
         <td>
-          <div *ngIf="metadata.description === '' " class="ddp-data-none">{{ 'msg.metadata.metadata.detail.ui.no.description' | translate }}</div>
+          <div *ngIf="descriptionChangeText === ''" class="ddp-data-none">{{ 'msg.metadata.metadata.detail.ui.no.description' | translate }}</div>
           <div class="ddp-edit-description" [ngClass]="{'ddp-edit': isEditDescription}">
             <!-- data -->
             <div class="ddp-data-description">
@@ -149,12 +149,20 @@
             {{ dataType }}
           </td>
         </tr>
-        <tr *ngIf="metadata.sourceType === sourceType.ENGINE">
+        <tr *ngIf="metadata.sourceType === sourceType.ENGINE && metadata.source.source !== undefined">
           <th>
             {{ 'msg.metadata.metadata.detail.ui.status' | translate }}
           </th>
           <td>
             <span class="{{ statusClass }}" > {{ metadata.source.source.status }} </span>
+          </td>
+        </tr>
+        <tr *ngIf="metadata.sourceType === sourceType.ENGINE && metadata.source.source === undefined">
+          <th>
+            {{ 'msg.metadata.metadata.detail.ui.status' | translate }}
+          </th>
+          <td>
+            <span class="{{ statusClass }}" > Undefined </span>
           </td>
         </tr>
         <tr>

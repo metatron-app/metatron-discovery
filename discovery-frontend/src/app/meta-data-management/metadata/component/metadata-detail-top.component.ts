@@ -52,6 +52,11 @@ export class MetadataDetailTopComponent extends AbstractComponent implements OnI
         this.editDescription = metadata.description;
       })
     );
+
+    // if editDescription is undefined
+    if (this.editDescription === undefined) {
+      this.editDescription = '';
+    }
   }
 
   public ngOnDestroy() {
