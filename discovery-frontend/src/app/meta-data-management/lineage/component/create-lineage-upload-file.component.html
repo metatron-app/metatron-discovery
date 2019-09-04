@@ -69,7 +69,7 @@
         -->
 
         <!-- default -->
-        <div class="ddp-box-default" #drop_container >
+        <div class="ddp-box-default" #drop_container [style.display]="uploadedFile?'none':'table-cell'">
           <div class="ddp-txt-file-info" >
             <div class="ddp-link-file">
               <input type="file" #pickfiles />

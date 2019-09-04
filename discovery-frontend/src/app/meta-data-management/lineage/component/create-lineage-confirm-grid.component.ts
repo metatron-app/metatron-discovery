@@ -135,10 +135,8 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
     }).catch((error) => {
       this.loadingHide();
       if(error.code && error.code==='MD005') {
-        var message = 'There are invalid metaNames';
-        var details = '<div>frMetaName : ['+ error.message.frMetaName.join(',')
-                   + ']</div><div>toMetaName : ['+ error.message.toMetaName.join(',')
-                   + ']</div>';
+        var message = 'There are no corresponding metadata.';
+        var details = 'Define metadata before lineage management: ' + 0<error.message.frMetaName.length?error.message.frMetaName[0]:error.message.toMetaName[0];
         error.message = message;
         error.details = details;
         this.commonExceptionHandler(error);

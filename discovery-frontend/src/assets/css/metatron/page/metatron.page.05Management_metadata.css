@@ -131,6 +131,6 @@
 
 .ddp-lineage-create .ddp-box-file-create {height:400px;margin-top:4px;}
 .ddp-lineage-create .ddp-box-upload {display:table-row;text-align:center;}
-.ddp-lineage-create .ddp-box-file-create.ddp-file-single .ddp-file-progress {display:table-row;text-align:center;position:absolute;background-color:#fff0;top:27px;}
-.ddp-lineage-create .ddp-box-file-create.ddp-file-single .ddp-file-progress .ddp-icon-file {height:29px;}
+.ddp-lineage-create .ddp-box-file-create.ddp-file-single .ddp-file-progress {display:table-cell;vertical-align:middle;text-align:center;}
+.ddp-lineage-create .ddp-box-default {display:table-cell;}
 .ddp-lineage-create .ddp-data-filename {display:inline; margin:10px;}
