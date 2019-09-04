@@ -193,7 +193,7 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
     const modal = new Modal();
     modal.name = this.translateService.instant('msg.comm.ui.del.description');
     modal.description = this.translateService.instant('msg.dp.alert.df.del.description');
-    modal.btnName = this.translateService.instant('msg.comm.btn.modal.done');
+    modal.btnName = this.translateService.instant('msg.comm.ui.del');
 
     this.selectedDeletedfId = id;
     this.deleteModalComponent.init(modal);
