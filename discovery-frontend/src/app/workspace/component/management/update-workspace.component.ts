@@ -12,12 +12,21 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Alert } from '../../../common/util/alert.util';
-import { CommonUtil } from '../../../common/util/common.util';
-import { WorkspaceService } from '../../service/workspace.service';
-import { Workspace } from "../../../domain/workspace/workspace";
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  OnDestroy,
+  OnInit,
+  Output
+} from '@angular/core';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {Alert} from '../../../common/util/alert.util';
+import {CommonUtil} from '../../../common/util/common.util';
+import {WorkspaceService} from '../../service/workspace.service';
+import {Workspace} from "../../../domain/workspace/workspace";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-update-workspace',
@@ -148,6 +157,8 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
 
   // 닫기
   public close(completeFl?:boolean) {
+    this.sharedWorkspaceList = undefined;
+    this.isInvalidName = undefined;
     this.isShow = false;
     this.updateComplete.emit(completeFl);
   }
@@ -163,12 +174,22 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
 
     this.loadingShow();
 
-    // get workspaces which contains keyword(newWorkspaceName)
-    this.workspaceService.getSharedWorkspaces('forListView', this.params).then(workspaces => {
-      if (workspaces['_embedded']) {
-        this.sharedWorkspaceList = workspaces['_embedded']['workspaces'];
-      }
+    if (_.isNil(this.sharedWorkspaceList)) {
+      // get workspaces which contains keyword(newWorkspaceName)
+      this.workspaceService.getSharedWorkspaces('forListView', this.params).then(workspaces => {
+        if (workspaces['_embedded']) {
+          this.sharedWorkspaceList = workspaces['_embedded']['workspaces'];
+        } else {
+          this.sharedWorkspaceList = [];
+        }
 
+      }).catch((error) => {
+        Alert.error(this.translateService.instant('msg.space.alert.retrieve'));
+        this.loadingHide();
+      });
+    }
+
+    if (!_.isNil(this.sharedWorkspaceList) && this.sharedWorkspaceList.length > 0) {
       // check if name is in use and set isInvalidName flag according to the condition
       this.isInvalidName = this.sharedWorkspaceList.some((workspace) => {
         if (workspace.name === newWorkspaceName) {
@@ -176,10 +197,8 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
           return true;
         }
       });
-    }).catch(() => {
-      Alert.error(this.translateService.instant('msg.space.alert.retrieve'));
-      this.loadingHide();
-    });
+    }
+
     this.loadingHide();
   }
 
