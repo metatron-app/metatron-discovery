@@ -54,12 +54,6 @@ export class CriterionComponent extends AbstractComponent {
    * @param {{criteria: Criteria.ListCriterion[]; defaultFilters: Criteria.ListFilter[]}} criterionResult
    */
   public initCriterionList(criterionResult: Criteria.Criterion): void {
-
-    // add source type in default criteria
-    criterionResult.criteria.push(criterionResult.criteria[4].subCriteria[2]);
-
-    // remove source type criterion in MORE subcriteria
-    criterionResult.criteria[4].subCriteria.slice(2);
     // set used criterion list
     this.usedCriterionList = _.cloneDeep(criterionResult.criteria);
 
@@ -67,10 +61,6 @@ export class CriterionComponent extends AbstractComponent {
     // if exist extension criterion list in criterion list param
     if (!_.isNil(extensionCriterion)) {
       this._extensionCriterionList = _.cloneDeep(extensionCriterion.subCriteria);
-
-      this._extensionCriterionList.reduce(([], extensionCriterion) => {
-        return extensionCriterion.criterionKey !== "SOURCE_TYPE" ?  extensionCriterion : null;
-      });
 
       this.changedFilter.emit();
     }
