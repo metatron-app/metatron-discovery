@@ -530,6 +530,8 @@ public class DataFrame implements Serializable, Transformable {
     rows = newRows;
   }
 
+  // FIX-ME: All 3 functions below are not used. The argument count is checked at rule-parse time, not execution time.
+
   //check if Args size are exactly matched with desirable size.
   private void assertArgsEq(int desirable, List<Expr> args, String func) throws TeddyException {
     if (args.size() != desirable) {
