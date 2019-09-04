@@ -76,7 +76,7 @@
               <tbody>
               <tr *ngFor="let field of getGridFields(editingJoin.left.uiFields)">
                 <td class="ddp-txt-center">
-                  <em ngClass="{{getFieldTypeIconClass(field.logicalType?.toString())}}"></em>
+                  <em class="{{getFieldTypeIconClass(field.logicalType?.toString())}}"></em>
                 </td>
                 <td>{{field.name}}</td>
               </tr>
@@ -164,7 +164,7 @@
               <tbody>
               <tr *ngFor="let field of getGridFields(editingJoin.right.uiFields)">
                 <td class="ddp-txt-center">
-                  <em ngClass="{{getFieldTypeIconClass(field.logicalType?.toString())}}"></em>
+                  <em class="{{getFieldTypeIconClass(field.logicalType?.toString())}}"></em>
                 </td>
                 <td>{{field.name}}</td>
               </tr>
@@ -308,6 +308,20 @@
                 [valueType]="'number'"
                 (changeValue)="setRowPreviewGrid($event)"></component-input>
               {{'msg.comm.detail.rows' | translate}}
+            </div>
+            <div (click)="isShowTypes = !isShowTypes" (clickOutside)="isShowTypes = false" class="ddp-data-form">
+              <strong class="ddp-cursor">{{objKeyList( logicalTypeMap ).length}}</strong> Types
+              <!-- 팝업 -->
+              <div *ngIf="isShowTypes" class="ddp-wrap-popup2 ddp-types">
+                <ul class="ddp-list-popup">
+                  <li *ngFor="let type of objKeyList( logicalTypeMap )">
+                    <a href="javascript:">
+                      <em class="{{getFieldTypeIconClass(type)}}"></em> {{logicalTypeMap[type]}}
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <!-- //팝업 -->
             </div>
           </div>
         </div>

@@ -57,6 +57,9 @@ import {DIRECTION, Sort} from "../../../domain/workbook/configurations/sort";
 import {TimezoneService} from "../../../data-storage/service/timezone.service";
 import {StringUtil} from "../../util/string.util";
 import {StorageService} from "../../../data-storage/service/storage.service";
+import {TimeAllFilter} from "../../../domain/workbook/configurations/filter/time-all-filter";
+import {BoundFilter} from "../../../domain/workbook/configurations/filter/bound-filter";
+import {InclusionFilter} from "../../../domain/workbook/configurations/filter/inclusion-filter";
 
 declare let echarts: any;
 
@@ -362,10 +365,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
         params.dataSource.type = 'default';
       }
 
-      if (this._filters && 0 < this._filters.length) {
-        params.filters = this._filters;
-      }
-      // params.metaQuery = true;
+      params.filters = (this._filters && 0 < this._filters.length) ? this._filters : [];
 
       this.loadingShow();
       this.datasourceService.getDatasourceQuery(params).then(gridData => {
@@ -970,7 +970,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
             : []
         },
         // TODO 필드 확인
-        userFields: []
+        userFields: [],
+        filters : []
       };
       // 선택된 measure
       params.pivot.columns.push({
@@ -979,6 +980,18 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
         name: this.selectedField.name
       });
 
+      const filters = this.columns
+        .filter( item => item.filtering )
+        .map( item => {
+          if( FieldRole.TIMESTAMP === item.role ) {
+            return new TimeAllFilter( item );
+          } else if( FieldRole.MEASURE === item.role ) {
+            return new BoundFilter(item.name);
+          } else {
+            return new InclusionFilter( item.name );
+          }
+        });
+      params.filters = filters;
 
       // 측정값에 대해 데이터 조회
       this.datasourceService.getDatasourceQuery(params)

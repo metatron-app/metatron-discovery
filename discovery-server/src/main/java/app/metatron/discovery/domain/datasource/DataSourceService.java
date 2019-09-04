@@ -342,6 +342,8 @@ public class DataSourceService {
                                                   "createdTimeFrom", "createdTimeTo", "", "",
                                                   "msg.storage.ui.criterion.created-time"));
     criteria.add(createdTimeCriterion);
+    criteria.add(new ListCriterion(DataSourceListCriterionKey.SOURCE_TYPE,
+                                   ListCriterionType.CHECKBOX, "msg.storage.ui.criterion.source-type"));
 
     //DateTime
     //    criteria.add(new ListCriterion(DataSourceListCriterionKey.DATETIME,
@@ -367,8 +369,6 @@ public class DataSourceService {
                                                     ListCriterionType.CHECKBOX, "msg.storage.ui.criterion.connection-type"));
     //    moreCriterion.addSubCriterion(new ListCriterion(DataSourceListCriterionKey.DATASOURCE_TYPE,
     //            ListCriterionType.CHECKBOX, "msg.storage.ui.criterion.ds-type"));
-    moreCriterion.addSubCriterion(new ListCriterion(DataSourceListCriterionKey.SOURCE_TYPE,
-                                                    ListCriterionType.CHECKBOX, "msg.storage.ui.criterion.source-type"));
     criteria.add(moreCriterion);
 
     //description

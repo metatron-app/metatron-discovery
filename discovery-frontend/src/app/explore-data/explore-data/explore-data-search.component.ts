@@ -39,10 +39,6 @@ export class ExploreDataSearchComponent extends AbstractComponent {
       name: this.translateService.instant('msg.explore.ui.search.range.description'),
       value: ExploreDataConstant.SearchRange.DESCRIPTION
     },
-    {
-      name: this.translateService.instant('msg.explore.ui.search.range.creator'),
-      value: ExploreDataConstant.SearchRange.CREATOR
-    },
   ];
 
   // data

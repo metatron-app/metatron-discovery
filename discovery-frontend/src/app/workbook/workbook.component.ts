@@ -359,7 +359,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    * @returns {string}
    */
   public dateFormatTodayTimeElseDate(date: Date) {
-    return moment().calendar(date, {
+    return moment(date).calendar(null, {
       sameDay: 'HH:mm',
       sameElse: 'YYYY.MM.DD HH:mm'
     });

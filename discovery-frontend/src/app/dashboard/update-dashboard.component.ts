@@ -1286,6 +1286,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
         this.dashboard = DashboardUtil.addWidget(this.dashboard, _.merge(newFilterWidget, result));
 
         // 글로벌 필터 업데이트
+        filter['isNew'] = true;
         this.dashboard = DashboardUtil.addBoardFilter(this.dashboard, filter);
 
         ( callback ) && ( callback() );

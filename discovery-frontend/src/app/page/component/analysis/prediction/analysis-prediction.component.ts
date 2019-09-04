@@ -92,7 +92,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
     // 예측선을 사용할 수 있는 차트
     'ACTIVE_FIRST_DESCRIPTION': '예측선을 사용할 수 있는 차트',
     // 라인차트
-    'ACTIVE_LAST_DESCRIPTION': '라인차트',
+    'ACTIVE_LAST_DESCRIPTION': '날짜/시간 차원값이 있는 선형차트',
     // Holt-Winters
     'ALGORITHM_NAME': 'Holt-Winters',
     // 예측기간

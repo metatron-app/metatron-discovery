@@ -55,6 +55,8 @@ export class BoundFilterPanelComponent extends AbstractFilterPanelComponent impl
   // 필터
   public filter: BoundFilter;
 
+  public isNewFilter:boolean = false;
+
   @Input('filter')
   public originalFilter: BoundFilter;
 
@@ -102,6 +104,16 @@ export class BoundFilterPanelComponent extends AbstractFilterPanelComponent impl
    * 화면 초기화
    */
   public ngAfterViewInit() {
+
+    if( this.originalFilter['isNew'] ) {
+      this.isNewFilter = true;
+      this.safelyDetectChanges();
+      delete this.originalFilter['isNew'];
+      setTimeout( () => {
+        this.isNewFilter = false;
+        this.safelyDetectChanges();
+      }, 1500 );
+    }
 
     // 위젯에서 필터를 업데이트 popup은 아니지만 동일한 기능이 필요해서 popupService를 사용
     const popupSubscribe = this.popupService.filterView$.subscribe((data: SubscribeArg) => {

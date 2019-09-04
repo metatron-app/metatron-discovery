@@ -88,7 +88,7 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
   public nodeCount: number;
   public alignment: string;
 
-  public defaultNodeCountIndex = 1;
+  public defaultNodeCountIndex = 2;
   public defaultAlignmentIndex = 0;
 
   @Input()
