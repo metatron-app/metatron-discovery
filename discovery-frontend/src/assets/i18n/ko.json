@@ -4162,7 +4162,7 @@
   "msg.metadata.metadata.detail.lineage" : "혈통",
   "msg.metadata.metadata.detail.dictionary" : "사전",
   "msg.metadata.metadata.detail.ui.description" : "상세정보",
-  "msg.metadata.metadata.detail.ui.no.description" : "상제정보 없음",
+  "msg.metadata.metadata.detail.ui.no.description" : "상세정보 없음",
   "msg.metadata.metadata.detail.ui.source.information" : "소스 정보",
   "msg.metadata.metadata.detail.ui.status" : "상태",
   "msg.metadata.metadata.detail.ui.ingestion.information" : "소스 데이터 적재 정보",
