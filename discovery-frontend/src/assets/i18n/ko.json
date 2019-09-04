@@ -874,7 +874,7 @@
   "msg.dp.alert.teddy.column.not.found" : "컬럼을 찾을 수 없습니다",
   "msg.dp.alert.teddy.not.supported.type" : "Not supported type",
   "msg.dp.alert.teddy.query.failed" : "Query failed",
-  "msg.dp.alert.teddy.invalid.function.args" : "Invalid function args",
+  "msg.dp.alert.teddy.invalid.function.args" : "함수의 전달인자 개수가 맞지 않습니다",
   "msg.dp.alert.teddy.invalid.function.type" : "Invalid function type",
   "msg.dp.alert.teddy.unsupported.constant.type" : "Unsupported constant type",
   "msg.dp.alert.teddy.cannot.cast.to" : "Cannot cast to X",

@@ -23,6 +23,8 @@ public class TeddyException extends Exception {
   public static TeddyException fromRuleException(RuleException re) {
     if(re instanceof FunctionColumnNotFoundException) {
       return new ColumnNotFoundException(re.getMessage());
+    } else if(re instanceof FunctionArgumentCountException) {
+      return new InvalidFunctionArgsException(re.getMessage());
     } else if(re instanceof FunctionWorksOnlyOnStringException) {
       return new WorksOnlyOnStringException(re.getMessage());
     } else if(re instanceof FunctionWorksOnlyOnNumericException) {
