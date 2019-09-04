@@ -67,7 +67,8 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
 
   public uploadedFile: any;
 
-  public createType : string = 'file';
+  @Input()
+  public createType : string;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor

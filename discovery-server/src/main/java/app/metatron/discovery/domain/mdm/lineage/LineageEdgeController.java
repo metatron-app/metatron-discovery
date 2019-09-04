@@ -197,6 +197,10 @@ public class LineageEdgeController {
       @RequestBody List<Resource<LineageEdge>> lineageEdgeResources,
       PersistentEntityResourceAssembler resourceAssembler
   ) {
+    Map<String,List<String>> wrongMetas = Maps.newHashMap();
+    List<String> wrongFrMetas = Lists.newArrayList();
+    List<String> wrongToMetas = Lists.newArrayList();
+
     List<LineageEdge> lineageEdges = Lists.newArrayList();
     try {
       this.lineageEdgeRepository.deleteAll();
@@ -205,25 +209,42 @@ public class LineageEdgeController {
       while(iterator.hasNext()) {
         LineageEdge lineageEdge = iterator.next().getContent();
 
+        boolean canSave = true;
+
         List<Metadata> frMetadatas = this.metadataRepository.findByName(lineageEdge.getFrMetaName());
         if (frMetadatas.size() == 0) {
+          wrongFrMetas.add(lineageEdge.getFrMetaName());
           LOGGER.error(String.format("postLineageEdges(): frMetadata %s not found: ignored", lineageEdge.getFrMetaName()));
-          continue;
+          canSave = false;
         } else {
           lineageEdge.setFrMetaId(frMetadatas.get(0).getId());
         }
         List<Metadata> toMetadatas = this.metadataRepository.findByName(lineageEdge.getToMetaName());
         if (toMetadatas.size() == 0) {
+          wrongToMetas.add(lineageEdge.getToMetaName());
           LOGGER.error(String.format("postLineageEdges(): toMetadata %s not found: ignored", lineageEdge.getToMetaName()));
-          continue;
+          canSave = false;
         } else {
           lineageEdge.setToMetaId(toMetadatas.get(0).getId());
         }
 
-        lineageEdges.add( this.lineageEdgeRepository.save(lineageEdge) );
+        if(canSave==true) {
+          lineageEdges.add(this.lineageEdgeRepository.save(lineageEdge));
+        }
       }
     } catch (Exception e) {
       LOGGER.error("postLineageEdges(): caught an exception: ", e);
+      throw new LineageException(MetadataErrorCodes.METADATA_COMMON_ERROR,e.getMessage());
+    }
+
+    if(wrongFrMetas.isEmpty()==false || wrongToMetas.isEmpty()==false) {
+      wrongMetas.put("frMetaName", wrongFrMetas);
+      wrongMetas.put("toMetaName", wrongToMetas);
+
+      Map<String,Object> error = Maps.newHashMap();
+      error.put("code",MetadataErrorCodes.LINEAGE_CANNOT_CREATE_EDGE.getCode());
+      error.put("message",wrongMetas);
+      return ResponseEntity.unprocessableEntity().body(error);
     }
 
     return ResponseEntity.created(URI.create("")).body(lineageEdges);

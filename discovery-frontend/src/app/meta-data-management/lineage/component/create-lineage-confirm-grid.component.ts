@@ -63,6 +63,9 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
   public errorView: boolean = false;
   public errorMsg: string = null;
 
+  @Input()
+  public createType : string;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -131,7 +134,17 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
       });
     }).catch((error) => {
       this.loadingHide();
-      this.commonExceptionHandler(error);
+      if(error.code && error.code==='MD005') {
+        var message = 'There are invalid metaNames';
+        var details = '<div>frMetaName : ['+ error.message.frMetaName.join(',')
+                   + ']</div><div>toMetaName : ['+ error.message.toMetaName.join(',')
+                   + ']</div>';
+        error.message = message;
+        error.details = details;
+        this.commonExceptionHandler(error);
+      } else {
+        this.commonExceptionHandler(error);
+      }
     });
   }
 

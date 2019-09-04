@@ -39,6 +39,8 @@ export class CreateLineageComponent extends AbstractComponent implements  OnInit
 
   public lineageData: any;
 
+  public createType : string = 'file';
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

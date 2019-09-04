@@ -5,7 +5,7 @@
   <!-- //닫기 버튼 -->
   <div class="ddp-icon-name">
     <div class="ddp-ui-name2 ddp-type2">
-      {{'msg.metadata.ui.lineage.create.edge.upload' | translate}}
+      {{'msg.metadata.ui.lineage.create.edge.upload' | translate : {value: createType} }}
       <span class="ddp-txt-info ddp-type">Please check the list</span>
       <em class="ddp-bg-order-line2-type2"></em>
     </div>
@@ -28,7 +28,7 @@
       </div>
       <!-- //upload box -->
 
-      <div class="ddp-txt-total" *ngIf="isWell"><strong>{{lineageData.rows.length}}</strong> lineage{{1<lineageData.rows.length?'s':''}} will be update</div>
+      <div class="ddp-txt-total" *ngIf="isWell"><strong>{{lineageData.rows.length}}</strong> lineage edge{{1<lineageData.rows.length?'s':''}} will be update</div>
       <div class="ddp-wrap-variable type-vertical">
         <!-- wrap sheet -->
         <div class="ddp-wrap-sheet">

@@ -3962,6 +3962,7 @@
   "msg.metadata.ui.lineage.title" : "Lineage",
   "msg.metadata.ui.lineage.lists" : "There are <strong>{{value}}</strong> lists",
   "msg.metadata.ui.lineage.search.ph": "Search lineage by description",
+  "msg.metadata.ui.lineage.file.uploaded" : "Uploaded",
   "msg.metadata.ui.lineage.create.edge.upload" : "Create Lineage (as {{value}})",
   "msg.metadata.ui.lineage.create.sel.type": "Select a method",
   "msg.metadata.ui.lineage.create.type.file": "File",

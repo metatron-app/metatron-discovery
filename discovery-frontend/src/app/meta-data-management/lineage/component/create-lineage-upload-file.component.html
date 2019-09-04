@@ -37,6 +37,24 @@
       <!-- file create -->
       <div class="ddp-box-file-create ddp-file-single">
 
+        <div class="ddp-file-progress" *ngIf="uploadedFile">
+          <div class="ddp-data-name">{{uploadedFile.fileName}}</div>
+          <div class="ddp-data-size">{{formatBytes(uploadedFile.size,1)}}</div>
+          <div class="ddp-icon-file">
+            <svg-icon-component [name]="uploadedFile.format" [isBlackAndWhite]="true"></svg-icon-component>
+          </div>
+          <div class="ddp-ui-condition">
+            <span class="ddp-data-per">100%</span>
+            <div class="ddp-type-progressbar2">
+              <em class="ddp-data-progressbar" style="width: 100%;"></em>
+            </div>
+            <div class="ddp-data-condition">
+              <span>{{ 'msg.metadata.ui.lineage.file.uploaded' | translate }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!--
         <div class="ddp-box-upload" *ngIf="uploadedFile">
           <div class="ddp-data-load-name">
             <em class="ddp-icon-flow-svg">
@@ -48,6 +66,7 @@
             <span class="ddp-data-size">{{formatBytes(uploadedFile.size,1)}}</span>
           </div>
         </div>
+        -->
 
         <!-- default -->
         <div class="ddp-box-default" #drop_container >

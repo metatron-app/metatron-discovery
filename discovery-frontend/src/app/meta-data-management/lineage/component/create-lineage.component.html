@@ -12,5 +12,5 @@
   ~ limitations under the License.
   -->
 
-<app-create-lineage-upload-file *ngIf="step==='upload-file'" [lineageData]="lineageData" (lineageDataChange)="onLineageDataChange($event);" (close)="init();"></app-create-lineage-upload-file>
-<app-create-lineage-confirm-grid *ngIf="step==='confirm-grid'" [lineageData]="lineageData" (close)="init();"></app-create-lineage-confirm-grid>
+<app-create-lineage-upload-file *ngIf="step==='upload-file'" [createType]="createType" [lineageData]="lineageData" (lineageDataChange)="onLineageDataChange($event);" (close)="init();"></app-create-lineage-upload-file>
+<app-create-lineage-confirm-grid *ngIf="step==='confirm-grid'" [createType]="createType" [lineageData]="lineageData" (close)="init();"></app-create-lineage-confirm-grid>
