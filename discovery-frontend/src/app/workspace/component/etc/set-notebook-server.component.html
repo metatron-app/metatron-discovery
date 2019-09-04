@@ -87,14 +87,14 @@
                     <th>
 
                     </th>
-                    <th>
+                    <th class="ddp-cursor" (click)="changeOrder('name')">
                       {{'msg.space.th.server' | translate}}
-                    </th>
-                    <th class="ddp-cursor" (click)="changeOrder('url')">
-                      {{'msg.comm.th.url' | translate}}
                       <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.sort === 'default'"></em>
                       <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.sort === 'asc'"></em>
                       <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.sort === 'desc'"></em>
+                    </th>
+                    <th>
+                      {{'msg.comm.th.url' | translate}}
                     </th>
                   </tr>
                   </thead>
