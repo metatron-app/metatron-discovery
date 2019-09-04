@@ -35,7 +35,7 @@ import app.metatron.discovery.domain.activities.spec.Actor;
 public interface ActivityStreamRepository extends JpaRepository<ActivityStream, Long>,
                                           QueryDslPredicateExecutor<ActivityStream>, ActivityStreamRepositoryExtends {
 
-
+  ActivityStream findTop1ByActorOrderByPublishedTimeDesc(String actor);
 //  List<Object> findWorkspaceViewStat(String workspaceId, TimeFieldFormat.TimeUnit timeUnit, DateTime from, DateTime to);
 
   @Query("SELECT MAX(activityStream.id) AS ID, COUNT(activityStream.actor) AS CNT " +
