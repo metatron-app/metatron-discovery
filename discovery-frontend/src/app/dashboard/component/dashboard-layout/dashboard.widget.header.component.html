@@ -12,7 +12,8 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-wrap-widget" (mouseover)="mouseOverHeader()" (mouseout)="mouseOutHeader()" >
+<div class="ddp-wrap-widget" (mouseover)="mouseOverHeader()" (mouseout)="mouseOutHeader()"
+     style="cursor : move">
 
   <!-- 해상도 작아질때 ddp-box-size 추가 -->
   <div #controlContainer class="ddp-box-widget" [class.ddp-box-size] = "isMiniHeader" >

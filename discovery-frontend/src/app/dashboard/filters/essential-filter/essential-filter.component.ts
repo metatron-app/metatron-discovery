@@ -153,6 +153,11 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
       }
     }
 
+    this._pseudoDashboard = new Dashboard();
+    this._pseudoDashboard.configuration = new BoardConfiguration();
+    this._pseudoDashboard.configuration.dataSource = this._dataSource;
+    this._pseudoDashboard.configuration.fields = mainDs.uiFields;
+
     // UI에서 표현할 수 있는 데이터로 Convert
     if (0 < this.essentialFilters.length) {
 
@@ -171,12 +176,10 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
         this.loadingHide();
       });
 */
+    } else {
+      this.ingest();
     }
 
-    this._pseudoDashboard = new Dashboard();
-    this._pseudoDashboard.configuration = new BoardConfiguration();
-    this._pseudoDashboard.configuration.dataSource = this._dataSource;
-    this._pseudoDashboard.configuration.fields = mainDs.uiFields;
   } // function - ngOnInit
 
   /**
@@ -235,6 +238,9 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
    */
   public ingest() {
 
+    this.ingestionStatus = {progress: 0, message: '', step: 1};
+    this.isShowProgress = true;
+
     this._ingestResultFilters = this.essentialFilters.map(item => this._compMap[item.field].getData());
     let filterParams: Filter[] = _.cloneDeep(this._ingestResultFilters);
 
@@ -260,16 +266,12 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
       }
     });
 
-    this.ingestionStatus = {progress: 0, message: '', step: 1};
-    this.loadingShow();
     this.checkAndConnectWebSocket(true).then(() => {
       this.safelyDetectChanges();
       this.dataSourceService.createLinkedDatasourceTemporary(this._dataSourceId, filterParams)
         .then(result => {
-          this.loadingHide();
           if (result['progressTopic']) {
             this.safelyDetectChanges();
-            this.isShowProgress = true;
             this._processIngestion(result);
           } else {
             this._loadTempDatasourceDetail(result['id']);
@@ -277,8 +279,9 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
         })
         .catch(err => {
           console.error(err);
+          this.ingestionStatus.step = -1;
+          this.ingestionStatus.progress = -1;
           this.commonExceptionHandler(err, this.translateService.instant('msg.board.alert.fail.ingestion'));
-          this.loadingHide();
         });
     });
 

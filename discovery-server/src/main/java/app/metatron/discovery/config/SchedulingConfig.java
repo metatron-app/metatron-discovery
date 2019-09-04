@@ -14,6 +14,16 @@
 
 package app.metatron.discovery.config;
 
+import app.metatron.discovery.common.scheduling.AutowiringQuartzBeanJobFactory;
+import app.metatron.discovery.domain.scheduling.common.TemporaryCSVFileCleanJob;
+import app.metatron.discovery.domain.scheduling.engine.DataSourceCheckJob;
+import app.metatron.discovery.domain.scheduling.engine.DataSourceIngestionCheckJob;
+import app.metatron.discovery.domain.scheduling.engine.DataSourceSizeCheckJob;
+import app.metatron.discovery.domain.scheduling.engine.TemporaryCleanJob;
+import app.metatron.discovery.domain.scheduling.ingestion.IncrementalIngestionJob;
+import app.metatron.discovery.domain.scheduling.mdm.CalculatePopularityJob;
+import app.metatron.discovery.domain.scheduling.notebook.KillNotebookKernelJob;
+import app.metatron.discovery.domain.scheduling.workbench.TimeoutConnectionCloseJob;
 import org.quartz.spi.JobFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,17 +37,6 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
-
-import app.metatron.discovery.common.scheduling.AutowiringSpringBeanJobFactory;
-import app.metatron.discovery.domain.scheduling.common.TemporaryCSVFileCleanJob;
-import app.metatron.discovery.domain.scheduling.engine.DataSourceCheckJob;
-import app.metatron.discovery.domain.scheduling.engine.DataSourceIngestionCheckJob;
-import app.metatron.discovery.domain.scheduling.engine.DataSourceSizeCheckJob;
-import app.metatron.discovery.domain.scheduling.engine.TemporaryCleanJob;
-import app.metatron.discovery.domain.scheduling.ingestion.IncrementalIngestionJob;
-import app.metatron.discovery.domain.scheduling.mdm.CalculatePopularityJob;
-import app.metatron.discovery.domain.scheduling.notebook.KillNotebookKernelJob;
-import app.metatron.discovery.domain.scheduling.workbench.TimeoutConnectionCloseJob;
 
 /**
  * Created by kyungtaak on 2016. 6. 21..
@@ -66,7 +65,7 @@ public class SchedulingConfig {
 
   @Bean
   public JobFactory jobFactory() {
-    AutowiringSpringBeanJobFactory jobFactory = new AutowiringSpringBeanJobFactory();
+    AutowiringQuartzBeanJobFactory jobFactory = new AutowiringQuartzBeanJobFactory();
     jobFactory.setApplicationContext(applicationContext);
     return jobFactory;
   }
@@ -79,22 +78,22 @@ public class SchedulingConfig {
     schedulerFactoryBean.setJobFactory(jobFactory());
     schedulerFactoryBean.setWaitForJobsToCompleteOnShutdown(true);
     schedulerFactoryBean.setJobDetails(dataSourceCheckJob().getObject(),
-                                       dataSourceIngestionCheckJob().getObject(),
-                                       dataSourceSizeCheckJob().getObject(),
-                                       incrementalJob().getObject(),
-                                       tempDataSourceCleanJob().getObject(),
-                                       calculatePopularityJob().getObject(),
-                                       notebookKillKernelJob().getObject(),
-                                       tempCSVFileCleanJob().getObject(),
-                                       timeoutWorkbenchConnectionCloseJob().getObject());
+            dataSourceIngestionCheckJob().getObject(),
+            dataSourceSizeCheckJob().getObject(),
+            incrementalJob().getObject(),
+            tempDataSourceCleanJob().getObject(),
+            calculatePopularityJob().getObject(),
+            notebookKillKernelJob().getObject(),
+            tempCSVFileCleanJob().getObject(),
+            timeoutWorkbenchConnectionCloseJob().getObject());
     schedulerFactoryBean.setTriggers(dataSourceCheckTrigger().getObject(),
-                                     dataSourceIngestionCheckTrigger().getObject(),
-                                     dataSourceSizeCheckTrigger().getObject(),
-                                     tempDataSourceCleanTrigger().getObject(),
-                                     calculatePopularityTrigger().getObject(),
-                                     notebookKillKernelTrigger().getObject(),
-                                     tempCSVFileCleanTrigger().getObject(),
-                                     timeoutWorkbenchConnectionCloseTrigger().getObject());
+            dataSourceIngestionCheckTrigger().getObject(),
+            dataSourceSizeCheckTrigger().getObject(),
+            tempDataSourceCleanTrigger().getObject(),
+            calculatePopularityTrigger().getObject(),
+            notebookKillKernelTrigger().getObject(),
+            tempCSVFileCleanTrigger().getObject(),
+            timeoutWorkbenchConnectionCloseTrigger().getObject());
 
     return schedulerFactoryBean;
   }
@@ -125,7 +124,7 @@ public class SchedulingConfig {
    * @return
    */
   @Bean
-  public CronTriggerFactoryBean dataSourceCheckTrigger(){
+  public CronTriggerFactoryBean dataSourceCheckTrigger() {
     CronTriggerFactoryBean triggerFactory = new CronTriggerFactoryBean();
     triggerFactory.setJobDetail(dataSourceCheckJob().getObject());
     triggerFactory.setStartDelay(10000);
@@ -152,7 +151,7 @@ public class SchedulingConfig {
    * @return
    */
   @Bean
-  public CronTriggerFactoryBean dataSourceIngestionCheckTrigger(){
+  public CronTriggerFactoryBean dataSourceIngestionCheckTrigger() {
     CronTriggerFactoryBean triggerFactory = new CronTriggerFactoryBean();
     triggerFactory.setJobDetail(dataSourceIngestionCheckJob().getObject());
     triggerFactory.setStartDelay(10000);
@@ -178,7 +177,7 @@ public class SchedulingConfig {
    * @return
    */
   @Bean
-  public CronTriggerFactoryBean dataSourceSizeCheckTrigger(){
+  public CronTriggerFactoryBean dataSourceSizeCheckTrigger() {
     CronTriggerFactoryBean triggerFactory = new CronTriggerFactoryBean();
     triggerFactory.setJobDetail(dataSourceSizeCheckJob().getObject());
     triggerFactory.setStartDelay(20000);
@@ -209,7 +208,7 @@ public class SchedulingConfig {
    * @return
    */
   @Bean
-  public CronTriggerFactoryBean tempDataSourceCleanTrigger(){
+  public CronTriggerFactoryBean tempDataSourceCleanTrigger() {
     CronTriggerFactoryBean triggerFactory = new CronTriggerFactoryBean();
     triggerFactory.setJobDetail(tempDataSourceCleanJob().getObject());
     triggerFactory.setStartDelay(20000);
@@ -241,7 +240,7 @@ public class SchedulingConfig {
    * @return
    */
   @Bean
-  public CronTriggerFactoryBean calculatePopularityTrigger(){
+  public CronTriggerFactoryBean calculatePopularityTrigger() {
     CronTriggerFactoryBean triggerFactory = new CronTriggerFactoryBean();
     triggerFactory.setJobDetail(calculatePopularityJob().getObject());
     triggerFactory.setName("calculate-popularity-trigger");
@@ -271,7 +270,7 @@ public class SchedulingConfig {
    * @return
    */
   @Bean
-  public CronTriggerFactoryBean notebookKillKernelTrigger(){
+  public CronTriggerFactoryBean notebookKillKernelTrigger() {
     CronTriggerFactoryBean triggerFactory = new CronTriggerFactoryBean();
     triggerFactory.setJobDetail(notebookKillKernelJob().getObject());
     triggerFactory.setName("kill-notebook-kernel-trigger");
@@ -301,7 +300,7 @@ public class SchedulingConfig {
    * @return
    */
   @Bean
-  public CronTriggerFactoryBean tempCSVFileCleanTrigger(){
+  public CronTriggerFactoryBean tempCSVFileCleanTrigger() {
     CronTriggerFactoryBean triggerFactory = new CronTriggerFactoryBean();
     triggerFactory.setJobDetail(tempCSVFileCleanJob().getObject());
     triggerFactory.setStartDelay(20000);
@@ -332,7 +331,7 @@ public class SchedulingConfig {
    * @return
    */
   @Bean
-  public CronTriggerFactoryBean timeoutWorkbenchConnectionCloseTrigger(){
+  public CronTriggerFactoryBean timeoutWorkbenchConnectionCloseTrigger() {
     CronTriggerFactoryBean triggerFactory = new CronTriggerFactoryBean();
     triggerFactory.setJobDetail(timeoutWorkbenchConnectionCloseJob().getObject());
     triggerFactory.setStartDelay(1000);

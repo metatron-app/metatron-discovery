@@ -159,18 +159,18 @@
         </tr>
         <tr>
           <th>
-            {{ 'msg.metadata.metadata.detail.ui.created.datasource' | translate }}
+            {{ 'msg.metadata.metadata.detail.ui.created.at' | translate }}
           </th>
           <td>
-            {{ metadata.createdTime }} <span class="ddp-txt-colortype">by</span> {{ metadata.createdBy.fullName }}
+            {{ metadata.createdTime | mdate:'YYYY-MM-DD HH:mm' }} <span class="ddp-txt-colortype">by</span> {{ metadata.createdBy.fullName }}
           </td>
         </tr>
         <tr>
           <th>
-            {{ 'msg.metadata.metadata.detail.ui.updated.datasource' | translate }}
+            {{ 'msg.metadata.metadata.detail.ui.updated.at' | translate }}
           </th>
           <td>
-            {{ metadata.modifiedTime }} <span class="ddp-txt-colortype">by</span> {{ metadata.modifiedBy.fullName }}
+            {{ metadata.modifiedTime | mdate:'YYYY-MM-DD HH:mm'  }} <span class="ddp-txt-colortype">by</span> {{ metadata.modifiedBy.fullName }}
           </td>
         </tr>
         </tbody>

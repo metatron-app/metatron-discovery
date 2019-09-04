@@ -72,6 +72,9 @@ public class UserProjections extends BaseProjections {
     DateTime getCreatedTime();
 
     DateTime getModifiedTime();
+
+    @Value("#{@userService.getLastAccessTime(target.getUsername())}")
+    DateTime getLastAccessTime();
   }
 
   @Projection(types = User.class, name = "forListView")

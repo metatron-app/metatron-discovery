@@ -29,6 +29,7 @@ import * as _ from 'lodash';
 import {CommonUtil} from 'app/common/util/common.util';
 import {WORKSPACE_PERMISSION} from 'app/common/permission/permission';
 import {isNullOrUndefined} from "util";
+import {Alert} from "../../../common/util/alert.util";
 
 @Component({
   selector: 'app-permission-schema',
@@ -253,6 +254,7 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
           roles[idx]['error'] = true;
           this.errorMsg = errMsg;
           this.loadingHide();
+          Alert.fail(this.translateService.instant('msg.comm.alert.error'));
           return Promise.reject(errMsg);
         }
         if (prevName === roles[idx].name.trim()) {
@@ -261,6 +263,7 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
           roles[idx]['error'] = true;
           this.errorMsg = errMsg;
           this.loadingHide();
+          Alert.fail(this.translateService.instant('msg.comm.alert.error'));
           return Promise.reject(errMsg);
         }
         if (!roles[idx].permissionNames || 1 > roles[idx].permissionNames.length) {
@@ -269,6 +272,7 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
           roles[idx]['error'] = true;
           this.errorMsg = errMsg;
           this.loadingHide();
+          Alert.fail(this.translateService.instant('msg.comm.alert.error'));
           return Promise.reject(errMsg);
         }
 
@@ -279,12 +283,14 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
         const errMsg: string = this.translateService.instant('msg.permission.alert.require-default');
         this.errorMsg = errMsg;
         this.loadingHide();
+        Alert.fail(this.translateService.instant('msg.comm.alert.error'));
         return Promise.reject(errMsg);
       }
     } else {
       const errMsg: string = this.translateService.instant('msg.permission.alert.require-role');
       this.errorMsg = errMsg;
       this.loadingHide();
+      Alert.fail(this.translateService.instant('msg.comm.alert.error'));
       return Promise.reject(errMsg);
     }
 

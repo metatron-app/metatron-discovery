@@ -79,6 +79,7 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
   public isMultiSelector: boolean = false;        // 복수 선택 여부
   public isSearchFocus: boolean = false;          // 검색바 포커스 여부
   public isOverCandidateWarning: boolean = false;  // Candidate Limit 을 넘겼는지 여부
+  public isNewFilter:boolean = false;
 
   public searchAllMessage = '';
 
@@ -118,6 +119,16 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
     super.ngAfterViewInit();
 
     this._initComponent(this.originalFilter);
+
+    if( this.originalFilter['isNew'] ) {
+      this.isNewFilter = true;
+      this.safelyDetectChanges();
+      delete this.originalFilter['isNew'];
+      setTimeout( () => {
+        this.isNewFilter = false;
+        this.safelyDetectChanges();
+      }, 1500 );
+    }
 
     // 필터 선택 변경
     this.subscriptions.push(

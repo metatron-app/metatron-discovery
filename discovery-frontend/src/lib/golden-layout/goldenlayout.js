@@ -412,6 +412,8 @@
       if (this._timeout != null) {
         clearTimeout(this._timeout);
         this._eBody.removeClass('lm_dragging');
+        this._eBody.removeClass('lm_dragging_horizontal');
+        this._eBody.removeClass('lm_dragging_vertical');
         this._eElement.removeClass('lm_dragging');
         this._oDocument.find('iframe').css('pointer-events', '');
         this._oDocument.unbind('mousemove touchmove', this._fMove);
@@ -426,7 +428,13 @@
 
     _startDrag: function () {
       this._bDragging = true;
-      this._eBody.addClass('lm_dragging');
+      if( this._eElement.hasClass( 'lm_horizontal' ) ) {
+        this._eBody.addClass('lm_dragging_horizontal');
+      } else if( this._eElement.hasClass( 'lm_vertical' ) ) {
+        this._eBody.addClass('lm_dragging_vertical');
+      } else {
+        this._eBody.addClass('lm_dragging');
+      }
       this._eElement.addClass('lm_dragging');
       this._oDocument.find('iframe').css('pointer-events', 'none');
       this.emit('dragStart', this._nOriginalX, this._nOriginalY);
