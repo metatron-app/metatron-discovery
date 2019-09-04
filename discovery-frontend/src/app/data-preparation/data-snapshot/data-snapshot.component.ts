@@ -257,7 +257,7 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
     const modal = new Modal();
     modal.name = this.translateService.instant('msg.dp.alert.ss.del.title');
     modal.description = dataset.finishTime ? this.translateService.instant('msg.dp.alert.ss.del.description') : 'Snapshot is preparing. Are you sure you want to stop this process and delete it?';
-    modal.btnName = this.translateService.instant('msg.comm.ui.del');
+    modal.btnName = this.translateService.instant('msg.comm.ui.confirm');
 
     this.selectedDeletessId = dataset.ssId;
     this.deleteModalComponent.init(modal);
