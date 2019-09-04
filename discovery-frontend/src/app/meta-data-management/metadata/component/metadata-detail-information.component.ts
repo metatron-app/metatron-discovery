@@ -77,6 +77,13 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     // initialize textarea text
     this.descriptionChangeText = this.metadata.description;
 
+    this.subscriptions.push(
+      this.metadataModelService.metadataChanged.subscribe((metadata) => {
+        this.metadata = metadata;
+        this.descriptionChangeText = metadata.description;
+      })
+    );
+
     /**
      *  if sourceType is datasource(ENGINE), set css class according to status
      *  if sourceType is not datasource(ENGINE) hide <tr></tr>

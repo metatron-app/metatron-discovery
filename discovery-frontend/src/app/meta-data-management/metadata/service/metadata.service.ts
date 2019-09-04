@@ -107,7 +107,6 @@ export class MetadataService extends AbstractService {
    * @returns {Promise<any>}
    */
   public updateMetadata(id: string, params: any): Promise<any> {
-
     return this.patch(this.URL_METADATA + `/${id}`, params);
   }
 
