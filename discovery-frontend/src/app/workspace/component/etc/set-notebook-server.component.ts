@@ -266,7 +266,6 @@ export class SetNotebookServerComponent extends AbstractComponent implements OnI
     this.notebookService.getNotebookConnectionList()
       .then((result) => {
         this.notebookConnectorList = result['_embedded']['connectors'];
-        console.info(this.notebookConnectorList);
       })
       .catch((error) => {
         Alert.error(error);
@@ -276,11 +275,8 @@ export class SetNotebookServerComponent extends AbstractComponent implements OnI
     page.sort = this.selectedContentSort.key + ',' + this.selectedContentSort.sort;
     let pageResult = server === 'jupyter' ? this.jupyter.pageResult : this.zeppelin.pageResult;
     const searchText = server === 'jupyter' ? this.searchJupyter : this.searchZeppelin;
-    const options = {
-      sort : 'hostname,' + this.selectedContentSort.sort
-    };
 
-    this.notebookServerService.getNotebookServerTypeList(searchText, server, page, 'default', options)
+    this.notebookServerService.getNotebookServerTypeList(searchText, server, page, 'default')
       .then((servers) => {
 
         // 페이지 객체 저장
