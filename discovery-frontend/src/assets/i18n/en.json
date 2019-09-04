@@ -47,7 +47,7 @@
   "msg.comm.ui.soring.frequency.desc" : "Frequency descending",
   "msg.comm.ui.soring.alphnumeric.asc" : "Alpahnumeric ascending",
   "msg.comm.ui.soring.alphnumeric.desc" : "Alpahnumeric descending",
-  "msg.comm.ui.beforeunload" : "Your changes may not be saved.",
+  "msg.comm.ui.beforeunload" : "Are you sure you want to leave?",
   "msg.comm.menu.title.workspace": "WORKSPACE",
   "msg.comm.menu.title.explore-data" : "EXPLORE DATA",
   "msg.comm.menu.title.management": "MANAGEMENT",
