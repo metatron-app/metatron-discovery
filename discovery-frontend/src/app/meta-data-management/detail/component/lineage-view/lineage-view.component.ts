@@ -556,11 +556,13 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
     const hNodeUnit = 5;
     const vNodeUnit = 7;
 
+    const hPadding: number = 50;
     const hScrollbarWith: number = 30;
     const vScrollbarWith: number = 30;
 
     //let minWidthSize: number = $('.sys-lineage-left-panel').width();
     let minWidthSize: number = $('.ddp-lineage-view').width() - hScrollbarWith;
+    if( hPadding < minWidthSize ) { minWidthSize = minWidthSize - hPadding; } // beautify
     let minHeightSize: number = $('.ddp-lineage-view').height() - vScrollbarWith;
 
     if( hNodeUnit < this.lineageHeight ) {

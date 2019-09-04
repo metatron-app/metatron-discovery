@@ -1,6 +1,6 @@
 @charset "utf-8";
 
-.ddp-lineage-view-content { top: 164px; }
+.ddp-lineage-view-content { top: 164px; left:45px; margin-right: 45px; }
 
 /**** lineage list  *****/
 .ddp-lineage-list .ddp-lineage-none {position:relative; float:left; width:100%; padding:28px 53px 28px 0; color:#9c9c9c; font-size:14px; box-sizing:border-box;}
@@ -22,8 +22,8 @@
 .ddp-flow-option .ddp-box-btn2 .ddp-icon-widget-gridsave {margin-right:2px; vertical-align:middle;}
 .ddp-flow-option .ddp-list-tab-button {position:relative; top:3px; margin:0;}
 
-.ddp-lineage-view-toolbar {z-index:10; position:fixed; left:0; top:192px; right:0; bottom:0; height:50px; background-color:#fff;}
-.ddp-lineage-view {position:fixed; left:0; top:242px; right:0; bottom:0; background-color:#fff;}
+.ddp-lineage-view-toolbar {z-index:10; position:relative; left:0; top:0px; right:0; bottom:0; height:50px; background-color:#fff;}
+.ddp-lineage-view {position:absolute; left:0; top:60px; right:0; bottom:0; background-color:#fff;}
 .ddp-lineage-view .ddp-split-chart {position:relative; float:left; height:100%; width:100%;}
 .ddp-lineage-view .ddp-box-lineage-detail {position:relative; float:left; top:0; right:0; bottom:0; height:100%; border:none;}
 
