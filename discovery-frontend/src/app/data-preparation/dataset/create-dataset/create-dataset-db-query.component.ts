@@ -493,11 +493,13 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     }
 
     if (this.datasetJdbc.sqlInfo.queryStmt !== param) {
+      this.isQuerySuccess = false;
+      this.showQueryStatus = false;
+
       this.datasetJdbc.sqlInfo.queryStmt = param;
       this.datasetJdbc.sqlInfo.valid = false;
 
       this._deleteGridInfo(this.datasetJdbc.rsType);
-      this.clickable = true;
     }
 
   }
