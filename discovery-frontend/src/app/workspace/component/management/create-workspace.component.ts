@@ -13,18 +13,25 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
 } from '@angular/core';
-import {PublicType, Workspace, Workspaces} from '../../../domain/workspace/workspace';
-import { CommonUtil } from 'app/common/util/common.util';
-import { Alert } from '../../../common/util/alert.util';
-import { WorkspaceService } from '../../service/workspace.service';
-import { PermissionService } from '../../../user/service/permission.service';
-import { RoleSet, RoleSetScope } from '../../../domain/user/role/roleSet';
-import { PermissionSchemaComponent } from '../permission/permission-schema.component';
-import { AbstractComponent } from '../../../common/component/abstract.component';
+import {PublicType, Workspace} from '../../../domain/workspace/workspace';
+import {CommonUtil} from 'app/common/util/common.util';
+import {Alert} from '../../../common/util/alert.util';
+import {WorkspaceService} from '../../service/workspace.service';
+import {PermissionService} from '../../../user/service/permission.service';
+import {RoleSet, RoleSetScope} from '../../../domain/user/role/roleSet';
+import {PermissionSchemaComponent} from '../permission/permission-schema.component';
+import {AbstractComponent} from '../../../common/component/abstract.component';
 import * as _ from 'lodash';
-import { PermissionSchemaSetComponent } from '../permission/permission-schema-set.component';
+import {PermissionSchemaSetComponent} from '../permission/permission-schema-set.component';
 
 @Component({
   selector: 'app-create-workspace',
@@ -145,6 +152,8 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
 
   // 닫기
   public close() {
+    this.sharedWorkspaceList = undefined;
+    this.isInvalidName = undefined;
     $(document.body).css('overflow', this._docOverflow);
     this.isShow = false;
   }
@@ -160,27 +169,30 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
 
     this.loadingShow();
 
-    // get workspaces which contains keyword(newWorkspaceName)
-    this.workspaceService.getSharedWorkspaces('forListView', this.params).then(workspaces => {
-      // check if embedded is exist
-      if (workspaces['_embedded']) {
-        this.sharedWorkspaceList = workspaces['_embedded']['workspaces'];
+    if (_.isNil(this.sharedWorkspaceList)) {
+      // get workspaces which contains keyword(newWorkspaceName)
+      this.workspaceService.getSharedWorkspaces('forListView', this.params).then(workspaces => {
+        if (workspaces['_embedded']) {
+          this.sharedWorkspaceList = workspaces['_embedded']['workspaces'];
+        } else {
+          this.sharedWorkspaceList = [];
+        }
 
-        // check if name is in use and set isInvalidName flag according to the condition
-        this.isInvalidName = this.sharedWorkspaceList.some((workspace) => {
-          if (workspace.name === newWorkspaceName) {
-            this.errMsgName = this.translateService.instant('msg.comm.ui.workspace.name.duplicated');
-            return true;
-          }
-        });
-      } else {
-        this.isInvalidName = false;
-      }
-    }).catch(() => {
+      }).catch((error) => {
         Alert.error(this.translateService.instant('msg.space.alert.retrieve'));
         this.loadingHide();
       });
+    }
 
+    if (!_.isNil(this.sharedWorkspaceList) && this.sharedWorkspaceList.length > 0) {
+      // check if name is in use and set isInvalidName flag according to the condition
+      this.isInvalidName = this.sharedWorkspaceList.some((workspace) => {
+        if (workspace.name === newWorkspaceName) {
+          this.errMsgName = this.translateService.instant('msg.comm.ui.workspace.name.duplicated');
+          return true;
+        }
+      });
+    }
 
     this.loadingHide();
   }
