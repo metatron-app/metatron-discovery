@@ -4,14 +4,13 @@
 
 /**** lineage list  *****/
 .ddp-lineage-list .ddp-lineage-none {position:relative; float:left; width:100%; padding:28px 53px 28px 0; color:#9c9c9c; font-size:14px; box-sizing:border-box;}
-.ddp-lineage-list .ddp-data-load-name * {display:inline-block;}
-.ddp-lineage-create-confirm-grid .ddp-txt-total {margin: 2px 0px;}
+.ddp-lineage-create-confirm-grid .ddp-txt-total {margin-top: 2px;}
 
 .ddp-lineage-create-confirm-grid .ddp-data-load-name * {display:inline-block;}
 .ddp-lineage-create-confirm-grid .ddp-box-preview {height:100%; margin-bottom:10px; border:1px solid #e7e7ea; overflow:auto; color:#4b515b; font-size:12px; line-height:18px; background-color:#fff; box-sizing:border-box;}
 .ddp-lineage-create-confirm-grid .ddp-box-gridarea {height:100%; width: 100%; }
 .ddp-lineage-create-confirm-grid .ddp-box-invalid {margin:150px; text-align:center; }
-.ddp-lineage-create-confirm-grid .ddp-box-invalid * {display:block; }
+.ddp-lineage-create-confirm-grid .ddp-box-invalid span {display:block; }
 .ddp-lineage-create-confirm-grid .ddp-box-upload {height:55px;}
 .ddp-lineage-create-confirm-grid .ddp-box-upload .ddp-data-load-name {padding: 17px 0 17px 25px;}
 

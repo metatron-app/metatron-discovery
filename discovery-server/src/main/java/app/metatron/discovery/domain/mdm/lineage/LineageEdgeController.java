@@ -354,7 +354,7 @@ public class LineageEdgeController {
 
   @RequestMapping(value="/download_sample",method = RequestMethod.GET)
   public @ResponseBody
-  ResponseEntity<?> getDownload(
+  void getDownload(
       HttpServletResponse response
   ) {
     try {
@@ -374,7 +374,7 @@ public class LineageEdgeController {
       throw new LineageException(MetadataErrorCodes.METADATA_COMMON_ERROR,e.getMessage());
     }
 
-    return null;
+    return;
   }
 
   @RequestMapping(value = "/edges/{edgeId}", method = RequestMethod.DELETE, produces = "application/json", consumes = "application/json")
