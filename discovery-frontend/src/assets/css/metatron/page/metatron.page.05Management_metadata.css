@@ -10,9 +10,10 @@
 .ddp-lineage-create-confirm-grid .ddp-box-preview {height:100%; margin-bottom:10px; border:1px solid #e7e7ea; overflow:auto; color:#4b515b; font-size:12px; line-height:18px; background-color:#fff; box-sizing:border-box;}
 .ddp-lineage-create-confirm-grid .ddp-box-gridarea {height:100%; width: 100%; }
 .ddp-lineage-create-confirm-grid .ddp-box-invalid {margin:150px; text-align:center; }
-.ddp-lineage-create-confirm-grid .ddp-box-invalid span {display:block; }
+.ddp-lineage-create-confirm-grid .ddp-box-invalid div {margin-bottom:4px }
 .ddp-lineage-create-confirm-grid .ddp-box-upload {height:55px;}
 .ddp-lineage-create-confirm-grid .ddp-box-upload .ddp-data-load-name {padding: 17px 0 17px 25px;}
+.ddp-lineage-create-confirm-grid .ddp-box-synch {margin-top: 4px;}
 
 /**** lineage view  *****/
 
@@ -128,8 +129,9 @@
 .ddp-box-lineage-detail .ddp-data-detail dl.ddp-dl-detail2 dd {display:block; color:#4b515b; font-size:12px; font-weight:300; overflow:hidden;}
 
 
-.ddp-lineage-create .ddp-box-file-create {height:400px;margin-top:4px;}
+.ddp-lineage-create .ddp-box-file-create {height:380px;margin-top:4px;}
 .ddp-lineage-create .ddp-box-upload {display:table-row;text-align:center;}
 .ddp-lineage-create .ddp-box-file-create.ddp-file-single .ddp-file-progress {display:table-cell;vertical-align:middle;text-align:center;}
 .ddp-lineage-create .ddp-box-default {display:table-cell;}
+.ddp-lineage-create .ddp-box-synch {margin-top: 4px;}
 .ddp-lineage-create .ddp-data-filename {display:inline-block; margin:10px;}

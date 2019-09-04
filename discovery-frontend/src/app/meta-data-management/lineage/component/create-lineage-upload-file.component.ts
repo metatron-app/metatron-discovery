@@ -186,10 +186,8 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
         Error: (up, err) => {
           switch (err.code){
             case -601:
-              this.errorMsg = this.translateService.instant(
-                                'msg.lineage.ui.alert.wrong.file.format', {value:err.file.type} );
+              this.errorMsg = this.translateService.instant( 'msg.lineage.ui.alert.wrong.file.format' );
               this.errorView = true;
-              this._errorView();
               break;
             default:
               Alert.error(this.translateService.instant(err.message));

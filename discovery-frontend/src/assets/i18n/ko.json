@@ -545,7 +545,7 @@
   "msg.lineage.ui.download.title.path" :"PATH",
   "msg.lineage.ui.download.title.placeholder" :"항목을 입력해 주세요",
   "msg.lineage.ui.property.title.log-type" :"로그 타입",
-  "msg.lineage.ui.alert.wrong.file.format" :"Unsupported file format. ( {{value}} ).",
+  "msg.lineage.ui.alert.wrong.file.format" :"불러올 수 없는 파일 포멧입니다. txt 와 csv 파일 포멧을 허용하고 있습니다.",
   "msg.lineage.ui.alert.invalid.file.format" :"Invalid file format. {{value}}.",
 
   "msg.bench.alert.socket.link.fail.retry": "웹소켓 접속에 실패하여 재 접속 시도 합니다",

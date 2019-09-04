@@ -522,7 +522,7 @@
   "msg.lineage.ui.download.title.path": "PATH",
   "msg.lineage.ui.download.title.placeholder": "请输入项目",
   "msg.lineage.ui.property.title.log-type": "Log type",
-  "msg.lineage.ui.alert.wrong.file.format" :"Unsupported file format. ( {{value}} ).",
+  "msg.lineage.ui.alert.wrong.file.format" :"Invalid file formats. Txt and csv formats are allowed.",
   "msg.lineage.ui.alert.invalid.file.format" :"Invalid file format. {{value}}.",
 
   "msg.bench.alert.socket.link.fail.retry": "网络套接字连接失败，重新尝试连接",

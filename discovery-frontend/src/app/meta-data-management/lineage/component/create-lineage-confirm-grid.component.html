@@ -38,9 +38,9 @@
           </div>
           <div class="ddp-box-gridarea" #previewGrid grid-component [hidden]="!isWell"></div>
           <div class="ddp-box-invalid" [hidden]="isWell">
-            <span class="ddp-txt-result type-error">
-              Invalid File Format
-            </span>
+            <div>
+              <span class="ddp-txt-result type-error"> Invalid File Format </span>
+            </div>
             <div>
               <a href="javascript:" class="ddp-btn-selection ddp-line" (click)="downloadSample();"><em class="ddp-icon-download2"></em>Download Sample</a>
             </div>
