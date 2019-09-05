@@ -16,6 +16,7 @@ import {AbstractComponent} from '../common/component/abstract.component';
 import {Component, ElementRef, Injector} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import * as _ from 'lodash';
+import {MetadataService} from "./metadata/service/metadata.service";
 
 @Component({
   selector: 'app-meta-data-management',
@@ -48,12 +49,16 @@ export class MetaDataManagementComponent extends AbstractComponent {
   // TODO 추후 metadata-list로 변경
   public tabId: string = 'code-table';
 
+  // Lineage 탭 제어
+  public showLineageTab: boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
   constructor(
+    private metadataService: MetadataService,
     private activatedRoute: ActivatedRoute,
     protected element: ElementRef,
     protected injector: Injector) {
@@ -81,7 +86,8 @@ export class MetaDataManagementComponent extends AbstractComponent {
 
   // Init
   public ngOnInit() {
-
+    this._showLineageTab();
+    console.log(this.showLineageTab);
     // Init
     super.ngOnInit();
   }
@@ -116,5 +122,13 @@ export class MetaDataManagementComponent extends AbstractComponent {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  private _showLineageTab() {
+    this.metadataService.isShowLineage()
+      .then((result) => {
+        this.showLineageTab = result;
+      })
+      .catch(error => {});
+  }
 
 }

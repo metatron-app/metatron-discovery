@@ -26,7 +26,7 @@ import java.util.Map;
 public class ExtensionProperties {
 
   public enum ExtensionType{
-    LNB, CONNECTION
+    LNB, CONNECTION, LINEAGE
   }
 
   List<String> pluginEnable;
@@ -68,6 +68,10 @@ public class ExtensionProperties {
     Map<String, String> subContents;
 
     public Lnb() {
+    }
+
+    public Lnb(String name) {
+      this.name = name;
     }
 
     public String getName() {

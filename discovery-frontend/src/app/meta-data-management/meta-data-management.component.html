@@ -30,7 +30,7 @@
       <li [class.ddp-selected]="tabId === 'code-table'">
         <a href="javascript:" (click)="gotoTab('code-table')">{{'msg.metadata.ui.codetable.title' | translate}}</a>
       </li>
-      <li [class.ddp-selected]="tabId === 'lineage'">
+      <li [class.ddp-selected]="tabId === 'lineage'" *ngIf="showLineageTab">
         <a href="javascript:" (click)="gotoTab('lineage')">{{'msg.metadata.ui.lineage.title' | translate}}</a>
       </li>
       <li [class.ddp-selected]="tabId === 'catalog'">
