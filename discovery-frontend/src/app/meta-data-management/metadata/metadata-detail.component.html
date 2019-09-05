@@ -44,7 +44,7 @@
           -->
           <li
             (click)="changeTab('lineage')"
-            [ngClass]="{'ddp-selected': tab === 'lineage'}">
+            [ngClass]="{'ddp-selected': tab === 'lineage'}" *ngIf="showLineageTab">
             <a href="javascript:">{{'msg.metadata.metadata.detail.lineage' | translate}}</a>
           </li>
           <!--

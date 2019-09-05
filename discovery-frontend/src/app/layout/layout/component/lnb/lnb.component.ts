@@ -12,7 +12,15 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, HostListener, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  Injector,
+  OnDestroy,
+  OnInit,
+  ViewChild
+} from '@angular/core';
 import {NavigationEnd} from '@angular/router';
 import {AbstractComponent} from '../../../../common/component/abstract.component';
 import {WorkspaceService} from '../../../../workspace/service/workspace.service';
@@ -29,6 +37,7 @@ import {ConfirmModalComponent} from '../../../../common/component/modal/confirm/
 import {BuildInfo} from "../../../../../environments/build.env";
 import {CommonService} from "../../../../common/service/common.service";
 import {Extension} from "../../../../common/domain/extension";
+import {StringUtil} from "../../../../common/util/string.util";
 
 @Component({
   selector: 'app-lnb',
@@ -76,7 +85,8 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     managementDatasource: false,
     managementMetadata: false,
     userAdmin: false,
-    workspaceAdmin: false
+    workspaceAdmin: false,
+    lineage: false
   };
 
   // lnb 플래그
@@ -239,6 +249,8 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
 
           if( 'Explore Data' === ext.name ) {
             this.permission.exploreData = true;
+          } else if('Lineage' === ext.name) {
+            this.permission.lineage = true;
           } else {
             (this.lnbManager[ext.parent]) || (this.lnbManager[ext.parent] = {});
             this.lnbManager[ext.parent][ext.name] = {fold: true};
@@ -621,19 +633,27 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
    * @private
    */
   private _getPrivateWorkspace() {
-    // 개인 워크스페이스 조회
-    this.workspaceService.getMyWorkspace('forDetailView').then((workspace) => {
-      // 개인 워크스페이스 초기화
-      this.privateWorkspace = null;
+    const workspace = this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE);
+    if (StringUtil.isEmpty(workspace)) {
+      // 개인 워크스페이스 조회
+      this.workspaceService.getMyWorkspace().then((workspace) => {
+        // 개인 워크스페이스 초기화
+        this.privateWorkspace = null;
 
-      if (workspace) {
-        // 데이터 저장
-        this.privateWorkspace = workspace;
+        if (workspace) {
+          this.cookieService.set(CookieConstant.KEY.MY_WORKSPACE, JSON.stringify(workspace), 0, '/');
+          // 데이터 저장
+          this.privateWorkspace = workspace;
 
-        // 공유 워크스페이스 조회 호출
-        this._getSharedWorkspace();
-      }
-    });
+          // 공유 워크스페이스 조회 호출
+          this._getSharedWorkspace();
+        }
+      });
+    } else {
+      this.privateWorkspace = JSON.parse(workspace);
+      this._getSharedWorkspace();
+    }
+
   } // function - _getPrivateWorkspace
 
   /**
