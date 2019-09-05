@@ -72,11 +72,21 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     // initialize textarea text
     this.descriptionChangeText = ( this.metadata.description ) ? this.metadata.description : '';
 
+    this.subscriptions.push(
+      this.metadataModelService.metadataChanged.subscribe((metadata) => {
+        this.metadata = metadata;
+        this.descriptionChangeText = metadata.description;
+      })
+    );
+
+    if (this.descriptionChangeText === undefined) {
+      this.descriptionChangeText = '';
+    }
     /**
      *  if sourceType is datasource(ENGINE), set css class according to status
      *  if sourceType is not datasource(ENGINE) hide <tr></tr>
      */
-    if (this.metadata.sourceType === this.sourceType.ENGINE) {
+    if (this.metadata.sourceType === this.sourceType.ENGINE && this.metadata.source.source != undefined) {
       this.statusClass = 'ddp-data-status ' + 'ddp-' + ((this.metadata.source.source) as Datasource).status.toString().toLowerCase();
     }
 
@@ -88,10 +98,14 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
         this.dataType = 'Datasource';
         break;
       case SourceType.JDBC:
-        if (this.metadata.source.source.implementor == "MYSQL") {
-          this.dataType = 'Database(' + 'MySQL' + ')';
-        } else if (this.metadata.source.source.implementor == "HIVE") {
-          this.dataType = 'Database(' + 'Hive' + ')';
+        if (this.metadata.source.source !== undefined) {
+          if (this.metadata.source.source.implementor == "MYSQL") {
+            this.dataType = 'Database(' + 'MySQL' + ')';
+          } else if (this.metadata.source.source.implementor == "HIVE") {
+            this.dataType = 'Database(' + 'Hive' + ')';
+          } else {
+            this.dataType = 'Database';
+          }
         } else {
           this.dataType = 'Database';
         }

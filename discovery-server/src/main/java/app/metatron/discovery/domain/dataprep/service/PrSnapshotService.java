@@ -133,9 +133,24 @@ public class PrSnapshotService {
 
                     switch (uri.getScheme()) {
                         case "file":
+                            // copied from HttpUtils.java
+                            response.getOutputStream().write(0xEF);
+                            response.getOutputStream().write(0xBB);
+                            response.getOutputStream().write(0xBF);
+
                             FileInputStream fis;
                             try {
-                                fis = new FileInputStream(new File(new URI(storedUri)));
+                                File file  = new File(new URI(storedUri));
+
+                                //캐릭터 인코딩 3바이트 추가
+                                long length = file.length() + 3;
+                                if (length <= Integer.MAX_VALUE) {
+                                    response.setContentLength((int)length);
+                                } else {
+                                    response.addHeader("Content-Length", Long.toString(length));
+                                }
+
+                                fis = new FileInputStream(file);
                             } catch (FileNotFoundException e) {
                                 e.printStackTrace();
                                 throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND, storedUri);

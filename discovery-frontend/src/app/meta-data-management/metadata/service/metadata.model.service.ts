@@ -15,6 +15,7 @@
 import {Injectable, Injector} from '@angular/core';
 import {AbstractService} from '../../../common/service/abstract.service';
 import {Metadata} from '../../../domain/meta-data-management/metadata';
+import {Subject} from "rxjs";
 
 @Injectable()
 export class MetadataModelService extends AbstractService {
@@ -42,7 +43,7 @@ export class MetadataModelService extends AbstractService {
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public selectedMetadata: Metadata;
-
+  metadataChanged = new Subject<Metadata>();
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -74,6 +75,7 @@ export class MetadataModelService extends AbstractService {
    */
   public setMetadata(metadata: Metadata): void {
     this._selectedMetadata = metadata;
+    this.metadataChanged.next(metadata);
   }
 
   public updateMetadataName(name: string): void {

@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy;
 
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import app.metatron.discovery.prep.parser.exceptions.RuleException;
 import app.metatron.discovery.prep.parser.preparation.rule.Keep;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
@@ -47,10 +48,14 @@ public class DfKeep extends DataFrame {
   @Override
   public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
     Expression condExpr = (Expression) preparedArgs.get(0);
+    List<Row> rows = null;
 
     LOGGER.trace("DfKeep.gather(): start: offset={} length={} condExpr={}", offset, length, condExpr);
-
-    List<Row> rows = filter(prevDf, condExpr, true, offset, length);
+    try {
+      rows = filter(prevDf, condExpr, true, offset, length);
+    } catch (RuleException e) {
+      throw TeddyException.fromRuleException(e);
+    }
 
     LOGGER.trace("DfKeep.gather(): done: offset={} length={} condExpr={}", offset, length, condExpr);
     return rows;

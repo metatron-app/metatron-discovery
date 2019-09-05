@@ -90,6 +90,9 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
 
   public metadataLoaded: boolean = false;
 
+  // Lineage 탭 제어
+  public showLineageTab: boolean = false;
+
   /**
    * Metadata SourceType Enum
    */
@@ -124,6 +127,8 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public ngOnInit() {
+    this._showLineageTab();
+
     super.ngOnInit();
   }
 
@@ -292,6 +297,14 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  private _showLineageTab() {
+    this.metadataService.isShowLineage()
+      .then((result) => {
+        this.showLineageTab = result;
+      })
+      .catch(error => {});
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method - getter

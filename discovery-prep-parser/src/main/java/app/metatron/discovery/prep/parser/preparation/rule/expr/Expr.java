@@ -129,11 +129,32 @@ public interface Expr extends Expression {
       return name + "(" + StringUtils.join(argsExprs, ",") + ")";
     }
 
+    private void checkArgc(int argc) {
+      if (args.size() != argc) {
+        String msg = String.format("%s() requires %d argument%s", function.name(), argc, argc > 1 ? "s" : "");
+        throw new FunctionArgumentCountException(msg);
+      }
+    }
+
+    private void checkArgc(int argc1, int argc2) {
+      if (args.size() != argc1 && args.size() != argc2) {
+        String msg = String.format("%s() requires %d or %d arguments", function.name(), argc1, argc2);
+        throw new FunctionArgumentCountException(msg);
+      }
+    }
+
+    private void checkArgcAtLeast(int argc) {
+      if (args.size() < argc) {
+        String msg = String.format("%s() requires at lease %d arguments", function.name(), argc);
+        throw new FunctionArgumentCountException(msg);
+      }
+    }
+
     @Override
     public ExprEval eval(NumericBinding bindings) {
       if (function instanceof BuiltinFunctions.Str.LengthFunc) {
         // length(expr)
-        assert (args.size() == 1) : args.size();
+        checkArgc(1);
         try {
           ExprEval exprEval = args.get(0).eval(bindings);
           return (exprEval.value() == null) ? exprEval : ExprEval.of(exprEval.stringValue().length());
@@ -147,7 +168,7 @@ public interface Expr extends Expression {
       }
       else if (function instanceof BuiltinFunctions.ConditionFunc) {
         // if(condExpr, trueValue, falseValue)
-        assert (args.size() == 1 || args.size() == 3) : args.size();
+        checkArgc(1, 3);
         ExprEval condEval = args.get(0).eval(bindings);
         if (args.size() == 1) {
           return ExprEval.of(condEval.asBoolean());
@@ -160,7 +181,7 @@ public interface Expr extends Expression {
       }
       else if (function instanceof BuiltinFunctions.IsNullFunc) {
         // isnull(expr)
-        assert (args.size() == 1) : args.size();
+        checkArgc(1);
         try {
           ExprEval exprEval = args.get(0).eval(bindings);
           return exprEval.value() == null ? ExprEval.of(true) : ExprEval.of(false);
@@ -170,7 +191,7 @@ public interface Expr extends Expression {
       }
       else if (function instanceof BuiltinFunctions.IsNanFunc) {
         // isnan(expr)
-        assert (args.size() == 1) : args.size();
+        checkArgc(1);
         ExprEval exprEval;
         Double d;
         try {
@@ -184,8 +205,8 @@ public interface Expr extends Expression {
         return ExprEval.of(d.isNaN());
       }
       else if (function instanceof BuiltinFunctions.IsMismatchedFunc) {
-        // isnull(expr)
-        assert (args.size() == 2) : args.size();
+        // ismismatched(expr, type)
+        checkArgc(2);
         try {
           ExprEval exprEval = args.get(0).eval(bindings);
           String colType = args.get(1).eval(bindings).stringValue().replace("'", "").toUpperCase();
@@ -195,12 +216,12 @@ public interface Expr extends Expression {
           else
             return exprEval.type().toString().toUpperCase().equals(colType) ? ExprEval.of(false) : ExprEval.of(true);
         } catch (NullPointerException ne){
-          throw new FunctionColumnNotFoundException("isnull(): No such column name >> " + args.get(0).toString());
+          throw new FunctionColumnNotFoundException("ismismatched(): No such column name >> " + args.get(0).toString());
         }
       }
       else if (function instanceof BuiltinFunctions.IsMissingFunc) {
         // isnull(expr)
-        assert (args.size() == 1) : args.size();
+        checkArgc(1);
         try {
           ExprEval exprEval = args.get(0).eval(bindings);
 
@@ -217,8 +238,7 @@ public interface Expr extends Expression {
       }
       else if (function instanceof BuiltinFunctions.Str.UpperFunc) {
         // upper(expr)
-        assert (args.size() == 1) : args.size();
-
+        checkArgc(1);
         try {
           ExprEval exprEval = args.get(0).eval(bindings);
           return (exprEval.value() == null) ? exprEval : ExprEval.of(exprEval.stringValue().toUpperCase());
@@ -232,8 +252,7 @@ public interface Expr extends Expression {
       }
       else if (function instanceof BuiltinFunctions.Str.LowerFunc) {
         // lower(expr)
-        assert (args.size() == 1) : args.size();
-
+        checkArgc(1);
         try {
           ExprEval exprEval = args.get(0).eval(bindings);
           return (exprEval.value() == null) ? exprEval : ExprEval.of(exprEval.stringValue().toLowerCase());
@@ -247,8 +266,7 @@ public interface Expr extends Expression {
       }
       else if (function instanceof BuiltinFunctions.Str.TrimFunc) {
         // trim(expr)
-        assert (args.size() == 1) : args.size();
-
+        checkArgc(1);
         try{
           ExprEval exprEval = args.get(0).eval(bindings);
           return (exprEval.value() == null) ? exprEval : ExprEval.bestEffortOf(exprEval.stringValue().trim());
@@ -263,8 +281,7 @@ public interface Expr extends Expression {
       }
       else if (function instanceof BuiltinFunctions.Str.LTrimFunc) {
         // ltrim(expr)
-        assert (args.size() == 1) : args.size();
-
+        checkArgc(1);
         try{
           ExprEval exprEval = args.get(0).eval(bindings);
           return (exprEval.value() == null) ? exprEval : ExprEval.bestEffortOf(exprEval.stringValue().replaceFirst("^\\s+", ""));
@@ -279,8 +296,7 @@ public interface Expr extends Expression {
       }
       else if (function instanceof BuiltinFunctions.Str.RTrimFunc) {
         // rtrim(expr)
-        assert (args.size() == 1) : args.size();
-
+        checkArgc(1);
         try{
           ExprEval exprEval = args.get(0).eval(bindings);
           return (exprEval.value() == null) ? exprEval : ExprEval.bestEffortOf(exprEval.stringValue().replaceFirst("\\s+$", ""));
@@ -295,8 +311,7 @@ public interface Expr extends Expression {
       }
       else if (function instanceof BuiltinFunctions.Str.SubstringFunc) {
         // substring(expr)
-        assert (args.size() == 2 || args.size() == 3) : args.size();
-
+        checkArgc(2, 3);
         try{
           ExprEval exprEval = args.get(0).eval(bindings);
           String exprStr = exprEval.stringValue();
@@ -333,8 +348,7 @@ public interface Expr extends Expression {
       }
       else if (function instanceof BuiltinFunctions.Str.ContainsFunc) {
         // substring(expr)
-        assert (args.size() == 2) : args.size();
-
+        checkArgc(2);
         try{
           ExprEval arg0 = args.get(0).eval(bindings);
           String targetText = arg0.stringValue();
@@ -358,9 +372,8 @@ public interface Expr extends Expression {
 
       }
       else if (function instanceof BuiltinFunctions.Str.StartsWithFunc) {
-        // substring(expr)
-        assert (args.size() == 2) : args.size();
-
+        // startsWith(expr)
+        checkArgc(2);
         try{
           ExprEval arg0 = args.get(0).eval(bindings);
           String targetText = arg0.stringValue();
@@ -384,9 +397,8 @@ public interface Expr extends Expression {
 
       }
       else if (function instanceof BuiltinFunctions.Str.EndsWithFunc) {
-        // substring(expr)
-        assert (args.size() == 2) : args.size();
-
+        // endsWith(expr)
+        checkArgc(2);
         try{
           ExprEval arg0 = args.get(0).eval(bindings);
           String targetText = arg0.stringValue();
@@ -411,7 +423,7 @@ public interface Expr extends Expression {
       }
       else if (function instanceof BuiltinFunctions.Str.ConcatFunc) {
         // concat(expr)
-        assert (args.size() > 0) : args.size();
+        checkArgcAtLeast(1);
         Expression expression;
         String exprStr="";
         String resultStr="";
@@ -439,7 +451,7 @@ public interface Expr extends Expression {
       }
       else if (function instanceof BuiltinFunctions.Str.ConcatwsFunc) {
         // concat_ws(expr)
-        assert (args.size() > 1) : args.size();
+        checkArgcAtLeast(2);
         ExprEval exprEval;
         Expression expression;
         String exprStr="";
@@ -479,9 +491,8 @@ public interface Expr extends Expression {
         }
       }
       else if (function instanceof BuiltinFunctions.Times.TimestampToString) {
-        //year(expr)
-        assert (args.size() == 2) : args.size();
-
+        // timestamptostring(expr, format)
+        checkArgc(2);
         try {
           DateTime dt = args.get(0).eval(bindings).timestampValue();
           String format = args.get(1).eval(bindings).stringValue();
@@ -496,9 +507,8 @@ public interface Expr extends Expression {
 
       }
       else if (function instanceof BuiltinFunctions.Times.YearFunc) {
-        //year(expr)
-        assert (args.size() == 1) : args.size();
-
+        // year(expr)
+        checkArgc(1);
         try {
           DateTime dt = args.get(0).eval(bindings).timestampValue();
           return ExprEval.of(dt.getYear());
@@ -512,9 +522,8 @@ public interface Expr extends Expression {
 
       }
       else if (function instanceof BuiltinFunctions.Times.MonthFunc) {
-        //month(expr)
-        assert (args.size() == 1) : args.size();
-
+        // month(expr)
+        checkArgc(1);
         try {
           DateTime dt = args.get(0).eval(bindings).timestampValue();
           return ExprEval.of(dt.getMonthOfYear());
@@ -528,9 +537,8 @@ public interface Expr extends Expression {
 
       }
       else if (function instanceof BuiltinFunctions.Times.DayFunc) {
-        //day(expr)
-        assert (args.size() == 1) : args.size();
-
+        // day(expr)
+        checkArgc(1);
         try {
           DateTime dt = args.get(0).eval(bindings).timestampValue();
           return ExprEval.of(dt.getDayOfMonth());
@@ -544,9 +552,8 @@ public interface Expr extends Expression {
 
       }
       else if (function instanceof BuiltinFunctions.Times.HourFunc) {
-        //hour(expr)
-        assert (args.size() == 1) : args.size();
-
+        // hour(expr)
+        checkArgc(1);
         try {
           DateTime dt = args.get(0).eval(bindings).timestampValue();
           return ExprEval.of(dt.getHourOfDay());
@@ -560,9 +567,8 @@ public interface Expr extends Expression {
 
       }
       else if (function instanceof BuiltinFunctions.Times.MinuteFunc) {
-        //minute(expr)
-        assert (args.size() == 1) : args.size();
-
+        // minute(expr)
+        checkArgc(1);
         try {
           DateTime dt = args.get(0).eval(bindings).timestampValue();
           return ExprEval.of(dt.getMinuteOfHour());
@@ -576,9 +582,8 @@ public interface Expr extends Expression {
 
       }
       else if (function instanceof BuiltinFunctions.Times.SecondFunc) {
-        //second(expr)
-        assert (args.size() == 1) : args.size();
-
+        // second(expr)
+        checkArgc(1);
         try {
           DateTime dt = args.get(0).eval(bindings).timestampValue();
           return ExprEval.of(dt.getSecondOfMinute());
@@ -592,9 +597,8 @@ public interface Expr extends Expression {
 
       }
       else if (function instanceof BuiltinFunctions.Times.MillisecondFunc) {
-        //millisecond(expr)
-        assert (args.size() == 1) : args.size();
-
+        // millisecond(expr)
+        checkArgc(1);
         try {
           DateTime dt = args.get(0).eval(bindings).timestampValue();
           return ExprEval.of(dt.getMillisOfSecond());
@@ -608,9 +612,8 @@ public interface Expr extends Expression {
 
       }
       else if (function instanceof BuiltinFunctions.Times.WeekdayFunc) {
-        //weekday(expr)
-        assert (args.size() == 1) : args.size();
-
+        // weekday(expr)
+        checkArgc(1);
         try {
           DateTime dt = args.get(0).eval(bindings).timestampValue();
           int weekday = dt.getDayOfWeek();
@@ -643,6 +646,7 @@ public interface Expr extends Expression {
 
       }
       else if (function instanceof BuiltinFunctions.Times.NowFunc) {
+        checkArgc(0, 1);
 
         String timeZoneId;
 
@@ -664,9 +668,7 @@ public interface Expr extends Expression {
 
       }
       else if (function instanceof BuiltinFunctions.Times.AddtimeFunc) {
-
-        assert (args.size() == 3) : args.size();
-
+        checkArgc(3);
         try {
           DateTime dateTime = args.get(0).eval(bindings).asTimestamp();
 
@@ -709,9 +711,7 @@ public interface Expr extends Expression {
 
       }
       else if (function instanceof BuiltinFunctions.Times.TimeBetweenFunc) {
-
-        assert (args.size() == 3) : args.size();
-
+        checkArgc(3);
         try {
           DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.sssZ").withLocale(Locale.ENGLISH);
           DateTime dateTime = args.get(0).eval(bindings).asTimestamp();
@@ -736,9 +736,7 @@ public interface Expr extends Expression {
 
       }
       else if (function instanceof BuiltinFunctions.Times.TimeDiffFunc) {
-
-        assert (args.size() == 2) : args.size();
-
+        checkArgc(2);
         try {
           DateTime dateTime1 = args.get(0).eval(bindings).asTimestamp();
           DateTime dateTime2 = args.get(1).eval(bindings).asTimestamp();
@@ -758,9 +756,7 @@ public interface Expr extends Expression {
 
       }
       else if (function instanceof BuiltinFunctions.Times.TimestampFunc) {
-
-        assert (args.size() == 2) : args.size();
-
+        checkArgc(2);
         try {
           String time = args.get(0).eval(bindings).asString().replaceAll("'", "");;
           String format = args.get(1).eval(bindings).asString();
@@ -780,7 +776,7 @@ public interface Expr extends Expression {
 
       }
       else if (function instanceof BuiltinFunctions.Math.SingleParamMath) {
-        assert (args.size() == 1) : args.size();
+        checkArgc(1);
         ExprEval exprEval = args.get(0).eval(bindings);
         assert exprEval.isNumeric() : exprEval.toString();
         if (exprEval.value() == null) {
@@ -830,7 +826,7 @@ public interface Expr extends Expression {
         }
       }
       else if (function instanceof BuiltinFunctions.Math.DoubleParamMath) {
-        assert (args.size() == 2) : args.size();
+        checkArgc(2);
         ExprEval left = args.get(0).eval(bindings);
         ExprEval right = args.get(0).eval(bindings);
         assert left.isNumeric() : left.toString();

@@ -97,6 +97,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
   public ssNameErrorMsg: string = '';
   public tblErrorMsg: string = '';
 
+  public storedUriChangedDirectly: boolean = false;
 
   @Output()
   public snapshotCreateFinishEvent = new EventEmitter();
@@ -250,10 +251,23 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    * When snapshot Name change, modify file type uris
    * */
   public changeSSUri(){
-    if(this.snapshot.storedUri && this.snapshot.storedUri.lastIndexOf("/") > 0) {
-      this.snapshot.storedUri = this.snapshot.storedUri.substring(0,this.snapshot.storedUri.lastIndexOf("/")+1)
-        + this.snapshot.ssName.replace(/\s/gi, "")
-        + '.'+this.uriFileFormat.toString().toLowerCase();
+    if( this.storedUriChangedDirectly === true) {
+      return;
+    }
+
+    let fileName = this.snapshot.ssName.replace(/[^\w_가-힣]/gi, "_") +'.'+ this.uriFileFormat.toString().toLowerCase();
+    this.changeStoredUri(fileName);
+  }
+
+  public changeStoredUri(fileName: string = null){
+    var slashIndex = this.snapshot.storedUri.lastIndexOf("/");
+    if(this.snapshot.storedUri && slashIndex > 0) {
+      if(fileName===null) {
+        fileName = this.snapshot.storedUri.substring(slashIndex+1);
+      }
+      let replacedFileName = fileName.replace(/[^\w_.ㄱ-힣]/gi, "_");
+
+      this.snapshot.storedUri = this.snapshot.storedUri.substring(0,slashIndex+1) + replacedFileName;
     }
   }
 
@@ -413,6 +427,15 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     this.isErrorShow = false
   }
 
+  /**
+   * Check if it has changed directly
+   */
+  public onChangeStoredUri(event, selection) {
+    if(event) {
+      this.storedUriChangedDirectly = true;
+      this.changeStoredUri();
+    }
+  }
 
   /**
    * Remove error msg when keydown in file uri

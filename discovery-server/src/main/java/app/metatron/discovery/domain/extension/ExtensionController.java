@@ -78,6 +78,18 @@ public class ExtensionController {
                           })
                           .collect(Collectors.toList());
         return ResponseEntity.ok(connectionList);
+      case LINEAGE:
+        lnbs = extensionProperties.getLnb();
+        boolean showLineage = false;
+        if (CollectionUtils.isNotEmpty(lnbs)) {
+          for (ExtensionProperties.Lnb lnb : extensionProperties.getLnb()) {
+            if ("Lineage".equals(lnb.getName())) {
+              showLineage = true;
+              break;
+            }
+          }
+        }
+        return ResponseEntity.ok(showLineage);
       default:
         throw new IllegalArgumentException("Not supported type " + extensionType);
     }

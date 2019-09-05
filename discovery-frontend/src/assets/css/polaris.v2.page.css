@@ -8675,6 +8675,7 @@ table.ddp-table-detail tr td .ddp-bar span {display:inline-block; height:100%; b
   cursor:pointer;}
 .ddp-wrap-catalogs2 .ddp-ui-catalogs2 .ddp-btn-delete {display:none; float:left; width:14px; height:14px; margin-left:5px; background:url(../images/btn_sclose.png) no-repeat; background-position:-15px -131px; vertical-align:middle;}
 .ddp-wrap-catalogs2 .ddp-ui-catalogs2 .ddp-catalogs-in:hover .ddp-btn-delete {display:block;}
+
 .ddp-wrap-catalogs2 .ddp-ui-catalogs2 .ddp-btn-delete:hover {background-position-x:-0;}
 .ddp-ui-catalogs2 {position:relative; overflow:hidden; font-weight:normal;}
 .ddp-ui-catalogs2 .ddp-icon-folder-type {display:inline-block; position:absolute; top:50%; left:0; margin-top:-6px; width:13px; height:12px; margin-right:8px; background:url(../images/icon_folder.png) no-repeat; background-position:-16px top;}
@@ -8872,6 +8873,7 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
 }
 .ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-banner-tags {padding-top:9px; margin:-3px -3px 0 -3px;text-align:center;}
 .ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-banner-tags .ddp-tags {display:inline-block; padding:7px 10px; margin:3px 3px 0 3px;border-radius:5px; background-color:#343865; color:#9da9ff;}
+
 .ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-banner-tags .ddp-tags:first-of-type {margin-left:0;}
 .ddp-box-banner .ddp-banner-list [class*="ddp-ui-banner-link"] {display:flex; height:85px; align-items: center; color:#fff; font-size:16px}
 .ddp-box-banner .ddp-ui-banner-link.type-banner02 {background:url(../images/bg_banner02.png) no-repeat; background-size:100% 100%;}

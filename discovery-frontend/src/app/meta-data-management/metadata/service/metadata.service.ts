@@ -107,7 +107,6 @@ export class MetadataService extends AbstractService {
    * @returns {Promise<any>}
    */
   public updateMetadata(id: string, params: any): Promise<any> {
-
     return this.patch(this.URL_METADATA + `/${id}`, params);
   }
 
@@ -271,5 +270,9 @@ export class MetadataService extends AbstractService {
       url += '&' + CommonUtil.objectToUrlString(params);
     }
     return this.get(url);
+  }
+
+  public isShowLineage(): Promise<any> {
+    return this.get(this.API_URL + `extensions/lineage`)
   }
 }

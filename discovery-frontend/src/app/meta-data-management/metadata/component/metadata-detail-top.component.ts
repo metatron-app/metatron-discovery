@@ -25,6 +25,44 @@ export class MetadataDetailTopComponent extends AbstractComponent implements OnI
   public editDescription: string;
   public editName: string;
 
+  constructor(
+    private _location: Location,
+    protected element: ElementRef,
+    protected metadataService: MetadataService,
+    protected metadataModelService: MetadataModelService,
+    protected activatedRoute: ActivatedRoute,
+    protected datasourceService: DatasourceService,
+    protected injector: Injector,) {
+    super(element, injector);
+  }
+
+  public ngOnInit() {
+    super.ngOnInit();
+    this.metadata = this.metadataModelService.getMetadata();
+
+    // initialize input
+    this.editName = this.metadata.name;
+    this.editDescription = this.metadata.description;
+
+    // subscribe metadata change
+    this.subscriptions.push(
+      this.metadataModelService.metadataChanged.subscribe((metadata) => {
+        this.metadata = metadata;
+        this.editName = metadata.name;
+        this.editDescription = metadata.description;
+      })
+    );
+
+    // if editDescription is undefined
+    if (this.editDescription === undefined) {
+      this.editDescription = '';
+    }
+  }
+
+  public ngOnDestroy() {
+    super.ngOnDestroy();
+  }
+
   public deleteMetadata() {
     const modal = new Modal();
     modal.name = this.translateService.instant('msg.comm.ui.del.description');
@@ -56,20 +94,15 @@ export class MetadataDetailTopComponent extends AbstractComponent implements OnI
 
   public onClickEditName() {
     event.stopImmediatePropagation();
-    if (this.isEngineSource) {
-      this.editNameFlag = true;
-    }
+    this.editNameFlag = true;
   }
 
   public onClickEditDescription() {
     event.stopImmediatePropagation();
-    if (this.isEngineSource) {
-      this.editDescriptionFlag = true;
-    }
-
+    this.editDescriptionFlag = true;
   }
 
-  public onClickUpdateEditingName() {
+  public onClickUpdateName() {
     event.stopImmediatePropagation();
     this.loadingShow();
     // Check text length
@@ -82,7 +115,7 @@ export class MetadataDetailTopComponent extends AbstractComponent implements OnI
     this.editNameFlag = false;
 
     // update the data in DB
-    this.datasourceService.updateDatasource(this.metadata.source.source.id, {name: this.editName.trim()})
+    this.metadataService.updateMetadata(this.metadata.id, {name: this.editName.trim()})
       .then(() => {
         Alert.success(this.translateService.instant('msg.metadata.metadata.detail.ui.alert.metadata.modified'));
         this.metadata.name = this.editName;
@@ -92,50 +125,26 @@ export class MetadataDetailTopComponent extends AbstractComponent implements OnI
       .catch((error) => this.commonExceptionHandler(error));
   }
 
-  public onClickUpdateEditingDescription() {
+  public onClickUpdateDescription() {
     event.stopImmediatePropagation();
-    event.stopImmediatePropagation();
+    // deactivate edit mode
+    this.editDescriptionFlag = false;
     this.loadingShow();
     // Check text length
     if (CommonUtil.getByte(this.editDescription.trim()) > 450) {
       Alert.warning(this.translateService.instant('msg.alert.edit.description.len'));
+      this.loadingHide();
       return;
     }
 
-    // deactivate edit mode
-    this.editDescriptionFlag = false;
-
     // update the data in DB
-    this.datasourceService.updateDatasource(this.metadata.source.source.id, {description: this.editDescription.trim()})
+    this.metadataService.updateMetadata(this.metadata.id, {description: this.editDescription.trim()})
       .then(() => {
-        Alert.success(this.translateService.instant('msg.storage.alert.dsource.update.success'));
+        Alert.success(this.translateService.instant('msg.metadata.metadata.detail.ui.alert.metadata.modified'));
         this.metadata.description = this.editDescription;
         this.metadataModelService.setMetadata(this.metadata);
         this.loadingHide();
       })
       .catch((error) => this.commonExceptionHandler(error));
-  }
-
-  constructor(
-    private _location: Location,
-    protected element: ElementRef,
-    protected metadataService: MetadataService,
-    protected metadataModelService: MetadataModelService,
-    protected activatedRoute: ActivatedRoute,
-    protected datasourceService: DatasourceService,
-    protected injector: Injector,) {
-    super(element, injector);
-  }
-
-  public ngOnInit() {
-    super.ngOnInit();
-
-    this.metadata = this.metadataModelService.getMetadata();
-    this.editName = this.metadata.name;
-    this.editDescription = this.metadata.description;
-  }
-
-  public ngOnDestroy() {
-    super.ngOnDestroy();
   }
 }

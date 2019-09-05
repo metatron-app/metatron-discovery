@@ -24,7 +24,12 @@ import {
   ViewChild,
   ViewChildren
 } from '@angular/core';
-import {BoardDataSource, Dashboard, JoinMapping, QueryParam} from '../../../domain/dashboard/dashboard';
+import {
+  BoardDataSource,
+  Dashboard,
+  JoinMapping,
+  QueryParam
+} from '../../../domain/dashboard/dashboard';
 import {DatasourceService} from 'app/datasource/service/datasource.service';
 import {
   ConnectionType,
@@ -49,7 +54,11 @@ import {CommonUtil} from '../../util/common.util';
 import {DataDownloadComponent, PreviewResult} from '../data-download/data.download.component';
 import {MetadataColumn} from '../../../domain/meta-data-management/metadata-column';
 import {DashboardUtil} from '../../../dashboard/util/dashboard.util';
-import {ImplementorType, Dataconnection, AuthenticationType} from '../../../domain/dataconnection/dataconnection';
+import {
+  AuthenticationType,
+  Dataconnection,
+  ImplementorType
+} from '../../../domain/dataconnection/dataconnection';
 import {PeriodData} from "../../value/period.data.value";
 import {TimeRangeFilter} from "../../../domain/workbook/configurations/filter/time-range-filter";
 import {Filter} from "../../../domain/workbook/configurations/filter/filter";
@@ -226,7 +235,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     if (this.source['configuration']) {
       this.isDashboard = true;
       const dashboardInfo: Dashboard = (<Dashboard>this.source);
-      this.datasources = _.cloneDeep(DashboardUtil.getMainDataSources(dashboardInfo));
+      //this.datasources = _.cloneDeep(DashboardUtil.getMainDataSources(dashboardInfo));
+      this.datasources = _.cloneDeep(dashboardInfo.dataSources);
     } else {
       this.isDashboard = false;
       this.datasources.push(<Datasource>_.cloneDeep(this.source));
@@ -353,17 +363,17 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
 
       let params = new QueryParam();
       params.limits.limit = this.rowNum < 1 ? 100 : this.rowNum;
-      if (this.isDashboard) {
+      //if (this.isDashboard) {
         // 대시보드인 경우
-        params = this._getDashboardQueryParam( source, (<Dashboard>this.source), params );
-      } else {
+        //params = this._getDashboardQueryParam( source, (<Dashboard>this.source), params );
+      //} else {
         // 데이터소스인 경우
         const dsInfo = _.cloneDeep(<Datasource>source);
         params.dataSource.name = dsInfo.engineName;
         params.dataSource.engineName = dsInfo.engineName;
         params.dataSource.connType = dsInfo.connType.toString();
         params.dataSource.type = 'default';
-      }
+      //}
 
       params.filters = (this._filters && 0 < this._filters.length) ? this._filters : [];
 
@@ -378,10 +388,10 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
         this.datasourceService.getDatasourceQuery(params).then(metaData => {
           this.downloadPreview = new PreviewResult(metaData.estimatedSize, metaData.totalCount);
           (this.rowNum > this.downloadPreview.count) && (this.rowNum = this.downloadPreview.count);
-          res(gridData);
-          this.loadingHide();
+        }).catch((err) => {
         });
-
+        res(gridData);
+        this.loadingHide();
       }).catch((err) => {
         console.error(err);
         rej(err);
