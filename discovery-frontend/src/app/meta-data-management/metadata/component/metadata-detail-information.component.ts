@@ -13,7 +13,7 @@ import {isUndefined} from "util";
 @Component(
   {
     selector: 'app-metadata-management-metadata-detail-information',
-    templateUrl: './metadata-detail-information.component.html',
+    templateUrl: './metadata-detail-information.component.html'
   }
 )
 export class MetadataDetailInformationComponent extends AbstractComponent implements OnInit, OnDestroy {
@@ -31,7 +31,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public isEditDescription: boolean = false;
-  public descriptionChangeText: string;
+  public descriptionChangeText: string = '';
 
   public metadata: Metadata;
   public sourceType = SourceType;
@@ -70,7 +70,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     this._getMetadataTags();
 
     // initialize textarea text
-    this.descriptionChangeText = this.metadata.description;
+    this.descriptionChangeText = ( this.metadata.description ) ? this.metadata.description : '';
 
     /**
      *  if sourceType is datasource(ENGINE), set css class according to status
