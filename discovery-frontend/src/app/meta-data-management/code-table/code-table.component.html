@@ -87,7 +87,9 @@
         <span class="ddp-txt-long">{{codeTable.description}}</span>
       </td>
       <td>
-        {{codeTable.modifiedTime | mdate:'YYYY-MM-DD HH:mm'}} by {{ codeTable.modifiedBy.fullName }}
+        <span style="width:90%;display: inline-block;">
+          {{codeTable.modifiedTime | mdate:'YYYY-MM-DD HH:mm'}} by {{ codeTable.modifiedBy.fullName }}
+        </span>
         <div class="ddp-btn-control" (click)="onClickDeleteCodeTable(codeTable)">
           <em class="ddp-icon-control-cut"></em>
         </div>

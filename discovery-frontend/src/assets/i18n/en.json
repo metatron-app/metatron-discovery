@@ -4211,6 +4211,7 @@
   "msg.metadata.metadata.detail.ui.table.comment" : "Table Comment",
   "msg.metadata.metadata.detail.ui.delete.metadata" : "Delete this metadata",
   "msg.metadata.metadata.detail.ui.alert.metadata.modified" : "Metadata modified",
+  "msg.metadata.metadata.detail.ui.alert.catalog.already.included" : "The Catalog is already included",
 
   "msg.catalog.alert.catalog.already.exists" : "Catalog already exists",
   "msg.catalog.alert.catalog.create.success" : "'{{value}}' catalog is created.",

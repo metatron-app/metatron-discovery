@@ -413,7 +413,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
 
   // 뒤로가기
   public prevDatasourceList(): void {
-    this.location.back();
+    this.router.navigate(['/management/storage/datasource']);
   }
 
   // mode

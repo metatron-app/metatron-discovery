@@ -134,8 +134,14 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
         recentlyQueriesForDatabase = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.id, this.page.page, this.page.size, this.page.sort)
           .catch(error => this.commonExceptionHandler(error));
       } else {
-        recentlyQueriesForDatabase = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.source.id, this.page.page, this.page.size, this.page.sort)
-          .catch(error => this.commonExceptionHandler(error));
+        if (metadataDetail.source.source != undefined) {
+          recentlyQueriesForDatabase = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.source.id, this.page.page, this.page.size, this.page.sort)
+            .catch(error => this.commonExceptionHandler(error));
+        } else {
+          recentlyQueriesForDatabase = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.id, this.page.page, this.page.size, this.page.sort)
+            .catch(error => this.commonExceptionHandler(error));
+        }
+
       }
 
     };
@@ -187,7 +193,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
         // close
         this.entryRef.destroy();
       });
-    }).catch(error => console.log(error));
+    }).catch(error => this.commonExceptionHandler(error));
   }
 
   onCloseMetadataContainer(): void {
