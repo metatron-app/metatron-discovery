@@ -14,11 +14,6 @@ import {isUndefined} from "util";
   {
     selector: 'app-metadata-management-metadata-detail-information',
     templateUrl: './metadata-detail-information.component.html',
-    styles: [
-      '.ddp-ui-catalogs2 span a.ddp-btn-delete {display:block; position:absolute; top:1px; right:-20px; content:\'\'; width:14px; height:14px; background:url(assets/images/btn_sclose.png) no-repeat; background-position:0 -131px;}',
-      '.ddp-ui-catalogs2:hover span a.ddp-btn-delete {display:block;}',
-      '.ddp-type-search .ddp-box-layout4 { overflow-y: auto; height: 200px; padding-bottom: 0px !important; }'
-    ]
   }
 )
 export class MetadataDetailInformationComponent extends AbstractComponent implements OnInit, OnDestroy {
