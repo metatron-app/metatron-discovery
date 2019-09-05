@@ -124,18 +124,10 @@
         <div class="ddp-list-sub">
           <!-- submenu -->
           <ul class="ddp-list-sublnb">
-            <li *ngIf="permission.exploreDataView" [ngClass]="{'ddp-selected': lnbManager.exploreData.exploreView.fold == false}">
-              <a href="javascript:" (click)="exploreDataMenuClickListener('EXPLOREDATA_VIEW')">
-                <em class="ddp-icon-dot"></em>
-                {{'msg.comm.menu.explore-data.view' | translate}}
+            <li class="ddp-selected" *ngIf="permission.exploreDataView">
+              <a href="javascript:" (click)="move('exploredata/view')">
+                <em class="ddp-icon-data"></em>{{'msg.comm.menu.explore-data.favorite.data' | translate}}
               </a>
-              <ul class="ddp-list-sublnb-2depth">
-                <li>
-                  <a href="javascript:" (click)="move('exploredata/view')">
-                    {{'msg.comm.menu.explore-data.view' | translate}}
-                  </a>
-                </li>
-              </ul>
             </li>
             <li *ngIf="permission.exploreFavorite" [ngClass]="{'ddp-selected': lnbManager.exploreData.favorite.fold == false}">
               <a href="javascript:" (click)="exploreDataMenuClickListener('EXPLOREDATA_FAVORITE')">
