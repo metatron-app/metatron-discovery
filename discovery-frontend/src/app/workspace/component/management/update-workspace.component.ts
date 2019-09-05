@@ -178,6 +178,7 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
       this.workspaceService.getSharedWorkspaces('forListView', this.params).then(workspaces => {
         if (workspaces['_embedded']) {
           this.sharedWorkspaceList = workspaces['_embedded']['workspaces'];
+          this._checkDuplicateName(newWorkspaceName);
         } else {
           this.sharedWorkspaceList = [];
         }
@@ -186,16 +187,8 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
         Alert.error(this.translateService.instant('msg.space.alert.retrieve'));
         this.loadingHide();
       });
-    }
-
-    if (!_.isNil(this.sharedWorkspaceList) && this.sharedWorkspaceList.length > 0) {
-      // check if name is in use and set isInvalidName flag according to the condition
-      this.isInvalidName = this.sharedWorkspaceList.some((workspace) => {
-        if (workspace.name === newWorkspaceName) {
-          this.errMsgName = this.translateService.instant('msg.comm.ui.workspace.name.duplicated');
-          return true;
-        }
-      });
+    } else if (this.sharedWorkspaceList.length > 0) {
+      this._checkDuplicateName(newWorkspaceName);
     }
 
     this.loadingHide();
@@ -239,4 +232,15 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
 
     return true;
   }
+
+  private _checkDuplicateName(newWorkspaceName: string) {
+    // check if name is in use and set isInvalidName flag according to the condition
+    this.isInvalidName = this.sharedWorkspaceList.some((workspace) => {
+      if (workspace.name === newWorkspaceName) {
+        this.errMsgName = this.translateService.instant('msg.comm.ui.workspace.name.duplicated');
+        return true;
+      }
+    });
+  }
+
 }
