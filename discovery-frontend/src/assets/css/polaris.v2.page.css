@@ -8870,8 +8870,8 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
   word-wrap:break-word;
   word-break: break-all;
 }
-.ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-banner-tags {padding-top:9px; height:26px; text-align:center; overflow:hidden;}
-.ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-banner-tags .ddp-tags {display: inline-block; padding:7px 10px; margin-left:6px; border-radius:5px; background-color:#343865; color:#9da9ff;}
+.ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-banner-tags {padding-top:9px; margin:-3px -3px 0 -3px;text-align:center;}
+.ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-banner-tags .ddp-tags {display:inline-block; padding:7px 10px; margin:3px 3px 0 3px;border-radius:5px; background-color:#343865; color:#9da9ff;}
 .ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-banner-tags .ddp-tags:first-of-type {margin-left:0;}
 .ddp-box-banner .ddp-banner-list [class*="ddp-ui-banner-link"] {display:flex; height:85px; align-items: center; color:#fff; font-size:16px}
 .ddp-box-banner .ddp-ui-banner-link.type-banner02 {background:url(../images/bg_banner02.png) no-repeat; background-size:100% 100%;}

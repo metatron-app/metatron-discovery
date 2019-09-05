@@ -33,6 +33,7 @@ import {ExploreDataListComponent} from "./explore-data-list.component";
 import {EventBroadcaster} from "../../common/event/event.broadcaster";
 import {ExploreDataConstant} from "../constant/explore-data-constant";
 import {Subscription} from "rxjs";
+import {meta} from "@turf/turf";
 
 @Component({
   selector: 'app-exploredata-view',
@@ -141,14 +142,14 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
           recentlyQueriesForDatabase = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.id, this.page.page, this.page.size, this.page.sort)
             .catch(error => this.commonExceptionHandler(error));
         }
-
       }
-
     };
 
     const getRecentlyQueriesForDataSource = async () => {
-      recentlyQueriesForDataSource = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDataSource(metadataDetail.source.source.id, this.page.page, this.page.size, this.page.sort)
-        .catch(error => this.commonExceptionHandler(error));
+      if (metadataDetail.source.source !== undefined) {
+        recentlyQueriesForDataSource = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDataSource(metadataDetail.source.source.id, this.page.page, this.page.size, this.page.sort)
+          .catch(error => this.commonExceptionHandler(error));
+      }
     };
 
     const getTopUser = async () => {
@@ -173,9 +174,12 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
         this.entryRef.instance.metadataDetailData = metadataDetail;
         this.entryRef.instance.topUserList = topUserList;
         this.entryRef.instance.recentlyUpdatedList = recentlyUpdatedList;
-        if (recentlyQueriesForDataSource['_embedded']) {
-          this.entryRef.instance.recentlyQueriesForDataSource = recentlyQueriesForDataSource['_embedded']['datasourcequeryhistories'];
+        if (recentlyQueriesForDataSource !== undefined) {
+          if (recentlyQueriesForDataSource['_embedded']) {
+            this.entryRef.instance.recentlyQueriesForDataSource = recentlyQueriesForDataSource['_embedded']['datasourcequeryhistories'];
+          }
         }
+
         this.entryRef.instance.metadataId = metadata.id;
       } else if (metadata.sourceType === SourceType.JDBC || metadata.sourceType === SourceType.STAGEDB) {
         await getRecentlyQueriesForDatabase(metadata.sourceType);
