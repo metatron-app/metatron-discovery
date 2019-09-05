@@ -12,14 +12,15 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, ViewChild } from '@angular/core';
-import { PeriodData } from '../../../../common/value/period.data.value';
-import { PeriodComponent } from '../../../../common/component/period/period.component';
-import { AbstractUserManagementComponent } from '../../abstract.user-management.component';
-import { Alert } from '../../../../common/util/alert.util';
-import { isNullOrUndefined, isUndefined } from "util";
-import { ActivatedRoute } from "@angular/router";
+import {Component, ElementRef, Injector, ViewChild} from '@angular/core';
+import {PeriodData} from '../../../../common/value/period.data.value';
+import {PeriodComponent} from '../../../../common/component/period/period.component';
+import {AbstractUserManagementComponent} from '../../abstract.user-management.component';
+import {Alert} from '../../../../common/util/alert.util';
+import {isNullOrUndefined, isUndefined} from "util";
+import {ActivatedRoute} from "@angular/router";
 import * as _ from "lodash";
+
 declare let moment: any;
 const defaultSort = 'createdTime,desc';
 
@@ -388,6 +389,11 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
     // 데이터소스 리스트 조회
     this.reloadPage();
   }
+
+  public clearSearchKeyword() {
+    this.searchKeyword = '';
+    this.reloadPage();
+  } // function - clearSrchText
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
