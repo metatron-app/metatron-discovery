@@ -222,16 +222,22 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
 
   public selectCatalog(item) {
     this.loadingShow();
-    this.metadataService.linkMetadataWithCatalog(this.metadata.id, item.id).then(() => {
-      this.isSearchCatalog = false;
-      this.catalogSearchText = '';
-      Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
-      this._getMetadataDetail();
-    }).catch((error) => {
-      Alert.error(error);
-    });
+    if ((this.metadata.catalogs as [any]).some((catalog) => {
+      return catalog.name === item.name;
+    })) {
+      Alert.error(this.translateService.instant('msg.metadata.metadata.detail.ui.alert.catalog.already.included'));
+      this.loadingHide();
+    } else {
+      this.metadataService.linkMetadataWithCatalog(this.metadata.id, item.id).then(() => {
+        this.isSearchCatalog = false;
+        this.catalogSearchText = '';
+        Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
+        this._getMetadataDetail();
+      }).catch((error) => {
+        Alert.error(error);
+      });
+    }
   }
-
   public deleteCatalogFromMetadata(catalogId) {
     this.metadataService.deleteCatalogLinkFromMetadata(this.metadata.id, catalogId).then(() => {
       this._getMetadataDetail();
@@ -244,7 +250,23 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     if (this.catalogSearchText !== inputVal) {
       this.catalogSearchText = inputVal;
       this.safelyDetectChanges();
+
+      // fetch data from api
       this.catalogService.getCatalogs(this._getCatalogParams()).then((result) => {
+        // if any catalog is included
+        if ((this.metadata.catalogs as [any]).length > 0) {
+          let contained = true;
+          // check if catalog is already in list
+          result = (result as [any]).filter(catalogFromAPi => {
+            contained = true;
+            (this.metadata.catalogs as [any]).forEach(catalog => {
+              if (catalog.name === catalogFromAPi.name) {
+                contained = false;
+              }
+            });
+            return contained;
+          });
+        }
         this.searchCatalogList = result;
       });
     }

@@ -4210,6 +4210,7 @@
   "msg.metadata.metadata.detail.ui.table.comment" : "테이블 댓글",
   "msg.metadata.metadata.detail.ui.delete.metadata" : "메타데이터 삭제",
   "msg.metadata.metadata.detail.ui.alert.metadata.modified" : "메타데이터 수정 완료",
+  "msg.metadata.metadata.detail.ui.alert.catalog.already.included" : "이미 포함된 카탈로그입니다.",
   "msg.catalog.alert.catalog.already.exists" : "카달로그가 이미 있습니다",
   "msg.catalog.alert.catalog.create.success" : "'{{value}}' 카달로그가 생성되었습니다.",
   "msg.explore.ui.title" : "데이터 탐색",

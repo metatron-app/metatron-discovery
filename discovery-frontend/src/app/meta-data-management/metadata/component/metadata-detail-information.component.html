@@ -68,8 +68,8 @@
             <div class="ddp-ui-catalogs2" *ngFor="let catalog of metadata.catalogs">
               <em class="ddp-icon-folder-type"></em>
               <span *ngFor="let hierarchy of catalog['hierarchies']; let isLast = last"> {{ hierarchy.name }}
-                <a *ngIf="isLast" (click)="deleteCatalogFromMetadata(catalog.id)" href="javascript:" class="ddp-btn-delete"></a>
               </span>
+              <a (click)="deleteCatalogFromMetadata(catalog.id)" href="javascript:" class="ddp-btn-delete"></a>
             </div>
           </div>
           <div class="ddp-apply ddp-clear type-catalog" style="margin-top:6px;">
