@@ -31,6 +31,7 @@ import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import com.google.common.collect.Maps;
+import java.io.BufferedOutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -279,6 +280,9 @@ public class PrSnapshotController {
         try {
             String downloadFileName = this.snapshotService.downloadSnapshotFile(ssId, response, fileType);
             response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", downloadFileName));
+            response.setContentType("text/csv; charset=utf-8");
+            response.setCharacterEncoding("UTF-8");
+
         } catch (Exception e) {
             LOGGER.error("getDownload(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
