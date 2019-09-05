@@ -338,7 +338,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.sendViewActivityStream(this.workbenchId, 'WORKBENCH');
 
     const $connLabel = this.$element.find('.ddp-ui-benchlnb');
-    $connLabel.css('min-width', '455px');
+    $connLabel.css('min-width', '280px');
 
     this._initialTimer
       = setTimeout(() => {
@@ -2479,6 +2479,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this._splitHorizontal = Split(['.sys-workbench-lnb-panel', '.sys-workbench-content-panel'], {
       direction: 'horizontal',
       sizes: [20, 80],
+      minSize: 230,
       elementStyle: (dimension, size, gutterSize) => {
         // console.info( dimension, size, gutterSize );
         return {'width': `${size}%`};
@@ -2498,6 +2499,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         this.onEndedResizing();
       }
     });
+    $connLabel.width( $lnbPanel.width() - 110 );
   }
 
   private _deactiveHorizontalSlider() {
