@@ -337,14 +337,21 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     this.sendViewActivityStream(this.workbenchId, 'WORKBENCH');
 
+    const $connLabel = this.$element.find('.ddp-ui-benchlnb');
+    $connLabel.css('min-width', '280px');
+
     this._initialTimer
       = setTimeout(() => {
       this.loadingBar.hide();
       this.loadingShow();
       this._loadInitData(() => {
-        this.webSocketCheck(() => this.loadingHide());
+        if(this.loginLayerShow) {
+          this.loadingHide();
+        } else {
+          this.webSocketCheck(() => this.loadingHide());
+        }
 
-        if( 0 < $('.sys-workbench-top-panel').length && 0 < $( '.sys-workbench-bottom-panel').length ) {
+        if (0 < $('.sys-workbench-top-panel').length && 0 < $('.sys-workbench-bottom-panel').length) {
           this._splitVertical = Split(['.sys-workbench-top-panel', '.sys-workbench-bottom-panel'], {
             direction: 'vertical',
             onDragEnd: () => {
@@ -353,6 +360,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             }
           });
           this.onEndedResizing();
+          $connLabel.css('min-width', '');
           this._activeHorizontalSlider();
         }
       });
@@ -696,7 +704,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       queryEditor.query = this.textList[selectedTabIndex]['query'];
 
       this.workbenchService.updateQueryEditor(queryEditor)
-        .then(() => {})
+        .then(() => {
+        })
         .catch((error) => {
           // this.loadingHide();
           if (!isUndefined(error.details)) {
@@ -1042,7 +1051,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         this.isExecutingQuery = false;
         this.loadingBar.hide();
 
-        if(error.code && error.code === "WB0002") {
+        if (error.code && error.code === "WB0002") {
           this.stomp.initAndConnect();
         }
 
@@ -1130,7 +1139,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         this.isExecutingQuery = false;
         this.loadingBar.hide();
 
-        if(error.code && error.code === "WB0002") {
+        if (error.code && error.code === "WB0002") {
           this.stomp.initAndConnect();
         }
 
@@ -1364,7 +1373,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       downloadCsvForm.submit();
       this.intervalDownload = setInterval(() => that.checkQueryStatus(), 1000);
 
-      $('#'+$('#downloadCsvForm').attr('target')).off('load').on('load', function(){
+      $('#' + $('#downloadCsvForm').attr('target')).off('load').on('load', function () {
         Alert.error(JSON.parse($(this).contents().find("body").text()).details);
       });
     } catch (e) {
@@ -1485,7 +1494,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           } else {
             this.openAccessDeniedConfirm();
           }
-
+          this.safelyDetectChanges();
           this.restoreQueryResultPreviousState(data.queryEditors);
         });
       } else {
@@ -1619,7 +1628,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       queryEditor.order = index;
       queryEditor.query = item.query;
       queryPromise.push(this.workbenchService.updateQueryEditor(queryEditor)
-        .then(() => {})
+        .then(() => {
+        })
         .catch((error) => {
           this.loadingHide();
           if (!isUndefined(error.details)) {
@@ -1789,7 +1799,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             workbenchId: this.workbenchId,
             webSocketId: CommonConstant.websocketId
           };
-        } else if(data['connected'] === false){
+        } else if (data['connected'] === false) {
           Alert.error(data['message']);
         }
 
@@ -2454,10 +2464,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.saveAsHiveTableComponent.init(this.workbenchId, currentTab.result.csvFilePath, this.websocketId);
   }
 
-  public saveAsHiveTableSucceed() {
-    this.detailWorkbenchDatabase.getDatabase();
-  }
-
   private _toggleHorizontalSlider() {
     if (this.isLeftMenuOpen && !this.isQueryEditorFull) {
       this._activeHorizontalSlider();
@@ -2467,31 +2473,33 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   }
 
   private _activeHorizontalSlider() {
-    const $connLabel = this.$element.find( '.ddp-txt-in' );
-    const $lnbPanel = this.$element.find( '.sys-workbench-lnb-panel' );
+    const $connLabel = this.$element.find('.ddp-txt-in');
+    const $lnbPanel = this.$element.find('.sys-workbench-lnb-panel');
     let resizeTimer;
     this._splitHorizontal = Split(['.sys-workbench-lnb-panel', '.sys-workbench-content-panel'], {
       direction: 'horizontal',
       sizes: [20, 80],
+      minSize: 230,
       elementStyle: (dimension, size, gutterSize) => {
         // console.info( dimension, size, gutterSize );
         return {'width': `${size}%`};
       },
       onDrag: () => {
-        resizeTimer = setTimeout( () => {
-          $connLabel.width( $lnbPanel.width() - 150 );
-        }, 100 );
+        resizeTimer = setTimeout(() => {
+          $connLabel.width($lnbPanel.width() - 150);
+        }, 100);
         // console.info( $lnbPanel.width() );
       },
       onDragEnd: () => {
-        if( resizeTimer ) {
-          clearTimeout( resizeTimer );
+        if (resizeTimer) {
+          clearTimeout(resizeTimer);
           resizeTimer = undefined;
         }
-        $connLabel.width( $lnbPanel.width() - 110 );
+        $connLabel.width($lnbPanel.width() - 110);
         this.onEndedResizing();
       }
     });
+    $connLabel.width( $lnbPanel.width() - 110 );
   }
 
   private _deactiveHorizontalSlider() {
