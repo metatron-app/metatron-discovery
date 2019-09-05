@@ -1318,11 +1318,15 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   /**
    * 개인 워크스페이스 조회
    */
-  private getMyWorkspace(): Promise<any> {
+  private getMyWorkspace(init?:boolean): Promise<any> {
     // 로딩 show
     this.loadingShow();
     // 개인 워크스페이스 조회
     return this.workspaceService.getMyWorkspace('forDetailView').then((workspace) => {
+      if (init) {
+        this.sendViewActivityStream(workspace.id, 'WORKSPACE');
+      }
+
       if (PublicType.SHARED === workspace.publicType && workspace.published) {
         // 게스트 사용자의 경우 전체 공개 워크스페이스로 강제 이동
         this.router.navigate(['/workspace', workspace.id]).then();
@@ -1482,7 +1486,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     // 워크스페이스 아이디를 가지고 왔는지 여부
     if (this.workspaceId == null) {
       // 개인 워크스페이스 조회
-      this.getMyWorkspace();
+      this.getMyWorkspace(true);
     } else {
       // 아이디로 워크스페이스 조회
       this.getWorkspace();
@@ -1643,7 +1647,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     }
 
     // Send statistics data
-    if (this.workspaceId) {
+    if (this.workspaceId && 'my' !== this.workspaceId) {
       this.sendViewActivityStream(this.workspaceId, 'WORKSPACE');
     }
 
