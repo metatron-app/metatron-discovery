@@ -164,8 +164,7 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
    */
   public async nameChange(newWorkspaceName) {
     this.shareWorkspace.name = newWorkspaceName;
-
-    this.params['nameContains'] = newWorkspaceName;
+    this.params.size = 100;
 
     this.loadingShow();
 
