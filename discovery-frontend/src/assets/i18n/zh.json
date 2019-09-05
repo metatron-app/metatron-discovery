@@ -47,7 +47,7 @@
   "msg.comm.ui.soring.alphnumeric.desc": "英文字母降序",
   "msg.comm.ui.beforeunload": "更改事项可能未被保存",
   "msg.comm.menu.title.workspace": "WORKSPACE",
-  "msg.comm.menu.title.explore-data" : "EXPLORE DATA",
+  "msg.comm.menu.title.explore-data" : "EXPLORATION",
   "msg.comm.menu.title.management": "MANAGEMENT",
   "msg.comm.menu.title.administration": "ADMINISTRATION",
   "msg.comm.menu.space.private": "个人工作区",
@@ -3265,7 +3265,7 @@
   "msg.metadata.metadata.detail.ui.alert.metadata.modified" : "Metadata modified",
   "msg.metadata.metadata.detail.ui.alert.catalog.already.included" : "The Catalog is already included",
 
-  "msg.explore.ui.title" : "Explore Data",
+  "msg.explore.ui.title" : "Exploration",
   "msg.explore.ui.tab.catalogs" : "Catalogs",
   "msg.explore.ui.tab.tags" : "Tags",
   "msg.explore.ph.tab.catalogs.search" : "Search catalog",
