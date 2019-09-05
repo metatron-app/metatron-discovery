@@ -356,7 +356,7 @@ public class MetadataController {
                                                     .map(p -> p.getMetadataId())
                                                     .collect(Collectors.toList());
 
-    List metadatas = metadataRepository.findAll(metadataId);
+    List<Metadata> metadatas = metadataRepository.findAll(metadataId);
     if(metadatas.isEmpty()){
       metadatas = new ArrayList();
     }
@@ -378,11 +378,17 @@ public class MetadataController {
     int metadataSize = metadatas == null ? 0 : metadatas.size();
     int requiredMetadataSize = pageable.getPageSize() - metadataSize;
     if(requiredMetadataSize > 0){
-      List<Metadata> latestMetadata = metadataRepository.findTop10ByOrderByCreatedTimeDesc();
-      for(int i = 0; i < requiredMetadataSize; ++i){
-        if(i < latestMetadata.size()){
-          metadatas.add(latestMetadata.get(i));
-        } else {
+      List<Metadata> latestMetadataList = metadataRepository.findTop10ByOrderByCreatedTimeDesc();
+      for(int i = 0; i < latestMetadataList.size(); ++i){
+        //If the metadata is not duplicated, add it to the list
+        Metadata latestMetadata = latestMetadataList.get(i);
+
+        long addedCount = metadatas.stream().filter(metadata -> metadata.getId().equals(latestMetadata.getId())).count();
+        if(addedCount == 0){
+          metadatas.add(latestMetadata);
+        }
+
+        if(metadatas.size() == pageable.getPageSize()){
           break;
         }
       }
