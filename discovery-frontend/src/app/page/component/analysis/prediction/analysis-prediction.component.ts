@@ -698,13 +698,13 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
         return result = false;
       }
 
-      if (this.widgetConfiguration.pivot.columns[0].format.unit === TimeUnit.HOUR
-        || this.widgetConfiguration.pivot.columns[0].format.unit === TimeUnit.MINUTE
-        || this.widgetConfiguration.pivot.columns[0].format.unit === TimeUnit.SECOND
-        || this.widgetConfiguration.pivot.columns[0].format.unit === TimeUnit.NONE) {
-
-        return result = false;
-      }
+      // if (this.widgetConfiguration.pivot.columns[0].format.unit === TimeUnit.HOUR
+      //   || this.widgetConfiguration.pivot.columns[0].format.unit === TimeUnit.MINUTE
+      //   || this.widgetConfiguration.pivot.columns[0].format.unit === TimeUnit.SECOND
+      //   || this.widgetConfiguration.pivot.columns[0].format.unit === TimeUnit.NONE) {
+      //
+      //   return result = false;
+      // }
 
       // ---------------------------------------------
       // 차원값 검사
