@@ -1643,7 +1643,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     }
 
     // Send statistics data
-    if (this.workspaceId && 'my' !== this.workspaceId) {
+    if (this.workspaceId) {
       this.sendViewActivityStream(this.workspaceId, 'WORKSPACE');
     }
 
