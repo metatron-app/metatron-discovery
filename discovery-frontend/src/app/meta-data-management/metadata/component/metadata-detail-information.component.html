@@ -64,10 +64,13 @@
       <tr>
         <th>{{ 'msg.metadata.md.th.catalogs' | translate }}</th>
         <td>
-          <div *ngFor="let catalog of metadata?.catalogs" class="ddp-ui-catalogs">
-            <div class="ddp-box-catalogs">
-              <span *ngFor="let hierarchy of catalog['hierarchies']"> {{ hierarchy.name }}</span>
-              <a (click)="deleteCatalogFromMetadata(catalog.id)" href="javascript:" class="ddp-btn-delete"></a>
+          <div *ngIf="metadata.catalogs && 0 < metadata.catalogs.length;" class="ddp-wrap-catalogs2">
+            <div class="ddp-ui-catalogs2" *ngFor="let catalog of metadata.catalogs">
+              <span class="ddp-catalogs-in">
+                <em class="ddp-icon-folder-type"></em>
+                <span *ngFor="let hierarchy of catalog['hierarchies'];"> {{ hierarchy.name }}</span>
+                <a (click)="deleteCatalogFromMetadata(catalog.id)" href="javascript:" class="ddp-btn-delete"></a>
+              </span>
             </div>
           </div>
           <div class="ddp-apply ddp-clear type-catalog" style="margin-top:6px;">

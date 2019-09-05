@@ -82,7 +82,6 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     if (this.descriptionChangeText === undefined) {
       this.descriptionChangeText = '';
     }
-
     /**
      *  if sourceType is datasource(ENGINE), set css class according to status
      *  if sourceType is not datasource(ENGINE) hide <tr></tr>
