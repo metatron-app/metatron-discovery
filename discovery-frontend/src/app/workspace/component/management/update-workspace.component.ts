@@ -27,6 +27,8 @@ import {CommonUtil} from '../../../common/util/common.util';
 import {WorkspaceService} from '../../service/workspace.service';
 import {Workspace} from "../../../domain/workspace/workspace";
 import * as _ from 'lodash';
+import {CookieConstant} from "../../../common/constant/cookie.constant";
+import {StringUtil} from "../../../common/util/string.util";
 
 @Component({
   selector: 'app-update-workspace',
@@ -126,6 +128,15 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
       // 수정
       this.workspaceService.updateWorkspace(this.workspaceId, this.data)
         .then((result) => {
+          const workspace = this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE);
+          if (StringUtil.isNotEmpty(workspace)) {
+            const wsInfo = JSON.parse(workspace);
+            if (wsInfo['id'] === this.workspaceId) {
+              wsInfo['name'] = this.data.name;
+              wsInfo['description'] = this.data.description;
+              this.cookieService.set(CookieConstant.KEY.MY_WORKSPACE, JSON.stringify(wsInfo), 0, '/');
+            }
+          }
           // 로딩 hide
           this.loadingHide();
           // 수정 알림
@@ -178,6 +189,7 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
       this.workspaceService.getSharedWorkspaces('forListView', this.params).then(workspaces => {
         if (workspaces['_embedded']) {
           this.sharedWorkspaceList = workspaces['_embedded']['workspaces'];
+          this._checkDuplicateName(newWorkspaceName);
         } else {
           this.sharedWorkspaceList = [];
         }
@@ -186,16 +198,8 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
         Alert.error(this.translateService.instant('msg.space.alert.retrieve'));
         this.loadingHide();
       });
-    }
-
-    if (!_.isNil(this.sharedWorkspaceList) && this.sharedWorkspaceList.length > 0) {
-      // check if name is in use and set isInvalidName flag according to the condition
-      this.isInvalidName = this.sharedWorkspaceList.some((workspace) => {
-        if (workspace.name === newWorkspaceName) {
-          this.errMsgName = this.translateService.instant('msg.comm.ui.workspace.name.duplicated');
-          return true;
-        }
-      });
+    } else if (this.sharedWorkspaceList.length > 0) {
+      this._checkDuplicateName(newWorkspaceName);
     }
 
     this.loadingHide();
@@ -239,4 +243,15 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
 
     return true;
   }
+
+  private _checkDuplicateName(newWorkspaceName: string) {
+    // check if name is in use and set isInvalidName flag according to the condition
+    this.isInvalidName = this.sharedWorkspaceList.some((workspace) => {
+      if (workspace.name === newWorkspaceName) {
+        this.errMsgName = this.translateService.instant('msg.comm.ui.workspace.name.duplicated');
+        return true;
+      }
+    });
+  }
+
 }
