@@ -8764,7 +8764,7 @@ table.ddp-table-line tbody tr:hover td .ddp-btn-control {display:block;}
 table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-icon-popularity {display:inline-block; position:relative; top:-2px; float:left; width:18px; height:14px; margin-right:8px;}
 table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
 .ddp-layout-meta .ddp-ui-contents-top {height:190px; text-align:center; background:none; box-shadow:none; border-bottom:none;}
-.ddp-layout-meta .ddp-ui-contents-top .ddp-ui-title {padding:35px 0 0 0; text-align:center; font-family:'Titillium Web'; font-size:28px;}
+.ddp-layout-meta .ddp-ui-contents-top .ddp-ui-title {padding:35px 0 0 0; text-align:center; font-size:28px;}
 .ddp-layout-meta .ddp-ui-contents-top .ddp-ui-tag {padding-top:5px; font-weight:bold; text-align:center; font-weight:normal;}
 .ddp-layout-meta .ddp-ui-contents-top .ddp-ui-tag .ddp-box-tag-value.ddp-disabled {opacity:0.3;}
 .ddp-layout-meta .ddp-ui-contents-top .ddp-ui-tag .ddp-box-tag-value + .ddp-box-tag-value {margin-left:4px;}

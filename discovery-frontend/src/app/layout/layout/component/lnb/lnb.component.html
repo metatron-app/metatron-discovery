@@ -124,8 +124,8 @@
         <div class="ddp-list-sub">
           <!-- submenu -->
           <ul class="ddp-list-sublnb">
-            <li class="ddp-selected" *ngIf="permission.exploreDataView">
-              <a href="javascript:" (click)="move('exploredata/view')">
+            <li class="ddp-selected" *ngIf="permission.exploreDataView" >
+              <a href="javascript:" (click)="move('exploredata/view')" style="background-color:#2a2d34;">
                 <em class="ddp-icon-data"></em>{{'msg.comm.menu.explore-data.favorite.data' | translate}}
               </a>
             </li>
