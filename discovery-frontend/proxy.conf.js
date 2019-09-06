@@ -2,29 +2,18 @@ const PROXY_CONFIG = [
   {
     context: [
       "/api",
-      "/oauth"
+      "/oauth",
+      "/extensions"
     ],
-    "target":  {
-      "host": "dev-discovery.metatron.app",
-      "protocol": "https:",
-      "port": 443
-    },
-    "secure": false,
-    "changeOrigin": true,
-    "logLevel": "info"
+    target: "http://localhost:8180",
+    secure: false
   },
   {
     context: [
       "/stomp"
     ],
-    "target":  {
-      "host": "dev-discovery.metatron.app",
-      "protocol": "https:",
-      "port": 443
-    },
-    "secure": false,
-    "changeOrigin": true,
-    "logLevel": "info"
+    target: "http://localhost:8180",
+    secure: false
   }
 ];
 
