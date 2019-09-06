@@ -27,6 +27,8 @@ import {CommonUtil} from '../../../common/util/common.util';
 import {WorkspaceService} from '../../service/workspace.service';
 import {Workspace} from "../../../domain/workspace/workspace";
 import * as _ from 'lodash';
+import {CookieConstant} from "../../../common/constant/cookie.constant";
+import {StringUtil} from "../../../common/util/string.util";
 
 @Component({
   selector: 'app-update-workspace',
@@ -126,6 +128,15 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
       // 수정
       this.workspaceService.updateWorkspace(this.workspaceId, this.data)
         .then((result) => {
+          const workspace = this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE);
+          if (StringUtil.isNotEmpty(workspace)) {
+            const wsInfo = JSON.parse(workspace);
+            if (wsInfo['id'] === this.workspaceId) {
+              wsInfo['name'] = this.data.name;
+              wsInfo['description'] = this.data.description;
+              this.cookieService.set(CookieConstant.KEY.MY_WORKSPACE, JSON.stringify(wsInfo), 0, '/');
+            }
+          }
           // 로딩 hide
           this.loadingHide();
           // 수정 알림
