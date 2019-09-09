@@ -171,6 +171,9 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
    * 다음화면으로 이동
    */
   public next() {
+    if( this.selectedFileDetailData === undefined ) {
+      return;
+    }
     if (this.fileResult) {
       if (this.isCsvFile()) {
         isNullOrUndefined(this.isValidDelimiter) && (this.isValidDelimiter = false);
