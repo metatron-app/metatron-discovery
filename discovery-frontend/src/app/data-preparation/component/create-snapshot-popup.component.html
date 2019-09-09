@@ -191,7 +191,7 @@
                     <span class="ddp-txt-radio">{{'msg.dp.th.ss.etl-engine.embedded' | translate }}</span>
                   </label>
                   <label class="ddp-label-radio ddp-inline">
-                    <input type="radio" (change)="changeEtlEngine(Engine.SPARK)" name="EtlEngineRadio">
+                    <input type="radio" [disabled]="false===isSparkEnabled()" (change)="changeEtlEngine(Engine.SPARK)" name="EtlEngineRadio">
                     <i class="ddp-icon-radio"></i>
                     <span class="ddp-txt-radio">{{'msg.dp.th.ss.etl-engine.spark' | translate }}</span>
                   </label>
