@@ -8866,7 +8866,7 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
 .ddp-box-banner .ddp-banner-main {display:flex; height:100%; width:100%; background:url(../images/bg_banner01.png) no-repeat; background-size:100% 100%; align-items: center; justify-content: center; }
 .ddp-box-banner .ddp-banner-list {width:325px; min-width:325px;}
 .ddp-box-banner .ddp-ui-banner-link.type-banner01 {padding:0 20px;display:table-cell; vertical-align:middle;}
-.ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-banner-title {padding-bottom:18px; color:#ffffff; font-size:22px; font-weight:bold; text-align:center;}
+.ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-banner-title {padding-bottom:18px; color:#ffffff; font-size:22px; font-weight:bold; text-align:center; word-break:break-all;}
 .ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-banner-title .ddp-data-images {margin-right:10px; vertical-align:middle;}
 .ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-banner-title .ddp-data-images svg {position:relative; top:-3px; width:30px; height:30px; vertical-align:middle;}
 
