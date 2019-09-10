@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.workbench;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import app.metatron.discovery.domain.datasource.Field;
 import org.joda.time.DateTime;
 
@@ -28,6 +30,7 @@ public class QueryResult implements Serializable {
 
   List<Field> fields;
 
+  @JsonInclude
   List<Map<String,Object>> data;
   
   String runQuery;
