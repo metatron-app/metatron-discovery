@@ -29,7 +29,7 @@
     <div class="ddp-ui-naviarea">
       <!-- name -->
       <!-- add ddp-selected when clicked -->
-      <div class="ddp-box-navi" [class.ddp-selected]="editNameFlag" (click)="onClickEditName()">
+      <div class="ddp-box-navi" [class.ddp-selected]="editNameFlag" (click)="onClickEditName()" title="{{editName}}">
         <div class="ddp-wrap-naviname">
               <span class="ddp-data-naviname">{{ editName }}
                 <em class="ddp-icon-edit2" ></em>
@@ -47,7 +47,7 @@
 
       <!-- description -->
       <!-- add ddp-selected when clicked -->
-      <div class="ddp-box-navidet" [class.ddp-selected]="editDescriptionFlag" (click)="onClickEditDescription()">
+      <div class="ddp-box-navidet" [class.ddp-selected]="editDescriptionFlag" (click)="onClickEditDescription()" title="{{editDescription}}">
         <div class="ddp-wrap-navidet">
               <span class="ddp-data-navidet">{{ metadata.description }}
                 <em class="ddp-icon-edit2"></em>

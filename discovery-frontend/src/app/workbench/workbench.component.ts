@@ -1948,7 +1948,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       const row = {};
       for (let idx2: number = 0; idx2 < data.fields.length; idx2 = idx2 + 1) {
         const temp = data.fields[idx2].name;
-        if (data.fields[idx2].logicalType === 'INTEGER') {
+        if (data.fields[idx2].logicalType === 'INTEGER' && data.data[idx1][temp]) {
           try {
             row[temp] = Number(data.data[idx1][temp]);
           } catch (e) {
