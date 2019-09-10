@@ -224,7 +224,7 @@ public class WorkbenchHiveService {
 
     Map<Integer, String> headers = Maps.newTreeMap();
     List<Map<String, Object>> records = excelTemplate.getRows(sheetName,
-        new ImportExcelFileRowMapper(headers, firstRowHeadColumnUsed));
+        new ImportExcelFileRowMapper(headers, firstRowHeadColumnUsed, excelTemplate.getFormulaEvaluator()));
 
     List<String> fields = headers.values().stream().collect(Collectors.toList());
     return new DataTable(fields, records);

@@ -146,7 +146,7 @@ public class WorkbenchController {
         ExcelTemplate excelTemplate = new ExcelTemplate(new File(filePath));
         Map<Integer, String> headers = Maps.newTreeMap();
         List<Map<String, Object>> records =
-            excelTemplate.getRows(sheetName, new ImportExcelFileRowMapper(headers, firstHeaderRow), limitRows);
+            excelTemplate.getRows(sheetName, new ImportExcelFileRowMapper(headers, firstHeaderRow, excelTemplate.getFormulaEvaluator()), limitRows);
 
         List<String> fields = headers.values().stream().collect(Collectors.toList());
         preview.setFields(fields);

@@ -3,9 +3,7 @@ package app.metatron.discovery.domain.workbench;
 import app.metatron.discovery.util.excel.ExcelRowMapper;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DataFormatter;
-import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.*;
 
 import java.util.Map;
 
@@ -13,10 +11,12 @@ public class ImportExcelFileRowMapper implements ExcelRowMapper<Map<String, Obje
   private final DataFormatter formatter = new DataFormatter();
   private final Map<Integer, String> headers;
   private final boolean firstHeaderRow;
+  private final FormulaEvaluator formulaEvaluator;
 
-  public ImportExcelFileRowMapper(Map<Integer, String> headers, boolean firstHeaderRow) {
+  public ImportExcelFileRowMapper(Map<Integer, String> headers, boolean firstHeaderRow, FormulaEvaluator formulaEvaluator) {
     this.headers = headers;
     this.firstHeaderRow = firstHeaderRow;
+    this.formulaEvaluator = formulaEvaluator;
   }
 
   @Override
@@ -37,10 +37,22 @@ public class ImportExcelFileRowMapper implements ExcelRowMapper<Map<String, Obje
     Map<String, Object> rowMap = Maps.newTreeMap();
     for (Cell cell : row) {
       if (headers.containsKey(cell.getColumnIndex())) {
-        rowMap.put(headers.get(cell.getColumnIndex()), formatter.formatCellValue(cell));
+        rowMap.put(headers.get(cell.getColumnIndex()), getFormatCellValue(cell));
       }
 
     }
     return rowMap;
+  }
+
+  private String getFormatCellValue(Cell cell) {
+    if(cell.getCellTypeEnum() == CellType.FORMULA) {
+      if(formulaEvaluator != null) {
+        return formatter.formatCellValue(cell, formulaEvaluator);
+      } else {
+        return formatter.formatCellValue(cell);
+      }
+    } else {
+      return formatter.formatCellValue(cell);
+    }
   }
 }
