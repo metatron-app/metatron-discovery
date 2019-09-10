@@ -1,12 +1,17 @@
 <a href="javascript:" class="{{bannerClass}}" (click)="onClickBanner()">
-  <div class="ddp-banner-title">
+  <div *ngIf="isMain" class="ddp-banner-title">
+    <span class="ddp-data-images type-svg" [ngClass]="iconClass">
+      <component-metadata-svg [iconClass]="iconClass"></component-metadata-svg>
+    </span>
+    {{title}}
+  </div>
+  <div *ngIf="!isMain" class="ddp-banner-title">
     <span class="ddp-data-images type-svg" [ngClass]="iconClass">
       <component-metadata-svg [iconClass]="iconClass"></component-metadata-svg>
     </span>
     <span class="ddp-txt-data">
       {{title}}
     </span>
-
   </div>
   <div class="ddp-txt-detail" *ngIf="isEnableDescription" [innerHTML]="description"></div>
   <div class="ddp-banner-tags" *ngIf="isEnableTag">
