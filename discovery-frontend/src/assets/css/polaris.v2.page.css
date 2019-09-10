@@ -2544,12 +2544,15 @@ em.ddp-icon-control-cut .ddp-ui-tooltip-info.ddp-down em.ddp-icon-view-top {righ
 .ddp-box-block .ddp-ui-box-contents {padding:0 43px 0 43px;}
 .ddp-box-block .ddp-ui-box-contents span.ddp-data-name {display:block; font-size:18px; color:#545b65; font-weight:bold;  overflow:hidden; text-overflow:ellipsis; word-wrap:normal; white-space:nowrap;}
 
-.ddp-box-block .ddp-ui-box-contents span.ddp-data-name.ddp-data-line2 {max-height:44px; white-space:normal; overflow: hidden;
-	text-overflow: ellipsis;
-	display: -webkit-box;
-	-webkit-line-clamp: 2; /* 라인수 */
-	-webkit-box-orient: vertical;
-	word-wrap:normal;}
+.ddp-box-block .ddp-ui-box-contents span.ddp-data-name.ddp-data-line2{max-height:44px; white-space:normal; overflow: hidden;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 라인수 */
+  /* autoprefixer: off */
+  -webkit-box-orient: vertical;
+  /* autoprefixer: on */
+  word-wrap:break-word;}
 .ddp-box-block .ddp-ui-box-contents span.ddp-data-date {display:block; padding:7px 0 0 0; font-size:12px; color:#c5c6cd; }
 .ddp-box-block .ddp-ui-box-contents span.ddp-data-date span.ddp-data-ago {color:#4c515a;}
 
