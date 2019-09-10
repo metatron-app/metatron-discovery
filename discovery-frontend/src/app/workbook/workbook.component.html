@@ -35,7 +35,7 @@
     <!-- 좌측 워크스페이스 제목 영역 -->
     <div class="ddp-ui-toptitle">
       <em class="ddp-icon-navi" (click)="gotoWorkspace()"></em>
-      <span class="ddp-data-name">
+      <span class="ddp-data-name" title="{{workbook.name}}">
           <em class="ddp-box-tag">{{'msg.space.ui.tag.workbook'| translate}}</em>{{workbook.name}}
       </span>
       <!-- more -->
@@ -376,7 +376,7 @@
         <!-- name -->
         <div class="ddp-box-navi" [ngClass]="{'ddp-selected' : isDashboardNameEditMode}" >
           <div class="ddp-wrap-naviname" (click)="onChangeModeName($event)">
-            <span class="ddp-data-naviname">{{selectedDashboard.name ? selectedDashboard.name : ''}}<em class="ddp-icon-edit2"></em></span>
+            <span class="ddp-data-naviname" [title]="selectedDashboard.name">{{selectedDashboard.name ? selectedDashboard.name : ''}}<em class="ddp-icon-edit2"></em></span>
           </div>
           <div class="ddp-wrap-input" >
             <component-input

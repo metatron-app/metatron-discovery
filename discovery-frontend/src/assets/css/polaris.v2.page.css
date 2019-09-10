@@ -2544,12 +2544,15 @@ em.ddp-icon-control-cut .ddp-ui-tooltip-info.ddp-down em.ddp-icon-view-top {righ
 .ddp-box-block .ddp-ui-box-contents {padding:0 43px 0 43px;}
 .ddp-box-block .ddp-ui-box-contents span.ddp-data-name {display:block; font-size:18px; color:#545b65; font-weight:bold;  overflow:hidden; text-overflow:ellipsis; word-wrap:normal; white-space:nowrap;}
 
-.ddp-box-block .ddp-ui-box-contents span.ddp-data-name.ddp-data-line2 {max-height:44px; white-space:normal; overflow: hidden;
-	text-overflow: ellipsis;
-	display: -webkit-box;
-	-webkit-line-clamp: 2; /* 라인수 */
-	-webkit-box-orient: vertical;
-	word-wrap:normal;}
+.ddp-box-block .ddp-ui-box-contents span.ddp-data-name.ddp-data-line2{max-height:44px; white-space:normal; overflow: hidden;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 라인수 */
+  /* autoprefixer: off */
+  -webkit-box-orient: vertical;
+  /* autoprefixer: on */
+  word-wrap:break-word;}
 .ddp-box-block .ddp-ui-box-contents span.ddp-data-date {display:block; padding:7px 0 0 0; font-size:12px; color:#c5c6cd; }
 .ddp-box-block .ddp-ui-box-contents span.ddp-data-date span.ddp-data-ago {color:#4c515a;}
 
@@ -5300,7 +5303,7 @@ ul.ddp-list-rule2 li.ddp-disabled2 .ddp-wrap-line-add {display:block;}
 .ddp-box-flowdetail .ddp-data-filename em.ddp-icon-dbdata {position:absolute; top:0; left:18px;}
 .ddp-box-flowdetail .ddp-data-filename em.ddp-icon-wrangled-m {position:absolute; top:0; left:18px;}
 .ddp-box-flowdetail .ddp-data-filename em.ddp-icon-file-sql {position:absolute; top:-2px; left:18px;}
-.ddp-box-flowdetail .ddp-data-filename span.ddp-txt-filename {display:inline-block; position:relative; max-width:100%; padding:0 23px 0 5px;font-size:16px; color:#35393f; font-weight:bold; line-height:22px; font-family:sans-serif;box-sizing:border-box;overflow:hidden;
+.ddp-box-flowdetail .ddp-data-filename span.ddp-txt-filename {display:block; position:relative; max-width:100%; max-height:49px; padding:5px 23px 3px 5px;font-size:16px; color:#35393f; font-weight:bold; line-height:21px; font-family:sans-serif;box-sizing:border-box;overflow:hidden; cursor:pointer;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2; /* 라인수 */
@@ -5819,9 +5822,16 @@ table.ddp-table-detail {table-layout:fixed; width:100%; margin-top:30px;}
 table.ddp-table-detail.ddp-mgt20 {margin-top:20px;}
 table.ddp-table-detail tbody tr > th,
 table.ddp-table-detail tbody tr > td {padding:7px 0; vertical-align: top; font-weight:normal;}
-table.ddp-table-detail tbody tr th {color:#b7bac1; font-size:13px; text-align:left;}
-table.ddp-table-detail tbody tr td {padding-right:40px;color:#4b515b; font-size:13px;}
+table.ddp-table-detail tbody tr th {color:#91969e; font-size:13px; text-align:left;}
+table.ddp-table-detail tbody tr th .ddp-wrap-hover-info {display:inline-block; position:relative; cursor:pointer;}
+table.ddp-table-detail tbody tr th .ddp-wrap-hover-info .ddp-icon-info3 {display:inline-block; width:11px; height:11px; background:url(../images/icon_que.png) no-repeat; background-position:left -12px;}
+table.ddp-table-detail tbody tr th .ddp-wrap-hover-info .ddp-box-layout4 {display:none; position:absolute; bottom:-30px; left:100%; margin-left:5px;width:350px;}
+table.ddp-table-detail tbody tr th .ddp-wrap-hover-info:hover .ddp-box-layout4 {display:block;}
+table.ddp-table-detail tbody tr td {padding-right:40px;color:#4b515b; font-size:13px; word-break:break-all;}
 table.ddp-table-detail tbody tr td.ddp-line {line-height:30px;}
+table.ddp-table-detail tbody tr td > .ddp-box-det {width:500px; margin-top:7px;padding:10px 20px; background-color:#f6f6f7; border-radius:2px;}
+table.ddp-table-detail tbody tr td > .ddp-box-det .ddp-list-det li {padding:6px 0; font-size:13px;}
+table.ddp-table-detail tbody tr td > .ddp-box-det .ddp-list-det li:before {display:inline-block; margin-right:7px; vertical-align:middle; content:'•'}
 table.ddp-table-detail tr td .ddp-data-total {padding:15px 0 10px 0; color:#b7b9c2;}
 table.ddp-table-detail tr td .ddp-btn-pop {margin-top:-7px;}
 table.ddp-table-detail tr td .ddp-btn-pop.ddp-bg-black {border:1px solid #90969f; background-color:#90969f;}
@@ -8853,14 +8863,14 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
 
 .ddp-ui-banner .ddp-type-label {padding-bottom:13px; font-size:14px; font-weight:bold;}
 .ddp-box-banner {display:flex; height:340px;}
-.ddp-box-banner .ddp-banner-main {display:table; height:100%; width:100%; background:url(../images/bg_banner01.png) no-repeat; background-size:100% 100%; align-items: center; justify-content: center; }
+.ddp-box-banner .ddp-banner-main {display:flex; height:100%; width:100%; background:url(../images/bg_banner01.png) no-repeat; background-size:100% 100%; align-items: center; justify-content: center; }
 .ddp-box-banner .ddp-banner-list {width:325px; min-width:325px;}
 .ddp-box-banner .ddp-ui-banner-link.type-banner01 {padding:0 20px;display:table-cell; vertical-align:middle;}
 .ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-banner-title {padding-bottom:18px; color:#ffffff; font-size:22px; font-weight:bold; text-align:center;}
 .ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-banner-title .ddp-data-images {margin-right:10px; vertical-align:middle;}
 .ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-banner-title .ddp-data-images svg {position:relative; top:-3px; width:30px; height:30px; vertical-align:middle;}
 
-.ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-txt-detail {text-align:center; color:#fff; font-size:13px; opacity:0.4;
+.ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-txt-detail {height:32px; text-align:center; color:#fff; font-size:13px; opacity:0.4;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -8869,7 +8879,7 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
   -webkit-box-orient: vertical;
   /* autoprefixer: on */
   word-wrap:break-word;
-  word-break: break-all;
+
 }
 .ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-banner-tags {padding-top:9px; margin:-3px -3px 0 -3px;text-align:center;}
 .ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-banner-tags .ddp-tags {display:inline-block; padding:7px 10px; margin:3px 3px 0 3px;border-radius:5px; background-color:#343865; color:#9da9ff;}

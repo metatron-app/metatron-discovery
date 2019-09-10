@@ -709,7 +709,7 @@
                    (click)="!isPageNameEdit ? onNameEdit($event) : $event.stopPropagation();"
                    [class.ddp-selected]="isPageNameEdit">
                 <!-- 클릭시 ddp-selected 추가 -->
-                <div class="ddp-wrap-naviname ddp-full">
+                <div class="ddp-wrap-naviname">
                   <span class="ddp-data-naviname">{{widget.name}}
                     <em *ngIf="!isPageNameEdit"
                         class="ddp-icon-edit2"></em></span>
