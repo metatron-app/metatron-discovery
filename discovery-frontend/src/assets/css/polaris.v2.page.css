@@ -8870,7 +8870,7 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
 .ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-banner-title .ddp-data-images {margin-right:10px; vertical-align:middle;}
 .ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-banner-title .ddp-data-images svg {position:relative; top:-3px; width:30px; height:30px; vertical-align:middle;}
 
-.ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-txt-detail {height:32px; text-align:center; color:#fff; font-size:13px; opacity:0.4;
+.ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-txt-detail {max-height:32px; text-align:center; color:#fff; font-size:13px; opacity:0.4;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -8879,6 +8879,7 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
   -webkit-box-orient: vertical;
   /* autoprefixer: on */
   word-wrap:break-word;
+  word-break:break-all;
 
 }
 .ddp-box-banner .ddp-ui-banner-link.type-banner01 .ddp-banner-tags {padding-top:9px; margin:-3px -3px 0 -3px;text-align:center;}
