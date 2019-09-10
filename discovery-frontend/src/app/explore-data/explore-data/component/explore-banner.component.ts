@@ -54,6 +54,6 @@ export class ExploreBannerComponent extends AbstractComponent {
   }
 
   isEnableDescription(): boolean {
-    return StringUtil.isNotEmpty(this.description);
+    return StringUtil.isNotEmpty(this.description) && this.description !== null;
   }
 }
