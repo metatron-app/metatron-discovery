@@ -284,6 +284,7 @@
       <!-- box -->
       <!-- checkbox 선택시 ddp-selected 추가 -->
       <div class="ddp-box-block"
+           [title]="book.name"
            *ngFor="let book of (getList()
            | baseFilter:['type', 'folder', true]
            | baseFilter:['type', selectedContentFilter.key]

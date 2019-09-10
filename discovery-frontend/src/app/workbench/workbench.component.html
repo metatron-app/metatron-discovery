@@ -55,7 +55,7 @@
       <div class="ddp-box-navi" [class.ddp-selected]="isWorkbenchNameEditMode">
         <div class="ddp-wrap-naviname"
              (click)="!isWorkbenchNameEditMode ? onWorkbenchNameEdit($event):$event.stopPropagation();">
-        <span class="ddp-data-naviname">{{workbenchName}}
+        <span class="ddp-data-naviname" [title]="workbenchName">{{workbenchName}}
           <em class="ddp-icon-edit2"></em>
         </span>
         </div>
