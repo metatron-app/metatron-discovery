@@ -287,6 +287,13 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
 
   } // function - ingest
 
+  public closeProgress() {
+    this.isShowProgress = false;
+    if( 0 === this.essentialFilters.length ) {
+      this.closeEvent.emit();
+    }
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

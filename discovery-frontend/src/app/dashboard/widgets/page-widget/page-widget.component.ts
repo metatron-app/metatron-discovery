@@ -177,6 +177,10 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     return !this.isShowHierarchyView && !this.isError && !this.isShowNoData;
   } // get - isShowChartTools
 
+  get isNotMapType() {
+    return this.chart.uiOption.type !== ChartType.MAP;
+  }
+
   // is Origin data down
   public isOriginDown: boolean = false;
   public srchText: string = '';

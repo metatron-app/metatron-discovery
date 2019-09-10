@@ -110,7 +110,7 @@
   <!-- box -->
   <div *ngIf="10 == ingestionStatus.step" class="ddp-box-loading ddp-box-s ddp-pop" >
     <div class="ddp-box-in">
-      <a (click)="isShowProgress = false" href="javascript:" class="ddp-btn-close"></a>
+      <a (click)="closeProgress()" href="javascript:" class="ddp-btn-close"></a>
       <em class="ddp-icon-success"></em>
       <span class="ddp-txt-success">{{ 'msg.board.filter.ui.success' | translate }}</span>
     </div>
@@ -120,7 +120,7 @@
   <!-- condition 데이터 소스 상태 : Preparing 4. 진행중 > 중단 -->
   <div *ngIf="-1 === ingestionStatus.step" class="ddp-box-loading ddp-box-s ddp-pop" >
     <div class="ddp-box-in">
-      <a (click)="isShowProgress = false" href="javascript:" class="ddp-btn-close"></a>
+      <a (click)="closeProgress()" href="javascript:" class="ddp-btn-close"></a>
       <a (click)="ingest()" href="javascript:" class="ddp-btn-again"></a>
       <span class="ddp-txt-fail"> {{ 'msg.board.filter.ui.fail-retry' | translate }} </span>
     </div>
