@@ -5310,7 +5310,7 @@ ul.ddp-list-rule2 li.ddp-disabled2 .ddp-wrap-line-add {display:block;}
 .ddp-box-flowdetail .ddp-data-filename span.ddp-txt-filename .ddp-link-edit {display:none; position:absolute; bottom:3px; right:0; padding:3px 5px; background-color:#fff; vertical-align:top; font-size:0px;}
 .ddp-box-flowdetail .ddp-data-filename:hover span.ddp-txt-filename .ddp-link-edit {display:inline-block;}
 .ddp-box-flowdetail .ddp-data-filename .ddp-icon-db {position:absolute; top:-4px; left:10px; display:inline-block; width:24px; height:24px;}
-.ddp-box-flowdetail .ddp-data-explain {position:relative; height:49px; margin:15px 10px 0 10px;}
+.ddp-box-flowdetail .ddp-data-explain {position:relative; margin:5px 10px 0 10px;}
 .ddp-box-flowdetail .ddp-data-explain .ddp-txt-explain {display:inline-block; position:relative; max-width:100%; padding:0 23px 0 5px; line-height:16px; color:#b7b9c2; font-size:12px; font-family:sans-serif; box-sizing:border-box; overflow:hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
