@@ -27,6 +27,7 @@ export class ExploreBannerComponent extends AbstractComponent {
   // class
   @Input() readonly bannerClass: string;
   @Input() readonly iconClass: ExploreDataConstant.Metadata.TypeIconClass;
+  @Input() readonly isMain:boolean = false;
   // data
   @Input() readonly title: string;
   @Input() readonly description: string;
@@ -49,11 +50,11 @@ export class ExploreBannerComponent extends AbstractComponent {
     this.clickedTag.emit(tag);
   }
 
-  isEnableTag(): boolean {
+  get isEnableTag(): boolean {
     return !_.isNil(this.tagList) && this.tagList.length !== 0;
   }
 
-  isEnableDescription(): boolean {
-    return StringUtil.isNotEmpty(this.description);
+  get isEnableDescription(): boolean {
+    return this.description && StringUtil.isNotEmpty(this.description);
   }
 }
