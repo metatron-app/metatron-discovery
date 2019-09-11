@@ -5303,14 +5303,7 @@ ul.ddp-list-rule2 li.ddp-disabled2 .ddp-wrap-line-add {display:block;}
 .ddp-box-flowdetail .ddp-data-filename em.ddp-icon-dbdata {position:absolute; top:0; left:18px;}
 .ddp-box-flowdetail .ddp-data-filename em.ddp-icon-wrangled-m {position:absolute; top:0; left:18px;}
 .ddp-box-flowdetail .ddp-data-filename em.ddp-icon-file-sql {position:absolute; top:-2px; left:18px;}
-.ddp-box-flowdetail .ddp-data-filename span.ddp-txt-filename {display:block; position:relative; max-width:100%; max-height:49px; padding:5px 23px 3px 5px;font-size:16px; color:#35393f; font-weight:bold; line-height:21px; font-family:sans-serif;box-sizing:border-box;overflow:hidden; cursor:pointer;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2; /* 라인수 */
-  /* autoprefixer: off */
-  -webkit-box-orient: vertical;
-  /* autoprefixer: on */
-  word-wrap:break-word; }
+.ddp-box-flowdetail .ddp-data-filename span.ddp-txt-filename {display:block; position:relative; max-width:100%;padding:5px 23px 3px 5px;font-size:16px; color:#35393f; font-weight:bold; line-height:21px; font-family:sans-serif;box-sizing:border-box;overflow:hidden; cursor:pointer; word-break:break-all;}
 .ddp-box-flowdetail .ddp-data-filename span.ddp-txt-filename .ddp-txt-filename-in {display:inline-block;}
 
 .ddp-box-flowdetail .ddp-data-filename.ddp-selected span.ddp-txt-filename {display:none;}

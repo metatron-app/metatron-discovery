@@ -46,7 +46,7 @@
       <span class="ddp-btn-check" (click)="$event.stopPropagation(); updateDataset();"></span>
     </div>
 
-    <span class="ddp-txt-explain" style="max-height:50px;word-break: break-all;">
+    <span class="ddp-txt-explain" >
       <span *ngIf="selectedDataSet.dsDesc; else notMaxLength"
             title="{{selectedDataSet.dsDesc}}"
             [innerHTML]="getDescriptionWithBR(selectedDataSet.dsDesc)">
