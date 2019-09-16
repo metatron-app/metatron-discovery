@@ -88,6 +88,8 @@ public class PrepException extends MetatronException {
             return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_CANNOT_CAST_FROM);
         else if (e instanceof CannotCastToException)
             return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_CANNOT_CAST_TO);
+        else if (e instanceof ColumnNotContinuousException)
+            return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_COLUMN_NOT_CONTINUOUS);
         else if (e instanceof WrongMapKeyException)
             return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_WRONG_MAP_KEY);
         else if (e instanceof ColumnNotFoundException)
