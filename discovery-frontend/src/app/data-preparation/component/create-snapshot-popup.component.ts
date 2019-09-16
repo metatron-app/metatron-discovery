@@ -601,7 +601,11 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
       this.dataflowService.getConfiguration(this.datasetId).then((conf) => {
 
-        this._isSparkEngineEnabled = conf['sparkEngineEnabled'];
+        if(conf['sparkEngineEnabled']) {
+          this._isSparkEngineEnabled = conf['sparkEngineEnabled'];
+        } else {
+          this._isSparkEngineEnabled = false;
+        }
 
         this.ssName = this._getDefaultSnapshotName(conf['ss_name']);
 
