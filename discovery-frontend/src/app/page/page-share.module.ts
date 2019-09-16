@@ -40,7 +40,7 @@ import { ColorOptionComponent } from './chart-style/color-option.component';
 import { SplitOptionComponent } from './chart-style/split-option.component';
 import { AxisValueOptionComponent } from './chart-style/axis-value-option.component';
 import { AxisCategoryOptionComponent } from './chart-style/axis-category-option.component';
-import { CalculatedRowOptionComponent } from './chart-style/calrow-option.component';
+import { CalculatedRowOptionComponent } from './chart-style/calc-option.component';
 import { SecondaryIndicatorComponent } from './chart-style/secondary-indicator.component';
 import { MetadataService } from '../meta-data-management/metadata/service/metadata.service';
 import { MapPagePivotComponent } from './page-pivot/map/map-page-pivot.component';
@@ -51,6 +51,7 @@ import { MapTooltipOptionComponent } from './chart-style/map/map-tooltip-option.
 import { MapCommonOptionComponent } from './chart-style/map/map-common-option.component';
 import { PivotContextComponent } from './page-pivot/pivot-context.component';
 import {SecondaryAxisOptionComponent} from './chart-style/secondary-axis-option.component';
+import {CalculatedOptionSliderComponent} from "./chart-style/calc-option-slider.component";
 
 @NgModule({
   imports: [
@@ -82,6 +83,7 @@ import {SecondaryAxisOptionComponent} from './chart-style/secondary-axis-option.
     ColorOptionComponent,
     SplitOptionComponent,
     CalculatedRowOptionComponent,
+    CalculatedOptionSliderComponent,
     MapPagePivotComponent,
     MapCommonOptionComponent,
     MapLayerOptionComponent,

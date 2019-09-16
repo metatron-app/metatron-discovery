@@ -9120,7 +9120,7 @@ var pivot =
 	            }
 	        }
 	        // 퍼센트
-	        else if (!customSymbol && format.type == 'percent') {renderDataToVertical
+	        else if (!customSymbol && format.type == 'percent') {
 	                value = value * 100;
 	            }
 
@@ -9304,14 +9304,14 @@ var pivot =
 	  		// Body Cell Index 범위 초기값 정의
 	  		let startIdx = 0;
 	  		let endIdx = $elm.css('width').replace( common.__regexpText, '') / cellWidth;
-	  
+
 	  		// 선택 Axis 의 body cell 영역 산정
 	  		$elm.prevAll().each(function(prevIdx, prevElm) {
 	  			let $prevElm = $(prevElm);
 	  			startIdx += $prevElm.css('width').replace( common.__regexpText, '') / cellWidth;
 	  		}); // each - $elm.prevAll
 	  		endIdx += startIdx;
-	  
+
 	  		// xAxis 하위 cell 스타일 적용
 	  		$elm.parent().nextAll().each(function(axisIdx, axisElm) {
 	  			let $axisElm = $(axisElm);
@@ -9319,7 +9319,7 @@ var pivot =
 	  			while (currIdx < endIdx) {
 	  				let $target = $axisElm.find('.' + PivotStyle.cssClass.bodyCell + ':eq(' + currIdx + ')');
 	  				$target.addClass(cellStyle);
-	  
+
 	  				if (0 === $target.length) {
 	  					// 그리드데이터 너비보다 적게 그려져서 게산값보다 적은 경우 무한루프를 방지하기 위해 강제적으로 종료
 	  					break;
@@ -9328,7 +9328,7 @@ var pivot =
 	  				}
 	  			}
 	  		});
-	  
+
 	  		// body cell 스타일 적용
 	  		$bodyRow.each(function(rowIdx, rowElm) {
 	  			let $rowElm = $(rowElm);
@@ -26798,6 +26798,10 @@ var pivot =
 
 	        Viewer.FROZEN_COLUMN_ADDITIONAL_KEY = 'additional';
 
+	        Viewer.SHOW_CALCULATED_COLUMN_WIDTH = 120;
+
+	        Viewer.EMPTY_Y_AXIS_DIMENSION_KEY = "empty_y_axis_dimension";
+
 	        function Viewer(element) {
 	            var _this = this;
 	            this._itemsContext = {};
@@ -26810,12 +26814,16 @@ var pivot =
 	            common.addCssClass(this._elementHeadWrap, pivotStyle.cssClass.headWrap);
 	            this._elementHeadFrozen = document.createElement("div");
 	            common.addCssClass(this._elementHeadFrozen, pivotStyle.cssClass.headFrozen);
+	            this._elementHeadCalculatedColumn = document.createElement("div");
+	            common.addCssClass(this._elementHeadCalculatedColumn, pivotStyle.cssClass.headFrozen);
 	            this._elementBody = document.createElement("div");
 	            common.addCssClass(this._elementBody, pivotStyle.cssClass.body);
 	            this._elementBodyWrap = document.createElement("div");
 	            common.addCssClass(this._elementBodyWrap, pivotStyle.cssClass.bodyWrap);
 	            this._elementBodyFrozen = document.createElement("div");
 	            common.addCssClass(this._elementBodyFrozen, pivotStyle.cssClass.bodyFrozen);
+	            this._elementBodyCalculatedColumn = document.createElement("div");
+	            common.addCssClass(this._elementBodyCalculatedColumn, pivotStyle.cssClass.bodyFrozen);
 	            this._elementBodyScrollListener = function (e) {
 	                return _this.onScroll(e);
 	            };
@@ -27118,6 +27126,10 @@ var pivot =
 	                    var yProps = objViewer._settings.yProperties;
 	                    var zProps = objViewer._settings.zProperties;
 
+	                    if(objViewer._settings.showCalculatedColumnStyle) {
+	                    	// 연산열 대상 데이터를 summaryMap에 추가
+	                    	Viewer.prototype.appendCalculatedColumnDataToSummaryMap(column, objViewer.summaryMap);
+	                    }
 	                    column.value.forEach(function (value, valueIdx) {
 
 	                        var context = objViewer._itemsContext;
@@ -27127,6 +27139,7 @@ var pivot =
 	                        var item = {};
 
 	                        var arrSummaryKeys = [];
+	                        var arrSummaryKeysForCalculatedColumn = [];
 	                        for (var idx = 0, nMax = xProps.length; idx < nMax; idx++) {
 	                            var itemKey = xProps[idx].name;
 	                            var itemValue = colNameList[idx];
@@ -27160,6 +27173,7 @@ var pivot =
 	                                yGroup[_itemValue] = {};
 	                            }
 	                            yGroup = yGroup[_itemValue];
+	                            arrSummaryKeysForCalculatedColumn.push[_itemValue];
 	                        } // end for - yProps
 
 	                        for (var _idx2 = 0, _nMax2 = zProps.length; _idx2 < _nMax2; _idx2++) {
@@ -27327,9 +27341,11 @@ var pivot =
 	            this._elementHead.innerHTML = "";
 	            this._elementHeadWrap.innerHTML = "";
 	            this._elementHeadFrozen.innerHTML = "";
+	            this._elementHeadCalculatedColumn.innerHTML = "";
 	            this._elementBody.innerHTML = "";
 	            this._elementBodyWrap.innerHTML = "";
 	            this._elementBodyFrozen.innerHTML = "";
+	            this._elementBodyCalculatedColumn.innerHTML = "";
 	            this._element.appendChild(this._elementHead);
 	            this._element.appendChild(this._elementBody);
 	            this._elementHead.appendChild(this._elementHeadFrozen);
@@ -27337,6 +27353,11 @@ var pivot =
 	            this._elementBody.appendChild(this._elementBodyFrozen);
 	            this._elementBody.appendChild(this._elementBodyWrap);
 	            this.addRemark(this._settings.remark); // 설명 설정
+
+	            if(this._settings.showCalculatedColumnStyle) {
+	            	this._elementHead.appendChild(this._elementHeadCalculatedColumn);
+	            	this._elementBody.appendChild(this._elementBodyCalculatedColumn);
+	            }
 
 	            this.arrange();
 
@@ -27758,6 +27779,14 @@ var pivot =
 	            this._elementHeadWrap.style.left = frozenWidth + "px";
 	            this._elementHeadFrozen.style.width = frozenWidth + "px";
 	            this._elementHeadFrozen.style.height = availableSizeHead.height - 1 + "px"; // line 표시를 위해 1px 빼줌
+
+	            if(this._settings.showCalculatedColumnStyle) {
+	              this._elementHeadCalculatedColumn.style.width = Viewer.SHOW_CALCULATED_COLUMN_WIDTH + "px";
+					      this._elementHeadCalculatedColumn.style.height = availableSizeHead.height - 1 + "px";
+					      this._elementBodyCalculatedColumn.style.width = Viewer.SHOW_CALCULATED_COLUMN_WIDTH + "px";
+					      this._elementBodyCalculatedColumn.style.height = availableSizeHead.height - 1 + "px";
+	            }
+
 	            this._elementBodyWrap.style.width = contentSize.width - frozenWidth + "px";
 	            this._elementBodyWrap.style.height = contentSize.height + "px";
 	            this._elementBodyWrap.style.left = frozenWidth + "px";
@@ -27815,6 +27844,7 @@ var pivot =
 	            var zPropMax = this._settings.zProperties.length;
 	            var cellHeightZ = cellHeight * zPropMax;
 	            var frozenCellWidth = this._settings.leftAxisWidth ? this._settings.leftAxisWidth : this._settings.cellWidth;
+	            var calculatedColumnWidth = this._settings.showCalculatedColumnStyle ? Viewer.SHOW_CALCULATED_COLUMN_WIDTH : 0;
 	            // xProp의 이름에 대한 cnt, 원본보기일때에는 title (COLUMNS)을 표시하지않으므로 0으로 설정
 	            var xPropTitleCnt = this._isPivot ? 1 : 0;
 	            var frozenHeightCnt = xPropTitleCnt + xPropMax; // #20161230-01 : 값 필드 표시 방향 선택 기능
@@ -27839,7 +27869,7 @@ var pivot =
 	                // this._leafColumnWidth = {}; // 초기화
 	                var cnt = this._xItems.length;
 	                0 === cnt && (cnt = 1);
-	                var contentWidth = this._elementBody.style.width.replace(/px/gi, '') * 1 - frozenWidth;
+	                var contentWidth = this._elementBody.style.width.replace(/px/gi, '') * 1 - frozenWidth - calculatedColumnWidth;
 	                if (contentWidth > cnt * cellWidth) {
 	                    cellWidth = contentWidth / cnt;
 	                    this._elementHeadWrap.style.width = contentWidth + "px";
@@ -27966,6 +27996,18 @@ var pivot =
 	                this._elementHeadFrozen.innerHTML = html.join("");
 	            }
 	            // x축 - y축이 중첩되는 고정 영역 - End
+
+	            if(this._settings.showCalculatedColumnStyle) {
+	            	// 연산 열 헤더 추가
+	            	html.length = 0;
+		            {
+		                for (var xpi = 0; xpi < frozenHeightCnt; xpi++) {
+		                	var showLabel = (xpi === xPropMax) ? true : false;
+		                	this.appendHeadCalculatedColumnToHtml(xpi, cellHeight, showLabel, html);
+		                }
+		                this._elementHeadCalculatedColumn.innerHTML = html.join("");
+		            }
+	            }
 
 	            html.length = 0;
 	            // Head Wrap : x축 타이틀 표시 - Start
@@ -28126,9 +28168,10 @@ var pivot =
 	            // Head Wrap : x축 영역 표시 - End
 
 	            this.arrangeFrozenColumnRelatedElements();
-	           
+
 	            // body-frozen : y축 영역 표시 - Start
 	            html.length = 0;
+	            var calculatedColumns = [];
 	            {
 	                var predicate = function predicate(a, b, ypi) {
 	                    for (var i = ypi; i >= 0; i--) {
@@ -28210,6 +28253,13 @@ var pivot =
 	                                html.push("</div>");
 
 	                                frozenColumnStylesLeft += leafFrozenColWidth[propertyName];
+
+	                                if(this._settings.showCalculatedColumnStyle && (_ypi == this._settings.yProperties.length - 1) && value) {
+                                		calculatedColumns.push({
+                                			summaryMapKey: _arrVals.concat([value]).join("||"),
+                                			top: index * cellHeight
+                                		});
+	                                }
 	                            }
 	                        } // end if - zpi is zero
 
@@ -28292,6 +28342,22 @@ var pivot =
 	                this._elementBodyFrozen.innerHTML = html.join("");
 	            }
 	            // body-frozen : y축 영역 표시 - End
+
+	            // 연산 열 body
+                if(this._settings.showCalculatedColumnStyle) {
+                	// 연산 열 데이터 표시
+                	html.length = 0;
+                	if(this.summaryMap[Viewer.EMPTY_Y_AXIS_DIMENSION_KEY]) {
+                		// Y축 차원이 존재하지 않는 경우
+                		this.appendBodyCalculatedColumnToHtml(Viewer.EMPTY_Y_AXIS_DIMENSION_KEY, 0, cellHeight, html);
+                	} else {
+                		for(var i = 0; i < calculatedColumns.length; i++) {
+                			this.appendBodyCalculatedColumnToHtml(calculatedColumns[i].summaryMapKey, calculatedColumns[i].top, cellHeight, html);
+                    	}
+                	}
+
+                	this._elementBodyCalculatedColumn.innerHTML = html.join("");
+                }
 
 	            // body-wrap : 데이터 영역 마크업 생성 - Start
 	            html.length = 0;
@@ -28541,7 +28607,7 @@ var pivot =
 
 	                                var summaryKey = '' === leafColName ? _zpiProp.name : leafColName + '||' + _zpiProp.name;
 	                                html.push("<div " + common.attributesString(columnAttributes, columnStyles) + ">");
-	                                html.push(common.numberFormat(_this2.getSummaryValue(_this.summaryMap[summaryKey]), _this2._settings.format));
+	                                html.push(common.numberFormat(_this2.getSummaryValue(_this._settings.totalValueStyle, _this.summaryMap[summaryKey]), _this2._settings.format));
 	                                html.push("</div>");
 	                            };
 
@@ -28591,6 +28657,7 @@ var pivot =
 	            frozenHeightCnt = frozenHeightCnt + (0 < xPropMax || 0 < yPropMax ? 1 : 0); // #20181116-01 : 상단 공백 타이틀 제거
 	            // let frozenHeightCnt = (1 + xPropMax + isShowDataKey);	// #20161230-01 : 값 필드 표시 방향 선택 기능
 	            var frozenWidth = frozenCellWidth * yPropMax;
+	            var calculatedColumnWidth = this._settings.showCalculatedColumnStyle ? Viewer.SHOW_CALCULATED_COLUMN_WIDTH : 0;
 
 	            // 전체 컨텐츠 너비 설정 - Start
 	            var widthKeys = Object.keys(this._leafColumnWidth);
@@ -28609,7 +28676,7 @@ var pivot =
 	            } else if (this.IS_FILL_WIDTH) {
 	                // this._leafColumnWidth = {}; // 초기화
 	                var cnt = this._xItems.length * zPropMax;
-	                var contentWidth = this._elementBody.style.width.replace(/px/gi, '') * 1 - frozenWidth;
+	                var contentWidth = this._elementBody.style.width.replace(/px/gi, '') * 1 - frozenWidth - calculatedColumnWidth;
 	                if (contentWidth > cnt * cellWidth) {
 	                    cellWidth = contentWidth / cnt;
 	                    this._elementHeadWrap.style.width = contentWidth + "px";
@@ -28693,14 +28760,14 @@ var pivot =
 	                    for (var ypi = 0; ypi < yPropMax; ypi++) {
 	                        columnAttributes = {};
 	                        columnAttributes["class"] = pivotStyle.cssClass.headCell;
-	                        columnAttributes["title"] = this._settings.yProperties[ypi].name;	
+	                        columnAttributes["title"] = this._settings.yProperties[ypi].name;
 
 	                        columnStyles = {};
 	                        columnStyles["height"] = cellHeight + "px";
 	                        columnStyles["color"] = this._settings.header.font.color;
 	                        columnStyles["background-color"] = this._settings.header.backgroundColor;
 
-	                        leafFrozenColWidth[this._settings.yProperties[ypi].name] || (leafFrozenColWidth[this._settings.yProperties[ypi].name] = frozenCellWidth);	
+	                        leafFrozenColWidth[this._settings.yProperties[ypi].name] || (leafFrozenColWidth[this._settings.yProperties[ypi].name] = frozenCellWidth);
 	                        var frozenColWidth = leafFrozenColWidth[this._settings.yProperties[ypi].name];
 	                        columnStyles["width"] = frozenColWidth + "px";
 	                        columnStyles["left"] = frozenColumnStyleLeft + "px";
@@ -28722,7 +28789,7 @@ var pivot =
                         	html.push("<div " + common.attributesString(columnAttributes, columnStyles) + "></div>");
 
                           html.push("</div>");
-	                       
+
 	                        frozenColumnStyleLeft += frozenColWidth;
 	                    }
 	                    html.push("</div>");
@@ -28731,6 +28798,15 @@ var pivot =
 	            }
 	            // x축 - y축이 중첩되는 고정 영역 - End
 
+	            if(this._settings.showCalculatedColumnStyle) {
+	            	// 연산 열 헤더 추가
+	            	html.length = 0;
+	            	for (var xpi = 0; xpi < frozenHeightCnt; xpi++) {
+	            	  var showLabel = (xpi === xPropMax + isShowDataKey) ? true : false;
+	                this.appendHeadCalculatedColumnToHtml(xpi, cellHeight, showLabel, html);
+	              }
+	              this._elementHeadCalculatedColumn.innerHTML = html.join("");
+	            }
 	            html.length = 0;
 	            // Head Wrap : x축 타이틀 표시 - Start
 	            {
@@ -29000,6 +29076,7 @@ var pivot =
 
 	            // body-frozen : y축 영역 표시 - Start
 	            html.length = 0;
+	            var calculatedColumns = [];
 	            {
 	                var predicate = function predicate(a, b, ypi) {
 	                    for (var i = ypi; i >= 0; i--) {
@@ -29076,6 +29153,12 @@ var pivot =
 	                        html.push("</div>");
 
 	                        frozenColumnStylesLeft += leafFrozenColWidth[propertyName];
+	                        if(this._settings.showCalculatedColumnStyle && (_ypi2 == this._settings.yProperties.length - 1) && value) {
+	                          calculatedColumns.push({
+                    				  summaryMapKey: _arrVals2.concat([value]).join("||"),
+                    				  top: index * cellHeight
+                    			  });
+                          }
 	                    }
 
 	                    html.push("</div>");
@@ -29116,6 +29199,21 @@ var pivot =
 	            }
 	            // body-frozen : y축 영역 표시 - End
 
+	            // 연산열 - body
+              if(this._settings.showCalculatedColumnStyle) {
+                html.length = 0;
+                // 연산 열 데이터 표시
+                if(this.summaryMap[Viewer.EMPTY_Y_AXIS_DIMENSION_KEY]) {
+                  // Y축 차원이 존재하지 않는 경우
+                  this.appendBodyCalculatedColumnToHtml(Viewer.EMPTY_Y_AXIS_DIMENSION_KEY, 0, cellHeight, html);
+                } else {
+                  for(var i = 0; i < calculatedColumns.length; i++) {
+                    this.appendBodyCalculatedColumnToHtml(calculatedColumns[i].summaryMapKey, calculatedColumns[i].top, cellHeight, html);
+                    }
+                }
+
+                this._elementBodyCalculatedColumn.innerHTML = html.join("");
+              }
 	            // body-wrap : 데이터 영역 마크업 생성 - Start
 	            html.length = 0;
 	            {
@@ -29371,7 +29469,7 @@ var pivot =
 	                                // 20180807 : Koo : Resize Column - E
 
 	                                html.push("<div " + common.attributesString(columnAttributes, columnStyles) + ">");
-	                                html.push(common.numberFormat(_this3.getSummaryValue(_this.summaryMap[summaryKey]), _this3._settings.format));
+	                                html.push(common.numberFormat(_this3.getSummaryValue(_this._settings.totalValueStyle, _this.summaryMap[summaryKey]), _this3._settings.format));
 	                                html.push("</div>");
 	                            };
 
@@ -29437,7 +29535,7 @@ var pivot =
 	                var contentSizeWidth = widthKeys.reduce(function (acc, item) {
 	                    return acc + _this4._leafColumnWidth[item];
 	                }, 0);
-	                var currentGridWidth = _this4._elementBody.style.width.replace(/px/gi, '') * 1 - _this4._elementBodyFrozen.style.width.replace(/px/gi, '') * 1;
+	                var currentGridWidth = _this4._elementBody.style.width.replace(/px/gi, '') * 1 - _this4._elementBodyFrozen.style.width.replace(/px/gi, '') * 1 - _this4._elementHeadCalculatedColumn.style.width.replace(/px/gi, '') * 1;
 
 	                if (contentSizeWidth <= currentGridWidth && 0 < widthKeys.length) {
 	                    widthKeys.forEach(function (key) {
@@ -29458,9 +29556,8 @@ var pivot =
 	         * 특정 데이터 목록에 대한 요약 정보 계산
 	         * @param dataList
 	         */
-	        Viewer.prototype.getSummaryValue = function (dataList) {
+	        Viewer.prototype.getSummaryValue = function (summarySettings, dataList) {
 	            //  - Start
-	            var summarySettings = this._settings.totalValueStyle;
 	            var summaryValue = 0;
 	            if (summarySettings && summarySettings.aggregationType) {
 
@@ -29503,7 +29600,93 @@ var pivot =
 
                 this._elementHeadFrozen.style.width = frozenWidth + "px";
                 this._elementBodyFrozen.style.width = frozenWidth + "px";
-	        }
+
+                if(_this2._settings.showCalculatedColumnStyle) {
+                	var widthKeys = Object.keys(this._leafColumnWidth);
+		            var contentSizeWidth = widthKeys.reduce(function (acc, item) {
+		                    return acc + _this2._leafColumnWidth[item];
+		            }, 0);
+
+		            this._elementHeadCalculatedColumn.style.left = contentSizeWidth + frozenWidth - 1 + "px";
+		            // TODO css 로 따로 빼야...
+		            this._elementHeadCalculatedColumn.style["border-left"] = "1px solid #dddddd";
+
+		            this._elementBodyCalculatedColumn.style.left = contentSizeWidth + frozenWidth + "px";
+                }
+	        };
+
+	        Viewer.prototype.appendCalculatedColumnDataToSummaryMap = function (column, summaryMap) {
+	        	for(var i = 0; i < column.seriesName.length; i++) {
+                	var key = _.split(column.seriesName[i], '―').join("||");
+
+                	if(key === '') {
+                		key = Viewer.EMPTY_Y_AXIS_DIMENSION_KEY;
+                	}
+
+                	summaryMap[key] || (summaryMap[key] = []);
+
+                	if(column.value[i]) {
+                		summaryMap[key].push(column.value[i])
+                	}
+            	};
+	        };
+
+	        Viewer.prototype.appendBodyCalculatedColumnToHtml = function(summaryMapKey, columnTop, columnHeight, html) {
+	        	var rowAttributes = {};
+                rowAttributes["class"] = pivotStyle.cssClass.bodyRow;
+                rowAttributes["class"] = this.addClassFontStyle(rowAttributes["class"], this._settings.showCalculatedColumnStyle.font);
+                rowAttributes["class"] = this.addClassTextAlign(rowAttributes["class"], this._settings.showCalculatedColumnStyle.align, 'RIGHT');
+                var rowStyles = {};
+                rowStyles["width"] = "100%";
+                rowStyles["height"] = columnHeight + "px";
+                rowStyles["top"] = columnTop + "px;";
+
+                html.push("<div " + common.attributesString(rowAttributes, rowStyles) + ">");
+
+            	var columnAttributes = {};
+                columnAttributes["class"] = pivotStyle.cssClass.headCell + ' ' + pivotStyle.cssClass.numeric;
+                var columnStyles = {};
+                columnStyles["height"] = columnHeight + "px";
+                columnStyles["width"] = "100%";
+                columnStyles["color"] = this._settings.showCalculatedColumnStyle.font.color;
+				columnStyles["background-color"] = this._settings.showCalculatedColumnStyle.backgroundColor;
+
+                html.push("<div " + common.attributesString(columnAttributes, columnStyles) + ">");
+                html.push(common.numberFormat(this.getSummaryValue(this._settings.showCalculatedColumnStyle, this.summaryMap[summaryMapKey]), this._settings.format));
+
+                html.push("</div>");
+
+                html.push("</div>")
+	        };
+
+	        Viewer.prototype.appendHeadCalculatedColumnToHtml = function(index, cellHeight, showLabel, html) {
+	        	var rowAttributes = {};
+                rowAttributes["class"] = pivotStyle.cssClass.headRow;
+                rowAttributes["class"] = this.addClassFontStyle(rowAttributes["class"], this._settings.showCalculatedColumnStyle.font);
+                rowAttributes["class"] = this.addClassTextAlign(rowAttributes["class"], this._settings.showCalculatedColumnStyle.align, 'LEFT');
+                var rowStyles = {};
+                rowStyles["width"] = "100%";
+                rowStyles["height"] = cellHeight + "px";
+                rowStyles["top"] = index * cellHeight + "px";
+                html.push("<div " + common.attributesString(rowAttributes, rowStyles) + ">");
+
+                var columnAttributes = {};
+                columnAttributes["class"] = pivotStyle.cssClass.headCell;
+                var columnStyles = {};
+                columnStyles["width"] = Viewer.SHOW_CALCULATED_COLUMN_WIDTH + "px";
+                columnStyles["height"] = cellHeight + "px";
+                columnStyles["color"] = this._settings.showCalculatedColumnStyle.font.color;
+                columnStyles["background-color"] = this._settings.showCalculatedColumnStyle.backgroundColor;
+
+              	html.push("<div " + common.attributesString(columnAttributes, columnStyles) + ">");
+                if (showLabel) {
+                	html.push(!this._settings.showCalculatedColumnStyle.label || '' === this._settings.showCalculatedColumnStyle.label
+                  		? pivotStyle.summaryLabel[this._settings.showCalculatedColumnStyle.aggregationType] : this._settings.showCalculatedColumnStyle.label);
+                }
+                html.push("</div>");
+
+                html.push("</div>");
+	        };
 
 	        return Viewer;
 	    }();

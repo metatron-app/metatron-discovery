@@ -1658,10 +1658,10 @@
                              (openUpdateFilterPopup)="openUpdateFilterPopup($event)"
                              (changeGlobalToChart)="openConfirmPopup($event, 'toChartFilter' )">
           </page-filter-panel>
-          <calrow-option #calculateOption
+          <calc-option #calculateOption
                          *ngIf="isChartShow && possibleChartCheck('calculatedRow', selectChart) && 'calculatedRow' === rnbMenu"
                          [(uiOption)]="uiOption">
-          </calrow-option>
+          </calc-option>
           <!-- MapView -->
           <map-common-option #mapCommonOption *ngIf="isChartShow && 'mapCommon' === rnbMenu"
                              [(uiOption)]="uiOption">
