@@ -14,31 +14,24 @@
 
 package app.metatron.discovery.query.druid.postaggregations;
 
+import app.metatron.discovery.query.druid.PostAggregation;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import javax.validation.constraints.NotNull;
-
-import app.metatron.discovery.query.druid.PostAggregation;
-
-/**
- * Created by hsp on 2016. 5. 3..
- */
 @JsonTypeName("math")
 public class MathPostAggregator implements PostAggregation {
 
-  @NotNull
   String name;
 
-  @NotNull
   String expression;
 
   String ordering;
 
+  Boolean finalize;
 
-  public MathPostAggregator(@NotNull String name, @NotNull String expression, String ordering) {
+  public MathPostAggregator(String name, String expression, Boolean finalize) {
     this.name = name;
     this.expression = expression;
-    this.ordering = ordering;
+    this.finalize = finalize;
   }
 
   @Override
@@ -66,12 +59,21 @@ public class MathPostAggregator implements PostAggregation {
     this.ordering = ordering;
   }
 
+  public Boolean getFinalize() {
+    return finalize;
+  }
+
+  public void setFinalize(Boolean finalize) {
+    this.finalize = finalize;
+  }
+
   @Override
   public String toString() {
     return "MathPostAggregator{" +
             "name='" + name + '\'' +
             ", expression='" + expression + '\'' +
             ", ordering='" + ordering + '\'' +
+            ", finalize=" + finalize +
             '}';
   }
 }

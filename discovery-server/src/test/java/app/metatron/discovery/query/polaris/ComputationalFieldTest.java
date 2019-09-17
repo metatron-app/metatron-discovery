@@ -14,22 +14,20 @@
 
 package app.metatron.discovery.query.polaris;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 import app.metatron.discovery.AbstractIntegrationTest;
 import app.metatron.discovery.query.druid.Aggregation;
 import app.metatron.discovery.query.druid.PostAggregation;
 import app.metatron.discovery.query.druid.aggregations.DoubleSumAggregation;
 import app.metatron.discovery.query.druid.limits.WindowingSpec;
 import app.metatron.discovery.query.druid.postaggregations.MathPostAggregator;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by hsp on 2016. 5. 3..
@@ -256,7 +254,8 @@ public class ComputationalFieldTest extends AbstractIntegrationTest {
         partitionColumns.add( "abc" );
         ans_windowingSpecs.add( new WindowingSpec( partitionColumns, null, Arrays.asList( "ac_sum_recu = 1.01*if($prev(ac_sum_recu)==null,1,$prev(ac_sum_recu))")));
 
-        ComputationalField.makeAggregationFunctions3(fieldName, input, aggregations, postAggregations, windowingSpecs, Maps.newHashMap());
+        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs,
+                Maps.newHashMap());
 
         Assert.assertTrue( compareAggregations( ans_aggregations, ans_postAggregations, ans_windowingSpecs, aggregations, postAggregations, windowingSpecs ) );
 
@@ -273,7 +272,8 @@ public class ComputationalFieldTest extends AbstractIntegrationTest {
         ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_000", null, "count"));
         ans_windowingSpecs.add( new WindowingSpec( null, null, Arrays.asList( "ac_sum_recu = aggregationfunc_000+if($prev(ac_sum_recu)==null,0,$prev(ac_sum_recu))")));
 
-        ComputationalField.makeAggregationFunctions3(fieldName, input, aggregations, postAggregations, windowingSpecs, Maps.newHashMap());
+        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs,
+                Maps.newHashMap());
 
         Assert.assertTrue( compareAggregations( ans_aggregations, ans_postAggregations, ans_windowingSpecs, aggregations, postAggregations, windowingSpecs ) );
 
@@ -289,7 +289,8 @@ public class ComputationalFieldTest extends AbstractIntegrationTest {
         ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_000", null, "profit+1"));
         ans_postAggregations.add( new MathPostAggregator("fieldname", "(aggregationfunc_000/count)", null ));
 
-        ComputationalField.makeAggregationFunctions3(fieldName, input, aggregations, postAggregations, windowingSpecs, Maps.newHashMap());
+        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs,
+                Maps.newHashMap());
 
         Assert.assertTrue( compareAggregations( ans_aggregations, ans_postAggregations, ans_windowingSpecs, aggregations, postAggregations, windowingSpecs ) );
 
@@ -304,7 +305,8 @@ public class ComputationalFieldTest extends AbstractIntegrationTest {
         ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_000", null, "z"));
         ans_postAggregations.add( new MathPostAggregator("fieldName01", "x+y+aggregationfunc_000", null ));
 
-        ComputationalField.makeAggregationFunctions3( fieldName, input, aggregations, postAggregations, windowingSpecs, Maps.newHashMap());
+        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs,
+                Maps.newHashMap());
 
         Assert.assertTrue( compareAggregations( ans_aggregations, ans_postAggregations, ans_windowingSpecs, aggregations, postAggregations, windowingSpecs ) );
 
@@ -320,7 +322,8 @@ public class ComputationalFieldTest extends AbstractIntegrationTest {
         ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_000", null, "log(z)"));
         ans_postAggregations.add( new MathPostAggregator("fieldName01", "x+y+(aggregationfunc_000/count)", null ));
 
-        ComputationalField.makeAggregationFunctions3( fieldName, input, aggregations, postAggregations, windowingSpecs, Maps.newHashMap());
+        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs,
+                Maps.newHashMap());
 
         Assert.assertTrue( compareAggregations( ans_aggregations, ans_postAggregations, ans_windowingSpecs, aggregations, postAggregations, windowingSpecs ) );
 
