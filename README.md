@@ -74,23 +74,24 @@ Installation
 ### Requirements
 - MacOS / Linux (Redhat, CentOS)
 - JDK 1.8
-- [Druid customized version for Metatron](https://sktmetatronkrsouthshared.blob.core.windows.net/metatron-public/discovery-dist/latest/druid-0.9.1-latest-hadoop-2.7.3-bin.tar.gz)
-- Apache Maven 3.3+ for building the project
+- **Druid customized version for Metatron**
+  - [Here is the link for downloading the archive.](https://sktmetatronkrsouthshared.blob.core.windows.net/metatron-public/discovery-dist/latest/druid-0.9.1-latest-hadoop-2.7.3-bin.tar.gz)
+  - To install the Metatron distributed Druid, simply untar the downloaded archive. And start | stop the druid with the following commands.
+  <pre><code> $ start-single.sh | stop-single.sh </code></pre>
+- (Optional) Apache Maven 3.3+ for building the project
 
-### Install the Customized Druid
-[Here is the link for downloading the archive.](https://sktmetatronkrsouthshared.blob.core.windows.net/metatron-public/discovery-dist/latest/druid-0.9.1-latest-hadoop-2.7.3-bin.tar.gz)
+### Install Metatron Discovery
+There is two way to get the running binary file.
 
-To install the Metatron distributed Druid, simply untar the downloaded archive. And start | stop the druid with the following commands.
-<pre><code> $ start-single.sh | stop-single.sh </code></pre>
-
-### Build from source
-Git clone this project.
-<pre><code>$ git clone https://github.com/metatron-app/metatron-discovery.git</code></pre>
-Build through Maven 3.3+.
-<pre><code>$ mvn clean install -DskipTests</code></pre>
-Building the whole project takes some time especially for the "discovery-frontend". Please wait a few minutes.
-
-If the build succeeds, you can find an archive file under "discovery-distribution/target"
+- Directly download the final binary file from [this link](https://sktmetatronkrsouthshared.blob.core.windows.net/metatron-public/discovery-dist/latest/metatron-discovery-latest-bin.tar.gz)
+- Or, build source code from this repository as shown below:
+  - Clone this project.
+  <pre><code>$ git clone https://github.com/metatron-app/metatron-discovery.git</code></pre>
+  - Build through Maven 3.3+.
+  <pre><code>$ mvn clean install -DskipTests</code></pre>
+  Building the whole project takes some time especially for the "discovery-frontend". Please wait a few minutes.
+  
+  If the build succeeds, you can find an archive file under "discovery-distribution/target"
 
 ### Start up the Metatron Discovery
 Untar the archive binary file of Metatron Discovery.
