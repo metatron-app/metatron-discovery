@@ -27,12 +27,12 @@ input.ddp-input-type {display:block; width:100%; padding-bottom:10px; font-size:
 .ddp-wrap-chart .ddp-wrap-chart-lnb input.ddp-input-typebasic.ddp-disabled,
 .ddp-wrap-chart .ddp-wrap-chart-lnb input.ddp-input-typebasic[disabled="disabled"] {background-color:#9a9c9f; border:1px solid #9a9c9f; opacity:1;}
 
+
 .ddp-ng-ellipsis span.ddp-data-ellipsis {display:block; border:1px solid #d0d1d9; width:100%; padding:6px 10px 6px 10px; border-radius:2px; font-size:13px; background-color:#fff; box-sizing:border-box; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 .ddp-ng-ellipsis input {display:none;}
 .ddp-ng-ellipsis.ddp-selected span.ddp-data-ellipsis {display:none;}
 .ddp-ng-ellipsis.ddp-selected input {display:block;}
 .ddp-ng-ellipsis.ddp-selected .ddp-ui-tooltip-info {display:block;}
-
 /**************************************************************
     적용 input
 **************************************************************/
@@ -43,14 +43,14 @@ input.ddp-input-type {display:block; width:100%; padding-bottom:10px; font-size:
 .ddp-input-apply.ddp-disabled:hover input.ddp-input-txt, .ddp-input-apply.ddp-disabledinput.ddp-input-txt:focus {border:1px solid #d0d1d8; }
 .ddp-input-apply.ddp-disabled .ddp-icon-apply {display:block;}
 
-.ddp-input-apply input.ddp-input-txt {display:block; width:100%; padding:6px 28px 6px 10px; color:#4b515b; font-size:13px; text-align:left; border:1px solid #d0d1d8; border-radius:2px; background-color:#fff; box-sizing:border-box;}
-
-.ddp-input-apply input.ddp-input-txt:focus + .ddp-icon-apply {background-color:#9ca2cc;}
+.ddp-input-apply input.ddp-input-txt {display:block; width:100%; padding:6px 10px 6px 10px; color:#4b515b; font-size:13px; text-align:left; border:1px solid #d0d1d8; border-radius:2px; background-color:#fff; box-sizing:border-box;}
+.ddp-input-apply input.ddp-input-txt:focus,
+.ddp-input-apply.ddp-edit input.ddp-input-txt{padding-right:28px;}
 .ddp-input-apply .ddp-icon-apply {display:none; position:absolute; top:50%; right:3px; width:24px; height:24px; margin-top:-12px;background-color:#d0d1d8;}
 .ddp-input-apply .ddp-icon-apply:before {display:inline-block; position:absolute; top:50%; left:50%; margin:-4px 0 0 -6px; width:11px; height:8px; background:url(../../../images/icon_select2.png) no-repeat; background-position:-27px top; content:'';}
 .ddp-input-apply:hover input.ddp-input-txt,
 .ddp-input-apply input.ddp-input-txt:focus {border:1px solid #b7b9c2;}
-.ddp-input-apply:hover .ddp-icon-apply,
+
 .ddp-input-apply input.ddp-input-txt:focus + .ddp-icon-apply{display:block;}
 .ddp-input-apply.ddp-edit input.ddp-input-txt {border:1px solid #b7b9c2;}
 .ddp-input-apply.ddp-edit .ddp-icon-apply {display:block; background-color:#9ca2cc;}
@@ -65,9 +65,22 @@ input.ddp-input-type {display:block; width:100%; padding-bottom:10px; font-size:
 .ddp-input-apply.ddp-loading:hover .ddp-icon-apply {display:none;}
 .ddp-input-apply.ddp-loading:before{display:inline-block; position:absolute; top:0; left:0; right:0; bottom:0; z-index:10; content:'';}
 
-/**************************************************************
-    calen
-**************************************************************/
+.ddp-input-apply2 {border:1px solid #d0d1d8; background-color:#fff;}
+.ddp-input-apply2:hover {border:1px solid #b7b9c2;}
+.ddp-input-apply2 .txt-apply {position:relative; float:right;}
+.ddp-input-apply2 .txt-apply .txt-data {float:left; position:Relative; top:4px; margin:0 5px; color:#bdc0c9; font-size:12px;}
+.ddp-input-apply2 .txt-apply .ddp-icon-apply {display:none; float:left; position:relative; width:24px; height:24px; margin:2px 2px 0 0; background-color:#d0d1d8; cursor:pointer;}
+
+.ddp-input-apply2 .txt-apply .ddp-icon-apply:before {display:inline-block; position:absolute; top:50%; left:50%; margin:-4px 0 0 -6px; width:11px; height:8px; background:url(../../../images/icon_select2.png) no-repeat; background-position:-27px top; content:'';}
+
+.ddp-input-apply2 .ddp-wrap-input {display:block; overflow:hidden;}
+.ddp-input-apply2 .ddp-wrap-input input {display:block; width:100%; padding:6px 0 7px 5px; border:none; background:none; box-sizing:border-box;}
+.ddp-input-apply2.ddp-edit .txt-apply .ddp-icon-apply {display:block;background-color:#9ca2cc;}
+.ddp-input-apply2.ddp-focus .txt-apply .ddp-icon-apply {display:block;}
+
+    /**************************************************************
+        calen
+    **************************************************************/
 .ddp-form-calen {position:relative;}
 .ddp-form-calen input.ddp-input-typebasic {padding-right:30px;}
 .ddp-form-calen:after {display:inline-block; position:absolute; top:50%; right:10px; margin-top:-6px; width:11px; height:11px; background:url(../../../images/icon_type.png) no-repeat; content:'';}

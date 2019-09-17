@@ -284,7 +284,7 @@ spring:
   datasource:
     platform: mysql
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/polaris_v2?useUnicode=true&amp;characterEncoding=utf8
+    url: jdbc:mysql://localhost:3306/polaris?useUnicode=true&amp;characterEncoding=utf8
     username: polaris
     password: polaris
     max-active: 50

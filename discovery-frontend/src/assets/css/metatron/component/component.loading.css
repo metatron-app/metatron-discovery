@@ -134,8 +134,8 @@
 .ddp-type-progressbar2 .ddp-data-progressbar {display:inline-block; content:''; position:absolute; top:0; left:0; bottom:0; border-radius:4px; background-color:#666eb2;}
 .ddp-type-progressbar2 .ddp-data-progressbar.type-failed {background-color:#cd5454;}
 @keyframes loading {
-  0% {width:0;}
-  100% {width:100%;}
+    0% {width:0;}
+    100% {width:100%;}
 }
 .ddp-box-loading.ddp-box-s {padding:23px 0; text-align:center;}
 .ddp-box-loading.ddp-box-s .ddp-box-in {display:inline-block;}
