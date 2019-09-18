@@ -870,7 +870,7 @@
   "msg.dp.alert.snapshot.failed" : "스냅샷 생성에 실패했습니다",
   "msg.dp.alert.prep.file.type.not.supported" : "지원하지 않는 파일 형식입니다",
   "msg.dp.alert.prep.file.key.missing" : "파일 타입 데이터셋 정보가 손상되었습니다",
-  "msg.dp.alert.teddy.column.not.countinuous" : "컬럼들이 연속적이지 않습니다",
+  "msg.dp.alert.teddy.column.not.continuous" : "컬럼들이 연속적이지 않습니다",
   "msg.dp.alert.teddy.column.not.found" : "컬럼을 찾을 수 없습니다",
   "msg.dp.alert.teddy.not.supported.type" : "Not supported type",
   "msg.dp.alert.teddy.query.failed" : "Query failed",

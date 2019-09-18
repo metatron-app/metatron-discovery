@@ -871,7 +871,7 @@
   "msg.dp.alert.snapshot.failed" : "Failed to create snapshot",
   "msg.dp.alert.prep.file.type.not.supported" : "File type not supported",
   "msg.dp.alert.prep.file.key.missing" : "File type dataset entity has been broken",
-  "msg.dp.alert.teddy.column.not.countinuous" : "Target columns are not countinuous",
+  "msg.dp.alert.teddy.column.not.continuous" : "Target columns are not continuous",
   "msg.dp.alert.teddy.column.not.found" : "Column Not Found",
   "msg.dp.alert.teddy.not.supported.type" : "Not supported type",
   "msg.dp.alert.teddy.query.failed" : "Query failed",
