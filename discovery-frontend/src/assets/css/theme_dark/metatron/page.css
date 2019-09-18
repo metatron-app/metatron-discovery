@@ -2954,7 +2954,7 @@
 .theme-dark .ddp-wrap-order-setting {
     position: absolute;
     top: 151px;
-    left: 50px;
+    left: 0;
     right: 50px;
     bottom: 0;
     padding-left: 40px;

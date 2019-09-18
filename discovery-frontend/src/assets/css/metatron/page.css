@@ -627,7 +627,7 @@ dl.ddp-dl-detail dd br {display:block; margin-top:5px;}
 
 .ddp-wrap-order .ddp-ui-result span.ddp-data-result.ddp-selected {color:#444;}
 .ddp-wrap-order .ddp-ui-result span.ddp-data-result.ddp-selected .ddp-icon-eyes2 {background-position:-17px 0}
-.ddp-wrap-order-setting {position:absolute; top:151px; left:50px; right:50px; bottom:0; padding-left:40px; box-sizing:border-box; overflow:auto;}
+.ddp-wrap-order-setting {position:absolute; top:151px; left:0; right:50px; bottom:0; padding-left:40px; box-sizing:border-box; overflow:auto;}
 .ddp-wrap-order .ddp-tree-number {margin-top:3px;}
 .ddp-wrap-order .ddp-tree-number li {padding:18px 0 17px 14px; width:45px; height:50px; box-sizing:border-box;}
 ul.ddp-list-order {padding:12px 0;}
@@ -6831,7 +6831,7 @@ table.ddp-table-union tr td .ddp-data-dropped strong {color:#666eb2; font-weight
 .ddp-ui-create-file.type-filelist-none .ddp-list-create-file {display:none;}
 .ddp-ui-create-file.type-filelist-none .ddp-wrap-create-detail {margin-left:0; padding-left:0;}
 .ddp-ui-create-file {width:100%; height:100%; border:1px solid #d0d1d8; box-sizing:border-box;}
-.ddp-ui-create-file .ddp-list-create-file {display:;float:left; width:250px; max-width:250px; height:100%; border-right:1px solid #d0d1d8; overflow:auto; box-sizing:border-box;}
+.ddp-ui-create-file .ddp-list-create-file {float:left; width:250px; max-width:250px; height:100%; border-right:1px solid #d0d1d8; overflow:auto; box-sizing:border-box;}
 .ddp-ui-create-file .ddp-wrap-create-detail {float:left; margin-left:-250px; padding-left:250px; width:100%; height:100%; box-sizing:border-box;}
 .ddp-ui-create-file .ddp-wrap-create-detail .ddp-ui-create-detail {position:relative; width:100%; height:100%;}
 .ddp-ui-create-file .ddp-list-file-name .ddp-wrap-checkbox {position:relative; padding:14px 35px 14px 34px;  cursor:pointer;}
