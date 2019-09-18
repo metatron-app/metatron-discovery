@@ -167,7 +167,7 @@
     대시보드 열람 dropdown slider
 **************************************************************/
 .theme-dark .ddp-type-selectbox.ddp-type-filter em.ddp-icon-sclose2 {
-    background: url(../../../images/dark_theme/btn_sclose.png) no-repeat;
+    background: url(../../../images/dark_theme/btn_sclose_dark.png) no-repeat;
     background-position: -30px -131px;
 }
 

@@ -284,7 +284,7 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
     margin-top: -10px;
     width: 20px;
     height: 20px;
-    background: url(../../images/dark_theme/btn_search.png) no-repeat;
+    background: url(../../images/dark_theme/btn_search_dark.png) no-repeat;
     box-sizing: border-box;
 }
 
@@ -776,7 +776,7 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
     margin: -6px 0 0 0;
     width: 16px;
     height: 12px;
-    background: url(../../images/dark_theme/btn_lnbmenu.png) no-repeat;
+    background: url(../../images/dark_theme/btn_lnbmenu_dark.png) no-repeat;
 }
 
 .theme-dark .ddp-layout-lnb .ddp-h1-logo {
@@ -1018,7 +1018,7 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
     width: 11px;
     height: 13px;
     margin-top: -7px;
-    background: url(../../images/dark_theme/icon_lnb.png) no-repeat;
+    background: url(../../images/dark_theme/icon_lnb_dark.png) no-repeat;
     vertical-align: middle;
 }
 
@@ -2214,7 +2214,7 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
     width: 38px;
     height: 9px;
     margin-left: -19px;
-    background: url(../../images/dark_theme/bg_order_line2.png) no-repeat;
+    background: url(../../images/dark_theme/bg_order_line2_dark.png) no-repeat;
 }
 
 .theme-dark .ddp-type-contents .ddp-ui-name2 em.ddp-bg-order-line2-type2 {
@@ -2229,7 +2229,7 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
     width: 70px;
     height: 9px;
     margin-left: -34px;
-    background: url(../../images/bg_order_line.png) no-repeat;
+    background: url(../../images/dark_theme/bg_order_line_dark.png) no-repeat;
 }
 
 .theme-dark .ddp-type-contents .ddp-ui-name2 em.ddp-bg-order-line3-type2 {
@@ -2248,7 +2248,7 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
     width: 100px;
     height: 9px;
     margin-left: -50px;
-    background: url(../../images/dark_theme/bg_order_line4.png) no-repeat;
+    background: url(../../images/dark_theme/bg_order_line4_dark.png) no-repeat;
 }
 
 .theme-dark .ddp-type-contents .ddp-ui-name2 em.ddp-bg-order-line4-type2 {
@@ -2271,7 +2271,7 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
     width: 129px;
     height: 9px;
     margin-left: -64px;
-    background: url(../../images/dark_theme/bg_order_line5.png) no-repeat;
+    background: url(../../images/dark_theme/bg_order_line5_dark.png) no-repeat;
 }
 
 .theme-dark .ddp-type-contents .ddp-ui-name2 em.ddp-bg-order-line5-type2 {
@@ -3194,7 +3194,7 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
     display: inline-block;
     width: 18px;
     height: 16px;
-    background: url(../../images/dark_theme/icon_redo2.png) no-repeat;
+    background: url(../../images/dark_theme/icon_redo2_dark.png) no-repeat;
 }
 
 .theme-dark .ddp-wrap-naviarea .ddp-ui-navidata span.ddp-data-sec a:hover {

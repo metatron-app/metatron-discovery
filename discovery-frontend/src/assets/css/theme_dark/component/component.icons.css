@@ -11,7 +11,7 @@
     display: inline-block;
     width: 15px;
     height: 15px;
-    background: url(../../../images/dark_theme/icon_time.png) no-repeat;
+    background: url(../../../images/dark_theme/icon_time_dark.png) no-repeat;
     vertical-align: middle;
 }
 
@@ -339,7 +339,7 @@
     display: inline-block;
     width: 22px;
     height: 19px;
-    background: url(../../../images/dark_theme/icon_return.png) no-repeat;
+    background: url(../../../images/dark_theme/icon_return_dark.png) no-repeat;
 }
 
 .theme-dark a.ddp-btn-return:hover {
@@ -642,7 +642,7 @@
     display: inline-block;
     width: 10px;
     height: 10px;
-    background: url(../../../images/dark_theme/icon_edit2.png) no-repeat;
+    background: url(../../../images/dark_theme/icon_edit2_dark.png) no-repeat;
     vertical-align: middle;
 }
 
@@ -1132,7 +1132,7 @@
 .theme-dark em.ddp-icon-btn-done {
     display: inline-block;
     margin-right: 8px;
-    background: url(../../../images/dark_theme/icon_buttons.png) no-repeat;
+    background: url(../../../images/dark_theme/icon_buttons_dark.png) no-repeat;
     vertical-align: middle;
 }
 
@@ -1286,7 +1286,7 @@
     display: inline-block;
     width: 19px;
     height: 15px;
-    background: url(../../../images/dark_theme/icon_chart.png) no-repeat;
+    background: url(../../../images/dark_theme/icon_chart_dark.png) no-repeat;
     background-position: left -12px;
     vertical-align: middle;
 }
@@ -1317,7 +1317,7 @@
     display: inline-block;
     width: 19px;
     height: 15px;
-    background: url(../../../images/dark_theme/icon_dashboard.png) no-repeat;
+    background: url(../../../images/dark_theme/icon_dashboard_dark.png) no-repeat;
     vertical-align: middle;
 }
 
@@ -1353,7 +1353,7 @@
     display: inline-block;
     width: 16px;
     height: 11px;
-    background: url(../../../images/dark_theme/icon_eyes.png) no-repeat;
+    background: url(../../../images/dark_theme/icon_eyes_dark.png) no-repeat;
     vertical-align: middle;
 }
 
@@ -1630,7 +1630,7 @@
 .theme-dark em.ddp-icon-control-more2:before {
     display: inline-block;
     content: '';
-    background: url(../../../images/dark_theme/icon_control.png) no-repeat;
+    background: url(../../../images/dark_theme/icon_control_dark.png) no-repeat;
     vertical-align: middle;
 }
 
@@ -1934,7 +1934,7 @@
     width: 12px;
     height: 15px;
     margin-right: 5px;
-    background: url(../../../images/dark_theme/icon_source.png) no-repeat;
+    background: url(../../../images/dark_theme/icon_source_dark.png) no-repeat;
     vertical-align: middle;
 }
 
@@ -1957,7 +1957,7 @@
     display: inline-block;
     content: '';
     margin-right: 6px;
-    background: url(../../../images/dark_theme/btn_boardoption.png) no-repeat;
+    background: url(../../../images/dark_theme/btn_boardoption_dark.png) no-repeat;
     vertical-align: middle;
 }
 
@@ -2143,7 +2143,7 @@
     content: '';
     width: 15px;
     height: 3px;
-    background: url(../../../images/dark_theme/icon_more.png) no-repeat;
+    background: url(../../../images/dark_theme/icon_more_dark.png) no-repeat;
     transform: rotate(90deg);
 }
 

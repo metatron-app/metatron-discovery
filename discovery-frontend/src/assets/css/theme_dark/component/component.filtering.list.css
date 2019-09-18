@@ -43,7 +43,7 @@
 
 .theme-dark .ddp-wrap-top-filtering .ddp-btn-filter-more:before {
     display: inline-block;
-    background: url(../../../images/dark_theme/icon_add.png) no-repeat;
+    background: url(../../../images/dark_theme/icon_add_dark.png) no-repeat;
     background-position: -26px -77px;
     content: '';
 }
