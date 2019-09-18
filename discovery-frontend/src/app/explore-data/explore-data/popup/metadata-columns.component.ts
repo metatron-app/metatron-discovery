@@ -53,13 +53,11 @@ export class MetadataColumnsComponent extends AbstractComponent {
   }
 
   getConvertedType(column: MetadataColumn) {
-    if (this.typeList.every((type) => {
-      return type.value !== column.physicalType;
-    })) {
-      return "Unknown";
-    } else {
-      return this.typeList.find(type => type.value === column.physicalType).label;
-    }
+    return column.type
+      ? this.typeList.filter((type) => {
+        return type.value === column.type;
+      })[ 0 ].label
+      : 'Select';
   }
 
   isDatasourceTypeMetadata(): boolean {
