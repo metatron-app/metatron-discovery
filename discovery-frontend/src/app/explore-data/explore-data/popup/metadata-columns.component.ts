@@ -14,7 +14,7 @@ import {FieldFormat} from "../../../domain/datasource/datasource";
 })
 export class MetadataColumnsComponent extends AbstractComponent {
 
-  readonly typeList = this.constant.getTypeFilters();
+  readonly typeList = this.getMetaDataLogicalTypeList();
   public readonly ROLE = Type.Role;
 
   public sortOptions = {
