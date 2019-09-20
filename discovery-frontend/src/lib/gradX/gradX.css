@@ -16,6 +16,7 @@
   border: 4px solid #dfdfdf;
   padding: 10px;
   font-weight: normal;
+  /*width: 444px;*/
   width: 100%;
   font-size: 12px;
 }
@@ -39,14 +40,13 @@
 }
 
 .gradx_panel {
-  /*width: 100%;*/
-  width: 215px;
+  width: 100%;
   height: 42px;
   border: 1px solid #ccc;
 }
 
 .gradx_start_sliders {
-  width: 100%;
+  width: 102%;
   margin-top: 8px;
   margin-left: -0.4em;
   background: whitesmoke;

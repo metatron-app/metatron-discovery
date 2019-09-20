@@ -254,7 +254,6 @@
 
 .theme-dark .ddp-ui-footer ul.ddp-list-footer {
     float: left;
-    display: inline-block;
     overflow: hidden;
 }
 
@@ -299,7 +298,6 @@
 
 .theme-dark .ddp-ui-footer span.ddp-ui-copy {
     float: left;
-    display: inline-block;
     padding: 3px 0 0 0;
     color: rgba(39, 41, 80, 0.6);
     font-size: 12px;
@@ -631,7 +629,6 @@
 }
 
 .theme-dark .ddp-ui-file-select .ddp-ui-buttons .ddp-btn-sbutton {
-    display: inline-block;
     float: left;
     position: relative;
     min-width: 90px;
@@ -677,7 +674,6 @@
 }
 
 .theme-dark .ddp-ui-file-select .ddp-data-photo {
-    display: inline-block;
     float: left;
     width: 90px;
     height: 90px;
@@ -1169,7 +1165,6 @@
 }
 
 .theme-dark .ddp-type-top-option .ddp-ui-rightoption .ddp-btn-box-close {
-    display: inline-block;
     position: relative;
     float: left;
     width: 33px;
@@ -1224,7 +1219,6 @@
 }
 
 .theme-dark .ddp-type-top-option .ddp-ui-rightoption a.ddp-link-public {
-    display: inline-block;
     float: left;
     padding: 5px 16px;
     color: #7e8aa5;
@@ -1693,7 +1687,6 @@
 }
 
 .theme-dark .ddp-box-fit .ddp-wrap-form span.ddp-label-form {
-    display: inline-block;
     position: relative;
     top: 5px;
     margin-right: 5px;
@@ -1721,7 +1714,6 @@
 }
 
 .theme-dark .ddp-box-join-option a.ddp-data-name {
-    display: block;
     float: left;
     position: relative;
     padding: 10px 21px 9px 22px;
@@ -1888,7 +1880,6 @@
 }
 
 .theme-dark .ddp-box-lookup ul.ddp-list-lookup li a.ddp-link-joinname em.ddp-icon-database2 {
-    display: inline-block;
     position: relative;
     top: 2px;
     float: left;
@@ -1996,7 +1987,6 @@
 }
 
 .theme-dark .ddp-popup-join .ddp-box-resultdata span.ddp-txt-title {
-    display: inline-block;
     float: left;
     padding: 16px 17px 15px 17px;
     color: #4e5368;
@@ -2704,7 +2694,6 @@
 }
 
 .theme-dark .ddp-wrap-join-popup .ddp-wrap-column-select .ddp-ui-data-name span.ddp-data-name {
-    display: inline-block;
     float: left;
     width: 50%;
     color: #a4aab0;
@@ -3076,7 +3065,6 @@
 }
 
 .theme-dark ul.ddp-list-order li .ddp-data-name .ddp-chart-img {
-    display: inline-block;
     float: left;
 }
 
@@ -3388,7 +3376,6 @@
 }
 
 .theme-dark .ddp-wrap-tab-dashboard .ddp-ui-setting .ddp-wrap-selectbox {
-    display: inline-block;
     float: left;
     position: relative;
     margin-top: 11px;
@@ -3806,7 +3793,6 @@
 
 .theme-dark .ddp-ui-board-filter .ddp-btn-slider .ddp-btn-prev,
 .theme-dark .ddp-ui-board-filter .ddp-btn-slider .ddp-btn-next {
-    display: inline-block;
     position: relative;
     float: left;
     width: 50%;
@@ -4779,7 +4765,13 @@
 .theme-dark .ddp-view-widget .ddp-area-filter .ddp-btn-line:hover {
     border:1px solid #c3c8d3;
     color:#c3c8d3;
-
+}
+.theme-dark .ddp-view-widget [class*="ddp-col"].ddp-apply .ddp-btn-line-s {
+    border:1px solid #4e5368; color:#a2a9c1;
+}
+.theme-dark .ddp-view-widget [class*="ddp-col"].ddp-apply .ddp-btn-line-s:hover {
+    border:1px solid #c3c8d3;
+    color:#c3c8d3;
 }
 .theme-dark .ddp-view-widget .ddp-type-selectbox {background:none;
     border:1px solid #4e5368;
@@ -4809,6 +4801,7 @@
 .theme-dark .ddp-view-widget .ddp-search-value .ddp-data-value {
     background-color:#1f2942;
 }
+.theme-dark .ddp-view-widget .ddp-search-value .ddp-pop-warning {}
 
 .theme-dark .ddp-view-widget .ddp-search-value .ddp-data-value input {color:#fff;}
 .theme-dark .ddp-view-widget .ddp-area-filter.ddp-flex .ddp-search-value,
@@ -5100,7 +5093,15 @@
     height: 14px;
     background-position: left -14px;
 }
+.theme-dark .ddp-view-widget .ddp-form-date .ddp-box-date {
+    border:1px solid #4e5368;
+}
 
+.theme-dark .ddp-view-widget .ddp-form-date .ddp-box-date .ddp-wrap-input,
+.theme-dark .ddp-view-widget .ddp-form-date .ddp-box-date .ddp-wrap-input input{
+    background-color:#131b30;
+    color:#fff;
+}
 .theme-dark .ddp-view-widget-parameter .ddp-ui-widget-contents {
     padding: 14px 6px 0 6px;
 }
@@ -5207,7 +5208,6 @@
 }
 
 .theme-dark .ddp-form-input-multy span.ddp-text-bar {
-    display: inline-block;
     float: left;
     width: 16%;
     line-height: 28px;
@@ -5319,14 +5319,12 @@
 }
 
 .theme-dark .ddp-box-widget .ddp-top-control .ddp-ui-tool {
-    display: inline-block;
     float: left;
     margin-right: 5px;
     vertical-align: top;
 }
 
 .theme-dark .ddp-box-widget .ddp-top-control .ddp-ui-tool a.ddp-btn-tool {
-    display: inline-block;
     float: left;
     position: relative;
     width: 25px;
@@ -5433,7 +5431,6 @@
 }
 
 .theme-dark ul.ddp-list-text li a .ddp-chart-images .ddp-img-txt {
-    display: inline-block;
     float: left;
     width: 28px;
     height: 28px;
@@ -5798,7 +5795,6 @@
 
 .theme-dark .ddp-wrap-list-filter ul.ddp-list-filter li a .ddp-icon-type,
 .theme-dark .ddp-wrap-list-filter2 ul.ddp-list-filter2 li a .ddp-icon-type {
-    display: inline-block;
     float: left;
     position: relative;
     top: 4px;
@@ -5991,7 +5987,6 @@
 
 .theme-dark .ddp-ui-tags .ddp-tag-type {
     position: relative;
-    display: inline-block;
     float: left;
     font-size: 12px;
     color: #7e8aa5;
@@ -6063,7 +6058,6 @@
 }
 
 .theme-dark .ddp-ui-tags .ddp-data-chartname {
-    display: inline-block;
     float: left;
     padding: 3px 7px;
     width: 155px;
@@ -6173,7 +6167,6 @@
 }
 
 .theme-dark .ddp-wrap-status .ddp-wrap-edit-set a.ddp-btn-filter {
-    display: inline-block;
     float: right;
     width: 124px;
     height: 27px;
@@ -7613,7 +7606,6 @@
 .theme-dark .ddp-pop-filter .ddp-top-filter .ddp-title .ddp-btn-back {
     position: relative;
     float: left;
-    display: inline-block;
     width: 50px;
     height: 60px;
 }
@@ -8201,7 +8193,11 @@
     float: right;
     text-align: right;
 }
-
+.theme-dark .ddp-view-widget .ddp-range-num input {
+    background-color:#131b30;
+    border:1px solid #4e5368;
+    color:#fff;
+}
 .theme-dark .ddp-range-num input {
     display: inline-block;
     padding: 5px 10px;
@@ -9192,7 +9188,6 @@
 }
 
 .theme-dark .ddp-ui-board-title span.ddp-data-name {
-    display: inline-block;
     float: left;
     max-width: 40%;
     padding: 13px 20px 14px 20px;
@@ -9393,7 +9388,6 @@
 }
 
 .theme-dark .ddp-ui-chat ul.ddp-list-chat li a .ddp-data-chatuser img.ddp-data-photo {
-    display: inline-block;
     float: left;
     margin: 0 5px 10px 0;
     width: 30px;
@@ -10455,7 +10449,7 @@
 }
 
 .theme-dark .ddp-ui-boardside-menu a.ddp-selected {
-    background-color: #7e8aa5;
+    background-color: #1972d0;
 }
 
 .theme-dark .ddp-ui-boardside-menu span.ddp-ui-menu-layout {
@@ -11460,7 +11454,7 @@
     top: 100%;
     margin-top: 5px;
     min-width: 355px;
-    padding: 20px 0px;
+    padding: 20px 0;
     box-sizing: border-box;
 }
 
@@ -11476,7 +11470,6 @@
 }
 
 .theme-dark .ddp-box-layout4.ddp-download .ddp-btn-down {
-    display: inline-block;
     float: left;
     padding: 9px 0;
     width: 160px;
@@ -11811,7 +11804,6 @@
 }
 
 .theme-dark .ddp-ui-btn-list {
-    display: inline-block;
     position: relative;
     float: left;
     padding: 0 7px;
@@ -12675,7 +12667,6 @@
 }
 
 .theme-dark .ddp-box-block .ddp-ui-box-top .ddp-ui-checkbox {
-    display: inline-block;
     position: relative;
     width: 20px;
     height: 20px;
@@ -12742,7 +12733,6 @@
 .theme-dark .ddp-box-block .ddp-ui-box-contents span.ddp-data-name.ddp-data-line2 {
     max-height: 44px;
     white-space: normal;
-    overflow: hidden;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -12835,7 +12825,6 @@
 }
 
 .theme-dark .ddp-box-block .ddp-box-bottom .ddp-wrap-data .ddp-data-name {
-    display: inline-block;
     float: left;
     position: relative;
     max-width: 132px;
@@ -13407,7 +13396,6 @@
 }
 
 .theme-dark .ddp-box-popup2 ul.ddp-list-folder li em.ddp-icon-folder2 {
-    display: inline-block;
     width: 13px;
     height: 12px;
     margin-right: 14px;
@@ -13422,7 +13410,6 @@
 
 .theme-dark .ddp-box-popup2 ul.ddp-list-folder li em.ddp-icon-shape,
 .theme-dark .ddp-box-popup2 ul.ddp-list-folder li em.ddp-icon-user {
-    display: inline-block;
     float: left;
     margin-right: 9px;
     width: 17px;
@@ -14258,7 +14245,6 @@
 }
 
 .theme-dark table.ddp-table-form2 tbody tr td img.ddp-data-photo {
-    display: inline-block;
     width: 28px;
     height: 28px;
     float: left;
@@ -14618,7 +14604,7 @@
 
 .theme-dark table.ddp-table-base thead tr th,
 .theme-dark table.ddp-table-base tr td {
-    padding: 5px 0px;
+    padding: 5px 0;
     background-color: #eaedf5;
     font-weight: normal;
     text-align: center;
@@ -15057,7 +15043,6 @@
 }
 
 .theme-dark .pop-box-owner .ddp-ui-division .ddp-ui-top .ddp-top-name .ddp-btn-window {
-    display: inline-block;
     float: left;
     position: relative;
     top: 5px;
@@ -15068,7 +15053,6 @@
 }
 
 .theme-dark .pop-box-owner .ddp-ui-division .ddp-ui-top .ddp-top-name .ddp-tag-global {
-    display: inline-block;
     float: left;
     padding: 2px 6px;
     margin-left: 6px;
@@ -15084,7 +15068,7 @@
     display: inline-block;
     max-width: 100%;
     padding-right: 10px;
-    box-sizing: Border-box;
+    box-sizing: border-box;
 }
 
 .theme-dark .pop-box-owner .ddp-ui-division .ddp-ui-top .ddp-top-name .ddp-txt-name .ddp-data-name {
@@ -15103,7 +15087,6 @@
 }
 
 .theme-dark .pop-box-owner .ddp-ui-division .ddp-ui-top .ddp-wrap-edit3 {
-    display: inline-block;
     width: auto;
     float: right;
 }
@@ -15399,9 +15382,9 @@
     z-index: 126;
     background-color: #fff;
     box-sizing: border-box;
-    -webkit-box-shadow: -2px 0px 7px 0px rgba(0, 0, 0, 0.35);
-    -moz-box-shadow: -2px 0px 7px 0px rgba(0, 0, 0, 0.35);
-    box-shadow: -2px 0px 7px 0px rgba(0, 0, 0, 0.35);
+    -webkit-box-shadow: -2px 0 7px 0 rgba(0, 0, 0, 0.35);
+    -moz-box-shadow: -2px 0 7px 0 rgba(0, 0, 0, 0.35);
+    box-shadow: -2px 0 7px 0 rgba(0, 0, 0, 0.35);
     animation-duration: 0.5s;
     animation-name: slideshow;
 }
@@ -16484,7 +16467,6 @@
 }
 
 .theme-dark .ddp-ui-shelf .ddp-wrap-example {
-    display: inline-block;
     float: left;
     margin-top: 6px;
     vertical-align: top;
@@ -16492,7 +16474,6 @@
 
 .theme-dark .ddp-ui-shelf .ddp-box-shelf {
     position: relative;
-    display: inline-block;
     float: left;
     margin: 0 2px;
     padding: 5px 10px;
@@ -16529,7 +16510,6 @@
 }
 
 .theme-dark .ddp-ui-shelf .ddp-box-dimension {
-    display: inline-block;
     float: left;
     position: relative;
     min-width: 77px;
@@ -16572,7 +16552,6 @@
 
 .theme-dark .ddp-ui-shelf .ddp-box-network {
     position: relative;
-    display: inline-block;
     float: left;
     padding: 3px 1px 3px 25px;
     margin: 1px 5px 0 5px;
@@ -16614,7 +16593,6 @@
 }
 
 .theme-dark .ddp-ui-shelf .ddp-box-measure {
-    display: inline-block;
     float: left;
     position: relative;
     min-width: 77px;
@@ -16737,7 +16715,6 @@
 
 .theme-dark .ddp-ui-drag-slide .ddp-ui-default {
     position: relative;
-    display: inline-block;
     float: left;
     padding: 0 5px;
     white-space: nowrap;
@@ -16758,7 +16735,6 @@
 }
 
 .theme-dark .ddp-ui-drag-slide .ddp-ui-default span.ddp-type-value {
-    display: inline-block;
     float: left;
     padding-right: 7px;
     margin-right: 7px;
@@ -16816,7 +16792,6 @@
 
 .theme-dark .ddp-ui-drag-slide .ddp-slide-control .ddp-btn-minus,
 .theme-dark .ddp-ui-drag-slide .ddp-slide-control .ddp-btn-plus {
-    display: inline-block;
     position: relative;
     top: 4px;
     float: left;
@@ -17735,7 +17710,7 @@
 .theme-dark .ddp-ui-chart-list {
     position: relative;
     padding: 22px 0 133px 0;
-    text-align: Center;
+    text-align: center;
 }
 
 .theme-dark .ddp-ui-chart-list ul.ddp-list-chart-img {
@@ -18080,7 +18055,6 @@
 /**********************************************************************************
 	차트 (그래프 메인)
 **********************************************************************************/
-@charset "UTF-8";
 .theme-dark .page-chart .ddp-ui-chart-main .ddp-ui-chart-area .ddp-top-control {
     position: absolute;
     top: 0;
@@ -19325,7 +19299,7 @@
 }
 
 .theme-dark .ddp-box-down .ddp-ui-down-contents2 {
-    padding: 0 0 0px 16px;
+    padding: 0 0 0 16px;
 }
 
 .theme-dark .ddp-box-down .ddp-wrap-divide {
@@ -21535,7 +21509,6 @@
 }
 
 .theme-dark .ddp-color-picker {
-    display: inline-block;
     float: left;
     margin-right: 4px;
     width: 26px;
@@ -22081,7 +22054,7 @@
 .theme-dark .ddp-list-usercolor .ddp-data-range .ddp-bar {
     float: left;
     width: 6%;
-    padding: 7px 0px 8px 0px;
+    padding: 7px 0 8px 0;
     text-align: center;
     box-sizing: border-box;
 }
@@ -22266,7 +22239,6 @@
 }
 
 .theme-dark .ddp-lnb-down .ddp-ui-link .ddp-link-option {
-    display: block;
     position: relative;
     float: right;
     padding-right: 12px;
@@ -24310,7 +24282,6 @@
 }
 
 .theme-dark .ddp-top-flow .ddp-data-form span.ddp-txt-date {
-    display: inline-block;
     float: left;
     line-height: 30px;
     color:#9aa4bc;
@@ -24459,7 +24430,6 @@
 }
 
 .theme-dark .ddp-top-flow .ddp-wrap-navi span.ddp-ui-navitag {
-    display: inline-block;
     float: left;
     position: relative;
     top: 16px;
@@ -25613,7 +25583,6 @@
 }
 
 .theme-dark ul.ddp-list-rule2 li .ddp-view-data.ddp-edit .ddp-ui-edit-button .ddp-btn-link {
-    display: inline-block;
     float: left;
     position: relative;
     width: 40px;
@@ -26905,28 +26874,20 @@
     left: 18px;
 }
 
-.theme-dark .ddp-box-flowdetail .ddp-data-filename span.ddp-txt-filename {
-    display: inline-block;
-    position: relative;
-    max-width: 100%;
-    max-height: 49px;
-    padding: 5px 23px 3px 5px;
-    font-size: 16px;
-    color: #1f2942;
-    font-weight: bold;
-    line-height: 21px;
-    font-family: sans-serif;
-    box-sizing: border-box;
-    overflow: hidden;
-    cursor: pointer;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    /* 라인수 */
-    /* autoprefixer: off */
-    -webkit-box-orient: vertical;
-    /* autoprefixer: on */
-    word-wrap: break-word;
+.theme-dark .ddp-box-flowdetail .ddp-data-filename span.ddp-txt-filename  {
+    display:block;
+    position:relative;
+    max-width:100%;
+    padding:5px 23px 3px 5px;
+    font-size:16px;
+    color:#35393f;
+    font-weight:bold;
+    line-height:21px;
+    font-family:sans-serif;
+    box-sizing:border-box;
+    overflow:hidden;
+    cursor:pointer;
+    word-break:break-all;
 }
 
 .theme-dark .ddp-box-flowdetail .ddp-data-filename.ddp-selected span.ddp-txt-filename {
@@ -28066,7 +28027,7 @@
 }
 
 .theme-dark .ddp-edit-description.ddp-edit .ddp-box-textarea .ddp-textarea-buttons .ddp-box-btn {
-    float: Left;
+    float: left;
     position: relative;
     width: 24px;
     height: 24px;
@@ -28407,7 +28368,6 @@
 }
 
 .theme-dark table tbody tr td .ddp-tag-connect {
-    display: inline-block;
     float: right;
     padding: 3px 7px;
     margin-right: -11px;
@@ -29163,8 +29123,7 @@
 }
 
 .theme-dark .ddp-wrap-datadetail .ddp-info-left {
-    display: inline-block;
-    float: Left;
+    float: left;
     width: 350px;
     height: 100%;
     border-right: 1px dotted #ccc;
@@ -29400,7 +29359,6 @@
 }
 
 .theme-dark ul.ddp-list-detail li .ddp-box-tag2 {
-    display: inline-block;
     position: relative;
     float: left;
     margin-right: 7px;
@@ -29447,7 +29405,6 @@
 }
 
 .theme-dark ul.ddp-list-detail li .ddp-data-no {
-    display: inline-block;
     float: left;
     width: 45px;
     margin-left: -25px;
@@ -29645,7 +29602,6 @@
 }
 
 .theme-dark .ddp-ui-contents-list .ddp-ui-option span.ddp-data-total {
-    display: inline-block;
     position: relative;
     top: 2px;
     float: left;
@@ -29735,7 +29691,6 @@
 }
 
 .theme-dark .ddp-ui-contents-list .ddp-ui-option a.ddp-btn-link {
-    display: inline-block;
     float: left;
     margin-left: 20px;
     color: #7e8aa5;
@@ -30435,7 +30390,6 @@
 }
 
 .theme-dark .page-prep-dataflow ul.ddp-list-snapshot li > .ddp-txt-snapshot .ddp-data-name .ddp-tag-type {
-    display: inline-block;
     float: left;
     padding: 1px 4px;
     margin-right: 5px;
@@ -32558,7 +32512,7 @@
 }
 
 .theme-dark .popup-datastore-schema .ddp-wrap-add-column .ddp-box-column .ddp-box-button [class*="ddp-btn-"] {
-    float: Left;
+    float: left;
     margin-right: 3px;
     min-width: auto;
 }
@@ -33253,7 +33207,6 @@
 }
 
 .theme-dark .ddp-form-join .ddp-data-default {
-    display: inline-block;
     float: left;
     width: 8%;
     padding: 6px 0 7px 0;
@@ -33826,21 +33779,18 @@
 }
 
 .theme-dark .ddp-wrap-snapshot .ddp-wrap-summary .ddp-box-stick .ddp-data-valid {
-    display: block;
     float: left;
     height: 100%;
     background-color: #4c92e0;
 }
 
 .theme-dark .ddp-wrap-snapshot .ddp-wrap-summary .ddp-box-stick .ddp-data-mismatched {
-    display: block;
     float: left;
     height: 100%;
     background-color: #eb5f58;
 }
 
 .theme-dark .ddp-wrap-snapshot .ddp-wrap-summary .ddp-box-stick .ddp-data-missing {
-    display: block;
     float: left;
     height: 100%;
     background-color: #c3c8d3;
@@ -34298,7 +34248,6 @@
 }
 
 .theme-dark .ddp-ui-dbconnect .ddp-ui-db-option .ddp-ui-buttons.ddp-inline .ddp-ui-message {
-    display: inline-block;
     float: inherit;
     width: inherit;
 }
@@ -34335,7 +34284,6 @@
 }
 
 .theme-dark .ddp-ui-db-option2 .ddp-label-checkbox {
-    display: inline-block;
     position: relative;
     top: 6px;
     float: left;
@@ -34473,6 +34421,8 @@
     background-color: #f9f9f9;
     white-space: pre-wrap;
     box-sizing: border-box;
+}
+.theme-dark .ddp-ui-import-option .ddp-ui-option-select .ddp-ui-edit-db .ddp-ui-edit:focus {
     outline: none;
 }
 
@@ -34898,7 +34848,7 @@
 }
 
 .theme-dark .ddp-wrap-datadetail .ddp-part .ddp-ui-datadetail {
-    float: Left;
+    float: left;
     width: 600px;
     padding: 40px 0 0 0;
     margin-right: 20px;
@@ -34968,7 +34918,7 @@
 }
 
 .theme-dark .ddp-pop-datadetail .ddp-wrap-grid-option .ddp-form-label2 {
-    float: Left;
+    float: left;
     margin-left: 40px;
 }
 
@@ -35131,17 +35081,6 @@
     height: 125px;
 }
 
-.theme-dark .ddp-pop-datadetail .ddp-ui-tab .ddp-box-layout4.ddp-information {
-    position: absolute;
-    top: 28px;
-    left: -10px;
-    z-index: 55;
-    width: 270px;
-    height: 310px;
-    box-sizing: border-box;
-    overflow: auto;
-}
-
 .theme-dark ul.ddp-ui-tab.ddp-type li .ddp-box-layout4.ddp-information a {
     padding: 0px;
     border: none;
@@ -35241,7 +35180,6 @@
 }
 
 .theme-dark .ddp-box-layout4.ddp-information .ddp-list-join li .ddp-data-joinname em[class*="ddp-icon-join-"] {
-    display: inline-block;
     float: left;
     width: 28px;
     height: 18px;
@@ -35848,7 +35786,6 @@
 }
 
 .theme-dark .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option .ddp-icon-del {
-    display: inline-block;
     float: left;
     width: 11px;
     height: 12px;
@@ -35920,9 +35857,9 @@
 /**************************************************************
   Page : 워크벤치 상세 (rnb)
 **************************************************************/
-.theme-dark .page-workbench .ddp-ui-rnb-contents .ddp-ui-var-plus {padding-top:0px;}
+.theme-dark .page-workbench .ddp-ui-rnb-contents .ddp-ui-var-plus {padding-top:0;}
 .theme-dark .page-workbench .ddp-ui-rnb-contents .ddp-ui-var-plus .ddp-ui-addview {margin-top:0;}
-.theme-dark .page-workbench .ddp-ui-rnb-contents .ddp-ui-title {margin-left:0px; padding-left:15px;}
+.theme-dark .page-workbench .ddp-ui-rnb-contents .ddp-ui-title {margin-left:0; padding-left:15px;}
 
 /**************************************************************
   Page : 워크벤치 상세 (rnb) Global variable
@@ -36284,7 +36221,6 @@
 }
 
 .theme-dark .ddp-ui-benchlnb .ddp-data-namesub .ddp-icon-database3 {
-    display: inline-block;
     float: left;
     margin-right: 8px;
     width: 12px;
@@ -37176,7 +37112,6 @@
 }
 
 .theme-dark .ddp-ui-var-plus a.ddp-link-var-add {
-    display: inline-block;
     float: right;
     position: relative;
     top: 6px;
@@ -37682,7 +37617,6 @@
 
 .theme-dark .ddp-btn-listslider .ddp-btn-sliderprev,
 .theme-dark .ddp-btn-listslider .ddp-btn-slidernext {
-    display: inline-block;
     float: left;
     position: relative;
     width: 35px;
@@ -38548,7 +38482,6 @@
 }
 
 .theme-dark .ddp-box-query-result .ddp-wrap-result .ddp-wrap-btn-link .ddp-box-page {
-    display: inline-block;
     float: left;
     width: 75px;
     height: 30px;
@@ -39481,7 +39414,6 @@
 }
 
 .theme-dark table.ddp-table-form tbody tr td .ddp-td-schema span.ddp-box-tag-value {
-    display: inline-block;
     float: left;
     padding: 2px 3px 3px 3px;
     border-radius: 1px;
@@ -39576,7 +39508,6 @@
 }
 
 .theme-dark table.ddp-table-form tbody tr td .ddp-type-icon {
-    display: inline-block;
     float: left;
     width: 43px;
     height: 22px;
@@ -39973,7 +39904,7 @@
 
 .theme-dark .ddp-box-schema .ddp-box-setting .ddp-wrap-value-det {
     position: relative;
-    float: Left;
+    float: left;
     width: 255px;
     height: 100%;
     border-right: 1px solid #eaedf5;
@@ -39981,7 +39912,7 @@
 
 .theme-dark .ddp-box-schema .ddp-box-setting .ddp-wrap-value-det .ddp-top-set {
     border-bottom: 1px solid #e7e7e7;
-    overflow: Hidden;
+    overflow: hidden;
 }
 
 .theme-dark .ddp-box-schema .ddp-box-setting .ddp-wrap-value-det .ddp-data-name {
@@ -40044,7 +39975,7 @@
 }
 
 .theme-dark .ddp-wrap-value-setting {
-    float: Left;
+    float: left;
     width: 100%;
     height: 100%;
     margin-left: -256px;
@@ -40647,11 +40578,10 @@
 }
 
 .theme-dark .ddp-box-action.ddp-type .ddp-change-type .ddp-box-layout4.ddp-change .ddp-change-select {
-    float: Left;
+    float: left;
 }
 
 .theme-dark .ddp-box-action.ddp-type .ddp-change-type .ddp-box-layout4.ddp-change .ddp-change-select .ddp-type-selectbox {
-    display: inline-block;
     float: left;
     width: 158px;
 }
@@ -40903,8 +40833,7 @@
 }
 
 .theme-dark .ddp-datagrid .ddp-ui-option .ddp-reset {
-    display: inline-block;
-    float: Left;
+    float: left;
     position: relative;
     top: 8px;
     margin-left: 10px;
@@ -41241,7 +41170,7 @@
 
 .theme-dark .ddp-form-wrapper .ddp-type-selectbox {
     width: 120px !important;
-    float: Left;
+    float: left;
     margin-right: 0px;
     border: none;
     border-radius: 0;
@@ -42177,7 +42106,6 @@
 }
 
 .theme-dark .ddp-ui-header-option .ddp-link-info {
-    display: inline-block;
     margin-top: 17px;
     float: left;
     width: 19px;
@@ -42273,10 +42201,9 @@
 }
 
 .theme-dark .ddp-layout-contents .ddp-ui-contents-in .ddp-box-searching .ddp-ui-edit-option {
-    display: inline-block;
     position: relative;
     top: 17px;
-    float: Left;
+    float: left;
 }
 
 .theme-dark .ddp-layout-contents .ddp-ui-contents-in .ddp-box-searching .ddp-ui-edit-option label.ddp-label-checkbox {
@@ -42479,8 +42406,7 @@
 }
 
 .theme-dark .ddp-ui-contents-det .ddp-view-setting .ddp-label-name .ddp-txt-label {
-    display: inline-block;
-    float: Left;
+    float: left;
     color: #4e5368;
     font-size: 14px;
 }
@@ -42775,7 +42701,6 @@
 }
 
 .theme-dark .ddp-ui-contents-det .ddp-view-setting .ddp-date-setting .ddp-btn-toggle {
-    display: inline-block;
     float: left;
     height: 30px;
     margin-left: 3px;
@@ -42999,7 +42924,7 @@
 }
 
 .theme-dark .ddp-type-server .ddp-box-top-setting .ddp-type-search {
-    float: Left;
+    float: left;
     margin: 15px 20px 0 20px;
 }
 
@@ -43011,7 +42936,7 @@
 .theme-dark .ddp-type-server .ddp-box-top-setting .ddp-type-option .ddp-form-label2,
 .theme-dark .ddp-type-server .ddp-box-top-setting .ddp-type-option .ddp-wrap-edit3,
 .theme-dark .ddp-type-server .ddp-box-top-setting .ddp-type-option .ddp-list-tab-button {
-    float: Left;
+    float: left;
 }
 
 .theme-dark .ddp-type-server .ddp-box-top-setting .ddp-type-option .ddp-form-label2 {
@@ -43298,7 +43223,6 @@
 }
 
 .theme-dark .ddp-ui-datadetail.type-detail .ddp-box-log-option .ddp-dl-option dd .ddp-box-status {
-    display: inline-block;
     float: left;
     margin-right: 4px;
     padding: 6px 8px;
@@ -43344,7 +43268,6 @@
 }
 
 .theme-dark .ddp-ui-datadetail.type-detail .ddp-box-log-option .ddp-btn-log {
-    display: inline-block;
     width: 15px;
     height: 15px;
     float: left;
@@ -44521,7 +44444,7 @@
 
 .theme-dark ul.ddp-list-setinfo li .ddp-form-setting {
     position: relative;
-    padding: 0px 0px 0px 43px;
+    padding: 0 0 0 43px;
     overflow: auto;
 }
 
@@ -45055,7 +44978,6 @@
 }
 
 .theme-dark .ddp-wrap-list-create .ddp-box-create .ddp-data-top .ddp-data-photo {
-    display: inline-block;
     float: left;
     position: relative;
     width: 50px;
@@ -45595,7 +45517,6 @@
 }
 
 .theme-dark .ddp-create-option .ddp-type-info .ddp-icon-info {
-    display: inline-block;
     position: relative;
     top: 2px;
     float: left;
@@ -45893,7 +45814,6 @@
 }
 
 .theme-dark .ddp-create-option .ddp-type-info .ddp-icon-info {
-    display: inline-block;
     position: relative;
     top: 2px;
     float: left;
@@ -45940,7 +45860,8 @@
 }
 
 /**********************************************************************************
-        메타데이터 (01meta data)    **********************************************************************************/
+        메타데이터 (01meta data)
+        **********************************************************************************/
 .theme-dark .ddp-wrap-meatadata {
     width: 600px;
     margin: 0 auto 0 auto;
@@ -47088,7 +47009,6 @@
 }
 
 .theme-dark table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-icon-popularity {
-    display: inline-block;
     position: relative;
     top: -2px;
     float: left;
@@ -47141,7 +47061,6 @@
 
 .theme-dark .ddp-meta-search .ddp-search-select {
     position: relative;
-    display: inline-block;
     float: left;
     width: 185px;
     padding: 0 40px 0 15px;
@@ -47268,14 +47187,12 @@
 }
 
 .theme-dark .ddp-layout-meta.ddp-scroll .ddp-ui-contents-top .ddp-ui-title {
-    display: inline-block;
     float: left;
     text-align: left;
     padding: 20px 20px 5px 24px;
 }
 
 .theme-dark .ddp-layout-meta.ddp-scroll .ddp-ui-contents-top .ddp-ui-tag {
-    display: inline-block;
     float: left;
     padding: 33px 0;
 }
@@ -47856,7 +47773,6 @@
 }
 
 .theme-dark .ddp-wrap-meta-summary .ddp-wrap-box .ddp-list-summary li .ddp-data-txt .ddp-ui-popularity .ddp-icon-popularity {
-    display: inline-block;
     float: left;
     width: 18px;
     height: 14px;
@@ -48314,13 +48230,11 @@
 .theme-dark .ddp-detail ul.ddp-list-user li .ddp-box-user {
     display: block;
     overflow: hidden;
-    cursor: pointer;
     background-color: rgba(236, 238, 246, 0.3);
     cursor: default;
 }
 
 .theme-dark .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-data-photo {
-    display: inline-block;
     position: relative;
     width: 50px;
     height: 50px;
@@ -48459,9 +48373,7 @@
     top: 100%;
 }
 
-.theme-dark .ddp-detail-contents table.ddp-table-form.ddp-table-details tr th .ddp-wrap-hover-info .ddp-box-layout4
-.ddp-detail-contents .ddp-ui-tag .ddp-label-tag {
-    display: inline-block;
+.theme-dark .ddp-detail-contents .ddp-ui-tag .ddp-label-tag {
     float: left;
     padding: 6px 0;
     margin-right: 17px;
@@ -48902,7 +48814,6 @@
 }
 
 .theme-dark .ddp-ui-multidata .ddp-size-button [class*="ddp-btn-"]:before {
-    display: inline-block;
     float: left;
     background: url(../../../images/btn_network.png) no-repeat;
     content: '';
@@ -48978,7 +48889,6 @@
 }
 
 .theme-dark .ddp-type-top-option.ddp-type .ddp-link-type {
-    display: inline-block;
     float: left;
     padding: 8px 10px 0 0;
     color: #4e5368;
@@ -49058,7 +48968,6 @@
 }
 
 .theme-dark .ddp-type-multidata .ddp-box-resultdata .ddp-ui-top-area .ddp-icon-fullsize {
-    display: inline-block;
     float: left;
     width: 13px;
     height: 13px;
@@ -49194,7 +49103,6 @@
 }
 
 .theme-dark .ddp-association .ddp-label {
-    display: inline-block;
     float: left;
     padding: 31px 63px 31px 16px;
     font-size: 14px;
@@ -49678,7 +49586,6 @@
 }
 
 .theme-dark .ddp-ui-multidata .ddp-size-button [class*="ddp-btn-"]:before {
-    display: inline-block;
     float: left;
     background: url(../../../images/btn_network.png) no-repeat;
     content: '';
@@ -49754,7 +49661,6 @@
 }
 
 .theme-dark .ddp-type-top-option.ddp-type .ddp-link-type {
-    display: inline-block;
     float: left;
     padding: 8px 10px 0 0;
     color: #4e5368;
@@ -49834,7 +49740,6 @@
 }
 
 .theme-dark .ddp-type-multidata .ddp-box-resultdata .ddp-ui-top-area .ddp-icon-fullsize {
-    display: inline-block;
     float: left;
     width: 13px;
     height: 13px;
@@ -49857,7 +49762,6 @@
 }
 
 .theme-dark .ddp-association .ddp-label {
-    display: inline-block;
     float: left;
     padding: 31px 63px 31px 16px;
     font-size: 14px;
@@ -50262,7 +50166,6 @@
 }
 
 .theme-dark .ddp-map-tooltip .ddp-label {
-    display: block;
     padding-bottom: 6px;
     color: #fff;
     font-size: 14px;
@@ -50475,7 +50378,6 @@
 }
 
 .theme-dark ul.ddp-list-tab-type li {
-    display: inline-block;
     position: relative;
     float: left;
 }

@@ -249,7 +249,7 @@ em.ddp-icon-widget-dataview:before,
 em.ddp-icon-widget-synch:before {display:inline-block;  background:url(../../../images/icon_widget.png) no-repeat; vertical-align: middle; content:'';}
 
 em.ddp-icon-widget-edit:before {width:13px; height:13px; background-position:left -131px;}
-em.ddp-icon-widget-cut:before {width:11px; height:11px; background-position:0px -176px;}
+em.ddp-icon-widget-cut:before {width:11px; height:11px; background-position:0 -176px;}
 em.ddp-icon-widget-moveto:before {width:13px; height:12px; background-position:-14px top;}
 em.ddp-icon-widget-save:before {width:12px; height:13px; background-position:-13px -40px;}
 em.ddp-icon-widget-gridsave:before {display:inline-block; width:12px; height:13px; background-position:-39px -40px; content:'';}
@@ -585,7 +585,7 @@ a.ddp-icon-board-edit:hover:before {background-position:-21px -19px;}
 
 .ddp-icon-drop-cluster {width:13px; height:12px; background-position:-251px top;}
 .ddp-icon-drop-guide {width:11px; height:13px; background-position:-265px top;}
-a.ddp-icon-more {position:relative; display:inline-block; padding:8px 4px; cursor:pointer; font-size:0px;}
+a.ddp-icon-more {position:relative; display:inline-block; padding:8px 4px; cursor:pointer; font-size:0;}
 
 a.ddp-icon-more:before {display:inline-block; content:''; width:15px; height:3px; background:url(../../../images/icon_more.png) no-repeat; transform:rotate(90deg);}
 a.ddp-icon-more:hover:before {background-position:0 -4px;}
@@ -735,7 +735,7 @@ em.ddp-icon-measure-maplink ,
 em.ddp-icon-measure-int,
 em.ddp-icon-measure-latitude,
 em.ddp-icon-measure-longitude,
-em.ddp-icon-measure-array{display:inline-block; background:url(../../../images/icon_valuetype.png) no-repeat; vertical-align:middle; font-size:0px;}
+em.ddp-icon-measure-array{display:inline-block; background:url(../../../images/icon_valuetype.png) no-repeat; vertical-align:middle; font-size:0;}
 
 em.ddp-icon-dimension-ab {width:13px; height:9px; background-position:-28px top;}
 em.ddp-icon-dimension-local {width:9px; height:11px; background-position:-20px -10px;}

@@ -7,7 +7,7 @@
 .ddp-loading-part {position:absolute; top:0; left:0; right:0; bottom:0; z-index:40;}
 .ddp-loading-part .ddp-ui-loading {display:inline-block; position:absolute; left:0; right:0; top:50%; margin:-63px 0 0 0; text-align:center;}
 
-.ddp-loading-part .ddp-ui-loading .lds-wedges {position:relative; margin:0px 0 0 100px; top:40px; left:0; display:inline-block;}
+.ddp-loading-part .ddp-ui-loading .lds-wedges {position:relative; margin:0 0 0 100px; top:40px; left:0; display:inline-block;}
 .ddp-loading-part .ddp-ui-loading .ddp-btn-cancel a {font-size:14px;text-align:center; text-decoration: underline; }
 
 @keyframes lds-wedges {

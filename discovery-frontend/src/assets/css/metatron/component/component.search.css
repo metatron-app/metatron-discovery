@@ -10,7 +10,7 @@
 .ddp-form-search input:focus {border-bottom:1px solid #b7b9c1;}
 .ddp-form-search input::-webkit-input-placeholder {color:#b7b9c2;}
 .ddp-form-search input:-ms-input-placeholder {color:#b7b9c2;}
-.ddp-form-search .ddp-btn-search-close {display:inline-block; padding:5px; position:absolute; top:50%; right:5px; margin-top:-8px; cursor:pointer; font-size:0px !important;}
+.ddp-form-search .ddp-btn-search-close {display:inline-block; padding:5px; position:absolute; top:50%; right:5px; margin-top:-8px; cursor:pointer; font-size:0 !important;}
 .ddp-form-search .ddp-btn-search-close:before {display:inline-block; width:7px; height:7px; background:url(../../../images/btn_sclose.png) no-repeat; background-position:left -38px; content:'';}
 
 .ddp-form-search.ddp-full {width:100%;}

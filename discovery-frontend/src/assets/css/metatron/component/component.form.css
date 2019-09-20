@@ -280,8 +280,8 @@
 .ddp-edit-setting .ddp-col-6 {padding:0 6px;}
 .ddp-edit-setting  textarea {display:block; width:100%; border:1px solid #d0d1d9; overflow:hidden;}
 .ddp-edit-setting  .ddp-wrap-down {display:none; padding-left:172px;}
-.ddp-edit-setting.ddp-selected .ddp-wrap-down {display:block; padding-left:0px;}
-.ddp-edit-setting.ddp-selected .ddp-wrap-down .ddp-wrap-edit2:first-of-type {margin-top:0px;}
+.ddp-edit-setting.ddp-selected .ddp-wrap-down {display:block; padding-left:0;}
+.ddp-edit-setting.ddp-selected .ddp-wrap-down .ddp-wrap-edit2:first-of-type {margin-top:0;}
 .ddp-edit-setting .ddp-edit-sub {position:relative; padding:20px 0 0 172px;}
 .ddp-edit-setting .ddp-edit-sub .ddp-ui-message {margin-top:6px;}
 .ddp-edit-setting .ddp-edit-sub .ddp-ui-message .ddp-data-ok,
@@ -433,7 +433,7 @@ table.ddp-table-form.ddp-inherit .ddp-box-layout4 .ddp-table-code tr td {border:
 .ddp-ui-dateinfo .ddp-box-dateinfo .ddp-box-date em.ddp-icon-time {position:absolute; top:50%; left:9px; margin-top:-7px;}
 
 .ddp-ui-dateinfo .ddp-box-dateinfo .ddp-box-date .ddp-txt-calen,
-.ddp-ui-dateinfo .ddp-box-dateinfo .ddp-box-date .ddp-txt-time {display:block; width:100% !important; padding-left:0px;  padding-right:10px; line-height:29px; height:28px; font-size:13px; overflow:hidden; box-sizing:border-box; cursor:pointer;}
+.ddp-ui-dateinfo .ddp-box-dateinfo .ddp-box-date .ddp-txt-time {display:block; width:100% !important; padding-left:0;  padding-right:10px; line-height:29px; height:28px; font-size:13px; overflow:hidden; box-sizing:border-box; cursor:pointer;}
 .ddp-ui-dateinfo .ddp-box-dateinfo .ddp-box-date .ddp-txt-time {width:72px;}
 .ddp-ui-dateinfo .ddp-box-dateinfo .ddp-box-date.ddp-full {width:100%; }
 .ddp-ui-dateinfo .ddp-box-dateinfo .ddp-box-date.ddp-full .ddp-txt-calen {width:100%;}

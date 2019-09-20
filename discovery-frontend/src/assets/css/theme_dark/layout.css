@@ -99,8 +99,8 @@ pre {padding:0px; margin:0px; border:none; background:none; border-radius:0px;}
 pre code {background:none;}
 body.body-hidden {overflow:hidden;}
 /*body.ddp-body {background-color:#eaedf5}*/
-em.ddp-bg-back {display:block; position:fixed; left:0; right:0; bottom:0; top:0; background-color:#eaedf5;}
-em.ddp-bg-back.type-bg {background-color:#eff1f4;}
+.theme-dark em.ddp-bg-back {display:block; position:fixed; left:0; right:0; bottom:0; top:0; background-color:#eaedf5;}
+.theme-dark em.ddp-bg-back.type-bg {background-color:#eff1f4;}
 em[class*="ddp-icon-"] {font-size:0px; vertical-align: middle;}
 textarea::-webkit-input-placeholder {color: #a7adb2;}
 textarea:-moz-placeholder {color: #a7adb2;}
