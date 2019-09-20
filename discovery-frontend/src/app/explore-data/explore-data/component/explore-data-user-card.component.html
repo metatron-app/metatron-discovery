@@ -7,11 +7,17 @@
     <div class="ddp-data-name">{{ topUser['user']['fullName'] }}
 <!--      <em class="ddp-icon-control-fav"></em>-->
     </div>
-    <div class="ddp-data-info" to hide underline >
-      {{ topUser['dashboard']['workBook'] ?
-          topUser['dashboard']['workBook']['name'] + " > " + topUser['dashboard']['name']
-        : topUser['dashboard']['name']
-      }}
+    <div>
+      <div class="ddp-data-info" (click)="onClickDashBoardName(topUser.hasPermission)">
+        <!--   if user doesn't have permission, hide jumping button and underline 'type-link' class     -->
+        <span class="ddp-txt-info" [class.type-link]="topUser.hasPermission">
+          {{ topUser['dashboard']['workBook']
+            ? topUser['dashboard']['workBook']['name'] + " > " + topUser['dashboard']['name']
+            : topUser['dashboard']['name']
+          }}
+          <em class="ddp-link-new" ></em>
+        </span>
+      </div>
     </div>
     <div class="ddp-data-date">{{ topUser['lastPublishedTime'] | mdate:'YYYY-MM-DD HH:mm:ss'}}</div>
   </div>
@@ -27,7 +33,14 @@
     <div class="ddp-data-name">{{ topUser['user']['fullName'] }}
       <!--      <em class="ddp-icon-control-fav ddp-selected"></em>-->
     </div>
-    <div class="ddp-data-info">{{ topUser['workbench']['name'] }}</div>
+    <div>
+      <div class="ddp-data-info" (click)="onClickWorkbenchName(topUser.hasPermission)">
+      <span class="ddp-txt-info" [class.type-link]="topUser.hasPermission">
+        {{ topUser['workbench']['name'] }}
+        <em class="ddp-link-new" ></em>
+      </span>
+      </div>
+    </div>
     <div class="ddp-data-date">{{ topUser['lastPublishedTime'] | mdate:'YYYY-MM-DD HH:mm:ss'}}</div>
   </div>
 </div>
