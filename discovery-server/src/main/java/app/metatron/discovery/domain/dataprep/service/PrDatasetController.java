@@ -354,7 +354,7 @@ public class PrDatasetController {
       response = this.datasetFileService
               .makeFileGrid(storedUri, size, delimiterCol, manualColumnCount, Boolean.parseBoolean(autoTyping));
     } catch (Exception e) {
-      LOGGER.error("fileCheckSheet(): caught an exception: ", e);
+      LOGGER.error("fileGrid(): caught an exception: ", e);
       throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
     }
     return ResponseEntity.ok(response);
