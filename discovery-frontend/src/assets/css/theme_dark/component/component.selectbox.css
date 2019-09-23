@@ -1236,14 +1236,6 @@
     position: relative;
 }
 
-.theme-dark .ddp-hover-status .ddp-status-active {
-    display: inline-block;
-    position: relative;
-    width: 60px;
-    padding-right: 17px;
-    cursor: pointer;
-}
-
 .theme-dark .ddp-hover-status .ddp-status-active .ddp-icon-view {
     display: inline-block;
     position: absolute;
@@ -1251,24 +1243,6 @@
     right: 0;
     width: 17px;
     height: 17px;
-}
-
-.theme-dark .ddp-hover-status .ddp-status-active .ddp-icon-view:before {
-    display: inline-block;
-    width: 7px;
-    height: 4px;
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin: -2px 0 0 -4px;
-    background: url(../../../images/icon_select.png) no-repeat;
-    background-position: -16px top;
-}
-
-.theme-dark .ddp-hover-status .ddp-status-active .ddp-icon-view:hover,
-.theme-dark .ddp-hover-status.ddp-selected .ddp-status-active .ddp-icon-view {
-    background-color: #eaedf5;
 }
 
 .theme-dark .ddp-hover-status .ddp-wrap-popup2 {

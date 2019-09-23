@@ -50,10 +50,10 @@
 
 
 .theme-dark .ddp-wrap-top-filtering .ddp-form-filtering {
-  display: inline-block;
-  position: relative;
-  vertical-align: top;
-  margin-left: 20px;
+    display: inline-block;
+    position: relative;
+    vertical-align: top;
+    margin-left: 20px;
 }
 
 .theme-dark .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering {

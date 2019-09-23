@@ -425,6 +425,7 @@ ul.ddp-list-typebasic.ddp-view li.ddp-selected a .ddp-icon-plus {display:block;}
 .ddp-ui-full {width:100%; box-sizing:border-box;}
 .ddp-mgb3 {margin-bottom:3px;}
 .ddp-cursor {cursor: pointer;}
+.ddp-cursor-default {cursor:default !important;}
 .ddp-mgb20 {margin-bottom:20px !important;}
 .ddp-mgl10 {margin-left:10px !important;}
 .ddp-index {position: fixed; left: 0; right: 0;  bottom: 0; top: 0; z-index: 9999;}

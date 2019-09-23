@@ -304,10 +304,8 @@ table.ddp-table-detail2 tr td .ddp-icon-type-txt {display:inline-block; position
 	dropdown
 **************************************************************/
 .ddp-hover-status {display:inline-block; position:relative;}
-.ddp-hover-status .ddp-status-active {display:inline-block; position:relative; width:60px; padding-right:17px; cursor:pointer;}
+.ddp-hover-status .ddp-status-active {display:inline-block; position:relative; padding-right:17px; cursor:pointer;}
 .ddp-hover-status .ddp-status-active .ddp-icon-view {display:inline-block; position:absolute; top:-3px; right:0; width:17px; height:17px;}
-.ddp-hover-status .ddp-status-active .ddp-icon-view:before {display:inline-block; width:7px; height:4px;  content:''; position:absolute; top:50%; left:50%; margin:-2px 0 0 -4px; background:url(../../../images/icon_select.png) no-repeat; background-position:-16px top;}
-.ddp-hover-status .ddp-status-active .ddp-icon-view:hover,
-.ddp-hover-status.ddp-selected .ddp-status-active .ddp-icon-view {background-color:#e7e7ea;}
+.ddp-hover-status .ddp-status-active .ddp-icon-view:before {display:inline-block; width:7px; height:4px;  content:''; position:absolute; top:50%; left:50%; margin:-2px 0 0 -4px; background:url(../../../images/icon_select.png) no-repeat; background-position:-8px top;}
 .ddp-hover-status .ddp-wrap-popup2 {display:none; position:absolute; top:20px; right:0; min-width:130px;}
 .ddp-hover-status.ddp-selected .ddp-wrap-popup2 {display:block;}

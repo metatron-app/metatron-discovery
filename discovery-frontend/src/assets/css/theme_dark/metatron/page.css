@@ -27089,12 +27089,6 @@
     padding-right: 45px;
 }
 
-.theme-dark .ddp-box-flowdetail .ddp-ui-databuttons.ddp-type .ddp-more {
-    position: absolute;
-    top: 15px;
-    right: 10px;
-}
-
 .theme-dark .ddp-box-flowdetail .ddp-ui-databuttons.ddp-type .ddp-more .ddp-btn-more {
     display: inline-block;
     position: relative;
@@ -39219,7 +39213,6 @@
 .theme-dark table.ddp-table-type2 tr td.ddp-info:hover {
     background-color: #f1f1f3 !important;
     border: 1px solid #f1f1f3;
-    cursor: pointer;
 }
 
 .theme-dark table.ddp-table-type2 tr td.ddp-info .ddp-ui-info {
@@ -40818,13 +40811,6 @@
 .theme-dark .ddp-box-grid-detail .ddp-script-preview .ddp-txt-error3 {
     padding: 10px;
     color: #ca4b4b;
-    font-size: 12px;
-}
-
-.theme-dark .ddp-wrap-datadetail .ddp-label-name {
-    display: block;
-    padding: 0 0 5px 0;
-    color: #4e5368;
     font-size: 12px;
 }
 
