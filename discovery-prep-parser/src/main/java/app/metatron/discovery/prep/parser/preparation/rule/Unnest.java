@@ -79,9 +79,9 @@ public class Unnest implements Rule, Rule.Factory {
   @Override
   public String toString() {
     return "Unnest{" +
-        "col='" + col + '\'' +
-        ", into=" + into +
-        ", idx=" + idx +
-        '}';
+            "col='" + col + '\'' +
+            ", into=" + into +
+            ", idx=" + idx +
+            '}';
   }
 }

@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class NoLimitException extends TeddyException {
+
   public NoLimitException(String message) {
     super(message);
   }

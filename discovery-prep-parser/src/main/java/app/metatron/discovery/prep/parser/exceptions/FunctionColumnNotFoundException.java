@@ -15,6 +15,7 @@
 package app.metatron.discovery.prep.parser.exceptions;
 
 public class FunctionColumnNotFoundException extends RuleException {
+
   public FunctionColumnNotFoundException(String message) {
     super(message);
   }

@@ -14,25 +14,29 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalPatternTypeException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.NoLimitException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.WorksOnlyOnStringException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongTargetColumnExpressionException;
 import app.metatron.discovery.prep.parser.preparation.rule.Extract;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.RegularExpr;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DfExtract extends DataFrame {
+
   private static Logger LOGGER = LoggerFactory.getLogger(DfExtract.class);
 
   public DfExtract(String dsName, String ruleString) {
@@ -53,7 +57,7 @@ public class DfExtract extends DataFrame {
     Boolean isCaseIgnore = extract.getIgnoreCase();
     String patternStr;
     String quoteStr = null;
-    String regExQuoteStr=null;
+    String regExQuoteStr = null;
     Pattern pattern;
 
     int limit = extract.getLimit();
@@ -66,7 +70,8 @@ public class DfExtract extends DataFrame {
     } else if (targetColExpr instanceof Identifier.IdentifierArrayExpr) {
       targetColNames.addAll(((Identifier.IdentifierArrayExpr) targetColExpr).getValue());
     } else {
-      throw new WrongTargetColumnExpressionException("DfExtract.prepare(): wrong target column expression: " + targetColExpr.toString());
+      throw new WrongTargetColumnExpressionException(
+              "DfExtract.prepare(): wrong target column expression: " + targetColExpr.toString());
     }
 
     addColumnWithDfAll(prevDf);
@@ -74,35 +79,37 @@ public class DfExtract extends DataFrame {
     for (String targetColName : targetColNames) {
       //Type Check
       if (prevDf.getColTypeByColName(targetColName) != ColumnType.STRING) {
-        throw new WorksOnlyOnStringException(String.format("DfExtract.prepare(): works only on STRING: targetColName=%s type=%s",
-                targetColName, prevDf.getColTypeByColName(targetColName)));
+        throw new WorksOnlyOnStringException(
+                String.format("DfExtract.prepare(): works only on STRING: targetColName=%s type=%s",
+                        targetColName, prevDf.getColTypeByColName(targetColName)));
       }
       //Highlighted Column List
       interestedColNames.add(targetColName);
       targetColno = getColnoByColName(targetColName);
       List<String> extractedColNames = new ArrayList<>();
 
-      for (int i = 1; i < limit+1; i++) {
+      for (int i = 1; i < limit + 1; i++) {
         String newColName = "extract_" + targetColName + i;
         newColName = addColumn(targetColno + i, newColName, ColumnType.STRING);  // 중간 삽입
         extractedColNames.add(newColName);
         interestedColNames.add(newColName);
       }
 
-      extractedColNameList.put(targetColName,extractedColNames);
+      extractedColNameList.put(targetColName, extractedColNames);
     }
 
     assert !(expr.toString().equals("''") || expr.toString().equals("//")) : "You can not extract empty string!";
 
     //quote가 없을 때의 처리
-    if(quote == null) {
+    if (quote == null) {
       if (expr instanceof Constant.StringExpr) {
         patternStr = ((Constant.StringExpr) expr).getEscapedValue();
 
-        if (isCaseIgnore != null && isCaseIgnore)
+        if (isCaseIgnore != null && isCaseIgnore) {
           pattern = Pattern.compile(patternStr, Pattern.LITERAL + Pattern.CASE_INSENSITIVE);
-        else
+        } else {
           pattern = Pattern.compile(patternStr, Pattern.LITERAL);
+        }
 
       } else if (expr instanceof RegularExpr) {
         patternStr = ((RegularExpr) expr).getEscapedValue();
@@ -116,8 +123,9 @@ public class DfExtract extends DataFrame {
         patternStr = ((Constant.StringExpr) expr).getEscapedValue();
         patternStr = disableRegexSymbols(patternStr);
 
-        if (isCaseIgnore != null && isCaseIgnore)
+        if (isCaseIgnore != null && isCaseIgnore) {
           patternStr = makeCaseInsensitive(patternStr);
+        }
 
       } else if (expr instanceof RegularExpr) {
         patternStr = ((RegularExpr) expr).getEscapedValue();
@@ -148,7 +156,8 @@ public class DfExtract extends DataFrame {
   }
 
   @Override
-  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
+  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
+          throws InterruptedException, TeddyException {
     List<Row> rows = new ArrayList<>();
 
     List<String> targetColNames = (List<String>) preparedArgs.get(0);
@@ -161,13 +170,13 @@ public class DfExtract extends DataFrame {
 
     LOGGER.trace("DfExtract.gather(): start: offset={} length={} targetColno={}", offset, length, targetColNames);
 
-    if(quoteStr == null) {
+    if (quoteStr == null) {
       for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
         Row row = prevDf.rows.get(rowno);
         Row newRow = new Row();
 
-        for(colno=0; colno < prevDf.colCnt; colno++) {
-          if(targetColNames.contains(prevDf.getColName(colno))) {
+        for (colno = 0; colno < prevDf.colCnt; colno++) {
+          if (targetColNames.contains(prevDf.getColName(colno))) {
             newRow.add(prevDf.getColName(colno), row.get(colno));
 
             String targetStr = (String) row.get(colno);
@@ -194,7 +203,7 @@ public class DfExtract extends DataFrame {
         Row row = prevDf.rows.get(rowno);
         Row newRow = new Row();
 
-        for(colno=0; colno < prevDf.colCnt; colno++) {
+        for (colno = 0; colno < prevDf.colCnt; colno++) {
           if (targetColNames.contains(prevDf.getColName(colno))) {
             newRow.add(prevDf.getColName(colno), row.get(colno));
 

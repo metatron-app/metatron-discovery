@@ -18,9 +18,11 @@ import java.io.Serializable;
 import java.util.List;
 
 public class PrepHistogramResponse implements Serializable {
+
   List<Histogram> colHists;
 
-  public PrepHistogramResponse() { }
+  public PrepHistogramResponse() {
+  }
 
   public PrepHistogramResponse(List<Histogram> colHists) {
     this.colHists = colHists;

@@ -79,11 +79,15 @@ public class SplitRows implements Rule, Rule.Factory {
   @Override
   public String toString() {
     String quoteString = null;
-    if (quote != null) quoteString = quote.toString(); else quoteString = "";
+    if (quote != null) {
+      quoteString = quote.toString();
+    } else {
+      quoteString = "";
+    }
     return "SplitRows{" +
-        "col='" + col + '\'' +
-        ", on=" + on +
-        ", quote='" + quoteString + '\'' +
-        '}';
+            "col='" + col + '\'' +
+            ", on=" + on +
+            ", quote='" + quoteString + '\'' +
+            '}';
   }
 }

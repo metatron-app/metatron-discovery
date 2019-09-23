@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class GroupByColumnNotFoundException extends TeddyException {
+
   public GroupByColumnNotFoundException(String message) {
     super(message);
   }

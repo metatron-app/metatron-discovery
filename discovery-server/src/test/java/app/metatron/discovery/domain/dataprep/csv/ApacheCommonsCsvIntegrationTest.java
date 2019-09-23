@@ -22,6 +22,13 @@ import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import com.facebook.presto.jdbc.internal.jackson.core.JsonProcessingException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -33,12 +40,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestExecutionListeners;
 
-import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-
 @TestExecutionListeners(value = OAuthTestExecutionListener.class, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class ApacheCommonsCsvIntegrationTest extends AbstractRestIntegrationTest {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(ApacheCommonsCsvIntegrationTest.class);
 
   @Autowired(required = false)
@@ -78,13 +82,18 @@ public class ApacheCommonsCsvIntegrationTest extends AbstractRestIntegrationTest
       reader = PrepCsvUtil.getReaderAfterDetectingCharset(fis, strLocalUri);
     } catch (FileNotFoundException e) {
       e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND, strLocalUri);
+      throw PrepException
+              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND, strLocalUri);
     } catch (URISyntaxException e) {
       e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, strHdfsUri);
+      throw PrepException
+              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX,
+                      strHdfsUri);
     } catch (IOException e) {
       e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, strHdfsUri);
+      throw PrepException
+              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH,
+                      strHdfsUri);
     }
 
     try {
@@ -100,10 +109,14 @@ public class ApacheCommonsCsvIntegrationTest extends AbstractRestIntegrationTest
       reader.close();
     } catch (URISyntaxException e) {
       e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, strHdfsUri);
+      throw PrepException
+              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX,
+                      strHdfsUri);
     } catch (IOException e) {
       e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_HDFS_PATH, strHdfsUri);
+      throw PrepException
+              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_HDFS_PATH,
+                      strHdfsUri);
     }
 
     return strHdfsUri;

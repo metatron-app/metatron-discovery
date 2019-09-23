@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class TooManyPivotedColumnsException extends TeddyException {
+
   public TooManyPivotedColumnsException(String message) {
     super(message);
   }

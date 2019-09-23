@@ -51,7 +51,7 @@ public class Delete implements Rule, Rule.Factory {
   @Override
   public String toString() {
     return "Delete{" +
-        "row=" + row +
-        '}';
+            "row=" + row +
+            '}';
   }
 }

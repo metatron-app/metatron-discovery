@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class CannotSerializeIntoJsonException extends TeddyException {
+
   public CannotSerializeIntoJsonException(String message) {
     super(message);
   }

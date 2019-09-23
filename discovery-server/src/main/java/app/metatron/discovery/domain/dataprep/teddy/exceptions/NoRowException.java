@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class NoRowException extends TeddyException {
+
   public NoRowException(String message) {
     super(message);
   }

@@ -15,111 +15,121 @@
 package app.metatron.discovery.domain.dataprep.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 @Entity
 @IdClass(PrTransformRuleId.class)
 @Table(name = "pr_transform_rule")
 public class PrTransformRule {
-    @Id
-    @Column(name = "rule_no", nullable = false)
-    private Integer ruleNo;
 
-    @Id
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ds_id")
-    @JsonBackReference
-    private PrDataset dataset;
+  @Id
+  @Column(name = "rule_no", nullable = false)
+  private Integer ruleNo;
 
-    @Lob
-    @Column(name = "rule_string", nullable = false)
-    private String ruleString;
+  @Id
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "ds_id")
+  @JsonBackReference
+  private PrDataset dataset;
 
-    @Column(name = "is_valid", nullable = false)
-    private boolean isValid = true;
+  @Lob
+  @Column(name = "rule_string", nullable = false)
+  private String ruleString;
 
-    @Lob
-    @Column(name = "json_rule_string")
-    private String jsonRuleString;
+  @Column(name = "is_valid", nullable = false)
+  private boolean isValid = true;
 
-    @Lob
-    @Column(name = "short_rule_string")
-    private String shortRuleString;
+  @Lob
+  @Column(name = "json_rule_string")
+  private String jsonRuleString;
 
-    @Lob
-    @Column(name = "custom")
-    private String custom;
+  @Lob
+  @Column(name = "short_rule_string")
+  private String shortRuleString;
 
-    public PrTransformRule() {}
+  @Lob
+  @Column(name = "custom")
+  private String custom;
 
-    public PrTransformRule(PrDataset dataset, Integer ruleNo, String ruleString, String jsonRuleString, String shortRuleString) {
-        this.dataset = dataset;
-        this.ruleNo = ruleNo;
-        this.ruleString = ruleString;
-        this.jsonRuleString = jsonRuleString;
-        this.shortRuleString = shortRuleString;
-    }
+  public PrTransformRule() {
+  }
 
-    public Integer getRuleNo() {
-        return ruleNo;
-    }
+  public PrTransformRule(PrDataset dataset, Integer ruleNo, String ruleString, String jsonRuleString,
+          String shortRuleString) {
+    this.dataset = dataset;
+    this.ruleNo = ruleNo;
+    this.ruleString = ruleString;
+    this.jsonRuleString = jsonRuleString;
+    this.shortRuleString = shortRuleString;
+  }
 
-    public void setRuleNo(Integer ruleNo) {
-        this.ruleNo = ruleNo;
-    }
+  public Integer getRuleNo() {
+    return ruleNo;
+  }
 
-    public PrDataset getDataset() {
-        return dataset;
-    }
+  public void setRuleNo(Integer ruleNo) {
+    this.ruleNo = ruleNo;
+  }
 
-    public void setDataset(PrDataset dataset) {
-        this.dataset = dataset;
-    }
+  public PrDataset getDataset() {
+    return dataset;
+  }
 
-    public String getRuleString() {
-        return ruleString;
-    }
+  public void setDataset(PrDataset dataset) {
+    this.dataset = dataset;
+  }
 
-    public boolean isValid() {
-        return isValid;
-    }
+  public String getRuleString() {
+    return ruleString;
+  }
 
-    public void setValid(boolean valid) {
-        isValid = valid;
-    }
+  public boolean isValid() {
+    return isValid;
+  }
 
-    public String getJsonRuleString() {
-        return jsonRuleString;
-    }
+  public void setValid(boolean valid) {
+    isValid = valid;
+  }
 
-    public String getShortRuleString() {
-        assert shortRuleString != null;     // if you called prepareTransformRules, it must not be null!
-        return shortRuleString;
-    }
+  public String getJsonRuleString() {
+    return jsonRuleString;
+  }
 
-    // used only for swapping
-    public void setRuleString(String ruleString) {
-        this.ruleString = ruleString;
-    }
+  public String getShortRuleString() {
+    assert shortRuleString != null;     // if you called prepareTransformRules, it must not be null!
+    return shortRuleString;
+  }
 
-    // used only for swapping or backward compatability
-    public void setJsonRuleString(String jsonRuleString) {
-        this.jsonRuleString = jsonRuleString;
-    }
+  // used only for swapping
+  public void setRuleString(String ruleString) {
+    this.ruleString = ruleString;
+  }
 
-    // used only for swapping or backward compatability
-    public void setShortRuleString(String shortRuleString) {
-        this.shortRuleString = shortRuleString;
-    }
+  // used only for swapping or backward compatability
+  public void setJsonRuleString(String jsonRuleString) {
+    this.jsonRuleString = jsonRuleString;
+  }
 
-    public String getCustom() {
-        return custom;
-    }
+  // used only for swapping or backward compatability
+  public void setShortRuleString(String shortRuleString) {
+    this.shortRuleString = shortRuleString;
+  }
 
-    public void setCustom(String custom) {
-        this.custom = custom;
-    }
+  public String getCustom() {
+    return custom;
+  }
+
+  public void setCustom(String custom) {
+    this.custom = custom;
+  }
 
 }
 

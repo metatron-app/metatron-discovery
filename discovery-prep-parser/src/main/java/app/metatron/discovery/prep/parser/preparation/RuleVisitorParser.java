@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.prep.parser.preparation;
 
+import static java.util.stream.Collectors.toList;
+
 import app.metatron.discovery.prep.parser.antlr.RuleBaseVisitor;
 import app.metatron.discovery.prep.parser.antlr.RuleLexer;
 import app.metatron.discovery.prep.parser.antlr.RuleParser;
@@ -21,13 +23,21 @@ import app.metatron.discovery.prep.parser.exceptions.FunctionInvalidFunctionName
 import app.metatron.discovery.prep.parser.preparation.rule.Arguments;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.RuleBuilder;
-
-import app.metatron.discovery.prep.parser.preparation.rule.expr.*;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.BuiltinFunctions;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Function;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Null;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.RegularExpr;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
+import java.lang.reflect.Modifier;
+import java.util.List;
+import java.util.Map;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -35,12 +45,6 @@ import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Modifier;
-import java.util.List;
-import java.util.Map;
-
-import static java.util.stream.Collectors.toList;
 
 public class RuleVisitorParser implements Parser {
 
@@ -62,7 +66,7 @@ public class RuleVisitorParser implements Parser {
             throw new IllegalArgumentException("function '" + name + "' should not be overridden");
           }
           Supplier<Function> supplier = function instanceof Function.Factory ? (Function.Factory) function
-              : Suppliers.ofInstance(function);
+                  : Suppliers.ofInstance(function);
           functions.put(name, supplier);
           if (parent != BuiltinFunctions.class) {
             LOGGER.debug("user defined function '" + name + "' is registered with class " + clazz.getName());
@@ -70,8 +74,9 @@ public class RuleVisitorParser implements Parser {
         } catch (Exception e) {
           LOGGER.warn("Failed to instantiate " + clazz.getName() + ".. ignoring");
         }
-      } else if ( clazz.isInterface())
+      } else if (clazz.isInterface()) {
         register(clazz);
+      }
     }
   }
 
@@ -94,9 +99,9 @@ public class RuleVisitorParser implements Parser {
       String ruleName = ctx.RULE_NAME().getText();
       ArgsVisitor argsVisitor = new ArgsVisitor();
       List<Arguments> args = ctx.args()
-          .stream()
-          .map(arg -> arg.accept(argsVisitor))
-          .collect(toList());
+              .stream()
+              .map(arg -> arg.accept(argsVisitor))
+              .collect(toList());
       return new RuleBuilder(ruleName, args).build();
     }
 
@@ -120,10 +125,11 @@ public class RuleVisitorParser implements Parser {
 
     @Override
     public Expression visitIdentifierExpr(RuleParser.IdentifierExprContext ctx) {
-      if (ctx.getText().equals("null"))
+      if (ctx.getText().equals("null")) {
         return new Null.NullExpr(ctx.getText());
-      else
+      } else {
         return new Identifier.IdentifierExpr(ctx.getText());
+      }
     }
 
     @Override
@@ -159,29 +165,29 @@ public class RuleVisitorParser implements Parser {
     @Override
     public Expression visitIdentifierArrayExpr(RuleParser.IdentifierArrayExprContext ctx) {
       return new Identifier.IdentifierArrayExpr(ctx.IDENTIFIER().stream()
-          .map(terminalNode -> terminalNode.getText())
-          .collect(toList()));
+              .map(terminalNode -> terminalNode.getText())
+              .collect(toList()));
     }
 
     @Override
     public Expression visitDoubleArrayExpr(RuleParser.DoubleArrayExprContext ctx) {
       return new Constant.ArrayExpr<>(ctx.DOUBLE().stream()
-          .map(terminalNode -> Double.valueOf(terminalNode.getText()))
-          .collect(toList()));
+              .map(terminalNode -> Double.valueOf(terminalNode.getText()))
+              .collect(toList()));
     }
 
     @Override
     public Expression visitLongArrayExpr(RuleParser.LongArrayExprContext ctx) {
       return new Constant.ArrayExpr<>(ctx.LONG().stream()
-          .map(terminalNode -> Long.valueOf(terminalNode.getText()))
-          .collect(toList()));
+              .map(terminalNode -> Long.valueOf(terminalNode.getText()))
+              .collect(toList()));
     }
 
     @Override
     public Expression visitStringArrayExpr(RuleParser.StringArrayExprContext ctx) {
       return new Constant.ArrayExpr<>(ctx.STRING().stream()
-          .map(terminalNode -> terminalNode.getText())
-          .collect(toList()));
+              .map(terminalNode -> terminalNode.getText())
+              .collect(toList()));
     }
 
     @Override
@@ -191,14 +197,15 @@ public class RuleVisitorParser implements Parser {
       FunctionArgsVisitor functionArgsVisitor = new FunctionArgsVisitor();
 
       List<Expr> exprs = null;
-      if(ctx.fnArgs() != null) {
+      if (ctx.fnArgs() != null) {
         exprs = ctx.fnArgs().accept(functionArgsVisitor);
       } else {
         exprs = Lists.newArrayList();
       }
 
-      if (func == null)
+      if (func == null) {
         throw new FunctionInvalidFunctionNameException(ctx.getStart().getText() + " is not supported function.");
+      }
       return new Expr.FunctionExpr(func, func.name(), exprs);
     }
 
@@ -210,8 +217,8 @@ public class RuleVisitorParser implements Parser {
     @Override
     public Expression visitFunctionArrayExpr(RuleParser.FunctionArrayExprContext ctx) {
       return new Expr.FunctionArrayExpr(ctx.fn().stream()
-          .map(fnContext -> (Expr.FunctionExpr) visitFn(fnContext))
-          .collect(toList()));
+              .map(fnContext -> (Expr.FunctionExpr) visitFn(fnContext))
+              .collect(toList()));
     }
 
     @Override
@@ -222,39 +229,39 @@ public class RuleVisitorParser implements Parser {
         case RuleParser.LT:
 
           return new Expr.BinLtExpr(
-              ctx.getChild(1).getText(),
-              (Expr) ctx.getChild(0).accept(this),
-              (Expr) ctx.getChild(2).accept(this)
+                  ctx.getChild(1).getText(),
+                  (Expr) ctx.getChild(0).accept(this),
+                  (Expr) ctx.getChild(2).accept(this)
           );
         case RuleParser.LEQ:
           return new Expr.BinLeqExpr(
-              ctx.getChild(1).getText(),
-              (Expr) ctx.getChild(0).accept(this),
-              (Expr) ctx.getChild(2).accept(this)
+                  ctx.getChild(1).getText(),
+                  (Expr) ctx.getChild(0).accept(this),
+                  (Expr) ctx.getChild(2).accept(this)
           );
         case RuleParser.GT:
           return new Expr.BinGtExpr(
-              ctx.getChild(1).getText(),
-              (Expr) ctx.getChild(0).accept(this),
-              (Expr) ctx.getChild(2).accept(this)
+                  ctx.getChild(1).getText(),
+                  (Expr) ctx.getChild(0).accept(this),
+                  (Expr) ctx.getChild(2).accept(this)
           );
         case RuleParser.GEQ:
           return new Expr.BinGeqExpr(
-              ctx.getChild(1).getText(),
-              (Expr) ctx.getChild(0).accept(this),
-              (Expr) ctx.getChild(2).accept(this)
+                  ctx.getChild(1).getText(),
+                  (Expr) ctx.getChild(0).accept(this),
+                  (Expr) ctx.getChild(2).accept(this)
           );
         case RuleParser.EQ:
           return new Expr.BinEqExpr(
-              ctx.getChild(1).getText(),
-              (Expr) ctx.getChild(0).accept(this),
-              (Expr) ctx.getChild(2).accept(this)
+                  ctx.getChild(1).getText(),
+                  (Expr) ctx.getChild(0).accept(this),
+                  (Expr) ctx.getChild(2).accept(this)
           );
         case RuleParser.NEQ:
           return new Expr.BinNeqExpr(
-              ctx.getChild(1).getText(),
-              (Expr) ctx.getChild(0).accept(this),
-              (Expr) ctx.getChild(2).accept(this)
+                  ctx.getChild(1).getText(),
+                  (Expr) ctx.getChild(0).accept(this),
+                  (Expr) ctx.getChild(2).accept(this)
           );
         case RuleParser.ASSIGN:
           return new Expr.BinAsExpr(
@@ -273,15 +280,15 @@ public class RuleVisitorParser implements Parser {
       switch (opCode) {
         case RuleParser.PLUS:
           return new Expr.BinPlusExpr(
-              ctx.getChild(1).getText(),
-              (Expr) ctx.getChild(0).accept(this),
-              (Expr) ctx.getChild(2).accept(this)
+                  ctx.getChild(1).getText(),
+                  (Expr) ctx.getChild(0).accept(this),
+                  (Expr) ctx.getChild(2).accept(this)
           );
         case RuleParser.MINUS:
           return new Expr.BinMinusExpr(
-              ctx.getChild(1).getText(),
-              (Expr) ctx.getChild(0).accept(this),
-              (Expr) ctx.getChild(2).accept(this)
+                  ctx.getChild(1).getText(),
+                  (Expr) ctx.getChild(0).accept(this),
+                  (Expr) ctx.getChild(2).accept(this)
           );
         default:
           throw new RuntimeException("Unrecognized binary operator " + ctx.getChild(1).getText());
@@ -294,15 +301,15 @@ public class RuleVisitorParser implements Parser {
       switch (opCode) {
         case RuleParser.AND:
           return new Expr.BinAndExpr(
-              ctx.getChild(1).getText(),
-              (Expr) ctx.getChild(0).accept(this),
-              (Expr) ctx.getChild(2).accept(this)
+                  ctx.getChild(1).getText(),
+                  (Expr) ctx.getChild(0).accept(this),
+                  (Expr) ctx.getChild(2).accept(this)
           );
         case RuleParser.OR:
           return new Expr.BinOrExpr(
-              ctx.getChild(1).getText(),
-              (Expr) ctx.getChild(0).accept(this),
-              (Expr) ctx.getChild(2).accept(this)
+                  ctx.getChild(1).getText(),
+                  (Expr) ctx.getChild(0).accept(this),
+                  (Expr) ctx.getChild(2).accept(this)
           );
         default:
           throw new RuntimeException("Unrecognized binary operator " + ctx.getChild(1).getText());
@@ -320,10 +327,11 @@ public class RuleVisitorParser implements Parser {
       switch (opCode) {
         case RuleParser.MINUS:
           Expr.UnaryMinusExpr tmp = new Expr.UnaryMinusExpr((Expr) ctx.getChild(1).accept(this));
-          if (tmp.toString().contains("."))
+          if (tmp.toString().contains(".")) {
             return new Constant.DoubleExpr(Double.valueOf(ctx.getText()));
-          else
+          } else {
             return new Constant.LongExpr(Long.valueOf(ctx.getText()));
+          }
         case RuleParser.NOT:
           return new Expr.UnaryNotExpr((Expr) ctx.getChild(1).accept(this));
         default:
@@ -338,15 +346,15 @@ public class RuleVisitorParser implements Parser {
       switch (opCode) {
         case RuleParser.AND:
           return new Expr.BinAndExpr2(
-              ctx.getChild(1).getText(),
-              (Expr) ctx.getChild(0).accept(this),
-              (Expr) ctx.getChild(2).accept(this)
+                  ctx.getChild(1).getText(),
+                  (Expr) ctx.getChild(0).accept(this),
+                  (Expr) ctx.getChild(2).accept(this)
           );
         case RuleParser.OR:
           return new Expr.BinOrExpr2(
-              ctx.getChild(1).getText(),
-              (Expr) ctx.getChild(0).accept(this),
-              (Expr) ctx.getChild(2).accept(this)
+                  ctx.getChild(1).getText(),
+                  (Expr) ctx.getChild(0).accept(this),
+                  (Expr) ctx.getChild(2).accept(this)
           );
         default:
           throw new RuntimeException("Unrecognized binary operator " + ctx.getChild(1).getText());
@@ -359,21 +367,21 @@ public class RuleVisitorParser implements Parser {
       switch (opCode) {
         case RuleParser.MUL:
           return new Expr.BinMulExpr(
-              ctx.getChild(1).getText(),
-              (Expr) ctx.getChild(0).accept(this),
-              (Expr) ctx.getChild(2).accept(this)
+                  ctx.getChild(1).getText(),
+                  (Expr) ctx.getChild(0).accept(this),
+                  (Expr) ctx.getChild(2).accept(this)
           );
         case RuleParser.DIV:
           return new Expr.BinDivExpr(
-              ctx.getChild(1).getText(),
-              (Expr) ctx.getChild(0).accept(this),
-              (Expr) ctx.getChild(2).accept(this)
+                  ctx.getChild(1).getText(),
+                  (Expr) ctx.getChild(0).accept(this),
+                  (Expr) ctx.getChild(2).accept(this)
           );
         case RuleParser.MODULO:
           return new Expr.BinModuloExpr(
-              ctx.getChild(1).getText(),
-              (Expr) ctx.getChild(0).accept(this),
-              (Expr) ctx.getChild(2).accept(this)
+                  ctx.getChild(1).getText(),
+                  (Expr) ctx.getChild(0).accept(this),
+                  (Expr) ctx.getChild(2).accept(this)
           );
         default:
           throw new RuntimeException("Unrecognized binary operator " + ctx.getChild(1).getText());
@@ -383,17 +391,17 @@ public class RuleVisitorParser implements Parser {
     @Override
     public Expression visitPowOpExpr(RuleParser.PowOpExprContext ctx) {
       return new Expr.BinPowExpr(
-          ctx.getChild(1).getText(),
-          (Expr) ctx.getChild(0).accept(this),
-          (Expr) ctx.getChild(2).accept(this)
+              ctx.getChild(1).getText(),
+              (Expr) ctx.getChild(0).accept(this),
+              (Expr) ctx.getChild(2).accept(this)
       );
     }
 
     @Override
     public Expression visitAssignExpr(RuleParser.AssignExprContext ctx) {
       return new Expr.AssignExpr(
-          (Expr) ctx.getChild(0).accept(this),
-          (Expr) ctx.getChild(2).accept(this)
+              (Expr) ctx.getChild(0).accept(this),
+              (Expr) ctx.getChild(2).accept(this)
       );
     }
 
@@ -415,8 +423,8 @@ public class RuleVisitorParser implements Parser {
     public List<Expr> visitFunctionArgs(RuleParser.FunctionArgsContext ctx) {
       ExpressionVisitor visitor = new ExpressionVisitor();
       return ctx.expr().stream()
-          .map(exprContext -> (Expr) exprContext.accept(visitor))
-          .collect(toList());
+              .map(exprContext -> (Expr) exprContext.accept(visitor))
+              .collect(toList());
     }
   }
 }

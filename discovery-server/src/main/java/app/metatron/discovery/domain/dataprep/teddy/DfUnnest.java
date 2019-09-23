@@ -14,20 +14,25 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.IdxOnMapTypeShouldBeStringException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.InvalidIndexTypeException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.WorksOnlyOnArrayOrMapException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongArrayIndexException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongMapKeyException;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.Unnest;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DfUnnest extends DataFrame {
+
   private static Logger LOGGER = LoggerFactory.getLogger(DfUnnest.class);
 
   public DfUnnest(String dsName, String ruleString) {
@@ -45,7 +50,8 @@ public class DfUnnest extends DataFrame {
 
     targetColno = prevDf.getColnoByColName(targetColName);
     if (prevDf.getColType(targetColno) != ColumnType.ARRAY && prevDf.getColType(targetColno) != ColumnType.MAP) {
-      throw new WorksOnlyOnArrayOrMapException("doUnnest(): works only on ARRAY/MAP: " + prevDf.getColType(targetColno));
+      throw new WorksOnlyOnArrayOrMapException(
+              "doUnnest(): works only on ARRAY/MAP: " + prevDf.getColType(targetColno));
     }
 
     int arrayIdx = -1;
@@ -60,7 +66,7 @@ public class DfUnnest extends DataFrame {
       if (idx instanceof Constant.StringExpr) {   // supports StringExpr for backward-compatability
         arrayIdx = Integer.valueOf(((Constant.StringExpr) idx).getEscapedValue());
       } else if (idx instanceof Constant.LongExpr) {
-        arrayIdx = ((Long)((Constant.LongExpr) idx).getValue()).intValue();
+        arrayIdx = ((Long) ((Constant.LongExpr) idx).getValue()).intValue();
       } else {
         throw new InvalidIndexTypeException("doUnnest(): invalid index type: " + idx.toString());
       }
@@ -68,15 +74,18 @@ public class DfUnnest extends DataFrame {
     } else {
       // row별로 fetch는 mapKey로, 컬럼이름은 mapKey를 기존컬럼과 안겹치게 변형한 것
       if (idx instanceof Identifier.IdentifierExpr) {
-        throw new IdxOnMapTypeShouldBeStringException("doUnnest(): idx on MAP type should be STRING (maybe, this is a column name): " + ((Identifier.IdentifierExpr) idx).getValue());
+        throw new IdxOnMapTypeShouldBeStringException(
+                "doUnnest(): idx on MAP type should be STRING (maybe, this is a column name): "
+                        + ((Identifier.IdentifierExpr) idx).getValue());
       } else if (idx instanceof Constant.StringExpr) {
         mapKey = ((Constant.StringExpr) idx).getEscapedValue();
-        if(mapKey.startsWith("`") && mapKey.endsWith("`")) {
-            mapKey = mapKey.substring(1, mapKey.length()-1);
+        if (mapKey.startsWith("`") && mapKey.endsWith("`")) {
+          mapKey = mapKey.substring(1, mapKey.length() - 1);
         }
         newColName = modifyDuplicatedColName("unnest_" + mapKey);
       } else {
-        throw new IdxOnMapTypeShouldBeStringException("doUnnest(): idx on MAP type should be STRING: " + idx.toString());
+        throw new IdxOnMapTypeShouldBeStringException(
+                "doUnnest(): idx on MAP type should be STRING: " + idx.toString());
       }
     }
 
@@ -101,7 +110,8 @@ public class DfUnnest extends DataFrame {
   }
 
   @Override
-  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
+  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
+          throws InterruptedException, TeddyException {
     List<Row> rows = new ArrayList<>();
     int targetColno = (int) preparedArgs.get(0);
     String mapKey = (String) preparedArgs.get(1);
@@ -124,7 +134,9 @@ public class DfUnnest extends DataFrame {
       if (mapKey == null) {
         List arr = (List) row.get(targetColno);
         if (arrayIdx >= arr.size()) {
-          throw new WrongArrayIndexException(String.format("doUnnest(): arrayIdx > array length: idx=%d len=%d rowno=%d", arrayIdx, arr.size(), rowno));
+          throw new WrongArrayIndexException(
+                  String.format("doUnnest(): arrayIdx > array length: idx=%d len=%d rowno=%d", arrayIdx, arr.size(),
+                          rowno));
         }
         Object obj = arr.get(arrayIdx);
         newRow.add(newColName, obj);
@@ -138,7 +150,7 @@ public class DfUnnest extends DataFrame {
       }
 
       // 나머지 추가
-      for (colno = targetColno+1; colno < prevDf.getColCnt(); colno++) {
+      for (colno = targetColno + 1; colno < prevDf.getColCnt(); colno++) {
         newRow.add(prevDf.getColName(colno), row.get(colno));
       }
 

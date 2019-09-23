@@ -14,13 +14,12 @@
 
 package app.metatron.discovery.prep.parser.preparation.rule.expr;
 
+import java.util.List;
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * Created by kyungtaak on 2017. 3. 5..
@@ -39,13 +38,11 @@ public class Evals {
     return false;
   }
 
-  private static boolean isSameType(ExprEval leftVal, ExprEval rightVal)
-  {
+  private static boolean isSameType(ExprEval leftVal, ExprEval rightVal) {
     return leftVal.type() == rightVal.type();
   }
 
-  static boolean isAllNumeric(ExprEval left, ExprEval right)
-  {
+  static boolean isAllNumeric(ExprEval left, ExprEval right) {
     return left.isNumeric() && right.isNumeric();
   }
 
@@ -95,7 +92,7 @@ public class Evals {
 
   static DateTime getConstantTimestamp(Expr arg) {
     Object constant = getConstant(arg);
-    if(!(constant instanceof  DateTime)) {
+    if (!(constant instanceof DateTime)) {
       throw new RuntimeException(arg + " is not a constant timestamp");
     }
     return (DateTime) constant;
@@ -108,12 +105,12 @@ public class Evals {
       return arg.eval(null).longValue();
     } else if (arg instanceof Constant.DoubleExpr) {
       return arg.eval(null).doubleValue();
-    } else if (arg instanceof  Constant.BooleanExpr) {
+    } else if (arg instanceof Constant.BooleanExpr) {
       return arg.eval(null).booleanValue();
     } else if (arg instanceof Constant.TimestampExpr) {
       return arg.eval(null).timestampValue();
     } else if (arg instanceof Expr.UnaryMinusExpr) {
-      Expr.UnaryMinusExpr minusExpr = (Expr.UnaryMinusExpr)arg;
+      Expr.UnaryMinusExpr minusExpr = (Expr.UnaryMinusExpr) arg;
       if (minusExpr.expr instanceof Constant.LongExpr) {
         return -minusExpr.expr.eval(null).longValue();
       } else if (minusExpr.expr instanceof Constant.DoubleExpr) {
@@ -127,7 +124,7 @@ public class Evals {
     if (arg instanceof Constant) {
       return true;
     } else if (arg instanceof Expr.UnaryMinusExpr) {
-      return ((Expr.UnaryMinusExpr)arg).expr instanceof Constant;
+      return ((Expr.UnaryMinusExpr) arg).expr instanceof Constant;
     }
     return false;
   }

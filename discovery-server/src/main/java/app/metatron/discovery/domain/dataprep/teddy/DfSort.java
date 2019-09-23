@@ -21,13 +21,13 @@ import app.metatron.discovery.prep.parser.preparation.rule.Sort;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class DfSort extends DataFrame {
+
   private static Logger LOGGER = LoggerFactory.getLogger(DfSort.class);
 
   public DfSort(String dsName, String ruleString) {
@@ -50,7 +50,8 @@ public class DfSort extends DataFrame {
     } else if (orderByColExpr instanceof Identifier.IdentifierArrayExpr) {
       orderByColNames.addAll(((Identifier.IdentifierArrayExpr) orderByColExpr).getValue());
     } else {
-      throw new InvalidColumnExpressionTypeException("doSort(): invalid order by column expression type: " + orderByColExpr.toString());
+      throw new InvalidColumnExpressionTypeException(
+              "doSort(): invalid order by column expression type: " + orderByColExpr.toString());
     }
 
     // type절이 "DESC" 일 때는 내림차순. 기본은 오름차순.
@@ -60,11 +61,12 @@ public class DfSort extends DataFrame {
           sortType = SortType.DESCENDING;
         }
       } else {
-        throw new InvalidColumnExpressionTypeException("doSort(): invalid sort type expression type: " + typeExpr.toString());
+        throw new InvalidColumnExpressionTypeException(
+                "doSort(): invalid sort type expression type: " + typeExpr.toString());
       }
     }
 
-    for (String orderByColName: orderByColNames) {
+    for (String orderByColName : orderByColNames) {
       interestedColNames.add(orderByColName);
     }
 
@@ -74,7 +76,8 @@ public class DfSort extends DataFrame {
   }
 
   @Override
-  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
+  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
+          throws InterruptedException, TeddyException {
     List<String> orderByColNames = (List<String>) preparedArgs.get(0);
     SortType sortType = (SortType) preparedArgs.get(1);
 

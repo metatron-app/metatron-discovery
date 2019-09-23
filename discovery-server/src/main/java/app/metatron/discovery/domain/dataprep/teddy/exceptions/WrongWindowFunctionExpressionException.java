@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class WrongWindowFunctionExpressionException extends TeddyException {
+
   public WrongWindowFunctionExpressionException(String message) {
     super(message);
   }
