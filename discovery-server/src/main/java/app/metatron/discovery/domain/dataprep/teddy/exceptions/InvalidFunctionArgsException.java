@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class InvalidFunctionArgsException extends TeddyException {
+
   public InvalidFunctionArgsException(String message) {
     super(message);
   }

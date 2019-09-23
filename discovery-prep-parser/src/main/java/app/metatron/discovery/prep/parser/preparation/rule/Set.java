@@ -68,9 +68,9 @@ public class Set implements Rule, Rule.Factory {
   @Override
   public String toString() {
     return "Set{" +
-        "col=" + col +
-        ", value=" + value +
-        ", row=" + row +
-        '}';
+            "col=" + col +
+            ", value=" + value +
+            ", row=" + row +
+            '}';
   }
 }

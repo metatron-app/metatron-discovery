@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class CannotCastFromException extends TeddyException {
+
   public CannotCastFromException(String message) {
     super(message);
   }

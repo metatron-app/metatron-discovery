@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DfSet extends DataFrame {
+
   private static Logger LOGGER = LoggerFactory.getLogger(DfSet.class);
 
   public DfSet(String dsName, String ruleString) {
@@ -37,7 +38,8 @@ public class DfSet extends DataFrame {
   }
 
   private void putTargetCol(DataFrame prevDf, String targetColName, String ruleString,
-                            List<Integer> targetColnos, Map<Integer, Expr> replacedColExprs, Map<Integer, Expr> replacedConditionExprs) throws TeddyException {
+          List<Integer> targetColnos, Map<Integer, Expr> replacedColExprs, Map<Integer, Expr> replacedConditionExprs)
+          throws TeddyException {
     // add targetColno
     int colno = prevDf.getColnoByColName(targetColName);
     targetColnos.add(colno);
@@ -68,15 +70,15 @@ public class DfSet extends DataFrame {
       String targetColName = ((Identifier.IdentifierExpr) targetColExpr).getValue();
       interestedColNames.add(targetColName);
       putTargetCol(prevDf, targetColName, ruleString, targetColnos, replacedColExprs, replacedConditionExprs);
-    }
-    else if (targetColExpr instanceof Identifier.IdentifierArrayExpr) {
+    } else if (targetColExpr instanceof Identifier.IdentifierArrayExpr) {
       List<String> targetColNames = ((Identifier.IdentifierArrayExpr) targetColExpr).getValue();
       for (String targetColName : targetColNames) {
         interestedColNames.add(targetColName);
         putTargetCol(prevDf, targetColName, ruleString, targetColnos, replacedColExprs, replacedConditionExprs);
       }
     } else {
-      throw new WrongTargetColumnExpressionException("doSet(): wrong target column expression: " + targetColExpr.toString());
+      throw new WrongTargetColumnExpressionException(
+              "doSet(): wrong target column expression: " + targetColExpr.toString());
     }
 
     for (int colno = 0; colno < prevDf.getColCnt(); colno++) {
@@ -96,7 +98,8 @@ public class DfSet extends DataFrame {
   }
 
   @Override
-  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
+  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
+          throws InterruptedException, TeddyException {
     List<Row> rows = new ArrayList<>();
     List<Integer> targetColnos = (List<Integer>) preparedArgs.get(0);
     Map<Integer, Expr> replacedColExprs = (Map<Integer, Expr>) preparedArgs.get(1);

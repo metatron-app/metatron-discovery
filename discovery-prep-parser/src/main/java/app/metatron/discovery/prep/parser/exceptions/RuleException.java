@@ -15,6 +15,7 @@
 package app.metatron.discovery.prep.parser.exceptions;
 
 public class RuleException extends RuntimeException {
+
   public RuleException(String message) {
     super(message);
   }

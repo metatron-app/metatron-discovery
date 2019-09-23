@@ -23,19 +23,19 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class TeddyAsyncConfigTest {
+
   static String getResourcePath(String relPath) {
     URL url = TeddyAsyncConfigTest.class.getClassLoader().getResource(relPath);
     return (new File(url.getFile())).getAbsolutePath();
   }
 
   static String readFile(String path, Charset encoding)
-          throws IOException
-  {
+          throws IOException {
     byte[] encoded = Files.readAllBytes(Paths.get(getResourcePath(path)));
     return new String(encoded, encoding);
   }
 
-//  @Test
+  //  @Test
   public void testWithFileArguments() throws Throwable {
     String[] argv = new String[4];
 

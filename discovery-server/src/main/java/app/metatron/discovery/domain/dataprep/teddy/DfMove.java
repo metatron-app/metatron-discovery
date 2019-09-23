@@ -14,18 +14,23 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnNotContinuousException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnNotFoundException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.NeedBeforeOrAfterException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongTargetColumnExpressionException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongTargetPositionException;
 import app.metatron.discovery.prep.parser.preparation.rule.Move;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class DfMove extends DataFrame {
+
   private static Logger LOGGER = LoggerFactory.getLogger(DfMove.class);
 
   public DfMove(String dsName, String ruleString) {
@@ -61,7 +66,8 @@ public class DfMove extends DataFrame {
         }
       }
     } else {
-      throw new NeedBeforeOrAfterException("DfMove.prepare(): \"before:\" or \"after:\" clause is needed: " + move.toString());
+      throw new NeedBeforeOrAfterException(
+              "DfMove.prepare(): \"before:\" or \"after:\" clause is needed: " + move.toString());
     }
 
     if (targetColExpr instanceof Identifier.IdentifierExpr) {
@@ -80,21 +86,25 @@ public class DfMove extends DataFrame {
           throw new ColumnNotFoundException("DfMove.prepare(): column not found: " + targetColName);
         }
         if (lastColno != null && colno != lastColno + 1) {
-          throw new ColumnNotContinuousException("DfMove.prepare(): columns are not countinuous: " + targetColExpr.toString());
+          throw new ColumnNotContinuousException(
+                  "DfMove.prepare(): columns are not countinuous: " + targetColExpr.toString());
         }
         targetColnos.add(colno);
         lastColno = colno;
       }
     } else {
-      throw new WrongTargetColumnExpressionException("DfMove.prepare(): wrong target column expression: " + targetColExpr.toString());
+      throw new WrongTargetColumnExpressionException(
+              "DfMove.prepare(): wrong target column expression: " + targetColExpr.toString());
     }
 
     if (targetColnos.size() == 0) {
-      throw new WrongTargetColumnExpressionException("DfMove.prepare(): no target column designated: " + targetColExpr.toString());
+      throw new WrongTargetColumnExpressionException(
+              "DfMove.prepare(): no target column designated: " + targetColExpr.toString());
     }
 
     if (targetColnos.get(0) == destColno) {
-      throw new WrongTargetPositionException("DfMove.prepare(): target position is same to current position: " + move.toString());
+      throw new WrongTargetPositionException(
+              "DfMove.prepare(): target position is same to current position: " + move.toString());
     }
 
     List<Integer> targetOrder = new ArrayList<>();
@@ -125,7 +135,8 @@ public class DfMove extends DataFrame {
   }
 
   @Override
-  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException {
+  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
+          throws InterruptedException {
     List<Row> rows = new ArrayList<>();
     List<Integer> targetOrder = (List<Integer>) preparedArgs.get(0);
 

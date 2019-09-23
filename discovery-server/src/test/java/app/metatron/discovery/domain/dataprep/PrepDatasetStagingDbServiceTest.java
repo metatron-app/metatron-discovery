@@ -20,12 +20,12 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
-
 import org.junit.Test;
 
 public class PrepDatasetStagingDbServiceTest {
 
   class SQLStringTestSet {
+
     @Nullable
     String queryStmt;
     String size;
@@ -42,11 +42,11 @@ public class PrepDatasetStagingDbServiceTest {
     }
 
     SQLStringTestSet(
-        @Nullable String queryStmt,
-        String size,
-        @Nullable String dbName,
-        @Nullable String tblName,
-        String expected) {
+            @Nullable String queryStmt,
+            String size,
+            @Nullable String dbName,
+            @Nullable String tblName,
+            String expected) {
       this.queryStmt = queryStmt;
       this.size = size;
       this.dbName = dbName;
@@ -60,17 +60,17 @@ public class PrepDatasetStagingDbServiceTest {
     PrepDatasetStagingDbService service = new PrepDatasetStagingDbService();
     Class stringClass = String.class;
     Method getSQLString = service.getClass()
-        .getDeclaredMethod("getSQLString", stringClass, stringClass, stringClass, stringClass);
+            .getDeclaredMethod("getSQLString", stringClass, stringClass, stringClass, stringClass);
     getSQLString.setAccessible(true);
 
     List<SQLStringTestSet> testSets = Arrays.asList(
-        new SQLStringTestSet("SELECT * FROM db.table", "10", "SELECT * FROM db.table LIMIT 10"),
-        new SQLStringTestSet("SELECT * FROM db.table;", "10", "SELECT * FROM db.table LIMIT 10"),
-        new SQLStringTestSet("SELECT * FROM db.table;\t", "10", "SELECT * FROM db.table LIMIT 10"),
-        new SQLStringTestSet("SELECT * FROM db.table LIMIT 100", "10", "SELECT * FROM db.table LIMIT 100"),
-        new SQLStringTestSet("SELECT * FROM db.table LIMIT 100;", "10", "SELECT * FROM db.table LIMIT 100"),
-        new SQLStringTestSet("SELECT * FROM db.table LIMIT 100;\t", "10", "SELECT * FROM db.table LIMIT 100"),
-        new SQLStringTestSet(null, "10", "db", "table", "SELECT * FROM db.table LIMIT 10")
+            new SQLStringTestSet("SELECT * FROM db.table", "10", "SELECT * FROM db.table LIMIT 10"),
+            new SQLStringTestSet("SELECT * FROM db.table;", "10", "SELECT * FROM db.table LIMIT 10"),
+            new SQLStringTestSet("SELECT * FROM db.table;\t", "10", "SELECT * FROM db.table LIMIT 10"),
+            new SQLStringTestSet("SELECT * FROM db.table LIMIT 100", "10", "SELECT * FROM db.table LIMIT 100"),
+            new SQLStringTestSet("SELECT * FROM db.table LIMIT 100;", "10", "SELECT * FROM db.table LIMIT 100"),
+            new SQLStringTestSet("SELECT * FROM db.table LIMIT 100;\t", "10", "SELECT * FROM db.table LIMIT 100"),
+            new SQLStringTestSet(null, "10", "db", "table", "SELECT * FROM db.table LIMIT 10")
     );
 
     for (SQLStringTestSet test : testSets) {

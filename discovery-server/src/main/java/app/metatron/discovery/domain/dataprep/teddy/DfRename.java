@@ -22,15 +22,15 @@ import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DfRename extends DataFrame {
+
   private static Logger LOGGER = LoggerFactory.getLogger(DfRename.class);
 
   public DfRename(String dsName, String ruleString) {
@@ -50,28 +50,31 @@ public class DfRename extends DataFrame {
     Map<Integer, String> newColnoAndColName = new HashMap<>();
 
     //타깃 컬럼/컬럼리스트 처리
-    if(targetColExpr instanceof Identifier.IdentifierExpr) {
+    if (targetColExpr instanceof Identifier.IdentifierExpr) {
       targetColNames.add(((Identifier.IdentifierExpr) targetColExpr).getValue());
-    } else if(targetColExpr instanceof  Identifier.IdentifierArrayExpr) {
+    } else if (targetColExpr instanceof Identifier.IdentifierArrayExpr) {
       targetColNames = ((Identifier.IdentifierArrayExpr) targetColExpr).getValue();
     } else {
-      throw new WrongTargetColumnExpressionException("doRename(): wrong target column expression: " + targetColExpr.toString());
+      throw new WrongTargetColumnExpressionException(
+              "doRename(): wrong target column expression: " + targetColExpr.toString());
     }
 
     //타깃 컬럼의 새로운 컬럼이름 처리
-    if(newColNameExpr instanceof Constant.StringExpr) {
+    if (newColNameExpr instanceof Constant.StringExpr) {
       newColNames.add(newColNameExpr.toString());
-    } else if(newColNameExpr instanceof  Constant.ArrayExpr) {
+    } else if (newColNameExpr instanceof Constant.ArrayExpr) {
       newColNames = ((Constant.ArrayExpr) newColNameExpr).getValue();
     } else {
-      throw new IllegalColumnNameExpressionException("doRename(): the new column name expression is not an appropriate expression type: " + newColNameExpr.toString());
+      throw new IllegalColumnNameExpressionException(
+              "doRename(): the new column name expression is not an appropriate expression type: " + newColNameExpr
+                      .toString());
     }
 
     //새로운 컬럼이름의 중복/특수문자 처리
     oldColNames.addAll(prevDf.colNames);
     oldColNames.removeAll(targetColNames);
 
-    for(int i = 0; i < newColNames.size(); i++) {
+    for (int i = 0; i < newColNames.size(); i++) {
       String newColName = newColNames.get(i);
       newColName = makeParsable(newColName);
       newColName = modifyDuplicatedColName(oldColNames, newColName);
@@ -82,7 +85,7 @@ public class DfRename extends DataFrame {
     // newColNames 확정. 이제 다른 이름으로 변하지 않음.
 
     //타깃컬럼번호-신규이름 매핑
-    for(int i = 0; i < targetColNames.size(); i++) {
+    for (int i = 0; i < targetColNames.size(); i++) {
       newColnoAndColName.put(prevDf.getColnoByColName(targetColNames.get(i)), newColNames.get(i));
     }
 
@@ -101,11 +104,13 @@ public class DfRename extends DataFrame {
   }
 
   @Override
-  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException {
+  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
+          throws InterruptedException {
     List<Row> rows = new ArrayList<>();
     Map<Integer, String> newColnoAndColName = (Map<Integer, String>) preparedArgs.get(0);
 
-    LOGGER.trace("DfRename.gather(): start: offset={} length={} newColnoAndColName={}", offset, length, newColnoAndColName);
+    LOGGER.trace("DfRename.gather(): start: offset={} length={} newColnoAndColName={}", offset, length,
+            newColnoAndColName);
 
     for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
       Row row = prevDf.rows.get(rowno);
@@ -120,7 +125,8 @@ public class DfRename extends DataFrame {
       rows.add(newRow);
     }
 
-    LOGGER.trace("DfRename.gather(): done: offset={} length={} newColnoAndColName={}", offset, length, newColnoAndColName);
+    LOGGER.trace("DfRename.gather(): done: offset={} length={} newColnoAndColName={}", offset, length,
+            newColnoAndColName);
     return rows;
   }
 }

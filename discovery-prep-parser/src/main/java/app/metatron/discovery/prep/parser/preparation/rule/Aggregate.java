@@ -20,13 +20,11 @@ public class Aggregate implements Rule, Rule.Factory {
 
   /**
    * Pivot target expression (Required)
-   *
    */
   Expression value;
 
   /**
    * Group by expression (multiple)
-   *
    */
   Expression group;
 
@@ -63,8 +61,8 @@ public class Aggregate implements Rule, Rule.Factory {
   @Override
   public String toString() {
     return "Aggregate{" +
-        "value=" + value +
-        ", group=" + group +
-        '}';
+            "value=" + value +
+            ", group=" + group +
+            '}';
   }
 }
