@@ -12,7 +12,7 @@
 .ddp-wrap-top-filtering .ddp-btn-filter-more:hover {background-color:#b6b9c2;}
 .ddp-wrap-top-filtering .ddp-btn-filter-more:before {display:inline-block; width:12px; height:12px; position:absolute; top:50%; left:50%; margin:-6px 0 0 -6px;background:url(../../../images/icon_add.png) no-repeat; background-position:left -77px; content:'';}
 .ddp-wrap-top-filtering .ddp-btn-filter-more:hover:before {background-position-x:-13px;}
-.ddp-wrap-top-filtering .ddp-form-filtering {display:inline-block; position:relative; vertical-align:top; }
+.ddp-wrap-top-filtering .ddp-form-filtering {display:inline-block; position:relative; vertical-align:top; margin-left: 20px; }
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering { margin-left:20px; padding:5px 0; cursor:pointer;}
 .ddp-wrap-top-filtering .ddp-wrap-form-filtering {padding:14px 0 15px 0; box-sizing:border-box;}
 /*.ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering.ddp-selected .ddp-txt-label {visibility:hidden;}*/

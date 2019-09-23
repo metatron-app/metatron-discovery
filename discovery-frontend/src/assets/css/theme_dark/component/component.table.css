@@ -1365,9 +1365,11 @@
 }
 
 .theme-dark table.ddp-table-detail4 tr td .ddp-txt-long.ddp-type-button .ddp-txt-name {
-    display: block;
-    position: Relative;
-    margin-top: 5px;
+  display: block;
+  position: Relative;
+  margin-top: 5px;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .theme-dark table.ddp-table-detail4 tr td .ddp-txt-long.ddp-type-button .ddp-btn-selection {

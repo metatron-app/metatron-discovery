@@ -328,7 +328,7 @@ table.ddp-table-detail4 tr:first-of-type td {border-top:none;}
 table.ddp-table-detail4 tr td {padding:9px 15px 9px 15px; color:#4b515b; font-size:13px; border-top:1px solid #e5e6f0;}
 table.ddp-table-detail4 tr td .ddp-txt-long {display:inline-block; max-width:100%; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
 table.ddp-table-detail4 tr td .ddp-txt-long.ddp-type-button {position:relative; margin:-5px 0;}
-table.ddp-table-detail4 tr td .ddp-txt-long.ddp-type-button .ddp-txt-name {display:block; position:Relative; margin-top:5px;}
+table.ddp-table-detail4 tr td .ddp-txt-long.ddp-type-button .ddp-txt-name {display:block; position:Relative; margin-top:5px;text-overflow: ellipsis; overflow: hidden;}
 table.ddp-table-detail4 tr td .ddp-txt-long.ddp-type-button .ddp-btn-selection {margin-left:8px;}
 table.ddp-table-detail4 tr td .ddp-txt-long .ddp-icon-control-fav {position:relative; top:-2px;}
 table.ddp-table-detail4 tr td .ddp-txt-long .ddp-txt-link { white-space:nowrap; text-overflow:ellipsis; overflow:hidden; cursor:pointer;}

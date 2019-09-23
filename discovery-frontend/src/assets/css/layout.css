@@ -403,7 +403,7 @@ ul.ddp-list-lnb li ul.ddp-list-sublnb li.ddp-selected ul.ddp-list-sublnb-2depth 
 ul.ddp-list-lnb li ul.ddp-list-sublnb li ul.ddp-list-sublnb-2depth li a {color:#b7b9c2; font-size:14px; background-color:#2a2d33;}
 ul.ddp-list-lnb li ul.ddp-list-sublnb li ul.ddp-list-sublnb-2depth li a:hover {background-color:#212429;}
 
-.ddp-layout-lnb .ddp-ui-help {position:absolute; bottom:0; left:0; right:0; padding:34px 0 0 0; background-color:#35393f;}
+.ddp-layout-lnb .ddp-ui-help {position:absolute; bottom:0; left:0; right:0; padding: 33px 20px 5px; background-color:#35393f;}
 .ddp-layout-lnb .ddp-ui-help .ddp-label-type {display:block; }
 .ddp-layout-lnb .ddp-ui-help .ddp-label-type .ddp-fright {margin-right:20px;}
 .ddp-layout-lnb .ddp-ui-help .ddp-label-type .ddp-txt-label {display:inline-block; padding:7px 20px 7px 23px;color:rgba(144,150, 159, 0.6); font-size:12px;}

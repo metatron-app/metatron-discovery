@@ -1267,12 +1267,12 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
 }
 
 .theme-dark .ddp-layout-lnb .ddp-ui-help {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 34px 0 0 0;
-    background-color: #192239;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 33px 20px 5px;
+  background-color: #192239;
 }
 
 .theme-dark .ddp-layout-lnb .ddp-ui-help .ddp-label-type {
