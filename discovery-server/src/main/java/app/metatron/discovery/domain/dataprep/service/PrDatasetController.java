@@ -338,110 +338,6 @@ public class PrDatasetController {
     return ResponseEntity.status(HttpStatus.SC_OK).body(deleteDsIds);
   }
 
-  @RequestMapping(value = "/delete_datasets", method = RequestMethod.PUT)
-  @ResponseBody
-  public ResponseEntity<?> deleteDatasets(
-          @RequestBody List<String> dsIds
-  ) {
-    List<String> deletedDsIds = Lists.newArrayList();
-    try {
-      List<PrDataset> datasets = Lists.newArrayList();
-      for (String dsId : dsIds) {
-        PrDataset dataset = this.datasetRepository.findOne(dsId);
-        if (dataset != null) {
-          List<PrDataflow> dataflows = dataset.getDataflows();
-          if (dataflows != null && 1 < dataflows.size()) {
-            continue;
-          } else {
-            for (PrDataflow dataflow : dataflows) {
-              dataflow.deleteDataset(dataset);
-              break;
-            }
-            this.datasetRepository.delete(dataset);
-            this.datasetRepository.flush();
-            deletedDsIds.add(dataset.getDsId());
-          }
-        }
-      }
-    } catch (Exception e) {
-      LOGGER.error("deleteDatasets(): caught an exception: ", e);
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
-    }
-
-    return ResponseEntity.status(HttpStatus.SC_OK).body(deletedDsIds);
-  }
-
-    /*
-    @RequestMapping(value = "/jdbc", method = RequestMethod.GET)
-    public @ResponseBody ResponseEntity<?> previewJdbc(
-            @RequestParam(value = "sql", required = false, defaultValue = "") String sql,
-            @RequestParam(value = "dcid", required = false, defaultValue = "") String dcid,
-            @RequestParam(value = "dbname", required = false, defaultValue = "") String dbname,
-            @RequestParam(value = "tblname", required = false, defaultValue = "") String tblname,
-            @RequestParam(value = "size", required = false, defaultValue = "50") String size ) {
-        Map<String, Object> response = null;
-        try {
-            response = this.datasetJdbcService.getPreviewJdbc(dcid, sql,dbname,tblname,size);
-        } catch (Exception e) {
-            LOGGER.error("previewJdbc(): caught an exception: ", e);
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
-        }
-        return ResponseEntity.ok(response);
-    }
-    */
-
-  @RequestMapping(value = "/staging", method = RequestMethod.GET)
-  public
-  @ResponseBody
-  ResponseEntity<?> previewStaging(
-          @RequestParam(value = "sql", required = false, defaultValue = "") String sql,
-          @RequestParam(value = "dbname", required = false, defaultValue = "") String dbname,
-          @RequestParam(value = "tblname", required = false, defaultValue = "") String tblname,
-          @RequestParam(value = "size", required = false, defaultValue = "50") String size) {
-    Map<String, Object> response = null;
-    try {
-      response = this.datasetStagingDbService.getPreviewStagedb(sql, dbname, tblname, size);
-    } catch (Exception e) {
-      LOGGER.error("previewStaging(): caught an exception: ", e);
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
-    }
-    return ResponseEntity.ok(response);
-  }
-
-  @RequestMapping(value = "/query/schemas", method = RequestMethod.POST)
-  public
-  @ResponseBody
-  ResponseEntity<?> querySchemas(
-          @RequestBody PrepQueryRequest queryRequest) {
-
-    List<String> response;
-
-    try {
-      response = this.datasetStagingDbService.getQuerySchemas(queryRequest);
-    } catch (Exception e) {
-      LOGGER.error("querySchemas(): caught an exception: ", e);
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
-    }
-    return ResponseEntity.ok(response);
-  }
-
-  @RequestMapping(value = "/query/tables", method = RequestMethod.POST)
-  public
-  @ResponseBody
-  ResponseEntity<?> queryTables(
-          @RequestBody PrepQueryRequest queryRequest) {
-
-    List<String> response = null;
-
-    try {
-      response = this.datasetStagingDbService.getQueryTables(queryRequest);
-    } catch (Exception e) {
-      LOGGER.error("queryTables(): caught an exception: ", e);
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
-    }
-    return ResponseEntity.ok(response);
-  }
-
   @RequestMapping(value = "/file_grid", method = RequestMethod.GET)
   public
   @ResponseBody
@@ -513,9 +409,8 @@ public class PrDatasetController {
           @RequestParam(value = "storage_type") String storage_type,
           @RequestParam(value = "chunk_size") String chunk_size,
           @RequestParam(value = "total_size") String total_size,
-          @RequestPart("file") MultipartFile file
-  ) {
-    Map<String, Object> response = null;
+          @RequestPart("file") MultipartFile file) {
+    Map<String, Object> response;
     try {
       String uploadId = upload_id;
       PrUploadFile uploadFile = this.uploadFileRepository.findOne(upload_id);
@@ -584,8 +479,7 @@ public class PrDatasetController {
           @PathVariable("dsId") String dsId,
           @RequestParam(value = "fileType", required = false, defaultValue = "0") String fileType
   ) {
-    PrDataset dataset = null;
-    Resource<PrDatasetProjections.DefaultProjection> projectedDataset = null;
+    PrDataset dataset;
     try {
       dataset = this.datasetRepository.findOne(dsId);
       if (dataset != null) {

@@ -20,13 +20,10 @@ import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.rule.ExprFunction;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.prep.parser.preparation.PrepRuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.Keep;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
-import app.metatron.discovery.prep.parser.preparation.spec.SuggestToken;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.util.List;
@@ -71,23 +68,6 @@ public class PrepTransformController {
 
     LOGGER.trace("create(): end");
     return ResponseEntity.ok(response);
-  }
-
-  @RequestMapping(value = "/preparationdatasets/{oldDsId}/swap/{newDsId}", method = RequestMethod.POST, produces = "application/json")
-  public
-  @ResponseBody
-  ResponseEntity<?> swap(
-          @PathVariable("oldDsId") String oldDsId,
-          @PathVariable("newDsId") String newDsId) throws Throwable {
-    try {
-      List<String> affectedDsIds = transformService.swap(oldDsId, newDsId);
-      transformService.after_swap(affectedDsIds);
-    } catch (Exception e) {
-      LOGGER.error("swap(): caught an exception: ", e);
-      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
-    }
-
-    return ResponseEntity.ok(new PrepTransformResponse());
   }
 
   // 대상 wrangled dataset과 똑같은 dataset을 생성 (rule도 모두 적용)
@@ -286,104 +266,6 @@ public class PrepTransformController {
     }
 
     LOGGER.trace("transform_configuration(): end");
-    return ResponseEntity.ok(response);
-  }
-
-  @RequestMapping(value = "/preparationdatasets/cacheInfo", method = RequestMethod.GET, produces = "application/json")
-  public
-  @ResponseBody
-  ResponseEntity<?> getCacheInfo() throws IOException {
-
-    PrepTransformResponse response;
-
-    try {
-      response = transformService.getCacheInfo();
-    } catch (Exception e) {
-      LOGGER.error("getCacheInfo(): caught an exception: ", e);
-      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
-    }
-    return ResponseEntity.ok(response);
-  }
-
-  @RequestMapping(value = "/preparationdatasets/autocomplete", method = RequestMethod.POST)
-  public
-  @ResponseBody
-  ResponseEntity<?> autocomplete(
-          @RequestBody Map<String, Object> params) throws Throwable {
-    Map<String, Object> response;
-
-    try {
-      response = Maps.newHashMap();
-      List<SuggestToken> suggests = Lists.newArrayList();
-
-      String ruleString = (String) params.get("ruleString");
-      String ruleCommand = (String) params.get("ruleCommand");
-      String rulePart = (String) params.get("rulePart");
-
-      if (null == ruleCommand || null == rulePart) {
-        PrepRuleVisitorParser prepRuleVisitorParser = new PrepRuleVisitorParser();
-        suggests = prepRuleVisitorParser.suggest(ruleString);
-      } else if (ruleCommand.equalsIgnoreCase("keep")
-              || ruleCommand.equalsIgnoreCase("set")
-              || ruleCommand.equalsIgnoreCase("derive")
-              || ruleCommand.equalsIgnoreCase("delete")
-              ) {
-        PrepRuleVisitorParser prepRuleVisitorParser = new PrepRuleVisitorParser();
-        suggests = prepRuleVisitorParser.suggest_all_rules(rulePart);
-      } else if (ruleCommand.equalsIgnoreCase("pivot")
-              || ruleCommand.equalsIgnoreCase("aggregate")
-              ) {
-        PrepRuleVisitorParser prepRuleVisitorParser = new PrepRuleVisitorParser();
-        suggests = prepRuleVisitorParser.suggest_aggr_rules(rulePart);
-      } else if (ruleCommand.equalsIgnoreCase("window")
-              ) {
-        PrepRuleVisitorParser prepRuleVisitorParser = new PrepRuleVisitorParser();
-        suggests = prepRuleVisitorParser.suggest_window_rules(rulePart);
-      }
-
-      for (SuggestToken suggest : suggests) {
-        if (suggest.getTokenString().equals("'@_FUNCTION_EXPRESSION_@'")) {
-          suggests.remove(suggest);
-          suggests.add(1, suggest);
-          break;
-        }
-      }
-      response.put("suggest", suggests);
-    } catch (Exception e) {
-      LOGGER.error("autocomplete(): caught an exception: ", e);
-      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
-    }
-    return ResponseEntity.ok(response);
-  }
-
-  @RequestMapping(value = "/preparationdatasets/parse_rule", method = RequestMethod.POST)
-  public
-  @ResponseBody
-  ResponseEntity<?> parse_rule(
-          @RequestBody String ruleString) throws Throwable {
-    Map<String, Object> response;
-
-    try {
-      response = Maps.newHashMap();
-
-      Rule rule = new RuleVisitorParser().parse(ruleString);
-
-      /*
-      ObjectMapper mapper = new ObjectMapper();
-      String json = null;
-      try {
-        json = mapper.writeValueAsString(rule);
-      } catch (JsonProcessingException e) {
-        e.printStackTrace();
-      }
-      */
-
-      response.put("rule", rule);
-    } catch (Exception e) {
-      LOGGER.error("autocomplete(): caught an exception: ", e);
-      throw PrepException
-              .create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED);
-    }
     return ResponseEntity.ok(response);
   }
 

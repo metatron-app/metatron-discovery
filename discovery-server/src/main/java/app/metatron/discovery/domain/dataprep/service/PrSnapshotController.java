@@ -171,24 +171,6 @@ public class PrSnapshotController {
     return ResponseEntity.status(HttpStatus.SC_OK).body(projectedSnapshot);
   }
 
-  @RequestMapping(value = "/check_table/{schema}/{table}", method = RequestMethod.GET)
-  public
-  @ResponseBody
-  ResponseEntity<?> checkHiveTable(
-          @PathVariable("schema") String schema,
-          @PathVariable("table") String table
-  ) {
-    Map<String, Object> responseMap = new HashMap<String, Object>();
-    try {
-      responseMap.put("isExist", false);
-    } catch (Exception e) {
-      LOGGER.error("checkHiveTable(): caught an exception: ", e);
-      throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, e);
-    }
-
-    return ResponseEntity.status(HttpStatus.SC_OK).body(responseMap);
-  }
-
   @RequestMapping(value = "/{ssId}/contents", method = RequestMethod.GET)
   public
   @ResponseBody

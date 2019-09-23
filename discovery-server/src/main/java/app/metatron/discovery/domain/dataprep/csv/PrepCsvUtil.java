@@ -51,9 +51,8 @@ public class PrepCsvUtil {
 
   private static Logger LOGGER = LoggerFactory.getLogger(PrepCsvUtil.class);
 
-  // public for tests
-  public static InputStreamReader getReaderAfterDetectingCharset(InputStream is,
-          String strUri) {   // strUri is only for debugging
+  // public for tests (strUri is only for debugging)
+  public static InputStreamReader getReaderAfterDetectingCharset(InputStream is, String strUri) {
     InputStreamReader reader;
     String charset = null;
 
