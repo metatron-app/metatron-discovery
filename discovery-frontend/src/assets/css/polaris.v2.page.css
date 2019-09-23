@@ -7429,10 +7429,15 @@ table.ddp-table-type2 tr td .ddp-icon-error2 {}
 table.ddp-table-type2 tr td.ddp-info {padding-right:30px; cursor:pointer;}
 table.ddp-table-type2 tr td.ddp-info.ddp-selected,
 table.ddp-table-type2 tr td.ddp-info:hover {padding:12px 29px 13px 9px;}
-table.ddp-table-type2 tr td.ddp-info:hover {background-color:#f1f1f3 !important; border:1px solid #f1f1f3;}
+table.ddp-table-type2 tr td.ddp-info:hover {background-color:#f1f1f3 !important; border:1px solid #f1f1f3;}table.ddp-table-type2 tr td.ddp-info:hover {background-color:#f1f1f3 !important; border:1px solid #f1f1f3;}
+
+table.ddp-table-type2 tr td.ddp-info.ddp-cursor-default:hover {background:none !important; border-color:none !important;}
 table.ddp-table-type2 tr td.ddp-info .ddp-ui-info {position:absolute; top:50%; right:9px; margin-top:-7px; cursor:pointer; font-size:0px;}
+
 table.ddp-table-type2 tr td.ddp-info.ddp-selected .ddp-ui-info,
 table.ddp-table-type2 tr td.ddp-info:hover .ddp-ui-info {right:8px;}
+
+
 table.ddp-table-type2 tr td.ddp-info .ddp-ui-info .ddp-icon-error2 {position:relative; top:0;}
 table.ddp-table-type2 tr td.ddp-info .ddp-ui-info.ddp-selected .ddp-box-layout4.type-time {display:block; z-index:23;}
 table.ddp-table-type2 tr td.ddp-info .ddp-ui-info .ddp-box-layout4.type-time {display:none; width:330px; position:absolute; top:100%; right:-30px; margin-top:5px;}
