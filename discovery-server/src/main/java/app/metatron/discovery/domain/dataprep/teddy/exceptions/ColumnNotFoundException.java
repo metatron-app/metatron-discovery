@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class ColumnNotFoundException extends TeddyException {
+
   public ColumnNotFoundException(String message) {
     super(message);
   }

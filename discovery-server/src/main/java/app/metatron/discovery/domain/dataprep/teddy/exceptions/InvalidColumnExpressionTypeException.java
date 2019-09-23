@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class InvalidColumnExpressionTypeException extends TeddyException {
+
   public InvalidColumnExpressionTypeException(String message) {
     super(message);
   }

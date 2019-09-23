@@ -14,36 +14,39 @@
 
 package app.metatron.discovery.domain.dataprep.entity;
 
+import app.metatron.discovery.domain.user.UserProfile;
+import java.util.List;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
-import app.metatron.discovery.domain.user.UserProfile;
-
-import java.util.List;
 
 public class PrDataflowProjections {
 
-    @Projection(name = "default", types = { PrDataflow.class })
-    public interface DefaultProjection {
+  @Projection(name = "default", types = {PrDataflow.class})
+  public interface DefaultProjection {
 
-        String getDfId();
-        String getDfName();
-        String getDfDesc();
+    String getDfId();
 
-        Integer getImportedDsCount();
-        Integer getWrangledDsCount();
+    String getDfName();
 
-        List<PrDataset> getDatasets();
+    String getDfDesc();
 
-        DateTime getCreatedTime();
-        DateTime getModifiedTime();
+    Integer getImportedDsCount();
 
-        @Value("#{@cachedUserService.findUserProfile(target.createdBy)}")
-        UserProfile getCreatedBy();
+    Integer getWrangledDsCount();
 
-        @Value("#{@cachedUserService.findUserProfile(target.modifiedBy)}")
-        UserProfile getModifiedBy();
-    }
+    List<PrDataset> getDatasets();
+
+    DateTime getCreatedTime();
+
+    DateTime getModifiedTime();
+
+    @Value("#{@cachedUserService.findUserProfile(target.createdBy)}")
+    UserProfile getCreatedBy();
+
+    @Value("#{@cachedUserService.findUserProfile(target.modifiedBy)}")
+    UserProfile getModifiedBy();
+  }
 
 }
 

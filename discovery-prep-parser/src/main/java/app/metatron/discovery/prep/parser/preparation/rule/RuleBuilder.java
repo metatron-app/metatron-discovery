@@ -14,13 +14,12 @@
 
 package app.metatron.discovery.prep.parser.preparation.rule;
 
-import org.apache.commons.beanutils.BeanUtils;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import org.apache.commons.beanutils.BeanUtils;
 
 public class RuleBuilder {
 

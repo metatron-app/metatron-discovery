@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class NoInputColumnDesignatedException extends TeddyException {
+
   public NoInputColumnDesignatedException(String message) {
     super(message);
   }

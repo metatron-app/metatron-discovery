@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class IllegalColumnNameExpressionException extends TeddyException {
+
   public IllegalColumnNameExpressionException(String message) {
     super(message);
   }

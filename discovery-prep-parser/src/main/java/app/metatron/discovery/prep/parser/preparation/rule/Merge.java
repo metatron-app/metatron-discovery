@@ -80,9 +80,9 @@ public class Merge implements Rule, Rule.Factory {
   @Override
   public String toString() {
     return "Merge{" +
-        "col=" + col +
-        ", with=" + with +
-        ", as='" + as + '\'' +
-        '}';
+            "col=" + col +
+            ", with=" + with +
+            ", as='" + as + '\'' +
+            '}';
   }
 }

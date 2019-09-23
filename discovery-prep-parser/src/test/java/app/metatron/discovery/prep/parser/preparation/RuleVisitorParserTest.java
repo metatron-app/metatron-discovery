@@ -14,18 +14,19 @@
 
 package app.metatron.discovery.prep.parser.preparation;
 
+import static org.junit.Assert.assertEquals;
+
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
+import app.metatron.discovery.prep.parser.preparation.rule.Set;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.ExprEval;
-import app.metatron.discovery.prep.parser.preparation.rule.Set;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-
 public class RuleVisitorParserTest {
+
   @Test
   public void dropTest() {
     String ruleCode = "drop col: test1~test2, test5";
@@ -111,7 +112,7 @@ public class RuleVisitorParserTest {
     assertEquals("SetType{col=Category, type='Integer', format=null}", runAndPrint(ruleCode));
     ruleCode = "settype col: Wage__€_ type: 'Integer'";
     assertEquals("SetType{col=Wage__€_, type='Integer', format=null}", runAndPrint(ruleCode));
- }
+  }
 
   @Test
   public void deriveTest() {
@@ -122,13 +123,17 @@ public class RuleVisitorParserTest {
   @Test
   public void replaceTest() {
     String ruleCode = "replace col: Category with: 'abc' on: /\\d{3}/ global: true row: sales > 10";
-    assertEquals("Replace{col=Category, on=/\\d{3}/, after=null, before=null, with='abc', global=true, row=(sales > 10)}", runAndPrint(ruleCode));
+    assertEquals(
+            "Replace{col=Category, on=/\\d{3}/, after=null, before=null, with='abc', global=true, row=(sales > 10)}",
+            runAndPrint(ruleCode));
   }
 
   @Test
   public void replaceMultiColTest() {
     String ruleCode = "replace col: Category, name with: 'abc' on: /\\d{3}/ global: true row: sales > 10";
-    assertEquals("Replace{col=[Category, name], on=/\\d{3}/, after=null, before=null, with='abc', global=true, row=(sales > 10)}", runAndPrint(ruleCode));
+    assertEquals(
+            "Replace{col=[Category, name], on=/\\d{3}/, after=null, before=null, with='abc', global=true, row=(sales > 10)}",
+            runAndPrint(ruleCode));
   }
 
   @Test
@@ -140,7 +145,8 @@ public class RuleVisitorParserTest {
   @Test
   public void countPatternMultiColTest() {
     String ruleCode = "countpattern col: City, name on: /H.*/ ignoreCase: true";
-    assertEquals("CountPattern{col=[City, name], on=/H.*/, after=null, before=null, ignoreCase=true}", runAndPrint(ruleCode));
+    assertEquals("CountPattern{col=[City, name], on=/H.*/, after=null, before=null, ignoreCase=true}",
+            runAndPrint(ruleCode));
   }
 
   @Test
@@ -164,7 +170,9 @@ public class RuleVisitorParserTest {
   @Test
   public void pivotTest2() {
     String ruleCode = "pivot col: column3,column4 value: sum(column22),sum(column23) group: column11,column14 limit: 100";
-    assertEquals("Pivot{col=[column3, column4], value=FunctionArrayExpr{functions=[sum(column22), sum(column23)]}, group=[column11, column14], limit=100}", runAndPrint(ruleCode));
+    assertEquals(
+            "Pivot{col=[column3, column4], value=FunctionArrayExpr{functions=[sum(column22), sum(column23)]}, group=[column11, column14], limit=100}",
+            runAndPrint(ruleCode));
   }
 
   @Test
@@ -206,19 +214,24 @@ public class RuleVisitorParserTest {
   @Test
   public void joinTest() {
     String ruleCode = "join dataset2: name2 leftSelectCol: ItemA,ItemB,ItemC rightSelectCol: ItemD,ItemE condition: ItemF=ItemG && ItemH=ItemI joinType: 'inner'";
-    assertEquals("Join{dataset2=name2, leftSelectCol=[ItemA, ItemB, ItemC], condition=((ItemF = ItemG) && (ItemH = ItemI)), rightSelectCol=[ItemD, ItemE], joinType=''inner''}", runAndPrint(ruleCode));
+    assertEquals(
+            "Join{dataset2=name2, leftSelectCol=[ItemA, ItemB, ItemC], condition=((ItemF = ItemG) && (ItemH = ItemI)), rightSelectCol=[ItemD, ItemE], joinType=''inner''}",
+            runAndPrint(ruleCode));
   }
 
   @Test
   public void aggregateTest1() {
     String ruleCode = "aggregate value: count(), sum(col1) group: region,city limit: 30";
-    assertEquals("Aggregate{value=FunctionArrayExpr{functions=[count(), sum(col1)]}, group=[region, city]}", runAndPrint(ruleCode));
+    assertEquals("Aggregate{value=FunctionArrayExpr{functions=[count(), sum(col1)]}, group=[region, city]}",
+            runAndPrint(ruleCode));
   }
 
   @Test
   public void aggregateTest2() {
     String ruleCode = "aggregate col: column3,column4 value: sum(column22),sum(column23) group: column11,column14 limit: 100";
-    assertEquals("Aggregate{value=FunctionArrayExpr{functions=[sum(column22), sum(column23)]}, group=[column11, column14]}", runAndPrint(ruleCode));
+    assertEquals(
+            "Aggregate{value=FunctionArrayExpr{functions=[sum(column22), sum(column23)]}, group=[column11, column14]}",
+            runAndPrint(ruleCode));
   }
 
   @Test
@@ -272,13 +285,17 @@ public class RuleVisitorParserTest {
   @Test
   public void unionTest() {
     String ruleCode = "union masterCol: ItemA,ItemB,ItemC, dataset2: df2,df3 slaveCol: ItemD,ItemE,ItemF totalCol: col1, col2, col3";
-    assertEquals("Union{dataset2=[df2, df3], masterCol=[ItemA, ItemB, ItemC], slaveCol=[ItemD, ItemE, ItemF], totalCol=[col1, col2, col3]}", runAndPrint(ruleCode));
+    assertEquals(
+            "Union{dataset2=[df2, df3], masterCol=[ItemA, ItemB, ItemC], slaveCol=[ItemD, ItemE, ItemF], totalCol=[col1, col2, col3]}",
+            runAndPrint(ruleCode));
   }
 
   @Test
   public void windowTest() {
     String ruleCode = "window value: first(speed), rank() partition: speed order: weigh, speed";
-    assertEquals("Window{value=FunctionArrayExpr{functions=[first(speed), rank()]}, order=[weigh, speed], partition=speed, rowsBetween=null}", runAndPrint(ruleCode));
+    assertEquals(
+            "Window{value=FunctionArrayExpr{functions=[first(speed), rank()]}, order=[weigh, speed], partition=speed, rowsBetween=null}",
+            runAndPrint(ruleCode));
   }
 
   @Test
@@ -286,7 +303,7 @@ public class RuleVisitorParserTest {
     String ruleCode = "set col: speed value: timestamp('2011-01-01','yyyy-MM-dd')";
     RuleVisitorParser parser = new RuleVisitorParser();
     Set setRule = (Set) parser.parse(ruleCode);
-    ExprEval exprEval = ((Expr)setRule.getValue()).eval(null);
+    ExprEval exprEval = ((Expr) setRule.getValue()).eval(null);
 
     System.out.println(exprEval.toString());
 
@@ -298,11 +315,11 @@ public class RuleVisitorParserTest {
     String ruleCode = "set col: speed value: time_diff(now(), add_time(now(), 1, 'hour'))";
     RuleVisitorParser parser = new RuleVisitorParser();
     Set setRule = (Set) parser.parse(ruleCode);
-    ExprEval exprEval = ((Expr)setRule.getValue()).eval(null);
+    ExprEval exprEval = ((Expr) setRule.getValue()).eval(null);
 
     System.out.println(exprEval.toString());
 
-    assertEquals("3600", exprEval.asString().substring(0,4));
+    assertEquals("3600", exprEval.asString().substring(0, 4));
   }
 
   @Test
@@ -310,24 +327,24 @@ public class RuleVisitorParserTest {
     String ruleCode = "set col: speed value: -1.0";
     RuleVisitorParser parser = new RuleVisitorParser();
     Set setRule = (Set) parser.parse(ruleCode);
-    ExprEval exprEval = ((Expr)setRule.getValue()).eval(null);
+    ExprEval exprEval = ((Expr) setRule.getValue()).eval(null);
 
     System.out.println(exprEval.toString());
 
     //assertEquals("3600", exprEval.asString().substring(0,4));
   }
 
-    @Test
-    public void functionTest4() {
-        String ruleCode = "set col: speed value: ismissing('')";
-        RuleVisitorParser parser = new RuleVisitorParser();
-        Set setRule = (Set) parser.parse(ruleCode);
-        ExprEval exprEval = ((Expr)setRule.getValue()).eval(null);
+  @Test
+  public void functionTest4() {
+    String ruleCode = "set col: speed value: ismissing('')";
+    RuleVisitorParser parser = new RuleVisitorParser();
+    Set setRule = (Set) parser.parse(ruleCode);
+    ExprEval exprEval = ((Expr) setRule.getValue()).eval(null);
 
-        System.out.println(exprEval.toString());
+    System.out.println(exprEval.toString());
 
-        //assertEquals("3600", exprEval.asString().substring(0,4));
-    }
+    //assertEquals("3600", exprEval.asString().substring(0,4));
+  }
 
   private String runAndPrint(String ruleCode) {
 

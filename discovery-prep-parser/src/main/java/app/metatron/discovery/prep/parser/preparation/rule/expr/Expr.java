@@ -14,19 +14,27 @@
 
 package app.metatron.discovery.prep.parser.preparation.rule.expr;
 
-import app.metatron.discovery.prep.parser.exceptions.*;
+import app.metatron.discovery.prep.parser.exceptions.FunctionArgumentCountException;
+import app.metatron.discovery.prep.parser.exceptions.FunctionColumnNotFoundException;
+import app.metatron.discovery.prep.parser.exceptions.FunctionInvalidDeltaValueException;
+import app.metatron.discovery.prep.parser.exceptions.FunctionInvalidIndexNumberException;
+import app.metatron.discovery.prep.parser.exceptions.FunctionInvalidTimestampUnitException;
+import app.metatron.discovery.prep.parser.exceptions.FunctionInvalidTimezonIDException;
+import app.metatron.discovery.prep.parser.exceptions.FunctionTimestampFormatMismatchedException;
+import app.metatron.discovery.prep.parser.exceptions.FunctionUndefinedException;
+import app.metatron.discovery.prep.parser.exceptions.FunctionWorksOnlyOnStringException;
+import app.metatron.discovery.prep.parser.exceptions.FunctionWorksOnlyOnTimestampException;
 import com.google.common.math.LongMath;
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 /**
  * Created by kyungtaak on 2017. 3. 5..
@@ -36,10 +44,12 @@ public interface Expr extends Expression {
   ExprEval eval(NumericBinding bindings);
 
   interface NumericBinding {
+
     Object get(String name);
   }
 
   class FunctionArrayExpr implements Expr {
+
     final List<FunctionExpr> functions;
 
     public FunctionArrayExpr(List<FunctionExpr> functions) {
@@ -58,12 +68,13 @@ public interface Expr extends Expression {
     @Override
     public String toString() {
       return "FunctionArrayExpr{" +
-          "functions=" + functions +
-          '}';
+              "functions=" + functions +
+              '}';
     }
   }
 
   class AssignExpr implements Expr {
+
     final Expr assignee;
     final Expr assigned;
 
@@ -92,6 +103,7 @@ public interface Expr extends Expression {
   }
 
   class FunctionExpr implements Expr {
+
     final Function function;
     final String name;
     final List<Expr> args;
@@ -99,9 +111,11 @@ public interface Expr extends Expression {
     public Expr getLeft() {
       return null;
     }
+
     public Expr getRight() {
       return null;
     }
+
     public String getOp() {
       return null;
     }
@@ -123,8 +137,8 @@ public interface Expr extends Expression {
     @Override
     public String toString() {
       List<String> argsExprs = args.stream()
-          .map(expr -> expr.toString())
-          .collect(Collectors.toList());
+              .map(expr -> expr.toString())
+              .collect(Collectors.toList());
 
       return name + "(" + StringUtils.join(argsExprs, ",") + ")";
     }
@@ -158,15 +172,14 @@ public interface Expr extends Expression {
         try {
           ExprEval exprEval = args.get(0).eval(bindings);
           return (exprEval.value() == null) ? exprEval : ExprEval.of(exprEval.stringValue().length());
-        } catch (NullPointerException ne){
+        } catch (NullPointerException ne) {
           throw new FunctionColumnNotFoundException("length(): No such column name >> " + args.get(0).toString());
         } catch (ClassCastException ce) {
           throw new FunctionWorksOnlyOnStringException("ExprEval.eval() length: This function works only on string");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() length: Unknown error occur");
         }
-      }
-      else if (function instanceof BuiltinFunctions.ConditionFunc) {
+      } else if (function instanceof BuiltinFunctions.ConditionFunc) {
         // if(condExpr, trueValue, falseValue)
         checkArgc(1, 3);
         ExprEval condEval = args.get(0).eval(bindings);
@@ -178,18 +191,16 @@ public interface Expr extends Expression {
         } else {
           return args.get(2).eval(bindings);  // falseEval
         }
-      }
-      else if (function instanceof BuiltinFunctions.IsNullFunc) {
+      } else if (function instanceof BuiltinFunctions.IsNullFunc) {
         // isnull(expr)
         checkArgc(1);
         try {
           ExprEval exprEval = args.get(0).eval(bindings);
           return exprEval.value() == null ? ExprEval.of(true) : ExprEval.of(false);
-        } catch (NullPointerException ne){
+        } catch (NullPointerException ne) {
           throw new FunctionColumnNotFoundException("isnull(): No such column name >> " + args.get(0).toString());
         }
-      }
-      else if (function instanceof BuiltinFunctions.IsNanFunc) {
+      } else if (function instanceof BuiltinFunctions.IsNanFunc) {
         // isnan(expr)
         checkArgc(1);
         ExprEval exprEval;
@@ -197,137 +208,137 @@ public interface Expr extends Expression {
         try {
           exprEval = args.get(0).eval(bindings);
           d = exprEval.asDouble();
-        } catch (NullPointerException ne){
+        } catch (NullPointerException ne) {
           throw new FunctionColumnNotFoundException("isnan(): No such column name >> " + args.get(0).toString());
-        } catch(Exception e) {
+        } catch (Exception e) {
           return ExprEval.of(false);
         }
         return ExprEval.of(d.isNaN());
-      }
-      else if (function instanceof BuiltinFunctions.IsMismatchedFunc) {
+      } else if (function instanceof BuiltinFunctions.IsMismatchedFunc) {
         // ismismatched(expr, type)
         checkArgc(2);
         try {
           ExprEval exprEval = args.get(0).eval(bindings);
           String colType = args.get(1).eval(bindings).stringValue().replace("'", "").toUpperCase();
 
-          if(exprEval.value() == null)
+          if (exprEval.value() == null) {
             return ExprEval.of(false);
-          else
+          } else {
             return exprEval.type().toString().toUpperCase().equals(colType) ? ExprEval.of(false) : ExprEval.of(true);
-        } catch (NullPointerException ne){
+          }
+        } catch (NullPointerException ne) {
           throw new FunctionColumnNotFoundException("ismismatched(): No such column name >> " + args.get(0).toString());
         }
-      }
-      else if (function instanceof BuiltinFunctions.IsMissingFunc) {
+      } else if (function instanceof BuiltinFunctions.IsMissingFunc) {
         // isnull(expr)
         checkArgc(1);
         try {
           ExprEval exprEval = args.get(0).eval(bindings);
 
-          if(exprEval.value() == null) {
+          if (exprEval.value() == null) {
             return ExprEval.of(true);
-          } else if(exprEval.asString().isEmpty()) {
+          } else if (exprEval.asString().isEmpty()) {
             return ExprEval.of(true);
           }
 
           return ExprEval.of(false);
-        } catch (NullPointerException ne){
+        } catch (NullPointerException ne) {
           throw new FunctionColumnNotFoundException("isnull(): No such column name >> " + args.get(0).toString());
         }
-      }
-      else if (function instanceof BuiltinFunctions.Str.UpperFunc) {
+      } else if (function instanceof BuiltinFunctions.Str.UpperFunc) {
         // upper(expr)
         checkArgc(1);
         try {
           ExprEval exprEval = args.get(0).eval(bindings);
           return (exprEval.value() == null) ? exprEval : ExprEval.of(exprEval.stringValue().toUpperCase());
-        } catch (NullPointerException ne){
-          throw new FunctionColumnNotFoundException("ExprEval.eval() upper: No such column name >> " + args.get(0).toString());
+        } catch (NullPointerException ne) {
+          throw new FunctionColumnNotFoundException(
+                  "ExprEval.eval() upper: No such column name >> " + args.get(0).toString());
         } catch (ClassCastException ce) {
           throw new FunctionWorksOnlyOnStringException("ExprEval.eval() upper: This function works only on string");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() upper: Unknown error occur");
         }
-      }
-      else if (function instanceof BuiltinFunctions.Str.LowerFunc) {
+      } else if (function instanceof BuiltinFunctions.Str.LowerFunc) {
         // lower(expr)
         checkArgc(1);
         try {
           ExprEval exprEval = args.get(0).eval(bindings);
           return (exprEval.value() == null) ? exprEval : ExprEval.of(exprEval.stringValue().toLowerCase());
-        } catch (NullPointerException ne){
-          throw new FunctionColumnNotFoundException("ExprEval.eval() lower: No such column name >> " + args.get(0).toString());
+        } catch (NullPointerException ne) {
+          throw new FunctionColumnNotFoundException(
+                  "ExprEval.eval() lower: No such column name >> " + args.get(0).toString());
         } catch (ClassCastException ce) {
           throw new FunctionWorksOnlyOnStringException("ExprEval.eval() lower: This function works only on string");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() lower: Unknown error occur");
         }
-      }
-      else if (function instanceof BuiltinFunctions.Str.TrimFunc) {
+      } else if (function instanceof BuiltinFunctions.Str.TrimFunc) {
         // trim(expr)
         checkArgc(1);
-        try{
+        try {
           ExprEval exprEval = args.get(0).eval(bindings);
           return (exprEval.value() == null) ? exprEval : ExprEval.bestEffortOf(exprEval.stringValue().trim());
-        } catch (NullPointerException ne){
-          throw new FunctionColumnNotFoundException("ExprEval.eval() trim: No such column name >> " + args.get(0).toString());
+        } catch (NullPointerException ne) {
+          throw new FunctionColumnNotFoundException(
+                  "ExprEval.eval() trim: No such column name >> " + args.get(0).toString());
         } catch (ClassCastException ce) {
           throw new FunctionWorksOnlyOnStringException("ExprEval.eval() trim: This function works only on string");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() trim: Unknown error occur");
         }
 
-      }
-      else if (function instanceof BuiltinFunctions.Str.LTrimFunc) {
+      } else if (function instanceof BuiltinFunctions.Str.LTrimFunc) {
         // ltrim(expr)
         checkArgc(1);
-        try{
+        try {
           ExprEval exprEval = args.get(0).eval(bindings);
-          return (exprEval.value() == null) ? exprEval : ExprEval.bestEffortOf(exprEval.stringValue().replaceFirst("^\\s+", ""));
-        } catch (NullPointerException ne){
-          throw new FunctionColumnNotFoundException("ExprEval.eval() ltrim: No such column name >> " + args.get(0).toString());
+          return (exprEval.value() == null) ? exprEval
+                  : ExprEval.bestEffortOf(exprEval.stringValue().replaceFirst("^\\s+", ""));
+        } catch (NullPointerException ne) {
+          throw new FunctionColumnNotFoundException(
+                  "ExprEval.eval() ltrim: No such column name >> " + args.get(0).toString());
         } catch (ClassCastException ce) {
           throw new FunctionWorksOnlyOnStringException("ExprEval.eval() ltrim: This function works only on string");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() ltrim: Unknown error occur");
         }
 
-      }
-      else if (function instanceof BuiltinFunctions.Str.RTrimFunc) {
+      } else if (function instanceof BuiltinFunctions.Str.RTrimFunc) {
         // rtrim(expr)
         checkArgc(1);
-        try{
+        try {
           ExprEval exprEval = args.get(0).eval(bindings);
-          return (exprEval.value() == null) ? exprEval : ExprEval.bestEffortOf(exprEval.stringValue().replaceFirst("\\s+$", ""));
-        } catch (NullPointerException ne){
-          throw new FunctionColumnNotFoundException("ExprEval.eval() rtrim: No such column name >> " + args.get(0).toString());
+          return (exprEval.value() == null) ? exprEval
+                  : ExprEval.bestEffortOf(exprEval.stringValue().replaceFirst("\\s+$", ""));
+        } catch (NullPointerException ne) {
+          throw new FunctionColumnNotFoundException(
+                  "ExprEval.eval() rtrim: No such column name >> " + args.get(0).toString());
         } catch (ClassCastException ce) {
           throw new FunctionWorksOnlyOnStringException("ExprEval.eval() rtrim: This function works only on string");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() rtrim: Unknown error occur");
         }
 
-      }
-      else if (function instanceof BuiltinFunctions.Str.SubstringFunc) {
+      } else if (function instanceof BuiltinFunctions.Str.SubstringFunc) {
         // substring(expr)
         checkArgc(2, 3);
-        try{
+        try {
           ExprEval exprEval = args.get(0).eval(bindings);
           String exprStr = exprEval.stringValue();
 
           int beginIndex = args.get(1).eval(bindings).intValue();
-          if(beginIndex > exprStr.length()) {
+          if (beginIndex > exprStr.length()) {
             beginIndex = exprStr.length();
           } else if (beginIndex < 0) {
-            beginIndex = exprStr.length()+beginIndex;
+            beginIndex = exprStr.length() + beginIndex;
           }
 
-          if(args.size()==2) {
+          if (args.size() == 2) {
             exprStr = exprStr.substring(beginIndex);
           } else {
             int endIndex = beginIndex + args.get(2).eval(bindings).intValue();
-            if(endIndex > exprStr.length()) {
+            if (endIndex > exprStr.length()) {
               endIndex = exprStr.length();
             }
 
@@ -337,24 +348,25 @@ public interface Expr extends Expression {
           return (exprEval.value() == null) ? exprEval : ExprEval.bestEffortOf(exprStr);
         } catch (StringIndexOutOfBoundsException se) {
           throw new FunctionInvalidIndexNumberException("ExprEval.eval() substring: Wrong index param");
-        } catch (NullPointerException ne){
-          throw new FunctionColumnNotFoundException("ExprEval.eval() substring: No such column name >> " + args.get(0).toString());
+        } catch (NullPointerException ne) {
+          throw new FunctionColumnNotFoundException(
+                  "ExprEval.eval() substring: No such column name >> " + args.get(0).toString());
         } catch (ClassCastException ce) {
           throw new FunctionWorksOnlyOnStringException("ExprEval.eval() substring: This function works only on string");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() substring: Unknown error occur");
         }
 
-      }
-      else if (function instanceof BuiltinFunctions.Str.ContainsFunc) {
+      } else if (function instanceof BuiltinFunctions.Str.ContainsFunc) {
         // substring(expr)
         checkArgc(2);
-        try{
+        try {
           ExprEval arg0 = args.get(0).eval(bindings);
           String targetText = arg0.stringValue();
 
-          if(arg0.value() == null)
+          if (arg0.value() == null) {
             return arg0;
+          }
 
           ExprEval arg1 = args.get(1).eval(bindings);
           String searchWord = arg1.stringValue();
@@ -362,24 +374,25 @@ public interface Expr extends Expression {
           return ExprEval.bestEffortOf(targetText.contains(searchWord));
         } catch (StringIndexOutOfBoundsException se) {
           throw new FunctionInvalidIndexNumberException("ExprEval.eval() contains: Wrong index param");
-        } catch (NullPointerException ne){
-          throw new FunctionColumnNotFoundException("ExprEval.eval() contains: No such column name >> " + args.get(0).toString());
+        } catch (NullPointerException ne) {
+          throw new FunctionColumnNotFoundException(
+                  "ExprEval.eval() contains: No such column name >> " + args.get(0).toString());
         } catch (ClassCastException ce) {
           throw new FunctionWorksOnlyOnStringException("ExprEval.eval() contains: This function works only on string");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() contains: Unknown error occur");
         }
 
-      }
-      else if (function instanceof BuiltinFunctions.Str.StartsWithFunc) {
+      } else if (function instanceof BuiltinFunctions.Str.StartsWithFunc) {
         // startsWith(expr)
         checkArgc(2);
-        try{
+        try {
           ExprEval arg0 = args.get(0).eval(bindings);
           String targetText = arg0.stringValue();
 
-          if(arg0.value() == null)
+          if (arg0.value() == null) {
             return arg0;
+          }
 
           ExprEval arg1 = args.get(1).eval(bindings);
           String searchWord = arg1.stringValue();
@@ -387,24 +400,26 @@ public interface Expr extends Expression {
           return ExprEval.bestEffortOf(targetText.startsWith(searchWord));
         } catch (StringIndexOutOfBoundsException se) {
           throw new FunctionInvalidIndexNumberException("ExprEval.eval() startswith: Wrong index param");
-        } catch (NullPointerException ne){
-          throw new FunctionColumnNotFoundException("ExprEval.eval() startswith: No such column name >> " + args.get(0).toString());
+        } catch (NullPointerException ne) {
+          throw new FunctionColumnNotFoundException(
+                  "ExprEval.eval() startswith: No such column name >> " + args.get(0).toString());
         } catch (ClassCastException ce) {
-          throw new FunctionWorksOnlyOnStringException("ExprEval.eval() startswith: This function works only on string");
+          throw new FunctionWorksOnlyOnStringException(
+                  "ExprEval.eval() startswith: This function works only on string");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() startswith: Unknown error occur");
         }
 
-      }
-      else if (function instanceof BuiltinFunctions.Str.EndsWithFunc) {
+      } else if (function instanceof BuiltinFunctions.Str.EndsWithFunc) {
         // endsWith(expr)
         checkArgc(2);
-        try{
+        try {
           ExprEval arg0 = args.get(0).eval(bindings);
           String targetText = arg0.stringValue();
 
-          if(arg0.value() == null)
+          if (arg0.value() == null) {
             return arg0;
+          }
 
           ExprEval arg1 = args.get(1).eval(bindings);
           String searchWord = arg1.stringValue();
@@ -412,137 +427,132 @@ public interface Expr extends Expression {
           return ExprEval.bestEffortOf(targetText.endsWith(searchWord));
         } catch (StringIndexOutOfBoundsException se) {
           throw new FunctionInvalidIndexNumberException("ExprEval.eval() endswith: Wrong index param");
-        } catch (NullPointerException ne){
-          throw new FunctionColumnNotFoundException("ExprEval.eval() endswith: No such column name >> " + args.get(0).toString());
+        } catch (NullPointerException ne) {
+          throw new FunctionColumnNotFoundException(
+                  "ExprEval.eval() endswith: No such column name >> " + args.get(0).toString());
         } catch (ClassCastException ce) {
           throw new FunctionWorksOnlyOnStringException("ExprEval.eval() endswith: This function works only on string");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() endswith: Unknown error occur");
         }
 
-      }
-      else if (function instanceof BuiltinFunctions.Str.ConcatFunc) {
+      } else if (function instanceof BuiltinFunctions.Str.ConcatFunc) {
         // concat(expr)
         checkArgcAtLeast(1);
         Expression expression;
-        String exprStr="";
-        String resultStr="";
+        String exprStr = "";
+        String resultStr = "";
 
-        try{
-          for(int i = 0; i < args.size(); i++) {
+        try {
+          for (int i = 0; i < args.size(); i++) {
             expression = args.get(i);
-            if(expression instanceof Constant.StringExpr) {
+            if (expression instanceof Constant.StringExpr) {
               exprStr = ((Constant.StringExpr) expression).getEscapedValue();
-            }
-            else {
+            } else {
               exprStr = ((Expr) expression).eval(bindings).asString();
             }
 
             resultStr = resultStr + exprStr;
           }
           return ExprEval.bestEffortOf(resultStr);
-        } catch (NullPointerException ne){
+        } catch (NullPointerException ne) {
           throw new FunctionColumnNotFoundException("concat(): No such column name >> " + exprStr);
         } catch (ClassCastException ce) {
           throw new FunctionWorksOnlyOnStringException("ExprEval.eval() concat: This function works only on string");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() concat: Unknown error occur");
         }
-      }
-      else if (function instanceof BuiltinFunctions.Str.ConcatwsFunc) {
+      } else if (function instanceof BuiltinFunctions.Str.ConcatwsFunc) {
         // concat_ws(expr)
         checkArgcAtLeast(2);
         ExprEval exprEval;
         Expression expression;
-        String exprStr="";
+        String exprStr = "";
         String wsStr;
         String resultStr;
 
-        try{
+        try {
           wsStr = ((Constant.StringExpr) args.get(0)).getEscapedValue();
 
           expression = args.get(1);
 
-          if(expression instanceof Constant.StringExpr) {
+          if (expression instanceof Constant.StringExpr) {
             resultStr = ((Constant.StringExpr) expression).getEscapedValue();
-          }
-          else {
+          } else {
             resultStr = ((Expr) expression).eval(bindings).asString();
           }
 
-          for(int i = 2; i < args.size(); i++) {
+          for (int i = 2; i < args.size(); i++) {
             expression = args.get(i);
-            if(expression instanceof Constant.StringExpr) {
+            if (expression instanceof Constant.StringExpr) {
               exprStr = ((Constant.StringExpr) expression).getEscapedValue();
-            }
-            else {
+            } else {
               exprStr = ((Expr) expression).eval(bindings).asString();
             }
 
             resultStr = resultStr + wsStr + exprStr;
           }
           return ExprEval.bestEffortOf(resultStr);
-        } catch (NullPointerException ne){
+        } catch (NullPointerException ne) {
           throw new FunctionColumnNotFoundException("concat_ws(): No such column name >> " + exprStr);
         } catch (ClassCastException ce) {
           throw new FunctionWorksOnlyOnStringException("ExprEval.eval() concat_ws: This function works only on string");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() concat_ws: Unknown error occur");
         }
-      }
-      else if (function instanceof BuiltinFunctions.Times.TimestampToString) {
+      } else if (function instanceof BuiltinFunctions.Times.TimestampToString) {
         // timestamptostring(expr, format)
         checkArgc(2);
         try {
           DateTime dt = args.get(0).eval(bindings).timestampValue();
           String format = args.get(1).eval(bindings).stringValue();
           return ExprEval.of(dt.toString(format));
-        } catch (NullPointerException ne){
+        } catch (NullPointerException ne) {
           throw new FunctionColumnNotFoundException("year(): No such column name >> " + args.get(0).toString());
         } catch (ClassCastException e) {
-          throw new FunctionWorksOnlyOnTimestampException("ExprEval.eval() year: This function works only on timestamp");
+          throw new FunctionWorksOnlyOnTimestampException(
+                  "ExprEval.eval() year: This function works only on timestamp");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() year: Unknown error occur");
         }
 
-      }
-      else if (function instanceof BuiltinFunctions.Times.YearFunc) {
+      } else if (function instanceof BuiltinFunctions.Times.YearFunc) {
         // year(expr)
         checkArgc(1);
         try {
           DateTime dt = args.get(0).eval(bindings).timestampValue();
           return ExprEval.of(dt.getYear());
-        } catch (NullPointerException ne){
+        } catch (NullPointerException ne) {
           throw new FunctionColumnNotFoundException("year(): No such column name >> " + args.get(0).toString());
         } catch (ClassCastException e) {
-          throw new FunctionWorksOnlyOnTimestampException("ExprEval.eval() year: This function works only on timestamp");
+          throw new FunctionWorksOnlyOnTimestampException(
+                  "ExprEval.eval() year: This function works only on timestamp");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() year: Unknown error occur");
         }
 
-      }
-      else if (function instanceof BuiltinFunctions.Times.MonthFunc) {
+      } else if (function instanceof BuiltinFunctions.Times.MonthFunc) {
         // month(expr)
         checkArgc(1);
         try {
           DateTime dt = args.get(0).eval(bindings).timestampValue();
           return ExprEval.of(dt.getMonthOfYear());
-        } catch (NullPointerException ne){
+        } catch (NullPointerException ne) {
           throw new FunctionColumnNotFoundException("month(): No such column name >> " + args.get(0).toString());
         } catch (ClassCastException e) {
-          throw new FunctionWorksOnlyOnTimestampException("ExprEval.eval() month: This function works only on timestamp");
+          throw new FunctionWorksOnlyOnTimestampException(
+                  "ExprEval.eval() month: This function works only on timestamp");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() month: Unknown error occur");
         }
 
-      }
-      else if (function instanceof BuiltinFunctions.Times.DayFunc) {
+      } else if (function instanceof BuiltinFunctions.Times.DayFunc) {
         // day(expr)
         checkArgc(1);
         try {
           DateTime dt = args.get(0).eval(bindings).timestampValue();
           return ExprEval.of(dt.getDayOfMonth());
-        } catch (NullPointerException ne){
+        } catch (NullPointerException ne) {
           throw new FunctionColumnNotFoundException("day(): No such column name >> " + args.get(0).toString());
         } catch (ClassCastException e) {
           throw new FunctionWorksOnlyOnTimestampException("ExprEval.eval() day: This function works only on timestamp");
@@ -550,68 +560,67 @@ public interface Expr extends Expression {
           throw new FunctionUndefinedException("ExprEval.eval() day: Unknown error occur");
         }
 
-      }
-      else if (function instanceof BuiltinFunctions.Times.HourFunc) {
+      } else if (function instanceof BuiltinFunctions.Times.HourFunc) {
         // hour(expr)
         checkArgc(1);
         try {
           DateTime dt = args.get(0).eval(bindings).timestampValue();
           return ExprEval.of(dt.getHourOfDay());
-        } catch (NullPointerException ne){
+        } catch (NullPointerException ne) {
           throw new FunctionColumnNotFoundException("hour(): No such column name >> " + args.get(0).toString());
         } catch (ClassCastException e) {
-          throw new FunctionWorksOnlyOnTimestampException("ExprEval.eval() hour: This function works only on timestamp");
+          throw new FunctionWorksOnlyOnTimestampException(
+                  "ExprEval.eval() hour: This function works only on timestamp");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() hour: Unknown error occur");
         }
 
-      }
-      else if (function instanceof BuiltinFunctions.Times.MinuteFunc) {
+      } else if (function instanceof BuiltinFunctions.Times.MinuteFunc) {
         // minute(expr)
         checkArgc(1);
         try {
           DateTime dt = args.get(0).eval(bindings).timestampValue();
           return ExprEval.of(dt.getMinuteOfHour());
-        } catch (NullPointerException ne){
+        } catch (NullPointerException ne) {
           throw new FunctionColumnNotFoundException("minute(): No such column name >> " + args.get(0).toString());
         } catch (ClassCastException e) {
-          throw new FunctionWorksOnlyOnTimestampException("ExprEval.eval() minute: This function works only on timestamp");
+          throw new FunctionWorksOnlyOnTimestampException(
+                  "ExprEval.eval() minute: This function works only on timestamp");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() minute: Unknown error occur");
         }
 
-      }
-      else if (function instanceof BuiltinFunctions.Times.SecondFunc) {
+      } else if (function instanceof BuiltinFunctions.Times.SecondFunc) {
         // second(expr)
         checkArgc(1);
         try {
           DateTime dt = args.get(0).eval(bindings).timestampValue();
           return ExprEval.of(dt.getSecondOfMinute());
-        } catch (NullPointerException ne){
+        } catch (NullPointerException ne) {
           throw new FunctionColumnNotFoundException("second(): No such column name >> " + args.get(0).toString());
         } catch (ClassCastException e) {
-          throw new FunctionWorksOnlyOnTimestampException("ExprEval.eval() second: This function works only on timestamp");
+          throw new FunctionWorksOnlyOnTimestampException(
+                  "ExprEval.eval() second: This function works only on timestamp");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() second: Unknown error occur");
         }
 
-      }
-      else if (function instanceof BuiltinFunctions.Times.MillisecondFunc) {
+      } else if (function instanceof BuiltinFunctions.Times.MillisecondFunc) {
         // millisecond(expr)
         checkArgc(1);
         try {
           DateTime dt = args.get(0).eval(bindings).timestampValue();
           return ExprEval.of(dt.getMillisOfSecond());
-        } catch (NullPointerException ne){
+        } catch (NullPointerException ne) {
           throw new FunctionColumnNotFoundException("millisecond(): No such column name >> " + args.get(0).toString());
         } catch (ClassCastException e) {
-          throw new FunctionWorksOnlyOnTimestampException("ExprEval.eval() millisecond: This function works only on timestamp");
+          throw new FunctionWorksOnlyOnTimestampException(
+                  "ExprEval.eval() millisecond: This function works only on timestamp");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() millisecond: Unknown error occur");
         }
 
-      }
-      else if (function instanceof BuiltinFunctions.Times.WeekdayFunc) {
+      } else if (function instanceof BuiltinFunctions.Times.WeekdayFunc) {
         // weekday(expr)
         checkArgc(1);
         try {
@@ -636,29 +645,30 @@ public interface Expr extends Expression {
             default:
               break;
           }
-        } catch (NullPointerException ne){
+        } catch (NullPointerException ne) {
           throw new FunctionColumnNotFoundException("weekday(): No such column name >> " + args.get(0).toString());
         } catch (ClassCastException e) {
-          throw new FunctionWorksOnlyOnTimestampException("ExprEval.eval() weekday: This function works only on timestamp");
+          throw new FunctionWorksOnlyOnTimestampException(
+                  "ExprEval.eval() weekday: This function works only on timestamp");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() weekday: Unknown error occur");
         }
 
-      }
-      else if (function instanceof BuiltinFunctions.Times.NowFunc) {
+      } else if (function instanceof BuiltinFunctions.Times.NowFunc) {
         checkArgc(0, 1);
 
         String timeZoneId;
 
-        if(args.size() == 0)
+        if (args.size() == 0) {
           timeZoneId = "UTC";
-        else
+        } else {
           timeZoneId = args.get(0).eval(bindings).asString().replaceAll("'", "");
+        }
 
         try {
           DateTime dt = DateTime.now(DateTimeZone.forID(timeZoneId));
           return ExprEval.bestEffortOf(dt);
-        } catch (NullPointerException ne){
+        } catch (NullPointerException ne) {
           throw new FunctionColumnNotFoundException("now(): No such column name >> " + args.get(0).toString());
         } catch (IllegalArgumentException e) {
           throw new FunctionInvalidTimezonIDException("ExprEval.eval() now: Timezone ID is invalid");
@@ -666,19 +676,19 @@ public interface Expr extends Expression {
           throw new FunctionUndefinedException("ExprEval.eval() now: Unknown error occur");
         }
 
-      }
-      else if (function instanceof BuiltinFunctions.Times.AddtimeFunc) {
+      } else if (function instanceof BuiltinFunctions.Times.AddtimeFunc) {
         checkArgc(3);
         try {
           DateTime dateTime = args.get(0).eval(bindings).asTimestamp();
 
-          if(dateTime == null)
+          if (dateTime == null) {
             throw new FunctionWorksOnlyOnTimestampException("");
+          }
 
           int delta = args.get(1).eval(bindings).intValue();
           String timeUnit = args.get(2).eval(bindings).stringValue().replaceAll("'", "");
 
-          switch (timeUnit.toUpperCase()){
+          switch (timeUnit.toUpperCase()) {
             case "YEAR":
               return ExprEval.bestEffortOf(dateTime.plusYears(delta));
             case "MONTH":
@@ -697,20 +707,20 @@ public interface Expr extends Expression {
               throw new FunctionInvalidTimestampUnitException("");
           }
 
-        } catch (NullPointerException ne){
+        } catch (NullPointerException ne) {
           throw new FunctionColumnNotFoundException("add_time(): No such column name >> " + args.get(0).toString());
         } catch (FunctionInvalidTimestampUnitException e) {
           throw new FunctionInvalidTimestampUnitException("ExprEval.eval() add_time: Timestamp unit is invalid");
         } catch (FunctionWorksOnlyOnTimestampException e) {
-          throw new FunctionWorksOnlyOnTimestampException("ExprEval.eval() add_time: This function is works only on timestamp");
+          throw new FunctionWorksOnlyOnTimestampException(
+                  "ExprEval.eval() add_time: This function is works only on timestamp");
         } catch (ClassCastException e) {
           throw new FunctionInvalidDeltaValueException("ExprEval.eval() add_time: The delta value must be a number");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() add_time: Unknown error occur");
         }
 
-      }
-      else if (function instanceof BuiltinFunctions.Times.TimeBetweenFunc) {
+      } else if (function instanceof BuiltinFunctions.Times.TimeBetweenFunc) {
         checkArgc(3);
         try {
           DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.sssZ").withLocale(Locale.ENGLISH);
@@ -718,47 +728,53 @@ public interface Expr extends Expression {
           DateTime startTime = DateTime.parse(args.get(1).eval(bindings).asString(), dtf);
           DateTime endTime = DateTime.parse(args.get(2).eval(bindings).asString(), dtf);
 
-          if(dateTime == null)
+          if (dateTime == null) {
             return ExprEval.of(false);
-          if(dateTime.isEqual(startTime))
+          }
+          if (dateTime.isEqual(startTime)) {
             return ExprEval.of(true);
-          if(dateTime.isAfter(startTime) && dateTime.isBefore(endTime))
+          }
+          if (dateTime.isAfter(startTime) && dateTime.isBefore(endTime)) {
             return ExprEval.of(true);
+          }
 
           return ExprEval.of(false);
-        } catch (NullPointerException ne){
+        } catch (NullPointerException ne) {
           throw new FunctionColumnNotFoundException("time_between(): No such column name >> " + args.get(0).toString());
         } catch (FunctionWorksOnlyOnTimestampException e) {
-          throw new FunctionWorksOnlyOnTimestampException("ExprEval.eval() time_between(): This function is works only on timestamp");
+          throw new FunctionWorksOnlyOnTimestampException(
+                  "ExprEval.eval() time_between(): This function is works only on timestamp");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() time_between(): Unknown error occur");
         }
 
-      }
-      else if (function instanceof BuiltinFunctions.Times.TimeDiffFunc) {
+      } else if (function instanceof BuiltinFunctions.Times.TimeDiffFunc) {
         checkArgc(2);
         try {
           DateTime dateTime1 = args.get(0).eval(bindings).asTimestamp();
           DateTime dateTime2 = args.get(1).eval(bindings).asTimestamp();
 
-          if(dateTime1 == null || dateTime2 == null)
+          if (dateTime1 == null || dateTime2 == null) {
             throw new FunctionWorksOnlyOnTimestampException("");
+          }
 
-          return ExprEval.bestEffortOf(dateTime2.getMillis()-dateTime1.getMillis());
+          return ExprEval.bestEffortOf(dateTime2.getMillis() - dateTime1.getMillis());
 
-        } catch (NullPointerException ne){
-          throw new FunctionColumnNotFoundException("time_diff(): No such column name >> " + args.get(0).toString() + ", " + args.get(1).toString());
+        } catch (NullPointerException ne) {
+          throw new FunctionColumnNotFoundException(
+                  "time_diff(): No such column name >> " + args.get(0).toString() + ", " + args.get(1).toString());
         } catch (FunctionWorksOnlyOnTimestampException e) {
-          throw new FunctionWorksOnlyOnTimestampException("ExprEval.eval() add_time: This function is works only on timestamp");
+          throw new FunctionWorksOnlyOnTimestampException(
+                  "ExprEval.eval() add_time: This function is works only on timestamp");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() time_diff: Unknown error occur");
         }
 
-      }
-      else if (function instanceof BuiltinFunctions.Times.TimestampFunc) {
+      } else if (function instanceof BuiltinFunctions.Times.TimestampFunc) {
         checkArgc(2);
         try {
-          String time = args.get(0).eval(bindings).asString().replaceAll("'", "");;
+          String time = args.get(0).eval(bindings).asString().replaceAll("'", "");
+          ;
           String format = args.get(1).eval(bindings).asString();
 
           org.joda.time.format.DateTimeFormatter dtf = DateTimeFormat.forPattern(format);
@@ -766,16 +782,16 @@ public interface Expr extends Expression {
 
           return ExprEval.bestEffortOf(dateTime);
 
-        } catch (NullPointerException ne){
+        } catch (NullPointerException ne) {
           throw new FunctionColumnNotFoundException("timestamp(): No such column name >> " + args.get(0).toString());
-        } catch (IllegalArgumentException ie){
-          throw new FunctionTimestampFormatMismatchedException("ExprEval.eval() timestamp: Timestamp format does not match");
+        } catch (IllegalArgumentException ie) {
+          throw new FunctionTimestampFormatMismatchedException(
+                  "ExprEval.eval() timestamp: Timestamp format does not match");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() timestamp: Unknown error occur");
         }
 
-      }
-      else if (function instanceof BuiltinFunctions.Math.SingleParamMath) {
+      } else if (function instanceof BuiltinFunctions.Math.SingleParamMath) {
         checkArgc(1);
         ExprEval exprEval = args.get(0).eval(bindings);
         assert exprEval.isNumeric() : exprEval.toString();
@@ -784,7 +800,8 @@ public interface Expr extends Expression {
         }
         switch (function.name()) {
           case "math.abs":
-            return (exprEval.type()) == ExprType.LONG ? ExprEval.of(Math.abs(exprEval.longValue())) : ExprEval.of(Math.abs(exprEval.doubleValue()));
+            return (exprEval.type()) == ExprType.LONG ? ExprEval.of(Math.abs(exprEval.longValue()))
+                    : ExprEval.of(Math.abs(exprEval.doubleValue()));
           case "math.acos":
             return ExprEval.of(Math.acos(exprEval.doubleValue()));
           case "math.asin":
@@ -820,12 +837,11 @@ public interface Expr extends Expression {
           case "math.tan":
             return ExprEval.of(Math.tan(exprEval.doubleValue()));
           case "math.tanh":
-            return  ExprEval.of(Math.tanh(exprEval.doubleValue()));
+            return ExprEval.of(Math.tanh(exprEval.doubleValue()));
           default:
             break;
         }
-      }
-      else if (function instanceof BuiltinFunctions.Math.DoubleParamMath) {
+      } else if (function instanceof BuiltinFunctions.Math.DoubleParamMath) {
         checkArgc(2);
         ExprEval left = args.get(0).eval(bindings);
         ExprEval right = args.get(0).eval(bindings);
@@ -838,9 +854,13 @@ public interface Expr extends Expression {
         }
         switch (function.name()) {
           case "math.max":
-            return (left.type() == ExprType.LONG && right.type() == ExprType.LONG) ? ExprEval.of(Math.max(left.longValue(), right.longValue())) : ExprEval.of(Math.max(left.doubleValue(), right.doubleValue()));
+            return (left.type() == ExprType.LONG && right.type() == ExprType.LONG) ? ExprEval
+                    .of(Math.max(left.longValue(), right.longValue()))
+                    : ExprEval.of(Math.max(left.doubleValue(), right.doubleValue()));
           case "math.min":
-            return (left.type() == ExprType.LONG && right.type() == ExprType.LONG) ? ExprEval.of(Math.min(left.longValue(), right.longValue())) : ExprEval.of(Math.min(left.doubleValue(), right.doubleValue()));
+            return (left.type() == ExprType.LONG && right.type() == ExprType.LONG) ? ExprEval
+                    .of(Math.min(left.longValue(), right.longValue()))
+                    : ExprEval.of(Math.min(left.doubleValue(), right.doubleValue()));
           case "math.nextAfter":
             return ExprEval.of(Math.nextAfter(left.doubleValue(), right.doubleValue()));
           case "math.pow":
@@ -848,8 +868,7 @@ public interface Expr extends Expression {
           default:
             break;
         }
-      }
-      else if (function instanceof BuiltinFunctions.Coalesce) {
+      } else if (function instanceof BuiltinFunctions.Coalesce) {
         for (Expr expr : args) {
           ExprEval exprEval = expr.eval(bindings);
           if (exprEval.value() != null) {
@@ -865,13 +884,14 @@ public interface Expr extends Expression {
   }
 
   class UnaryMinusExpr implements Expr {
+
     final Expr expr;
 
     public UnaryMinusExpr(Expr expr) {
-//      if (expr.toString().contains("."))
-//        this.expr = new Constant.DoubleExpr(Double.parseDouble("-" + expr.toString()));
-//      else
-//        this.expr = new Constant.LongExpr(Long.parseLong("-" + expr.toString()));
+      //      if (expr.toString().contains("."))
+      //        this.expr = new Constant.DoubleExpr(Double.parseDouble("-" + expr.toString()));
+      //      else
+      //        this.expr = new Constant.LongExpr(Long.parseLong("-" + expr.toString()));
       this.expr = expr;
     }
 
@@ -894,6 +914,7 @@ public interface Expr extends Expression {
   }
 
   class UnaryNotExpr implements Expr, Expression.NotExpression {
+
     final Expr expr;
 
     public UnaryNotExpr(Expr expr) {
@@ -901,7 +922,7 @@ public interface Expr extends Expression {
     }
 
     @Override
-    public ExprEval eval(NumericBinding bindings)  {
+    public ExprEval eval(NumericBinding bindings) {
       ExprEval ret = expr.eval(bindings);
       if (ret.type() == ExprType.LONG) {
         return ExprEval.of(ret.asBoolean() ? 0L : 1L);
@@ -924,6 +945,7 @@ public interface Expr extends Expression {
   }
 
   abstract class BinaryOpExprBase implements Expr {
+
     protected String op;
     protected Expr left;
     protected Expr right;
@@ -959,7 +981,7 @@ public interface Expr extends Expression {
     }
 
     @Override
-    public ExprEval eval(NumericBinding bindings)  {
+    public ExprEval eval(NumericBinding bindings) {
       ExprEval leftVal = left.eval(bindings);
       ExprEval rightVal = right.eval(bindings);
 
@@ -974,20 +996,20 @@ public interface Expr extends Expression {
       if (leftVal.type() == ExprType.STRING || rightVal.type() == ExprType.STRING) {
         if (left instanceof Constant.StringExpr) {
           leftStr = ((Constant.StringExpr) left).getEscapedValue();
-        } else if(leftVal.type() == ExprType.STRING) {
+        } else if (leftVal.type() == ExprType.STRING) {
           leftStr = leftVal.asString();
         } else {
           return ExprEval.of(null, ExprType.LONG);
         }
         if (right instanceof Constant.StringExpr) {
           rightStr = ((Constant.StringExpr) right).getEscapedValue();
-        } else if(rightVal.type() == ExprType.STRING) {
+        } else if (rightVal.type() == ExprType.STRING) {
           rightStr = rightVal.asString();
         } else {
           return ExprEval.of(null, ExprType.LONG);
         }
         return evalString(leftStr, rightStr);
-//        return evalString(StringUtils.defaultString(leftVal.asString()), StringUtils.defaultString(rightVal.asString()));
+        //        return evalString(StringUtils.defaultString(leftVal.asString()), StringUtils.defaultString(rightVal.asString()));
       }
       if (leftVal.value() == null || rightVal.value() == null) {
         throw new IllegalArgumentException("null value");
@@ -1279,6 +1301,7 @@ public interface Expr extends Expression {
   }
 
   class BinAndExpr extends BinaryNumericOpExprBase implements Expression.AndExpression {
+
     public BinAndExpr(String op, Expr left, Expr right) {
       super(op, left, right);
     }
@@ -1305,6 +1328,7 @@ public interface Expr extends Expression {
   }
 
   class BinOrExpr extends BinaryNumericOpExprBase implements Expression.OrExpression {
+
     public BinOrExpr(String op, Expr left, Expr right) {
       super(op, left, right);
     }
@@ -1331,6 +1355,7 @@ public interface Expr extends Expression {
   }
 
   class BinAndExpr2 extends BinaryNumericOpExprBase implements Expression.AndExpression {
+
     public BinAndExpr2(String op, Expr left, Expr right) {
       super(op, left, right);
     }
@@ -1351,6 +1376,7 @@ public interface Expr extends Expression {
   }
 
   class BinOrExpr2 extends BinaryNumericOpExprBase implements Expression.OrExpression {
+
     public BinOrExpr2(String op, Expr left, Expr right) {
       super(op, left, right);
     }

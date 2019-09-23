@@ -14,60 +14,59 @@
 
 package app.metatron.discovery.domain.dataprep.repository;
 
+import app.metatron.discovery.AbstractIntegrationTest;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
+import java.util.List;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
-
-import app.metatron.discovery.AbstractIntegrationTest;
-
 public class PrDataflowRepositoryTest extends AbstractIntegrationTest {
 
-    @Autowired
-    PrDataflowRepository dataflowRepository;
+  @Autowired
+  PrDataflowRepository dataflowRepository;
 
-    @Test
-    public void saveTest() {
-        PrDataflow dataflow = new PrDataflow();
-        dataflow.setDfName("test dataflow name");
-        dataflow.setDfDesc("test dataflow description");
+  @Test
+  public void saveTest() {
+    PrDataflow dataflow = new PrDataflow();
+    dataflow.setDfName("test dataflow name");
+    dataflow.setDfDesc("test dataflow description");
 
-        dataflowRepository.saveAndFlush(dataflow);
+    dataflowRepository.saveAndFlush(dataflow);
 
-        System.out.println(ToStringBuilder.reflectionToString(dataflow, ToStringStyle.MULTI_LINE_STYLE));
+    System.out.println(ToStringBuilder.reflectionToString(dataflow, ToStringStyle.MULTI_LINE_STYLE));
+  }
+
+  @Test
+  public void crudTest() {
+    PrDataflow dataflow = new PrDataflow();
+    dataflow.setDfName("test dataflow name");
+    dataflow.setDfDesc("test dataflow description");
+
+    dataflowRepository.saveAndFlush(dataflow);
+    System.out.println(ToStringBuilder.reflectionToString(dataflow, ToStringStyle.MULTI_LINE_STYLE));
+
+    PrDataflow savedDataflow = dataflowRepository.getOne(dataflow.getDfId());
+    System.out.println("SAVE:: " + ToStringBuilder.reflectionToString(savedDataflow, ToStringStyle.MULTI_LINE_STYLE));
+
+    savedDataflow.setCustom("test custom");
+
+    dataflowRepository.saveAndFlush(savedDataflow);
+    System.out.println(ToStringBuilder.reflectionToString(savedDataflow, ToStringStyle.MULTI_LINE_STYLE));
+
+    PrDataflow updatedDataflow = dataflowRepository.findOne(dataflow.getDfId());
+    System.out
+            .println("UPDATE:: " + ToStringBuilder.reflectionToString(updatedDataflow, ToStringStyle.MULTI_LINE_STYLE));
+  }
+
+  @Test
+  public void findDataflows() {
+    List<PrDataflow> dataflows = dataflowRepository.findAll();
+    for (PrDataflow dataflow : dataflows) {
+      System.out.println(ToStringBuilder.reflectionToString(dataflow, ToStringStyle.MULTI_LINE_STYLE));
     }
-
-    @Test
-    public void crudTest() {
-        PrDataflow dataflow = new PrDataflow();
-        dataflow.setDfName("test dataflow name");
-        dataflow.setDfDesc("test dataflow description");
-
-        dataflowRepository.saveAndFlush(dataflow);
-        System.out.println(ToStringBuilder.reflectionToString(dataflow, ToStringStyle.MULTI_LINE_STYLE));
-
-        PrDataflow savedDataflow = dataflowRepository.getOne(dataflow.getDfId());
-        System.out.println("SAVE:: " + ToStringBuilder.reflectionToString(savedDataflow, ToStringStyle.MULTI_LINE_STYLE));
-
-        savedDataflow.setCustom("test custom");
-
-        dataflowRepository.saveAndFlush(savedDataflow);
-        System.out.println(ToStringBuilder.reflectionToString(savedDataflow, ToStringStyle.MULTI_LINE_STYLE));
-
-        PrDataflow updatedDataflow = dataflowRepository.findOne(dataflow.getDfId());
-        System.out.println("UPDATE:: " + ToStringBuilder.reflectionToString(updatedDataflow, ToStringStyle.MULTI_LINE_STYLE));
-    }
-
-    @Test
-    public void findDataflows() {
-        List<PrDataflow> dataflows = dataflowRepository.findAll();
-        for(PrDataflow dataflow : dataflows) {
-            System.out.println(ToStringBuilder.reflectionToString(dataflow, ToStringStyle.MULTI_LINE_STYLE));
-        }
-    }
+  }
 
 }
 

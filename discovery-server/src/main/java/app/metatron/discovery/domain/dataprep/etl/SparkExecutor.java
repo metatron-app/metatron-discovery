@@ -49,10 +49,10 @@ public class SparkExecutor {
     // Spark engine gets arguments as Map not as JSON string.
     // TO-DO: This is natural. Embbeded engine should do like this too.
 
-//    Map<String, Object> prepPropertiesInfo = mapper.readValue(jsonPrepPropertiesInfo, HashMap.class);
-//    Map<String, Object> datasetInfo = mapper.readValue(jsonDatasetInfo, HashMap.class);
-//    Map<String, Object> snapshotInfo = mapper.readValue(jsonSnapshotInfo, HashMap.class);
-//    Map<String, Object> callbackInfo = mapper.readValue(jsonCallbackInfo, HashMap.class);
+    //    Map<String, Object> prepPropertiesInfo = mapper.readValue(jsonPrepPropertiesInfo, HashMap.class);
+    //    Map<String, Object> datasetInfo = mapper.readValue(jsonDatasetInfo, HashMap.class);
+    //    Map<String, Object> snapshotInfo = mapper.readValue(jsonSnapshotInfo, HashMap.class);
+    //    Map<String, Object> callbackInfo = mapper.readValue(jsonCallbackInfo, HashMap.class);
 
     // TO-DO: fork if not running
 

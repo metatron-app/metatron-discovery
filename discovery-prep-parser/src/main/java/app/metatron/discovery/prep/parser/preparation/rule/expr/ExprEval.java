@@ -16,8 +16,8 @@ package app.metatron.discovery.prep.parser.preparation.rule.expr;
 
 import org.joda.time.DateTime;
 
-public class ExprEval extends Pair<Object, ExprType>
-{
+public class ExprEval extends Pair<Object, ExprType> {
+
   public static ExprEval bestEffortOf(Object val) {
     if (val == null) {
       return ExprEval.of(val, ExprType.DOUBLE);   // against isNumeric assertion
@@ -28,7 +28,7 @@ public class ExprEval extends Pair<Object, ExprType>
       }
       return ExprEval.of(val, ExprType.DOUBLE);
     }
-    if (val instanceof  Boolean) {
+    if (val instanceof Boolean) {
       return ExprEval.of(val, ExprType.BOOLEAN);
     }
     if (val instanceof DateTime) {
@@ -55,13 +55,11 @@ public class ExprEval extends Pair<Object, ExprType>
     return new ExprEval(val, type != null ? type : ExprType.STRING);
   }
 
-  public static ExprEval of(Object value, ExprType type)
-  {
+  public static ExprEval of(Object value, ExprType type) {
     return new ExprEval(value, type);
   }
 
-  public static ExprEval of(long longValue)
-  {
+  public static ExprEval of(long longValue) {
     return of(longValue, ExprType.LONG);
   }
 
@@ -69,13 +67,11 @@ public class ExprEval extends Pair<Object, ExprType>
     return of(longValue, ExprType.DOUBLE);
   }
 
-  public static ExprEval of(String stringValue)
-  {
+  public static ExprEval of(String stringValue) {
     return of(stringValue, ExprType.STRING);
   }
 
-  public static ExprEval of(boolean bool)
-  {
+  public static ExprEval of(boolean bool) {
     return of(bool ? 1L : 0L);
   }
 
@@ -83,69 +79,59 @@ public class ExprEval extends Pair<Object, ExprType>
     return of(timestampValue, ExprType.TIMESTAMP);
   }
 
-  public ExprEval(Object lhs, ExprType rhs)
-  {
+  public ExprEval(Object lhs, ExprType rhs) {
     super(lhs, rhs);
   }
 
-  public Object value()
-  {
+  public Object value() {
     return lhs;
   }
 
-  public ExprType type()
-  {
+  public ExprType type() {
     return rhs;
   }
 
-  public boolean isNull()
-  {
+  public boolean isNull() {
     return lhs == null || rhs == ExprType.STRING && stringValue().isEmpty();
   }
 
-  public boolean isNumeric()
-  {
+  public boolean isNumeric() {
     return rhs == ExprType.LONG || rhs == ExprType.DOUBLE;
   }
 
-  public int intValue()
-  {
+  public int intValue() {
     return lhs == null ? 0 : ((Number) lhs).intValue();
   }
 
-  public long longValue()
-  {
+  public long longValue() {
     return lhs == null ? 0L : ((Number) lhs).longValue();
   }
 
-  public float floatValue()
-  {
+  public float floatValue() {
     return lhs == null ? 0F : ((Number) lhs).floatValue();
   }
 
-  public double doubleValue()
-  {
+  public double doubleValue() {
     return lhs == null ? 0D : ((Number) lhs).doubleValue();
   }
 
-  public Number numberValue()
-  {
+  public Number numberValue() {
     return (Number) lhs;
   }
 
-  public String stringValue()
-  {
+  public String stringValue() {
     return (String) lhs;
   }
 
-  public Boolean booleanValue() { return (Boolean) lhs;}
+  public Boolean booleanValue() {
+    return (Boolean) lhs;
+  }
 
   public DateTime timestampValue() {
     return (DateTime) lhs;
   }
 
-  public String asString()
-  {
+  public String asString() {
     return lhs == null || rhs == ExprType.STRING ? stringValue() : String.valueOf(lhs);
   }
 
@@ -172,10 +158,12 @@ public class ExprEval extends Pair<Object, ExprType>
   }
 
   public long asLong() {
-    if(isNull())
+    if (isNull()) {
       return 0L;
-    if(lhs instanceof Boolean)
+    }
+    if (lhs instanceof Boolean) {
       return ((Boolean) lhs) ? 1L : 0L;
+    }
 
     return lhs instanceof Number ? ((Number) lhs).longValue() : Long.valueOf(asString());
   }
@@ -184,7 +172,7 @@ public class ExprEval extends Pair<Object, ExprType>
     return isNull() ? 0 : lhs instanceof Number ? ((Number) lhs).intValue() : Integer.valueOf(asString());
   }
 
-  public DateTime asTimestamp(){
+  public DateTime asTimestamp() {
     return lhs == null || rhs == ExprType.TIMESTAMP ? timestampValue() : null;
   }
 

@@ -16,17 +16,18 @@ package app.metatron.discovery.domain.dataprep.transform;
 
 import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
 import app.metatron.discovery.domain.dataprep.teddy.Row;
+import java.util.List;
+import java.util.concurrent.Future;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.concurrent.Future;
-
 @Service
 public class PrepHistogramService {
+
   @Async("prepThreadPoolTaskExecutor")
-  public Future<Histogram> updateHistWithColWidth(String colName, ColumnType colType, List<Row> rows, int colno, int colWidth) {
+  public Future<Histogram> updateHistWithColWidth(String colName, ColumnType colType, List<Row> rows, int colno,
+          int colWidth) {
     return new AsyncResult<>(Histogram.createHist(colName, colType, rows, colno, colWidth));
   }
 }

@@ -46,7 +46,7 @@ public class Header implements Rule, Rule.Factory {
   @Override
   public String toString() {
     return "Header{" +
-        "rownum=" + rownum +
-        '}';
+            "rownum=" + rownum +
+            '}';
   }
 }

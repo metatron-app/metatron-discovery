@@ -17,6 +17,7 @@ package app.metatron.discovery.prep.parser.preparation.rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 
 public class SetFormat implements Rule, Rule.Factory {
+
   Expression col;
   String format;
 
@@ -42,10 +43,11 @@ public class SetFormat implements Rule, Rule.Factory {
   }
 
   public String getFormat() {
-    if(format == null)
+    if (format == null) {
       return "";
+    }
 
-    return format.substring(1, format.length()-1)
+    return format.substring(1, format.length() - 1)
             .replace("\\'", "'")
             .replace("\\\\", "\\");
   }
@@ -63,8 +65,8 @@ public class SetFormat implements Rule, Rule.Factory {
   @Override
   public String toString() {
     return "SetFormat{" +
-        "col=" + col +
-        ", format=" + format +
-        '}';
+            "col=" + col +
+            ", format=" + format +
+            '}';
   }
 }

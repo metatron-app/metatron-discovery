@@ -16,579 +16,594 @@ package app.metatron.discovery.domain.dataprep.entity;
 
 import app.metatron.discovery.domain.AbstractHistoryEntity;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.validation.constraints.Size;
 import org.hibernate.annotations.GenericGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.persistence.*;
-import javax.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.List;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
 @Table(name = "pr_dataset")
 public class PrDataset extends AbstractHistoryEntity {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PrDataset.class);
 
-    // Enumerators
-    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
-    public enum DS_TYPE {
-        IMPORTED,
-        WRANGLED;
+  private static final Logger LOGGER = LoggerFactory.getLogger(PrDataset.class);
 
-        @JsonValue
-        public String toJson() {
-            return name();
-        }
+  // Enumerators
+  @JsonFormat(shape = JsonFormat.Shape.OBJECT)
+  public enum DS_TYPE {
+    IMPORTED,
+    WRANGLED;
+
+    @JsonValue
+    public String toJson() {
+      return name();
     }
+  }
 
-    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
-    public enum IMPORT_TYPE {
-        UPLOAD,
-        URI,
-        DATABASE,
-        STAGING_DB,
-        DRUID;
+  @JsonFormat(shape = JsonFormat.Shape.OBJECT)
+  public enum IMPORT_TYPE {
+    UPLOAD,
+    URI,
+    DATABASE,
+    STAGING_DB,
+    DRUID;
 
-        @JsonValue
-        public String toJson() {
-            return name();
-        }
+    @JsonValue
+    public String toJson() {
+      return name();
     }
+  }
 
-    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
-    public enum STORAGE_TYPE {
-        LOCAL,
-        HDFS,
-        S3,
-        BLOB,
-        FTP;
+  @JsonFormat(shape = JsonFormat.Shape.OBJECT)
+  public enum STORAGE_TYPE {
+    LOCAL,
+    HDFS,
+    S3,
+    BLOB,
+    FTP;
 
-        @JsonValue
-        public String toJson() {
-            return name();
-        }
+    @JsonValue
+    public String toJson() {
+      return name();
     }
+  }
 
-    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
-    public enum FILE_FORMAT {
-        CSV,
-        EXCEL,
-        JSON;
+  @JsonFormat(shape = JsonFormat.Shape.OBJECT)
+  public enum FILE_FORMAT {
+    CSV,
+    EXCEL,
+    JSON;
 
-        @JsonValue
-        public String toJson() {
-            return name();
-        }
+    @JsonValue
+    public String toJson() {
+      return name();
     }
+  }
 
-    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
-    public enum RS_TYPE {
-        TABLE,
-        QUERY;
+  @JsonFormat(shape = JsonFormat.Shape.OBJECT)
+  public enum RS_TYPE {
+    TABLE,
+    QUERY;
 
-        @JsonValue
-        public String toJson() {
-            return name();
-        }
+    @JsonValue
+    public String toJson() {
+      return name();
     }
+  }
 
+  // Attributes
 
-    // Attributes
+  @Id
+  @GeneratedValue(generator = "uuid")
+  @GenericGenerator(name = "uuid", strategy = "uuid2")
+  @Column(name = "ds_id")
+  String dsId;
 
-    @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "uuid2")
-    @Column(name = "ds_id")
-    String dsId;
+  @Lob
+  @Column(name = "serialized_preview")
+  String serializedPreview;
 
-    @Lob
-    @Column(name = "serialized_preview")
-    String serializedPreview;
+  @Size(max = 2000)
+  @Column(name = "ds_name", nullable = false)
+  private String dsName;
 
-    @Size(max = 2000)
-    @Column(name = "ds_name", nullable = false)
-    private String dsName;
+  @Lob
+  @Column(name = "ds_desc")
+  private String dsDesc;
 
-    @Lob
-    @Column(name = "ds_desc")
-    private String dsDesc;
+  @JsonBackReference
+  @ManyToMany(mappedBy = "datasets", fetch = FetchType.LAZY)
+  private List<PrDataflow> dataflows;
 
-    @JsonBackReference
-    @ManyToMany(mappedBy = "datasets", fetch = FetchType.LAZY)
-    private List<PrDataflow> dataflows;
+  @JsonManagedReference
+  @OneToMany(mappedBy = "dataset", fetch = FetchType.LAZY)
+  private List<PrTransformRule> transformRules;
 
-    @JsonManagedReference
-    @OneToMany(mappedBy="dataset", fetch=FetchType.LAZY)
-    private List<PrTransformRule> transformRules;
+  @Column(name = "ds_type")
+  @Enumerated(EnumType.STRING)
+  private PrDataset.DS_TYPE dsType;
 
-    @Column(name = "ds_type")
-    @Enumerated(EnumType.STRING)
-    private PrDataset.DS_TYPE dsType;
+  @Column(name = "import_type")
+  @Enumerated(EnumType.STRING)
+  private PrDataset.IMPORT_TYPE importType;
 
-    @Column(name = "import_type")
-    @Enumerated(EnumType.STRING)
-    private PrDataset.IMPORT_TYPE importType;
+  @Lob
+  @Column(name = "stored_uri")
+  private String storedUri;
 
-    @Lob
-    @Column(name = "stored_uri")
-    private String storedUri;
+  @Lob
+  @Column(name = "filename_before_upload")
+  private String filenameBeforeUpload;
 
-    @Lob
-    @Column(name = "filename_before_upload")
-    private String filenameBeforeUpload;
+  @Column(name = "total_lines")
+  private Long totalLines;
 
-    @Column(name = "total_lines")
-    private Long totalLines;
+  @Column(name = "total_bytes")
+  private Long totalBytes;
 
-    @Column(name = "total_bytes")
-    private Long totalBytes;
+  @Size(max = 255)
+  @Column(name = "dc_id")
+  private String dcId;
 
-    @Size(max = 255)
-    @Column(name = "dc_id")
-    private String dcId;
+  @Column(name = "dc_implementor")
+  private String dcImplementor;
 
-    @Column(name = "dc_implementor")
-    private String dcImplementor;
+  @Column(name = "dc_name")
+  @Size(max = 150)
+  private String dcName;
 
-    @Column(name = "dc_name")
-    @Size(max = 150)
-    private String dcName;
+  @Lob
+  @Column(name = "dc_desc")
+  private String dcDesc;
 
-    @Lob
-    @Column(name = "dc_desc")
-    private String dcDesc;
+  @Column(name = "dc_type")
+  private String dcType;
 
-    @Column(name = "dc_type")
-    private String dcType;
+  @Column(name = "dc_hostname")
+  private String dcHostname;
 
-    @Column(name = "dc_hostname")
-    private String dcHostname;
+  @Column(name = "dc_port")
+  private Integer dcPort;
 
-    @Column(name = "dc_port")
-    private Integer dcPort;
+  @Column(name = "dc_options")
+  private String dcOptions;
 
-    @Column(name = "dc_options")
-    private String dcOptions;
+  @Column(name = "dc_username")
+  private String dcUsername;
 
-    @Column(name = "dc_username")
-    private String dcUsername;
+  @Column(name = "dc_password")
+  private String dcPassword;
 
-    @Column(name = "dc_password")
-    private String dcPassword;
+  @Lob
+  @Column(name = "dc_url")
+  private String dcUrl;
 
-    @Lob
-    @Column(name = "dc_url")
-    private String dcUrl;
+  @Lob
+  @Column(name = "dc_connecturl")
+  private String dcConnectUrl;
 
-    @Lob
-    @Column(name = "dc_connecturl")
-    private String dcConnectUrl;
+  @Column(name = "dc_authentication_type")
+  private String dcAuthenticationType;
 
-    @Column(name = "dc_authentication_type")
-    private String dcAuthenticationType;
+  @Column(name = "dc_published")
+  private Boolean dcPublished;
 
-    @Column(name = "dc_published")
-    private Boolean dcPublished;
+  @Column(name = "rs_type")
+  @Enumerated(EnumType.STRING)
+  private PrDataset.RS_TYPE rsType;
 
-    @Column(name = "rs_type")
-    @Enumerated(EnumType.STRING)
-    private PrDataset.RS_TYPE rsType;
+  @Size(max = 255)
+  @Column(name = "db_name")
+  private String dbName;
 
-    @Size(max = 255)
-    @Column(name = "db_name")
-    private String dbName;
+  @Size(max = 255)
+  @Column(name = "tbl_name")
+  private String tblName;
 
-    @Size(max = 255)
-    @Column(name = "tbl_name")
-    private String tblName;
+  @Lob
+  @Column(name = "query_stmt")
+  String queryStmt;
 
-    @Lob
-    @Column(name = "query_stmt")
-    String queryStmt;
+  @Size(max = 255)
+  @Column(name = "creator_df_id")
+  private String creatorDfId;
 
-    @Size(max = 255)
-    @Column(name = "creator_df_id")
-    private String creatorDfId;
+  @Size(max = 2000)
+  @Column(name = "creator_df_name")
+  private String creatorDfName;
 
-    @Size(max = 2000)
-    @Column(name = "creator_df_name")
-    private String creatorDfName;
+  @Column(name = "rule_cur_idx")
+  private Integer ruleCurIdx;
 
-    @Column(name = "rule_cur_idx")
-    private Integer ruleCurIdx;
+  @Size(max = 2000)
+  @Column(name = "sheet_name")
+  private String sheetName;
 
-    @Size(max = 2000)
-    @Column(name = "sheet_name")
-    private String sheetName;
+  @Column(name = "file_format")
+  @Enumerated(EnumType.STRING)
+  private PrDataset.FILE_FORMAT fileFormat;
 
-    @Column(name = "file_format")
-    @Enumerated(EnumType.STRING)
-    private PrDataset.FILE_FORMAT fileFormat;
+  @Column(name = "delimiter")
+  private String delimiter;
 
-    @Column(name = "delimiter")
-    private String delimiter;
+  @Column(name = "manual_column_count")
+  private Integer manualColumnCount;
 
-    @Column(name = "manual_column_count")
-    private Integer manualColumnCount;
+  @Lob
+  @Column(name = "custom")
+  private String custom;
 
-    @Lob
-    @Column(name = "custom")
-    private String custom;
-
-    @Transient
-    @JsonProperty
-    DataFrame gridResponse;
+  @Transient
+  @JsonProperty
+  DataFrame gridResponse;
 
     /*
     @Transient
     Map<String,Object> connectionInfo;
     */
 
-    public boolean addDataflow(PrDataflow dataflow) {
-        if(dataflow!=null) {
-            if(this.dataflows==null) {
-                this.dataflows = new ArrayList<PrDataflow>();
-            }
-            for(PrDataflow df : this.dataflows) {
-                if(df.getDfId()==dataflow.getDfId()) {
-                    return false;
-                }
-            }
-            this.dataflows.add(dataflow);
-            return true;
+  public boolean addDataflow(PrDataflow dataflow) {
+    if (dataflow != null) {
+      if (this.dataflows == null) {
+        this.dataflows = new ArrayList<PrDataflow>();
+      }
+      for (PrDataflow df : this.dataflows) {
+        if (df.getDfId() == dataflow.getDfId()) {
+          return false;
         }
-        return false;
+      }
+      this.dataflows.add(dataflow);
+      return true;
     }
+    return false;
+  }
 
-    public void deleteDataflow(PrDataflow dataflow) {
-        if(dataflow!=null && this.dataflows!=null) {
-            this.dataflows.remove(dataflow);
-        }
+  public void deleteDataflow(PrDataflow dataflow) {
+    if (dataflow != null && this.dataflows != null) {
+      this.dataflows.remove(dataflow);
     }
+  }
 
-    public Integer getRefDfCount() {
-        Integer dataflowCount = 0;
-        if(this.dataflows!=null) {
-            dataflowCount = dataflows.size();
-        }
-        return dataflowCount;
+  public Integer getRefDfCount() {
+    Integer dataflowCount = 0;
+    if (this.dataflows != null) {
+      dataflowCount = dataflows.size();
     }
+    return dataflowCount;
+  }
 
-    public String getDsId() {
-        return dsId;
-    }
-
-    public void setDsId(String dsId) {
-        this.dsId = dsId;
-    }
-
-    public String getSerializedPreview() {
-        return serializedPreview;
-    }
-
-    public void setSerializedPreview(String serializedPreview) {
-        this.serializedPreview = serializedPreview;
-    }
-
-    public String getDsName() {
-        return dsName;
-    }
-
-    public void setDsName(String dsName) {
-        this.dsName = dsName;
-    }
-
-    public String getDsDesc() {
-        return dsDesc;
-    }
-
-    public void setDsDesc(String dsDesc) {
-        this.dsDesc = dsDesc;
-    }
-
-    public List<PrDataflow> getDataflows() {
-        return dataflows;
-    }
-
-    public void setDataflows(List<PrDataflow> dataflows) {
-        this.dataflows = dataflows;
-    }
-
-    public DS_TYPE getDsType() {
-        return dsType;
-    }
-
-    public void setDsType(DS_TYPE dsType) {
-        this.dsType = dsType;
-    }
-
-    public IMPORT_TYPE getImportType() {
-        return importType;
-    }
+  public String getDsId() {
+    return dsId;
+  }
 
-    public void setImportType(IMPORT_TYPE importType) {
-        this.importType = importType;
-    }
-
-    public String getStoredUri() {
-        return storedUri;
-    }
-
-    public void setStoredUri(String storedUri) {
-        this.storedUri = storedUri;
-    }
-
-    public String getFilenameBeforeUpload() {
-        return filenameBeforeUpload;
-    }
-
-    public void setFilenameBeforeUpload(String filenameBeforeUpload) {
-        this.filenameBeforeUpload = filenameBeforeUpload;
-    }
-
-    public Long getTotalLines() {
-        return totalLines;
-    }
-
-    public void setTotalLines(Long totalLines) {
-        this.totalLines = totalLines;
-    }
+  public void setDsId(String dsId) {
+    this.dsId = dsId;
+  }
 
-    public Long getTotalBytes() {
-        return totalBytes;
-    }
-
-    public void setTotalBytes(Long totalBytes) {
-        this.totalBytes = totalBytes;
-    }
-
-    public String getDcId() {
-        return dcId;
-    }
-
-    public void setDcId(String dcId) {
-        this.dcId = dcId;
-    }
-
-    public String getDcImplementor() {
-        return dcImplementor;
-    }
-
-    public void setDcImplementor(String dcImplementor) {
-        this.dcImplementor = dcImplementor;
-    }
-
-    public String getDcName() {
-        return dcName;
-    }
+  public String getSerializedPreview() {
+    return serializedPreview;
+  }
 
-    public void setDcName(String dcName) {
-        this.dcName = dcName;
-    }
+  public void setSerializedPreview(String serializedPreview) {
+    this.serializedPreview = serializedPreview;
+  }
 
-    public String getDcDesc() {
-        return dcDesc;
-    }
+  public String getDsName() {
+    return dsName;
+  }
 
-    public void setDcDesc(String dcDesc) {
-        this.dcDesc = dcDesc;
-    }
+  public void setDsName(String dsName) {
+    this.dsName = dsName;
+  }
 
-    public String getDcType() {
-        return dcType;
-    }
+  public String getDsDesc() {
+    return dsDesc;
+  }
 
-    public void setDcType(String dcType) {
-        this.dcType = dcType;
-    }
+  public void setDsDesc(String dsDesc) {
+    this.dsDesc = dsDesc;
+  }
 
-    public String getDcHostname() {
-        return dcHostname;
-    }
+  public List<PrDataflow> getDataflows() {
+    return dataflows;
+  }
 
-    public void setDcHostname(String dcHostname) {
-        this.dcHostname = dcHostname;
-    }
+  public void setDataflows(List<PrDataflow> dataflows) {
+    this.dataflows = dataflows;
+  }
 
-    public Integer getDcPort() {
-        return dcPort;
-    }
+  public DS_TYPE getDsType() {
+    return dsType;
+  }
 
-    public void setDcPort(Integer dcPort) {
-        this.dcPort = dcPort;
-    }
+  public void setDsType(DS_TYPE dsType) {
+    this.dsType = dsType;
+  }
 
-    public String getDcOptions() {
-        return dcOptions;
-    }
+  public IMPORT_TYPE getImportType() {
+    return importType;
+  }
 
-    public void setDcOptions(String dcOptions) {
-        this.dcOptions = dcOptions;
-    }
+  public void setImportType(IMPORT_TYPE importType) {
+    this.importType = importType;
+  }
 
-    public String getDcUsername() {
-        return dcUsername;
-    }
+  public String getStoredUri() {
+    return storedUri;
+  }
 
-    public void setDcUsername(String dcUsername) {
-        this.dcUsername = dcUsername;
-    }
+  public void setStoredUri(String storedUri) {
+    this.storedUri = storedUri;
+  }
 
-    public String getDcPassword() {
-        return dcPassword;
-    }
+  public String getFilenameBeforeUpload() {
+    return filenameBeforeUpload;
+  }
 
-    public void setDcPassword(String dcPassword) {
-        this.dcPassword = dcPassword;
-    }
+  public void setFilenameBeforeUpload(String filenameBeforeUpload) {
+    this.filenameBeforeUpload = filenameBeforeUpload;
+  }
 
-    public String getDcUrl() {
-        return dcUrl;
-    }
+  public Long getTotalLines() {
+    return totalLines;
+  }
 
-    public void setDcUrl(String dcUrl) {
-        this.dcUrl = dcUrl;
-    }
+  public void setTotalLines(Long totalLines) {
+    this.totalLines = totalLines;
+  }
 
-    public String getDcConnectUrl() {
-        return dcConnectUrl;
-    }
+  public Long getTotalBytes() {
+    return totalBytes;
+  }
 
-    public void setDcConnectUrl(String dcConnectUrl) {
-        this.dcConnectUrl = dcConnectUrl;
-    }
+  public void setTotalBytes(Long totalBytes) {
+    this.totalBytes = totalBytes;
+  }
 
-    public String getDcAuthenticationType() {
-        return dcAuthenticationType;
-    }
+  public String getDcId() {
+    return dcId;
+  }
 
-    public void setDcAuthenticationType(String dcAuthenticationType) {
-        this.dcAuthenticationType = dcAuthenticationType;
-    }
+  public void setDcId(String dcId) {
+    this.dcId = dcId;
+  }
 
-    public Boolean getDcPublished() {
-        return dcPublished;
-    }
+  public String getDcImplementor() {
+    return dcImplementor;
+  }
 
-    public void setDcPublished(Boolean dcPublished) {
-        this.dcPublished = dcPublished;
-    }
+  public void setDcImplementor(String dcImplementor) {
+    this.dcImplementor = dcImplementor;
+  }
 
-    public RS_TYPE getRsType() {
-        return rsType;
-    }
+  public String getDcName() {
+    return dcName;
+  }
 
-    public void setRsType(RS_TYPE rsType) {
-        this.rsType = rsType;
-    }
+  public void setDcName(String dcName) {
+    this.dcName = dcName;
+  }
 
-    public String getDbName() {
-        return dbName;
-    }
+  public String getDcDesc() {
+    return dcDesc;
+  }
 
-    public void setDbName(String dbName) {
-        this.dbName = dbName;
-    }
+  public void setDcDesc(String dcDesc) {
+    this.dcDesc = dcDesc;
+  }
 
-    public String getTblName() {
-        return tblName;
-    }
+  public String getDcType() {
+    return dcType;
+  }
 
-    public void setTblName(String tblName) {
-        this.tblName = tblName;
-    }
+  public void setDcType(String dcType) {
+    this.dcType = dcType;
+  }
 
-    public String getQueryStmt() {
-        return queryStmt;
-    }
+  public String getDcHostname() {
+    return dcHostname;
+  }
 
-    public void setQueryStmt(String queryStmt) {
-        this.queryStmt = queryStmt;
-    }
+  public void setDcHostname(String dcHostname) {
+    this.dcHostname = dcHostname;
+  }
 
-    // WARNING: You should call prepareTransformRules() before call this. Or you'll get NULL jsonRuleStrings or shortRuleStrings.
-    public List<PrTransformRule> getTransformRules() {
-        return transformRules;
-    }
+  public Integer getDcPort() {
+    return dcPort;
+  }
 
-    public void setTransformRules(List<PrTransformRule> transformRules) {
-        this.transformRules = transformRules;
-    }
+  public void setDcPort(Integer dcPort) {
+    this.dcPort = dcPort;
+  }
 
-    public String getCreatorDfId() {
-        return creatorDfId;
-    }
+  public String getDcOptions() {
+    return dcOptions;
+  }
 
-    public void setCreatorDfId(String creatorDfId) {
-        this.creatorDfId = creatorDfId;
-    }
+  public void setDcOptions(String dcOptions) {
+    this.dcOptions = dcOptions;
+  }
 
-    public String getCreatorDfName() {
-        return creatorDfName;
-    }
+  public String getDcUsername() {
+    return dcUsername;
+  }
 
-    public void setCreatorDfName(String creatorDfName) {
-        this.creatorDfName = creatorDfName;
-    }
+  public void setDcUsername(String dcUsername) {
+    this.dcUsername = dcUsername;
+  }
 
-    public Integer getRuleCurIdx() {
-        return ruleCurIdx;
-    }
+  public String getDcPassword() {
+    return dcPassword;
+  }
 
-    public void setRuleCurIdx(Integer ruleCurIdx) {
-        this.ruleCurIdx = ruleCurIdx;
-    }
+  public void setDcPassword(String dcPassword) {
+    this.dcPassword = dcPassword;
+  }
 
-    public String getSheetName() {
-        return sheetName;
-    }
+  public String getDcUrl() {
+    return dcUrl;
+  }
 
-    public void setSheetName(String sheetName) {
-        this.sheetName = sheetName;
-    }
+  public void setDcUrl(String dcUrl) {
+    this.dcUrl = dcUrl;
+  }
 
-    public FILE_FORMAT getFileFormat() {
-        return fileFormat;
-    }
+  public String getDcConnectUrl() {
+    return dcConnectUrl;
+  }
 
-    public void setFileFormat(FILE_FORMAT fileFormat) {
-        this.fileFormat = fileFormat;
-    }
+  public void setDcConnectUrl(String dcConnectUrl) {
+    this.dcConnectUrl = dcConnectUrl;
+  }
 
-    public String getDelimiter() {
-        return delimiter;
-    }
+  public String getDcAuthenticationType() {
+    return dcAuthenticationType;
+  }
 
-    public void setDelimiter(String delimiter) {
-        this.delimiter = delimiter;
-    }
+  public void setDcAuthenticationType(String dcAuthenticationType) {
+    this.dcAuthenticationType = dcAuthenticationType;
+  }
 
-    public Integer getManualColumnCount() {
-        return manualColumnCount;
-    }
+  public Boolean getDcPublished() {
+    return dcPublished;
+  }
 
-    public void setManualColumnCount(Integer manualColumnCount) {
-        this.manualColumnCount = manualColumnCount;
-    }
+  public void setDcPublished(Boolean dcPublished) {
+    this.dcPublished = dcPublished;
+  }
 
-    public String getCustom() {
-        return custom;
-    }
+  public RS_TYPE getRsType() {
+    return rsType;
+  }
 
-    public void setCustom(String custom) {
-        this.custom = custom;
-    }
+  public void setRsType(RS_TYPE rsType) {
+    this.rsType = rsType;
+  }
 
-    public DataFrame getGridResponse() {
-        return gridResponse;
-    }
+  public String getDbName() {
+    return dbName;
+  }
 
-    public void setGridResponse(DataFrame gridResponse) {
-        this.gridResponse = gridResponse;
-    }
+  public void setDbName(String dbName) {
+    this.dbName = dbName;
+  }
+
+  public String getTblName() {
+    return tblName;
+  }
+
+  public void setTblName(String tblName) {
+    this.tblName = tblName;
+  }
+
+  public String getQueryStmt() {
+    return queryStmt;
+  }
+
+  public void setQueryStmt(String queryStmt) {
+    this.queryStmt = queryStmt;
+  }
+
+  // WARNING: You should call prepareTransformRules() before call this. Or you'll get NULL jsonRuleStrings or shortRuleStrings.
+  public List<PrTransformRule> getTransformRules() {
+    return transformRules;
+  }
+
+  public void setTransformRules(List<PrTransformRule> transformRules) {
+    this.transformRules = transformRules;
+  }
+
+  public String getCreatorDfId() {
+    return creatorDfId;
+  }
+
+  public void setCreatorDfId(String creatorDfId) {
+    this.creatorDfId = creatorDfId;
+  }
+
+  public String getCreatorDfName() {
+    return creatorDfName;
+  }
+
+  public void setCreatorDfName(String creatorDfName) {
+    this.creatorDfName = creatorDfName;
+  }
+
+  public Integer getRuleCurIdx() {
+    return ruleCurIdx;
+  }
+
+  public void setRuleCurIdx(Integer ruleCurIdx) {
+    this.ruleCurIdx = ruleCurIdx;
+  }
+
+  public String getSheetName() {
+    return sheetName;
+  }
+
+  public void setSheetName(String sheetName) {
+    this.sheetName = sheetName;
+  }
+
+  public FILE_FORMAT getFileFormat() {
+    return fileFormat;
+  }
+
+  public void setFileFormat(FILE_FORMAT fileFormat) {
+    this.fileFormat = fileFormat;
+  }
+
+  public String getDelimiter() {
+    return delimiter;
+  }
+
+  public void setDelimiter(String delimiter) {
+    this.delimiter = delimiter;
+  }
+
+  public Integer getManualColumnCount() {
+    return manualColumnCount;
+  }
+
+  public void setManualColumnCount(Integer manualColumnCount) {
+    this.manualColumnCount = manualColumnCount;
+  }
+
+  public String getCustom() {
+    return custom;
+  }
+
+  public void setCustom(String custom) {
+    this.custom = custom;
+  }
+
+  public DataFrame getGridResponse() {
+    return gridResponse;
+  }
+
+  public void setGridResponse(DataFrame gridResponse) {
+    this.gridResponse = gridResponse;
+  }
 
     /*
     public Map<String, Object> getConnectionInfo() {
@@ -600,7 +615,7 @@ public class PrDataset extends AbstractHistoryEntity {
     }
     */
 
-    // Temporary functions for backward compatibility
+  // Temporary functions for backward compatibility
     /*
     public STORAGE_TYPE getStorageType() {
         String lowerStoredUri = getStoredUri();

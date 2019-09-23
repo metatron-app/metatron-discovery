@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class WorksOnlyOnStringException extends TeddyException {
+
   public WorksOnlyOnStringException(String message) {
     super(message);
   }

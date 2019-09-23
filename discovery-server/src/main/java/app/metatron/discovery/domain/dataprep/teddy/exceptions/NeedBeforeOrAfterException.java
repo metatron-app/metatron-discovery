@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class NeedBeforeOrAfterException extends TeddyException {
+
   public NeedBeforeOrAfterException(String message) {
     super(message);
   }

@@ -27,6 +27,12 @@ import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.Union;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,15 +40,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
 @Service
 public class DataFrameService {
+
   private static Logger LOGGER = LoggerFactory.getLogger(DataFrame.class);
 
   @Autowired
@@ -84,9 +84,9 @@ public class DataFrameService {
     }
   }
 
-  public DataFrame applyRuleInternal(DataFrame df, String ruleString, List<DataFrame> slaveDfs, Integer cores, Integer timeout, Integer limitRows) throws TeddyException {
+  public DataFrame applyRuleInternal(DataFrame df, String ruleString, List<DataFrame> slaveDfs, Integer cores,
+          Integer timeout, Integer limitRows) throws TeddyException {
     LOGGER.trace("applyRule(): start");
-
 
     List<Future<List<Row>>> futures = new ArrayList<>();
     Rule rule = new RuleVisitorParser().parse(ruleString);
@@ -123,23 +123,19 @@ public class DataFrameService {
           assert rows == null : ruleString;
         }
       }
-    }
-    catch (ExecutionException e) {
+    } catch (ExecutionException e) {
       String msg = "applyRule(): transform execution failed";
       LOGGER.error(msg, e);
       throw new TransformExecutionFailedException(msg);
-    }
-    catch (InterruptedException e) {
+    } catch (InterruptedException e) {
       String msg = "applyRule(): transform execution interrupted";
       LOGGER.error(msg, e);
       throw new TransformExecutionInterrupteddException(msg);
-    }
-    catch (TimeoutException e) {
+    } catch (TimeoutException e) {
       String msg = String.format("applyRule(): transform timeout: timeout=%ds", timeout);
       LOGGER.error(msg, e);
       throw new TransformTimeoutException(msg);
-    }
-    catch (TeddyException e) {
+    } catch (TeddyException e) {
       LOGGER.error("applyRule(): teddy error occurred.", e);
       throw e;
     }
@@ -158,7 +154,7 @@ public class DataFrameService {
 
   @Async("prepThreadPoolTaskExecutor")
   public Future<List<Row>> gatherAsync(DataFrame prevDf, DataFrame newDf, List<Object> preparedArgs,
-                                       int offset, int length, int limit) throws TeddyException, InterruptedException {
+          int offset, int length, int limit) throws TeddyException, InterruptedException {
     return new AsyncResult<>(newDf.gather(prevDf, preparedArgs, offset, length, limit));
   }
 }
