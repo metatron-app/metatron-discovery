@@ -9011,7 +9011,7 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
 .ddp-detail-view.ddp-right:before {display:block; position:absolute; left:476px; bottom:0; top:0; border-left:1px solid #e5e7f0;; content:'';}
 .ddp-detail ul.ddp-list-user {overflow:hidden; margin:-3px -3px;}
 .ddp-detail ul.ddp-list-user li {float:left; padding:3px 3px; width:33.3333%; box-sizing:border-box;}
-.ddp-detail ul.ddp-list-user li .ddp-box-user {display:block; overflow:hidden; background-color:rgba(236, 238, 246, 0.3); cursor:default;}
+.ddp-detail ul.ddp-list-user li .ddp-box-user {display:block; padding-right:10px; overflow:hidden; background-color:rgba(236, 238, 246, 0.3); cursor:default;}
 /*.ddp-detail ul.ddp-list-user li .ddp-box-user:hover {background-color:#eceef6;}*/
 .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-data-photo {position:relative; width:50px; height:50px; float:left; margin:22px 10px 22px 13px;border-radius:50%; overflow:hidden;}
 .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-data-photo:before {display:inline-block; width:50px; height:50px; position:absolute; top:0; left:0;background:url(../images/img_profile.png) no-repeat; background-position:left -82px; content:'';}
@@ -9021,12 +9021,12 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
 .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-name {display:inline-block; padding:20px 0 0 0; max-width:100%; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-name span.ddp-txt-name {display:block; color:#4e5368; font-size:14px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
 .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-name .ddp-icon-control-fav {position:relative; top:-2px;}
-.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info {position:relative;display:inline-block; padding:4px 0 0 0; color:#4e5368; font-size:12px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
-.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info .ddp-txt-info.type-link {cursor:pointer;}
-.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info .ddp-txt-info.type-link em.ddp-link-new  {display:none; position:relative; top:2px; float:right; width:14px; height:12px; margin-left:2px; background:url(../images/icon_window.png) no-repeat; background-position:left -24px; content:'';}
-.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info .ddp-txt-info.type-link:hover {text-decoration:underline;}
-.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info .ddp-txt-info.type-link:hover em.ddp-link-new {display:inline-block;}
-.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-date {padding:2px 0 0 0; color:#90969f; font-size:12px;}
+.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info {position:relative; display:inline-block; max-width:100%;padding:4px 0 0 0; color:#4e5368; font-size:12px;}
+.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info.type-link {cursor:pointer;}
+.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info.type-link:hover {text-decoration:underline;}
+.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info.type-link .ddp-txt-info {display:block; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
+.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info em.ddp-link-new  {display:none; position:relative; top:2px; float:right; width:14px; height:12px; margin-left:2px; background:url(../images/icon_window.png) no-repeat; background-position:left -24px; content:'';}
+.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info.type-link:hover em.ddp-link-new {display:inline-block;}
 
 table.ddp-table-detail4 {table-layout:fixed; border:1px solid #cdd0e2;}
 table.ddp-table-detail4 tr th {padding:7px 15px 7px 15px; text-align:left; color:#666eb2; font-weight:normal; border-bottom:1px solid #e5e6f0; background-color:#eceef7;}

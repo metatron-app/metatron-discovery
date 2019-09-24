@@ -8,14 +8,15 @@
 <!--      <em class="ddp-icon-control-fav"></em>-->
     </div>
     <div>
-      <div class="ddp-data-info" (click)="onClickDashBoardName(topUser.hasPermission)">
-        <!--   if user doesn't have permission, hide jumping button and underline 'type-link' class     -->
+      <div class="ddp-data-info type-link" (click)="onClickDashBoardName(topUser.hasPermission)">
         <span class="ddp-txt-info" [class.type-link]="topUser.hasPermission">
-          {{ topUser['dashboard']['workBook']
+          <em class="ddp-link-new" ></em>
+          <span class="ddp-txt-info">
+            {{ topUser['dashboard']['workBook']
             ? topUser['dashboard']['workBook']['name'] + " > " + topUser['dashboard']['name']
             : topUser['dashboard']['name']
-          }}
-          <em class="ddp-link-new" ></em>
+            }}
+          </span>
         </span>
       </div>
     </div>
