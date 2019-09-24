@@ -18,12 +18,19 @@ import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.PrepDatasetStagingDbService;
 import app.metatron.discovery.domain.dataprep.PrepProperties;
 import app.metatron.discovery.domain.dataprep.PrepUtil;
+import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
+import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.json.PrepJsonParseResult;
+import app.metatron.discovery.domain.dataprep.json.PrepJsonUtil;
 import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
 import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
+import app.metatron.discovery.domain.dataprep.teddy.ColumnDescription;
+import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import java.io.File;
@@ -33,6 +40,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
@@ -67,6 +75,9 @@ public class PrSnapshotService {
 
   @Autowired
   PrepProperties prepProperties;
+
+  @Autowired(required = false)
+  private PrepDatasetStagingDbService datasetStagingDbPreviewService;
 
   public String makeSnapshotName(String dsName, DateTime launchTime) {
     String ssName;
@@ -452,4 +463,112 @@ public class PrSnapshotService {
       }
     }
   }
+
+  private void setColumnInfo(DataFrame gridResponse, String custom) {
+    try {
+      Map<String, Object> customMap = GlobalObjectMapper.getDefaultMapper().readValue(custom, HashMap.class);
+
+      List<Object> colDescs = (List<Object>) customMap.get("colDescs");
+      for (int i = 0; i < colDescs.size(); i++) {
+        Map<String, Object> map = (Map<String, Object>) colDescs.get(i);
+        ColumnType type = ColumnType.valueOf((String) map.get("type"));
+        String timestampStyle = (String) map.get("timestampStyle");
+
+        ColumnDescription colDesc = new ColumnDescription(type, timestampStyle);
+        gridResponse.setColDesc(i, colDesc);
+      }
+    } catch (Exception e) {
+      // suppress (best effort)
+    }
+  }
+
+  public Map<String, Object> getContents(String ssId, Integer offset, Integer target) {
+    Map<String, Object> responseMap = new HashMap<String, Object>();
+    try {
+      PrSnapshot snapshot = this.snapshotRepository.findOne(ssId);
+      if (snapshot != null) {
+        DataFrame gridResponse = new DataFrame();
+
+        PrSnapshot.SS_TYPE ss_type = snapshot.getSsType();
+        if (PrSnapshot.SS_TYPE.URI == ss_type) {
+          String storedUri = snapshot.getStoredUri();
+
+          String snapshotDisplayUri = snapshot.getStoredUri();
+          if (null == snapshotDisplayUri) {
+            String errorMsg = "[" + ssId + "] isn't a saved snapshot.";
+            throw PrepException
+                    .create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_SNAPSHOT_NOT_SAVED,
+                            errorMsg);
+          }
+
+          // We generated JSON snapshots to have ".json" at the end of the URI.
+          Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
+          if (storedUri.endsWith(".json")) {
+            PrepJsonParseResult result = PrepJsonUtil
+                    .parseJson(snapshot.getStoredUri(), 10000, null, hadoopConf);
+            gridResponse.setByGridWithJson(result);
+          } else {
+            PrepCsvParseResult result = PrepCsvUtil
+                    .parse(snapshot.getStoredUri(), ",", 10000, null, hadoopConf, true);
+            gridResponse.setByGrid(result);
+          }
+
+          String custom = snapshot.getCustom();
+          setColumnInfo(gridResponse, custom);
+
+          responseMap.put("offset", gridResponse.rows.size());
+          responseMap.put("size", gridResponse.rows.size());
+          responseMap.put("gridResponse", gridResponse);
+        } else if (PrSnapshot.SS_TYPE.STAGING_DB == ss_type) {
+          String dbName = snapshot.getDbName();
+          String tblName = snapshot.getTblName();
+          String sql = "SELECT * FROM " + dbName + "." + tblName;
+          Integer size = offset + target;
+          gridResponse = datasetStagingDbPreviewService
+                  .getPreviewStagedbForDataFrame(sql, dbName, tblName, String.valueOf(size));
+          if (null == gridResponse) {
+            gridResponse = new DataFrame();
+          } else {
+            int rowSize = gridResponse.rows.size();
+            int lastIdx = offset + target - 1;
+            if (0 <= lastIdx && offset < rowSize) {
+              if (rowSize <= lastIdx) {
+                lastIdx = rowSize;
+              }
+              gridResponse.rows = gridResponse.rows.subList(offset, lastIdx);
+            } else {
+              gridResponse.rows.clear();
+            }
+          }
+          Integer gridRowSize = gridResponse.rows.size();
+          responseMap.put("offset", offset + gridRowSize);
+          responseMap.put("size", gridRowSize);
+          responseMap.put("gridResponse", gridResponse);
+        }
+
+        // We put the info below as attributes of the entity
+        //                Map<String,Object> originDs = Maps.newHashMap();
+        //                String dsName = snapshot.getOrigDsInfo("dsName");
+        //                String queryStmt = snapshot.getOrigDsInfo("queryStmt");
+        //                String filePath = snapshot.getOrigDsInfo("filePath");
+        //                String createdTime = snapshot.getOrigDsInfo("createdTime");
+        //                originDs.put("dsName",dsName);
+        //                originDs.put("qryStmt",queryStmt);
+        //                originDs.put("filePath",filePath);
+        //                originDs.put("createdTime",createdTime);
+        //                responseMap.put("originDsInfo", originDs);
+      } else {
+        String errorMsg = "snapshot[" + ssId + "] does not exist";
+        throw PrepException
+                .create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_SNAPSHOT, errorMsg);
+      }
+    } catch (Exception e) {
+      LOGGER.error("getContents(): caught an exception: ", e);
+      throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, e);
+    }
+
+    return responseMap;
+  }
 }
+
+
