@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.dataprep;
 
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes.PREP_DATASET_ERROR_CODE;
+
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
@@ -65,12 +67,12 @@ public class PrepUtil {
 
     if (!existsLocal(coreSite)) {
       throw PrepException
-              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_CORE_SITE_NOT_FOUND,
+              .create(PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_CORE_SITE_NOT_FOUND,
                       coreSite);
     }
     if (!existsLocal(hdfsSite)) {
       throw PrepException
-              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_HDFS_SITE_NOT_FOUND,
+              .create(PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_HDFS_SITE_NOT_FOUND,
                       hdfsSite);
     }
 
@@ -83,5 +85,13 @@ public class PrepUtil {
 
   public static String getFileNameFromStrUri(String strUri) {
     return strUri.substring(strUri.lastIndexOf('/') + 1, strUri.length());
+  }
+
+  public static PrepException datasetError(PrepMessageKey msgKey, String detail) {
+    return PrepException.create(PREP_DATASET_ERROR_CODE, msgKey, detail);
+  }
+
+  public static PrepException datasetError(Exception e) {
+    return PrepException.create(PREP_DATASET_ERROR_CODE, e);
   }
 }

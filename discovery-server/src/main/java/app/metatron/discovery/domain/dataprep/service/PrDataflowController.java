@@ -107,8 +107,8 @@ public class PrDataflowController {
           @RequestBody Resource<PrDataflow> dataflowResource,
           PersistentEntityResourceAssembler resourceAssembler
   ) {
-    PrDataflow dataflow = null;
-    PrDataflow savedDataflow = null;
+    PrDataflow dataflow;
+    PrDataflow savedDataflow;
 
     try {
       dataflow = dataflowResource.getContent();
@@ -135,10 +135,10 @@ public class PrDataflowController {
           PersistentEntityResourceAssembler persistentEntityResourceAssembler
   ) {
 
-    PrDataflow dataflow = null;
-    PrDataflow patchDataflow = null;
-    PrDataflow savedDataflow = null;
-    Resource<PrDataflowProjections.DefaultProjection> projectedDataflow = null;
+    PrDataflow dataflow;
+    PrDataflow patchDataflow;
+    PrDataflow savedDataflow;
+    Resource<PrDataflowProjections.DefaultProjection> projectedDataflow;
 
     try {
       dataflow = this.dataflowRepository.findOne(dfId);
@@ -284,7 +284,6 @@ public class PrDataflowController {
             String dsId = dataset.getDsId();
 
             if (dataset.getDsType() == PrDataset.DS_TYPE.WRANGLED) {
-              boolean forUpdateBoolean = forUpdate.equalsIgnoreCase("true") ? true : false;
               List<String> upstreamDsIds = this.transformService.getUpstreamDsIds(dataset.getDsId());
               if (null != upstreamDsIds) {
                 for (String upstreamDsId : upstreamDsIds) {
