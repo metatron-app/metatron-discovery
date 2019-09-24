@@ -41,9 +41,11 @@ export class CommonUtil {
    * 시작 페이지로 이동
    * @param {Router} router
    */
-  public static moveToStartPage(router?: Router) {
+  public static moveToStartPage(router?: Router, url?: string) {
     if (CommonUtil.isSamlSSO()) {
       location.href = '/saml/login?idp=' + environment['samlUrl'];
+    } else if(url && url.length > 0) {
+      location.href = url
     } else {
       (router) && (router.navigate(['/user/login']).then());
     }
