@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.dataprep;
 
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes.PREP_DATASET_ERROR_CODE;
 
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
@@ -93,5 +94,9 @@ public class PrepUtil {
 
   public static PrepException datasetError(Exception e) {
     return PrepException.create(PREP_DATASET_ERROR_CODE, e);
+  }
+
+  public static PrepException dataflowError(Exception e) {
+    return PrepException.create(PREP_DATAFLOW_ERROR_CODE, e);
   }
 }

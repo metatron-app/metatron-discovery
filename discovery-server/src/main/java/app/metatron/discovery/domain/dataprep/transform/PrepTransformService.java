@@ -236,10 +236,8 @@ public class PrepTransformService {
   public PrepTransformService() {
   }
 
-  // skips the last rule for UPDATE purpose
-  public List<String> getUpstreamDsIds(String dsId, boolean forUpdate)
-          throws IOException, CannotSerializeIntoJsonException {
-    List<String> upstreamDsIds = new ArrayList<>();
+  public List<String> getUpstreamDsIds(String dsId) throws CannotSerializeIntoJsonException, JsonProcessingException {
+    List<String> upstreamDsIds = new ArrayList();
 
     String firstUpstreamDsId = getFirstUpstreamDsId(dsId);
     if (firstUpstreamDsId == null) {  // then, this is not a wrangled dataset
@@ -249,20 +247,41 @@ public class PrepTransformService {
 
     List<PrTransformRule> rules = getRulesInOrder(dsId);
 
-    int until = forUpdate ? rules.size() - 1 : rules.size();
-
-    prepareTransformRules(dsId);
-
-    for (int i = 0; i < until; i++) {
+    for (int i = 0; i < rules.size(); i++) {
       PrTransformRule rule = rules.get(i);
       upstreamDsIds.addAll(transformRuleService.getUpstreamDsIds(rule.getRuleString()));
     }
     return upstreamDsIds;
   }
 
-  public List<String> getUpstreamDsIds(String dsId)
-          throws IOException, CannotSerializeIntoJsonException {
-    return getUpstreamDsIds(dsId, false);
+  public void addDownstreamDsId(List<String> deleteDsIds, String dsId, boolean acceptImported)
+          throws CannotSerializeIntoJsonException, JsonProcessingException {
+    // If already exists, just skip.
+    if (deleteDsIds.contains(dsId)) {
+      return;
+    }
+
+    // If I.DS is not wanted, skip.
+    if (acceptImported || datasetRepository.findOne(dsId).getDsType() == WRANGLED) {
+      deleteDsIds.add(dsId);
+    }
+
+    for (String downstreamDsId : getDownstreamDsIds(dsId)) {
+      addDownstreamDsId(deleteDsIds, downstreamDsId, true);
+    }
+  }
+
+  public List<String> getDownstreamDsIds(String dsId) throws CannotSerializeIntoJsonException, JsonProcessingException {
+    List<String> downstreamDsIds = new ArrayList();
+
+    for (PrDataset dataset : datasetRepository.findAll()) {
+      List<String> upstreamDsIds = getUpstreamDsIds(dataset.getDsId());
+      if (upstreamDsIds.contains(dsId)) {
+        downstreamDsIds.add(dataset.getDsId());
+      }
+    }
+
+    return downstreamDsIds;
   }
 
   // create stage0 (POST)
@@ -462,10 +481,8 @@ public class PrepTransformService {
     gridResponse = createStage0(dsId, upstreamDataset);
     teddyImpl.reset(dsId);
 
-    List<String> ruleStrings = new ArrayList<>();
-    List<String> jsonRuleStrings = new ArrayList<>();
-    ArrayList<String> totalTargetDsIds = new ArrayList<>();           // What is this for?
-    ArrayList<PrDataset> totalTargetDatasets = new ArrayList<>();     // What is this for?
+    List<String> ruleStrings = new ArrayList();
+    List<String> jsonRuleStrings = new ArrayList();
 
     prepareTransformRules(dsId);
 
@@ -481,10 +498,8 @@ public class PrepTransformService {
 
       for (String upstreamDsId : upstreamDsIds) {
         loadWrangledDataset(upstreamDsId);
-        totalTargetDsIds.add(upstreamDsId);
 
         PrDataset targetDataset = datasetRepository.findRealOne(datasetRepository.findOne(upstreamDsId));
-        totalTargetDatasets.add(targetDataset);
       }
     }
 
@@ -956,21 +971,17 @@ public class PrepTransformService {
     }
   }
 
-  // FIXME: What is this functions for?
-  private void prepareTransformRules(String dsId)
-          throws CannotSerializeIntoJsonException, JsonProcessingException {
+  // Parse the rule string into short version to display in the rule list panel.
+  // Server-side do not use jsonRuleString field of TransformRule class.
+  // It's used by client-side to store something tied up to the rule.
+  private void prepareTransformRules(String dsId) throws CannotSerializeIntoJsonException, JsonProcessingException {
     PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
     List<PrTransformRule> transformRules = dataset.getTransformRules();
 
     if (transformRules != null && transformRules.size() > 0) {
       for (PrTransformRule transformRule : transformRules) {
-        if (transformRule.getJsonRuleString() == null) {
-          String jsonRuleString = transformRule.getJsonRuleString();
-          transformRule.setJsonRuleString(jsonRuleString);
-        }
         if (transformRule.getShortRuleString() == null) {
-          String shortRuleString = transformRuleService
-                  .shortenRuleString(transformRule.getRuleString());
+          String shortRuleString = transformRuleService.shortenRuleString(transformRule.getRuleString());
           transformRule.setShortRuleString(shortRuleString);
         }
       }

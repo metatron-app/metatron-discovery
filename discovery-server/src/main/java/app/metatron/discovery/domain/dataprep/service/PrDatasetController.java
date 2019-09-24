@@ -267,63 +267,20 @@ public class PrDatasetController {
   ) {
 
     List<String> deleteDsIds = Lists.newArrayList();
+
     try {
-      List<String> upstreamDsIds = Lists.newArrayList();
-      List<PrepUpstream> upstreams = Lists.newArrayList();
+      transformService.addDownstreamDsId(deleteDsIds, dsId, true);
 
-      PrDataset dataset = getDatasetEntity(dsId);
-      upstreamDsIds.add(dsId);
-
-      // Gather all upstream DS of the target DS.
-      List<PrDataflow> dataflows = getDataflowsNonNull(dataset);
-      for (PrDataflow dataflow : dataflows) {
-        if (dataflow == null) {
-          continue;
-        }
-
-        List<PrDataset> datasets = getDatasetsNonNull(dataflow);
-        for (PrDataset ds : datasets) {
-          String dId = ds.getDsId();
-          List<String> uIds = this.transformService.getUpstreamDsIds(ds.getDsId(), false);
-          for (String uDsId : uIds) {
-            PrepUpstream upstream = new PrepUpstream();
-            upstream.setDfId(dataflow.getDfId());
-            upstream.setDsId(dId);
-            upstream.setUpstreamDsId(uDsId);
-            upstreams.add(upstream);
-          }
-        }
-      }
-
-      // ??
-      while (0 < upstreamDsIds.size()) {
-        List<String> downDsIds = Lists.newArrayList();
-        for (PrepUpstream upstream : upstreams) {
-          String uDsId = upstream.getUpstreamDsId();
-          if (true == upstreamDsIds.contains(uDsId)) {
-            downDsIds.add(upstream.getDsId());
-          }
-        }
-        for (String uDsId : upstreamDsIds) {
-          if (false == deleteDsIds.contains(uDsId)) {
-            deleteDsIds.add(uDsId);
-          }
-        }
-        upstreamDsIds.clear();
-        upstreamDsIds.addAll(downDsIds);
-      }
-
-      // ??
       for (String deleteDsId : deleteDsIds) {
-        PrDataset delDs = this.datasetRepository.findOne(deleteDsId);
-        if (delDs != null) {
-          List<PrDataflow> dfs = delDs.getDataflows();
-          if (null != dfs) {
-            for (PrDataflow df : dfs) {
-              df.deleteDataset(delDs);
+        PrDataset dataset = datasetRepository.findOne(deleteDsId);
+        if (dataset != null) {
+          List<PrDataflow> dataflows = dataset.getDataflows();
+          if (dataflows != null) {
+            for (PrDataflow dataflow : dataflows) {
+              dataflow.deleteDataset(dataset);
             }
           }
-          this.datasetRepository.delete(delDs);
+          datasetRepository.delete(dataset);
         }
       }
     } catch (Exception e) {
@@ -346,8 +303,8 @@ public class PrDatasetController {
           @RequestParam(value = "autoTyping", required = false, defaultValue = "true") String autoTyping) {
     Map<String, Object> response;
     try {
-      this.datasetFileService.checkStoredUri(storedUri);
-      response = this.datasetFileService
+      datasetFileService.checkStoredUri(storedUri);
+      response = datasetFileService
               .makeFileGrid(storedUri, size, delimiterCol, manualColumnCount, Boolean.parseBoolean(autoTyping));
     } catch (Exception e) {
       LOGGER.error("fileGrid(): caught an exception: ", e);
@@ -365,7 +322,7 @@ public class PrDatasetController {
       response = Maps.newHashMap();
 
       PrUploadFile uploadFile = new PrUploadFile();
-      uploadFile = this.uploadFileRepository.save(uploadFile);
+      uploadFile = uploadFileRepository.save(uploadFile);
 
       String upload_id = uploadFile.getUploadId();
       response.put("upload_id", upload_id);
@@ -409,7 +366,7 @@ public class PrDatasetController {
     Map<String, Object> response;
     try {
       String uploadId = upload_id;
-      PrUploadFile uploadFile = this.uploadFileRepository.findOne(upload_id);
+      PrUploadFile uploadFile = uploadFileRepository.findOne(upload_id);
       if (uploadFile == null) {
         throw datasetError(MSG_DP_ALERT_FILE_KEY_MISSING, uploadId + " is not a valid file key");
       }
@@ -434,20 +391,20 @@ public class PrDatasetController {
       Integer chunkIdx = Integer.valueOf(chunk);
       Long chunkSize = Long.valueOf(chunk_size);
 
-      String storedUri = this.datasetFileService.getStoredUri(uploadFile);
+      String storedUri = datasetFileService.getStoredUri(uploadFile);
       uploadFile.setFileUri(storedUri);
-      String localUri = this.datasetFileService.getPathLocalBase(uploadFile.getFilename());
+      String localUri = datasetFileService.getPathLocalBase(uploadFile.getFilename());
       uploadFile.setLocalUri(localUri);
 
-      response = this.datasetFileService.uploadFileChunk(uploadFile, chunkIdx, chunkSize, file);
+      response = datasetFileService.uploadFileChunk(uploadFile, chunkIdx, chunkSize, file);
 
-      this.uploadFileRepository.saveAndFlush(uploadFile);
+      uploadFileRepository.saveAndFlush(uploadFile);
 
       if (uploadFile.getRestChunk() == 0) {
         if (uploadFile.getStorageType() == PrUploadFile.STORAGE_TYPE.LOCAL) {
           // just ok.
         } else if (uploadFile.getStorageType() == PrUploadFile.STORAGE_TYPE.HDFS) {
-          this.datasetFileService.copyLocalToStaging(uploadFile);
+          datasetFileService.copyLocalToStaging(uploadFile);
         } else if (uploadFile.getStorageType() == PrUploadFile.STORAGE_TYPE.S3) {
           // not implemented yet
         } else {
@@ -495,7 +452,7 @@ public class PrDatasetController {
   }
 
   private PrDataset getDatasetEntity(String dsId) {
-    PrDataset dataset = this.datasetRepository.findOne(dsId);
+    PrDataset dataset = datasetRepository.findOne(dsId);
     if (dataset == null) {
       throw datasetError(MSG_DP_ALERT_NO_DATASET, dsId);
     }

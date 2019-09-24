@@ -14,12 +14,15 @@
 
 package app.metatron.discovery.domain.dataprep.service;
 
+import static app.metatron.discovery.domain.dataprep.PrepUtil.dataflowError;
+
 import app.metatron.discovery.domain.dataprep.PrepParamDatasetIdList;
 import app.metatron.discovery.domain.dataprep.PrepSwapRequest;
 import app.metatron.discovery.domain.dataprep.PrepUpstream;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflowProjections;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE;
 import app.metatron.discovery.domain.dataprep.entity.PrTransformRule;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
@@ -205,63 +208,36 @@ public class PrDataflowController {
   ) {
 
     List<String> deleteDsIds = Lists.newArrayList();
-    try {
-      List<String> upstreamDsIds = Lists.newArrayList();
-      List<PrepUpstream> upstreams = Lists.newArrayList();
-      upstreamDsIds.add(dsId);
 
-      PrDataflow dataflow = this.dataflowRepository.findOne(dfId);
-      if (null != dataflow) {
-        List<PrDataset> datasets = dataflow.getDatasets();
-        if (null != datasets) {
-          for (PrDataset ds : datasets) {
-            String dId = ds.getDsId();
-            List<String> uIds = this.transformService.getUpstreamDsIds(ds.getDsId());
-            for (String uDsId : uIds) {
-              PrepUpstream upstream = new PrepUpstream();
-              upstream.setDfId(dataflow.getDfId());
-              upstream.setDsId(dId);
-              upstream.setUpstreamDsId(uDsId);
-              upstreams.add(upstream);
-            }
-          }
-        }
+    try {
+      // We need to delete every downstream no matter what the dataflow it's in.
+      // The only difference from dataset's deleteChain() is that,
+      // in this case, we just remove the relation between I.DS and dataflow. (cf. dataset's deletes the dataset entity)
+
+      PrDataset targetDs = datasetRepository.findOne(dsId);
+      if (targetDs.getDsType() == DS_TYPE.IMPORTED) {
+        PrDataflow dataflow = dataflowRepository.findOne(dfId);
+        dataflow.deleteDataset(targetDs);
+        dataflowRepository.save(dataflow);
       }
-      while (0 < upstreamDsIds.size()) {
-        List<String> downDsIds = Lists.newArrayList();
-        for (PrepUpstream upstream : upstreams) {
-          String uDsId = upstream.getUpstreamDsId();
-          if (true == upstreamDsIds.contains(uDsId)) {
-            downDsIds.add(upstream.getDsId());
-          }
-        }
-        for (String uDsId : upstreamDsIds) {
-          if (false == deleteDsIds.contains(uDsId)) {
-            deleteDsIds.add(uDsId);
-          }
-        }
-        upstreamDsIds.clear();
-        upstreamDsIds.addAll(downDsIds);
-      }
+
+      transformService.addDownstreamDsId(deleteDsIds, dsId, false);
 
       for (String deleteDsId : deleteDsIds) {
-        PrDataset delDs = this.datasetRepository.findOne(deleteDsId);
-        if (delDs != null) {
-          if (null != dataflow) {
-            dataflow.deleteDataset(delDs);
+        PrDataset dataset = this.datasetRepository.findOne(deleteDsId);
+        if (dataset != null) {
+          List<PrDataflow> dataflows = dataset.getDataflows();
+          if (dataflows != null) {
+            for (PrDataflow dataflow : dataflows) {
+              dataflow.deleteDataset(dataset);
+            }
           }
-          if (delDs.getDsType() == PrDataset.DS_TYPE.WRANGLED) {
-            this.datasetRepository.delete(delDs);
-          } else {
-            delDs.deleteDataflow(dataflow);
-            this.datasetRepository.flush();
-            this.dataflowRepository.flush();
-          }
+          this.datasetRepository.delete(dataset);
         }
       }
     } catch (Exception e) {
       LOGGER.error("deleteChain(): caught an exception: ", e);
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
+      throw dataflowError(e);
     }
 
     return ResponseEntity.status(HttpStatus.SC_OK).body(deleteDsIds);
