@@ -1,0 +1,131 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div class="ddp-type-contents2">
+
+  <div class="ddp-top-flow">
+    <!-- navi wrap -->
+    <div class="ddp-wrap-navi">
+
+      <a href="javascript:" class="ddp-btn-back" (click)="prevWorkerList()"></a>
+      <span class="ddp-data-name" *ngIf="worker">{{worker.worker.host}}</span>
+    </div>
+    <!-- //navi wrap -->
+  </div>
+
+  <!-- 상세 -->
+  <div class="ddp-wrap-datadetail">
+
+    <!-- detail -->
+    <div class="ddp-ui-datadetail type-detail">
+
+      <label class="ddp-label-detail">information</label>
+
+      <table class="ddp-table-detail" *ngIf="worker">
+        <colgroup>
+          <col width="180px">
+          <col width="*">
+        </colgroup>
+        <tbody>
+        <tr>
+          <th>
+            Host
+          </th>
+          <td>
+            {{worker.worker.host}}
+          </td>
+        </tr>
+        <tr>
+          <th>
+            IP
+          </th>
+          <td>
+            {{worker.worker.ip}}
+          </td>
+        </tr>
+        <tr>
+          <th>
+            Capacity
+          </th>
+          <td>
+            <div class="ddp-wrap-bar-per">
+              <div class="ddp-ui-bar-per">
+                <!-- bar -->
+                <div class="ddp-ui-bar" [ngStyle]="{ 'width': getCapacityPercent()}">
+                  <!-- tooltip -->
+                  <div class="ddp-ui-tooltip-info">
+                    <em class="ddp-icon-view-top"></em>
+                    {{getCapacityPercent()}}
+                  </div>
+                  <!-- //tooltip -->
+                </div>
+                <!-- //bar -->
+                <em class="ddp-bar-line" style="left:140px;"></em>
+              </div>
+              <div class="ddp-data-bar">{{worker.currCapacityUsed}}/{{worker.worker.capacity}}</div>
+            </div>
+
+          </td>
+        </tr>
+        <tr>
+          <th>
+            Version
+          </th>
+          <td>
+            {{worker.worker.version}}
+          </td>
+        </tr>
+        <tr>
+          <th>
+            Availability Groups
+          </th>
+          <td>
+            {{worker.availabilityGroups.length}}
+            <div class="ddp-box-det">
+              <ul class="ddp-list-det">
+                <li *ngFor="let group of worker.availabilityGroups">{{group}}</li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <th>
+            Running Tasks
+          </th>
+          <td>
+            {{worker.runningTasks.length}}
+            <div class="ddp-box-det">
+              <ul class="ddp-list-det">
+                <li *ngFor="let running of worker.runningTasks">{{running}}</li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <th>
+            Last Completed Task Time
+          </th>
+          <td>
+            {{worker.lastCompletedTaskTime}}
+          </td>
+        </tr>
+
+        </tbody>
+      </table>
+
+    </div>
+    <!-- //detail -->
+
+  </div>
+  <!-- //상세 -->
+</div>

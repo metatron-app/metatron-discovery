@@ -76,6 +76,22 @@ public class Pivot implements Serializable  {
     return new GraphShelf(columns, rows, aggregations.get(0));
   }
 
+  public void addColumn(Field field) {
+    if(columns == null) {
+      columns = Lists.newArrayList();
+    }
+
+    columns.add(field);
+  }
+
+  public void addAggregation(Field field) {
+    if(aggregations == null) {
+      aggregations = Lists.newArrayList();
+    }
+
+    aggregations.add(field);
+  }
+
   /**
    * Pivot 내 필드 정보가 존재하는지 여부 체크
    *

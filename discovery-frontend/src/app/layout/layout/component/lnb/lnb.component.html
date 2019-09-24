@@ -254,6 +254,21 @@
                 </li>
               </ul>
             </li>
+            <li *ngIf="permission.managementEngineMonitoring" [ngClass]="{'ddp-selected': lnbManager.management.engineMonitoring.fold == false}">
+              <a href="javascript:" (click)="mgmtMenuClickListener('ENGINE_MONITORING')">
+                <em class="ddp-icon-dot"></em>
+                {{'msg.comm.menu.manage.engine.monitoring' | translate}}
+                <span class="ddp-tag-beta">Beta</span>
+              </a>
+              <ul class="ddp-list-sublnb-2depth">
+                <li>
+                  <a href="javascript:" (click)="move('management/engine-monitoring/overview', { queryParams: { keyword: '', status: ENGINE_OVERVIEW_MONITORING_STATUS.ALL } })">{{'msg.comm.menu.manage.engine.monitoring.overview' | translate}}</a>
+                </li>
+                <li>
+                  <a href="javascript:" (click)="move('management/engine-monitoring/ingestion')">{{'msg.comm.menu.manage.engine.monitoring.ingestion' | translate}}</a>
+                </li>
+              </ul>
+            </li>
             <ng-container *ngIf="permission.managementDatasource">
               <li *ngFor="let item of getManagementExtensions"
                   [ngClass]="{'ddp-selected': lnbManager.management[item.name]['fold'] == false}">
@@ -330,14 +345,12 @@
   <div class="ddp-ui-help">
     <span class="ddp-label-type ddp-clear">
       <span class="ddp-txt-label"> {{'msg.lnb.label.help' | translate }} </span>
-      <div class="ddp-fright" >
-          <a (click)="downloadManual()" href="javascript:" class="ddp-btn-box">
-            <em class="ddp-icon-manual"></em>{{'msg.lnb.btn.manual' | translate}}
-          </a>
-          <a (click)="popupManual();" href="javascript:" class="ddp-btn-box">
-            <em class="ddp-icon-global"></em>{{'msg.lnb.btn.manual.web' | translate}}
-          </a>
-      </div>
+      <a (click)="downloadManual()" href="javascript:" class="ddp-btn-box">
+        <em class="ddp-icon-manual"></em>{{'msg.lnb.btn.manual' | translate}}
+      </a>
+      <a (click)="popupManual();" href="javascript:" class="ddp-btn-box">
+        <em class="ddp-icon-global"></em>{{'msg.lnb.btn.manual.web' | translate}}
+      </a>
     </span>
     <div class="ddp-data-help">
       <span class="ddp-label-type">{{'msg.lnb.label.contact' | translate }}</span>

@@ -1,0 +1,71 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<!-- top filtering -->
+<div class="ddp-wrap-top-filtering">
+  <!-- filter search -->
+  <div class="ddp-filter-search type-dataname ">
+    <div class="ddp-form-filter-search">
+      <component-input
+        [autoFocus]="false"
+        [isEnableDelete]="true"
+        [value]="searchKeyword"
+        [placeHolder]="'msg.engine.monitoring.ph.supervisor.search' | translate"
+        (changeValue)="onChangedSearchKeyword($event)">
+      </component-input>
+    </div>
+  </div>
+  <!-- //filter search -->
+
+</div>
+<!-- //top filtering -->
+
+<table class="ddp-table-form ddp-table-type3">
+  <colgroup>
+    <col width="*">
+    <col width="23%">
+    <col width="23%">
+  </colgroup>
+  <thead>
+  <tr>
+    <th>
+      Supervisior ID
+    </th>
+    <th>
+      Topic
+    </th>
+    <th>
+      Datasource
+    </th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let supervisor of supervisorList" (click)="onClickSupervisor(supervisor.id);">
+    <td>
+      <div class="ddp-txt-long" title="{{supervisor.id}}">
+        {{supervisor.id}}
+      </div>
+    </td>
+    <td>
+      {{supervisor.spec.ioConfig.topic}}
+    </td>
+    <td>
+      {{supervisor.spec.dataSchema.dataSource}}
+    </td>
+  </tr>
+  </tbody>
+
+</table>
+<!-- Pagination -->
+<component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+<!-- // Pagination -->
