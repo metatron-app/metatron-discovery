@@ -126,7 +126,7 @@
               </div>
               <!-- //top -->
 
-              <ul class="ddp-list-typebasic ddp-typeicon">
+              <ul class="ddp-list-typebasic ddp-typeicon type-page">
                 <li *ngFor="let field of pagedFields" (click)="selectColumn(field)">
                   <a href="javascript:">
                     <em ngClass="{{DashboardUtil.getFieldIconClass(findNameForIcon(field.type, field.logicalType?.toString()))}}"></em>

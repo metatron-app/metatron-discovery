@@ -1175,7 +1175,7 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 33px 20px 5px;
+    padding: 33px 0 5px;
     background-color: #192239;
 }
 
