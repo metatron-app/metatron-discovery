@@ -261,6 +261,22 @@ export class MetadataService extends AbstractService {
     return this.get(this.URL_METADATA + `/${metaDataId}/history`);
   }
 
+  /**
+   * Get Recently Updated in Metadata Detail Info
+   * @param {string} metaDataId
+   * @param params
+   * @returns {Observable<any>}
+   */
+  public getRecentlyUsedInMetadataDetail(metaDataId: string, params?): Promise<any> {
+    // URL
+    let url: string = this.URL_METADATA + `/${metaDataId}/related?`;
+    // if exist params
+    if (params) {
+      url += CommonUtil.objectToUrlString(params);
+    }
+    return this.get(url);
+  }
+
 
   public getMetadataTagList(projection: string, params?): Promise<any> {
     // URL

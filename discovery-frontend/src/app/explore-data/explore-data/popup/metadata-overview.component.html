@@ -88,7 +88,7 @@
       </div>
       <!-- detail view -->
       <div class="ddp-detail-view ddp-right">
-        <!-- detail -->
+        <!-- Top user -->
         <div *ngIf="topUserList.length !== 0" class="ddp-detail">
           <div class="ddp-label">{{'msg.explore.ui.detail.top.user'| translate}}</div>
           <div class="ddp-data-det">
@@ -104,8 +104,8 @@
             <!-- //user -->
           </div>
         </div>
-        <!-- //detail -->
-        <!-- detail -->
+        <!-- Top user -->
+        <!-- Recently updated -->
         <div class="ddp-detail">
           <div class="ddp-label">{{'msg.explore.ui.detail.recent.updated'| translate}}</div>
           <div class="ddp-data-det" *ngIf="recentlyUpdatedList.length !== 0">
@@ -139,53 +139,39 @@
           </div>
           <div *ngIf="recentlyUpdatedList.length === 0">no used</div>
         </div>
-        <!-- //detail -->
-        <!-- recent dashboard -->
-<!--        <div class="ddp-detail" *ngIf="isDatasourceTypeMetadata()">-->
-<!--          <div class="ddp-label">-->
-<!--            {{'msg.explore.ui.detail.recent.used'| translate}}-->
-<!--            <a href="javascript:"-->
-<!--               class="ddp-link ddp-fright"-->
-<!--               *ngIf="isShowQueryMoreContents() && recentlyQueriesForDataSource['_embedded'].length <= 5"-->
-<!--               (click)="onClickSeeAllRecentDashboards()">{{'msg.explore.btn.detail.more.list'| translate}} &gt;</a>-->
-<!--          </div>-->
-<!--          <div class="ddp-data-det">-->
-<!--            <ul class="ddp-list-graph ddp-bottom ddp-cursor">-->
-<!--              <li>-->
-<!--                &lt;!&ndash; 그래프 &ndash;&gt;-->
-<!--                <div class="ddp-box-image">-->
-
-<!--                </div>-->
-<!--                &lt;!&ndash; //그래프 &ndash;&gt;-->
-<!--                <div class="ddp-data-graph">-->
-<!--                  <span class="ddp-txt-det">New Dashboard 01</span>-->
-<!--                </div>-->
-<!--              </li>-->
-<!--              <li>-->
-<!--                &lt;!&ndash; 그래프 &ndash;&gt;-->
-<!--                <div class="ddp-box-image">-->
-
-<!--                </div>-->
-<!--                &lt;!&ndash; //그래프 &ndash;&gt;-->
-<!--                <div class="ddp-data-graph">-->
-<!--                  <span class="ddp-txt-det">New Dashboard 01</span>-->
-<!--                </div>-->
-<!--              </li>-->
-<!--              <li>-->
-<!--                &lt;!&ndash; 그래프 &ndash;&gt;-->
-<!--                <div class="ddp-box-image">-->
-
-<!--                </div>-->
-<!--                &lt;!&ndash; //그래프 &ndash;&gt;-->
-<!--                <div class="ddp-data-graph">-->
-<!--                  <span class="ddp-txt-det">New Dashboard 01</span>-->
-<!--                </div>-->
-<!--              </li>-->
-<!--            </ul>-->
-<!--          </div>-->
-<!--        </div>-->
+        <!-- Recently updated -->
+        <!-- recent dashboard only for source Type -->
+        <div class="ddp-detail" *ngIf="isDatasourceTypeMetadata()">
+          <div class="ddp-label">
+            {{'msg.explore.ui.detail.recent.used'| translate}}
+            <a href="javascript:"
+               class="ddp-link ddp-fright"
+               *ngIf="recentlyUsedDashboardList.length > 5"
+               (click)="onClickSeeAllRecentDashboards()">{{'msg.explore.btn.detail.more.list'| translate}} &gt;</a>
+          </div>
+          <div class="ddp-data-det">
+            <ul class="ddp-list-graph ddp-bottom ddp-cursor" *ngIf="recentlyUsedDashboardList.length > 0">
+              <li *ngFor="let recentlyUsedDashboard of recentlyUsedDashboardList" (click)="onDashboardClicked(recentlyUsedDashboard)">
+                <!-- Graph -->
+                <div class="ddp-box-image">
+                  <img src="{{ recentlyUsedDashboard.imageUrl !== undefined ? recentlyUsedDashboard.imageUrl : '/assets/images/img_board_default2.png'}}"/>
+                </div>
+                <!-- //Graph -->
+                <div class="ddp-data-graph">
+                  <span class="ddp-txt-det">
+                      <span [ngClass]="{'ddp-det-new': recentlyUsedDashboard.hasPermission, 'ddp-cursor-default': !recentlyUsedDashboard.hasPermission}">
+                          {{ recentlyUsedDashboard.name }}
+                          <em class="ddp-link-new"></em>
+                      </span>
+                  </span>
+                </div>
+              </li>
+            </ul>
+            <div *ngIf="recentlyUsedDashboardList.length === 0">no used</div>
+          </div>
+        </div>
 <!--        // recent dashboard -->
-<!--        // recent query -->
+<!--        // recent query - only for DB, Stage DB type -->
 
         <div class="ddp-detail" *ngIf="( isDatabaseTypeMetadata() || isStagingTypeMetadata()) && (recentlyQueriesForDataBase.length !== 0)">
           <div class="ddp-label">
@@ -195,7 +181,7 @@
                *ngIf="recentlyQueriesForDataBase.length > 4"
                (click)="onClickSeeAllRecentQueries()">{{'msg.explore.btn.detail.more.list'| translate}} &gt;</a>
           </div>
-          <div class="ddp-data-det" *ngIf="recentlyQueriesForDataSource.length === 0 || recentlyQueriesForDataBase.length === 0">
+          <div class="ddp-data-det">
             <table class="ddp-table-detail4">
               <colgroup>
                 <col width="15%">
@@ -227,52 +213,7 @@
             </table>
           </div>
         </div>
-
-        <div class="ddp-detail" *ngIf="( isDatasourceTypeMetadata() && (recentlyQueriesForDataSource.length !== 0 ))">
-          <div class="ddp-label">
-            {{'msg.explore.ui.detail.recent.query'| translate}}
-            <a
-               href="javascript:"
-               class="ddp-link ddp-fright"
-               *ngIf="recentlyQueriesForDataSource.length > 4"
-               (click)="onClickSeeAllRecentQueries()">{{'msg.explore.btn.detail.more.list'| translate}} &gt;</a>
-          </div>
-          <div class="ddp-data-det" *ngIf="recentlyQueriesForDataSource.length === 0 || recentlyQueriesForDataBase.length === 0">
-            <table class="ddp-table-detail4">
-              <colgroup>
-                <col width="15%">
-                <col width="10%">
-                <col width="10%">
-                <col width="150px">
-                <col width="*">
-              </colgroup>
-              <thead>
-              <tr>
-                <th>{{ 'msg.explore.ui.detail.tab.overview.date' | translate }}</th>
-                <th>{{ 'msg.explore.ui.detail.tab.overview.type' | translate }}</th>
-                <th>{{ 'msg.explore.ui.detail.tab.overview.user' | translate }}</th>
-                <th>{{ 'msg.explore.ui.detail.tab.overview.result' | translate }}</th>
-                <th>{{ 'msg.explore.ui.detail.tab.overview.query' | translate }}</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr *ngFor="let recentQuery of recentlyQueriesForDataSource | slice:0:5 ">
-                <td>{{ recentQuery.createdTime | mdate:'YYYY-MM-DD HH:mm:ss' }}</td>
-                <td>{{ recentQuery.queryType }}</td>
-                <td>{{ recentQuery.creator.fullName }}</td>
-                <td> <span class="ddp-data-state" [ngClass]="recentQuery.succeed ? 'ddp-success' : 'ddp-fail'">{{ recentQuery.succeed ? 'Success' : 'Fail' }}</span></td>
-                <td>
-                  <div class="ddp-txt-long ddp-type-button">
-                    <a href="javascript:" class="ddp-btn-selection ddp-fright" (click)="copyToClipboard(recentQuery.query)">Copy</a>
-                    <span class="ddp-txt-name" title="{{ recentQuery.query }}">{{ recentQuery.query }}</span>
-                  </div>
-                </td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="ddp-detail" *ngIf="recentlyQueriesForDataBase.length === 0 && recentlyQueriesForDataSource.length === 0">
+        <div class="ddp-detail" *ngIf="( isDatabaseTypeMetadata() || isStagingTypeMetadata()) && recentlyQueriesForDataBase.length === 0">
           <div class="ddp-label">
             {{'msg.explore.ui.detail.recent.query'| translate}}
           </div>

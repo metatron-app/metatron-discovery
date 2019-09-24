@@ -69,6 +69,9 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   // 현재 워크북 아이디
   private workbookId: string;
 
+  // current dashboard id
+  private dashboardId: string;
+
   // 쿠키에 저장된 댓글 id
   private cookieCommentId: any;
 
@@ -260,6 +263,9 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
 
       // 워크북 아이디 저장
       this.workbookId = params['workbookId'];
+
+      // save dashboard id
+      this.dashboardId = params['dashboardId'];
 
       // Send statistics data
       this.sendViewActivityStream(this.workbookId, 'WORKBOOK');
@@ -762,7 +768,15 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
             }
           }
         } else {
-          this.loadAndSelectDashboard(this.dashboards[0]);
+          if (this.dashboardId !== undefined) {
+            const index = this.dashboards.findIndex((dashboard) => {
+              return dashboard.id === this.dashboardId;
+            });
+
+            this.loadAndSelectDashboard(this.dashboards[index]);
+          } else {
+            this.loadAndSelectDashboard(this.dashboards[0]);
+          }
         }
       } else {
         this.selectedDashboard = null;

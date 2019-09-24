@@ -52,11 +52,10 @@ export class MetadataContainerComponent extends AbstractComponent {
 
   public isShowInfo: boolean = false;
 
-  public infoList: MetadataInformation[];
   public topUserList = [];
   public recentlyUpdatedList = [];
-  public recentlyQueriesForDataSource = [];
   public recentlyQueriesForDataBase = [];
+  public recentlyUsedDashboardList = [];
 
   constructor(private resolver: ComponentFactoryResolver,
               private metadataService: MetadataService,
@@ -74,18 +73,6 @@ export class MetadataContainerComponent extends AbstractComponent {
     this.removeBodyScrollHidden();
   }
 
-  initial(metadataDetail: any, topUserList: any, recentlyUpdatedList: any, recentlyQueryForDatabase?: any, recentlyQueryForDataSource?: any): void {
-    this.metadataDetailData = metadataDetail;
-    this.topUserList = topUserList;
-    this.recentlyUpdatedList = recentlyUpdatedList;
-
-    if (recentlyQueryForDatabase) {
-      this.recentlyQueriesForDataBase = recentlyQueryForDatabase;
-    } else if (recentlyQueryForDataSource) {
-      this.recentlyQueriesForDataSource = recentlyQueryForDataSource;
-    }
-  }
-
   isExistMetadata(): boolean {
     return !_.isNil(this.metadataDetailData);
   }
@@ -96,15 +83,6 @@ export class MetadataContainerComponent extends AbstractComponent {
   public onClickCloseBtn() {
     this.closedPopup.emit();
   }
-
-
-  /**
-   * When i icon is clicked
-   */
-  public onClickInfo() {
-    this.isShowInfo = true;
-  }
-
 
   /**
    * When tab is clicked
@@ -151,16 +129,6 @@ export class MetadataContainerComponent extends AbstractComponent {
 
   public onClickCreatedBy() {
     // TODO 해당 사용자가 가지고 있는 메타데이터 목록 팝업 보여주기
-  }
-
-  private _setMetadataDetail(metadataId: string) {
-    this.loadingShow();
-    this.metadataService.getDetailMetaData(metadataId)
-      .then((result) => {
-        this.loadingHide();
-        this.metadataDetailData = result;
-      })
-      .catch(error => this.commonExceptionHandler(error));
   }
 
   private _showConfirmComponent() {

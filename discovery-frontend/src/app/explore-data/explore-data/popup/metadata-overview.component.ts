@@ -25,8 +25,8 @@ export class MetadataOverviewComponent extends AbstractComponent implements OnIn
   @Input() readonly metadata : Metadata;
   @Input() readonly topUserList = [];
   @Input() readonly recentlyUpdatedList = [];
-  @Input() readonly recentlyQueriesForDataSource = [];
   @Input() readonly recentlyQueriesForDataBase = [];
+  @Input() readonly recentlyUsedDashboardList = [];
 
   public isShowMoreCatalogs: boolean = false;
 
@@ -69,12 +69,21 @@ export class MetadataOverviewComponent extends AbstractComponent implements OnIn
 
   onClickSeeAllRecentQueries(): void {
     this.entryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(RecentQueriesComponent));
-    if (this.isDatasourceTypeMetadata()) {
-      this.entryRef.instance.recentlyQueriesForDataSource = this.recentlyQueriesForDataSource;
-    } else if (this.isDatabaseTypeMetadata() || this.isStagingTypeMetadata()) {
-      this.entryRef.instance.recentlyQueriesForDataBase = this.recentlyQueriesForDataBase;
-    }
+    this.entryRef.instance.recentlyQueriesForDataBase = this.recentlyQueriesForDataBase;
     this.entryRef.instance.init();
+  }
+
+  onDashboardClicked(recentlyUsedDashboard: any) {
+    if (!recentlyUsedDashboard.hasPermission) {
+      return
+    }
+
+    const popupX = (window.screen.width / 2) - (1200 / 2);
+    const popupY = (window.screen.height / 2) - (900 / 2);
+    const popUrl = `workbook/${recentlyUsedDashboard.workbook.id}/${recentlyUsedDashboard.id}`;
+    //
+    window.open(popUrl, '', 'status=no, height=700, width=1200, left=' + popupX + ', top=' + popupY + ', screenX=' + popupX + ', screenY= ' + popupY);
+    //
   }
 
   /**

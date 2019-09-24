@@ -29,6 +29,7 @@ import { MetadataService } from '../meta-data-management/metadata/service/metada
 
 const workbookRoutes: Routes = [
   { path: ':workbookId', component: WorkbookComponent, canDeactivate:[CanDeactivateGuard] },
+  { path: ':workbookId/:dashboardId', component: WorkbookComponent, canDeactivate:[CanDeactivateGuard] },
   { path: ':workbookId/old', component: WorkbookComponent,canDeactivate:[CanDeactivateGuard] },
   { path: ':workbookId/:mode', component: WorkbookComponent,canDeactivate:[CanDeactivateGuard] }
 ];

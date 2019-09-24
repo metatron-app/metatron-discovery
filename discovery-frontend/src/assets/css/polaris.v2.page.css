@@ -4741,6 +4741,7 @@ table.ddp-table-select.type-scTb tbody tr.ddp-selected td:last-of-type:after {di
 .ddp-ui-preview-contents .ddp-ui-title.ddp-name .ddp-sub {font-weight:300;}
 .ddp-pop-datadetail .ddp-wrap-colum-detail .ddp-wrap-detail .ddp-ui-title.ddp-name + .ddp-ui-detail {border-top:none;}
 ul.ddp-list-graph.ddp-bottom li .ddp-box-image {margin-top:0; margin-bottom:5px;}
+ul.ddp-list-graph.ddp-bottom li .ddp-box-image img {display:block; width:100%; height:100%;}
 ul.ddp-list-graph.ddp-cursor li {cursor:pointer;}
 ul.ddp-list-graph {margin:20px -4px 0 -4px; overflow:hidden;}
 ul.ddp-list-graph li {float:left; width:20%; padding:0 4px; box-sizing:border-box;}
@@ -9099,6 +9100,7 @@ table.ddp-table-detail tbody tr td .ddp-box-confidence:hover .ddp-ui-tooltip-inf
 .ddp-detail-view .ddp-box-table {border:1px solid #e7e7ea;}
 .ddp-detail-view .ddp-box-table .ddp-label {padding:18px 17px;color:#4c515a; font-weight:bold;}
 .ddp-detail-contents .ddp-box-catalogs {font-weight:bold;}
+
 table.ddp-table-form2.ddp-type tr th {background-color:#f6f6f7; font-weight:normal;}
 table.ddp-table-form2.ddp-type tr td .ddp-ui-photo {margin:-4px 0}
 table.ddp-table-form2.ddp-type tr td .ddp-data-used {font-weight:bold; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; }
@@ -9120,6 +9122,9 @@ table.ddp-table-form2.ddp-type tr td .ddp-data-used {font-weight:bold; white-spa
 .ddp-detail-view .ddp-detail .ddp-data-det .ddp-box-layout4 * {font-style:normal; text-decoration:none;}
 .ddp-detail-view .ddp-detail .ddp-data-det ul.ddp-list-graph {margin-top:0;}
 .ddp-detail-view .ddp-detail .ddp-data-det ul.ddp-list-graph span.ddp-txt-det {font-size:13px; color:#90969f;}
+.ddp-detail-view .ddp-detail .ddp-data-det ul.ddp-list-graph span.ddp-txt-det .ddp-det-new {display:inline-block;}
+.ddp-detail-view .ddp-detail .ddp-data-det ul.ddp-list-graph span.ddp-txt-det .ddp-det-new:hover {text-decoration:underline;}
+.ddp-detail-view .ddp-detail .ddp-data-det ul.ddp-list-graph span.ddp-txt-det .ddp-det-new:hover em.ddp-link-new {display:inline-block; position:relative; top:2px;width:14px; height:12px; margin-left:2px; background:url(../images/icon_window.png) no-repeat; background-position:left -24px; content:'';}
 .ddp-detail-view .ddp-detail.ddp-type {padding-top:30px; clear:both;}
 
 /**************************************************************
