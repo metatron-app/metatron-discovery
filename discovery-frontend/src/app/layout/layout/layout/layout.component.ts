@@ -31,13 +31,12 @@ export class LayoutComponent extends AbstractComponent implements OnInit, OnDest
 
   ngOnInit() {
     super.ngOnInit();
-
-    // Alert 에서 번역이 필요한 부분 세팅
-    this._setAlertTranslateMsg();
   }
 
   ngAfterViewInit() {
     this.broadCaster.broadcast('ENTER_LAYOUT_MODULE');
+    // Alert 에서 번역이 필요한 부분 세팅
+    this._setAlertTranslateMsg();
   }
 
   ngOnDestroy() {

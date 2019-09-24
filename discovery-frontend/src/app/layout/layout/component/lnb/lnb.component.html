@@ -328,27 +328,27 @@
 
   <!-- help -->
   <div class="ddp-ui-help">
-    <span class="ddp-label-type">
-      {{'msg.lnb.label.help' | translate }}
-        <a (click)="downloadManual()" href="javascript:" class="ddp-btn-box">
-          <em class="ddp-icon-manual"></em>{{'msg.lnb.btn.manual' | translate}}
-        </a>
-        <a href="javascript:" class="ddp-btn-box" (click)="popupManual();">
-          <em class="ddp-icon-global"></em>{{'msg.lnb.btn.manual.web' | translate}}
-        </a>
-    </span>
-    <span class="ddp-label-type" style="margin-top: 10px">
-      {{'msg.lnb.label.contact' | translate }}
+    <span class="ddp-label-type ddp-clear">
+      <span class="ddp-txt-label"> {{'msg.lnb.label.help' | translate }} </span>
+      <div class="ddp-fright" >
+          <a (click)="downloadManual()" href="javascript:" class="ddp-btn-box">
+            <em class="ddp-icon-manual"></em>{{'msg.lnb.btn.manual' | translate}}
+          </a>
+          <a (click)="popupManual();" href="javascript:" class="ddp-btn-box">
+            <em class="ddp-icon-global"></em>{{'msg.lnb.btn.manual.web' | translate}}
+          </a>
+      </div>
     </span>
     <div class="ddp-data-help">
+      <span class="ddp-label-type">{{'msg.lnb.label.contact' | translate }}</span>
       <dl>
         <dt>{{ 'msg.lnb.label.admin' | translate }}</dt>
         <dd><a href="mailto:metatron@sk.com">metatron@sk.com</a></dd>
       </dl>
     </div>
-    <span *ngIf="buildInfo.appVersion !== 'STABLE'" class="ddp-label-type" style="margin-bottom: 10px">
+    <div *ngIf="buildInfo.appVersion !== 'STABLE'" class="ddp-data-version">
       {{ 'msg.cluster.ui.create.version' | translate }}   {{buildInfo.appVersion}}
-    </span>
+    </div>
   </div>
   <!-- //help -->
 
