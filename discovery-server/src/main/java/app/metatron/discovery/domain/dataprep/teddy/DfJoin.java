@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DfJoin extends DataFrame {
+
   private static Logger LOGGER = LoggerFactory.getLogger(DfJoin.class);
 
   public DfJoin(String dsName, String ruleString) {
@@ -51,17 +52,17 @@ public class DfJoin extends DataFrame {
   }
 
   private void gatherPredicates(Expression expr, DataFrame leftDf, DataFrame rightDf,
-                                List<Identifier.IdentifierExpr> lPredicates,
-                                List<Identifier.IdentifierExpr> rPredicates) throws TeddyException {
+          List<Identifier.IdentifierExpr> lPredicates,
+          List<Identifier.IdentifierExpr> rPredicates) throws TeddyException {
     int colno;
 
     if (expr instanceof Expr.BinAndExpr) {
       gatherPredicates(((Expr.BinAndExpr) expr).getLeft(), leftDf, rightDf, lPredicates, rPredicates);
       gatherPredicates(((Expr.BinAndExpr) expr).getRight(), leftDf, rightDf, lPredicates, rPredicates);
-    }
-    else if (expr instanceof Expr.BinAsExpr) {
+    } else if (expr instanceof Expr.BinAsExpr) {
       if (!((Expr.BinAsExpr) expr).getOp().equals("=")) {
-        throw new JoinTypeNotSupportedException("join(): join type not suppoerted: op: " + ((Expr.BinAsExpr) expr).getOp());
+        throw new JoinTypeNotSupportedException(
+                "join(): join type not suppoerted: op: " + ((Expr.BinAsExpr) expr).getOp());
       }
 
       for (colno = 0; colno < leftDf.getColCnt(); colno++) {
@@ -133,7 +134,7 @@ public class DfJoin extends DataFrame {
       ColumnType rType = slaveDf.getColTypeByColName(rPredColNames.get(i));
       if (lType != rType) {
         throw new PredicateTypeMismatchException(String.format(
-            "join(): predicate type mismatch: left=%s right=%s", lType.name(), rType.name()));
+                "join(): predicate type mismatch: left=%s right=%s", lType.name(), rType.name()));
       }
     }
 
@@ -143,7 +144,8 @@ public class DfJoin extends DataFrame {
     }
 
     for (String colName : rSelectColNames) {
-      String rightColName = checkRightColName(colName);   // if the same name exists on left, right column name is modified.
+      String rightColName = checkRightColName(
+              colName);   // if the same name exists on left, right column name is modified.
       addColumn(rightColName, slaveDf.getColDescByColName(colName));
       interestedColNames.add(rightColName);
     }
@@ -159,7 +161,8 @@ public class DfJoin extends DataFrame {
   }
 
   @Override
-  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
+  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
+          throws InterruptedException, TeddyException {
     DataFrame slaveDf = (DataFrame) preparedArgs.get(0);
     List<String> lSelectColNames = (List<String>) preparedArgs.get(1);
     List<String> rSelectColNames = (List<String>) preparedArgs.get(2);
@@ -264,7 +267,7 @@ public class DfJoin extends DataFrame {
   }
 
   private Row makeRow(Row lrow, Row rrow,
-                      List<String> lSelectColNames, List<String> rSelectColNames) {
+          List<String> lSelectColNames, List<String> rSelectColNames) {
     Row newRow = new Row();
 
     if (lrow != null) {

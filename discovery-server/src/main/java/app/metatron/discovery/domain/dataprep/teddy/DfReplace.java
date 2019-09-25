@@ -21,26 +21,31 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongTargetColumn
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.Replace;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.*;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.RegularExpr;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DfReplace extends DataFrame {
+
   private static Logger LOGGER = LoggerFactory.getLogger(DfReplace.class);
 
   public DfReplace(String dsName, String ruleString) {
     super(dsName, ruleString);
   }
 
-  private void putReplacedConditions(String targetColName, String ruleString, Map<String, Expr> rowConditionExprs) throws TeddyException {
+  private void putReplacedConditions(String targetColName, String ruleString, Map<String, Expr> rowConditionExprs)
+          throws TeddyException {
     Rule rule = new RuleVisitorParser().parse(ruleString);
     Expression conditionExpr = ((Replace) rule).getRow();
     replace$col(conditionExpr, targetColName);
@@ -62,7 +67,7 @@ public class DfReplace extends DataFrame {
     Boolean isCaseIgnore = replace.getIgnoreCase();
     String patternStr;
     String quoteStr = null;
-    String regExQuoteStr=null;
+    String regExQuoteStr = null;
     Pattern pattern;
 
     if (targetColExpr instanceof Identifier.IdentifierExpr) {
@@ -70,14 +75,16 @@ public class DfReplace extends DataFrame {
     } else if (targetColExpr instanceof Identifier.IdentifierArrayExpr) {
       targetColNames.addAll(((Identifier.IdentifierArrayExpr) targetColExpr).getValue());
     } else {
-      throw new WrongTargetColumnExpressionException("DfReplace.prepare(): wrong target column expression: " + targetColExpr.toString());
+      throw new WrongTargetColumnExpressionException(
+              "DfReplace.prepare(): wrong target column expression: " + targetColExpr.toString());
     }
 
     for (String targetColName : targetColNames) {
       //Type Check
       if (prevDf.getColTypeByColName(targetColName) != ColumnType.STRING) {
-        throw new WorksOnlyOnStringException(String.format("DfReplace.prepare(): works only on STRING: targetColName=%s type=%s",
-                                                           targetColName, prevDf.getColTypeByColName(targetColName)));
+        throw new WorksOnlyOnStringException(
+                String.format("DfReplace.prepare(): works only on STRING: targetColName=%s type=%s",
+                        targetColName, prevDf.getColTypeByColName(targetColName)));
       }
       //Highlighted Column List
       interestedColNames.add(targetColName);
@@ -92,14 +99,15 @@ public class DfReplace extends DataFrame {
 
     //quote 문자가 없을 경우의 처리.
 
-    if(quote == null) {
+    if (quote == null) {
       if (expr instanceof Constant.StringExpr) {
         patternStr = ((Constant.StringExpr) expr).getEscapedValue();
 
-        if (isCaseIgnore != null && isCaseIgnore)
+        if (isCaseIgnore != null && isCaseIgnore) {
           pattern = Pattern.compile(patternStr, Pattern.LITERAL + Pattern.CASE_INSENSITIVE);
-        else
+        } else {
           pattern = Pattern.compile(patternStr, Pattern.LITERAL);
+        }
 
       } else if (expr instanceof RegularExpr) {
         patternStr = ((RegularExpr) expr).getEscapedValue();
@@ -113,8 +121,9 @@ public class DfReplace extends DataFrame {
         patternStr = ((Constant.StringExpr) expr).getEscapedValue();
         patternStr = disableRegexSymbols(patternStr);
 
-        if (isCaseIgnore != null && isCaseIgnore)
+        if (isCaseIgnore != null && isCaseIgnore) {
           patternStr = makeCaseInsensitive(patternStr);
+        }
 
       } else if (expr instanceof RegularExpr) {
         patternStr = ((RegularExpr) expr).getEscapedValue();
@@ -147,7 +156,8 @@ public class DfReplace extends DataFrame {
   }
 
   @Override
-  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
+  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
+          throws InterruptedException, TeddyException {
     List<Row> rows = new ArrayList<>();
 
     List<String> targetColNames = (List<String>) preparedArgs.get(0);
@@ -160,13 +170,14 @@ public class DfReplace extends DataFrame {
 
     LOGGER.trace("DfReplace.gather(): start: offset={} length={}", offset, length);
 
-    if(quoteStr == null) {
+    if (quoteStr == null) {
       for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
         Row row = prevDf.rows.get(rowno);
         Row newRow = new Row();
         for (int colno = 0; colno < getColCnt(); colno++) {
           String columnName = getColName(colno);
-          if (targetColNames.contains(columnName) && row.get(colno)!=null && checkCondition(replacedConditionExprs.get(columnName), row)) {
+          if (targetColNames.contains(columnName) && row.get(colno) != null && checkCondition(
+                  replacedConditionExprs.get(columnName), row)) {
             String targetStr = (String) row.get(colno);
             Matcher matcher = pattern.matcher(targetStr);
             if (matcher.find()) {
@@ -190,7 +201,8 @@ public class DfReplace extends DataFrame {
         Row newRow = new Row();
         for (int colno = 0; colno < getColCnt(); colno++) {
           String columnName = getColName(colno);
-          if (targetColNames.contains(columnName) && row.get(colno)!=null && checkCondition(replacedConditionExprs.get(columnName), row)) {
+          if (targetColNames.contains(columnName) && row.get(colno) != null && checkCondition(
+                  replacedConditionExprs.get(columnName), row)) {
             String targetStr = (String) row.get(colno);
             if (StringUtils.countMatches(targetStr, originalQuoteStr) % 2 == 0) {
               Matcher matcher = pattern.matcher(targetStr);
@@ -214,8 +226,7 @@ public class DfReplace extends DataFrame {
                 } else {
                   newRow.add(columnName, matcher.replaceFirst(((Expr) withExpr).eval(row).stringValue()) + targetStr2);
                 }
-              }
-              else {
+              } else {
                 newRow.add(columnName, row.get(colno));
               }
             }

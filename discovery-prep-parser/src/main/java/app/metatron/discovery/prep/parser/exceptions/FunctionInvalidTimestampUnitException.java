@@ -15,6 +15,7 @@
 package app.metatron.discovery.prep.parser.exceptions;
 
 public class FunctionInvalidTimestampUnitException extends RuleException {
+
   public FunctionInvalidTimestampUnitException(String message) {
     super(message);
   }

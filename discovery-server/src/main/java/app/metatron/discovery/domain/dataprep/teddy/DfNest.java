@@ -19,15 +19,15 @@ import app.metatron.discovery.prep.parser.preparation.rule.Nest;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DfNest extends DataFrame {
+
   private static Logger LOGGER = LoggerFactory.getLogger(DfNest.class);
 
   public DfNest(String dsName, String ruleString) {
@@ -55,7 +55,7 @@ public class DfNest extends DataFrame {
 
     // 마지막 목적 컬럼까지만 추가 하기 위해
     int newColPos = 0;
-    for(String colName : targetColNames) {
+    for (String colName : targetColNames) {
       newColPos = prevDf.getColnoByColName(colName) > newColPos ? prevDf.getColnoByColName(colName) : newColPos;
     }
     newColPos++;
@@ -91,7 +91,8 @@ public class DfNest extends DataFrame {
   }
 
   @Override
-  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
+  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
+          throws InterruptedException, TeddyException {
     List<Row> rows = new ArrayList<>();
     int newColPos = (int) preparedArgs.get(0);
     List<String> targetColNames = (List<String>) preparedArgs.get(1);
@@ -99,7 +100,8 @@ public class DfNest extends DataFrame {
     ColumnType newColType = (ColumnType) preparedArgs.get(3);
     int colno;
 
-    LOGGER.trace("DfNest.gather(): start: offset={} length={} newColName={} newColType={}", offset, length, newColName, newColType);
+    LOGGER.trace("DfNest.gather(): start: offset={} length={} newColName={} newColType={}", offset, length, newColName,
+            newColType);
 
     for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
       Row row = prevDf.rows.get(rowno);
@@ -133,7 +135,8 @@ public class DfNest extends DataFrame {
       rows.add(newRow);
     }
 
-    LOGGER.trace("DfNest.gather(): end: offset={} length={} newColName={} newColType={}", offset, length, newColName, newColType);
+    LOGGER.trace("DfNest.gather(): end: offset={} length={} newColName={} newColType={}", offset, length, newColName,
+            newColType);
     return rows;
   }
 }

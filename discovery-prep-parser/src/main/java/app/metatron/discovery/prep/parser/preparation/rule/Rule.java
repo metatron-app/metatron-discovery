@@ -21,8 +21,10 @@ public interface Rule {
   String getName();
 
   interface Factory extends Supplier<Rule> {
+
   }
 
   interface Library {
+
   }
 }

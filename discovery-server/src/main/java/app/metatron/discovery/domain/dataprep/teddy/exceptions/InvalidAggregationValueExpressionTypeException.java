@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class InvalidAggregationValueExpressionTypeException extends TeddyException {
+
   public InvalidAggregationValueExpressionTypeException(String message) {
     super(message);
   }

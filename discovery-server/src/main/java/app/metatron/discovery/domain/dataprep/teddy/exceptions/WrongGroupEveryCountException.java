@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class WrongGroupEveryCountException extends TeddyException {
+
   public WrongGroupEveryCountException(String message) {
     super(message);
   }

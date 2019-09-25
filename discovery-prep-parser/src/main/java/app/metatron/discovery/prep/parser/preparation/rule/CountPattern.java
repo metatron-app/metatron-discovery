@@ -52,7 +52,8 @@ public class CountPattern implements Rule, Rule.Factory {
   public CountPattern() {
   }
 
-  public CountPattern(Expression col, Expression on, Expression after, Expression before, Boolean ignoreCase, Expression quote) {
+  public CountPattern(Expression col, Expression on, Expression after, Expression before, Boolean ignoreCase,
+          Expression quote) {
 
     this.col = col;
     this.on = on;
@@ -123,14 +124,18 @@ public class CountPattern implements Rule, Rule.Factory {
   @Override
   public String toString() {
     String quoteString = null;
-    if (quote != null) quoteString = quote.toString(); else quoteString = "";
+    if (quote != null) {
+      quoteString = quote.toString();
+    } else {
+      quoteString = "";
+    }
     return "CountPattern{" +
-        "col=" + col +
-        ", on=" + on +
-        ", after=" + after +
-        ", before=" + before +
-        ", ignoreCase=" + ignoreCase +
-        ", quote='" + quoteString + '\'' +
-        '}';
+            "col=" + col +
+            ", on=" + on +
+            ", after=" + after +
+            ", before=" + before +
+            ", ignoreCase=" + ignoreCase +
+            ", quote='" + quoteString + '\'' +
+            '}';
   }
 }

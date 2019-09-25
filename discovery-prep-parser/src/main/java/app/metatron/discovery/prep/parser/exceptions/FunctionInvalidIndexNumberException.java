@@ -14,8 +14,9 @@
 
 package app.metatron.discovery.prep.parser.exceptions;
 
-public class FunctionInvalidIndexNumberException extends RuleException{
-    public FunctionInvalidIndexNumberException(String message) {
-        super(message);
-    }
+public class FunctionInvalidIndexNumberException extends RuleException {
+
+  public FunctionInvalidIndexNumberException(String message) {
+    super(message);
+  }
 }

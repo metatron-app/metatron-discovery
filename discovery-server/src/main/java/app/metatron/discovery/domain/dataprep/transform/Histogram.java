@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 // 각 column마다 1개씩
 public class Histogram implements Serializable {
+
   private static Logger LOGGER = LoggerFactory.getLogger(DataFrame.class);
 
   public enum Granule {
@@ -610,7 +611,7 @@ public class Histogram implements Serializable {
             .forEach(entry -> {
               // 다음 bucket으로 이동. sort가 잘 되었고, 경계값이 잘 설정되었다면, 마지막 bucket을 넘기 전에 stream이 끝난다.
               while (entry.getKey().isEqual(tsLabels.get(barIdx + 1)) ||
-                     entry.getKey().isAfter(tsLabels.get(barIdx + 1))) {
+                      entry.getKey().isAfter(tsLabels.get(barIdx + 1))) {
                 barIdx++;
               }
               counts.set(barIdx, counts.get(barIdx) + entry.getValue());
@@ -856,8 +857,10 @@ public class Histogram implements Serializable {
 
     assert min >= labels.get(0) : String.format("min=%.15f start_label=%.15f", min, labels.get(0));
     assert min < labels.get(1) : String.format("min=%.15f start_label=%.15f", min, labels.get(1));
-    assert max >= labels.get(labels.size() - 2) : String.format("max=%.15f end_label=%.15f", max, labels.get(labels.size() - 2));
-    assert max < labels.get(labels.size() - 1) : String.format("max=%.15f end_label=%.15f", max, labels.get(labels.size() - 1));
+    assert max >= labels.get(labels.size() - 2) : String
+            .format("max=%.15f end_label=%.15f", max, labels.get(labels.size() - 2));
+    assert max < labels.get(labels.size() - 1) : String
+            .format("max=%.15f end_label=%.15f", max, labels.get(labels.size() - 1));
 
     return labels;
   }
@@ -901,8 +904,10 @@ public class Histogram implements Serializable {
 
     assert min >= labels.get(0) : String.format("min=%d start_label=%d", min, labels.get(0));
     assert min < labels.get(1) : String.format("min=%d start_label=%d", min, labels.get(1));
-    assert max >= labels.get(labels.size() - 2) : String.format("max=%d end_label=%d", max, labels.get(labels.size() - 2));
-    assert max < labels.get(labels.size() - 1) : String.format("max=%d end_label=%d", max, labels.get(labels.size() - 1));
+    assert max >= labels.get(labels.size() - 2) : String
+            .format("max=%d end_label=%d", max, labels.get(labels.size() - 2));
+    assert max < labels.get(labels.size() - 1) : String
+            .format("max=%d end_label=%d", max, labels.get(labels.size() - 1));
 
     LOGGER.trace("getLongLabels() end: labels={}", labels);
     return labels;
@@ -959,7 +964,7 @@ public class Histogram implements Serializable {
     List<DateTime> labels = new ArrayList<>();
 
     DateTime dt = new DateTime(min.getYear(), min.getMonthOfYear(), min.getDayOfMonth(),
-                               min.getHourOfDay() / unitSize * unitSize, 0);
+            min.getHourOfDay() / unitSize * unitSize, 0);
     while (dt.isBefore(max) || dt.isEqual(max)) {
       labels.add(dt);
       dt = dt.plusHours(unitSize);
@@ -972,7 +977,7 @@ public class Histogram implements Serializable {
     List<DateTime> labels = new ArrayList<>();
 
     DateTime dt = new DateTime(min.getYear(), min.getMonthOfYear(), min.getDayOfMonth(),
-                               min.getHourOfDay(), min.getMinuteOfHour() / unitSize * unitSize);
+            min.getHourOfDay(), min.getMinuteOfHour() / unitSize * unitSize);
     while (dt.isBefore(max) || dt.isEqual(max)) {
       labels.add(dt);
       dt = dt.plusMinutes(unitSize);
@@ -998,7 +1003,8 @@ public class Histogram implements Serializable {
     List<DateTime> labels = new ArrayList<>();
 
     DateTime dt = new DateTime(min.getYear(), min.getMonthOfYear(), min.getDayOfMonth(),
-            min.getHourOfDay(), min.getMinuteOfHour(), min.getSecondOfMinute(), min.getMillisOfSecond() / unitSize * unitSize);
+            min.getHourOfDay(), min.getMinuteOfHour(), min.getSecondOfMinute(),
+            min.getMillisOfSecond() / unitSize * unitSize);
     while (dt.isBefore(max) || dt.isEqual(max)) {
       labels.add(dt);
       dt = dt.plusMillis(unitSize);
@@ -1008,7 +1014,7 @@ public class Histogram implements Serializable {
   }
 
   private List<DateTime> getFinestLabels(DateTime min, DateTime max, int barCnt, List<DateTime> currentBestLabels,
-                                         List<Granule> granules, List<Integer> unitSizes) {
+          List<Granule> granules, List<Integer> unitSizes) {
     LOGGER.trace("getFinestLabels() start: granules={} unitSizes={}", granules, unitSizes);
     assert granules.size() > 0;
     assert granules.size() == unitSizes.size() : String.format("granules.size=%d unitSizes.size=%d",
@@ -1069,29 +1075,29 @@ public class Histogram implements Serializable {
     labels.add(new DateTime(max.getYear() / 10 * 10, 1, 1, 0, 0));
     bestGranularity = YEAR;
 
-    List<Granule> granules  = new ArrayList<>();
+    List<Granule> granules = new ArrayList<>();
     List<Integer> unitSizes = new ArrayList<>();
 
-    granules.addAll( Arrays.asList(new Granule[]{YEAR, YEAR, YEAR, YEAR, YEAR, YEAR, YEAR, YEAR, YEAR}));
-    unitSizes.addAll(Arrays.asList(new Integer[]{5000, 1000,  500,  100,   50,   10,    5,    2,    1}));
+    granules.addAll(Arrays.asList(new Granule[]{YEAR, YEAR, YEAR, YEAR, YEAR, YEAR, YEAR, YEAR, YEAR}));
+    unitSizes.addAll(Arrays.asList(new Integer[]{5000, 1000, 500, 100, 50, 10, 5, 2, 1}));
 
-    granules.addAll( Arrays.asList(new Granule[]{MONTH, MONTH, MONTH, MONTH}));
-    unitSizes.addAll(Arrays.asList(new Integer[]{    6,    3,      2,     1}));
+    granules.addAll(Arrays.asList(new Granule[]{MONTH, MONTH, MONTH, MONTH}));
+    unitSizes.addAll(Arrays.asList(new Integer[]{6, 3, 2, 1}));
 
-    granules.addAll( Arrays.asList(new Granule[]{DAY, DAY, DAY, DAY, DAY, DAY}));
-    unitSizes.addAll(Arrays.asList(new Integer[]{ 15,  10,   5,   3,   2,   1}));
+    granules.addAll(Arrays.asList(new Granule[]{DAY, DAY, DAY, DAY, DAY, DAY}));
+    unitSizes.addAll(Arrays.asList(new Integer[]{15, 10, 5, 3, 2, 1}));
 
-    granules.addAll( Arrays.asList(new Granule[]{HOUR, HOUR, HOUR, HOUR}));
-    unitSizes.addAll(Arrays.asList(new Integer[]{   6,    3,    2,    1}));
+    granules.addAll(Arrays.asList(new Granule[]{HOUR, HOUR, HOUR, HOUR}));
+    unitSizes.addAll(Arrays.asList(new Integer[]{6, 3, 2, 1}));
 
-    granules.addAll( Arrays.asList(new Granule[]{MINUTE, MINUTE, MINUTE, MINUTE, MINUTE, MINUTE, MINUTE}));
-    unitSizes.addAll(Arrays.asList(new Integer[]{    30,     15,     10,      5,      3,      2,      1}));
+    granules.addAll(Arrays.asList(new Granule[]{MINUTE, MINUTE, MINUTE, MINUTE, MINUTE, MINUTE, MINUTE}));
+    unitSizes.addAll(Arrays.asList(new Integer[]{30, 15, 10, 5, 3, 2, 1}));
 
-    granules.addAll( Arrays.asList(new Granule[]{SECOND, SECOND, SECOND, SECOND, SECOND, SECOND, SECOND}));
-    unitSizes.addAll(Arrays.asList(new Integer[]{    30,     15,     10,      5,      3,      2,      1}));
+    granules.addAll(Arrays.asList(new Granule[]{SECOND, SECOND, SECOND, SECOND, SECOND, SECOND, SECOND}));
+    unitSizes.addAll(Arrays.asList(new Integer[]{30, 15, 10, 5, 3, 2, 1}));
 
-    granules.addAll( Arrays.asList(new Granule[]{MILLIS, MILLIS, MILLIS, MILLIS, MILLIS, MILLIS, MILLIS}));
-    unitSizes.addAll(Arrays.asList(new Integer[]{   500,    100,     50,     10,      5,      2,      1}));
+    granules.addAll(Arrays.asList(new Granule[]{MILLIS, MILLIS, MILLIS, MILLIS, MILLIS, MILLIS, MILLIS}));
+    unitSizes.addAll(Arrays.asList(new Integer[]{500, 100, 50, 10, 5, 2, 1}));
 
     labels = getFinestLabels(min, max, barCnt, labels, granules, unitSizes);
     return labels;

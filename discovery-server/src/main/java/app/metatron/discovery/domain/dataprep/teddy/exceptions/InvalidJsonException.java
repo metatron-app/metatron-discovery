@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class InvalidJsonException extends TeddyException {
+
   public InvalidJsonException(String message) {
     super(message);
   }

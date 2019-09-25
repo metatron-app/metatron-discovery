@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class WrongTargetColumnExpressionException extends TeddyException {
+
   public WrongTargetColumnExpressionException(String message) {
     super(message);
   }

@@ -15,7 +15,6 @@
 package app.metatron.discovery.prep.parser.preparation.rule.expr;
 
 import com.google.common.base.Function;
-
 import java.util.Comparator;
 
 public class Pair<T1, T2> {
@@ -63,9 +62,9 @@ public class Pair<T1, T2> {
   @Override
   public String toString() {
     return "Pair{" +
-        "lhs=" + lhs +
-        ", rhs=" + rhs +
-        '}';
+            "lhs=" + lhs +
+            ", rhs=" + rhs +
+            '}';
   }
 
   public static <T1, T2> Function<Pair<T1, T2>, T1> lhsFn() {

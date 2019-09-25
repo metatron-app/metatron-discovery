@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class JoinTypeNotSupportedException extends TeddyException {
+
   public JoinTypeNotSupportedException(String message) {
     super(message);
   }

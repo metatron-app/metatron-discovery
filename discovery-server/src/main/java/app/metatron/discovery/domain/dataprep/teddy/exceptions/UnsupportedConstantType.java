@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class UnsupportedConstantType extends TeddyException {
+
   public UnsupportedConstantType(String message) {
     super(message);
   }

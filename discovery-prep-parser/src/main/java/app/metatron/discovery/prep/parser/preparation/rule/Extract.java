@@ -108,13 +108,17 @@ public class Extract implements Rule, Rule.Factory {
   @Override
   public String toString() {
     String quoteString = null;
-    if (quote != null) quoteString = quote.toString(); else quoteString = "";
+    if (quote != null) {
+      quoteString = quote.toString();
+    } else {
+      quoteString = "";
+    }
     return "Extract{" +
-        "col='" + col + '\'' +
-        ", on=" + on +
-        ", limit=" + limit +
-        ", quote='" + quoteString + '\'' +
-        ", ignoreCase=" + ignoreCase +
-        '}';
+            "col='" + col + '\'' +
+            ", on=" + on +
+            ", limit=" + limit +
+            ", quote='" + quoteString + '\'' +
+            ", ignoreCase=" + ignoreCase +
+            '}';
   }
 }

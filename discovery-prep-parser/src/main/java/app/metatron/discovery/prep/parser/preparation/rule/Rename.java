@@ -17,6 +17,7 @@ package app.metatron.discovery.prep.parser.preparation.rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 
 public class Rename implements Rule, Rule.Factory {
+
   Expression col;
   Expression to;
 
@@ -57,8 +58,8 @@ public class Rename implements Rule, Rule.Factory {
   @Override
   public String toString() {
     return "Rename{" +
-        "col=" + col +
-        ", to=" + to +
-        '}';
+            "col=" + col +
+            ", to=" + to +
+            '}';
   }
 }
