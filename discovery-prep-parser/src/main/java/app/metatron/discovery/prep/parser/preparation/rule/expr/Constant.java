@@ -14,11 +14,10 @@
 
 package app.metatron.discovery.prep.parser.preparation.rule.expr;
 
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 
 /**
  * Created by kyungtaak on 2017. 3. 5..
@@ -28,6 +27,7 @@ public interface Constant extends Expr {
   Object getValue();
 
   class LongExpr implements Constant {
+
     private final long value;
 
     public LongExpr(long value) {
@@ -53,7 +53,7 @@ public interface Constant extends Expr {
 
     private final double value;
 
-      public DoubleExpr(double value) {
+    public DoubleExpr(double value) {
       this.value = value;
     }
 
@@ -181,10 +181,10 @@ public interface Constant extends Expr {
 
     public List<String> getEscapedValue() {
       return value.stream()
-          .map(s -> StringUtils.substring(s, 1, s.length() - 1)
-                  .replace("\\'", "'")
-                  .replace("\\\\", "\\"))
-          .collect(Collectors.toList());
+              .map(s -> StringUtils.substring(s, 1, s.length() - 1)
+                      .replace("\\'", "'")
+                      .replace("\\\\", "\\"))
+              .collect(Collectors.toList());
     }
 
     @Override

@@ -3,11 +3,14 @@ package app.metatron.discovery.domain.dataprep.entity;
 import app.metatron.discovery.domain.AbstractHistoryEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonValue;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.validation.constraints.Size;
 import org.apache.commons.io.FilenameUtils;
 import org.hibernate.annotations.GenericGenerator;
-
-import javax.persistence.*;
-import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "pr_upload_file")
@@ -62,7 +65,7 @@ public class PrUploadFile extends AbstractHistoryEntity {
     String filename = this.uploadId;
 
     String extensionType = FilenameUtils.getExtension(this.originalFilename);
-    if(extensionType!=null && 0<extensionType.length()) {
+    if (extensionType != null && 0 < extensionType.length()) {
       filename = filename + "." + extensionType.toLowerCase();
     }
 

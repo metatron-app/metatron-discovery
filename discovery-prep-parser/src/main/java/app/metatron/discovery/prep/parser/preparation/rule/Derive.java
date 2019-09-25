@@ -65,8 +65,8 @@ public class Derive implements Rule, Rule.Factory {
   @Override
   public String toString() {
     return "Derive{" +
-        "value=" + value +
-        ", as='" + as + '\'' +
-        '}';
+            "value=" + value +
+            ", as='" + as + '\'' +
+            '}';
   }
 }

@@ -14,8 +14,9 @@
 
 package app.metatron.discovery.prep.parser.exceptions;
 
-public class FunctionArgumentCountException extends RuleException{
-    public FunctionArgumentCountException(String message) {
-        super(message);
-    }
+public class FunctionArgumentCountException extends RuleException {
+
+  public FunctionArgumentCountException(String message) {
+    super(message);
+  }
 }

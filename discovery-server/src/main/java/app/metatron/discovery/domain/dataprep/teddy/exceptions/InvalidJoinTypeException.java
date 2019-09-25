@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class InvalidJoinTypeException extends TeddyException {
+
   public InvalidJoinTypeException(String message) {
     super(message);
   }

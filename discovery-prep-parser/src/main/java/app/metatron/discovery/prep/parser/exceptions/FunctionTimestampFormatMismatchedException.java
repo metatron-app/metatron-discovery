@@ -15,7 +15,8 @@
 package app.metatron.discovery.prep.parser.exceptions;
 
 public class FunctionTimestampFormatMismatchedException extends RuleException {
-    public FunctionTimestampFormatMismatchedException(String message) {
-        super(message);
-    }
+
+  public FunctionTimestampFormatMismatchedException(String message) {
+    super(message);
+  }
 }

@@ -16,13 +16,11 @@ package app.metatron.discovery.domain.dataprep.teddy;
 
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class DfUnion extends DataFrame {
+
   public DfUnion(String dsName, String ruleString) {
     super(dsName, ruleString);
   }
@@ -38,7 +36,8 @@ public class DfUnion extends DataFrame {
   }
 
   @Override
-  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException {
+  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
+          throws InterruptedException {
     List<DataFrame> slaveDfs = (List<DataFrame>) preparedArgs.get(0);
 
     // master도 추가

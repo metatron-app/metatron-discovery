@@ -14,8 +14,9 @@
 
 package app.metatron.discovery.prep.parser.exceptions;
 
-public class FunctionInvalidFunctionNameException extends RuleException{
-    public FunctionInvalidFunctionNameException(String message) {
-        super(message);
-    }
+public class FunctionInvalidFunctionNameException extends RuleException {
+
+  public FunctionInvalidFunctionNameException(String message) {
+    super(message);
+  }
 }

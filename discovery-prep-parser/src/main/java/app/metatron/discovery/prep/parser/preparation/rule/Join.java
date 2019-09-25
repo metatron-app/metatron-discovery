@@ -14,7 +14,11 @@
 
 package app.metatron.discovery.prep.parser.preparation.rule;
 
-import static app.metatron.discovery.prep.parser.preparation.rule.Join.JOIN_TYPE.*;
+import static app.metatron.discovery.prep.parser.preparation.rule.Join.JOIN_TYPE.INNER;
+import static app.metatron.discovery.prep.parser.preparation.rule.Join.JOIN_TYPE.INVALID;
+import static app.metatron.discovery.prep.parser.preparation.rule.Join.JOIN_TYPE.LEFT;
+import static app.metatron.discovery.prep.parser.preparation.rule.Join.JOIN_TYPE.OUTER;
+import static app.metatron.discovery.prep.parser.preparation.rule.Join.JOIN_TYPE.RIGHT;
 
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 
@@ -52,7 +56,8 @@ public class Join implements Rule, Rule.Factory {
   public Join() {
   }
 
-  public Join(Expression dataset2, Expression leftSelectCol, Expression rightSelectCol, Expression condition, String joinType) {
+  public Join(Expression dataset2, Expression leftSelectCol, Expression rightSelectCol, Expression condition,
+          String joinType) {
     this.dataset2 = dataset2;
     this.leftSelectCol = leftSelectCol;
     this.rightSelectCol = rightSelectCol;
@@ -113,11 +118,11 @@ public class Join implements Rule, Rule.Factory {
   @Override
   public String toString() {
     return "Join{" +
-        "dataset2=" + dataset2 +
-        ", leftSelectCol=" + leftSelectCol +
-        ", condition=" + condition +
-        ", rightSelectCol=" + rightSelectCol +
-        ", joinType='" + joinType + '\'' +
-        '}';
+            "dataset2=" + dataset2 +
+            ", leftSelectCol=" + leftSelectCol +
+            ", condition=" + condition +
+            ", rightSelectCol=" + rightSelectCol +
+            ", joinType='" + joinType + '\'' +
+            '}';
   }
 }

@@ -17,6 +17,7 @@ package app.metatron.discovery.domain.dataprep;
 import java.io.Serializable;
 
 public class PrepSwapRequest implements Serializable {
+
   String oldDsId;
   String newDsId;
   String wrangledDsId;

@@ -15,7 +15,6 @@
 package app.metatron.discovery.prep.parser.preparation.rule.expr;
 
 import com.google.common.base.Supplier;
-
 import java.util.List;
 
 public interface Function {
@@ -25,8 +24,10 @@ public interface Function {
   boolean validate(List<Expr> args);
 
   interface Factory extends Supplier<Function> {
+
   }
 
   interface Library {
+
   }
 }

@@ -1,13 +1,10 @@
 package app.metatron.discovery.domain.dataprep.csv;
 
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import java.io.IOException;
-import java.util.NoSuchElementException;
-import org.apache.commons.io.IOExceptionWithCause;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import org.junit.Test;
 
 public class ApacheCommonsCsvInputTest {
 
@@ -36,14 +33,14 @@ public class ApacheCommonsCsvInputTest {
   }
 
   // TODO: revive the below test after alleviating the column name limitation. (DataFrame.assertParsible)
-//  @Test
-//  public void test_bom_and_header() {
-//    String strUri = buildStrUrlFromResourceDir("csv/sale_bom16.csv");
-//    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 30, null, true);
-//    DataFrame df = new DataFrame();
-//    df.setByGrid(result);
-//    df.show();
-//  }
+  //  @Test
+  //  public void test_bom_and_header() {
+  //    String strUri = buildStrUrlFromResourceDir("csv/sale_bom16.csv");
+  //    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 30, null, true);
+  //    DataFrame df = new DataFrame();
+  //    df.setByGrid(result);
+  //    df.show();
+  //  }
 
   @Test
   public void test_unstructured() {

@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class InvalidTimezoneIDException extends TeddyException {
+
   public InvalidTimezoneIDException(String message) {
     super(message);
   }

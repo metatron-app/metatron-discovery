@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class UnknownError extends TeddyException {
+
   public UnknownError(String message) {
     super(message);
   }

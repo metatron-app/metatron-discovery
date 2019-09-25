@@ -91,9 +91,9 @@
 
     <!-- 클릭시 ddp-selected 추가 -->
     <div class="ddp-more"
-         [ngClass]="{'ddp-selected':isBtnOptionOpen}"
          *ngIf="selectedDataSet.dsType && selectedDataSet.dsType.toString() === 'WRANGLED'"
-         (clickOutside)="isBtnOptionOpen = false">
+         [ngClass]="{'ddp-selected':isBtnOptionOpen}" (clickOutside)="isBtnOptionOpen = false"
+         style="bottom:-3px;">
       <a href="javascript:" class="ddp-btn-more" (click)="openBtnOptions()"></a>
       <!-- popup -->
       <div class="ddp-wrap-popup2 ddp-types">

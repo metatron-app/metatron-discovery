@@ -15,14 +15,18 @@
 package app.metatron.discovery.prep.parser.preparation;
 
 import app.metatron.discovery.prep.parser.preparation.spec.SuggestToken;
-
 import java.util.List;
 
 public interface PrepParser {
-        List<SuggestToken> suggest(String ruleString);
-        List<String> suggest_conditional_expression(String ruleString);
-        List<SuggestToken> suggest_all_rules(String ruleString);
-        List<SuggestToken> suggest_aggr_rules(String ruleString);
-        List<SuggestToken> suggest_window_rules(String ruleString);
+
+  List<SuggestToken> suggest(String ruleString);
+
+  List<String> suggest_conditional_expression(String ruleString);
+
+  List<SuggestToken> suggest_all_rules(String ruleString);
+
+  List<SuggestToken> suggest_aggr_rules(String ruleString);
+
+  List<SuggestToken> suggest_window_rules(String ruleString);
 }
 

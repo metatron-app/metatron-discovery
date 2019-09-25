@@ -15,6 +15,7 @@
 package app.metatron.discovery.prep.parser.preparation.rule;
 
 public class Flatten implements Rule, Rule.Factory {
+
   /**
    * Only an array type
    */
@@ -49,7 +50,7 @@ public class Flatten implements Rule, Rule.Factory {
   @Override
   public String toString() {
     return "Flatten{" +
-        "col='" + col + '\'' +
-        '}';
+            "col='" + col + '\'' +
+            '}';
   }
 }

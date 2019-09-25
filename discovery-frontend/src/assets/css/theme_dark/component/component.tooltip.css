@@ -1,0 +1,166 @@
+@charset "utf-8";
+
+/**************************************************************
+	툴팁
+**************************************************************/
+.theme-dark .ddp-icon-question {
+    display: inline-block;
+    width: 11px;
+    height: 11px;
+    background: url(../../../images/icon_que.png) no-repeat;
+}
+
+.theme-dark .ddp-ui-tooltip {
+    display: inline-block;
+    position: relative;
+    margin-left: 2px;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.theme-dark .ddp-ui-tooltip em.ddp-icon-question {
+    display: inline-block;
+    width: 11px;
+    height: 11px;
+    background: url(../../../images/icon_que.png) no-repeat;
+}
+
+.theme-dark .ddp-ui-tooltip-info {
+    display: none;
+    position: absolute;
+    top: -7px;
+    left: 17px;
+    min-width: 15px;
+    padding: 5px;
+    color: #fff;
+    font-size: 12px;
+    white-space: nowrap;
+    border-radius: 3px;
+    background-color: #4e5255;
+    z-index: 1;
+}
+
+.theme-dark .ddp-ui-tooltip-info em.ddp-icon-view {
+    display: inline-block;
+    position: absolute;
+    top: 8px;
+    left: 0px;
+    width: 4px;
+    height: 8px;
+    margin-left: -4px;
+    background: url(../../../images/icon_tagview.png) no-repeat;
+}
+
+.theme-dark .ddp-ui-tooltip-info em.ddp-icon-view-top {
+    display: inline-block;
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    width: 4px;
+    height: 8px;
+    margin-left: -4px;
+    background: url(../../../images/icon_tagview.png) no-repeat;
+    transform: rotate(90deg);
+}
+
+.theme-dark .ddp-ui-tooltip-info em.ddp-icon-view-down {
+    display: inline-block;
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    width: 4px;
+    height: 8px;
+    margin-left: -4px;
+    background: url(../../../images/icon_tagview.png) no-repeat;
+    transform: rotate(-90deg);
+}
+
+.theme-dark .ddp-ui-tooltip-info em.ddp-icon-view-left {
+    display: inline-block;
+    position: absolute;
+    top: 50%;
+    left: -4px;
+    width: 4px;
+    height: 8px;
+    margin-top: -4px;
+    background: url(../../../images/icon_tagview.png) no-repeat;
+}
+
+.theme-dark .ddp-ui-tooltip-info em.ddp-icon-view-right {
+    display: inline-block;
+    position: absolute;
+    top: 50%;
+    right: -4px;
+    width: 4px;
+    height: 8px;
+    margin-top: -4px;
+    background: url(../../../images/icon_tagview.png) no-repeat;
+    transform: rotate(180deg);
+}
+
+.theme-dark .ddp-ui-tooltip.ddp-selected .ddp-ui-tooltip-info {
+    display: block;
+}
+
+.theme-dark .ddp-ui-tooltip-info.ddp-down {
+    position: absolute;
+    top: 100%;
+    left: inherit;
+    right: -10px;
+    margin-top: 6px;
+    font-weight: normal;
+}
+
+.theme-dark .ddp-ui-tooltip-info.ddp-down em.ddp-icon-view-top {
+    left: inherit;
+    right: 15px;
+}
+
+.theme-dark .ddp-ui-tooltip-info.ddp-top {
+    position: absolute;
+    bottom: 100%;
+    top: inherit;
+    left: 25px;
+}
+
+.theme-dark .ddp-ui-tooltip-info.ddp-top .ddp-icon-view-top {
+    top: 100%;
+    transform: rotate(-90deg);
+    margin-top: -2px;
+}
+
+.theme-dark .ddp-hover-tooltip {
+    position: relative;
+}
+
+.theme-dark .ddp-hover-tooltip:hover .ddp-ui-tooltip-info {
+    display: block;
+    z-index: 10;
+}
+
+.theme-dark .ddp-hover-tooltip.ddp-selected:hover .ddp-ui-tooltip-info {
+    display: none;
+}
+
+.theme-dark .ddp-ui-tooltip-info .ddp-tooltip-label {
+    display: block;
+    padding-bottom: 7px;
+    font-size: 12px;
+    color: #b7b9c2;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-ui-tooltip-info .ddp-dl-info + .ddp-dl-info {
+    padding-top: 6px;
+}
+
+.theme-dark .ddp-ui-tooltip-info .ddp-dl-info dt {
+    font-size: 12px;
+    color: #f4f6fc;
+    font-weight: 300;
+}
+
+.theme-dark .ddp-ui-tooltip-info .ddp-dl-info dd {
+    font-size: 12px;
+    color: #f4f6fc;
+}

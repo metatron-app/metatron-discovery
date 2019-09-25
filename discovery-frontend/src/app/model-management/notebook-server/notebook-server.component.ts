@@ -27,6 +27,7 @@ import {ActivatedRoute} from "@angular/router";
 @Component({
   selector: 'app-notebook-server',
   templateUrl: './notebook-server.component.html',
+  styles:[':host .ddp-txt-ellipsis {white-space:nowrap !important; text-overflow:ellipsis !important; overflow:hidden !important;}']
 })
 export class NotebookServerComponent extends AbstractComponent implements OnInit {
 

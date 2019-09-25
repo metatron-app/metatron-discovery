@@ -14,7 +14,6 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnNotFoundException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.WorksOnlyOnTimestampException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongTargetColumnExpressionException;
@@ -22,13 +21,13 @@ import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.SetFormat;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class DfSetFormat extends DataFrame {
+
   private static Logger LOGGER = LoggerFactory.getLogger(DfSetFormat.class);
 
   public DfSetFormat(String dsName, String ruleString) {
@@ -48,28 +47,31 @@ public class DfSetFormat extends DataFrame {
       Integer colno = prevDf.getColnoByColName(targetColName);
 
       if (prevDf.getColType(colno) != ColumnType.TIMESTAMP) {
-        throw new WorksOnlyOnTimestampException("DfSetFormt.prepare(): This column is not timestamp type: " + targetColName);
+        throw new WorksOnlyOnTimestampException(
+                "DfSetFormt.prepare(): This column is not timestamp type: " + targetColName);
       }
       targetColnos.add(colno);
       interestedColNames.add(targetColName);
-    }
-    else if (targetColExpr instanceof Identifier.IdentifierArrayExpr) {
+    } else if (targetColExpr instanceof Identifier.IdentifierArrayExpr) {
       List<String> targetColNames = ((Identifier.IdentifierArrayExpr) targetColExpr).getValue();
       for (String targetColName : targetColNames) {
         Integer colno = prevDf.getColnoByColName(targetColName);
 
         if (prevDf.getColType(colno) != ColumnType.TIMESTAMP) {
-          throw new WorksOnlyOnTimestampException("DfSetFormt.prepare(): This column is not timestamp type: " + targetColName);
+          throw new WorksOnlyOnTimestampException(
+                  "DfSetFormt.prepare(): This column is not timestamp type: " + targetColName);
         }
         targetColnos.add(colno);
         interestedColNames.add(targetColName);
       }
     } else {
-      throw new WrongTargetColumnExpressionException("DfSetFormt.prepare(): wrong target column expression: " + targetColExpr.toString());
+      throw new WrongTargetColumnExpressionException(
+              "DfSetFormt.prepare(): wrong target column expression: " + targetColExpr.toString());
     }
 
     if (targetColnos.size() == 0) {
-      throw new WrongTargetColumnExpressionException("DfSetFormt.prepare(): no target column designated: " + targetColExpr.toString());
+      throw new WrongTargetColumnExpressionException(
+              "DfSetFormt.prepare(): no target column designated: " + targetColExpr.toString());
     }
 
     for (int colno = 0; colno < prevDf.getColCnt(); colno++) {
@@ -86,7 +88,8 @@ public class DfSetFormat extends DataFrame {
   }
 
   @Override
-  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
+  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
+          throws InterruptedException, TeddyException {
     // rows are not changed in setformat
     return null;
   }

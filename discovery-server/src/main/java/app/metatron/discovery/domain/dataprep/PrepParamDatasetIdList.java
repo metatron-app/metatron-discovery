@@ -19,27 +19,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PrepParamDatasetIdList implements Serializable {
-    List<String> dsIds;
-    Boolean forSwap;
 
-    public PrepParamDatasetIdList() {
-        this.dsIds = new ArrayList<String>();
-    }
+  List<String> dsIds;
+  Boolean forSwap;
 
-    public List<String> getDsIds() {
-        return dsIds;
-    }
+  public PrepParamDatasetIdList() {
+    this.dsIds = new ArrayList<String>();
+  }
 
-    public void setDsIds(List<String> dsIds) {
-        this.dsIds = dsIds;
-    }
+  public List<String> getDsIds() {
+    return dsIds;
+  }
 
-    public Boolean getForSwap() {
-        return forSwap;
-    }
+  public void setDsIds(List<String> dsIds) {
+    this.dsIds = dsIds;
+  }
 
-    public void setForSwap(Boolean forSwap) {
-        this.forSwap = forSwap;
-    }
+  public Boolean getForSwap() {
+    return forSwap;
+  }
+
+  public void setForSwap(Boolean forSwap) {
+    this.forSwap = forSwap;
+  }
 }
 

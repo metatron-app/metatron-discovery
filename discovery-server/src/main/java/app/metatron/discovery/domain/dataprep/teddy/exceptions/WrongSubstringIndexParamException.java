@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class WrongSubstringIndexParamException extends TeddyException {
+
   public WrongSubstringIndexParamException(String message) {
     super(message);
   }

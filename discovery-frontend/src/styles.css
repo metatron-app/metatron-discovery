@@ -19,10 +19,9 @@
    Common css Import
 ***********************************************************************************************************/
 @import url('lib/gradX/gradX.css');
-@import url('assets/css/lib/spectrum/spectrum.css');
+@import url('assets/css/lib/spectrum.css');
 @import url('assets/css/lib/rome.css');
-@import url('assets/css/polaris.v2.css');
-@import url('assets/css/polaris.v2.editor.css');
+@import url('assets/css/main.css');
 @import url('assets/css/lib/dnd/style.css');
 @import url('lib/pivot-grid/pivot.view.css');
 @import url('lib/at/jquery.atwho.css');

@@ -79,9 +79,9 @@ public class Nest implements Rule, Rule.Factory {
   @Override
   public String toString() {
     return "Nest{" +
-        "col=" + col +
-        ", into='" + into + '\'' +
-        ", as='" + as + '\'' +
-        '}';
+            "col=" + col +
+            ", into='" + into + '\'' +
+            ", as='" + as + '\'' +
+            '}';
   }
 }

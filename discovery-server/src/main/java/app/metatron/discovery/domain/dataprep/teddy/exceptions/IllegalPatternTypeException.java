@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class IllegalPatternTypeException extends TeddyException {
+
   public IllegalPatternTypeException(String message) {
     super(message);
   }

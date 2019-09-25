@@ -15,6 +15,7 @@
 package app.metatron.discovery.prep.parser.exceptions;
 
 public class FunctionInvalidTimezonIDException extends RuleException {
+
   public FunctionInvalidTimezonIDException(String message) {
     super(message);
   }

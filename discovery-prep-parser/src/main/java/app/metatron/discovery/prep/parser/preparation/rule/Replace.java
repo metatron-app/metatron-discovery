@@ -68,7 +68,8 @@ public class Replace implements Rule, Rule.Factory {
   public Replace() {
   }
 
-  public Replace(Expression col, Expression on, Expression after, Expression before, Constant with, Boolean global, Boolean ignoreCase, Expression quote, Expression row) {
+  public Replace(Expression col, Expression on, Expression after, Expression before, Constant with, Boolean global,
+          Boolean ignoreCase, Expression quote, Expression row) {
     this.col = col;
     this.on = on;
     this.after = after;
@@ -165,17 +166,21 @@ public class Replace implements Rule, Rule.Factory {
   @Override
   public String toString() {
     String quoteString = null;
-    if (quote != null) quoteString = quote.toString(); else quoteString = "";
+    if (quote != null) {
+      quoteString = quote.toString();
+    } else {
+      quoteString = "";
+    }
     return "Replace{" +
-        "col=" + col +
-        ", on=" + on +
-        ", after=" + after +
-        ", before=" + before +
-        ", with=" + with +
-        ", global=" + global +
-        ", ignoreCase=" + ignoreCase +
-        ", quote='" + quoteString + '\'' +
-        ", row=" + row +
-        '}';
+            "col=" + col +
+            ", on=" + on +
+            ", after=" + after +
+            ", before=" + before +
+            ", with=" + with +
+            ", global=" + global +
+            ", ignoreCase=" + ignoreCase +
+            ", quote='" + quoteString + '\'' +
+            ", row=" + row +
+            '}';
   }
 }

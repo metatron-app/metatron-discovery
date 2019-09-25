@@ -14,30 +14,18 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
-import app.metatron.discovery.prep.parser.preparation.rule.Rule;
-import app.metatron.discovery.prep.parser.preparation.rule.SetType;
+import static org.junit.Assert.assertEquals;
 
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import java.io.IOException;
 import org.joda.time.DateTime;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-
-import static org.junit.Assert.assertEquals;
-
 /**
  * WrangleTest
  */
-public class SetTypeTest extends  TeddyTest{
+public class SetTypeTest extends TeddyTest {
 
   @BeforeClass
   public static void setUp() throws Exception {
@@ -56,7 +44,7 @@ public class SetTypeTest extends  TeddyTest{
   @Test
   public void testSetType1() throws IOException, TeddyException {
     DataFrame sampleDataFrame = newSampleDataFrame();
-    String ruleString  = "settype col: birth_date type: timestamp format: 'MM.dd.yyyy HH:mm:ss'";
+    String ruleString = "settype col: birth_date type: timestamp format: 'MM.dd.yyyy HH:mm:ss'";
     DataFrame newDf = apply_rule(sampleDataFrame, ruleString);
     newDf.show();
 

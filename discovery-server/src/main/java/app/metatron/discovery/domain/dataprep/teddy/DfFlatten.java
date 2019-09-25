@@ -18,13 +18,13 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.WorksOnlyOnArrayException;
 import app.metatron.discovery.prep.parser.preparation.rule.Flatten;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class DfFlatten extends DataFrame {
+
   private static Logger LOGGER = LoggerFactory.getLogger(DfFlatten.class);
 
   public DfFlatten(String dsName, String ruleString) {
@@ -40,7 +40,8 @@ public class DfFlatten extends DataFrame {
     int targetColno = prevDf.getColnoByColName(targetColName);
 
     if (prevDf.getColType(targetColno) != ColumnType.ARRAY) {
-      throw new WorksOnlyOnArrayException("DfFlatten.prepare(): works only on ARRAY: " + prevDf.getColType(targetColno));
+      throw new WorksOnlyOnArrayException(
+              "DfFlatten.prepare(): works only on ARRAY: " + prevDf.getColType(targetColno));
     }
 
     // 컬럼 이름이 바뀌는 일은 없음
@@ -61,7 +62,8 @@ public class DfFlatten extends DataFrame {
   }
 
   @Override
-  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
+  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
+          throws InterruptedException, TeddyException {
     List<Row> rows = new ArrayList<>();
     int targetColno = (int) preparedArgs.get(0);
 

@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ColumnDescription implements Serializable {
+
   private ColumnType type;
   private String timestampStyle;
   private String logicalName;

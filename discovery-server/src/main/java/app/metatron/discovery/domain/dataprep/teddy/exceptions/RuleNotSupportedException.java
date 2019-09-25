@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class RuleNotSupportedException extends TeddyException {
+
   public RuleNotSupportedException(String message) {
     super(message);
   }

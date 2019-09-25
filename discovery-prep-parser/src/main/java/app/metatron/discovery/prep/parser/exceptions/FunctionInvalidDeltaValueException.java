@@ -15,6 +15,7 @@
 package app.metatron.discovery.prep.parser.exceptions;
 
 public class FunctionInvalidDeltaValueException extends RuleException {
+
   public FunctionInvalidDeltaValueException(String message) {
     super(message);
   }
