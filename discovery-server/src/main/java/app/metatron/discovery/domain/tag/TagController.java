@@ -42,7 +42,7 @@ public class TagController {
   /**
    * Tag Count 목록을 조회합니다.
    */
-  @RequestMapping(value = "/tags/count", method = RequestMethod.GET)
+  @RequestMapping(value = "/tags/popularity", method = RequestMethod.GET)
   public ResponseEntity<?> findTags(@RequestParam(value = "scope", required = false) Tag.Scope scope,
                                     @RequestParam(value = "domainType", required = false) DomainType domainType,
                                     @RequestParam(value = "nameContains", required = false) String nameContains,
