@@ -12,13 +12,13 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { CookieConstant } from '../../../../common/constant/cookie.constant';
-import { UserService } from '../../../../user/service/user.service';
-import { User } from '../../../../domain/user/user';
-import { ProfileComponent } from '../../../../user/profile/profile.component';
-import { CommonUtil } from '../../../../common/util/common.util';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AbstractComponent} from '../../../../common/component/abstract.component';
+import {CookieConstant} from '../../../../common/constant/cookie.constant';
+import {UserService} from '../../../../user/service/user.service';
+import {User} from '../../../../domain/user/user';
+import {ProfileComponent} from '../../../../user/profile/profile.component';
+import {CommonUtil} from '../../../../common/util/common.util';
 
 @Component({
   selector: 'app-gnb',
@@ -39,6 +39,7 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   // my info show/hide
   public isMyInfoShow = false;
+  public isLanguageShow = false;
 
   // UI에서 사용할 유저객체
   public user: User;
@@ -91,6 +92,19 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
     this.profileComponent.init(this.user);
   }
 
+  public getCurrentLang(): string {
+    return this.getLanguage();
+  }
+
+  public changeLanguage(lang): void {
+    const currentLang = this.getCurrentLang();
+    if (currentLang === lang) {
+      return;
+    }
+    this.setLanguage(lang);
+    this.isLanguageShow = false;
+  }
+
   /**
    * 사용자 정보 수정 완료
    * @param userData
@@ -115,6 +129,18 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
       return this.defaultPhotoSrc;
     }
   } // function - getUserImage
+
+  public isThemeDark(): boolean {
+    return $('body').hasClass('theme-dark');
+  }
+
+  public themeCheckboxClick(isThemeDark: boolean) {
+    if (isThemeDark) {
+      $('body').addClass('theme-dark');
+    } else {
+      $('body').removeClass('theme-dark');
+    }
+  }
 
   public logout() {
     if( CommonUtil.isSamlSSO() ) {

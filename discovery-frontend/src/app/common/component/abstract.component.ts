@@ -751,6 +751,15 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
     return connImgUrl;
   } // function - getConnImplementorGrayImgUrl
 
+  public getLanguage():string {
+    return this.translateService.currentLang;
+  }
+
+  public setLanguage(lang:string) {
+    this.translateService.use(lang);
+    // store language
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
