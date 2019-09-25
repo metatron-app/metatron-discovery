@@ -17,22 +17,22 @@ package app.metatron.discovery.domain.dataprep.teddy;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalPatternTypeException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongTargetColumnExpressionException;
-import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.CountPattern;
-import app.metatron.discovery.prep.parser.preparation.rule.Replace;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.*;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.RegularExpr;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 public class DfCountPattern extends DataFrame {
+
   private static Logger LOGGER = LoggerFactory.getLogger(DfCountPattern.class);
 
   public DfCountPattern(String dsName, String ruleString) {
@@ -60,7 +60,8 @@ public class DfCountPattern extends DataFrame {
     } else if (targetColExpr instanceof Identifier.IdentifierArrayExpr) {
       targetColNames.addAll(((Identifier.IdentifierArrayExpr) targetColExpr).getValue());
     } else {
-      throw new WrongTargetColumnExpressionException("DfCountPattern(): wrong target column expression: " + targetColExpr.toString());
+      throw new WrongTargetColumnExpressionException(
+              "DfCountPattern(): wrong target column expression: " + targetColExpr.toString());
     }
 
     String newColName = "countpattern";
@@ -70,12 +71,14 @@ public class DfCountPattern extends DataFrame {
     }
 
     if (targetColnos.size() == 0) {
-      throw new WrongTargetColumnExpressionException("doCountPattern(): no target column designated: " + targetColExpr.toString());
+      throw new WrongTargetColumnExpressionException(
+              "doCountPattern(): no target column designated: " + targetColExpr.toString());
     }
 
     addColumnWithDfAll(prevDf);
 
-    newColName = addColumn(targetColnos.get(targetColnos.size() - 1) + 1, newColName, ColumnType.LONG);  // 마지막 대상 컬럼 뒤로 삽입
+    newColName = addColumn(targetColnos.get(targetColnos.size() - 1) + 1, newColName,
+            ColumnType.LONG);  // 마지막 대상 컬럼 뒤로 삽입
     newColNames.add(newColName);
     interestedColNames.add(newColName);
 
@@ -83,14 +86,15 @@ public class DfCountPattern extends DataFrame {
 
     //quote 여부에 다른 처리
 
-    if(quote == null) {
+    if (quote == null) {
       if (expr instanceof Constant.StringExpr) {
         patternStr = ((Constant.StringExpr) expr).getEscapedValue();
 
-        if (isCaseIgnore != null && isCaseIgnore)
+        if (isCaseIgnore != null && isCaseIgnore) {
           pattern = Pattern.compile(patternStr, Pattern.LITERAL + Pattern.CASE_INSENSITIVE);
-        else
+        } else {
           pattern = Pattern.compile(patternStr, Pattern.LITERAL);
+        }
 
       } else if (expr instanceof RegularExpr) {
         patternStr = ((RegularExpr) expr).getEscapedValue();
@@ -105,8 +109,9 @@ public class DfCountPattern extends DataFrame {
         patternStr = ((Constant.StringExpr) expr).getEscapedValue();
         patternStr = disableRegexSymbols(patternStr);
 
-        if (isCaseIgnore != null && isCaseIgnore)
+        if (isCaseIgnore != null && isCaseIgnore) {
           patternStr = makeCaseInsensitive(patternStr);
+        }
 
       } else if (expr instanceof RegularExpr) {
         patternStr = ((RegularExpr) expr).getEscapedValue();
@@ -136,7 +141,8 @@ public class DfCountPattern extends DataFrame {
   }
 
   @Override
-  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
+  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
+          throws InterruptedException, TeddyException {
     List<Row> rows = new ArrayList<>();
 
     List<Integer> targetColnos = (List<Integer>) preparedArgs.get(0);
@@ -146,11 +152,11 @@ public class DfCountPattern extends DataFrame {
     String newColName = (String) preparedArgs.get(4);
 
     LOGGER.trace("DfCountPattern.gather(): start: offset={} length={} pattern={} quoteStr={}",
-                 offset, length, pattern, quoteStr);
+            offset, length, pattern, quoteStr);
 
     int lastTargetColno = targetColnos.get(targetColnos.size() - 1);
 
-    if(quoteStr == null) {
+    if (quoteStr == null) {
       for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
         Row row = prevDf.rows.get(rowno);
         Row newRow = new Row();
@@ -211,7 +217,7 @@ public class DfCountPattern extends DataFrame {
     }
 
     LOGGER.trace("DfCountPattern.gather(): end: offset={} length={} pattern={} quoteStr={}",
-                 offset, length, pattern, quoteStr);
+            offset, length, pattern, quoteStr);
     return rows;
   }
 }

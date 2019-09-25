@@ -28,28 +28,36 @@ import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.spec.SuggestToken;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @RepositoryRestController
 public class PrepTransformController {
+
   private static Logger LOGGER = LoggerFactory.getLogger(PrepTransformController.class);
 
   @Autowired(required = false)
   PrepTransformService transformService;
 
   @RequestMapping(value = "/preparationdatasets/{dsId}/transform", method = RequestMethod.POST, produces = "application/json")
-  public @ResponseBody ResponseEntity<?> create(
-    @PathVariable("dsId") String importedDsId,
-    @RequestBody PrepTransformRequest request) throws IOException {
+  public
+  @ResponseBody
+  ResponseEntity<?> create(
+          @PathVariable("dsId") String importedDsId,
+          @RequestBody PrepTransformRequest request) throws IOException {
 
     PrepTransformResponse response;
     LOGGER.trace("create(): start");
@@ -66,7 +74,9 @@ public class PrepTransformController {
   }
 
   @RequestMapping(value = "/preparationdatasets/{oldDsId}/swap/{newDsId}", method = RequestMethod.POST, produces = "application/json")
-  public @ResponseBody ResponseEntity<?> swap(
+  public
+  @ResponseBody
+  ResponseEntity<?> swap(
           @PathVariable("oldDsId") String oldDsId,
           @PathVariable("newDsId") String newDsId) throws Throwable {
     try {
@@ -82,7 +92,9 @@ public class PrepTransformController {
 
   // 대상 wrangled dataset과 똑같은 dataset을 생성 (rule도 모두 적용)
   @RequestMapping(value = "/preparationdatasets/{dsId}/clone", method = RequestMethod.POST, produces = "application/json")
-  public @ResponseBody ResponseEntity<?> clone(
+  public
+  @ResponseBody
+  ResponseEntity<?> clone(
           @PathVariable("dsId") String wrangledDsId) throws IOException {
 
     PrepTransformResponse response;
@@ -106,8 +118,8 @@ public class PrepTransformController {
     subGrid.colDescs = gridResponse.colDescs;
     subGrid.colHists = gridResponse.colHists;
     subGrid.mapColno = gridResponse.mapColno;
-    subGrid.newColNames           = gridResponse.newColNames          ;
-    subGrid.interestedColNames    = gridResponse.interestedColNames   ;
+    subGrid.newColNames = gridResponse.newColNames;
+    subGrid.interestedColNames = gridResponse.interestedColNames;
     subGrid.dsName = gridResponse.dsName;
     subGrid.slaveDsNameMap = gridResponse.slaveDsNameMap;
     subGrid.ruleString = gridResponse.ruleString;
@@ -117,7 +129,7 @@ public class PrepTransformController {
       subGrid.rows = gridResponse.rows;
     } else {
       int toIndex = offset + count;
-      if(gridResponse.rows.size()<toIndex) {
+      if (gridResponse.rows.size() < toIndex) {
         toIndex = gridResponse.rows.size();
       }
 
@@ -129,7 +141,9 @@ public class PrepTransformController {
 
   /* column 기준 데이터라서 컨트롤러에서 서치하면 성능에 골치아픔. 우선 통짜로 구현함 */
   @RequestMapping(value = "/preparationdatasets/{dsId}/transform", method = RequestMethod.GET, produces = "application/json")
-  public @ResponseBody ResponseEntity<?> fetch(
+  public
+  @ResponseBody
+  ResponseEntity<?> fetch(
           @PathVariable("dsId") String wrangledDsId,
           @RequestParam(value = "ruleIdx") Integer stageIdx,
           @RequestParam(value = "offset") int offset,
@@ -143,9 +157,9 @@ public class PrepTransformController {
       assert stageIdx == null || stageIdx >= 0 : stageIdx;
 
       response = transformService.fetch(wrangledDsId, stageIdx);
-      Integer totalRowCnt = response.getGridResponse().rows!=null?response.getGridResponse().rows.size():0;
+      Integer totalRowCnt = response.getGridResponse().rows != null ? response.getGridResponse().rows.size() : 0;
       response.setGridResponse(getSubGrid(response.getGridResponse(), offset, count));
-      response.setTotalRowCnt( totalRowCnt );
+      response.setTotalRowCnt(totalRowCnt);
     } catch (Exception e) {
       LOGGER.error("fetch(): caught an exception: ", e);
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
@@ -156,9 +170,11 @@ public class PrepTransformController {
   }
 
   @RequestMapping(value = "/preparationdatasets/{dsId}/transform", method = RequestMethod.PUT, produces = "application/json")
-  public @ResponseBody ResponseEntity<?> transform(
-    @PathVariable("dsId") String wrangledDsId,
-    @RequestBody PrepTransformRequest request) throws IOException {
+  public
+  @ResponseBody
+  ResponseEntity<?> transform(
+          @PathVariable("dsId") String wrangledDsId,
+          @RequestBody PrepTransformRequest request) throws IOException {
 
     PrepTransformResponse response;
     LOGGER.trace("transform(): start");
@@ -170,7 +186,9 @@ public class PrepTransformController {
       Integer stageIdx = request.getRuleIdx();
       assert stageIdx == null || stageIdx >= 0 : stageIdx;
 
-      response = transformService.transform(wrangledDsId, request.getOp(), stageIdx, request.getRuleString(), request.getUiRuleString(), false);
+      response = transformService
+              .transform(wrangledDsId, request.getOp(), stageIdx, request.getRuleString(), request.getUiRuleString(),
+                      false);
     } catch (Exception e) {
       LOGGER.error("transform(): caught an exception: ", e);
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
@@ -178,16 +196,17 @@ public class PrepTransformController {
 
     LOGGER.trace("transform(): end");
 
-
-    Integer totalRowCnt = response.getGridResponse().rows!=null?response.getGridResponse().rows.size():0;
+    Integer totalRowCnt = response.getGridResponse().rows != null ? response.getGridResponse().rows.size() : 0;
     response.setGridResponse(getSubGrid(response.getGridResponse(), 0, request.getCount()));
-    response.setTotalRowCnt( totalRowCnt );
+    response.setTotalRowCnt(totalRowCnt);
 
     return ResponseEntity.ok(response);
   }
 
   @RequestMapping(value = "/preparationdatasets/{dsId}/transform/histogram", method = RequestMethod.POST, produces = "application/json")
-  public @ResponseBody ResponseEntity<?> transform_histogram(
+  public
+  @ResponseBody
+  ResponseEntity<?> transform_histogram(
           @PathVariable("dsId") String wrangledDsId,
           @RequestBody PrepHistogramRequest request) throws IOException {
 
@@ -195,7 +214,8 @@ public class PrepTransformController {
     LOGGER.trace("transform_histogram(): start");
 
     try {
-      response = transformService.transform_histogram(wrangledDsId, request.getRuleIdx(), request.getColnos(), request.getColWidths());
+      response = transformService
+              .transform_histogram(wrangledDsId, request.getRuleIdx(), request.getColnos(), request.getColWidths());
     } catch (Exception e) {
       LOGGER.error("transform_histogram(): caught an exception: ", e);
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
@@ -206,12 +226,14 @@ public class PrepTransformController {
   }
 
   @RequestMapping(value = "/preparationdatasets/{dsId}/transform/timestampFormat", method = RequestMethod.POST, produces = "application/json")
-  public @ResponseBody ResponseEntity<?> transform_timestampFormat(
+  public
+  @ResponseBody
+  ResponseEntity<?> transform_timestampFormat(
           @PathVariable("dsId") String wrangledDsId,
           @RequestBody Map<String, Object> params) throws IOException {
 
     Map<String, Object> response;
-    List<String> colNames = (List<String>)params.get("colNames");
+    List<String> colNames = (List<String>) params.get("colNames");
     LOGGER.trace("transform_timestampFormat(): start");
 
     try {
@@ -226,10 +248,12 @@ public class PrepTransformController {
   }
 
   @RequestMapping(value = "/preparationdatasets/{dsId}/transform/snapshot", method = RequestMethod.POST, produces = "application/json")
-  public @ResponseBody ResponseEntity<?> transform_snapshot(
+  public
+  @ResponseBody
+  ResponseEntity<?> transform_snapshot(
           @PathVariable("dsId") String wrangledDsId,
           @RequestBody PrepSnapshotRequestPost request,
-          @RequestHeader(value="Authorization") String authorization) throws Throwable {
+          @RequestHeader(value = "Authorization") String authorization) throws Throwable {
 
     PrepSnapshotResponse response;
     LOGGER.trace("transform_snapshot(): start");
@@ -246,8 +270,10 @@ public class PrepTransformController {
   }
 
   @RequestMapping(value = "/preparationdatasets/{dsId}/transform/configuration", method = RequestMethod.GET, produces = "application/json")
-  public @ResponseBody ResponseEntity<?> transform_configuration(
-          @PathVariable("dsId") String wrangledDsId ) {
+  public
+  @ResponseBody
+  ResponseEntity<?> transform_configuration(
+          @PathVariable("dsId") String wrangledDsId) {
 
     Map<String, Object> response;
     LOGGER.trace("transform_configuration(): start");
@@ -264,7 +290,9 @@ public class PrepTransformController {
   }
 
   @RequestMapping(value = "/preparationdatasets/cacheInfo", method = RequestMethod.GET, produces = "application/json")
-  public @ResponseBody ResponseEntity<?> getCacheInfo() throws IOException {
+  public
+  @ResponseBody
+  ResponseEntity<?> getCacheInfo() throws IOException {
 
     PrepTransformResponse response;
 
@@ -278,43 +306,45 @@ public class PrepTransformController {
   }
 
   @RequestMapping(value = "/preparationdatasets/autocomplete", method = RequestMethod.POST)
-  public @ResponseBody ResponseEntity<?> autocomplete(
-          @RequestBody Map<String,Object> params) throws Throwable {
-    Map<String,Object> response;
+  public
+  @ResponseBody
+  ResponseEntity<?> autocomplete(
+          @RequestBody Map<String, Object> params) throws Throwable {
+    Map<String, Object> response;
 
     try {
       response = Maps.newHashMap();
       List<SuggestToken> suggests = Lists.newArrayList();
 
-      String ruleString = (String)params.get("ruleString");
-      String ruleCommand = (String)params.get("ruleCommand");
-      String rulePart = (String)params.get("rulePart");
+      String ruleString = (String) params.get("ruleString");
+      String ruleCommand = (String) params.get("ruleCommand");
+      String rulePart = (String) params.get("rulePart");
 
-      if( null==ruleCommand || null==rulePart ) {
+      if (null == ruleCommand || null == rulePart) {
         PrepRuleVisitorParser prepRuleVisitorParser = new PrepRuleVisitorParser();
         suggests = prepRuleVisitorParser.suggest(ruleString);
-      } else if( ruleCommand.equalsIgnoreCase("keep")
+      } else if (ruleCommand.equalsIgnoreCase("keep")
               || ruleCommand.equalsIgnoreCase("set")
               || ruleCommand.equalsIgnoreCase("derive")
               || ruleCommand.equalsIgnoreCase("delete")
-          ) {
+              ) {
         PrepRuleVisitorParser prepRuleVisitorParser = new PrepRuleVisitorParser();
         suggests = prepRuleVisitorParser.suggest_all_rules(rulePart);
-      } else if( ruleCommand.equalsIgnoreCase("pivot")
+      } else if (ruleCommand.equalsIgnoreCase("pivot")
               || ruleCommand.equalsIgnoreCase("aggregate")
-          ) {
+              ) {
         PrepRuleVisitorParser prepRuleVisitorParser = new PrepRuleVisitorParser();
         suggests = prepRuleVisitorParser.suggest_aggr_rules(rulePart);
-      } else if( ruleCommand.equalsIgnoreCase("window")
+      } else if (ruleCommand.equalsIgnoreCase("window")
               ) {
         PrepRuleVisitorParser prepRuleVisitorParser = new PrepRuleVisitorParser();
         suggests = prepRuleVisitorParser.suggest_window_rules(rulePart);
       }
 
-      for(SuggestToken suggest : suggests) {
-        if( suggest.getTokenString().equals("'@_FUNCTION_EXPRESSION_@'") ) {
+      for (SuggestToken suggest : suggests) {
+        if (suggest.getTokenString().equals("'@_FUNCTION_EXPRESSION_@'")) {
           suggests.remove(suggest);
-          suggests.add(1,suggest);
+          suggests.add(1, suggest);
           break;
         }
       }
@@ -327,9 +357,11 @@ public class PrepTransformController {
   }
 
   @RequestMapping(value = "/preparationdatasets/parse_rule", method = RequestMethod.POST)
-  public @ResponseBody ResponseEntity<?> parse_rule(
+  public
+  @ResponseBody
+  ResponseEntity<?> parse_rule(
           @RequestBody String ruleString) throws Throwable {
-    Map<String,Object> response;
+    Map<String, Object> response;
 
     try {
       response = Maps.newHashMap();
@@ -349,41 +381,48 @@ public class PrepTransformController {
       response.put("rule", rule);
     } catch (Exception e) {
       LOGGER.error("autocomplete(): caught an exception: ", e);
-      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED);
+      throw PrepException
+              .create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED);
     }
     return ResponseEntity.ok(response);
   }
 
   @RequestMapping(value = "/preparationdatasets/validate_expr", method = RequestMethod.POST)
-  public @ResponseBody ResponseEntity<?> validate_expr(
+  public
+  @ResponseBody
+  ResponseEntity<?> validate_expr(
           @RequestBody String exprString) throws Throwable {
-    Map<String,Object> response;
+    Map<String, Object> response;
 
     try {
       response = Maps.newHashMap();
 
       String ruleString = "keep row: " + exprString;
       Rule rule = new RuleVisitorParser().parse(ruleString);
-      Keep keepRule = (Keep)rule;
+      Keep keepRule = (Keep) rule;
       Expression expr = keepRule.getRow();
-      if(null!=expr) {
+      if (null != expr) {
         response.put("expr", expr);
       } else {
-        throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED);
+        throw PrepException
+                .create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED);
       }
     } catch (PrepException e) {
       throw e;
     } catch (Exception e) {
       LOGGER.error("autocomplete(): caught an exception: ", e);
-      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED);
+      throw PrepException
+              .create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED);
     }
     return ResponseEntity.ok(response);
   }
 
-  @RequestMapping(value="/preparationsnapshots/{ssId}/cancel",method = RequestMethod.POST)
-  public @ResponseBody ResponseEntity<?> cancelSnapshot(
+  @RequestMapping(value = "/preparationsnapshots/{ssId}/cancel", method = RequestMethod.POST)
+  public
+  @ResponseBody
+  ResponseEntity<?> cancelSnapshot(
           @PathVariable("ssId") String ssId) {
-    Map<String,Object> response;
+    Map<String, Object> response;
 
     try {
       response = Maps.newHashMap();
@@ -399,13 +438,15 @@ public class PrepTransformController {
   }
 
   @RequestMapping(value = "/preparationdatasets/function_list", method = RequestMethod.GET, produces = "application/json")
-  public @ResponseBody ResponseEntity<?> getFunctionList() throws IOException {
+  public
+  @ResponseBody
+  ResponseEntity<?> getFunctionList() throws IOException {
 
-    Map<String,Object> response = Maps.newHashMap();
+    Map<String, Object> response = Maps.newHashMap();
 
     try {
       List<ExprFunction> functionList = this.transformService.getFunctionList();
-      response.put("function_list",functionList);
+      response.put("function_list", functionList);
     } catch (Exception e) {
       LOGGER.error("getCacheInfo(): caught an exception: ", e);
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);

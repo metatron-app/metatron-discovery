@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class LeftPredicateNotFoundException extends TeddyException {
+
   public LeftPredicateNotFoundException(String message) {
     super(message);
   }

@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class JdbcQueryFailedException extends TeddyException {
+
   public JdbcQueryFailedException(String message) {
     super(message);
   }

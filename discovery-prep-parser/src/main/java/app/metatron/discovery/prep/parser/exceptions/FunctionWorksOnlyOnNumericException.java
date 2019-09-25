@@ -15,7 +15,8 @@
 package app.metatron.discovery.prep.parser.exceptions;
 
 public class FunctionWorksOnlyOnNumericException extends RuleException {
-    public FunctionWorksOnlyOnNumericException(String message) {
-        super(message);
-    }
+
+  public FunctionWorksOnlyOnNumericException(String message) {
+    super(message);
+  }
 }

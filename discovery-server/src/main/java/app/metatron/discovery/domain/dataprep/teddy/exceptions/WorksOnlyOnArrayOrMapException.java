@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class WorksOnlyOnArrayOrMapException extends TeddyException {
+
   public WorksOnlyOnArrayOrMapException(String message) {
     super(message);
   }

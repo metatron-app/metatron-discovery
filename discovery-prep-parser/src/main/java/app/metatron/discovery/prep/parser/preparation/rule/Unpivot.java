@@ -69,8 +69,8 @@ public class Unpivot implements Rule, Rule.Factory {
   @Override
   public String toString() {
     return "Unpivot{" +
-        "col=" + col +
-        ", groupEvery=" + groupEvery +
-        '}';
+            "col=" + col +
+            ", groupEvery=" + groupEvery +
+            '}';
   }
 }

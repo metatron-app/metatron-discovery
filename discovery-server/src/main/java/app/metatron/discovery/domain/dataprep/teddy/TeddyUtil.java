@@ -20,6 +20,7 @@ import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 
 public class TeddyUtil {
+
   static void showSep(List<Integer> widths) {
     System.out.print("+");
     for (int width : widths) {

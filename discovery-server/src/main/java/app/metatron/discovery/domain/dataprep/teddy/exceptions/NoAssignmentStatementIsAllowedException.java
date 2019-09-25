@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class NoAssignmentStatementIsAllowedException extends TeddyException {
+
   public NoAssignmentStatementIsAllowedException(String message) {
     super(message);
   }

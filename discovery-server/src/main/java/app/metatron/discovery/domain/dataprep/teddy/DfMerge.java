@@ -20,13 +20,13 @@ import app.metatron.discovery.prep.parser.preparation.rule.Merge;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class DfMerge extends DataFrame {
+
   private static Logger LOGGER = LoggerFactory.getLogger(DfMerge.class);
 
   public DfMerge(String dsName, String ruleString) {
@@ -54,7 +54,7 @@ public class DfMerge extends DataFrame {
 
     // 마지막 목적 컬럼까지만 추가 하기 위해
     int lastColPos = 0;
-    for(String colName : targetColNames) {
+    for (String colName : targetColNames) {
       lastColPos = prevDf.getColnoByColName(colName) > lastColPos ? prevDf.getColnoByColName(colName) : lastColPos;
     }
 
@@ -80,7 +80,8 @@ public class DfMerge extends DataFrame {
   }
 
   @Override
-  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
+  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
+          throws InterruptedException, TeddyException {
     List<Row> rows = new ArrayList<>();
     int lastColPos = (int) preparedArgs.get(0);
     List<String> targetColNames = (List<String>) preparedArgs.get(1);

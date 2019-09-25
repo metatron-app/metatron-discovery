@@ -13,37 +13,51 @@
  */
 
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
-import app.metatron.discovery.prep.parser.exceptions.*;
+
+import app.metatron.discovery.prep.parser.exceptions.FunctionArgumentCountException;
+import app.metatron.discovery.prep.parser.exceptions.FunctionColumnNotFoundException;
+import app.metatron.discovery.prep.parser.exceptions.FunctionInvalidDeltaValueException;
+import app.metatron.discovery.prep.parser.exceptions.FunctionInvalidFunctionNameException;
+import app.metatron.discovery.prep.parser.exceptions.FunctionInvalidIndexNumberException;
+import app.metatron.discovery.prep.parser.exceptions.FunctionInvalidTimestampUnitException;
+import app.metatron.discovery.prep.parser.exceptions.FunctionInvalidTimezonIDException;
+import app.metatron.discovery.prep.parser.exceptions.FunctionTimestampFormatMismatchedException;
+import app.metatron.discovery.prep.parser.exceptions.FunctionUndefinedException;
+import app.metatron.discovery.prep.parser.exceptions.FunctionWorksOnlyOnNumericException;
+import app.metatron.discovery.prep.parser.exceptions.FunctionWorksOnlyOnStringException;
+import app.metatron.discovery.prep.parser.exceptions.FunctionWorksOnlyOnTimestampException;
+import app.metatron.discovery.prep.parser.exceptions.RuleException;
 
 public class TeddyException extends Exception {
+
   public TeddyException(String message) {
     super(message);
   }
 
   public static TeddyException fromRuleException(RuleException re) {
-    if(re instanceof FunctionColumnNotFoundException) {
+    if (re instanceof FunctionColumnNotFoundException) {
       return new ColumnNotFoundException(re.getMessage());
-    } else if(re instanceof FunctionArgumentCountException) {
+    } else if (re instanceof FunctionArgumentCountException) {
       return new InvalidFunctionArgsException(re.getMessage());
-    } else if(re instanceof FunctionWorksOnlyOnStringException) {
+    } else if (re instanceof FunctionWorksOnlyOnStringException) {
       return new WorksOnlyOnStringException(re.getMessage());
-    } else if(re instanceof FunctionWorksOnlyOnNumericException) {
+    } else if (re instanceof FunctionWorksOnlyOnNumericException) {
       return new WorksOnlyOnNumericException(re.getMessage());
-    } else if(re instanceof FunctionInvalidIndexNumberException) {
+    } else if (re instanceof FunctionInvalidIndexNumberException) {
       return new InvalidFunctionArgsException(re.getMessage());
-    } else if(re instanceof FunctionUndefinedException) {
+    } else if (re instanceof FunctionUndefinedException) {
       return new UnknownError(re.getMessage());
-    } else if(re instanceof FunctionTimestampFormatMismatchedException) {
+    } else if (re instanceof FunctionTimestampFormatMismatchedException) {
       return new TimestampFormatMismatchException(re.getMessage());
-    } else if(re instanceof FunctionWorksOnlyOnTimestampException) {
+    } else if (re instanceof FunctionWorksOnlyOnTimestampException) {
       return new WorksOnlyOnTimestampException(re.getMessage());
-    } else if(re instanceof FunctionInvalidDeltaValueException) {
+    } else if (re instanceof FunctionInvalidDeltaValueException) {
       return new InvalidDeltaValueException(re.getMessage());
-    } else if(re instanceof FunctionInvalidTimestampUnitException) {
+    } else if (re instanceof FunctionInvalidTimestampUnitException) {
       return new InvalidTimestampUnitException(re.getMessage());
-    } else if(re instanceof FunctionInvalidTimezonIDException) {
+    } else if (re instanceof FunctionInvalidTimezonIDException) {
       return new InvalidTimezoneIDException(re.getMessage());
-    } else if(re instanceof FunctionInvalidFunctionNameException) {
+    } else if (re instanceof FunctionInvalidFunctionNameException) {
       return new InvalidFunctionTypeException(re.getMessage());
     }
 

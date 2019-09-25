@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class InvalidIndexTypeException extends TeddyException {
+
   public InvalidIndexTypeException(String message) {
     super(message);
   }

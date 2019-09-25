@@ -20,13 +20,13 @@ import app.metatron.discovery.prep.parser.preparation.rule.Drop;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class DfDrop extends DataFrame {
+
   private static Logger LOGGER = LoggerFactory.getLogger(DfDrop.class);
 
   public DfDrop(String dsName, String ruleString) {
@@ -71,7 +71,8 @@ public class DfDrop extends DataFrame {
   }
 
   @Override
-  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException {
+  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
+          throws InterruptedException {
     List<Row> rows = new ArrayList<>();
     List<Integer> survivedColNos = (List<Integer>) preparedArgs.get(0);
 

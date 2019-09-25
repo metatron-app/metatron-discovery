@@ -48,7 +48,7 @@ public class Keep implements Rule, Rule.Factory {
   @Override
   public String toString() {
     return "Keep{" +
-        "row=" + row +
-        '}';
+            "row=" + row +
+            '}';
   }
 }

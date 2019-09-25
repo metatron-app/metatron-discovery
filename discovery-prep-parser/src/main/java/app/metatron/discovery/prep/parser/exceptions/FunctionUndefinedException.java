@@ -14,8 +14,9 @@
 
 package app.metatron.discovery.prep.parser.exceptions;
 
-public class FunctionUndefinedException extends RuleException{
-    public FunctionUndefinedException(String message) {
-        super(message);
-    }
+public class FunctionUndefinedException extends RuleException {
+
+  public FunctionUndefinedException(String message) {
+    super(message);
+  }
 }

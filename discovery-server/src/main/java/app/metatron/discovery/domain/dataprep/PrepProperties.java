@@ -94,7 +94,7 @@ public class PrepProperties {
   public String getHadoopConfDir(boolean mandatory) {
     if (mandatory && hadoopConfDir == null) {
       throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-          PrepMessageKey.MSG_DP_ALERT_HADOOP_NOT_CONFIGURED, "Hadoop not configured");
+              PrepMessageKey.MSG_DP_ALERT_HADOOP_NOT_CONFIGURED, "Hadoop not configured");
     }
     return hadoopConfDir;
   }
@@ -102,7 +102,7 @@ public class PrepProperties {
   public String getStagingBaseDir(boolean mandatory) {
     if (mandatory && stagingBaseDir == null) {
       throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-          PrepMessageKey.MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED, "StagingDir not configured");
+              PrepMessageKey.MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED, "StagingDir not configured");
     }
     return stagingBaseDir;
   }
@@ -110,7 +110,7 @@ public class PrepProperties {
   public String getS3BaseDir(boolean mandatory) {
     if (mandatory && s3BaseDir == null) {
       throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-          PrepMessageKey.MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED, "S3Dir not configured");
+              PrepMessageKey.MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED, "S3Dir not configured");
     }
     return s3BaseDir;
   }
@@ -278,7 +278,7 @@ public class PrepProperties {
     @Override
     public String toString() {
       return String.format("SamplingInfo{cores=%d timeout=%d limitRows=%d autoTyping=%b}",
-          cores, timeout, limitRows, autoTyping);
+              cores, timeout, limitRows, autoTyping);
     }
   }
 
@@ -345,12 +345,12 @@ public class PrepProperties {
     @Override
     public String toString() {
       return "SparkInfo{" +
-          "jar='" + jar + '\'' +
-          ", port='" + port + '\'' +
-          ", appName='" + appName + '\'' +
-          ", master='" + master + '\'' +
-          ", warehouseDir='" + warehouseDir + '\'' +
-          '}';
+              "jar='" + jar + '\'' +
+              ", port='" + port + '\'' +
+              ", appName='" + appName + '\'' +
+              ", master='" + master + '\'' +
+              ", warehouseDir='" + warehouseDir + '\'' +
+              '}';
     }
   }
 
@@ -435,13 +435,13 @@ public class PrepProperties {
     @Override
     public String toString() {
       return String.format("EtlInfo{cores=%d timeout=%d jvmOptions=%s explicitGC=%b}",
-          cores, timeout, jvmOptions, explicitGC);
+              cores, timeout, jvmOptions, explicitGC);
     }
   }
 
   public void setLocalBaseDir(String localBaseDir) {
     if (null != localBaseDir && 1 < localBaseDir.length() && true == localBaseDir
-        .endsWith(File.separator)) {
+            .endsWith(File.separator)) {
       this.localBaseDir = localBaseDir.substring(0, localBaseDir.length());
     } else {
       this.localBaseDir = localBaseDir;
@@ -450,7 +450,7 @@ public class PrepProperties {
 
   public void setStagingBaseDir(String stagingBaseDir) {
     if (null != stagingBaseDir && 1 < stagingBaseDir.length() && true == stagingBaseDir
-        .endsWith(File.separator)) {
+            .endsWith(File.separator)) {
       this.stagingBaseDir = stagingBaseDir.substring(0, stagingBaseDir.length());
     } else {
       this.stagingBaseDir = stagingBaseDir;
@@ -516,7 +516,7 @@ public class PrepProperties {
   @Override
   public String toString() {
     return String.format(
-        "PrepProperties{localBaseDir=%s stagingBaseDir=%s s3BaseDir=%s hadoopConfDir=%s sampling=%s etl=%s}",
-        localBaseDir, stagingBaseDir, s3BaseDir, hadoopConfDir, sampling, etl);
+            "PrepProperties{localBaseDir=%s stagingBaseDir=%s s3BaseDir=%s hadoopConfDir=%s sampling=%s etl=%s}",
+            localBaseDir, stagingBaseDir, s3BaseDir, hadoopConfDir, sampling, etl);
   }
 }

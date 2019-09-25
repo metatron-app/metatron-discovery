@@ -48,14 +48,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PrepCsvUtil {
+
   private static Logger LOGGER = LoggerFactory.getLogger(PrepCsvUtil.class);
 
   // public for tests
-  public static InputStreamReader getReaderAfterDetectingCharset(InputStream is, String strUri) {   // strUri is only for debugging
+  public static InputStreamReader getReaderAfterDetectingCharset(InputStream is,
+          String strUri) {   // strUri is only for debugging
     InputStreamReader reader;
     String charset = null;
 
-    BOMInputStream bis = new BOMInputStream(is, false, ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
+    BOMInputStream bis = new BOMInputStream(is, false, ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE,
+            ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
 
     try {
       if (bis.hasBOM() == false || bis.hasBOM(ByteOrderMark.UTF_8)) {
@@ -69,14 +72,15 @@ public class PrepCsvUtil {
       reader = new InputStreamReader(bis, charset);
     } catch (UnsupportedEncodingException e) {
       e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_CHARSET, charset);
+      throw PrepException
+              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_CHARSET, charset);
     } catch (NullPointerException e) {
       e.printStackTrace();
       throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNKNOWN_BOM);
     } catch (IOException e) {
       e.printStackTrace();
       throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_READ_CSV,
-                                 String.format("%s (charset: %s)", strUri, charset));
+              String.format("%s (charset: %s)", strUri, charset));
     }
 
     return reader;
@@ -108,7 +112,8 @@ public class PrepCsvUtil {
       return unescaped.charAt(0);
     }
 
-    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_DELIMITER, HADOOP_CONF_DIR);
+    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_DELIMITER,
+            HADOOP_CONF_DIR);
   }
 
   // Almost same to CommonsCsvProcessor.detectingCharset()
@@ -143,18 +148,18 @@ public class PrepCsvUtil {
   }
 
   /**
-   * @param strUri      URI as String (to be java.net.URI)
-   * @param strDelim    Delimiter as String (to be Char)
-   * @param limitRows   Read not more than this
-   * @param conf        Hadoop configuration which is mandatory when the url's protocol is hdfs
-   * @param header      If true, skip the first line and put into result.header instead.
-   * @param onlyCount   If true, just fill result.totalRows and result.totalBytes
-   *
+   * @param strUri URI as String (to be java.net.URI)
+   * @param strDelim Delimiter as String (to be Char)
+   * @param limitRows Read not more than this
+   * @param conf Hadoop configuration which is mandatory when the url's protocol is hdfs
+   * @param header If true, skip the first line and put into result.header instead.
+   * @param onlyCount If true, just fill result.totalRows and result.totalBytes
    * @return PrepCsvParseResult: grid, header, maxColCnt
    *
-   *  Sorry for so many try-catches. Sacrificed readability for end-users' usability.
+   * Sorry for so many try-catches. Sacrificed readability for end-users' usability.
    */
-  public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Integer columnCount, Configuration conf, boolean header, boolean onlyCount) {
+  public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Integer columnCount,
+          Configuration conf, boolean header, boolean onlyCount) {
     PrepCsvParseResult result = new PrepCsvParseResult();
     Reader reader;
     URI uri;
@@ -168,13 +173,15 @@ public class PrepCsvUtil {
       uri = new URI(strUri);
     } catch (URISyntaxException e) {
       e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, strUri);
+      throw PrepException
+              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, strUri);
     }
 
     switch (uri.getScheme()) {
       case "hdfs":
         if (conf == null) {
-          throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
+          throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
+                  PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
         }
         Path path = new Path(uri);
 
@@ -183,7 +190,8 @@ public class PrepCsvUtil {
           hdfsFs = FileSystem.get(conf);
         } catch (IOException e) {
           e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, strUri);
+          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
+                  PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, strUri);
         }
 
         FSDataInputStream his;
@@ -198,7 +206,8 @@ public class PrepCsvUtil {
           dhis = hdfsFs.open(path);
         } catch (IOException e) {
           e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_HDFS_PATH, strUri);
+          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
+                  PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_HDFS_PATH, strUri);
         }
 
         charset = detectingCharset(dhis, strUri);
@@ -218,7 +227,8 @@ public class PrepCsvUtil {
           dfis = new FileInputStream(file);
         } catch (FileNotFoundException e) {
           e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, strUri);
+          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
+                  PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, strUri);
         }
 
         charset = detectingCharset(dfis, strUri);
@@ -226,16 +236,20 @@ public class PrepCsvUtil {
         break;
 
       default:
-        throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, strUri);
+        throw PrepException
+                .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME,
+                        strUri);
     }
 
     CSVParser parser;
     try {
-      parser = CSVParser.parse(reader, CSVFormat.DEFAULT.withDelimiter(delim).withEscape('\\'));  // \", "" both become " by default
+      parser = CSVParser.parse(reader,
+              CSVFormat.DEFAULT.withDelimiter(delim).withEscape('\\'));  // \", "" both become " by default
     } catch (IOException e) {
       e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_PARSE_CSV,
-                                 String.format("%s (delimiter: %s)", strUri, strDelim));
+      throw PrepException
+              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_PARSE_CSV,
+                      String.format("%s (delimiter: %s)", strUri, strDelim));
     }
 
     Iterator<CSVRecord> iter = parser.iterator();
@@ -271,12 +285,12 @@ public class PrepCsvUtil {
 
       int colCnt = csvRow.size();
       colCnt = Math.max(result.maxColCnt, colCnt);
-      if(columnCount!=null) {
+      if (columnCount != null) {
         colCnt = columnCount;
       }
       result.maxColCnt = colCnt;
 
-      if (header && colCnt<=csvRow.size()) {
+      if (header && colCnt <= csvRow.size()) {
         result.colNames = new ArrayList();
         for (int i = 0; i < colCnt; i++) {
           result.colNames.add(csvRow.get(i));
@@ -292,7 +306,7 @@ public class PrepCsvUtil {
 
       String[] row = new String[colCnt];
       for (int i = 0; i < colCnt; i++) {
-        if(i<csvRow.size()) {
+        if (i < csvRow.size()) {
           row[i] = csvRow.get(i);
         } else {
           row[i] = null;
@@ -313,19 +327,22 @@ public class PrepCsvUtil {
     return parse(strUri, strDelim, limitRows, null, conf, false, false);
   }
 
-  public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Configuration conf, boolean header) {
+  public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Configuration conf,
+          boolean header) {
     return parse(strUri, strDelim, limitRows, null, conf, header, false);
   }
 
-  public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Integer columnCount, Configuration conf) {
+  public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Integer columnCount,
+          Configuration conf) {
     return parse(strUri, strDelim, limitRows, columnCount, conf, false, false);
   }
 
-  public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Integer columnCount, Configuration conf, boolean header) {
+  public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Integer columnCount,
+          Configuration conf, boolean header) {
     return parse(strUri, strDelim, limitRows, columnCount, conf, header, false);
   }
 
-  public static Map<String,Long> countCsv(String strUri, String strDelim, int limitRows, Configuration conf) {
+  public static Map<String, Long> countCsv(String strUri, String strDelim, int limitRows, Configuration conf) {
     Map<String, Long> mapTotal = new HashMap();
     PrepCsvParseResult result = parse(strUri, strDelim, limitRows, null, conf, false, true);
     mapTotal.put("totalRows", result.totalRows);
@@ -342,17 +359,18 @@ public class PrepCsvUtil {
       writer = new OutputStreamWriter(os, charset);
     } catch (UnsupportedEncodingException e) {
       e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_CHARSET, charset);
+      throw PrepException
+              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_CHARSET, charset);
     }
 
     return writer;
   }
 
   /**
-   * @param strUri      URI as String (to be java.net.URI)
-   * @param conf        Hadoop configuration which is mandatory when the url's protocol is hdfs
+   * @param strUri URI as String (to be java.net.URI)
+   * @param conf Hadoop configuration which is mandatory when the url's protocol is hdfs
    *
-   *  header will be false for table-type snapshots.
+   * header will be false for table-type snapshots.
    */
   public static CSVPrinter getPrinter(String strUri, Configuration conf) {
     Writer writer;
@@ -364,13 +382,16 @@ public class PrepCsvUtil {
       uri = new URI(strUri);
     } catch (URISyntaxException e) {
       e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, strUri);
+      throw PrepException
+              .create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX,
+                      strUri);
     }
 
     switch (uri.getScheme()) {
       case "hdfs":
         if (conf == null) {
-          throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
+          throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
+                  PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
         }
         Path path = new Path(uri);
 
@@ -379,7 +400,8 @@ public class PrepCsvUtil {
           hdfsFs = FileSystem.get(conf);
         } catch (IOException e) {
           e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, strUri);
+          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE,
+                  PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, strUri);
         }
 
         FSDataOutputStream hos;
@@ -387,7 +409,8 @@ public class PrepCsvUtil {
           hos = hdfsFs.create(path);
         } catch (IOException e) {
           e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_HDFS_PATH, strUri);
+          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE,
+                  PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_HDFS_PATH, strUri);
         }
 
         writer = getWriter(hos);
@@ -396,12 +419,14 @@ public class PrepCsvUtil {
       case "file":
         File file = new File(uri);
         File dirParent = file.getParentFile();
-        if(dirParent==null) {
-          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_LOCAL_PATH, strUri);
+        if (dirParent == null) {
+          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE,
+                  PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_LOCAL_PATH, strUri);
         }
-        if(false==dirParent.exists()) {
-          if(false==dirParent.mkdirs()) {
-            throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_LOCAL_PATH, strUri);
+        if (false == dirParent.exists()) {
+          if (false == dirParent.mkdirs()) {
+            throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE,
+                    PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_LOCAL_PATH, strUri);
           }
         }
 
@@ -410,21 +435,25 @@ public class PrepCsvUtil {
           fos = new FileOutputStream(file);
         } catch (FileNotFoundException e) {
           e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, strUri);
+          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE,
+                  PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, strUri);
         }
 
         writer = getWriter(fos);
         break;
 
       default:
-        throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, strUri);
+        throw PrepException
+                .create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME,
+                        strUri);
     }
 
     CSVPrinter printer;
     try {
       printer = new CSVPrinter(writer, CSVFormat.RFC4180.withQuoteMode(QuoteMode.ALL_NON_NULL));
     } catch (IOException e) {
-      throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_WRITE_CSV, strUri);
+      throw PrepException
+              .create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_WRITE_CSV, strUri);
     }
 
     return printer;
@@ -459,15 +488,15 @@ public class PrepCsvUtil {
         }
         outputStream.write(sb.toString().getBytes());
       }
-    }  catch (Exception e) {
+    } catch (Exception e) {
       LOGGER.error("Failed to write hive table as CSV file : {}", e.getMessage());
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
     }
   }
 
   private static String escapeCsvField(String value) {
-    if( value.contains("\"") || value.contains(",") ) {
-      value=value.replaceAll("\"","\\\"");
+    if (value.contains("\"") || value.contains(",")) {
+      value = value.replaceAll("\"", "\\\"");
       return "\"" + value + "\"";
     }
     return value;

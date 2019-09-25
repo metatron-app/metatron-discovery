@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class InvalidFunctionTypeException extends TeddyException {
+
   public InvalidFunctionTypeException(String message) {
     super(message);
   }

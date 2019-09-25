@@ -17,5 +17,6 @@ package app.metatron.discovery.prep.parser.preparation;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 
 public interface Parser {
+
   Rule parse(String code);
 }

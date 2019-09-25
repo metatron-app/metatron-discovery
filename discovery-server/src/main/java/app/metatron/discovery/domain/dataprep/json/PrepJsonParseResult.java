@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PrepJsonParseResult {
+
   public List<String[]> grid;
   public List<String> colNames;
   public int maxColCnt;

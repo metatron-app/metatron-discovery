@@ -14,19 +14,17 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnNotFoundException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.transform.Histogram;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnNotFoundException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-
-public class HistogramTest extends  TeddyTest{
+public class HistogramTest extends TeddyTest {
 
   @BeforeClass
   public static void setUp() throws Exception {
@@ -166,7 +164,7 @@ public class HistogramTest extends  TeddyTest{
     test_double_label_single(-0.002, -0.001123, 20);
     test_double_label_single(-0.00021, -0.0001123, 20);
     test_double_label_single(-0.000002001, 0.000001123, 20);
-//    test_double_label_single(-0.000002001, -0.000002001, 20);   // 같은 경우는 getDoubleLabels() 호출 이전에 특별 처리해주도록 변경했음 -180514jhkim
+    //    test_double_label_single(-0.000002001, -0.000002001, 20);   // 같은 경우는 getDoubleLabels() 호출 이전에 특별 처리해주도록 변경했음 -180514jhkim
     test_double_label_single(-0.000002001, 0.000001123, 1);
   }
 }

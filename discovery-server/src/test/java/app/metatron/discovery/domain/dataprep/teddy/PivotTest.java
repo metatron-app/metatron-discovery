@@ -14,14 +14,12 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import java.io.IOException;
+import static org.junit.Assert.assertEquals;
 
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-
-import static org.junit.Assert.assertEquals;
+import java.io.IOException;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * WrangleTest
