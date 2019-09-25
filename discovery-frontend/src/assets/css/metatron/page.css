@@ -10228,7 +10228,7 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
 .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info {position:relative; display:inline-block; max-width:100%;padding:4px 0 0 0; color:#4e5368; font-size:12px;}
 .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info.type-link {cursor:pointer;}
 .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info.type-link .ddp-txt-info {display:block; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
-.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info em.ddp-link-new  {display:inline-block; position:relative; top:2px; float:right; width:14px; height:12px; margin-left:2px; background:url(../images/icon_window.png) no-repeat; background-position:left -24px; content:'';}
+.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info em.ddp-link-new  {display:inline-block; position:relative; top:2px; float:right; width:14px; height:12px; margin-left:2px; background:url(../../images/icon_window.png) no-repeat; background-position:left -24px; content:'';}
 .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info.type-link:hover em.ddp-link-new {display:inline-block;}
 
 table.ddp-table-detail4 {table-layout:fixed; border:1px solid #cdd0e2;}
@@ -10245,10 +10245,10 @@ table.ddp-table-detail.type-meata tbody tr th,
 table.ddp-table-detail.type-meata tbody tr td {padding:17px 10px 17px 0px; }
 
 table.ddp-table-detail tbody tr td .ddp-wrap-hover-info {position:relative; }
-table.ddp-table-detail tbody tr td .ddp-wrap-hover-info .ddp-icon-info3 {display:inline-block; width:11px; height:11px; background:url(../images/icon_que.png) no-repeat; background-position:left -12px;}
+table.ddp-table-detail tbody tr td .ddp-wrap-hover-info .ddp-icon-info3 {display:inline-block; width:11px; height:11px; background:url(../../images/icon_que.png) no-repeat; background-position:left -12px;}
 table.ddp-table-detail tbody tr td .ddp-wrap-hover-info .ddp-box-layout4.ddp-popularity {display:none;position:absolute; top:100%;left:0; margin-top:6px; width:360px;}
 table.ddp-table-detail tbody tr td .ddp-wrap-hover-info:hover .ddp-box-layout4.ddp-popularity {display:block;}
-table.ddp-table-detail tbody tr td .ddp-ui-popularity .ddp-icon-popularity {display:inline-block; float:left; width:18px; height:14px; margin-right:8px; background:url(../images/icon_popularity.png) no-repeat;}
+table.ddp-table-detail tbody tr td .ddp-ui-popularity .ddp-icon-popularity {display:inline-block; float:left; width:18px; height:14px; margin-right:8px; background:url(../../images/icon_popularity.png) no-repeat;}
 table.ddp-table-detail tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
 .ddp-page-catalog.ddp-list-catalog {clear:both;}
 table.ddp-table-detail tbody tr td .ddp-ui-popularity .ddp-wrap-hover-info {float:left; position:relative; top:2px; margin-left:6px; cursor:pointer;}
