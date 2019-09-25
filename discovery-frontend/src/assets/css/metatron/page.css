@@ -8366,18 +8366,9 @@ table.ddp-table-type2 tr td span.ddp-box-tag-value.ddp-dimension {color:#439fe5;
 table.ddp-table-type2 tr td span.ddp-box-tag-value.ddp-measure {color:#5fd7a5; border:1px solid #5fd7a5;}
 table.ddp-table-type2 tr td .ddp-ui-selected-option.ddp-selected span.ddp-link-text span.ddp-wrap-icons {background-color:#e8e9ea;}
 table.ddp-table-type2 tr td .ddp-icon-error2 {}
-table.ddp-table-type2 tr td.ddp-info {padding-right:30px; cursor:pointer;}
-table.ddp-table-type2 tr td.ddp-info.ddp-selected,
-table.ddp-table-type2 tr td.ddp-info:hover {padding:12px 29px 13px 9px;}
-table.ddp-table-type2 tr td.ddp-info:hover {background-color:#f1f1f3 !important; border:1px solid #f1f1f3;}
-
+table.ddp-table-type2 tr td.ddp-info {padding-right:30px;}
 table.ddp-table-type2 tr td.ddp-info.ddp-cursor-default:hover {background:none !important; border-color:none !important;}
 table.ddp-table-type2 tr td.ddp-info .ddp-ui-info {position:absolute; top:50%; right:9px; margin-top:-7px; cursor:pointer; font-size:0;}
-
-table.ddp-table-type2 tr td.ddp-info.ddp-selected .ddp-ui-info,
-table.ddp-table-type2 tr td.ddp-info:hover .ddp-ui-info {right:8px;}
-
-
 table.ddp-table-type2 tr td.ddp-info .ddp-ui-info .ddp-icon-error2 {position:relative; top:0;}
 table.ddp-table-type2 tr td.ddp-info .ddp-ui-info.ddp-selected .ddp-box-layout4.type-time {display:block; z-index:23;}
 table.ddp-table-type2 tr td.ddp-info .ddp-ui-info .ddp-box-layout4.type-time {display:none; width:330px; position:absolute; top:100%; right:-30px; margin-top:5px;}
@@ -10225,11 +10216,40 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
 .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-name {display:inline-block; padding:20px 0 0 0; max-width:100%; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-name span.ddp-txt-name {display:block; color:#4e5368; font-size:14px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
 .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-name .ddp-icon-control-fav {position:relative; top:-2px;}
-.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info {position:relative;display:inline-block; padding:4px 0 0 0; color:#4e5368; font-size:12px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
-.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info .ddp-txt-info.type-link {cursor:pointer;}
-.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info .ddp-txt-info.type-link em.ddp-link-new  {display:none; position:relative; top:2px; float:right; width:14px; height:12px; margin-left:2px; background:url(../../images/icon_window.png) no-repeat; background-position:left -24px; content:'';}
-.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info .ddp-txt-info.type-link:hover {text-decoration:underline;}
-.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info .ddp-txt-info.type-link:hover em.ddp-link-new {display:inline-block;}
+.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info {position:relative; display:inline-block; max-width:100%;padding:4px 0 0 0; color:#4e5368; font-size:12px;}
+.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info.type-link {cursor:pointer;}
+.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info.type-link .ddp-txt-info {display:block; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
+.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info em.ddp-link-new  {display:inline-block; position:relative; top:2px; float:right; width:14px; height:12px; margin-left:2px; background:url(../../images/icon_window.png) no-repeat; background-position:left -24px; content:'';}
+.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info.type-link:hover em.ddp-link-new {display:inline-block;}
+
+table.ddp-table-detail4 {table-layout:fixed; border:1px solid #cdd0e2;}
+table.ddp-table-detail4 tr th {padding:7px 15px 7px 15px; text-align:left; color:#666eb2; font-weight:normal; border-bottom:1px solid #e5e6f0; background-color:#eceef7;}
+table.ddp-table-detail4 tr:first-of-type td {border-top:none;}
+table.ddp-table-detail4 tr td {padding:9px 15px 9px 15px; color:#4b515b; font-size:13px; border-top:1px solid #e5e6f0;}
+table.ddp-table-detail4 tr td .ddp-txt-long {display:inline-block; max-width:100%; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
+table.ddp-table-detail4 tr td .ddp-txt-long.ddp-type-button {position:relative; margin:-5px 0;}
+table.ddp-table-detail4 tr td .ddp-txt-long.ddp-type-button .ddp-txt-name {display:block; position:Relative; margin-top:5px;}
+table.ddp-table-detail4 tr td .ddp-txt-long.ddp-type-button .ddp-btn-selection {margin-left:8px;}
+table.ddp-table-detail4 tr td .ddp-txt-long .ddp-icon-control-fav {position:relative; top:-2px;}
+table.ddp-table-detail4 tr td .ddp-txt-long .ddp-txt-name { white-space:nowrap; text-overflow:ellipsis; overflow:hidden; text-decoration:underline;}
+table.ddp-table-detail.type-meata tbody tr th,
+table.ddp-table-detail.type-meata tbody tr td {padding:17px 10px 17px 0px; }
+
+table.ddp-table-detail tbody tr td .ddp-wrap-hover-info {position:relative; }
+table.ddp-table-detail tbody tr td .ddp-wrap-hover-info .ddp-icon-info3 {display:inline-block; width:11px; height:11px; background:url(../../images/icon_que.png) no-repeat; background-position:left -12px;}
+table.ddp-table-detail tbody tr td .ddp-wrap-hover-info .ddp-box-layout4.ddp-popularity {display:none;position:absolute; top:100%;left:0; margin-top:6px; width:360px;}
+table.ddp-table-detail tbody tr td .ddp-wrap-hover-info:hover .ddp-box-layout4.ddp-popularity {display:block;}
+table.ddp-table-detail tbody tr td .ddp-ui-popularity .ddp-icon-popularity {display:inline-block; float:left; width:18px; height:14px; margin-right:8px; background:url(../../images/icon_popularity.png) no-repeat;}
+table.ddp-table-detail tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
+.ddp-page-catalog.ddp-list-catalog {clear:both;}
+table.ddp-table-detail tbody tr td .ddp-ui-popularity .ddp-wrap-hover-info {float:left; position:relative; top:2px; margin-left:6px; cursor:pointer;}
+
+table.ddp-table-detail tbody tr td .ddp-ui-catalogs.ddp-type {background-color:#f6f6f7;}
+table.ddp-table-detail tbody tr td .ddp-ui-catalogs.ddp-type .ddp-box-catalogs {display:block; padding:10px 10px 10px 10px}
+table.ddp-table-detail tbody tr td .ddp-ui-catalogs.ddp-type .ddp-box-catalogs:hover {background-color:#e7e7ea;}
+table.ddp-table-detail tbody tr td .ddp-ui-catalog-more {position:relative;}
+table.ddp-table-detail tbody tr td .ddp-ui-catalog-more .ddp-link-more {display:inline-block; position:relative; margin-top:10px; color:#4a525c; text-decoration:underline;}
+table.ddp-table-detail tbody tr td .ddp-ui-catalog-more .ddp-box-layout4 {display:none; position:absolute; top:100%; margin-top:5px; width:350px;}
 
 .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-date {padding:2px 0 0 0; color:#90969f; font-size:12px;}
 

@@ -19,4 +19,27 @@ export class ExploreDataUserCardComponent extends AbstractComponent {
     super.ngOnInit();
   }
 
+  onClickWorkbenchName(hasPermission: boolean) {
+    if (!hasPermission) {
+      return;
+    }
+
+    const popupX = (window.screen.width / 2) - (1200 / 2);
+    const popupY = (window.screen.height / 2) - (900 / 2);
+    const popUrl = `workbench/${this.topUser.workbench.id}`;
+
+    window.open(popUrl, '', 'status=no, height=700, width=1200, left=' + popupX + ', top=' + popupY + ', screenX=' + popupX + ', screenY= ' + popupY);
+  }
+
+  onClickDashBoardName(hasPermission: boolean) {
+    if (!hasPermission) {
+      return;
+    }
+
+    const popupX = (window.screen.width / 2) - (1200 / 2);
+    const popupY = (window.screen.height / 2) - (900 / 2);
+    const popUrl = `workbook/${this.topUser.workbook.id}/${this.topUser.dashboard.id}`;
+
+    window.open(popUrl, '', 'status=no, height=700, width=1200, left=' + popupX + ', top=' + popupY + ', screenX=' + popupX + ', screenY= ' + popupY);
+  }
 }

@@ -57,13 +57,11 @@ import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection;
 import com.facebook.presto.jdbc.internal.guava.collect.Lists;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -71,7 +69,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import javax.annotation.PostConstruct;
 import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
 import org.joda.time.DateTime;
@@ -104,30 +101,33 @@ public class PrepTransformService {
   @Autowired
   PrepHistogramService prepHistogramService;
 
-  @PostConstruct
-  public void init() {
-    System.setProperty("dataprep",
-            Arrays.asList(env.getActiveProfiles()).contains("dataprep") ? "enabled" : "disabled");
-  }
-
   @Autowired
   PrDatasetRepository datasetRepository;
+
   @Autowired
   PrDataflowRepository dataflowRepository;
+
   @Autowired
   PrTransformRuleRepository transformRuleRepository;
+
   @Autowired
   PrepPreviewLineService previewLineService;
+
   @Autowired
   PrepDatasetFileService datasetFileService;
+
   @Autowired
   PrSnapshotRepository snapshotRepository;
+
   @Autowired
   DataConnectionRepository connectionRepository;
+
   @Autowired
   PrSnapshotService snapshotService;
+
   @Autowired
   DataFrameService dataFrameService;
+
   @Autowired
   PrepTransformRuleService transformRuleService;
 
@@ -142,19 +142,6 @@ public class PrepTransformService {
 
   @Value("${server.port:8180}")
   private String serverPort;
-
-  // Datasource properties are only for Twinkle, which is to be obsolete.
-  @Value("${spring.datasource.driver-class-name:MISSING_DATASOURCE_DRIVER_CLASS_NAME}")
-  String datasourceDriverClassName;
-
-  @Value("${spring.datasource.url:MISSING_DATASOURCE_URL}")
-  String datasourceUrl;
-
-  @Value("${spring.datasource.username:MISSING_DATASOURCE_USERNAME}")
-  String datasourceUsername;
-
-  @Value("${spring.datasource.password:MISSING_DATASOURCE_PASSWORD}")
-  String datasourcePassword;
 
   public enum OP_TYPE {
     CREATE,
@@ -172,18 +159,11 @@ public class PrepTransformService {
   // Currently, the ETL programs kinds are the embedded engine and Apache Spark.
   private String getJsonPrepPropertiesInfo(String dsId, PrepSnapshotRequestPost requestPost)
           throws JsonProcessingException, URISyntaxException {
-    PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
-
-    PrDataset.IMPORT_TYPE importType = dataset.getImportType();
-    boolean dsStagingDb = (importType == PrDataset.IMPORT_TYPE.STAGING_DB);
-
     PrSnapshot.SS_TYPE ssType = requestPost.getSsType();
 
-    boolean ssHdfs = (ssType == PrSnapshot.SS_TYPE.URI && (new URI(requestPost.getStoredUri()))
-            .getScheme().equals("hdfs"));
+    boolean ssHdfs = (ssType == PrSnapshot.SS_TYPE.URI && (new URI(requestPost.getStoredUri())).getScheme()
+            .equals("hdfs"));
     boolean ssStagingDb = (ssType == PrSnapshot.SS_TYPE.STAGING_DB);
-
-    PrSnapshot.ENGINE engine = requestPost.getEngine();
 
     // check polaris.dataprep.hadoopConfDir
     if (ssHdfs || ssStagingDb) {
@@ -193,15 +173,15 @@ public class PrepTransformService {
 
     Map<String, Object> mapEveryForEtl = prepProperties.getEveryForEtl();
 
-    if (storageProperties != null && storageProperties.getStagedb()
-            != null) { // if the value is null, that means storage.stagedb is not in a yaml. NOT using STAGING_DB
+    // if the value is null, that means storage.stagedb is not in a yaml. NOT using STAGING_DB
+    if (storageProperties != null && storageProperties.getStagedb() != null) {
       StageDBConnection stageDB = storageProperties.getStagedb();
       mapEveryForEtl.put(STAGEDB_HOSTNAME, stageDB.getHostname());
       mapEveryForEtl.put(STAGEDB_PORT, stageDB.getPort());
       mapEveryForEtl.put(STAGEDB_USERNAME, stageDB.getUsername());
       mapEveryForEtl.put(STAGEDB_PASSWORD, stageDB.getPassword());
 
-      if (engine == ENGINE.SPARK) {
+      if (requestPost.getEngine() == ENGINE.SPARK) {
         mapEveryForEtl.put(STAGEDB_METASTORE_URI, stageDB.getMetastoreUri());
       }
     }
@@ -209,8 +189,7 @@ public class PrepTransformService {
     return GlobalObjectMapper.getDefaultMapper().writeValueAsString(mapEveryForEtl);
   }
 
-  private String getJsonSnapshotInfo(PrepSnapshotRequestPost requestPost, String ssId)
-          throws JsonProcessingException {
+  private String getJsonSnapshotInfo(PrepSnapshotRequestPost requestPost, String ssId) throws JsonProcessingException {
     Map<String, Object> map = new HashMap();
     PrSnapshot.SS_TYPE ssType = requestPost.getSsType();
     PrSnapshot.ENGINE engine = requestPost.getEngine();
@@ -254,14 +233,11 @@ public class PrepTransformService {
     return GlobalObjectMapper.getDefaultMapper().writeValueAsString(map);
   }
 
-
   public PrepTransformService() {
   }
 
-  // skips the last rule for UPDATE purpose
-  public List<String> getUpstreamDsIds(String dsId, boolean forUpdate)
-          throws IOException, CannotSerializeIntoJsonException {
-    List<String> upstreamDsIds = new ArrayList<>();
+  public List<String> getUpstreamDsIds(String dsId) throws CannotSerializeIntoJsonException, JsonProcessingException {
+    List<String> upstreamDsIds = new ArrayList();
 
     String firstUpstreamDsId = getFirstUpstreamDsId(dsId);
     if (firstUpstreamDsId == null) {  // then, this is not a wrangled dataset
@@ -271,30 +247,49 @@ public class PrepTransformService {
 
     List<PrTransformRule> rules = getRulesInOrder(dsId);
 
-    int until = forUpdate ? rules.size() - 1 : rules.size();
-
-    prepareTransformRules(dsId);
-
-    for (int i = 0; i < until; i++) {
+    for (int i = 0; i < rules.size(); i++) {
       PrTransformRule rule = rules.get(i);
       upstreamDsIds.addAll(transformRuleService.getUpstreamDsIds(rule.getRuleString()));
     }
     return upstreamDsIds;
   }
 
-  public List<String> getUpstreamDsIds(String dsId)
-          throws IOException, CannotSerializeIntoJsonException {
-    return getUpstreamDsIds(dsId, false);
+  public void addDownstreamDsId(List<String> deleteDsIds, String dsId, boolean acceptImported)
+          throws CannotSerializeIntoJsonException, JsonProcessingException {
+    // If already exists, just skip.
+    if (deleteDsIds.contains(dsId)) {
+      return;
+    }
+
+    // If I.DS is not wanted, skip.
+    if (acceptImported || datasetRepository.findOne(dsId).getDsType() == WRANGLED) {
+      deleteDsIds.add(dsId);
+    }
+
+    for (String downstreamDsId : getDownstreamDsIds(dsId)) {
+      addDownstreamDsId(deleteDsIds, downstreamDsId, true);
+    }
+  }
+
+  public List<String> getDownstreamDsIds(String dsId) throws CannotSerializeIntoJsonException, JsonProcessingException {
+    List<String> downstreamDsIds = new ArrayList();
+
+    for (PrDataset dataset : datasetRepository.findAll()) {
+      List<String> upstreamDsIds = getUpstreamDsIds(dataset.getDsId());
+      if (upstreamDsIds.contains(dsId)) {
+        downstreamDsIds.add(dataset.getDsId());
+      }
+    }
+
+    return downstreamDsIds;
   }
 
   // create stage0 (POST)
   @Transactional(rollbackFor = Exception.class)
-  public PrepTransformResponse create(String importedDsId, String dfId, String cloningDsName)
-          throws Exception {
+  public PrepTransformResponse create(String importedDsId, String dfId, String cloningDsName) throws Exception {
     LOGGER.trace("create(): start");
 
-    PrDataset importedDataset = datasetRepository
-            .findRealOne(datasetRepository.findOne(importedDsId));
+    PrDataset importedDataset = datasetRepository.findRealOne(datasetRepository.findOne(importedDsId));
     PrDataflow dataflow = dataflowRepository.findOne(dfId);
     assert importedDataset.getDsType() == IMPORTED : importedDataset.getDsType();
 
@@ -354,8 +349,7 @@ public class PrepTransformService {
 
   @Transactional(rollbackFor = Exception.class)
   public PrepTransformResponse clone(String wrangledDsId) throws Exception {
-    PrDataset wrangledDataset = datasetRepository
-            .findRealOne(datasetRepository.findOne(wrangledDsId));
+    PrDataset wrangledDataset = datasetRepository.findRealOne(datasetRepository.findOne(wrangledDsId));
     String upstreamDsId = getFirstUpstreamDsId(wrangledDsId);
 
     PrepTransformResponse response = create(upstreamDsId, wrangledDataset.getCreatorDfId(),
@@ -373,53 +367,6 @@ public class PrepTransformService {
       }
     }
     return response;
-  }
-
-  @Transactional(rollbackFor = Exception.class)
-  public List<String> swap(String oldDsId, String newDsId) throws Exception {
-    List<String> targetDsIds = Lists.newArrayList();
-
-    // Replace all occurrence of oldDsid in whole rule strings in the system.
-    for (PrTransformRule rule : transformRuleRepository.findAll()) {
-      String ruleString = rule.getRuleString();
-      if (ruleString.contains(oldDsId)) {
-        String newRuleString = ruleString.replace(oldDsId, newDsId);
-        String newJsonRuleString = rule.getJsonRuleString().replaceAll(oldDsId, newDsId);
-        String newShortRuleString = transformRuleService.shortenRuleString(newRuleString);
-
-        rule.setRuleString(newRuleString);
-        rule.setJsonRuleString(newJsonRuleString);
-        rule.setShortRuleString(newShortRuleString);
-
-        // un-cache to be reloaded
-        teddyImpl.remove(rule.getDataset().getDsId());
-
-        if (false == targetDsIds.contains(rule.getDataset().getDsId())) {
-          // It must be wrangled dataset, but not chaining wrangled
-          targetDsIds.add(rule.getDataset().getDsId());
-        }
-      }
-    }
-
-    PrDataset oldDataset = datasetRepository.findOne(oldDsId);
-    PrDataset newDataset = datasetRepository.findOne(newDsId);
-
-    List<PrDataflow> dataflows = dataflowRepository.findAll();
-    for (PrDataflow dataflow : dataflows) {
-      List<PrDataset> datasets = dataflow.getDatasets();
-      for (PrDataset dataset : datasets) {
-        if (dataset.getDsId().equals(oldDataset.getDsId())) {
-          datasets.remove(dataset);
-          datasets.add(newDataset);
-          dataflow.setDatasets(datasets);
-          dataflowRepository.save(dataflow);
-          break;
-        }
-      }
-    }
-    dataflowRepository.flush();
-
-    return targetDsIds;
   }
 
   @Transactional(rollbackFor = Exception.class)
@@ -503,8 +450,7 @@ public class PrepTransformService {
     }
   }
 
-  public DataFrame loadWrangledDataset(String dsId)
-          throws IOException, CannotSerializeIntoJsonException {
+  public DataFrame loadWrangledDataset(String dsId) throws IOException, CannotSerializeIntoJsonException {
     return loadWrangledDataset(dsId, false);
   }
 
@@ -531,15 +477,12 @@ public class PrepTransformService {
     // 이하 코드는 dataset이 PLM cache에 존재하지 않거나, transition을 처음부터 다시 적용해야 하는 경우
     teddyImpl.remove(dsId);
 
-    PrDataset upstreamDataset = datasetRepository
-            .findRealOne(datasetRepository.findOne(getFirstUpstreamDsId(dsId)));
+    PrDataset upstreamDataset = datasetRepository.findRealOne(datasetRepository.findOne(getFirstUpstreamDsId(dsId)));
     gridResponse = createStage0(dsId, upstreamDataset);
     teddyImpl.reset(dsId);
 
-    List<String> ruleStrings = new ArrayList<>();
-    List<String> jsonRuleStrings = new ArrayList<>();
-    ArrayList<String> totalTargetDsIds = new ArrayList<>();           // What is this for?
-    ArrayList<PrDataset> totalTargetDatasets = new ArrayList<>();     // What is this for?
+    List<String> ruleStrings = new ArrayList();
+    List<String> jsonRuleStrings = new ArrayList();
 
     prepareTransformRules(dsId);
 
@@ -555,11 +498,8 @@ public class PrepTransformService {
 
       for (String upstreamDsId : upstreamDsIds) {
         loadWrangledDataset(upstreamDsId);
-        totalTargetDsIds.add(upstreamDsId);
 
-        PrDataset targetDataset = datasetRepository
-                .findRealOne(datasetRepository.findOne(upstreamDsId));
-        totalTargetDatasets.add(targetDataset);
+        PrDataset targetDataset = datasetRepository.findRealOne(datasetRepository.findOne(upstreamDsId));
       }
     }
 
@@ -581,10 +521,8 @@ public class PrepTransformService {
     return gridResponse;
   }
 
-  private List<Histogram> createHistsWithColWidths(DataFrame df, List<Integer> colnos,
-          List<Integer> colWidths) {
-    LOGGER.debug("createHistsWithColWidths(): df.colCnt={}, colnos={} colWidths={}", df.getColCnt(),
-            colnos, colWidths);
+  private List<Histogram> createHistsWithColWidths(DataFrame df, List<Integer> colnos, List<Integer> colWidths) {
+    LOGGER.debug("createHistsWithColWidths(): df.colCnt={}, colnos={} colWidths={}", df.getColCnt(), colnos, colWidths);
 
     df.colHists = new ArrayList<>();
     List<Future<Histogram>> futures = new ArrayList<>();
@@ -600,8 +538,7 @@ public class PrepTransformService {
       int colno = colnos.get(i);
       int colWidth = colWidths.get(i);
       futures.add(prepHistogramService
-              .updateHistWithColWidth(df.getColName(colno), df.getColType(colno), df.rows, colno,
-                      colWidth));
+              .updateHistWithColWidth(df.getColName(colno), df.getColType(colno), df.rows, colno, colWidth));
 
       if (++issued == dop) {
         for (int j = 0; j < issued; j++) {
@@ -702,8 +639,8 @@ public class PrepTransformService {
         if (stageIdx <= origStageIdx) {
           adjustStageIdx(dsId, origStageIdx - 1, true);
         } else {
-          adjustStageIdx(dsId, origStageIdx,
-                  true);  // Currently, this case does not happen (no delete button after curRuleIdx)
+          // Currently, this case does not happen (no delete button after curRuleIdx)
+          adjustStageIdx(dsId, origStageIdx, true);
         }
         break;
       case UPDATE:
@@ -761,13 +698,11 @@ public class PrepTransformService {
     }
 
     response.setRuleCurIdx(dataset.getRuleCurIdx());
-    response.setTransformRules(getRulesInOrder(dsId), teddyImpl.isUndoable(dsId),
-            teddyImpl.isRedoable(dsId));
+    response.setTransformRules(getRulesInOrder(dsId), teddyImpl.isUndoable(dsId), teddyImpl.isRedoable(dsId));
     return response;
   }
 
-  private void updateTransformRules(String dsId)
-          throws CannotSerializeIntoJsonException, JsonProcessingException {
+  private void updateTransformRules(String dsId) throws CannotSerializeIntoJsonException, JsonProcessingException {
     for (PrTransformRule rule : getRulesInOrder(dsId)) {
       transformRuleRepository.delete(rule);
     }
@@ -782,8 +717,7 @@ public class PrepTransformService {
       String ruleString = ruleStrings.get(i);
       String jsonRuleString = jsonRuleStrings.get(i);
       String shortRuleString = transformRuleService.shortenRuleString(ruleString);
-      PrTransformRule rule = new PrTransformRule(dataset, i, ruleStrings.get(i), jsonRuleString,
-              shortRuleString);
+      PrTransformRule rule = new PrTransformRule(dataset, i, ruleStrings.get(i), jsonRuleString, shortRuleString);
       rule.setValid(valids.get(i));
       transformRuleRepository.save(rule);
     }
@@ -794,8 +728,7 @@ public class PrepTransformService {
   // transform_histogram (POST)
   public PrepHistogramResponse transform_histogram(String dsId, Integer stageIdx,
           List<Integer> colnos, List<Integer> colWidths) throws Exception {
-    LOGGER.trace(
-            "transform_histogram(): start: dsId={} curRevIdx={} stageIdx={} colnos={} colWidths={}",
+    LOGGER.trace("transform_histogram(): start: dsId={} curRevIdx={} stageIdx={} colnos={} colWidths={}",
             dsId, teddyImpl.getCurRevIdx(dsId), stageIdx, colnos, colWidths);
 
     loadWrangledDataset(dsId);
@@ -847,25 +780,17 @@ public class PrepTransformService {
 
         for (TimestampTemplate tt : TimestampTemplate.values()) {
           try {
-            DateTimeFormatter dtf = DateTimeFormat.forPattern(tt.getFormat())
-                    .withLocale(Locale.ENGLISH);
+            DateTimeFormatter dtf = DateTimeFormat.forPattern(tt.getFormat()).withLocale(Locale.ENGLISH);
             DateTime.parse(str, dtf);
 
             timestampStyleGuess.add(tt);
             break;
           } catch (Exception e) {
-            //LOGGER.info("create(): Detecting Column Type...", e);
+            // Suppress
           }
         }
       }
     }
-
-    /*
-    for(TimestampTemplate tt : TimestampTemplate.values()) {
-      String timestampFormat = tt.getFormatForRuleString();
-      timestampFormatList.put(timestampFormat, 0);
-    }
-    */
 
     for (TimestampTemplate tt : timestampStyleGuess) {
       String timestampFormat = tt.getFormatForRuleString();
@@ -876,8 +801,7 @@ public class PrepTransformService {
   }
 
   // transform_timestampFormat
-  public Map<String, Object> transform_timestampFormat(String dsId, List<String> colNames)
-          throws Exception {
+  public Map<String, Object> transform_timestampFormat(String dsId, List<String> colNames) throws Exception {
     loadWrangledDataset(dsId);
 
     DataFrame df = teddyImpl.getCurDf(dsId);
@@ -927,8 +851,7 @@ public class PrepTransformService {
     datasetInfo.put("origTeddyDsId", wrangledDsId);
 
     for (String upstreamDsId : getUpstreamDsIds(wrangledDsId)) {
-      PrDataset upstreamDataset = datasetRepository
-              .findRealOne(datasetRepository.findOne(upstreamDsId));
+      PrDataset upstreamDataset = datasetRepository.findRealOne(datasetRepository.findOne(upstreamDsId));
       if (upstreamDataset.getDsType() == IMPORTED) {
         datasetInfo.put("importType", upstreamDataset.getImportType().name());
         switch (upstreamDataset.getImportType()) {
@@ -959,15 +882,13 @@ public class PrepTransformService {
             assert false : upstreamDataset.getImportType();
         }
       } else {
-        Map<String, Object> upstreamDatasetInfo = buildDatasetInfoRecursive(
-                upstreamDsId);  // add slaves first
+        Map<String, Object> upstreamDatasetInfo = buildDatasetInfoRecursive(upstreamDsId);  // add slaves first
         upstreamDatasetInfos.add(upstreamDatasetInfo);
       }
     }
 
     // put sourceQuery
-    assert datasetInfo.get("sourceQuery") != null
-            || datasetInfo.get("storedUri") != null : wrangledDsId;
+    assert datasetInfo.get("sourceQuery") != null || datasetInfo.get("storedUri") != null : wrangledDsId;
 
     // put ruleStrings
     List<String> ruleStrings = new ArrayList<>();
@@ -985,8 +906,7 @@ public class PrepTransformService {
     return datasetInfo;
   }
 
-  private String getJsonDatasetInfo(String wrangledDsId)
-          throws IOException, CannotSerializeIntoJsonException {
+  private String getJsonDatasetInfo(String wrangledDsId) throws IOException, CannotSerializeIntoJsonException {
     Map<String, Object> datasetInfo = buildDatasetInfoRecursive(wrangledDsId);
     return GlobalObjectMapper.getDefaultMapper().writeValueAsString(datasetInfo);
   }
@@ -1026,8 +946,7 @@ public class PrepTransformService {
     LOGGER.info("runTeddy(): engine=embedded");
 
     Future<String> future = teddyExecutor.run(
-            new String[]{jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo,
-                    jsonCallbackInfo});
+            new String[]{jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo, jsonCallbackInfo});
 
     LOGGER.debug("runTeddy(): (Future) result from teddyExecutor: " + future.toString());
   }
@@ -1036,66 +955,9 @@ public class PrepTransformService {
           String jsonSnapshotInfo, String jsonCallbackInfo) throws Throwable {
 
     Future<String> future = sparkExecutor.run(
-            new String[]{jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo,
-                    jsonCallbackInfo});
+            new String[]{jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo, jsonCallbackInfo});
 
     LOGGER.debug("runSpark(): (Future) result from sparkExecutor: " + future.toString());
-
-    ObjectMapper mapper = GlobalObjectMapper.getDefaultMapper();
-    LOGGER.info("runSpark(): engine=spark");
-
-    // Spark engine gets arguments as Map not as JSON string.
-
-    // TO-DO: This is natural. Embbeded engine should do like this too.
-
-    //    Map<String, Object> prepPropertiesInfo = mapper
-    //        .readValue(jsonPrepPropertiesInfo, HashMap.class);
-    //    Map<String, Object> datasetInfo = mapper.readValue(jsonDatasetInfo, HashMap.class);
-    //    Map<String, Object> snapshotInfo = mapper.readValue(jsonSnapshotInfo, HashMap.class);
-    //    Map<String, Object> callbackInfo = mapper.readValue(jsonCallbackInfo, HashMap.class);
-    //
-    //    // TO-DO: fork if not running
-    //
-    //    // Send spark request
-    //    Map<String, Object> args = new HashMap();
-    //
-    //    args.put("prepProperties", prepPropertiesInfo);
-    //    args.put("datasetInfo", datasetInfo);
-    //    args.put("snapshotInfo", snapshotInfo);
-    //    args.put("callbackInfo", callbackInfo);
-    //
-    //    URL url = new URL("http://localhost:" + prepPropertiesInfo.get(ETL_SPARK_PORT) + "/run");
-    //    HttpURLConnection con = (HttpURLConnection) url.openConnection();
-    //
-    //    con.setRequestMethod("POST");
-    //    con.setRequestProperty("Content-Type", "application/json; utf-8");
-    //    con.setRequestProperty("Accept", "application/json");
-    //    con.setDoOutput(true);
-    //
-    //    String jsonArgs = GlobalObjectMapper.getDefaultMapper().writeValueAsString(args);
-    //
-    //    try (OutputStream os = con.getOutputStream()) {
-    //      byte[] input = jsonArgs.getBytes("utf-8");
-    //      os.write(input, 0, input.length);
-    //    }
-    //
-    //    StringBuilder response = new StringBuilder();
-    //    InputStreamReader reader = new InputStreamReader(con.getInputStream(), "utf-8");
-    //
-    //    try (BufferedReader br = new BufferedReader(reader)) {
-    //      String responseLine;
-    //
-    //      while (true) {
-    //        responseLine = br.readLine();
-    //        if (responseLine == null) {
-    //          break;
-    //        }
-    //        response.append(responseLine.trim());
-    //      }
-    //      System.out.println(response.toString());
-    //    }
-    //
-    //    LOGGER.debug("runSpark(): done with statusCode " + con.getResponseCode());
   }
 
 
@@ -1109,21 +971,17 @@ public class PrepTransformService {
     }
   }
 
-  // FIXME: What is this functions for?
-  private void prepareTransformRules(String dsId)
-          throws CannotSerializeIntoJsonException, JsonProcessingException {
+  // Parse the rule string into short version to display in the rule list panel.
+  // Server-side do not use jsonRuleString field of TransformRule class.
+  // It's used by client-side to store something tied up to the rule.
+  private void prepareTransformRules(String dsId) throws CannotSerializeIntoJsonException, JsonProcessingException {
     PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
     List<PrTransformRule> transformRules = dataset.getTransformRules();
 
     if (transformRules != null && transformRules.size() > 0) {
       for (PrTransformRule transformRule : transformRules) {
-        if (transformRule.getJsonRuleString() == null) {
-          String jsonRuleString = transformRule.getJsonRuleString();
-          transformRule.setJsonRuleString(jsonRuleString);
-        }
         if (transformRule.getShortRuleString() == null) {
-          String shortRuleString = transformRuleService
-                  .shortenRuleString(transformRule.getRuleString());
+          String shortRuleString = transformRuleService.shortenRuleString(transformRule.getRuleString());
           transformRule.setShortRuleString(shortRuleString);
         }
       }
@@ -1168,8 +1026,7 @@ public class PrepTransformService {
     prepareTransformRules(dataset.getDsId());
     Map<String, Object> mapLineageInfo = new HashMap<>();
     mapLineageInfo.put("transformRules", dataset.getTransformRules());
-    snapshot
-            .setLineageInfo(GlobalObjectMapper.getDefaultMapper().writeValueAsString(mapLineageInfo));
+    snapshot.setLineageInfo(GlobalObjectMapper.getDefaultMapper().writeValueAsString(mapLineageInfo));
 
     // fill snapshot entity: common attributes - info for wrangled dataset
     snapshot.setDfId(dfId);
@@ -1381,8 +1238,7 @@ public class PrepTransformService {
 
   private DataFrame createStage0(String wrangledDsId, PrDataset importedDataset)
           throws CannotSerializeIntoJsonException, JsonProcessingException {
-    PrDataset wrangledDataset = datasetRepository
-            .findRealOne(datasetRepository.findOne(wrangledDsId));
+    PrDataset wrangledDataset = datasetRepository.findRealOne(datasetRepository.findOne(wrangledDsId));
     DataFrame gridResponse;
 
     LOGGER.trace("createStage0: dsId={}", wrangledDsId);
@@ -1403,9 +1259,7 @@ public class PrepTransformService {
         } else {
           throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
                   PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG,
-                  "invalid flie type: createWrangledDataset\nimportedDataset: " + importedDataset
-                          .toString());
-          //throw new IllegalArgumentException("invalid flie type: createWrangledDataset\nimportedDataset: " + importedDataset.toString());
+                  "invalid flie type: createWrangledDataset\nimportedDataset: " + importedDataset.toString());
         }
         break;
 
@@ -1432,14 +1286,12 @@ public class PrepTransformService {
           queryStmt = queryStmt.substring(0, queryStmt.length() - 1);
         }
 
-        gridResponse = teddyImpl
-                .loadStageDBDataset(wrangledDsId, queryStmt, wrangledDataset.getDsName());
+        gridResponse = teddyImpl.loadStageDBDataset(wrangledDsId, queryStmt, wrangledDataset.getDsName());
         break;
 
       default:
         throw new IllegalArgumentException(
-                "invalid import type: createWrangledDataset\nimportedDataset: " + importedDataset
-                        .toString());
+                "invalid import type: createWrangledDataset\nimportedDataset: " + importedDataset.toString());
     }
 
     wrangledDataset.setRuleCurIdx(0);
@@ -1449,20 +1301,10 @@ public class PrepTransformService {
 
     String createRuleString = transformRuleService.getCreateRuleString(importedDataset.getDsId());
     teddyImpl.getCurDf(wrangledDsId).setRuleString(createRuleString);
-    teddyImpl.getCurDf(wrangledDsId)
-            .setJsonRuleString(transformRuleService.jsonizeRuleString(createRuleString));
+    teddyImpl.getCurDf(wrangledDsId).setJsonRuleString(transformRuleService.jsonizeRuleString(createRuleString));
 
     LOGGER.trace("createStage0(): end");
     return gridResponse;
-  }
-
-  // only debugging purpose
-  public PrepTransformResponse getCacheInfo() {
-    Map<String, Object> cacheInfo = new HashMap<>();
-
-    PrepTransformResponse response = new PrepTransformResponse();
-    response.setCacheInfo(cacheInfo);
-    return response;
   }
 
   // FIXME: just send static configurations. we do not need specific dataset info.
@@ -1472,26 +1314,23 @@ public class PrepTransformService {
       PrDataset wrangledDataset = datasetRepository.findOne(wrangledDsId);
       assert (null != wrangledDataset);
       DateTime launchTime = DateTime.now(DateTimeZone.UTC);
-      String ssName = this.snapshotService
-              .makeSnapshotName(wrangledDataset.getDsName(), launchTime);
+      String ssName = this.snapshotService.makeSnapshotName(wrangledDataset.getDsName(), launchTime);
       configuration.put("ss_name", ssName);
 
       if (prepProperties.isFileSnapshotEnabled()) {
         Map<String, Object> fileUri = Maps.newHashMap();
 
         // TODO: "LOCAL", "HDFS" will be replaced by location presets from application.yaml (later)
-        String localDir = this.snapshotService
-                .getSnapshotDir(prepProperties.getLocalBaseDir(), ssName);
+        String localDir = this.snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), ssName);
         localDir = this.snapshotService.escapeUri(localDir);
         fileUri.put("LOCAL", "file://" + localDir);
 
         try {
-          String hdfsDir = this.snapshotService
-                  .getSnapshotDir(prepProperties.getStagingBaseDir(true), ssName);
+          String hdfsDir = this.snapshotService.getSnapshotDir(prepProperties.getStagingBaseDir(true), ssName);
           hdfsDir = this.snapshotService.escapeUri(hdfsDir);
           fileUri.put("HDFS", hdfsDir);
         } catch (Exception e) {
-          // MSG_DP_ALERT_STAGING_DIR_NOT_CONFIGURED is suppressed
+          // Suppress
         }
         configuration.put("file_uri", fileUri);
       }

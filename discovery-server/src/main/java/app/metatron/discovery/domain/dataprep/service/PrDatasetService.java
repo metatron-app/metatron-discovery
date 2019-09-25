@@ -73,8 +73,7 @@ public class PrDatasetService {
 
     PrDataset.IMPORT_TYPE importType = dataset.getImportType();
     if (importType == PrDataset.IMPORT_TYPE.UPLOAD || importType == PrDataset.IMPORT_TYPE.URI) {
-      dataFrame = this.datasetFilePreviewService
-              .getPreviewLinesFromFileForDataFrame(dataset, "0", this.filePreviewSize);
+      dataFrame = this.datasetFilePreviewService.getPreviewLinesFromFileForDataFrame(dataset, this.filePreviewSize);
     } else if (importType == PrDataset.IMPORT_TYPE.DATABASE) {
       dataFrame = this.datasetJdbcPreviewService.getPreviewLinesFromJdbcForDataFrame(dataset, this.jdbcPreviewSize);
     } else if (importType == PrDataset.IMPORT_TYPE.STAGING_DB) {
@@ -96,8 +95,7 @@ public class PrDatasetService {
 
     PrDataset.IMPORT_TYPE importType = dataset.getImportType();
     if (importType == PrDataset.IMPORT_TYPE.UPLOAD || importType == PrDataset.IMPORT_TYPE.URI) {
-      dataFrame = this.datasetFilePreviewService
-              .getPreviewLinesFromFileForDataFrame(dataset, "0", this.filePreviewSize);
+      dataFrame = this.datasetFilePreviewService.getPreviewLinesFromFileForDataFrame(dataset, this.filePreviewSize);
     } else if (importType == PrDataset.IMPORT_TYPE.DATABASE) {
       dataFrame = this.datasetJdbcPreviewService.getPreviewLinesFromJdbcForDataFrame(dataset, this.jdbcPreviewSize);
     } else if (importType == PrDataset.IMPORT_TYPE.STAGING_DB) {
