@@ -17,15 +17,14 @@ package app.metatron.discovery.domain.dataprep.service;
 import app.metatron.discovery.domain.dataprep.PrepDatasetStagingDbService;
 import app.metatron.discovery.domain.dataprep.PrepProperties;
 import app.metatron.discovery.domain.dataprep.PrepUtil;
-import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
-import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshotProjections;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.dataprep.json.PrepJsonParseResult;
-import app.metatron.discovery.domain.dataprep.json.PrepJsonUtil;
+import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
+import app.metatron.discovery.domain.dataprep.file.PrepJsonUtil;
+import app.metatron.discovery.domain.dataprep.file.PrepParseResult;
 import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
 import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
@@ -199,13 +198,13 @@ public class PrSnapshotController {
 
           // We generated JSON snapshots to have ".json" at the end of the URI.
           Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
+          PrepParseResult result;
           if (storedUri.endsWith(".json")) {
-            PrepJsonParseResult result = PrepJsonUtil.parseJson(snapshot.getStoredUri(), 10000, null, hadoopConf);
-            gridResponse.setByGridWithJson(result);
+            result = PrepJsonUtil.parse(snapshot.getStoredUri(), 10000, null, hadoopConf);
           } else {
-            PrepCsvParseResult result = PrepCsvUtil.parse(snapshot.getStoredUri(), ",", 10000, null, hadoopConf, true);
-            gridResponse.setByGrid(result);
+            result = PrepCsvUtil.parse(snapshot.getStoredUri(), ",", 10000, null, hadoopConf, true);
           }
+          gridResponse.setByGrid(result);
 
           responseMap.put("offset", gridResponse.rows.size());
           responseMap.put("size", gridResponse.rows.size());
