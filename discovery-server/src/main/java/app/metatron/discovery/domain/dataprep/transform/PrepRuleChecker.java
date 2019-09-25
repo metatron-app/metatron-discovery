@@ -44,6 +44,7 @@ import app.metatron.discovery.prep.parser.preparation.rule.SetFormat;
 import app.metatron.discovery.prep.parser.preparation.rule.SetType;
 import app.metatron.discovery.prep.parser.preparation.rule.Sort;
 import app.metatron.discovery.prep.parser.preparation.rule.Split;
+import app.metatron.discovery.prep.parser.preparation.rule.Union;
 import app.metatron.discovery.prep.parser.preparation.rule.Unnest;
 import app.metatron.discovery.prep.parser.preparation.rule.Unpivot;
 import app.metatron.discovery.prep.parser.preparation.rule.Window;
@@ -428,7 +429,7 @@ public class PrepRuleChecker {
     Expression leftSelectCol = join.getLeftSelectCol();
     Expression rightSelectCol = join.getRightSelectCol();
     if (null == dataset2) {
-      LOGGER.error("confirmRuleStringForException(): join col is null");
+      LOGGER.error("confirmRuleStringForException(): join dataset2 is null");
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
               PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_JOIN_DATASET2);
     }
@@ -447,6 +448,15 @@ public class PrepRuleChecker {
       LOGGER.error("confirmRuleStringForException(): window value is null");
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
               PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_WINDOW_VALUE);
+    }
+  }
+
+  private static void checkUnion(Union union) {
+    Expression dataset2 = union.getDataset2();
+    if (null == dataset2) {
+      LOGGER.error("confirmRuleStringForException(): union dataset2 is null");
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
+              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_UNION_DATASET2);
     }
   }
 
@@ -525,6 +535,7 @@ public class PrepRuleChecker {
         checkWindow((Window) rule);
         break;
       case "union":
+        checkUnion((Union) rule);
         break;
       default:
         LOGGER.error("confirmRuleStringForException(): ruleName is wrong - " + rule.getName());
