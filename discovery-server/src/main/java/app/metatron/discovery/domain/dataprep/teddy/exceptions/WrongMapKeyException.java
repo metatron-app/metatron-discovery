@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class WrongMapKeyException extends TeddyException {
+
   public WrongMapKeyException(String message) {
     super(message);
   }

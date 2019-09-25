@@ -14,95 +14,160 @@
 
 package app.metatron.discovery.domain.dataprep.entity;
 
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.user.UserProfile;
+import java.util.List;
+import java.util.Map;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
-import java.util.List;
-import java.util.Map;
-
-import app.metatron.discovery.domain.dataconnection.DataConnection;
-import app.metatron.discovery.domain.user.UserProfile;
-
 public class PrSnapshotProjections {
 
-    @Projection(name = "default", types = { PrSnapshot.class })
-    public interface DefaultProjection {
-        String getSsId();
-        String getSsName();
-        PrSnapshot.SS_TYPE getSsType();
-        PrSnapshot.ENGINE getEngine();
-        PrSnapshot.STATUS getStatus();
-        PrSnapshot.APPEND_MODE getAppendMode();
-        DateTime getLaunchTime();
-        DateTime getFinishTime();
-        String getLineageInfo();
-        Long getTotalLines();
-        Long getMismatchedLines();
-        Long getMissingLines();
-        Long getTotalBytes();
-        Long getRuleCntTotal();
-        Long getRuleCntDone();
-        String getServerLog();
-        String getCustom();
-        String getStoredUri();
-        String getDcId();
-        String getOrigDsDcId();
-        String getOrigDsDcImplementor();
-        String getOrigDsDcName();
-        String getOrigDsDcDesc();
-        DataConnection.SourceType getOrigDsDcType();
-        String getOrigDsDcHostname();
-        Integer getOrigDsDcPort();
-        String getOrigDsDcUsername();
-        String getOrigDsDcUrl();
-        String getOrigDsDbName();
-        String getOrigDsTblName();
-        String getOrigDsQueryStmt();
-        String getOrigDsCreatedBy();
-        DateTime getOrigDsCreatedTime();
-        String getOrigDsModifiedBy();
-        DateTime getOrigDsModifiedTime();
-        String getDcImplementor();
-        String getDcName();
-        String getDcDesc();
-        DataConnection.SourceType getDcType();
-        String getDcHostname();
-        String getDcUsername();
-        String getDcPassword();
-        String getDcUrl();
-        String getDbName();
-        String getTblName();
-        PrSnapshot.HIVE_FILE_FORMAT getHiveFileFormat();
-        PrSnapshot.HIVE_FILE_COMPRESSION getHiveFileCompression();
-        String getPartitionColNames();
-        String getDfId();
-        String getDfName();
-        String getDsId();
-        String getDsName();
-        String getDsCreatedBy();
-        DateTime getDsCreatedTime();
-        String getDsModifiedBy();
-        DateTime getDsModifiedTime();
-        String getOrigDsId();
-        String getOrigDsName();
-        PrDataset.IMPORT_TYPE getOrigDsImportType();
-        String getOrigDsStoredUri();
-        String getStatusCat();
-        Map<String,Long> getElapsedTime();
-        Map<String,Object> getJsonLineageInfo();
-        Map<String,Object> getSourceInfo();
-        Map<String,Object> getConnectionInfo();
-        List<Object> getRuleStringInfo();
+  @Projection(name = "default", types = {PrSnapshot.class})
+  public interface DefaultProjection {
 
-        DateTime getCreatedTime();
-        DateTime getModifiedTime();
+    String getSsId();
 
-        @Value("#{@cachedUserService.findUserProfile(target.createdBy)}")
-        UserProfile getCreatedBy();
+    String getSsName();
 
-        @Value("#{@cachedUserService.findUserProfile(target.modifiedBy)}")
-        UserProfile getModifiedBy();
-    }
+    PrSnapshot.SS_TYPE getSsType();
+
+    PrSnapshot.ENGINE getEngine();
+
+    PrSnapshot.STATUS getStatus();
+
+    PrSnapshot.APPEND_MODE getAppendMode();
+
+    DateTime getLaunchTime();
+
+    DateTime getFinishTime();
+
+    String getLineageInfo();
+
+    Long getTotalLines();
+
+    Long getMismatchedLines();
+
+    Long getMissingLines();
+
+    Long getTotalBytes();
+
+    Long getRuleCntTotal();
+
+    Long getRuleCntDone();
+
+    String getServerLog();
+
+    String getCustom();
+
+    String getStoredUri();
+
+    String getDcId();
+
+    String getOrigDsDcId();
+
+    String getOrigDsDcImplementor();
+
+    String getOrigDsDcName();
+
+    String getOrigDsDcDesc();
+
+    DataConnection.SourceType getOrigDsDcType();
+
+    String getOrigDsDcHostname();
+
+    Integer getOrigDsDcPort();
+
+    String getOrigDsDcUsername();
+
+    String getOrigDsDcUrl();
+
+    String getOrigDsDbName();
+
+    String getOrigDsTblName();
+
+    String getOrigDsQueryStmt();
+
+    String getOrigDsCreatedBy();
+
+    DateTime getOrigDsCreatedTime();
+
+    String getOrigDsModifiedBy();
+
+    DateTime getOrigDsModifiedTime();
+
+    String getDcImplementor();
+
+    String getDcName();
+
+    String getDcDesc();
+
+    DataConnection.SourceType getDcType();
+
+    String getDcHostname();
+
+    String getDcUsername();
+
+    String getDcPassword();
+
+    String getDcUrl();
+
+    String getDbName();
+
+    String getTblName();
+
+    PrSnapshot.HIVE_FILE_FORMAT getHiveFileFormat();
+
+    PrSnapshot.HIVE_FILE_COMPRESSION getHiveFileCompression();
+
+    String getPartitionColNames();
+
+    String getDfId();
+
+    String getDfName();
+
+    String getDsId();
+
+    String getDsName();
+
+    String getDsCreatedBy();
+
+    DateTime getDsCreatedTime();
+
+    String getDsModifiedBy();
+
+    DateTime getDsModifiedTime();
+
+    String getOrigDsId();
+
+    String getOrigDsName();
+
+    PrDataset.IMPORT_TYPE getOrigDsImportType();
+
+    String getOrigDsStoredUri();
+
+    String getStatusCat();
+
+    Map<String, Long> getElapsedTime();
+
+    Map<String, Object> getJsonLineageInfo();
+
+    Map<String, Object> getSourceInfo();
+
+    Map<String, Object> getConnectionInfo();
+
+    List<Object> getRuleStringInfo();
+
+    DateTime getCreatedTime();
+
+    DateTime getModifiedTime();
+
+    @Value("#{@cachedUserService.findUserProfile(target.createdBy)}")
+    UserProfile getCreatedBy();
+
+    @Value("#{@cachedUserService.findUserProfile(target.modifiedBy)}")
+    UserProfile getModifiedBy();
+  }
 
 }

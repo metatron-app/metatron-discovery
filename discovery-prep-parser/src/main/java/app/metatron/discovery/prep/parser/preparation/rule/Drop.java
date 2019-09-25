@@ -48,7 +48,7 @@ public class Drop implements Rule, Rule.Factory {
   @Override
   public String toString() {
     return "Drop{" +
-        "col=" + col +
-        '}';
+            "col=" + col +
+            '}';
   }
 }

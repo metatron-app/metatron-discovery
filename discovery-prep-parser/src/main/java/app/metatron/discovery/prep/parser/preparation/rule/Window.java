@@ -88,10 +88,10 @@ public class Window implements Rule, Rule.Factory {
   @Override
   public String toString() {
     return "Window{" +
-        "value=" + value +
-        ", order=" + order +
-        ", group=" + group +
-        ", rowsBetween=" + rowsBetween +
-        '}';
+            "value=" + value +
+            ", order=" + order +
+            ", group=" + group +
+            ", rowsBetween=" + rowsBetween +
+            '}';
   }
 }

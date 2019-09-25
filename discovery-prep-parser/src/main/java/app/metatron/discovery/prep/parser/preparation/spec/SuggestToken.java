@@ -15,49 +15,50 @@
 package app.metatron.discovery.prep.parser.preparation.spec;
 
 public class SuggestToken {
-    int start;
-    int stop;
-    int tokenNum;
-    String tokenSource;
-    String tokenString;
 
-    public int getStart() {
-        return start;
-    }
+  int start;
+  int stop;
+  int tokenNum;
+  String tokenSource;
+  String tokenString;
 
-    public void setStart(int start) {
-        this.start = start;
-    }
+  public int getStart() {
+    return start;
+  }
 
-    public int getStop() {
-        return stop;
-    }
+  public void setStart(int start) {
+    this.start = start;
+  }
 
-    public void setStop(int stop) {
-        this.stop = stop;
-    }
+  public int getStop() {
+    return stop;
+  }
 
-    public int getTokenNum() {
-        return tokenNum;
-    }
+  public void setStop(int stop) {
+    this.stop = stop;
+  }
 
-    public void setTokenNum(int tokenNum) {
-        this.tokenNum = tokenNum;
-    }
+  public int getTokenNum() {
+    return tokenNum;
+  }
 
-    public String getTokenSource() {
-        return tokenSource;
-    }
+  public void setTokenNum(int tokenNum) {
+    this.tokenNum = tokenNum;
+  }
 
-    public void setTokenSource(String tokenSource) {
-        this.tokenSource = tokenSource;
-    }
+  public String getTokenSource() {
+    return tokenSource;
+  }
 
-    public String getTokenString() {
-        return tokenString;
-    }
+  public void setTokenSource(String tokenSource) {
+    this.tokenSource = tokenSource;
+  }
 
-    public void setTokenString(String tokenString) {
-        this.tokenString = tokenString;
-    }
+  public String getTokenString() {
+    return tokenString;
+  }
+
+  public void setTokenString(String tokenString) {
+    this.tokenString = tokenString;
+  }
 }

@@ -15,31 +15,32 @@
 package app.metatron.discovery.domain.dataprep;
 
 public class PrepUpstream {
-    private String dfId;
-    private String upstreamDsId;
-    private String dsId;
 
-    public String getDfId() {
-        return dfId;
-    }
+  private String dfId;
+  private String upstreamDsId;
+  private String dsId;
 
-    public void setDfId(String dfId) {
-        this.dfId = dfId;
-    }
+  public String getDfId() {
+    return dfId;
+  }
 
-    public String getUpstreamDsId() {
-        return upstreamDsId;
-    }
+  public void setDfId(String dfId) {
+    this.dfId = dfId;
+  }
 
-    public void setUpstreamDsId(String upstreamDsId) {
-        this.upstreamDsId = upstreamDsId;
-    }
+  public String getUpstreamDsId() {
+    return upstreamDsId;
+  }
 
-    public String getDsId() {
-        return dsId;
-    }
+  public void setUpstreamDsId(String upstreamDsId) {
+    this.upstreamDsId = upstreamDsId;
+  }
 
-    public void setDsId(String dsId) {
-        this.dsId = dsId;
-    }
+  public String getDsId() {
+    return dsId;
+  }
+
+  public void setDsId(String dsId) {
+    this.dsId = dsId;
+  }
 }

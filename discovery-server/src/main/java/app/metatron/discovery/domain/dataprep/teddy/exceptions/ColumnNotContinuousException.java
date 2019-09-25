@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class ColumnNotContinuousException extends TeddyException {
+
   public ColumnNotContinuousException(String message) {
     super(message);
   }

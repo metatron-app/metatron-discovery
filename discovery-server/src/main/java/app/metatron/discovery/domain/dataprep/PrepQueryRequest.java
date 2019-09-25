@@ -17,27 +17,28 @@ package app.metatron.discovery.domain.dataprep;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 
 public class PrepQueryRequest {
-    DataConnection connection;
-    String schema;
-    boolean connectivityCheck;
 
-    public DataConnection getConnection() {
-        return connection;
-    }
+  DataConnection connection;
+  String schema;
+  boolean connectivityCheck;
 
-    public void setConnection(DataConnection connection) {
-        this.connection = connection;
-    }
+  public DataConnection getConnection() {
+    return connection;
+  }
 
-    public String getSchema() {
-        return schema;
-    }
+  public void setConnection(DataConnection connection) {
+    this.connection = connection;
+  }
 
-    public void setSchema(String schema) {
-        this.schema = schema;
-    }
+  public String getSchema() {
+    return schema;
+  }
 
-    public boolean isConnectivityCheck() {
-        return connectivityCheck;
-    }
+  public void setSchema(String schema) {
+    this.schema = schema;
+  }
+
+  public boolean isConnectivityCheck() {
+    return connectivityCheck;
+  }
 }

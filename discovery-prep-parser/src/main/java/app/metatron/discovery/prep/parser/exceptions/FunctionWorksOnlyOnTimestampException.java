@@ -15,6 +15,7 @@
 package app.metatron.discovery.prep.parser.exceptions;
 
 public class FunctionWorksOnlyOnTimestampException extends RuleException {
+
   public FunctionWorksOnlyOnTimestampException(String message) {
     super(message);
   }

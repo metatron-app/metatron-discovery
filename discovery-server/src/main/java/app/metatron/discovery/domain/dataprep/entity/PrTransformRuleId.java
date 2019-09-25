@@ -17,25 +17,26 @@ package app.metatron.discovery.domain.dataprep.entity;
 import java.io.Serializable;
 
 public class PrTransformRuleId implements Serializable {
-    String dataset;
-    Integer ruleNo;
 
-    public PrTransformRuleId() {
-    }
+  String dataset;
+  Integer ruleNo;
 
-    public PrTransformRuleId(String dataset, Integer ruleNo) {
-        this.dataset = dataset;
-        this.ruleNo = ruleNo;
-    }
+  public PrTransformRuleId() {
+  }
 
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
+  public PrTransformRuleId(String dataset, Integer ruleNo) {
+    this.dataset = dataset;
+    this.ruleNo = ruleNo;
+  }
 
-    @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);
-    }
+  @Override
+  public int hashCode() {
+    return super.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    return super.equals(obj);
+  }
 }
 

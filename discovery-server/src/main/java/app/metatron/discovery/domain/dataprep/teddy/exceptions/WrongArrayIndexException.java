@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class WrongArrayIndexException extends TeddyException {
+
   public WrongArrayIndexException(String message) {
     super(message);
   }

@@ -18,109 +18,109 @@ import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import java.util.List;
 
 public class PrepSnapshotRequestPost {
-    PrSnapshot.SS_TYPE ssType;              // URI, DATABASE, STAGING_DB
 
-    String ssName;
-    String storedUri;
-    String dbName;
-    String tblName;
-    PrSnapshot.HIVE_FILE_FORMAT hiveFileFormat;
-    PrSnapshot.HIVE_FILE_COMPRESSION hiveFileCompression;
-    PrSnapshot.APPEND_MODE appendMode;
-    PrSnapshot.ENGINE engine;
-    List<String> partitionColNames;
+  PrSnapshot.SS_TYPE ssType;              // URI, DATABASE, STAGING_DB
+
+  String ssName;
+  String storedUri;
+  String dbName;
+  String tblName;
+  PrSnapshot.HIVE_FILE_FORMAT hiveFileFormat;
+  PrSnapshot.HIVE_FILE_COMPRESSION hiveFileCompression;
+  PrSnapshot.APPEND_MODE appendMode;
+  PrSnapshot.ENGINE engine;
+  List<String> partitionColNames;
 
 
-    public PrSnapshot.HIVE_FILE_FORMAT getHiveFileFormat() {
-        return hiveFileFormat;
+  public PrSnapshot.HIVE_FILE_FORMAT getHiveFileFormat() {
+    return hiveFileFormat;
+  }
+
+  public void setHiveFileFormat(PrSnapshot.HIVE_FILE_FORMAT hiveFileFormat) {
+    this.hiveFileFormat = hiveFileFormat;
+  }
+
+  public PrSnapshot.HIVE_FILE_COMPRESSION getHiveFileCompression() {
+    return hiveFileCompression;
+  }
+
+  public void setHiveFileCompression(PrSnapshot.HIVE_FILE_COMPRESSION hiveFileCompression) {
+    this.hiveFileCompression = hiveFileCompression;
+  }
+
+  public String getSsName() {
+    return ssName;
+  }
+
+  public void setSsName(String ssName) {
+    this.ssName = ssName;
+  }
+
+  public PrSnapshot.SS_TYPE getSsType() {
+    return ssType;
+  }
+
+  public void setSsType(PrSnapshot.SS_TYPE ssType) {
+    this.ssType = ssType;
+  }
+
+  @JsonIgnore
+  public String getJsonPartitionColNames() throws JsonProcessingException {
+    if (partitionColNames == null) {
+      return null;
     }
+    return GlobalObjectMapper.getDefaultMapper().writeValueAsString(partitionColNames);
+  }
 
-    public void setHiveFileFormat(PrSnapshot.HIVE_FILE_FORMAT hiveFileFormat) {
-        this.hiveFileFormat = hiveFileFormat;
-    }
+  public List<String> getPartitionColNames() {
+    return partitionColNames;
+  }
 
-    public PrSnapshot.HIVE_FILE_COMPRESSION getHiveFileCompression() {
-        return hiveFileCompression;
-    }
+  public void setPartitionColNames(List<String> partitionColNames) {
+    this.partitionColNames = partitionColNames;
+  }
 
-    public void setHiveFileCompression(PrSnapshot.HIVE_FILE_COMPRESSION hiveFileCompression) {
-        this.hiveFileCompression = hiveFileCompression;
-    }
+  public String getStoredUri() {
+    return storedUri;
+  }
 
-    public String getSsName() {
-        return ssName;
-    }
+  public void setStoredUri(String storedUri) {
+    this.storedUri = storedUri;
+  }
 
-    public void setSsName(String ssName) {
-        this.ssName = ssName;
-    }
+  public String getDbName() {
+    return dbName;
+  }
 
-    public PrSnapshot.SS_TYPE getSsType() {
-        return ssType;
-    }
+  public void setDbName(String dbName) {
+    this.dbName = dbName;
+  }
 
-    public void setSsType(PrSnapshot.SS_TYPE ssType) {
-        this.ssType = ssType;
-    }
+  public String getTblName() {
+    return tblName;
+  }
 
-    @JsonIgnore
-    public String getJsonPartitionColNames() throws JsonProcessingException {
-        if (partitionColNames == null) {
-            return null;
-        }
-        return GlobalObjectMapper.getDefaultMapper().writeValueAsString(partitionColNames);
-    }
+  public void setTblName(String tblName) {
+    this.tblName = tblName;
+  }
 
-    public List<String> getPartitionColNames() {
-        return partitionColNames;
-    }
+  public PrSnapshot.APPEND_MODE getAppendMode() {
+    return appendMode;
+  }
 
-    public void setPartitionColNames(List<String> partitionColNames) {
-        this.partitionColNames = partitionColNames;
-    }
+  public void setAppendMode(PrSnapshot.APPEND_MODE appendMode) {
+    this.appendMode = appendMode;
+  }
 
-    public String getStoredUri() {
-        return storedUri;
-    }
+  public PrSnapshot.ENGINE getEngine() {
+    return engine;
+  }
 
-    public void setStoredUri(String storedUri) {
-        this.storedUri = storedUri;
-    }
-
-    public String getDbName() {
-        return dbName;
-    }
-
-    public void setDbName(String dbName) {
-        this.dbName = dbName;
-    }
-
-    public String getTblName() {
-        return tblName;
-    }
-
-    public void setTblName(String tblName) {
-        this.tblName = tblName;
-    }
-
-    public PrSnapshot.APPEND_MODE getAppendMode() {
-        return appendMode;
-    }
-
-    public void setAppendMode(PrSnapshot.APPEND_MODE appendMode) {
-        this.appendMode = appendMode;
-    }
-
-    public PrSnapshot.ENGINE getEngine() {
-        return engine;
-    }
-
-    public void setEngine(PrSnapshot.ENGINE engine) {
-        this.engine = engine;
-    }
+  public void setEngine(PrSnapshot.ENGINE engine) {
+    this.engine = engine;
+  }
 }
 

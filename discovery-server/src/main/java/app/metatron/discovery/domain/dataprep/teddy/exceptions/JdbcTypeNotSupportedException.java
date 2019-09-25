@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class JdbcTypeNotSupportedException extends TeddyException {
+
   public JdbcTypeNotSupportedException(String message) {
     super(message);
   }

@@ -14,18 +14,22 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnNotFoundException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TypeDifferentException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongGroupEveryCountException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongTargetColumnExpressionException;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.Unpivot;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class DfUnpivot extends DataFrame {
+
   private static Logger LOGGER = LoggerFactory.getLogger(DfUnpivot.class);
 
   public DfUnpivot(String dsName, String ruleString) {
@@ -48,7 +52,8 @@ public class DfUnpivot extends DataFrame {
     } else if (unpivotColExpr instanceof Identifier.IdentifierArrayExpr) {
       unpivotColNames.addAll(((Identifier.IdentifierArrayExpr) unpivotColExpr).getValue());
     } else {
-      throw new WrongTargetColumnExpressionException("doUnpivot(): invalid unpivot target column expression type: " + unpivotColExpr.toString());
+      throw new WrongTargetColumnExpressionException(
+              "doUnpivot(): invalid unpivot target column expression type: " + unpivotColExpr.toString());
     }
 
     for (String colName : unpivotColNames) {
@@ -103,7 +108,8 @@ public class DfUnpivot extends DataFrame {
   }
 
   @Override
-  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
+  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
+          throws InterruptedException, TeddyException {
     List<Row> rows = new ArrayList<>();
     List<String> fixedColNames = (List<String>) preparedArgs.get(0);
     List<String> unpivotColNames = (List<String>) preparedArgs.get(1);

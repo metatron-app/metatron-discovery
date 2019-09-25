@@ -22,9 +22,7 @@ import app.metatron.discovery.domain.dataprep.entity.PrDataset.RS_TYPE;
 import app.metatron.discovery.domain.dataprep.jdbc.PrepJdbcService;
 import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.service.PrDatasetService;
-import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameExpressionException;
 import app.metatron.discovery.domain.dataprep.transform.TeddyImpl;
 import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
 import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
@@ -32,17 +30,12 @@ import com.google.common.collect.Sets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +73,7 @@ public class PrepDatasetDatabaseService {
     String dbName;
 
     public PrepDatasetTotalLinesCallable(PrDatasetRepository datasetRepository, PrDataset dataset,
-        String sql, String connectUrl, String username, String password, String dbName) {
+            String sql, String connectUrl, String username, String password, String dbName) {
       this.datasetRepository = datasetRepository;
       this.dataset = dataset;
       this.sql = sql;
@@ -150,7 +143,7 @@ public class PrepDatasetDatabaseService {
     datasetRepository.saveAndFlush(dataset);
 
     Callable<Integer> callable = new PrepDatasetTotalLinesCallable(datasetRepository, dataset,
-        queryStmt, connectUrl, username, password, dbName);
+            queryStmt, connectUrl, username, password, dbName);
     this.futures.add(poolExecutorService.submit(callable));
   }
 
@@ -166,7 +159,7 @@ public class PrepDatasetDatabaseService {
 
     int limit = Integer.parseInt(size);
     String sql = dataset.getRsType() == RS_TYPE.QUERY ? dataset.getQueryStmt() :
-        String.format("SELECT * FROM %s.%s", dataset.getDbName(), dataset.getTblName());
+            String.format("SELECT * FROM %s.%s", dataset.getDbName(), dataset.getTblName());
 
     dataFrame = teddyImpl.loadJdbcDataFrame(dataConnection, sql, limit, null);
 

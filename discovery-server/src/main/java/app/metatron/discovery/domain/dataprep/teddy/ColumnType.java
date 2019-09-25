@@ -72,20 +72,15 @@ public enum ColumnType {
 
     if (obj instanceof Integer) {
       return Long.valueOf(((Integer) obj).longValue());
-    }
-    else if (obj instanceof BigInteger) {
+    } else if (obj instanceof BigInteger) {
       return Long.valueOf(((BigInteger) obj).longValue());
-    }
-    else if (obj instanceof BigDecimal) {
+    } else if (obj instanceof BigDecimal) {
       return Long.valueOf(((BigDecimal) obj).longValue());
-    }
-    else if (obj instanceof Float) {
+    } else if (obj instanceof Float) {
       return Double.valueOf(((Float) obj).doubleValue());
-    }
-    else if (obj instanceof Timestamp) {
+    } else if (obj instanceof Timestamp) {
       return TeddyUtil.sqlTimestampToJodaDateTime((Timestamp) obj);
-    }
-    else if (obj instanceof Date) {
+    } else if (obj instanceof Date) {
       long millis = ((Date) obj).getTime();
       return TeddyUtil.sqlTimestampToJodaDateTime(new Timestamp(millis));
     }

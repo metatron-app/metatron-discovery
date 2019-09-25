@@ -15,6 +15,7 @@
 package app.metatron.discovery.prep.parser.exceptions;
 
 public class FunctionWorksOnlyOnStringException extends RuleException {
+
   public FunctionWorksOnlyOnStringException(String message) {
     super(message);
   }

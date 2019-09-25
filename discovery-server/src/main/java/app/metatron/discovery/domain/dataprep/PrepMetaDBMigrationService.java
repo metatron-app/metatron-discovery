@@ -15,6 +15,23 @@
 package app.metatron.discovery.domain.dataprep;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.net.URI;
+import java.sql.Clob;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,20 +41,9 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.net.URI;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 @Component
 public class PrepMetaDBMigrationService implements ApplicationListener<ApplicationReadyEvent> {
+
   private static Logger LOGGER = LoggerFactory.getLogger(PrepMetaDBMigrationService.class);
 
   @Autowired
@@ -55,18 +61,18 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
   @Value("${spring.datasource.password:MISSING_DATASOURCE_PASSWORD}")
   String datasourcePassword;
 
-  private final String TBL_NEW_DATASET               = "PR_DATASET";
-  private final String TBL_NEW_DATAFLOW              = "PR_DATAFLOW";
-  private final String TBL_NEW_DATAFLOW_DATASET      = "PR_DATAFLOW_DATASET";
-  private final String TBL_NEW_TRANSFORM_RULE        = "PR_TRANSFORM_RULE";
-  private final String TBL_NEW_SNAPSHOT              = "PR_SNAPSHOT";
+  private final String TBL_NEW_DATASET =                "PR_DATASET";
+  private final String TBL_NEW_DATAFLOW =               "PR_DATAFLOW";
+  private final String TBL_NEW_DATAFLOW_DATASET =       "PR_DATAFLOW_DATASET";
+  private final String TBL_NEW_TRANSFORM_RULE =         "PR_TRANSFORM_RULE";
+  private final String TBL_NEW_SNAPSHOT =               "PR_SNAPSHOT";
 
-  private final String TBL_OLD_DATASET               = "PREP_DATASET";
-  private final String TBL_OLD_IMPORTED_DATASET_INFO = "PREP_IMPORTED_DATASET_INFO";
-  private final String TBL_OLD_DATAFLOW              = "PREP_DATAFLOW";
-  private final String TBL_OLD_DATAFLOW_DATASET      = "PREP_DATAFLOW_DATASET";
-  private final String TBL_OLD_TRANSFORM_RULE        = "PREP_TRANSFORM_RULE";
-  private final String TBL_OLD_SNAPSHOT              = "PREP_SNAPSHOT";
+  private final String TBL_OLD_DATASET =                "PREP_DATASET";
+  private final String TBL_OLD_IMPORTED_DATASET_INFO =  "PREP_IMPORTED_DATASET_INFO";
+  private final String TBL_OLD_DATAFLOW =               "PREP_DATAFLOW";
+  private final String TBL_OLD_DATAFLOW_DATASET =       "PREP_DATAFLOW_DATASET";
+  private final String TBL_OLD_TRANSFORM_RULE =         "PREP_TRANSFORM_RULE";
+  private final String TBL_OLD_SNAPSHOT =               "PREP_SNAPSHOT";
 
   @Override
   public void onApplicationEvent(ApplicationReadyEvent event) {
@@ -91,7 +97,8 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
       conn.setAutoCommit(true);
     } catch (SQLException e) {
       e.printStackTrace();
-      LOGGER.error("onApplicationEvent(): connectionUrl={} username={} password={}", datasourceUrl, datasourceUsername, datasourcePassword);
+      LOGGER.error("onApplicationEvent(): connectionUrl={} username={} password={}", datasourceUrl, datasourceUsername,
+              datasourcePassword);
       LOGGER.error("onApplicationEvent(): failed to connect to DB", e);
       return;
     }
@@ -112,9 +119,7 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
   }
 
   /**
-   * @param conn
    * @return skipped row count. -1 if we need to retry.
-   * @throws SQLException
    */
   private void migrateDataset(Connection conn) throws SQLException {
     if (!checkOldTableExists(conn, TBL_OLD_DATASET)) {
@@ -127,9 +132,11 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
     // Imported datasets can be skipped without blocking migration.
     int skipCount = migrateDatasetImported(conn);
     if (skipCount > 0) {
-      LOGGER.info("PrepMetaDBMigrationService: {}, {} migrated with {} rows skipped", TBL_OLD_DATASET, TBL_OLD_IMPORTED_DATASET_INFO, skipCount);
+      LOGGER.info("PrepMetaDBMigrationService: {}, {} migrated with {} rows skipped", TBL_OLD_DATASET,
+              TBL_OLD_IMPORTED_DATASET_INFO, skipCount);
     } else {
-      LOGGER.info("PrepMetaDBMigrationService: {}, {} migrated successfully", TBL_OLD_DATASET, TBL_OLD_IMPORTED_DATASET_INFO);
+      LOGGER.info("PrepMetaDBMigrationService: {}, {} migrated successfully", TBL_OLD_DATASET,
+              TBL_OLD_IMPORTED_DATASET_INFO);
     }
   }
 
@@ -145,13 +152,16 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
     while (rs.next()) {
       // skip if the same df_id exists
       Statement stmtForCheck = conn.createStatement();
-      String rowCheckQuery = String.format("SELECT * FROM %s WHERE df_id = '%s'", TBL_NEW_DATAFLOW, rs.getString("df_id"));
+      String rowCheckQuery = String
+              .format("SELECT * FROM %s WHERE df_id = '%s'", TBL_NEW_DATAFLOW, rs.getString("df_id"));
       if (stmtForCheck.executeQuery(rowCheckQuery).next()) {
         continue;
       }
 
       Statement stmtForInsert = conn.createStatement();
-      String insertDml = String.format("INSERT INTO %s SELECT * FROM %s WHERE df_id = '%s'", TBL_NEW_DATAFLOW, TBL_OLD_DATAFLOW, rs.getString("df_id"));
+      String insertDml = String
+              .format("INSERT INTO %s SELECT * FROM %s WHERE df_id = '%s'", TBL_NEW_DATAFLOW, TBL_OLD_DATAFLOW,
+                      rs.getString("df_id"));
       stmtForInsert.execute(insertDml);
     }
 
@@ -171,7 +181,8 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
       // skip if the same df_id and ds_id combination exists
       Statement stmtForCheck = conn.createStatement();
       String rowCheckQueryFmt = "SELECT * FROM %s WHERE df_id = '%s' AND ds_id = '%s'";
-      String rowCheckQuery = String.format(rowCheckQueryFmt, TBL_NEW_DATAFLOW_DATASET, rs.getString("df_id"), rs.getString("ds_id"));
+      String rowCheckQuery = String
+              .format(rowCheckQueryFmt, TBL_NEW_DATAFLOW_DATASET, rs.getString("df_id"), rs.getString("ds_id"));
       if (stmtForCheck.executeQuery(rowCheckQuery).next()) {
         continue;
       }
@@ -192,7 +203,9 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
 
       Statement stmtForInsert = conn.createStatement();
       String insertDmlFmt = "INSERT INTO %s SELECT * FROM %s WHERE df_id = '%s' AND ds_id='%s'";
-      String insertDml = String.format(insertDmlFmt, TBL_NEW_DATAFLOW_DATASET, TBL_OLD_DATAFLOW_DATASET, rs.getString("df_id"), rs.getString("ds_id"));
+      String insertDml = String
+              .format(insertDmlFmt, TBL_NEW_DATAFLOW_DATASET, TBL_OLD_DATAFLOW_DATASET, rs.getString("df_id"),
+                      rs.getString("ds_id"));
       stmtForInsert.execute(insertDml);
     }
 
@@ -220,7 +233,8 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
 
       Statement stmtForInsert = conn.createStatement();
       String insertDmlFmt = "INSERT INTO %s SELECT * FROM %s WHERE ds_id='%s'";
-      String insertDml = String.format(insertDmlFmt, TBL_NEW_TRANSFORM_RULE, TBL_OLD_TRANSFORM_RULE, rs.getString("ds_id"));
+      String insertDml = String
+              .format(insertDmlFmt, TBL_NEW_TRANSFORM_RULE, TBL_OLD_TRANSFORM_RULE, rs.getString("ds_id"));
       stmtForInsert.execute(insertDml);
     }
 
@@ -280,7 +294,8 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
     while (rs.next()) {
       // skip if the same ds_id exists
       Statement stmtForCheck = conn.createStatement();
-      String rowCheckQuery = String.format("SELECT * FROM %s WHERE ds_id = '%s'", TBL_NEW_DATASET, rs.getString("ds_id"));
+      String rowCheckQuery = String
+              .format("SELECT * FROM %s WHERE ds_id = '%s'", TBL_NEW_DATASET, rs.getString("ds_id"));
       if (stmtForCheck.executeQuery(rowCheckQuery).next()) {
         continue;
       }
@@ -290,9 +305,7 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
   }
 
   /**
-   * @param conn
    * @return skipped row count. -1 if we need to retry.
-   * @throws SQLException
    */
   private int migrateDatasetImported(Connection conn) throws SQLException {
     Statement stmt = conn.createStatement();
@@ -332,7 +345,8 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
           copyDatasetImportedStagingDb(conn, rs);
           break;
         default:
-          LOGGER.error("migrateDatasetImported(): invalid importType: importType={} dsId={}", importType, rs.getString("ds_id"));
+          LOGGER.error("migrateDatasetImported(): invalid importType: importType={} dsId={}", importType,
+                  rs.getString("ds_id"));
           skipCount++;
       }
     }
@@ -342,28 +356,25 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
   private void copyDatasetWrangled(Connection conn, ResultSet rs) throws SQLException {
     LinkedHashMap<String, Object> colVals = new LinkedHashMap();
 
-    copySameCol("ds_id",         colVals, rs);
-    copySameCol("created_by",    colVals, rs);
-    copySameCol("created_time",  colVals, rs);
-    copySameCol("modified_by",   colVals, rs);
+    copySameCol("ds_id", colVals, rs);
+    copySameCol("created_by", colVals, rs);
+    copySameCol("created_time", colVals, rs);
+    copySameCol("modified_by", colVals, rs);
     copySameCol("modified_time", colVals, rs);
-    copySameCol("version",       colVals, rs);
+    copySameCol("version", colVals, rs);
     copySameCol("creator_df_id", colVals, rs);
-    copySameCol("ds_desc",       colVals, rs);
-    copySameCol("ds_name",       colVals, rs);
-    copySameCol("ds_type",       colVals, rs);
-    copySameCol("rule_cur_idx",  colVals, rs);
-    copySameCol("total_bytes",   colVals, rs);
-    copySameCol("total_lines",   colVals, rs);
+    copySameCol("ds_desc", colVals, rs);
+    copySameCol("ds_name", colVals, rs);
+    copySameCol("ds_type", colVals, rs);
+    copySameCol("rule_cur_idx", colVals, rs);
+    copySameCol("total_bytes", colVals, rs);
+    copySameCol("total_lines", colVals, rs);
 
     insertColVals(conn, TBL_NEW_DATASET, colVals);
   }
 
   /**
-   * @param conn
-   * @param rs
    * @return true for success
-   * @throws SQLException
    */
   private boolean copyDatasetImportedFile(Connection conn, ResultSet rs) throws SQLException {
     String storedUri;
@@ -383,7 +394,8 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
     return true;
   }
 
-  private void copyImportedFileCsv(Connection conn, ResultSet rs, String storedUri, String delimiter) throws SQLException {
+  private void copyImportedFileCsv(Connection conn, ResultSet rs, String storedUri, String delimiter)
+          throws SQLException {
     if (delimiter == null) {
       LOGGER.error("copyImportedFileCsv(): delimiter missing: storedUri={}", storedUri);
       return;
@@ -391,48 +403,49 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
 
     LinkedHashMap<String, Object> colVals = new LinkedHashMap();
 
-    copySameCol("ds_id",                  colVals, rs);
-    copySameCol("created_by",             colVals, rs);
-    copySameCol("created_time",           colVals, rs);
-    copySameCol("modified_by",            colVals, rs);
-    copySameCol("modified_time",          colVals, rs);
-    copySameCol("version",                colVals, rs);
-    colVals.put("delimiter",              delimiter);                 // add new column
-    copySameCol("ds_desc",                colVals, rs);
-    copySameCol("ds_name",                colVals, rs);
-    copySameCol("ds_type",                colVals, rs);
-    colVals.put("file_format",            "CSV");                     // add new column
+    copySameCol("ds_id", colVals, rs);
+    copySameCol("created_by", colVals, rs);
+    copySameCol("created_time", colVals, rs);
+    copySameCol("modified_by", colVals, rs);
+    copySameCol("modified_time", colVals, rs);
+    copySameCol("version", colVals, rs);
+    colVals.put("delimiter", delimiter);                 // add new column
+    copySameCol("ds_desc", colVals, rs);
+    copySameCol("ds_name", colVals, rs);
+    copySameCol("ds_type", colVals, rs);
+    colVals.put("file_format", "CSV");                     // add new column
     colVals.put("filename_before_upload", rs.getObject("filename"));  // change column name
-    colVals.put("import_type",            "UPLOAD");                  // change enum
-    colVals.put("stored_uri",             storedUri);                 // add new column
-    copySameCol("total_bytes",            colVals, rs);
-    copySameCol("total_lines",            colVals, rs);
+    colVals.put("import_type", "UPLOAD");                  // change enum
+    colVals.put("stored_uri", storedUri);                 // add new column
+    copySameCol("total_bytes", colVals, rs);
+    copySameCol("total_lines", colVals, rs);
 
     insertColVals(conn, TBL_NEW_DATASET, colVals);
   }
 
-  private void copyImportedFileExcel(Connection conn, ResultSet rs, String storedUri, String sheetName) throws SQLException {
+  private void copyImportedFileExcel(Connection conn, ResultSet rs, String storedUri, String sheetName)
+          throws SQLException {
     assert sheetName != null;
 
     LinkedHashMap<String, Object> colVals = new LinkedHashMap();
 
-    copySameCol("ds_id",                  colVals, rs);
-    copySameCol("created_by",             colVals, rs);
-    copySameCol("created_time",           colVals, rs);
-    copySameCol("modified_by",            colVals, rs);
-    copySameCol("modified_time",          colVals, rs);
-    copySameCol("version",                colVals, rs);
-    colVals.put("delimiter",              ",");                       // add new column
-    copySameCol("ds_desc",                colVals, rs);
-    copySameCol("ds_name",                colVals, rs);
-    copySameCol("ds_type",                colVals, rs);
-    colVals.put("file_format",            "EXCEL");                   // add new column
+    copySameCol("ds_id", colVals, rs);
+    copySameCol("created_by", colVals, rs);
+    copySameCol("created_time", colVals, rs);
+    copySameCol("modified_by", colVals, rs);
+    copySameCol("modified_time", colVals, rs);
+    copySameCol("version", colVals, rs);
+    colVals.put("delimiter", ",");                       // add new column
+    copySameCol("ds_desc", colVals, rs);
+    copySameCol("ds_name", colVals, rs);
+    copySameCol("ds_type", colVals, rs);
+    colVals.put("file_format", "EXCEL");                   // add new column
     colVals.put("filename_before_upload", rs.getObject("filename"));  // change column name
-    colVals.put("import_type",            "UPLOAD");                  // change enum
-    colVals.put("sheet_name",             sheetName);                 // add new column
-    colVals.put("stored_uri",             storedUri);                 // add new column
-    copySameCol("total_bytes",            colVals, rs);
-    copySameCol("total_lines",            colVals, rs);
+    colVals.put("import_type", "UPLOAD");                  // change enum
+    colVals.put("sheet_name", sheetName);                 // add new column
+    colVals.put("stored_uri", storedUri);                 // add new column
+    copySameCol("total_bytes", colVals, rs);
+    copySameCol("total_lines", colVals, rs);
 
     insertColVals(conn, TBL_NEW_DATASET, colVals);
   }
@@ -440,23 +453,23 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
   private void copyDatasetImportedDatabase(Connection conn, ResultSet rs) throws SQLException {
     LinkedHashMap<String, Object> colVals = new LinkedHashMap();
 
-    copySameCol("ds_id",         colVals, rs);
-    copySameCol("created_by",    colVals, rs);
-    copySameCol("created_time",  colVals, rs);
-    copySameCol("modified_by",   colVals, rs);
+    copySameCol("ds_id", colVals, rs);
+    copySameCol("created_by", colVals, rs);
+    copySameCol("created_time", colVals, rs);
+    copySameCol("modified_by", colVals, rs);
     copySameCol("modified_time", colVals, rs);
-    copySameCol("version",       colVals, rs);
-    colVals.put("db_name",       getCustomValue(rs, "databaseName"));                         // add new column
-    copySameCol("dc_id",         colVals, rs);
-    copySameCol("ds_desc",       colVals, rs);
-    copySameCol("ds_name",       colVals, rs);
-    copySameCol("ds_type",       colVals, rs);
-    colVals.put("import_type",   "DATABASE");                                                 // change enum
-    copySameCol("query_stmt",    colVals, rs);
-    colVals.put("rs_type",       rs.getString("rs_type").equals("SQL") ? "QUERY" : "TABLE");  // change enum
-    colVals.put("tbl_name",      rs.getObject("table_name"));                                 // change column name
+    copySameCol("version", colVals, rs);
+    colVals.put("db_name", getCustomValue(rs, "databaseName"));                         // add new column
+    copySameCol("dc_id", colVals, rs);
+    copySameCol("ds_desc", colVals, rs);
+    copySameCol("ds_name", colVals, rs);
+    copySameCol("ds_type", colVals, rs);
+    colVals.put("import_type", "DATABASE");                                                 // change enum
+    copySameCol("query_stmt", colVals, rs);
+    colVals.put("rs_type", rs.getString("rs_type").equals("SQL") ? "QUERY" : "TABLE");  // change enum
+    colVals.put("tbl_name", rs.getObject("table_name"));                                 // change column name
     // no total_bytes for Database type dataset
-    copySameCol("total_lines",   colVals, rs);
+    copySameCol("total_lines", colVals, rs);
 
     insertColVals(conn, TBL_NEW_DATASET, colVals);
   }
@@ -464,31 +477,28 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
   private void copyDatasetImportedStagingDb(Connection conn, ResultSet rs) throws SQLException {
     LinkedHashMap<String, Object> colVals = new LinkedHashMap();
 
-    copySameCol("ds_id",         colVals, rs);
-    copySameCol("created_by",    colVals, rs);
-    copySameCol("created_time",  colVals, rs);
-    copySameCol("modified_by",   colVals, rs);
+    copySameCol("ds_id", colVals, rs);
+    copySameCol("created_by", colVals, rs);
+    copySameCol("created_time", colVals, rs);
+    copySameCol("modified_by", colVals, rs);
     copySameCol("modified_time", colVals, rs);
-    copySameCol("version",       colVals, rs);
-    colVals.put("db_name",       getCustomValue(rs, "databaseName"));                         // add new column
-    copySameCol("ds_desc",       colVals, rs);
-    copySameCol("ds_name",       colVals, rs);
-    copySameCol("ds_type",       colVals, rs);
-    colVals.put("import_type",   "STAGING_DB");                                               // change enum
-    copySameCol("query_stmt",    colVals, rs);
-    colVals.put("rs_type",       rs.getString("rs_type").equals("SQL") ? "QUERY" : "TABLE");  // change enum
-    colVals.put("tbl_name",      rs.getObject("table_name"));                                 // change column name
-    copySameCol("total_bytes",   colVals, rs);
-    copySameCol("total_lines",   colVals, rs);
+    copySameCol("version", colVals, rs);
+    colVals.put("db_name", getCustomValue(rs, "databaseName"));                         // add new column
+    copySameCol("ds_desc", colVals, rs);
+    copySameCol("ds_name", colVals, rs);
+    copySameCol("ds_type", colVals, rs);
+    colVals.put("import_type", "STAGING_DB");                                               // change enum
+    copySameCol("query_stmt", colVals, rs);
+    colVals.put("rs_type", rs.getString("rs_type").equals("SQL") ? "QUERY" : "TABLE");  // change enum
+    colVals.put("tbl_name", rs.getObject("table_name"));                                 // change column name
+    copySameCol("total_bytes", colVals, rs);
+    copySameCol("total_lines", colVals, rs);
 
     insertColVals(conn, TBL_NEW_DATASET, colVals);
   }
 
   /**
-   * @param conn
-   * @param rs
    * @return true for success
-   * @throws SQLException
    */
   private boolean copySnapshotUri(Connection conn, ResultSet rs) throws SQLException {
     LinkedHashMap<String, Object> colVals = new LinkedHashMap();
@@ -501,7 +511,7 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
     String strDir = rs.getString("uri");
     if (strDir == null) {
       LOGGER.error("copySnapshotUri(): no uri stored in local file snapshot: ssId={} ssName={} ssType={}",
-                   rs.getString("ss_id"), rs.getString("ss_name"), rs.getString("ss_type"));
+              rs.getString("ss_id"), rs.getString("ss_name"), rs.getString("ss_type"));
       return false;
     }
 
@@ -514,11 +524,11 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
 
           if (!fileDir.exists()) {
             LOGGER.error("copySnapshotUri(): file not found: uri={} ssId={} ssName={} ssType={}",
-                         strDir, rs.getString("ss_id"), rs.getString("ss_name"), rs.getString("ss_type"));
+                    strDir, rs.getString("ss_id"), rs.getString("ss_name"), rs.getString("ss_type"));
             return false;
           } else if (!fileDir.isDirectory()) {
             LOGGER.error("copySnapshotUri(): not a directory: uri={} ssId={} ssName={} ssType={}",
-                         strDir, rs.getString("ss_id"), rs.getString("ss_name"), rs.getString("ss_type"));
+                    strDir, rs.getString("ss_id"), rs.getString("ss_name"), rs.getString("ss_type"));
             return false;
           }
 
@@ -528,7 +538,7 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
           }
           if (filePath == null) {
             LOGGER.error("copySnapshotUri(): no file found in directory: uri={} ssId={} ssName={} ssType={}",
-                         strDir, rs.getString("ss_id"), rs.getString("ss_name"), rs.getString("ss_type"));
+                    strDir, rs.getString("ss_id"), rs.getString("ss_name"), rs.getString("ss_type"));
             return false;
           }
           storedUri = new URI("file://" + filePath).toString();
@@ -551,29 +561,29 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
     assert storageType != null;
     assert storedUri != null;
 
-    copySameCol("ss_id",           colVals, rs);
-    copySameCol("created_by",      colVals, rs);
-    copySameCol("created_time",    colVals, rs);
-    copySameCol("modified_by",     colVals, rs);
-    copySameCol("modified_time",   colVals, rs);
-    copySameCol("version",         colVals, rs);
+    copySameCol("ss_id", colVals, rs);
+    copySameCol("created_by", colVals, rs);
+    copySameCol("created_time", colVals, rs);
+    copySameCol("modified_by", colVals, rs);
+    copySameCol("modified_time", colVals, rs);
+    copySameCol("version", colVals, rs);
     // no append mode has been used until now
-    colVals.put("df_id",           getLineageInfoValue(rs, "dfId"));  // add new column
-    colVals.put("df_name",         rs.getObject("creator_df_name"));  // change column name
-    colVals.put("ds_id",           getLineageInfoValue(rs, "dsId"));  // add new column
-    copySameCol("ds_name",         colVals, rs);
-    copySameCol("engine",          colVals, rs);
-    copySameCol("finish_time",     colVals, rs);
-    copySameCol("launch_time",     colVals, rs);
-    colVals.put("lineage_info",    readClob(rs, "lineage_info").replaceAll("\"ruleStringinfos\":", "\"transformRules\":"));
-    copySameCol("rule_cnt_done",   colVals, rs);
-    copySameCol("rule_cnt_total",  colVals, rs);
-    copySameCol("ss_name",         colVals, rs);
-    colVals.put("ss_type",         "URI");
-    copySameCol("status",          colVals, rs);
-    colVals.put("stored_uri",      storedUri);                        // add new column
-    copySameCol("total_bytes",     colVals, rs);
-    copySameCol("total_lines",     colVals, rs);
+    colVals.put("df_id", getLineageInfoValue(rs, "dfId"));  // add new column
+    colVals.put("df_name", rs.getObject("creator_df_name"));  // change column name
+    colVals.put("ds_id", getLineageInfoValue(rs, "dsId"));  // add new column
+    copySameCol("ds_name", colVals, rs);
+    copySameCol("engine", colVals, rs);
+    copySameCol("finish_time", colVals, rs);
+    copySameCol("launch_time", colVals, rs);
+    colVals.put("lineage_info", readClob(rs, "lineage_info").replaceAll("\"ruleStringinfos\":", "\"transformRules\":"));
+    copySameCol("rule_cnt_done", colVals, rs);
+    copySameCol("rule_cnt_total", colVals, rs);
+    copySameCol("ss_name", colVals, rs);
+    colVals.put("ss_type", "URI");
+    copySameCol("status", colVals, rs);
+    colVals.put("stored_uri", storedUri);                        // add new column
+    copySameCol("total_bytes", colVals, rs);
+    copySameCol("total_lines", colVals, rs);
 
     insertColVals(conn, TBL_NEW_SNAPSHOT, colVals);
     return true;
@@ -582,32 +592,32 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
   private void copySnapshotStagingDb(Connection conn, ResultSet rs) throws SQLException {
     LinkedHashMap<String, Object> colVals = new LinkedHashMap();
 
-    copySameCol("ss_id",                 colVals, rs);
-    copySameCol("created_by",            colVals, rs);
-    copySameCol("created_time",          colVals, rs);
-    copySameCol("modified_by",           colVals, rs);
-    copySameCol("modified_time",         colVals, rs);
-    copySameCol("version",               colVals, rs);
+    copySameCol("ss_id", colVals, rs);
+    copySameCol("created_by", colVals, rs);
+    copySameCol("created_time", colVals, rs);
+    copySameCol("modified_by", colVals, rs);
+    copySameCol("modified_time", colVals, rs);
+    copySameCol("version", colVals, rs);
     // no append mode has been used until now
-    colVals.put("df_id",                 getLineageInfoValue(rs, "dfId"));  // add new column
-    colVals.put("df_name",               rs.getObject("creator_df_name"));  // change column name
-    colVals.put("ds_id",                 getLineageInfoValue(rs, "dsId"));  // add new column
-    copySameCol("ds_name",               colVals, rs);
-    copySameCol("engine",                colVals, rs);
-    copySameCol("finish_time",           colVals, rs);
+    colVals.put("df_id", getLineageInfoValue(rs, "dfId"));  // add new column
+    colVals.put("df_name", rs.getObject("creator_df_name"));  // change column name
+    colVals.put("ds_id", getLineageInfoValue(rs, "dsId"));  // add new column
+    copySameCol("ds_name", colVals, rs);
+    copySameCol("engine", colVals, rs);
+    copySameCol("finish_time", colVals, rs);
     colVals.put("hive_file_compression", rs.getObject("compression"));      // change column name
-    colVals.put("hive_file_format",      rs.getObject("format"));           // change column name
-    copySameCol("launch_time",           colVals, rs);
-    colVals.put("lineage_info",          readClob(rs, "lineage_info").replaceAll("\"ruleStringinfos\":", "\"transformRules\":"));
-    copySameCol("rule_cnt_done",         colVals, rs);
-    copySameCol("rule_cnt_total",        colVals, rs);
-    copySameCol("ss_name",               colVals, rs);
-    colVals.put("ss_type",               "STAGING_DB");
-    copySameCol("status",                colVals, rs);
-    copySameCol("db_name",               colVals, rs);
-    copySameCol("tbl_name",              colVals, rs);
-    copySameCol("total_bytes",           colVals, rs);
-    copySameCol("total_lines",           colVals, rs);
+    colVals.put("hive_file_format", rs.getObject("format"));           // change column name
+    copySameCol("launch_time", colVals, rs);
+    colVals.put("lineage_info", readClob(rs, "lineage_info").replaceAll("\"ruleStringinfos\":", "\"transformRules\":"));
+    copySameCol("rule_cnt_done", colVals, rs);
+    copySameCol("rule_cnt_total", colVals, rs);
+    copySameCol("ss_name", colVals, rs);
+    colVals.put("ss_type", "STAGING_DB");
+    copySameCol("status", colVals, rs);
+    copySameCol("db_name", colVals, rs);
+    copySameCol("tbl_name", colVals, rs);
+    copySameCol("total_bytes", colVals, rs);
+    copySameCol("total_lines", colVals, rs);
 
     insertColVals(conn, TBL_NEW_SNAPSHOT, colVals);
   }
@@ -630,7 +640,8 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
     colVals.put(colName, rs.getObject(colName));
   }
 
-  private void insertColVals(Connection conn, String tblName, LinkedHashMap<String, Object> colVals) throws SQLException {
+  private void insertColVals(Connection conn, String tblName, LinkedHashMap<String, Object> colVals)
+          throws SQLException {
     List<String> colNames = new ArrayList(colVals.keySet());
 
     String colList = colNames.stream().collect(Collectors.joining(","));
@@ -699,7 +710,7 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
     } catch (IOException e) {
       e.printStackTrace();
       throw new SQLException(e.getMessage());   // This could be regarded as SQLException as well.
-                                                // Of course this is for coding convenience.
+      // Of course this is for coding convenience.
     }
 
     return writer.toString();

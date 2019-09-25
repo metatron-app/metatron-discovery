@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class PredicateTypeMismatchException extends TeddyException {
+
   public PredicateTypeMismatchException(String message) {
     super(message);
   }

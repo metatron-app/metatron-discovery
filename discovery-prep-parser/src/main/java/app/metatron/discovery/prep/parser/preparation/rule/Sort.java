@@ -59,7 +59,7 @@ public class Sort implements Rule, Rule.Factory {
   @Override
   public String toString() {
     return "Sort{" +
-        "order=" + order +
-        ", type=" + type + '}';
+            "order=" + order +
+            ", type=" + type + '}';
   }
 }

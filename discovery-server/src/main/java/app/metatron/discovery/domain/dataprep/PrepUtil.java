@@ -22,6 +22,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 
 public class PrepUtil {
+
   public static int getLengthUTF8(CharSequence sequence) {
     if (sequence == null) {
       return 0;
@@ -63,10 +64,14 @@ public class PrepUtil {
     String hdfsSite = hadoopConfDir + File.separator + "hdfs-site.xml";
 
     if (!existsLocal(coreSite)) {
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_CORE_SITE_NOT_FOUND, coreSite);
+      throw PrepException
+              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_CORE_SITE_NOT_FOUND,
+                      coreSite);
     }
     if (!existsLocal(hdfsSite)) {
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_HDFS_SITE_NOT_FOUND, hdfsSite);
+      throw PrepException
+              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_HDFS_SITE_NOT_FOUND,
+                      hdfsSite);
     }
 
     Configuration hadoopConf = new Configuration();

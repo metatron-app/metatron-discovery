@@ -14,19 +14,17 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.prep.parser.preparation.rule.Delete;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
-
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-
 public class DfDelete extends DataFrame {
+
   private static Logger LOGGER = LoggerFactory.getLogger(DfDelete.class);
 
   public DfDelete(String dsName, String ruleString) {
@@ -47,7 +45,8 @@ public class DfDelete extends DataFrame {
   }
 
   @Override
-  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
+  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
+          throws InterruptedException, TeddyException {
     Expression condExpr = (Expression) preparedArgs.get(0);
 
     LOGGER.trace("DfDelete.gather(): start: offset={} length={} condExpr={}", offset, length, condExpr);

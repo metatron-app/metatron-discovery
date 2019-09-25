@@ -371,7 +371,16 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
         const dsInfo = _.cloneDeep(<Datasource>source);
         params.dataSource.name = dsInfo.engineName;
         params.dataSource.engineName = dsInfo.engineName;
-        params.dataSource.connType = dsInfo.connType.toString();
+        if( dsInfo.connType ) {
+          params.dataSource.connType = dsInfo.connType.toString();
+        } else {
+          if( -1 < dsInfo.engineName.indexOf( 'temporary_ingestion_' ) ) {
+            params.dataSource.connType = 'LINK';
+            params.dataSource.temporary = true;
+          } else {
+            params.dataSource.connType = 'ENGINE';
+          }
+        }
         params.dataSource.type = 'default';
       //}
 
