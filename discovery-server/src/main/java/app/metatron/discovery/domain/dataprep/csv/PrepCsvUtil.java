@@ -51,9 +51,11 @@ public class PrepCsvUtil {
 
   private static Logger LOGGER = LoggerFactory.getLogger(PrepCsvUtil.class);
 
-  // public for tests
-  public static InputStreamReader getReaderAfterDetectingCharset(InputStream is,
-          String strUri) {   // strUri is only for debugging
+  // All the code that used to call this function have been changed to use PrepCsvUtil.parse()
+  // Only LineageEdegController.java:file_upload() uses this.
+  // After change that code to use PrepCsvUtil.parse(), delete this function.
+  // In addition, PrepCsvUtil.parse() will be modified a little to use CommonCsvProcess.loadStream()
+  public static InputStreamReader getReaderAfterDetectingCharset(InputStream is, String strUri) {
     InputStreamReader reader;
     String charset = null;
 

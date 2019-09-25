@@ -989,6 +989,7 @@
   "msg.dp.alert.teddy.parse.failed.by.unpivot.groupevery": "Unpivot rule parsing failed. Check the group-every value.",
   "msg.dp.alert.teddy.parse.failed.by.join.dataset2": "Join rule parsing failed. Check the second dataset.",
   "msg.dp.alert.teddy.parse.failed.by.join.jointype": "Join rule parsing failed. Check the join type value.",
+  "msg.dp.alert.teddy.parse.failed.by.union.dataset2": "Union rule parsing failed. Check the second dataset.",
   "msg.dp.alert.teddy.parse.failed.by.window.value": "Check expression value of window rule",
   "mgs.dp.ui.continue.new.rule": "Continue to edit rules with this dataset in a new dataflow",
 
