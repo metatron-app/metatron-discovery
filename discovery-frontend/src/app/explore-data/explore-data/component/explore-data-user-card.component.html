@@ -8,16 +8,14 @@
 <!--      <em class="ddp-icon-control-fav"></em>-->
     </div>
     <div>
-      <div class="ddp-data-info type-link" (click)="onClickDashBoardName(topUser.hasPermission)">
-        <span class="ddp-txt-info" [class.type-link]="topUser.hasPermission">
-          <em class="ddp-link-new" ></em>
+      <div class="ddp-data-info" [class.type-link]="topUser.hasPermission" (click)="onClickDashBoardName(topUser.hasPermission)">
+          <em *ngIf="topUser.hasPermission" class="ddp-link-new" ></em>
           <span class="ddp-txt-info">
             {{ topUser['dashboard']['workBook']
             ? topUser['dashboard']['workBook']['name'] + " > " + topUser['dashboard']['name']
             : topUser['dashboard']['name']
             }}
           </span>
-        </span>
       </div>
     </div>
     <div class="ddp-data-date">{{ topUser['lastPublishedTime'] | mdate:'YYYY-MM-DD HH:mm:ss'}}</div>
@@ -32,16 +30,14 @@
   </div>
   <div class="ddp-wrap-data">
     <div class="ddp-data-name">{{ topUser['user']['fullName'] }}
-      <!--      <em class="ddp-icon-control-fav ddp-selected"></em>-->
+<!--      <em class="ddp-icon-control-fav ddp-fright"></em>-->
     </div>
     <div>
-      <div class="ddp-data-info type-link" (click)="onClickWorkbenchName(topUser.hasPermission)">
-      <span class="ddp-txt-info" [class.type-link]="topUser.hasPermission">
-          <em class="ddp-link-new" ></em>
+      <div class="ddp-data-info" [class.type-link]="topUser.hasPermission" (click)="onClickWorkbenchName(topUser.hasPermission)">
+          <em *ngIf="topUser.hasPermission" class="ddp-link-new" ></em>
           <span class="ddp-txt-info">
             {{ topUser['workbench']['name'] }}
           </span>
-        </span>
       </div>
     </div>
     <div class="ddp-data-date">{{ topUser['lastPublishedTime'] | mdate:'YYYY-MM-DD HH:mm:ss'}}</div>
