@@ -8176,6 +8176,7 @@ table.ddp-table-simple tr td .ddp-ui-time {width:100%; color:#90969f; font-size:
 
 .ddp-box-query-result .ddp-box-status-button {position:absolute; bottom:39px; left:10px; right:10px; padding:13px 15px; height:56px; border-radius:3px; background-color:#f6f6f7; box-sizing:border-box;}
 .ddp-box-query-result .ddp-btn-log-status {display:inline-block; position:relative; padding:7px 11px; min-width:72px; margin-right:14px; border-radius:2px; background-color:#90969f; box-sizing:border-box; color:#fff; font-size:12px; text-align:center;}
+.ddp-box-query-result .ddp-btn-log-status.ddp-btn-log-status.ddp-disabled {opacity:0.5;cursor:no-drop;}
 .ddp-box-query-result .ddp-btn-log-status.ddp-retry {padding-left:32px; background-color:#dc494f;}
 .ddp-box-query-result .ddp-btn-log-status.ddp-retry:before {display:inline-block; position:absolute; top:50%; left:12px; margin-top:-6px; width:13px; height:12px; background:url(../../images/btn_refresh.png) no-repeat; background-position:left -63px; content:''; vertical-align:middle;}
 .ddp-box-query-result .ddp-btn-log-status.ddp-retry2 {padding-left:32px;}
