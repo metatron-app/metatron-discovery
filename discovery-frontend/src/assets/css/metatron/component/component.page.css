@@ -37,7 +37,7 @@
 .ddp-box-page .ddp-page-num {float:left; padding:7px 0;}
 .ddp-box-page .ddp-page-num a {display:inline-block; position:relative; float:left; width:28px; height:28px; margin:0 2px;padding:4px 0; text-align:center; color:#4b515b; font-size:14px; box-sizing:border-box;}
 .ddp-box-page .ddp-page-num a.ddp-btn-prev,
-.ddp-box-page .ddp-page-num a.ddp-btn-next{display:inline-block; position:relative; top:3px; width:21px; height:21px; border:1px solid #e7e8ec; border-radius:2px; font-size:0px;}
+.ddp-box-page .ddp-page-num a.ddp-btn-next{display:inline-block; position:relative; top:3px; width:21px; height:21px; border:1px solid #e7e8ec; border-radius:2px; font-size:0;}
 .ddp-box-page .ddp-page-num a.ddp-btn-prev {margin-right:12px;}
 .ddp-box-page .ddp-page-num a.ddp-btn-next {margin-left:12px; transform:rotate(180deg);}
 .ddp-box-page .ddp-page-num a.ddp-btn-prev:before,
@@ -49,3 +49,21 @@
 .ddp-box-page .ddp-page-setting {float:right; padding:6px 0;}
 .ddp-box-page .ddp-page-setting .ddp-wrap-edit .ddp-label-type {padding-right:5px;}
 .ddp-box-page .ddp-page-setting .ddp-wrap-edit .ddp-label-type + .ddp-ui-edit-option.ddp-inline {top:0; width:68px;}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

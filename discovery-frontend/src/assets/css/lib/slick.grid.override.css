@@ -1,0 +1,151 @@
+@charset "utf-8";
+
+:host /deep/ .myGrid {
+    height: 100% !important;
+    width: 100%;
+}
+
+:host /deep/ .slick-pane-header {
+    z-index: 10;
+}
+
+:host /deep/ .slick-grid-component > div {
+    width: 100% !important;
+    height: 100%;
+}
+
+:host /deep/ .slick-header-columns {
+    border-bottom: none;
+    background: none;
+}
+
+:host /deep/ .slick-header-column.ui-state-default {
+    padding:0px 20px 0 9px;
+    border-right: 1px solid #ebebed;
+    text-align: left;
+    color:#4b515b;
+    background: none;
+    background-color:#fff;
+    cursor: pointer;
+}
+
+
+:host /deep/ .slick-column-name {
+    display:inline-block;
+    width:100%;
+    line-height:29px;
+    vertical-align: middle;
+    white-space:pre;
+    text-overflow:ellipsis;
+    overflow:hidden;
+}
+
+:host /deep/ .slick-row.odd {
+    background: #fafafa;
+}
+
+:host /deep/ .slick-row.last {
+    border-bottom: 1px solid #ebebed;
+}
+
+:host /deep/ .slick-cell {
+    padding: 0 10px;
+    border-bottom: none;
+    border-right: 1px solid #ebebed;
+    color: #4b525b;
+    font-size: 12px;
+}
+
+:host /deep/ .slick-row > .slick-cell {
+    line-height: 30px;
+}
+
+/*:host /deep/ .slick-cell.l0 {*/
+/*text-align: center;*/
+/*}*/
+
+:host /deep/ .slick-cell.l1 {
+    text-align: left;
+}
+
+:host /deep/ .checkbox-tbl {
+    display: inline-block !important;
+    width: 15px;
+    height: 15px;
+    -webkit-appearance: checkbox;
+}
+
+:host /deep/ .slick-sort-indicator {
+    float: inherit;
+    width: 7px;
+    height: 4px;
+    display: inline-block;
+    position: absolute;
+    top: 50%;
+    right: 9px;
+    margin-top:-5px;
+    width: 7px;
+    height: 9px;
+    background: url(images/icon_array.png) no-repeat;
+    cursor: pointer;
+}
+
+:host /deep/ .slick-sort-indicator-asc {
+    position: absolute;
+    width: 7px;
+    height: 4px;
+}
+
+:host /deep/ .slick-sort-indicator-desc {
+    position: absolute;
+    width: 7px;
+    height: 4px;
+    margin-top:0;
+    background-position: left -5px;
+}
+
+:host /deep/ .slick-header-column-sorted {
+    font-style: normal;
+}
+
+:host /deep/ .txt-left {
+    text-align: left;
+}
+
+:host /deep/ .txt-right {
+    text-align: right;
+}
+
+:host /deep/ .txt-center {
+    text-align: center;
+}
+
+:host /deep/ .slick-cell.selected {
+    background-color: #d6d9f1;
+}
+
+:host /deep/ .slick-cell.ddp-selected {
+    background-color: #d6d9f1;
+    border: 1px solid #9ca2cc;
+}
+
+:host /deep/ .slick-pane.slick-pane-top.slick-pane-left {
+    top: 0px !important;
+    padding-top: 30px;
+    height: 100% !important;
+    box-sizing: border-box;
+}
+
+:host /deep/ .slick-viewport {
+    position: absolute !important;
+    top: 31px;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    height: auto !important;
+}
+
+:host /deep/ .slick-headerrow-columns {
+    border-bottom:1px solid #ebebed;
+}
+

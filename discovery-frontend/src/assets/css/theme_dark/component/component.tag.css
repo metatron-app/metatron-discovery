@@ -1,0 +1,428 @@
+@charset "utf-8";
+
+/**************************************************************
+  tags add
+*************************************************************/
+.theme-dark .ddp-wrap-edit3 .ddp-ui-edit-option .ddp-list-tags {
+    margin-top: 0;
+}
+
+.theme-dark .ddp-list-tags {
+    margin-top: -5px;
+}
+
+.theme-dark .ddp-list-tags .ddp-tags {
+    display: inline-block;
+    position: relative;
+    padding: 5px 15px;
+    background-color: #f2f1f7;
+    border-radius: 4px;
+    color: #666fad;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.theme-dark .ddp-list-tags .ddp-tags {
+    margin: 3px 6px 3px 0;
+}
+
+.theme-dark .ddp-list-tags .ddp-tags a.ddp-btn-delete {
+    display: none;
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    content: '';
+    width: 14px;
+    height: 14px;
+    background: url(../../../images/btn_sclose.png) no-repeat;
+    background-position: 0 -131px;
+}
+
+.theme-dark .ddp-list-tags .ddp-tags:hover a.ddp-btn-delete {
+    display: block;
+}
+
+.theme-dark .ddp-list-tags .ddp-tags.ddp-txt {
+    cursor: default;
+}
+
+.theme-dark .ddp-list-tags .ddp-tags.ddp-txt:hover {
+    padding: 5px 15px;
+}
+
+.theme-dark .ddp-list-tags .ddp-tags.ddp-txt:hover a.ddp-btn-delete {
+    display: none;
+}
+
+.theme-dark .ddp-list-tags .ddp-tag-default {
+    display: inline-block;
+    position: relative;
+    padding: 5px 5px 5px 20px;
+    margin: 3px 6px 3px 0;
+    border-radius: 4px;
+    color: #666fad;
+    font-size: 13px;
+    box-sizing: border-box;
+}
+
+.theme-dark .ddp-list-tags .ddp-tag-default:before {
+    display: inline-block;
+    position: absolute;
+    top: 5px;
+    left: 9px;
+    content: '#';
+    color: #666fad;
+    font-size: 13px;
+}
+
+.theme-dark .ddp-list-tags .ddp-tag-default input {
+    display: block;
+    width: 100%;
+    border: none;
+    background: none;
+    color: #666fad;
+    font-size: 13px;
+}
+
+/**************************************************************
+    box-tag
+**************************************************************/
+.theme-dark .ddp-box-tag {
+    display: inline-block;
+    float: left;
+    padding: 1px 3px 1px 3px;
+    margin-right: 8px;
+    border-radius: 1px;
+    font-size: 10px;
+    font-weight: normal;
+    vertical-align: top;
+    box-sizing: border-box;
+}
+
+.theme-dark .ddp-box-tag.ddp-workbook {
+    border: 1px solid #7e8aa5;
+    color: #565c65;
+}
+
+.theme-dark .ddp-box-tag.ddp-notebook {
+    border: 1px solid #5ecfea;
+    color: #5ecfea;
+}
+
+.theme-dark .ddp-box-tag.ddp-workbench {
+    border: 1px solid #8c97d3;
+    color: #8c97d3;
+}
+
+.theme-dark .ddp-box-tag.ddp-wargled {
+    min-width: 54px;
+    border: 1px solid #ee5398;
+    color: #ee5398;
+    text-align: center;
+}
+
+.theme-dark .ddp-box-tag.ddp-imported {
+    min-width: 54px;
+    border: 1px solid #50549a;
+    color: #50549a;
+    text-align: center;
+}
+
+.theme-dark .ddp-box-tag.ddp-personal {
+    width: 52px;
+    border: 1px solid #cd2287;
+    color: #cd2287;
+    text-align: center;
+}
+
+.theme-dark .ddp-box-tag.ddp-shared {
+    width: 52px;
+    border: 1px solid #3f72c1;
+    color: #3f72c1;
+    text-align: center;
+}
+
+.theme-dark .ddp-box-tag.ddp-wargled,
+.theme-dark .ddp-box-tag-value.ddp-database,
+.theme-dark .ddp-box-tag-value.ddp-datasource,
+.theme-dark .ddp-box-tag-value.ddp-hive,
+.theme-dark .ddp-box-tag-value.ddp-stagingdb,
+.theme-dark .ddp-box-tag-value.ddp-dataset {
+    display: inline-block;
+    min-width: 63px;
+    padding: 0 3px;
+    text-align: center;
+    font-size: 10px;
+    box-sizing: Border-box;
+}
+
+.theme-dark .ddp-box-tag-value.ddp-datasource {
+    border: 1px solid #313869;
+    color: #313869;
+}
+
+.theme-dark .ddp-box-tag-value.ddp-hive {
+    border: 1px solid #f6a300;
+    color: #f6a300;
+}
+
+.theme-dark .ddp-box-tag-value.ddp-stagingdb {
+    border: 1px solid #8476df;
+    color: #8476df;
+}
+
+.theme-dark .ddp-box-tag-value.ddp-database {
+    border: 1px solid #5b8fe4;
+    color: #5b8fe4;
+}
+
+.theme-dark .ddp-box-tag-value.ddp-dataset {
+    border: 1px solid #46a8be;
+    color: #46a8be;
+}
+
+.theme-dark .ddp-box-power {
+    display: inline-block;
+    padding: 2px 4px 1px 4px;
+    width: 60px;
+    border-radius: 2px;
+    color: #fff;
+    font-size: 10px;
+    text-align: center;
+    box-sizing: border-box;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-wrap: normal;
+}
+
+.theme-dark .ddp-box-power.ddp-watcher {
+    background-color: #293a63;
+    color: #aab5d3;
+}
+
+.theme-dark .ddp-box-power.ddp-editor {
+    background-color: #b7b9c2;
+}
+
+.theme-dark .ddp-box-power.ddp-owner,
+.theme-dark .ddp-box-power.ddp-manager {
+    background-color: #293a63;
+    color:#aab5d3;
+}
+
+
+/**************************************************************
+	new
+**************************************************************/
+.theme-dark .ddp-icon-new {color:#707cc4; font-size:10px !important;}
+.theme-dark .ddp-icon-new:before {display:inline-block; content:''; width:5px; height:5px; margin-right:5px; border-radius:50%; background-color:#707cc4;}
+
+/**************************************************************
+	status
+**************************************************************/
+.theme-dark .ddp-status-pending {
+    color: #ffb700;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-status-rejected {
+    color: #f4434b;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-status-approved {
+    color: #7e8aa5;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-status-active {
+    color: #4b525b;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-status-active.ddp-inactive {
+    color: #7e8aa5;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-data-state.ddp-waiting {
+    font-weight: bold;
+    font-size: 12px;
+    color: #7e8aa5;
+}
+
+.theme-dark .ddp-data-state.ddp-rejected {
+    font-weight: bold;
+    font-size: 12px;
+    color: #eb5f58;
+}
+
+.theme-dark .ddp-data-state.ddp-approved {
+    font-weight: bold;
+    font-size: 12px;
+    color: #4c92e0;
+}
+
+.theme-dark .ddp-data-state.ddp-inprogress {
+    position: relative;
+    font-weight: bold;
+    font-size: 12px;
+    color: #7e8aa5;
+}
+
+.theme-dark .ddp-data-state.ddp-fail {
+    font-size: 11px;
+    color: #eb5f58;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-data-state.ddp-success {
+    font-size: 11px;
+    color: #4c92e0;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-data-state.ddp-preparing {
+    font-size: 11px;
+    color: #4e5368;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-data-state.ddp-running {
+    font-size: 11px;
+    color: #ffba00;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-data-state.ddp-cancelled {
+    font-size: 11px;
+    color: #7e8aa5;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-data-state.ddp-scheduling {
+    font-size: 11px;
+    color: #10bf83;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-data-state.ddp-creating {
+    font-size: 11px;
+    color: #ffba00;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-data-state.ddp-unscheduled {
+    font-size: 11px;
+    color: #b7b9c2;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-data-state.ddp-warning {
+    font-size: 11px;
+    color: #edb817;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-data-state.ddp-ok {
+    font-size: 11px;
+    color: #5188d7;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-data-state.ddp-inprogress .ddp-icon-error2 {
+    position: relative;
+    top: 0;
+    margin-left: 2px;
+    background-position-x: -28px;
+}
+
+.theme-dark .ddp-data-state.ddp-inprogress .ddp-ui-tooltip-info {
+    display: none;
+    position: absolute;
+    top: -5px;
+    left: 100%;
+    margin-left: 8px;
+}
+
+.theme-dark .ddp-data-state.ddp-inprogress:hover .ddp-ui-tooltip-info {
+    display: block;
+    font-weight: normal;
+}
+
+.theme-dark .ddp-data-status.ddp-fail {
+    font-size: 11px;
+    color: #dc494f;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-data-status.ddp-enabled {
+    font-size: 11px;
+    color: #10bf83;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-data-status.ddp-preparing {
+    font-size: 11px;
+    color: #ffb700;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-data-status.ddp-disabled {
+    font-size: 11px;
+    color: #b7b9c2;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-tag-status {
+    display: inline-block;
+    width: 36px;
+    padding: 3px 0 2px 0;
+    border-radius: 3px;
+    background-color: rgba(120, 196, 164, 0.1);
+    color: #58bb90;
+    font-size: 12px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.theme-dark .ddp-tag-status.type-error {
+    color: #fff;
+    background-color: #dc494f;
+}
+
+.theme-dark .ddp-data-status.ddp-running {
+    font-size: 12px;
+    color: #10bf83;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-data-status.ddp-pending {
+    font-size: 12px;
+    color: #8c6dd2;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-data-status.ddp-waiting {
+    font-size: 12px;
+    color: #ffba00;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-data-status.ddp-fail {
+    font-size: 12px;
+    color: #dc494f;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-data-status.ddp-success {
+    font-size: 12px;
+    color: #3f72c1;
+    font-weight: bold;
+}

@@ -13,7 +13,8 @@ import {AbstractComponent} from "../../../common/component/abstract.component";
 @Component({
   selector: 'explore-metadata-overview',
   templateUrl: './metadata-overview.component.html',
-  entryComponents: [RecentQueriesComponent]
+  entryComponents: [RecentQueriesComponent],
+  preserveWhitespaces: false
 })
 export class MetadataOverviewComponent extends AbstractComponent implements OnInit, OnDestroy {
 
