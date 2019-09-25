@@ -2176,6 +2176,10 @@
   "msg.storage.ui.dsource.reingestion.fail.title" : "Datasource re-ingest failed",
   "msg.storage.ui.dsource.reingestion.fail.description" : "Please check the datasource re-ingest data",
   "msg.storage.alert.source.reingestion.success" : "Datasource re-ingested.",
+  "msg.storage.th.batch.pause.success" : "批次已暂停。",
+  "msg.storage.th.batch.pause.fail" : "无法暂停批处理。",
+  "msg.storage.th.batch.resume.success" : "批次已恢复。",
+  "msg.storage.th.batch.resume.fail" : "无法恢复批处理。",
 
   "msg.log.th.status": "状态",
   "msg.log.ui.search.description": "请按job名或应用程序ID进行搜索",
