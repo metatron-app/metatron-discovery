@@ -24,9 +24,9 @@ INSERT INTO mdm_column_dictionary(id, column_name, column_logical_name, column_d
 INSERT INTO mdm_catalog(id, catalog_name, catalog_desc, catalog_parent_id, created_by, created_time, modified_by, modified_time, version) values
 ('catalog1', 'catalog 1', 'desc1', null, 'admin', NOW(),'admin', NOW(), 1.0),
 ('catalog2', 'catalog 2', 'desc2', null, 'admin', NOW(),'admin', NOW(), 1.0),
-('catalog1_1', 'catalog 1-1', 'desc 1-1', 'catalog1', 'admin', NOW(),'admin', NOW(), 1.0),
-('catalog1_2', 'catalog 1-2', 'desc 1-2', 'catalog1', 'admin', NOW(),'admin', NOW(), 1.0),
-('catalog1_1_1', 'catalog 1-1-1', 'desc 1-1-1', 'catalog1-1', 'admin', NOW(),'admin', NOW(), 1.0);
+('catalog1_1', 'catalog2 1-1', 'desc 1-1', 'catalog1', 'admin', NOW(),'admin', NOW(), 1.0),
+('catalog1_2', 'catalog2 1-2', 'desc 1-2', 'catalog1', 'admin', NOW(),'admin', NOW(), 1.0),
+('catalog1_1_1', 'catalog2 1-1-1', 'desc 1-1-1', 'catalog1-1', 'admin', NOW(),'admin', NOW(), 1.0);
 
 INSERT INTO mdm_catalog_tree(catalog_ancestor, catalog_descendant, catalog_depth) VALUES
 ('catalog1', 'catalog1', 0),
@@ -86,11 +86,3 @@ INSERT INTO catalog_metadata(catalog_id, meta_id) VALUES
 ('catalog1_1', 'test_meta2'),
 ('catalog1_2', 'test_meta1'),
 ('catalog1_1_1', 'test_meta3');
-
-INSERT INTO tag (id, tag_domain, tag_name, tag_scope, created_by, created_time) VALUES
-('tag_01', 'METADATA', 'meta_tag1', 'DOMAIN', 'admin', NOW()),
-('tag_02', 'METADATA', 'meta_tag2', 'DOMAIN', 'admin', NOW());
-
-INSERT INTO tag_domain (domain_id, domain_type, tag_id, created_by, created_time) VALUES
-('test_meta1', 'METADATA', 'tag_01', 'admin', NOW()),
-('test_meta2', 'METADATA', 'tag_02', 'admin', NOW());

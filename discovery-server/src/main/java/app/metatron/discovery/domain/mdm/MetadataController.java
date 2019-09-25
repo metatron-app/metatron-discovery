@@ -202,7 +202,7 @@ public class MetadataController {
     }
 
     if(projectionCls == TagProjections.TreeProjection.class){
-      tags = tagService.getTagsWithCount(Tag.Scope.DOMAIN, DomainType.METADATA, nameContains, pageable.getSort());
+      tags = tagService.getTagsWithCount(Tag.Scope.DOMAIN, DomainType.METADATA, nameContains, false, pageable.getSort());
     } else {
       tags = tagService.findByTagsWithDomain(Tag.Scope.DOMAIN, DomainType.METADATA, nameContains, pageable.getSort());
     }

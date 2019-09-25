@@ -18,18 +18,17 @@ import com.google.common.collect.Lists;
 
 import com.querydsl.core.types.Predicate;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import app.metatron.discovery.common.entity.DomainType;
 import app.metatron.discovery.domain.mdm.MetadataRepository;
@@ -107,41 +106,15 @@ public class TagService {
     }
   }
 
-  public List<TagTreeDTO> getTagsWithCount(Tag.Scope scope, DomainType domainType, String nameContains, Sort sort) {
-
-    List<TagTreeDTO> tagTreeDTOList = new ArrayList<>();
-
-    //Whole tag list
-    List<Tag> tagList = this.findByTagsWithDomain(scope, domainType, nameContains, sort);
-
-    switch(domainType){
-      case METADATA:
-        //getting metadata count..
-        //jpa can't join with non-relation entity, and can't join with sub-query
-        //Only tags with domain exists
-        List<TagTreeDTO> metadataCountList
-            = tagRepository.findTagsAndCountWithMetadatas(scope, domainType, StringUtils.isEmpty(nameContains) ? "" : nameContains);
-
-        //filter non-exist
-        for(Tag tag : tagList) {
-          Optional<TagTreeDTO> optionalTagTreeDTO = metadataCountList.stream()
-                                                                     .filter(tagTreeDTO -> tagTreeDTO.getId().equals(tag.getId()))
-                                                                     .findFirst();
-          if(optionalTagTreeDTO.isPresent()){
-            tagTreeDTOList.add(optionalTagTreeDTO.get());
-          } else {
-            tagTreeDTOList.add(new TagTreeDTO(tag.id, tag.name));
-          }
-        }
-        break;
-      default:
-        for(Tag tag : tagList) {
-          tagTreeDTOList.add(new TagTreeDTO(tag.id, tag.name));
-        }
-        break;
-    }
-
-    return tagTreeDTOList;
+  public List<TagCountDTO> getTagsWithCount(Tag.Scope scope, DomainType domainType, String nameContains,
+                                            boolean includeEmpty, Sort sort) {
+    List<TagCountDTO> tagCountDTOS = tagRepository.findTagsWithCount(scope, domainType, nameContains, includeEmpty, sort);
+    return tagCountDTOS;
   }
 
+  public Page<TagCountDTO> getTagsWithCount(Tag.Scope scope, DomainType domainType, String nameContains,
+                                            boolean includeEmpty, Pageable pageable) {
+    Page<TagCountDTO> tagCountDTOS = tagRepository.findTagsWithCount(scope, domainType, nameContains, includeEmpty, pageable);
+    return tagCountDTOS;
+  }
 }

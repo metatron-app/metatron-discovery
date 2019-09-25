@@ -70,3 +70,6 @@ discovery-frontend/src/environments/build.env.ts
 
 # dataprep local base dir
 /dataprep/
+
+# extensions target dir
+**/extensions/
