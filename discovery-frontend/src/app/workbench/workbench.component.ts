@@ -1083,8 +1083,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.runningResultTabId = resultTab.id;
     this.hideResultButtons = false;
 
-    //disable cancel in 10 sec
-    this.setCancelButtonTimer(10);
+    //disable cancel in 5 sec
+    this.setCancelButtonTimer(5);
 
     this.workbenchService.runSingleQueryWithInvalidQuery(resultTab.queryEditor, additionalParams)
       .then((result) => {
