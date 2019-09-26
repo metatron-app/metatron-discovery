@@ -52,6 +52,11 @@ import {WorkspacePermissionSchemaSetComponent} from './component/permission/work
 import {ImplementorType, JdbcDialect} from '../domain/dataconnection/dataconnection';
 import * as _ from 'lodash';
 import {StorageService} from "../data-storage/service/storage.service";
+import {UsedCriteria} from "../common/value/used-criteria.data.value";
+
+const DEFAULT_CONTENT_SORT_INDEX = 3;
+const DEFAULT_CONTENT_FILTER_INDEX = 0;
+const DEFAULT_VIEW_TYPE = 'CARD';
 
 @Component({
   selector: 'app-workspace',
@@ -173,7 +178,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   ];
 
   // 선택한 필터 키
-  public selectedContentFilter: any = this.contentFilter[0];
+  public selectedContentFilter: any;
 
   // 정렬
   public contentSort: any[];
@@ -212,7 +217,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   public moveSelectionFl: boolean = false;
 
   // 뷰타입 LIST, CARD
-  public viewType = 'CARD';
+  public viewType = DEFAULT_VIEW_TYPE;
 
   // 이동 가능한 워크스페이스 목록
   public importAvailWorkspaces: Workspace[];
@@ -228,6 +233,10 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
 
   // 노트북 서버 설정 여부
   public isSetNotebookServer: boolean = false;
+
+  public contentSortIndex: number = DEFAULT_CONTENT_SORT_INDEX;
+
+  public contentFilterIndex: number = DEFAULT_CONTENT_FILTER_INDEX;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -1018,11 +1027,13 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   public selectedFilter($event) {
     this.selectedContentFilter = $event;
     this._updateStateSelectAll();
+    this.saveWorkspaceCriteria();
   }
 
   // 정렬 선택이벤트
   public selectedSort($event) {
     this.selectedContentSort = $event;
+    this.saveWorkspaceCriteria();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -1309,6 +1320,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   public setViewType(arg: string) {
     this.viewType = arg;
     this.setCookie();
+    this.saveWorkspaceCriteria();
   } // function - setViewType
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -1609,6 +1621,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
 
     // 쿠키 조회
     this.getCookie();
+    this.loadWorkspaceCriteria();
 
     // initialize Data
     this.workspaceId = (workspaceId) ? workspaceId : undefined;
@@ -1618,7 +1631,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     (isNullOrUndefined(this.currentFolderId)) || (this.cookieWorkspace.folderId = this.isRoot ? null : this.currentFolderId);
 
     if (this.viewType === null) {
-      this.viewType = 'CARD';
+      this.viewType = DEFAULT_VIEW_TYPE;
       this.cookieWorkspace.viewType = this.viewType;
     }
     this.cookieService.set(CookieConstant.KEY.CURRENT_WORKSPACE, JSON.stringify(this.cookieWorkspace), 0, '/');
@@ -1640,7 +1653,8 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
         {key: 'modifiedTime', value: this.translateService.instant('msg.comm.ui.list.update.asc'), type: 'asc'},
         {key: 'modifiedTime', value: this.translateService.instant('msg.comm.ui.list.update.desc'), type: 'desc'},
       ];
-      this.selectedContentSort = this.contentSort[3];
+      this.selectedContentSort = this.contentSort[this.contentSortIndex];
+      this.selectedContentFilter = this.contentFilter[this.contentFilterIndex];
 
       // initialize data
       this.getWorkspaceData();
@@ -1732,6 +1746,24 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     }
     return filteredList;
   } // function - _getDisplayItems
+
+  private saveWorkspaceCriteria(): void {
+    let criteria: UsedCriteria = this.getUsedCriteriaFromLocalStorage();
+
+    criteria.workspace.contentFilterIndex = this.contentFilter.indexOf(this.selectedContentFilter);
+    criteria.workspace.viewType = this.viewType;
+    criteria.workspace.contentSortIndex = this.contentSort.indexOf(this.selectedContentSort);
+
+    this.setUsedCriteriaToLocalStorage(criteria);
+  }
+
+  private loadWorkspaceCriteria(): void {
+    let criteria: UsedCriteria = this.getUsedCriteriaFromLocalStorage();
+
+    this.viewType = criteria.workspace.viewType ? criteria.workspace.viewType : DEFAULT_VIEW_TYPE;
+    this.contentSortIndex = isNullOrUndefined(criteria.workspace.contentSortIndex) ? DEFAULT_CONTENT_SORT_INDEX : criteria.workspace.contentSortIndex;
+    this.contentFilterIndex = isNullOrUndefined(criteria.workspace.contentFilterIndex) ? DEFAULT_CONTENT_FILTER_INDEX : criteria.workspace.contentFilterIndex;
+  }
 }
 
 
