@@ -179,6 +179,7 @@
       <component-drop-box
         [array]="contentFilter"
         [viewKey]="'value'"
+        [defaultIndex]="contentFilterIndex"
         (onSelected)="selectedFilter($event)"
       ></component-drop-box>
       <!-- //dropdown -->
@@ -186,7 +187,7 @@
       <!-- 클릭시 ddp-selected 추가 -->
       <component-sort-drop-box
         [array]="contentSort"
-        [defaultIndex]="3"
+        [defaultIndex]="contentSortIndex"
         [viewKey]="'value'"
         (onSelected)="selectedSort($event)"
       ></component-sort-drop-box>
