@@ -993,6 +993,7 @@
   "msg.dp.alert.teddy.parse.failed.by.unpivot.groupevery": "Unpivot rule 해석에 실패하였습니다. group-every 값을 확인하세요.",
   "msg.dp.alert.teddy.parse.failed.by.join.dataset2": "Join rule 해석에 실패하였습니다. 두번째 Dataset을 확인하세요.",
   "msg.dp.alert.teddy.parse.failed.by.join.jointype": "Join rule 해석에 실패하였습니다. Join 타입을 확인하세요.",
+  "msg.dp.alert.teddy.parse.failed.by.union.dataset2": "Union rule 해석에 실패하였습니다. 두번째 Dataset을 확인하세요.",
   "msg.dp.alert.teddy.parse.failed.by.window.value": "Window Rule의 Expression 문법을 확인하세요",
   "mgs.dp.ui.continue.new.rule": "새 데이터플로우에서 이 데이터셋으로 룰 편집을 합니다",
   "msg.dp.alert.unsupported.number.format": "지원하지 않는 형식의 숫자입니다.",

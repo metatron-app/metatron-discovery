@@ -401,8 +401,8 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
    * @param item
    */
   public setTableSql(item) {
-    if( ImplementorType.DRUID === this.implementorType ) {
-      this.sqlIntoEditorEvent.emit('\nSELECT * FROM ' + this.inputParams.dataconnection.database + '."' + item + '";');
+    if( ImplementorType.DRUID === this.implementorType || ImplementorType.POSTGRESQL === this.implementorType ) {
+      this.sqlIntoEditorEvent.emit('\nSELECT * FROM "' + this.inputParams.dataconnection.database + '"."' + item + '";');
     } else {
       this.sqlIntoEditorEvent.emit('\nSELECT * FROM ' + this.inputParams.dataconnection.database + '.' + item + ';');
     }

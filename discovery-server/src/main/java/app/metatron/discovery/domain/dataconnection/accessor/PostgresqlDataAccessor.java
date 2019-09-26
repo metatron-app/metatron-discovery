@@ -77,7 +77,7 @@ public class PostgresqlDataAccessor extends AbstractJdbcDataAccessor {
     } catch (Exception e) {
       LOGGER.error("Fail to get list of table : {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
-                                            "Fail to get list of database : " + e.getMessage());
+                                            "Fail to get list of table : " + e.getMessage());
     }
 
     Map<String, Object> databaseMap = new LinkedHashMap<>();
