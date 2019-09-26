@@ -253,7 +253,7 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
 .ddp-ui-sub-myinfo .ddp-list-sub-myinfo li ul.ddp-list-popup li a {padding:4px 30px 4px 14px; border-left:none; font-weight:normal;}
 .ddp-ui-sub-myinfo .ddp-list-sub-myinfo li ul.ddp-list-popup li a:hover {font-weight:normal; background-color:#f6f6f7;}
 .ddp-ui-sub-myinfo .ddp-list-sub-myinfo li a .ddp-txt-list {display:block; position:relative; padding-left:22px;}
-.ddp-ui-sub-myinfo .ddp-list-sub-myinfo li a [class*="ddp-icon-"]{display:inline-block; position:absolute; top:50%; left:0; background:url(../images/icon_userinfo.png) no-repeat;}
+.ddp-ui-sub-myinfo .ddp-list-sub-myinfo > li > a [class*="ddp-icon-"]{display:inline-block; position:absolute; top:50%; left:0; background:url(../images/icon_userinfo.png) no-repeat;}
 .ddp-ui-sub-myinfo .ddp-list-sub-myinfo li a .ddp-icon-info-profile {width:12px; height:12px; margin-top:-6px;}
 .ddp-ui-sub-myinfo .ddp-list-sub-myinfo li a .ddp-icon-info-language {width:15px; height:15px; margin-top:-8px; background-position:left -13px;}
 .ddp-ui-sub-myinfo .ddp-list-sub-myinfo li a .ddp-icon-info-theme {width:11px; height:13px; margin-top:-7px; background-position:left -26px;}
