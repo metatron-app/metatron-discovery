@@ -34,14 +34,14 @@
           </a>
         </li>
         <li>
-          <a href="javscript:">
+          <a href="javscript:" class="ddp-cursor-default" (click)="$event.stopImmediatePropagation();">
             <span class="ddp-txt-list">
                 <em class="ddp-icon-info-language"></em>Language
             </span>
           </a>
           <div class="ddp-hover-status" [ngClass]="{'ddp-selected' : isLanguageShow}">
             <!-- inactive 일때 ddp-inactive 추가 -->
-            <span class="ddp-status-active ddp-inactive">{{'msg.comm.menu.lang.' + getCurrentLang() | translate}}<em class="ddp-icon-view" (click)="isLanguageShow = !isLanguageShow;$event.stopImmediatePropagation();" (clickOutside)="isLanguageShow=false;"></em></span>
+            <span class="ddp-status-active ddp-inactive" (click)="isLanguageShow = !isLanguageShow;$event.stopImmediatePropagation();" (clickOutside)="isLanguageShow=false;">{{'msg.comm.menu.lang.' + getCurrentLang() | translate}}<em class="ddp-icon-view"></em></span>
             <!-- popup -->
             <div class="ddp-wrap-popup2">
               <ul class="ddp-list-popup">
@@ -69,26 +69,25 @@
           </div>
         </li>
         <li>
-          <a href="javascript:">
+          <a href="javascript:" class="ddp-cursor-default" (click)="$event.stopImmediatePropagation();">
             <span class="ddp-txt-list">
                 <em class="ddp-icon-info-theme"></em>
                 Themes
             </span>
-
-            <div class="ddp-theme-check">
-              <label class="theme-check ">
-                <input type="checkbox" [checked]="!isThemeDark()">
-                <i (click)="themeCheckboxClick(false);$event.preventDefault();"></i>
-              </label>
-              <label class="theme-check type-dark">
-                <input type="checkbox" [checked]="isThemeDark()">
-                <i (click)="themeCheckboxClick(true);$event.preventDefault();"></i>
-              </label>
-            </div>
           </a>
+          <div class="ddp-theme-check">
+            <label class="theme-check ">
+              <input type="checkbox" [checked]="!isThemeDark()">
+              <i (click)="themeCheckboxClick(constTheme.WHITE);$event.preventDefault();"></i>
+            </label>
+            <label class="theme-check type-dark">
+              <input type="checkbox" [checked]="isThemeDark()">
+              <i (click)="themeCheckboxClick(constTheme.DARK);$event.preventDefault();"></i>
+            </label>
+          </div>
         </li>
       </ul>
-      <div class="ddp-ui-part"><a href="javascript:">Log out</a></div>
+      <div class="ddp-ui-part"><a href="javascript:" (click)="logout();">Log out</a></div>
     </div>
     <!-- //my info -->
   </div>

@@ -19,6 +19,8 @@ import {UserService} from '../../../../user/service/user.service';
 import {User} from '../../../../domain/user/user';
 import {ProfileComponent} from '../../../../user/profile/profile.component';
 import {CommonUtil} from '../../../../common/util/common.util';
+import {LocalStorageConstant} from "../../../../common/constant/local-storage.constant";
+import {Language, Theme, UserSetting} from "../../../../common/value/user.setting.value";
 
 @Component({
   selector: 'app-gnb',
@@ -43,6 +45,8 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
 
   // UI에서 사용할 유저객체
   public user: User;
+
+  public constTheme = Theme;
 
   @ViewChild(ProfileComponent)
   public profileComponent: ProfileComponent;
@@ -96,12 +100,11 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
     return this.getLanguage();
   }
 
-  public changeLanguage(lang): void {
-    const currentLang = this.getCurrentLang();
-    if (currentLang === lang) {
-      return;
+  public changeLanguage(lang: string): void {
+    if (this.getCurrentLang() != lang) {
+      this.setLanguage(lang);
+      this._saveUserSetting(null, Language[lang]);
     }
-    this.setLanguage(lang);
     this.isLanguageShow = false;
   }
 
@@ -131,15 +134,12 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
   } // function - getUserImage
 
   public isThemeDark(): boolean {
-    return $('body').hasClass('theme-dark');
+    return $('body').hasClass(Theme.DARK);
   }
 
-  public themeCheckboxClick(isThemeDark: boolean) {
-    if (isThemeDark) {
-      $('body').addClass('theme-dark');
-    } else {
-      $('body').removeClass('theme-dark');
-    }
+  public themeCheckboxClick(theme: Theme) {
+    CommonUtil.setThemeCss(theme);
+    this._saveUserSetting(theme, null);
   }
 
   public logout() {
@@ -164,5 +164,21 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  private _saveUserSetting(theme:Theme, language:Language): void {
+    let userData: UserSetting = CommonUtil.getUserSetting();
+    if (!userData) {
+      userData = new UserSetting();
+    }
+
+    if (theme) {
+      userData.theme = theme;
+    }
+    if (language) {
+      userData.language = language;
+    }
+
+    CommonUtil.setLocalStorage(LocalStorageConstant.KEY.USER_SETTING, JSON.stringify(userData));
+  }
 
 }
