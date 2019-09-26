@@ -172,7 +172,9 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
         this.entryRef.instance.metadataDetailData = metadataDetail;
         this.entryRef.instance.topUserList = topUserList;
         this.entryRef.instance.recentlyUpdatedList = recentlyUpdatedList;
-        this.entryRef.instance.recentlyUsedDashboardList = recentlyUsedList['_embedded']['dashboards'];
+        if (recentlyUsedList['_embedded'] !== undefined) {
+          this.entryRef.instance.recentlyUsedDashboardList = recentlyUsedList['_embedded']['dashboards'];
+        }
 
         this.entryRef.instance.metadataId = metadata.id;
       } else if (metadata.sourceType === SourceType.JDBC || metadata.sourceType === SourceType.STAGEDB) {
