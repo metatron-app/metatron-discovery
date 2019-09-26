@@ -14,12 +14,15 @@
 
 package app.metatron.discovery.domain.dataprep.service;
 
+import static app.metatron.discovery.domain.dataprep.PrepUtil.dataflowError;
+
 import app.metatron.discovery.domain.dataprep.PrepParamDatasetIdList;
 import app.metatron.discovery.domain.dataprep.PrepSwapRequest;
 import app.metatron.discovery.domain.dataprep.PrepUpstream;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflowProjections;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE;
 import app.metatron.discovery.domain.dataprep.entity.PrTransformRule;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
@@ -107,8 +110,8 @@ public class PrDataflowController {
           @RequestBody Resource<PrDataflow> dataflowResource,
           PersistentEntityResourceAssembler resourceAssembler
   ) {
-    PrDataflow dataflow = null;
-    PrDataflow savedDataflow = null;
+    PrDataflow dataflow;
+    PrDataflow savedDataflow;
 
     try {
       dataflow = dataflowResource.getContent();
@@ -135,10 +138,10 @@ public class PrDataflowController {
           PersistentEntityResourceAssembler persistentEntityResourceAssembler
   ) {
 
-    PrDataflow dataflow = null;
-    PrDataflow patchDataflow = null;
-    PrDataflow savedDataflow = null;
-    Resource<PrDataflowProjections.DefaultProjection> projectedDataflow = null;
+    PrDataflow dataflow;
+    PrDataflow patchDataflow;
+    PrDataflow savedDataflow;
+    Resource<PrDataflowProjections.DefaultProjection> projectedDataflow;
 
     try {
       dataflow = this.dataflowRepository.findOne(dfId);
@@ -205,63 +208,36 @@ public class PrDataflowController {
   ) {
 
     List<String> deleteDsIds = Lists.newArrayList();
-    try {
-      List<String> upstreamDsIds = Lists.newArrayList();
-      List<PrepUpstream> upstreams = Lists.newArrayList();
-      upstreamDsIds.add(dsId);
 
-      PrDataflow dataflow = this.dataflowRepository.findOne(dfId);
-      if (null != dataflow) {
-        List<PrDataset> datasets = dataflow.getDatasets();
-        if (null != datasets) {
-          for (PrDataset ds : datasets) {
-            String dId = ds.getDsId();
-            List<String> uIds = this.transformService.getUpstreamDsIds(ds.getDsId());
-            for (String uDsId : uIds) {
-              PrepUpstream upstream = new PrepUpstream();
-              upstream.setDfId(dataflow.getDfId());
-              upstream.setDsId(dId);
-              upstream.setUpstreamDsId(uDsId);
-              upstreams.add(upstream);
-            }
-          }
-        }
+    try {
+      // We need to delete every downstream no matter what the dataflow it's in.
+      // The only difference from dataset's deleteChain() is that,
+      // in this case, we just remove the relation between I.DS and dataflow. (cf. dataset's deletes the dataset entity)
+
+      PrDataset targetDs = datasetRepository.findOne(dsId);
+      if (targetDs.getDsType() == DS_TYPE.IMPORTED) {
+        PrDataflow dataflow = dataflowRepository.findOne(dfId);
+        dataflow.deleteDataset(targetDs);
+        dataflowRepository.save(dataflow);
       }
-      while (0 < upstreamDsIds.size()) {
-        List<String> downDsIds = Lists.newArrayList();
-        for (PrepUpstream upstream : upstreams) {
-          String uDsId = upstream.getUpstreamDsId();
-          if (true == upstreamDsIds.contains(uDsId)) {
-            downDsIds.add(upstream.getDsId());
-          }
-        }
-        for (String uDsId : upstreamDsIds) {
-          if (false == deleteDsIds.contains(uDsId)) {
-            deleteDsIds.add(uDsId);
-          }
-        }
-        upstreamDsIds.clear();
-        upstreamDsIds.addAll(downDsIds);
-      }
+
+      transformService.addDownstreamDsId(deleteDsIds, dsId, false);
 
       for (String deleteDsId : deleteDsIds) {
-        PrDataset delDs = this.datasetRepository.findOne(deleteDsId);
-        if (delDs != null) {
-          if (null != dataflow) {
-            dataflow.deleteDataset(delDs);
+        PrDataset dataset = this.datasetRepository.findOne(deleteDsId);
+        if (dataset != null) {
+          List<PrDataflow> dataflows = dataset.getDataflows();
+          if (dataflows != null) {
+            for (PrDataflow dataflow : dataflows) {
+              dataflow.deleteDataset(dataset);
+            }
           }
-          if (delDs.getDsType() == PrDataset.DS_TYPE.WRANGLED) {
-            this.datasetRepository.delete(delDs);
-          } else {
-            delDs.deleteDataflow(dataflow);
-            this.datasetRepository.flush();
-            this.dataflowRepository.flush();
-          }
+          this.datasetRepository.delete(dataset);
         }
       }
     } catch (Exception e) {
       LOGGER.error("deleteChain(): caught an exception: ", e);
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
+      throw dataflowError(e);
     }
 
     return ResponseEntity.status(HttpStatus.SC_OK).body(deleteDsIds);
@@ -284,7 +260,6 @@ public class PrDataflowController {
             String dsId = dataset.getDsId();
 
             if (dataset.getDsType() == PrDataset.DS_TYPE.WRANGLED) {
-              boolean forUpdateBoolean = forUpdate.equalsIgnoreCase("true") ? true : false;
               List<String> upstreamDsIds = this.transformService.getUpstreamDsIds(dataset.getDsId());
               if (null != upstreamDsIds) {
                 for (String upstreamDsId : upstreamDsIds) {
@@ -309,39 +284,6 @@ public class PrDataflowController {
     }
 
     return ResponseEntity.status(HttpStatus.SC_CREATED).body(upstreams);
-  }
-
-  @RequestMapping(value = "/{dfId}/add/{dsId}", method = RequestMethod.POST, produces = "application/json")
-  public
-  @ResponseBody
-  ResponseEntity<?> addDataset(
-          @PathVariable("dfId") String dfId,
-          @PathVariable("dsId") String dsId
-  ) {
-    PrDataflow dataflow = dataflowRepository.findOne(dfId);
-    try {
-      if (dataflow != null) {
-        PrDataset dataset = datasetRepository.findOne(dsId);
-        if (dataset != null) {
-          dataflow.addDataset(dataset);
-          dataset.addDataflow(dataflow);
-          dataflowRepository.saveAndFlush(dataflow);
-        } else {
-          String errorMsg = new String("dataset[" + dsId + "] was not found");
-          throw PrepException
-                  .create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET, errorMsg);
-        }
-      } else {
-        String errorMsg = new String("dataflow[" + dfId + "] was not found");
-        throw PrepException
-                .create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATAFLOW, errorMsg);
-      }
-    } catch (Exception e) {
-      LOGGER.error("addDataset(): caught an exception: ", e);
-      throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, e);
-    }
-
-    return ResponseEntity.status(HttpStatus.SC_OK).body(dataflow);
   }
 
   @RequestMapping(value = "/{dfId}/update_datasets", method = RequestMethod.PUT, produces = "application/json")
@@ -399,108 +341,6 @@ public class PrDataflowController {
       }
     } catch (Exception e) {
       LOGGER.error("addDataset(): caught an exception: ", e);
-      throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, e);
-    }
-
-    return ResponseEntity.status(HttpStatus.SC_OK).body(dataflow);
-  }
-
-  @RequestMapping(value = "/{dfId}/add_datasets", method = RequestMethod.POST, produces = "application/json")
-  public
-  @ResponseBody
-  ResponseEntity<?> addDatasets(
-          @PathVariable("dfId") String dfId,
-          @RequestBody PrepParamDatasetIdList dsIds
-  ) {
-    PrDataflow dataflow = dataflowRepository.findOne(dfId);
-    try {
-      if (dataflow != null) {
-        if (dsIds != null) {
-          for (String dsId : dsIds.getDsIds()) {
-            PrDataset dataset = datasetRepository.findOne(dsId);
-            if (dataset != null) {
-              dataflow.addDataset(dataset);
-              dataset.addDataflow(dataflow);
-            }
-          }
-          dataflowRepository.saveAndFlush(dataflow);
-        }
-      } else {
-        String errorMsg = new String("dataflow[" + dfId + "] was not found");
-        throw PrepException
-                .create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATAFLOW, errorMsg);
-      }
-    } catch (Exception e) {
-      LOGGER.error("addDataset(): caught an exception: ", e);
-      throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, e);
-    }
-
-    return ResponseEntity.status(HttpStatus.SC_OK).body(dataflow);
-  }
-
-  @RequestMapping(value = "/{dfId}/remove/{dsId}", method = RequestMethod.DELETE, produces = "application/json")
-  public
-  @ResponseBody
-  ResponseEntity<?> removeDataset(
-          @PathVariable("dfId") String dfId,
-          @PathVariable("dsId") String dsId
-  ) {
-    PrDataflow dataflow = dataflowRepository.findOne(dfId);
-    try {
-      if (dataflow != null) {
-        PrDataset dataset = datasetRepository.findOne(dsId);
-        if (dataset != null) {
-          dataflow.deleteDataset(dataset);
-          dataset.deleteDataflow(dataflow);
-          dataflowRepository.saveAndFlush(dataflow);
-        } else {
-          String errorMsg = new String("dataset[" + dsId + "] was not found");
-          throw PrepException
-                  .create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET, errorMsg);
-        }
-      } else {
-        String errorMsg = new String("dataflow[" + dfId + "] was not found");
-        throw PrepException
-                .create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATAFLOW, errorMsg);
-      }
-    } catch (Exception e) {
-      LOGGER.error("removeDataset(): caught an exception: ", e);
-      throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, e);
-    }
-
-    return ResponseEntity.status(HttpStatus.SC_OK).body(dataflow);
-  }
-
-  @RequestMapping(value = "/{dfId}/remove_datasets", method = RequestMethod.DELETE, produces = "application/json")
-  public
-  @ResponseBody
-  ResponseEntity<?> removeDatasets(
-          @PathVariable("dfId") String dfId,
-          @RequestBody PrepParamDatasetIdList dsIds
-  ) {
-    PrDataflow dataflow = dataflowRepository.findOne(dfId);
-    try {
-      if (dataflow != null) {
-        List<PrDataset> removeList = new ArrayList<PrDataset>();
-        List<PrDataset> datasets = dataflow.getDatasets();
-        if (datasets != null) {
-          for (PrDataset dataset : datasets) {
-            if (true == dsIds.getDsIds().contains(dataset.getDsId())) {
-              removeList.add(dataset);
-            }
-          }
-          for (PrDataset removeDataset : removeList) {
-            dataflow.deleteDataset(removeDataset);
-            removeDataset.deleteDataflow(dataflow);
-          }
-          dataflowRepository.saveAndFlush(dataflow);
-        }
-      } else {
-        String errorMsg = new String("dataflow[" + dfId + "] was not found");
-        throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATAFLOW);
-      }
-    } catch (Exception e) {
-      LOGGER.error("removeDatasets(): caught an exception: ", e);
       throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, e);
     }
 

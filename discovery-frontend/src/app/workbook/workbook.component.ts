@@ -67,10 +67,10 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 현재 워크북 아이디
+  // Current Workbook id
   private workbookId: string;
 
-  // current dashboard id
+  // Current Dashboard id
   private dashboardId: string;
 
   // 쿠키에 저장된 댓글 id
@@ -759,12 +759,14 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
             }
           }
         } else {
+          // if dashboard id is not undefined
+          // load chosen dashboard
           if (this.dashboardId !== undefined) {
             const index = this.dashboards.findIndex((dashboard) => {
               return dashboard.id === this.dashboardId;
             });
-
             this.loadAndSelectDashboard(this.dashboards[index]);
+          // else load first dashboard in dashboard list
           } else {
             this.loadAndSelectDashboard(this.dashboards[0]);
           }

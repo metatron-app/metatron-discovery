@@ -87,8 +87,6 @@ import app.metatron.discovery.domain.dataconnection.DataConnectionEventHandler;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.entity.PrTransformRule;
-import app.metatron.discovery.domain.dataprep.service.PrDataflowEventHandler;
-import app.metatron.discovery.domain.dataprep.service.PrDatasetEventHandler;
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceAlias;
 import app.metatron.discovery.domain.datasource.DataSourceEventHandler;
@@ -506,16 +504,6 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
   @Bean(autowire = Autowire.BY_TYPE)
   public CatalogEventHandler catalogEventHandler() {
     return new CatalogEventHandler();
-  }
-
-  @Bean(autowire = Autowire.BY_TYPE)
-  public PrDataflowEventHandler prepDataflowEventHandler() {
-    return new PrDataflowEventHandler();
-  }
-
-  @Bean(autowire = Autowire.BY_TYPE)
-  public PrDatasetEventHandler prDatasetEventHandler() {
-    return new PrDatasetEventHandler();
   }
 
   //    @Override
