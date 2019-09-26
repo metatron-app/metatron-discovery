@@ -3,7 +3,7 @@
 /**************************************************************
 	layout popup
 **************************************************************/
-.ddp-wrap-popup2 {border:1px solid #ddd; border-radius:2px; background-color:#fff; z-index:10; text-align:left;
+.ddp-wrap-popup2 {border:1px solid #ddd; border-radius:2px; background-color:#fff; z-index:11; text-align:left;
     -moz-box-shadow: 0 1px 3px rgba(84,97,104,.3); /* drop shadow */
     -webkit-box-shadow: 0 1px 3px rgba(84,97,104,.3); /* drop shadow */
     box-shadow: 0 1px 3px rgba(84,97,104,.3); /* drop shadow */
