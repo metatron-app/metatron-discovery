@@ -23,7 +23,7 @@
             </div>
           </th>
           <!-- //role (only datasource) -->
-          <th (click)="toggleSortOption('popularity')">
+          <th (click)="exploreDataUtilService.toggleSortOption(columns, sortOptions, 'popularity', 'number')">
             {{'msg.metadata.th.column.popularity' | translate}}
             <div class="ddp-wrap-hover-info"><em class="ddp-icon-info3"></em>
               <component-popularity-layer></component-popularity-layer>
@@ -32,13 +32,13 @@
             <em class="ddp-icon-array-asc2" *ngIf="sortOptions.popularity.option === 'asc'"></em>
             <em class="ddp-icon-array-des2" *ngIf="sortOptions.popularity.option === 'desc'"></em>
           </th>
-          <th (click)="toggleSortOption('physicalName')">
+          <th (click)="exploreDataUtilService.toggleSortOption(columns, sortOptions, 'physicalName')">
             {{'msg.metadata.th.physical.name' | translate}}
             <em class="ddp-icon-array-default2" *ngIf="sortOptions.physicalName.option === 'default'"></em>
             <em class="ddp-icon-array-asc2" *ngIf="sortOptions.physicalName.option === 'asc'"></em>
             <em class="ddp-icon-array-des2" *ngIf="sortOptions.physicalName.option === 'desc'"></em>
           </th>
-          <th (click)="toggleSortOption('name')">
+          <th (click)="exploreDataUtilService.toggleSortOption(columns, sortOptions, 'name')">
             {{'msg.metadata.th.name' | translate}}
             <div class="ddp-wrap-hover-info"><em class="ddp-icon-info3"></em>
               <component-logical-name-layer></component-logical-name-layer>

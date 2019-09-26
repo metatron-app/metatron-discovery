@@ -26,6 +26,7 @@ import {ConstantService} from "../../shared/datasource-metadata/service/constant
 import {CommonUtil} from "../../common/util/common.util";
 import {Catalog} from "../../domain/catalog/catalog";
 import {CatalogService} from "../../meta-data-management/catalog/service/catalog.service";
+import {ExploreDataUtilService, SortOption} from "./service/explore-data-util.service";
 
 @Component({
   selector: 'explore-data-list',
@@ -35,11 +36,18 @@ export class ExploreDataListComponent extends AbstractComponent {
 
   metadataList: Metadata[];
 
+  public sortOptions = {
+    popularity: new SortOption('popularity'),
+    modifiedTime: new SortOption('modifiedTime' ),
+    name: new SortOption('name', 'desc'),
+  };
+
   // only used in UI
   selectedLnbTab: ExploreDataConstant.LnbTab;
   searchRange;
   searchedKeyword: string;
   selectedCatalog: Catalog.Tree;
+  selectedFilter: string[] = [];
   selectedTag;
   treeHierarchy: Catalog.Tree[];
 
@@ -62,6 +70,7 @@ export class ExploreDataListComponent extends AbstractComponent {
               private exploreDataModelService: ExploreDataModelService,
               private constant: ConstantService,
               private catalogService: CatalogService,
+              private exploreDataUtilService: ExploreDataUtilService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -71,25 +80,25 @@ export class ExploreDataListComponent extends AbstractComponent {
     this.$layoutContentsClass.removeClass('ddp-scroll');
   }
 
-   initMetadataList() {
-    this.loadingShow();
-    // set external data
-    this.selectedLnbTab = this.exploreDataModelService.selectedLnbTab;
-    this.searchRange = this.exploreDataModelService.selectedSearchRange;
-    this.searchedKeyword = this.exploreDataModelService.searchKeyword;
-    this.selectedCatalog = this.exploreDataModelService.selectedCatalog;
-    this.selectedTag = this.exploreDataModelService.selectedTag;
+ initMetadataList() {
+   this.loadingShow();
+   // set external data
+   this.selectedLnbTab = this.exploreDataModelService.selectedLnbTab;
+   this.searchRange = this.exploreDataModelService.selectedSearchRange;
+   this.searchedKeyword = this.exploreDataModelService.searchKeyword;
+   this.selectedCatalog = this.exploreDataModelService.selectedCatalog;
+   this.selectedTag = this.exploreDataModelService.selectedTag;
 
-    const initial = async () => {
-      if (this.selectedCatalog != undefined) {
-        this.treeHierarchy = await this.catalogService.getTreeCatalogs(this.selectedCatalog.id, true);
-      }
-      await this._initialMetadataList();
-    };
+  const initial = async () => {
+    if (this.selectedCatalog != undefined) {
+      this.treeHierarchy = await this.catalogService.getTreeCatalogs(this.selectedCatalog.id, true);
+    }
+    await this._initialMetadataList();
+  };
 
-     initial().then(() => {
-        this.loadingHide();
-      }).catch(error => this.commonExceptionHandler(error));
+   initial().then(() => {
+      this.loadingHide();
+    }).catch(error => this.commonExceptionHandler(error));
   }
 
   isEmptyMetadataList(): boolean {
@@ -202,10 +211,21 @@ export class ExploreDataListComponent extends AbstractComponent {
     }
   }
 
+  async onChangeFilter(filterList: string[]) {
+    // extract only value property
+    this.selectedFilter = filterList.map((filter) => {
+      return filter['value'];
+    });
+    this.loadingShow();
+    await this._setMetadataList(this._getMetadataListParams());
+    this.loadingHide();
+  }
+
   private _getMetadataListParams() {
     const result = {
       page: this.page.page,
       size: this.page.size,
+      sourceType: this.selectedFilter
     };
     // if not empty search keyword
     if (StringUtil.isNotEmpty(this.searchedKeyword)) {
@@ -220,20 +240,21 @@ export class ExploreDataListComponent extends AbstractComponent {
   }
 
   private async _setMetadataList(params) {
-    const result = await this.metadataService.getMetaDataList(params)
-      if(!_.isNil(result)) {
-        // add ddp-scroll class to layout
-        this.$layoutContentsClass.addClass('ddp-scroll');
-        this.pageResult = result.page;
-        // set metadata list
-        if (result._embedded) {
-          this.metadataList = result._embedded.metadatas;
-        } else {
-          this.metadataList = [];
-        }
-        // broadcast changed metadata presence
-        this.changedMetadataPresence.emit(this.isEmptyMetadataList());
+    const result = await this.metadataService.getMetaDataList(params);
+
+    if(!_.isNil(result)) {
+      // add ddp-scroll class to layout
+      this.$layoutContentsClass.addClass('ddp-scroll');
+      this.pageResult = result.page;
+      // set metadata list
+      if (result._embedded) {
+        this.metadataList = result._embedded.metadatas;
+      } else {
+        this.metadataList = [];
       }
+      // broadcast changed metadata presence
+      this.changedMetadataPresence.emit(this.isEmptyMetadataList());
+    }
   }
 
   private async _initialMetadataList(){

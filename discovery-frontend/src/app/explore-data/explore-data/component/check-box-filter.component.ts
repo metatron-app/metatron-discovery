@@ -7,7 +7,6 @@ import * as _ from 'lodash';
   templateUrl: 'check-box-filter.component.html'
 })
 export class CheckBoxFilterComponent extends AbstractComponent {
-
   @Input() readonly filterName: string;
   @Input() readonly filterList;
   @Input() readonly selectedFilters = [];
@@ -61,6 +60,7 @@ export class CheckBoxFilterComponent extends AbstractComponent {
     } else {
       this.selectedFilters.push(filter);
     }
+    this.changedFilter.emit(this.selectedFilters);
   }
 
   private _findFilterIndexInSelectedFilters(filter): number {

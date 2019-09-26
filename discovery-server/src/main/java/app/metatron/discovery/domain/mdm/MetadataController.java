@@ -118,31 +118,36 @@ public class MetadataController {
    */
   @RequestMapping(value = "/metadatas", method = RequestMethod.GET)
   public ResponseEntity <?> findMetadatas(
-      @RequestParam(value = "keyword", required = false) String keyword,
-      @RequestParam(value = "sourceType", required = false) String sourceType,
-      @RequestParam(value = "catalogId", required = false) String catalogId,
-      @RequestParam(value = "tag", required = false) String tag,
-      @RequestParam(value = "nameContains", required = false) String nameContains,
-      @RequestParam(value = "descContains", required = false) String descContains,
-      @RequestParam(value = "creatorContains", required = false) String creatorContains,
-      @RequestParam(value = "searchDateBy", required = false) String searchDateBy,
-      @RequestParam(value = "from", required = false)
-      @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) DateTime from,
-      @RequestParam(value = "to", required = false)
-      @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) DateTime to,
-      Pageable pageable, PersistentEntityResourceAssembler resourceAssembler) {
+          @RequestParam(value = "keyword", required = false) String keyword,
+          @RequestParam(value = "sourceType", required = false) List<String> sourceType,
+          @RequestParam(value = "catalogId", required = false) String catalogId,
+          @RequestParam(value = "tag", required = false) String tag,
+          @RequestParam(value = "nameContains", required = false) String nameContains,
+          @RequestParam(value = "descContains", required = false) String descContains,
+          @RequestParam(value = "creatorContains", required = false) String creatorContains,
+          @RequestParam(value = "searchDateBy", required = false) String searchDateBy,
+          @RequestParam(value = "from", required = false)
+          @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) DateTime from,
+          @RequestParam(value = "to", required = false)
+          @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) DateTime to,
+          Pageable pageable, PersistentEntityResourceAssembler resourceAssembler) {
 
 
     // Validate source type.
-    Metadata.SourceType searchSourceType = null;
-    if (StringUtils.isNotEmpty(sourceType)) {
-      searchSourceType = SearchParamValidator.enumUpperValue(Metadata.SourceType.class, sourceType, "sourceType");
+    List<Metadata.SourceType> searchSourceType = null;
+    if(sourceType != null && !sourceType.isEmpty()){
+      searchSourceType = new ArrayList<>();
+      for(String sourceTypeStr : sourceType){
+        if (StringUtils.isNotEmpty(sourceTypeStr)) {
+          searchSourceType.add(SearchParamValidator.enumUpperValue(Metadata.SourceType.class, sourceTypeStr, "sourceType"));
+        }
+      }
     }
 
     // 기본 정렬 조건 셋팅
     if (pageable.getSort() == null || !pageable.getSort().iterator().hasNext()) {
       pageable = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(),
-          new Sort(Sort.Direction.ASC, "name"));
+              new Sort(Sort.Direction.ASC, "name"));
     }
 
     List<User> targetUser = null;
@@ -156,16 +161,16 @@ public class MetadataController {
     }
 
     Page <Metadata> metadatas = metadataRepository.searchMetadatas(keyword, searchSourceType, catalogId, tag,
-                                                                   nameContains, descContains, targetUserId,
-                                                                   searchDateBy, from, to, pageable);
+            nameContains, descContains, targetUserId,
+            searchDateBy, from, to, pageable);
 
     return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(metadatas, resourceAssembler));
   }
 
   @RequestMapping(value = "/metadatas/metasources/{sourceId}", method = RequestMethod.POST)
   public ResponseEntity <?> findMetadataByOriginSource(@PathVariable("sourceId") String sourceId,
-                             @RequestBody(required = false) Map <String, Object> requestParam,
-                             @RequestParam(value = "projection", required = false, defaultValue = "default") String projection) {
+                                                       @RequestBody(required = false) Map <String, Object> requestParam,
+                                                       @RequestParam(value = "projection", required = false, defaultValue = "default") String projection) {
 
     String schema = null;
     List <String> tableList = null;
@@ -177,8 +182,8 @@ public class MetadataController {
     List results = metadataRepository.findBySource(sourceId, schema, tableList);
 
     return ResponseEntity.ok(ProjectionUtils.toListResource(projectionFactory,
-        metadataProjections.getProjectionByName(projection),
-        results));
+            metadataProjections.getProjectionByName(projection),
+            results));
 
   }
 
@@ -202,14 +207,14 @@ public class MetadataController {
     }
 
     return ResponseEntity.ok(
-        ProjectionUtils.toListResource(projectionFactory, projectionCls, tags)
+            ProjectionUtils.toListResource(projectionFactory, projectionCls, tags)
     );
   }
 
   @RequestMapping(value = "/metadatas/{metadataId}/tags/{action:attach|detach|update}", method = RequestMethod.POST)
   public ResponseEntity <?> manageTag(@PathVariable("metadataId") String metadataId,
-                    @PathVariable("action") String action,
-                    @RequestBody List <String> tagNames) {
+                                      @PathVariable("action") String action,
+                                      @RequestBody List <String> tagNames) {
     switch (action) {
       case "attach":
         tagService.attachTagsToDomainItem(Tag.Scope.DOMAIN, DomainType.METADATA, metadataId, tagNames);
@@ -245,10 +250,10 @@ public class MetadataController {
     List<String> metadataNameList = Lists.newArrayList();
     if(values != null && values.size() > 0){
       List<Metadata> existedMetadata
-          = Lists.newArrayList(metadataRepository.findAll(MetadataPredicate.searchDuplicatedNames(values)));
+              = Lists.newArrayList(metadataRepository.findAll(MetadataPredicate.searchDuplicatedNames(values)));
 
       metadataNameList
-          = existedMetadata.stream().map(metadata -> metadata.getName()).collect(Collectors.toList());
+              = existedMetadata.stream().map(metadata -> metadata.getName()).collect(Collectors.toList());
     }
 
     return ResponseEntity.ok(metadataNameList);
@@ -260,7 +265,7 @@ public class MetadataController {
   @RequestMapping(path = "/metadatas/{metadataId}/columns", method = RequestMethod.GET)
   public @ResponseBody
   ResponseEntity <?> getColumnssInMetadata(@PathVariable("metadataId") String metadataId,
-                       @RequestParam(value = "projection", required = false, defaultValue = "default") String projection) {
+                                           @RequestParam(value = "projection", required = false, defaultValue = "default") String projection) {
 
     Metadata metadata = metadataRepository.findOne(metadataId);
     if (metadata == null) {
@@ -270,8 +275,8 @@ public class MetadataController {
     List results = metadata.getColumns();
 
     return ResponseEntity.ok(ProjectionUtils.toListResource(projectionFactory,
-        metadataColumnProjections.getProjectionByName(projection),
-        results));
+            metadataColumnProjections.getProjectionByName(projection),
+            results));
 
   }
 
@@ -281,7 +286,7 @@ public class MetadataController {
   @RequestMapping(path = "/metadatas/{metadataId}/columns", method = {RequestMethod.PATCH, RequestMethod.PUT})
   public @ResponseBody
   ResponseEntity <?> patchColumnsInMetadata(@PathVariable("metadataId") String metadataId,
-                        @RequestBody List <CollectionPatch> patches) {
+                                            @RequestBody List <CollectionPatch> patches) {
 
     Metadata metadata = metadataRepository.findOne(metadataId);
     if (metadata == null) {
@@ -345,16 +350,16 @@ public class MetadataController {
 
     //fix order by popularity DESC
     PageRequest pageRequest
-        = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(), Sort.Direction.DESC, "popularity");
+            = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(), Sort.Direction.DESC, "popularity");
 
     Page<MetadataPopularity> metadataPopularityList
-        = metadataPopularityRepository.findByType(MetadataPopularity.PopularityType.METADATA, pageRequest);
+            = metadataPopularityRepository.findByType(MetadataPopularity.PopularityType.METADATA, pageRequest);
 
     //find metadataid by populraity
     List<String> metadataId = metadataPopularityList.getContent()
-                                                    .stream()
-                                                    .map(p -> p.getMetadataId())
-                                                    .collect(Collectors.toList());
+            .stream()
+            .map(p -> p.getMetadataId())
+            .collect(Collectors.toList());
 
     List<Metadata> metadatas = metadataRepository.findAll(metadataId);
     if(metadatas.isEmpty()){
@@ -396,8 +401,8 @@ public class MetadataController {
 
     Page<Metadata> metadataPage = new PageImpl<Metadata>(metadatas, pageable, metadataPopularityList.getTotalElements());
     Page<Metadata> metadataResourced = ProjectionUtils.toPageResource(projectionFactory,
-                                                                      metadataProjections.getProjectionByName("forListView"),
-                                                                      metadataPage);
+            metadataProjections.getProjectionByName("forListView"),
+            metadataPage);
     return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(metadataResourced));
   }
 
@@ -426,7 +431,7 @@ public class MetadataController {
   @RequestMapping(path = "/metadatas/{metadataId}/data", method = RequestMethod.GET)
   public @ResponseBody
   ResponseEntity <?> getDataByMetadata(@PathVariable("metadataId") String metadataId,
-                     @RequestParam(value = "limit", required = false) int limit) {
+                                       @RequestParam(value = "limit", required = false) int limit) {
 
     Map <String, Object> responseMap = new HashMap <String, Object>();
 
@@ -445,9 +450,9 @@ public class MetadataController {
   @RequestMapping(path = "/metadatas/{metadataId}/data/download", method = RequestMethod.GET)
   public @ResponseBody
   ResponseEntity <?> getDownloadDataByMetadata(@PathVariable("metadataId") String metadataId,
-                         @RequestParam(value = "limit", required = false) int limit,
-                         @RequestParam(value = "fileName", required = false) String fileName,
-                         HttpServletResponse response) {
+                                               @RequestParam(value = "limit", required = false) int limit,
+                                               @RequestParam(value = "fileName", required = false) String fileName,
+                                               HttpServletResponse response) {
 
     Metadata metadata = metadataRepository.findOne(metadataId);
     if (metadata == null) {
