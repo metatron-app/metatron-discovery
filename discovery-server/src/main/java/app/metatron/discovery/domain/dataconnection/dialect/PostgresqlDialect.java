@@ -169,7 +169,7 @@ public class PostgresqlDialect implements JdbcDialect {
     }
 
     if(StringUtils.isNotEmpty(schemaNamePattern)){
-      builder.append(" AND SCHEMA_NAME LIKE '%" + schemaNamePattern.toLowerCase() + "%' ");
+      builder.append(" AND LOWER(SCHEMA_NAME) LIKE '%" + schemaNamePattern.toLowerCase() + "%' ");
     }
     builder.append(" ORDER BY SCHEMA_NAME ");
     if(pageSize != null && pageNumber != null){
@@ -192,7 +192,7 @@ public class PostgresqlDialect implements JdbcDialect {
     }
 
     if(StringUtils.isNotEmpty(schemaNamePattern)){
-      builder.append(" AND SCHEMA_NAME LIKE '%" + schemaNamePattern.toLowerCase() + "%' ");
+      builder.append(" AND LOWER(SCHEMA_NAME) LIKE '%" + schemaNamePattern.toLowerCase() + "%' ");
     }
     return builder.toString();
   }
@@ -208,12 +208,12 @@ public class PostgresqlDialect implements JdbcDialect {
   @Override
   public String getTableQuery(JdbcConnectInformation connectInfo, String catalog, String schema, String tableNamePattern, List<String> excludeTables, Integer pageSize, Integer pageNumber) {
     StringBuilder builder = new StringBuilder();
-    builder.append(" SELECT TABLE_NAME as name, TABLE_TYPE as type, obj_description((TABLE_SCHEMA||'.'||TABLE_NAME)::regclass, 'pg_class') as comment ");
+    builder.append(" SELECT TABLE_NAME as name, TABLE_TYPE as type, obj_description((quote_ident(TABLE_SCHEMA)||'.'||quote_ident(TABLE_NAME))::regclass, 'pg_class') as comment ");
     builder.append(" FROM INFORMATION_SCHEMA.TABLES ");
     builder.append(" WHERE TABLE_TYPE = 'BASE TABLE' ");
     builder.append(" AND TABLE_SCHEMA NOT IN ('pg_catalog', 'information_schema') ");
     if(StringUtils.isNotEmpty(schema)){
-      builder.append(" AND TABLE_SCHEMA = '" + schema.toLowerCase() + "' ");
+      builder.append(" AND TABLE_SCHEMA = '" + schema + "' ");
     }
 
     if(excludeTables != null){
@@ -223,7 +223,7 @@ public class PostgresqlDialect implements JdbcDialect {
     }
 
     if(StringUtils.isNotEmpty(tableNamePattern)){
-      builder.append(" AND TABLE_NAME LIKE '%" + tableNamePattern.toLowerCase() + "%' ");
+      builder.append(" AND LOWER(TABLE_NAME) LIKE '%" + tableNamePattern.toLowerCase() + "%' ");
     }
     builder.append(" ORDER BY TABLE_NAME ");
     if(pageSize != null && pageNumber != null){
@@ -240,7 +240,7 @@ public class PostgresqlDialect implements JdbcDialect {
     builder.append(" WHERE TABLE_TYPE = 'BASE TABLE' ");
     builder.append(" AND TABLE_SCHEMA NOT IN ('pg_catalog', 'information_schema') ");
     if(StringUtils.isNotEmpty(schema)){
-      builder.append(" AND TABLE_SCHEMA = '" + schema.toLowerCase() + "' ");
+      builder.append(" AND TABLE_SCHEMA = '" + schema + "' ");
     }
     builder.append(" ORDER BY TABLE_NAME ");
     return builder.toString();
@@ -254,7 +254,7 @@ public class PostgresqlDialect implements JdbcDialect {
     builder.append(" WHERE TABLE_TYPE = 'BASE TABLE' ");
     builder.append(" AND TABLE_SCHEMA NOT IN ('pg_catalog', 'information_schema') ");
     if(StringUtils.isNotEmpty(schema)){
-      builder.append(" AND TABLE_SCHEMA = '" + schema.toLowerCase() + "' ");
+      builder.append(" AND TABLE_SCHEMA = '" + schema + "' ");
     }
 
     if(excludeTables != null){
@@ -264,7 +264,7 @@ public class PostgresqlDialect implements JdbcDialect {
     }
 
     if(StringUtils.isNotEmpty(tableNamePattern)){
-      builder.append(" AND TABLE_NAME LIKE '%" + tableNamePattern.toLowerCase() + "%' ");
+      builder.append(" AND LOWER(TABLE_NAME) LIKE '%" + tableNamePattern.toLowerCase() + "%' ");
     }
     return builder.toString();
   }
@@ -392,9 +392,9 @@ public class PostgresqlDialect implements JdbcDialect {
   @Override
   public String getTableName(JdbcConnectInformation connectInfo, String catalog, String schema, String table) {
     if(StringUtils.isEmpty(schema)) {
-      return table;
+      return "\"" + table + "\"";
     }
-    return schema + "." + table;
+    return "\"" + schema + "\".\"" + table + "\"";
   }
 
   @Override
