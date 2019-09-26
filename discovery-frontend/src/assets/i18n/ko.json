@@ -218,6 +218,7 @@
   "msg.comm.menu.lang.ko" : "한국어",
   "msg.comm.menu.lang.en" : "영어",
   "msg.comm.menu.lang.zh" : "중문",
+  "msg.comm.menu.theme" : "테마",
   "msg.comm.alert.del.fail" : "네트워크 에러로 동작에 실패하였습니다. 다시 시도해 주세요",
   "msg.comm.alert.save.success" : "저장되었습니다",
   "msg.comm.alert.save.fail": "저장에 실패하였습니다",

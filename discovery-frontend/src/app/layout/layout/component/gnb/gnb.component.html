@@ -29,14 +29,14 @@
         <li>
           <a href="javscript:" (click)="userProfile()">
             <span class="ddp-txt-list">
-                <em class="ddp-icon-info-profile"></em>Profile
+                <em class="ddp-icon-info-profile"></em>{{'msg.comm.menu.profile' | translate}}
             </span>
           </a>
         </li>
         <li>
           <a href="javscript:" class="ddp-cursor-default" (click)="$event.stopImmediatePropagation();">
             <span class="ddp-txt-list">
-                <em class="ddp-icon-info-language"></em>Language
+                <em class="ddp-icon-info-language"></em>{{'msg.comm.menu.lang' | translate}}
             </span>
           </a>
           <div class="ddp-hover-status" [ngClass]="{'ddp-selected' : isLanguageShow}">
@@ -72,7 +72,7 @@
           <a href="javascript:" class="ddp-cursor-default" (click)="$event.stopImmediatePropagation();">
             <span class="ddp-txt-list">
                 <em class="ddp-icon-info-theme"></em>
-                Themes
+                {{'msg.comm.menu.theme' | translate}}
             </span>
           </a>
           <div class="ddp-theme-check">
@@ -87,7 +87,7 @@
           </div>
         </li>
       </ul>
-      <div class="ddp-ui-part"><a href="javascript:" (click)="logout();">Log out</a></div>
+      <div class="ddp-ui-part"><a href="javascript:" (click)="logout();">{{'msg.comm.menu.logout' | translate}}</a></div>
     </div>
     <!-- //my info -->
   </div>

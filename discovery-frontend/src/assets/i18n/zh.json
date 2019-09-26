@@ -213,6 +213,7 @@
   "msg.comm.menu.lang.ko": "朝鲜的",
   "msg.comm.menu.lang.en": "英语",
   "msg.comm.menu.lang.zh": "中文",
+  "msg.comm.menu.theme" : "主题",
   "msg.comm.alert.del.fail": "网络出错，请重试",
   "msg.comm.alert.save.success": "已保存",
   "msg.comm.alert.save.fail": "保存失败",
