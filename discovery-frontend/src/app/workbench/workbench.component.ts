@@ -306,6 +306,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   public hideResultButtons: boolean = false;
 
+  private _cancelTimer;
+  public isCancelAvailable: boolean = false;
+
   constructor(private workspaceService: WorkspaceService,
               protected activatedRoute: ActivatedRoute,
               protected workbenchService: WorkbenchService,
@@ -1079,6 +1082,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     resultTab.executeTimer();
     this.runningResultTabId = resultTab.id;
     this.hideResultButtons = false;
+
+    //disable cancel in 5 sec
+    this.setCancelButtonTimer(5);
 
     this.workbenchService.runSingleQueryWithInvalidQuery(resultTab.queryEditor, additionalParams)
       .then((result) => {
@@ -2030,6 +2036,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   }
 
   public cancelRunningQuery(useLog: boolean = false) {
+    // cannot cancel until cancel timer tick.
+    if(!this.isCancelAvailable){
+      return;
+    }
+
     this.isCanceling = true;
     if (useLog) {
       this.safelyDetectChanges();
@@ -2579,6 +2590,24 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       this.textList[this.selectedTabNum]['query'] = currQuery;
       this.saveLocalStorage(currQuery, this.textList[this.selectedTabNum]['editorId']);
     }
+  }
+
+  public setCancelButtonTimer(sec: number) {
+    // disable button
+    this.isCancelAvailable = false;
+
+    // if timer exist..
+    if(this._cancelTimer != undefined){
+      // clear existed timer
+      clearTimeout(this._cancelTimer);
+    }
+
+    // start new timer
+    this._cancelTimer = setTimeout(() => {
+      // restore button
+      this.isCancelAvailable = true;
+    }, sec * 1000);
+
   }
 
 }
