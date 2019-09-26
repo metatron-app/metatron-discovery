@@ -450,7 +450,7 @@
                   <!-- box status -->
                   <div *ngIf="isExecutingQuery && !visibleResultTab.result" class="ddp-box-status-button">
 
-                    <a href="javascript:" class="ddp-btn-log-status" (click)="cancelRunningQuery(true)">Cancel</a>
+                    <a href="javascript:" class="ddp-btn-log-status" (click)="cancelRunningQuery(true)" [class.ddp-disabled]="!isCancelAvailable">Cancel</a>
                     <span class="ddp-txt-log-status">
                       <span > {{currentRunningTab?.getExecuteStatusMsg()}} </span>
                       ({{currentRunningIndex+1}}/{{executeTabIds.length}})
