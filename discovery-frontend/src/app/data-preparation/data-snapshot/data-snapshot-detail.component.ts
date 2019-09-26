@@ -23,7 +23,12 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import {OriginDsInfo, PrDataSnapshot, SsType, Status} from '../../domain/data-preparation/pr-snapshot';
+import {
+  OriginDsInfo,
+  PrDataSnapshot,
+  SsType,
+  Status
+} from '../../domain/data-preparation/pr-snapshot';
 import {DataSnapshotService} from './service/data-snapshot.service';
 import {PopupService} from '../../common/service/popup.service';
 import {GridComponent} from '../../common/component/grid/grid.component';
@@ -32,7 +37,7 @@ import {DsType, Field} from '../../domain/data-preparation/pr-dataset';
 import {GridOption} from '../../common/component/grid/grid.option';
 import {Alert} from '../../common/util/alert.util';
 import {PreparationAlert} from '../util/preparation-alert.util';
-import {isNull, isNullOrUndefined, isUndefined} from 'util';
+import {isNull, isUndefined} from 'util';
 import {saveAs} from 'file-saver';
 import * as pixelWidth from 'string-pixel-width';
 import {AbstractComponent} from '../../common/component/abstract.component';
@@ -43,7 +48,6 @@ import {
   DatasourceInfo,
   DataSourceType,
   FieldRole,
-  LogicalType,
   SourceType
 } from "../../domain/datasource/datasource";
 import {CreateSnapShotData} from "../../data-storage/service/data-source-create.service";
@@ -317,6 +321,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     switch (type) {
       case 'INTEGER':
       case 'FLOAT':
+      case 'LONG':
+      case 'DOUBLE':
         return FieldRole.MEASURE;
       default:
         return FieldRole.DIMENSION;
