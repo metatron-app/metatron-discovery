@@ -1,0 +1,192 @@
+@charset "utf-8";
+
+/**************************************************************
+	라디오버튼 폼
+**************************************************************/
+.theme-dark .ddp-label-radio {
+    display: inline-block;
+    position: relative;
+    padding-left: 19px;
+    cursor: pointer;
+}
+
+.theme-dark .ddp-label-radio span.ddp-txt-radio,
+.theme-dark .ddp-label-radio span.ddp-txt-checkbox {
+    display: inline-block;
+    font-size: 13px;
+    color: #4e5368;
+    vertical-align: bottom;
+    word-break: break-all;
+}
+
+.theme-dark .ddp-label-radio.type-success span.ddp-txt-radio {
+    color: #10bf83;
+}
+
+.theme-dark .ddp-label-radio.type-failed span.ddp-txt-radio {
+    color: #dc494f;
+}
+
+.theme-dark .ddp-label-radio span.ddp-txt-radio span.ddp-data-valuenum,
+.theme-dark .ddp-label-radio span.ddp-txt-checkbox span.ddp-data-valuenum {
+    position: relative;
+    top: -1px;
+    margin-left: 5px;
+    color: #7e8aa5;
+    font-size: 12px;
+}
+
+.theme-dark .ddp-label-radio span.ddp-txt-radio span.ddp-txt-det {
+    color: #808dcd;
+    font-style: italic;
+}
+
+.theme-dark .ddp-label-radio span.ddp-txt-radio .ddp-box-tag-value {
+    display: inline-block;
+    padding: 2px;
+    border-radius: 2px;
+}
+
+.theme-dark .ddp-label-radio span.ddp-txt-radio .ddp-box-tag-value.ddp-dimension {
+    border: 1px solid #439fe5;
+    color: #439fe5;
+    font-size: 12px;
+}
+
+.theme-dark .ddp-label-radio span.ddp-txt-radio .ddp-box-tag-value.ddp-measure {
+    border: 1px solid #5fd7a5;
+    color: #5fd7a5;
+    font-size: 12px;
+}
+
+.theme-dark .ddp-label-radio input[type="radio"] {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    margin-top: -6px;
+    opacity: 0;
+}
+
+.theme-dark .ddp-label-radio i.ddp-icon-radio {
+    display: inline-block;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    margin-top: -6px;
+    width: 12px;
+    height: 12px;
+    background: url(../../../images/icon_radio.png) no-repeat;
+    background-position: left -24px;
+}
+
+.theme-dark .ddp-label-radio input[type="radio"]:checked + i.ddp-icon-radio,
+.theme-dark .ddp-label-radio.ddp-radiotype input[type="radio"]:checked + i.ddp-icon-radio {
+    background-position: -13px -24px;
+}
+
+.theme-dark .ddp-label-radio input[type="radio"]:checked + i.ddp-icon-radio + .ddp-txt-radio {
+    font-weight: bold;
+}
+
+.theme-dark .ddp-label-radio input[type="radio"]:checked + i.ddp-icon-radio + .ddp-txt-radio .ddp-txt-det {
+    font-weight: normal;
+}
+
+.theme-dark .ddp-label-radio input[type="radio"]:disabled + i.ddp-icon-radio {
+    background-position: -26px -24px;
+}
+
+.theme-dark .ddp-label-radio input[type="radio"]:disabled + i.ddp-icon-radio + .ddp-txt-radio,
+.theme-dark .ddp-label-radio.ddp-radiotype input[type="radio"]:disabled + i.ddp-icon-radio {
+    color: #c3c8d3;
+    cursor: no-drop;
+}
+
+.theme-dark .ddp-label-radio.ddp-radiotype input[type="radio"] + i.ddp-icon-radio {
+    background-position: -36px top;
+}
+
+.theme-dark .ddp-label-radio.ddp-inline {
+    display: inline-block;
+    margin-right: 25px;
+}
+
+.theme-dark .ddp-label-radio.ddp-dark i {
+    background-position: -12px -12px;
+}
+
+.theme-dark .ddp-label-radio.ddp-dark .ddp-txt-radio {
+    color: #7e8aa5;
+    font-size: 12px;
+}
+
+.theme-dark .ddp-label-radio.ddp-dark input[type="radio"]:checked + i.ddp-icon-radio {
+    background-position: left -12px;
+}
+
+.theme-dark .ddp-label-radio.ddp-dark input[type="radio"]:disabled + i.ddp-icon-radio {
+    background-position: -24px -12px;
+}
+
+.theme-dark .ddp-label-radio.ddp-dark input[type="radio"]:disabled + i.ddp-icon-radio + .ddp-txt-radio {
+    color: #c3c8d3;
+    cursor: no-drop;
+    opacity: 0.3;
+}
+
+.theme-dark .ddp-label-radio2 {
+    display: inline-block;
+    position: relative;
+}
+
+.theme-dark .ddp-label-radio2 input {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
+}
+
+.theme-dark .ddp-label-radio2 i.ddp-icon-radio {
+    display: inline-block;
+    width: 11px;
+    height: 11px;
+    background: url(../../../images/icon_radio.png) no-repeat;
+    background-position: -84px top;
+}
+
+.theme-dark .ddp-label-radio2 input:checked + i.ddp-icon-radio {
+    background-position: -72px top;
+}
+
+.theme-dark .ddp-ui-radio {
+    position: relative;
+    display: inline-block;
+}
+
+.theme-dark .ddp-ui-radio input[type="radio"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    z-index: 1;
+    cursor: pointer;
+}
+
+.theme-dark .ddp-ui-radio i.ddp-icon-radio {
+    display: inline-block;
+    width: 11px;
+    height: 11px;
+    background: url(../../../images/icon_radio.png) no-repeat;
+}
+
+.theme-dark .ddp-ui-radio input[type="radio"]:checked + i.ddp-icon-radio,
+.theme-dark .ddp-ui-radio.ddp-checkboxtype input[type="radio"]:checked + i.ddp-icon-radio {
+    background-position: -12px top;
+}
+
+.theme-dark .ddp-ui-radio.ddp-checkboxtype input[type="radio"] + i.ddp-icon-radio {
+    background-position: -24px top;
+}
+
