@@ -30,14 +30,26 @@
       <div class="ddp-wrap-show" (click)="openOptionsTimerInterval()" (clickOutSide)="isShowIntervalLayer=false;"
            [class.ddp-selected]="isShowIntervalLayer">
         <span class="ddp-lik-set" >
-          <em class="ddp-icon-showtime"></em> {{'msg.board.ui.num.sec' | translate : {value : selectedInterval} }}
+          <em class="ddp-icon-showtime"></em>
+          <label *ngIf="selectedInterval.getTimeType() == 'SECOND'">
+            {{'msg.board.ui.num.sec' | translate : {value : selectedInterval.getValue()} }}
+          </label>
+          <label *ngIf="selectedInterval.getTimeType() == 'MINUTE'">
+            {{ selectedInterval.getValue() }} min.
+          </label>
         </span>
         <!-- popup -->
         <div class="ddp-wrap-popup2" *ngIf="isShowIntervalLayer" >
           <ul class="ddp-list-popup">
             <li *ngFor="let interval of timerInterval" [class.ddp-selected]="interval === selectedInterval">
               <a href="javascript:" (click)="selectTimerInterval($event, interval)">
-                {{'msg.board.ui.num.sec' | translate : {value : interval} }} <em class="ddp-icon-check"></em>
+                <label *ngIf="interval.getTimeType() === 'SECOND'">
+                  {{'msg.board.ui.num.sec' | translate : {value : interval.getValue()} }}
+                </label>
+                <label *ngIf="interval.getTimeType() === 'MINUTE'">
+                  {{ interval.getValue() }} min.
+                </label>
+                <em class="ddp-icon-check"></em>
               </a>
             </li>
           </ul>

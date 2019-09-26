@@ -57,9 +57,22 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
   public isPlayShow: boolean = false;   // 쇼 실행 여부
 
   // 타이머 관련
-  public timerInterval: number[] = [3, 5, 7, 9, 60];
+  // public timerInterval: number[] = [3, 5, 7, 9, 60];
+  // public timerMinuteInterval: number[] = [5, 10, 60];
+
+  public timerInterval: TimerInterval[] = [
+    new TimerInterval(IntervalTimeType.SECOND, 3),
+    new TimerInterval(IntervalTimeType.SECOND, 5),
+    new TimerInterval(IntervalTimeType.SECOND, 7),
+    new TimerInterval(IntervalTimeType.SECOND, 9),
+    new TimerInterval(IntervalTimeType.SECOND, 60),
+    new TimerInterval(IntervalTimeType.MINUTE, 5),
+    new TimerInterval(IntervalTimeType.MINUTE, 10),
+    new TimerInterval(IntervalTimeType.MINUTE, 60)
+  ];
+
   public isShowIntervalLayer: boolean = false;
-  public selectedInterval: number = 3;   // 선택된 타이머 간격
+  public selectedInterval: TimerInterval;   // 선택된 타이머 간격
 
   // Fit to Screen/Height 관련
   public isShowFitLayer: boolean = false;
@@ -89,6 +102,8 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
    */
   public ngOnInit() {
     super.ngOnInit();
+
+    this.selectedInterval = this.timerInterval[3];
 
     // 필터 변경
     this.subscriptions.push(
@@ -225,7 +240,7 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
     (this._timer) && (clearTimeout(this._timer));
     this._timer = null;
     if (this.isPlayShow) {
-      this._timer = setTimeout(() => this.nextDashboard(), this.selectedInterval * 1000);
+      this._timer = setTimeout(() => this.nextDashboard(), this.selectedInterval.getSeconds() * 1000);
     }
   }
 
@@ -291,7 +306,7 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
    * @param {MouseEvent} event
    * @param {number} interval
    */
-  public selectTimerInterval(event: MouseEvent, interval: number) {
+  public selectTimerInterval(event: MouseEvent, interval: TimerInterval) {
     event.preventDefault();
     event.stopPropagation();
     this.isShowIntervalLayer = false;
@@ -362,5 +377,38 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
   public close() {
     this.location.back();
   } // function - close
-
 }
+
+class TimerInterval {
+  private readonly intervalTimeType: IntervalTimeType;
+  private readonly value: number;
+
+  constructor(intervalTimeType: IntervalTimeType, value: number) {
+    this.intervalTimeType = intervalTimeType;
+    this.value = value;
+  }
+
+  public getTimeType(): IntervalTimeType{
+    return this.intervalTimeType;
+  }
+
+  public getValue(): number {
+    return this.value;
+  }
+
+  public getSeconds(): number {
+    if(this.intervalTimeType == IntervalTimeType.SECOND) {
+      return this.value;
+    } else if(this.intervalTimeType == IntervalTimeType.MINUTE) {
+      return this.value * 60;
+    } else {
+      return this.value;
+    }
+  }
+}
+
+enum IntervalTimeType {
+  SECOND = 'SECOND',
+  MINUTE = 'MINUTE'
+}
+
