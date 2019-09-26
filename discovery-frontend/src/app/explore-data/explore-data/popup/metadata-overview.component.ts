@@ -9,6 +9,7 @@ import {Metadata} from "../../../domain/meta-data-management/metadata";
 import {Alert} from "../../../common/util/alert.util";
 import {ClipboardService} from "ngx-clipboard";
 import {AbstractComponent} from "../../../common/component/abstract.component";
+import {DashboardUtil} from "../../../dashboard/util/dashboard.util";
 
 @Component({
   selector: 'explore-metadata-overview',
@@ -30,6 +31,9 @@ export class MetadataOverviewComponent extends AbstractComponent implements OnIn
   @Input() readonly recentlyUsedDashboardList = [];
 
   public isShowMoreCatalogs: boolean = false;
+
+  // Dashboard util for get dashboard image
+  private dashboardUtil: DashboardUtil = new DashboardUtil();
 
   constructor(
     private clipboardService: ClipboardService,

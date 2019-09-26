@@ -92,6 +92,9 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   @ViewChild(ConfigureFiltersComponent)
   private _configFilterComp: ConfigureFiltersComponent;
 
+  // Dashboard util for get dashboard image
+  private dashboardUtil: DashboardUtil = new DashboardUtil();
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -606,19 +609,6 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // noinspection JSMethodCanBeStatic
-  /**
-   * 이미지 경로 설정
-   * @param {ElementRef} elmRef
-   * @param {string} imageUrl
-   */
-  public getBoardImage(elmRef: ElementRef, imageUrl: string) {
-    if (imageUrl) {
-      const date = Date.now();
-      elmRef.nativeElement.src = '/api/images/load/url?url=' + imageUrl + '/thumbnail?' + date;
-    } else {
-      elmRef.nativeElement.src = '/assets/images/img_board_default.png';
-    }
-  }
 
   /**
    * 대시보드를 변경한다.
