@@ -3669,7 +3669,7 @@ ul.ddp-list-layer-option li.ddp-hover .ddp-ui-layer-sub ul li.ddp-hover .ddp-ui-
 
 ul.ddp-list-layer-option li .ddp-ui-layer-sub.ddp-type {min-width:210px;}
 ul.ddp-list-layer-option li .ddp-ui-layer-sub ul.ddp-list-popup {padding:0;}
-ul.ddp-list-layer-option li .ddp-ui-layer-sub ul.ddp-list-popup li a {display:block; padding:5px 10px 5px 15px; border-top:none;}
+ul.ddp-list-layer-option li .ddp-ui-layer-sub ul.ddp-list-popup li a {display:block; padding:5px 30px 5px 15px; border-top:none;}
 ul.ddp-list-layer-option li .ddp-ui-layer-sub ul.ddp-list-popup li a .ddp-btn-option {position:absolute; top:50%; right:10px; margin-top:-7px;}
 ul.ddp-list-layer-option li .ddp-ui-layer-sub ul.ddp-list-popup li a .ddp-data-info {position:relative; top:1px; float:right; margin-right:18px;color:#b7b9c2; font-size:11px;}
 
