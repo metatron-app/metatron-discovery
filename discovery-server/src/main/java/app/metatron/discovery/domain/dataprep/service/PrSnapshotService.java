@@ -18,14 +18,13 @@ import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.PrepDatasetStagingDbService;
 import app.metatron.discovery.domain.dataprep.PrepProperties;
 import app.metatron.discovery.domain.dataprep.PrepUtil;
-import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
-import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.dataprep.json.PrepJsonParseResult;
-import app.metatron.discovery.domain.dataprep.json.PrepJsonUtil;
+import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
+import app.metatron.discovery.domain.dataprep.file.PrepJsonUtil;
+import app.metatron.discovery.domain.dataprep.file.PrepParseResult;
 import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
 import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
 import app.metatron.discovery.domain.dataprep.teddy.ColumnDescription;
@@ -82,7 +81,7 @@ public class PrSnapshotService {
   public String makeSnapshotName(String dsName, DateTime launchTime) {
     String ssName;
 
-    if (null == launchTime) {
+    if (launchTime == null) {
       launchTime = DateTime.now(DateTimeZone.UTC);
     }
     DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyyMMdd_HHmmss");
@@ -202,10 +201,6 @@ public class PrSnapshotService {
             default:
               assert false : uri.getScheme();
           }
-
-          //                } else if( PrSnapshot.SS_TYPE.JDBC==ss_type ) {
-          //                    LOGGER.error("downloadSnapshotFile(): not supported: JDBC");
-          //                    throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_PREP_FILE_TYPE_NOT_SUPPORTED);
         } else if (PrSnapshot.SS_TYPE.STAGING_DB == ss_type) {
           String dbName = snapshot.getDbName();
           String tblName = snapshot.getTblName();
@@ -226,22 +221,6 @@ public class PrSnapshotService {
     }
 
     return fileName;
-  }
-
-  private void deleteFile(File deleteFolder) {
-    if (deleteFolder.exists()) {
-      File[] deleteFolderList = deleteFolder.listFiles();
-
-      for (File file : deleteFolderList) {
-        if (file.isFile()) {
-          file.delete();
-        } else {
-          deleteFile(file);
-        }
-      }
-
-      deleteFolder.delete();
-    }
   }
 
   public void deleteSnapshot(String ssId) throws PrepException {
@@ -341,8 +320,7 @@ public class PrSnapshotService {
       Sort sort = new Sort(Sort.Direction.DESC, "launchTime");
       List<PrSnapshot> listAll = this.snapshotRepository.findAll(sort);
       for (PrSnapshot ss : listAll) {
-        //if(true==dsId.equals(ss.getLineageInfoValue("dsId"))) {
-        if (true == dsId.equals(ss.getDsId())) {
+        if (dsId.equals(ss.getDsId())) {
           if (option.toUpperCase().equals("ALL")) {
             snapshots.add(ss);
           } else if (ss.getStatus() != PrSnapshot.STATUS.CANCELING && ss.getStatus() != PrSnapshot.STATUS.CANCELED) {
@@ -483,7 +461,7 @@ public class PrSnapshotService {
   }
 
   public Map<String, Object> getContents(String ssId, Integer offset, Integer target) {
-    Map<String, Object> responseMap = new HashMap<String, Object>();
+    Map<String, Object> responseMap = new HashMap();
     try {
       PrSnapshot snapshot = this.snapshotRepository.findOne(ssId);
       if (snapshot != null) {
@@ -504,12 +482,10 @@ public class PrSnapshotService {
           // We generated JSON snapshots to have ".json" at the end of the URI.
           Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
           if (storedUri.endsWith(".json")) {
-            PrepJsonParseResult result = PrepJsonUtil
-                    .parseJson(snapshot.getStoredUri(), 10000, null, hadoopConf);
-            gridResponse.setByGridWithJson(result);
+            PrepParseResult result = PrepJsonUtil.parse(snapshot.getStoredUri(), 10000, null, hadoopConf);
+            gridResponse.setByGrid(result);
           } else {
-            PrepCsvParseResult result = PrepCsvUtil
-                    .parse(snapshot.getStoredUri(), ",", 10000, null, hadoopConf, true);
+            PrepParseResult result = PrepCsvUtil.parse(snapshot.getStoredUri(), ",", 10000, null, hadoopConf, true);
             gridResponse.setByGrid(result);
           }
 
@@ -526,12 +502,12 @@ public class PrSnapshotService {
           Integer size = offset + target;
           gridResponse = datasetStagingDbPreviewService
                   .getPreviewStagedbForDataFrame(sql, dbName, tblName, String.valueOf(size));
-          if (null == gridResponse) {
+          if (gridResponse == null) {
             gridResponse = new DataFrame();
           } else {
             int rowSize = gridResponse.rows.size();
             int lastIdx = offset + target - 1;
-            if (0 <= lastIdx && offset < rowSize) {
+            if (lastIdx >= 0 && offset < rowSize) {
               if (rowSize <= lastIdx) {
                 lastIdx = rowSize;
               }
