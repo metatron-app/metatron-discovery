@@ -3624,7 +3624,7 @@ em.ddp-icon-cross.type-apply:before {background-position:-12px -20px;}
 .ddp-wrap-layer .ddp-area-toggle {padding:2px 15px 5px 15px;}
 .ddp-wrap-layer .ddp-list-buttons li[class*="ddp-col-"] {min-width:auto;}
 ul.ddp-list-layer-option.type-option li a {border-top:none; padding:6px 14px 6px 35px;}
-ul.ddp-list-layer-option.type-option .ddp-data-result {margin-left:20px;max-width:100px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
+ul.ddp-list-layer-option.type-option .ddp-data-result {margin-left:20px;max-width:93px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 ul.ddp-list-layer-option li {padding:0 !important; position:relative;}
 ul.ddp-list-layer-option li.ddp-disabled:hover {background:none !important;;}
 ul.ddp-list-layer-option li.ddp-disabled:before {display:inline-block;position:absolute; top:0; left:0; right:0;bottom:0; z-index:1; cursor: no-drop; content:''; }
