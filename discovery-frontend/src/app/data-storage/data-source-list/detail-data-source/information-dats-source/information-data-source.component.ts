@@ -539,6 +539,13 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
     return this.getIngestionPeriod.weekDays.toString();
   }
 
+  public get getIngestionStatusLabel(): string {
+    if (this.schedulingStatus === 'NORMAL') {
+      return 'WAITING';
+    }
+    return this.schedulingStatus;
+  }
+
   /**
    * data range label
    * @returns {string}
@@ -712,7 +719,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
     }).catch((error) => {
       Alert.error(this.translateService.instant('msg.storage.th.batch.pause.fail'));
     });
-    this.schedulingStatus = '';
+    setTimeout(() => {
+      this.getSchedulingJob()
+    }, 500);
   }
 
   public resumeSchedulingJob() {
@@ -721,7 +730,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
     }).catch((error) => {
       Alert.error(this.translateService.instant('msg.storage.th.batch.resume.fail'));
     });
-    this.schedulingStatus = '';
+    setTimeout(() => {
+      this.getSchedulingJob()
+    }, 500);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
