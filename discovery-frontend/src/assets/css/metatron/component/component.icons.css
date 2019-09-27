@@ -564,7 +564,13 @@ a.ddp-icon-board-edit:hover:before {background-position:-21px -19px;}
 .ddp-icon-drop-re,
 .ddp-icon-drop-clean,
 .ddp-icon-drop-cluster,
-.ddp-icon-drop-guide {display:inline-block; position:absolute; top:50%; left:13px; margin-top:-7px; width:13px; height:12px; background:url(../../../images/icon_drop.png) no-repeat;}
+.ddp-icon-drop-guide,
+.ddp-icon-drop-select,
+.ddp-icon-drop-sort,
+.ddp-icon-drop-unit{display:inline-block; position:absolute; top:50%; left:13px; margin-top:-7px; width:13px; height:12px; background:url(../../../images/icon_drop.png) no-repeat;}
+.ddp-icon-drop-unit {width:11px; height:11px; background-position:-303px top;}
+.ddp-icon-drop-select {width:12px; height:9px; background-position:-277px top;}
+.ddp-icon-drop-sort {width:12px; height:10px; background-position:-290px top;}
 .ddp-icon-drop-re {width:13px; height:12px; background-position:-205px top;}
 .ddp-icon-drop-monitoring {width:13px; height:12px;}
 .ddp-icon-drop-editmodify {width:12px; height:12px; background-position:-14px top;}

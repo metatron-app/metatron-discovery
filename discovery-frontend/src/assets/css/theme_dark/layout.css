@@ -956,7 +956,7 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
     color: #7e8aa5;
     font-size: 13px;
     text-align: center;
-    background-color: #1f2942;
+    background-color: #2c3754;
 }
 
 .theme-dark ul.ddp-list-lnb li ul.ddp-list-submenu li {
@@ -1134,7 +1134,7 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
     height: 2px;
     background-position: left top;
 }
-.theme-dark ul.ddp-list-lnb li ul.ddp-list-sublnb li.ddp-selected a em.ddp-icon-data {
+.theme-dark ul.ddp-list-lnb li ul.ddp-list-sublnb li a em.ddp-icon-data {
     display:inline-block;
     position:absolute;
     top:50%;
