@@ -39204,29 +39204,13 @@
 .theme-dark table.ddp-table-type2 tr td.ddp-info {
     padding-right: 30px;
 }
-
-.theme-dark table.ddp-table-type2 tr td.ddp-info.ddp-selected,
-.theme-dark table.ddp-table-type2 tr td.ddp-info:hover {
-    padding: 12px 29px 13px 9px;
-}
-
-.theme-dark table.ddp-table-type2 tr td.ddp-info:hover {
-    background-color: #f1f1f3 !important;
-    border: 1px solid #f1f1f3;
-}
-
-.theme-dark table.ddp-table-type2 tr td.ddp-info .ddp-ui-info {
+.theme-dark table.ddp-table-type2 tr td .ddp-ui-info {
     position: absolute;
     top: 50%;
     right: 9px;
     margin-top: -7px;
     cursor: pointer;
-    font-size: 0px;
-}
-
-.theme-dark table.ddp-table-type2 tr td.ddp-info.ddp-selected .ddp-ui-info,
-.theme-dark table.ddp-table-type2 tr td.ddp-info:hover .ddp-ui-info {
-    right: 8px;
+    font-size: 0;
 }
 
 .theme-dark table.ddp-table-type2 tr td.ddp-info .ddp-ui-info .ddp-icon-error2 {
@@ -39247,11 +39231,6 @@
     right: -30px;
     margin-top: 5px;
 }
-
-.theme-dark table.ddp-table-type2 tr td.ddp-info .ddp-ui-info.ddp-selected .ddp-icon-sinfo2 {
-    background-position: -28px -30px;
-}
-
 .theme-dark .ddp-box-layout4.type-time .ddp-wrap-edit3 + .ddp-wrap-edit3 {
     margin-top: 20px;
 }
@@ -48255,39 +48234,6 @@
     width: 100%;
     float: left;
     box-sizing: border-box;
-}
-
-.theme-dark .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-name {
-    display: inline-block;
-    padding: 20px 0 0 0;
-    max-width: 100%;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-}
-
-.theme-dark .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-name span.ddp-txt-name {
-    display: block;
-    color: #4e5368;
-    font-size: 14px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
-
-.theme-dark .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-name .ddp-icon-control-fav {
-    position: relative;
-    top: -2px;
-}
-
-.theme-dark .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info {
-    position: relative;
-    padding: 4px 0 0 0;
-    color: #4e5368;
-    font-size: 12px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
 }
 
 .theme-dark .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-date {
