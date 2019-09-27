@@ -159,12 +159,22 @@ public class PrepDatasetDatabaseService {
 
     int limit = Integer.parseInt(size);
     String sql = dataset.getRsType() == RS_TYPE.QUERY ? dataset.getQueryStmt() :
-            String.format("SELECT * FROM %s.%s", dataset.getDbName(), getTableName(dataset));
+            String.format("SELECT * FROM %s.%s", getDatabaseName(dataset), getTableName(dataset));
 
     dataFrame = teddyImpl.loadJdbcDataFrame(dataConnection, sql, limit, null);
 
     countTotalLines(dataset, dataConnection);
     return dataFrame;
+  }
+
+  public String getDatabaseName(PrDataset dataset) {
+    String dbName = dataset.getDbName();
+    if( dataset.getDcImplementor().equalsIgnoreCase("PostgreSQL")==true ) {
+      if( dbName.matches("[a-z0-9]+")==false) {
+        dbName = '"' + dbName + '"';
+      }
+    }
+    return dbName;
   }
 
   public String getTableName(PrDataset dataset) {

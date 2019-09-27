@@ -770,13 +770,17 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
     // Error when creating dataflow with dataset with no querystmt
     if (type.rsType === RsType.TABLE) {
+      var databaseName = tableInfo.databaseName;
       var tableName = tableInfo.tableName;
       if(type.dataconnection.connection.implementor==="POSTGRESQL") {
+        if( /^[a-z0-9]+$/.test(databaseName) === false ) {
+          databaseName = `"${databaseName}"`;
+        }
         if( /^[a-z0-9]+$/.test(tableName) === false ) {
           tableName = `"${tableName}"`;
         }
       }
-      params['queryStmt'] = `select * from ${tableInfo.databaseName}.${tableName}`;
+      params['queryStmt'] = `select * from ${databaseName}.${tableName}`;
     }
 
     this.loadingShow();
