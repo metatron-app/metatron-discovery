@@ -61,35 +61,6 @@
         </div>
         <!-- 더보기 팝업 -->
         <div class="ddp-wrap-popup2 ddp-types" style="min-width: 150px;">
-          <span class="ddp-label">{{'msg.comm.ui.soring.by' | translate }}</span>
-          <!-- 정렬 버튼 목록 -->
-          <ul class="ddp-list-popup ddp-type">
-            <li [class.ddp-selected]="sortBy.COUNT === filter.sort.by && sortDirection.ASC === filter.sort.direction">
-              <a (click)="sortCandidateValues(filter, sortBy.COUNT, sortDirection.ASC );updateFilterEvent.emit(filter);"
-                 href="javascript:" >
-                {{'msg.comm.ui.soring.frequency.asc' | translate}} <em class="ddp-icon-check"></em>
-              </a>
-            </li>
-            <li [class.ddp-selected]="sortBy.COUNT === filter.sort.by && sortDirection.DESC === filter.sort.direction">
-              <a (click)="sortCandidateValues(filter, sortBy.COUNT, sortDirection.DESC);updateFilterEvent.emit(filter);"
-                 href="javascript:" >
-                {{'msg.comm.ui.soring.frequency.desc' | translate}} <em class="ddp-icon-check"></em>
-              </a>
-            </li>
-            <li [class.ddp-selected]="sortBy.TEXT === filter.sort.by && sortDirection.ASC === filter.sort.direction">
-              <a (click)="sortCandidateValues(filter, sortBy.TEXT, sortDirection.ASC );updateFilterEvent.emit(filter);"
-                 href="javascript:" >
-                {{'msg.comm.ui.soring.alphnumeric.asc' | translate}} <em class="ddp-icon-check"></em>
-              </a>
-            </li>
-            <li [class.ddp-selected]="sortBy.TEXT === filter.sort.by && sortDirection.DESC === filter.sort.direction">
-              <a (click)="sortCandidateValues(filter, sortBy.TEXT, sortDirection.DESC);updateFilterEvent.emit(filter);"
-                 href="javascript:" >
-                {{'msg.comm.ui.soring.alphnumeric.desc' | translate}} <em class="ddp-icon-check"></em>
-              </a>
-            </li>
-          </ul>
-          <!-- // 정렬 버튼 목록 -->
           <!-- 기능 버튼 목록 -->
           <ul class="ddp-list-popup">
             <li *ngIf="!isDashboardMode && isBoardFilter && isChangeable">
@@ -125,6 +96,77 @@
             </li>
           </ul>
           <!-- // 기능 버튼 목록 -->
+          <!-- 옵션 목록 -->
+          <div class="ddp-wrap-layer">
+            <ul class="ddp-list-layer-option type-option type-sub-down">
+              <li>
+                <a href="javascript:">
+                  <div class="ddp-data-result ddp-type">
+                    {{ isMultiSelector ? ('msg.board.li.multiple' | translate) : ('msg.board.li.single' | translate ) }}
+                    <em class="ddp-icon-view "></em>
+                  </div>
+                  <span class="ddp-txt-data" title="Selection">
+                    <em class="ddp-icon-drop-select"></em>{{'msg.board.li.sel.type'|translate}}
+                  </span>
+                </a>
+                <div class="ddp-ui-layer-sub">
+                  <ul class="ddp-list-popup">
+                    <li [class.ddp-selected]="!isMultiSelector">
+                      <a (click)="setSelectorType('SINGLE')" href="javascript:">
+                        {{'msg.board.li.single' | translate}} <em class="ddp-icon-check"></em>
+                      </a>
+                    </li>
+                    <li [class.ddp-selected]="isMultiSelector">
+                      <a (click)="setSelectorType('MULTI')" href="javascript:">
+                        {{'msg.board.li.multiple' | translate}} <em class="ddp-icon-check"></em>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <!-- Sort Option -->
+              <li>
+                <a href="javascript:">
+                  <div class="ddp-data-result ddp-type">
+                    {{ currentSortOptLabel }} <em class="ddp-icon-view"></em>
+                  </div>
+                  <span class="ddp-txt-data" title="Selection">
+                    <em class="ddp-icon-drop-sort"></em>{{'msg.comm.ui.soring.by' | translate }}
+                  </span>
+                </a>
+                <div class="ddp-ui-layer-sub">
+                  <ul class="ddp-list-popup">
+                    <li [class.ddp-selected]="sortBy.TEXT === filter.sort.by && sortDirection.ASC === filter.sort.direction">
+                      <a (click)="sortCandidateValues(filter, sortBy.TEXT, sortDirection.ASC );updateFilterEvent.emit(filter);"
+                         href="javascript:" >
+                        {{'msg.comm.ui.soring.alphnumeric.asc' | translate}} <em class="ddp-icon-check"></em>
+                      </a>
+                    </li>
+                    <li [class.ddp-selected]="sortBy.TEXT === filter.sort.by && sortDirection.DESC === filter.sort.direction">
+                      <a (click)="sortCandidateValues(filter, sortBy.TEXT, sortDirection.DESC);updateFilterEvent.emit(filter);"
+                         href="javascript:" >
+                        {{'msg.comm.ui.soring.alphnumeric.desc' | translate}} <em class="ddp-icon-check"></em>
+                      </a>
+                    </li>
+                    <li [class.ddp-selected]="sortBy.COUNT === filter.sort.by && sortDirection.ASC === filter.sort.direction">
+                      <a (click)="sortCandidateValues(filter, sortBy.COUNT, sortDirection.ASC );updateFilterEvent.emit(filter);"
+                         href="javascript:" >
+                        {{'msg.comm.ui.soring.frequency.asc' | translate}} <em class="ddp-icon-check"></em>
+                      </a>
+                    </li>
+                    <li [class.ddp-selected]="sortBy.COUNT === filter.sort.by && sortDirection.DESC === filter.sort.direction">
+                      <a (click)="sortCandidateValues(filter, sortBy.COUNT, sortDirection.DESC);updateFilterEvent.emit(filter);"
+                         href="javascript:" >
+                        {{'msg.comm.ui.soring.frequency.desc' | translate}} <em class="ddp-icon-check"></em>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <!-- // Sort Option -->
+            </ul>
+          </div>
+          <!-- 옵션 목록 -->
         </div>
         <!-- // 더보기 팝업 -->
       </div>
