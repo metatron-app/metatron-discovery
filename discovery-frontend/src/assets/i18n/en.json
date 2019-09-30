@@ -1482,6 +1482,7 @@
   "msg.board.th.avail.input.range" : "Available input range",
   "msg.board.th.recent" : "Recent",
   "msg.board.ui.sel.range" : "Selection range",
+  "msg.board.li.sel.type" :"Type",
   "msg.board.li.single" :"Single",
   "msg.board.li.multiple" :"Multiple",
   "msg.board.ui.ui.component" : "UI component",
@@ -2292,6 +2293,10 @@
   "msg.storage.ui.dsource.reingestion.fail.title" : "Datasource re-ingest failed",
   "msg.storage.ui.dsource.reingestion.fail.description" : "Please check the datasource re-ingest data",
   "msg.storage.alert.source.reingestion.success" : "Datasource re-ingested.",
+  "msg.storage.th.batch.pause.success" : "Batch has paused.",
+  "msg.storage.th.batch.pause.fail" : "Failed to pause batch.",
+  "msg.storage.th.batch.resume.success" : "Batch has been resumed.",
+  "msg.storage.th.batch.resume.fail" : "Failed to resume batch.",
 
   "msg.storage.ui.timezone.country.zimbabwe": "Zimbabwe",
   "msg.storage.ui.timezone.country.zambia": "Zambia",

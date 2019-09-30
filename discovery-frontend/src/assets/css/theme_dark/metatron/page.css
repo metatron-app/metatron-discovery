@@ -17221,7 +17221,7 @@
 
 .theme-dark ul.ddp-list-layer-option li .ddp-ui-layer-sub ul.ddp-list-popup li a {
   display: block;
-  padding: 5px 10px 5px 15px;
+    padding: 5px 30px 5px 15px;
   border-top: none;
 }
 
@@ -39210,7 +39210,7 @@
   right: 9px;
   margin-top: -7px;
   cursor: pointer;
-    font-size: 0;
+  font-size: 0;
 }
 
 .theme-dark table.ddp-table-type2 tr td.ddp-info .ddp-ui-info .ddp-icon-error2 {

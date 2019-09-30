@@ -14,8 +14,7 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
-import app.metatron.discovery.domain.dataprep.json.PrepJsonParseResult;
+import app.metatron.discovery.domain.dataprep.file.PrepParseResult;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotCastFromException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnNotFoundException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnTypeShouldBeDoubleOrLongException;
@@ -281,6 +280,10 @@ public class DataFrame implements Serializable, Transformable {
     return colDescs.get(colno);
   }
 
+  public void setColDesc(int colno, ColumnDescription colDesc) {
+    colDescs.set(colno, colDesc);
+  }
+
   public ColumnType getColType(int colno) {
     return colDescs.get(colno).getType();
   }
@@ -401,18 +404,11 @@ public class DataFrame implements Serializable, Transformable {
     }
   }
 
-  // Initialization functions
-  private int getMaxColCnt(List<String[]> strGrid) {
-    int colCnt = 0;
-    for (String[] strRow : strGrid) {
-      if (strRow.length > colCnt) {
-        colCnt = strRow.length;
-      }
-    }
-    return colCnt;
+  public void setByGrid(PrepParseResult result) {
+    setByGrid(result.grid, result.colNames);
   }
 
-  public void setByGrid(List<String[]> strGrid, List<String> colNames, int maxColCnt) {
+  public void setByGrid(List<String[]> strGrid, List<String> colNames) {
     if (strGrid == null) {
       LOGGER.warn("setByGrid(): null grid");
       return;
@@ -430,10 +426,7 @@ public class DataFrame implements Serializable, Transformable {
         addColumn(colName, ColumnType.STRING);
       }
     } else {
-      if (maxColCnt == -1) {
-        maxColCnt = getMaxColCnt(strGrid);
-      }
-      for (int colno = 1; colno <= maxColCnt; colno++) {
+      for (int colno = 1; colno <= strGrid.get(0).length; colno++) {
         addColumn("column" + colno, ColumnType.STRING);
       }
     }
@@ -445,18 +438,6 @@ public class DataFrame implements Serializable, Transformable {
       }
       rows.add(row);
     }
-  }
-
-  public void setByGrid(List<String[]> strGrid, List<String> colNames) {
-    setByGrid(strGrid, colNames, -1);
-  }
-
-  public void setByGrid(PrepCsvParseResult result) {
-    setByGrid(result.grid, result.colNames, result.maxColCnt);
-  }
-
-  public void setByGridWithJson(PrepJsonParseResult result) {
-    setByGrid(result.grid, result.colNames, result.maxColCnt);
   }
 
   // column 순서가 중요해서 JdbcConnectionService를 그대로 쓰기가 어려움. customize가 필요.

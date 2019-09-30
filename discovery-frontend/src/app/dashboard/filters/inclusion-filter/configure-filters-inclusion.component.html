@@ -15,7 +15,7 @@
 <!-- 선택 방식 결정 -->
 <div *ngIf="isShow" class="ddp-wrap-setting">
   <div class="ddp-wrap-edit">
-    <label class="ddp-label-type">Type</label>
+    <label class="ddp-label-type">{{'msg.board.li.sel.type'|translate}}</label>
     <div class="ddp-ui-edit-option ">
       <ul class="ddp-list-buttons">
         <li [ngClass]="{'ddp-selected' : isSingleSelect(targetFilter)}"
@@ -204,7 +204,7 @@
 
             <!-- button -->
             <div class="ddp-pop-buttons">
-              <a (click)="resetAll()" href="javascript:" class="ddp-btn-pop">
+              <a (click)="resetAll()" href="javascript:" class="ddp-btn-pop" style="margin-right: 2px;">
                 <em class="ddp-btn-reset"></em>{{'msg.page.btn.reset' | translate}}
               </a>
               <a (click)="candidateWithValidation()" href="javascript:" class="ddp-btn-pop ddp-bg-gray">

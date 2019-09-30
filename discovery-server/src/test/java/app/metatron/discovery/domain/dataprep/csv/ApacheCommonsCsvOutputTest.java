@@ -1,11 +1,15 @@
 package app.metatron.discovery.domain.dataprep.csv;
 
 import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
-import static app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil.getReaderAfterDetectingCharset;
+import static app.metatron.discovery.domain.dataprep.PrepUtil.datasetError;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME;
+import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getReaderAfterDetectingCharset;
 
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
+import app.metatron.discovery.domain.dataprep.file.PrepParseResult;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.Row;
 import java.io.BufferedReader;
@@ -168,7 +172,7 @@ public class ApacheCommonsCsvOutputTest {
                   PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_HDFS_PATH, strUri);
         }
 
-        reader = PrepCsvUtil.getReaderAfterDetectingCharset(his, strUri);
+        reader = getReaderAfterDetectingCharset(his, strUri);
         break;
 
       case "file":
@@ -187,9 +191,7 @@ public class ApacheCommonsCsvOutputTest {
         break;
 
       default:
-        throw PrepException
-                .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME,
-                        strUri);
+        throw datasetError(MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, strUri);
     }
 
     BufferedReader br = new BufferedReader(reader);
@@ -208,7 +210,7 @@ public class ApacheCommonsCsvOutputTest {
     String strUri = buildStrUrlFromResourceDir("csv/minimal_quote_mode_and_quote_escaped.csv");
     cat(strUri, null);
 
-    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
+    PrepParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -223,7 +225,7 @@ public class ApacheCommonsCsvOutputTest {
     String strUri = buildStrUrlFromResourceDir("csv/sale.csv");
     cat(strUri, null);
 
-    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
+    PrepParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -238,7 +240,7 @@ public class ApacheCommonsCsvOutputTest {
     String strUri = buildStrUrlFromResourceDir("csv/multi_line.csv");
     cat(strUri, null);
 
-    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
+    PrepParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -253,7 +255,7 @@ public class ApacheCommonsCsvOutputTest {
     String strUri = buildStrUrlFromResourceDir("csv/multi_line_with_bs_escape.csv");
     cat(strUri, null);
 
-    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
+    PrepParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -268,7 +270,7 @@ public class ApacheCommonsCsvOutputTest {
     String strUri = buildStrUrlFromResourceDir("csv/multi_line_with_unmatched_bs_escape.csv");
     cat(strUri, null);
 
-    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
+    PrepParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -283,7 +285,7 @@ public class ApacheCommonsCsvOutputTest {
     String strUri = buildStrUrlFromResourceDir("csv/unstructured.csv");
     cat(strUri, null);
 
-    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
+    PrepParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();

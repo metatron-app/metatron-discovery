@@ -102,8 +102,14 @@
           <!-- //edit option -->
         </div>
         <!-- //Status -->
-        <a href="javascript:" class="ddp-btn-selection ddp-reject" (click)="onOpenDeleteWorkspace()" *ngIf="isPublicWorkspace()"><em class="ddp-icon-delete"></em>{{'msg.spaces.spaces.detail.btn.delete' | translate}} </a>
-        <a href="javascript:" class="ddp-btn-selection" (click)="onOpenDiscovery()"><em class="ddp-icon-view"></em>{{'msg.spaces.spaces.detail.btn.discovery' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-selection ddp-reject" style="padding: 7px 10px 7px 10px;"
+           (click)="onOpenDeleteWorkspace()" *ngIf="isPublicWorkspace()">
+          <em class="ddp-icon-delete"></em>{{'msg.spaces.spaces.detail.btn.delete' | translate}}
+        </a>
+        <a href="javascript:" class="ddp-btn-selection" style="padding: 7px 10px 7px 10px;"
+           (click)="onOpenDiscovery()">
+          <em class="ddp-icon-view"></em>{{'msg.spaces.spaces.detail.btn.discovery' | translate}}
+        </a>
       </div>
       <!-- //right -->
     </div>
