@@ -393,7 +393,8 @@ public class PrestoDialect implements JdbcDialect {
       if(originalObj instanceof Timestamp){
         return originalObj.toString();
       } else if (originalObj instanceof PrestoArray) {
-        return ((PrestoArray) originalObj).getArray();
+        Object[] prestoArray = (Object[]) ((PrestoArray) originalObj).getArray();
+        return StringUtils.join(prestoArray, ",");
       } else {
         return originalObj;
       }

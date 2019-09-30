@@ -46,6 +46,8 @@ import {filter} from 'rxjs/operators';
 import {isUndefined} from "util";
 import {ImplementorType} from "../../domain/dataconnection/dataconnection";
 import {LogicalType} from '../../domain/datasource/datasource';
+import {UsedCriteria} from "../value/used-criteria.data.value";
+import {LocalStorageConstant} from "../constant/local-storage.constant";
 
 declare let moment;
 
@@ -979,6 +981,28 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
       };
     }
   } // function - commonExceptionHandler
+
+  protected getUsedCriteriaFromLocalStorage(): UsedCriteria {
+    if(localStorage) {
+      const usedCriteria = localStorage.getItem(LocalStorageConstant.KEY.USED_CRITERIA);
+      let criteria : UsedCriteria;
+      if(usedCriteria) {
+        criteria = JSON.parse(usedCriteria);
+      } else {
+        criteria = new UsedCriteria();
+        this.setUsedCriteriaToLocalStorage(criteria);
+      }
+      return criteria;
+    } else {
+      return new UsedCriteria();
+    }
+  }
+
+  protected setUsedCriteriaToLocalStorage(criteria: UsedCriteria): void {
+    if(localStorage) {
+      localStorage.setItem(LocalStorageConstant.KEY.USED_CRITERIA,  JSON.stringify(criteria));
+    }
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method

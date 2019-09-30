@@ -68,20 +68,6 @@ public class PrepProperties {
   public SamplingInfo sampling;
   public EtlInfo etl;
 
-  // temporary for 2 sprints
-  public Boolean migrateMetaDB;
-
-  public boolean isMigrateMetaDB() {
-    if (migrateMetaDB == null) {
-      return false;
-    }
-    return migrateMetaDB;
-  }
-
-  public void setMigrateMetaDB(boolean migrateMetaDB) {
-    this.migrateMetaDB = migrateMetaDB;
-  }
-
   // Commonly, only below getters will be used
 
   public String getLocalBaseDir() {

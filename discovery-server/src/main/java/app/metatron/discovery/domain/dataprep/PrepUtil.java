@@ -14,7 +14,11 @@
 
 package app.metatron.discovery.domain.dataprep;
 
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes.PREP_DATASET_ERROR_CODE;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes.PREP_INVALID_CONFIG_CODE;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE;
+
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import java.io.File;
@@ -65,12 +69,12 @@ public class PrepUtil {
 
     if (!existsLocal(coreSite)) {
       throw PrepException
-              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_CORE_SITE_NOT_FOUND,
+              .create(PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_CORE_SITE_NOT_FOUND,
                       coreSite);
     }
     if (!existsLocal(hdfsSite)) {
       throw PrepException
-              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_HDFS_SITE_NOT_FOUND,
+              .create(PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_HDFS_SITE_NOT_FOUND,
                       hdfsSite);
     }
 
@@ -83,5 +87,53 @@ public class PrepUtil {
 
   public static String getFileNameFromStrUri(String strUri) {
     return strUri.substring(strUri.lastIndexOf('/') + 1, strUri.length());
+  }
+
+  public static PrepException datasetError(PrepMessageKey msgKey, String detail) {
+    return PrepException.create(PREP_DATASET_ERROR_CODE, msgKey, detail);
+  }
+
+  public static PrepException datasetError(PrepMessageKey msgKey) {
+    return PrepException.create(PREP_DATASET_ERROR_CODE, msgKey, null);
+  }
+
+  public static PrepException datasetError(Exception e) {
+    return PrepException.create(PREP_DATASET_ERROR_CODE, e);
+  }
+
+  public static PrepException dataflowError(PrepMessageKey msgKey, String detail) {
+    return PrepException.create(PREP_DATAFLOW_ERROR_CODE, msgKey, detail);
+  }
+
+  public static PrepException dataflowError(PrepMessageKey msgKey) {
+    return PrepException.create(PREP_DATAFLOW_ERROR_CODE, msgKey, null);
+  }
+
+  public static PrepException dataflowError(Exception e) {
+    return PrepException.create(PREP_DATAFLOW_ERROR_CODE, e);
+  }
+
+  public static PrepException snapshotError(PrepMessageKey msgKey, String detail) {
+    return PrepException.create(PREP_SNAPSHOT_ERROR_CODE, msgKey, detail);
+  }
+
+  public static PrepException snapshotError(PrepMessageKey msgKey) {
+    return PrepException.create(PREP_SNAPSHOT_ERROR_CODE, msgKey, null);
+  }
+
+  public static PrepException snapshotError(Exception e) {
+    return PrepException.create(PREP_SNAPSHOT_ERROR_CODE, e);
+  }
+
+  public static PrepException configError(PrepMessageKey msgKey, String detail) {
+    return PrepException.create(PREP_INVALID_CONFIG_CODE, msgKey, detail);
+  }
+
+  public static PrepException configError(PrepMessageKey msgKey) {
+    return PrepException.create(PREP_INVALID_CONFIG_CODE, msgKey, null);
+  }
+
+  public static PrepException configError(Exception e) {
+    return PrepException.create(PREP_INVALID_CONFIG_CODE, e);
   }
 }

@@ -98,10 +98,7 @@
           <td>
             <div class=" ddp-select-search ddp-pop-select"
                  [ngClass]="{'ddp-selected': column['isShowCodeTable']}">
-              <a href="javascript:" class="ddp-ui-search2"
-                 (click)="$event.stopImmediatePropagation(); onClickOpenCodeTable(column, index)">
                 {{column.codeTable? column.codeTable.name : '-'}}
-              </a>
               <div class="ddp-box-layout4 ddp-pop-fix"
                    #codeTablePreview
                    style="top: 343px; left: 1284px;">
