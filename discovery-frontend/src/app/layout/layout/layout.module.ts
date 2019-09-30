@@ -70,6 +70,11 @@ const layoutRoutes: Routes = [
         loadChildren: 'app/meta-data-management/meta-data-management.module#MetaDataManagementModule',
         canActivate: [MetadataManagementGuard]
       },
+      {
+        path: 'management/engine-monitoring',
+        loadChildren: 'app/engine-monitoring/engine-monitoring.module#EngineMonitoringModule',
+        canActivate: [MetadataManagementGuard]
+      },
       {path: 'admin', loadChildren: 'app/admin/admin.module#AdminModule'},
       {path: 'external', loadChildren: 'app/external/external-view.module#ExternalViewModule'},
       {

@@ -157,6 +157,9 @@ export class CriterionComponent extends AbstractComponent {
    */
   public isExtensionCriterion(criterion: Criteria.ListCriterion): boolean {
     // do not allow remove source type from default criterion
+    if (_.isNil(this._extensionCriterionList)) {
+      return false;
+    }
     return this._extensionCriterionList.findIndex(extensionCriterion => extensionCriterion.criterionKey === criterion.criterionKey) !== -1;
   }
 
@@ -177,7 +180,7 @@ export class CriterionComponent extends AbstractComponent {
   public onChangeFilter(data: {label: Criteria.ListCriterionKey, value}): void {
     const filters = Object.keys(data.value);
     // remove prev DATETIME property
-    if (data.label === Criteria.ListCriterionKey.MODIFIED_TIME || data.label === Criteria.ListCriterionKey.CREATED_TIME) {
+    if (data.label === Criteria.ListCriterionKey.MODIFIED_TIME || data.label === Criteria.ListCriterionKey.CREATED_TIME || data.label === Criteria.ListCriterionKey.COMPLETED_TIME) {
       // DATETIME type
       const type = data.value[Criteria.KEY_DATETIME_TYPE_SUFFIX][0];
       filters.forEach((key) => {
@@ -270,8 +273,22 @@ export class CriterionComponent extends AbstractComponent {
         searchParams['modifiedTimeTo'] = this.getDateTimeEndParamInToday();
       }
     }
+    // completed time
+    if (!_.isNil(param[Criteria.ListCriterionKey.COMPLETED_TIME + Criteria.QUERY_DELIMITER + Criteria.KEY_DATETIME_TYPE_SUFFIX])) {
+      const type = param[Criteria.ListCriterionKey.COMPLETED_TIME + Criteria.QUERY_DELIMITER + Criteria.KEY_DATETIME_TYPE_SUFFIX][0];
+      if (type === Criteria.DateTimeType.BETWEEN) {
+        searchParams['completedTimeFrom'] = param[Criteria.ListCriterionKey.COMPLETED_TIME + Criteria.QUERY_DELIMITER + 'completedTimeFrom'] ? param[Criteria.ListCriterionKey.COMPLETED_TIME + Criteria.QUERY_DELIMITER + 'completedTimeFrom'][0] : undefined;
+        searchParams['completedTimeTo'] = param[Criteria.ListCriterionKey.COMPLETED_TIME + Criteria.QUERY_DELIMITER + 'completedTimeTo'] ? param[Criteria.ListCriterionKey.COMPLETED_TIME + Criteria.QUERY_DELIMITER + 'completedTimeTo'][0] : undefined;
+      } else if (type === Criteria.DateTimeType.TODAY) {
+        searchParams['completedTimeFrom'] = this.getDateTimeStartParamInToday();
+        searchParams['completedTimeTo'] = this.getDateTimeEndParamInToday();
+      } else if (type === Criteria.DateTimeType.SEVEN_DAYS) {
+        searchParams['completedTimeFrom'] = this.getDateTimeStartParamInSevenDay();
+        searchParams['completedTimeTo'] = this.getDateTimeEndParamInToday();
+      }
+    }
     // others
-    Object.keys(param).filter(key => key !== Criteria.KEY_EXTENSIONS && key.indexOf(Criteria.ListCriterionKey.MODIFIED_TIME) === -1 && key.indexOf(Criteria.ListCriterionKey.CREATED_TIME) === -1).forEach((key) => {
+    Object.keys(param).filter(key => key !== Criteria.KEY_EXTENSIONS && key.indexOf(Criteria.ListCriterionKey.MODIFIED_TIME) === -1 && key.indexOf(Criteria.ListCriterionKey.CREATED_TIME) === -1 && key.indexOf(Criteria.ListCriterionKey.COMPLETED_TIME) === -1).forEach((key) => {
       if (!_.isNil(param[key]) && param[key].length > 0 && param[key].every(value => StringUtil.isNotEmpty(value))) {
         searchParams[key.slice(key.indexOf(Criteria.QUERY_DELIMITER) + 1)] = param[key];
       }

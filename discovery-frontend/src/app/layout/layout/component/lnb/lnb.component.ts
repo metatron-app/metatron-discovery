@@ -21,7 +21,7 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import {NavigationEnd} from '@angular/router';
+import {NavigationEnd, NavigationExtras} from '@angular/router';
 import {AbstractComponent} from '../../../../common/component/abstract.component';
 import {WorkspaceService} from '../../../../workspace/service/workspace.service';
 import {Workspace} from '../../../../domain/workspace/workspace';
@@ -37,6 +37,7 @@ import {ConfirmModalComponent} from '../../../../common/component/modal/confirm/
 import {BuildInfo} from "../../../../../environments/build.env";
 import {CommonService} from "../../../../common/service/common.service";
 import {Extension} from "../../../../common/domain/extension";
+import {Engine} from '../../../../domain/engine-monitoring/engine';
 import {StringUtil} from "../../../../common/util/string.util";
 
 @Component({
@@ -48,6 +49,8 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  public readonly ENGINE_OVERVIEW_MONITORING_STATUS = Engine.MonitoringStatus;
 
   // 즐겨찾기 플래그
   private isFavorFl: boolean = false;
@@ -84,6 +87,8 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     management: false,
     managementDatasource: false,
     managementMetadata: false,
+    // TODO: 추후에 엔진 모니터링 메뉴에 대한 권한이 있는지 검사하는 로직 추가 필요 ( 임시 작업 )
+    managementEngineMonitoring: false,
     userAdmin: false,
     workspaceAdmin: false,
     lineage: false
@@ -120,7 +125,8 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
       dataStorage: {fold: true},
       dataPreparation: {fold: true},
       dataMonitoring: {fold: true},
-      modelManager: {fold: true}
+      modelManager: {fold: true},
+      engineMonitoring: { fold: true }
     },
     // 어드민
     administration: {
@@ -199,6 +205,12 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
             this.depth1Menu1ClickListener('MANAGEMENT');
             this.mgmtMenuClickListener('DATAMONITORING');
             break;
+          case '/management/engine-monitoring/overview' :
+          case '/management/engine-monitoring/ingestion' :
+          case '/management/engine-monitoring/query' :
+            this.depth1Menu1ClickListener('MANAGEMENT');
+            this.mgmtMenuClickListener('ENGINE_MONITORING');
+            break;
           case '/admin/user/members' :
           case '/admin/user/groups' :
           case '/admin/workspaces/shared':
@@ -251,6 +263,8 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
             this.permission.exploreData = true;
           } else if('Lineage' === ext.name) {
             this.permission.lineage = true;
+          } else if('Engine Monitoring' === ext.name) {
+            this.permission.managementEngineMonitoring = (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_SYSTEM.toString()));
           } else {
             (this.lnbManager[ext.parent]) || (this.lnbManager[ext.parent] = {});
             this.lnbManager[ext.parent][ext.name] = {fold: true};
@@ -318,6 +332,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
         this.lnbManager.exploreData.fold = true;
         this.lnbManager.management.fold = false;
         this.lnbManager.administration.fold = true;
+        this.lnbManager.management.engineMonitoring.fold = true;
         this.mgmtMenuClickListener('DATASTORAGE');
         break;
       case 'ADMINISTRATION' :
@@ -357,6 +372,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     this.lnbManager.management.dataPreparation.fold = true;
     this.lnbManager.management.dataMonitoring.fold = true;
     this.lnbManager.management.modelManager.fold = true;
+    this.lnbManager.management.engineMonitoring.fold = true;
     this.getManagementExtensions.forEach(item => {
       this.lnbManager.management[item.name]['fold'] = true;
     });
@@ -376,6 +392,9 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
         break;
       case 'MODELMANAGER' :
         this.lnbManager.management.modelManager.fold = false;
+        break;
+      case 'ENGINE_MONITORING' :
+        this.lnbManager.management.engineMonitoring.fold = false;
         break;
       default :
         if (this.lnbManager.management[menuName]) {
@@ -590,13 +609,26 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
 
   /**
    * 해당 메뉴로 이동
-   * @param {string} menu
    */
-  public move(menu: string) {
+  public move(menu: string, extras?: NavigationExtras) {
     if (this.router.url !== '/' + menu) {
       // window.location.href = environment.baseHref + menu;
       this.loadingShow();
-      this.router.navigate([menu]).then();
+
+      if (extras) {
+        this.router.navigate([menu], extras).then();
+      } else {
+        if( 'external/management_EngineMonitoring_Overview' === menu ) {
+          // 임시 코드
+          this.router.navigate(['management/engine-monitoring/overview'], { queryParams: { keyword: '', status: this.ENGINE_OVERVIEW_MONITORING_STATUS.ALL } } ).then();
+        } else if ( 'external/management_EngineMonitoring_Ingestion' === menu ) {
+          // 임시 코드
+          this.router.navigate(['management/engine-monitoring/ingestion']).then();
+        } else {
+          this.router.navigate([menu]).then();
+        }
+      }
+
       this._closeLNB();
     }
   } // function - move
