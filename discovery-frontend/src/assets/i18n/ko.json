@@ -2284,6 +2284,10 @@
   "msg.storage.ui.dsource.reingestion.fail.title" : "데이터소스 재적재 실패",
   "msg.storage.ui.dsource.reingestion.fail.description" : "데이터소스 재적재 데이터를 다시 확인해 주세요",
   "msg.storage.alert.source.reingestion.success" : "데이터소스가 재적재되었습니다.",
+  "msg.storage.th.batch.pause.success" : "배치가 중지되었습니다.",
+  "msg.storage.th.batch.pause.fail" : "배치 중지에 실패하였습니다.",
+  "msg.storage.th.batch.resume.success" : "배치가 재실행되었습니다.",
+  "msg.storage.th.batch.resume.fail" : "배치 재실행에 실패하였습니다.",
 
   "msg.storage.ui.timezone.country.zimbabwe": "짐바브웨",
   "msg.storage.ui.timezone.country.zambia": "잠비아",
