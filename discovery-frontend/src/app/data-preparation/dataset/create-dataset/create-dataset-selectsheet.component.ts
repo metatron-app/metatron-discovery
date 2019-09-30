@@ -25,6 +25,7 @@ import { isNull, isNullOrUndefined } from 'util';
 import * as pixelWidth from 'string-pixel-width';
 import {PreparationCommonUtil} from "../../util/preparation-common.util";
 import {CommonUtil} from "../../../common/util/common.util";
+import {Alert} from "../../../common/util/alert.util";
 
 @Component({
   selector: 'app-create-dataset-selectsheet',
@@ -72,6 +73,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   public currDSIndex: number = 0;
   public currDetail : {fileFormat: FileFormat, detailName: string, columns: number} ;
   public currColumnCount: number;
+  public prevColumnCount: number;
 
   public previewErrorMsg : string = '';
 
@@ -135,6 +137,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
       // 컬럼 카운트 설정
       this.currColumnCount = ( this.datasetFiles[this.currDSIndex].sheetInfo ? this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount : 0 );
+      this.prevColumnCount = this.currColumnCount;
 
       // Error message 있으면 보여준다.
       this.previewErrorMsg = (this.datasetFiles[this.currDSIndex].error? this.translateService.instant(this.datasetFiles[this.currDSIndex].error.message) : '');
@@ -256,6 +259,12 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     this.isColumnCountRequired = ( (isNullOrUndefined(this.currColumnCount) || 1 > this.currColumnCount) && this.datasetFiles[this.currDSIndex].fileFormat != FileFormat.JSON);
 
     if (isNullOrUndefined(this.currColumnCount) || 1 > this.currColumnCount || this.datasetFiles[this.currDSIndex].fileFormat === FileFormat.JSON) {
+      return;
+    }
+
+    if( this.currColumnCount>9999 ) {
+      Alert.error(`max count must be less than 10000`);
+      this.currColumnCount = this.prevColumnCount;
       return;
     }
 
@@ -445,6 +454,11 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
         // Column count input
         if ('colCnt' === type) {
+          var value = event.target.value;
+          var maxLength = 4;
+          if(value && value.length<=maxLength) {
+            this.prevColumnCount = value;
+          }
           this.isColumnCountRequired = true;
         }
 

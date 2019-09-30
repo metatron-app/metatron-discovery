@@ -14,7 +14,9 @@
 
 package app.metatron.discovery.domain.mdm.lineage;
 
-import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
+import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getReaderAfterDetectingCharset;
+
+import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
 import app.metatron.discovery.domain.mdm.Metadata;
 import app.metatron.discovery.domain.mdm.MetadataRepository;
 import app.metatron.discovery.domain.mdm.lineage.LineageMap.ALIGNMENT;
@@ -236,7 +238,7 @@ public class LineageEdgeController {
     List<Map<String,Object>> rows = Lists.newArrayList();
     try {
       InputStream is = file.getInputStream();
-      InputStreamReader isr = PrepCsvUtil.getReaderAfterDetectingCharset(is,null);
+      InputStreamReader isr = getReaderAfterDetectingCharset(is,null);
 
       CSVParser parser = CSVParser.parse(isr, CSVFormat.DEFAULT.withDelimiter(',').withEscape('\\'));
 
