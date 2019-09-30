@@ -54,6 +54,7 @@ import {CreateWorkbookModule} from "../workbook/component/create-workbook/refact
 import {ConfirmRefModalComponent} from "../common/component/modal/confirm/confirm-ref.component";
 import {MetadataUsedWorkspaceComponent} from "./explore-data/component/metadata-used-workspace.component";
 import {ExploreDataUtilService} from "./explore-data/service/explore-data-util.service";
+import {CreatedTimeRadioFilter} from "./explore-data/component/created-time-radio-filter.component";
 
 @NgModule({
   imports: [
@@ -77,6 +78,7 @@ import {ExploreDataUtilService} from "./explore-data/service/explore-data-util.s
     LogicalNameLayerComponent,
     MetadataSvgComponent,
     CheckBoxFilterComponent,
+    CreatedTimeRadioFilter,
     ExploreBannerComponent,
     ExploreCardComponent,
     CatalogFolderComponent,

@@ -89,18 +89,21 @@ export class CriterionTimeRadioboxListComponent extends AbstractComponent {
   public ngAfterViewInit() {
     // init
     this._initView();
-    Object.keys(this.defaultSelectedItemList).forEach((key) => {
-      if (key === Criteria.KEY_DATETIME_TYPE_SUFFIX) {
-        // change selected time type
-        this.selectedTimeType = this.timeTypeList.find(type => type.value === this.defaultSelectedItemList[key][0]) || this.timeTypeList[0];
-      } else if (StringUtil.isNotEmpty(this.defaultSelectedItemList[key][0])) {
-        if (key.indexOf('From') !== -1) {
-          this._startPickerDate = new Date(this.defaultSelectedItemList[key][0]);
-        } else if (key.indexOf('To') !== -1) {
-          this._endPickerDate = new Date(this.defaultSelectedItemList[key][0]);
+    if (this.defaultSelectedItemList.length > 0) {
+      Object.keys(this.defaultSelectedItemList).forEach((key) => {
+        if (key === Criteria.KEY_DATETIME_TYPE_SUFFIX) {
+          // change selected time type
+          this.selectedTimeType = this.timeTypeList.find(type => type.value === this.defaultSelectedItemList[key][0]) || this.timeTypeList[0];
+        } else if (StringUtil.isNotEmpty(this.defaultSelectedItemList[key][0])) {
+          if (key.indexOf('From') !== -1) {
+            this._startPickerDate = new Date(this.defaultSelectedItemList[key][0]);
+          } else if (key.indexOf('To') !== -1) {
+            this._endPickerDate = new Date(this.defaultSelectedItemList[key][0]);
+          }
         }
-      }
-    });
+      });
+    }
+
     // safe detect
     this._removeDatePicker();
     this.safelyDetectChanges();

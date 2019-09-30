@@ -88,6 +88,7 @@ export class ExploreDataSearchComponent extends AbstractComponent {
 
   onChangeEmptySearchContentsPresence(isEmpty: boolean): void {
     this.isEmptySearchContents = isEmpty;
+    this.loadingHide();
   }
 
   // onChangeShowSelectBoxList(): void {

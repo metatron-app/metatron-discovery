@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
 import {AbstractComponent} from '../../common/component/abstract.component';
 import * as _ from "lodash";
 import {StringUtil} from "../../common/util/string.util";
@@ -27,6 +27,12 @@ import {CommonUtil} from "../../common/util/common.util";
 import {Catalog} from "../../domain/catalog/catalog";
 import {CatalogService} from "../../meta-data-management/catalog/service/catalog.service";
 import {ExploreDataUtilService, SortOption} from "./service/explore-data-util.service";
+import {isNullOrUndefined} from "util";
+import {ActivatedRoute} from "@angular/router";
+import {Criteria} from "../../domain/datasource/criteria";
+import {PeriodData} from "../../common/value/period.data.value";
+
+declare let moment: any;
 
 @Component({
   selector: 'explore-data-list',
@@ -36,18 +42,35 @@ export class ExploreDataListComponent extends AbstractComponent {
 
   metadataList: Metadata[];
 
+  // updated time, name sorting options
   public sortOptions = {
-    popularity: new SortOption('popularity'),
-    modifiedTime: new SortOption('modifiedTime' ),
+    // TODO: popularity is not implemented yet
+    // popularity: new SortOption('popularity'),
+    modifiedTime: new SortOption('modifiedTime'),
     name: new SortOption('name', 'desc'),
   };
+
+  private _searchParams: any;
 
   // only used in UI
   selectedLnbTab: ExploreDataConstant.LnbTab;
   searchRange;
   searchedKeyword: string;
   selectedCatalog: Catalog.Tree;
-  selectedFilter: string[] = [];
+  // source type filter
+  selectedSourceTypeFilter: string[] = [];
+  // name, updated sorting
+  selectedSort: string;
+  // created filter
+  selectedDate: PeriodData;
+  // selected created filter name
+
+  @ViewChild('startPickerInput')
+  private readonly _startPickerInput: ElementRef;
+
+  @ViewChild('endPickerInput')
+  private readonly _endPickerInput: ElementRef;
+
   selectedTag;
   treeHierarchy: Catalog.Tree[];
 
@@ -56,7 +79,6 @@ export class ExploreDataListComponent extends AbstractComponent {
   // filters
   // TODO 추후 동적필터가 들어오게되면 제거 필요
   dataTypeFilterList = StorageService.isEnableStageDB ? this.constant.getMetadataTypeFilters() : this.constant.getMetadataTypeFiltersExceptStaging();
-  selectedDataTypeFilter = this.constant.getMetadataTypeFiltersFirst();
 
   // event
   @Output() readonly clickedMetadata = new EventEmitter();
@@ -72,31 +94,90 @@ export class ExploreDataListComponent extends AbstractComponent {
               private catalogService: CatalogService,
               private exploreDataUtilService: ExploreDataUtilService,
               protected element: ElementRef,
-              protected injector: Injector) {
+              protected injector: Injector,
+              private _activatedRoute: ActivatedRoute) {
     super(element, injector);
+  }
+
+  public ngOnInit() {
+
+    this.selectedDate = new PeriodData();
+
+    this.selectedDate.type = Criteria.DateTimeType.ALL;
+
+    // Get query param from url
+    this.subscriptions.push(
+      this._activatedRoute.queryParams.subscribe((params) => {
+
+        if (!_.isEmpty(params)) {
+
+          if (!isNullOrUndefined(params['size'])) {
+            this.page.size = params['size'];
+          }
+
+          if (!isNullOrUndefined(params['page'])) {
+            this.page.page = params['page'];
+          }
+
+          if (!isNullOrUndefined(params['sourceType'])) {
+            this.selectedSourceTypeFilter = params['sourceType'].split(',');
+          }
+
+          if (!_.isNil(params['sort'])) {
+            this.selectedSort = params['sort'];
+          }
+
+          this.selectedDate = new PeriodData();
+          this.selectedDate.startDate = params['from'];
+          this.selectedDate.endDate = params['to'];
+
+          this.selectedDate.startDateStr = decodeURIComponent(params['from']);
+          this.selectedDate.endDateStr = decodeURIComponent(params['to']);
+          this.selectedDate.type = params['type'];
+        }
+        // get metadata list
+        this._setMetadataList(params).then();
+      })
+    );
   }
 
   ngOnDestroy() {
     this.$layoutContentsClass.removeClass('ddp-scroll');
+    super.ngOnDestroy();
   }
 
- initMetadataList() {
-   this.loadingShow();
-   // set external data
-   this.selectedLnbTab = this.exploreDataModelService.selectedLnbTab;
-   this.searchRange = this.exploreDataModelService.selectedSearchRange;
-   this.searchedKeyword = this.exploreDataModelService.searchKeyword;
-   this.selectedCatalog = this.exploreDataModelService.selectedCatalog;
-   this.selectedTag = this.exploreDataModelService.selectedTag;
+  /**
+   * reload page
+   * @param {boolean} isFirstPage
+   */
+  public reloadPage(isFirstPage: boolean = true) {
+    (isFirstPage) && (this.page.page = 0);
 
-  const initial = async () => {
-    if (this.selectedCatalog != undefined) {
-      this.treeHierarchy = await this.catalogService.getTreeCatalogs(this.selectedCatalog.id, true);
-    }
-    await this._initialMetadataList();
-  };
+    this._searchParams = this._getMetadataListParams();
 
-   initial().then(() => {
+    this.router.navigate(
+      [this.router.url.replace(/\?.*/gi, '')],
+      {queryParams: this._searchParams, replaceUrl: true}
+    ).then();
+  } // function - reloadPage
+
+  initMetadataList() {
+    this.loadingShow();
+    // set external data
+    this.selectedLnbTab = this.exploreDataModelService.selectedLnbTab;
+    this.searchRange = this.exploreDataModelService.selectedSearchRange;
+    this.searchedKeyword = this.exploreDataModelService.searchKeyword;
+    this.selectedCatalog = this.exploreDataModelService.selectedCatalog;
+    this.selectedTag = this.exploreDataModelService.selectedTag;
+
+    const initial = async () => {
+      if (this.selectedCatalog != undefined) {
+        this.treeHierarchy = await this.catalogService.getTreeCatalogs(this.selectedCatalog.id, true);
+      }
+      await this._initialMetadataList();
+    };
+
+    initial().then(() => {
       this.loadingHide();
     }).catch(error => this.commonExceptionHandler(error));
   }
@@ -135,7 +216,10 @@ export class ExploreDataListComponent extends AbstractComponent {
 
   getTotalElementsGuide() {
     if (this.isNotEmptySearchKeyword()) {
-      return this.translateService.instant('msg.explore.ui.list.content.total.searched', {totalElements: this.getTotalElements(), searchedKeyword: this.searchedKeyword.trim()});
+      return this.translateService.instant('msg.explore.ui.list.content.total.searched', {
+        totalElements: this.getTotalElements(),
+        searchedKeyword: this.searchedKeyword.trim()
+      });
     } else {
       return this.translateService.instant('msg.explore.ui.list.content.total', {totalElements: this.getTotalElements()});
     }
@@ -184,7 +268,7 @@ export class ExploreDataListComponent extends AbstractComponent {
       this.page.size = data.size;
       this._setMetadataList(this._getMetadataListParams())
         .then(() => {
-        this.loadingHide();
+          this.loadingHide();
         })
         .catch(error => this.commonExceptionHandler(error));
     }
@@ -211,38 +295,64 @@ export class ExploreDataListComponent extends AbstractComponent {
     }
   }
 
-  async onChangeFilter(filterList: string[]) {
+   onChangeDataTypeFilter(filterList: string[]) {
     // extract only value property
-    this.selectedFilter = filterList.map((filter) => {
+    this.selectedSourceTypeFilter = filterList.map((filter) => {
       return filter['value'];
     });
-    this.loadingShow();
-    await this._setMetadataList(this._getMetadataListParams());
-    this.loadingHide();
+    this.reloadPage();
+  }
+
+  // apply created time sort from createdTime filter Component
+  onChangeCreateTimeFilter(selectedDate) {
+    this.selectedDate = selectedDate;
+    this.reloadPage();
   }
 
   private _getMetadataListParams() {
-    const result = {
+    const params = {
       page: this.page.page,
       size: this.page.size,
-      sourceType: this.selectedFilter
+      sort: this.selectedSort,
     };
     // if not empty search keyword
     if (StringUtil.isNotEmpty(this.searchedKeyword)) {
-      result[this.searchRange.value] = this.searchedKeyword.trim();
+      params[this.searchRange.value] = this.searchedKeyword.trim();
     }
+
+    // source type
+    if (this.selectedSourceTypeFilter !== undefined && this.selectedSourceTypeFilter.length > 0) {
+      const tempList = this.selectedSourceTypeFilter.slice();
+      params['sourceType'] = tempList.join(',');
+    }
+
+    // created time
+    if (this.selectedDate && this.selectedDate.type !== 'ALL') {
+      params['searchDateBy'] = 'CREATED';
+      params['type'] = this.selectedDate.type;
+      if (this.selectedDate.startDateStr) {
+        params['from'] = moment(this.selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+      }
+      if (this.selectedDate.endDateStr) {
+        params['to'] = moment(this.selectedDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+      }
+    } else {
+      params['type'] = 'ALL';
+    }
+
     if (this.isSelectedCatalog()) {
-      result['catalogId'] = this.selectedCatalog.id;
+      params['catalogId'] = this.selectedCatalog.id;
     } else if (this.isSelectedTag()) {
-      result['tag'] = this.selectedTag.name;
+      params['tag'] = this.selectedTag.name;
     }
-    return result;
+    return params;
   }
 
   private async _setMetadataList(params) {
+    this.loadingShow();
     const result = await this.metadataService.getMetaDataList(params);
 
-    if(!_.isNil(result)) {
+    if (!_.isNil(result)) {
       // add ddp-scroll class to layout
       this.$layoutContentsClass.addClass('ddp-scroll');
       this.pageResult = result.page;
@@ -257,9 +367,34 @@ export class ExploreDataListComponent extends AbstractComponent {
     }
   }
 
-  private async _initialMetadataList(){
+  private async _initialMetadataList() {
     this.page.page = 0;
     this.page.size = CommonConstant.API_CONSTANT.PAGE_SIZE;
     await this._setMetadataList(this._getMetadataListParams());
   }
+
+  /**
+   * Sort column clicked
+   * @param type
+   */
+  public toggleSortOption(type: string) {
+    // Initialize every column's option except selected column
+    Object.keys(this.sortOptions).forEach(key => {
+      if (key !== type) {
+        this.sortOptions[key].option = 'default';
+      }
+    });
+    if (this.sortOptions[type].option === 'none') {
+      this.sortOptions[type].option = 'desc';
+    } else if (this.sortOptions[type].option === 'asc') {
+      this.sortOptions[type].option = 'desc';
+    } else {
+      this.sortOptions[type].option = 'asc';
+    }
+
+    this.selectedSort = type + ',' + this.sortOptions[type].option;
+    this.reloadPage();
+  }
 }
+
+

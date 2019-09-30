@@ -3,7 +3,10 @@
   <div class="ddp-wrap-top-filtering type-form">
     <div class="ddp-wrap-form-filtering">
       <div class="ddp-form-filtering">
-        <component-check-filter [filterName]="'Data type'" [filterList]="dataTypeFilterList" (changedFilter)="onChangeFilter($event)" ></component-check-filter>
+        <component-check-filter [filterName]="'Data type'" [filterList]="dataTypeFilterList" (changedFilter)="onChangeDataTypeFilter($event)" ></component-check-filter>
+      </div>
+      <div class="ddp-form-filtering">
+        <component-created-time-radio-filter (changeSort)="onChangeCreateTimeFilter($event)"></component-created-time-radio-filter>
       </div>
     </div>
   </div>
@@ -70,7 +73,7 @@
             <th>
               {{'msg.metadata.md.ui.data.type' | translate}}
             </th>
-            <th (click)="exploreDataUtilService.toggleSortOption(metadataList, sortOptions, 'name')">
+            <th (click)="toggleSortOption('name')">
               {{'msg.comm.ui.name' | translate}}
               <em class="ddp-icon-array-default2" *ngIf="sortOptions.name.option === 'default'"></em>
               <em class="ddp-icon-array-asc2" *ngIf="sortOptions.name.option === 'asc'"></em>
@@ -79,11 +82,11 @@
             <th>
               {{'msg.metadata.md.ui.tags' | translate}}
             </th>
-            <th (click)="exploreDataUtilService.toggleSortOption(metadataList, sortOptions, 'popularity', 'number')">
+            <th >
               {{'msg.metadata.md.ui.data.popularity' | translate}}
-              <em class="ddp-icon-array-default2" *ngIf="sortOptions.popularity.option === 'default'"></em>
-              <em class="ddp-icon-array-asc2" *ngIf="sortOptions.popularity.option === 'asc'"></em>
-              <em class="ddp-icon-array-des2" *ngIf="sortOptions.popularity.option === 'desc'"></em>
+<!--              <em class="ddp-icon-array-default2" *ngIf="sortOptions.popularity.option === 'default'"></em>-->
+<!--              <em class="ddp-icon-array-asc2" *ngIf="sortOptions.popularity.option === 'asc'"></em>-->
+<!--              <em class="ddp-icon-array-des2" *ngIf="sortOptions.popularity.option === 'desc'"></em>-->
               <div class="ddp-wrap-hover-info">
                 <em class="ddp-icon-info3"></em>
                 <!-- popup -->
@@ -106,7 +109,7 @@
             <th>
               {{'msg.storage.ui.criterion.creator' | translate}}
             </th>
-            <th (click)="exploreDataUtilService.toggleSortOption(metadataList, sortOptions, 'modifiedTime', 'date')">
+            <th (click)="toggleSortOption('modifiedTime')">
               {{'msg.comm.ui.list.updated' | translate}}
               <em class="ddp-icon-array-default2" *ngIf="sortOptions.modifiedTime.option === 'default'"></em>
               <em class="ddp-icon-array-asc2" *ngIf="sortOptions.modifiedTime.option === 'asc'"></em>

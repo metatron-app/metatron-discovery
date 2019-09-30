@@ -4,6 +4,8 @@ import {Injectable} from "@angular/core";
 export class ExploreDataUtilService {
   /**
    * Sort column clicked
+   * @param list
+   * @param sortOptions
    * @param type
    * @param dataType
    */
