@@ -26,33 +26,33 @@
   <div class="ddp-box-type ddp-type-server">
     <div class="ddp-wrap-status-value ddp-clear">
       <div class="ddp-ui-status-value">
-        <div class="ddp-label-status type-broker">
+        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.broker)]">
           Broker
-          <em [ngClass]="[getStatusClass(clusterStatus.broker)]"></em>
+          <em [ngClass]="[getIconStatusClass(clusterStatus.broker)]"></em>
         </div>
       </div>
       <div class="ddp-ui-status-value">
-        <div class="ddp-label-status type-coordinator">
+        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.coordinator)]">
           Coordinator
-          <em [ngClass]="[getStatusClass(clusterStatus.coordinator)]"></em>
+          <em [ngClass]="[getIconStatusClass(clusterStatus.coordinator)]"></em>
         </div>
       </div>
       <div class="ddp-ui-status-value">
-        <div class="ddp-label-status type-historical">
+        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.historical)]">
           Historical
-          <em [ngClass]="[getStatusClass(clusterStatus.historical)]"></em>
+          <em [ngClass]="[getIconStatusClass(clusterStatus.historical)]"></em>
         </div>
       </div>
       <div class="ddp-ui-status-value">
-        <div class="ddp-label-status type-overlord">
+        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.overlord)]">
           Overlord
-          <em [ngClass]="[getStatusClass(clusterStatus.overlord)]"></em>
+          <em [ngClass]="[getIconStatusClass(clusterStatus.overlord)]"></em>
         </div>
       </div>
       <div class="ddp-ui-status-value">
-        <div class="ddp-label-status type-middleManager">
+        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.middleManager)]">
           Middle Manager
-          <em [ngClass]="[getStatusClass(clusterStatus.middleManager)]"></em>
+          <em [ngClass]="[getIconStatusClass(clusterStatus.middleManager)]"></em>
         </div>
       </div>
     </div>

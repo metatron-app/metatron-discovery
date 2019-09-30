@@ -53,10 +53,15 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
   public readonly VIEW_MODE = Engine.ViewMode;
   public selectedViewMode: Engine.ViewMode = this.VIEW_MODE.GRID;
 
-  private readonly NORMAL_CLASS = 'ddp-icon-status-success';
-  private readonly WARN_CLASS = 'ddp-icon-status-warning';
-  private readonly ERROR_CLASS = 'ddp-icon-status-error';
-  private readonly NONE_CLASS = '';
+  private readonly ICON_NORMAL_CLASS = 'ddp-icon-status-success';
+  private readonly ICON_WARN_CLASS = 'ddp-icon-status-warning';
+  private readonly ICON_ERROR_CLASS = 'ddp-icon-status-error';
+  private readonly ICON_NONE_CLASS = '';
+
+  private readonly TYPE_NORMAL_CLASS = 'type-historical';
+  private readonly TYPE_WARN_CLASS = 'type-broker';
+  private readonly TYPE_ERROR_CLASS = 'type-coordinator';
+  private readonly TYPE_NONE_CLASS = '';
 
   @ViewChild(NodeInformationComponent)
   private readonly _nodeInformationComponent: NodeInformationComponent;
@@ -161,16 +166,29 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
     }
   }
 
-  public getStatusClass(clusterStatus: Engine.Cluster.Code) {
+  public getTypeStatusClass(clusterStatus: Engine.Cluster.Code) {
     switch (clusterStatus) {
       case Engine.Cluster.Code.NORMAL:
-        return this.NORMAL_CLASS;
+        return this.TYPE_NORMAL_CLASS;
       case Engine.Cluster.Code.WARN:
-        return this.WARN_CLASS;
+        return this.TYPE_WARN_CLASS;
       case Engine.Cluster.Code.ERROR:
-        return this.ERROR_CLASS;
+        return this.TYPE_ERROR_CLASS;
       default:
-        return this.NONE_CLASS;
+        return this.TYPE_NONE_CLASS;
+    }
+  }
+
+  public getIconStatusClass(clusterStatus: Engine.Cluster.Code) {
+    switch (clusterStatus) {
+      case Engine.Cluster.Code.NORMAL:
+        return this.ICON_NORMAL_CLASS;
+      case Engine.Cluster.Code.WARN:
+        return this.ICON_WARN_CLASS;
+      case Engine.Cluster.Code.ERROR:
+        return this.ICON_ERROR_CLASS;
+      default:
+        return this.ICON_NONE_CLASS;
     }
   }
 
