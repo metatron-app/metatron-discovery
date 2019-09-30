@@ -54,7 +54,7 @@
                 [ngClass]="{'ddp-selected' : dashboard.id === dashboardItem.id}">
               <a href="javascript:" (click)="moveOrNewDashboard(dashboardItem)">
                 <span class="ddp-wrap-images">
-                  <img src="" (invoke)="getBoardImage($event, dashboardItem.imageUrl)" class="ddp-img-chart" />
+                  <img src="" (invoke)="dashboardUtil.getBoardImage($event, dashboardItem.imageUrl)" class="ddp-img-chart" />
                 </span>
                 <span class="ddp-data-name">{{dashboardItem.name}}</span>
               </a>

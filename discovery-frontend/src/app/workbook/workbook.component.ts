@@ -52,6 +52,7 @@ import {PopupInputNameDescComponent} from './component/popup-input-workbook/popu
 import {EventBroadcaster} from '../common/event/event.broadcaster';
 import {Datasource} from '../domain/datasource/datasource';
 import {WidgetService} from "../dashboard/service/widget.service";
+import {DashboardUtil} from "../dashboard/util/dashboard.util";
 
 declare let $;
 
@@ -96,6 +97,9 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
 
   // 워크스페이스 권한 확인기
   private _permissionChecker: PermissionChecker;
+
+  // Dashboard util for getDashboardImage
+  private dashboardUtil: DashboardUtil = new DashboardUtil();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -557,19 +561,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // noinspection JSMethodCanBeStatic
-  /**
-   * 이미지 경로 설정
-   * @param {ElementRef} elmRef
-   * @param {string} imageUrl
-   */
-  public getBoardImage(elmRef: ElementRef, imageUrl: string) {
-    if (imageUrl) {
-      const date = Date.now();
-      elmRef.nativeElement.src = '/api/images/load/url?url=' + imageUrl + '/thumbnail?' + date;
-    } else {
-      elmRef.nativeElement.src = '/assets/images/img_board_default2.png';
-    }
-  } // function - getBoardImage
 
   /**
    * Toggle datasource layer

@@ -14,7 +14,6 @@ export class RecentQueriesComponent extends AbstractComponent implements OnInit 
 
   queries: any;
 
-  recentlyQueriesForDataSource = [];
   recentlyQueriesForDataBase = [];
 
   public isShow: boolean = false;

@@ -37,6 +37,7 @@ import {CommonConstant} from "../../common/constant/common.constant";
 import {ChartUtil} from "../../common/component/chart/option/util/chart-util";
 import {FilterUtil} from "./filter.util";
 import {MapLayerType} from "../../common/component/chart/option/define/map/map-common";
+import {ElementRef} from "@angular/core";
 
 export class DashboardUtil {
 
@@ -177,6 +178,20 @@ export class DashboardUtil {
     return dashboard;
 
   } // function - setDataSourceAndRelations
+
+  /**
+   * 이미지 경로 설정
+   * @param {ElementRef} elmRef
+   * @param {string} imageUrl
+   */
+  public getBoardImage(elmRef: ElementRef, imageUrl: string) {
+    if (imageUrl) {
+      const date = Date.now();
+      elmRef.nativeElement.src = '/api/images/load/url?url=' + imageUrl + '/thumbnail?' + date;
+    } else {
+      elmRef.nativeElement.src = '/assets/images/img_board_default2.png';
+    }
+  } // function - getBoardImage
 
   /**
    * 대시보드 데이터소스 스펙을 서버 스펙으로 변경함

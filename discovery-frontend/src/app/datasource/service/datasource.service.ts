@@ -1066,18 +1066,6 @@ export class DatasourceService extends AbstractService {
   }
 
   /**
-   * Get Recently Queries In Metadata Detail for DataSource
-   * @param {number} page
-   * @param {number} size
-   * @param {string} sort
-   * @param {string} datasourceId
-   * @returns {Promise<any>}
-   */
-  public getRecentlyQueriesInMetadataDetailForDataSource(datasourceId: string, page: number, size: number, sort: string): Promise<any> {
-    return this.get(this.API_URL + `datasources/${datasourceId}/query/histories?size=${size}&page=${page}&sort=${sort}`);
-  }
-
-  /**
    * Get Recently Queries In Metadata Detail for DataBase
    * @param {number} page
    * @param {number} size

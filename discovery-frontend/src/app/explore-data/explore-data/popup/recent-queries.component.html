@@ -8,45 +8,8 @@
     <em class="ddp-btn-popup-close" (click)="closePopup()"></em>
   </div>
   <!-- //top -->
-  <!--  if sourceType is ENGINE(dataSource)    -->
-  <div class="ddp-ui-preview-contents">
-    <table class="ddp-table-form ddp-table-type3" *ngIf="recentlyQueriesForDataSource.length > 0">
-      <colgroup>
-        <col width="15%">
-        <col width="10%">
-        <col width="10%">
-        <col width="150px">
-        <col width="*">
-      </colgroup>
-      <thead>
-      <tr>
-        <th>Date</th>
-        <th>Type</th>
-        <th>User</th>
-        <th>Result</th>
-        <th>Query</th>
-      </tr>
-      </thead>
-      <!--  if sourceType is ENGINE(dataSource)    -->
-      <tbody >
-      <tr *ngFor="let recentQuery of recentlyQueriesForDataSource">
-        <td>{{ recentQuery.createdTime | mdate:'YYYY-MM-DD HH:mm:ss' }}</td>
-        <td>{{ recentQuery.queryType }}</td>
-        <td>{{ recentQuery.creator.fullName }}</td>
-        <td> <span class="ddp-data-state" [ngClass]="recentQuery.succeed ? 'ddp-success' : 'ddp-fail'">{{ recentQuery.succeed ? 'Success' : 'Fail' }}</span></td>
-        <td>
-          <div class="ddp-txt-long ddp-type-button">
-            <a href="javascript:" class="ddp-btn-selection ddp-fright" (click)="onClickCopy(recentQuery.query)">Copy</a>
-            <span class="ddp-txt-name" title="{{ recentQuery.query }}">{{ recentQuery.query }}</span>
-          </div>
-        </td>
-      </tr>
-      <!--  if sourceType is ENGINE(dataSource)    -->
-    </table>
-  </div>
-
   <!--  if sourceType is JDBC(database) || StageDB    -->
-  <div class="ddp-ui-preview-contents" *ngIf="recentlyQueriesForDataBase.length > 0">
+  <div class="ddp-ui-preview-contents">
     <table class="ddp-table-form ddp-table-type3">
       <colgroup>
         <col width="15%">
@@ -76,10 +39,6 @@
       </tr>
       </tbody>
     </table>
-
   </div>
-  <!--  if sourceType is JDBC(database)    -->
-
-
-  <!-- //cpmtemts -->
+  <!--  if sourceType is JDBC(database) || Stage DB   -->
 </div>

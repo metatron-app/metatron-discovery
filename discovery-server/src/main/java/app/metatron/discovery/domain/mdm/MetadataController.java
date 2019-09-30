@@ -61,6 +61,7 @@ import app.metatron.discovery.domain.tag.TagProjections;
 import app.metatron.discovery.domain.tag.TagService;
 import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.user.UserRepository;
+import app.metatron.discovery.domain.workbook.DashboardProjections;
 import app.metatron.discovery.util.HttpUtils;
 import app.metatron.discovery.util.ProjectionUtils;
 
@@ -492,6 +493,32 @@ public class MetadataController {
 
     List<?> updateHistoryList = metadataService.getUpdateHistory(metadata, 5);
     return ResponseEntity.ok(updateHistoryList);
+  }
+
+  @RequestMapping(path = "/metadatas/{metadataId}/related", method = RequestMethod.GET)
+  public ResponseEntity <?> getRelatedEntityByMetadata(@PathVariable("metadataId") String metadataId, Pageable pageable){
+    //getting metadata from id
+    Metadata metadata = metadataRepository.findOne(metadataId);
+    if (metadata == null) {
+      throw new ResourceNotFoundException(metadataId);
+    }
+
+    Page<?> relatedList = metadataService.getRelatedEntityByMetadata(metadata, pageable);
+
+    Class projectionCls = null;
+
+    switch(metadata.getSourceType()){
+      case ENGINE:
+        projectionCls = DashboardProjections.ForMetadataThumbnailViewProjection.class;
+        break;
+      default:
+        //need implement additional sourceTypes later
+        break;
+    }
+
+    return ResponseEntity.ok(pagedResourcesAssembler.toResource(
+        ProjectionUtils.toPageResource(projectionFactory, projectionCls, relatedList)
+    ));
   }
 
 }

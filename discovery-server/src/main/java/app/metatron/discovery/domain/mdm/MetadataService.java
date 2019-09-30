@@ -24,12 +24,16 @@ import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.RevisionType;
 import org.hibernate.envers.query.AuditEntity;
 import org.hibernate.envers.query.AuditQuery;
+import org.hibernate.proxy.HibernateProxy;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.core.event.AfterCreateEvent;
 import org.springframework.data.rest.core.event.BeforeCreateEvent;
 import org.springframework.stereotype.Component;
@@ -50,7 +54,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -94,7 +97,7 @@ import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccesso
 import app.metatron.discovery.util.HibernateUtils;
 
 
-@Component
+@Component("metadataService")
 @Transactional
 public class MetadataService implements ApplicationEventPublisherAware {
 
@@ -520,15 +523,15 @@ public class MetadataService implements ApplicationEventPublisherAware {
         //getting Dashboard list that use the datasource
         Set<DashBoard> dashboardsInDataSource = dataSourceRepository.findDashboardsInDataSource(dataSourceId);
 
-        //extract dashboard id
-        List<String> dashboardIdList = dashboardsInDataSource.stream()
-                                                             .map(dashBoard -> dashBoard.getId())
-                                                             .collect(Collectors.toList());
-
         //If no dashboard uses this data source, it returns an empty list.
         if(dashboardsInDataSource.isEmpty()){
           break;
         }
+
+        //extract dashboard id
+        List<String> dashboardIdList = dashboardsInDataSource.stream()
+                                                             .map(dashBoard -> dashBoard.getId())
+                                                             .collect(Collectors.toList());
 
         //we need just VIEW Action
         List<ActivityType> activityTypes = Lists.newArrayList(ActivityType.VIEW);
@@ -621,16 +624,6 @@ public class MetadataService implements ApplicationEventPublisherAware {
         break;
     }
     return frequentUserList;
-  }
-
-  private int getRandomNumberInRange(int min, int max) {
-
-    if (min >= max) {
-      throw new IllegalArgumentException("max must be greater than min");
-    }
-
-    Random r = new Random();
-    return r.nextInt((max - min) + 1) + min;
   }
 
   public List<?> getUpdateHistory(Metadata metadata, int limit){
@@ -726,12 +719,78 @@ public class MetadataService implements ApplicationEventPublisherAware {
     return historyList;
   }
 
-  public Boolean getWorkspacePermission(Workspace workspace, String permission){
+  public Boolean getWorkspacePermission(Object workspace, String permission){
     Boolean hasPermission = false;
-    if(workspace.getActive()){
-      Set<String> permissions = workspaceService.getPermissions(workspace);
-      hasPermission = permissions.contains(permission);
+
+    Workspace targetWorkspace = null;
+
+    if(workspace instanceof Workspace){
+      targetWorkspace = (Workspace) workspace;
+    } else if(workspace instanceof HibernateProxy){
+      targetWorkspace = (Workspace) HibernateUtils.unproxy(workspace);
+    }
+
+    if(targetWorkspace != null && targetWorkspace.getActive()){
+      if(Workspace.PublicType.SHARED.equals(targetWorkspace.getPublicType()) && targetWorkspace.getPublished()){
+        hasPermission = true;
+      } else {
+        Set<String> permissions = workspaceService.getPermissions(targetWorkspace);
+        hasPermission = permissions.contains(permission);
+      }
     }
     return hasPermission;
+  }
+
+  public Page<?> getRelatedEntityByMetadata(Metadata metadata, Pageable pageable){
+    Metadata.SourceType sourceType = metadata.getSourceType();
+    Page<?> relatedEntityPage = null;
+    switch (sourceType){
+      case ENGINE:
+        MetadataSource metadataSource = metadata.getSource();
+        DataSource metadataSourceDetail
+            = (DataSource) metaSourceService.getSourcesBySourceId(metadataSource.getType(), metadataSource.getSourceId());
+
+        if(metadataSourceDetail == null){
+          throw new ResourceNotFoundException("Metadata Source (" + metadataSource.getType() + " : " + metadataSource.getSourceId() + ") not exist.");
+        }
+
+        //getting dashboard list reference metadata
+        Page<DashBoard> dashBoardPage = dashboardRepository.findAllByDataSources(Lists.newArrayList(metadataSourceDetail), pageable);
+
+        if(dashBoardPage.hasContent()){
+          List<DashBoard> dashBoardList = dashBoardPage.getContent();
+          List<Map> dashBoardWithPermission = new ArrayList<>();
+          List<DashBoard> dashBoardWithPermission2 = new ArrayList<>();
+
+          dashBoardList.stream().forEach(
+              dashBoard -> {
+
+                //get Workbook
+                WorkBook workbook = HibernateUtils.unproxy(dashBoard.getWorkBook());
+
+                //get Workspace Permission
+                Workspace workspace = workbook.getWorkspace();
+                Boolean hasPermission = getWorkspacePermission(workspace, WorkspacePermissions.PERM_WORKSPACE_VIEW_WORKBOOK);
+
+                Map<String, Object> dashBoardMap = new HashMap<>();
+                dashBoardMap.put("dashboard", dashBoard);
+                dashBoardMap.put("workbook", workbook);
+                dashBoardMap.put("hasPermission", hasPermission);
+                dashBoardWithPermission.add(dashBoardMap);
+                dashBoardWithPermission2.add(dashBoard);
+              }
+          );
+          relatedEntityPage = new PageImpl(dashBoardWithPermission2, pageable, dashBoardPage.getTotalElements());
+        } else {
+          relatedEntityPage = new PageImpl(Lists.newArrayList(), pageable, 0);
+        }
+        break;
+      default:
+        //default blank page
+        //need implement additional sourceTypes later
+        relatedEntityPage = new PageImpl(Lists.newArrayList(), pageable, 0);
+        break;
+    }
+    return relatedEntityPage;
   }
 }
