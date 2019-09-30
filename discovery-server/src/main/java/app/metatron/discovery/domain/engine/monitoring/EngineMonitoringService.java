@@ -536,7 +536,7 @@ public class EngineMonitoringService {
       request.setToDate(toDate);
     }
     selectStreamQuery.setIntervals(Lists.newArrayList(request.getFromDate()+"/"+request.getToDate()));
-    selectStreamQuery.setLimit(100);
+    selectStreamQuery.setLimit(1000000);
 
     String queryString = GlobalObjectMapper.writeValueAsString(selectStreamQuery);
     Optional<JsonNode> engineResult = engineRepository.query(queryString, JsonNode.class);

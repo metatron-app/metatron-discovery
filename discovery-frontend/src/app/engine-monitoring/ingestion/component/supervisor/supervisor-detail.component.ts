@@ -28,13 +28,14 @@ import {Engine} from "../../../../domain/engine-monitoring/engine";
 import {Modal} from "../../../../common/domain/modal";
 import {Alert} from "../../../../common/util/alert.util";
 import {Location} from "@angular/common";
+import * as _ from 'lodash';
 
 declare let echarts: any;
 declare let $: any;
 declare let moment: any;
 
 @Component({
-  selector: 'app-detail-upervisor',
+  selector: 'app-detail-supervisor',
   templateUrl: './supervisor-detail.component.html',
   styles: ['.ddp-data-form .ddp-btn-buttons3:first-of-type {margin-right: 10px;}']
 })
@@ -55,10 +56,17 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
   public supervisorId;
   public supervisorPayload: any = {};
 
+  public taskId;
+  public dataSource;
+
   public processed: any;
   public unparseable: any;
   public thrownaway: any;
 
+  public isShowRowDuration:boolean;
+  public isShowLagDuration:boolean;
+  public selectedRowDuration:String = '1HOUR';
+  public selectedLagDuration:String = '1HOUR';
   public showConfirm:boolean = false;
   public confirmModal: Modal;
 
@@ -121,22 +129,61 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
     this.showConfirm = false;
   }
 
+  public changeRowDuration(duration:string) {
+    this.isShowRowDuration = false;
+    this.loadingShow();
+    this.selectedRowDuration = duration;
+    const fromDate = this._getFromDate(duration);
+    this._getSupervisorRow(fromDate);
+    setTimeout(() => {
+      this.loadingHide();
+    }, 300);
+  }
+
+  public changeLagDuration(duration:string) {
+    this.isShowLagDuration = false;
+    this.loadingShow();
+    this.selectedLagDuration = duration;
+    const fromDate = this._getFromDate(duration);
+    this._getSupervisorLag(fromDate);
+    setTimeout(() => {
+      this.loadingHide();
+    }, 300);
+  }
+
+  public getDurationLabel(duration:string) {
+    if ('1DAY' === duration) {
+      return 'Last 1 day';
+    } else if ('7DAYS' === duration) {
+      return 'Last 7 days';
+    } else if ('30DAYS' === duration) {
+      return 'Last 30 days';
+    } else {
+      return 'Last 1 hour';
+    }
+  }
+
   private _getSupervisorDetail(): void {
     this.engineService.getSupervisorStatus(this.supervisorId).then((data) => {
       this.supervisorPayload = data.payload;
-      const taskId = this.supervisorPayload.activeTasks[0].id;
-      const datasource = this.supervisorPayload.dataSource;
-      this._getSupervisorRow(taskId);
-      this._getSupervisorLag(datasource);
+      this.taskId = this.supervisorPayload.activeTasks[0].id;
+      this.dataSource = this.supervisorPayload.dataSource;
+      this._getSupervisorRow();
+      this._getSupervisorLag();
     })
   }
 
-  private _getSupervisorRow(taskId): void {
+  private _getSupervisorRow(fromDate?:string): void {
+    if (_.isNil(fromDate)) {
+      fromDate = this._getFromDate('1HOUR');
+    }
     const queryParam: any =
     {
       monitoringTarget : {
-        taskId: taskId
-      }
+        taskId: this.taskId
+      },
+      fromDate: fromDate,
+      toDate: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
     };
 
     this.engineService.getSupervisorRows(queryParam).then((data) => {
@@ -230,13 +277,18 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
 
 }
 
-  private _getSupervisorLag(datasource) {
+  private _getSupervisorLag(fromDate?:string): void {
+    if (_.isNil(fromDate)) {
+      fromDate = this._getFromDate('1HOUR');
+    }
     const queryParam: any =
       {
         monitoringTarget : {
           metric: Engine.MonitoringTarget.SUPERVISOR_LAG,
-          datasource: datasource
-        }
+          datasource: this.dataSource
+        },
+        fromDate: fromDate,
+        toDate: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
       };
 
     this.engineService.getMonitoringStream(queryParam).then((data) => {
@@ -294,6 +346,18 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
       const chartobj = echarts.init(this._lagChartElmRef.nativeElement, 'exntu');
       chartobj.setOption(chartOps, false);
     });
+  }
+
+  private _getFromDate(duration:string) {
+    if ('1DAY' === duration) {
+      return moment().subtract(1, 'days').utc().format('YYYY-MM-DDTHH:mm:ss');
+    } else if ('7DAYS' === duration) {
+      return moment().subtract(7, 'days').utc().format('YYYY-MM-DDTHH:mm:ss');
+    } else if ('30DAYS' === duration) {
+      return moment().subtract(30, 'days').utc().format('YYYY-MM-DDTHH:mm:ss');
+    } else {
+      return moment().subtract(1, 'hours').utc().format('YYYY-MM-DDTHH:mm:ss');
+    }
   }
 
 }

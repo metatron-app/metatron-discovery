@@ -16,11 +16,12 @@
 <div [ngClass]="['ddp-ui-contents-det']">
 
   <!-- box status -->
-  <div overview-status-view class="ddp-view-setting ddp-clear" [clusterStatus]="clusterStatus" [monitorings]="monitorings" [clusterSize]="clusterSize"></div>
+  <div overview-status-view class="ddp-view-setting ddp-clear" [clusterStatus]="clusterStatus" [monitorings]="monitorings" [clusterSize]="clusterSize"
+                                          [duration]= "selectedDuration" (changeValue)="changeDuration($event)"></div>
   <!-- // box status -->
 
   <!-- Graph Area -->
-  <div overview-graph-view class="ddp-wrap-engine-graph ddp-clear"></div>
+  <div overview-graph-view class="ddp-wrap-engine-graph ddp-clear" [duration]="selectedDuration"></div>
   <!-- // Graph Area -->
 
   <div class="ddp-box-type ddp-type-server">

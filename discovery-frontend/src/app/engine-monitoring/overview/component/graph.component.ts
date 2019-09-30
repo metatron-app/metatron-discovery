@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {AbstractComponent} from '../../../common/component/abstract.component';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
 import {EngineService} from "../../service/engine.service";
@@ -33,11 +33,15 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
   @ViewChild('gcCount') private _gcCountChartElmRef: ElementRef;
   @ViewChild('avgQueryTime') private _avgQueryTimeChartElmRef: ElementRef;
 
-  public gcCpu:string = '';
   public heapMemory:string = '';
   public queryCount:number = 0;
   public runningTaskCount:number = 0;
   public datasourceCount:number = 0;
+
+  @Input()
+  public duration:string;
+
+  public fromDate:string;
 
   constructor(private _datasourceSvc: DatasourceService,
               private _engineSvc: EngineService,
@@ -48,15 +52,37 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
 
   public ngOnInit() {
     super.ngOnInit();
+    this.setDate(this.duration);
+  }
+
+  public ngOnDestroy() {
+    super.ngOnDestroy();
+  }
+
+  public setDate(duration:string) {
+    this.duration = duration;
+    if ('1HOUR' === duration) {
+      this.fromDate = moment().subtract(1, 'hours').utc().format();
+    } else if ('7DAYS' === duration) {
+      this.fromDate = moment().subtract(7, 'days').utc().format();
+    } else if ('30DAYS' === duration) {
+      this.fromDate = moment().subtract(30, 'days').utc().format();
+    } else {
+      this.fromDate = moment().subtract(1, 'days').utc().format();
+    }
+    this._init();
+  }
+
+  private _init() {
+    this.loadingShow();
     this._getUsageMemory();
     this._getGcCount();
     this._getAvgQueryTime();
     this._getRunningTasks();
     this._getDatasourceList();
-  }
-
-  public ngOnDestroy() {
-    super.ngOnDestroy();
+    setTimeout(() => {
+      this.loadingHide();
+    }, 300);
   }
 
   /**
@@ -64,9 +90,15 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
    * @private
    */
   private _getUsageMemory() {
-    this._engineSvc.getMemory().then((data) => {
+    const queryParam: any =
+      {
+        fromDate: this.fromDate,
+        toDate: moment().format('YYYY-MM-DDTHH:mm:ss')
+      };
+
+    this._engineSvc.getMemory(queryParam).then((data) => {
       const seriesData = data.map( item => {
-        ( 'useMem' === item.name ) && ( this.heapMemory = item.percentage.toFixed(0) + '%' );
+        ( 'useMem' === item.name ) && ( this.heapMemory = (typeof item.percentage === "number") ? item.percentage.toFixed(0) + '%' : '0%');
         item['itemStyle'] = {
           normal:{ color: 'useMem' === item.name ? '#f0f4ff' : '#314673' }
         }
@@ -114,8 +146,8 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
         monitoringTarget: {
           metric: Engine.MonitoringTarget.GC_COUNT
         },
-        fromDate: moment().subtract(1, 'days').format('YYYY-MM-DDTHH:mm:ss'),
-        toDate: moment().format('YYYY-MM-DDTHH:mm:ss')
+        fromDate: this.fromDate,
+        toDate: moment().utc().format()
       };
 
     this._engineSvc.getMonitoringData(queryParam).then((data) => {
@@ -187,8 +219,8 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
           metric: Engine.MonitoringTarget.QUERY_TIME,
           includeCount: true
         },
-        fromDate: moment().subtract(1, 'days').format('YYYY-MM-DDTHH:mm:ss'),
-        toDate: moment().format('YYYY-MM-DDTHH:mm:ss')
+        fromDate: this.fromDate,
+        toDate: moment().utc().format()
       };
 
     this._engineSvc.getMonitoringData(queryParam).then((data) => {
