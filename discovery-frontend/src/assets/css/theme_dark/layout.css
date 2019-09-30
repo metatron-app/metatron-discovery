@@ -654,8 +654,8 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
 ************************************************************************************************************/
 .theme-dark .ddp-layout-lnb {
     position: fixed;
-    left: -2px;
-    top: -1px;
+    left: 0;
+    top: 0;
     width: 0;
     border-right: 2px solid #4c515a;
     box-sizing: border-box;
@@ -708,11 +708,11 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
     fill: #C3C7D2;
 }
 
-.theme-dark .ddp-layout-lnb.ddp-selected .ddp-h1-logo a .st10 {
+.theme-dark .ddp-layout-lnb .ddp-h1-logo a .st10 {
     fill: #fff;
 }
 
-.theme-dark .ddp-layout-lnb.ddp-selected .ddp-h1-logo a .st11 {
+.theme-dark .ddp-layout-lnb .ddp-h1-logo a .st11 {
     fill: #2abcef;
 }
 
@@ -720,7 +720,6 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
     position: fixed;
     left: 0;
     top: 0;
-    bottom: 0;
     width: 288px;
     background: #192239;
     text-indent: 0;
