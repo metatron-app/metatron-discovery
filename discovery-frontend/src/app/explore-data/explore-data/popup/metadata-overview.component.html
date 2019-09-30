@@ -151,10 +151,13 @@
                (click)="onClickSeeAllRecentDashboards()">{{'msg.explore.btn.detail.more.list'| translate}} &gt;</a>
           </div>
           <div class="ddp-data-det">
-            <ul class="ddp-list-graph ddp-bottom ddp-cursor" *ngIf="recentlyUsedDashboardList.length > 0">
-              <li *ngFor="let recentlyUsedDashboard of recentlyUsedDashboardList" [class.ddp-cursor-default]="!recentlyUsedDashboard.hasPermission" (click)="onDashboardClicked(recentlyUsedDashboard)">
+            <ul class="ddp-list-graph ddp-bottom" *ngIf="recentlyUsedDashboardList.length > 0">
+              <li
+                *ngFor="let recentlyUsedDashboard of recentlyUsedDashboardList"
+                [class.ddp-cursor-default]="!recentlyUsedDashboard.hasPermission"
+                (click)="onDashboardClicked(recentlyUsedDashboard)">
                 <!-- Graph -->
-                <div class="ddp-box-image">
+                <div class="ddp-box-image" [class.ddp-cursor]="recentlyUsedDashboard.hasPermission">
                   <img (invoke)="dashboardUtil.getBoardImage($event, recentlyUsedDashboard.imageUrl)"/>
                 </div>
                 <!-- //Graph -->
