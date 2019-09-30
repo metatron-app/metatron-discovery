@@ -37,8 +37,8 @@ export class CreatedTimeRadioFilter extends AbstractComponent{
   private _startDate: Date;
   private _endDate: Date;
 
-  private _startDateStr: string = '';
-  private _endDateStr: string = '';
+  public startDateStr: string = '';
+  public endDateStr: string = '';
 
   // DatePicker object
   private _startPicker;
@@ -227,19 +227,19 @@ export class CreatedTimeRadioFilter extends AbstractComponent{
 
       if( this._startPickerDate ) {
         startDateStr = moment(this._startPickerDate).format(returnFormat);
-        this._startDateStr = moment(this._startDate).format('YYYY-MM-DD:mm');
+        this.startDateStr = moment(this._startDate).format('YYYY-MM-DD:mm');
       } else {
         startDateStr = null;
       }
 
       if( this._endPickerDate ) {
         endDateStr = moment(this._endPickerDate).add(59,'seconds').format(returnFormat);
-        this._endDateStr =  moment(this._startDate).format('YYYY-MM-DD:mm');
+        this.endDateStr =  moment(this._startDate).format('YYYY-MM-DD:mm');
       } else {
         endDateStr = null;
       }
 
-      this.selectedCreatedTimeOptionName = this._startDateStr + ' ~ ' + this._endDateStr;
+      this.selectedCreatedTimeOptionName = this.startDateStr + ' ~ ' + this.endDateStr;
 
       const returnData = {
         startDate : this._startPickerDate,
