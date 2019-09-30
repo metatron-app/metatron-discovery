@@ -70,7 +70,7 @@ export namespace Type {
   export enum MetadataSource {  // TODO 추후 동적필터가 들어오게되면 제거 필요
     ENGINE = 'ENGINE',
     JDBC = 'JDBC',
-    STAGING = 'STAGING',
+    STAGEDB = 'STAGEDB',
     ////////////////////////////////////////////////////////////////////////////
     // Value to be used only on View
     ////////////////////////////////////////////////////////////////////////////

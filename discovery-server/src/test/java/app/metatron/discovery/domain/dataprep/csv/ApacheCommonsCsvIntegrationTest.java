@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.csv;
 
 import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getReaderAfterDetectingCharset;
+import static org.junit.Assert.assertNull;
 
 import app.metatron.discovery.AbstractRestIntegrationTest;
 import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
@@ -130,8 +131,7 @@ public class ApacheCommonsCsvIntegrationTest extends AbstractRestIntegrationTest
   public void test_hdfs() throws JsonProcessingException {
     PrepParseResult result = PrepCsvUtil.parse(strHdfsUriCrime, ",", 10000, getHadoopConf());
 
-    LOGGER.debug("colNames={}", result.colNames);
-    LOGGER.debug("colCnt={}", result.colNames.size());
+    assertNull(result.colNames);
 
     DataFrame df = new DataFrame();
     df.setByGrid(result.grid, result.colNames);

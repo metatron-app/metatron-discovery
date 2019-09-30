@@ -8,8 +8,8 @@
 <!--      <em class="ddp-icon-control-fav"></em>-->
     </div>
     <div>
-      <div class="ddp-data-info" [class.type-link]="topUser.hasPermission" (click)="onClickDashBoardName(topUser.hasPermission)">
-          <em *ngIf="topUser.hasPermission" class="ddp-link-new" ></em>
+      <div class="ddp-data-info" [class.type-link]="topUser.hasPermission"  (click)="onClickDashBoardName(topUser.hasPermission)">
+          <em *ngIf="topUser.hasPermission" [class.ddp-link-new]="topUser.hasPermission" ></em>
           <span class="ddp-txt-info">
             {{ topUser['dashboard']['workBook']
             ? topUser['dashboard']['workBook']['name'] + " > " + topUser['dashboard']['name']
@@ -34,7 +34,7 @@
     </div>
     <div>
       <div class="ddp-data-info" [class.type-link]="topUser.hasPermission" (click)="onClickWorkbenchName(topUser.hasPermission)">
-          <em *ngIf="topUser.hasPermission" class="ddp-link-new" ></em>
+          <em *ngIf="topUser.hasPermission" [class.ddp-link-new]="topUser.hasPermission"></em>
           <span class="ddp-txt-info">
             {{ topUser['workbench']['name'] }}
           </span>

@@ -119,7 +119,6 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
 
         if (!_.isEmpty(params)) {
 
-
           if (!isNullOrUndefined(params['size'])) {
             this.page.size = params['size'];
           }
@@ -142,7 +141,6 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
           if (!_.isNil(params['sort'])) {
             this.selectedSort = this.sortList.find(sort => sort.value === params['sort']);
           }
-
         }
 
         // first fetch metadata tag list
@@ -163,8 +161,6 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
             console.error(error);
             this.getMetadataList();
           })
-
-
       });
   }
 

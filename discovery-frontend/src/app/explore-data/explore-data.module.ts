@@ -53,6 +53,8 @@ import {ExploreCatalogLayerComponent} from "./explore-data/component/explore-cat
 import {CreateWorkbookModule} from "../workbook/component/create-workbook/refactoring/create-workbook.module";
 import {ConfirmRefModalComponent} from "../common/component/modal/confirm/confirm-ref.component";
 import {MetadataUsedWorkspaceComponent} from "./explore-data/component/metadata-used-workspace.component";
+import {ExploreDataUtilService} from "./explore-data/service/explore-data-util.service";
+import {UpdatedTimeRadioFilter} from "./explore-data/component/updated-time-radio-filter.component";
 
 @NgModule({
   imports: [
@@ -76,6 +78,7 @@ import {MetadataUsedWorkspaceComponent} from "./explore-data/component/metadata-
     LogicalNameLayerComponent,
     MetadataSvgComponent,
     CheckBoxFilterComponent,
+    UpdatedTimeRadioFilter,
     ExploreBannerComponent,
     ExploreCardComponent,
     CatalogFolderComponent,
@@ -106,7 +109,8 @@ import {MetadataUsedWorkspaceComponent} from "./explore-data/component/metadata-
     ConstantService,
     CodeTableService,
     ConstantService,
-    MetadataModelService
+    MetadataModelService,
+    ExploreDataUtilService,
   ],
 })
 export class ExploreDataModule {

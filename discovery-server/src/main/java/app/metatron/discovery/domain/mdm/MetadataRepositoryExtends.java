@@ -22,10 +22,10 @@ import java.util.List;
 
 public interface MetadataRepositoryExtends {
 
-  Page<Metadata> searchMetadatas(Metadata.SourceType sourceType, String catalogId, String tag, String nameContains,
+  Page<Metadata> searchMetadatas(List<Metadata.SourceType> sourceType, String catalogId, String tag, String nameContains,
                                  String searchDateBy, DateTime from, DateTime to, Pageable pageable);
 
-  Page<Metadata> searchMetadatas(String keyword, Metadata.SourceType sourceType, String catalogId, String tag,
+  Page<Metadata> searchMetadatas(String keyword, List<Metadata.SourceType> sourceType, String catalogId, String tag,
                                  String nameContains, String descContains, List<String> userIds,
                                  String searchDateBy, DateTime from, DateTime to, Pageable pageable);
 

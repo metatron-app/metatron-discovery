@@ -36,14 +36,14 @@ public class MetadataPredicate {
    * @param to 검색 종료일자, yyyy-MM-ddThh:mm:ss.SSSZ
    * @return
    */
-  public static Predicate searchList(Metadata.SourceType sourceType, String catalogId, List<String> subCatalogIds, String nameContains,
+  public static Predicate searchList(List<Metadata.SourceType> sourceType, String catalogId, List<String> subCatalogIds, String nameContains,
                                      String searchDateBy, DateTime from, DateTime to) {
 
     BooleanBuilder builder = new BooleanBuilder();
     QMetadata qMetadata = QMetadata.metadata;
 
-    if(sourceType != null) {
-      builder.and(qMetadata.sourceType.eq(sourceType));
+    if(sourceType != null && !sourceType.isEmpty()) {
+      builder.and(qMetadata.sourceType.in(sourceType));
     }
 
     if(catalogId != null) {
@@ -74,15 +74,15 @@ public class MetadataPredicate {
     return builder;
   }
 
-  public static Predicate searchList(String keyword, Metadata.SourceType sourceType, String catalogId,
+  public static Predicate searchList(String keyword, List<Metadata.SourceType> sourceType, String catalogId,
                                      String nameContains, String descContains, List<String> userIds,
                                      String searchDateBy, DateTime from, DateTime to) {
 
     BooleanBuilder builder = new BooleanBuilder();
     QMetadata qMetadata = QMetadata.metadata;
 
-    if(sourceType != null) {
-      builder.and(qMetadata.sourceType.eq(sourceType));
+    if(sourceType != null && !sourceType.isEmpty()) {
+      builder.and(qMetadata.sourceType.in(sourceType));
     }
 
     if(catalogId != null) {
@@ -95,8 +95,8 @@ public class MetadataPredicate {
 
     if(StringUtils.isNotEmpty(keyword)){
       builder = builder.and(qMetadata.name.containsIgnoreCase(keyword)
-                        .or(qMetadata.createdBy.in(userIds))
-                        .or(qMetadata.description.containsIgnoreCase(keyword)));
+              .or(qMetadata.createdBy.in(userIds))
+              .or(qMetadata.description.containsIgnoreCase(keyword)));
     } else {
       if(StringUtils.isNotEmpty(nameContains)) {
         builder = builder.and(qMetadata.name.containsIgnoreCase(nameContains));
