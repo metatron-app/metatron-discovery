@@ -522,8 +522,14 @@
           <td>
             <div class="ddp-ui-summary">
               <!-- Engine 형 -->
-              <span class="ddp-data-txt" *ngIf="getConnType === dsConnType.ENGINE">{{(getIngestion.type === 'single' ? 'msg.storage.th.ingest-once' : 'msg.storage.th.ingest-prcdly') | translate}}</span>
+              <span class="ddp-data-txt" *ngIf="getConnType === dsConnType.ENGINE">{{(getIngestion.type === 'single' ? 'msg.storage.th.ingest-once' : 'msg.storage.th.ingest-prcdly') | translate}}
+              </span>
               <ul class="ddp-list-sub" *ngIf="getConnType === dsConnType.ENGINE">
+                <li *ngIf="getIngestion.type != 'single'">
+                  {{'msg.dp.th.status' | translate}} : {{getIngestionStatusLabel}}
+                  <a href="javascript:" class="ddp-box-btn-r" *ngIf="schedulingStatus === 'PAUSED'" (click)="resumeSchedulingJob();"><em class="ddp-icon-play"></em></a>
+                  <a href="javascript:" class="ddp-box-btn-r" *ngIf="schedulingStatus === 'NORMAL'" (click)="pauseSchedulingJob();"><em class="ddp-icon-pause"></em></a>
+                </li>
                 <li>
                   {{'msg.storage.th.scope-ingest' | translate}} : {{getIngestionScopeLabel()}}
                 </li>

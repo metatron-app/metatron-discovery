@@ -1374,6 +1374,7 @@
   "msg.board.th.avail.input.range": "Available input range",
   "msg.board.th.recent": "最新",
   "msg.board.ui.sel.range": "选择范围",
+  "msg.board.li.sel.type" :"Type",
   "msg.board.li.single": "单件",
   "msg.board.li.multiple": "多件",
   "msg.board.ui.ui.component": "UI要素",
@@ -2180,6 +2181,10 @@
   "msg.storage.ui.dsource.reingestion.fail.title" : "Datasource re-ingest failed",
   "msg.storage.ui.dsource.reingestion.fail.description" : "Please check the datasource re-ingest data",
   "msg.storage.alert.source.reingestion.success" : "Datasource re-ingested.",
+  "msg.storage.th.batch.pause.success" : "批次已暂停。",
+  "msg.storage.th.batch.pause.fail" : "无法暂停批处理。",
+  "msg.storage.th.batch.resume.success" : "批次已恢复。",
+  "msg.storage.th.batch.resume.fail" : "无法恢复批处理。",
 
   "msg.log.th.status": "状态",
   "msg.log.ui.search.description": "请按job名或应用程序ID进行搜索",

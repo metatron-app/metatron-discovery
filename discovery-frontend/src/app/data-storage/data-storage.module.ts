@@ -43,6 +43,7 @@ import {DataStorageCommonModule} from "./data-storage-common.module";
 import {DataStorageShareModule} from "./data-storage-share.module";
 import {ConstantService} from "../shared/datasource-metadata/service/constant.service";
 import {DataStorageCriteriaModule} from "./data-storage-criteria.module";
+import {SchedulingService} from "./service/scheduling.service";
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -92,6 +93,7 @@ const storageRoutes: Routes = [
     DataConnectionCreateService,
     FieldConfigService,
     ConstantService,
+    SchedulingService
   ]
 })
 export class DataStorageModule {
