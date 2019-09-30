@@ -82,28 +82,29 @@ export class ExploreDataSearchComponent extends AbstractComponent {
     return StringUtil.isEmpty(this.searchKeyword);
   }
 
-  isSelectedRange(range): boolean {
-    return this.selectedSearchRange.value === range.value;
-  }
+  // isSelectedRange(range): boolean {
+  //   return this.selectedSearchRange.value === range.value;
+  // }
 
   onChangeEmptySearchContentsPresence(isEmpty: boolean): void {
     this.isEmptySearchContents = isEmpty;
+    this.loadingHide();
   }
 
-  onChangeShowSelectBoxList(): void {
-    this.isShowSelectBoxList = !this.isShowSelectBoxList;
-  }
+  // onChangeShowSelectBoxList(): void {
+  //   this.isShowSelectBoxList = !this.isShowSelectBoxList;
+  // }
 
-  onChangeSearchRange(range, event: MouseEvent): void {
-    // prevent event bubbling
-    event.stopImmediatePropagation();
-    if (this.selectedSearchRange.value !== range.value) {
-      this.selectedSearchRange = range;
-      this.exploreDataModelService.selectedSearchRange = range;
-      this.closeSelectBoxList();
-      this._changedSearch();
-    }
-  }
+  // onChangeSearchRange(range, event: MouseEvent): void {
+  //   // prevent event bubbling
+  //   event.stopImmediatePropagation();
+  //   if (this.selectedSearchRange.value !== range.value) {
+  //     this.selectedSearchRange = range;
+  //     this.exploreDataModelService.selectedSearchRange = range;
+  //     this.closeSelectBoxList();
+  //     this._changedSearch();
+  //   }
+  // }
 
   onChangeSearchKeyword(value: string): void {
     this.searchKeyword = value;
@@ -115,11 +116,11 @@ export class ExploreDataSearchComponent extends AbstractComponent {
     this.isFocusSearchInput = flag;
   }
 
-  closeSelectBoxList(): void {
-    if (this.isShowSelectBoxList === true) {
-      this.isShowSelectBoxList = undefined;
-    }
-  }
+  // closeSelectBoxList(): void {
+  //   if (this.isShowSelectBoxList === true) {
+  //     this.isShowSelectBoxList = undefined;
+  //   }
+  // }
 
   private _changedSearch(): void {
     this.changedSearch.emit();

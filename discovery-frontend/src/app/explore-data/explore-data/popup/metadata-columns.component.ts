@@ -7,6 +7,7 @@ import {ConstantService} from "../../../shared/datasource-metadata/service/const
 import {Metadata} from "../../../domain/meta-data-management/metadata";
 import {Type} from "../../../shared/datasource-metadata/domain/type";
 import {FieldFormat} from "../../../domain/datasource/datasource";
+import {ExploreDataUtilService, SortOption} from "../service/explore-data-util.service";
 
 @Component({
   selector: 'explore-metadata-columns',
@@ -41,6 +42,7 @@ export class MetadataColumnsComponent extends AbstractComponent {
               protected injector: Injector,
               private constant: ConstantService,
               private _metadataService: MetadataService,
+              private exploreDataUtilService: ExploreDataUtilService,
               private _codeTableService: CodeTableService) {
     super(element,injector);
   }
@@ -118,115 +120,6 @@ export class MetadataColumnsComponent extends AbstractComponent {
   }
 
   /**
-   * Sort column clicked
-   * @param tyoe
-   */
-  public toggleSortOption(type: string) {
-    // Initialize every column's option except selected column
-    Object.keys(this.sortOptions).forEach(key => {
-      if (key !== type) {
-        this.sortOptions[key].option = 'default';
-      }
-    });
-
-    // Change options according to selected column
-    switch (type) {
-      case 'popularity':
-        if (this.sortOptions.popularity.option === 'none') {
-          this.sortOptions.popularity.option = 'desc';
-        } else if (this.sortOptions.popularity.option === 'asc') {
-          this.sortOptions.popularity.option = 'desc';
-        } else {
-          this.sortOptions.popularity.option = 'asc';
-        }
-        this.sortColumns(type, this.sortOptions.popularity.option);
-        break;
-
-      case 'physicalName':
-        if (this.sortOptions.physicalName.option === 'none') {
-          this.sortOptions.physicalName.option = 'desc';
-        } else if (this.sortOptions.physicalName.option === 'asc'){
-          this.sortOptions.physicalName.option = 'desc';
-        } else {
-          this.sortOptions.physicalName.option = 'asc';
-        }
-
-        this.sortColumns(type, this.sortOptions.physicalName.option);
-        break;
-
-      case 'name':
-        if (this.sortOptions.name.option === 'none') {
-          this.sortOptions.name.option = 'desc';
-        } else if (this.sortOptions.name.option === 'asc'){
-          this.sortOptions.name.option = 'desc';
-        } else {
-          this.sortOptions.name.option = 'asc';
-        }
-
-        this.sortColumns(type, this.sortOptions.name.option);
-        break;
-
-      default:
-        break;
-    }
-  }
-
-  /**
-   * Sort column array
-   * @param type
-   * @param option
-   */
-
-  public sortColumns(type: string, option: string) {
-    // Check if columns array has more than one element
-    if (this.columns.length > 1) {
-      // Sort...
-      switch (type) {
-        case 'popularity':
-          if (option === 'asc') {
-            this.columns.sort((a, b) => {
-              return a.popularity - b.popularity;
-            })
-          } else if (option === 'desc') {
-            this.columns.sort((a, b) => {
-              return b.popularity - a.popularity;
-            })
-          }
-          break;
-
-        case 'physicalName':
-          if (option === 'asc'){
-            this.columns.sort((a, b) => {
-              return a.physicalName < b.physicalName ? -1 : a.physicalName > b.physicalName ? 1 : 0;
-            })
-          } else if (option === 'desc') {
-            this.columns.sort((a, b) => {
-              return a.physicalName > b.physicalName ? -1 : a.physicalName < b.physicalName ? 1 : 0;
-            });
-          }
-          break;
-
-        case 'name':
-          if (option === 'asc'){
-            this.columns.sort((a, b) => {
-              return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
-            })
-          } else if(option === 'desc') {
-            this.columns.sort((a, b) => {
-              return a.name > b.name ? -1 : a.name < b.name ? 1 : 0;
-            });
-          }
-          break;
-
-        default:
-          break;
-      }
-    }
-
-  }
-
-
-  /**
    * On scroll close popups
    */
   public onScroll() {
@@ -234,7 +127,6 @@ export class MetadataColumnsComponent extends AbstractComponent {
       item['isShowCodeTable'] = false;
     })
   }
-
 
   /**
    * Fetch column list
@@ -251,15 +143,8 @@ export class MetadataColumnsComponent extends AbstractComponent {
       });
 
       // sort columns ascending order by name
-      this.sortColumns('name', 'asc');
+      this.exploreDataUtilService.sortList(this.columns, this.sortOptions, 'name');
       this.loadingHide();
     })
   }
-}
-
-export class SortOption {
-  constructor(
-    public key: string,
-    public option: string = 'default',
-  ){}
 }

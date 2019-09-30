@@ -40,8 +40,8 @@ public class MetadataRepositoryImpl extends QueryDslRepositorySupport implements
     super(Metadata.class);
   }
 
-  public Page<Metadata> searchMetadatas(Metadata.SourceType sourceType, String catalogId, String tag, String nameContains,
-                                      String searchDateBy, DateTime from, DateTime to, Pageable pageable) {
+  public Page<Metadata> searchMetadatas(List<Metadata.SourceType> sourceType, String catalogId, String tag, String nameContains,
+                                        String searchDateBy, DateTime from, DateTime to, Pageable pageable) {
 
     QMetadata qMetadata = QMetadata.metadata;
     QTagDomain qTagDomain = QTagDomain.tagDomain;
@@ -49,8 +49,8 @@ public class MetadataRepositoryImpl extends QueryDslRepositorySupport implements
     JPQLQuery<Metadata> query;
     if(StringUtils.isNotEmpty(tag)) {
       query = from(qMetadata, qTagDomain).select(qMetadata)
-          .where(qMetadata.id.eq(qTagDomain.domainId))
-          .where(qTagDomain.tag.name.eq(tag));
+              .where(qMetadata.id.eq(qTagDomain.domainId))
+              .where(qTagDomain.tag.name.eq(tag));
     } else {
       query = from(qMetadata);
     }
@@ -71,7 +71,7 @@ public class MetadataRepositoryImpl extends QueryDslRepositorySupport implements
 
   }
 
-  public Page<Metadata> searchMetadatas(String keyword, Metadata.SourceType sourceType, String catalogId, String tag,
+  public Page<Metadata> searchMetadatas(String keyword, List<Metadata.SourceType> sourceType, String catalogId, String tag,
                                         String nameContains, String descContains, List<String> userIds,
                                         String searchDateBy, DateTime from, DateTime to, Pageable pageable) {
 
@@ -81,14 +81,14 @@ public class MetadataRepositoryImpl extends QueryDslRepositorySupport implements
     JPQLQuery<Metadata> query;
     if(StringUtils.isNotEmpty(tag)) {
       query = from(qMetadata, qTagDomain).select(qMetadata)
-                                         .where(qMetadata.id.eq(qTagDomain.domainId))
-                                         .where(qTagDomain.tag.name.eq(tag));
+              .where(qMetadata.id.eq(qTagDomain.domainId))
+              .where(qTagDomain.tag.name.eq(tag));
     } else {
       query = from(qMetadata);
     }
 
     query.where(MetadataPredicate.searchList(keyword, sourceType, catalogId, nameContains, descContains,
-                                             userIds, searchDateBy, from, to));
+            userIds, searchDateBy, from, to));
 
     Long total = query.fetchCount();
 
@@ -110,7 +110,7 @@ public class MetadataRepositoryImpl extends QueryDslRepositorySupport implements
     QMetadataSource qMetadataSource = qMetadata.source;
 
     JPQLQuery<Metadata> query = from(qMetadata).join(qMetadataSource).fetchJoin()
-                                               .where(qMetadataSource.sourceId.eq(sourceId));
+            .where(qMetadataSource.sourceId.eq(sourceId));
 
     if(StringUtils.isNotEmpty(schema)) {
       query.where(qMetadataSource.schema.eq(schema));
@@ -129,7 +129,7 @@ public class MetadataRepositoryImpl extends QueryDslRepositorySupport implements
     QMetadataSource qMetadataSource = qMetadata.source;
 
     JPQLQuery query = from(qMetadata).distinct().join(qMetadataSource).fetchJoin()
-                                               .where(qMetadataSource.sourceId.in(sourceIds));
+            .where(qMetadataSource.sourceId.in(sourceIds));
 
     return query.fetch();
   }
@@ -158,8 +158,8 @@ public class MetadataRepositoryImpl extends QueryDslRepositorySupport implements
     QMetadata qMetadata = QMetadata.metadata;
 
     return from(qMetadata)
-        .select(Projections.constructor(MetadataStatsDto.class, qMetadata.sourceType, qMetadata.sourceType.count().as(aliasCount)))
-        .groupBy(qMetadata.sourceType)
-        .fetch();
+            .select(Projections.constructor(MetadataStatsDto.class, qMetadata.sourceType, qMetadata.sourceType.count().as(aliasCount)))
+            .groupBy(qMetadata.sourceType)
+            .fetch();
   }
 }
