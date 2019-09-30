@@ -8,10 +8,10 @@ declare let moment: any;
 declare let $: any;
 
 @Component({
-  selector: 'component-created-time-radio-filter',
-  templateUrl: 'created-time-radio-filter.html'
+  selector: 'component-updated-time-radio-filter',
+  templateUrl: 'updated-time-radio-filter.html'
 })
-export class CreatedTimeRadioFilter extends AbstractComponent{
+export class UpdatedTimeRadioFilter extends AbstractComponent{
   @Output() changeSort = new EventEmitter();
 
   @ViewChild('startPickerInput')
@@ -28,7 +28,7 @@ export class CreatedTimeRadioFilter extends AbstractComponent{
   ];
 
   // filter show flag
-  createdTimeFilterShowFlag = false;
+  updatedTimeFilterShowFlag = false;
 
   selectedDate: PeriodData;
 
@@ -44,7 +44,7 @@ export class CreatedTimeRadioFilter extends AbstractComponent{
   private _startPicker;
   private _endPicker;
 
-  selectedCreatedTimeOptionName: string = 'ALL';
+  selectedUpdatedTimeOptionName: string = 'ALL';
 
   public readonly timeFormat: string = 'YYYY-MM-DD HH:mm';
 
@@ -65,7 +65,7 @@ export class CreatedTimeRadioFilter extends AbstractComponent{
   toggleSelectedFilterShowFlag() {
     event.stopPropagation();
     event.stopImmediatePropagation();
-    this.createdTimeFilterShowFlag = !this.createdTimeFilterShowFlag;
+    this.updatedTimeFilterShowFlag = !this.updatedTimeFilterShowFlag;
   }
 
   /**
@@ -75,7 +75,7 @@ export class CreatedTimeRadioFilter extends AbstractComponent{
     event.stopImmediatePropagation();
     event.stopPropagation();
 
-    this.selectedCreatedTimeOptionName = sortOption.name;
+    this.selectedUpdatedTimeOptionName = sortOption.name;
 
     // If sortOption is BETWEEN reset picker dates
     if (sortOption.value === Criteria.DateTimeType.TODAY
@@ -239,7 +239,7 @@ export class CreatedTimeRadioFilter extends AbstractComponent{
         endDateStr = null;
       }
 
-      this.selectedCreatedTimeOptionName = this.startDateStr + ' ~ ' + this.endDateStr;
+      this.selectedUpdatedTimeOptionName = this.startDateStr + ' ~ ' + this.endDateStr;
 
       const returnData = {
         startDate : this._startPickerDate,
@@ -253,7 +253,7 @@ export class CreatedTimeRadioFilter extends AbstractComponent{
       this.selectedDate = returnData;
 
       this.changeSort.emit(this.selectedDate);
-      this.createdTimeFilterShowFlag = false;
+      this.updatedTimeFilterShowFlag = false;
     }
   }
 }

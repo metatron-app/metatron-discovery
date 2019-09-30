@@ -54,7 +54,7 @@ import {CreateWorkbookModule} from "../workbook/component/create-workbook/refact
 import {ConfirmRefModalComponent} from "../common/component/modal/confirm/confirm-ref.component";
 import {MetadataUsedWorkspaceComponent} from "./explore-data/component/metadata-used-workspace.component";
 import {ExploreDataUtilService} from "./explore-data/service/explore-data-util.service";
-import {CreatedTimeRadioFilter} from "./explore-data/component/created-time-radio-filter.component";
+import {UpdatedTimeRadioFilter} from "./explore-data/component/updated-time-radio-filter.component";
 
 @NgModule({
   imports: [
@@ -78,7 +78,7 @@ import {CreatedTimeRadioFilter} from "./explore-data/component/created-time-radi
     LogicalNameLayerComponent,
     MetadataSvgComponent,
     CheckBoxFilterComponent,
-    CreatedTimeRadioFilter,
+    UpdatedTimeRadioFilter,
     ExploreBannerComponent,
     ExploreCardComponent,
     CatalogFolderComponent,

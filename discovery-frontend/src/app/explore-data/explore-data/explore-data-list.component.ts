@@ -328,7 +328,7 @@ export class ExploreDataListComponent extends AbstractComponent {
 
     // created time
     if (this.selectedDate && this.selectedDate.type !== 'ALL') {
-      params['searchDateBy'] = 'CREATED';
+      params['searchDateBy'] = 'UPDATED';
       params['type'] = this.selectedDate.type;
       if (this.selectedDate.startDateStr) {
         params['from'] = moment(this.selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');

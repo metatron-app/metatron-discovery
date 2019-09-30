@@ -1,10 +1,10 @@
-<div class="ddp-result-filtering" [class.ddp-selected]="createdTimeFilterShowFlag" (click)="toggleSelectedFilterShowFlag()" >
-  <span class="ddp-txt-label" >Created time:</span>
+<div class="ddp-result-filtering" [class.ddp-selected]="updatedTimeFilterShowFlag" (click)="toggleSelectedFilterShowFlag()" >
+  <span class="ddp-txt-label" >Updated time:</span>
   <div class="ddp-box-result">
     <span class="ddp-txt-result" >
-      {{ selectedCreatedTimeOptionName === 'BETWEEN'
+      {{ selectedUpdatedTimeOptionName === 'BETWEEN'
       ? startDateStr + endDateStr
-      : selectedCreatedTimeOptionName }}
+      : selectedUpdatedTimeOptionName }}
     </span>
   </div>
   <div class="ddp-wrap-popup2 ddp-date">
