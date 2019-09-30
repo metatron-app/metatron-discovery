@@ -407,6 +407,58 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
     this.updateFilterEvent.emit(this.filter);
   }
 
+  public get currentSortOptLabel():string {
+    if( this.sortBy.TEXT === this.filter.sort.by ) {
+      if( this.sortDirection.ASC === this.filter.sort.direction ) {
+        return this.translateService.instant('msg.comm.ui.soring.alphnumeric.asc');
+      } else if( this.sortDirection.DESC === this.filter.sort.direction ) {
+        return this.translateService.instant('msg.comm.ui.soring.alphnumeric.desc');
+      }
+    } else if( this.sortBy.COUNT === this.filter.sort.by ) {
+      if( this.sortDirection.ASC === this.filter.sort.direction ) {
+        return this.translateService.instant('msg.comm.ui.soring.frequency.asc');
+      } else if( this.sortDirection.DESC === this.filter.sort.direction ) {
+        return this.translateService.instant('msg.comm.ui.soring.frequency.desc');
+      }
+    }
+  }
+
+  public setSelectorType(type: string) {
+    if ('SINGLE' === type) {
+      this.isMultiSelector = false;
+      if (this.isListSelector) {
+        this.filter.selector = InclusionSelectorType.SINGLE_LIST;
+        this.originalFilter.selector = InclusionSelectorType.SINGLE_LIST;
+      } else {
+        this.filter.selector = InclusionSelectorType.SINGLE_COMBO;
+        this.originalFilter.selector = InclusionSelectorType.SINGLE_COMBO;
+      }
+      if (1 < this.filter.valueList.length) {
+        this.filter.valueList = [this.filter.valueList[0]];
+        this.originalFilter.valueList = [this.originalFilter.valueList[0]];
+      }
+    } else {
+      this.isMultiSelector = true;
+      if (this.isListSelector) {
+        this.filter.selector = InclusionSelectorType.MULTI_LIST;
+        this.originalFilter.selector = InclusionSelectorType.MULTI_LIST;
+      } else {
+        this.filter.selector = InclusionSelectorType.MULTI_COMBO;
+        this.originalFilter.selector = InclusionSelectorType.MULTI_COMBO;
+      }
+    }
+    this.updateFilterEvent.emit(this.filter);
+    this.safelyDetectChanges();
+  }
+
+  public get isSingleSelector():boolean {
+    return InclusionSelectorType.SINGLE_LIST === this.filter.selector || InclusionSelectorType.SINGLE_COMBO === this.filter.selector;
+  }
+
+  public get isListSelector(): boolean {
+    return InclusionSelectorType.SINGLE_LIST === this.filter.selector || InclusionSelectorType.MULTI_LIST === this.filter.selector;
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

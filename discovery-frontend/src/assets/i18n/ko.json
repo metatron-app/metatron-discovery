@@ -1474,6 +1474,7 @@
   "msg.board.th.avail.input.range" : "Available input range",
   "msg.board.th.recent" : "최신",
   "msg.board.ui.sel.range" : "범위 선택",
+  "msg.board.li.sel.type" :"타입",
   "msg.board.li.single" :"단건",
   "msg.board.li.multiple" :"다건",
   "msg.board.ui.ui.component" : "UI 컴포넌트",
