@@ -114,7 +114,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
         monitoringTarget: {
           metric: Engine.MonitoringTarget.GC_COUNT
         },
-        fromDate: moment().subtract(7, 'days').format('YYYY-MM-DDTHH:mm:ss'),
+        fromDate: moment().subtract(1, 'days').format('YYYY-MM-DDTHH:mm:ss'),
         toDate: moment().format('YYYY-MM-DDTHH:mm:ss')
       };
 
@@ -187,7 +187,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
           metric: Engine.MonitoringTarget.QUERY_TIME,
           includeCount: true
         },
-        fromDate: moment().subtract(7, 'days').format('YYYY-MM-DDTHH:mm:ss'),
+        fromDate: moment().subtract(1, 'days').format('YYYY-MM-DDTHH:mm:ss'),
         toDate: moment().format('YYYY-MM-DDTHH:mm:ss')
       };
 
