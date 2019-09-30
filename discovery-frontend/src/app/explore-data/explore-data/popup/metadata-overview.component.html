@@ -152,7 +152,7 @@
           </div>
           <div class="ddp-data-det">
             <ul class="ddp-list-graph ddp-bottom ddp-cursor" *ngIf="recentlyUsedDashboardList.length > 0">
-              <li *ngFor="let recentlyUsedDashboard of recentlyUsedDashboardList" (click)="onDashboardClicked(recentlyUsedDashboard)">
+              <li *ngFor="let recentlyUsedDashboard of recentlyUsedDashboardList" [class.ddp-cursor-default]="!recentlyUsedDashboard.hasPermission" (click)="onDashboardClicked(recentlyUsedDashboard)">
                 <!-- Graph -->
                 <div class="ddp-box-image">
                   <img (invoke)="dashboardUtil.getBoardImage($event, recentlyUsedDashboard.imageUrl)"/>
@@ -160,8 +160,8 @@
                 <!-- //Graph -->
                 <div class="ddp-data-graph">
                   <span class="ddp-txt-det">
-                      <span [ngClass]="{'ddp-det-new': recentlyUsedDashboard.hasPermission, 'ddp-cursor-default': !recentlyUsedDashboard.hasPermission}">
-                        <em class="ddp-link-new"></em>
+                      <span class="ddp-det-new" [ngClass]="{'type-link': recentlyUsedDashboard.hasPermission}">
+                        <em [class.ddp-link-new]="recentlyUsedDashboard.hasPermission"></em>
                         <span class="ddp-txt-in">
                           {{ recentlyUsedDashboard.name }}
                         </span>
