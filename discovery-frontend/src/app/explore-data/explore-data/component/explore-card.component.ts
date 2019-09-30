@@ -32,6 +32,7 @@ export class ExploreCardComponent extends AbstractComponent {
   @Input() readonly tagList;
   @Input() readonly popularity: number;
   @Input() readonly creator: string;
+  @Input() readonly cardClass: string;
   // event
   @Output() readonly clickedCard = new EventEmitter();
   @Output() readonly clickedTag = new EventEmitter();
@@ -45,20 +46,20 @@ export class ExploreCardComponent extends AbstractComponent {
     this.clickedCard.emit();
   }
 
-  onClickTag(tag) {
-    event.stopImmediatePropagation();
-    this.clickedTag.emit(tag);
-  }
-
-  isEnableTag(): boolean {
-    return !_.isNil(this.tagList) && this.tagList.length !== 0;
-  }
-
-  isEnableDescription(): boolean {
-    return StringUtil.isNotEmpty(this.description);
-  }
-
-  isEnablePopularity(): boolean {
-    return !_.isNil(this.popularity);
-  }
+  // onClickTag(tag) {
+  //   event.stopImmediatePropagation();
+  //   this.clickedTag.emit(tag);
+  // }
+  //
+  // isEnableTag(): boolean {
+  //   return !_.isNil(this.tagList) && this.tagList.length !== 0;
+  // }
+  //
+  // isEnableDescription(): boolean {
+  //   return StringUtil.isNotEmpty(this.description);
+  // }
+  //
+  // isEnablePopularity(): boolean {
+  //   return !_.isNil(this.popularity);
+  // }
 }

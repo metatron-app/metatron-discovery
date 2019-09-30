@@ -27,14 +27,16 @@ import {EventBroadcaster} from "../../common/event/event.broadcaster";
 })
 export class ExploreDataMainComponent extends AbstractComponent {
 
-  recommendedMetadataList: Metadata[];
-  popularMetadataList: Metadata[][];
-  updatedMetadataList: Metadata[][];
+  popularMetadataShowStartNumber = 0;
+  popularMetadataCarouselScreenNumber = [];
+  // recommendedMetadataList: Metadata[];
+  popularMetadataList: Metadata[] = [];
+  updatedMetadataList: Metadata[];
   favoriteMetadataList: Metadata[];
   favoriteCreatorMetadataList: Metadata[];
 
   // banner icon
-  bannerIconList = _.shuffle(['type-banner02', 'type-banner03', 'type-banner04', 'type-banner05']);
+  // bannerIconList = _.shuffle(['type-banner02', 'type-banner03', 'type-banner04', 'type-banner05']);
 
   // event
   @Output() readonly clickedMetadata = new EventEmitter();
@@ -58,16 +60,16 @@ export class ExploreDataMainComponent extends AbstractComponent {
       this.loadingShow();
       await this._setPopularMetadataList();
       await this._setUpdatedMetadataList();
-      await this._setRecommendedMetadataList();
+      // await this._setRecommendedMetadataList();
       await this._setMyFavoriteMetadataList();
       await this._setCreatorFavoriteMetadataList();
     };
     initial().then(() => this.broadcaster.broadcast(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL)).catch(() => this.broadcaster.broadcast(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL));
   }
 
-  isEmptyRecommendedMetadataList(): boolean {
-    return _.isNil(this.recommendedMetadataList);
-  }
+  // isEmptyRecommendedMetadataList(): boolean {
+  //   return _.isNil(this.recommendedMetadataList);
+  // }
 
   isEnableTag(metadata: Metadata): boolean {
     return !Metadata.isEmptyTags(metadata);
@@ -75,6 +77,19 @@ export class ExploreDataMainComponent extends AbstractComponent {
 
   isEnableDescription(metadata: Metadata): boolean {
     return StringUtil.isNotEmpty(metadata.description);
+  }
+
+  getBannerClass(metadata: Metadata) {
+    switch (metadata.sourceType) {
+      case SourceType.ENGINE:
+        return 'type-datasource';
+      case SourceType.JDBC:
+        return 'type-database';
+      case SourceType.STAGEDB:
+        return 'type-stagingdb';
+      default:
+        return 'type-datasource';
+    }
   }
 
   getMetadataTypeClass(metadata: Metadata): ExploreDataConstant.Metadata.TypeIconClass {
@@ -95,18 +110,33 @@ export class ExploreDataMainComponent extends AbstractComponent {
     this.clickedMetadata.emit(metadata);
   }
 
+  onClickCarouselRight():void {
+    if (this.popularMetadataShowStartNumber + 5 < this.popularMetadataList.length) {
+      this.popularMetadataShowStartNumber += 5;
+    }
+  }
+
+  onClickCarouselLeft():void {
+    if (this.popularMetadataShowStartNumber >= 5)
+      this.popularMetadataShowStartNumber -= 5;
+  }
+
 
   private async _setPopularMetadataList() {
-    const result = await this._metadataService.getMetadataListByPopularity({size: 6, page: 0});
+    const result = await this._metadataService.getMetadataListByPopularity({size: 20, page: 0});
     if (!_.isNil(result._embedded)) {
-      this.popularMetadataList = _.chunk(result._embedded.metadatas, 2);
+      this.popularMetadataList = result._embedded.metadatas;
+      const screenNumber = this.popularMetadataList.length / 5;
+      for (let i = 0; i <= screenNumber; i++) {
+        this.popularMetadataCarouselScreenNumber.push(i);
+      }
     }
   }
 
   private async _setUpdatedMetadataList() {
     const result = await this._metadataService.getMetaDataList({size: 6, page: 0, sort: 'modifiedTime,desc'});
     if (!_.isNil(result._embedded)) {
-      this.updatedMetadataList = _.chunk(result._embedded.metadatas, 2);
+      this.updatedMetadataList = result._embedded.metadatas;
     }
   }
 
@@ -124,10 +154,10 @@ export class ExploreDataMainComponent extends AbstractComponent {
     }
   }
 
-  private async _setRecommendedMetadataList() {
-    const result = await this._metadataService.getMetadataListByRecommended({size: 10, page: 0, projection: 'forListView'});
-    if (!_.isNil(result._embedded)) {
-      this.recommendedMetadataList = result._embedded.metadatas;
-    }
-  }
+  // private async _setRecommendedMetadataList() {
+  //   const result = await this._metadataService.getMetadataListByRecommended({size: 10, page: 0, projection: 'forListView'});
+  //   if (!_.isNil(result._embedded)) {
+  //     this.recommendedMetadataList = result._embedded.metadatas;
+  //   }
+  // }
 }
