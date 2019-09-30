@@ -428,6 +428,7 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
     left: 0;
     right: 0;
     bottom: 0;
+    background-color: #1f2942;
 }
 
 .theme-dark .ddp-ui-contentsin.ddp-full {
