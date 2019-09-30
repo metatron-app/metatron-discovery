@@ -1,0 +1,80 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- Status Name & Info tooltip -->
+<div class="ddp-label-name ddp-clear">
+  <span class="ddp-txt-label">{{ 'msg.engine.monotoring.overview.cluster.name.prefix' | translate }}</span>
+  <!-- info -->
+  <div class="ddp-wrap-info ddp-selected">
+    <a href="javascript:" class="ddp-btn-info2"></a>
+    <div class="ddp-wrap-hover-layout">
+    <!-- box layout -->
+      <div class="ddp-box-layout4">
+        <div class="ddp-form-scroll">
+          <table class="ddp-table-info ddp-type">
+            <colgroup>
+              <col width="160px">
+              <col width="*">
+            </colgroup>
+            <tbody>
+            <tr>
+              <th> Broker Host (Port) </th>
+              <td> {{getServerInformation('broker')}} </td>
+            </tr>
+            <tr>
+              <th> Coordinator Host (Port) </th>
+              <td> {{getServerInformation('coordinator')}} </td>
+            </tr>
+            <tr>
+              <th> Overlord Host (Port) </th>
+              <td> {{getServerInformation('overlord')}} </td>
+            </tr>
+            <tr>
+              <th> Server Count </th>
+              <td> {{monitorings.length}} </td>
+            </tr>
+            <tr>
+              <th> Size (Curr/Max) </th>
+              <td>
+                {{getClusterSize()}}
+                <!-- bar -->
+                <div class="ddp-bar-size">
+                  <span class="ddp-data-bar"></span>
+                  <span class="ddp-data-line"></span>
+                </div>
+                <!-- //bar -->
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <!-- //box layout -->
+    </div>
+  </div>
+  <!-- //info -->
+</div>
+<!-- Status Name & Info tooltip -->
+
+<!--
+<div class="ddp-date-setting">
+  <span class="ddp-data-date">
+      2017.03.06 06:09:35 <a href="javascript:" class="ddp-btn-refresh"></a>
+  </span>
+  <a href="#" class="ddp-btn-toggle ddp-selected">Last 1 hour</a>
+  <a href="#" class="ddp-btn-toggle">Last 1 day</a>
+  <a href="#" class="ddp-btn-toggle">Last 7 days</a>
+  <a href="#" class="ddp-btn-toggle">Last 30 days</a>
+</div>
+-->

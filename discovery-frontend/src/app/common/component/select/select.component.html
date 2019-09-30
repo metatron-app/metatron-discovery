@@ -13,7 +13,9 @@
   -->
 
 <!-- 선택시 ddp-selected 추가 -->
-<div [ngClass]="{'ddp-selectbox-disabled': disabled, 'ddp-inline':inline}"
+<div [class.ddp-selectbox-disabled]="disabled"
+     [class.ddp-inline]="inline"
+     [ngClass]="[className]"
      (clickOutside)="this.isShowSelectList=false;">
   <div class="ddp-type-selectbox"
        (click)="toggleSelectList()"

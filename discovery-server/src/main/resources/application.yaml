@@ -96,6 +96,10 @@ polaris:
       PRESTO: ["LIVE"]
       PHOENIX: ["LIVE"]
   engine:
+    monitoring:
+      emitter:
+        type: kafka
+        datasource: druid-metric
     api:
       query:
         target: broker
@@ -177,6 +181,42 @@ polaris:
         target: coordinator
         method: DELETE
         uri: /druid/coordinator/v1/datasources/{datasourceId}/purge
+      getHistoricalNode:
+        target: coordinator
+        method: GET
+        uri: /druid/coordinator/v1/servers?simple
+      getMiddleMgmtNode:
+        target: overlord
+        method: GET
+        uri: /druid/indexer/v1/workers
+      getConfigs:
+        target: coordinator
+        method: GET
+        uri: /druid/coordinator/v1/configs/{configName}
+      getPendingTasks:
+        target: overlord
+        method: GET
+        uri : /druid/indexer/v1/pendingTasks
+      getRunningTasks:
+        target: overlord
+        method: GET
+        uri: /druid/indexer/v1/runningTasks
+      getWaitingTasks:
+        target: overlord
+        method: GET
+        uri: /druid/indexer/v1/waitingTasks
+      getCompleteTasks:
+        target: overlord
+        method: GET
+        uri: /druid/indexer/v1/completeTasks
+      sql:
+        target: broker
+        method: POST
+        uri: /druid/v2/sql
+      getSupervisorList:
+        target: overlord
+        method: GET
+        uri: /druid/indexer/v1/supervisor?full
   cache:
     configFile: default-configs/default-jgroups-tcp.xml
 #  cors:

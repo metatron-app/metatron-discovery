@@ -12,11 +12,8 @@
  * limitations under the License.
  */
 
-import {
-  Component, ElementRef, EventEmitter,
-  Injector, Input, OnInit, Output
-} from '@angular/core';
-import { AbstractComponent } from '../abstract.component';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output} from '@angular/core';
+import {AbstractComponent} from '../abstract.component';
 import {isNullOrUndefined} from "util";
 
 @Component({
@@ -83,6 +80,7 @@ export class SelectComponent extends AbstractComponent implements OnInit {
     }
   }
 
+  @Input() public className = '';
   // Placeholder 사용여부 (기본: 사용안함)
   @Input() public usePlaceholder = false;
   // 기본 메시지
