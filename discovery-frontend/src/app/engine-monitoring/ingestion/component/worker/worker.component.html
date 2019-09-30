@@ -34,85 +34,91 @@
   <!-- //filters -->
 </div>
 
-<table class="ddp-table-form ddp-table-type3">
-  <colgroup>
-    <col width="*">
-    <col width="150px">
-    <col width="100px">
-    <col width="200px">
-    <col width="150px">
-    <col width="150px">
-    <col width="250px">
-  </colgroup>
-  <thead>
-  <tr>
-    <th class="ddp-cursor" (click)="sortWorkerList('host')">
-      Worker Host
-      <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'host' || selectedContentSort.sort === 'default'"></em>
-      <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key == 'host' && selectedContentSort.sort === 'asc'"></em>
-      <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key == 'host' && selectedContentSort.sort === 'desc'"></em>
-    </th>
-    <th class="ddp-cursor" (click)="sortWorkerList('ip')">
-      Worker IP
-      <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'ip' || selectedContentSort.sort === 'default'"></em>
-      <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key == 'ip' && selectedContentSort.sort === 'asc'"></em>
-      <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key == 'ip' && selectedContentSort.sort === 'desc'"></em>
-    </th>
-    <th class="ddp-cursor" (click)="sortWorkerList('version')">
-      Version
-      <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'version' || selectedContentSort.sort === 'default'"></em>
-      <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key == 'version' && selectedContentSort.sort === 'asc'"></em>
-      <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key == 'version' && selectedContentSort.sort === 'desc'"></em>
-    </th>
-    <th class="ddp-cursor" (click)="sortWorkerList('used')">
-      Capacity(Used/Total)
-      <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'used' || selectedContentSort.sort === 'default'"></em>
-      <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key == 'used' && selectedContentSort.sort === 'asc'"></em>
-      <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key == 'used' && selectedContentSort.sort === 'desc'"></em>
-    </th>
-    <th class="ddp-cursor" (click)="sortWorkerList('groups')">
-      Availability Groups
-      <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'groups' || selectedContentSort.sort === 'default'"></em>
-      <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key == 'groups' && selectedContentSort.sort === 'asc'"></em>
-      <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key == 'groups' && selectedContentSort.sort === 'desc'"></em>
-    </th>
-    <th class="ddp-cursor" (click)="sortWorkerList('running')">
-      Running Tasks
-      <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'running' || selectedContentSort.sort === 'default'"></em>
-      <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key == 'running' && selectedContentSort.sort === 'asc'"></em>
-      <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key == 'running' && selectedContentSort.sort === 'desc'"></em>
-    </th>
-    <th class="ddp-cursor" (click)="sortWorkerList('completed')">
-      Completed Time
-      <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'completed' || selectedContentSort.sort === 'default'"></em>
-      <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key == 'completed' && selectedContentSort.sort === 'asc'"></em>
-      <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key == 'completed' && selectedContentSort.sort === 'desc'"></em>
-    </th>
+<div class="ddp-data-source-none" *ngIf="isEmptyList(); else existList">
+  {{'msg.comm.ui.no.rslt' | translate}}
+</div>
+
+<ng-template #existList>
+  <table class="ddp-table-form ddp-table-type3">
+    <colgroup>
+      <col width="*">
+      <col width="150px">
+      <col width="100px">
+      <col width="200px">
+      <col width="150px">
+      <col width="150px">
+      <col width="250px">
+    </colgroup>
+    <thead>
+    <tr>
+      <th class="ddp-cursor" (click)="sortWorkerList('host')">
+        Worker Host
+        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'host' || selectedContentSort.sort === 'default'"></em>
+        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key == 'host' && selectedContentSort.sort === 'asc'"></em>
+        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key == 'host' && selectedContentSort.sort === 'desc'"></em>
+      </th>
+      <th class="ddp-cursor" (click)="sortWorkerList('ip')">
+        Worker IP
+        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'ip' || selectedContentSort.sort === 'default'"></em>
+        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key == 'ip' && selectedContentSort.sort === 'asc'"></em>
+        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key == 'ip' && selectedContentSort.sort === 'desc'"></em>
+      </th>
+      <th class="ddp-cursor" (click)="sortWorkerList('version')">
+        Version
+        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'version' || selectedContentSort.sort === 'default'"></em>
+        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key == 'version' && selectedContentSort.sort === 'asc'"></em>
+        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key == 'version' && selectedContentSort.sort === 'desc'"></em>
+      </th>
+      <th class="ddp-cursor" (click)="sortWorkerList('used')">
+        Capacity(Used/Total)
+        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'used' || selectedContentSort.sort === 'default'"></em>
+        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key == 'used' && selectedContentSort.sort === 'asc'"></em>
+        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key == 'used' && selectedContentSort.sort === 'desc'"></em>
+      </th>
+      <th class="ddp-cursor" (click)="sortWorkerList('groups')">
+        Availability Groups
+        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'groups' || selectedContentSort.sort === 'default'"></em>
+        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key == 'groups' && selectedContentSort.sort === 'asc'"></em>
+        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key == 'groups' && selectedContentSort.sort === 'desc'"></em>
+      </th>
+      <th class="ddp-cursor" (click)="sortWorkerList('running')">
+        Running Tasks
+        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'running' || selectedContentSort.sort === 'default'"></em>
+        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key == 'running' && selectedContentSort.sort === 'asc'"></em>
+        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key == 'running' && selectedContentSort.sort === 'desc'"></em>
+      </th>
+      <th class="ddp-cursor" (click)="sortWorkerList('completed')">
+        Completed Time
+        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'completed' || selectedContentSort.sort === 'default'"></em>
+        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key == 'completed' && selectedContentSort.sort === 'asc'"></em>
+        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key == 'completed' && selectedContentSort.sort === 'desc'"></em>
+      </th>
 
 
-  </tr>
-  </thead>
-  <tbody>
-  <tr *ngFor="let worker of workerList" (click)="onClickWorker(worker.worker.host);">
-    <td>
-      <div class="ddp-txt-long" title="{{worker.worker.host}}">
-        {{worker.worker.host}}
-      </div>
-    </td>
-    <td>
-      {{worker.worker.ip}}
-    </td>
-    <td class="ddp-txt-center">
-      {{worker.worker.version}}
-    </td>
-    <td class="ddp-txt-center">{{worker.currCapacityUsed}}/{{worker.worker.capacity}}</td>
-    <td class="ddp-txt-center">{{worker.availabilityGroups.length}}</td>
-    <td class="ddp-txt-center">{{worker.runningTasks.length}}</td>
-    <td>{{worker.lastCompletedTaskTime}}</td>
-  </tr>
-  </tbody>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let worker of workerList" (click)="onClickWorker(worker.worker.host);">
+      <td>
+        <div class="ddp-txt-long" title="{{worker.worker.host}}">
+          {{worker.worker.host}}
+        </div>
+      </td>
+      <td>
+        {{worker.worker.ip}}
+      </td>
+      <td class="ddp-txt-center">
+        {{worker.worker.version}}
+      </td>
+      <td class="ddp-txt-center">{{worker.currCapacityUsed}}/{{worker.worker.capacity}}</td>
+      <td class="ddp-txt-center">{{worker.availabilityGroups.length}}</td>
+      <td class="ddp-txt-center">{{worker.runningTasks.length}}</td>
+      <td>{{worker.lastCompletedTaskTime}}</td>
+    </tr>
+    </tbody>
 
-</table>
-<!-- Pagination -->
-<component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
-<!-- // Pagination -->
+  </table>
+  <!-- Pagination -->
+  <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+  <!-- // Pagination -->
+</ng-template>

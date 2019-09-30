@@ -110,6 +110,10 @@ export class WorkerComponent extends AbstractComponent implements OnInit, OnDest
     super.ngOnDestroy();
   }
 
+  public isEmptyList(): boolean {
+    return this.pageResult.totalElements === 0;
+  }
+
   public reloadPage(isFirstPage: boolean = true) {
     (isFirstPage) && (this.page.page = 0);
     this.router.navigate(

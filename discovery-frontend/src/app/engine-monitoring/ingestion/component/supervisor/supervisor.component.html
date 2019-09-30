@@ -30,42 +30,48 @@
 </div>
 <!-- //top filtering -->
 
-<table class="ddp-table-form ddp-table-type3">
-  <colgroup>
-    <col width="*">
-    <col width="23%">
-    <col width="23%">
-  </colgroup>
-  <thead>
-  <tr>
-    <th>
-      Supervisior ID
-    </th>
-    <th>
-      Topic
-    </th>
-    <th>
-      Datasource
-    </th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr *ngFor="let supervisor of supervisorList" (click)="onClickSupervisor(supervisor.id);">
-    <td>
-      <div class="ddp-txt-long" title="{{supervisor.id}}">
-        {{supervisor.id}}
-      </div>
-    </td>
-    <td>
-      {{supervisor.spec.ioConfig.topic}}
-    </td>
-    <td>
-      {{supervisor.spec.dataSchema.dataSource}}
-    </td>
-  </tr>
-  </tbody>
+<div class="ddp-data-source-none" *ngIf="isEmptyList(); else existList">
+  {{'msg.comm.ui.no.rslt' | translate}}
+</div>
 
-</table>
-<!-- Pagination -->
-<component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
-<!-- // Pagination -->
+<ng-template #existList>
+  <table class="ddp-table-form ddp-table-type3">
+    <colgroup>
+      <col width="*">
+      <col width="23%">
+      <col width="23%">
+    </colgroup>
+    <thead>
+    <tr>
+      <th>
+        Supervisior ID
+      </th>
+      <th>
+        Topic
+      </th>
+      <th>
+        Datasource
+      </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let supervisor of supervisorList" (click)="onClickSupervisor(supervisor.id);">
+      <td>
+        <div class="ddp-txt-long" title="{{supervisor.id}}">
+          {{supervisor.id}}
+        </div>
+      </td>
+      <td>
+        {{supervisor.spec.ioConfig.topic}}
+      </td>
+      <td>
+        {{supervisor.spec.dataSchema.dataSource}}
+      </td>
+    </tr>
+    </tbody>
+
+  </table>
+  <!-- Pagination -->
+  <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+  <!-- // Pagination -->
+</ng-template>
