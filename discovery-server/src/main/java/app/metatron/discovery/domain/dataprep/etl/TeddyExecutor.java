@@ -29,16 +29,15 @@ import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
 import app.metatron.discovery.domain.dataprep.PrepUtil;
-import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
-import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot.HIVE_FILE_COMPRESSION;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot.HIVE_FILE_FORMAT;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.dataprep.json.PrepJsonParseResult;
-import app.metatron.discovery.domain.dataprep.json.PrepJsonUtil;
+import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
+import app.metatron.discovery.domain.dataprep.file.PrepJsonUtil;
+import app.metatron.discovery.domain.dataprep.file.PrepParseResult;
 import app.metatron.discovery.domain.dataprep.service.PrSnapshotService;
 import app.metatron.discovery.domain.dataprep.teddy.ColumnDescription;
 import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
@@ -564,8 +563,7 @@ public class TeddyExecutor {
 
     LOGGER.info("loadCsvFile(): dsId={} strUri={} delemiter={}", dsId, strUri, delimiter);
 
-    PrepCsvParseResult result = PrepCsvUtil
-            .parse(strUri, delimiter, limitRows, columnCount, hadoopConf);
+    PrepParseResult result = PrepCsvUtil.parse(strUri, delimiter, limitRows, columnCount, hadoopConf);
     df.setByGrid(result);
 
     LOGGER.info("loadCsvFile(): done");
@@ -578,8 +576,8 @@ public class TeddyExecutor {
 
     LOGGER.info("loadJsonFile(): dsId={} strUri={}", dsId, strUri);
 
-    PrepJsonParseResult result = PrepJsonUtil.parseJson(strUri, limitRows, columnCount, hadoopConf);
-    df.setByGridWithJson(result);
+    PrepParseResult result = PrepJsonUtil.parse(strUri, limitRows, columnCount, hadoopConf);
+    df.setByGrid(result);
 
     LOGGER.info("loadJsonFile(): done");
     cache.put(dsId, df);
