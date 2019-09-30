@@ -1,0 +1,113 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div class="ddp-wrap-top-filtering">
+  <!-- filter search -->
+  <div class="ddp-filter-search ddp-fright">
+    <div class="ddp-form-filter-search">
+      <component-input
+        [autoFocus]="false"
+        [isEnableDelete]="true"
+        [value]="searchKeyword"
+        [placeHolder]="'msg.engine.monitoring.ph.task.search' | translate"
+        (changeValue)="onChangedSearchKeyword($event)">
+      </component-input>
+    </div>
+    <!-- form -->
+    <a href="javascript:" class="ddp-btn-selection" (click)="reloadPage(true)">{{'msg.comm.btn.search' | translate}}</a>
+  </div>
+  <!-- //filter search -->
+  <!-- filters -->
+  <component-criterion [criterionApiFunc]="criterionApiFunc"
+                       (changedFilter)="onChangedFilter($event)">
+  </component-criterion>
+  <!-- //filters -->
+</div>
+
+<div class="ddp-data-source-none" *ngIf="isEmptyList(); else existList">
+  {{'msg.comm.ui.no.rslt' | translate}}
+</div>
+
+<ng-template #existList>
+  <table class="ddp-table-form ddp-table-type3">
+    <colgroup>
+      <col width="*">
+      <col width="95px">
+      <col width="230px">
+      <col width="130px">
+      <col width="280px">
+      <col width="120px">
+    </colgroup>
+    <thead>
+    <tr>
+      <th>
+        Task ID
+      </th>
+      <th class="ddp-cursor" (click)="sortTaskList('status')">
+        Status
+        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'status' || selectedContentSort.sort === 'default'"></em>
+        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key == 'status' && selectedContentSort.sort === 'asc'"></em>
+        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key == 'status' && selectedContentSort.sort === 'desc'"></em>
+      </th>
+      <th class="ddp-cursor" (click)="sortTaskList('time')">
+        Created time
+        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'time' || selectedContentSort.sort === 'default'"></em>
+        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key == 'time' && selectedContentSort.sort === 'asc'"></em>
+        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key == 'time' && selectedContentSort.sort === 'desc'"></em>
+      </th>
+      <th class="ddp-cursor" (click)="sortTaskList('duration')">
+        Duration
+        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'duration' || selectedContentSort.sort === 'default'"></em>
+        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key == 'duration' && selectedContentSort.sort === 'asc'"></em>
+        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key == 'duration' && selectedContentSort.sort === 'desc'"></em>
+      </th>
+      <th>
+        Datasource
+      </th>
+      <th>
+        Type
+      </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let task of taskList" (click)="onClickTask(task.task_id);">
+      <td>
+        <div class="ddp-txt-long" title="{{task.task_id}}">
+          {{task.task_id}}
+        </div>
+      </td>
+      <td>
+        <span class="ddp-data-status" [ngClass]="[getStatusClass(task.status)]">{{task.status}}</span>
+      </td>
+      <td>
+        {{task.created_time}}
+      </td>
+      <td>
+        {{getDurationString(task.duration)}}
+      </td>
+      <td>
+        <div class="ddp-txt-long" title="{{task.datasource}}">
+          {{task.datasource}}
+        </div>
+      </td>
+      <td>
+        {{getTypeTranslate(task.type)}}
+      </td>
+    </tr>
+    </tbody>
+
+  </table>
+  <!-- Pagination -->
+  <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+  <!-- // Pagination -->
+</ng-template>

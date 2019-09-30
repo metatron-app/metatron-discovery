@@ -35,7 +35,6 @@ import {EditConfigSchemaComponent} from './data-source-list/detail-data-source/c
 import {MetadataService} from '../meta-data-management/metadata/service/metadata.service';
 import {EditFilterDataSourceComponent} from './data-source-list/detail-data-source/edit-filter-data-source.component';
 import {IngestionLogComponent} from './data-source-list/detail-data-source/information-dats-source/component/ingestion-log/ingestion-log.component';
-import {CriterionCheckboxListComponent} from './component/criterion/criterion-checkbox-list.component';
 import {DataConnectionCreateService} from "./service/data-connection-create.service";
 import {DataSourceCreateModule} from "./data-source-list/create-data-source/data-source-create.module";
 import {FieldConfigService} from "./service/field-config.service";
@@ -43,10 +42,7 @@ import {DatasourceMetadataSharedModule} from "../shared/datasource-metadata/data
 import {DataStorageCommonModule} from "./data-storage-common.module";
 import {DataStorageShareModule} from "./data-storage-share.module";
 import {ConstantService} from "../shared/datasource-metadata/service/constant.service";
-import {CriterionComponent} from "./component/criterion/criterion.component";
-import {CriterionExtensionBoxComponent} from "./component/criterion/criterion-extension-box.component";
-import {CriterionFilterBoxComponent} from "./component/criterion/criterion-filter-box.component";
-import {CriterionTimeRadioboxListComponent} from "./component/criterion/criterion-time-radiobox-list.component";
+import {DataStorageCriteriaModule} from "./data-storage-criteria.module";
 import {SchedulingService} from "./service/scheduling.service";
 
 const storageRoutes: Routes = [
@@ -64,6 +60,7 @@ const storageRoutes: Routes = [
     DatasourceMetadataSharedModule,
     DataStorageCommonModule,
     DataStorageShareModule,
+    DataStorageCriteriaModule,
     RouterModule.forChild(storageRoutes)
   ],
   declarations: [
@@ -84,13 +81,7 @@ const storageRoutes: Routes = [
     // data connection
     DataConnectionComponent,
     CreateConnectionComponent,
-    UpdateConnectionComponent,
-    // criterion
-    CriterionComponent,
-    CriterionExtensionBoxComponent,
-    CriterionFilterBoxComponent,
-    CriterionCheckboxListComponent,
-    CriterionTimeRadioboxListComponent,
+    UpdateConnectionComponent
   ],
   exports: [
     // 워크벤치에서 사용하기 위해

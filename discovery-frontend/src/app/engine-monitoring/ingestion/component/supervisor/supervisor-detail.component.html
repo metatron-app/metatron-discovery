@@ -1,0 +1,226 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div class="ddp-type-contents2">
+
+  <div class="ddp-top-flow">
+    <!-- 버튼 -->
+    <div class="ddp-data-form">
+      <a href="#" class="ddp-btn-buttons3 type-normal" (click)="confirmOpen('SHUTDOWN'); $event.preventDefault();">{{'msg.engine.monitoring.ingestion.shutdown' | translate}}</a>
+      <a href="#" class="ddp-btn-buttons3 type-normal" (click)="confirmOpen('RESET'); $event.preventDefault();">{{'msg.engine.monitoring.ingestion.reset' | translate}}</a>
+    </div>
+    <!-- navi wrap -->
+    <div class="ddp-wrap-navi">
+
+      <a href="javascript:" class="ddp-btn-back" (click)="prevSupervisorList();"></a>
+      <span class="ddp-data-name">{{supervisorId}}</span>
+    </div>
+    <!-- //navi wrap -->
+  </div>
+
+  <!-- 상세 -->
+  <div class="ddp-wrap-datadetail">
+    <!-- detail -->
+    <div class="ddp-ui-datadetail type-detail">
+      <div class="ddp-label-option">
+        <label class="ddp-label-detail">Processed rows</label>
+        <!-- 클릭시 ddp-selected 추가 -->
+        <!--<div class="ddp-type-selectbox">
+          <span class="ddp-txt-selectbox">Last 1Hour</span>
+
+          <ul class="ddp-list-selectbox ddp-selectdown ">
+            <li>
+              <a href="javascript:">
+                Last 1Hour
+              </a>
+            </li>
+            <li>
+              <a href="javascript:">
+                Last 1 Day
+              </a>
+            </li>
+            <li>
+              <a href="javascript:">
+                Last 7 Days
+              </a>
+            </li>
+            <li>
+              <a href="javascript:">
+                Last 30 Days
+              </a>
+            </li>
+          </ul>
+        </div>-->
+      </div>
+
+      <div class="ddp-box-graph" #row>
+
+      </div>
+    </div>
+    <!-- //detail -->
+    <!-- detail -->
+    <div class="ddp-ui-datadetail type-detail">
+      <div class="ddp-label-option">
+        <label class="ddp-label-detail">LAG</label>
+        <!-- 클릭시 ddp-selected 추가 -->
+        <!--<div class="ddp-type-selectbox">
+          <span class="ddp-txt-selectbox">Last 1Hour</span>
+
+          <ul class="ddp-list-selectbox ddp-selectdown ">
+            <li>
+              <a href="javascript:">
+                Last 1Hour
+              </a>
+            </li>
+            <li>
+              <a href="javascript:">
+                Last 1 Day
+              </a>
+            </li>
+            <li>
+              <a href="javascript:">
+                Last 7 Days
+              </a>
+            </li>
+            <li>
+              <a href="javascript:">
+                Last 30 Days
+              </a>
+            </li>
+          </ul>
+        </div>-->
+      </div>
+      <div class="ddp-box-graph" #lag>
+
+      </div>
+    </div>
+    <!-- //detail -->
+    <!-- detail -->
+    <div class="ddp-ui-datadetail type-detail">
+
+      <label class="ddp-label-detail">information</label>
+
+      <table class="ddp-table-detail">
+        <colgroup>
+          <col width="160px">
+          <col width="*">
+        </colgroup>
+        <tbody>
+        <tr>
+          <th>
+            Topic
+          </th>
+          <td>
+            {{supervisorPayload.topic}}
+          </td>
+        </tr>
+        <tr>
+          <th>
+            Datasource
+          </th>
+          <td>
+            {{supervisorPayload.dataSource}}
+          </td>
+        </tr>
+        <tr>
+          <th>
+            Processed
+            <div class="ddp-wrap-hover-info">
+              <em class="ddp-icon-info3"></em>
+              <!-- popup -->
+              <div class="ddp-box-layout4 ">
+                <div class="ddp-data-title">
+                  What is Processed?
+
+                </div>
+                <div class="ddp-data-det">
+                  Number of events successfully processed per emission period.
+                </div>
+              </div>
+              <!-- //popup -->
+            </div>
+          </th>
+          <td>
+            {{processed}}
+          </td>
+        </tr>
+        <tr>
+          <th>
+            Unparseable
+            <div class="ddp-wrap-hover-info">
+              <em class="ddp-icon-info3"></em>
+              <!-- popup -->
+              <div class="ddp-box-layout4 ">
+                <div class="ddp-data-title">
+                  What is Unparseable?
+
+                </div>
+                <div class="ddp-data-det">
+                  If true, exceptions encountered during parsing will be thrown and will halt ingestion. If false, unparseable rows and fields will be skipped. If an entire row is skipped, the "unparseable" counter will be incremented. If some fields in a row were parseable and some were not, the parseable fields will be indexed and the "unparseable" counter will not be incremented.
+                </div>
+              </div>
+              <!-- //popup -->
+            </div>
+          </th>
+          <td>
+            {{unparseable}}
+          </td>
+        </tr>
+        <tr>
+          <th>
+            ThrownAway
+            <div class="ddp-wrap-hover-info">
+              <em class="ddp-icon-info3"></em>
+              <!-- popup -->
+              <div class="ddp-box-layout4 ">
+                <div class="ddp-data-title">
+                  What is Thrown Away?
+
+                </div>
+                <div class="ddp-data-det">
+                  Number of rows skipped(events rejected because they are outside the windowPeriod).
+                  This includes rows with timestamps that were outside of the ingestion task's defined time interval and rows that were filtered out with Transform Specs.
+
+                </div>
+              </div>
+              <!-- //popup -->
+            </div>
+          </th>
+          <td>
+            {{thrownaway}}
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+    </div>
+    <!-- //detail -->
+
+  </div>
+</div>
+<div class="ddp-wrap-layout-popup" *ngIf="showConfirm">
+  <div class="ddp-box-popup ddp-box-popup-type2">
+    <a href="javascript:" class="ddp-btn-close" (click)="showConfirm = false"></a>
+    <!-- title -->
+    <div class="ddp-pop-title">{{confirmModal.name}}</div>
+    <!-- //title -->
+
+    <!-- button -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="showConfirm = false">{{'msg.comm.btn.cancl' | translate}}</a>
+      <!-- disabled 시 ddp-disabled 추가 -->
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="confirmDone();">{{confirmModal.btnName}}</a>
+    </div>
+    <!-- //button -->
+  </div>
+</div>

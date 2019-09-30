@@ -111,6 +111,27 @@ public abstract class AbstractEngineRepository {
     return call(targetUrl.toUriString(), method, entity, clazz);
   }
 
+  protected <T> Optional<T> callByUrl(String url, HttpMethod method, Map<String, Object> urlParam, Object body, Class<T> clazz) {
+
+    HttpEntity<Object> entity = null;
+
+    if (!url.startsWith("http")) {
+      url = "http://" + url;
+    }
+    UriComponents targetUrl = makeUri(url, urlParam);
+
+    if(method == HttpMethod.GET) {
+      HttpHeaders headers = new HttpHeaders();
+      headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
+    } else {
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.APPLICATION_JSON);
+      entity = new HttpEntity<>(body, headers);
+    }
+
+    return call(targetUrl.toUriString(), method, entity, clazz);
+  }
+
   private <T> Optional<T> call(String url, HttpMethod method, HttpEntity<?> entity, Class<T> clazz) {
 
     LOGGER.debug("Request to engine : {}, {} > {}", method, url, entity == null ? "{}" : entity.getBody());
