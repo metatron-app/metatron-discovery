@@ -14,17 +14,37 @@
 
 import * as _ from 'lodash';
 import {
-  AfterViewInit, Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, OnInit, Output,
-  SimpleChange, SimpleChanges, ViewChild
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChange,
+  SimpleChanges,
+  ViewChild
 } from '@angular/core';
 import {RangeSliderComponent} from '../slider/range-slider.component';
 import {Pivot} from '../../../../domain/workbook/configurations/pivot';
 import {
-  ChartColorList, GraphicType, ShelveFieldType,
+  ChartColorList,
+  GraphicType,
+  ShelveFieldType,
   ShelveType
 } from '../../../../common/component/chart/option/define/common';
 import {PageWidgetConfiguration} from '../../../../domain/dashboard/widget/page-widget';
-import {Analysis, analysis, Confidence, Forecast, HyperParameter, Style} from '../../value/analysis';
+import {
+  Analysis,
+  analysis,
+  Confidence,
+  Forecast,
+  HyperParameter,
+  Style
+} from '../../value/analysis';
 import {ColorPickerLayerComponent} from '../color.picker/color.picker.layer.component';
 import * as $ from 'jquery';
 import {SelectComponent} from '../../../../common/component/select/select.component';
@@ -32,7 +52,6 @@ import {Subject} from 'rxjs/Subject';
 import {Subscription} from 'rxjs/Subscription';
 import {AbstractComponent} from '../../../../common/component/abstract.component';
 import {Alert} from '../../../../common/util/alert.util';
-import {TimeUnit} from '../../../../domain/workbook/configurations/field/timestamp-field';
 import {UIOption} from '../../../../common/component/chart/option/ui-option';
 import {Field} from '../../../../domain/workbook/configurations/field/field';
 import {UIChartColorBySeries} from '../../../../common/component/chart/option/ui-option/ui-color';
@@ -435,7 +454,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
   public ngOnInit(): void {
 
     // 현재 언어
-    this.currentLang = this.translateService.currentLang;
+    this.currentLang = this.getLanguage();
 
     // Analysis
     this.LABEL.ANALYSIS = this.translateService.instant('msg.page.prediction.analysis');

@@ -12,12 +12,18 @@
  * limitations under the License.
  */
 
-class LocalStorageKey {
-  // 사용자가 최근 사용한 조건들(정렬, 뷰 종류, 북 종류 등등)
-  public USED_CRITERIA = "USED_CRITERIA";
-  public USER_SETTING = "USER_SETTING";
+export class UserSetting {
+  theme : Theme;
+  language : Language;
 }
 
-export class LocalStorageConstant {
-  public static KEY: LocalStorageKey = new LocalStorageKey();
+export enum Theme {
+  WHITE = '',
+  DARK = 'theme-dark'
+}
+
+export enum Language {
+  KO = 'ko',
+  EN = 'en',
+  ZH = 'zh'
 }

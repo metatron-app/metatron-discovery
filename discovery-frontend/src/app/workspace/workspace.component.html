@@ -316,7 +316,7 @@
         <!-- box contents -->
         <div class="ddp-ui-box-contents">
           <span class="ddp-data-name" [ngClass]="{'ddp-data-line2' : book.type != 'notebook'}">{{book.name}}</span>
-          <span class="ddp-data-date">{{'msg.comm.ui.list.last' | translate}} <span class="ddp-data-ago">{{book.modifiedTime | amTimeAgo}}</span></span>
+          <span class="ddp-data-date">{{'msg.comm.ui.list.last' | translate}} <span class="ddp-data-ago">{{book.modifiedTime | amLocale:getLanguage() | amTimeAgo}}</span></span>
         </div>
         <!-- //box contents -->
 
@@ -551,7 +551,7 @@
               <span class="ddp-data-name ddp-data-lang-python" title="{{'msg.nbook.ui.spark' | translate}}" *ngIf="book.kernelType === 'SPARK'"> {{'msg.nbook.ui.spark' | translate}}</span>
             </div>
             <div class="ddp-data-date">
-              {{'msg.comm.ui.list.last' | translate}} <span class="ddp-data-ago">{{book.modifiedTime | amTimeAgo}}</span>
+              {{'msg.comm.ui.list.last' | translate}} <span class="ddp-data-ago">{{book.modifiedTime | amLocale:getLanguage() | amTimeAgo}}</span>
             </div>
           </div>
           <!-- // Item Information -->

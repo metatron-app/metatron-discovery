@@ -428,6 +428,7 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
     left: 0;
     right: 0;
     bottom: 0;
+    background-color: #1f2942;
 }
 
 .theme-dark .ddp-ui-contentsin.ddp-full {
@@ -654,8 +655,8 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
 ************************************************************************************************************/
 .theme-dark .ddp-layout-lnb {
     position: fixed;
-    left: -2px;
-    top: -1px;
+    left: 0;
+    top: 0;
     width: 0;
     border-right: 2px solid #4c515a;
     box-sizing: border-box;
@@ -708,11 +709,11 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
     fill: #C3C7D2;
 }
 
-.theme-dark .ddp-layout-lnb.ddp-selected .ddp-h1-logo a .st10 {
+.theme-dark .ddp-layout-lnb .ddp-h1-logo a .st10 {
     fill: #fff;
 }
 
-.theme-dark .ddp-layout-lnb.ddp-selected .ddp-h1-logo a .st11 {
+.theme-dark .ddp-layout-lnb .ddp-h1-logo a .st11 {
     fill: #2abcef;
 }
 
@@ -720,7 +721,6 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
     position: fixed;
     left: 0;
     top: 0;
-    bottom: 0;
     width: 288px;
     background: #192239;
     text-indent: 0;
@@ -956,7 +956,7 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
     color: #7e8aa5;
     font-size: 13px;
     text-align: center;
-    background-color: #1f2942;
+    background-color: #2c3754;
 }
 
 .theme-dark ul.ddp-list-lnb li ul.ddp-list-submenu li {
@@ -1134,7 +1134,7 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
     height: 2px;
     background-position: left top;
 }
-.theme-dark ul.ddp-list-lnb li ul.ddp-list-sublnb li.ddp-selected a em.ddp-icon-data {
+.theme-dark ul.ddp-list-lnb li ul.ddp-list-sublnb li a em.ddp-icon-data {
     display:inline-block;
     position:absolute;
     top:50%;

@@ -12,13 +12,15 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { CookieConstant } from '../../../../common/constant/cookie.constant';
-import { UserService } from '../../../../user/service/user.service';
-import { User } from '../../../../domain/user/user';
-import { ProfileComponent } from '../../../../user/profile/profile.component';
-import { CommonUtil } from '../../../../common/util/common.util';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AbstractComponent} from '../../../../common/component/abstract.component';
+import {CookieConstant} from '../../../../common/constant/cookie.constant';
+import {UserService} from '../../../../user/service/user.service';
+import {User} from '../../../../domain/user/user';
+import {ProfileComponent} from '../../../../user/profile/profile.component';
+import {CommonUtil} from '../../../../common/util/common.util';
+import {LocalStorageConstant} from "../../../../common/constant/local-storage.constant";
+import {Language, Theme, UserSetting} from "../../../../common/value/user.setting.value";
 
 @Component({
   selector: 'app-gnb',
@@ -39,9 +41,12 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   // my info show/hide
   public isMyInfoShow = false;
+  public isLanguageShow = false;
 
   // UI에서 사용할 유저객체
   public user: User;
+
+  public constTheme = Theme;
 
   @ViewChild(ProfileComponent)
   public profileComponent: ProfileComponent;
@@ -91,6 +96,18 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
     this.profileComponent.init(this.user);
   }
 
+  public getCurrentLang(): string {
+    return this.getLanguage();
+  }
+
+  public changeLanguage(lang: string): void {
+    if (this.getCurrentLang() != lang) {
+      this.setLanguage(lang);
+      this._saveUserSetting(null, Language[lang]);
+    }
+    this.isLanguageShow = false;
+  }
+
   /**
    * 사용자 정보 수정 완료
    * @param userData
@@ -116,6 +133,15 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
     }
   } // function - getUserImage
 
+  public isThemeDark(): boolean {
+    return $('body').hasClass(Theme.DARK);
+  }
+
+  public themeCheckboxClick(theme: Theme) {
+    CommonUtil.setThemeCss(theme);
+    this._saveUserSetting(theme, null);
+  }
+
   public logout() {
     if( CommonUtil.isSamlSSO() ) {
       location.href = '/saml/logout';
@@ -138,5 +164,21 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  private _saveUserSetting(theme:Theme, language:Language): void {
+    let userData: UserSetting = CommonUtil.getUserSetting();
+    if (!userData) {
+      userData = new UserSetting();
+    }
+
+    if (theme) {
+      userData.theme = theme;
+    }
+    if (language) {
+      userData.language = language;
+    }
+
+    CommonUtil.setLocalStorage(LocalStorageConstant.KEY.USER_SETTING, JSON.stringify(userData));
+  }
 
 }
