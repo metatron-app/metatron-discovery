@@ -18,8 +18,8 @@
       <!-- tags -->
       <div class="ddp-list-tags" >
         <em class="ddp-data-num">+{{ extraTagNumber }}</em>
-        <span class="ddp-tags" *ngIf="metadata.tags.length > 0">{{metadata.tags[0].name}}</span>
-        <span class="ddp-tags" *ngIf="metadata.tags.length == 0">#No tags</span>
+        <span class="ddp-tags" *ngIf="metadata.tags.length > 0">#{{metadata.tags[0].name}}</span>
+        <span class="ddp-tags" *ngIf="metadata.tags.length == 0">#No tag</span>
       </div>
     </div>
     <!-- //bottom -->
