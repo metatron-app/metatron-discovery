@@ -411,6 +411,7 @@ public class MetadataController {
   @ResponseBody
   public ResponseEntity<?> getMyFavoriteMetadatas(Pageable pageable, PersistentEntityResourceAssembler resourceAssembler) {
     Page<Metadata> metadatas = metadataRepository.findAll(pageable);
+    metadatas = new PageImpl<Metadata>(Lists.newArrayList(), new PageRequest(0, 20), 0L);
     return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(metadatas, resourceAssembler));
   }
 
@@ -418,6 +419,7 @@ public class MetadataController {
   @ResponseBody
   public ResponseEntity<?> getFavoriteMetadataByCreator(Pageable pageable, PersistentEntityResourceAssembler resourceAssembler) {
     Page<Metadata> metadatas = metadataRepository.findAll(pageable);
+    metadatas = new PageImpl<Metadata>(Lists.newArrayList(), new PageRequest(0, 20), 0L);
     return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(metadatas, resourceAssembler));
   }
 
