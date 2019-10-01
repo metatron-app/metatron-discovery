@@ -51,6 +51,7 @@ import {SsType} from "../../../../domain/data-preparation/pr-snapshot";
 import {DataStorageConstant} from "../../../constant/data-storage-constant";
 import * as moment from 'moment';
 import {Segments} from "../../../../domain/datasource/stats";
+import {SchedulingService} from "../../../service/scheduling.service";
 
 declare let echarts: any;
 
@@ -166,6 +167,8 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   // description
   public descriptionChangeText: string;
 
+  public schedulingStatus: string;
+
   public dsStatus = Status;
   public dsSrcType = SourceType;
   public dsConnType = ConnectionType;
@@ -177,6 +180,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
 
   // 생성자
   constructor(private datasourceService: DatasourceService,
+              private schedulingService: SchedulingService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -198,6 +202,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
     if (!this.isLinkedSource() && this.isEnabled() && this.timestampColumn) {
       this._getFieldStats(this.timestampColumn.name, this.datasource.engineName);
     }
+    this.getSchedulingJob();
   }
 
   // Destory
@@ -534,6 +539,13 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
     return this.getIngestionPeriod.weekDays.toString();
   }
 
+  public get getIngestionStatusLabel(): string {
+    if (this.schedulingStatus === 'NORMAL') {
+      return 'WAITING';
+    }
+    return this.schedulingStatus;
+  }
+
   /**
    * data range label
    * @returns {string}
@@ -688,6 +700,39 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
       return moment(date).format('YYYY-MM-DD hh');
     }
     return date;
+  }
+
+  public getSchedulingJob() {
+    if (this.datasource.connType === this.dsConnType.ENGINE && this.datasource.ingestion.type != 'single') {
+      this.schedulingService.getScheduling('ingestion', this.datasource.id).then((data) => {
+        if (!_.isNil(data) && data.length == 1) {
+          this.schedulingStatus = data[0].status;
+          this.changeDetect.detectChanges();
+        }
+      }).catch();
+    }
+  }
+
+  public pauseSchedulingJob() {
+    this.schedulingService.pauseScheduling('ingestion', this.datasource.id).then((data) => {
+      Alert.success(this.translateService.instant('msg.storage.th.batch.pause.success'));
+    }).catch((error) => {
+      Alert.error(this.translateService.instant('msg.storage.th.batch.pause.fail'));
+    });
+    setTimeout(() => {
+      this.getSchedulingJob()
+    }, 500);
+  }
+
+  public resumeSchedulingJob() {
+    this.schedulingService.resumeScheduling('ingestion', this.datasource.id).then((data) => {
+      Alert.success(this.translateService.instant('msg.storage.th.batch.resume.success'));
+    }).catch((error) => {
+      Alert.error(this.translateService.instant('msg.storage.th.batch.resume.fail'));
+    });
+    setTimeout(() => {
+      this.getSchedulingJob()
+    }, 500);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

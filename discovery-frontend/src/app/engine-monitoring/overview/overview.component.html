@@ -1,0 +1,168 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!--suppress HtmlDeprecatedAttribute -->
+<div [ngClass]="['ddp-ui-contents-det']">
+
+  <!-- box status -->
+  <div overview-status-view class="ddp-view-setting ddp-clear" [clusterStatus]="clusterStatus" [monitorings]="monitorings" [clusterSize]="clusterSize"
+                                          [duration]= "selectedDuration" (changeValue)="changeDuration($event)"></div>
+  <!-- // box status -->
+
+  <!-- Graph Area -->
+  <div overview-graph-view class="ddp-wrap-engine-graph ddp-clear" [duration]="selectedDuration"></div>
+  <!-- // Graph Area -->
+
+  <div class="ddp-box-type ddp-type-server">
+    <div class="ddp-wrap-status-value ddp-clear">
+      <div class="ddp-ui-status-value">
+        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.broker)]">
+          Broker
+          <em [ngClass]="[getIconStatusClass(clusterStatus.broker)]"></em>
+        </div>
+      </div>
+      <div class="ddp-ui-status-value">
+        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.coordinator)]">
+          Coordinator
+          <em [ngClass]="[getIconStatusClass(clusterStatus.coordinator)]"></em>
+        </div>
+      </div>
+      <div class="ddp-ui-status-value">
+        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.historical)]">
+          Historical
+          <em [ngClass]="[getIconStatusClass(clusterStatus.historical)]"></em>
+        </div>
+      </div>
+      <div class="ddp-ui-status-value">
+        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.overlord)]">
+          Overlord
+          <em [ngClass]="[getIconStatusClass(clusterStatus.overlord)]"></em>
+        </div>
+      </div>
+      <div class="ddp-ui-status-value">
+        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.middleManager)]">
+          Middle Manager
+          <em [ngClass]="[getIconStatusClass(clusterStatus.middleManager)]"></em>
+        </div>
+      </div>
+    </div>
+    <!-- // Status Bar -->
+
+    <!-- Search & Filter -->
+    <div class="ddp-box-top-setting ddp-clear" >
+      <!-- Search Bar -->
+      <overview-search [keyword]="keyword"
+                       [placeholder]="'msg.engine.monotoring.overview.server.name.search' | translate"
+                       (changeValue)="searchByHostnameColumn($event)">
+      </overview-search>
+      <!-- // Search Bar -->
+      <div class="ddp-type-option">
+        <!-- Filter Buttons -->
+        <div overview-radio
+             [selectedMonitoringStatus]="selectedMonitoringStatus"
+             (changeValue)="searchByStatusColumn($event)">
+        </div>
+        <!-- // Filter Buttons -->
+        <!-- View Type Buttons -->
+        <ul class="ddp-list-tab-button">
+          <li [class.ddp-selected]="selectedViewMode === VIEW_MODE.CARD">
+            <a href="javascript:" (click)="changeViewMode(VIEW_MODE.CARD)"><em class="ddp-icon-grid"></em></a>
+            <div class="ddp-ui-tooltip-info">
+              <em class="ddp-icon-view-top"></em>
+              {{ 'msg.engine.monotoring.overview.view.mode.tooltip.card' | translate }}
+            </div>
+          </li>
+          <li [class.ddp-selected]="selectedViewMode === VIEW_MODE.GRID">
+            <a href="javascript:" (click)="changeViewMode(VIEW_MODE.GRID)"><em class="ddp-icon-listgrid"></em></a>
+            <div class="ddp-ui-tooltip-info">
+              <em class="ddp-icon-view-top"></em>
+              {{ 'msg.engine.monotoring.overview.view.mode.tooltip.grid' | translate }}
+            </div>
+          </li>
+        </ul>
+        <!-- // View Type Buttons -->
+      </div>
+    </div>
+    <!-- // Search & Filter -->
+
+    <div class="ddp-box-detail">
+      <ng-container *ngIf="monitorings | tableSort:tableSortProperty:tableSortDirection | tableFilter:{'hostname': keyword, 'status': selectedMonitoringStatus} as filteredItems">
+        <div class="ddp-data-source-none" *ngIf="filteredItems.length == 0">
+          No data
+        </div>
+        <div class="ddp-grid-detail" *ngIf="selectedViewMode === VIEW_MODE.CARD && filteredItems.length > 0">
+          <div class="ddp-grid-box" *ngFor="let monitoring of filteredItems" [ngClass]="{'type-error' : !monitoring.status}">
+            {{ convertTypeLabel(monitoring.type).substring(0, 1) }}
+          </div>
+        </div>
+        <table class="ddp-table-detail3" *ngIf="selectedViewMode === VIEW_MODE.GRID && filteredItems.length > 0">
+          <colgroup>
+            <col width="33%">
+            <col width="33%">
+            <col width="33%">
+          </colgroup>
+          <thead>
+          <tr (click)="clickHostameHeaderColumn('hostname')">
+            <th>
+              {{ 'msg.engine.monotoring.overview.server.name' | translate }}
+              <em [class.ddp-icon-array-default2]="tableSortDirection === TABLE_SORT_DIRECTION.NONE"
+                  [class.ddp-icon-array-asc2]="tableSortDirection === TABLE_SORT_DIRECTION.DESC"
+                  [class.ddp-icon-array-des2]="tableSortDirection === TABLE_SORT_DIRECTION.ASC">
+              </em>
+            </th>
+            <th>{{ 'msg.engine.monotoring.overview.node.name' | translate }}</th>
+            <th>{{ 'msg.engine.monotoring.overview.status' | translate }}</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr class="ddp-cursor" *ngFor="let monitoring of filteredItems" (click)="showNodeInformationModal(monitoring);">
+            <td>{{ monitoring.hostname }}</td>
+            <td>
+              <span class="ddp-data-node" [ngClass]="['type-' + monitoring.type]">
+                {{ convertTypeLabel(monitoring.type) }}
+              </span>
+            </td>
+            <td>
+              <ng-template [ngIf]="monitoring.status">
+                <ok-icon></ok-icon>
+              </ng-template>
+              <ng-template [ngIf]="!monitoring.status">
+                <div class="ddp-type-status-error">
+                  <error-icon></error-icon>
+                  <span class="ddp-txt-error">
+                  <em class="ddp-icon-error"></em>{{ monitoring.errorTime | mdate:'YYYY-MM-DD HH:mm:ss' }}
+                    <!--suppress HtmlUnknownTag -->
+                    <div class="ddp-box-layout4">
+                      <div class="ddp-data-title">
+                        {{ 'msg.engine.monotoring.error.label' | translate }}
+                        <span class="ddp-sub-title">({{ monitoring.errorDuration }})</span>
+                      </div>
+                      <div class="ddp-data-det">
+                        {{ monitoring.hostname }}:{{ monitoring.port }} {{ monitoring.type }} {{ 'msg.engine.monotoring.overview.error.layer.prefix' | translate }}<br>
+                        {{ 'msg.engine.monotoring.failure.time.label' | translate }} : {{ monitoring.errorTime | mdate:'YYYY-MM-DD HH:mm:ss' }}
+                    </div>
+                    </div>
+                  </span>
+                </div>
+              </ng-template>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </ng-container>
+    </div>
+  </div>
+</div>
+
+<node-information></node-information>

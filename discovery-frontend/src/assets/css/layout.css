@@ -253,7 +253,7 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
 .ddp-ui-sub-myinfo .ddp-list-sub-myinfo li ul.ddp-list-popup li a {padding:4px 30px 4px 14px; border-left:none; font-weight:normal;}
 .ddp-ui-sub-myinfo .ddp-list-sub-myinfo li ul.ddp-list-popup li a:hover {font-weight:normal; background-color:#f6f6f7;}
 .ddp-ui-sub-myinfo .ddp-list-sub-myinfo li a .ddp-txt-list {display:block; position:relative; padding-left:22px;}
-.ddp-ui-sub-myinfo .ddp-list-sub-myinfo li a [class*="ddp-icon-"]{display:inline-block; position:absolute; top:50%; left:0; background:url(../images/icon_userinfo.png) no-repeat;}
+.ddp-ui-sub-myinfo .ddp-list-sub-myinfo > li > a [class*="ddp-icon-"]{display:inline-block; position:absolute; top:50%; left:0; background:url(../images/icon_userinfo.png) no-repeat;}
 .ddp-ui-sub-myinfo .ddp-list-sub-myinfo li a .ddp-icon-info-profile {width:12px; height:12px; margin-top:-6px;}
 .ddp-ui-sub-myinfo .ddp-list-sub-myinfo li a .ddp-icon-info-language {width:15px; height:15px; margin-top:-8px; background-position:left -13px;}
 .ddp-ui-sub-myinfo .ddp-list-sub-myinfo li a .ddp-icon-info-theme {width:11px; height:13px; margin-top:-7px; background-position:left -26px;}
@@ -326,7 +326,7 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
 /***********************************************************************************************************
     LNB
 ************************************************************************************************************/
-.ddp-layout-lnb {position:fixed; left:-2px; top:-1px; width:0;border-right:2px solid #4c515a; box-sizing:border-box; text-indent:-30000px;}
+.ddp-layout-lnb {position:fixed; left:0; top:0; width:0;border-right:2px solid #4c515a; box-sizing:border-box; text-indent:-30000px;}
 .ddp-layout-lnb a.ddp-btn-lnbmenu {display:inline-block; position:absolute; top:0; left:0; width:49px; height:55px;}
 .ddp-layout-lnb a.ddp-btn-lnbmenu:before {display:inline-block; content:''; position:absolute; top:50%; left:23px; margin:-6px 0 0 0; width:16px; height:12px; background:url(../images/btn_lnbmenu.png) no-repeat;}
 .ddp-layout-lnb .ddp-h1-logo {position:absolute;top:21px; left:52px; text-indent:0;}
@@ -410,7 +410,7 @@ ul.ddp-list-lnb li ul.ddp-list-submenu li a .ddp-icon-afav.ddp-selected {backgro
 ul.ddp-list-lnb li ul.ddp-list-sublnb li a {display:block; position:relative; padding:10px 10px 10px 56px; color:#6b6e77; font-size:14px;}
 ul.ddp-list-lnb li ul.ddp-list-sublnb li a em.ddp-icon-dot {display:inline-block; position:absolute; top:14px; left:30px; width:10px; height:10px; background:url(../images/icon_lnbdot.png) no-repeat; background-position:left -3px;}
 ul.ddp-list-lnb li ul.ddp-list-sublnb li.ddp-selected a {background-color:#212429;}
-ul.ddp-list-lnb li ul.ddp-list-sublnb li.ddp-selected a em.ddp-icon-data {display:inline-block; position:absolute; top:50%; left:28px; margin-top:-7px; width:12px; height:14px; margin-right:12px; background:url(../images/icon_lnb.png) no-repeat; background-position:left -71px; vertical-align:middle;}
+ul.ddp-list-lnb li ul.ddp-list-sublnb li a em.ddp-icon-data {display:inline-block; position:absolute; top:50%; left:28px; margin-top:-7px; width:12px; height:14px; margin-right:12px; background:url(../images/icon_lnb.png) no-repeat; background-position:left -71px; vertical-align:middle;}
 
 ul.ddp-list-lnb li ul.ddp-list-sublnb li.ddp-selected a em.ddp-icon-dot {top:18px; width:10px; height:2px; background-position:left top;}
 ul.ddp-list-lnb li ul.ddp-list-sublnb li a:hover {background-color:#212429;}

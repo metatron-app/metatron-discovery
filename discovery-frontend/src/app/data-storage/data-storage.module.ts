@@ -12,30 +12,29 @@
  * limitations under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '../common/common.module';
-import { DatasourceManagementGuard } from '../common/gaurd/datasource-management.guard';
-import { RouterModule, Routes } from '@angular/router';
-import { DataConnectionComponent } from './data-connection/data-connection.component';
-import { DataSourceListComponent } from './data-source-list/data-source-list.component';
-import { CreateDataSourceComponent } from './data-source-list/create-data-source/create-data-source.component';
-import { CreateConnectionComponent } from './data-connection/create-connection.component';
-import { UpdateConnectionComponent } from './data-connection/update-connection.component';
-import { BatchHistoryComponent } from './data-source-list/detail-data-source/information-dats-source/component/batch-history/batch-history.component';
-import { QueryDetailComponent } from './data-source-list/detail-data-source/information-dats-source/component/query-detail/query-detail.component';
-import { SetWorkspacePublishedComponent } from './component/set-workspace-published/set-workspace-published.component';
-import { MonitoringDataSourceComponent } from './data-source-list/detail-data-source/monitoring-data-source/monitoring-data-source.component';
-import { InformationDataSourceComponent } from './data-source-list/detail-data-source/information-dats-source/information-data-source.component';
-import { DetailDataSourceComponent } from './data-source-list/detail-data-source/detail-data-source.component';
-import { DndModule } from 'ng2-dnd';
-import { CanDeactivateGuard } from '../common/gaurd/can.deactivate.guard';
-import { DataGridDataSourceComponent } from './data-source-list/detail-data-source/data-grid-data-source/data-grid-data-source.component';
-import { ColumnDetailDataSourceComponent } from './data-source-list/detail-data-source/column-detail-data-source/column-detail-data-source.component';
-import { EditConfigSchemaComponent } from './data-source-list/detail-data-source/column-detail-data-source/edit-config-schema.component';
-import { MetadataService } from '../meta-data-management/metadata/service/metadata.service';
-import { EditFilterDataSourceComponent } from './data-source-list/detail-data-source/edit-filter-data-source.component';
-import { IngestionLogComponent } from './data-source-list/detail-data-source/information-dats-source/component/ingestion-log/ingestion-log.component';
-import { CriterionCheckboxListComponent } from './component/criterion/criterion-checkbox-list.component';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '../common/common.module';
+import {DatasourceManagementGuard} from '../common/gaurd/datasource-management.guard';
+import {RouterModule, Routes} from '@angular/router';
+import {DataConnectionComponent} from './data-connection/data-connection.component';
+import {DataSourceListComponent} from './data-source-list/data-source-list.component';
+import {CreateDataSourceComponent} from './data-source-list/create-data-source/create-data-source.component';
+import {CreateConnectionComponent} from './data-connection/create-connection.component';
+import {UpdateConnectionComponent} from './data-connection/update-connection.component';
+import {BatchHistoryComponent} from './data-source-list/detail-data-source/information-dats-source/component/batch-history/batch-history.component';
+import {QueryDetailComponent} from './data-source-list/detail-data-source/information-dats-source/component/query-detail/query-detail.component';
+import {SetWorkspacePublishedComponent} from './component/set-workspace-published/set-workspace-published.component';
+import {MonitoringDataSourceComponent} from './data-source-list/detail-data-source/monitoring-data-source/monitoring-data-source.component';
+import {InformationDataSourceComponent} from './data-source-list/detail-data-source/information-dats-source/information-data-source.component';
+import {DetailDataSourceComponent} from './data-source-list/detail-data-source/detail-data-source.component';
+import {DndModule} from 'ng2-dnd';
+import {CanDeactivateGuard} from '../common/gaurd/can.deactivate.guard';
+import {DataGridDataSourceComponent} from './data-source-list/detail-data-source/data-grid-data-source/data-grid-data-source.component';
+import {ColumnDetailDataSourceComponent} from './data-source-list/detail-data-source/column-detail-data-source/column-detail-data-source.component';
+import {EditConfigSchemaComponent} from './data-source-list/detail-data-source/column-detail-data-source/edit-config-schema.component';
+import {MetadataService} from '../meta-data-management/metadata/service/metadata.service';
+import {EditFilterDataSourceComponent} from './data-source-list/detail-data-source/edit-filter-data-source.component';
+import {IngestionLogComponent} from './data-source-list/detail-data-source/information-dats-source/component/ingestion-log/ingestion-log.component';
 import {DataConnectionCreateService} from "./service/data-connection-create.service";
 import {DataSourceCreateModule} from "./data-source-list/create-data-source/data-source-create.module";
 import {FieldConfigService} from "./service/field-config.service";
@@ -43,10 +42,8 @@ import {DatasourceMetadataSharedModule} from "../shared/datasource-metadata/data
 import {DataStorageCommonModule} from "./data-storage-common.module";
 import {DataStorageShareModule} from "./data-storage-share.module";
 import {ConstantService} from "../shared/datasource-metadata/service/constant.service";
-import {CriterionComponent} from "./component/criterion/criterion.component";
-import {CriterionExtensionBoxComponent} from "./component/criterion/criterion-extension-box.component";
-import {CriterionFilterBoxComponent} from "./component/criterion/criterion-filter-box.component";
-import {CriterionTimeRadioboxListComponent} from "./component/criterion/criterion-time-radiobox-list.component";
+import {DataStorageCriteriaModule} from "./data-storage-criteria.module";
+import {SchedulingService} from "./service/scheduling.service";
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -63,6 +60,7 @@ const storageRoutes: Routes = [
     DatasourceMetadataSharedModule,
     DataStorageCommonModule,
     DataStorageShareModule,
+    DataStorageCriteriaModule,
     RouterModule.forChild(storageRoutes)
   ],
   declarations: [
@@ -83,13 +81,7 @@ const storageRoutes: Routes = [
     // data connection
     DataConnectionComponent,
     CreateConnectionComponent,
-    UpdateConnectionComponent,
-    // criterion
-    CriterionComponent,
-    CriterionExtensionBoxComponent,
-    CriterionFilterBoxComponent,
-    CriterionCheckboxListComponent,
-    CriterionTimeRadioboxListComponent,
+    UpdateConnectionComponent
   ],
   exports: [
     // 워크벤치에서 사용하기 위해
@@ -101,6 +93,7 @@ const storageRoutes: Routes = [
     DataConnectionCreateService,
     FieldConfigService,
     ConstantService,
+    SchedulingService
   ]
 })
 export class DataStorageModule {

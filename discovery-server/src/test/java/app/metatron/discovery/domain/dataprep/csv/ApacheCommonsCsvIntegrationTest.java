@@ -14,12 +14,17 @@
 
 package app.metatron.discovery.domain.dataprep.csv;
 
+import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getReaderAfterDetectingCharset;
+import static org.junit.Assert.assertNull;
+
 import app.metatron.discovery.AbstractRestIntegrationTest;
 import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
 import app.metatron.discovery.domain.dataprep.PrepProperties;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
+import app.metatron.discovery.domain.dataprep.file.PrepParseResult;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import com.facebook.presto.jdbc.internal.jackson.core.JsonProcessingException;
 import java.io.File;
@@ -79,7 +84,7 @@ public class ApacheCommonsCsvIntegrationTest extends AbstractRestIntegrationTest
       uri = new URI(strLocalUri);
       file = new File(uri);
       fis = new FileInputStream(file);
-      reader = PrepCsvUtil.getReaderAfterDetectingCharset(fis, strLocalUri);
+      reader = getReaderAfterDetectingCharset(fis, strLocalUri);
     } catch (FileNotFoundException e) {
       e.printStackTrace();
       throw PrepException
@@ -124,10 +129,9 @@ public class ApacheCommonsCsvIntegrationTest extends AbstractRestIntegrationTest
 
   @Test
   public void test_hdfs() throws JsonProcessingException {
-    PrepCsvParseResult result = PrepCsvUtil.parse(strHdfsUriCrime, ",", 10000, getHadoopConf());
+    PrepParseResult result = PrepCsvUtil.parse(strHdfsUriCrime, ",", 10000, getHadoopConf());
 
-    LOGGER.debug("colNames={}", result.colNames);
-    LOGGER.debug("maxColCnt={}", result.maxColCnt);
+    assertNull(result.colNames);
 
     DataFrame df = new DataFrame();
     df.setByGrid(result.grid, result.colNames);
@@ -136,10 +140,10 @@ public class ApacheCommonsCsvIntegrationTest extends AbstractRestIntegrationTest
 
   @Test
   public void test_hdfs_header() throws JsonProcessingException {
-    PrepCsvParseResult result = PrepCsvUtil.parse(strHdfsUriCrime, ",", 10000, getHadoopConf(), true);
+    PrepParseResult result = PrepCsvUtil.parse(strHdfsUriCrime, ",", 10000, getHadoopConf(), true);
 
     LOGGER.debug("colNames={}", result.colNames);
-    LOGGER.debug("maxColCnt={}", result.maxColCnt);
+    LOGGER.debug("colCnt={}", result.colNames.size());
 
     DataFrame df = new DataFrame();
     df.setByGrid(result);

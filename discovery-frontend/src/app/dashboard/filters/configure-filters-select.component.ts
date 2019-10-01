@@ -31,6 +31,7 @@ import {TimeListFilter} from '../../domain/workbook/configurations/filter/time-l
 import {isNullOrUndefined, isUndefined} from 'util';
 import {DashboardUtil} from '../util/dashboard.util';
 import {Alert} from '../../common/util/alert.util';
+import {TimeRelativeFilter} from "../../domain/workbook/configurations/filter/time-relative-filter";
 
 @Component({
   selector: 'app-config-filter-select',
@@ -300,7 +301,8 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
   public addTimestampFilter(field: Field | CustomField, unit?: TimeUnit, byUnit?: ByTimeUnit) {
     let timeFilter: TimeFilter;
     if (isNullOrUndefined(unit)) {
-      timeFilter = new TimeAllFilter(<Field>field);
+      // timeFilter = new TimeAllFilter(<Field>field);
+      timeFilter = new TimeRelativeFilter(<Field>field);
     } else {
       timeFilter = new TimeListFilter(<Field>field);
       timeFilter.timeUnit = unit;

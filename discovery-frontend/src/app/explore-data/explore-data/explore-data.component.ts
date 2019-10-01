@@ -125,9 +125,9 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     // declare variables needed for metadata-container(modal) component
     let metadataDetail;
     let recentlyQueriesForDatabase;
-    let recentlyQueriesForDataSource;
     let topUserList;
     let recentlyUpdatedList;
+    let recentlyUsedList;
 
     // get datas...
     const getRecentlyQueriesForDatabase = async (sourcetype: SourceType) => {
@@ -145,13 +145,6 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
       }
     };
 
-    const getRecentlyQueriesForDataSource = async () => {
-      if (metadataDetail.source.source !== undefined) {
-        recentlyQueriesForDataSource = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDataSource(metadataDetail.source.source.id, this.page.page, this.page.size, this.page.sort)
-          .catch(error => this.commonExceptionHandler(error));
-      }
-    };
-
     const getTopUser = async () => {
       topUserList = await this.metadataService.getTopUserInMetadataDetail(metadata.id).catch(error => this.commonExceptionHandler(error));
       topUserList = topUserList === undefined ? [] : topUserList;
@@ -159,6 +152,10 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
 
     const getRecentlyUpdatedList = async () => {
       recentlyUpdatedList = await this.metadataService.getRecentlyUpdatedInMetadataDetail(metadata.id).catch(error => this.commonExceptionHandler(error));
+    };
+
+    const getRecentlyUsedList = async () => {
+      recentlyUsedList = await this.metadataService.getRecentlyUsedInMetadataDetail(metadata.id, {sort: 'createdTime', size: 5, page: 0}).catch(error => this.commonExceptionHandler(error));
     };
 
     // get metadataDetail to use datasourceService which is using metadataDetail
@@ -169,15 +166,14 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
       await getRecentlyUpdatedList();
 
       if (metadata.sourceType === SourceType.ENGINE) {
-        await getRecentlyQueriesForDataSource();
+        await getRecentlyUsedList();
+
         this.entryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(MetadataContainerComponent));
         this.entryRef.instance.metadataDetailData = metadataDetail;
         this.entryRef.instance.topUserList = topUserList;
         this.entryRef.instance.recentlyUpdatedList = recentlyUpdatedList;
-        if (recentlyQueriesForDataSource !== undefined) {
-          if (recentlyQueriesForDataSource['_embedded']) {
-            this.entryRef.instance.recentlyQueriesForDataSource = recentlyQueriesForDataSource['_embedded']['datasourcequeryhistories'];
-          }
+        if (recentlyUsedList['_embedded'] !== undefined) {
+          this.entryRef.instance.recentlyUsedDashboardList = recentlyUsedList['_embedded']['dashboards'];
         }
 
         this.entryRef.instance.metadataId = metadata.id;
@@ -197,7 +193,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
         // close
         this.entryRef.destroy();
       });
-    }).catch(error => this.commonExceptionHandler(error));
+    }).catch(error => {console.log(error); this.commonExceptionHandler(error)});
   }
 
   onCloseMetadataContainer(): void {

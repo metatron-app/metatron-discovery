@@ -14,9 +14,7 @@
 
 <div class="ddp-ui-headright">
   <!--<a href="javascript:" class="ddp-btn-search"></a>-->
-  <!-- photo -->
-  <!-- 클릭시 ddp-selected 추가 -->
-  <div class="ddp-wrap-myinfo" [ngClass]="{'ddp-selected' : isMyInfoShow}" (click)="isMyInfoShow = !isMyInfoShow" (clickOutside)="isMyInfoShow=false;">
+  <div class="ddp-wrap-myinfo" [ngClass]="{'ddp-selected' : isMyInfoShow}" (click)="isMyInfoShow = !isMyInfoShow;" (clickOutside)="isMyInfoShow=false;">
     <a href="javascript:" class="ddp-data-photo">
       <img [src]="getUserImage()" />
     </a>
@@ -24,18 +22,75 @@
     <div class="ddp-ui-sub-myinfo">
       <div class="ddp-wrap-data">
         <span class="ddp-data-name">{{user.fullName}}</span>
-        <!--<span class="ddp-data-team">전략 2팀</span>-->
         <span class="ddp-data-mail">{{user.email}}</span>
       </div>
 
       <ul class="ddp-list-sub-myinfo">
-        <li><a href="javascript:" (click)="userProfile()">{{'msg.comm.menu.usr.information.mngt' | translate}}</a></li>
-        <li><a href="javascript:" (click)="logout()">{{'msg.comm.menu.logout' | translate}}</a></li>
+        <li>
+          <a href="javscript:" (click)="userProfile()">
+            <span class="ddp-txt-list">
+                <em class="ddp-icon-info-profile"></em>{{'msg.comm.menu.profile' | translate}}
+            </span>
+          </a>
+        </li>
+        <li>
+          <a href="javscript:" class="ddp-cursor-default" (click)="$event.stopImmediatePropagation();">
+            <span class="ddp-txt-list">
+                <em class="ddp-icon-info-language"></em>{{'msg.comm.menu.lang' | translate}}
+            </span>
+          </a>
+          <div class="ddp-hover-status" [ngClass]="{'ddp-selected' : isLanguageShow}">
+            <!-- inactive 일때 ddp-inactive 추가 -->
+            <span class="ddp-status-active ddp-inactive" (click)="isLanguageShow = !isLanguageShow;$event.stopImmediatePropagation();" (clickOutside)="isLanguageShow=false;">{{'msg.comm.menu.lang.' + getCurrentLang() | translate}}<em class="ddp-icon-view"></em></span>
+            <!-- popup -->
+            <div class="ddp-wrap-popup2">
+              <ul class="ddp-list-popup">
+                <li [ngClass]="{'ddp-selected' : getCurrentLang() == 'ko'}" (click)="changeLanguage('ko');$event.preventDefault();">
+                  <a href="#">
+                    {{'msg.comm.menu.lang.ko' | translate}}
+                    <em class="ddp-icon-check"></em>
+                  </a>
+                </li>
+                <li [ngClass]="{'ddp-selected' : getCurrentLang() == 'en'}" (click)="changeLanguage('en');$event.preventDefault();">
+                  <a href="#">
+                    {{'msg.comm.menu.lang.en' | translate}}
+                    <em class="ddp-icon-check"></em>
+                  </a>
+                </li>
+                <li [ngClass]="{'ddp-selected' : getCurrentLang() == 'zh'}" (click)="changeLanguage('zh');$event.preventDefault();">
+                  <a href="#">
+                    {{'msg.comm.menu.lang.zh' | translate}}
+                    <em class="ddp-icon-check"></em>
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <!-- //popup -->
+          </div>
+        </li>
+        <li>
+          <a href="javascript:" class="ddp-cursor-default" (click)="$event.stopImmediatePropagation();">
+            <span class="ddp-txt-list">
+                <em class="ddp-icon-info-theme"></em>
+                {{'msg.comm.menu.theme' | translate}}
+            </span>
+          </a>
+          <div class="ddp-theme-check">
+            <label class="theme-check ">
+              <input type="checkbox" [checked]="!isThemeDark()">
+              <i (click)="themeCheckboxClick(constTheme.WHITE);$event.preventDefault();"></i>
+            </label>
+            <label class="theme-check type-dark">
+              <input type="checkbox" [checked]="isThemeDark()">
+              <i (click)="themeCheckboxClick(constTheme.DARK);$event.preventDefault();"></i>
+            </label>
+          </div>
+        </li>
       </ul>
+      <div class="ddp-ui-part"><a href="javascript:" (click)="logout();">{{'msg.comm.menu.logout' | translate}}</a></div>
     </div>
     <!-- //my info -->
   </div>
-  <!-- //photo -->
 
 </div>
 

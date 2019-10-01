@@ -41,7 +41,7 @@ export class ConstantService {
   private readonly metadataFilters: Filter.Metadata[] = [
     new Filter.Metadata(this.translateService.instant('msg.comm.th.ds'), Type.MetadataSource.ENGINE),
     new Filter.Metadata(this.translateService.instant('msg.storage.li.db'), Type.MetadataSource.JDBC),
-    new Filter.Metadata(this.translateService.instant('msg.storage.li.hive'), Type.MetadataSource.STAGING)
+    new Filter.Metadata(this.translateService.instant('msg.storage.li.hive'), Type.MetadataSource.STAGEDB)
   ];
 
   private readonly geoCoordinates: string[] = [
@@ -128,7 +128,7 @@ export class ConstantService {
   }
 
   public getMetadataTypeFiltersExceptStaging() {
-    return _.cloneDeep(this.metadataFilters.filter(filter => filter.value !== Type.MetadataSource.STAGING));
+    return _.cloneDeep(this.metadataFilters.filter(filter => filter.value !== Type.MetadataSource.STAGEDB));
   }
 
   public getMetadataTypeFiltersFirst() {

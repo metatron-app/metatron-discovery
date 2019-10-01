@@ -47,4 +47,6 @@ public interface DashboardRepository extends JpaRepository<DashBoard, String>,
               "INNER JOIN dashBoard.dataSources ds " +
               "WHERE wb.id = :workbookId ORDER BY ds.name ASC")
   List<DataSource> findAllDataSourceInDashboard(@Param("workbookId") String workbookId);
+
+  Page<DashBoard> findAllByDataSources(List<DataSource> dataSources, Pageable pageable);
 }

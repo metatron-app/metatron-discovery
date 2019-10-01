@@ -753,6 +753,15 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
     return connImgUrl;
   } // function - getConnImplementorGrayImgUrl
 
+  public getLanguage():string {
+    return this.translateService.currentLang;
+  }
+
+  public setLanguage(lang:string) {
+    this.translateService.use(lang);
+    // store language
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -984,7 +993,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
 
   protected getUsedCriteriaFromLocalStorage(): UsedCriteria {
     if(localStorage) {
-      const usedCriteria = localStorage.getItem(LocalStorageConstant.KEY.USED_CRITERIA);
+      const usedCriteria = CommonUtil.getLocalStorage(LocalStorageConstant.KEY.USED_CRITERIA);
       let criteria : UsedCriteria;
       if(usedCriteria) {
         criteria = JSON.parse(usedCriteria);
@@ -999,9 +1008,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   }
 
   protected setUsedCriteriaToLocalStorage(criteria: UsedCriteria): void {
-    if(localStorage) {
-      localStorage.setItem(LocalStorageConstant.KEY.USED_CRITERIA,  JSON.stringify(criteria));
-    }
+    CommonUtil.setLocalStorage(LocalStorageConstant.KEY.USED_CRITERIA,  JSON.stringify(criteria));
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
