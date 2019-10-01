@@ -1,22 +1,22 @@
 <div class="ddp-ui-contents-list ddp-type">
   <!-- banner -->
   <div class="ddp-ui-banner">
-    <div class="ddp-type-label">Popular data</div>
+    <div class="ddp-type-label">{{ 'msg.explore.ui.list.popular' | translate}}</div>
     <div class="ddp-wrap-slider">
       <!-- paging -->
       <div class="ddp-paging">
-        <a href="javascript:" class="ddp-btn-prev" (click)="onClickCarouselLeft()"></a>
-        <a href="javascript:" class="ddp-btn-next" (click)="onClickCarouselRight()"></a>
+        <a href="javascript:" *ngIf="isCarouselFirstScreen()" class="ddp-btn-prev" (click)="onClickCarouselLeft()"></a>
+        <a href="javascript:" *ngIf="isCarouselLastScreen()" class="ddp-btn-next" (click)="onClickCarouselRight()"></a>
       </div>
       <!-- Bullet -->
       <div class="ddp-wrap-bullet">
         <div class="ddp-ui-bullet">
-          <span *ngFor="let number of popularMetadataCarouselScreenNumber" class="ddp-bullet" [class.ddp-selected]="(number * 5) === popularMetadataShowStartNumber"></span>
+          <span *ngFor="let index of popularMetadataCarouselScreenIndex" class="ddp-bullet" [class.ddp-selected]="(index * 5) === popularMetadataShowStartIndex"></span>
         </div>
       </div>
       <!-- //Bullet -->
       <ul class="ddp-list-popular ddp-clear">
-        <component-explore-banner *ngFor="let metadata of popularMetadataList.slice(popularMetadataShowStartNumber, popularMetadataShowStartNumber + 5); let i = index"
+        <component-explore-banner *ngFor="let metadata of popularMetadataList.slice(popularMetadataShowStartIndex, popularMetadataShowStartIndex + 5); let i = index"
                                   [metadata]="metadata"
                                   [bannerClass]="getBannerClass(metadata)" [iconClass]="getMetadataTypeClass(metadata)"
                                   (clickedBanner)="onClickMetadata(metadata)">
@@ -29,11 +29,13 @@
   <div class="ddp-wrap-meta-summary ddp-clear">
     <!--  New or Update  -->
     <div class="ddp-box-summary">
-      <div class="ddp-type-label">New or Update</div>
+      <div class="ddp-type-label">{{ 'msg.explore.ui.list.updated' | translate }}</div>
 
       <ul class="ddp-list-summary">
         <li *ngFor="let metadata of updatedMetadataList| slice:0:4">
           <component-explore-card [iconClass]="getMetadataTypeClass(metadata)"
+                                  [tagList]="metadata.tags"
+                                  [description]="metadata.description"
                                   [cardClass]="getBannerClass(metadata)"
                                   [title]="metadata.name"
                                   [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
@@ -45,12 +47,14 @@
 
     <!--  My favorite  -->
     <div class="ddp-box-summary">
-      <div class="ddp-type-label">My Favorite
-        <a href="javascript:" class="ddp-btn-more">more &gt;</a>
+      <div class="ddp-type-label">{{ 'msg.explore.ui.list.favorite.my' | translate }}
+        <a *ngIf="favoriteMetadataList.length > 4" href="javascript:" class="ddp-btn-more">{{ 'msg.comm.ui.more' | translate }} &gt;</a>
       </div>
       <ul class="ddp-list-summary">
         <li *ngFor="let metadata of favoriteMetadataList| slice:0:4">
           <component-explore-card [iconClass]="getMetadataTypeClass(metadata)"
+                                  [tagList]="metadata.tags"
+                                  [description]="metadata.description"
                                   [cardClass]="getBannerClass(metadata)"
                                   [title]="metadata.name"
                                   [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
@@ -61,8 +65,8 @@
     <!--  My favorite  -->
     <!--  Favorite creator  -->
     <div class="ddp-box-summary">
-      <div class="ddp-type-label">Favorite creator
-        <a href="javascript:" class="ddp-btn-more">more &gt;</a>
+      <div class="ddp-type-label"> {{ 'msg.explore.ui.list.favorite.creator' | translate }}
+        <a *ngIf="favoriteCreatorMetadataList.length > 4" href="javascript:" class="ddp-btn-more">{{ 'msg.comm.ui.more' | translate }} &gt;</a>
       </div>
 
       <ul class="ddp-list-data">

@@ -27,13 +27,13 @@ import {EventBroadcaster} from "../../common/event/event.broadcaster";
 })
 export class ExploreDataMainComponent extends AbstractComponent {
 
-  popularMetadataShowStartNumber = 0;
-  popularMetadataCarouselScreenNumber = [];
+  popularMetadataShowStartIndex = 0;
+  popularMetadataCarouselScreenIndex = [];
   // recommendedMetadataList: Metadata[];
   popularMetadataList: Metadata[] = [];
-  updatedMetadataList: Metadata[];
-  favoriteMetadataList: Metadata[];
-  favoriteCreatorMetadataList: Metadata[];
+  updatedMetadataList: Metadata[] = [];
+  favoriteMetadataList: Metadata[] = [];
+  favoriteCreatorMetadataList: Metadata[] = [];
 
   // banner icon
   // bannerIconList = _.shuffle(['type-banner02', 'type-banner03', 'type-banner04', 'type-banner05']);
@@ -110,15 +110,35 @@ export class ExploreDataMainComponent extends AbstractComponent {
     this.clickedMetadata.emit(metadata);
   }
 
+  /**
+   * When click carousel right button
+    */
   onClickCarouselRight():void {
-    if (this.popularMetadataShowStartNumber + 5 < this.popularMetadataList.length) {
-      this.popularMetadataShowStartNumber += 5;
+    if (this.popularMetadataShowStartIndex + 5 < this.popularMetadataList.length) {
+      this.popularMetadataShowStartIndex += 5;
     }
   }
 
+  /**
+   * When click carousel left button
+   */
   onClickCarouselLeft():void {
-    if (this.popularMetadataShowStartNumber >= 5)
-      this.popularMetadataShowStartNumber -= 5;
+    if (this.popularMetadataShowStartIndex >= 5)
+      this.popularMetadataShowStartIndex -= 5;
+  }
+
+  /**
+   * Check if first screen of carousel
+   */
+  isCarouselFirstScreen(): boolean {
+    return this.popularMetadataShowStartIndex !== 0;
+  }
+
+  /**
+   * Check if last screen of carousel
+   */
+  isCarouselLastScreen(): boolean {
+    return (this.popularMetadataShowStartIndex / 5) !== (this.popularMetadataCarouselScreenIndex.length - 1);
   }
 
 
@@ -126,9 +146,12 @@ export class ExploreDataMainComponent extends AbstractComponent {
     const result = await this._metadataService.getMetadataListByPopularity({size: 20, page: 0});
     if (!_.isNil(result._embedded)) {
       this.popularMetadataList = result._embedded.metadatas;
+
+      // set carousel screen counts
       const screenNumber = this.popularMetadataList.length / 5;
+
       for (let i = 0; i <= screenNumber; i++) {
-        this.popularMetadataCarouselScreenNumber.push(i);
+        this.popularMetadataCarouselScreenIndex.push(i);
       }
     }
   }

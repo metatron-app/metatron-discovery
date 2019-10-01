@@ -43,10 +43,9 @@ export class ExploreBannerComponent extends AbstractComponent {
 
   ngOnInit() {
     super.ngOnInit();
-
-    if (this.metadata.tagList) {
-      if (this.metadata.tagList.length > 0 && this.metadata.tagList.length != 1 ) {
-        this.extraTagNumber = this.metadata.tagList.length - 1;
+    if (this.metadata.tags) {
+      if (this.metadata.tags.length > 0 && this.metadata.tags.length != 1 ) {
+        this.extraTagNumber = this.metadata.tags.length - 1;
       } else {
         this.extraTagNumber = 0;
       }
