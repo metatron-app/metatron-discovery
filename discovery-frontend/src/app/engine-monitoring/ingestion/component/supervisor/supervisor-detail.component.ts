@@ -63,11 +63,11 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
   public unparseable: any;
   public thrownaway: any;
 
-  public isShowRowDuration:boolean;
-  public isShowLagDuration:boolean;
-  public selectedRowDuration:String = '1HOUR';
-  public selectedLagDuration:String = '1HOUR';
-  public showConfirm:boolean = false;
+  public isShowRowDuration: boolean;
+  public isShowLagDuration: boolean;
+  public selectedRowDuration: string = '1HOUR';
+  public selectedLagDuration: string = '1HOUR';
+  public showConfirm: boolean = false;
   public confirmModal: Modal;
 
   public ngOnInit() {
