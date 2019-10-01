@@ -91,7 +91,7 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
           this._initTableSortDirection();
           this._changeKeyword(decodeURIComponent(_.get(params, 'keyword', '')));
           this._changeStatus(_.get(params, 'status', Engine.MonitoringStatus.ALL));
-          this.changeDuration(_.get(params, 'duration', '1DAY'));
+          this._changeDuration(_.get(params, 'duration', '1DAY'));
         }));
 
     this.subscriptions.push(
@@ -118,7 +118,10 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
           .then(result => this.monitorings = result._embedded.monitorings)
       })
       .then(() => this.engineService.getSize().then(result => this.clusterSize = result))
-      .then(() => this.loadingHide())
+      .then(() => {
+        this._graphComponent.onResize(event);
+        this.loadingHide();
+      })
       .catch(error => {
         this.clusterStatus = new Engine.Cluster.Status();
         this.monitorings = [];
@@ -245,16 +248,20 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
   }
 
   public searchByDuration(duration: string) {
-    this.router.navigate([
-        this.ENGINE_MONITORING_OVERVIEW_ROUTER_URL
-      ],
-      {
-        queryParams: {
-          keyword: encodeURIComponent(this.keyword),
-          status: this.selectedMonitoringStatus,
-          duration: duration
-        }
-      })
+    if (duration === this.selectedDuration) {
+      this._changeDuration(this.selectedDuration);
+    } else {
+      this.router.navigate([
+          this.ENGINE_MONITORING_OVERVIEW_ROUTER_URL
+        ],
+        {
+          queryParams: {
+            keyword: encodeURIComponent(this.keyword),
+            status: this.selectedMonitoringStatus,
+            duration: duration
+          }
+        })
+    }
   }
 
   public changeViewMode(viewMode: Engine.ViewMode) {
@@ -270,11 +277,6 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
     this.selectedViewMode = viewMode;
   }
 
-  public changeDuration(duration: string) {
-    this.selectedDuration = duration;
-    this._graphComponent.setDate(duration);
-  }
-
   private _changeTab(contentType: Engine.ContentType) {
     this.router.navigate([ `${Engine.Constant.ROUTE_PREFIX}${contentType}` ]);
   }
@@ -285,6 +287,11 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
 
   private _changeStatus(status: Engine.MonitoringStatus) {
     this.selectedMonitoringStatus = status;
+  }
+
+  private _changeDuration(duration: string) {
+    this.selectedDuration = duration;
+    this._graphComponent.setDate(duration);
   }
 
   private _initTableSortDirection() {

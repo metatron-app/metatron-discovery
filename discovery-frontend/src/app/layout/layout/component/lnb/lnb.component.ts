@@ -633,6 +633,10 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     }
   } // function - move
 
+  public extentionSelected(name:string): boolean {
+    return this.lnbManager.management[name] != undefined && this.lnbManager.management[name]['fold'] == false;
+  }
+
   /**
    * 메뉴얼 다운로드
    */
