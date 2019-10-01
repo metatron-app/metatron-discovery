@@ -33,7 +33,10 @@
 /**************************************************************
 	box page
 **************************************************************/
-.ddp-box-page {float:left; width:100%; padding:0 20px 0 18px; margin-top:10px; border:1px solid #d5d6dc; background-color:#fff; box-sizing:border-box;}
+.ddp-box-page {padding:0 20px 0 18px; margin-top:10px; border:1px solid #d5d6dc; background-color:#fff; box-sizing:border-box;}
+.ddp-box-page:before,
+.ddp-box-page:after {display:table; content:'';}
+.ddp-box-page:after {clear:both;}
 .ddp-box-page .ddp-page-num {float:left; padding:7px 0;}
 .ddp-box-page .ddp-page-num a {display:inline-block; position:relative; float:left; width:28px; height:28px; margin:0 2px;padding:4px 0; text-align:center; color:#4b515b; font-size:14px; box-sizing:border-box;}
 .ddp-box-page .ddp-page-num a.ddp-btn-prev,
