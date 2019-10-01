@@ -1,7 +1,7 @@
 package app.metatron.discovery.domain.dataprep.file;
 
 import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
-import static app.metatron.discovery.domain.dataprep.PrepUtil.datasetError;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.datasetError;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_PARSE_JSON;
 
 import app.metatron.discovery.common.GlobalObjectMapper;

@@ -17,7 +17,7 @@ package app.metatron.discovery.domain.dataprep.service;
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.PrepDatasetStagingDbService;
 import app.metatron.discovery.domain.dataprep.PrepProperties;
-import app.metatron.discovery.domain.dataprep.PrepUtil;
+import app.metatron.discovery.domain.dataprep.util.PrepUtil;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;

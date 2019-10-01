@@ -28,7 +28,6 @@ import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_USER
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
-import app.metatron.discovery.domain.dataprep.PrepUtil;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot.HIVE_FILE_COMPRESSION;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot.HIVE_FILE_FORMAT;
@@ -45,15 +44,16 @@ import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrameService;
 import app.metatron.discovery.domain.dataprep.teddy.Row;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcQueryFailedException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcTypeNotSupportedException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import app.metatron.discovery.domain.dataprep.util.DbInfo;
+import app.metatron.discovery.domain.dataprep.util.PrepUtil;
 import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
 import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.Join;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import java.io.File;
@@ -76,6 +76,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.io.FilenameUtils;
@@ -163,8 +164,8 @@ public class TeddyExecutor {
   }
 
   @Async("prepThreadPoolTaskExecutor")
-  public Future<String> run(String[] argv) throws Throwable {
-    Future<String> result;
+  public Future<String> run(String[] argv) {
+    Future<String> result = null;
     String ssId = "";
 
     try {
@@ -207,7 +208,8 @@ public class TeddyExecutor {
       }
       updateSnapshot("custom", "{'fail_msg':'" + sb.toString() + "'}", ssId);
       throw ce;
-    } catch (Exception e) {
+    } catch (IOException | SQLException | ClassNotFoundException | InterruptedException | TeddyException |
+            TimeoutException | URISyntaxException e) {
       LOGGER.error("run(): error while creating a snapshot: ", e);
       updateSnapshot("finishTime", DateTime.now(DateTimeZone.UTC).toString(), ssId);
       updateAsFailed(ssId);
@@ -218,10 +220,9 @@ public class TeddyExecutor {
         sb.append(ste.toString());
       }
       updateSnapshot("custom", "{'fail_msg':'" + sb.toString() + "'}", ssId);
-      throw e;
     }
 
-    LOGGER.info("run(): success from run_internal(): {}", result.toString());
+    LOGGER.info("run(): success from run_internal(): {}", result != null ? result.toString() : "null");
     return result;
   }
 
@@ -307,8 +308,9 @@ public class TeddyExecutor {
     return df.rows.size();
   }
 
-  private Future<String> createUriSnapshot(Map<String, Object> datasetInfo,
-          Map<String, Object> snapshotInfo) throws Throwable {
+  private Future<String> createUriSnapshot(Map<String, Object> datasetInfo, Map<String, Object> snapshotInfo)
+          throws JsonProcessingException, TimeoutException, TeddyException, InterruptedException, SQLException,
+          URISyntaxException, ClassNotFoundException {
     LOGGER.info("createUriSnapshot(): started");
 
     // master dataset 정보에 모든 upstream 정보도 포함되어있음.
@@ -352,9 +354,10 @@ public class TeddyExecutor {
     return new AsyncResult<>("Success");
   }
 
-  private Future<String> createStagingDbSnapshot(String hadoopConfDir,
-          Map<String, Object> datasetInfo,
-          Map<String, Object> snapshotInfo) throws Throwable {
+  private Future<String> createStagingDbSnapshot(String hadoopConfDir, Map<String, Object> datasetInfo,
+          Map<String, Object> snapshotInfo)
+          throws TeddyException, SQLException, IOException, ClassNotFoundException, InterruptedException,
+          TimeoutException, URISyntaxException {
     LOGGER.info("hadoopConfDir={}", hadoopConfDir);
     LOGGER.info("hive: hostname={} port={} username={}", hiveHostname, hivePort, hiveUsername);
     LOGGER.info("callback: restAPIserverPort={} oauth_token={}", restAPIserverPort,
@@ -435,7 +438,9 @@ public class TeddyExecutor {
   }
 
   // returns slaveFullDsIds
-  void transformRecursive(Map<String, Object> datasetInfo, String ssId) throws Throwable {
+  void transformRecursive(Map<String, Object> datasetInfo, String ssId)
+          throws ClassNotFoundException, SQLException, TeddyException, URISyntaxException, TimeoutException,
+          InterruptedException {
     cancelCheck(ssId);
     String origTeddyDsId = (String) datasetInfo.get("origTeddyDsId");
 
@@ -465,7 +470,7 @@ public class TeddyExecutor {
   }
 
   // returns total rule count of the snapshot (including slave datasets)
-  long countAllRules(Map<String, Object> datasetInfo) throws Throwable {
+  long countAllRules(Map<String, Object> datasetInfo) {
     long ruleCntTotal = 0L;
 
     for (Map<String, Object> upstreamDatasetInfo : (List<Map<String, Object>>) datasetInfo
@@ -477,7 +482,7 @@ public class TeddyExecutor {
   }
 
   private void applyRuleStrings(String masterFullDsId, List<String> ruleStrings, String ssId)
-          throws Throwable {
+          throws TeddyException, InterruptedException, TimeoutException {
     LOGGER.trace("applyRuleStrings(): start");
     // multi-thread
     for (String ruleString : ruleStrings) {     // create rule has been removed already
@@ -583,47 +588,48 @@ public class TeddyExecutor {
     cache.put(dsId, df);
   }
 
-  public String createStage0(Map<String, Object> datasetInfo) throws Throwable {
+  public String createStage0(Map<String, Object> dsInfo)
+          throws URISyntaxException, TeddyException, SQLException, ClassNotFoundException {
     String newFullDsId = UUID.randomUUID().toString();
 
     LOGGER.trace("TeddyExecutor.createStage0(): newFullDsId={}", newFullDsId);
 
-    if (datasetInfo.get("importType") == null) {
+    if (dsInfo.get("importType") == null) {
       throw new IllegalArgumentException(
               "TeddyExecutor.createStage0(): importType should not be null");
     }
 
-    String importType = (String) datasetInfo.get("importType");
+    String importType = (String) dsInfo.get("importType");
     switch (importType) {
       case "UPLOAD":
       case "URI":
-        String storedUri = (String) datasetInfo.get("storedUri");
-        Integer columnCount = (Integer) datasetInfo.get("manualColumnCount");
+        String storedUri = (String) dsInfo.get("storedUri");
+        Integer columnCount = (Integer) dsInfo.get("manualColumnCount");
         String extensionType = FilenameUtils.getExtension(storedUri).toLowerCase();
         if (extensionType.equals("json")) {
           loadJsonFile(newFullDsId, storedUri, columnCount);
         } else {
-          String delimiter = (String) datasetInfo.get("delimiter");
+          String delimiter = (String) dsInfo.get("delimiter");
           loadCsvFile(newFullDsId, storedUri, delimiter, columnCount);
         }
         break;
 
       case "DATABASE":
-        loadJdbcTable(newFullDsId,
-                (String) datasetInfo.get("sourceQuery"),
-                (String) datasetInfo.get("implementor"),
-                (String) datasetInfo.get("connectUri"),
-                (String) datasetInfo.get("username"),
-                (String) datasetInfo.get("password"));
+        String implementor = (String) dsInfo.get("implementor");
+        String connectUri = (String) dsInfo.get("connectUri");
+        String username = (String) dsInfo.get("username");
+        String password = (String) dsInfo.get("password");
+
+        DbInfo dbInfo = new DbInfo(implementor, connectUri, username, password);
+        loadJdbcTable(newFullDsId, (String) dsInfo.get("sourceQuery"), dbInfo);
         break;
 
       case "STAGING_DB":
-        loadHiveTable(newFullDsId, (String) datasetInfo.get("sourceQuery"));
+        loadHiveTable(newFullDsId, (String) dsInfo.get("sourceQuery"));
         break;
 
       default:
-        throw new IllegalArgumentException(
-                "TeddyExecutor.createStage0(): not supported importType: " + importType);
+        throw new IllegalArgumentException("TeddyExecutor.createStage0(): not supported importType: " + importType);
     }
 
     LOGGER.trace("TeddyExecutor.createStage0(): end");
@@ -658,8 +664,7 @@ public class TeddyExecutor {
           if (i > 0) {
             sb.append(",");
           }
-          sb.append(String
-                  .format("c%d:%s", i, fromColumnTypetoHiveType(subColDesc.getType(), subColDesc)));
+          sb.append(String.format("c%d:%s", i, fromColumnTypetoHiveType(subColDesc.getType(), subColDesc)));
         }
         strType = sb.append(">").toString();
         break;
@@ -668,8 +673,6 @@ public class TeddyExecutor {
   }
 
   private String processMap(ColumnDescription colDesc) {
-    ColumnType uniformSubType = colDesc.hasUniformSubType();
-
     StringBuffer sb = new StringBuffer();
     sb.append("struct<");
 
@@ -680,8 +683,7 @@ public class TeddyExecutor {
       if (i > 0) {
         sb.append(",");
       }
-      sb.append(String
-              .format("%s:%s", key, fromColumnTypetoHiveType(subColDesc.getType(), subColDesc)));
+      sb.append(String.format("%s:%s", key, fromColumnTypetoHiveType(subColDesc.getType(), subColDesc)));
     }
     return sb.append(">").toString();
   }
@@ -716,9 +718,7 @@ public class TeddyExecutor {
     sb.append(fromColumnTypetoHiveType(df.getColType(colno), df.getColDesc(colno)));
   }
 
-  // 테스트를 위해 public으로 바꾸고, dsId대신 dataframe을 받도록 수정
-  public void makeHiveTable(DataFrame df, List<String> partitions,
-          String fullTblName, String location,
+  public void makeHiveTable(DataFrame df, List<String> partitions, String fullTblName, String location,
           HIVE_FILE_FORMAT hiveFileFormat, HIVE_FILE_COMPRESSION compression)
           throws SQLException, ClassNotFoundException {
     StringBuffer createTable = null;
@@ -751,15 +751,15 @@ public class TeddyExecutor {
 
     switch (hiveFileFormat) {
       case CSV:
-        // 아래 방법으로 table을 만들면 quote 문자를 지정하지 못한다.
-        // 내용 중간에 comma가 있는 경우 다음 컬럼으로 인식된다.
-        // 대신 type이 모두 string이 되는 현상은 없다.
+        // By the method below, we cannot designate the quote character.
+        // We cannot prevent the comma from spliting even if it's inside quotes.
+        // Instead, we can preserve the types. (cf. see the other method)
         createTable.append(String.format(
                 " ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '%s'",
                 location));
 
-        // 아래 방법으로 table을 만들면 quote 문자를 지정할 수 있다.
-        // 하지만 모든 컬럼이 string이 된다.
+        // By the method below, we can designate the quote character.
+        // But all the columns loose their types and become strings.
         //        String quote = "\"";
         //        String slash = "\\";
         //        createTable.append(" ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde' ");
@@ -771,8 +771,8 @@ public class TeddyExecutor {
         break;
       case ORC:
         createTable.append(String
-                .format(" STORED AS ORC LOCATION '%s' TBLPROPERTIES (\"orc.compress\"=\"%s\")",
-                        location, compression.name()));
+                .format(" STORED AS ORC LOCATION '%s' TBLPROPERTIES (\"orc.compress\"=\"%s\")", location,
+                        compression.name()));
         break;
       default:
         assert false : hiveFileFormat;
@@ -784,7 +784,7 @@ public class TeddyExecutor {
     try {
       hiveStmt.execute("DROP TABLE IF EXISTS " + fullTblName);
     } catch (SQLException e) {
-      // suppress exception (table not found)
+      // suppress the exception (table not found)
     }
 
     try {
@@ -793,15 +793,12 @@ public class TeddyExecutor {
         hiveStmt.execute("MSCK REPAIR TABLE " + fullTblName);
       }
     } catch (SQLException e) {
-      LOGGER.info(
-              "makeHiveTable(): failed to create table with JDBC: create table statement=" + createTable
-                      .toString());
+      LOGGER.error("makeHiveTable(): failed to create table with JDBC: statement=" + createTable.toString());
       throw e;
     }
   }
 
-  public String writeCsvForStagingDbSnapshot(String ssId, String dsId, String extHdfsDir,
-          String dbName, String tblName,
+  public String writeCsvForStagingDbSnapshot(String ssId, String dsId, String extHdfsDir, String dbName, String tblName,
           HIVE_FILE_FORMAT hiveFileFormat, HIVE_FILE_COMPRESSION compression)
           throws IOException, IllegalColumnNameForHiveException {
     Integer[] rowCnt = new Integer[2];
@@ -811,8 +808,7 @@ public class TeddyExecutor {
     assert extHdfsDir.equals("") == false : extHdfsDir;
     LOGGER.info("extHdfsDir=" + extHdfsDir);
 
-    Path dir = new Path(extHdfsDir + "/" + dbName + "/"
-            + tblName); // 어차피 org.apache.hadoop.fs.Path라 File.separator는 항상 '/'
+    Path dir = new Path(extHdfsDir + "/" + dbName + "/" + tblName);
     if (fs.exists(dir)) {
       fs.delete(dir, true);
     }
@@ -843,11 +839,11 @@ public class TeddyExecutor {
     fin.close();
 
     updateSnapshot("totalLines", String.valueOf(rowCnt[0]), ssId);
+    ObjectMapper mapper = GlobalObjectMapper.getDefaultMapper();
 
     if (rowCnt[1] != null && rowCnt[1] > 0) {
       Map<String, Object> lineageInfo = snapshotService.getSnapshotLineageInfo(ssId);
       lineageInfo.put("excludedLines", rowCnt[1]);
-      ObjectMapper mapper = new ObjectMapper();
       updateSnapshot("lineageInfo", mapper.writeValueAsString(lineageInfo), ssId);
     }
 
@@ -855,10 +851,9 @@ public class TeddyExecutor {
     return dir.toUri().toString();
   }
 
-  public void createHiveSnapshotInternal(String ssId, String masterFullDsId,
-          List<String> ruleStrings,
-          List<String> partKeys, String dbName, String tblName, String extHdfsDir,
-          String format, String compression) throws Throwable {
+  public void createHiveSnapshotInternal(String ssId, String masterFullDsId, List<String> ruleStrings,
+          List<String> partKeys, String dbName, String tblName, String extHdfsDir, String format, String compression)
+          throws IOException, IllegalColumnNameForHiveException, SQLException, ClassNotFoundException {
     LOGGER.info(
             "createHiveSnapshotInternal(): ruleStrings.size()={} fullTblName={}.{} format={} compression={}",
             ruleStrings.size(), dbName, tblName, format, compression);
@@ -899,8 +894,8 @@ public class TeddyExecutor {
     LOGGER.trace("createHiveSnapshotInternal(): end");
   }
 
-  private Statement getJdbcStatement(String implementor, String connectUri, String username,
-          String password) throws SQLException, ClassNotFoundException {
+  private Statement getJdbcStatement(String implementor, String connectUri, String username, String password)
+          throws SQLException, ClassNotFoundException {
 
     DataConnection jdbcDataConnection = new DataConnection();
     jdbcDataConnection.setImplementor(implementor);
@@ -946,24 +941,21 @@ public class TeddyExecutor {
       conn = jdbcDataAccessor.getConnection();
       stmt = conn.createStatement();
     } catch (SQLException e) {
-      LOGGER.error(String
-              .format("getHiveStatement(): SQLException occurred: connStr=%s username=%s password=%s",
-                      jdbcDataAccessor.getDialect().getConnectUrl(hiveConn), hiveConn.getUsername(),
-                      hiveConn.getPassword()), e);
+      LOGGER.error(String.format("getHiveStatement(): SQLException occurred: connStr=%s username=%s password=%s",
+              jdbcDataAccessor.getDialect().getConnectUrl(hiveConn), hiveConn.getUsername(), hiveConn.getPassword()),
+              e);
       throw e;
     }
     return stmt;
   }
 
-  public void loadJdbcTable(String dsId, String sql, String implementor, String connectUri,
-          String username, String password)
-          throws JdbcTypeNotSupportedException, JdbcQueryFailedException, SQLException, ClassNotFoundException {
-    Statement stmt = getJdbcStatement(implementor, connectUri, username, password);
+  public void loadJdbcTable(String dsId, String sql, DbInfo db)
+          throws SQLException, ClassNotFoundException, TeddyException {
+    Statement stmt = getJdbcStatement(db.implementor, db.connectUri, db.username, db.password);
     DataFrame df = new DataFrame();
 
-    LOGGER.info(String
-            .format("loadJdbcTable(): dsId=%s sql=%s, implementor=%s, connectUri=%s, username=%s", dsId,
-                    sql, implementor, connectUri, username));
+    LOGGER.info(String.format("loadJdbcTable(): dsId=%s sql=%s, implementor=%s, connectUri=%s, username=%s", dsId, sql,
+            db.implementor, db.connectUri, db.username));
 
     df.setByJDBC(stmt, sql, limitRows);
     cache.put(dsId, df);
@@ -971,8 +963,7 @@ public class TeddyExecutor {
     LOGGER.trace("loadJdbcTable(): end");
   }
 
-  public void loadHiveTable(String dsId, String sql)
-          throws JdbcTypeNotSupportedException, JdbcQueryFailedException, SQLException, ClassNotFoundException {
+  public void loadHiveTable(String dsId, String sql) throws SQLException, ClassNotFoundException, TeddyException {
     Statement stmt = getHiveStatement();
     DataFrame df = new DataFrame();
 
