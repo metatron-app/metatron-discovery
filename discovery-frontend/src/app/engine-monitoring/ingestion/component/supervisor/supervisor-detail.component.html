@@ -34,33 +34,33 @@
     <div class="ddp-ui-datadetail type-detail">
       <div class="ddp-label-option">
         <label class="ddp-label-detail">Processed rows</label>
-        <!-- 클릭시 ddp-selected 추가 -->
-        <!--<div class="ddp-type-selectbox">
-          <span class="ddp-txt-selectbox">Last 1Hour</span>
+        <div class="ddp-type-selectbox" [class.ddp-selected]="isShowRowDuration"
+             (click)="isShowRowDuration = !isShowRowDuration" (clickOutside)="isShowRowDuration=false">
+          <span class="ddp-txt-selectbox">{{getDurationLabel(selectedRowDuration)}}</span>
 
           <ul class="ddp-list-selectbox ddp-selectdown ">
             <li>
-              <a href="javascript:">
-                Last 1Hour
+              <a href="javascript:" (click)="changeRowDuration('1HOUR'); $event.stopImmediatePropagation(); $event.preventDefault()">
+                {{getDurationLabel('1HOUR')}}
               </a>
             </li>
             <li>
-              <a href="javascript:">
-                Last 1 Day
+              <a href="javascript:" (click)="changeRowDuration('1DAY'); $event.stopImmediatePropagation(); $event.preventDefault()">
+                {{getDurationLabel('1DAY')}}
               </a>
             </li>
             <li>
-              <a href="javascript:">
-                Last 7 Days
+              <a href="javascript:" (click)="changeRowDuration('7DAYS'); $event.stopImmediatePropagation(); $event.preventDefault()">
+                {{getDurationLabel('7DAYS')}}
               </a>
             </li>
             <li>
-              <a href="javascript:">
-                Last 30 Days
+              <a href="javascript:" (click)="changeRowDuration('30DAYS'); $event.stopImmediatePropagation(); $event.preventDefault()">
+                {{getDurationLabel('30DAYS')}}
               </a>
             </li>
           </ul>
-        </div>-->
+        </div>
       </div>
 
       <div class="ddp-box-graph" #row>
@@ -73,32 +73,33 @@
       <div class="ddp-label-option">
         <label class="ddp-label-detail">LAG</label>
         <!-- 클릭시 ddp-selected 추가 -->
-        <!--<div class="ddp-type-selectbox">
-          <span class="ddp-txt-selectbox">Last 1Hour</span>
+        <div class="ddp-type-selectbox" [class.ddp-selected]="isShowLagDuration"
+             (click)="isShowLagDuration = !isShowLagDuration" (clickOutside)="isShowLagDuration=false">
+          <span class="ddp-txt-selectbox">{{getDurationLabel(selectedLagDuration)}}</span>
 
           <ul class="ddp-list-selectbox ddp-selectdown ">
             <li>
-              <a href="javascript:">
-                Last 1Hour
+              <a href="javascript:" (click)="changeLagDuration('1HOUR'); $event.stopImmediatePropagation(); $event.preventDefault()">
+                {{getDurationLabel('1HOUR')}}
               </a>
             </li>
             <li>
-              <a href="javascript:">
-                Last 1 Day
+              <a href="javascript:" (click)="changeLagDuration('1DAY'); $event.stopImmediatePropagation(); $event.preventDefault()">
+                {{getDurationLabel('1DAY')}}
               </a>
             </li>
             <li>
-              <a href="javascript:">
-                Last 7 Days
+              <a href="javascript:" (click)="changeLagDuration('7DAYS'); $event.stopImmediatePropagation(); $event.preventDefault()">
+                {{getDurationLabel('7DAYS')}}
               </a>
             </li>
             <li>
-              <a href="javascript:">
-                Last 30 Days
+              <a href="javascript:" (click)="changeLagDuration('30DAYS'); $event.stopImmediatePropagation(); $event.preventDefault()">
+                {{getDurationLabel('30DAYS')}}
               </a>
             </li>
           </ul>
-        </div>-->
+        </div>
       </div>
       <div class="ddp-box-graph" #lag>
 

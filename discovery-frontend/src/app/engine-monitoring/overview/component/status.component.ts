@@ -12,11 +12,22 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output
+} from '@angular/core';
 import {AbstractComponent} from '../../../common/component/abstract.component';
 import {Engine} from '../../../domain/engine-monitoring/engine';
 import * as _ from "lodash";
 import {CommonUtil} from "../../../common/util/common.util";
+
+declare let moment: any;
 
 @Component({
   selector: '[overview-status-view]',
@@ -33,12 +44,22 @@ export class StatusComponent extends AbstractComponent implements OnInit, OnDest
   @Input()
   public clusterSize: any;
 
+  @Input()
+  public duration: string;
+
+  @Output('changeValue')
+  private readonly changeEvent: EventEmitter<string> = new EventEmitter();
+
+  public currentDate: string;
+
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
   }
 
   public ngOnInit() {
+    this.currentDate = moment().format('YYYY-MM-DD HH:mm:ss');
+    this.changeDetect.detectChanges();
     super.ngOnInit();
   }
 
@@ -59,4 +80,12 @@ export class StatusComponent extends AbstractComponent implements OnInit, OnDest
       return CommonUtil.formatBytes(this.clusterSize.currSize, 0) + ' / ' + CommonUtil.formatBytes(this.clusterSize.maxSize, 0);
     }
   }
+
+  public changeStatus(type?:string) {
+    if (!_.isNil(type)) {
+      this.duration = type;
+    }
+    this.changeEvent.emit(this.duration);
+  }
+
 }

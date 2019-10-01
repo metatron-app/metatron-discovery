@@ -29,6 +29,7 @@ import {ActivatedRoute} from '@angular/router';
 import {StateService} from '../service/state.service';
 import {filter} from 'rxjs/operators';
 import {NodeInformationComponent} from "./component/node-information.component";
+import {GraphComponent} from "./component/graph.component";
 
 @Component({
   selector: '[overview]',
@@ -52,6 +53,7 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
 
   public readonly VIEW_MODE = Engine.ViewMode;
   public selectedViewMode: Engine.ViewMode = this.VIEW_MODE.GRID;
+  public selectedDuration: string = '1DAY';
 
   private readonly ICON_NORMAL_CLASS = 'ddp-icon-status-success';
   private readonly ICON_WARN_CLASS = 'ddp-icon-status-warning';
@@ -65,6 +67,9 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
 
   @ViewChild(NodeInformationComponent)
   private readonly _nodeInformationComponent: NodeInformationComponent;
+
+  @ViewChild(GraphComponent)
+  private readonly _graphComponent: GraphComponent;
 
   constructor(protected elementRef: ElementRef,
               protected injector: Injector,
@@ -86,6 +91,7 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
           this._initTableSortDirection();
           this._changeKeyword(decodeURIComponent(_.get(params, 'keyword', '')));
           this._changeStatus(_.get(params, 'status', Engine.MonitoringStatus.ALL));
+          this.changeDuration(_.get(params, 'duration', '1DAY'));
         }));
 
     this.subscriptions.push(
@@ -219,7 +225,8 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
       {
         queryParams: {
           keyword: encodeURIComponent(keyword),
-          status: this.selectedMonitoringStatus
+          status: this.selectedMonitoringStatus,
+          duration: this.selectedDuration
         }
       })
   }
@@ -231,9 +238,41 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
       {
         queryParams: {
           keyword: encodeURIComponent(this.keyword),
-          status: status
+          status: status,
+          duration: this.selectedDuration
         }
       })
+  }
+
+  public searchByDuration(duration: string) {
+    this.router.navigate([
+        this.ENGINE_MONITORING_OVERVIEW_ROUTER_URL
+      ],
+      {
+        queryParams: {
+          keyword: encodeURIComponent(this.keyword),
+          status: this.selectedMonitoringStatus,
+          duration: duration
+        }
+      })
+  }
+
+  public changeViewMode(viewMode: Engine.ViewMode) {
+
+    if (_.isNil(viewMode)) {
+      return;
+    }
+
+    if (this.selectedViewMode === viewMode) {
+      return;
+    }
+
+    this.selectedViewMode = viewMode;
+  }
+
+  public changeDuration(duration: string) {
+    this.selectedDuration = duration;
+    this._graphComponent.setDate(duration);
   }
 
   private _changeTab(contentType: Engine.ContentType) {
@@ -252,16 +291,4 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
     this.tableSortDirection = this.TABLE_SORT_DIRECTION.NONE;
   }
 
-  public changeViewMode(viewMode: Engine.ViewMode) {
-
-    if (_.isNil(viewMode)) {
-      return;
-    }
-
-    if (this.selectedViewMode === viewMode) {
-      return;
-    }
-
-    this.selectedViewMode = viewMode;
-  }
 }

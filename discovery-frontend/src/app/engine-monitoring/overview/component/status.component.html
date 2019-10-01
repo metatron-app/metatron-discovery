@@ -67,14 +67,12 @@
 </div>
 <!-- Status Name & Info tooltip -->
 
-<!--
 <div class="ddp-date-setting">
   <span class="ddp-data-date">
-      2017.03.06 06:09:35 <a href="javascript:" class="ddp-btn-refresh"></a>
+      {{currentDate}} <a href="javascript:" class="ddp-btn-refresh" (click)="changeStatus(); $event.stopImmediatePropagation(); $event.preventDefault()"></a>
   </span>
-  <a href="#" class="ddp-btn-toggle ddp-selected">Last 1 hour</a>
-  <a href="#" class="ddp-btn-toggle">Last 1 day</a>
-  <a href="#" class="ddp-btn-toggle">Last 7 days</a>
-  <a href="#" class="ddp-btn-toggle">Last 30 days</a>
+  <a href="#" class="ddp-btn-toggle" [ngClass]="{'ddp-selected' : duration === '1HOUR'}" (click)="changeStatus('1HOUR'); $event.stopImmediatePropagation(); $event.preventDefault()">Last 1 hour</a>
+  <a href="#" class="ddp-btn-toggle" [ngClass]="{'ddp-selected' : duration === '1DAY'}" (click)="changeStatus('1DAY'); $event.stopImmediatePropagation(); $event.preventDefault()">Last 1 day</a>
+  <a href="#" class="ddp-btn-toggle" [ngClass]="{'ddp-selected' : duration === '7DAYS'}" (click)="changeStatus('7DAYS'); $event.stopImmediatePropagation(); $event.preventDefault()">Last 7 days</a>
+  <a href="#" class="ddp-btn-toggle" [ngClass]="{'ddp-selected' : duration === '30DAYS'}" (click)="changeStatus('30DAYS'); $event.stopImmediatePropagation(); $event.preventDefault()">Last 30 days</a>
 </div>
--->
