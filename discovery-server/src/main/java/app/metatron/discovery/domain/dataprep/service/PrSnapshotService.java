@@ -42,6 +42,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -77,6 +78,8 @@ public class PrSnapshotService {
 
   @Autowired(required = false)
   private PrepDatasetStagingDbService datasetStagingDbPreviewService;
+
+  public final Integer CANCEL_INTERVAL = 1000;
 
   public String makeSnapshotName(String dsName, DateTime launchTime) {
     String ssName;
@@ -545,6 +548,18 @@ public class PrSnapshotService {
 
     return responseMap;
   }
+
+  synchronized public void cancelCheck(String ssId) throws CancellationException {
+    if (getSnapshotStatus(ssId).equals(PrSnapshot.STATUS.CANCELED)) {
+      throw new CancellationException(
+              "This snapshot generating was canceled by user. ssid: " + ssId);
+    }
+  }
+
+  public void cancelCheck(String ssId, int rowNo) throws CancellationException {
+    if (rowNo % CANCEL_INTERVAL == 0) {
+      cancelCheck(ssId);
+    }
+  }
+
 }
-
-

@@ -24,6 +24,12 @@ import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_META
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PASSWORD;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PORT;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_USERNAME;
+import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.RUNNING;
+import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.TABLE_CREATING;
+import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.WRITING;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_CLOSE_CSV;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_WRITE_CSV;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.snapshotError;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
@@ -31,9 +37,7 @@ import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot.HIVE_FILE_COMPRESSION;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot.HIVE_FILE_FORMAT;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.file.PrepJsonUtil;
 import app.metatron.discovery.domain.dataprep.file.PrepParseResult;
@@ -59,7 +63,6 @@ import com.google.common.collect.Maps;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -89,17 +92,9 @@ import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 public class TeddyExecutor {
@@ -114,6 +109,9 @@ public class TeddyExecutor {
   @Autowired
   PrSnapshotService snapshotService;
 
+  @Autowired
+  TeddyExecCallback callback;
+
   public String hadoopConfDir = null;
   Configuration hadoopConf = null;
 
@@ -127,16 +125,15 @@ public class TeddyExecutor {
   public Integer cores;
   public Integer limitRows;
   public Boolean explicitGC;
-  public final Integer CANCEL_INTERVAL = 1000;
 
   String oauth_token;
   String restAPIserverPort;
 
-  Map<String, String> replaceMap = new HashMap<>(); // origTeddyDsId -> newFullDsId
-  Map<String, String> reverseMap = new HashMap<>(); // newFullDsId -> origTeddyDsId
+  Map<String, String> replaceMap = new HashMap(); // origTeddyDsId -> newFullDsId
+  Map<String, String> reverseMap = new HashMap(); // newFullDsId -> origTeddyDsId
 
   private Map<String, DataFrame> cache = Maps.newHashMap();
-  private Map<String, Long> snapshotRuleDoneCnt = new HashMap<>();
+  private Map<String, Long> snapshotRuleDoneCnt = new HashMap();
 
   private Long incrRuleCntDone(String ssId) {
     Long cnt = snapshotRuleDoneCnt.get(ssId);
@@ -170,35 +167,34 @@ public class TeddyExecutor {
 
     try {
       Map<String, Object> prepPropertiesInfo = GlobalObjectMapper.readValue(argv[0], HashMap.class);
-      Map<String, Object> datasetInfo = GlobalObjectMapper.readValue(argv[1], HashMap.class);
+      Map<String, Object> dsInfo = GlobalObjectMapper.readValue(argv[1], HashMap.class);
       Map<String, Object> snapshotInfo = GlobalObjectMapper.readValue(argv[2], HashMap.class);
       Map<String, Object> callbackInfo = GlobalObjectMapper.readValue(argv[3], HashMap.class);
 
-      restAPIserverPort = (String) callbackInfo.get("port");
-      oauth_token = (String) callbackInfo.get("oauth_token");
+      callback.setCallbackInfo(callbackInfo);
 
       setPrepPropertiesInfo(prepPropertiesInfo);
 
       ssId = (String) snapshotInfo.get("ssId");
       snapshotRuleDoneCnt.put(ssId, 0L);
-      long ruleCntTotal = countAllRules(datasetInfo);
+      long ruleCntTotal = countAllRules(dsInfo);
 
-      updateSnapshot("ruleCntTotal", String.valueOf(ruleCntTotal), ssId);
-      updateAsRunning(ssId);
+      callback.updateSnapshot(ssId, "ruleCntTotal", String.valueOf(ruleCntTotal));
+      callback.updateSnapshotStatus(ssId, RUNNING);
 
       String ssType = (String) snapshotInfo.get("ssType");
 
       if (ssType.equals(PrSnapshot.SS_TYPE.URI.name())) {
-        result = createUriSnapshot(datasetInfo, snapshotInfo);
+        result = createUriSnapshot(dsInfo, snapshotInfo);
       } else if (ssType.equals(PrSnapshot.SS_TYPE.STAGING_DB.name())) {
-        result = createStagingDbSnapshot(hadoopConfDir, datasetInfo, snapshotInfo);
+        result = createStagingDbSnapshot(hadoopConfDir, dsInfo, snapshotInfo);
       } else {
         updateAsFailed(ssId);
         throw new IllegalArgumentException("run(): ssType not supported: ssType=" + ssType);
       }
     } catch (CancellationException ce) {
       LOGGER.info("run(): snapshot canceled from run_internal(): ", ce);
-      updateSnapshot("finishTime", DateTime.now(DateTimeZone.UTC).toString(), ssId);
+      callback.updateSnapshot(ssId, "finishTime", DateTime.now(DateTimeZone.UTC).toString());
       updateAsCanceled(ssId);
       StringBuffer sb = new StringBuffer();
 
@@ -206,12 +202,12 @@ public class TeddyExecutor {
         sb.append("\n");
         sb.append(ste.toString());
       }
-      updateSnapshot("custom", "{'fail_msg':'" + sb.toString() + "'}", ssId);
+      callback.updateSnapshot(ssId, "custom", "{'fail_msg':'" + sb.toString() + "'}");
       throw ce;
     } catch (IOException | SQLException | ClassNotFoundException | InterruptedException | TeddyException |
             TimeoutException | URISyntaxException e) {
       LOGGER.error("run(): error while creating a snapshot: ", e);
-      updateSnapshot("finishTime", DateTime.now(DateTimeZone.UTC).toString(), ssId);
+      callback.updateSnapshot(ssId, "finishTime", DateTime.now(DateTimeZone.UTC).toString());
       updateAsFailed(ssId);
       StringBuffer sb = new StringBuffer();
 
@@ -219,7 +215,7 @@ public class TeddyExecutor {
         sb.append("\n");
         sb.append(ste.toString());
       }
-      updateSnapshot("custom", "{'fail_msg':'" + sb.toString() + "'}", ssId);
+      callback.updateSnapshot(ssId, "custom", "{'fail_msg':'" + sb.toString() + "'}");
     }
 
     LOGGER.info("run(): success from run_internal(): {}", result != null ? result.toString() : "null");
@@ -236,7 +232,7 @@ public class TeddyExecutor {
       }
       printer.println();
 
-      for (int rowno = 0; rowno < df.rows.size(); cancelCheck(ssId, ++rowno)) {
+      for (int rowno = 0; rowno < df.rows.size(); snapshotService.cancelCheck(ssId, ++rowno)) {
         Row row = df.rows.get(rowno);
         for (int colno = 0; colno < df.getColCnt(); ++colno) {
           printer.print(row.get(colno));
@@ -250,13 +246,11 @@ public class TeddyExecutor {
     try {
       printer.close(true);
     } catch (IOException e) {
-      throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_FAILED_TO_CLOSE_CSV, e.getMessage());
+      throw snapshotError(MSG_DP_ALERT_FAILED_TO_CLOSE_CSV, e.getMessage());
     }
 
     if (errmsg != null) {
-      throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_FAILED_TO_WRITE_CSV, errmsg);
+      throw snapshotError(MSG_DP_ALERT_FAILED_TO_WRITE_CSV, errmsg);
     }
 
     return df.rows.size();
@@ -269,9 +263,9 @@ public class TeddyExecutor {
     String errmsg = null;
 
     try {
-      for (int rowno = 0; rowno < df.rows.size(); cancelCheck(ssId, ++rowno)) {
+      for (int rowno = 0; rowno < df.rows.size(); snapshotService.cancelCheck(ssId, ++rowno)) {
         Row row = df.rows.get(rowno);
-        Map<String, Object> jsonRow = new LinkedHashMap<>();
+        Map<String, Object> jsonRow = new LinkedHashMap();
 
         for (int colno = 0; colno < df.getColCnt(); ++colno) {
           if (df.getColType(colno).equals(ColumnType.TIMESTAMP)) {
@@ -296,30 +290,28 @@ public class TeddyExecutor {
     try {
       printWriter.close();
     } catch (Exception e) {
-      throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_FAILED_TO_CLOSE_CSV, e.getMessage());
+      throw snapshotError(MSG_DP_ALERT_FAILED_TO_CLOSE_CSV, e.getMessage());
     }
 
     if (errmsg != null) {
-      throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_FAILED_TO_WRITE_CSV, errmsg);
+      throw snapshotError(MSG_DP_ALERT_FAILED_TO_WRITE_CSV, errmsg);
     }
 
     return df.rows.size();
   }
 
-  private Future<String> createUriSnapshot(Map<String, Object> datasetInfo, Map<String, Object> snapshotInfo)
+  private Future<String> createUriSnapshot(Map<String, Object> dsInfo, Map<String, Object> snapshotInfo)
           throws JsonProcessingException, TimeoutException, TeddyException, InterruptedException, SQLException,
           URISyntaxException, ClassNotFoundException {
     LOGGER.info("createUriSnapshot(): started");
 
     // master dataset 정보에 모든 upstream 정보도 포함되어있음.
     String ssId = (String) snapshotInfo.get("ssId");
-    String masterTeddyDsId = ((String) datasetInfo.get("origTeddyDsId"));
-    transformRecursive(datasetInfo, ssId);
+    String masterTeddyDsId = ((String) dsInfo.get("origTeddyDsId"));
+    transformRecursive(dsInfo, ssId);
     String masterFullDsId = replaceMap.get(masterTeddyDsId);
 
-    updateAsWriting(ssId);
+    callback.updateSnapshotStatus(ssId, WRITING);
 
     DataFrame df = cache.get(masterFullDsId);
 
@@ -337,7 +329,7 @@ public class TeddyExecutor {
     }
 
     String jsonColDescs = GlobalObjectMapper.getDefaultMapper().writeValueAsString(df.colDescs);
-    updateSnapshot("custom", "{'colDescs':" + jsonColDescs + "}", ssId);
+    callback.updateSnapshot(ssId, "custom", "{'colDescs':" + jsonColDescs + "}");
 
     // master를 비롯해서, 스냅샷 생성을 위해 새로 만들어진 모든 full dataset을 제거
     for (String fullDsId : reverseMap.keySet()) {
@@ -347,14 +339,14 @@ public class TeddyExecutor {
     LOGGER.info("createUriSnapshot() finished: totalLines={}", df.rows.size());
 
     DateTime finishTime = DateTime.now(DateTimeZone.UTC);
-    updateSnapshot("finishTime", finishTime.toString(), ssId);
-    updateSnapshot("totalLines", String.valueOf(df.rows.size()), ssId);
+    callback.updateSnapshot(ssId, "finishTime", finishTime.toString());
+    callback.updateSnapshot(ssId, "totalLines", String.valueOf(df.rows.size()));
     updateAsSucceeded(ssId);
 
-    return new AsyncResult<>("Success");
+    return new AsyncResult("Success");
   }
 
-  private Future<String> createStagingDbSnapshot(String hadoopConfDir, Map<String, Object> datasetInfo,
+  private Future<String> createStagingDbSnapshot(String hadoopConfDir, Map<String, Object> dsInfo,
           Map<String, Object> snapshotInfo)
           throws TeddyException, SQLException, IOException, ClassNotFoundException, InterruptedException,
           TimeoutException, URISyntaxException {
@@ -367,15 +359,15 @@ public class TeddyExecutor {
 
     // master dataset 정보에 모든 upstream 정보도 포함되어있음.
     String ssId = (String) snapshotInfo.get("ssId");
-    String masterTeddyDsId = ((String) datasetInfo.get("origTeddyDsId"));
-    transformRecursive(datasetInfo, ssId);
+    String masterTeddyDsId = ((String) dsInfo.get("origTeddyDsId"));
+    transformRecursive(dsInfo, ssId);
     String masterFullDsId = replaceMap.get(masterTeddyDsId);
 
     // Some rules like pivot may break Hive column naming rule.
     DataFrame finalDf = cache.get(masterFullDsId);
     finalDf.checkAlphaNumericalColNames();
 
-    List<String> ruleStrings = (List<String>) datasetInfo.get("ruleStrings");
+    List<String> ruleStrings = (List<String>) dsInfo.get("ruleStrings");
     List<String> partKeys = (List<String>) snapshotInfo.get("partitionColNames");
     String format = (String) snapshotInfo.get("hiveFileFormat");
     String compression = (String) snapshotInfo.get("hiveFileCompression");
@@ -389,7 +381,7 @@ public class TeddyExecutor {
 
     String jsonColDescs = GlobalObjectMapper.getDefaultMapper()
             .writeValueAsString(finalDf.colDescs);
-    updateSnapshot("custom", "{'colDescs':" + jsonColDescs + "}", ssId);
+    callback.updateSnapshot(ssId, "custom", "{'colDescs':" + jsonColDescs + "}");
 
     // master를 비롯해서, 스냅샷 생성을 위해 새로 만들어진 모든 full dataset을 제거
     for (String fullDsId : reverseMap.keySet()) {
@@ -399,63 +391,31 @@ public class TeddyExecutor {
     LOGGER.info("createStagingDbSnapshot() finished");
 
     DateTime finishTime = DateTime.now(DateTimeZone.UTC);
-    updateSnapshot("finishTime", finishTime.toString(), ssId);
+    callback.updateSnapshot(ssId, "finishTime", finishTime.toString());
     // totalLines is already written in writeCsvForStagingDbSnapshot()
     updateAsSucceeded(ssId);
 
-    return new AsyncResult<>("Success");
-  }
-
-  private void updateSnapshot(String colname, String value, String ssId) {
-    LOGGER.debug("updateSnapshot(): ssId={}: update {} as {}", ssId, colname, value);
-
-    URI snapshot_uri = UriComponentsBuilder.newInstance()
-            .scheme("http")
-            .host("localhost")
-            .port(restAPIserverPort)
-            .path("/api/preparationsnapshots/")
-            .path(ssId)
-            .build().encode().toUri();
-
-    LOGGER.debug("updateSnapshot(): REST URI=" + snapshot_uri);
-
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
-    headers.add("Accept", "application/json, text/plain, */*");
-    headers.add("Authorization", oauth_token);
-
-    HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-    RestTemplate restTemplate = new RestTemplate(requestFactory);
-
-    Map<String, String> patchItems = new HashMap<>();
-    patchItems.put(colname, value);
-
-    HttpEntity<Map<String, String>> entity2 = new HttpEntity<>(patchItems, headers);
-    ResponseEntity<String> responseEntity;
-    responseEntity = restTemplate.exchange(snapshot_uri, HttpMethod.PATCH, entity2, String.class);
-
-    LOGGER.debug("updateSnapshot(): done with statusCode " + responseEntity.getStatusCode());
+    return new AsyncResult("Success");
   }
 
   // returns slaveFullDsIds
-  void transformRecursive(Map<String, Object> datasetInfo, String ssId)
+  void transformRecursive(Map<String, Object> dsInfo, String ssId)
           throws ClassNotFoundException, SQLException, TeddyException, URISyntaxException, TimeoutException,
           InterruptedException {
-    cancelCheck(ssId);
-    String origTeddyDsId = (String) datasetInfo.get("origTeddyDsId");
+    snapshotService.cancelCheck(ssId);
+    String origTeddyDsId = (String) dsInfo.get("origTeddyDsId");
 
-    String newFullDsId = createStage0(datasetInfo);
+    String newFullDsId = createStage0(dsInfo);
     replaceMap.put(origTeddyDsId, newFullDsId);
     reverseMap.put(newFullDsId, origTeddyDsId);
 
     List<Map<String, Object>> upstreamDatasetInfos;
-    upstreamDatasetInfos = (List<Map<String, Object>>) datasetInfo
-            .get("upstreamDatasetInfos");
+    upstreamDatasetInfos = (List<Map<String, Object>>) dsInfo.get("upstreamDatasetInfos");
     for (Map<String, Object> upstreamDatasetInfo : upstreamDatasetInfos) {
       transformRecursive(upstreamDatasetInfo, ssId);
     }
 
-    List<String> ruleStrings = (List<String>) datasetInfo.get("ruleStrings");
+    List<String> ruleStrings = (List<String>) dsInfo.get("ruleStrings");
     List<String> replacedRuleStrings = new ArrayList();
     for (String ruleString : ruleStrings) {
       String replacedRuleString = ruleString;
@@ -470,15 +430,14 @@ public class TeddyExecutor {
   }
 
   // returns total rule count of the snapshot (including slave datasets)
-  long countAllRules(Map<String, Object> datasetInfo) {
+  long countAllRules(Map<String, Object> dsInfo) {
     long ruleCntTotal = 0L;
 
-    for (Map<String, Object> upstreamDatasetInfo : (List<Map<String, Object>>) datasetInfo
-            .get("upstreamDatasetInfos")) {
+    for (Map<String, Object> upstreamDatasetInfo : (List<Map<String, Object>>) dsInfo.get("upstreamDatasetInfos")) {
       ruleCntTotal += countAllRules(upstreamDatasetInfo);
     }
 
-    return ruleCntTotal + ((List<String>) datasetInfo.get("ruleStrings")).size();
+    return ruleCntTotal + ((List<String>) dsInfo.get("ruleStrings")).size();
   }
 
   private void applyRuleStrings(String masterFullDsId, List<String> ruleStrings, String ssId)
@@ -486,8 +445,8 @@ public class TeddyExecutor {
     LOGGER.trace("applyRuleStrings(): start");
     // multi-thread
     for (String ruleString : ruleStrings) {     // create rule has been removed already
-      List<Future<List<Row>>> futures = new ArrayList<>();
-      List<DataFrame> slaveDfs = new ArrayList<>();
+      List<Future<List<Row>>> futures = new ArrayList();
+      List<DataFrame> slaveDfs = new ArrayList();
 
       Rule rule = new RuleVisitorParser().parse(ruleString);
 
@@ -525,7 +484,7 @@ public class TeddyExecutor {
                               limitRows));
             }
 
-            cancelCheck(ssId);
+            snapshotService.cancelCheck(ssId);
             addJob(ssId, futures);
 
             for (int i = 0; i < futures.size(); i++) {
@@ -552,7 +511,7 @@ public class TeddyExecutor {
 
       LOGGER.debug("applyRuleStrings(): end: ruleString={}", ruleString);
       cache.put(masterFullDsId, newDf);
-      updateSnapshot("ruleCntDone", String.valueOf(incrRuleCntDone(ssId)), ssId);
+      callback.updateSnapshot(ssId, "ruleCntDone", String.valueOf(incrRuleCntDone(ssId)));
 
       if (explicitGC) {
         System.gc();
@@ -838,13 +797,13 @@ public class TeddyExecutor {
     fin = fs.create(byTeddy);
     fin.close();
 
-    updateSnapshot("totalLines", String.valueOf(rowCnt[0]), ssId);
+    callback.updateSnapshot(ssId, "totalLines", String.valueOf(rowCnt[0]));
     ObjectMapper mapper = GlobalObjectMapper.getDefaultMapper();
 
     if (rowCnt[1] != null && rowCnt[1] > 0) {
       Map<String, Object> lineageInfo = snapshotService.getSnapshotLineageInfo(ssId);
       lineageInfo.put("excludedLines", rowCnt[1]);
-      updateSnapshot("lineageInfo", mapper.writeValueAsString(lineageInfo), ssId);
+      callback.updateSnapshot(ssId, "lineageInfo", mapper.writeValueAsString(lineageInfo));
     }
 
     LOGGER.trace("writeCsvForStagingDbSnapshot(): end");
@@ -883,11 +842,12 @@ public class TeddyExecutor {
       assert false : format;  // FIXME: make and throw an appropriate Exception
     }
 
-    updateAsWriting(ssId);
+    callback.updateSnapshotStatus(ssId, WRITING);
+
     String location = writeCsvForStagingDbSnapshot(ssId, masterFullDsId, extHdfsDir, dbName,
             tblName, enumFormat, enumCompression);
 
-    updateAsTableCreating(ssId);
+    callback.updateSnapshotStatus(ssId, TABLE_CREATING);
     makeHiveTable(cache.get(masterFullDsId), partKeys, dbName + "." + tblName, location, enumFormat,
             enumCompression);
 
@@ -987,50 +947,18 @@ public class TeddyExecutor {
     jobList.remove(key);
   }
 
-  private void updateAsRunning(String ssId) {
-    cancelCheck(ssId);
-    updateSnapshot("status", PrSnapshot.STATUS.RUNNING.name(), ssId);
-  }
-
-  private void updateAsWriting(String ssId) {
-    cancelCheck(ssId);
-    updateSnapshot("status", PrSnapshot.STATUS.WRITING.name(), ssId);
-  }
-
-  private void updateAsTableCreating(String ssId) {
-    cancelCheck(ssId);
-    updateSnapshot("status", PrSnapshot.STATUS.TABLE_CREATING.name(), ssId);
-  }
-
   private void updateAsSucceeded(String ssId) {
-    updateSnapshot("status", PrSnapshot.STATUS.SUCCEEDED.name(), ssId);
+    callback.updateSnapshot(ssId, "status", PrSnapshot.STATUS.SUCCEEDED.name());
     snapshotRuleDoneCnt.remove(ssId);
   }
 
   private void updateAsFailed(String ssId) {
-    updateSnapshot("status", PrSnapshot.STATUS.FAILED.name(), ssId);
+    callback.updateSnapshot(ssId, "status", PrSnapshot.STATUS.FAILED.name());
     snapshotRuleDoneCnt.remove(ssId);
   }
 
   private void updateAsCanceled(String ssId) {
-    updateSnapshot("status", PrSnapshot.STATUS.CANCELED.name(), ssId);
+    callback.updateSnapshot(ssId, "status", PrSnapshot.STATUS.CANCELED.name());
     snapshotRuleDoneCnt.remove(ssId);
-  }
-
-  synchronized public void cancelCheck(String ssId) throws CancellationException {
-    if (snapshotService.getSnapshotStatus(ssId).equals(PrSnapshot.STATUS.CANCELED)) {
-      throw new CancellationException(
-              "This snapshot generating was canceled by user. ssid: " + ssId);
-    }
-  }
-
-  public void cancelCheck(String ssId, int rowNo) throws CancellationException {
-    if (rowNo % CANCEL_INTERVAL == 0) {
-      cancelCheck(ssId);
-    }
-  }
-
-  public PrSnapshot.STATUS statusCheck(String ssId) {
-    return snapshotService.getSnapshotStatus(ssId);
   }
 }
