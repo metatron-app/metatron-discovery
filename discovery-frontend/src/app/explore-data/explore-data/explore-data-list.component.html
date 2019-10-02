@@ -3,10 +3,10 @@
   <div class="ddp-wrap-top-filtering type-form">
     <div class="ddp-wrap-form-filtering">
       <div class="ddp-form-filtering">
-        <component-check-filter [filterName]="'Data type'" [filterList]="dataTypeFilterList" (changedFilter)="onChangeDataTypeFilter($event)" ></component-check-filter>
+        <component-check-filter #typeFilter [filterFlags]="filterFlags"  [filterName]="'Data type'" [filterList]="dataTypeFilterList" (changedFilter)="onChangeDataTypeFilter($event)" ></component-check-filter>
       </div>
       <div class="ddp-form-filtering">
-        <component-updated-time-radio-filter (changeSort)="onChangeCreateTimeFilter($event)"></component-updated-time-radio-filter>
+        <component-updated-time-radio-filter #timeFilter  [filterFlags]="filterFlags" (changeSort)="onChangeCreateTimeFilter($event)"></component-updated-time-radio-filter>
       </div>
     </div>
   </div>

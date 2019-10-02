@@ -60,6 +60,9 @@ export class ExploreDataSearchComponent extends AbstractComponent {
     super(element, injector);
   }
 
+  ngOnInit() {
+    super.ngOnInit();
+  }
 
   ngOnDestroy() {
     super.ngOnDestroy();
@@ -109,6 +112,9 @@ export class ExploreDataSearchComponent extends AbstractComponent {
   onChangeSearchKeyword(value: string): void {
     this.searchKeyword = value;
     this.exploreDataModelService.searchKeyword = value;
+  }
+
+  onSubmit(): void {
     this._changedSearch();
   }
 

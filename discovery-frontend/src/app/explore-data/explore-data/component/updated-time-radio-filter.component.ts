@@ -3,6 +3,7 @@ import {AbstractComponent} from "../../../common/component/abstract.component";
 import {Criteria} from "../../../domain/datasource/criteria";
 import {PeriodData} from "../../../common/value/period.data.value";
 import {PickerSettings} from "../../../domain/common/datepicker.settings";
+import {Subject} from "rxjs";
 
 declare let moment: any;
 declare let $: any;
@@ -12,6 +13,7 @@ declare let $: any;
   templateUrl: 'updated-time-radio-filter.html'
 })
 export class UpdatedTimeRadioFilter extends AbstractComponent{
+  @Input() filterFlags: Subject<{}>;
   @Output() changeSort = new EventEmitter();
 
   @ViewChild('startPickerInput')
@@ -29,7 +31,8 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
 
   // filter show flag
   updatedTimeFilterShowFlag = false;
-
+  datePickerIsOn = false;
+  previousSelectedDate: PeriodData;
   selectedDate: PeriodData;
 
   private _startPickerDate: Date;
@@ -57,6 +60,10 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
     super.ngOnInit();
     this.selectedDate = new PeriodData();
     this.selectedDate.type = Criteria.DateTimeType.ALL;
+
+    this.filterFlags.subscribe((flags) => {
+      this.updatedTimeFilterShowFlag = flags[FilterTypes.UPDATED_TIME];
+    });
   }
 
   /**
@@ -65,7 +72,18 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
   toggleSelectedFilterShowFlag() {
     event.stopPropagation();
     event.stopImmediatePropagation();
-    this.updatedTimeFilterShowFlag = !this.updatedTimeFilterShowFlag;
+
+    let filterFlags = {};
+
+    Object.keys(FilterTypes).forEach((key) => {
+      if (key === FilterTypes.UPDATED_TIME) {
+        filterFlags[key] = !this.updatedTimeFilterShowFlag;
+      } else {
+        filterFlags[key] = false;
+      }
+    });
+
+    this.filterFlags.next(filterFlags);
   }
 
   /**
@@ -74,6 +92,7 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
   onChangeFilter(sortOption: any) {
     event.stopImmediatePropagation();
     event.stopPropagation();
+    this._removeDatePicker();
 
     this.selectedUpdatedTimeOptionName = sortOption.name;
 
@@ -83,6 +102,8 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
       || sortOption.value === Criteria.DateTimeType.ALL) {
       this._startPickerDate = null;
       this._endPickerDate = null;
+      // set datePicker flag is false
+      this.datePickerIsOn = false;
     }
 
     if (sortOption.value === Criteria.DateTimeType.TODAY) {
@@ -126,6 +147,7 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
     }
 
     if (sortOption.value === 'BETWEEN') {
+      this.datePickerIsOn = true;
       this._setTimePicker(sortOption.value);
     }
   }
@@ -180,7 +202,8 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
     // startPickerSettings.position = 'left top';
     this._startPicker = $(this._startPickerInput.nativeElement).datepicker(startPickerSettings).data('datepicker');
     ( '-' !== startInitialValue ) && ( this._startPicker.selectDate(startInitialValue.toDate()) );
-    // end picker create
+
+     // end picker create
     const endPickerSettings: PickerSettings
       = new DatePickerSettings(
       'ddp-input-calen',
@@ -252,9 +275,33 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
 
       this.selectedDate = returnData;
 
+
+      this._startPickerDate = null;
+      this._endPickerDate = null;
+
       this.changeSort.emit(this.selectedDate);
+      // hide filter
+      this.updatedTimeFilterShowFlag = false;
+      // set datePicker flag is false
+      this.datePickerIsOn = false;
+    } else {
+      // this.changeSort.emit(this.previousSelectedDate);
+    }
+  }
+
+  closeSelectedFilter() {
+    if (!this.datePickerIsOn) {
       this.updatedTimeFilterShowFlag = false;
     }
+  }
+
+  /**
+   * Remove date picker
+   * @private
+   */
+  private _removeDatePicker(): void {
+    this._startPicker && this._startPicker.destroy();
+    this._endPicker && this._endPicker.destroy();
   }
 }
 
@@ -268,4 +315,9 @@ class DatePickerSettings extends PickerSettings {
     // set date picker position
     this.position = 'right top';
   }
+}
+
+enum FilterTypes {
+  DATA_TYPE = 'DATA_TYPE',
+  UPDATED_TIME = 'UPDATED_TIME'
 }
