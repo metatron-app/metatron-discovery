@@ -143,9 +143,11 @@ export class ExploreDataListComponent extends AbstractComponent {
           this.selectedDate.startDateStr = decodeURIComponent(params['from']);
           this.selectedDate.endDateStr = decodeURIComponent(params['to']);
           this.selectedDate.type = params['type'];
+
+          this._setMetadataList(params).then();
         }
         // get metadata list
-        this._setMetadataList(params).then();
+
       })
     );
   }
@@ -388,7 +390,7 @@ export class ExploreDataListComponent extends AbstractComponent {
   private async _initialMetadataList() {
     this.page.page = 0;
     this.page.size = CommonConstant.API_CONSTANT.PAGE_SIZE;
-    await this._setMetadataList(this._getMetadataListParams());
+    this.reloadPage();
   }
 
   /**
