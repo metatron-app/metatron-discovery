@@ -31,6 +31,7 @@ import {isNullOrUndefined} from "util";
 import {ActivatedRoute} from "@angular/router";
 import {Criteria} from "../../domain/datasource/criteria";
 import {PeriodData} from "../../common/value/period.data.value";
+import {Subject} from "rxjs";
 
 declare let moment: any;
 
@@ -41,6 +42,8 @@ declare let moment: any;
 export class ExploreDataListComponent extends AbstractComponent {
 
   metadataList: Metadata[];
+  // To toggle filter layer
+  filterFlags: Subject<{}> = new Subject();
 
   // updated time, name sorting options
   public sortOptions = {
@@ -104,6 +107,12 @@ export class ExploreDataListComponent extends AbstractComponent {
     this.selectedDate = new PeriodData();
 
     this.selectedDate.type = Criteria.DateTimeType.ALL;
+
+
+    this.filterFlags.next({
+      [FilterTypes.DATA_TYPE]: false,
+      [FilterTypes.UPDATED_TIME]: false
+    });
 
     // Get query param from url
     this.subscriptions.push(
@@ -310,11 +319,20 @@ export class ExploreDataListComponent extends AbstractComponent {
   }
 
   private _getMetadataListParams() {
-    const params = {
-      page: this.page.page,
-      size: this.page.size,
-      sort: this.selectedSort,
-    };
+    let params;
+    if (this.selectedSort !== undefined) {
+      params = {
+        page: this.page.page,
+        size: this.page.size,
+        sort: this.selectedSort,
+      };
+    } else {
+      params = {
+        page: this.page.page,
+        size: this.page.size,
+      };
+    }
+
     // if not empty search keyword
     if (StringUtil.isNotEmpty(this.searchedKeyword)) {
       params[this.searchRange.value] = this.searchedKeyword.trim();
@@ -395,6 +413,11 @@ export class ExploreDataListComponent extends AbstractComponent {
     this.selectedSort = type + ',' + this.sortOptions[type].option;
     this.reloadPage();
   }
+}
+
+enum FilterTypes {
+  DATA_TYPE = 'DATA_TYPE',
+  UPDATED_TIME = 'UPDATED_TIME'
 }
 
 

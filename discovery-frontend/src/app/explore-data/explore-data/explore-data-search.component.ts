@@ -60,6 +60,9 @@ export class ExploreDataSearchComponent extends AbstractComponent {
     super(element, injector);
   }
 
+  ngOnInit() {
+    super.ngOnInit();
+  }
 
   ngOnDestroy() {
     super.ngOnDestroy();
@@ -114,6 +117,10 @@ export class ExploreDataSearchComponent extends AbstractComponent {
 
   onChangeFocusSearchInput(flag: boolean): void {
     this.isFocusSearchInput = flag;
+
+    if (this.searchKeyword === '') {
+      this.searchKeyword = undefined;
+    }
   }
 
   // closeSelectBoxList(): void {
