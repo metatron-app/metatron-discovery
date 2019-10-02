@@ -60,7 +60,7 @@ public class TeddyExecCallback {
     LOGGER.debug("updateSnapshot(): done with statusCode " + responseEntity.getStatusCode());
   }
 
-  public void updateSnapshotStatus(String ssId, PrSnapshot.STATUS status) {
+  public void updateStatus(String ssId, PrSnapshot.STATUS status) {
     updateSnapshot(ssId, "status", status.name());
   }
 }

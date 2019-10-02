@@ -24,7 +24,10 @@ import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_META
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PASSWORD;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PORT;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_USERNAME;
+import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.CANCELED;
+import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.FAILED;
 import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.RUNNING;
+import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.SUCCEEDED;
 import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.TABLE_CREATING;
 import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.WRITING;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_CLOSE_CSV;
@@ -133,13 +136,6 @@ public class TeddyExecutor {
   Map<String, String> reverseMap = new HashMap(); // newFullDsId -> origTeddyDsId
 
   private Map<String, DataFrame> cache = Maps.newHashMap();
-  private Map<String, Long> snapshotRuleDoneCnt = new HashMap();
-
-  private Long incrRuleCntDone(String ssId) {
-    Long cnt = snapshotRuleDoneCnt.get(ssId);
-    snapshotRuleDoneCnt.put(ssId, ++cnt);
-    return cnt;
-  }
 
   private void setPrepPropertiesInfo(Map<String, Object> prepPropertiesInfo) {
     hadoopConfDir = (String) prepPropertiesInfo.get(HADOOP_CONF_DIR);
@@ -176,11 +172,9 @@ public class TeddyExecutor {
       setPrepPropertiesInfo(prepPropertiesInfo);
 
       ssId = (String) snapshotInfo.get("ssId");
-      snapshotRuleDoneCnt.put(ssId, 0L);
-      long ruleCntTotal = countAllRules(dsInfo);
 
-      callback.updateSnapshot(ssId, "ruleCntTotal", String.valueOf(ruleCntTotal));
-      callback.updateSnapshotStatus(ssId, RUNNING);
+      callback.updateSnapshot(ssId, "ruleCntTotal", String.valueOf(countAllRules(dsInfo)));
+      callback.updateStatus(ssId, RUNNING);
 
       String ssType = (String) snapshotInfo.get("ssType");
 
@@ -189,13 +183,13 @@ public class TeddyExecutor {
       } else if (ssType.equals(PrSnapshot.SS_TYPE.STAGING_DB.name())) {
         result = createStagingDbSnapshot(hadoopConfDir, dsInfo, snapshotInfo);
       } else {
-        updateAsFailed(ssId);
+        callback.updateStatus(ssId, FAILED);
         throw new IllegalArgumentException("run(): ssType not supported: ssType=" + ssType);
       }
     } catch (CancellationException ce) {
       LOGGER.info("run(): snapshot canceled from run_internal(): ", ce);
       callback.updateSnapshot(ssId, "finishTime", DateTime.now(DateTimeZone.UTC).toString());
-      updateAsCanceled(ssId);
+      callback.updateStatus(ssId, CANCELED);
       StringBuffer sb = new StringBuffer();
 
       for (StackTraceElement ste : ce.getStackTrace()) {
@@ -208,7 +202,7 @@ public class TeddyExecutor {
             TimeoutException | URISyntaxException e) {
       LOGGER.error("run(): error while creating a snapshot: ", e);
       callback.updateSnapshot(ssId, "finishTime", DateTime.now(DateTimeZone.UTC).toString());
-      updateAsFailed(ssId);
+      callback.updateStatus(ssId, FAILED);
       StringBuffer sb = new StringBuffer();
 
       for (StackTraceElement ste : e.getStackTrace()) {
@@ -311,7 +305,7 @@ public class TeddyExecutor {
     transformRecursive(dsInfo, ssId);
     String masterFullDsId = replaceMap.get(masterTeddyDsId);
 
-    callback.updateSnapshotStatus(ssId, WRITING);
+    callback.updateStatus(ssId, WRITING);
 
     DataFrame df = cache.get(masterFullDsId);
 
@@ -341,7 +335,7 @@ public class TeddyExecutor {
     DateTime finishTime = DateTime.now(DateTimeZone.UTC);
     callback.updateSnapshot(ssId, "finishTime", finishTime.toString());
     callback.updateSnapshot(ssId, "totalLines", String.valueOf(df.rows.size()));
-    updateAsSucceeded(ssId);
+    callback.updateStatus(ssId, SUCCEEDED);
 
     return new AsyncResult("Success");
   }
@@ -393,7 +387,7 @@ public class TeddyExecutor {
     DateTime finishTime = DateTime.now(DateTimeZone.UTC);
     callback.updateSnapshot(ssId, "finishTime", finishTime.toString());
     // totalLines is already written in writeCsvForStagingDbSnapshot()
-    updateAsSucceeded(ssId);
+    callback.updateStatus(ssId, SUCCEEDED);
 
     return new AsyncResult("Success");
   }
@@ -442,7 +436,10 @@ public class TeddyExecutor {
 
   private void applyRuleStrings(String masterFullDsId, List<String> ruleStrings, String ssId)
           throws TeddyException, InterruptedException, TimeoutException {
+    long ruleCntDone = 0L;
+
     LOGGER.trace("applyRuleStrings(): start");
+
     // multi-thread
     for (String ruleString : ruleStrings) {     // create rule has been removed already
       List<Future<List<Row>>> futures = new ArrayList();
@@ -511,7 +508,7 @@ public class TeddyExecutor {
 
       LOGGER.debug("applyRuleStrings(): end: ruleString={}", ruleString);
       cache.put(masterFullDsId, newDf);
-      callback.updateSnapshot(ssId, "ruleCntDone", String.valueOf(incrRuleCntDone(ssId)));
+      callback.updateSnapshot(ssId, "ruleCntDone", String.valueOf(++ruleCntDone));
 
       if (explicitGC) {
         System.gc();
@@ -842,12 +839,12 @@ public class TeddyExecutor {
       assert false : format;  // FIXME: make and throw an appropriate Exception
     }
 
-    callback.updateSnapshotStatus(ssId, WRITING);
+    callback.updateStatus(ssId, WRITING);
 
     String location = writeCsvForStagingDbSnapshot(ssId, masterFullDsId, extHdfsDir, dbName,
             tblName, enumFormat, enumCompression);
 
-    callback.updateSnapshotStatus(ssId, TABLE_CREATING);
+    callback.updateStatus(ssId, TABLE_CREATING);
     makeHiveTable(cache.get(masterFullDsId), partKeys, dbName + "." + tblName, location, enumFormat,
             enumCompression);
 
@@ -945,20 +942,5 @@ public class TeddyExecutor {
 
   private void removeJob(String key) {
     jobList.remove(key);
-  }
-
-  private void updateAsSucceeded(String ssId) {
-    callback.updateSnapshot(ssId, "status", PrSnapshot.STATUS.SUCCEEDED.name());
-    snapshotRuleDoneCnt.remove(ssId);
-  }
-
-  private void updateAsFailed(String ssId) {
-    callback.updateSnapshot(ssId, "status", PrSnapshot.STATUS.FAILED.name());
-    snapshotRuleDoneCnt.remove(ssId);
-  }
-
-  private void updateAsCanceled(String ssId) {
-    callback.updateSnapshot(ssId, "status", PrSnapshot.STATUS.CANCELED.name());
-    snapshotRuleDoneCnt.remove(ssId);
   }
 }
