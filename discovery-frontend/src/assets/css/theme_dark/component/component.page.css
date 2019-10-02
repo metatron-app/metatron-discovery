@@ -95,8 +95,6 @@
 	box page
 **************************************************************/
 .theme-dark .ddp-box-page {
-    float: left;
-    width: 100%;
     padding: 0 20px 0 18px;
     margin-top: 10px;
     border: 1px solid #d5d6dc;

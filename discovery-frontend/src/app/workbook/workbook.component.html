@@ -217,7 +217,7 @@
                         {{dashboard.name}}
                       </span>
                       <span class="ddp-wrap-image" >
-                        <img (invoke)="dashboardUtil.getBoardImage($event, dashboard.imageUrl)" />
+                        <img *ngIf="dashboard.imageUrl" (invoke)="dashboardUtil.getBoardImage($event, dashboard.imageUrl)" />
                       </span>
                       <!-- buttons -->
                       <div class="ddp-btn-control" *ngIf="isChangeAuthUser">
