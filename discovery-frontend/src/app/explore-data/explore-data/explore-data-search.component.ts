@@ -112,15 +112,14 @@ export class ExploreDataSearchComponent extends AbstractComponent {
   onChangeSearchKeyword(value: string): void {
     this.searchKeyword = value;
     this.exploreDataModelService.searchKeyword = value;
+  }
+
+  onSubmit(): void {
     this._changedSearch();
   }
 
   onChangeFocusSearchInput(flag: boolean): void {
     this.isFocusSearchInput = flag;
-
-    if (this.searchKeyword === '') {
-      this.searchKeyword = undefined;
-    }
   }
 
   // closeSelectBoxList(): void {

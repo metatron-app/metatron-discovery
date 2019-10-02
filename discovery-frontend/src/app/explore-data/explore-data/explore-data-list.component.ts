@@ -50,7 +50,7 @@ export class ExploreDataListComponent extends AbstractComponent {
     // TODO: popularity is not implemented yet
     // popularity: new SortOption('popularity'),
     modifiedTime: new SortOption('modifiedTime'),
-    name: new SortOption('name', 'desc'),
+    name: new SortOption('name', 'asc'),
   };
 
   private _searchParams: any;

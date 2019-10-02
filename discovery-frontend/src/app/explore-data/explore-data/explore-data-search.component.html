@@ -20,6 +20,7 @@
     <component-input [placeHolder]="'msg.explore.ph.search' | translate"
                      (changeValue)="onChangeSearchKeyword($event)"
                      [value]="searchKeyword" [autoFocus]="false"
+                     (keyup.enter)="onSubmit()"
                      (inputFocus)="onChangeFocusSearchInput(true)"
                      (inputBlur)="onChangeFocusSearchInput(false)"></component-input>
     <a href="javascript:" class="ddp-btn-delete" *ngIf="!isEmptySearchKeyword()" (click)="onChangeSearchKeyword('')"></a>
