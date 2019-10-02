@@ -12,11 +12,9 @@ import {
 } from "@angular/core";
 import {DataSnapshotService} from "../../../../data-preparation/data-snapshot/service/data-snapshot.service";
 import {DataSnapshotDetailComponent} from "../../../../data-preparation/data-snapshot/data-snapshot-detail.component";
-import {DatasourceInfo, FieldRole, LogicalType} from "../../../../domain/datasource/datasource";
+import {DatasourceInfo, FieldRole} from "../../../../domain/datasource/datasource";
 import {PrDataSnapshot, SsType} from "../../../../domain/data-preparation/pr-snapshot";
-import {
-  CreateSnapShotData,
-} from "../../../service/data-source-create.service";
+import {CreateSnapShotData,} from "../../../service/data-source-create.service";
 import {isUndefined} from "util";
 import {PreparationCommonUtil} from "../../../../data-preparation/util/preparation-common.util";
 
@@ -182,6 +180,8 @@ export class SnapshotPreviewComponent extends AbstractComponent implements OnCha
     switch (type) {
       case 'INTEGER':
       case 'FLOAT':
+      case 'LONG':
+      case 'DOUBLE':
         return FieldRole.MEASURE;
       default:
         return FieldRole.DIMENSION;
