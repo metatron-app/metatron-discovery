@@ -3748,7 +3748,7 @@
   background-color: rgba(45, 204, 255, 0.6);
   border:1px solid #2dccff;
   content: '';
-  z-index:1;
+  z-index:12;
 }
 
 .theme-dark ul.ddp-list-board-thumbview li a:hover .ddp-wrap-image:before {
@@ -3759,6 +3759,7 @@
   left: 0;
   right: 0;
   bottom: 0;
+  z-index:12;
 }
 
 .theme-dark ul.ddp-list-board-thumbview li.ddp-selected a span.ddp-data-name {
