@@ -16,9 +16,17 @@
  * Created by Dolkkok on 2017. 7. 18..
  */
 
-import { AfterViewInit, Component, ElementRef, Injector, Input, OnDestroy, OnInit } from '@angular/core';
-import { BaseChart, ChartSelectInfo } from '../base-chart';
-import { BaseOption } from '../option/base-option';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit
+} from '@angular/core';
+import {BaseChart, ChartSelectInfo} from '../base-chart';
+import {BaseOption} from '../option/base-option';
 import {
   CellColorTarget,
   CHART_STRING_DELIMITER,
@@ -32,11 +40,11 @@ import {
   UIOrient,
   UIPosition
 } from '../option/define/common';
-import { Pivot } from '../../../../domain/workbook/configurations/pivot';
+import {Pivot} from '../../../../domain/workbook/configurations/pivot';
 import * as _ from 'lodash';
-import { UIChartColorByCell, UIOption } from '../option/ui-option';
-import { UIGridChart } from '../option/ui-option/ui-grid-chart';
-import { UIChartColorGradationByCell } from '../option/ui-option/ui-color';
+import {UIChartColorByCell, UIOption} from '../option/ui-option';
+import {UIGridChart} from '../option/ui-option/ui-grid-chart';
+import {UIChartColorGradationByCell} from '../option/ui-option/ui-color';
 
 declare let pivot: any;
 
@@ -319,7 +327,7 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
     if( (<UIGridChart>this.uiOption).dataType == GridViewType.MASTER ) {
 
       // for setting aggregations original name
-      let originAggregations: any = this.fieldOriginInfo.aggs.map((name) => {
+      let originAggregations: any = this.fieldInfo.aggs.map((name) => {
         return {name, digits: 2};
       });
 
