@@ -158,6 +158,16 @@ public class TeddyExecutor {
     }
   }
 
+  private void putStackTraceIntoCustomField(String ssId, Exception e) {
+    StringBuffer sb = new StringBuffer();
+
+    for (StackTraceElement ste : e.getStackTrace()) {
+      sb.append("\n");
+      sb.append(ste.toString());
+    }
+    callback.updateSnapshot(ssId, "custom", "{'fail_msg':'" + sb.toString() + "'}");
+  }
+
   @Async("prepThreadPoolTaskExecutor")
   public Future<String> run(String[] argv) {
     String ssId = "";
@@ -182,6 +192,7 @@ public class TeddyExecutor {
       throw snapshotError(MSG_DP_ALERT_SNAPSHOT_TYPE_IS_MISSING, "The request does not contain snapshot type.");
     }
 
+    Exception exception = null;
     try {
       switch (PrSnapshot.SS_TYPE.valueOf(ssType)) {
         case URI:
@@ -195,31 +206,25 @@ public class TeddyExecutor {
           callback.updateStatus(ssId, FAILED);
           throw snapshotError(MSG_DP_ALERT_SNAPSHOT_TYPE_NOT_SUPPORTED_YET, ssType);
       }
-    } catch (CancellationException ce) {
-      LOGGER.info("run(): snapshot canceled: ", ce);
+    } catch (CancellationException e) {
+      LOGGER.info("run(): snapshot canceled: ", e);
       callback.updateStatus(ssId, CANCELED);
-
-      StringBuffer sb = new StringBuffer();
-
-      for (StackTraceElement ste : ce.getStackTrace()) {
-        sb.append("\n");
-        sb.append(ste.toString());
-      }
-      callback.updateSnapshot(ssId, "custom", "{'fail_msg':'" + sb.toString() + "'}");
-      throw ce;
+      exception = e;
     } catch (IOException | SQLException | ClassNotFoundException | InterruptedException | TeddyException |
             TimeoutException | URISyntaxException e) {
       LOGGER.error("run(): error while creating a snapshot: ", e);
-      callback.updateSnapshot(ssId, "finishTime", DateTime.now(DateTimeZone.UTC).toString());
       callback.updateStatus(ssId, FAILED);
-      StringBuffer sb = new StringBuffer();
+      exception = e;
 
-      for (StackTraceElement ste : e.getStackTrace()) {
-        sb.append("\n");
-        sb.append(ste.toString());
-      }
-      callback.updateSnapshot(ssId, "custom", "{'fail_msg':'" + sb.toString() + "'}");
     }
+
+    if (exception != null) {
+      putStackTraceIntoCustomField(ssId, exception);
+      LOGGER.info("runTeddy(): Failure: ssid={}", ssId);
+      return new AsyncResult("Failure");
+    }
+
+    callback.updateStatus(ssId, SUCCEEDED);
 
     LOGGER.info("runTeddy(): Success: ssid={}", ssId);
     return new AsyncResult("Success");
@@ -341,10 +346,7 @@ public class TeddyExecutor {
 
     LOGGER.info("createUriSnapshot() finished: totalLines={}", df.rows.size());
 
-    DateTime finishTime = DateTime.now(DateTimeZone.UTC);
-    callback.updateSnapshot(ssId, "finishTime", finishTime.toString());
     callback.updateSnapshot(ssId, "totalLines", String.valueOf(df.rows.size()));
-    callback.updateStatus(ssId, SUCCEEDED);
   }
 
   private void createStagingDbSnapshot(String hadoopConfDir, Map<String, Object> dsInfo,
@@ -389,10 +391,7 @@ public class TeddyExecutor {
 
     LOGGER.info("createStagingDbSnapshot() finished");
 
-    DateTime finishTime = DateTime.now(DateTimeZone.UTC);
-    callback.updateSnapshot(ssId, "finishTime", finishTime.toString());
-    // totalLines is already written in writeCsvForStagingDbSnapshot()
-    callback.updateStatus(ssId, SUCCEEDED);
+    // totalLines is already written in writeCsvForStagingDbSnapshot() (cf. createUriSnapshot())
   }
 
   // returns slaveFullDsIds
