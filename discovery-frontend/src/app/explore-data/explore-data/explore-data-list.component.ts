@@ -185,7 +185,9 @@ export class ExploreDataListComponent extends AbstractComponent {
       if (this.selectedCatalog != undefined) {
         this.treeHierarchy = await this.catalogService.getTreeCatalogs(this.selectedCatalog.id, true);
       }
-      await this._initialMetadataList();
+      this.page.page = 0;
+      this.page.size = CommonConstant.API_CONSTANT.PAGE_SIZE;
+      this.reloadPage();
     };
 
     initial().then(() => {
