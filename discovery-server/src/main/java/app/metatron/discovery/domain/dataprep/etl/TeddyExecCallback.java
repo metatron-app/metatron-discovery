@@ -1,9 +1,15 @@
 package app.metatron.discovery.domain.dataprep.etl;
 
+import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.CANCELED;
+import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.FAILED;
+import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.SUCCEEDED;
+
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -27,6 +33,8 @@ public class TeddyExecCallback {
   public void setCallbackInfo(Map<String, Object> callbackInfo) {
     restAPIserverPort = (String) callbackInfo.get("port");
     oauth_token = (String) callbackInfo.get("oauth_token");
+
+    LOGGER.info("callback: restAPIserverPort={} oauth_token={}", restAPIserverPort, oauth_token.substring(0, 10));
   }
 
   public void updateSnapshot(String ssId, String colname, String value) {
@@ -62,5 +70,9 @@ public class TeddyExecCallback {
 
   public void updateStatus(String ssId, PrSnapshot.STATUS status) {
     updateSnapshot(ssId, "status", status.name());
+
+    if (status == SUCCEEDED || status == FAILED || status == CANCELED) {
+      updateSnapshot(ssId, "finishTime", DateTime.now(DateTimeZone.UTC).toString());
+    }
   }
 }

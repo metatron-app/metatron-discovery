@@ -32,6 +32,8 @@ import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.TA
 import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.WRITING;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_CLOSE_CSV;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_WRITE_CSV;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_SNAPSHOT_TYPE_IS_MISSING;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_SNAPSHOT_TYPE_NOT_SUPPORTED_YET;
 import static app.metatron.discovery.domain.dataprep.util.PrepUtil.snapshotError;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
@@ -158,38 +160,45 @@ public class TeddyExecutor {
 
   @Async("prepThreadPoolTaskExecutor")
   public Future<String> run(String[] argv) {
-    Future<String> result = null;
     String ssId = "";
 
+    Map<String, Object> prepPropertiesInfo = GlobalObjectMapper.readValue(argv[0], HashMap.class);
+    Map<String, Object> dsInfo = GlobalObjectMapper.readValue(argv[1], HashMap.class);
+    Map<String, Object> snapshotInfo = GlobalObjectMapper.readValue(argv[2], HashMap.class);
+    Map<String, Object> callbackInfo = GlobalObjectMapper.readValue(argv[3], HashMap.class);
+
+    callback.setCallbackInfo(callbackInfo);
+
+    setPrepPropertiesInfo(prepPropertiesInfo);
+
+    ssId = (String) snapshotInfo.get("ssId");
+
+    callback.updateSnapshot(ssId, "ruleCntTotal", String.valueOf(countAllRules(dsInfo)));
+    callback.updateStatus(ssId, RUNNING);
+
+    String ssType = (String) snapshotInfo.get("ssType");
+    if (ssType == null) {
+      callback.updateStatus(ssId, FAILED);
+      throw snapshotError(MSG_DP_ALERT_SNAPSHOT_TYPE_IS_MISSING, "The request does not contain snapshot type.");
+    }
+
     try {
-      Map<String, Object> prepPropertiesInfo = GlobalObjectMapper.readValue(argv[0], HashMap.class);
-      Map<String, Object> dsInfo = GlobalObjectMapper.readValue(argv[1], HashMap.class);
-      Map<String, Object> snapshotInfo = GlobalObjectMapper.readValue(argv[2], HashMap.class);
-      Map<String, Object> callbackInfo = GlobalObjectMapper.readValue(argv[3], HashMap.class);
-
-      callback.setCallbackInfo(callbackInfo);
-
-      setPrepPropertiesInfo(prepPropertiesInfo);
-
-      ssId = (String) snapshotInfo.get("ssId");
-
-      callback.updateSnapshot(ssId, "ruleCntTotal", String.valueOf(countAllRules(dsInfo)));
-      callback.updateStatus(ssId, RUNNING);
-
-      String ssType = (String) snapshotInfo.get("ssType");
-
-      if (ssType.equals(PrSnapshot.SS_TYPE.URI.name())) {
-        result = createUriSnapshot(dsInfo, snapshotInfo);
-      } else if (ssType.equals(PrSnapshot.SS_TYPE.STAGING_DB.name())) {
-        result = createStagingDbSnapshot(hadoopConfDir, dsInfo, snapshotInfo);
-      } else {
-        callback.updateStatus(ssId, FAILED);
-        throw new IllegalArgumentException("run(): ssType not supported: ssType=" + ssType);
+      switch (PrSnapshot.SS_TYPE.valueOf(ssType)) {
+        case URI:
+          createUriSnapshot(dsInfo, snapshotInfo);
+          break;
+        case STAGING_DB:
+          createStagingDbSnapshot(hadoopConfDir, dsInfo, snapshotInfo);
+          break;
+        case DATABASE:
+        case DRUID:
+          callback.updateStatus(ssId, FAILED);
+          throw snapshotError(MSG_DP_ALERT_SNAPSHOT_TYPE_NOT_SUPPORTED_YET, ssType);
       }
     } catch (CancellationException ce) {
-      LOGGER.info("run(): snapshot canceled from run_internal(): ", ce);
-      callback.updateSnapshot(ssId, "finishTime", DateTime.now(DateTimeZone.UTC).toString());
+      LOGGER.info("run(): snapshot canceled: ", ce);
       callback.updateStatus(ssId, CANCELED);
+
       StringBuffer sb = new StringBuffer();
 
       for (StackTraceElement ste : ce.getStackTrace()) {
@@ -212,8 +221,8 @@ public class TeddyExecutor {
       callback.updateSnapshot(ssId, "custom", "{'fail_msg':'" + sb.toString() + "'}");
     }
 
-    LOGGER.info("run(): success from run_internal(): {}", result != null ? result.toString() : "null");
-    return result;
+    LOGGER.info("runTeddy(): Success: ssid={}", ssId);
+    return new AsyncResult("Success");
   }
 
   private int writeCsv(String strUri, DataFrame df, String ssId) {
@@ -294,7 +303,7 @@ public class TeddyExecutor {
     return df.rows.size();
   }
 
-  private Future<String> createUriSnapshot(Map<String, Object> dsInfo, Map<String, Object> snapshotInfo)
+  private void createUriSnapshot(Map<String, Object> dsInfo, Map<String, Object> snapshotInfo)
           throws JsonProcessingException, TimeoutException, TeddyException, InterruptedException, SQLException,
           URISyntaxException, ClassNotFoundException {
     LOGGER.info("createUriSnapshot(): started");
@@ -336,18 +345,14 @@ public class TeddyExecutor {
     callback.updateSnapshot(ssId, "finishTime", finishTime.toString());
     callback.updateSnapshot(ssId, "totalLines", String.valueOf(df.rows.size()));
     callback.updateStatus(ssId, SUCCEEDED);
-
-    return new AsyncResult("Success");
   }
 
-  private Future<String> createStagingDbSnapshot(String hadoopConfDir, Map<String, Object> dsInfo,
+  private void createStagingDbSnapshot(String hadoopConfDir, Map<String, Object> dsInfo,
           Map<String, Object> snapshotInfo)
           throws TeddyException, SQLException, IOException, ClassNotFoundException, InterruptedException,
           TimeoutException, URISyntaxException {
     LOGGER.info("hadoopConfDir={}", hadoopConfDir);
     LOGGER.info("hive: hostname={} port={} username={}", hiveHostname, hivePort, hiveUsername);
-    LOGGER.info("callback: restAPIserverPort={} oauth_token={}", restAPIserverPort,
-            oauth_token.substring(0, 10));
 
     LOGGER.info("run(): adding hadoop config files (if exists): " + hadoopConfDir);
 
@@ -370,8 +375,8 @@ public class TeddyExecutor {
     String extHdfsDir = snapshotInfo.get("stagingBaseDir") + File.separator + "snapshots";
 
     // totalLines는 아래 함수 안에서 설정함
-    createHiveSnapshotInternal(ssId, masterFullDsId, ruleStrings, partKeys, database, tableName,
-            extHdfsDir, format, compression);
+    createHiveSnapshotInternal(ssId, masterFullDsId, ruleStrings, partKeys, database, tableName, extHdfsDir, format,
+            compression);
 
     String jsonColDescs = GlobalObjectMapper.getDefaultMapper()
             .writeValueAsString(finalDf.colDescs);
@@ -388,8 +393,6 @@ public class TeddyExecutor {
     callback.updateSnapshot(ssId, "finishTime", finishTime.toString());
     // totalLines is already written in writeCsvForStagingDbSnapshot()
     callback.updateStatus(ssId, SUCCEEDED);
-
-    return new AsyncResult("Success");
   }
 
   // returns slaveFullDsIds
