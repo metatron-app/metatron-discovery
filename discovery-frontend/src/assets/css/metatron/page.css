@@ -6417,6 +6417,11 @@ ul.ddp-list-detail li .ddp-wrap-detailinfo .ddp-data-history .ddp-data-success {
 .ddp-wrap-union-list ul.ddp-list-union li .ddp-box-column {position:relative; padding:0 25px 0 51px; border-radius:2px; border:1px solid #d0d1d8; cursor: pointer;}
 .ddp-wrap-union-list ul.ddp-list-union li .ddp-box-column:hover {border:1px solid #b7b9c2;}
 .ddp-wrap-union-list ul.ddp-list-union li .ddp-box-column em.ddp-icon-type-ab {position:absolute; top:50%; left:17px;}
+.ddp-wrap-union-list ul.ddp-list-union li .ddp-box-column em.ddp-icon-type-calen {position:absolute; top:50%; left:17px;}
+.ddp-wrap-union-list ul.ddp-list-union li .ddp-box-column em.ddp-icon-type-sharp {position:absolute; top:50%; left:17px;}
+.ddp-wrap-union-list ul.ddp-list-union li .ddp-box-column em.ddp-icon-type-float {position:absolute; top:50%; left:17px;}
+.ddp-wrap-union-list ul.ddp-list-union li .ddp-box-column em.ddp-icon-type-array {position:absolute; top:50%; left:17px;}
+.ddp-wrap-union-list ul.ddp-list-union li .ddp-box-column em.ddp-icon-type-map {position:absolute; top:50%; left:17px;}
 .ddp-wrap-union-list ul.ddp-list-union li .ddp-box-column input.ddp-input-column {display:none; width:100%; padding:6px 0; color:#4b515b; font-size:12px; border:none; box-sizing:border-box;}
 .ddp-wrap-union-list ul.ddp-list-union li .ddp-box-column span.ddp-data-column {display:block; width:100%; padding:6px 0; color:#4b515b; font-size:12px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
 

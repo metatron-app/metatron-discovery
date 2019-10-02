@@ -54,7 +54,13 @@
             <ul class="ddp-list-union" *ngFor="let colInfo of resultFields; let i = index">
               <li [ngClass]="{'ddp-selected':editResultColumnName == colInfo.name}">
                 <div class="ddp-box-column" >
-                  <em class="ddp-icon-type-ab"></em>
+                  <em class="ddp-icon-type-ab"  *ngIf="colInfo.type === 'STRING' || colInfo.type === 'USER_DEFINED' || colInfo.type === 'TEXT'"></em>
+                  <em class="ddp-icon-type-local" *ngIf="colInfo.type === 'LNG' || colInfo.type === 'LNT'"></em>
+                  <em class="ddp-icon-type-calen" *ngIf="colInfo.type === 'TIMESTAMP'"></em>
+                  <em class="ddp-icon-type-sharp" *ngIf="colInfo.type === 'LONG' || colInfo.type === 'INTEGER' || colInfo.type === 'DOUBLE' || colInfo.type === 'CALCULATED'"></em>
+                  <em class="ddp-icon-type-tf" *ngIf="colInfo.type === 'BOOLEAN'"></em>
+                  <em class="ddp-icon-type-array" *ngIf="colInfo.type === 'ARRAY'"></em>
+                  <em class="ddp-icon-type-map" *ngIf="colInfo.type === 'MAP'"></em>
                   <span class="ddp-data-column">{{colInfo.name}}</span>
                 </div>
               </li>
@@ -96,7 +102,13 @@
                 <tr *ngFor="let data of masterDataset.gridData.fields">
                   <td>
                     <div class="ddp-box-column">
-                      <em class="ddp-icon-type-ab"></em>
+                      <em class="ddp-icon-type-ab"  *ngIf="data.type === 'STRING' || data.type === 'USER_DEFINED' || data.type === 'TEXT'"></em>
+                      <em class="ddp-icon-type-local" *ngIf="data.type === 'LNG' || data.type === 'LNT'"></em>
+                      <em class="ddp-icon-type-calen" *ngIf="data.type === 'TIMESTAMP'"></em>
+                      <em class="ddp-icon-type-sharp" *ngIf="data.type === 'LONG' || data.type === 'INTEGER' || data.type === 'DOUBLE' || data.type === 'CALCULATED'"></em>
+                      <em class="ddp-icon-type-tf" *ngIf="data.type === 'BOOLEAN'"></em>
+                      <em class="ddp-icon-type-array" *ngIf="data.type === 'ARRAY'"></em>
+                      <em class="ddp-icon-type-map" *ngIf="data.type === 'MAP'"></em>
                       <span class="ddp-data-column">{{data.name}}</span>
                     </div>
                   </td>
@@ -131,7 +143,13 @@
                             'ddp-box-column' : 'LACK' !== field.unionType,
                             'ddp-disabled' : 'CORRECT' !== field.unionType
                           }" >
-                      <em *ngIf="''!==field.name && 'NONE' !== field.unionType" class="ddp-icon-type-ab"></em>
+                      <em class="ddp-icon-type-ab"  *ngIf="field.type === 'STRING' || field.type === 'USER_DEFINED' || field.type === 'TEXT'"></em>
+                      <em class="ddp-icon-type-local" *ngIf="field.type === 'LNG' || field.type === 'LNT'"></em>
+                      <em class="ddp-icon-type-calen" *ngIf="field.type === 'TIMESTAMP'"></em>
+                      <em class="ddp-icon-type-sharp" *ngIf="field.type === 'LONG' || field.type === 'INTEGER' || field.type === 'DOUBLE' || field.type === 'CALCULATED'"></em>
+                      <em class="ddp-icon-type-tf" *ngIf="field.type === 'BOOLEAN'"></em>
+                      <em class="ddp-icon-type-array" *ngIf="field.type === 'ARRAY'"></em>
+                      <em class="ddp-icon-type-map" *ngIf="field.type === 'MAP'"></em>
                       <span class="ddp-data-column">{{field.name}}</span>
                     </div>
                   </td>
