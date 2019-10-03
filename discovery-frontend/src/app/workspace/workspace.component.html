@@ -367,7 +367,7 @@
         <!-- notebook -->
         <div class="ddp-box-bottom" *ngIf="book.type === 'notebook'">
           <div class="ddp-wrap-data">
-            <span class="ddp-data-name" title="{{book.connector}}" *ngIf="book.contents.connectorType === 'jupyter' || book.contents.connectorType === 'zeppelin'">
+            <span class="ddp-data-name" *ngIf="book.contents.connectorType === 'jupyter' || book.contents.connectorType === 'zeppelin'">
                 <em [ngClass]="{'ddp-icon-lang-jupyter' : book.contents.connectorType === 'jupyter', 'ddp-icon-lang-zeppelin' : book.contents.connectorType === 'zeppelin'}"></em>
                 <div class="ddp-txt-name">
                   <!-- error -->
@@ -381,7 +381,7 @@
                     <!-- //tooltip -->
                   </div>
                   <!-- //error -->
-                  <span class="ddp-txt-name-in">{{book.connector}}</span>
+                  <span class="ddp-txt-name-in" title="{{book.connector}}">{{book.connector}}</span>
                 </div>
             </span>
             <span class="ddp-data-name ddp-data-lang-r" title="{{'msg.nbook.ui.r' | translate}}" *ngIf="book.kernelType === 'R'">

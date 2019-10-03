@@ -26,32 +26,38 @@
 
   <div class="ddp-box-type ddp-type-server">
     <div class="ddp-wrap-status-value ddp-clear">
-      <div class="ddp-ui-status-value">
-        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.broker)]">
+      <div class="ddp-ui-status-value type-all" (click)="searchByNodeType(MONITORING_NODETYPE.ALL);">
+        <!-- 선택시 type-selected 추가 -->
+        <div class="ddp-label-status type-all" [class.type-selected]="selectedNodeType === MONITORING_NODETYPE.ALL">
+          All
+        </div>
+      </div>
+      <div class="ddp-ui-status-value" (click)="searchByNodeType(MONITORING_NODETYPE.BROKER);">
+        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.broker)]" [class.type-selected]="selectedNodeType === MONITORING_NODETYPE.BROKER">
           Broker
           <em [ngClass]="[getIconStatusClass(clusterStatus.broker)]"></em>
         </div>
       </div>
-      <div class="ddp-ui-status-value">
-        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.coordinator)]">
+      <div class="ddp-ui-status-value" (click)="searchByNodeType(MONITORING_NODETYPE.COORDINATOR);">
+        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.coordinator)]" [class.type-selected]="selectedNodeType === MONITORING_NODETYPE.COORDINATOR">
           Coordinator
           <em [ngClass]="[getIconStatusClass(clusterStatus.coordinator)]"></em>
         </div>
       </div>
-      <div class="ddp-ui-status-value">
-        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.historical)]">
+      <div class="ddp-ui-status-value" (click)="searchByNodeType(MONITORING_NODETYPE.HISTORICAL);">
+        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.historical)]" [class.type-selected]="selectedNodeType === MONITORING_NODETYPE.HISTORICAL">
           Historical
           <em [ngClass]="[getIconStatusClass(clusterStatus.historical)]"></em>
         </div>
       </div>
-      <div class="ddp-ui-status-value">
-        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.overlord)]">
+      <div class="ddp-ui-status-value" (click)="searchByNodeType(MONITORING_NODETYPE.OVERLORD);">
+        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.overlord)]" [class.type-selected]="selectedNodeType === MONITORING_NODETYPE.OVERLORD">
           Overlord
           <em [ngClass]="[getIconStatusClass(clusterStatus.overlord)]"></em>
         </div>
       </div>
-      <div class="ddp-ui-status-value">
-        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.middleManager)]">
+      <div class="ddp-ui-status-value" (click)="searchByNodeType(MONITORING_NODETYPE.MIDDLE_MANAGER);">
+        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.middleManager)]" [class.type-selected]="selectedNodeType === MONITORING_NODETYPE.MIDDLE_MANAGER">
           Middle Manager
           <em [ngClass]="[getIconStatusClass(clusterStatus.middleManager)]"></em>
         </div>
@@ -97,12 +103,12 @@
     <!-- // Search & Filter -->
 
     <div class="ddp-box-detail">
-      <ng-container *ngIf="monitorings | tableSort:tableSortProperty:tableSortDirection | tableFilter:{'hostname': keyword, 'status': selectedMonitoringStatus} as filteredItems">
+      <ng-container *ngIf="monitorings | tableSort:tableSortProperty:tableSortDirection | tableFilter:{'hostname': keyword, 'status': selectedMonitoringStatus, 'type': selectedNodeType} as filteredItems">
         <div class="ddp-data-source-none" *ngIf="filteredItems.length == 0">
           No data
         </div>
         <div class="ddp-grid-detail" *ngIf="selectedViewMode === VIEW_MODE.CARD && filteredItems.length > 0">
-          <div class="ddp-grid-box" *ngFor="let monitoring of filteredItems" [ngClass]="{'type-error' : !monitoring.status}">
+          <div class="ddp-grid-box ddp-cursor" *ngFor="let monitoring of filteredItems" [ngClass]="{'type-error' : !monitoring.status}" title="{{ 'msg.engine.monotoring.overview.server.name' | translate }} : {{monitoring.hostname}}" (click)="showNodeInformationModal(monitoring);">
             {{ convertTypeLabel(monitoring.type).substring(0, 1) }}
           </div>
         </div>
@@ -113,15 +119,21 @@
             <col width="33%">
           </colgroup>
           <thead>
-          <tr (click)="clickHostameHeaderColumn('hostname')">
-            <th>
+          <tr>
+            <th (click)="sortTable('hostname')">
               {{ 'msg.engine.monotoring.overview.server.name' | translate }}
-              <em [class.ddp-icon-array-default2]="tableSortDirection === TABLE_SORT_DIRECTION.NONE"
-                  [class.ddp-icon-array-asc2]="tableSortDirection === TABLE_SORT_DIRECTION.DESC"
-                  [class.ddp-icon-array-des2]="tableSortDirection === TABLE_SORT_DIRECTION.ASC">
+              <em [class.ddp-icon-array-default2]="tableSortProperty != 'hostname' || tableSortDirection === TABLE_SORT_DIRECTION.NONE"
+                  [class.ddp-icon-array-asc2]="tableSortProperty === 'hostname' && tableSortDirection === TABLE_SORT_DIRECTION.DESC"
+                  [class.ddp-icon-array-des2]="tableSortProperty === 'hostname' && tableSortDirection === TABLE_SORT_DIRECTION.ASC">
               </em>
             </th>
-            <th>{{ 'msg.engine.monotoring.overview.node.name' | translate }}</th>
+            <th (click)="sortTable('type')">
+              {{ 'msg.engine.monotoring.overview.node.name' | translate }}
+              <em [class.ddp-icon-array-default2]="tableSortProperty != 'type' || tableSortDirection === TABLE_SORT_DIRECTION.NONE"
+                  [class.ddp-icon-array-asc2]="tableSortProperty === 'type' && tableSortDirection === TABLE_SORT_DIRECTION.DESC"
+                  [class.ddp-icon-array-des2]="tableSortProperty === 'type' && tableSortDirection === TABLE_SORT_DIRECTION.ASC">
+              </em>
+            </th>
             <th>{{ 'msg.engine.monotoring.overview.status' | translate }}</th>
           </tr>
           </thead>

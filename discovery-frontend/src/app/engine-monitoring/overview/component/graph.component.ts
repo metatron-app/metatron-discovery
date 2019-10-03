@@ -189,10 +189,10 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
         },
         grid: [
           {
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0
+            top: 3,
+            bottom: 10,
+            left: 20,
+            right: 20
           }
         ],
         xAxis: [
@@ -226,7 +226,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
                 color: '#72d9a7'
               }
             },
-            smooth: true
+            smooth: false
           }
         ]
       };
@@ -265,10 +265,10 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
         },
         grid: [
           {
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0
+            top: 3,
+            bottom: 10,
+            left: 20,
+            right: 20
           }
         ],
         xAxis: [
@@ -302,7 +302,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
                 color: '#2eaaaf'
               }
             },
-            smooth: true
+            smooth: false
           }
         ]
       };
