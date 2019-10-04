@@ -294,9 +294,7 @@ export class ExploreDataListComponent extends AbstractComponent {
     // requesting lnb component to initialize catalog
     this.requestInitializeSelectedCatalog.emit();
     this.selectedCatalog = undefined;
-    this.router.navigate(['/exploredata/view'], {
-      queryParams: { page: this.page.page, size: this.page.size, type: 'ALL'}
-    });
+    this.reloadPage();
   }
 
   onClickResetSelectedTag(): void {
