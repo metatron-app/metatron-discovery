@@ -54,7 +54,7 @@
             <ul class="ddp-list-union" *ngFor="let colInfo of resultFields; let i = index">
               <li [ngClass]="{'ddp-selected':editResultColumnName == colInfo.name}">
                 <div class="ddp-box-column" >
-                  <em class="ddp-icon-type-ab"></em>
+                  <em [ngClass]="getIconType(colInfo.type)"></em>
                   <span class="ddp-data-column">{{colInfo.name}}</span>
                 </div>
               </li>
@@ -96,7 +96,7 @@
                 <tr *ngFor="let data of masterDataset.gridData.fields">
                   <td>
                     <div class="ddp-box-column">
-                      <em class="ddp-icon-type-ab"></em>
+                      <em [ngClass]="getIconType(data.type)"></em>
                       <span class="ddp-data-column">{{data.name}}</span>
                     </div>
                   </td>
@@ -131,7 +131,7 @@
                             'ddp-box-column' : 'LACK' !== field.unionType,
                             'ddp-disabled' : 'CORRECT' !== field.unionType
                           }" >
-                      <em *ngIf="''!==field.name && 'NONE' !== field.unionType" class="ddp-icon-type-ab"></em>
+                      <em [ngClass]="getIconType(field.type)"></em>
                       <span class="ddp-data-column">{{field.name}}</span>
                     </div>
                   </td>
