@@ -21,13 +21,13 @@
             <div class="ddp-ui-dateinfo">
               <span class="ddp-txt-date">{{'msg.storage.ui.criterion.time.from' | translate}}</span>
               <div class="ddp-box-dateinfo ddp-clear">
-                <input (click)="$event.stopPropagation(); $event.stopImmediatePropagation()" #startPickerInput type="text" class="ddp-input-calen ddp-full" placeholder="{{'msg.storage.ui.criterion.time.past' | translate}}" readonly>
+                <input (click)="datePickerIsOn = true; $event.stopPropagation(); $event.stopImmediatePropagation()" #startPickerInput type="text" class="ddp-input-calen ddp-full" placeholder="{{'msg.storage.ui.criterion.time.past' | translate}}" readonly>
               </div>
             </div>
             <div class="ddp-ui-dateinfo">
               <span class="ddp-txt-date">{{'msg.storage.ui.criterion.time.to' | translate}}</span>
               <div class="ddp-box-dateinfo ddp-clear">
-                <input (click)="$event.stopPropagation(); $event.stopImmediatePropagation()" #endPickerInput type="text" class="ddp-input-calen ddp-full" placeholder="{{'msg.storage.ui.criterion.time.current' | translate}}" readonly>
+                <input (click)="datePickerIsOn = true; $event.stopPropagation(); $event.stopImmediatePropagation()" #endPickerInput type="text" class="ddp-input-calen ddp-full" placeholder="{{'msg.storage.ui.criterion.time.current' | translate}}" readonly>
               </div>
             </div>
           </div>

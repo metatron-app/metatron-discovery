@@ -35,6 +35,11 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
   previousSelectedDate: PeriodData;
   selectedDate: PeriodData;
 
+  // pick date using date picker again
+  pickDateAgain: boolean = false;
+
+  pickDateAgainCount: number = 0;
+
   private _startPickerDate: Date;
   private _endPickerDate: Date;
   private _startDate: Date;
@@ -60,6 +65,8 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
     super.ngOnInit();
     this.selectedDate = new PeriodData();
     this.selectedDate.type = Criteria.DateTimeType.ALL;
+    this.previousSelectedDate = new PeriodData();
+    this.previousSelectedDate.type = Criteria.DateTimeType.ALL;
 
     this.filterFlags.subscribe((flags) => {
       this.updatedTimeFilterShowFlag = flags[FilterTypes.UPDATED_TIME];
@@ -95,7 +102,7 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
     this._removeDatePicker();
 
     this.selectedUpdatedTimeOptionName = sortOption.name;
-
+    console.log(sortOption);
     // If sortOption is BETWEEN reset picker dates
     if (sortOption.value === Criteria.DateTimeType.TODAY
       || sortOption.value === Criteria.DateTimeType.SEVEN_DAYS
@@ -104,6 +111,8 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
       this._endPickerDate = null;
       // set datePicker flag is false
       this.datePickerIsOn = false;
+      this.pickDateAgainCount = 0;
+      this.pickDateAgain = false;
     }
 
     if (sortOption.value === Criteria.DateTimeType.TODAY) {
@@ -114,8 +123,8 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
       this._endDate = moment({ hour: 23, minute: 59, seconds: 59 }).format(this.timeFormat);
     }
 
-    // if sortOption is not BETWEEN
-    if (!this._startPickerDate && !this._endPickerDate) {
+    // if filterOption is not BETWEEN
+    if (!this._startPickerDate && !this._endPickerDate && sortOption.value && sortOption) {
       let startDateStr:string = null;
       let endDateStr:string = null;
       const returnFormat = 'YYYY-MM-DDTHH:mm';
@@ -143,11 +152,15 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
 
       this.selectedDate = returnData;
 
-      this.changeSort.emit(this.selectedDate);
+      if (sortOption.value != 'BETWEEN'){
+        this.changeSort.emit(this.selectedDate);
+
+        this.previousSelectedDate = this.selectedDate;
+      }
     }
 
     if (sortOption.value === 'BETWEEN') {
-      this.datePickerIsOn = true;
+      // this.datePickerIsOn = true;
       this._setTimePicker(sortOption.value);
     }
   }
@@ -246,23 +259,25 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
     if (this._startPickerDate && this._endPickerDate) {
       let startDateStr:string = null;
       let endDateStr:string = null;
+
       const returnFormat = 'YYYY-MM-DDTHH:mm';
 
       if( this._startPickerDate ) {
         startDateStr = moment(this._startPickerDate).format(returnFormat);
-        this.startDateStr = moment(this._startDate).format('YYYY-MM-DD:mm');
+        this.startDateStr = moment(this._startPickerDate).format('YYYY-MM-DD:mm');
       } else {
         startDateStr = null;
       }
 
       if( this._endPickerDate ) {
         endDateStr = moment(this._endPickerDate).add(59,'seconds').format(returnFormat);
-        this.endDateStr =  moment(this._startDate).format('YYYY-MM-DD:mm');
+        this.endDateStr =  moment(this._endPickerDate).format('YYYY-MM-DD:mm');
       } else {
         endDateStr = null;
       }
 
       this.selectedUpdatedTimeOptionName = this.startDateStr + ' ~ ' + this.endDateStr;
+
 
       const returnData = {
         startDate : this._startPickerDate,
@@ -275,23 +290,49 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
 
       this.selectedDate = returnData;
 
+      if (this.pickDateAgain) {
+        if (this.pickDateAgainCount === 0) {
+          this.pickDateAgainCount++;
+          this.datePickerIsOn = false;
+          this.changeSort.emit(this.selectedDate);
+        } else {
+          this.pickDateAgainCount = 0;
+          // hide filter
+          this.updatedTimeFilterShowFlag = false;
+          // set datePicker flag is false
+          this.datePickerIsOn = false;
 
-      this._startPickerDate = null;
-      this._endPickerDate = null;
+          this.changeSort.emit(this.selectedDate);
+        }
+      } else {
+        // hide filter
+        this.updatedTimeFilterShowFlag = false;
+        // set datePicker flag is false
+        this.datePickerIsOn = false;
 
-      this.changeSort.emit(this.selectedDate);
-      // hide filter
-      this.updatedTimeFilterShowFlag = false;
-      // set datePicker flag is false
-      this.datePickerIsOn = false;
-    } else {
-      // this.changeSort.emit(this.previousSelectedDate);
+        this.pickDateAgain = true;
+
+        this.changeSort.emit(this.selectedDate);
+      }
+      this.previousSelectedDate = this.selectedDate;
     }
   }
 
   closeSelectedFilter() {
-    if (!this.datePickerIsOn) {
+    if (!this.datePickerIsOn || (!this._startPickerDate && !this._endPickerDate)) {
       this.updatedTimeFilterShowFlag = false;
+
+      if (this.selectedDate.type === Criteria.DateTimeType.BETWEEN && !this._startPickerDate && !this._endPickerDate) {
+        if (this.previousSelectedDate.type === Criteria.DateTimeType.ALL) {
+          this.selectedUpdatedTimeOptionName = 'All'
+        } else if (this.previousSelectedDate.type === Criteria.DateTimeType.SEVEN_DAYS) {
+          this.selectedUpdatedTimeOptionName = 'Last 7 days'
+        } else if (this.previousSelectedDate.type === Criteria.DateTimeType.TODAY){
+          this.selectedUpdatedTimeOptionName = 'Today'
+        }
+
+        this.selectedDate.type = this.previousSelectedDate.type;
+      }
     }
   }
 
