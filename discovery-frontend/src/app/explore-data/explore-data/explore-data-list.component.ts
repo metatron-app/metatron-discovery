@@ -153,6 +153,9 @@ export class ExploreDataListComponent extends AbstractComponent {
 
   ngOnDestroy() {
     this.$layoutContentsClass.removeClass('ddp-scroll');
+    this.requestInitializeSelectedCatalog.emit();
+    this.selectedCatalog = undefined;
+    this.router.navigate(['/exploredata/view']);
     super.ngOnDestroy();
   }
 
