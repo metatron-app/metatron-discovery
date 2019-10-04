@@ -291,7 +291,9 @@ export class ExploreDataListComponent extends AbstractComponent {
     // requesting lnb component to initialize catalog
     this.requestInitializeSelectedCatalog.emit();
     this.selectedCatalog = undefined;
-    this.router.navigate(['/exploredata/view']);
+    this.router.navigate(['/exploredata/view'], {
+      queryParams: { page: this.page.page, size: this.page.size, type: 'ALL'}
+    });
   }
 
   onClickResetSelectedTag(): void {
@@ -361,7 +363,7 @@ export class ExploreDataListComponent extends AbstractComponent {
 
     params['catalogId'] = '';
 
-    if (this.searchedKeyword === '') {
+    if (this.selectedCatalog === undefined) {
       params['catalogId'] = null;
     }
 

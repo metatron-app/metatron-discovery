@@ -112,6 +112,7 @@ export class ExploreDataSearchComponent extends AbstractComponent {
   onChangeSearchKeyword(value: string): void {
     this.searchKeyword = value;
     this.exploreDataModelService.searchKeyword = value;
+    this.changedSearch.emit();
   }
 
   onSubmit(): void {
