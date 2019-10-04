@@ -103,12 +103,11 @@ export class ExploreDataListComponent extends AbstractComponent {
   }
 
   public ngOnInit() {
-
     this.selectedDate = new PeriodData();
 
     this.selectedDate.type = Criteria.DateTimeType.ALL;
 
-
+    this.selectedCatalog;
     this.filterFlags.next({
       [FilterTypes.DATA_TYPE]: false,
       [FilterTypes.UPDATED_TIME]: false
@@ -291,6 +290,8 @@ export class ExploreDataListComponent extends AbstractComponent {
   onClickResetSelectedCatalog(): void {
     // requesting lnb component to initialize catalog
     this.requestInitializeSelectedCatalog.emit();
+    this.selectedCatalog = undefined;
+    this.router.navigate(['/exploredata/view']);
   }
 
   onClickResetSelectedTag(): void {

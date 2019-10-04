@@ -113,7 +113,9 @@ export class ExploreDataLnbComponent extends AbstractComponent {
   }
 
   initSelectedCatalog(): void {
-    this.onChangeSelectedCatalog(undefined);
+    const realUndefined = new Catalog.Tree();
+    realUndefined.name = 'realUndefined';
+    this.onChangeSelectedCatalog(realUndefined);
   }
 
   initSelectedTag(): void {
@@ -172,6 +174,9 @@ export class ExploreDataLnbComponent extends AbstractComponent {
       this.exploreDataModelService.selectedCatalog = emptyCatalog;
 
       this._changedLnbData();
+    } else if (catalog.name === 'realUndefined') {
+      this.selectedCatalog = undefined;
+      this.exploreDataModelService.selectedCatalog = undefined;
     } else {
       this.selectedCatalog = catalog;
       this.exploreDataModelService.selectedCatalog = catalog;
@@ -209,7 +214,7 @@ export class ExploreDataLnbComponent extends AbstractComponent {
 
   private _setTagListUsedSearch(): void {
     this.loadingShow();
-    this.metadataService.getMetadataTagList( 'forTreeView', {nameContains: this.tagSearchKeyword})
+    this.metadataService.getMetadataTagList('forTreeView', {nameContains: this.tagSearchKeyword})
       .then((result) => {
         this.tagList = result;
         this.loadingHide();
