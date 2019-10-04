@@ -14,7 +14,7 @@
 <!-- top filtering -->
 <div class="ddp-wrap-top-filtering">
   <!-- filter search -->
-  <div class="ddp-filter-search type-dataname ">
+  <div class="ddp-filter-search ddp-fright">
     <div class="ddp-form-filter-search">
       <component-input
         [autoFocus]="false"
@@ -24,6 +24,8 @@
         (changeValue)="onChangedSearchKeyword($event)">
       </component-input>
     </div>
+    <!-- form -->
+    <a href="javascript:" class="ddp-btn-selection" (click)="reloadPage(true)">{{'msg.comm.btn.search' | translate}}</a>
   </div>
   <!-- //filter search -->
 

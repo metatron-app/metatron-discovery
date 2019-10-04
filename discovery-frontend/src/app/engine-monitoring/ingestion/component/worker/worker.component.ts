@@ -35,7 +35,7 @@ declare let moment: any;
 @Component({
   selector: 'ingestion-worker',
   templateUrl: './worker.component.html',
-  styles: ['.ddp-wrap-top-filtering .ddp-filter-search .ddp-form-filter-search {width: 250px;}']
+  styles: ['.ddp-wrap-top-filtering .ddp-filter-search .ddp-form-filter-search {width: 280px;}']
 })
 export class WorkerComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
 
