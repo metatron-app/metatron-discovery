@@ -285,7 +285,6 @@
       <!-- box -->
       <!-- checkbox 선택시 ddp-selected 추가 -->
       <div class="ddp-box-block"
-           [title]="book.name"
            *ngFor="let book of (getList()
            | baseFilter:['type', 'folder', true]
            | baseFilter:['type', selectedContentFilter.key]
@@ -315,7 +314,7 @@
         <!-- //top -->
         <!-- box contents -->
         <div class="ddp-ui-box-contents">
-          <span class="ddp-data-name" [ngClass]="{'ddp-data-line2' : book.type != 'notebook'}">{{book.name}}</span>
+          <span class="ddp-data-name" [ngClass]="{'ddp-data-line2' : book.type != 'notebook'}" [title]="book.name">{{book.name}}</span>
           <span class="ddp-data-date">{{'msg.comm.ui.list.last' | translate}} <span class="ddp-data-ago">{{book.modifiedTime | amLocale:getLanguage() | amTimeAgo}}</span></span>
         </div>
         <!-- //box contents -->
@@ -558,7 +557,7 @@
 
           <!-- Name -->
           <div class="ddp-wrap-name">
-            <span class="ddp-data-name" [class.ddp-data-new]="book.createdTime | moment: 'isNew'">
+            <span class="ddp-data-name" [class.ddp-data-new]="book.createdTime | moment: 'isNew'" [title]="book.name">
               {{book.name}}
               <em class="ddp-icon-new" *ngIf="book.createdTime | moment: 'isNew'">{{'msg.common.ui.new' | translate}}</em>
             </span>
