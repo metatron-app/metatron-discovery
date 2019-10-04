@@ -3,7 +3,11 @@
   <div class="ddp-wrap-top-filtering type-form">
     <div class="ddp-wrap-form-filtering">
       <div class="ddp-form-filtering">
-        <component-check-filter #typeFilter [filterFlags]="filterFlags"  [filterName]="'Data type'" [filterList]="dataTypeFilterList" (changedFilter)="onChangeDataTypeFilter($event)" ></component-check-filter>
+        <component-check-filter
+          [filterFlags]="filterFlags"
+          [filterName]="'Source type'"
+          [filterList]="dataTypeFilterList"
+          (changedFilter)="onChangeDataTypeFilter($event)" ></component-check-filter>
       </div>
       <div class="ddp-form-filtering">
         <component-updated-time-radio-filter #timeFilter  [filterFlags]="filterFlags" (changeSort)="onChangeCreateTimeFilter($event)"></component-updated-time-radio-filter>
@@ -22,13 +26,13 @@
         <div class="ddp-data-total" [innerHTML]="getTotalElementsGuide()"></div>
         <!-- //total elements guide -->
         <!-- catalog keyword -->
-        <div class="ddp-data-box" *ngIf="isSelectedCatalog()">
+        <div class="ddp-data-box" *ngIf="isSelectedCatalog() && selectedCatalog.name != 'undefined'">
           <div class="ddp-ui-root">
             <a *ngFor="let tree of treeHierarchy; let i = index"
                href="javascript:"
                class="ddp-list-root"
                (click)="onChangeSelectedCatalog(tree)">
-              <em *ngIf="i == 0" class="ddp-icon-folder"></em>
+              <em *ngIf="i == 0 && tree.name != 'undefined'" class="ddp-icon-folder"></em>
               {{tree.name}}
             </a>
           </div>
@@ -37,6 +41,12 @@
           <a href="javascript:" class="ddp-link-reset" (click)="onClickResetSelectedCatalog()">
             <em class="ddp-btn-reset"></em>
           </a>
+        </div>
+        <div class="ddp-data-box" *ngIf=" selectedCatalog && selectedCatalog.name === 'undefined' ">
+          <div class="ddp-ui-root">
+            <em class="ddp-icon-folder"></em>
+            Unclassified
+          </div>
         </div>
         <!-- //catalog keyword -->
         <!-- tag keyword -->

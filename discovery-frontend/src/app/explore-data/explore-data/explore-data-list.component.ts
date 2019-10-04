@@ -59,7 +59,7 @@ export class ExploreDataListComponent extends AbstractComponent {
   selectedLnbTab: ExploreDataConstant.LnbTab;
   searchRange;
   searchedKeyword: string;
-  selectedCatalog: Catalog.Tree;
+  selectedCatalog: Catalog.Tree = null;
   // source type filter
   selectedSourceTypeFilter: string[] = [];
   // name, updated sorting
@@ -182,7 +182,7 @@ export class ExploreDataListComponent extends AbstractComponent {
     this.selectedTag = this.exploreDataModelService.selectedTag;
 
     const initial = async () => {
-      if (this.selectedCatalog != undefined) {
+      if (this.selectedCatalog != undefined && this.selectedCatalog.name != 'undefined') {
         this.treeHierarchy = await this.catalogService.getTreeCatalogs(this.selectedCatalog.id, true);
       }
       this.page.page = 0;
@@ -276,14 +276,10 @@ export class ExploreDataListComponent extends AbstractComponent {
   changePage(data: { page: number, size: number }): void {
     // if more metadata list
     if (data) {
-      this.loadingShow();
       this.page.page = data.page;
       this.page.size = data.size;
-      this._setMetadataList(this._getMetadataListParams())
-        .then(() => {
-          this.loadingHide();
-        })
-        .catch(error => this.commonExceptionHandler(error));
+
+      this.reloadPage(false);
     }
   }
 
@@ -362,11 +358,24 @@ export class ExploreDataListComponent extends AbstractComponent {
       params['type'] = 'ALL';
     }
 
-    if (this.isSelectedCatalog()) {
+    params['catalogId'] = '';
+
+    if (this.searchedKeyword === '') {
+      params['catalogId'] = null;
+    }
+
+    if (this.isSelectedCatalog() && this.selectedCatalog.name !== 'undefined') {
       params['catalogId'] = this.selectedCatalog.id;
     } else if (this.isSelectedTag()) {
       params['tag'] = this.selectedTag.name;
     }
+
+    if (this.selectedCatalog !== undefined) {
+      if (this.selectedCatalog.name === 'undefined') {
+        params['catalogId'] = '';
+      }
+    }
+
     return params;
   }
 

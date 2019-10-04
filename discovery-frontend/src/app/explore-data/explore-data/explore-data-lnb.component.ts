@@ -162,9 +162,21 @@ export class ExploreDataLnbComponent extends AbstractComponent {
   }
 
   onChangeSelectedCatalog(catalog: Catalog.Tree): void {
-    this.selectedCatalog = catalog;
-    this.exploreDataModelService.selectedCatalog = catalog;
-    this._changedLnbData();
+    if (catalog === undefined) {
+      // create empty catalog tree and initialize
+      const emptyCatalog = new Catalog.Tree();
+      emptyCatalog.name = 'undefined';
+      emptyCatalog.id = 'undefined';
+
+      this.selectedCatalog = emptyCatalog;
+      this.exploreDataModelService.selectedCatalog = emptyCatalog;
+
+      this._changedLnbData();
+    } else {
+      this.selectedCatalog = catalog;
+      this.exploreDataModelService.selectedCatalog = catalog;
+      this._changedLnbData();
+    }
   }
 
   onChangeSelectedTag(tag): void {

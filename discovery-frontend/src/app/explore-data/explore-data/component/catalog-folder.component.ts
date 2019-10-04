@@ -40,7 +40,7 @@ export class CatalogFolderComponent extends AbstractComponent implements OnInit 
   }
 
   ngOnInit() {
-
+    console.log(this.selectedCatalog);
   }
 
   isEmptySearchKeyword(): boolean {
