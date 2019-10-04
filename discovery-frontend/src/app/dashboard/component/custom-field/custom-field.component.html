@@ -206,7 +206,7 @@
                     | baseFilter : ['commonValue', calFuncSearchText]"
                           (mouseenter)="setCalculationDesciption(calFunction, true)"
                           (mouseleave)="setCalculationDesciption(null, false)">
-                        <a href="javascript:">
+                        <a href="javascript:"(click)="clickFunction($event);selectedCalculationFunction(calFunction)">
                           {{calFunction.commonValue}}
                           <em class="ddp-icon-plus ddp-cursor" (click)="selectedCalculationFunction(calFunction); selectFunction(calFunction)"></em>
                         </a>

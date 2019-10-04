@@ -17,6 +17,7 @@ import {PageResult} from '../common/page';
 export namespace Engine {
 
   export enum NodeType {
+    ALL = 'ALL',
     BROKER = 'broker',
     COORDINATOR = 'coordinator',
     HISTORICAL = 'historical',
