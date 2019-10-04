@@ -30,7 +30,9 @@
             </th>
             <td>
               <div class="ddp-list-tags" *ngIf="metadata.tags.length > 0 else noTag">
-                <div class="ddp-tags" *ngFor="let tag of metadata.tags"># {{tag.name}} </div>
+                <div class="ddp-tags" *ngFor="let tag of metadata.tags">
+                  <span class="txt-tags" title="{{tag.name}}"># {{tag.name}}</span>
+                </div>
               </div>
               <ng-template #noTag>
                 -
