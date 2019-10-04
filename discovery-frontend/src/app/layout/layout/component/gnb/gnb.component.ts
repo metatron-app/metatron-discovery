@@ -21,6 +21,7 @@ import {ProfileComponent} from '../../../../user/profile/profile.component';
 import {CommonUtil} from '../../../../common/util/common.util';
 import {LocalStorageConstant} from "../../../../common/constant/local-storage.constant";
 import {Language, Theme, UserSetting} from "../../../../common/value/user.setting.value";
+import {EventBroadcaster} from "../../../../common/event/event.broadcaster";
 
 @Component({
   selector: 'app-gnb',
@@ -57,6 +58,7 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
 
   // 생성자
   constructor(private userService: UserService,
+              protected broadCaster: EventBroadcaster,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -139,6 +141,7 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
 
   public themeCheckboxClick(theme: Theme) {
     CommonUtil.setThemeCss(theme);
+    this.broadCaster.broadcast('CHANGE_THEME', theme);
     this._saveUserSetting(theme, null);
   }
 

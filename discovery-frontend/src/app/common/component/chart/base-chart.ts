@@ -72,6 +72,8 @@ import {Shelf} from '../../../domain/workbook/configurations/shelf/shelf';
 import {fromEvent} from 'rxjs';
 import {debounceTime, map} from 'rxjs/operators';
 import UI = OptionGenerator.UI;
+import {CommonUtil} from "../../util/common.util";
+import {Theme} from "../../value/user.setting.value";
 
 declare let echarts: any;
 
@@ -1404,7 +1406,13 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       this.chart = this.echarts.init(this.$element.find('.chartCanvas')[0], 'exntu');
     }
 
-    console.info(this.chartOption);
+    if( this.chartOption.legend && this.chartOption.legend.textStyle ) {
+      if( $('body').hasClass(Theme.DARK) ) {
+        this.chartOption.legend.textStyle.color = '#fff';
+      } else {
+        this.chartOption.legend.textStyle.color = '#333';
+      }
+    }
 
     // Apply!
     // chart.setOption(option, notMerge, lazyUpdate);

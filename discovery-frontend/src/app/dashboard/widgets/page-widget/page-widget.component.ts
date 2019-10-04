@@ -252,6 +252,13 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     }
     this.useCustomField = useCustomField;
 
+    // 테마 변경 이벤트
+    this.subscriptions.push(
+      this.broadCaster.on<any>('CHANGE_THEME').subscribe(data => {
+        this.chart.draw(true);
+      })
+    );
+
     // 새로 고침 이벤트
     this.subscriptions.push(
       this.broadCaster.on<any>('REFRESH_WIDGET').subscribe(data => {
