@@ -33,7 +33,8 @@ import {ExploreDataListComponent} from "./explore-data-list.component";
 import {EventBroadcaster} from "../../common/event/event.broadcaster";
 import {ExploreDataConstant} from "../constant/explore-data-constant";
 import {Subscription} from "rxjs";
-import {meta} from "@turf/turf";
+import {ExploreDataSearchComponent} from "./explore-data-search.component";
+import {ExploreDataModelService} from "./service/explore-data-model.service";
 
 @Component({
   selector: 'app-exploredata-view',
@@ -46,6 +47,9 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
 
   @ViewChild(ExploreDataListComponent)
   private readonly _exploreDataListComponent: ExploreDataListComponent;
+
+  @ViewChild(ExploreDataSearchComponent)
+  exploreDataSearchComponent: ExploreDataSearchComponent;
 
   entryRef: ComponentRef<MetadataContainerComponent>;
 
@@ -70,6 +74,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
               private resolver: ComponentFactoryResolver,
               private dataSourceService: DatasourceService,
               private broadcaster: EventBroadcaster,
+              private exploreDataModelService: ExploreDataModelService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -109,6 +114,8 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
 
   goToExploreMain(): void {
     this.mode = ExploreMode.MAIN;
+    this.exploreDataSearchComponent.searchKeyword = '';
+    this.exploreDataModelService.searchKeyword = '';
   }
 
   onChangedSearch(): void {

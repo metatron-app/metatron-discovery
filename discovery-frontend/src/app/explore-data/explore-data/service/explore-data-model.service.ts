@@ -15,7 +15,7 @@ export class ExploreDataModelService {
 
 
   initialSearchData() {
-    this.searchKeyword = undefined;
+    this.searchKeyword = '';
     this.selectedSearchRange = {name: 'All', value: ExploreDataConstant.SearchRange.ALL};
   }
 
