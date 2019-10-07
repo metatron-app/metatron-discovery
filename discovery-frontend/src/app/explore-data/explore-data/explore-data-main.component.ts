@@ -61,8 +61,8 @@ export class ExploreDataMainComponent extends AbstractComponent {
       await this._setPopularMetadataList();
       await this._setUpdatedMetadataList();
       // await this._setRecommendedMetadataList();
-      await this._setMyFavoriteMetadataList();
-      await this._setCreatorFavoriteMetadataList();
+      // await this._setMyFavoriteMetadataList();
+      // await this._setCreatorFavoriteMetadataList();
     };
     initial().then(() => this.broadcaster.broadcast(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL)).catch(() => this.broadcaster.broadcast(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL));
   }
