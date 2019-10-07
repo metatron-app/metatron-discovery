@@ -1,6 +1,7 @@
 import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
 import {AbstractComponent} from "../../../common/component/abstract.component";
 import * as _ from 'lodash';
+import {Subject} from "rxjs";
 
 @Component({
   selector: 'component-check-filter',
@@ -10,6 +11,7 @@ export class CheckBoxFilterComponent extends AbstractComponent {
   @Input() readonly filterName: string;
   @Input() readonly filterList;
   @Input() readonly selectedFilters = [];
+  @Input() filterFlags: Subject<{}>;
 
   isShowFilterList: boolean;
 
@@ -18,6 +20,13 @@ export class CheckBoxFilterComponent extends AbstractComponent {
   constructor(protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
+  }
+
+  ngOnInit() {
+    super.ngOnInit();
+    this.filterFlags.subscribe((flags) => {
+      this.isShowFilterList = flags[FilterTypes.DATA_TYPE];
+    });
   }
 
 
@@ -39,16 +48,25 @@ export class CheckBoxFilterComponent extends AbstractComponent {
 
   closeFilterList(): void {
     if (this.isShowFilterList === true) {
-      this.isShowFilterList = undefined;
+      this.isShowFilterList = false;
     }
   }
 
   onChangeShowFilterList(): void {
-    if (this.isShowFilterList === true) {
-      this.isShowFilterList = undefined;
-    } else {
-      this.isShowFilterList = true;
-    }
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    let filterFlags = {};
+
+    // make flag false except source type flag
+    Object.keys(FilterTypes).forEach((key) => {
+      if (key === FilterTypes.DATA_TYPE) {
+        filterFlags[key] = !this.isShowFilterList;
+      } else {
+        filterFlags[key] = false;
+      }
+    });
+
+    this.filterFlags.next(filterFlags);
   }
 
   onChangeSelectedFilter(filter): void {
@@ -66,4 +84,9 @@ export class CheckBoxFilterComponent extends AbstractComponent {
   private _findFilterIndexInSelectedFilters(filter): number {
     return this.selectedFilters.findIndex(selectedFilter => selectedFilter.value === filter.value);
   }
+}
+
+enum FilterTypes {
+  DATA_TYPE = 'DATA_TYPE',
+  UPDATED_TIME = 'UPDATED_TIME'
 }
