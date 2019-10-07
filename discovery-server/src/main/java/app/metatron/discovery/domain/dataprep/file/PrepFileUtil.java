@@ -1,36 +1,8 @@
 package app.metatron.discovery.domain.dataprep.file;
 
-import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
-import static app.metatron.discovery.domain.dataprep.PrepUtil.configError;
-import static app.metatron.discovery.domain.dataprep.PrepUtil.snapshotError;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_HDFS_PATH;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_LOCAL_PATH;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME;
-
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
+
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.hadoop.conf.Configuration;
@@ -41,6 +13,26 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+
+import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
+import static app.metatron.discovery.domain.dataprep.PrepUtil.configError;
+import static app.metatron.discovery.domain.dataprep.PrepUtil.snapshotError;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_HDFS_PATH;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_LOCAL_PATH;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME;
 
 public class PrepFileUtil {
 
@@ -87,7 +79,7 @@ public class PrepFileUtil {
     InputStreamReader reader;
 
     try {
-      reader = new InputStreamReader(is, charset);
+      reader = new InputStreamReader(new BOMInputStream(is), charset);
     } catch (IOException e) {
       e.printStackTrace();
       throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_READ_CSV,

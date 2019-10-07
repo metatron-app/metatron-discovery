@@ -14,24 +14,13 @@
 
 package app.metatron.discovery.domain.mdm.lineage;
 
-import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getReaderAfterDetectingCharset;
-
-import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
-import app.metatron.discovery.domain.mdm.Metadata;
-import app.metatron.discovery.domain.mdm.MetadataRepository;
-import app.metatron.discovery.domain.mdm.lineage.LineageMap.ALIGNMENT;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +41,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import app.metatron.discovery.domain.dataprep.PrepDatasetFileService;
+import app.metatron.discovery.domain.mdm.Metadata;
+import app.metatron.discovery.domain.mdm.MetadataErrorCodes;
+import app.metatron.discovery.domain.mdm.MetadataRepository;
+import app.metatron.discovery.domain.mdm.lineage.LineageMap.ALIGNMENT;
+
+import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getReaderAfterDetectingCharset;
 
 @RequestMapping(value = "/metadatas/lineages")
 @RepositoryRestController
@@ -76,6 +83,9 @@ public class LineageEdgeController {
 
   @Autowired
   LineageMapService lineageMapService;
+
+  @Autowired
+  PrepDatasetFileService prepDatasetFileService;
 
   private static final int DEFAULT_NODE_CNT = 7;
 
@@ -231,6 +241,57 @@ public class LineageEdgeController {
 
   @RequestMapping(value = "/file_upload", method = RequestMethod.POST, produces = "application/json")
   public @ResponseBody ResponseEntity<?> file_upload(
+      @RequestPart("file") MultipartFile file
+  ) {
+
+    String fileName = file.getOriginalFilename();
+    String extensionType = FilenameUtils.getExtension(fileName).toLowerCase();
+
+    String tempFileName = "TEMP_LINEAGE_EDGE_" + UUID.randomUUID().toString() + "." + extensionType;
+    String tempFilePath = System.getProperty("java.io.tmpdir") + File.separator + tempFileName;
+
+    Map<String, Object> responseMap = Maps.newHashMap();
+    responseMap.put("storedUri", tempFilePath);
+
+    try {
+      File tempFile = new File(tempFilePath);
+      file.transferTo(tempFile);
+    } catch (IOException e) {
+      LOGGER.error("Failed to upload file : {}", e.getMessage());
+      throw new LineageException(MetadataErrorCodes.LINEAGE_CANNOT_CREATE_EDGE, e.getCause());
+    }
+
+    return ResponseEntity.ok(responseMap);
+  }
+
+  @RequestMapping(value="/lineage_file", method = RequestMethod.POST)
+  public @ResponseBody
+  ResponseEntity<?>  postLineageFile(
+      @RequestBody Map<String,Object> params
+  ) {
+
+    Map<String, Object> gridResponses = Maps.newHashMap();
+    Map<String, Object> response = Maps.newHashMap();
+    List<String> header = Lists.newArrayList();
+    List<Map<String,Object>> rows = Lists.newArrayList();
+    try {
+      String storedUri = (String)params.get("storedUri");
+
+      if(storedUri!=null) {
+        gridResponses = prepDatasetFileService.makeFileGrid("file://"+storedUri, 1000, ",", 8, false);
+      }
+    } catch (IllegalStateException e) {
+      LOGGER.error("lineage_file POST(): caught an exception: ", e);
+    } catch (Exception e) {
+      LOGGER.error("lineage_file POST(): caught an exception: ", e);
+    }
+
+    return ResponseEntity.ok().body(gridResponses);
+  }
+
+  // will be removed
+  @RequestMapping(value = "/file_upload_orig", method = RequestMethod.POST, produces = "application/json")
+  public @ResponseBody ResponseEntity<?> file_upload_orig(
       @RequestPart("file") MultipartFile file
   ) {
     Map<String, Object> response = Maps.newHashMap();
