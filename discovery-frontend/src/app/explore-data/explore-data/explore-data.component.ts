@@ -179,7 +179,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
         this.entryRef.instance.metadataDetailData = metadataDetail;
         this.entryRef.instance.topUserList = topUserList;
         this.entryRef.instance.recentlyUpdatedList = recentlyUpdatedList;
-        if (recentlyUsedList['_embedded'] !== undefined) {
+        if (recentlyUsedList !== undefined && recentlyUsedList['_embedded'] !== undefined) {
           this.entryRef.instance.recentlyUsedDashboardList = recentlyUsedList['_embedded']['dashboards'];
         }
 
@@ -201,10 +201,6 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
         this.entryRef.destroy();
       });
     }).catch(error => {console.log(error); this.commonExceptionHandler(error)});
-  }
-
-  onCloseMetadataContainer(): void {
-    this.selectedMetadata = null;
   }
 
   private async _setMetadataSourceTypeCount() {

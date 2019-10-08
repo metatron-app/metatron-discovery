@@ -6,7 +6,7 @@
     <div class="ddp-data-summary">
       <div class="ddp-data-name">{{ title }}</div>
       <div class="ddp-data-detail">{{ description }}</div>
-      <div class="ddp-data-detail" *ngIf="description === '' || !description "> No Description</div>
+      <div class="ddp-data-detail" *ngIf="description === '' || !description ">No Description</div>
 
       <div class="ddp-ui-popularity">
         <em class="ddp-icon-popularity"></em>
@@ -36,7 +36,7 @@
       <!-- tags -->
       <div class="ddp-list-tags ddp-clear">
         <span class="ddp-tags" *ngFor="let tag of tagList">#{{ tag.name }}</span>
-        <span class="ddp-tags" *ngIf="tagList.length === 0">#No Tag</span>
+<!--        <span class="ddp-tags" *ngIf="tagList.length === 0">-</span>-->
       </div>
       <!-- //tags -->
     </div>

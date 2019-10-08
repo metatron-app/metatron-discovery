@@ -13,6 +13,7 @@
         <div class="ddp-ui-bullet">
           <span class="ddp-bullet"
                 *ngFor="let index of popularMetadataCarouselScreenIndex"
+                (click)="onClickCarouselBullet(index)"
                 [class.ddp-selected]="(index * 5) === popularMetadataShowStartIndex"></span>
         </div>
       </div>

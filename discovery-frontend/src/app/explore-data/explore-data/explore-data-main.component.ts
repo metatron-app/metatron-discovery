@@ -113,7 +113,7 @@ export class ExploreDataMainComponent extends AbstractComponent {
   /**
    * When click carousel right button
     */
-  onClickCarouselRight():void {
+  onClickCarouselRight(): void {
     if (this.popularMetadataShowStartIndex + 5 < this.popularMetadataList.length) {
       this.popularMetadataShowStartIndex += 5;
     }
@@ -122,9 +122,13 @@ export class ExploreDataMainComponent extends AbstractComponent {
   /**
    * When click carousel left button
    */
-  onClickCarouselLeft():void {
+  onClickCarouselLeft(): void {
     if (this.popularMetadataShowStartIndex >= 5)
       this.popularMetadataShowStartIndex -= 5;
+  }
+
+  onClickCarouselBullet(index: number): void {
+    this.popularMetadataShowStartIndex = index * 5;
   }
 
   /**
