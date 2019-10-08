@@ -32,4 +32,11 @@ export class ExploreDataModelService {
   initialSelectedTag() {
     this.selectedTag = undefined;
   }
+
+  initializeAll() {
+    this.searchKeyword = '';
+    this.selectedTag = undefined;
+    this.selectedCatalog = undefined;
+
+  }
 }

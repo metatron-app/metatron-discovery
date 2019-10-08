@@ -32,6 +32,10 @@ import {ActivatedRoute} from "@angular/router";
 import {Criteria} from "../../domain/datasource/criteria";
 import {PeriodData} from "../../common/value/period.data.value";
 import {Subject} from "rxjs";
+import ListCriterionKey = Criteria.ListCriterionKey;
+import ListCriterionType = Criteria.ListCriterionType;
+import ListCriterion = Criteria.ListCriterion;
+import {logger} from "codelyzer/util/logger";
 
 declare let moment: any;
 
@@ -67,6 +71,22 @@ export class ExploreDataListComponent extends AbstractComponent {
   // created filter
   selectedDate: PeriodData;
   // selected created filter name
+
+  showUpdatedTimeFilter: boolean = false;
+  showSourceTypeFilter: boolean = false;
+
+  // selected item label
+  public updatedTimeSelectedItemsLabel: string = 'ALL';
+  public sourceTypeSelectedItemsLabel: string = 'ALL';
+
+  betweenPastTime = 'Past time';
+  betweenCurrentTime = 'Current time';
+
+  // selected item list
+  private _selectedItemList : any = {};
+
+  timeFilterCriterion: Criteria.ListCriterion;
+  typeFilterCriterion: Criteria.ListCriterion;
 
   @ViewChild('startPickerInput')
   private readonly _startPickerInput: ElementRef;
@@ -107,7 +127,61 @@ export class ExploreDataListComponent extends AbstractComponent {
 
     this.selectedDate.type = Criteria.DateTimeType.ALL;
 
-    this.selectedCatalog;
+    const criterion1: Criteria.ListCriterion = {
+      criterionKey: ListCriterionKey.CREATED_TIME,
+      criterionType: ListCriterionType.RANGE_DATETIME,
+      criterionName: "msg.storage.ui.criterion.created-time",
+      filters: [
+        {
+          criterionKey: ListCriterionKey.CREATED_TIME,
+          filterKey: "updatedTimeFrom",
+          filterName: "msg.storage.ui.criterion.created-time",
+          filterSubKey: "updatedTimeTo",
+          filterSubValue: "",
+          filterValue: ""
+        }
+      ]
+    };
+
+    this.timeFilterCriterion = criterion1;
+
+    const criterion2: Criteria.ListCriterion = {
+      criterionKey: ListCriterionKey.SOURCE_TYPE,
+      criterionType: ListCriterionType.CHECKBOX,
+      criterionName: "msg.storage.ui.criterion.created-time",
+      filters: [
+        {
+          criterionKey: ListCriterionKey.SOURCE_TYPE,
+          filterKey: "sourceType",
+          filterName: "ENGINE",
+          filterValue: "ENGINE"
+        },
+        {
+          criterionKey: ListCriterionKey.SOURCE_TYPE,
+          filterKey: "sourceType",
+          filterName: "JDBC",
+          filterValue: "JDBC"
+        },
+        {
+          criterionKey: ListCriterionKey.SOURCE_TYPE,
+          filterKey: "sourceType",
+          filterName: "STAGEDB",
+          filterValue: "STAGEDB"
+        },
+      ],
+      subCriteria: [
+        {
+          filters: [
+            {criterionKey: "SOURCE_TYPE", filterKey: "sourceType", filterName: "JDBC", filterValue: "JDBC"},
+            {criterionKey: "SOURCE_TYPE", filterKey: "sourceType", filterName: "ENGINE", filterValue: "ENGINE"},
+            {criterionKey: "SOURCE_TYPE", filterKey: "sourceType", filterName: "STAGEDB", filterValue: "STAGEDB"}
+          ]
+        } as ListCriterion,
+      ]
+    };
+
+    this.typeFilterCriterion = criterion2;
+
     this.filterFlags.next({
       [FilterTypes.DATA_TYPE]: false,
       [FilterTypes.UPDATED_TIME]: false
@@ -308,18 +382,70 @@ export class ExploreDataListComponent extends AbstractComponent {
     }
   }
 
-   onChangeDataTypeFilter(filterList: string[]) {
+  onChangeDataTypeFilter(filterList: any) {
     // extract only value property
-    this.selectedSourceTypeFilter = filterList.map((filter) => {
-      return filter['value'];
+    this.selectedSourceTypeFilter = filterList['sourceType'].map((filter) => {
+      return filter['filterName'];
     });
+    if (this.selectedSourceTypeFilter.length > 0) {
+      this.sourceTypeSelectedItemsLabel = this.selectedSourceTypeFilter.join(',');
+    } else {
+      this.sourceTypeSelectedItemsLabel = 'ALL';
+    }
     this.reloadPage();
   }
 
   // apply created time sort from createdTime filter Component
   onChangeCreateTimeFilter(selectedDate) {
-    this.selectedDate = selectedDate;
-    this.reloadPage();
+    const returnFormat = 'YYYY-MM-DDTHH:mm';
+
+    let returnData;
+
+    if (selectedDate.TYPE[0] === 'BETWEEN') {
+      if (selectedDate.updatedTimeFrom[0].filterName) {
+        this.betweenPastTime = selectedDate.updatedTimeFrom[0].filterName
+      }
+
+      if (selectedDate.updatedTimeTo[0].filterName) {
+        this.betweenPastTime = selectedDate.updatedTimeTo[0].filterName
+      }
+
+      this.updatedTimeSelectedItemsLabel = `${this.betweenPastTime} ~ ${this.betweenCurrentTime}`;
+
+      // if from and to is all exist
+      if (selectedDate.updatedTimeFrom[0].filterName && selectedDate.updatedTimeTo[0].filterName) {
+        this.updatedTimeSelectedItemsLabel = selectedDate.updatedTimeFrom[0].filterName + ' ~ ' + selectedDate.updatedTimeTo[0].filterName;
+        returnData = {
+          startDate : selectedDate.updatedTimeFrom[0].filterName,
+          endDate : selectedDate.updatedTimeTo[0].filterName,
+          type: selectedDate.TYPE[0],
+          startDateStr: moment(selectedDate.updatedTimeFrom[0].filterName).format(returnFormat),
+          endDateStr: moment(selectedDate.updatedTimeTo[0].filterName).format(returnFormat),
+          dateType: null,
+        };
+        this.selectedDate = returnData;
+        this.reloadPage();
+      }
+    } else {
+      this.updatedTimeSelectedItemsLabel = selectedDate.updatedTimeFrom[0].filterName + ' ~ ' + selectedDate.updatedTimeTo[0].filterName;
+
+      if (selectedDate.TYPE[0] === 'ALL') {
+        this.updatedTimeSelectedItemsLabel = 'ALL';
+      }
+
+      returnData = {
+        startDate : selectedDate.updatedTimeFrom[0].filterName,
+        endDate : selectedDate.updatedTimeTo[0].filterName,
+        type: selectedDate.TYPE[0],
+        startDateStr: moment(selectedDate.updatedTimeFrom[0].filterName).format(returnFormat),
+        endDateStr: moment(selectedDate.updatedTimeTo[0].filterName).format(returnFormat),
+        dateType: null,
+      };
+      this.selectedDate = returnData;
+      this.reloadPage();
+    }
+
+
   }
 
   private _getMetadataListParams() {
@@ -430,11 +556,56 @@ export class ExploreDataListComponent extends AbstractComponent {
     this.selectedSort = type + ',' + this.sortOptions[type].option;
     this.reloadPage();
   }
+
+  /**
+   * List show click event
+   * @param {MouseEvent} event
+   */
+  public toggleUpdatedTimeFilter() {
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    this.showUpdatedTimeFilter = !this.showUpdatedTimeFilter;
+    this.showSourceTypeFilter = false;
+  }
+
+  /**
+   * List show click event
+   * @param {MouseEvent} event
+   */
+  toggleSourceTypeFilter(event: MouseEvent) {
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    this.showSourceTypeFilter = !this.showSourceTypeFilter;
+    this.showUpdatedTimeFilter = false;
+  }
+
+  /**
+   * Close Source type filter
+   */
+  closeSourceTypeFilter() {
+    this.showSourceTypeFilter = false;
+  }
+
+  /**
+   * Close time filter
+   */
+  closeTimeFilter() {
+    // if click event is not generated by date picker
+    console.log($(event.target).parent().parent());
+    if ($(event.target).hasClass('datepicker.-right-top-.-from-right-.active')) {
+      console.log('whatsup')
+    }
+    if ($(event.target).closest('datepicker')) {
+      console.log('hi');
+    }
+    if (0 === $(event.target).closest('[class^=datepicker]').length) {
+      // close list
+      this.showUpdatedTimeFilter = false;
+    }
+  }
 }
 
 enum FilterTypes {
   DATA_TYPE = 'DATA_TYPE',
   UPDATED_TIME = 'UPDATED_TIME'
 }
-
-

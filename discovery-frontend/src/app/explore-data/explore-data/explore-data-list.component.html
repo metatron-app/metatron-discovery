@@ -1,17 +1,48 @@
-<div class="ddp-ui-contents-list ddp-type" style="padding-bottom:50px;">
+<div class="ddp-ui-contents-list ddp-type">
   <!-- filters -->
   <div class="ddp-wrap-top-filtering type-form">
     <div class="ddp-wrap-form-filtering">
       <div class="ddp-form-filtering">
-        <component-check-filter #typeFilter [filterFlags]="filterFlags"  [filterName]="'Data type'" [filterList]="dataTypeFilterList" (changedFilter)="onChangeDataTypeFilter($event)" ></component-check-filter>
-        <component-check-filter
-          [filterFlags]="filterFlags"
-          [filterName]="'Source type'"
-          [filterList]="dataTypeFilterList"
-          (changedFilter)="onChangeDataTypeFilter($event)" ></component-check-filter>
+        <!--        <component-check-filter-->
+        <!--          [filterFlags]="filterFlags"-->
+        <!--          [filterName]="'Source type'"-->
+        <!--          [filterList]="dataTypeFilterList"-->
+        <!--          (changedFilter)="onChangeDataTypeFilter($event)" ></component-check-filter>-->
+        <div class="ddp-result-filtering" [class.ddp-selected]="showSourceTypeFilter" (click)="toggleSourceTypeFilter($event)">
+          <span class="ddp-txt-label" *ngIf="true">Source type:</span>
+          <div class="ddp-box-result">
+            <span class="ddp-txt-result">{{sourceTypeSelectedItemsLabel}}</span>
+          </div>
+          <criterion-checkbox-component
+            (clickOutside)="closeSourceTypeFilter()"
+            (click)="$event.stopImmediatePropagation(); $event.stopPropagation();"
+            [criterion]="typeFilterCriterion"
+            [defaultSelectedItemList]="[]"
+            [searchPlaceHolder]="''"
+            [enableAllOption]="false"
+            (changedSelectItem)="onChangeDataTypeFilter($event)">
+          </criterion-checkbox-component>
+        </div>
       </div>
       <div class="ddp-form-filtering">
-        <component-updated-time-radio-filter #timeFilter  [filterFlags]="filterFlags" (changeSort)="onChangeCreateTimeFilter($event)"></component-updated-time-radio-filter>
+        <!--        <component-updated-time-radio-filter [filterFlags]="filterFlags" (changeSort)="onChangeCreateTimeFilter($event)"></component-updated-time-radio-filter>-->
+        <div class="ddp-result-filtering"
+             [class.ddp-selected]="showUpdatedTimeFilter"
+             (click)="toggleUpdatedTimeFilter()">
+          <span class="ddp-txt-label" *ngIf="true">Source type:</span>
+          <div class="ddp-box-result">
+            <span class="ddp-txt-result">{{updatedTimeSelectedItemsLabel}}</span>
+          </div>
+          <criterion-time-radiobox-list
+            (clickOutside)="closeTimeFilter()"
+            (click)="$event.stopImmediatePropagation(); $event.stopPropagation();"
+            [criterion]="timeFilterCriterion"
+            [defaultSelectedItemList]="[]"
+            [enableFromToOption]="true"
+            [enableAllOption]="true"
+            (changedSelectItem)="onChangeCreateTimeFilter($event)">
+          </criterion-time-radiobox-list>
+        </div>
       </div>
     </div>
   </div>
@@ -38,7 +69,7 @@
             </a>
           </div>
           <!-- 클릭시 ddp-selected 추가 -->
-<!--          <em class="ddp-icon-control-fav ddp-selected"></em>-->
+          <!--          <em class="ddp-icon-control-fav ddp-selected"></em>-->
           <a href="javascript:" class="ddp-link-reset" (click)="onClickResetSelectedCatalog()">
             <em class="ddp-btn-reset"></em>
           </a>
@@ -83,86 +114,86 @@
           <col width="180px">
         </colgroup>
         <thead>
-          <tr>
-            <th>
-              {{'msg.metadata.md.ui.data.type' | translate}}
-            </th>
-            <th (click)="toggleSortOption('name')">
-              {{'msg.comm.ui.name' | translate}}
-              <em class="ddp-icon-array-default2" *ngIf="sortOptions.name.option === 'default'"></em>
-              <em class="ddp-icon-array-asc2" *ngIf="sortOptions.name.option === 'asc'"></em>
-              <em class="ddp-icon-array-des2" *ngIf="sortOptions.name.option === 'desc'"></em>
-            </th>
-            <th>
-              {{'msg.metadata.md.ui.tags' | translate}}
-            </th>
-            <th >
-              {{'msg.metadata.md.ui.data.popularity' | translate}}
-<!--              <em class="ddp-icon-array-default2" *ngIf="sortOptions.popularity.option === 'default'"></em>-->
-<!--              <em class="ddp-icon-array-asc2" *ngIf="sortOptions.popularity.option === 'asc'"></em>-->
-<!--              <em class="ddp-icon-array-des2" *ngIf="sortOptions.popularity.option === 'desc'"></em>-->
-              <div class="ddp-wrap-hover-info">
-                <em class="ddp-icon-info3"></em>
-                <!-- popup -->
-                <div class="ddp-box-layout4 ddp-popularity">
-                  <div class="ddp-data-title">
-                    {{'msg.metadata.md.ui.tooltip.title' | translate}}
-                  </div>
-                  <div class="ddp-data-det">
-                    {{'msg.metadata.md.ui.tooltip.description' | translate}}
-                    <ul>
-                      <li>• {{'msg.metadata.md.ui.tooltip.point.1' | translate}}</li>
-                      <li>• {{'msg.metadata.md.ui.tooltip.point.2' | translate}}</li>
-                      <li>• {{'msg.metadata.md.ui.tooltip.point.3' | translate}}</li>
-                    </ul>
-                  </div>
+        <tr>
+          <th>
+            {{'msg.metadata.md.ui.data.type' | translate}}
+          </th>
+          <th (click)="toggleSortOption('name')">
+            {{'msg.comm.ui.name' | translate}}
+            <em class="ddp-icon-array-default2" *ngIf="sortOptions.name.option === 'default'"></em>
+            <em class="ddp-icon-array-asc2" *ngIf="sortOptions.name.option === 'asc'"></em>
+            <em class="ddp-icon-array-des2" *ngIf="sortOptions.name.option === 'desc'"></em>
+          </th>
+          <th>
+            {{'msg.metadata.md.ui.tags' | translate}}
+          </th>
+          <th >
+            {{'msg.metadata.md.ui.data.popularity' | translate}}
+            <!--              <em class="ddp-icon-array-default2" *ngIf="sortOptions.popularity.option === 'default'"></em>-->
+            <!--              <em class="ddp-icon-array-asc2" *ngIf="sortOptions.popularity.option === 'asc'"></em>-->
+            <!--              <em class="ddp-icon-array-des2" *ngIf="sortOptions.popularity.option === 'desc'"></em>-->
+            <div class="ddp-wrap-hover-info">
+              <em class="ddp-icon-info3"></em>
+              <!-- popup -->
+              <div class="ddp-box-layout4 ddp-popularity">
+                <div class="ddp-data-title">
+                  {{'msg.metadata.md.ui.tooltip.title' | translate}}
                 </div>
-                <!-- //popup -->
+                <div class="ddp-data-det">
+                  {{'msg.metadata.md.ui.tooltip.description' | translate}}
+                  <ul>
+                    <li>• {{'msg.metadata.md.ui.tooltip.point.1' | translate}}</li>
+                    <li>• {{'msg.metadata.md.ui.tooltip.point.2' | translate}}</li>
+                    <li>• {{'msg.metadata.md.ui.tooltip.point.3' | translate}}</li>
+                  </ul>
+                </div>
               </div>
-            </th>
-            <th>
-              {{'msg.storage.ui.criterion.creator' | translate}}
-            </th>
-            <th (click)="toggleSortOption('modifiedTime')">
-              {{'msg.comm.ui.list.updated' | translate}}
-              <em class="ddp-icon-array-default2" *ngIf="sortOptions.modifiedTime.option === 'default'"></em>
-              <em class="ddp-icon-array-asc2" *ngIf="sortOptions.modifiedTime.option === 'asc'"></em>
-              <em class="ddp-icon-array-des2" *ngIf="sortOptions.modifiedTime.option === 'desc'"></em>
-            </th>
-          </tr>
+              <!-- //popup -->
+            </div>
+          </th>
+          <th>
+            {{'msg.storage.ui.criterion.creator' | translate}}
+          </th>
+          <th (click)="toggleSortOption('modifiedTime')">
+            {{'msg.comm.ui.list.updated' | translate}}
+            <em class="ddp-icon-array-default2" *ngIf="sortOptions.modifiedTime.option === 'default'"></em>
+            <em class="ddp-icon-array-asc2" *ngIf="sortOptions.modifiedTime.option === 'asc'"></em>
+            <em class="ddp-icon-array-des2" *ngIf="sortOptions.modifiedTime.option === 'desc'"></em>
+          </th>
+        </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let metadata of metadataList" (click)="onClickMetadata(metadata)">
-            <td>
-              <component-metadata-type-box-tag [metadata]="metadata"></component-metadata-type-box-tag>
-            </td>
-            <td>
-              <div class="ddp-txt-long" title="{{getTooltipValue(metadata)}}">
-                <span [innerHTML]="getMetadataName(metadata.name)"></span>
-                <span class="ddp-txt-colortype" *ngIf="isEnableDescription(metadata)" [innerHTML]="getMetadataDescription(metadata.description)"></span>
+        <tr *ngFor="let metadata of metadataList" (click)="onClickMetadata(metadata)">
+          <td>
+            <component-metadata-type-box-tag [metadata]="metadata"></component-metadata-type-box-tag>
+          </td>
+          <td>
+            <div class="ddp-txt-long" title="{{getTooltipValue(metadata)}}">
+              <span [innerHTML]="getMetadataName(metadata.name)"></span>
+              <span class="ddp-txt-colortype" *ngIf="isEnableDescription(metadata)" [innerHTML]="getMetadataDescription(metadata.description)"></span>
+            </div>
+          </td>
+          <td>
+            <div class="ddp-wrap-tags" *ngIf="isEnableTag(metadata)">
+              <span class="ddp-tags"># {{metadata.tags[0].name}}</span>
+              <span class="ddp-tag-more" *ngIf="isExistMoreTags(metadata)">+ {{metadata.tags.length - 1}}</span>
+            </div>
+          </td>
+          <td>
+            <div class="ddp-ui-popularity">
+              <em class="ddp-icon-popularity"></em>
+              <div class="ddp-bar">
+                <span [style.width]="metadata.popularity + '%'" style="margin-bottom:10px;"></span>
               </div>
-            </td>
-            <td>
-              <div class="ddp-wrap-tags" *ngIf="isEnableTag(metadata)">
-                <span class="ddp-tags"># {{metadata.tags[0].name}}</span>
-                <span class="ddp-tag-more" *ngIf="isExistMoreTags(metadata)">+ {{metadata.tags.length - 1}}</span>
-              </div>
-            </td>
-            <td>
-              <div class="ddp-ui-popularity">
-                <em class="ddp-icon-popularity"></em>
-                <div class="ddp-bar">
-                  <span [style.width]="metadata.popularity + '%'" style="margin-bottom:10px;"></span>
-                </div>
-              </div>
-            </td>
-            <td>
-              <span class="ddp-txt-long" title="{{metadata?.modifiedBy?.fullName}}" [innerHTML]="getMetadataCreator(metadata?.modifiedBy?.fullName)"></span>
-            </td>
-            <td>
-              {{metadata.modifiedTime | mdate: 'YYYY-MM-DD HH:mm'}}
-            </td>
-          </tr>
+            </div>
+          </td>
+          <td>
+            <span class="ddp-txt-long" title="{{metadata?.modifiedBy?.fullName}}" [innerHTML]="getMetadataCreator(metadata?.modifiedBy?.fullName)"></span>
+          </td>
+          <td>
+            {{metadata.modifiedTime | mdate: 'YYYY-MM-DD HH:mm'}}
+          </td>
+        </tr>
         </tbody>
       </table>
       <!-- //list -->
@@ -170,7 +201,7 @@
     <!-- //box list -->
     <!-- Pagination -->
     <component-pagination *ngIf="!isEmptyMetadataList()" [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
-    <!-- // Pagination -->
+    <!— // Pagination —>
   </div>
-  <!-- //list -->
+  <!— //list —>
 </div>

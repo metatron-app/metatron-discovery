@@ -113,11 +113,9 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   }
 
   goToExploreMain(): void {
-    this.router.navigate(['/exploredata/view']);
     this.mode = ExploreMode.MAIN;
-    this.exploreDataSearchComponent.searchKeyword = '';
-    this.exploreDataModelService.searchKeyword = '';
-    this.exploreDataModelService.selectedCatalog = undefined;
+    this.exploreDataModelService.initializeAll();
+    this.router.navigate(['/exploredata/view']);
   }
 
   onChangedSearch(): void {
