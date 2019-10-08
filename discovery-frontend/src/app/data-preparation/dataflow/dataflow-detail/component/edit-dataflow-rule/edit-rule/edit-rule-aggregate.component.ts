@@ -91,23 +91,22 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
     const formulaValueList = this.ruleSuggestInput
                                  .map(el => el.getFormula())
                                  .filter( v => (!isUndefined(v) && v.trim().length > 0) );
-    
+
     if ( !formulaValueList || formulaValueList.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.expression'));
       return undefined;
-    }  
+    }
 
     const value = formulaValueList.join(',');
-    
-    // 그룹
-    if (this.selectedFields.length === 0) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.enter.groupby'));
-      return undefined;
+
+    var ruleString = `aggregate value: ${value}`;
+    if (0 < this.selectedFields.length) {
+      ruleString = `${ruleString} group: ${this.getColumnNamesInArray(this.selectedFields, true).toString()}`;
     }
 
     return {
       command: 'aggregate',
-      ruleString: `aggregate value: ${value} group: ${this.getColumnNamesInArray(this.selectedFields, true).toString()}`,
+      ruleString: `${ruleString}`,
       uiRuleString: {
         name: 'aggregate',
         expression: formulaValueList,

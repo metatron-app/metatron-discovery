@@ -210,7 +210,7 @@ public class PostgresqlDialect implements JdbcDialect {
     StringBuilder builder = new StringBuilder();
     builder.append(" SELECT TABLE_NAME as name, TABLE_TYPE as type, obj_description((quote_ident(TABLE_SCHEMA)||'.'||quote_ident(TABLE_NAME))::regclass, 'pg_class') as comment ");
     builder.append(" FROM INFORMATION_SCHEMA.TABLES ");
-    builder.append(" WHERE TABLE_TYPE = 'BASE TABLE' ");
+    builder.append(" WHERE TABLE_TYPE IN ('BASE TABLE', 'VIEW') ");
     builder.append(" AND TABLE_SCHEMA NOT IN ('pg_catalog', 'information_schema') ");
     if(StringUtils.isNotEmpty(schema)){
       builder.append(" AND TABLE_SCHEMA = '" + schema + "' ");
@@ -237,7 +237,7 @@ public class PostgresqlDialect implements JdbcDialect {
     StringBuilder builder = new StringBuilder();
     builder.append(" SELECT TABLE_NAME ");
     builder.append(" FROM INFORMATION_SCHEMA.TABLES ");
-    builder.append(" WHERE TABLE_TYPE = 'BASE TABLE' ");
+    builder.append(" WHERE TABLE_TYPE IN ('BASE TABLE', 'VIEW') ");
     builder.append(" AND TABLE_SCHEMA NOT IN ('pg_catalog', 'information_schema') ");
     if(StringUtils.isNotEmpty(schema)){
       builder.append(" AND TABLE_SCHEMA = '" + schema + "' ");

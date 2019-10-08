@@ -180,6 +180,8 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
    */
   public getSnapshots() {
 
+    this.loadingShow();
+
     const params = this._getSsParams();
 
     this.datasnapshots = [];
@@ -207,16 +209,7 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
         }
       });
 
-
-      // recursion
-      const idx = this.datasnapshots.findIndex((item) => {
-        return preparing.indexOf(item.status) > -1
-      });
-      if (idx > -1 && !this.ssDetailComponent.isShow) {
-        setTimeout(() => {
-          this.getSnapshots();
-        }, 5000)
-      }
+      this.loadingHide();
 
     }).catch((error) => {
 

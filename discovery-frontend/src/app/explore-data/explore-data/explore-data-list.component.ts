@@ -59,7 +59,7 @@ export class ExploreDataListComponent extends AbstractComponent {
   selectedLnbTab: ExploreDataConstant.LnbTab;
   searchRange;
   searchedKeyword: string;
-  selectedCatalog: Catalog.Tree;
+  selectedCatalog: Catalog.Tree = null;
   // source type filter
   selectedSourceTypeFilter: string[] = [];
   // name, updated sorting
@@ -103,12 +103,11 @@ export class ExploreDataListComponent extends AbstractComponent {
   }
 
   public ngOnInit() {
-
     this.selectedDate = new PeriodData();
 
     this.selectedDate.type = Criteria.DateTimeType.ALL;
 
-
+    this.selectedCatalog;
     this.filterFlags.next({
       [FilterTypes.DATA_TYPE]: false,
       [FilterTypes.UPDATED_TIME]: false
@@ -143,15 +142,20 @@ export class ExploreDataListComponent extends AbstractComponent {
           this.selectedDate.startDateStr = decodeURIComponent(params['from']);
           this.selectedDate.endDateStr = decodeURIComponent(params['to']);
           this.selectedDate.type = params['type'];
+
+          this._setMetadataList(params).then();
         }
         // get metadata list
-        this._setMetadataList(params).then();
+
       })
     );
   }
 
   ngOnDestroy() {
     this.$layoutContentsClass.removeClass('ddp-scroll');
+    this.requestInitializeSelectedCatalog.emit();
+    this.selectedCatalog = undefined;
+    this.router.navigate(['/exploredata/view']);
     super.ngOnDestroy();
   }
 
@@ -180,10 +184,12 @@ export class ExploreDataListComponent extends AbstractComponent {
     this.selectedTag = this.exploreDataModelService.selectedTag;
 
     const initial = async () => {
-      if (this.selectedCatalog != undefined) {
+      if (this.selectedCatalog != undefined && this.selectedCatalog.name != 'undefined') {
         this.treeHierarchy = await this.catalogService.getTreeCatalogs(this.selectedCatalog.id, true);
       }
-      await this._initialMetadataList();
+      this.page.page = 0;
+      this.page.size = CommonConstant.API_CONSTANT.PAGE_SIZE;
+      this.reloadPage();
     };
 
     initial().then(() => {
@@ -272,14 +278,10 @@ export class ExploreDataListComponent extends AbstractComponent {
   changePage(data: { page: number, size: number }): void {
     // if more metadata list
     if (data) {
-      this.loadingShow();
       this.page.page = data.page;
       this.page.size = data.size;
-      this._setMetadataList(this._getMetadataListParams())
-        .then(() => {
-          this.loadingHide();
-        })
-        .catch(error => this.commonExceptionHandler(error));
+
+      this.reloadPage(false);
     }
   }
 
@@ -291,6 +293,8 @@ export class ExploreDataListComponent extends AbstractComponent {
   onClickResetSelectedCatalog(): void {
     // requesting lnb component to initialize catalog
     this.requestInitializeSelectedCatalog.emit();
+    this.selectedCatalog = undefined;
+    this.reloadPage();
   }
 
   onClickResetSelectedTag(): void {
@@ -358,11 +362,24 @@ export class ExploreDataListComponent extends AbstractComponent {
       params['type'] = 'ALL';
     }
 
-    if (this.isSelectedCatalog()) {
+    params['catalogId'] = '';
+
+    if (this.selectedCatalog === undefined) {
+      params['catalogId'] = null;
+    }
+
+    if (this.isSelectedCatalog() && this.selectedCatalog.name !== 'undefined') {
       params['catalogId'] = this.selectedCatalog.id;
     } else if (this.isSelectedTag()) {
       params['tag'] = this.selectedTag.name;
     }
+
+    if (this.selectedCatalog !== undefined) {
+      if (this.selectedCatalog.name === 'undefined') {
+        params['catalogId'] = '';
+      }
+    }
+
     return params;
   }
 
@@ -388,7 +405,7 @@ export class ExploreDataListComponent extends AbstractComponent {
   private async _initialMetadataList() {
     this.page.page = 0;
     this.page.size = CommonConstant.API_CONSTANT.PAGE_SIZE;
-    await this._setMetadataList(this._getMetadataListParams());
+    this.reloadPage();
   }
 
   /**

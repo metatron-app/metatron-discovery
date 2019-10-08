@@ -16,6 +16,7 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  HostListener,
   Injector,
   OnDestroy,
   OnInit,
@@ -31,7 +32,6 @@ import {Location} from "@angular/common";
 import * as _ from 'lodash';
 
 declare let echarts: any;
-declare let $: any;
 declare let moment: any;
 
 @Component({
@@ -63,6 +63,9 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
   public unparseable: any;
   public thrownaway: any;
 
+  private _rowChart: any;
+  private _lagChart: any;
+
   public isShowRowDuration: boolean;
   public isShowLagDuration: boolean;
   public selectedRowDuration: string = '1HOUR';
@@ -89,6 +92,20 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
 
   public ngOnDestroy() {
     super.ngOnDestroy();
+  }
+
+  /**
+   * Window resize
+   * @param event
+   */
+  @HostListener('window:resize', ['$event'])
+  protected onResize(event) {
+    if (!_.isNil(this._rowChart)) {
+      this._rowChart.resize();
+    }
+    if (!_.isNil(this._lagChart)) {
+      this._lagChart.resize();
+    }
   }
 
   public prevSupervisorList(): void {
@@ -271,8 +288,10 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
           }
         ]
       };
-      const chartobj = echarts.init(this._rowChartElmRef.nativeElement, 'exntu');
-      chartobj.setOption(chartOps, false);
+      if (_.isNil(this._rowChart)) {
+        this._rowChart = echarts.init(this._rowChartElmRef.nativeElement, 'exntu');
+      }
+      this._rowChart.setOption(chartOps, false);
     });
 
 }
@@ -343,8 +362,10 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
           }
         ]
       };
-      const chartobj = echarts.init(this._lagChartElmRef.nativeElement, 'exntu');
-      chartobj.setOption(chartOps, false);
+      if (_.isNil(this._lagChart)) {
+        this._lagChart = echarts.init(this._lagChartElmRef.nativeElement, 'exntu');
+      }
+      this._lagChart.setOption(chartOps, false);
     });
   }
 

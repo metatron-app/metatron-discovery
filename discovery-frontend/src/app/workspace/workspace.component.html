@@ -285,7 +285,6 @@
       <!-- box -->
       <!-- checkbox 선택시 ddp-selected 추가 -->
       <div class="ddp-box-block"
-           [title]="book.name"
            *ngFor="let book of (getList()
            | baseFilter:['type', 'folder', true]
            | baseFilter:['type', selectedContentFilter.key]
@@ -315,7 +314,7 @@
         <!-- //top -->
         <!-- box contents -->
         <div class="ddp-ui-box-contents">
-          <span class="ddp-data-name" [ngClass]="{'ddp-data-line2' : book.type != 'notebook'}">{{book.name}}</span>
+          <span class="ddp-data-name" [ngClass]="{'ddp-data-line2' : book.type != 'notebook'}" [title]="book.name">{{book.name}}</span>
           <span class="ddp-data-date">{{'msg.comm.ui.list.last' | translate}} <span class="ddp-data-ago">{{book.modifiedTime | amLocale:getLanguage() | amTimeAgo}}</span></span>
         </div>
         <!-- //box contents -->
@@ -367,12 +366,11 @@
         <!-- notebook -->
         <div class="ddp-box-bottom" *ngIf="book.type === 'notebook'">
           <div class="ddp-wrap-data">
-            <span class="ddp-data-name" title="{{book.connector}}" *ngIf="book.contents.connectorType === 'jupyter' || book.contents.connectorType === 'zeppelin'">
+            <span class="ddp-data-name" *ngIf="book.contents.connectorType === 'jupyter' || book.contents.connectorType === 'zeppelin'">
                 <em [ngClass]="{'ddp-icon-lang-jupyter' : book.contents.connectorType === 'jupyter', 'ddp-icon-lang-zeppelin' : book.contents.connectorType === 'zeppelin'}"></em>
                 <div class="ddp-txt-name">
                   <!-- error -->
                   <div class="ddp-type-info" *ngIf="!book.contents.connValid">
-
                     <em class="ddp-icon-error2"></em>
                     <!-- tooltip -->
                     <div class="ddp-ui-tooltip-info ddp-down">
@@ -381,7 +379,7 @@
                     <!-- //tooltip -->
                   </div>
                   <!-- //error -->
-                  <span class="ddp-txt-name-in">{{book.connector}}</span>
+                  <span class="ddp-txt-name-in" title="{{book.connector}}">{{book.connector}}</span>
                 </div>
             </span>
             <span class="ddp-data-name ddp-data-lang-r" title="{{'msg.nbook.ui.r' | translate}}" *ngIf="book.kernelType === 'R'">
@@ -558,7 +556,7 @@
 
           <!-- Name -->
           <div class="ddp-wrap-name">
-            <span class="ddp-data-name" [class.ddp-data-new]="book.createdTime | moment: 'isNew'">
+            <span class="ddp-data-name" [class.ddp-data-new]="book.createdTime | moment: 'isNew'" [title]="book.name">
               {{book.name}}
               <em class="ddp-icon-new" *ngIf="book.createdTime | moment: 'isNew'">{{'msg.common.ui.new' | translate}}</em>
             </span>

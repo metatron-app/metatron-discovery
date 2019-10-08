@@ -190,6 +190,7 @@ export class DashboardUtil {
       elmRef.nativeElement.src = '/api/images/load/url?url=' + imageUrl + '/thumbnail?' + date;
     } else {
       elmRef.nativeElement.src = '/assets/images/img_board_default2.png';
+      elmRef.nativeElement.style = 'position: relative;top: 50%;left: 50%;width: 34px;height: 28px;margin: -14px 0 0 -17px;';
     }
   } // function - getBoardImage
 

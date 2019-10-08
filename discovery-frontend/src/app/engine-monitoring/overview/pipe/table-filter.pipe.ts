@@ -25,19 +25,40 @@ export class TableFilterPipe implements PipeTransform {
       return items;
     }
 
+    if (filter[ 'status' ] === 'ALL' && filter[ 'hostname' ] === '' && filter[ 'type' ] === 'ALL') {
+      return items;
+    }
+
     if (filter[ 'status' ] === 'ALL') {
       if (filter[ 'hostname' ] === '') {
-        return items;
+        return items.filter(monitoring => monitoring.type === filter[ 'type' ]);
+      } else {
+        return items.filter(monitoring => monitoring.hostname.indexOf(filter[ 'hostname' ]) > -1)
+          .filter(monitoring => monitoring.type === filter[ 'type' ]);
       }
-      return items.filter(monitoring => monitoring.hostname.indexOf(filter[ 'hostname' ]) > -1);
     }
 
     if (filter[ 'hostname' ] === '') {
-      return items.filter(monitoring => monitoring.status === (filter[ 'status' ] === 'OK'));
+      if (filter[ 'status' ] === 'ALL') {
+        return items.filter(monitoring => monitoring.type === filter[ 'type' ]);
+      } else {
+        return items.filter(monitoring => monitoring.status === (filter[ 'status' ] === 'OK'))
+          .filter(monitoring => monitoring.type === filter[ 'type' ]);
+      }
+    }
+
+    if (filter[ 'type' ] === '') {
+      if (filter[ 'hostname' ] === '') {
+        return items.filter(monitoring => monitoring.status === (filter[ 'status' ] === 'OK'))
+      } else {
+        return items.filter(monitoring => monitoring.hostname.indexOf(filter[ 'hostname' ]) > -1)
+          .filter(monitoring => monitoring.status === (filter[ 'status' ] === 'OK'))
+      }
     }
 
     return items
       .filter(monitoring => monitoring.hostname.indexOf(filter[ 'hostname' ]) > -1)
-      .filter(monitoring => monitoring.status === (filter[ 'status' ] === 'OK'));
+      .filter(monitoring => monitoring.status === (filter[ 'status' ] === 'OK'))
+      .filter(monitoring => monitoring.type === filter[ 'type' ]);
   }
 }

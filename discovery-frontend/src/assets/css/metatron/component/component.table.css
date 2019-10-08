@@ -32,7 +32,7 @@ table.ddp-table-form tbody tr td .ddp-type-txt.ddp-info .ddp-icon-error2 {positi
 
 table.ddp-table-form tbody tr td .ddp-type-txt.ddp-info .ddp-ui-info {position:absolute; top:3px; right:0;}
 table.ddp-table-form tbody tr td .ddp-type-txt.ddp-info .ddp-status-rejected +  .ddp-ui-info {top:0;}
-table.ddp-table-form tbody tr td .ddp-type-txt.ddp-info .ddp-ui-info .ddp-box-layout4 {display:none; position:absolute; left:-30px; top:100%; margin-top:6px;}
+table.ddp-table-form tbody tr td .ddp-type-txt.ddp-info .ddp-ui-info .ddp-box-layout4 {display:none; position:absolute; left:-30px; top:100%; margin-top:6px; word-break:break-all;}
 table.ddp-table-form tbody tr td .ddp-type-txt.ddp-info .ddp-ui-info:hover .ddp-box-layout4 {display:block; white-space:normal;}
 
 table.ddp-table-form tbody tr td .ddp-wrap-long {display:inline-block; position:relative; padding-right:41px; max-width:100%; box-sizing:border-box;}

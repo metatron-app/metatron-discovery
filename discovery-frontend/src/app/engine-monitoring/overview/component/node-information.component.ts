@@ -16,6 +16,7 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  HostListener,
   Injector,
   OnDestroy,
   OnInit,
@@ -42,7 +43,10 @@ export class NodeInformationComponent extends AbstractPopupComponent implements 
   public monitoring: Engine.Monitoring = new Engine.Monitoring();
 
   @ViewChild('gcCount') private _gcCountChartElmRef: ElementRef;
-  @ViewChild('memory') private _memoryChartElmRef: ElementRef;s
+  @ViewChild('memory') private _memoryChartElmRef: ElementRef;
+
+  private _gcCountChart: any;
+  private _memoryChart: any;
 
   constructor(protected elementRef: ElementRef,
               protected injector: Injector,
@@ -60,6 +64,20 @@ export class NodeInformationComponent extends AbstractPopupComponent implements 
 
   public ngOnDestroy() {
     super.ngOnDestroy();
+  }
+
+  /**
+   * Window resize
+   * @param event
+   */
+  @HostListener('window:resize', ['$event'])
+  public onResize(event) {
+    if (!_.isNil(this._gcCountChart)) {
+      this._gcCountChart.resize();
+    }
+    if (!_.isNil(this._memoryChart)) {
+      this._memoryChart.resize();
+    }
   }
 
   public show(monitoring: Engine.Monitoring) {
@@ -159,8 +177,10 @@ export class NodeInformationComponent extends AbstractPopupComponent implements 
           }
         ]
       };
-      const chartobj = echarts.init(this._gcCountChartElmRef.nativeElement, 'exntu');
-      chartobj.setOption(chartOps, false);
+      if (_.isNil(this._gcCountChart)) {
+        this._gcCountChart = echarts.init(this._gcCountChartElmRef.nativeElement, 'exntu');
+      }
+      this._gcCountChart.setOption(chartOps, false);
     });
   }
 
@@ -248,8 +268,10 @@ export class NodeInformationComponent extends AbstractPopupComponent implements 
           return params[0].axisValue + '<br/>' + params[0].marker + params[0].seriesName + ' : ' + CommonUtil.formatBytes(params[0].data, 2)
             + '<br/>' + params[1].marker + params[1].seriesName + ' : ' + CommonUtil.formatBytes(params[1].data, 2);
         });
-        const chartobj = echarts.init(this._memoryChartElmRef.nativeElement, 'exntu');
-        chartobj.setOption(chartOps, false);
+        if (_.isNil(this._memoryChart)) {
+          this._memoryChart = echarts.init(this._memoryChartElmRef.nativeElement, 'exntu');
+        }
+        this._memoryChart.setOption(chartOps, false);
       });
     });
   }

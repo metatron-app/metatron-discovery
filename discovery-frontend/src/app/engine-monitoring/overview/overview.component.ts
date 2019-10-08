@@ -48,9 +48,11 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
 
   public keyword: string = '';
   public selectedMonitoringStatus: Engine.MonitoringStatus = Engine.MonitoringStatus.ALL;
+  public selectedNodeType: Engine.NodeType = Engine.NodeType.ALL;
   public tableSortProperty: string = '';
   public tableSortDirection: Engine.TableSortDirection = this.TABLE_SORT_DIRECTION.NONE;
 
+  public readonly MONITORING_NODETYPE = Engine.NodeType;
   public readonly VIEW_MODE = Engine.ViewMode;
   public selectedViewMode: Engine.ViewMode = this.VIEW_MODE.GRID;
   public selectedDuration: string = '1DAY';
@@ -91,7 +93,8 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
           this._initTableSortDirection();
           this._changeKeyword(decodeURIComponent(_.get(params, 'keyword', '')));
           this._changeStatus(_.get(params, 'status', Engine.MonitoringStatus.ALL));
-          this.changeDuration(_.get(params, 'duration', '1DAY'));
+          this._changeNodeType(_.get(params, 'type', Engine.NodeType.ALL));
+          this._changeDuration(_.get(params, 'duration', '1DAY'));
         }));
 
     this.subscriptions.push(
@@ -118,7 +121,10 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
           .then(result => this.monitorings = result._embedded.monitorings)
       })
       .then(() => this.engineService.getSize().then(result => this.clusterSize = result))
-      .then(() => this.loadingHide())
+      .then(() => {
+        this._graphComponent.onResize(event);
+        this.loadingHide();
+      })
       .catch(error => {
         this.clusterStatus = new Engine.Cluster.Status();
         this.monitorings = [];
@@ -135,10 +141,7 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
     this.pageResult.size = 5000;
   }
 
-  /**
-   * Cllck hostname column
-   */
-  public clickHostameHeaderColumn(column: string) {
+  public sortTable(column: string) {
 
     if (this.tableSortProperty == column) {
       this.tableSortDirection = this.tableSortDirection == this.TABLE_SORT_DIRECTION.DESC
@@ -226,6 +229,7 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
         queryParams: {
           keyword: encodeURIComponent(keyword),
           status: this.selectedMonitoringStatus,
+          type: this.selectedNodeType,
           duration: this.selectedDuration
         }
       })
@@ -239,12 +243,13 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
         queryParams: {
           keyword: encodeURIComponent(this.keyword),
           status: status,
+          type: this.selectedNodeType,
           duration: this.selectedDuration
         }
       })
   }
 
-  public searchByDuration(duration: string) {
+  public searchByNodeType(nodeType: Engine.NodeType) {
     this.router.navigate([
         this.ENGINE_MONITORING_OVERVIEW_ROUTER_URL
       ],
@@ -252,27 +257,43 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
         queryParams: {
           keyword: encodeURIComponent(this.keyword),
           status: this.selectedMonitoringStatus,
-          duration: duration
+          type: nodeType,
+          duration: this.selectedDuration
         }
       })
   }
 
-  public changeViewMode(viewMode: Engine.ViewMode) {
+  public searchByDuration(duration: string) {
+    if (duration === this.selectedDuration) {
+      this._changeDuration(this.selectedDuration);
+    } else {
+      this.router.navigate([
+          this.ENGINE_MONITORING_OVERVIEW_ROUTER_URL
+        ],
+        {
+          queryParams: {
+            keyword: encodeURIComponent(this.keyword),
+            status: this.selectedMonitoringStatus,
+            type: this.selectedNodeType,
+            duration: duration
+          }
+        })
+    }
+  }
 
+  public changeViewMode(viewMode: Engine.ViewMode) {
     if (_.isNil(viewMode)) {
       return;
     }
-
     if (this.selectedViewMode === viewMode) {
       return;
     }
-
     this.selectedViewMode = viewMode;
-  }
 
-  public changeDuration(duration: string) {
-    this.selectedDuration = duration;
-    this._graphComponent.setDate(duration);
+    setTimeout(() => {
+      this._graphComponent.onResize(event);
+    }, 300);
+
   }
 
   private _changeTab(contentType: Engine.ContentType) {
@@ -281,10 +302,31 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
 
   private _changeKeyword(keyword: string) {
     this.keyword = keyword;
+
+    setTimeout(() => {
+      this._graphComponent.onResize(event);
+    }, 300);
   }
 
   private _changeStatus(status: Engine.MonitoringStatus) {
     this.selectedMonitoringStatus = status;
+
+    setTimeout(() => {
+      this._graphComponent.onResize(event);
+    }, 300);
+  }
+
+  private _changeNodeType(nodeType: Engine.NodeType) {
+    this.selectedNodeType = nodeType;
+
+    setTimeout(() => {
+      this._graphComponent.onResize(event);
+    }, 300);
+  }
+
+  private _changeDuration(duration: string) {
+    this.selectedDuration = duration;
+    this._graphComponent.setDate(duration);
   }
 
   private _initTableSortDirection() {

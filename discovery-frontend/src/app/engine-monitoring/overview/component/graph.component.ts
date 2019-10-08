@@ -12,14 +12,23 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  ViewChild
+} from '@angular/core';
 import {AbstractComponent} from '../../../common/component/abstract.component';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
 import {EngineService} from "../../service/engine.service";
 import {Engine} from "../../../domain/engine-monitoring/engine";
+import * as _ from 'lodash';
 
 declare let echarts: any;
-declare let $: any;
 declare let moment: any;
 
 @Component({
@@ -43,6 +52,10 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
 
   public fromDate:string;
 
+  private _memoryChart: any;
+  private _gcCountChart: any;
+  private _avgQueryTimeChart: any;
+
   constructor(private _datasourceSvc: DatasourceService,
               private _engineSvc: EngineService,
               protected elementRef: ElementRef,
@@ -52,11 +65,24 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
 
   public ngOnInit() {
     super.ngOnInit();
-    this.setDate(this.duration);
   }
 
   public ngOnDestroy() {
     super.ngOnDestroy();
+  }
+
+  /**
+   * Window resize
+   * @param event
+   */
+  @HostListener('window:resize', ['$event'])
+  public onResize(event) {
+    if (!_.isNil(this._gcCountChart)) {
+      this._gcCountChart.resize();
+    }
+    if (!_.isNil(this._avgQueryTimeChart)) {
+      this._avgQueryTimeChart.resize();
+    }
   }
 
   public setDate(duration:string) {
@@ -82,7 +108,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
     this._getDatasourceList();
     setTimeout(() => {
       this.loadingHide();
-    }, 300);
+    }, 500);
   }
 
   /**
@@ -131,8 +157,10 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
         ],
         label: { normal: { show: false } }
       };
-      const chartObj = echarts.init(this._usageMemoryChartElmRef.nativeElement, 'exntu');
-      chartObj.setOption(chartOpts, false);
+      if (_.isNil(this._memoryChart)) {
+        this._memoryChart = echarts.init(this._usageMemoryChartElmRef.nativeElement, 'exntu');
+      }
+      this._memoryChart.setOption(chartOpts, false);
     });
   } // function - _getUsageMemory
 
@@ -161,10 +189,10 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
         },
         grid: [
           {
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0
+            top: 3,
+            bottom: 10,
+            left: 20,
+            right: 20
           }
         ],
         xAxis: [
@@ -198,12 +226,14 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
                 color: '#72d9a7'
               }
             },
-            smooth: true
+            smooth: false
           }
         ]
       };
-      const chartobj = echarts.init(this._gcCountChartElmRef.nativeElement, 'exntu');
-      chartobj.setOption(chartOps, false);
+      if (_.isNil(this._gcCountChart)) {
+        this._gcCountChart = echarts.init(this._gcCountChartElmRef.nativeElement, 'exntu');
+      }
+      this._gcCountChart.setOption(chartOps, false);
     });
 
   } // function - _getGcCount
@@ -235,10 +265,10 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
         },
         grid: [
           {
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0
+            top: 3,
+            bottom: 10,
+            left: 20,
+            right: 20
           }
         ],
         xAxis: [
@@ -272,12 +302,14 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
                 color: '#2eaaaf'
               }
             },
-            smooth: true
+            smooth: false
           }
         ]
       };
-      const chartobj = echarts.init(this._avgQueryTimeChartElmRef.nativeElement, 'exntu');
-      chartobj.setOption(chartOps, false);
+      if (_.isNil(this._avgQueryTimeChart)) {
+        this._avgQueryTimeChart = echarts.init(this._avgQueryTimeChartElmRef.nativeElement, 'exntu');
+      }
+      this._avgQueryTimeChart.setOption(chartOps, false);
     });
   } // function - _getAvgQueryTime
 
