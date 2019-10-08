@@ -25,7 +25,7 @@ import {
 
 import * as _ from 'lodash';
 import {EventBroadcaster} from './common/event/event.broadcaster';
-import {Language, UserSetting} from "./common/value/user.setting.value";
+import {UserSetting} from "./common/value/user.setting.value";
 import {CommonUtil} from "./common/util/common.util";
 
 @Component({
@@ -64,8 +64,8 @@ export class AppComponent {
       // TODO 다국어 언어설정 index.html 과 동일한 언어를 설정
       let lang = translateService.getBrowserLang();
       const userLang = userSetting.language;
-      if (!_.isNil(userSetting)) {
-        lang = Language[userLang];
+      if (!_.isNil(userLang)) {
+        lang = userLang;
       }
       if (lang === "zh" || lang === "zh-CN") {
         this.translateService.use("zh")

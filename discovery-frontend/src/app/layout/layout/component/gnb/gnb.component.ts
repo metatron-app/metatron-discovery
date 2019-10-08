@@ -105,7 +105,7 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
   public changeLanguage(lang: string): void {
     if (this.getCurrentLang() != lang) {
       this.setLanguage(lang);
-      this._saveUserSetting(null, Language[lang]);
+      this._saveUserSetting(null, UserSetting.getLanguage(lang));
     }
     this.isLanguageShow = false;
   }

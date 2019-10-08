@@ -48,7 +48,7 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
 
   public keyword: string = '';
   public selectedMonitoringStatus: Engine.MonitoringStatus = Engine.MonitoringStatus.ALL;
-  public selectedNodeType: Engine.NodeType = Engine.NodeType.ALL;
+  public selectedNodeType: Engine.NodeType[] = [Engine.NodeType.ALL];
   public tableSortProperty: string = '';
   public tableSortDirection: Engine.TableSortDirection = this.TABLE_SORT_DIRECTION.NONE;
 
@@ -93,7 +93,6 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
           this._initTableSortDirection();
           this._changeKeyword(decodeURIComponent(_.get(params, 'keyword', '')));
           this._changeStatus(_.get(params, 'status', Engine.MonitoringStatus.ALL));
-          this._changeNodeType(_.get(params, 'type', Engine.NodeType.ALL));
           this._changeDuration(_.get(params, 'duration', '1DAY'));
         }));
 
@@ -250,17 +249,28 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
   }
 
   public searchByNodeType(nodeType: Engine.NodeType) {
-    this.router.navigate([
-        this.ENGINE_MONITORING_OVERVIEW_ROUTER_URL
-      ],
-      {
-        queryParams: {
-          keyword: encodeURIComponent(this.keyword),
-          status: this.selectedMonitoringStatus,
-          type: nodeType,
-          duration: this.selectedDuration
-        }
-      })
+    if (nodeType === Engine.NodeType.ALL) {
+      this.selectedNodeType = [Engine.NodeType.ALL];
+    } else {
+      if (this.selectedNodeType.indexOf(Engine.NodeType.ALL) > -1) {
+        this.selectedNodeType = [];
+      }
+      const nodeTypes = _.cloneDeep(this.selectedNodeType);
+      if (this.selectedNodeType.indexOf(nodeType) > -1) {
+        nodeTypes.splice(this.selectedNodeType.indexOf(nodeType), 1);
+      } else {
+        nodeTypes.push(nodeType);
+      }
+      this.selectedNodeType = nodeTypes;
+    }
+
+    if (this.selectedNodeType.length == 0) {
+      this.selectedNodeType = [Engine.NodeType.ALL];
+    }
+
+    setTimeout(() => {
+      this._graphComponent.onResize(event);
+    }, 300);
   }
 
   public searchByDuration(duration: string) {
@@ -310,14 +320,6 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
 
   private _changeStatus(status: Engine.MonitoringStatus) {
     this.selectedMonitoringStatus = status;
-
-    setTimeout(() => {
-      this._graphComponent.onResize(event);
-    }, 300);
-  }
-
-  private _changeNodeType(nodeType: Engine.NodeType) {
-    this.selectedNodeType = nodeType;
 
     setTimeout(() => {
       this._graphComponent.onResize(event);

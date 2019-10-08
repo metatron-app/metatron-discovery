@@ -169,6 +169,14 @@ export class WorkerComponent extends AbstractComponent implements OnInit, OnDest
     this.reloadPage(true);
   }
 
+  public highlightSearchText(name, searchText): string {
+    if (_.isNil(searchText) || searchText.trim() === '') {
+      return name;
+    } else {
+      return name.replace(new RegExp('(' + searchText + ')'), '<span class="ddp-txt-search type-search">$1</span>');
+    }
+  } // function - highlightSearchText
+
   /**
    * Changed filter
    * @param searchParams

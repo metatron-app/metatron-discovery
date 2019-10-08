@@ -250,6 +250,11 @@ public class EngineMonitoringService {
     return results.get();
   }
 
+  public List getSegmentCount() {
+    Optional<List> results = engineRepository.sql("SELECT COUNT(*) as \"count\" FROM sys.segments");
+    return results.get();
+  }
+
   public List getPendingTasks() {
     Optional<List> tasks = engineRepository.getPendingTasks();
     return tasks.get();

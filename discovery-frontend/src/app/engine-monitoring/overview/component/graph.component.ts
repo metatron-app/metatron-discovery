@@ -46,6 +46,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
   public queryCount:number = 0;
   public runningTaskCount:number = 0;
   public datasourceCount:number = 0;
+  public segmentCount:number = 0;
 
   @Input()
   public duration:string;
@@ -106,6 +107,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
     this._getAvgQueryTime();
     this._getRunningTasks();
     this._getDatasourceList();
+    this._getSegmentCount();
     setTimeout(() => {
       this.loadingHide();
     }, 500);
@@ -336,4 +338,14 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
       }
     });
   } // function - _getDatasourceList
+
+  /**
+   * get Segment Count
+   * @private
+   */
+  private _getSegmentCount() {
+    this._engineSvc.getSegmentCount().then( result => {
+      this.segmentCount = result[0].count;
+    });
+  } // function - _getSegmentCount
 }

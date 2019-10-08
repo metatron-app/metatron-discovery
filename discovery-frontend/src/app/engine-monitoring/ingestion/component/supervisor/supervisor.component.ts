@@ -121,6 +121,14 @@ export class SupervisorComponent extends AbstractComponent implements OnInit, On
     this.reloadPage(true);
   }
 
+  public highlightSearchText(name, searchText): string {
+    if (_.isNil(searchText) || searchText.trim() === '') {
+      return name;
+    } else {
+      return name.replace(new RegExp('(' + searchText + ')'), '<span class="ddp-txt-search type-search">$1</span>');
+    }
+  } // function - highlightSearchText
+
   private _filteringSupervisorList(): any[] {
     const filterParam = this._getSupervisorParams();
     return _.cloneDeep(this.supervisorTotalList).filter(item => {

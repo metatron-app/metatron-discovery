@@ -20,6 +20,7 @@
         [isEnableDelete]="true"
         [value]="searchKeyword"
         [placeHolder]="'msg.engine.monitoring.ph.task.search' | translate"
+        [immediately]="true"
         (changeValue)="onChangedSearchKeyword($event)">
       </component-input>
     </div>
@@ -82,8 +83,7 @@
     <tbody>
     <tr *ngFor="let task of taskList" (click)="onClickTask(task.task_id);">
       <td>
-        <div class="ddp-txt-long" title="{{task.task_id}}">
-          {{task.task_id}}
+        <div class="ddp-txt-long" title="{{task.task_id}}" [innerHTML]="highlightSearchText( task.task_id, searchKeyword )">
         </div>
       </td>
       <td>
@@ -96,8 +96,7 @@
         {{getDurationString(task.duration)}}
       </td>
       <td>
-        <div class="ddp-txt-long" title="{{task.datasource}}">
-          {{task.datasource}}
+        <div class="ddp-txt-long" title="{{task.datasource}}" [innerHTML]="highlightSearchText( task.datasource, searchKeyword )">
         </div>
       </td>
       <td>

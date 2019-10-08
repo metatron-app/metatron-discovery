@@ -165,6 +165,11 @@ public class EngineMonitoringController {
     return ResponseEntity.ok(monitoringQueryService.getDatasourceList());
   }
 
+  @RequestMapping(value = "/monitoring/segment/count", method = RequestMethod.GET)
+  public ResponseEntity<?> getSegmentCount() {
+    return ResponseEntity.ok(monitoringQueryService.getSegmentCount());
+  }
+
   @RequestMapping(value= "/monitoring/ingestion/tasks/{status}", method = RequestMethod.GET)
   public ResponseEntity<?> getRunningTasks(@PathVariable("status") String status) {
     List list = Lists.newArrayList();
