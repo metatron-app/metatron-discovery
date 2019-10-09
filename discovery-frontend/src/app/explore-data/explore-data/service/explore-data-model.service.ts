@@ -37,6 +37,5 @@ export class ExploreDataModelService {
     this.searchKeyword = '';
     this.selectedTag = undefined;
     this.selectedCatalog = undefined;
-
   }
 }

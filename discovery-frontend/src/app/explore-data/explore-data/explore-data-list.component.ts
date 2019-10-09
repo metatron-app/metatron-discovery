@@ -35,7 +35,6 @@ import {Subject} from "rxjs";
 import ListCriterionKey = Criteria.ListCriterionKey;
 import ListCriterionType = Criteria.ListCriterionType;
 import ListCriterion = Criteria.ListCriterion;
-import {logger} from "codelyzer/util/logger";
 
 declare let moment: any;
 
@@ -229,7 +228,6 @@ export class ExploreDataListComponent extends AbstractComponent {
     this.$layoutContentsClass.removeClass('ddp-scroll');
     this.requestInitializeSelectedCatalog.emit();
     this.selectedCatalog = undefined;
-    this.router.navigate(['/exploredata/view']);
     super.ngOnDestroy();
   }
 
