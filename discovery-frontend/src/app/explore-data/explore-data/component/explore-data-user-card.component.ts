@@ -1,4 +1,4 @@
-import {Component, ElementRef, Injector, Input} from "@angular/core";
+import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
 import {AbstractComponent} from "../../../common/component/abstract.component";
 import {SourceType} from "../../../domain/meta-data-management/metadata";
 
@@ -9,6 +9,7 @@ import {SourceType} from "../../../domain/meta-data-management/metadata";
 export class ExploreDataUserCardComponent extends AbstractComponent {
   @Input() readonly topUser;
   @Input() readonly sourceType: SourceType;
+  @Output() readonly userClicked = new EventEmitter();
 
   constructor(protected element: ElementRef,
               protected injector: Injector) {
@@ -33,9 +34,12 @@ export class ExploreDataUserCardComponent extends AbstractComponent {
     if (!hasPermission) {
       return;
     }
-
     const popUrl = `workbook/${this.topUser.workbook.id}/${this.topUser.dashboard.id}`;
     //open in new tab
     window.open(popUrl, '_blank');
+  }
+
+  onClickUserName(creator: string) {
+    this.userClicked.emit(creator);
   }
 }

@@ -10,18 +10,22 @@ import {Alert} from "../../../common/util/alert.util";
 import {ClipboardService} from "ngx-clipboard";
 import {AbstractComponent} from "../../../common/component/abstract.component";
 import {DashboardUtil} from "../../../dashboard/util/dashboard.util";
+import {MetadataDataCreatorDataListComponent} from "./metadata-data-creator-data-list.component";
+import {MetadataService} from "../../../meta-data-management/metadata/service/metadata.service";
 
 @Component({
   selector: 'explore-metadata-overview',
   templateUrl: './metadata-overview.component.html',
-  entryComponents: [RecentQueriesComponent],
+  entryComponents: [RecentQueriesComponent, MetadataDataCreatorDataListComponent],
   preserveWhitespaces: false
 })
 export class MetadataOverviewComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   @ViewChild('component_recent_queries', {read: ViewContainerRef}) entry: ViewContainerRef;
+  @ViewChild('component_datacreator_data_list', {read: ViewContainerRef}) dataCreatorDataListEntry: ViewContainerRef;
 
   entryRef: ComponentRef<RecentQueriesComponent>;
+  dataCreatorDataListEntryRef: ComponentRef<MetadataDataCreatorDataListComponent>;
 
   @Input() readonly metadataId: string;
   @Input() readonly metadata : Metadata;
@@ -37,6 +41,7 @@ export class MetadataOverviewComponent extends AbstractComponent implements OnIn
 
   constructor(
     private clipboardService: ClipboardService,
+    private metadataService: MetadataService,
     protected element: ElementRef,
     protected injector: Injector,
     private resolver: ComponentFactoryResolver) {
@@ -86,6 +91,25 @@ export class MetadataOverviewComponent extends AbstractComponent implements OnIn
     const popUrl = `workbook/${recentlyUsedDashboard.workbook.id}/${recentlyUsedDashboard.id}`;
     //open in new tab
     window.open(popUrl, '_blank');
+  }
+
+  async onClickUser(creator: string) {
+    this.loadingShow();
+    const result = await this.metadataService.getMetaDataList({creatorContains: creator, size: 100}).catch(e => this.commonExceptionHandler(e));
+
+    if (result !== undefined && result) {
+      if (result['_embedded']) {
+        this.dataCreatorDataListEntryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(MetadataDataCreatorDataListComponent));
+        this.dataCreatorDataListEntryRef.instance.metadataList = result['_embedded']['metadatas'];
+        this.dataCreatorDataListEntryRef.instance.creator = creator;
+      }
+    }
+
+    this.loadingHide();
+    this.dataCreatorDataListEntryRef.instance.closedPopup.subscribe(() => {
+      // close
+      this.dataCreatorDataListEntryRef.destroy();
+    });
   }
 
   /**

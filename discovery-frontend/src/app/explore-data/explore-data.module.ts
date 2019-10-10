@@ -55,6 +55,7 @@ import {ConfirmRefModalComponent} from "../common/component/modal/confirm/confir
 import {MetadataUsedWorkspaceComponent} from "./explore-data/component/metadata-used-workspace.component";
 import {ExploreDataUtilService} from "./explore-data/service/explore-data-util.service";
 import {UpdatedTimeRadioFilter} from "./explore-data/component/updated-time-radio-filter.component";
+import {MetadataDataCreatorDataListComponent} from "./explore-data/popup/metadata-data-creator-data-list.component";
 
 @NgModule({
   imports: [
@@ -86,6 +87,7 @@ import {UpdatedTimeRadioFilter} from "./explore-data/component/updated-time-radi
     FavoriteDataComponent,
     FavoriteCreatorComponent,
     MetadataContainerComponent,
+    MetadataDataCreatorDataListComponent,
     MetadataColumnsComponent,
     MetadataOverviewComponent,
     MetadataSampleDataComponent,

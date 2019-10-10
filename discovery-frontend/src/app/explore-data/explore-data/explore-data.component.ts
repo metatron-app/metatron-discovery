@@ -28,12 +28,10 @@ import {MetadataService} from "../../meta-data-management/metadata/service/metad
 import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
 import * as _ from 'lodash';
 import {MetadataContainerComponent} from "./popup/metadata-container.component";
-import {DatasourceService} from "../../datasource/service/datasource.service";
 import {ExploreDataListComponent} from "./explore-data-list.component";
 import {EventBroadcaster} from "../../common/event/event.broadcaster";
 import {ExploreDataConstant} from "../constant/explore-data-constant";
 import {Subscription} from "rxjs";
-import {meta} from "@turf/turf";
 import {ExploreDataModelService} from "./service/explore-data-model.service";
 
 @Component({
@@ -44,7 +42,6 @@ import {ExploreDataModelService} from "./service/explore-data-model.service";
 export class ExploreDataComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   @ViewChild('component_metadata_detail', {read: ViewContainerRef}) entry: ViewContainerRef;
-
   @ViewChild(ExploreDataListComponent)
   private readonly _exploreDataListComponent: ExploreDataListComponent;
 
@@ -69,7 +66,6 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   // 생성자
   constructor(private metadataService: MetadataService,
               private resolver: ComponentFactoryResolver,
-              private dataSourceService: DatasourceService,
               private broadcaster: EventBroadcaster,
               private exploreDataModelService: ExploreDataModelService,
               protected element: ElementRef,
@@ -134,16 +130,16 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     let recentlyUsedList;
 
     // get datas...
-    const getRecentlyQueriesForDatabase = async (sourcetype: SourceType) => {
-      if (sourcetype === SourceType.STAGEDB) {
-        recentlyQueriesForDatabase = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.id, this.page.page, this.page.size, this.page.sort)
+    const getRecentlyQueriesForDatabase = async (sourceType: SourceType) => {
+      if (sourceType === SourceType.STAGEDB) {
+        recentlyQueriesForDatabase = await this.metadataService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.id, this.page.page, this.page.size, this.page.sort)
           .catch(error => this.commonExceptionHandler(error));
       } else {
         if (metadataDetail.source.source != undefined) {
-          recentlyQueriesForDatabase = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.source.id, this.page.page, this.page.size, this.page.sort)
+          recentlyQueriesForDatabase = await this.metadataService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.source.id, this.page.page, this.page.size, this.page.sort)
             .catch(error => this.commonExceptionHandler(error));
         } else {
-          recentlyQueriesForDatabase = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.id, this.page.page, this.page.size, this.page.sort)
+          recentlyQueriesForDatabase = await this.metadataService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.id, this.page.page, this.page.size, this.page.sort)
             .catch(error => this.commonExceptionHandler(error));
         }
       }
@@ -162,7 +158,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
       recentlyUsedList = await this.metadataService.getRecentlyUsedInMetadataDetail(metadata.id, {sort: 'createdTime', size: 5, page: 0}).catch(error => this.commonExceptionHandler(error));
     };
 
-    // get metadataDetail to use datasourceService which is using metadataDetail
+    // get metadataDetail
     this.metadataService.getDetailMetaData(metadata.id).then(async (result) => {
       metadataDetail = result;
 
@@ -198,10 +194,6 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
         this.entryRef.destroy();
       });
     }).catch(error => {console.log(error); this.commonExceptionHandler(error)});
-  }
-
-  onCloseMetadataContainer(): void {
-    this.selectedMetadata = null;
   }
 
   private async _setMetadataSourceTypeCount() {

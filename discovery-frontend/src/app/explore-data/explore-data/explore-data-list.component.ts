@@ -107,7 +107,6 @@ export class ExploreDataListComponent extends AbstractComponent {
 
     this.selectedDate.type = Criteria.DateTimeType.ALL;
 
-    this.selectedCatalog;
     this.filterFlags.next({
       [FilterTypes.DATA_TYPE]: false,
       [FilterTypes.UPDATED_TIME]: false
@@ -155,7 +154,6 @@ export class ExploreDataListComponent extends AbstractComponent {
     this.$layoutContentsClass.removeClass('ddp-scroll');
     this.requestInitializeSelectedCatalog.emit();
     this.selectedCatalog = undefined;
-    this.router.navigate(['/exploredata/view']);
     super.ngOnDestroy();
   }
 

@@ -4,7 +4,7 @@
     <img src="../../../../assets/images/img_photo.png">
   </div>
   <div class="ddp-wrap-data">
-    <div class="ddp-data-name">{{ topUser['user']['fullName'] }}
+    <div class="ddp-data-name" (click)="onClickUserName(topUser['user']['fullName'])">{{ topUser['user']['fullName'] }}
 <!--      <em class="ddp-icon-control-fav"></em>-->
     </div>
     <div>

@@ -13,38 +13,35 @@
  */
 
 import {
-  Component, ComponentFactoryResolver,
-  ComponentRef,
+  Component,
+  ComponentFactoryResolver, ComponentRef,
   ElementRef,
+  EventEmitter,
   Injector,
   OnDestroy,
   OnInit,
-  ViewChild,
-  ViewContainerRef
+  Output, ViewChild, ViewContainerRef
 } from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {ActivatedRoute} from "@angular/router";
+import {AbstractComponent} from "../../../common/component/abstract.component";
+import {Metadata, SourceType} from "../../../domain/meta-data-management/metadata";
+import {ExploreDataConstant} from "../../constant/explore-data-constant";
 import * as _ from "lodash";
-import {StringUtil} from "../../common/util/string.util";
-import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
-import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
-import {CommonUtil} from "../../common/util/common.util";
-import {ExploreDataConstant} from "../constant/explore-data-constant";
-import {SortOption} from "../explore-data/service/explore-data-util.service";
-import {CreateWorkbenchContainerComponent} from "../../workbench/component/create-workbench/refactoring/create-workbench-container.component";
-import {CreateWorkbookComponent} from "../../workbook/component/create-workbook/refactoring/create-workbook.component";
-import {ConfirmRefModalComponent} from "../../common/component/modal/confirm/confirm-ref.component";
-import {Modal} from "../../common/domain/modal";
-import {CookieConstant} from "../../common/constant/cookie.constant";
-import {Alert} from "../../common/util/alert.util";
+import {Alert} from "../../../common/util/alert.util";
+import {StringUtil} from "../../../common/util/string.util";
+import {MetadataService} from "../../../meta-data-management/metadata/service/metadata.service";
+import {ExploreDataUtilService, SortOption} from "../service/explore-data-util.service";
+import {ConfirmRefModalComponent} from "../../../common/component/modal/confirm/confirm-ref.component";
+import {Modal} from "../../../common/domain/modal";
+import {CreateWorkbookComponent} from "../../../workbook/component/create-workbook/refactoring/create-workbook.component";
+import {CookieConstant} from "../../../common/constant/cookie.constant";
+import {CreateWorkbenchContainerComponent} from "../../../workbench/component/create-workbench/refactoring/create-workbench-container.component";
 
 @Component({
-  selector: 'app-exploredata-favorite-data',
-  templateUrl: './favorite-data.component.html',
+  selector: 'app-explore-data-creator-data-list-popup',
+  templateUrl: './metadata-data-creator-data-list.component.html',
   entryComponents: [CreateWorkbenchContainerComponent, CreateWorkbookComponent, ConfirmRefModalComponent]
 })
-export class FavoriteDataComponent extends AbstractComponent implements OnInit, OnDestroy {
-
+export class MetadataDataCreatorDataListComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   @ViewChild('component_create_workbench', {read: ViewContainerRef}) readonly createWorkbenchEntry: ViewContainerRef;
   createWorkbenchEntryRef: ComponentRef<CreateWorkbenchContainerComponent>;
@@ -54,6 +51,9 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
 
   @ViewChild('component_confirm', {read: ViewContainerRef}) readonly confirmModalEntry: ViewContainerRef;
   confirmModalEntryRef: ComponentRef<ConfirmRefModalComponent>;
+
+  @Output() readonly closedPopup = new EventEmitter();
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -65,26 +65,13 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // metadata list
   metadataList: Metadata[] = [];
-
-  // search
+  creator;
   searchRange = {name: 'All', value: ExploreDataConstant.SearchRange.ALL};
-  searchedKeyword: string = '';
-
-  // sort
-  selectedSort = 'name, asc';
-
-  public sortOptions = {
-    // TODO: popularity is not implemented yet
-    // popularity: new SortOption('popularity'),
-    modifiedTime: new SortOption('modifiedTime'),
-    name: new SortOption('name', 'asc'),
-  };
 
   // filter
   selectedSourceTypeFilter = 'ALL';
+
   sourceTypeList = [
     {label: 'All', value: ''},
     {label: this.translateService.instant('msg.comm.th.ds'), value: SourceType.ENGINE},
@@ -92,9 +79,16 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
     {label: this.translateService.instant('msg.storage.li.hive'), value: SourceType.STAGING},
   ];
 
-  // more button
-  showMoreFlag = false;
+  // search
+  searchedKeyword = '';
 
+  // sort
+  selectedSort = 'name, asc';
+
+  sortOptions = {
+    modifiedTime: new SortOption('modifiedTime'),
+    name: new SortOption('name', 'asc'),
+  };
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -102,9 +96,9 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
   // 생성자
   constructor(
     protected element: ElementRef,
-    private activatedRoute: ActivatedRoute,
     private resolver: ComponentFactoryResolver,
     private metadataService: MetadataService,
+    private exploreDataUtilService: ExploreDataUtilService,
     protected injector: Injector) {
     super(element, injector);
   }
@@ -116,35 +110,7 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
   // Init
   public ngOnInit() {
     super.ngOnInit();
-
-    this.subscriptions.push(this.activatedRoute.queryParams.subscribe(params => {
-      const paramKeys = Object.keys(params);
-      const isExistSearchParams = paramKeys.length > 0;
-      const searchParams = {};
-      // if exist search param in URL
-      if (isExistSearchParams) {
-        paramKeys.forEach((key) => {
-          if (key === 'size') {
-            this.page.size = params['size'];
-          } else if (key === 'page') {
-            this.page.page = params['page'];
-          } else if (key === 'sort') {
-            const sortParam = params['sort'].split(',');
-          } else if (key === 'containsText') {
-            this.searchedKeyword = params['containsText'];
-          } else {
-            searchParams[key] = params[key].split(',');
-          }
-        });
-        // TODO 추후 criterion component로 이동
-        delete searchParams['pseudoParam'];
-        // init criterion search param
-      }
-
-      this._setMetadataList(this._getMetadataListParams()).then();
-
-      // set datasource list
-    }));
+    console.log(this.metadataList);
   }
 
   // Destroy
@@ -157,23 +123,15 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * Reload page for new query params.
-   * @param {boolean} isFirstPage
+   * When X button is clicked
    */
-  public reloadPage(isFirstPage: boolean = true) {
-    (isFirstPage) && (this.page.page = 0);
-    this.router.navigate(
-      [this.router.url.replace(/\?.*/gi, '')],
-      {queryParams: this._getMetadataListParams(), replaceUrl: true}
-    ).then();
-  } // function - reloadPage
+  public onClickCloseBtn() {
+    this.closedPopup.emit();
+  }
 
   private _getMetadataListParams() {
-    let params;
-    params = {
-      page: this.page.page,
-      size: this.page.size,
-      sort: this.selectedSort,
+    let params = {
+      size: 1000,
     };
 
     // if not empty search keyword
@@ -185,22 +143,8 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
     if (this.selectedSourceTypeFilter !== 'ALL') {
       params['sourceType'] = this.selectedSourceTypeFilter;
     }
+
     return params;
-  }
-
-  getTotalElementsGuide() {
-    if (this.isNotEmptySearchKeyword()) {
-      return this.translateService.instant('msg.explore.ui.list.content.total.searched', {
-        totalElements: this.getTotalElements(),
-        searchedKeyword: this.searchedKeyword.trim()
-      });
-    } else {
-      return this.translateService.instant('msg.explore.ui.list.content.total', {totalElements: this.getTotalElements()});
-    }
-  }
-
-  getTotalElements(): string {
-    return CommonUtil.numberWithCommas(this.pageResult.totalElements);
   }
 
   getMetadataName(name: string) {
@@ -260,8 +204,8 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
   public onChangedSearchKeyword(keyword: string): void {
     // set search keyword
     this.searchedKeyword = keyword;
-    // reload page
-    this.reloadPage(true);
+
+    this._setMetadataList(this._getMetadataListParams()).then();
   }
 
   /**
@@ -273,40 +217,13 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
       this.page.page = data.page;
       this.page.size = data.size;
 
-      this.reloadPage(false);
     }
-  }
-
-  /**
-   * Sort column clicked
-   * @param type
-   */
-  public toggleSortOption(type: string) {
-    // Initialize every column's option except selected column
-    Object.keys(this.sortOptions).forEach(key => {
-      if (key !== type) {
-        this.sortOptions[key].option = 'default';
-      }
-    });
-    if (this.sortOptions[type].option === 'none') {
-      this.sortOptions[type].option = 'desc';
-    } else if (this.sortOptions[type].option === 'asc') {
-      this.sortOptions[type].option = 'desc';
-    } else {
-      this.sortOptions[type].option = 'asc';
-    }
-
-    this.selectedSort = type + ',' + this.sortOptions[type].option;
-    this.reloadPage();
-  }
-
-  public toggleMoreButton() {
-    this.showMoreFlag = !this.showMoreFlag;
   }
 
   public onSelectSourceType(event) {
+    // set selected filter
     this.selectedSourceTypeFilter = event.value;
-    this.reloadPage();
+    this._setMetadataList(this._getMetadataListParams()).then();
   }
 
   public onClickEditData(metadataId: string) {
@@ -327,6 +244,16 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
       this._showConfirmComponent().then(() => this._showCreateWorkbookComponent(metadataDetail));
     }
   }
+
+  onClickFavoriteInUserName() {
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+  };
+
+  onClickFavoriteInList() {
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+  };
 
   isNotEmptySearchKeyword(): boolean {
     return StringUtil.isNotEmpty(this.searchedKeyword);
@@ -410,7 +337,7 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
     });
   }
 
-   private async _showCreateWorkbenchComponent(metadata: Metadata) {
+  private async _showCreateWorkbenchComponent(metadata: Metadata) {
     this.createWorkbenchEntryRef = this.createWorkbenchEntry.createComponent(this.resolver.resolveComponentFactory(CreateWorkbenchContainerComponent));
 
     const metadataDetail = await this.metadataService.getDetailMetaData(metadata.id).catch(e => this.commonExceptionHandler(e));
@@ -436,7 +363,6 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
       }
     });
   }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
