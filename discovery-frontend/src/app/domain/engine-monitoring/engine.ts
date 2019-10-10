@@ -140,14 +140,11 @@ export namespace Engine {
   }
 
   export enum MonitoringTarget {
-    MEM_MAX = 'MEM_MAX',
-    MEM_USED = 'MEM_USED',
+    MEM = 'MEM',
     GC_COUNT = 'GC_COUNT',
     GC_CPU = 'GC_CPU',
     QUERY_TIME = 'QUERY_TIME',
     SUPERVISOR_LAG = 'SUPERVISOR_LAG',
-    INGEST_PROCESSED = 'INGEST_PROCESSED',
-    INGEST_UNPARSEABLE = 'INGEST_UNPARSEABLE',
-    INGEST_THROWNAWAY = 'INGEST_THROWNAWAY'
+    TASK_ROW = 'TASK_ROW'
   }
 }

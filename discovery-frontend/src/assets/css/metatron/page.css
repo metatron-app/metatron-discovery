@@ -9121,7 +9121,7 @@ table.ddp-table-list tr td .ddp-txt-sql {
 .ddp-ui-contents-det .ddp-view-setting .ddp-label-name .ddp-wrap-info .ddp-btn-info2 {display:inline-block; width:13px; height:13px; background:url(../../images/icon_info.png) no-repeat; background-position:left -16px;}
 .ddp-ui-contents-det .ddp-view-setting .ddp-label-name .ddp-wrap-info:hover .ddp-box-layout4 {display:block;}
 .ddp-ui-contents-det .ddp-view-setting .ddp-label-name .ddp-wrap-info .ddp-wrap-hover-layout {position:absolute; top:-10px; left:100%; }
-.ddp-ui-contents-det .ddp-view-setting .ddp-label-name .ddp-wrap-info .ddp-box-layout4 {display:none; margin-left:5px;width:auto; min-width:320px; max-width:520px; z-index:10;}
+.ddp-ui-contents-det .ddp-view-setting .ddp-label-name .ddp-wrap-info .ddp-box-layout4 {display:none; margin-left:5px;width:auto; min-width:350px; max-width:520px; z-index:10;}
 .ddp-ui-contents-det .ddp-view-setting .ddp-label-name .ddp-wrap-info .ddp-box-layout4 table.ddp-table-info tr th {font-weight:normal; color:#90969f; letter-spacing:-0.6px;}
 .ddp-ui-contents-det .ddp-view-setting .ddp-label-name .ddp-wrap-info .ddp-bar-size {display:block; position:relative; height:12px; margin-top:5px; background-color:#e7e7ea;}
 .ddp-ui-contents-det .ddp-view-setting .ddp-label-name .ddp-wrap-info .ddp-bar-size .ddp-data-bar .ddp-ui-tooltip-info {display:none; top:100%; margin-top:8px; margin-left:-29px; width:57px; text-align:center; box-sizing:border-box;}

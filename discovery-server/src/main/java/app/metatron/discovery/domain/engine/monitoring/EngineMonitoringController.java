@@ -96,14 +96,6 @@ public class EngineMonitoringController {
     return ResponseEntity.ok(result);
   }
 
-  @RequestMapping(value = "/monitoring/stream", method = RequestMethod.POST)
-  public ResponseEntity<?> monitoringStream(@RequestBody EngineMonitoringRequest queryRequest) {
-
-    Object result = monitoringQueryService.selectStreamQuery(queryRequest);
-
-    return ResponseEntity.ok(result);
-  }
-
   @RequestMapping(value = "/monitoring/servers/health", method = RequestMethod.GET)
   public ResponseEntity<?> serverHealth() {
     List<Object[]> objects = monitoringRepository.findServerListByStatus();
@@ -244,11 +236,6 @@ public class EngineMonitoringController {
   @RequestMapping(value = "/monitoring/ingestion/supervisor/{supervisorId:.+}", method = RequestMethod.GET)
   public ResponseEntity<?> getSupervisorStatus(@PathVariable String supervisorId) {
     return ResponseEntity.ok(monitoringQueryService.getSupervisorStatus(supervisorId));
-  }
-
-  @RequestMapping(value = "/monitoring/ingestion/supervisor/row", method = RequestMethod.POST)
-  public ResponseEntity<?> getIngestRow(@RequestBody EngineMonitoringRequest queryRequest) {
-    return ResponseEntity.ok(monitoringQueryService.getIngestRow(queryRequest));
   }
 
   @RequestMapping(value = "/monitoring/ingestion/supervisor/{supervisorId}/shutdown", method = RequestMethod.POST)

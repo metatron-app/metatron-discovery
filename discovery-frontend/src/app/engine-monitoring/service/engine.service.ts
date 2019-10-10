@@ -74,10 +74,6 @@ export class EngineService extends AbstractService {
     return this.post(this.URL_MONITORING + '/data', params);
   }
 
-  public getMonitoringStream(params: object) {
-    return this.post(this.URL_MONITORING + '/stream', params);
-  }
-
   public getMemory(params?: object) {
     return this.post(this.URL_MONITORING + '/memory', params == undefined ? {} : params);
   }
