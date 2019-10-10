@@ -58,13 +58,13 @@
         <div class="ddp-data-total" [innerHTML]="getTotalElementsGuide()"></div>
         <!-- //total elements guide -->
         <!-- catalog keyword -->
-        <div class="ddp-data-box" *ngIf="isSelectedCatalog() && selectedCatalog.name != 'undefined'">
+        <div class="ddp-data-box" *ngIf="isSelectedCatalog() && selectedCatalog.name != 'unclassified'">
           <div class="ddp-ui-root">
             <a *ngFor="let tree of treeHierarchy; let i = index"
                href="javascript:"
                class="ddp-list-root"
                (click)="onChangeSelectedCatalog(tree)">
-              <em *ngIf="i == 0 && tree.name != 'undefined'" class="ddp-icon-folder"></em>
+              <em *ngIf="i == 0 && tree.name != 'unclassified'" class="ddp-icon-folder"></em>
               {{tree.name}}
             </a>
           </div>
@@ -74,7 +74,7 @@
             <em class="ddp-btn-reset"></em>
           </a>
         </div>
-        <div class="ddp-data-box" *ngIf=" selectedCatalog && selectedCatalog.name === 'undefined' ">
+        <div class="ddp-data-box" *ngIf=" selectedCatalog && selectedCatalog.name === 'unclassified' ">
           <div class="ddp-ui-root">
             <em class="ddp-icon-folder"></em>
             Unclassified

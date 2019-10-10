@@ -256,7 +256,7 @@ export class ExploreDataListComponent extends AbstractComponent {
     this.selectedTag = this.exploreDataModelService.selectedTag;
 
     const initial = async () => {
-      if (this.selectedCatalog != undefined && this.selectedCatalog.name != 'undefined') {
+      if (this.selectedCatalog != undefined && this.selectedCatalog.name != 'unclassified') {
         this.treeHierarchy = await this.catalogService.getTreeCatalogs(this.selectedCatalog.id, true);
       }
       this.page.page = 0;
@@ -492,14 +492,14 @@ export class ExploreDataListComponent extends AbstractComponent {
       params['catalogId'] = null;
     }
 
-    if (this.isSelectedCatalog() && this.selectedCatalog.name !== 'undefined') {
+    if (this.isSelectedCatalog() && this.selectedCatalog.name !== 'unclassified') {
       params['catalogId'] = this.selectedCatalog.id;
     } else if (this.isSelectedTag()) {
       params['tag'] = this.selectedTag.name;
     }
 
     if (this.selectedCatalog !== undefined) {
-      if (this.selectedCatalog.name === 'undefined') {
+      if (this.selectedCatalog.name === 'unclassified') {
         params['catalogId'] = '';
       }
     }
