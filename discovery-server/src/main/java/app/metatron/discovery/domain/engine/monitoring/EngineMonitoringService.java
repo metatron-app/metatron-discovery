@@ -21,16 +21,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.thymeleaf.util.StringUtils;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -473,6 +475,104 @@ public class EngineMonitoringService {
     return criterion;
   }
 
+  public List<ListCriterion> getListCriterionInQuery() {
+
+    List<ListCriterion> criteria = new ArrayList<>();
+
+    //Result
+    criteria.add(new ListCriterion(EngineMonitoringCriterionKey.RESULT,
+                                   ListCriterionType.CHECKBOX, "msg.engine.monitoring.ui.criterion.result"));
+
+    //Service
+    criteria.add(new ListCriterion(EngineMonitoringCriterionKey.SERVICE,
+                                   ListCriterionType.CHECKBOX, "msg.engine.monitoring.ui.criterion.service"));
+
+    // Type
+    criteria.add(new ListCriterion(EngineMonitoringCriterionKey.TYPE,
+                                   ListCriterionType.CHECKBOX, "msg.engine.monitoring.ui.criterion.type"));
+
+    //StartedTime
+    ListCriterion createdTimeCriterion
+        = new ListCriterion(EngineMonitoringCriterionKey.STARTED_TIME,
+                            ListCriterionType.RANGE_DATETIME, "msg.engine.monitoring.ui.criterion.started-time");
+    createdTimeCriterion.addFilter(new ListFilter(EngineMonitoringCriterionKey.STARTED_TIME,
+                                                  "startedTimeFrom", "startedTimeTo", "", "",
+                                                  "msg.engine.monitoring.ui.criterion.started-time"));
+    criteria.add(createdTimeCriterion);
+
+    //Duration
+    /*ListCriterion durationCriterion
+        = new ListCriterion(EngineMonitoringCriterionKey.DURATION,
+                            ListCriterionType.RANGE_DATETIME, "msg.engine.monitoring.ui.criterion.duration");
+    durationCriterion.addFilter(new ListFilter(EngineMonitoringCriterionKey.DURATION,
+                                               "durationFrom", "durationTo", "", "",
+                                               "msg.engine.monotoring.ui.criterion.duration"));
+    criteria.add(durationCriterion);*/
+
+    return criteria;
+  }
+
+  public ListCriterion getListCriterionInQueryByKey(EngineMonitoringCriterionKey criterionKey) {
+    ListCriterion criterion = new ListCriterion();
+    criterion.setCriterionKey(criterionKey);
+
+    switch (criterionKey) {
+      case RESULT:
+        criterion.addFilter(new ListFilter(criterionKey, "result",
+                                           "true", EngineMonitoring.QueryResult.SUCCESS.toString()));
+        criterion.addFilter(new ListFilter(criterionKey, "result",
+                                           "false", EngineMonitoring.QueryResult.FAIL.toString()));
+        break;
+      case SERVICE:
+        criterion.addFilter(new ListFilter(criterionKey, "service",
+                                           "broker", EngineMonitoring.SERVICE.BROKER.toString()));
+        criterion.addFilter(new ListFilter(criterionKey, "service",
+                                           "historical", EngineMonitoring.SERVICE.HISTORICAL.toString()));
+        criterion.addFilter(new ListFilter(criterionKey, "service",
+                                           "middlemanager", EngineMonitoring.SERVICE.HISTORICAL.toString()));
+        break;
+      case TYPE:
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "groupBy", "groupBy"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "schema", "schema"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "search", "search"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "segmentMetadata", "segmentMetadata"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "select", "select"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "select.stream", "select.stream"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "selectMeta", "selectMeta"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "sketch", "sketch"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "timeBoundary", "timeBoundary"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "timeseries", "timeseries"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "unionAll", "unionAll"));
+        break;
+      case STARTED_TIME:
+        //started_time
+        criterion.addFilter(new ListFilter(EngineMonitoringCriterionKey.STARTED_TIME,
+                                           "startedTimeFrom", "startedTimeTo", "", "",
+                                           "msg.engine.monitoring.ui.criterion.started-time"));
+        break;
+      case DURATION:
+        criterion.addFilter(new ListFilter(EngineMonitoringCriterionKey.DURATION,
+                                           "durationFrom", "durationTo", "", "",
+                                           "msg.engine.monitoring.ui.criterion.duration"));
+        break;
+      default:
+        break;
+    }
+
+    return criterion;
+  }
+
   public Map<String, Object> getIngestRow(EngineMonitoringRequest request) {
     Map<String, Object> result = Maps.newHashMap();
     request.getMonitoringTarget().setMetric(EngineMonitoringTarget.MetricType.INGEST_PROCESSED);
@@ -528,15 +628,16 @@ public class EngineMonitoringService {
     selectStreamQuery.setFilter(filter);
 
     if (StringUtils.isEmpty(request.getFromDate()) || StringUtils.isEmpty(request.getToDate())) {
-      LocalDateTime nowTime = LocalDateTime.now();
+      DateTime nowTime = DateTime.now();
 
-      String toDate = nowTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
-      String fromDate = nowTime.minusHours(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+      DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss");
+      String toDate = nowTime.toString(dateTimeFormatter);
+      String fromDate = nowTime.minusHours(1).toString(dateTimeFormatter);
       request.setFromDate(fromDate);
       request.setToDate(toDate);
     }
     selectStreamQuery.setIntervals(Lists.newArrayList(request.getFromDate()+"/"+request.getToDate()));
-    selectStreamQuery.setLimit(1000000);
+    selectStreamQuery.setLimit(1000);
 
     String queryString = GlobalObjectMapper.writeValueAsString(selectStreamQuery);
     Optional<JsonNode> engineResult = engineRepository.query(queryString, JsonNode.class);
@@ -558,6 +659,44 @@ public class EngineMonitoringService {
     result.put("time", timeList);
     result.put("value", valueList);
     return result;
+  }
+
+  public List getQueryList(EngineMonitoringQueryRequest engineMonitoringQueryRequest) {
+    StringBuffer sb = new StringBuffer();
+    sb.append("SELECT \"context.queryId\" AS \"queryId\", \"success\" AS \"result\", \"service\", \"host\", \"dataSource\" AS \"datasource\", \"value\" AS \"duration\", \"__time\" AS \"startedTime\", \"type\" FROM \"druid\".\"druid-metric\" WHERE metric = 'query/time'");
+    if (CollectionUtils.isNotEmpty(engineMonitoringQueryRequest.getResult())) {
+      sb.append(" AND \"success\" IN ('");
+      sb.append(String.join("', '", engineMonitoringQueryRequest.getResult()));
+      sb.append("') ");
+    }
+    if (CollectionUtils.isNotEmpty(engineMonitoringQueryRequest.getService())) {
+      sb.append(" AND \"service\" IN ('druid/prod/");
+      sb.append(String.join("', 'druid/prod/", engineMonitoringQueryRequest.getService()));
+      sb.append("') ");
+    }
+    if (CollectionUtils.isNotEmpty(engineMonitoringQueryRequest.getType())) {
+      sb.append(" AND \"type\" IN ('");
+      sb.append(String.join("', '", engineMonitoringQueryRequest.getType()));
+      sb.append("') ");
+    }
+    if (StringUtils.isNotEmpty(engineMonitoringQueryRequest.getStartedTimeFrom()) && StringUtils.isNotEmpty(engineMonitoringQueryRequest.getStartedTimeTo()) ) {
+      sb.append(" AND  TIMESTAMP '");
+      DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+      DateTime startTimeFrom = new DateTime(engineMonitoringQueryRequest.getStartedTimeFrom()).withZone(DateTimeZone.UTC);
+      sb.append(startTimeFrom.toString(dateTimeFormatter));
+      sb.append("' <= \"__time\" AND \"__time\" <= TIMESTAMP '");
+      DateTime startTimeTo = new DateTime(engineMonitoringQueryRequest.getStartedTimeTo()).withZone(DateTimeZone.UTC);
+      sb.append(startTimeTo.toString(dateTimeFormatter));
+      sb.append("' ");
+    }
+    sb.append(" ORDER BY \"" );
+    sb.append(engineMonitoringQueryRequest.getKey());
+    sb.append("\" ");
+    sb.append(engineMonitoringQueryRequest.getSort().toUpperCase());
+    sb.append(" LIMIT 1000");
+    LOGGER.debug("query = {}", sb.toString());
+    Optional<List> results = engineRepository.sql(sb.toString());
+    return results.get();
   }
 
   private void setFiltersByType(List<Filter> filters, EngineMonitoringTarget monitoringTarget) {
@@ -609,4 +748,7 @@ public class EngineMonitoringService {
     return columns;
   }
 
+
 }
+
+

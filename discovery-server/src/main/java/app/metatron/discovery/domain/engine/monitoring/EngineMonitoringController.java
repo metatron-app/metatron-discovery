@@ -283,6 +283,31 @@ public class EngineMonitoringController {
     return ResponseEntity.ok(engineRepository.getMiddleManagerNodes().get());
   }
 
+  @RequestMapping(value = "/monitoring/queries/list", method = RequestMethod.POST)
+  public ResponseEntity<?> getQueryList(@RequestBody EngineMonitoringQueryRequest engineMonitoringQueryRequest) {
+    return ResponseEntity.ok(monitoringQueryService.getQueryList(engineMonitoringQueryRequest));
+  }
 
+  @RequestMapping(value = "/monitoring/query/criteria", method = RequestMethod.GET)
+  public ResponseEntity<?> getCriteriaInQuery() {
+    List<ListCriterion> listCriteria = monitoringQueryService.getListCriterionInQuery();
+
+    HashMap<String, Object> response = new HashMap<>();
+    response.put("criteria", listCriteria);
+
+    return ResponseEntity.ok(response);
+  }
+
+  @RequestMapping(value = "/monitoring/query/criteria/{criterionKey}", method = RequestMethod.GET)
+  public ResponseEntity<?> getCriterionDetailInQuery(@PathVariable(value = "criterionKey") String criterionKey) {
+    EngineMonitoringCriterionKey criterionKeyEnum = EngineMonitoringCriterionKey.valueOf(criterionKey);
+
+    if (criterionKeyEnum == null) {
+      throw new ResourceNotFoundException("Criterion(" + criterionKey + ") is not founded.");
+    }
+
+    ListCriterion criterion = monitoringQueryService.getListCriterionInQueryByKey(criterionKeyEnum);
+    return ResponseEntity.ok(criterion);
+  }
 
 }

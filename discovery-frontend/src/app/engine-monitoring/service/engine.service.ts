@@ -154,4 +154,16 @@ export class EngineService extends AbstractService {
     return this.get(this.URL_MONITORING + `/ingestion/workers/criteria/${criterionKey}`);
   }
 
+  public getQueryList(param) {
+    return this.post(this.URL_MONITORING + '/queries/list', param);
+  }
+
+  public getCriterionListInQuery() {
+    return this.get(this.URL_MONITORING + '/query/criteria');
+  }
+
+  public getCriterionInQuery(criterionKey: Criteria.ListCriterionKey) {
+    return this.get(this.URL_MONITORING + `/query/criteria/${criterionKey}`);
+  }
+
 }

@@ -4246,8 +4246,6 @@
   "msg.explore.ui.confirm.title": "현재 화면을 닫고 이동하시겠습니까?",
   "msg.explore.ui.confirm.description": "취소를 선택하면 이동하지 않습니다.",
   "msg.explore.btn.confirm.done": "현재창 닫고 이동",
-  "msg.engine.monotoring.title": "엔진 모니터링",
-  "msg.engine.monotoring.overview": "개요",
   "msg.engine.monotoring.overview.cluster.name.prefix": "상태",
   "msg.engine.monotoring.overview.error.layer.prefix": "노드",
   "msg.engine.monotoring.overview.server.name": "서버명",
@@ -4259,7 +4257,6 @@
   "msg.engine.monotoring.overview.view.mode.tooltip.card": "카드 뷰",
   "msg.engine.monotoring.error.label": "오류",
   "msg.engine.monotoring.failure.time.label": "실패 시간",
-  "msg.engine.monotoring.ingestion": "적재",
   "msg.engine.monitoring.ui.criterion.duration": "소요시간",
   "msg.engine.monitoring.ui.criterion.type": "타입",
   "msg.engine.monitoring.ui.criterion.used-capacity": "용량",
@@ -4275,5 +4272,10 @@
   "msg.engine.monitoring.ingestion.supervisor.shutdown.confirm.fail": "Supervisor 강제종료에 실패하였습니다.",
   "msg.engine.monitoring.ingestion.reset": "재설정",
   "msg.engine.monitoring.ingestion.supervisor.reset.confirm": "현재 수행중인 Supervisor를 Reset하시겠습니까?",
-  "msg.engine.monitoring.ingestion.supervisor.reset.confirm.fail": "Supervisor Reset에 실패하였습니다."
+  "msg.engine.monitoring.ingestion.supervisor.reset.confirm.fail": "Supervisor Reset에 실패하였습니다.",
+  "msg.engine.monitoring.ui.criterion.service": "서비스",
+  "msg.engine.monitoring.ui.criterion.result": "결과",
+  "msg.engine.monitoring.ui.criterion.host": "호스트",
+  "msg.engine.monitoring.ui.criterion.started-time": "시작 시간",
+  "msg.engine.monitoring.ph.query.search": "Query ID 혹은 데이터 소스 이름으로 검색"
 }
