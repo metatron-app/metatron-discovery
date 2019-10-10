@@ -30,6 +30,7 @@ import {StateService} from '../service/state.service';
 import {filter} from 'rxjs/operators';
 import {NodeInformationComponent} from "./component/node-information.component";
 import {GraphComponent} from "./component/graph.component";
+import {NodeTooltipComponent} from "./component/node-tooltip.component";
 
 @Component({
   selector: '[overview]',
@@ -55,7 +56,6 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
   public readonly MONITORING_NODETYPE = Engine.NodeType;
   public readonly VIEW_MODE = Engine.ViewMode;
   public selectedViewMode: Engine.ViewMode = this.VIEW_MODE.GRID;
-  public selectedDuration: string = '1DAY';
 
   private readonly ICON_NORMAL_CLASS = 'ddp-icon-status-success';
   private readonly ICON_WARN_CLASS = 'ddp-icon-status-warning';
@@ -73,6 +73,9 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
   @ViewChild(GraphComponent)
   private readonly _graphComponent: GraphComponent;
 
+  @ViewChild(NodeTooltipComponent)
+  private readonly _nodeTooltipComponent: NodeTooltipComponent;
+
   constructor(protected elementRef: ElementRef,
               protected injector: Injector,
               private activatedRoute: ActivatedRoute,
@@ -85,7 +88,6 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
 
     super.ngOnInit();
     this._createPageableParameter();
-    this._initializeView();
 
     this.subscriptions.push(
       this.activatedRoute.queryParams
@@ -93,7 +95,6 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
           this._initTableSortDirection();
           this._changeKeyword(decodeURIComponent(_.get(params, 'keyword', '')));
           this._changeStatus(_.get(params, 'status', Engine.MonitoringStatus.ALL));
-          this._changeDuration(_.get(params, 'duration', '1DAY'));
         }));
 
     this.subscriptions.push(
@@ -228,8 +229,7 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
         queryParams: {
           keyword: encodeURIComponent(keyword),
           status: this.selectedMonitoringStatus,
-          type: this.selectedNodeType,
-          duration: this.selectedDuration
+          type: this.selectedNodeType
         }
       })
   }
@@ -242,8 +242,7 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
         queryParams: {
           keyword: encodeURIComponent(this.keyword),
           status: status,
-          type: this.selectedNodeType,
-          duration: this.selectedDuration
+          type: this.selectedNodeType
         }
       })
   }
@@ -273,22 +272,9 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
     }, 300);
   }
 
-  public searchByDuration(duration: string) {
-    if (duration === this.selectedDuration) {
-      this._changeDuration(this.selectedDuration);
-    } else {
-      this.router.navigate([
-          this.ENGINE_MONITORING_OVERVIEW_ROUTER_URL
-        ],
-        {
-          queryParams: {
-            keyword: encodeURIComponent(this.keyword),
-            status: this.selectedMonitoringStatus,
-            type: this.selectedNodeType,
-            duration: duration
-          }
-        })
-    }
+  public changeDuration(duration: string) {
+    this._initializeView();
+    this._graphComponent.setDate(duration);
   }
 
   public changeViewMode(viewMode: Engine.ViewMode) {
@@ -304,6 +290,19 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
       this._graphComponent.onResize(event);
     }, 300);
 
+  }
+
+  public showNodeInformationTooltip(monitoring: Engine.Monitoring, event: MouseEvent) {
+    const target = $(event.target);
+    let targetLeft: number = target.position().left + 18;
+    let targetTop: number = target.position().top + 26;
+    this._nodeTooltipComponent.setEngineMonitoring(monitoring, targetLeft, targetTop);
+  }
+
+  public hideNodeInformationTooltip(event: MouseEvent) {
+    if (!$(event.relatedTarget).hasClass('ddp-wrap-tooltip')) {
+      this._nodeTooltipComponent.isShow = false;
+    }
   }
 
   private _changeTab(contentType: Engine.ContentType) {
@@ -324,11 +323,6 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
     setTimeout(() => {
       this._graphComponent.onResize(event);
     }, 300);
-  }
-
-  private _changeDuration(duration: string) {
-    this.selectedDuration = duration;
-    this._graphComponent.setDate(duration);
   }
 
   private _initTableSortDirection() {

@@ -9237,7 +9237,7 @@ table.ddp-table-list tr td .ddp-txt-sql {
 .ddp-type-server .ddp-box-top-setting .ddp-type-option .ddp-list-tab-button {margin:13px 0 0 20px}
 
 .ddp-type-server .ddp-box-detail {padding:0 20px; margin-bottom:-10px;}
-.ddp-type-server .ddp-box-detail .ddp-grid-detail {position:Relative; margin:-2px -2px 10px -2px;  clear:both;}
+.ddp-type-server .ddp-box-detail .ddp-grid-detail {position:Relative; margin:-2px -2px 10px -2px;  clear:both; display: inline-table; width: 100%;}
 .ddp-type-server .ddp-box-detail .ddp-grid-detail .ddp-grid-box {float:left; width:36px; padding:10px 0 11px 0; margin:2px;background-color: rgba(120, 196, 164, 0.1); text-align:center; color:#58bb90;}
 .ddp-type-server .ddp-box-detail .ddp-grid-detail .ddp-grid-box.type-error {background-color:#dc494f; color:#fff;}
 .ddp-type-server .ddp-box-detail .ddp-grid-detail .ddp-wrap-tooltip {display:inline-block; position:absolute; max-width:260px; padding:10px 10px; border-radius:3px; background-color:rgba(0,0,0,0.8); color:#fff; font-size:13px; box-sizing:Border-box;}

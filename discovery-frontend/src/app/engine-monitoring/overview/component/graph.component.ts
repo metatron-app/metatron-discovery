@@ -17,7 +17,6 @@ import {
   ElementRef,
   HostListener,
   Injector,
-  Input,
   OnDestroy,
   OnInit,
   ViewChild
@@ -48,7 +47,6 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
   public datasourceCount:number = 0;
   public segmentCount:number = 0;
 
-  @Input()
   public duration:string;
 
   public fromDate:string;

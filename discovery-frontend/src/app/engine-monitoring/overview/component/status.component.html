@@ -67,30 +67,30 @@
   <div class="ddp-data-date">{{currentDate}}</div>
   <!-- select box -->
   <div class="ddp-type-selectbox" [class.ddp-selected]="isShowIntervalList" (click)="isShowIntervalList = !isShowIntervalList" (clickOutside)="isShowIntervalList=false">
-    <span class="ddp-txt-selectbox">{{currentInterval}}</span>
+    <span class="ddp-txt-selectbox">{{labelRefresh}}</span>
     <ul class="ddp-list-selectbox ddp-selectdown">
       <li>
-        <a href="javascript:" (click)="changeInterval(0); $event.stopImmediatePropagation(); $event.preventDefault()" >
+        <a href="javascript:" (click)="changeRefresh(0); $event.stopImmediatePropagation(); $event.preventDefault()" >
           Off
         </a>
       </li>
       <li>
-        <a href="javascript:" (click)="changeInterval(5); $event.stopImmediatePropagation(); $event.preventDefault()">
+        <a href="javascript:" (click)="changeRefresh(5); $event.stopImmediatePropagation(); $event.preventDefault()">
           5s
         </a>
       </li>
       <li>
-        <a href="javascript:" (click)="changeInterval(10); $event.stopImmediatePropagation(); $event.preventDefault()">
+        <a href="javascript:" (click)="changeRefresh(10); $event.stopImmediatePropagation(); $event.preventDefault()">
           10s
         </a>
       </li>
       <li>
-        <a href="javascript:" (click)="changeInterval(30); $event.stopImmediatePropagation(); $event.preventDefault()">
+        <a href="javascript:" (click)="changeRefresh(30); $event.stopImmediatePropagation(); $event.preventDefault()">
           30s
         </a>
       </li>
       <li>
-        <a href="javascript:" (click)="changeInterval(60); $event.stopImmediatePropagation(); $event.preventDefault()">
+        <a href="javascript:" (click)="changeRefresh(60); $event.stopImmediatePropagation(); $event.preventDefault()">
           1m
         </a>
       </li>
@@ -102,8 +102,8 @@
 <!-- Status Name & Info tooltip -->
 
 <div class="ddp-date-setting">
-  <a href="#" class="ddp-btn-toggle" [ngClass]="{'ddp-selected' : duration === '1HOUR'}" (click)="changeDuration('1HOUR'); $event.stopImmediatePropagation(); $event.preventDefault()">Last 1 hour</a>
-  <a href="#" class="ddp-btn-toggle" [ngClass]="{'ddp-selected' : duration === '1DAY'}" (click)="changeDuration('1DAY'); $event.stopImmediatePropagation(); $event.preventDefault()">Last 1 day</a>
-  <a href="#" class="ddp-btn-toggle" [ngClass]="{'ddp-selected' : duration === '7DAYS'}" (click)="changeDuration('7DAYS'); $event.stopImmediatePropagation(); $event.preventDefault()">Last 7 days</a>
-  <a href="#" class="ddp-btn-toggle" [ngClass]="{'ddp-selected' : duration === '30DAYS'}" (click)="changeDuration('30DAYS'); $event.stopImmediatePropagation(); $event.preventDefault()">Last 30 days</a>
+  <a href="#" class="ddp-btn-toggle" [ngClass]="{'ddp-selected' : engineMonitoringData.duration === '1HOUR'}" (click)="changeDuration('1HOUR'); $event.stopImmediatePropagation(); $event.preventDefault()">Last 1 hour</a>
+  <a href="#" class="ddp-btn-toggle" [ngClass]="{'ddp-selected' : engineMonitoringData.duration === '1DAY'}" (click)="changeDuration('1DAY'); $event.stopImmediatePropagation(); $event.preventDefault()">Last 1 day</a>
+  <a href="#" class="ddp-btn-toggle" [ngClass]="{'ddp-selected' : engineMonitoringData.duration === '7DAYS'}" (click)="changeDuration('7DAYS'); $event.stopImmediatePropagation(); $event.preventDefault()">Last 7 days</a>
+  <a href="#" class="ddp-btn-toggle" [ngClass]="{'ddp-selected' : engineMonitoringData.duration === '30DAYS'}" (click)="changeDuration('30DAYS'); $event.stopImmediatePropagation(); $event.preventDefault()">Last 30 days</a>
 </div>

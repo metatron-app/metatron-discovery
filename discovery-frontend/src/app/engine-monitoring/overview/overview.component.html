@@ -17,11 +17,11 @@
 
   <!-- box status -->
   <div overview-status-view class="ddp-view-setting ddp-clear" [clusterStatus]="clusterStatus" [monitorings]="monitorings" [clusterSize]="clusterSize"
-                                          [duration]= "selectedDuration" (changeValue)="searchByDuration($event)"></div>
+                                          (changeValue)="changeDuration($event)"></div>
   <!-- // box status -->
 
   <!-- Graph Area -->
-  <div overview-graph-view class="ddp-wrap-engine-graph ddp-clear" [duration]="selectedDuration"></div>
+  <div overview-graph-view class="ddp-wrap-engine-graph ddp-clear"></div>
   <!-- // Graph Area -->
 
   <div class="ddp-box-type ddp-type-server">
@@ -108,9 +108,14 @@
           No data
         </div>
         <div class="ddp-grid-detail" *ngIf="selectedViewMode === VIEW_MODE.CARD && filteredItems.length > 0">
-          <div class="ddp-grid-box ddp-cursor" *ngFor="let monitoring of filteredItems" [ngClass]="{'type-error' : !monitoring.status}" title="{{ 'msg.engine.monotoring.overview.server.name' | translate }} : {{monitoring.hostname}}" (click)="showNodeInformationModal(monitoring);">
+          <div class="ddp-grid-box ddp-cursor" *ngFor="let monitoring of filteredItems" [ngClass]="{'type-error' : !monitoring.status}"
+               (mouseover)="showNodeInformationTooltip(monitoring, $event);"
+               (mouseleave)="hideNodeInformationTooltip($event);"
+               (click)="showNodeInformationModal(monitoring);">
             {{ convertTypeLabel(monitoring.type).substring(0, 1) }}
           </div>
+          <!-- tooltip -->
+          <node-tooltip></node-tooltip>
         </div>
         <table class="ddp-table-detail3" *ngIf="selectedViewMode === VIEW_MODE.GRID && filteredItems.length > 0">
           <colgroup>
