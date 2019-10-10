@@ -174,10 +174,10 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
       userData = new UserSetting();
     }
 
-    if (theme) {
+    if (theme != null) {
       userData.theme = theme;
     }
-    if (language) {
+    if (language != null) {
       userData.language = language;
     }
 
