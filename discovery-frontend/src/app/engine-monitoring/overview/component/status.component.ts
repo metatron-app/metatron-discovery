@@ -63,8 +63,8 @@ export class StatusComponent extends AbstractComponent implements OnInit, OnDest
   }
 
   public ngOnInit() {
-    this.changeDuration();
     this._loadEngineMonitoringDataFromLocalStorage();
+    this.changeDuration();
     this._setRefresh();
     super.ngOnInit();
   }

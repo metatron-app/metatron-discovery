@@ -103,6 +103,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
     this._getUsageMemory();
     this._getGcCount();
     this._getAvgQueryTime();
+    this._getQueryCounts();
     this._getRunningTasks();
     this._getDatasourceList();
     this._getSegmentCount();
@@ -254,7 +255,6 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
       };
 
     this._engineSvc.getMonitoringData(queryParam).then((data) => {
-      this.queryCount = data.total_count;
       const chartOps: any = {
         type: 'line',
         tooltip: {
@@ -312,6 +312,25 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
       this._avgQueryTimeChart.setOption(chartOps, false);
     });
   } // function - _getAvgQueryTime
+
+  /**
+   * get Query Counts
+   * @private
+   */
+  private _getQueryCounts() {
+    const queryParam: any =
+      {
+        monitoringTarget : {
+          metric: Engine.MonitoringTarget.QUERY_COUNT,
+          includeCount: true
+        },
+        fromDate: this.fromDate,
+        toDate: moment().utc().format()
+      };
+    this._engineSvc.getMonitoringData(queryParam).then((data) => {
+      this.queryCount = data.total_count;
+    });
+  } // function - _getQueryCounts
 
   /**
    * get Running Tasks

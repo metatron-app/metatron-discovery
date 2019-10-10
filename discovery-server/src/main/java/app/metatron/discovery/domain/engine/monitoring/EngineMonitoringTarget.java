@@ -67,6 +67,7 @@ public class EngineMonitoringTarget {
     GC_COUNT,
     GC_CPU,
     QUERY_TIME,
+    QUERY_COUNT,
     SUPERVISOR_LAG,
     TASK_ROW
   }

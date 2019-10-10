@@ -144,6 +144,7 @@ export namespace Engine {
     GC_COUNT = 'GC_COUNT',
     GC_CPU = 'GC_CPU',
     QUERY_TIME = 'QUERY_TIME',
+    QUERY_COUNT = 'QUERY_COUNT',
     SUPERVISOR_LAG = 'SUPERVISOR_LAG',
     TASK_ROW = 'TASK_ROW'
   }

@@ -167,6 +167,7 @@ public class EngineMonitoringService {
         case GC_COUNT:
         case GC_CPU:
         case QUERY_TIME:
+        case QUERY_COUNT:
         case SUPERVISOR_LAG:
           List<Long> valueList = Lists.newArrayList();
           List<Long> countList = Lists.newArrayList();
@@ -185,7 +186,7 @@ public class EngineMonitoringService {
           result.put("value", valueList);
           result.put("total_value", valueList.stream().mapToLong(Long::longValue).sum());
           if (queryRequest.getMonitoringTarget().isIncludeCount()) {
-            result.put("count", timeList);
+            result.put("count", countList);
             result.put("avg_value", avgList);
             result.put("total_count", countList.stream().mapToLong(Long::longValue).sum());
           }
@@ -546,6 +547,10 @@ public class EngineMonitoringService {
         break;
       case QUERY_TIME:
         filters.add(new SelectorFilter("metric", "query/time"));
+        break;
+      case QUERY_COUNT:
+        filters.add(new SelectorFilter("metric", "query/time"));
+        filters.add(new SelectorFilter("service", "druid/prod/broker"));
         break;
       case SUPERVISOR_LAG:
         filters.add(new SelectorFilter("metric", "ingest/kafka/lag"));
