@@ -231,6 +231,8 @@ public class EngineMonitoringService {
           result.put("unparseable", unparseableList);
           result.put("thrownaway", thrownawayList);
           break;
+        default:
+          break;
       }
       return result;
     }
@@ -557,6 +559,8 @@ public class EngineMonitoringService {
         break;
       case TASK_ROW:
         filters.add(new InFilter("metric", "ingest/events/processed", "ingest/events/unparseable", "ingest/events/thrownAway"));
+        break;
+      default:
         break;
     }
   }
