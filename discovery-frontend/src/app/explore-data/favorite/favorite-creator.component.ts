@@ -12,14 +12,30 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {
+  Component, ComponentFactoryResolver,
+  ComponentRef,
+  ElementRef,
+  Injector,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  ViewContainerRef
+} from '@angular/core';
 import {AbstractComponent} from '../../common/component/abstract.component';
+import {MetadataDataCreatorDataListComponent} from "../explore-data/popup/metadata-data-creator-data-list.component";
+import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
 
 @Component({
   selector: 'app-exploredata-favorite-creatore',
   templateUrl: './favorite-creator.component.html',
+  entryComponents: [MetadataDataCreatorDataListComponent],
 })
 export class FavoriteCreatorComponent extends AbstractComponent implements OnInit, OnDestroy {
+
+  @ViewChild('component_datacreator_data_list', {read: ViewContainerRef}) dataCreatorDataListEntry: ViewContainerRef;
+
+  dataCreatorDataListEntryRef: ComponentRef<MetadataDataCreatorDataListComponent>;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -40,6 +56,8 @@ export class FavoriteCreatorComponent extends AbstractComponent implements OnIni
   // 생성자
   constructor(
     protected element: ElementRef,
+    private metadataService: MetadataService,
+    private resolver: ComponentFactoryResolver,
     protected injector: Injector) {
     super(element, injector);
   }
@@ -61,6 +79,30 @@ export class FavoriteCreatorComponent extends AbstractComponent implements OnIni
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  async onClickCreatorCard(creator: string) {
+    this.loadingShow();
+    const result = await this.metadataService.getMetaDataList({creatorContains: creator, size: 100}).catch(e => this.commonExceptionHandler(e));
+
+    if (result !== undefined && result) {
+      if (result['_embedded']) {
+        this.dataCreatorDataListEntryRef = this.dataCreatorDataListEntry.createComponent(this.resolver.resolveComponentFactory(MetadataDataCreatorDataListComponent));
+        this.dataCreatorDataListEntryRef.instance.metadataList = result['_embedded']['metadatas'];
+        this.dataCreatorDataListEntryRef.instance.creator = creator;
+      }
+    }
+
+    this.loadingHide();
+    this.dataCreatorDataListEntryRef.instance.closedPopup.subscribe(() => {
+      // close
+      this.dataCreatorDataListEntryRef.destroy();
+    });
+  }
+
+  onClickFavoriteInCard() {
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method

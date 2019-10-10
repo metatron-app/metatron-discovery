@@ -99,7 +99,7 @@ export class MetadataOverviewComponent extends AbstractComponent implements OnIn
 
     if (result !== undefined && result) {
       if (result['_embedded']) {
-        this.dataCreatorDataListEntryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(MetadataDataCreatorDataListComponent));
+        this.dataCreatorDataListEntryRef = this.dataCreatorDataListEntry.createComponent(this.resolver.resolveComponentFactory(MetadataDataCreatorDataListComponent));
         this.dataCreatorDataListEntryRef.instance.metadataList = result['_embedded']['metadatas'];
         this.dataCreatorDataListEntryRef.instance.creator = creator;
       }

@@ -54,17 +54,16 @@
 
       <div class="ddp-wrap-list-create">
         <!-- box -->
-        <div class="ddp-box-create">
+        <div class="ddp-box-create" (click)="onClickCreatorCard('Administrator')">
           <!-- top -->
           <div class="ddp-data-top">
             <em class="ddp-data-photo"></em>
             <!-- name -->
             <div class="ddp-data-name">
-                           <span class="ddp-txt-name">
-                                <em class="ddp-icon-control-fav ddp-fright"></em>
-                                <span class="ddp-name-in" title="John SmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmith">John SmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmith</span>
-
-                           </span>
+               <span class="ddp-txt-name">
+                  <em class="ddp-icon-control-fav ddp-fright" [class.ddp-selected]="true" (click)="onClickFavoriteInCard()"></em>
+                  <span class="ddp-name-in" title="John SmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmith">John SmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmith</span>
+               </span>
             </div>
             <!-- //name -->
           </div>
@@ -76,52 +75,18 @@
             </div>
             <div class="ddp-box-list">
               <ul class="ddp-list-creator">
+<!--                li ngFor하면 됨-->
                 <li>
                   <span class="ddp-box-tag-value ddp-dataset">Dataset</span>
+<!--                  api 나오면 아래걸로 바꾸셈-->
+<!--                  <component-metadata-type-box-tag [metadata]="metadataDetailData"></component-metadata-type-box-tag>-->
                   <div class="ddp-txt-ellipsis">
                                        <span class="ddp-data-name">
-                                             <span class="ddp-data-date ddp-fright">yyyy-mm-dd hh:mm:ss</span>
+                                             <span class="ddp-data-date ddp-fright">{{'2018-09-19:20:43' | mdate:'YYYY-MM-DD HH:mm'}}</span>
                                            <span class="ddp-name-in" title="New data sousourcesoursouscecerce 0">New data sousourcesoursouscecerce 01</span>
                                        </span>
                   </div>
                 </li>
-                <li>
-                  <span class="ddp-box-tag-value ddp-database">Database</span>
-                  <div class="ddp-txt-ellipsis">
-                                       <span class="ddp-data-name">
-                                             <span class="ddp-data-date ddp-fright">yyyy-mm-dd hh:mm:ss</span>
-                                           <span class="ddp-name-in" title="New data sousourcesoursouscecerce 0">New data s</span>
-                                       </span>
-                  </div>
-                </li>
-                <li>
-                  <span class="ddp-box-tag-value ddp-datasource">Datasource</span>
-                  <div class="ddp-txt-ellipsis">
-                                       <span class="ddp-data-name">
-                                             <span class="ddp-data-date ddp-fright">yyyy-mm-dd hh:mm:ss</span>
-                                           <span class="ddp-name-in" title="New data sousourcesoursouscecerce 0">New data</span>
-                                       </span>
-                  </div>
-                </li>
-                <li>
-                  <span class="ddp-box-tag-value ddp-database">Database</span>
-                  <div class="ddp-txt-ellipsis">
-                                       <span class="ddp-data-name">
-                                             <span class="ddp-data-date ddp-fright">yyyy-mm-dd hh:mm:ss</span>
-                                           <span class="ddp-name-in" title="New data sousourcesoursouscecerce 0">New data s</span>
-                                       </span>
-                  </div>
-                </li>
-                <li>
-                  <span class="ddp-box-tag-value ddp-database">Database</span>
-                  <div class="ddp-txt-ellipsis">
-                                       <span class="ddp-data-name">
-                                             <span class="ddp-data-date ddp-fright">yyyy-mm-dd hh:mm:ss</span>
-                                           <span class="ddp-name-in" title="New data sousourcesoursouscecerce 0">New data s</span>
-                                       </span>
-                  </div>
-                </li>
-
               </ul>
             </div>
           </div>
@@ -129,218 +94,8 @@
 
         </div>
         <!-- //box -->
-        <!-- box -->
-        <div class="ddp-box-create">
-          <!-- top -->
-          <div class="ddp-data-top">
-            <em class="ddp-data-photo"></em>
-            <!-- name -->
-            <div class="ddp-data-name">
-                           <span class="ddp-txt-name">
-                                <em class="ddp-icon-control-fav ddp-fright"></em>
-                                <span class="ddp-name-in" title="John SmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmith">John SmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmith</span>
-
-                           </span>
-            </div>
-            <!-- //name -->
-          </div>
-          <!-- //top -->
-          <!-- contents -->
-          <div class="ddp-data-contents">
-            <div class="ddp-data-label">
-              Created data <span class="ddp-data-num">124</span>
-            </div>
-            <div class="ddp-box-list">
-              <ul class="ddp-list-creator">
-                <li>
-                  <span class="ddp-box-tag-value ddp-stagingdb">StagingDB</span>
-                  <div class="ddp-txt-ellipsis">
-                                       <span class="ddp-data-name">
-                                             <span class="ddp-data-date ddp-fright">yyyy-mm-dd hh:mm:ss</span>
-                                           <span class="ddp-name-in" title="New data sousourcesoursouscecerce 0">New data sousourcesoursouscecerce 01</span>
-                                       </span>
-                  </div>
-                </li>
-                <li>
-                  <span class="ddp-box-tag-value ddp-database">Database</span>
-                  <div class="ddp-txt-ellipsis">
-                                       <span class="ddp-data-name">
-                                             <span class="ddp-data-date ddp-fright">yyyy-mm-dd hh:mm:ss</span>
-                                           <span class="ddp-name-in" title="New data sousourcesoursouscecerce 0">New data s</span>
-                                       </span>
-                  </div>
-                </li>
-                <li>
-                  <span class="ddp-box-tag-value ddp-datasource">Datasource</span>
-                  <div class="ddp-txt-ellipsis">
-                                       <span class="ddp-data-name">
-                                             <span class="ddp-data-date ddp-fright">yyyy-mm-dd hh:mm:ss</span>
-                                           <span class="ddp-name-in" title="New data sousourcesoursouscecerce 0">New data</span>
-                                       </span>
-                  </div>
-                </li>
-                <li>
-                  <span class="ddp-box-tag-value ddp-database">Database</span>
-                  <div class="ddp-txt-ellipsis">
-                                       <span class="ddp-data-name">
-                                             <span class="ddp-data-date ddp-fright">yyyy-mm-dd hh:mm:ss</span>
-                                           <span class="ddp-name-in" title="New data sousourcesoursouscecerce 0">New data s</span>
-                                       </span>
-                  </div>
-                </li>
-                <li>
-                  <span class="ddp-box-tag-value ddp-database">Database</span>
-                  <div class="ddp-txt-ellipsis">
-                                       <span class="ddp-data-name">
-                                             <span class="ddp-data-date ddp-fright">yyyy-mm-dd hh:mm:ss</span>
-                                           <span class="ddp-name-in" title="New data sousourcesoursouscecerce 0">New data s</span>
-                                       </span>
-                  </div>
-                </li>
-
-              </ul>
-            </div>
-          </div>
-          <!-- //contents -->
-
-        </div>
-        <!-- //box -->
-        <!-- box -->
-        <div class="ddp-box-create">
-          <!-- top -->
-          <div class="ddp-data-top">
-            <em class="ddp-data-photo"></em>
-            <!-- name -->
-            <div class="ddp-data-name">
-                           <span class="ddp-txt-name">
-                                <em class="ddp-icon-control-fav ddp-fright"></em>
-                                <span class="ddp-name-in" title="John SmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmith">John SmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmith</span>
-
-                           </span>
-            </div>
-            <!-- //name -->
-          </div>
-          <!-- //top -->
-          <!-- contents -->
-          <div class="ddp-data-contents">
-            <div class="ddp-data-label">
-              Created data <span class="ddp-data-num">124</span>
-            </div>
-            <div class="ddp-box-list">
-              <ul class="ddp-list-creator">
-                <li>
-                  <span class="ddp-box-tag-value ddp-stagingdb">StagingDB</span>
-                  <div class="ddp-txt-ellipsis">
-                                       <span class="ddp-data-name">
-                                             <span class="ddp-data-date ddp-fright">yyyy-mm-dd hh:mm:ss</span>
-                                           <span class="ddp-name-in" title="New data sousourcesoursouscecerce 0">New data sousourcesoursouscecerce 01</span>
-                                       </span>
-                  </div>
-                </li>
-                <li>
-                  <span class="ddp-box-tag-value ddp-database">Database</span>
-                  <div class="ddp-txt-ellipsis">
-                                       <span class="ddp-data-name">
-                                             <span class="ddp-data-date ddp-fright">yyyy-mm-dd hh:mm:ss</span>
-                                           <span class="ddp-name-in" title="New data sousourcesoursouscecerce 0">New data s</span>
-                                       </span>
-                  </div>
-                </li>
-                <li>
-                  <span class="ddp-box-tag-value ddp-datasource">Datasource</span>
-                  <div class="ddp-txt-ellipsis">
-                                       <span class="ddp-data-name">
-                                             <span class="ddp-data-date ddp-fright">yyyy-mm-dd hh:mm:ss</span>
-                                           <span class="ddp-name-in" title="New data sousourcesoursouscecerce 0">New data</span>
-                                       </span>
-                  </div>
-                </li>
-
-              </ul>
-            </div>
-          </div>
-          <!-- //contents -->
-
-        </div>
-        <!-- //box -->
-        <!-- box -->
-        <div class="ddp-box-create">
-          <!-- top -->
-          <div class="ddp-data-top">
-            <em class="ddp-data-photo"></em>
-            <!-- name -->
-            <div class="ddp-data-name">
-                           <span class="ddp-txt-name">
-                                <em class="ddp-icon-control-fav ddp-fright ddp-selected"></em>
-                                <span class="ddp-name-in" title="John Sm">John Sm</span>
-
-                           </span>
-            </div>
-            <!-- //name -->
-          </div>
-          <!-- //top -->
-          <!-- contents -->
-          <div class="ddp-data-contents">
-            <div class="ddp-data-label">
-              Created data <span class="ddp-data-num">124</span>
-            </div>
-            <div class="ddp-box-list">
-              <ul class="ddp-list-creator">
-                <li>
-                  <span class="ddp-box-tag-value ddp-stagingdb">StagingDB</span>
-                  <div class="ddp-txt-ellipsis">
-                                       <span class="ddp-data-name">
-                                             <span class="ddp-data-date ddp-fright">yyyy-mm-dd hh:mm:ss</span>
-                                           <span class="ddp-name-in" title="New data sousourcesoursouscecerce 0">New data sousourcesoursouscecerce 01</span>
-                                       </span>
-                  </div>
-                </li>
-                <li>
-                  <span class="ddp-box-tag-value ddp-database">Database</span>
-                  <div class="ddp-txt-ellipsis">
-                                       <span class="ddp-data-name">
-                                             <span class="ddp-data-date ddp-fright">yyyy-mm-dd hh:mm:ss</span>
-                                           <span class="ddp-name-in" title="New data sousourcesoursouscecerce 0">New data s</span>
-                                       </span>
-                  </div>
-                </li>
-                <li>
-                  <span class="ddp-box-tag-value ddp-datasource">Datasource</span>
-                  <div class="ddp-txt-ellipsis">
-                                       <span class="ddp-data-name">
-                                             <span class="ddp-data-date ddp-fright">yyyy-mm-dd hh:mm:ss</span>
-                                           <span class="ddp-name-in" title="New data sousourcesoursouscecerce 0">New data</span>
-                                       </span>
-                  </div>
-                </li>
-                <li>
-                  <span class="ddp-box-tag-value ddp-database">Database</span>
-                  <div class="ddp-txt-ellipsis">
-                                       <span class="ddp-data-name">
-                                             <span class="ddp-data-date ddp-fright">yyyy-mm-dd hh:mm:ss</span>
-                                           <span class="ddp-name-in" title="New data sousourcesoursouscecerce 0">New data s</span>
-                                       </span>
-                  </div>
-                </li>
-                <li>
-                  <span class="ddp-box-tag-value ddp-database">Database</span>
-                  <div class="ddp-txt-ellipsis">
-                                       <span class="ddp-data-name">
-                                             <span class="ddp-data-date ddp-fright">yyyy-mm-dd hh:mm:ss</span>
-                                           <span class="ddp-name-in" title="New data sousourcesoursouscecerce 0">New data s</span>
-                                       </span>
-                  </div>
-                </li>
-
-              </ul>
-            </div>
-          </div>
-          <!-- //contents -->
-
-        </div>
-        <!-- //box -->
-
       </div>
     </div>
 
   </div>
+ <ng-template #component_datacreator_data_list></ng-template>
