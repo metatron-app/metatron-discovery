@@ -2465,6 +2465,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     //H2, HIVE, ORACLE, TIBERO, MYSQL, MSSQL, PRESTO, FILE, POSTGRESQL, GENERAL;
     if (this.mimeType == 'HIVE' || this.mimeType == 'PRESTO' || this.mimeType == 'GENERAL') {
       this.editor.setModeOptions('text/x-hive');
+    } else if ( this.mimeType == 'POSTGRESQL' ) {
+      this.editor.setModeOptions('text/x-pgsql');
     } else {
       this.editor.setModeOptions('text/x-mysql');
     }
