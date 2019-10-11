@@ -17,7 +17,6 @@ package app.metatron.discovery.domain.dataprep.etl;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_CORES;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_LIMIT_ROWS;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_TIMEOUT;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
 import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.CANCELED;
 import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.FAILED;
 import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.RUNNING;
@@ -28,8 +27,6 @@ import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.M
 import static app.metatron.discovery.domain.dataprep.util.PrepUtil.snapshotError;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.domain.dataconnection.DataConnection;
-import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
@@ -39,8 +36,6 @@ import app.metatron.discovery.domain.dataprep.teddy.DataFrameService;
 import app.metatron.discovery.domain.dataprep.teddy.Row;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.util.DbInfo;
-import app.metatron.discovery.domain.dataprep.util.PrepUtil;
-import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.Join;
@@ -49,10 +44,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -64,7 +56,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,6 +81,9 @@ public class TeddyExecutor {
 
   @Autowired
   TeddyFileService fileService;
+
+  @Autowired
+  TeddyDatabaseService databaseService;
 
   @Autowired
   TeddyStagingDbService stagingDbService;
@@ -131,9 +125,11 @@ public class TeddyExecutor {
     Map<String, Object> callbackInfo = GlobalObjectMapper.readValue(argv[3], HashMap.class);
 
     setPrepPropertiesInfo(prepPropertiesInfo);
-    callback.setCallbackInfo(callbackInfo);
     fileService.setPrepPropertiesInfo(prepPropertiesInfo);
+    databaseService.setPrepPropertiesInfo(prepPropertiesInfo);
     stagingDbService.setPrepPropertiesInfo(prepPropertiesInfo);
+
+    callback.setCallbackInfo(callbackInfo);
 
     ssId = (String) snapshotInfo.get("ssId");
     String masterTeddyDsId = ((String) dsInfo.get("origTeddyDsId"));
@@ -229,8 +225,8 @@ public class TeddyExecutor {
   }
 
   // returns slaveFullDsIds
-  void transformRecursive(String ssId, Map<String, Object> dsInfo)
-          throws ClassNotFoundException, SQLException, TeddyException, URISyntaxException, TimeoutException, InterruptedException {
+  void transformRecursive(String ssId, Map<String, Object> dsInfo) throws ClassNotFoundException, SQLException,
+          TeddyException, URISyntaxException, TimeoutException, InterruptedException {
     snapshotService.cancelCheck(ssId);
     String origTeddyDsId = (String) dsInfo.get("origTeddyDsId");
 
@@ -376,13 +372,8 @@ public class TeddyExecutor {
         break;
 
       case "DATABASE":
-        String implementor = (String) dsInfo.get("implementor");
-        String connectUri = (String) dsInfo.get("connectUri");
-        String username = (String) dsInfo.get("username");
-        String password = (String) dsInfo.get("password");
-
-        DbInfo dbInfo = new DbInfo(implementor, connectUri, username, password);
-        loadJdbcTable(newFullDsId, (String) dsInfo.get("sourceQuery"), dbInfo);
+        String sql = (String) dsInfo.get("sourceQuery");
+        cache.put(newFullDsId, databaseService.loadDatabaseTable(newFullDsId, sql, new DbInfo(dsInfo)));
         break;
 
       case "STAGING_DB":
@@ -395,51 +386,6 @@ public class TeddyExecutor {
 
     LOGGER.trace("TeddyExecutor.createStage0(): end");
     return newFullDsId;
-  }
-
-  private Statement getJdbcStatement(String implementor, String connectUri, String username, String password)
-          throws SQLException, ClassNotFoundException {
-
-    DataConnection jdbcDataConnection = new DataConnection();
-    jdbcDataConnection.setImplementor(implementor);
-    jdbcDataConnection.setUsername(username);
-    jdbcDataConnection.setPassword(password);
-    jdbcDataConnection.setUrl(connectUri);
-
-    JdbcDialect dialect = DataConnectionHelper.lookupDialect(jdbcDataConnection);
-    String driverClass = dialect.getDriverClass(jdbcDataConnection);
-    try {
-      if (driverClass != null) {
-        Class.forName(driverClass);
-      }
-      Connection conn = DriverManager.getConnection(connectUri, jdbcDataConnection.getUsername(),
-              jdbcDataConnection.getPassword());
-      return conn.createStatement();
-    } catch (ClassNotFoundException e) {
-      LOGGER.error(String
-              .format("getJdbcStatement(): ClassNotFoundException occurred: driver-class-name=%s",
-                      driverClass), e);
-      throw e;
-    } catch (SQLException e) {
-      LOGGER.error(String
-              .format("getJdbcStatement(): SQLException occurred: connStr=%s username=%s password=%s",
-                      connectUri, jdbcDataConnection.getUsername(), jdbcDataConnection.getPassword()), e);
-      throw e;
-    }
-  }
-
-  public void loadJdbcTable(String dsId, String sql, DbInfo db)
-          throws SQLException, ClassNotFoundException, TeddyException {
-    Statement stmt = getJdbcStatement(db.implementor, db.connectUri, db.username, db.password);
-    DataFrame df = new DataFrame();
-
-    LOGGER.info(String.format("loadJdbcTable(): dsId=%s sql=%s, implementor=%s, connectUri=%s, username=%s", dsId, sql,
-            db.implementor, db.connectUri, db.username));
-
-    df.setByJDBC(stmt, sql, limitRows);
-    cache.put(dsId, df);
-
-    LOGGER.trace("loadJdbcTable(): end");
   }
 
   public List<Future<List<Row>>> getJob(String key) {

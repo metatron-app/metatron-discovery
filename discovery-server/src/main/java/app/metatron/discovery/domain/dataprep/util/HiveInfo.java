@@ -5,7 +5,7 @@ import app.metatron.discovery.domain.dataprep.entity.PrSnapshot.HIVE_FILE_FORMAT
 import java.io.File;
 import java.util.Map;
 
-public class HiveExtInfo {
+public class HiveInfo {
 
   public HIVE_FILE_FORMAT format;
   public HIVE_FILE_COMPRESSION compression;
@@ -13,18 +13,10 @@ public class HiveExtInfo {
   public String dbName;
   public String tblName;
 
-  public HiveExtInfo() {}
-
-  public HiveExtInfo(HIVE_FILE_FORMAT format, HIVE_FILE_COMPRESSION compression, String extHdfsDir, String dbName,
-          String tblName) {
-    this.format = format;
-    this.compression = compression;
-    this.extHdfsDir = extHdfsDir;
-    this.dbName = dbName;
-    this.tblName = tblName;
+  public HiveInfo() {
   }
 
-  public HiveExtInfo(Map<String, Object> snapshotInfo) {
+  public HiveInfo(Map<String, Object> snapshotInfo) {
     String strHiveFileFormat = (String) snapshotInfo.get("hiveFileFormat");
     String strHiveFileCompression = (String) snapshotInfo.get("hiveFileCompression");
     String dbName = (String) snapshotInfo.get("dbName");
@@ -43,7 +35,7 @@ public class HiveExtInfo {
 
   @Override
   public String toString() {
-    return "HiveExtInfo{" +
+    return "HiveInfo{" +
             "format=" + format +
             ", compression=" + compression +
             ", extHdfsDir='" + extHdfsDir + '\'' +

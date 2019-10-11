@@ -21,7 +21,7 @@ import app.metatron.discovery.domain.dataprep.teddy.ColumnDescription;
 import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-import app.metatron.discovery.domain.dataprep.util.HiveExtInfo;
+import app.metatron.discovery.domain.dataprep.util.HiveInfo;
 import app.metatron.discovery.domain.dataprep.util.PrepUtil;
 import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -101,31 +101,13 @@ public class TeddyStagingDbService {
     df.checkAlphaNumericalColNames();
 
     String ssId = (String) snapshotInfo.get("ssId");
-    HiveExtInfo hiveExtInfo = new HiveExtInfo(snapshotInfo);
+    HiveInfo hiveInfo = new HiveInfo(snapshotInfo);
 
     // TODO: Why should lines with null values be omitted?
-    writeExtFile(ssId, df, hiveExtInfo);
+    writeExternalFile(ssId, df, hiveInfo);
 
     callback.updateStatus(ssId, TABLE_CREATING);
-    makeHiveTable(ssId, df, hiveExtInfo);
-    //  makeHiveTable(cache.get(masterFullDsId),partKeys,dbName +"."+tblName,location,enumFormat,
-    //  enumCompression);
-    //    createHiveSnapshotInternal(ssId, masterFullDsId, ruleStrings, partKeys, database, tableName, extDir, format,
-    //            compression);
-    //
-    //    String jsonColDescs = GlobalObjectMapper.getDefaultMapper()
-    //            .writeValueAsString(finalDf.colDescs);
-    //    callback.updateSnapshot(ssId, "custom", "{'colDescs':" + jsonColDescs + "}");
-    //
-    //    // master를 비롯해서, 스냅샷 생성을 위해 새로 만들어진 모든 full dataset을 제거
-    //    for (String fullDsId : reverseMap.keySet()) {
-    //      cache.remove(fullDsId);
-    //    }
-    //
-    //    LOGGER.info("createStagingDbSnapshot() finished");
-
-    // totalLines is already written in writeCsvForStagingDbSnapshot() (cf. createUriSnapshot())
-
+    makeHiveTable(ssId, df, hiveInfo);
   }
 
   private String processArray(ColumnDescription colDesc) {
@@ -202,10 +184,10 @@ public class TeddyStagingDbService {
     return null;
   }
 
-  private String buildCreateTableSql(String ssId, DataFrame df, HiveExtInfo hiveExtInfo) throws IOException {
-    LOGGER.debug("buildCreateTableStmt(): start: ssId={} dsName={} hiveExtInfo={}", ssId, df.dsName, hiveExtInfo);
+  private String buildCreateTableSql(String ssId, DataFrame df, HiveInfo hiveInfo) throws IOException {
+    LOGGER.debug("buildCreateTableStmt(): start: ssId={} dsName={} hiveInfo={}", ssId, df.dsName, hiveInfo);
 
-    StringBuffer sbSql = new StringBuffer(String.format("CREATE EXTERNAL TABLE %s (", getFullTblName(hiveExtInfo)));
+    StringBuffer sbSql = new StringBuffer(String.format("CREATE EXTERNAL TABLE %s (", getFullTblName(hiveInfo)));
 
     for (int colno = 0; colno < df.getColCnt(); colno++) {
       sbSql.append(String.format("`%s` ", df.getColName(colno)));
@@ -216,14 +198,14 @@ public class TeddyStagingDbService {
     sbSql.setLength(sbSql.length() - 2);  // remove ", "
     sbSql.append(")");
 
-    switch (hiveExtInfo.format) {
+    switch (hiveInfo.format) {
       case CSV:
         // By the method below, we cannot designate the quote character.
         // We cannot prevent the comma from spliting even if it's inside quotes.
         // Instead, we can preserve the types. (cf. see the other method)
         sbSql.append(String.format(
                 " ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '%s'",
-                getFullExtDir(hiveExtInfo)));
+                getFullExtDir(hiveInfo)));
 
         // By the method below, we can designate the quote character.
         // But all the columns loose their types and become strings.
@@ -240,7 +222,7 @@ public class TeddyStagingDbService {
       case ORC:
         sbSql.append(String.format(
                 " STORED AS ORC LOCATION '%s' TBLPROPERTIES (\"orc.compress\"=\"%s\")",
-                getFullExtDir(hiveExtInfo), hiveExtInfo.compression.name()));
+                getFullExtDir(hiveInfo), hiveInfo.compression.name()));
         break;
     }
 
@@ -273,12 +255,12 @@ public class TeddyStagingDbService {
   }
 
 
-  public void makeHiveTable(String ssId, DataFrame df, HiveExtInfo hiveExtInfo)
+  public void makeHiveTable(String ssId, DataFrame df, HiveInfo hiveInfo)
           throws IOException, SQLException, ClassNotFoundException {
-    LOGGER.debug("makeHiveTable(): start: ssId={} dsName={} hiveExtInfo={}", ssId, df.dsName, hiveExtInfo);
+    LOGGER.debug("makeHiveTable(): start: ssId={} dsName={} hiveInfo={}", ssId, df.dsName, hiveInfo);
 
-    String crSql = buildCreateTableSql(ssId, df, hiveExtInfo);
-    String drSql = "DROP TABLE IF EXISTS " + getFullTblName(hiveExtInfo);
+    String crSql = buildCreateTableSql(ssId, df, hiveInfo);
+    String drSql = "DROP TABLE IF EXISTS " + getFullTblName(hiveInfo);
     LOGGER.info("makeHiveTable(): create table statement=" + crSql);
 
     Statement hiveStmt = getHiveStatement();
@@ -295,35 +277,34 @@ public class TeddyStagingDbService {
       LOGGER.error("makeHiveTable(): failed to create table: sql=" + crSql);
       throw e;
     }
-
     LOGGER.trace("makeHiveTable(): end");
   }
 
-  private String getFullTblName(HiveExtInfo hiveExtInfo) {
-    return hiveExtInfo.dbName + "." + hiveExtInfo.tblName;
+  private String getFullTblName(HiveInfo hiveInfo) {
+    return hiveInfo.dbName + "." + hiveInfo.tblName;
   }
 
-  private String getFullExtDir(HiveExtInfo hiveExtInfo) throws IOException {
-    return getFullExtDir(hiveExtInfo, false);
+  private String getFullExtDir(HiveInfo hiveInfo) throws IOException {
+    return getFullExtDir(hiveInfo, false);
   }
 
-  private String getFullExtDir(HiveExtInfo hiveExtInfo, boolean truncate) throws IOException {
+  private String getFullExtDir(HiveInfo hiveInfo, boolean truncate) throws IOException {
     FileSystem fs = FileSystem.get(hadoopConf);
 
-    Path dir = new Path(hiveExtInfo.extHdfsDir + "/" + hiveExtInfo.dbName + "/" + hiveExtInfo.tblName);
+    Path dir = new Path(hiveInfo.extHdfsDir + "/" + hiveInfo.dbName + "/" + hiveInfo.tblName);
     if (truncate && fs.exists(dir)) {
       fs.delete(dir, true);
     }
     return dir.toString();
   }
 
-  private void writeExtFile(String ssId, DataFrame df, HiveExtInfo hiveExtInfo) throws IOException {
-    LOGGER.debug("writeExtFile(): start: ssId={} dsName={} hiveExtInfo={}", ssId, df.dsName, hiveExtInfo);
+  private void writeExternalFile(String ssId, DataFrame df, HiveInfo hiveInfo) throws IOException {
+    LOGGER.debug("writeExternalFile(): start: ssId={} dsName={} hiveInfo={}", ssId, df.dsName, hiveInfo);
 
-    HIVE_FILE_FORMAT format = hiveExtInfo.format;
-    HIVE_FILE_COMPRESSION compression = hiveExtInfo.compression;
+    HIVE_FILE_FORMAT format = hiveInfo.format;
+    HIVE_FILE_COMPRESSION compression = hiveInfo.compression;
 
-    String fullExtDir = getFullExtDir(hiveExtInfo, true);
+    String fullExtDir = getFullExtDir(hiveInfo, true);
 
     Integer[] rowCnt = new Integer[2];
 
@@ -340,11 +321,11 @@ public class TeddyStagingDbService {
         break;
     }
 
-    saveSuccessFile(hiveExtInfo);
+    saveSuccessFile(hiveInfo);
     updateLineageInfo(ssId, rowCnt);
     callback.updateSnapshot(ssId, "totalLines", String.valueOf(rowCnt[0]));
 
-    LOGGER.trace("writeExtFile(): end");
+    LOGGER.trace("writeExternalFile(): end");
   }
 
   private void updateLineageInfo(String ssId, Integer[] rowCnt) throws JsonProcessingException {
@@ -357,9 +338,9 @@ public class TeddyStagingDbService {
     }
   }
 
-  private void saveSuccessFile(HiveExtInfo hiveExtInfo) throws IOException {
+  private void saveSuccessFile(HiveInfo hiveInfo) throws IOException {
     FileSystem fs = FileSystem.get(hadoopConf);
-    String fullExtDir = getFullExtDir(hiveExtInfo);
+    String fullExtDir = getFullExtDir(hiveInfo);
 
     Path success = new Path(fullExtDir + File.separator + "_SUCCESS");
     Path byTeddy = new Path(fullExtDir + File.separator + "_BY_TEDDY");
@@ -390,66 +371,4 @@ public class TeddyStagingDbService {
     LOGGER.trace("loadHiveTable(): end");
     return df;
   }
-
-  //  String location = writeCsvForStagingDbSnapshot(ssId, masterFullDsId, extHdfsDir, dbName,
-  //          tblName, enumFormat, enumCompression);
-  //
-  //    callback.updateStatus(ssId,TABLE_CREATING);
-  //
-  //  makeHiveTable(cache.get(masterFullDsId),partKeys,dbName +"."+tblName,location,enumFormat,
-  //  enumCompression);
-
-  //  public String writeCsvForStagingDbSnapshot(String ssId, String dsId, String extHdfsDir, String dbName, String tblName,
-  //          HIVE_FILE_FORMAT hiveFileFormat, HIVE_FILE_COMPRESSION compression)
-  //          throws IOException, IllegalColumnNameForHiveException {
-  //    Integer[] rowCnt = new Integer[2];
-  //    FileSystem fs = FileSystem.get(hadoopConf);
-  //
-  //    LOGGER.trace("writeCsvForStagingDbSnapshot(): start");
-  //    assert extHdfsDir.equals("") == false : extHdfsDir;
-  //    LOGGER.info("extHdfsDir=" + extHdfsDir);
-  //
-  //    Path dir = new Path(extHdfsDir + "/" + dbName + "/" + tblName);
-  //    if (fs.exists(dir)) {
-  //      fs.delete(dir, true);
-  //    }
-  //
-  ////    DataFrame df = cache.get(dsId);
-  //
-  //    switch (hiveFileFormat) {
-  //      case CSV:
-  //        String strUri = dir.toString() + File.separator + "part-00000-" + dsId + ".csv";
-  //        rowCnt[0] = fileService.writeCsv(ssId, strUri, df);
-  //        break;
-  //      case ORC:
-  //        df.lowerColNames();
-  //        Path file = new Path(dir.toString() + File.separator + "part-00000-" + dsId + ".orc");
-  //        TeddyOrcWriter orcWriter = new TeddyOrcWriter();
-  //        rowCnt = orcWriter.writeOrc(df, hadoopConf, file, compression);
-  //        break;
-  //      default:
-  //        assert false : hiveFileFormat;
-  //    }
-  //
-  //    Path success = new Path(extHdfsDir + File.separator + "_SUCCESS");
-  //    Path byTeddy = new Path(extHdfsDir + File.separator + "_BY_TEDDY");
-  //
-  //    FSDataOutputStream fin = fs.create(success);
-  //    fin.close();
-  //    fin = fs.create(byTeddy);
-  //    fin.close();
-  //
-  //    callback.updateSnapshot(ssId, "totalLines", String.valueOf(rowCnt[0]));
-  //    ObjectMapper mapper = GlobalObjectMapper.getDefaultMapper();
-  //
-  //    if (rowCnt[1] != null && rowCnt[1] > 0) {
-  //      Map<String, Object> lineageInfo = snapshotService.getSnapshotLineageInfo(ssId);
-  //      lineageInfo.put("excludedLines", rowCnt[1]);
-  //      callback.updateSnapshot(ssId, "lineageInfo", mapper.writeValueAsString(lineageInfo));
-  //    }
-  //
-  //    LOGGER.trace("writeCsvForStagingDbSnapshot(): end");
-  //    return dir.toUri().toString();
-  //  }
-
 }
