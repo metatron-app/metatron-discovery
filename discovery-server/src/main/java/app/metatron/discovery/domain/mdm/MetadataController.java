@@ -56,6 +56,7 @@ import app.metatron.discovery.common.entity.SearchParamValidator;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.CollectionPatch;
 import app.metatron.discovery.domain.datasource.DataSourceService;
+import app.metatron.discovery.domain.favorite.FavoriteService;
 import app.metatron.discovery.domain.tag.Tag;
 import app.metatron.discovery.domain.tag.TagProjections;
 import app.metatron.discovery.domain.tag.TagService;
@@ -96,6 +97,9 @@ public class MetadataController {
 
   @Autowired
   DefaultFormattingConversionService defaultConversionService;
+
+  @Autowired
+  FavoriteService favoriteService;
 
   MetadataColumnProjections metadataColumnProjections = new MetadataColumnProjections();
 
@@ -161,10 +165,11 @@ public class MetadataController {
       targetUserId = targetUser.stream().map(user -> user.getUsername()).collect(Collectors.toList());
     }
 
-    Page <Metadata> metadatas = metadataRepository.searchMetadatas(keyword, searchSourceType, catalogId, tag,
-            nameContains, descContains, targetUserId,
-            searchDateBy, from, to, pageable);
-
+    Page<Metadata> metadatas = metadataRepository.searchMetadatas(keyword, searchSourceType, catalogId, tag,
+                                                                  nameContains, descContains, targetUserId,
+                                                                  searchDateBy, from, to, pageable);
+    //add additional properties for list projection
+    metadataService.addProjectionProperties(metadatas.getContent());
     return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(metadatas, resourceAssembler));
   }
 
@@ -410,7 +415,7 @@ public class MetadataController {
   @RequestMapping(path = "/metadatas/favorite/my", method = RequestMethod.GET)
   @ResponseBody
   public ResponseEntity<?> getMyFavoriteMetadatas(Pageable pageable, PersistentEntityResourceAssembler resourceAssembler) {
-    Page<Metadata> metadatas = metadataRepository.findAll(pageable);
+    Page<Metadata> metadatas = metadataService.getMyFavoriteMetadatas(pageable);
     metadatas = new PageImpl<Metadata>(Lists.newArrayList(), new PageRequest(0, 20), 0L);
     return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(metadatas, resourceAssembler));
   }
@@ -528,4 +533,16 @@ public class MetadataController {
     ));
   }
 
+  @RequestMapping(value = "/metadatas/{metadataId}/favorite/{action:attach|detach}", method = RequestMethod.POST)
+  public ResponseEntity <?> manageFavorite(@PathVariable("metadataId") String metadataId, @PathVariable("action") String action) {
+    switch (action) {
+      case "attach":
+        favoriteService.addFavorite(DomainType.METADATA, metadataId);
+        break;
+      case "detach":
+        favoriteService.removeFavorite(DomainType.METADATA, metadataId);
+        break;
+    }
+    return ResponseEntity.noContent().build();
+  }
 }

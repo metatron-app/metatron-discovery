@@ -30,4 +30,6 @@ public interface MetadataRepository extends JpaRepository<Metadata, String>,
     QueryDslPredicateExecutor<Metadata>, MetadataRepositoryExtends, RevisionRepository<Metadata, String, Long> {
 
   List<Metadata> findTop10ByOrderByCreatedTimeDesc();
+
+  List<Metadata> findByIdIn(List<String> ids);
 }

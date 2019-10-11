@@ -52,4 +52,6 @@ public interface MetadataPopularityRepository extends JpaRepository<MetadataPopu
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   @Query("DELETE FROM MetadataPopularity")
   void delelteAllPopularity();
+
+  List<MetadataPopularity> findByTypeAndMetadataIdIn(MetadataPopularity.PopularityType type, List<String> metadataId);
 }

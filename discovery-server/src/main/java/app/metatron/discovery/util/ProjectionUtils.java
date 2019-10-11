@@ -26,9 +26,9 @@ import static java.util.stream.Collectors.toList;
 
 public class ProjectionUtils {
 
-  public static <T> List<T> toListResource(ProjectionFactory factory,
+  public static <T, E> List<T> toListResource(ProjectionFactory factory,
                                      Class<T> projectionClass,
-                                     List<Object> resources) {
+                                     List<E> resources) {
     if(CollectionUtils.isEmpty(resources)) {
       return Lists.newArrayList();
     }

@@ -62,6 +62,7 @@ import javax.persistence.EntityManager;
 
 import app.metatron.discovery.common.data.projection.DataGrid;
 import app.metatron.discovery.common.data.projection.Row;
+import app.metatron.discovery.common.entity.DomainType;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.activities.ActivityStream;
 import app.metatron.discovery.domain.activities.ActivityStreamRepository;
@@ -77,12 +78,18 @@ import app.metatron.discovery.domain.datasource.data.DataSourceValidator;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
 import app.metatron.discovery.domain.engine.EngineProperties;
 import app.metatron.discovery.domain.engine.EngineQueryService;
+import app.metatron.discovery.domain.favorite.Favorite;
+import app.metatron.discovery.domain.favorite.FavoriteRepository;
 import app.metatron.discovery.domain.mdm.preview.MetadataEngineDataPreview;
 import app.metatron.discovery.domain.mdm.preview.MetadataJdbcDataPreview;
 import app.metatron.discovery.domain.mdm.source.MetaSourceService;
 import app.metatron.discovery.domain.mdm.source.MetadataSource;
 import app.metatron.discovery.domain.revision.MetatronRevisionEntity;
 import app.metatron.discovery.domain.storage.StorageProperties;
+import app.metatron.discovery.domain.tag.Tag;
+import app.metatron.discovery.domain.tag.TagDomain;
+import app.metatron.discovery.domain.tag.TagDomainRepository;
+import app.metatron.discovery.domain.tag.TagRepository;
 import app.metatron.discovery.domain.user.CachedUserService;
 import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.workbench.QueryEditor;
@@ -97,6 +104,7 @@ import app.metatron.discovery.domain.workspace.Workspace;
 import app.metatron.discovery.domain.workspace.WorkspacePermissions;
 import app.metatron.discovery.domain.workspace.WorkspaceService;
 import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
+import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.HibernateUtils;
 
 
@@ -153,6 +161,18 @@ public class MetadataService implements ApplicationEventPublisherAware {
 
   @Autowired
   EntityManager entityManager;
+
+  @Autowired
+  FavoriteRepository favoriteRepository;
+
+  @Autowired
+  TagRepository tagRepository;
+
+  @Autowired
+  TagDomainRepository tagDomainRepository;
+
+  @Autowired
+  MetadataPopularityService metadataPopularityService;
 
   private ApplicationEventPublisher publisher;
 
@@ -796,5 +816,126 @@ public class MetadataService implements ApplicationEventPublisherAware {
         break;
     }
     return relatedEntityPage;
+  }
+
+  public Page<Metadata> getMyFavoriteMetadatas(Pageable pageable){
+    // getting favorites....
+    Page<Favorite> favorites = favoriteRepository.findByCreatedByAndDomainType(AuthUtils.getAuthUserName(), DomainType.METADATA, pageable);
+
+    Page<Metadata> metadataPage = null;
+
+    if(favorites.getContent() == null || favorites.getContent().isEmpty()){
+      metadataPage = new PageImpl<>(Lists.newArrayList(), pageable, favorites.getTotalElements());
+    } else {
+      // metadata id list
+      List<String> metadataIdList = favorites.getContent()
+                                             .stream()
+                                             .map(favorite -> favorite.getTargetId())
+                                             .collect(Collectors.toList());
+
+      // getting metadata
+      List<Metadata> metadatas = metadataRepository.findByIdIn(metadataIdList);
+
+      //add projection property
+      addProjectionProperties(metadatas);
+
+      //sort by favorites order
+      metadatas.sort((a, b) -> {
+        int aIndex = metadataIdList.indexOf(a.getId());
+        int bIndex = metadataIdList.indexOf(b.getId());
+        if(aIndex == bIndex){
+          return 0;
+        } else if(aIndex > bIndex){
+          return 1;
+        } else {
+          return -1;
+        }
+      });
+      metadataPage = new PageImpl<>(metadatas, pageable, favorites.getTotalElements());
+    }
+
+    return metadataPage;
+  }
+
+  public void addProjectionProperties(List<Metadata> metadataList){
+    markFavorite(metadataList);
+    findTags(metadataList);
+    findPopularities(metadataList);
+  }
+
+  public List<Metadata> markFavorite(List<Metadata> metadataList){
+    if(metadataList != null && !metadataList.isEmpty()){
+      String userName = AuthUtils.getAuthUserName();
+      List<String> metadataIds = metadataList.stream().map(metadata -> metadata.getId()).collect(Collectors.toList());
+
+      List<Favorite> favoriteList = favoriteRepository.findByCreatedByAndDomainTypeAndTargetIdIn(userName, DomainType.METADATA, metadataIds);
+      if(favoriteList != null && !favoriteList.isEmpty()){
+        List<String> favoriteMetadataList = favoriteList.stream().map(favorite -> favorite.getTargetId()).collect(Collectors.toList());
+        metadataList.stream()
+                    .filter(metadata -> favoriteMetadataList.contains(metadata.getId()))
+                    .forEach(metadata -> metadata.setFavorite(true));
+      }
+    }
+    return metadataList;
+  }
+
+  public List<Metadata> findTags(List<Metadata> metadataList){
+    if(metadataList != null && !metadataList.isEmpty()){
+      List<String> metadataIds = metadataList.stream().map(metadata -> metadata.getId()).collect(Collectors.toList());
+
+      //tag domain list
+      List<TagDomain> tagDomainList = tagDomainRepository.findByDomainTypeAndDomainIdIn(DomainType.METADATA, metadataIds);
+
+      List<String> tagIdList = tagDomainList.stream().map(tagDomain -> tagDomain.getTag().getId()).collect(Collectors.toList());
+
+      //extract tag id
+      List<Tag> tagList = tagRepository.findAll(tagIdList);
+
+      if(tagList != null && !tagList.isEmpty()){
+        //convert list to map by metadataId
+        Map<String, List<Tag>> tagByMetadataIdMap = new HashMap<>();
+        tagDomainList.stream().forEach(tagDomain -> {
+          String metadataId = tagDomain.getDomainId();
+          List<Tag> tagListInMap = tagByMetadataIdMap.get(metadataId);
+          if(tagListInMap == null){
+            tagListInMap = Lists.newArrayList();
+            tagByMetadataIdMap.put(metadataId, tagListInMap);
+          }
+          tagListInMap.add(tagDomain.getTag());
+        });
+
+        metadataList.stream().forEach(metadata -> {
+          metadata.setTags(tagByMetadataIdMap.get(metadata.getId()));
+        });
+
+      }
+    }
+    return metadataList;
+  }
+
+  public List<Metadata> findPopularities(List<Metadata> metadataList){
+    if(metadataList != null && !metadataList.isEmpty()){
+      List<String> metadataIds = metadataList.stream().map(metadata -> metadata.getId()).collect(Collectors.toList());
+      List<MetadataPopularity> popularities = metadataPopularityService.getPopularity(metadataIds);
+
+      metadataList.stream().forEach(metadata -> {
+        Optional<MetadataPopularity> metadataPopularity =
+            popularities.stream().filter(popularity -> popularity.getMetadataId().equals(metadata.getId())).findFirst();
+
+        if(metadataPopularity.isPresent()){
+          metadata.setPopularity(metadataPopularity.get().popularity);
+        } else {
+          metadata.setPopularity(0.0);
+        }
+      });
+    }
+
+    return metadataList;
+  }
+
+  public boolean isFavorite(Metadata metadata){
+    String userName = AuthUtils.getAuthUserName();
+    List<Favorite> favoriteList = favoriteRepository.findByCreatedByAndDomainTypeAndTargetIdIn(userName, DomainType.METADATA, Lists.newArrayList(metadata.getId()));
+    return (favoriteList != null && favoriteList.size() > 0);
   }
 }
