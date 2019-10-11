@@ -300,7 +300,7 @@ export class ExploreDataListComponent extends AbstractComponent {
     if (this.betweenPastTime || this.betweenCurrentTime) {
       return `${this.translateService.instant(this.betweenPastTime)} ~ ${this.translateService.instant(this.betweenCurrentTime)}`
     } else {
-      return this.updatedTimeSelectedItemsLabel;
+      return this.translateService.instant(this.updatedTimeSelectedItemsLabel);
     }
   }
 
