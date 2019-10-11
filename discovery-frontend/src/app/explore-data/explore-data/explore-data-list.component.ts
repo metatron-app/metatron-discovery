@@ -16,7 +16,7 @@ import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild}
 import {AbstractComponent} from '../../common/component/abstract.component';
 import * as _ from "lodash";
 import {StringUtil} from "../../common/util/string.util";
-import {Metadata} from "../../domain/meta-data-management/metadata";
+import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
 import {ExploreDataConstant} from "../constant/explore-data-constant";
 import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
 import {CommonConstant} from "../../common/constant/common.constant";
@@ -45,8 +45,6 @@ declare let moment: any;
 export class ExploreDataListComponent extends AbstractComponent {
 
   metadataList: Metadata[];
-  // To toggle filter layer
-  filterFlags: Subject<{}> = new Subject();
 
   // updated time, name sorting options
   public sortOptions = {
@@ -75,14 +73,11 @@ export class ExploreDataListComponent extends AbstractComponent {
   showSourceTypeFilter: boolean = false;
 
   // selected item label
-  public updatedTimeSelectedItemsLabel: string = 'ALL';
-  public sourceTypeSelectedItemsLabel: string = 'ALL';
+  public sourceTypeSelectedItemsLabel: string = this.translateService.instant('msg.comm.ui.list.all');
+  public updatedTimeSelectedItemsLabel: string = 'msg.comm.ui.list.all';
 
-  betweenPastTime = 'Past time';
-  betweenCurrentTime = 'Current time';
-
-  // selected item list
-  private _selectedItemList : any = {};
+  betweenPastTime = 'msg.storage.ui.criterion.time.past';
+  betweenCurrentTime = 'msg.storage.ui.criterion.time.current';
 
   timeFilterCriterion: Criteria.ListCriterion;
   typeFilterCriterion: Criteria.ListCriterion;
@@ -126,7 +121,7 @@ export class ExploreDataListComponent extends AbstractComponent {
 
     this.selectedDate.type = Criteria.DateTimeType.ALL;
 
-    const criterion1: Criteria.ListCriterion = {
+    const criterionForUpdatedFilter: Criteria.ListCriterion = {
       criterionKey: ListCriterionKey.CREATED_TIME,
       criterionType: ListCriterionType.RANGE_DATETIME,
       criterionName: "msg.storage.ui.criterion.created-time",
@@ -142,9 +137,9 @@ export class ExploreDataListComponent extends AbstractComponent {
       ]
     };
 
-    this.timeFilterCriterion = criterion1;
+    this.timeFilterCriterion = criterionForUpdatedFilter;
 
-    const criterion2: Criteria.ListCriterion = {
+    const criterionForDataTypeFilter: Criteria.ListCriterion = {
       criterionKey: ListCriterionKey.SOURCE_TYPE,
       criterionType: ListCriterionType.CHECKBOX,
       criterionName: "msg.storage.ui.criterion.created-time",
@@ -152,19 +147,19 @@ export class ExploreDataListComponent extends AbstractComponent {
         {
           criterionKey: ListCriterionKey.SOURCE_TYPE,
           filterKey: "sourceType",
-          filterName: "ENGINE",
+          filterName: SourceType.ENGINE.toString(),
           filterValue: "ENGINE"
         },
         {
           criterionKey: ListCriterionKey.SOURCE_TYPE,
           filterKey: "sourceType",
-          filterName: "JDBC",
+          filterName: SourceType.JDBC.toString(),
           filterValue: "JDBC"
         },
         {
           criterionKey: ListCriterionKey.SOURCE_TYPE,
           filterKey: "sourceType",
-          filterName: "STAGEDB",
+          filterName: SourceType.STAGEDB.toString(),
           filterValue: "STAGEDB"
         },
       ],
@@ -179,12 +174,7 @@ export class ExploreDataListComponent extends AbstractComponent {
       ]
     };
 
-    this.typeFilterCriterion = criterion2;
-
-    this.filterFlags.next({
-      [FilterTypes.DATA_TYPE]: false,
-      [FilterTypes.UPDATED_TIME]: false
-    });
+    this.typeFilterCriterion = criterionForDataTypeFilter;
 
     // Get query param from url
     this.subscriptions.push(
@@ -385,10 +375,19 @@ export class ExploreDataListComponent extends AbstractComponent {
     this.selectedSourceTypeFilter = filterList['sourceType'].map((filter) => {
       return filter['filterName'];
     });
+
     if (this.selectedSourceTypeFilter.length > 0) {
-      this.sourceTypeSelectedItemsLabel = this.selectedSourceTypeFilter.join(',');
+      this.sourceTypeSelectedItemsLabel = this.selectedSourceTypeFilter.map((filter) => {
+        if (filter === "ENGINE") {
+          return this.translateService.instant('msg.storage.li.engine');
+        } else if (filter === "JDBC") {
+          return this.translateService.instant('msg.storage.li.db');
+        } else if (filter === "STAGEDB") {
+          return this.translateService.instant('msg.storage.li.stagedb');
+        }
+      }).join(',');
     } else {
-      this.sourceTypeSelectedItemsLabel = 'ALL';
+      this.sourceTypeSelectedItemsLabel = this.translateService.instant('msg.comm.ui.list.all');
     }
     this.reloadPage();
   }
@@ -407,12 +406,10 @@ export class ExploreDataListComponent extends AbstractComponent {
       if (selectedDate.updatedTimeTo[0].filterName) {
         this.betweenPastTime = selectedDate.updatedTimeTo[0].filterName
       }
-
-      this.updatedTimeSelectedItemsLabel = `${this.betweenPastTime} ~ ${this.betweenCurrentTime}`;
-
       // if from and to is all exist
       if (selectedDate.updatedTimeFrom[0].filterName && selectedDate.updatedTimeTo[0].filterName) {
         this.updatedTimeSelectedItemsLabel = selectedDate.updatedTimeFrom[0].filterName + ' ~ ' + selectedDate.updatedTimeTo[0].filterName;
+
         returnData = {
           startDate : selectedDate.updatedTimeFrom[0].filterName,
           endDate : selectedDate.updatedTimeTo[0].filterName,
@@ -421,14 +418,18 @@ export class ExploreDataListComponent extends AbstractComponent {
           endDateStr: moment(selectedDate.updatedTimeTo[0].filterName).format(returnFormat),
           dateType: null,
         };
+
         this.selectedDate = returnData;
+
         this.reloadPage();
+      } else {
+        this.updatedTimeSelectedItemsLabel = `${this.translateService.instant(this.betweenPastTime)} ~ ${this.translateService.instant(this.betweenCurrentTime)}`;
       }
     } else {
       this.updatedTimeSelectedItemsLabel = selectedDate.updatedTimeFrom[0].filterName + ' ~ ' + selectedDate.updatedTimeTo[0].filterName;
 
       if (selectedDate.TYPE[0] === 'ALL') {
-        this.updatedTimeSelectedItemsLabel = 'ALL';
+        this.updatedTimeSelectedItemsLabel = 'msg.comm.ui.list.all';
       }
 
       returnData = {
@@ -588,14 +589,7 @@ export class ExploreDataListComponent extends AbstractComponent {
    * Close time filter
    */
   closeTimeFilter() {
-    // if click event is not generated by date picker
-    console.log($(event.target).parent().parent());
-    if ($(event.target).hasClass('datepicker.-right-top-.-from-right-.active')) {
-      console.log('whatsup')
-    }
-    if ($(event.target).closest('datepicker')) {
-      console.log('hi');
-    }
+    // if click event is not generated by date picker==
     if (0 === $(event.target).closest('[class^=datepicker]').length) {
       // close list
       this.showUpdatedTimeFilter = false;

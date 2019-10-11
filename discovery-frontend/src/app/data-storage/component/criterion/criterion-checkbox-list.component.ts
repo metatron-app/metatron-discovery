@@ -256,6 +256,10 @@ export class CriterionCheckboxListComponent extends AbstractComponent {
         return this.translateService.instant('msg.storage.li.ss');
       case SourceType.HDFS.toString():
         return filterName;
+      case SourceType.ENGINE.toString():
+        return this.translateService.instant('msg.storage.li.engine');
+      case SourceType.STAGEDB.toString():
+        return this.translateService.instant('msg.storage.li.stagedb');
       default:
         return this.isRequireTranslate(filterName) ? this.translateService.instant(filterName): filterName;
     }

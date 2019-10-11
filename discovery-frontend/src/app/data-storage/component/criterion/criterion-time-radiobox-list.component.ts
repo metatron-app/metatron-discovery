@@ -151,13 +151,13 @@ export class CriterionTimeRadioboxListComponent extends AbstractComponent {
   private _initView(): void {
     // time type list
     this.timeTypeList = [
-      {label: this.translateService.instant('msg.storage.ui.criterion.today'), value: Criteria.DateTimeType.TODAY},
-      {label: this.translateService.instant('msg.storage.ui.criterion.last-7-days'), value: Criteria.DateTimeType.SEVEN_DAYS},
-      {label: this.translateService.instant('msg.storage.ui.criterion.between'), value: Criteria.DateTimeType.BETWEEN},
+      {label: 'msg.storage.ui.criterion.today', value: Criteria.DateTimeType.TODAY},
+      {label: 'msg.storage.ui.criterion.last-7-days', value: Criteria.DateTimeType.SEVEN_DAYS},
+      {label: 'msg.storage.ui.criterion.between', value: Criteria.DateTimeType.BETWEEN},
     ];
     // if enable all option
     if (this.isEnableAllOption) {
-      this.timeTypeList.unshift({label: `(${this.translateService.instant('msg.comm.ui.list.all')})`, value: Criteria.DateTimeType.ALL});
+      this.timeTypeList.unshift({label: 'msg.comm.ui.list.all', value: Criteria.DateTimeType.ALL});
     }
     // if not exist selected time type
     if (!this.selectedTimeType) {

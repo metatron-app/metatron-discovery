@@ -3,15 +3,10 @@
   <div class="ddp-wrap-top-filtering type-form">
     <div class="ddp-wrap-form-filtering">
       <div class="ddp-form-filtering">
-        <!--        <component-check-filter-->
-        <!--          [filterFlags]="filterFlags"-->
-        <!--          [filterName]="'Source type'"-->
-        <!--          [filterList]="dataTypeFilterList"-->
-        <!--          (changedFilter)="onChangeDataTypeFilter($event)" ></component-check-filter>-->
         <div class="ddp-result-filtering" [class.ddp-selected]="showSourceTypeFilter" (click)="toggleSourceTypeFilter($event)">
-          <span class="ddp-txt-label" *ngIf="true">Source type:</span>
+          <span class="ddp-txt-label" *ngIf="true">{{ 'msg.explore.ui.list.filter.data.type' | translate }}</span>
           <div class="ddp-box-result">
-            <span class="ddp-txt-result">{{sourceTypeSelectedItemsLabel}}</span>
+            <span class="ddp-txt-result">{{ sourceTypeSelectedItemsLabel }}</span>
           </div>
           <criterion-checkbox-component
             (clickOutside)="closeSourceTypeFilter()"
@@ -25,13 +20,12 @@
         </div>
       </div>
       <div class="ddp-form-filtering">
-        <!--        <component-updated-time-radio-filter [filterFlags]="filterFlags" (changeSort)="onChangeCreateTimeFilter($event)"></component-updated-time-radio-filter>-->
         <div class="ddp-result-filtering"
              [class.ddp-selected]="showUpdatedTimeFilter"
              (click)="toggleUpdatedTimeFilter()">
-          <span class="ddp-txt-label" *ngIf="true">Source type:</span>
+          <span class="ddp-txt-label" *ngIf="true">{{ 'msg.explore.ui.list.filter.updated.time' | translate }}</span>
           <div class="ddp-box-result">
-            <span class="ddp-txt-result">{{updatedTimeSelectedItemsLabel}}</span>
+            <span class="ddp-txt-result">{{ updatedTimeSelectedItemsLabel | translate }}</span>
           </div>
           <criterion-time-radiobox-list
             (clickOutside)="closeTimeFilter()"

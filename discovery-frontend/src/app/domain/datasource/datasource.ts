@@ -567,7 +567,9 @@ export enum SourceType {
   REALTIME = <any>'REALTIME',
   IMPORT = <any>'IMPORT',
   SNAPSHOT = <any>'SNAPSHOT',
-  NONE = <any>'NONE'
+  NONE = <any>'NONE',
+  ENGINE = <any>'ENGINE',
+  STAGEDB = <any>'STAGEDB'
 }
 
 export enum Status {
