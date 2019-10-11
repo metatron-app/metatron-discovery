@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package app.metatron.discovery.domain.dataprep;
+package app.metatron.discovery.domain.dataprep.util;
 
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes.PREP_DATASET_ERROR_CODE;

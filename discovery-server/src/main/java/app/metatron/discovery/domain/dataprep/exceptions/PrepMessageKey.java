@@ -64,6 +64,7 @@ public enum PrepMessageKey {
   MSG_DP_ALERT_FAILED_TO_DELETE_SNAPSHOT(                      "msg.dp.alert.failed.to.delete.snapshot"),
   MSG_DP_ALERT_INVALID_SNAPSHOT_NAME(                          "msg.dp.alert.invalid.snapshot.name"),
   MSG_DP_ALERT_SNAPSHOT_TYPE_NOT_SUPPORTED_YET(                "msg.dp.alert.snapshot.type.not.supported.yet"),
+  MSG_DP_ALERT_SNAPSHOT_TYPE_IS_MISSING(                       "msg.dp.alert.snapshot.type.is.missing"),
   MSG_DP_ALERT_SNAPSHOT_DEST_URI_IS_NEEDED(                    "msg.dp.alert.snapshot.dest.uri.is.needed"),
 
   MSG_DP_ALERT_TEDDY_PARSE_FAILED(                             "msg.dp.alert.teddy.parse.failed"),

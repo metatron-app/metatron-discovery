@@ -18,6 +18,7 @@ import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_SPARK_PO
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -37,24 +38,11 @@ public class SparkExecutor {
   private static Logger LOGGER = LoggerFactory.getLogger(SparkExecutor.class);
 
   @Async("prepThreadPoolTaskExecutor")
-  public Future<String> run(String[] argv) throws Throwable {
-    Future<String> result;
-    String ssId = "";
-
+  public Future<String> run(String[] argv) throws IOException {
     Map<String, Object> prepPropertiesInfo = GlobalObjectMapper.readValue(argv[0], HashMap.class);
     Map<String, Object> datasetInfo = GlobalObjectMapper.readValue(argv[1], HashMap.class);
     Map<String, Object> snapshotInfo = GlobalObjectMapper.readValue(argv[2], HashMap.class);
     Map<String, Object> callbackInfo = GlobalObjectMapper.readValue(argv[3], HashMap.class);
-
-    // Spark engine gets arguments as Map not as JSON string.
-    // TO-DO: This is natural. Embbeded engine should do like this too.
-
-    //    Map<String, Object> prepPropertiesInfo = mapper.readValue(jsonPrepPropertiesInfo, HashMap.class);
-    //    Map<String, Object> datasetInfo = mapper.readValue(jsonDatasetInfo, HashMap.class);
-    //    Map<String, Object> snapshotInfo = mapper.readValue(jsonSnapshotInfo, HashMap.class);
-    //    Map<String, Object> callbackInfo = mapper.readValue(jsonCallbackInfo, HashMap.class);
-
-    // TO-DO: fork if not running
 
     // Send spark request
     Map<String, Object> args = new HashMap();
@@ -92,7 +80,7 @@ public class SparkExecutor {
         }
         response.append(responseLine.trim());
       }
-      System.out.println(response.toString());
+      LOGGER.debug("runSpark(): response: " + response.toString());
       br.readLine();
     }
 
