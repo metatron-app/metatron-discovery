@@ -257,15 +257,10 @@ public class PrDataset extends AbstractHistoryEntity {
   @JsonProperty
   DataFrame gridResponse;
 
-    /*
-    @Transient
-    Map<String,Object> connectionInfo;
-    */
-
   public boolean addDataflow(PrDataflow dataflow) {
     if (dataflow != null) {
       if (this.dataflows == null) {
-        this.dataflows = new ArrayList<PrDataflow>();
+        this.dataflows = new ArrayList();
       }
       for (PrDataflow df : this.dataflows) {
         if (df.getDfId() == dataflow.getDfId()) {
@@ -604,34 +599,4 @@ public class PrDataset extends AbstractHistoryEntity {
   public void setGridResponse(DataFrame gridResponse) {
     this.gridResponse = gridResponse;
   }
-
-    /*
-    public Map<String, Object> getConnectionInfo() {
-        return connectionInfo;
-    }
-
-    public void setConnectionInfo(Map<String, Object> connectionInfo) {
-        this.connectionInfo = connectionInfo;
-    }
-    */
-
-  // Temporary functions for backward compatibility
-    /*
-    public STORAGE_TYPE getStorageType() {
-        String lowerStoredUri = getStoredUri();
-        if(lowerStoredUri.startsWith("file:")) {
-            return STORAGE_TYPE.LOCAL;
-        } else if(lowerStoredUri.startsWith("hdfs:")) {
-            return STORAGE_TYPE.HDFS;
-        } else if(lowerStoredUri.startsWith("s3:")) {
-            return STORAGE_TYPE.S3;
-        } else if(lowerStoredUri.startsWith("blob:")) {
-            return STORAGE_TYPE.BLOB;
-        } else if(lowerStoredUri.startsWith("ftp:")) {
-            return STORAGE_TYPE.FTP;
-        }
-
-        return null;
-    }
-    */
 }

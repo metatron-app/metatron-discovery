@@ -97,14 +97,12 @@ public class PrDatasetProjections {
     String getDelimiter();
 
     String getCustom();
-    //PrDataset.STORAGE_TYPE getStorageType();
 
     List<PrDataflow> getDataflows();
 
     List<PrTransformRule> getTransformRules();
 
     DataFrame getGridResponse();
-    // Map<String, Object> getConnectionInfo();
 
     DateTime getCreatedTime();
 

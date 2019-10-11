@@ -14,6 +14,67 @@
 
 package app.metatron.discovery.domain.dataprep.exceptions;
 
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes.PREP_TEDDY_ERROR_CODE;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_JDBC_CONNECTION_ERROR;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_CANNOT_CAST_FROM;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_CANNOT_CAST_TO;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_COLUMN_NOT_CONTINUOUS;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_COLUMN_NOT_FOUND;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_COLUMN_TYPE_SHOULD_BE_DOUBLE_OR_LONG;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_DIFFERENT_TYPE;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_GROUPBY_COLUMN_NOT_FOUND;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_IDX_ON_MAPTYPE_SHOULD_BE_STRING;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_ILLEGAL_AGGREGATION_FUNCTION_EXPRESSION;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_ILLEGAL_COLUMN_NAME_FOR_HIVE;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_ILLEGAL_PATTERN_TYPE;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_INVAILD_INDEX_TYPE;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_INVAILD_JOIN_TYPE;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_INVALID_AGGREGATION_VALUE_EXPRESSION_TYPE;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_INVALID_COLUMN_EXPRESSION_TYPE;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_INVALID_COLUMN_NAME_EXPRESSION;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_INVALID_DELTA_VALUE;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_INVALID_FUNCTION_ARGS;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_INVALID_FUNCTION_TYPE;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_INVALID_JSON;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_INVALID_TIMESTAMP_UNIT;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_INVALID_TIMEZONE_ID;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_JOIN_TYPE_NOT_SUPPORTED;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_LEFT_PREDICATE_NOT_FOUND;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_NEED_BEFORE_OR_AFTER;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_NOT_SUPPORTED_TYPE;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_NO_ASSIGNMENT_STATEMENT_IS_ALLOWED;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_NO_INPUT_COLUMN_DESIGNATED;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_NO_LIMIT;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_NO_ROW;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_PREDICATE_TYPE_MISMATCH;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_QUERY_FAILED;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_RIGHT_PREDICATE_NOT_FOUND;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_RULE_NOT_SUPPORTED;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_TARGET_COLUMN_NOT_FOUND;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_TIMESTAMP_FORMAT_MISMATCH;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_TOO_MANY_PIVOTED_COLUMNS;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_TRANSFORM_EXECUTION_FAILED;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_TRANSFORM_EXECUTION_INTERRUPTED;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_TRANSFORM_TIMEOUT;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_TYPE_MISMATCH;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_UNKNOWN_TYPE;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_UNSUPPORTED_AGGREGATION_FUNCTION;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_UNSUPPORTED_CONSTANT_TYPE;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_WORKS_ONLY_ON_ARRAY;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_WORKS_ONLY_ON_ARRAY_OR_MAP;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_WORKS_ONLY_ON_NUMERIC;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_WORKS_ONLY_ON_STRING;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_WORKS_ONLY_ON_TIMESTAMP;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_WRONG_AGGREGATION_FUNCTION_EXPRESSION;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_WRONG_ARRAY_INDEX;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_WRONG_GROUPEVERY_COUNT;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_WRONG_MAP_KEY;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_WRONG_SUBSTRING_INDEX_PARAM;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_WRONG_TARGET_COLUMN_EXPRESSION;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_WRONG_TARGET_POSITION;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_WRONG_WINDOW_FUNCTION_EXPRESSION;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_UNKOWN_ERROR;
+
 import app.metatron.discovery.common.exception.ErrorCodes;
 import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotCastFromException;
@@ -127,13 +188,13 @@ public class PrepException extends MetatronException {
       return PrepException.fromTeddyException((TeddyException) e);
     } else {
       if (e instanceof JdbcDataConnectionException) {
-        return create(code, PrepMessageKey.MSG_DP_ALERT_JDBC_CONNECTION_ERROR);
+        return create(code, MSG_DP_ALERT_JDBC_CONNECTION_ERROR);
       } else {
         String detail = e.getMessage();
         if (detail == null) {
           detail = e.getClass().getName();
         }
-        return create(code, PrepMessageKey.MSG_DP_ALERT_UNKOWN_ERROR, detail);
+        return create(code, MSG_DP_ALERT_UNKOWN_ERROR, detail);
       }
     }
   }
@@ -146,156 +207,130 @@ public class PrepException extends MetatronException {
     return new PrepException(code, messageKey.getMessageKey(), detail);
   }
 
-  // FIXME: convert all TeddyException into PrepException WITH the detail messages.
+  static private PrepException fromTeddy(TeddyException e, PrepMessageKey msgkey) {
+    return new PrepException(PREP_TEDDY_ERROR_CODE, msgkey.getMessageKey(), e.getMessage());
+  }
+
   static public PrepException fromTeddyException(TeddyException e) {
     if (e instanceof CannotCastFromException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_CANNOT_CAST_FROM);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_CANNOT_CAST_FROM);
     } else if (e instanceof CannotCastToException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_CANNOT_CAST_TO);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_CANNOT_CAST_TO);
     } else if (e instanceof ColumnNotContinuousException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_COLUMN_NOT_CONTINUOUS);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_COLUMN_NOT_CONTINUOUS);
     } else if (e instanceof WrongMapKeyException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_WRONG_MAP_KEY);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_WRONG_MAP_KEY);
     } else if (e instanceof ColumnNotFoundException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_COLUMN_NOT_FOUND,
-              e.getMessage());
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_COLUMN_NOT_FOUND);
     } else if (e instanceof ColumnTypeShouldBeDoubleOrLongException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_COLUMN_TYPE_SHOULD_BE_DOUBLE_OR_LONG);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_COLUMN_TYPE_SHOULD_BE_DOUBLE_OR_LONG);
     } else if (e instanceof GroupByColumnNotFoundException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_GROUPBY_COLUMN_NOT_FOUND);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_GROUPBY_COLUMN_NOT_FOUND);
     } else if (e instanceof IdxOnMapTypeShouldBeStringException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_IDX_ON_MAPTYPE_SHOULD_BE_STRING);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_IDX_ON_MAPTYPE_SHOULD_BE_STRING);
     } else if (e instanceof IllegalAggregationFunctionExpression) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_ILLEGAL_AGGREGATION_FUNCTION_EXPRESSION);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_ILLEGAL_AGGREGATION_FUNCTION_EXPRESSION);
     } else if (e instanceof IllegalPatternTypeException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_ILLEGAL_PATTERN_TYPE);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_ILLEGAL_PATTERN_TYPE);
     } else if (e instanceof InvalidAggregationValueExpressionTypeException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_INVALID_AGGREGATION_VALUE_EXPRESSION_TYPE);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_INVALID_AGGREGATION_VALUE_EXPRESSION_TYPE);
     } else if (e instanceof InvalidColumnExpressionTypeException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_INVALID_COLUMN_EXPRESSION_TYPE);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_INVALID_COLUMN_EXPRESSION_TYPE);
     } else if (e instanceof InvalidFunctionArgsException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_INVALID_FUNCTION_ARGS);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_INVALID_FUNCTION_ARGS);
     } else if (e instanceof InvalidFunctionTypeException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_INVALID_FUNCTION_TYPE);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_INVALID_FUNCTION_TYPE);
     } else if (e instanceof InvalidIndexTypeException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_INVAILD_INDEX_TYPE);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_INVAILD_INDEX_TYPE);
     } else if (e instanceof InvalidJoinTypeException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_INVAILD_JOIN_TYPE);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_INVAILD_JOIN_TYPE);
     } else if (e instanceof InvalidJsonException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_INVALID_JSON);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_INVALID_JSON);
     } else if (e instanceof JdbcQueryFailedException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_QUERY_FAILED);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_QUERY_FAILED);
     } else if (e instanceof JdbcTypeNotSupportedException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_NOT_SUPPORTED_TYPE);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_NOT_SUPPORTED_TYPE);
     } else if (e instanceof JoinTypeNotSupportedException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_JOIN_TYPE_NOT_SUPPORTED);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_JOIN_TYPE_NOT_SUPPORTED);
     } else if (e instanceof LeftPredicateNotFoundException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_LEFT_PREDICATE_NOT_FOUND);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_LEFT_PREDICATE_NOT_FOUND);
     } else if (e instanceof NeedBeforeOrAfterException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_NEED_BEFORE_OR_AFTER);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_NEED_BEFORE_OR_AFTER);
     } else if (e instanceof NoInputColumnDesignatedException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_NO_INPUT_COLUMN_DESIGNATED);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_NO_INPUT_COLUMN_DESIGNATED);
     } else if (e instanceof NoLimitException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_NO_LIMIT);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_NO_LIMIT);
     } else if (e instanceof NoRowException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_NO_ROW);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_NO_ROW);
     } else if (e instanceof PredicateTypeMismatchException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PREDICATE_TYPE_MISMATCH);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_PREDICATE_TYPE_MISMATCH);
     } else if (e instanceof RightPredicateNotFoundException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_RIGHT_PREDICATE_NOT_FOUND);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_RIGHT_PREDICATE_NOT_FOUND);
     } else if (e instanceof RuleNotSupportedException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_RULE_NOT_SUPPORTED);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_RULE_NOT_SUPPORTED);
     } else if (e instanceof TargetColumnNotFoundException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_TARGET_COLUMN_NOT_FOUND);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_TARGET_COLUMN_NOT_FOUND);
     } else if (e instanceof TooManyPivotedColumnsException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_TOO_MANY_PIVOTED_COLUMNS);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_TOO_MANY_PIVOTED_COLUMNS);
     } else if (e instanceof TypeDifferentException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_DIFFERENT_TYPE);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_DIFFERENT_TYPE);
     } else if (e instanceof TypeMismatchException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_TYPE_MISMATCH);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_TYPE_MISMATCH);
     } else if (e instanceof UnknownError) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNKOWN_ERROR);
+      return fromTeddy(e, MSG_DP_ALERT_UNKOWN_ERROR);
     } else if (e instanceof UnknownTypeException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_UNKNOWN_TYPE);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_UNKNOWN_TYPE);
     } else if (e instanceof UnsupportedAggregationFunctionExpressionException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_UNSUPPORTED_AGGREGATION_FUNCTION);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_UNSUPPORTED_AGGREGATION_FUNCTION);
     } else if (e instanceof UnsupportedConstantType) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_UNSUPPORTED_CONSTANT_TYPE);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_UNSUPPORTED_CONSTANT_TYPE);
     } else if (e instanceof WorksOnlyOnArrayException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_WORKS_ONLY_ON_ARRAY);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_WORKS_ONLY_ON_ARRAY);
     } else if (e instanceof WorksOnlyOnArrayOrMapException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_WORKS_ONLY_ON_ARRAY_OR_MAP);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_WORKS_ONLY_ON_ARRAY_OR_MAP);
     } else if (e instanceof WorksOnlyOnStringException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_WORKS_ONLY_ON_STRING);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_WORKS_ONLY_ON_STRING);
     } else if (e instanceof WorksOnlyOnNumericException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_WORKS_ONLY_ON_NUMERIC);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_WORKS_ONLY_ON_NUMERIC);
     } else if (e instanceof WrongAggregationFunctionExpressionException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_WRONG_AGGREGATION_FUNCTION_EXPRESSION);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_WRONG_AGGREGATION_FUNCTION_EXPRESSION);
     } else if (e instanceof WrongArrayIndexException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_WRONG_ARRAY_INDEX);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_WRONG_ARRAY_INDEX);
     } else if (e instanceof WrongGroupEveryCountException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_WRONG_GROUPEVERY_COUNT);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_WRONG_GROUPEVERY_COUNT);
     } else if (e instanceof WrongSubstringIndexParamException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_WRONG_SUBSTRING_INDEX_PARAM);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_WRONG_SUBSTRING_INDEX_PARAM);
     } else if (e instanceof WrongTargetColumnExpressionException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_WRONG_TARGET_COLUMN_EXPRESSION);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_WRONG_TARGET_COLUMN_EXPRESSION);
     } else if (e instanceof WrongTargetPositionException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_WRONG_TARGET_POSITION);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_WRONG_TARGET_POSITION);
     } else if (e instanceof TimestampFormatMismatchException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_TIMESTAMP_FORMAT_MISMATCH);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_TIMESTAMP_FORMAT_MISMATCH);
     } else if (e instanceof WorksOnlyOnTimestampException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_WORKS_ONLY_ON_TIMESTAMP);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_WORKS_ONLY_ON_TIMESTAMP);
     } else if (e instanceof InvalidDeltaValueException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_INVALID_DELTA_VALUE);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_INVALID_DELTA_VALUE);
     } else if (e instanceof InvalidTimestampUnitException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_INVALID_TIMESTAMP_UNIT);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_INVALID_TIMESTAMP_UNIT);
     } else if (e instanceof InvalidTimezoneIDException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_INVALID_TIMEZONE_ID);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_INVALID_TIMEZONE_ID);
     } else if (e instanceof IllegalColumnNameExpressionException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_INVALID_COLUMN_NAME_EXPRESSION);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_INVALID_COLUMN_NAME_EXPRESSION);
     } else if (e instanceof IllegalColumnNameForHiveException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_ILLEGAL_COLUMN_NAME_FOR_HIVE);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_ILLEGAL_COLUMN_NAME_FOR_HIVE);
     } else if (e instanceof TransformTimeoutException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_TRANSFORM_TIMEOUT);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_TRANSFORM_TIMEOUT);
     } else if (e instanceof TransformExecutionFailedException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_TRANSFORM_EXECUTION_FAILED);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_TRANSFORM_EXECUTION_FAILED);
     } else if (e instanceof TransformExecutionInterrupteddException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_TRANSFORM_EXECUTION_INTERRUPTED);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_TRANSFORM_EXECUTION_INTERRUPTED);
     } else if (e instanceof NoAssignmentStatementIsAllowedException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_NO_ASSIGNMENT_STATEMENT_IS_ALLOWED);
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_NO_ASSIGNMENT_STATEMENT_IS_ALLOWED);
     } else if (e instanceof WrongWindowFunctionExpressionException) {
-      return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_WRONG_WINDOW_FUNCTION_EXPRESSION, e.getMessage());
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_WRONG_WINDOW_FUNCTION_EXPRESSION);
     }
 
-    return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE,
-            PrepMessageKey.MSG_DP_ALERT_UNKOWN_ERROR);   // FIXME: unhandled teddy error exception을 만들어서 써야함.
+    return create(PREP_TEDDY_ERROR_CODE, MSG_DP_ALERT_UNKOWN_ERROR);  // Should not reach here.
   }
 
   private PrepException(ErrorCodes code, String message, String detail) {

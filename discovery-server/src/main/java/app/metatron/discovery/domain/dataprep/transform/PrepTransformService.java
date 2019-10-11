@@ -1345,7 +1345,7 @@ public class PrepTransformService {
   }
 
   public String cancelSnapshot(String ssId) {
-    PrSnapshot.STATUS status = teddyExecutor.statusCheck(ssId);
+    PrSnapshot.STATUS status = snapshotService.getSnapshotStatus(ssId);
 
     if (status == null) {
       return "NO_MATCHED_SNAPSHOT_ID";
