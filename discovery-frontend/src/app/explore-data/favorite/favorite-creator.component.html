@@ -4,17 +4,17 @@
     <div class="ddp-layout-top-menu ddp-clear">
       <!-- label -->
       <div class="ddp-top-label">
-        My Favorite
+        {{ 'msg.comm.menu.explore-data.favorite' | translate }}
       </div>
       <!-- //label -->
       <!-- menu -->
       <div class="ddp-top-menu">
         <ul class="ddp-list-top-menu">
           <li >
-            <a [routerLink]="['/exploredata/favorite/data']">Data</a>
+            <a [routerLink]="['/exploredata/favorite/data']">{{ 'msg.comm.menu.explore-data.favorite.data' | translate }}</a>
           </li>
           <li class="ddp-selected">
-            <a [routerLink]="['/exploredata/favorite/creator']">Data Creator</a>
+            <a [routerLink]="['/exploredata/favorite/creator']">{{ 'msg.comm.menu.explore-data.favorite.creator' | translate }}</a>
           </li>
         </ul>
       </div>
@@ -33,13 +33,13 @@
               <li>
                 <a href="javascript:">
                   <em class="ddp-icon-drop-cluster"></em>
-                  Set Druid Cluster
+                  {{ 'msg.comm.menu.explore-data.favorite.set.druid.cluster' | translate }}
                 </a>
               </li>
               <li>
                 <a href="javascript:">
                   <em class="ddp-icon-drop-guide"></em>
-                  Druid Guide
+                  {{ 'msg.comm.menu.explore-data.favorite.druid.guide' | translate }}
                 </a>
               </li>
             </ul>
@@ -71,7 +71,7 @@
           <!-- contents -->
           <div class="ddp-data-contents">
             <div class="ddp-data-label">
-              Created data <span class="ddp-data-num">124</span>
+              {{ 'msg.comm.menu.explore-data.favorite.created.data' | translate }} <span class="ddp-data-num">124</span>
             </div>
             <div class="ddp-box-list">
               <ul class="ddp-list-creator">
@@ -96,6 +96,5 @@
         <!-- //box -->
       </div>
     </div>
-
   </div>
  <ng-template #component_datacreator_data_list></ng-template>

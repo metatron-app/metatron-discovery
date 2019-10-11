@@ -12,7 +12,7 @@
             {{ creator }}
           </span>
         </div>
-        <div class="ddp-data-date">Created data <strong>{{ metadataList.length }}</strong></div>
+        <div class="ddp-data-date">{{ 'msg.comm.menu.explore-data.favorite.created.data' | translate }} <strong>{{ getTotalElements() }}</strong></div>
       </div>
     </div>
     <!-- //top -->
@@ -35,7 +35,7 @@
         <div class="ddp-ui-rightoption">
           <!-- form -->
           <div class="ddp-form-label2">
-            <label class="ddp-label-type">Data Type</label>
+            <label class="ddp-label-type">{{ 'msg.metadata.md.ui.data.type' | translate }}</label>
             <div class="ddp-wrap-dropdown">
               <!-- select box -->
               <!-- 클릭시 ddp-selected 추가 -->
@@ -52,116 +52,119 @@
         </div>
       </div>
 
-      <table class="ddp-table-form ddp-table-line">
-        <colgroup>
-          <col width="26px">
-          <col width="100px">
-          <col width="*">
-          <col width="200px">
-          <col width="160px">
-          <col width="13%">
-          <col width="180px">
-          <col width="180px">
-        </colgroup>
-        <thead>
-        <tr>
-          <th>
+      <div class="ddp-wrap-table">
+        <table class="ddp-table-form ddp-table-line">
+          <colgroup>
+            <col width="26px">
+            <col width="100px">
+            <col width="*">
+            <col width="200px">
+            <col width="160px">
+            <col width="13%">
+            <col width="180px">
+            <col width="180px">
+          </colgroup>
+          <thead>
+          <tr>
+            <th>
 
-          </th>
-          <th>
-            {{'msg.metadata.md.ui.data.type' | translate}}
-          </th>
-          <th (click)="exploreDataUtilService.toggleSortOption(metadataList, sortOptions, 'name')">
-            {{'msg.comm.ui.name' | translate}}
-            <em class="ddp-icon-array-default2" *ngIf="sortOptions.name.option === 'default'"></em>
-            <em class="ddp-icon-array-asc2" *ngIf="sortOptions.name.option === 'asc'"></em>
-            <em class="ddp-icon-array-des2" *ngIf="sortOptions.name.option === 'desc'"></em>
-          </th>
-          <th>
-            {{'msg.metadata.md.ui.tags' | translate}}
-          </th>
-          <th >
-            {{'msg.metadata.md.ui.data.popularity' | translate}}
-            <!--              <em class="ddp-icon-array-default2" *ngIf="sortOptions.popularity.option === 'default'"></em>-->
-            <!--              <em class="ddp-icon-array-asc2" *ngIf="sortOptions.popularity.option === 'asc'"></em>-->
-            <!--              <em class="ddp-icon-array-des2" *ngIf="sortOptions.popularity.option === 'desc'"></em>-->
-            <div class="ddp-wrap-hover-info">
-              <em class="ddp-icon-info3"></em>
-              <!-- popup -->
-              <div class="ddp-box-layout4 ddp-popularity">
-                <div class="ddp-data-title">
-                  {{'msg.metadata.md.ui.tooltip.title' | translate}}
+            </th>
+            <th>
+              {{'msg.metadata.md.ui.data.type' | translate}}
+            </th>
+            <th (click)="exploreDataUtilService.toggleSortOption(metadataList, sortOptions, 'name')">
+              {{'msg.comm.ui.name' | translate}}
+              <em class="ddp-icon-array-default2" *ngIf="sortOptions.name.option === 'default'"></em>
+              <em class="ddp-icon-array-asc2" *ngIf="sortOptions.name.option === 'asc'"></em>
+              <em class="ddp-icon-array-des2" *ngIf="sortOptions.name.option === 'desc'"></em>
+            </th>
+            <th>
+              {{'msg.metadata.md.ui.tags' | translate}}
+            </th>
+            <th >
+              {{'msg.metadata.md.ui.data.popularity' | translate}}
+              <!--              <em class="ddp-icon-array-default2" *ngIf="sortOptions.popularity.option === 'default'"></em>-->
+              <!--              <em class="ddp-icon-array-asc2" *ngIf="sortOptions.popularity.option === 'asc'"></em>-->
+              <!--              <em class="ddp-icon-array-des2" *ngIf="sortOptions.popularity.option === 'desc'"></em>-->
+              <div class="ddp-wrap-hover-info">
+                <em class="ddp-icon-info3"></em>
+                <!-- popup -->
+                <div class="ddp-box-layout4 ddp-popularity">
+                  <div class="ddp-data-title">
+                    {{'msg.metadata.md.ui.tooltip.title' | translate}}
+                  </div>
+                  <div class="ddp-data-det">
+                    {{'msg.metadata.md.ui.tooltip.description' | translate}}
+                    <ul>
+                      <li>• {{'msg.metadata.md.ui.tooltip.point.1' | translate}}</li>
+                      <li>• {{'msg.metadata.md.ui.tooltip.point.2' | translate}}</li>
+                      <li>• {{'msg.metadata.md.ui.tooltip.point.3' | translate}}</li>
+                    </ul>
+                  </div>
                 </div>
-                <div class="ddp-data-det">
-                  {{'msg.metadata.md.ui.tooltip.description' | translate}}
-                  <ul>
-                    <li>• {{'msg.metadata.md.ui.tooltip.point.1' | translate}}</li>
-                    <li>• {{'msg.metadata.md.ui.tooltip.point.2' | translate}}</li>
-                    <li>• {{'msg.metadata.md.ui.tooltip.point.3' | translate}}</li>
-                  </ul>
+                <!-- //popup -->
+              </div>
+            </th>
+            <th>
+              {{'msg.storage.ui.criterion.creator' | translate}}
+            </th>
+            <th (click)="exploreDataUtilService.toggleSortOption(metadataList, sortOptions, 'modifiedTime')">
+              {{'msg.comm.ui.list.updated' | translate}}
+              <em class="ddp-icon-array-default2" *ngIf="sortOptions.modifiedTime.option === 'default'"></em>
+              <em class="ddp-icon-array-asc2" *ngIf="sortOptions.modifiedTime.option === 'asc'"></em>
+              <em class="ddp-icon-array-des2" *ngIf="sortOptions.modifiedTime.option === 'desc'"></em>
+            </th>
+            <th></th>
+
+          </tr>
+          </thead>
+
+          <tbody>
+          <tr *ngFor="let metadata of metadataList">
+            <td class="ddp-txt-center"><em class="ddp-icon-fav" [class.ddp-selected]="true" (click)="onClickFavoriteInList()"></em></td>
+            <td>
+              <component-metadata-type-box-tag [metadata]="metadata"></component-metadata-type-box-tag>
+            </td>
+            <td>
+              <div class="ddp-txt-long" title="{{getTooltipValue(metadata)}}">
+                <span [innerHTML]="getMetadataName(metadata.name)"></span>
+                <span class="ddp-txt-colortype" *ngIf="isEnableDescription(metadata)" [innerHTML]="getMetadataDescription(metadata.description)"></span>
+              </div>
+            </td>
+            <td>
+              <div class="ddp-wrap-tags" *ngIf="isEnableTag(metadata)">
+                <span class="ddp-tags"># {{metadata.tags[0].name}}</span>
+                <span class="ddp-tag-more" *ngIf="isExistMoreTags(metadata)">+ {{metadata.tags.length - 1}}</span>
+              </div>
+              <div class="ddp-wrap-tags" *ngIf="!isEnableTag(metadata)">
+                -
+              </div>
+            </td>
+            <td>
+              <div class="ddp-ui-popularity">
+                <em class="ddp-icon-popularity"></em>
+                <div class="ddp-bar">
+                  <span [style.width]="metadata.popularity + '%'" style="margin-bottom:10px;"></span>
                 </div>
               </div>
-              <!-- //popup -->
-            </div>
-          </th>
-          <th>
-            {{'msg.storage.ui.criterion.creator' | translate}}
-          </th>
-          <th (click)="exploreDataUtilService.toggleSortOption(metadataList, sortOptions, 'modifiedTime')">
-            {{'msg.comm.ui.list.updated' | translate}}
-            <em class="ddp-icon-array-default2" *ngIf="sortOptions.modifiedTime.option === 'default'"></em>
-            <em class="ddp-icon-array-asc2" *ngIf="sortOptions.modifiedTime.option === 'asc'"></em>
-            <em class="ddp-icon-array-des2" *ngIf="sortOptions.modifiedTime.option === 'desc'"></em>
-          </th>
-          <th></th>
-
-        </tr>
-        </thead>
-
-        <tbody>
-        <tr *ngFor="let metadata of metadataList">
-          <td class="ddp-txt-center"><em class="ddp-icon-fav" [class.ddp-selected]="true" (click)="onClickFavoriteInList()"></em></td>
-          <td>
-            <component-metadata-type-box-tag [metadata]="metadata"></component-metadata-type-box-tag>
-          </td>
-          <td>
-            <div class="ddp-txt-long" title="{{getTooltipValue(metadata)}}">
-              <span [innerHTML]="getMetadataName(metadata.name)"></span>
-              <span class="ddp-txt-colortype" *ngIf="isEnableDescription(metadata)" [innerHTML]="getMetadataDescription(metadata.description)"></span>
-            </div>
-          </td>
-          <td>
-            <div class="ddp-wrap-tags" *ngIf="isEnableTag(metadata)">
-              <span class="ddp-tags"># {{metadata.tags[0].name}}</span>
-              <span class="ddp-tag-more" *ngIf="isExistMoreTags(metadata)">+ {{metadata.tags.length - 1}}</span>
-            </div>
-            <div class="ddp-wrap-tags" *ngIf="!isEnableTag(metadata)">
-              -
-            </div>
-          </td>
-          <td>
-            <div class="ddp-ui-popularity">
-              <em class="ddp-icon-popularity"></em>
-              <div class="ddp-bar">
-                <span [style.width]="metadata.popularity + '%'" style="margin-bottom:10px;"></span>
-              </div>
-            </div>
-          </td>
-          <td>
-            <span class="ddp-txt-long" title="{{metadata?.modifiedBy?.fullName}}" [innerHTML]="getMetadataCreator(metadata?.modifiedBy?.fullName)"></span>
-          </td>
-          <td>
-            {{ metadata.modifiedTime | mdate: 'YYYY-MM-DD HH:mm' }}
-          </td>
-          <td>
-            <a href="javascript:" class="ddp-btn-solid2" *ngIf="isShowEditData(metadata)" (click)="onClickEditData(metadata.id)" >{{'msg.explore.btn.detail.edit.data'| translate}}</a>
-            <a href="javascript:" class="ddp-btn-solid2" *ngIf="isShowCreateWorkbench(metadata)" (click)="onClickCreateWorkbench(metadata)"><em class="ddp-icon-add2"></em>{{'msg.explore.btn.detail.make.bench'| translate}}</a>
-            <a href="javascript:" class="ddp-btn-solid2" *ngIf="isShowCreateWorkbook(metadata)" (click)="onClickCreateWorkbook(metadata)"><em class="ddp-icon-add2"></em>{{'msg.explore.btn.detail.make.book'| translate}}</a>
-          </td>
-        </tr>
-        </tbody>
-
-      </table>
+            </td>
+            <td>
+              <span class="ddp-txt-long" title="{{metadata?.modifiedBy?.fullName}}" [innerHTML]="getMetadataCreator(metadata?.modifiedBy?.fullName)"></span>
+            </td>
+            <td>
+              {{ metadata.modifiedTime | mdate: 'YYYY-MM-DD HH:mm' }}
+            </td>
+            <td>
+              <a href="javascript:" class="ddp-btn-solid2" *ngIf="isShowEditData(metadata)" (click)="onClickEditData(metadata.id)" >{{'msg.explore.btn.detail.edit.data'| translate}}</a>
+              <a href="javascript:" class="ddp-btn-solid2" *ngIf="isShowCreateWorkbench(metadata)" (click)="onClickCreateWorkbench(metadata)"><em class="ddp-icon-add2"></em>{{'msg.explore.btn.detail.make.bench'| translate}}</a>
+              <a href="javascript:" class="ddp-btn-solid2" *ngIf="isShowCreateWorkbook(metadata)" (click)="onClickCreateWorkbook(metadata)"><em class="ddp-icon-add2"></em>{{'msg.explore.btn.detail.make.book'| translate}}</a>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <component-pagination *ngIf="!isEmptyMetadataList()" [info]="pageResult"
+                            (changePageData)="changePage($event)"></component-pagination>
     </div>
   </div>
   <!-- //popup -->

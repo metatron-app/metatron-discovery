@@ -35,6 +35,7 @@ import {Modal} from "../../../common/domain/modal";
 import {CreateWorkbookComponent} from "../../../workbook/component/create-workbook/refactoring/create-workbook.component";
 import {CookieConstant} from "../../../common/constant/cookie.constant";
 import {CreateWorkbenchContainerComponent} from "../../../workbench/component/create-workbench/refactoring/create-workbench-container.component";
+import {CommonUtil} from "../../../common/util/common.util";
 
 @Component({
   selector: 'app-explore-data-creator-data-list-popup',
@@ -110,7 +111,6 @@ export class MetadataDataCreatorDataListComponent extends AbstractComponent impl
   // Init
   public ngOnInit() {
     super.ngOnInit();
-    console.log(this.metadataList);
   }
 
   // Destroy
@@ -131,7 +131,9 @@ export class MetadataDataCreatorDataListComponent extends AbstractComponent impl
 
   private _getMetadataListParams() {
     let params = {
-      size: 1000,
+      size: this.page.size,
+      page: this.page.page,
+      creatorContains: this.creator
     };
 
     // if not empty search keyword
@@ -145,6 +147,10 @@ export class MetadataDataCreatorDataListComponent extends AbstractComponent impl
     }
 
     return params;
+  }
+
+  getTotalElements(): string {
+    return CommonUtil.numberWithCommas(this.pageResult.totalElements);
   }
 
   getMetadataName(name: string) {
@@ -216,7 +222,7 @@ export class MetadataDataCreatorDataListComponent extends AbstractComponent impl
     if (data) {
       this.page.page = data.page;
       this.page.size = data.size;
-
+      this._setMetadataList(this._getMetadataListParams()).then();
     }
   }
 

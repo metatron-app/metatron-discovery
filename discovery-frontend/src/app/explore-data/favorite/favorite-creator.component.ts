@@ -82,13 +82,14 @@ export class FavoriteCreatorComponent extends AbstractComponent implements OnIni
 
   async onClickCreatorCard(creator: string) {
     this.loadingShow();
-    const result = await this.metadataService.getMetaDataList({creatorContains: creator, size: 100}).catch(e => this.commonExceptionHandler(e));
+    const result = await this.metadataService.getMetaDataList({creatorContains: creator}).catch(e => this.commonExceptionHandler(e));
 
     if (result !== undefined && result) {
       if (result['_embedded']) {
         this.dataCreatorDataListEntryRef = this.dataCreatorDataListEntry.createComponent(this.resolver.resolveComponentFactory(MetadataDataCreatorDataListComponent));
         this.dataCreatorDataListEntryRef.instance.metadataList = result['_embedded']['metadatas'];
         this.dataCreatorDataListEntryRef.instance.creator = creator;
+        this.dataCreatorDataListEntryRef.instance.pageResult = result['page'];
       }
     }
 
