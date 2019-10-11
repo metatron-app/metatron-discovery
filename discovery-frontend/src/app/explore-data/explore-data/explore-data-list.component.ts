@@ -66,14 +66,14 @@ export class ExploreDataListComponent extends AbstractComponent {
   // name, updated sorting
   selectedSort: string;
   // created filter
-  selectedDate: PeriodData;
+  selectedDate = new PeriodData();
   // selected created filter name
 
   showUpdatedTimeFilter: boolean = false;
   showSourceTypeFilter: boolean = false;
 
   // selected item label
-  public sourceTypeSelectedItemsLabel: string = this.translateService.instant('msg.comm.ui.list.all');
+  public sourceTypeSelectedItemsLabel: string[] = ['msg.comm.ui.list.all'];
   public updatedTimeSelectedItemsLabel: string = 'msg.comm.ui.list.all';
 
   betweenPastTime = 'msg.storage.ui.criterion.time.past';
@@ -117,7 +117,6 @@ export class ExploreDataListComponent extends AbstractComponent {
   }
 
   public ngOnInit() {
-    this.selectedDate = new PeriodData();
 
     this.selectedDate.type = Criteria.DateTimeType.ALL;
 
@@ -291,6 +290,20 @@ export class ExploreDataListComponent extends AbstractComponent {
     return CommonUtil.numberWithCommas(this.pageResult.totalElements);
   }
 
+  getTranslatedSourceTypeSelectedItemsLabel() {
+    return this.sourceTypeSelectedItemsLabel.map(filter => {
+      return this.translateService.instant(filter);
+    }).join(',');
+  }
+
+  getTranslatedUpdatedTimeSelectedItemsLabel() {
+    if (this.betweenPastTime || this.betweenCurrentTime) {
+      return `${this.translateService.instant(this.betweenPastTime)} ~ ${this.translateService.instant(this.betweenCurrentTime)}`
+    } else {
+      return this.updatedTimeSelectedItemsLabel;
+    }
+  }
+
   getTotalElementsGuide() {
     if (this.isNotEmptySearchKeyword()) {
       return this.translateService.instant('msg.explore.ui.list.content.total.searched', {
@@ -379,15 +392,15 @@ export class ExploreDataListComponent extends AbstractComponent {
     if (this.selectedSourceTypeFilter.length > 0) {
       this.sourceTypeSelectedItemsLabel = this.selectedSourceTypeFilter.map((filter) => {
         if (filter === "ENGINE") {
-          return this.translateService.instant('msg.storage.li.engine');
+          return 'msg.storage.li.engine';
         } else if (filter === "JDBC") {
-          return this.translateService.instant('msg.storage.li.db');
+          return 'msg.storage.li.db';
         } else if (filter === "STAGEDB") {
-          return this.translateService.instant('msg.storage.li.stagedb');
+          return 'msg.storage.li.stagedb';
         }
-      }).join(',');
+      });
     } else {
-      this.sourceTypeSelectedItemsLabel = this.translateService.instant('msg.comm.ui.list.all');
+      this.sourceTypeSelectedItemsLabel = ['msg.comm.ui.list.all'];
     }
     this.reloadPage();
   }
@@ -404,7 +417,7 @@ export class ExploreDataListComponent extends AbstractComponent {
       }
 
       if (selectedDate.updatedTimeTo[0].filterName) {
-        this.betweenPastTime = selectedDate.updatedTimeTo[0].filterName
+        this.betweenCurrentTime = selectedDate.updatedTimeTo[0].filterName
       }
       // if from and to is all exist
       if (selectedDate.updatedTimeFrom[0].filterName && selectedDate.updatedTimeTo[0].filterName) {
@@ -426,7 +439,8 @@ export class ExploreDataListComponent extends AbstractComponent {
         this.updatedTimeSelectedItemsLabel = `${this.translateService.instant(this.betweenPastTime)} ~ ${this.translateService.instant(this.betweenCurrentTime)}`;
       }
     } else {
-      this.updatedTimeSelectedItemsLabel = selectedDate.updatedTimeFrom[0].filterName + ' ~ ' + selectedDate.updatedTimeTo[0].filterName;
+      this.betweenPastTime = selectedDate.updatedTimeFrom[0].filterName;
+      this.betweenCurrentTime = selectedDate.updatedTimeTo[0].filterName;
 
       if (selectedDate.TYPE[0] === 'ALL') {
         this.updatedTimeSelectedItemsLabel = 'msg.comm.ui.list.all';

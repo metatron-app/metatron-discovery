@@ -157,7 +157,7 @@
   "msg.comm.ui.list.name.desc": "이름 내림차순",
   "msg.comm.ui.list.update.asc": "업데이트 오름차순",
   "msg.comm.ui.list.update.desc": "업데이트 내림차순",
-  "msg.comm.ui.list.all": "All",
+  "msg.comm.ui.list.all": "전체",
   "msg.comm.ui.list.dropbox.all": "전체 ({{ value }})",
   "msg.comm.ui.sel.del": "선택 삭제",
   "msg.comm.ui.list.parent.folder": "이전 폴더",

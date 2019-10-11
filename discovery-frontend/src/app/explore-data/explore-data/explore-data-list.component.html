@@ -6,7 +6,7 @@
         <div class="ddp-result-filtering" [class.ddp-selected]="showSourceTypeFilter" (click)="toggleSourceTypeFilter($event)">
           <span class="ddp-txt-label" *ngIf="true">{{ 'msg.explore.ui.list.filter.data.type' | translate }}</span>
           <div class="ddp-box-result">
-            <span class="ddp-txt-result">{{ sourceTypeSelectedItemsLabel }}</span>
+            <span class="ddp-txt-result">{{ getTranslatedSourceTypeSelectedItemsLabel() }}</span>
           </div>
           <criterion-checkbox-component
             (clickOutside)="closeSourceTypeFilter()"
@@ -25,7 +25,7 @@
              (click)="toggleUpdatedTimeFilter()">
           <span class="ddp-txt-label" *ngIf="true">{{ 'msg.explore.ui.list.filter.updated.time' | translate }}</span>
           <div class="ddp-box-result">
-            <span class="ddp-txt-result">{{ updatedTimeSelectedItemsLabel | translate }}</span>
+            <span class="ddp-txt-result">{{ getTranslatedUpdatedTimeSelectedItemsLabel() }}</span>
           </div>
           <criterion-time-radiobox-list
             (clickOutside)="closeTimeFilter()"
