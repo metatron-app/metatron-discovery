@@ -304,10 +304,14 @@ public class TeddyStagingDbService {
   }
 
   private String getFullExtDir(HiveExtInfo hiveExtInfo) throws IOException {
+    return getFullExtDir(hiveExtInfo, false);
+  }
+
+  private String getFullExtDir(HiveExtInfo hiveExtInfo, boolean truncate) throws IOException {
     FileSystem fs = FileSystem.get(hadoopConf);
 
     Path dir = new Path(hiveExtInfo.extHdfsDir + "/" + hiveExtInfo.dbName + "/" + hiveExtInfo.tblName);
-    if (fs.exists(dir)) {
+    if (truncate && fs.exists(dir)) {
       fs.delete(dir, true);
     }
     return dir.toString();
@@ -319,7 +323,7 @@ public class TeddyStagingDbService {
     HIVE_FILE_FORMAT format = hiveExtInfo.format;
     HIVE_FILE_COMPRESSION compression = hiveExtInfo.compression;
 
-    String fullExtDir = getFullExtDir(hiveExtInfo);
+    String fullExtDir = getFullExtDir(hiveExtInfo, true);
 
     Integer[] rowCnt = new Integer[2];
 
