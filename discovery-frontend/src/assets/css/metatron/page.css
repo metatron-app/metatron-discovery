@@ -9848,7 +9848,7 @@ table.ddp-table-type2 tbody tr > td .ddp-wrap-catalogs2 span {float:inherit;}
 .ddp-list-favorite li a .ddp-icon-folder-type { width:13px; height:12px; background:url(../../images/icon_folder.png) no-repeat; background-position:-16px top;}
 .ddp-list-favorite li a .ddp-data-txt {}
 .ddp-list-favorite li a .ddp-data-navi {display:block; color:#adb0ba; font-size:11px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
-.ddp-list-favorite li a .ddp-data-name {display:block; margin-top:2px; font-size:13px; color:#424751;}
+.ddp-list-favorite li a .ddp-data-name {display:block; margin-top:2px; font-size:13px; color:#424751; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 .ddp-wrap-catalogs .ddp-ui-tags {position:absolute; top:92px; left:0; right:0; bottom:0;overflow:auto; padding-top:10px;}
 ul.ddp-list-tags li a {display:block; padding:10px 16px;}
 ul.ddp-list-tags li a .ddp-icon-tag {float:left; position:relative; top:2px; margin-right:4px; width:12px; height:12px; background:url(../../images/icon_tag.png) no-repeat;}
@@ -9863,7 +9863,7 @@ ul.ddp-list-tags li.ddp-selected a {background-color:#f3f4f9;}
 .ddp-ui-tree ul.ddp-list-tree > li em.ddp-view {}
 .ddp-ui-tree ul.ddp-list-tree li a {display:block; position:relative; padding:10px 0 10px 61px; font-size:13px; color:#4b515b; white-space:nowrap;}
 .ddp-ui-tree ul.ddp-list-tree li ul li a:before {display:inline-block; position:absolute; top:-17px; left:0; width:18px; height:39px; background:url(../../images/icon_tree_line.png) no-repeat left bottom; content:'';}
-.ddp-ui-tree ul.ddp-list-tree li a .ddp-txt-link{display:block;}
+.ddp-ui-tree ul.ddp-list-tree li a .ddp-txt-link{display:block; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 .ddp-ui-tree ul.ddp-list-tree li.ddp-open > a .ddp-txt-link {font-weight:bold;}
 .ddp-ui-tree ul.ddp-list-tree li a .ddp-txt-link:hover {text-decoration:underline;}
 .ddp-ui-tree ul.ddp-list-tree li.ddp-selected > a > .ddp-txt-link {font-weight:bold; text-decoration:underline;}

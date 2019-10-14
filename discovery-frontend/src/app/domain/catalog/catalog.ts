@@ -1,9 +1,11 @@
 export namespace Catalog {
   export class Tree {
-    countOfChild: number;
+    countOfChild?: number;
     name: string;
     id: string;
+    favorite: boolean;
     child: Tree;
+    hierarchies?: any[];
     // Only used UI
     isOpened?: boolean;
   }

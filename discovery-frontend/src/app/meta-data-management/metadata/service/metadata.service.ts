@@ -296,6 +296,17 @@ export class MetadataService extends AbstractService {
     return this.get(url);
   }
 
+  public toggleMetadataFavorite(id: string, isFavorited: boolean) {
+    let url: string = this.URL_METADATA + `/${id}/favorite/`;
+
+    if (isFavorited) {
+      url += 'detach';
+    } else {
+      url += 'attach';
+    }
+    return this.post(url, null);
+  }
+
   public isShowLineage(): Promise<any> {
     return this.get(this.API_URL + `extensions/lineage`)
   }

@@ -166,7 +166,6 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
       recentlyUsedList = await this.metadataService.getRecentlyUsedInMetadataDetail(metadata.id, {sort: 'createdTime', size: 5, page: 0}).catch(error => this.commonExceptionHandler(error));
     };
 
-    // get metadataDetail to use datasourceService which is using metadataDetail
     this.metadataService.getDetailMetaData(metadata.id).then(async (result) => {
       metadataDetail = result;
 
@@ -201,6 +200,16 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
         // close
         this.entryRef.destroy();
       });
+      this.entryRef.instance.onToggleFavorite.subscribe((metadataId) => {
+        const index = this._exploreDataListComponent.metadataList.findIndex((metadata) => {
+          return metadata.id === metadataId;
+        });
+
+        if (index !== -1) {
+          this._exploreDataListComponent.metadataList[index].favorite = !this._exploreDataListComponent.metadataList[index].favorite;
+        }
+      });
+
     }).catch(error => {console.log(error); this.commonExceptionHandler(error)});
   }
 
