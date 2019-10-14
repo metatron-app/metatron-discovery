@@ -31,7 +31,6 @@ import {isNullOrUndefined} from "util";
 import {ActivatedRoute} from "@angular/router";
 import {Criteria} from "../../domain/datasource/criteria";
 import {PeriodData} from "../../common/value/period.data.value";
-import {Subject} from "rxjs";
 import ListCriterionKey = Criteria.ListCriterionKey;
 import ListCriterionType = Criteria.ListCriterionType;
 import ListCriterion = Criteria.ListCriterion;
@@ -67,6 +66,7 @@ export class ExploreDataListComponent extends AbstractComponent {
   selectedSort: string;
   // created filter
   selectedDate = new PeriodData();
+  selectedDateFilterType = Criteria.DateTimeType.ALL;
   // selected created filter name
 
   showUpdatedTimeFilter: boolean = false;
@@ -76,6 +76,8 @@ export class ExploreDataListComponent extends AbstractComponent {
   public sourceTypeSelectedItemsLabel: string[] = ['msg.comm.ui.list.all'];
   public updatedTimeSelectedItemsLabel: string = 'msg.comm.ui.list.all';
 
+  startTime: string = '';
+  finishTime: string = '';
   betweenPastTime = 'msg.storage.ui.criterion.time.past';
   betweenCurrentTime = 'msg.storage.ui.criterion.time.current';
 
@@ -297,10 +299,12 @@ export class ExploreDataListComponent extends AbstractComponent {
   }
 
   getTranslatedUpdatedTimeSelectedItemsLabel() {
-    if (this.betweenPastTime || this.betweenCurrentTime) {
-      return `${this.translateService.instant(this.betweenPastTime)} ~ ${this.translateService.instant(this.betweenCurrentTime)}`
-    } else {
+    if (this.selectedDateFilterType === Criteria.DateTimeType.ALL) {
       return this.translateService.instant(this.updatedTimeSelectedItemsLabel);
+    } else if (this.selectedDateFilterType === Criteria.DateTimeType.TODAY || this.selectedDateFilterType === Criteria.DateTimeType.SEVEN_DAYS) {
+      return `${this.startTime} ~ ${this.finishTime}`
+    } else {
+      return `${this.translateService.instant(this.betweenPastTime)} ~ ${this.translateService.instant(this.betweenCurrentTime)}`
     }
   }
 
@@ -407,6 +411,8 @@ export class ExploreDataListComponent extends AbstractComponent {
 
   // apply created time sort from createdTime filter Component
   onChangeCreateTimeFilter(selectedDate) {
+    this.selectedDateFilterType = selectedDate.TYPE[0];
+
     const returnFormat = 'YYYY-MM-DDTHH:mm';
 
     let returnData;
@@ -439,8 +445,8 @@ export class ExploreDataListComponent extends AbstractComponent {
         this.updatedTimeSelectedItemsLabel = `${this.translateService.instant(this.betweenPastTime)} ~ ${this.translateService.instant(this.betweenCurrentTime)}`;
       }
     } else {
-      this.betweenPastTime = selectedDate.updatedTimeFrom[0].filterName;
-      this.betweenCurrentTime = selectedDate.updatedTimeTo[0].filterName;
+      this.startTime = selectedDate.updatedTimeFrom[0].filterName;
+      this.finishTime= selectedDate.updatedTimeTo[0].filterName;
 
       if (selectedDate.TYPE[0] === 'ALL') {
         this.updatedTimeSelectedItemsLabel = 'msg.comm.ui.list.all';
