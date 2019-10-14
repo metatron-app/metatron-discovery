@@ -417,7 +417,7 @@
         </div>
 
 
-        <div class="ddp-btn-bottom">
+        <div class="ddp-btn-bottom" *ngIf="!isShowPreview">
           <a href="javascript:" class="ddp-btn-solid2" (click)="previewJoinResult()"
              [style.display]="isShowPreview ? 'none':'inline-block'"
              [ngClass]="{'ddp-disabled':leftSelCols.length === 0 || rightSelCols.length === 0 || selectedJoinType === '' || joinList.length === 0}">
