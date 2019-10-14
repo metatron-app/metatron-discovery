@@ -42,21 +42,27 @@
               <a href="javascript:" class="ddp-btn-delete" (click)="deleteTag(tag)" *ngIf="'' !== tag.name"></a>
             </div>
           </div>
-          <div class="ddp-tag-default ddp-wrap-drop-search" [ngClass]="{'ddp-selected': filteredTagsList.length > 0}" (clickOutside)="tagClickOutsideEvent()">
+          <div class="ddp-tag-default ddp-wrap-drop-search" [ngClass]="{'ddp-selected': showTags}" (clickOutside)="tagClickOutsideEvent()">
             <component-input
               [compType]="'default'"
               [value]="tagValue"
               [immediately]="true"
+              [autoFocus]="false"
               [placeHolder]="'msg.metadata.ui.enter.tag' | translate"
               (changeValue)="tagValue = $event;"
+              (inputFocus)="showTags = true"
               (pressEnter)="addTag()">
             </component-input>
             <div class="ddp-ui-drop-search">
-              <ul class="ddp-list-selectbox2">
-                <li *ngFor="let tag of filteredTagsList" (click)="setTagValue(tag)">
-                  {{tag}}
-                </li>
+              <ul *ngIf="0 < filteredTagsList.length || '' !== tagValue; else popularityTags" class="ddp-list-selectbox2">
+                <li *ngFor="let tag of filteredTagsList" (click)="$event.stopImmediatePropagation();setTagValue(tag)"> {{tag}} </li>
               </ul>
+              <ng-template #popularityTags>
+                <div class="ddp-data-title" style="color: #b5b9c2; font-size: 12px; padding: 9px 14px 8px 10px; font-weight: bold"> Popular tags </div>
+                <ul class="ddp-list-selectbox2">
+                  <li *ngFor="let tag of popularityTagList" (click)="$event.stopImmediatePropagation();setTagValue(tag.name)"> {{tag.name}} </li>
+                </ul>
+              </ng-template>
             </div>
           </div>
         </td>
@@ -76,17 +82,19 @@
           <div class="ddp-apply ddp-clear type-catalog" style="margin-top:6px;">
             <div *ngIf="isSearchCatalog; else catalogAddButton"
                  (clickOutside)="isSearchCatalog = false"
-                 [class.ddp-selected]="'' !== catalogSearchText" class="ddp-type-search type-box" >
+                 [class.ddp-selected]="showCatalogs" class="ddp-type-search type-box" >
               <component-input
                 [compType]="'default'"
                 [value]="catalogSearchText"
                 [immediately]="true"
+                [autoFocus]="false"
                 [placeHolder]="'msg.metadata.ui.search.catalog.ph' | translate"
+                (inputFocus)="showCatalogs = true"
                 (changeValue)="changeInputCatalog($event);">
               </component-input>
-              <div class="ddp-box-layout4 type-button">
-                <ul class="ddp-list-popup ddp-wrap-catalogs2">
-                  <li *ngFor="let catalog of searchCatalogList">
+              <div class="ddp-box-layout4">
+                <ul *ngIf="0 < searchCatalogList.length || '' !== catalogSearchText; else popularityCatalogs" class="ddp-list-popup ddp-wrap-catalogs2">
+                  <li *ngFor="let catalog of searchCatalogList" [class.ddp-selected]="isExistCatalog(catalog)">
                     <a (click)="selectCatalog(catalog)" href="javascript:">
                       <div class="ddp-ui-catalogs2">
                         <em class="ddp-icon-folder-type"></em>
@@ -97,6 +105,20 @@
                   </li>
                 </ul>
               </div>
+              <ng-template #popularityCatalogs>
+                <div class="ddp-data-title"> Popular catalogs </div>
+                <ul class="ddp-list-popup ddp-wrap-catalogs2">
+                  <li *ngFor="let catalog of popularityCatalogList" [class.ddp-selected]="isExistCatalog(catalog)">
+                    <a (click)="selectCatalog(catalog)" href="javascript:">
+                      <div class="ddp-ui-catalogs2">
+                        <em class="ddp-icon-folder-type"></em>
+                        <span *ngFor="let hierarchyItem of catalog.hierarchies" >{{hierarchyItem.name}}</span>
+                      </div>
+                      <em class="ddp-icon-check"></em>
+                    </a>
+                  </li>
+                </ul>
+              </ng-template>
             </div>
             <ng-template #catalogAddButton>
               <a (click)="showSearchCatalog($event)"
