@@ -795,6 +795,7 @@
   "msg.dp.alert.failed.to.delete.snapshot": "Snapshot을 지우는 도중 IOException이 발생했습니다.",
   "msg.dp.alert.invalid.snapshot.name": "잘못된 스냅샷 이름입니다. (null 또는 빈 문자열)",
   "msg.dp.alert.snapshot.type.not.supported.yet": "아직 지원하지 않는 스냅샷 형식입니다.",
+  "msg.dp.alert.snapshot.type.is.missing": "스냅샷의 타입이 전달되지 않았습니다.",
   "msg.dp.alert.snapshot.dest.uri.is.needed": "스냅샷의 목적 URI가 지정되어야 합니다.",
   "msg.dp.alert.unsupported.charset": "지원하지 않는 인코딩 (Charset) 입니다.",
   "msg.dp.alert.unknown.bom": "지원하지 않는 byte-order mark (BOM)을 찾았습니다.",
@@ -2285,7 +2286,7 @@
   "msg.storage.th.batch.pause.fail": "배치 중지에 실패하였습니다.",
   "msg.storage.th.batch.resume.success": "배치가 재실행되었습니다.",
   "msg.storage.th.batch.resume.fail": "배치 재실행에 실패하였습니다.",
-  
+
   "msg.storage.ui.timezone.country.zimbabwe": "짐바브웨",
   "msg.storage.ui.timezone.country.zambia": "잠비아",
   "msg.storage.ui.timezone.country.yemen": "예멘",

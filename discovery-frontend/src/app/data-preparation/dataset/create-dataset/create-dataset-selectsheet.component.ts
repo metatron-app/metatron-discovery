@@ -228,10 +228,6 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    */
   public changeDelimiter() {
 
-    if (this.clearGrid) {
-      return;
-    }
-
     this.isDelimiterRequired = ('' === this.currDelimiter && this.isCSV);
 
     // No change in grid when delimiter is empty
@@ -251,10 +247,6 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    * When columnCount is changed(CSV, EXCEL)
    */
   public changeColumnCount(){
-
-    if (this.clearGrid) {
-      return;
-    }
 
     this.isColumnCountRequired = ( (isNullOrUndefined(this.currColumnCount) || 1 > this.currColumnCount) && this.datasetFiles[this.currDSIndex].fileFormat != FileFormat.JSON);
 
@@ -534,6 +526,9 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
         if( option && option === 'draw') this.clearGrid = false;
 
+        this.datasetFiles[idx].error = null;
+        this.previewErrorMsg = '';
+
         this._setSheetInformation(idx, result.gridResponses, result.sheetNames);
 
         // 첫번째 시트로 그리드를 그린다.
@@ -552,6 +547,9 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
         // no result from server
         if( option && option === 'draw') this.clearGrid = true;
+
+        this.datasetFiles[idx].error = result;
+        this.previewErrorMsg = (this.datasetFiles[idx].error? this.translateService.instant(this.datasetFiles[idx].error.message) : '');
 
       }
 

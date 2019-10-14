@@ -106,7 +106,7 @@ public class PrDataflow extends AbstractHistoryEntity {
   public boolean addDataset(PrDataset dataset) {
     if (dataset != null) {
       if (this.datasets == null) {
-        this.datasets = new ArrayList<PrDataset>();
+        this.datasets = new ArrayList();
       }
       for (PrDataset ds : this.datasets) {
         if (ds.getDsId() == dataset.getDsId()) {
