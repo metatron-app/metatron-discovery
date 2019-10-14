@@ -147,21 +147,21 @@ export class ExploreDataMainComponent extends AbstractComponent {
 
 
   private async _setPopularMetadataList() {
-    const result = await this._metadataService.getMetadataListByPopularity({size: 20, page: 0});
+    const result = await this._metadataService.getMetadataListByPopularity({size: 18, page: 0});
     if (!_.isNil(result._embedded)) {
       this.popularMetadataList = result._embedded.metadatas;
 
       // set carousel screen counts
       const screenNumber = this.popularMetadataList.length / 5;
 
-      for (let i = 0; i <= screenNumber; i++) {
+      for (let i = 0; i < screenNumber; i++) {
         this.popularMetadataCarouselScreenIndex.push(i);
       }
     }
   }
 
   private async _setUpdatedMetadataList() {
-    const result = await this._metadataService.getMetaDataList({size: 6, page: 0, sort: 'modifiedTime,desc'});
+    const result = await this._metadataService.getMetaDataList({size: 4, page: 0, sort: 'modifiedTime,desc'});
     if (!_.isNil(result._embedded)) {
       this.updatedMetadataList = result._embedded.metadatas;
     }

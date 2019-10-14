@@ -10132,7 +10132,7 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
 .ddp-ui-banner .ddp-wrap-slider {position:Relative;}
 .ddp-ui-banner .ddp-wrap-bullet {position:absolute; bottom:10px; left:0; right:0; text-align:center;}
 .ddp-ui-banner .ddp-wrap-bullet .ddp-ui-bullet {display:inline-block;}
-.ddp-ui-banner .ddp-wrap-bullet .ddp-bullet {display:inline-block; float:left; width:7px; height:7px; border-radius:50%; background-color:#d0d1d8; margin:0 5px;}
+.ddp-ui-banner .ddp-wrap-bullet .ddp-bullet {display:inline-block; float:left; width:7px; height:7px; border-radius:50%; background-color:#d0d1d8; margin:0 5px; cursor:pointer;}
 .ddp-ui-banner .ddp-wrap-bullet .ddp-bullet.ddp-selected {position:relative; top:-1px;width:9px; height:9px; background-color:#666eb2;}
 .ddp-ui-banner .ddp-paging .ddp-btn-prev,
 .ddp-ui-banner .ddp-paging .ddp-btn-next {display:inline-block; width:12px; height:22px; background:url(../../images/btn_slider2.png) no-repeat;}
