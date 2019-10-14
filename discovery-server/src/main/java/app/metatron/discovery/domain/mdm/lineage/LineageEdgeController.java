@@ -17,9 +17,6 @@ package app.metatron.discovery.domain.mdm.lineage;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -44,8 +41,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
@@ -57,8 +52,6 @@ import app.metatron.discovery.domain.mdm.Metadata;
 import app.metatron.discovery.domain.mdm.MetadataErrorCodes;
 import app.metatron.discovery.domain.mdm.MetadataRepository;
 import app.metatron.discovery.domain.mdm.lineage.LineageMap.ALIGNMENT;
-
-import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getReaderAfterDetectingCharset;
 
 @RequestMapping(value = "/metadatas/lineages")
 @RepositoryRestController
@@ -287,57 +280,6 @@ public class LineageEdgeController {
     }
 
     return ResponseEntity.ok().body(gridResponses);
-  }
-
-  // will be removed
-  @RequestMapping(value = "/file_upload_orig", method = RequestMethod.POST, produces = "application/json")
-  public @ResponseBody ResponseEntity<?> file_upload_orig(
-      @RequestPart("file") MultipartFile file
-  ) {
-    Map<String, Object> response = Maps.newHashMap();
-    List<String> header = Lists.newArrayList();
-    List<Map<String,Object>> rows = Lists.newArrayList();
-    try {
-      InputStream is = file.getInputStream();
-      InputStreamReader isr = getReaderAfterDetectingCharset(is,null);
-
-      CSVParser parser = CSVParser.parse(isr, CSVFormat.DEFAULT.withDelimiter(',').withEscape('\\'));
-
-      Iterator<CSVRecord> iter = parser.iterator();
-
-      if (iter.hasNext()) {
-        CSVRecord csvRow = iter.next();
-        int colCnt = csvRow.size();
-        for (int i = 0; i < colCnt; i++) {
-          header.add(i, csvRow.get(i));
-        }
-
-        while (true) {
-          if (!iter.hasNext()) {
-            break;
-          }
-
-          csvRow = iter.next();
-          colCnt = csvRow.size();
-          Map<String,Object> row = Maps.newHashMap();
-          for (int i = 0; i < colCnt; i++) {
-            row.put(header.get(i), csvRow.get(i) );
-          }
-          rows.add(row);
-        }
-      }
-
-      response.put("header",header);
-      response.put("rows",rows);
-    } catch (IOException e) {
-      LOGGER.error("file_upload POST(): caught an exception: ", e);
-    } catch (IllegalStateException e) {
-      LOGGER.error("file_upload POST(): caught an exception: ", e);
-    } catch (Exception e) {
-      LOGGER.error("file_upload POST(): caught an exception: ", e);
-    }
-
-    return ResponseEntity.ok().body(response);
   }
 
   @RequestMapping(value = "/edges/{edgeId}", method = RequestMethod.DELETE, produces = "application/json", consumes = "application/json")
