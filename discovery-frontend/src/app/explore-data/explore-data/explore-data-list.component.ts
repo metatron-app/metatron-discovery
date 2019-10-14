@@ -417,7 +417,7 @@ export class ExploreDataListComponent extends AbstractComponent {
 
     let returnData;
 
-    if (selectedDate.TYPE[0] === 'BETWEEN') {
+    if (this.selectedDateFilterType === 'BETWEEN') {
       if (selectedDate.updatedTimeFrom[0].filterName) {
         this.betweenPastTime = selectedDate.updatedTimeFrom[0].filterName
       }
@@ -432,8 +432,39 @@ export class ExploreDataListComponent extends AbstractComponent {
         returnData = {
           startDate : selectedDate.updatedTimeFrom[0].filterName,
           endDate : selectedDate.updatedTimeTo[0].filterName,
-          type: selectedDate.TYPE[0],
           startDateStr: moment(selectedDate.updatedTimeFrom[0].filterName).format(returnFormat),
+          endDateStr: moment(selectedDate.updatedTimeTo[0].filterName).format(returnFormat),
+          dateType: null,
+        };
+
+        this.selectedDate = returnData;
+
+        this.reloadPage();
+
+        // if only 'from' time is selected
+      } else if (selectedDate.updatedTimeFrom[0].filterName && !selectedDate.updatedTimeTo[0].filterName) {
+        this.updatedTimeSelectedItemsLabel = selectedDate.updatedTimeFrom[0].filterName + ' ~ ' + selectedDate.updatedTimeTo[0].filterName;
+
+        returnData = {
+          startDate : selectedDate.updatedTimeFrom[0].filterName,
+          endDate : null,
+          startDateStr: moment(selectedDate.updatedTimeFrom[0].filterName).format(returnFormat),
+          endDateStr: null,
+          dateType: null,
+        };
+
+        this.selectedDate = returnData;
+
+        this.reloadPage();
+
+        // if only 'to' time is selected
+      } else if (!selectedDate.updatedTimeFrom[0].filterName && selectedDate.updatedTimeTo[0].filterName) {
+        this.updatedTimeSelectedItemsLabel = selectedDate.updatedTimeFrom[0].filterName + ' ~ ' + selectedDate.updatedTimeTo[0].filterName;
+
+        returnData = {
+          startDate : selectedDate.updatedTimeFrom[0].filterName,
+          endDate : selectedDate.updatedTimeTo[0].filterName,
+          startDateStr: null,
           endDateStr: moment(selectedDate.updatedTimeTo[0].filterName).format(returnFormat),
           dateType: null,
         };
