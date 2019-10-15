@@ -1077,6 +1077,14 @@ export class DatasourceService extends AbstractService {
     return this.get(this.API_URL + `queryhistories?sort=${sort}&size=${size}&dataConnectionId=${dataConnectionId}`);
   }
 
+  public getKafkaTopic(bootstrapServer: string) {
+    return this.postWithForm(this.API_URL + `datasources/kafka/topic`, `bootstrapServer=${bootstrapServer}`);
+  }
+
+  public getKafkaTopicData(bootstrapServer: string, topic: string) {
+    return this.postWithForm(this.API_URL + `datasources/kafka/data`, `bootstrapServer=${bootstrapServer}&topic=${topic}`);
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

@@ -22,6 +22,12 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.serialization.LongDeserializer;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
@@ -34,8 +40,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import app.metatron.discovery.common.criteria.ListCriterion;
@@ -651,6 +661,46 @@ public class DataSourceService {
     dataSource.updateFromMetadata(metadata, includeColumns);
 
     dataSourceRepository.save(dataSource);
+  }
+
+  public Set getKafkaTopic(String bootstrapServer) {
+    Consumer<Long, String> consumer = createConsumer(bootstrapServer);
+    Set kafkaTopicList = consumer.listTopics().keySet();
+    consumer.close();
+    return kafkaTopicList;
+  }
+
+  public List<String> getKafkaPreviewData(String bootstrapServer, String topic) {
+    List<String> list = Lists.newArrayList();
+
+    Consumer<Long, String> consumer = createConsumer(bootstrapServer);
+    consumer.subscribe(Collections.singletonList(topic));
+    ConsumerRecords<Long, String> consumerRecords = consumer.poll(1000);
+    consumerRecords.forEach(record -> list.add(record.value()));
+
+    consumer.commitAsync();
+    consumer.close();
+
+    return list;
+  }
+
+  private Consumer<Long, String> createConsumer(String bootstrapServer) {
+    Properties props = new Properties();
+    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+              bootstrapServer);
+    props.put(ConsumerConfig.GROUP_ID_CONFIG,
+              "KafkaSampleConsumer_" + UUID.randomUUID().toString());
+    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+              LongDeserializer.class.getName());
+    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+              StringDeserializer.class.getName());
+    props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+    props.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, 10000);
+    props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 8000);
+    props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 8000);
+    props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, 5000);
+    Consumer<Long, String> consumer = new KafkaConsumer<>(props);
+    return consumer;
   }
 
 }

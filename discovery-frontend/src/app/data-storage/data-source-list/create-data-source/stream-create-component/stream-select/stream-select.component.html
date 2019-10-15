@@ -1,0 +1,105 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-contents ddp-resize2 ddp-type2">
+  <!-- 닫기 버튼 -->
+  <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+  <!-- //닫기 버튼 -->
+  <div class="ddp-icon-name">
+    <div class="ddp-ui-name2 ddp-type3">
+      {{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.li.stream' | translate}})
+      <span class="ddp-txt-info ddp-type">{{'msg.storage.ui.stream.description' | translate}}</span>
+      <em class="ddp-bg-order-line5-type"></em>
+    </div>
+  </div>
+  <!-- contents in  -->
+  <div class="ddp-type-contents-in ddp-sheet-resize">
+    <div class="ddp-box-popupcontents page-storage-create ddp-flex">
+      <!-- col -->
+      <div class="ddp-clear type-col">
+        <div class="ddp-col-12">
+          <div class="ddp-wrap-edit2" [class.ddp-error]="isUrlError">
+            <label class="ddp-label-type">{{'msg.comm.th.url' | translate}}</label>
+            <input type="text" class="ddp-input-type" placeholder="{{'msg.dp.ui.url.ph' | translate}}" (keypress)="urlInputChange($event)"
+                   [ngModel]="url" (ngModelChange)="url = $event; isUrlError = undefined; connectionValidInitialize();">
+            <!-- error -->
+            <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
+            <!-- error -->
+          </div>
+        </div>
+      </div>
+      <!-- //col -->
+      <div class="ddp-ui-buttons ddp-inline">
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-gray " (click)="checkConnection()">{{'msg.storage.btn.test' | translate}}</a>
+
+        <div class="ddp-ui-message ddp-ui-info ">
+          <span class="ddp-data-ok" *ngIf="isEnableConnection()"><em class="ddp-icon-ok"></em>{{'msg.dp.ui.valid.conn' | translate}}</span>
+          <span class="ddp-data-error2 type-font-normal" *ngIf="isDisableConnection()">{{'msg.storage.ui.invalid.conn' | translate}}</span>
+        </div>
+      </div>
+      <!-- topic -->
+      <div class="ddp-type-topic">
+        <div class="ddp-wrap-edit2">
+          <label class="ddp-label-type">{{'msg.storage.ui.stream.kafka.topic' | translate}}</label>
+          <!-- selectbox -->
+          <!-- 클릭시 ddp-selected 추가 -->
+          <div class="ddp-type-selectbox" [class.ddp-selected]="isShowTopicList" [class.ddp-disabled]="!isEnableConnection()"
+               (click)="clickTopicList()"
+               (clickOutside)="isShowTopicList=false">
+            <span class="ddp-txt-selectbox">{{displayTopic}}</span>
+            <ul class="ddp-list-selectbox ddp-selectdown">
+              <li *ngFor="let topic of kafkaTopicList">
+                <a href="javascript:" (click)="selectTopic(topic);">
+                  {{topic}}
+                </a>
+              </li>
+            </ul>
+          </div>
+          <!-- //selectbox -->
+          <div class="ddp-txt-info" *ngIf="isKafkaDataResult">
+            <em class="ddp-icon-info"></em>{{'msg.storage.ui.stream.exist.kafka.scheme' | translate : {topic : selectedKafkaTopic} }}
+          </div>
+          <div class="ddp-txt-info" *ngIf="selectedKafkaTopic != undefined && !isKafkaDataResult">
+            <em class="ddp-icon-info"></em>{{'msg.storage.ui.stream.not.exist.kafka.scheme' | translate}}
+          </div>
+        </div>
+        <label class="ddp-label-checkbox" [ngStyle]="{'visibility': isKafkaDataResult ? '' : 'hidden'}">
+          <input type="checkbox" [(ngModel)]="isUseKafkaScheme">
+          <i class="ddp-icon-checkbox"></i>
+          <span class="ddp-txt-checkbox">{{'msg.storage.ui.stream.use.kafka.scheme' | translate}}</span>
+        </label>
+
+      </div>
+      <!-- //topic -->
+
+      <div class="ddp-wrap-variable" *ngIf="showFileUpload()">
+        <stream-uploader [uploadedFile]="uploadedFile"
+                  (uploadStarted)="onStartedFileUpload()"
+                  (uploadComplete)="onCompletedFileUpload($event)">
+        </stream-uploader>
+        <!-- //file create -->
+      </div>
+
+    </div>
+  </div>
+  <!-- //contents in  -->
+  <!-- buttons -->
+  <div class="ddp-ui-buttons">
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+    <!-- disabled 시 ddp-disabled 추가 -->
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black " [class.ddp-disabled]="!isEnableNext()" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+  </div>
+  <!-- //buttons -->
+
+</div>

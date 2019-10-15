@@ -25,6 +25,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.kafka.common.errors.TimeoutException;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.locationtech.jts.geom.Geometry;
@@ -112,6 +113,7 @@ import app.metatron.discovery.domain.workbook.configurations.filter.IntervalFilt
 import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.CommonsCsvProcessor;
 import app.metatron.discovery.util.ExcelProcessor;
+import app.metatron.discovery.util.JsonProcessor;
 import app.metatron.discovery.util.PolarisUtils;
 import app.metatron.discovery.util.ProjectionUtils;
 
@@ -1012,6 +1014,10 @@ public class DataSourceController {
         //        CsvProcessor csvProcessor = new CsvProcessor(tempFile);
         //        csvProcessor.setCsvMaxCharsPerColumn(metatronProperties.getCsvMaxCharsPerColumn());
         //        resultResponse = csvProcessor.getData(lineSep, delimiter, limit, firstHeaderRow);
+      } else if ("json".equals(extensionType)) {
+        JsonProcessor jsonProcessor = new JsonProcessor().parse("file://" + tempFile)
+                                     .maxRowCount(Integer.valueOf(limit).longValue());
+        resultResponse = jsonProcessor.ingestionDataResultResponse();
       } else {
         throw new BadRequestException("Invalid temporary file.");
       }
@@ -1221,6 +1227,76 @@ public class DataSourceController {
     service.submit(() -> jobRunner.ingestion(dataSource));
 
     return ResponseEntity.noContent().build();
+  }
+
+  @RequestMapping(value = "/datasources/kafka/topic", method = RequestMethod.POST)
+  public @ResponseBody
+  ResponseEntity<?> getKafkaTopic(@RequestParam(value = "bootstrapServer") String bootstrapServer) {
+
+    try {
+      return ResponseEntity.ok(dataSourceService.getKafkaTopic(bootstrapServer));
+    } catch (TimeoutException te) {
+      LOGGER.error("Fail to timeout kafka ({}) : {}", bootstrapServer, te.getMessage());
+      throw new DataSourceIngestionException("Fail to timeout kafka.", te.getCause());
+    } catch (Exception e) {
+      LOGGER.error("Failed to get kafka topic ({}) : {}", bootstrapServer, e.getMessage());
+      throw new DataSourceIngestionException("Failed to get kafka topic.", e.getCause());
+    }
+
+  }
+
+  @RequestMapping(value = "/datasources/kafka/data", method = RequestMethod.POST)
+  public @ResponseBody
+  ResponseEntity<?> getPreviewFromKafka(@RequestParam(value = "bootstrapServer") String bootstrapServer,
+                                       @RequestParam(value = "topic") String topic) {
+
+    try {
+      List kafkaData = dataSourceService.getKafkaPreviewData(bootstrapServer, topic);
+      JsonProcessor jsonProcessor = new JsonProcessor().parse(kafkaData);
+      return ResponseEntity.ok(jsonProcessor.ingestionDataResultResponse());
+    } catch (TimeoutException te) {
+      LOGGER.error("Fail to timeout kafka ({} : {}) : {}", bootstrapServer, topic, te.getMessage());
+      throw new DataSourceIngestionException("Fail to timeout kafka.", te.getCause());
+    } catch (Exception e) {
+      LOGGER.error("Failed to parse kafka ({} : {}) : {}", bootstrapServer, topic, e.getMessage());
+      throw new DataSourceIngestionException("Fail to parse kafka.", e.getCause());
+    }
+
+  }
+
+  @RequestMapping(value = "/datasources/stream/upload", method = RequestMethod.POST, produces = "application/json")
+  public
+  @ResponseBody
+  ResponseEntity<?> uploadFileForStreamIngestion(@RequestParam("file") MultipartFile file) {
+
+    // 파일명 가져오기
+    String fileName = file.getOriginalFilename();
+
+    // 파일명을 통해 확장자 정보 얻기
+    String extensionType = FilenameUtils.getExtension(fileName).toLowerCase();
+
+    if (StringUtils.isEmpty(extensionType) || !extensionType.matches("json")) {
+      throw new BadRequestException("Not supported file type : " + extensionType);
+    }
+
+    // Upload 파일 처리
+    String tempFileName = "TEMP_FILE_" + UUID.randomUUID().toString() + "." + extensionType;
+    String tempFilePath = System.getProperty("java.io.tmpdir") + File.separator + tempFileName;
+
+    Map<String, Object> responseMap = Maps.newHashMap();
+    responseMap.put("filekey", tempFileName);
+    responseMap.put("filePath", tempFilePath);
+
+    try {
+      File tempFile = new File(tempFilePath);
+      file.transferTo(tempFile);
+
+    } catch (IOException e) {
+      LOGGER.error("Failed to upload file : {}", e.getMessage());
+      throw new DataSourceIngestionException("Fail to upload file.", e.getCause());
+    }
+
+    return ResponseEntity.ok(responseMap);
   }
 
   class TimeFormatCheckResponse {

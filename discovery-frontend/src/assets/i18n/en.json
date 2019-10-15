@@ -2302,6 +2302,12 @@
   "msg.storage.th.batch.pause.fail" : "Failed to pause batch.",
   "msg.storage.th.batch.resume.success" : "Batch has been resumed.",
   "msg.storage.th.batch.resume.fail" : "Failed to resume batch.",
+  "msg.storage.ui.stream.kafka.topic": "Topic",
+  "msg.storage.ui.stream.description": "Please set kafka data connection",
+  "msg.storage.ui.stream.use.kafka.scheme": "Use the kafka’s scheme. (If not checked, you can upload the schema you want.)",
+  "msg.storage.ui.stream.exist.kafka.scheme": "Kafka's schema exists in the topic '{{topic}}'",
+  "msg.storage.ui.stream.not.exist.kafka.scheme": "There is no schema information in the topic.",
+  "msg.storage.ui.stream.upload.description" : ".json formats are allowed.",
 
   "msg.storage.ui.timezone.country.zimbabwe": "Zimbabwe",
   "msg.storage.ui.timezone.country.zambia": "Zambia",
