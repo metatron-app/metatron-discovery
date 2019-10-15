@@ -75,9 +75,9 @@ export class TaskComponent extends AbstractComponent implements OnInit, OnDestro
           if (isExistSearchParams) {
             paramKeys.forEach((key) => {
               if (key === 'size') {
-                this.page.size = Number.parseInt(params['size']);
+                this.page.size = parseInt(params['size']);
               } else if (key === 'page') {
-                this.page.page = Number.parseInt(params['page']);
+                this.page.page = parseInt(params['page']);
               } else if (key === 'sort') {
                 const sortParam = params['sort'].split(',');
                 this.selectedContentSort.key = sortParam[0];

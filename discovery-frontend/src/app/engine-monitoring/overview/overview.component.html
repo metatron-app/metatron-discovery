@@ -107,7 +107,7 @@
         <div class="ddp-data-source-none" *ngIf="filteredItems.length == 0">
           No data
         </div>
-        <div class="ddp-grid-detail" *ngIf="selectedViewMode === VIEW_MODE.CARD && filteredItems.length > 0">
+        <div class="ddp-grid-detail ddp-clear" *ngIf="selectedViewMode === VIEW_MODE.CARD && filteredItems.length > 0">
           <div class="ddp-grid-box ddp-cursor" *ngFor="let monitoring of filteredItems" [ngClass]="{'type-error' : !monitoring.status}"
                (mouseover)="showNodeInformationTooltip(monitoring, $event);"
                (mouseleave)="hideNodeInformationTooltip($event);"
