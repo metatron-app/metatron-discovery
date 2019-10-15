@@ -196,6 +196,10 @@ export class StreamPreviewComponent extends AbstractPopupComponent implements On
     return this.isValidFile;
   }
 
+  public isEnableNextButton(): boolean {
+    return this.selectedFileDetailData === undefined && this.sourceData.kafkaData.fieldData === undefined;
+  }
+
   /**
    * row 변경 이벤트
    */
