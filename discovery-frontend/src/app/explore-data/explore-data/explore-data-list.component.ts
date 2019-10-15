@@ -413,89 +413,59 @@ export class ExploreDataListComponent extends AbstractComponent {
   onChangeCreateTimeFilter(selectedDate) {
     this.selectedDateFilterType = selectedDate.TYPE[0];
 
+    const betweenFrom = selectedDate.updatedTimeFrom[0].filterName;
+    const betweenTo = selectedDate.updatedTimeTo[0].filterName;
+
+    let startDate, endDate, type, startDateStr, endDateStr, dateType = null;
+
     const returnFormat = 'YYYY-MM-DDTHH:mm';
 
-    let returnData;
+    // if filter type is between
+    if (this.selectedDateFilterType === Criteria.DateTimeType.BETWEEN) {
+      if (betweenFrom) { this.betweenPastTime = betweenFrom; }
+      if (betweenTo) { this.betweenCurrentTime = betweenTo; }
 
-    if (this.selectedDateFilterType === 'BETWEEN') {
-      if (selectedDate.updatedTimeFrom[0].filterName) {
-        this.betweenPastTime = selectedDate.updatedTimeFrom[0].filterName
-      }
-
-      if (selectedDate.updatedTimeTo[0].filterName) {
-        this.betweenCurrentTime = selectedDate.updatedTimeTo[0].filterName
-      }
+      // Only set params need to request api according to condition otherwise just leave it null
       // if from and to is all exist
-      if (selectedDate.updatedTimeFrom[0].filterName && selectedDate.updatedTimeTo[0].filterName) {
-        this.updatedTimeSelectedItemsLabel = selectedDate.updatedTimeFrom[0].filterName + ' ~ ' + selectedDate.updatedTimeTo[0].filterName;
-
-        returnData = {
-          startDate : selectedDate.updatedTimeFrom[0].filterName,
-          endDate : selectedDate.updatedTimeTo[0].filterName,
-          startDateStr: moment(selectedDate.updatedTimeFrom[0].filterName).format(returnFormat),
-          endDateStr: moment(selectedDate.updatedTimeTo[0].filterName).format(returnFormat),
-          dateType: null,
-        };
-
-        this.selectedDate = returnData;
-
-        this.reloadPage();
-
+      if (betweenFrom && betweenTo) {
+        startDate = betweenFrom;
+        endDate = betweenTo;
+        startDateStr = moment(betweenFrom).format(returnFormat);
+        endDateStr = moment(betweenTo).format(returnFormat);
         // if only 'from' time is selected
-      } else if (selectedDate.updatedTimeFrom[0].filterName && !selectedDate.updatedTimeTo[0].filterName) {
-        this.updatedTimeSelectedItemsLabel = selectedDate.updatedTimeFrom[0].filterName + ' ~ ' + selectedDate.updatedTimeTo[0].filterName;
-
-        returnData = {
-          startDate : selectedDate.updatedTimeFrom[0].filterName,
-          endDate : null,
-          startDateStr: moment(selectedDate.updatedTimeFrom[0].filterName).format(returnFormat),
-          endDateStr: null,
-          dateType: null,
-        };
-
-        this.selectedDate = returnData;
-
-        this.reloadPage();
-
+      } else if (betweenFrom && !betweenTo) {
+        startDate = betweenFrom;
+        startDateStr = moment(betweenFrom).format(returnFormat);
         // if only 'to' time is selected
-      } else if (!selectedDate.updatedTimeFrom[0].filterName && selectedDate.updatedTimeTo[0].filterName) {
-        this.updatedTimeSelectedItemsLabel = selectedDate.updatedTimeFrom[0].filterName + ' ~ ' + selectedDate.updatedTimeTo[0].filterName;
-
-        returnData = {
-          startDate : selectedDate.updatedTimeFrom[0].filterName,
-          endDate : selectedDate.updatedTimeTo[0].filterName,
-          startDateStr: null,
-          endDateStr: moment(selectedDate.updatedTimeTo[0].filterName).format(returnFormat),
-          dateType: null,
-        };
-
-        this.selectedDate = returnData;
-
-        this.reloadPage();
-      } else {
-        this.updatedTimeSelectedItemsLabel = `${this.translateService.instant(this.betweenPastTime)} ~ ${this.translateService.instant(this.betweenCurrentTime)}`;
+      } else if (!betweenFrom && betweenTo) {
+        endDate = betweenTo;
+        endDateStr = moment(betweenTo).format(returnFormat);
       }
+    // if filter type is not between
     } else {
-      this.startTime = selectedDate.updatedTimeFrom[0].filterName;
-      this.finishTime= selectedDate.updatedTimeTo[0].filterName;
+      this.startTime = betweenFrom;
+      this.finishTime = betweenTo;
 
-      if (selectedDate.TYPE[0] === 'ALL') {
+      if (this.selectedDateFilterType === Criteria.DateTimeType.ALL) {
         this.updatedTimeSelectedItemsLabel = 'msg.comm.ui.list.all';
       }
-
-      returnData = {
-        startDate : selectedDate.updatedTimeFrom[0].filterName,
-        endDate : selectedDate.updatedTimeTo[0].filterName,
-        type: selectedDate.TYPE[0],
-        startDateStr: moment(selectedDate.updatedTimeFrom[0].filterName).format(returnFormat),
-        endDateStr: moment(selectedDate.updatedTimeTo[0].filterName).format(returnFormat),
-        dateType: null,
-      };
-      this.selectedDate = returnData;
-      this.reloadPage();
+      startDate = betweenFrom;
+      endDate = betweenTo;
+      type = this.selectedDateFilterType;
+      startDateStr = moment(betweenFrom).format(returnFormat);
+      endDateStr = moment(betweenTo).format(returnFormat);
     }
 
+    this.selectedDate = {
+      startDate : startDate,
+      endDate : endDate,
+      type: type,
+      startDateStr: startDateStr,
+      endDateStr: endDateStr,
+      dateType: dateType
+    };
 
+    this.reloadPage();
   }
 
   private _getMetadataListParams() {
@@ -646,9 +616,4 @@ export class ExploreDataListComponent extends AbstractComponent {
       this.showUpdatedTimeFilter = false;
     }
   }
-}
-
-enum FilterTypes {
-  DATA_TYPE = 'DATA_TYPE',
-  UPDATED_TIME = 'UPDATED_TIME'
 }

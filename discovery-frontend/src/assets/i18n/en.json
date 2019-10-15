@@ -1733,7 +1733,7 @@
   "msg.storage.li.ss": "Data Snapshot",
   "msg.storage.li.druid": "Metatron Engine",
   "msg.storage.li.stagedb": "Staging DB",
-  "msg.storage.li.engine": "Data source",
+  "msg.storage.li.engine": "DataSource",
   "msg.storage.li.stream": "Stream",
   "msg.storage.li.hive": "Staging DB",
   "msg.storage.li.dataset": "DataSet",
