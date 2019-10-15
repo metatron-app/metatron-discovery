@@ -470,6 +470,11 @@
           </ul>
           <!-- right -->
           <div *ngIf="!isCanNotDownAggr" class="ddp-ui-rightoption ddp-type-option">
+            <label *ngIf="isOriginDown" class="ddp-label-checkbox" (click)="showAllColumns = !showAllColumns; drawDataGrid(true); $event.preventDefault()">
+              <input type="checkbox" [checked]="showAllColumns">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-checkbox">Show all columns</span>
+            </label>
             <!-- 클릭시 ddp-selected 추가 : 팝업 show 됨 -->
             <div (click)="showDownloadLayer($event)" class="ddp-box-btn2 ddp-box-selected ddp-selected">
               <a href="javascript:" class="ddp-link-txt">
