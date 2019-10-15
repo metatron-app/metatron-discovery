@@ -1,9 +1,37 @@
 package app.metatron.discovery.domain.dataprep.file;
 
+import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_HDFS_PATH;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_HDFS_PATH;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_LOCAL_PATH;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_READ_CSV;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_CHARSET;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.configError;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.datasetError;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.snapshotError;
+
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
-
-import org.apache.commons.io.ByteOrderMark;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.ContentSummary;
@@ -14,66 +42,9 @@ import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-
-import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_HDFS_PATH;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_LOCAL_PATH;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME;
-import static app.metatron.discovery.domain.dataprep.util.PrepUtil.configError;
-import static app.metatron.discovery.domain.dataprep.util.PrepUtil.snapshotError;
-
 public class PrepFileUtil {
 
   private static Logger LOGGER = LoggerFactory.getLogger(PrepFileUtil.class);
-
-  // All the code that used to call this function have been changed to use PrepCsvUtil.parse()
-  // Only LineageEdegController.java:file_upload() uses this.
-  // After change that code to use PrepCsvUtil.parse(), delete this function.
-  // In addition, PrepCsvUtil.parse() will be modified a little to use CommonCsvProcess.loadStream()
-  public static InputStreamReader getReaderAfterDetectingCharset(InputStream is, String strUri) {
-    InputStreamReader reader;
-    String charset = null;
-
-    BOMInputStream bis = new BOMInputStream(is, false, ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE,
-            ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
-
-    try {
-      if (bis.hasBOM() == false || bis.hasBOM(ByteOrderMark.UTF_8)) {
-        charset = "UTF-8";
-      } else if (bis.hasBOM(ByteOrderMark.UTF_16LE) || bis.hasBOM(ByteOrderMark.UTF_16BE)) {
-        charset = "UTF-16";
-      } else if (bis.hasBOM(ByteOrderMark.UTF_32LE) || bis.hasBOM(ByteOrderMark.UTF_32BE)) {
-        charset = "UTF-32";
-      }
-
-      reader = new InputStreamReader(bis, charset);
-    } catch (UnsupportedEncodingException e) {
-      e.printStackTrace();
-      throw PrepException
-              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_CHARSET, charset);
-    } catch (NullPointerException e) {
-      e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNKNOWN_BOM);
-    } catch (IOException e) {
-      e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_READ_CSV,
-              String.format("%s (charset: %s)", strUri, charset));
-    }
-
-    return reader;
-  }
 
   private static InputStreamReader getReaderWithCharset(InputStream is, String strUri, String charset) {
     InputStreamReader reader;
@@ -82,8 +53,7 @@ public class PrepFileUtil {
       reader = new InputStreamReader(new BOMInputStream(is), charset);
     } catch (IOException e) {
       e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_READ_CSV,
-              String.format("%s (charset: %s)", strUri, charset));
+      throw datasetError(MSG_DP_ALERT_FAILED_TO_READ_CSV, String.format("%s (charset: %s)", strUri, charset));
     }
 
     return reader;
@@ -108,14 +78,12 @@ public class PrepFileUtil {
       String charset = match.getName();
 
       if (!Charset.isSupported(charset)) {
-        throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-                PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_CHARSET, charset);
+        throw datasetError(MSG_DP_ALERT_UNSUPPORTED_CHARSET, charset);
       }
 
       return charset;
     } catch (IOException e) {
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_FAILED_TO_READ_CSV, strUri);
+      throw datasetError(MSG_DP_ALERT_FAILED_TO_READ_CSV, strUri);
     }
 
   }
@@ -129,15 +97,13 @@ public class PrepFileUtil {
       uri = new URI(strUri);
     } catch (URISyntaxException e) {
       e.printStackTrace();
-      throw PrepException
-              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, MSG_DP_ALERT_MALFORMED_URI_SYNTAX, strUri);
+      throw datasetError(MSG_DP_ALERT_MALFORMED_URI_SYNTAX, strUri);
     }
 
     switch (uri.getScheme()) {
       case "hdfs":
         if (conf == null) {
-          throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-                  MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
+          throw configError(MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
         }
         Path path = new Path(uri);
 
@@ -146,8 +112,7 @@ public class PrepFileUtil {
           hdfsFs = FileSystem.get(conf);
         } catch (IOException e) {
           e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-                  MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, strUri);
+          throw datasetError(MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, strUri);
         }
 
         FSDataInputStream his;
@@ -162,8 +127,7 @@ public class PrepFileUtil {
           dhis = hdfsFs.open(path);
         } catch (IOException e) {
           e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_HDFS_PATH, strUri);
+          throw datasetError(MSG_DP_ALERT_CANNOT_READ_FROM_HDFS_PATH, strUri);
         }
 
         charset = detectingCharset(dhis, strUri);
@@ -183,8 +147,7 @@ public class PrepFileUtil {
           dfis = new FileInputStream(file);
         } catch (FileNotFoundException e) {
           e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-                  MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, strUri);
+          throw datasetError(MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, strUri);
         }
 
         charset = detectingCharset(dfis, strUri);
@@ -192,9 +155,7 @@ public class PrepFileUtil {
         break;
 
       default:
-        throw PrepException
-                .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME,
-                        strUri);
+        throw datasetError(MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, strUri);
     }
 
     return reader;
@@ -209,8 +170,7 @@ public class PrepFileUtil {
       writer = new OutputStreamWriter(os, charset);
     } catch (UnsupportedEncodingException e) {
       e.printStackTrace();
-      throw PrepException
-              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_CHARSET, charset);
+      throw datasetError(MSG_DP_ALERT_UNSUPPORTED_CHARSET, charset);
     }
 
     return writer;

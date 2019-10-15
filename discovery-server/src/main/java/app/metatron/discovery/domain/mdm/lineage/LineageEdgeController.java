@@ -14,9 +14,20 @@
 
 package app.metatron.discovery.domain.mdm.lineage;
 
+import app.metatron.discovery.domain.dataprep.PrepDatasetFileService;
+import app.metatron.discovery.domain.mdm.Metadata;
+import app.metatron.discovery.domain.mdm.MetadataErrorCodes;
+import app.metatron.discovery.domain.mdm.MetadataRepository;
+import app.metatron.discovery.domain.mdm.lineage.LineageMap.ALIGNMENT;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -38,20 +49,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import app.metatron.discovery.domain.dataprep.PrepDatasetFileService;
-import app.metatron.discovery.domain.mdm.Metadata;
-import app.metatron.discovery.domain.mdm.MetadataErrorCodes;
-import app.metatron.discovery.domain.mdm.MetadataRepository;
-import app.metatron.discovery.domain.mdm.lineage.LineageMap.ALIGNMENT;
 
 @RequestMapping(value = "/metadatas/lineages")
 @RepositoryRestController
@@ -89,14 +86,14 @@ public class LineageEdgeController {
   public
   @ResponseBody
   ResponseEntity<?> getLineages(
-      @RequestParam(value = "descContains", required = false, defaultValue = "") String descContains,
-      @RequestParam(value = "projection", required = false, defaultValue = "default") String projection,
-      Pageable pageable,
-      PersistentEntityResourceAssembler resourceAssembler
+          @RequestParam(value = "descContains", required = false, defaultValue = "") String descContains,
+          @RequestParam(value = "projection", required = false, defaultValue = "default") String projection,
+          Pageable pageable,
+          PersistentEntityResourceAssembler resourceAssembler
   ) {
 
     Page<LineageEdge> pages = null;
-    if(descContains.isEmpty()==true) {
+    if (descContains.isEmpty() == true) {
       pages = this.lineageEdgeRepository.findAll(pageable);
     } else {
       pages = this.lineageEdgeRepository.findByDescContaining(descContains, pageable);
@@ -119,7 +116,8 @@ public class LineageEdgeController {
       Long tier = Long.parseLong(request.get("tier"));
       String desc = request.get("desc");
 
-      lineageEdge = lineageEdgeService.createEdge(frMetaId, toMetaId, frMetaName, toMetaName, frColName, toColName, tier, desc);
+      lineageEdge = lineageEdgeService
+              .createEdge(frMetaId, toMetaId, frMetaName, toMetaName, frColName, toColName, tier, desc);
     } catch (Exception e) {
       LOGGER.error("create(): caught an exception: ", e);
     }
@@ -143,15 +141,15 @@ public class LineageEdgeController {
 
   @RequestMapping(value = "/map/{metaId}", method = RequestMethod.GET, produces = "application/json", consumes = "application/json")
   public ResponseEntity<?> getLineageMap(@PathVariable("metaId") String metaId,
-      @RequestParam(value = "nodeCnt", required = false) String strNodeCnt,
-      @RequestParam(value = "alignment", required = false) String strAlignment) {
+          @RequestParam(value = "nodeCnt", required = false) String strNodeCnt,
+          @RequestParam(value = "alignment", required = false) String strAlignment) {
 
     int nodeCnt;
 
     if (strNodeCnt != null
-        && StringUtils.isNumeric(strNodeCnt)
-        && Integer.valueOf(strNodeCnt) > 0
-        && Integer.valueOf(strNodeCnt) < 20) {
+            && StringUtils.isNumeric(strNodeCnt)
+            && Integer.valueOf(strNodeCnt) > 0
+            && Integer.valueOf(strNodeCnt) < 20) {
       nodeCnt = Integer.valueOf(strNodeCnt);
     } else {
       nodeCnt = DEFAULT_NODE_CNT;
@@ -194,36 +192,39 @@ public class LineageEdgeController {
     return ResponseEntity.created(URI.create("")).body(newEdges);
   }
 
-  @RequestMapping(value="/edge_list", method = RequestMethod.POST)
-  public @ResponseBody
-  ResponseEntity<?>  postLineageEdgeList(
-      @RequestBody List<Resource<LineageEdge>> lineageEdgeResources,
-      PersistentEntityResourceAssembler resourceAssembler
+  @RequestMapping(value = "/edge_list", method = RequestMethod.POST)
+  public
+  @ResponseBody
+  ResponseEntity<?> postLineageEdgeList(
+          @RequestBody List<Resource<LineageEdge>> lineageEdgeResources,
+          PersistentEntityResourceAssembler resourceAssembler
   ) {
     List<LineageEdge> lineageEdges = Lists.newArrayList();
     try {
       this.lineageEdgeRepository.deleteAll();
 
       Iterator<Resource<LineageEdge>> iterator = lineageEdgeResources.iterator();
-      while(iterator.hasNext()) {
+      while (iterator.hasNext()) {
         LineageEdge lineageEdge = iterator.next().getContent();
 
         List<Metadata> frMetadatas = this.metadataRepository.findByName(lineageEdge.getFrMetaName());
         if (frMetadatas.size() == 0) {
-          LOGGER.error(String.format("postLineageEdges(): frMetadata %s not found: ignored", lineageEdge.getFrMetaName()));
+          LOGGER.error(
+                  String.format("postLineageEdges(): frMetadata %s not found: ignored", lineageEdge.getFrMetaName()));
           continue;
         } else {
           lineageEdge.setFrMetaId(frMetadatas.get(0).getId());
         }
         List<Metadata> toMetadatas = this.metadataRepository.findByName(lineageEdge.getToMetaName());
         if (toMetadatas.size() == 0) {
-          LOGGER.error(String.format("postLineageEdges(): toMetadata %s not found: ignored", lineageEdge.getToMetaName()));
+          LOGGER.error(
+                  String.format("postLineageEdges(): toMetadata %s not found: ignored", lineageEdge.getToMetaName()));
           continue;
         } else {
           lineageEdge.setToMetaId(toMetadatas.get(0).getId());
         }
 
-        lineageEdges.add( this.lineageEdgeRepository.save(lineageEdge) );
+        lineageEdges.add(this.lineageEdgeRepository.save(lineageEdge));
       }
     } catch (Exception e) {
       LOGGER.error("postLineageEdges(): caught an exception: ", e);
@@ -233,8 +234,10 @@ public class LineageEdgeController {
   }
 
   @RequestMapping(value = "/file_upload", method = RequestMethod.POST, produces = "application/json")
-  public @ResponseBody ResponseEntity<?> file_upload(
-      @RequestPart("file") MultipartFile file
+  public
+  @ResponseBody
+  ResponseEntity<?> file_upload(
+          @RequestPart("file") MultipartFile file
   ) {
 
     String fileName = file.getOriginalFilename();
@@ -257,21 +260,20 @@ public class LineageEdgeController {
     return ResponseEntity.ok(responseMap);
   }
 
-  @RequestMapping(value="/lineage_file", method = RequestMethod.POST)
-  public @ResponseBody
-  ResponseEntity<?>  postLineageFile(
-      @RequestBody Map<String,Object> params
+  @RequestMapping(value = "/lineage_file", method = RequestMethod.POST)
+  public
+  @ResponseBody
+  ResponseEntity<?> postLineageFile(
+          @RequestBody Map<String, Object> params
   ) {
 
     Map<String, Object> gridResponses = Maps.newHashMap();
-    Map<String, Object> response = Maps.newHashMap();
-    List<String> header = Lists.newArrayList();
-    List<Map<String,Object>> rows = Lists.newArrayList();
-    try {
-      String storedUri = (String)params.get("storedUri");
 
-      if(storedUri!=null) {
-        gridResponses = prepDatasetFileService.makeFileGrid("file://"+storedUri, 1000, ",", 8, false);
+    try {
+      String storedUri = (String) params.get("storedUri");
+
+      if (storedUri != null) {
+        gridResponses = prepDatasetFileService.makeFileGrid("file://" + storedUri, 1000, ",", 8, false);
       }
     } catch (IllegalStateException e) {
       LOGGER.error("lineage_file POST(): caught an exception: ", e);
@@ -283,12 +285,14 @@ public class LineageEdgeController {
   }
 
   @RequestMapping(value = "/edges/{edgeId}", method = RequestMethod.DELETE, produces = "application/json", consumes = "application/json")
-  public @ResponseBody ResponseEntity<?> deleteEdge( @PathVariable("edgeId") String edgeId) {
+  public
+  @ResponseBody
+  ResponseEntity<?> deleteEdge(@PathVariable("edgeId") String edgeId) {
     Map<String, Object> response = Maps.newHashMap();
 
     this.lineageEdgeRepository.delete(edgeId);
 
-    response.put("deleted",edgeId);
+    response.put("deleted", edgeId);
 
     return ResponseEntity.ok().body(response);
   }
