@@ -409,7 +409,7 @@ export class ExploreDataListComponent extends AbstractComponent {
   }
 
   // apply created time sort from createdTime filter Component
-  onChangeCreateTimeFilter(selectedDate) {
+  onChangeUpdateTimeFilter(selectedDate) {
     this.selectedDateFilterType = selectedDate.TYPE[0];
 
     const betweenFrom = selectedDate.updatedTimeFrom[0].filterName;
@@ -493,36 +493,36 @@ export class ExploreDataListComponent extends AbstractComponent {
       params['sourceType'] = tempList.join(',');
     }
 
-    // created time
+    // update time - not All type
     if (this.selectedDate && this.selectedDate.type !== 'ALL') {
       params['searchDateBy'] = 'UPDATED';
       params['type'] = this.selectedDate.type;
-      if (this.selectedDate.startDateStr) {
+      if (this.selectedDate.startDate) {
         params['from'] = moment(this.selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
-      if (this.selectedDate.endDateStr) {
+      if (this.selectedDate.endDate) {
         params['to'] = moment(this.selectedDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
     } else {
       params['type'] = 'ALL';
     }
 
-    params['catalogId'] = '';
+    if (this.isSelectedCatalog()) {
+      params['catalogId'] = '';
 
-    if (this.selectedCatalog === undefined) {
-      params['catalogId'] = null;
-    }
-
-    if (this.isSelectedCatalog() && this.selectedCatalog.name !== 'unclassified') {
-      params['catalogId'] = this.selectedCatalog.id;
-    } else if (this.isSelectedTag()) {
-      params['tag'] = this.selectedTag.name;
-    }
-
-    if (this.selectedCatalog !== undefined) {
-      if (this.selectedCatalog.name === 'unclassified') {
-        params['catalogId'] = '';
+      if (this.selectedCatalog === undefined) {
+        params['catalogId'] = null;
+      } else {
+        if (this.selectedCatalog.name === 'unclassified') {
+          params['catalogId'] = '';
+        } else if (this.selectedCatalog.name !== 'unclassified') {
+          params['catalogId'] = this.selectedCatalog.id;
+        }
       }
+    }
+
+    if (this.isSelectedTag()) {
+      params['tag'] = this.selectedTag.name;
     }
 
     return params;

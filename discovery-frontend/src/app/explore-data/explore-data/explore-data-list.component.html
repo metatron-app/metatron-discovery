@@ -34,7 +34,7 @@
             [defaultSelectedItemList]="[]"
             [enableFromToOption]="true"
             [enableAllOption]="true"
-            (changedSelectItem)="onChangeCreateTimeFilter($event)">
+            (changedSelectItem)="onChangeUpdateTimeFilter($event)">
           </criterion-time-radiobox-list>
         </div>
       </div>
@@ -68,7 +68,7 @@
             <em class="ddp-btn-reset"></em>
           </a>
         </div>
-        <div class="ddp-data-box" *ngIf=" selectedCatalog && selectedCatalog.name === 'unclassified' ">
+        <div class="ddp-data-box" *ngIf="isSelectedCatalog() && selectedCatalog && selectedCatalog.name === 'unclassified' ">
           <div class="ddp-ui-root">
             <em class="ddp-icon-folder"></em>
             Unclassified
