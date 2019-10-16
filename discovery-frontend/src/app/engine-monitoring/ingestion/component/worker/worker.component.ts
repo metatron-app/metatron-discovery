@@ -76,9 +76,9 @@ export class WorkerComponent extends AbstractComponent implements OnInit, OnDest
           if (isExistSearchParams) {
             paramKeys.forEach((key) => {
               if (key === 'size') {
-                this.page.size = parseInt(params['size']);
+                this.page.size = Number(params['size']);
               } else if (key === 'page') {
-                this.page.page = parseInt(params['page']);
+                this.page.page = Number(params['page']);
               } else if (key === 'sort') {
                 const sortParam = params['sort'].split(',');
                 this.selectedContentSort.key = sortParam[0];
@@ -229,7 +229,7 @@ export class WorkerComponent extends AbstractComponent implements OnInit, OnDest
           return a.lastCompletedTaskTime < b.lastCompletedTaskTime ? -1 : a.lastCompletedTaskTime > b.lastCompletedTaskTime ? 1 : 0;
         }
         return 0;
-      })
+      });
       if (this.selectedContentSort.sort == 'desc') {
         list = list.reverse();
       }

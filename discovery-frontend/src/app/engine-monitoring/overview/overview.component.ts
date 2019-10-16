@@ -62,9 +62,9 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
   private readonly ICON_ERROR_CLASS = 'ddp-icon-status-error';
   private readonly ICON_NONE_CLASS = '';
 
-  private readonly TYPE_NORMAL_CLASS = 'type-historical';
-  private readonly TYPE_WARN_CLASS = 'type-broker';
-  private readonly TYPE_ERROR_CLASS = 'type-coordinator';
+  private readonly TYPE_NORMAL_CLASS = 'type-normal'
+  private readonly TYPE_WARN_CLASS = 'type-warning';
+  private readonly TYPE_ERROR_CLASS = 'type-error';
   private readonly TYPE_NONE_CLASS = '';
 
   @ViewChild(NodeInformationComponent)

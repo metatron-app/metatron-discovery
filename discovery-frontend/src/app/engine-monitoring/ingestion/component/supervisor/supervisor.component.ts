@@ -58,9 +58,9 @@ export class SupervisorComponent extends AbstractComponent implements OnInit, On
       if (isExistSearchParams) {
         paramKeys.forEach((key) => {
           if (key === 'size') {
-            this.page.size = parseInt(params['size']);
+            this.page.size = Number(params['size']);
           } else if (key === 'page') {
-            this.page.page = parseInt(params['page']);
+            this.page.page = Number(params['page']);
           } else if (key === 'containsText') {
             this.searchKeyword = params['containsText'];
           } else {

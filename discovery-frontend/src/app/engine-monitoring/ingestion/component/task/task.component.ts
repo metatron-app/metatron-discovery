@@ -75,9 +75,9 @@ export class TaskComponent extends AbstractComponent implements OnInit, OnDestro
           if (isExistSearchParams) {
             paramKeys.forEach((key) => {
               if (key === 'size') {
-                this.page.size = parseInt(params['size']);
+                this.page.size = Number(params['size']);
               } else if (key === 'page') {
-                this.page.page = parseInt(params['page']);
+                this.page.page = Number(params['page']);
               } else if (key === 'sort') {
                 const sortParam = params['sort'].split(',');
                 this.selectedContentSort.key = sortParam[0];
@@ -258,7 +258,7 @@ export class TaskComponent extends AbstractComponent implements OnInit, OnDestro
           return a.duration < b.duration ? -1 : a.duration > b.duration ? 1 : 0;
         }
         return 0;
-      })
+      });
       if (this.selectedContentSort.sort == 'desc') {
         list = list.reverse();
       }

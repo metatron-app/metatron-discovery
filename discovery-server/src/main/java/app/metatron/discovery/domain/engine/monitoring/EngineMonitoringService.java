@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +79,8 @@ public class EngineMonitoringService {
 
   @Value("${polaris.engine.monitoring.emitter.datasource:druid-metric}")
   String datasourceName;
+
+  private Map<String, String> druidNameMap = new HashMap();
 
   public Object query(Object query) {
     EngineMonitoringRequest request = new EngineMonitoringRequest();
@@ -552,7 +555,7 @@ public class EngineMonitoringService {
         break;
       case QUERY_COUNT:
         filters.add(new SelectorFilter("metric", "query/time"));
-        filters.add(new SelectorFilter("service", "druid/prod/broker"));
+        filters.add(new SelectorFilter("service", getDruidName("broker")));
         break;
       case SUPERVISOR_LAG:
         filters.add(new SelectorFilter("metric", "ingest/kafka/lag"));
@@ -563,6 +566,16 @@ public class EngineMonitoringService {
       default:
         break;
     }
+  }
+
+  private String getDruidName(String configName) {
+    String druidName = druidNameMap.get(configName);
+    if (StringUtils.isEmpty(druidName)) {
+        HashMap configs = getConfigs(configName);
+        druidName = String.valueOf(configs.get("druid.service"));
+        druidNameMap.put(configName, druidName);
+      }
+    return druidName;
   }
 
 }
