@@ -56,6 +56,7 @@ export class ExploreDataMainComponent extends AbstractComponent {
   // Init
   ngOnInit() {
     super.ngOnInit();
+    this.router.navigate(['/exploredata/view']);
     const initial = async () => {
       this.loadingShow();
       await this._setPopularMetadataList();
