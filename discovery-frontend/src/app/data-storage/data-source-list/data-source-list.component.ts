@@ -11,15 +11,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, ElementRef, Injector, ViewChild } from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { DatasourceService } from '../../datasource/service/datasource.service';
-import { Datasource, SourceType, Status } from '../../domain/datasource/datasource';
-import { Alert } from '../../common/util/alert.util';
-import { Modal } from '../../common/domain/modal';
-import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
-import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
-import { StringUtil } from '../../common/util/string.util';
+import {Component, ElementRef, Injector, ViewChild} from '@angular/core';
+import {AbstractComponent} from '../../common/component/abstract.component';
+import {DatasourceService} from '../../datasource/service/datasource.service';
+import {Datasource, SourceType, Status} from '../../domain/datasource/datasource';
+import {Alert} from '../../common/util/alert.util';
+import {Modal} from '../../common/domain/modal';
+import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
+import {MomentDatePipe} from '../../common/pipe/moment.date.pipe';
+import {StringUtil} from '../../common/util/string.util';
 import {ActivatedRoute} from "@angular/router";
 import {CriterionComponent} from "../component/criterion/criterion.component";
 import {Criteria} from "../../domain/datasource/criteria";
@@ -71,37 +71,40 @@ export class DataSourceListComponent extends AbstractComponent {
       .then((result: Criteria.Criterion) => {
         // init criterion list
         this.criterionComponent.initCriterionList(result);
-        this.subscriptions.push(this.activatedRoute.queryParams.subscribe(params => {
-          const paramKeys = Object.keys(params);
-          const isExistSearchParams = paramKeys.length > 0;
-          const searchParams = {};
-          // if exist search param in URL
-          if (isExistSearchParams) {
-            paramKeys.forEach((key) => {
-              if (key === 'size') {
-                this.page.size = params['size'];
-              } else if (key === 'page') {
-                this.page.page = params['page'];
-              } else if (key === 'sort') {
-                const sortParam = params['sort'].split(',');
-                this.selectedContentSort.key = sortParam[0];
-                this.selectedContentSort.sort = sortParam[1];
-              } else if (key === 'containsText') {
-                this.searchKeyword = params['containsText'];
-              } else {
-                searchParams[key] = params[key].split(',');
-              }
-            });
-            // TODO 추후 criterion component로 이동
-            delete searchParams['pseudoParam'];
-            // init criterion search param
-            this.criterionComponent.initSearchParams(searchParams);
-          }
-          // set datasource list
-          this._setDatasourceList();
-        }));
       })
       .catch(error => this.commonExceptionHandler(error));
+
+    this.subscriptions.push(
+      this.activatedRoute.queryParams.subscribe(params => {
+        const paramKeys = Object.keys(params);
+        const isExistSearchParams = paramKeys.length > 0;
+        const searchParams = {};
+        // if exist search param in URL
+        if (isExistSearchParams) {
+          paramKeys.forEach((key) => {
+            if (key === 'size') {
+              this.page.size = params['size'];
+            } else if (key === 'page') {
+              this.page.page = params['page'];
+            } else if (key === 'sort') {
+              const sortParam = params['sort'].split(',');
+              this.selectedContentSort.key = sortParam[0];
+              this.selectedContentSort.sort = sortParam[1];
+            } else if (key === 'containsText') {
+              this.searchKeyword = params['containsText'];
+            } else {
+              searchParams[key] = params[key].split(',');
+            }
+          });
+          // TODO 추후 criterion component로 이동
+          delete searchParams['pseudoParam'];
+          // init criterion search param
+          this.criterionComponent.initSearchParams(searchParams);
+        }
+        // set datasource list
+        this._setDatasourceList();
+      })
+    );
   }
 
   isEmptyList(): boolean {
@@ -137,7 +140,7 @@ export class DataSourceListComponent extends AbstractComponent {
    * @param {string} mode
    */
   public changeMode(mode: string) {
-    this.useUnloadConfirm = ( 'create-data-source' === mode );
+    this.useUnloadConfirm = ('create-data-source' === mode);
     this.mode = mode;
   } // function - changeMode
 
@@ -145,7 +148,7 @@ export class DataSourceListComponent extends AbstractComponent {
    * 데이터소스 생성 완료
    */
   public createComplete(): void {
-    this.changeMode( '' );
+    this.changeMode('');
     // true
     this.reloadPage();
   }
@@ -215,6 +218,7 @@ export class DataSourceListComponent extends AbstractComponent {
    */
   public onClickDatasource(sourceId: string): void {
     // open datasource detail
+    sessionStorage.setItem( 'IS_LOCATION_BACK_DS_LIST', 'TRUE' );
     this.router.navigate(['/management/storage/datasource', sourceId]).then();
   }
 
@@ -335,8 +339,7 @@ export class DataSourceListComponent extends AbstractComponent {
         // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다.
         if (this.page.page > 0 &&
           isNullOrUndefined(result['_embedded']) ||
-          (!isNullOrUndefined(result['_embedded']) && result['_embedded'].datasources.length === 0))
-        {
+          (!isNullOrUndefined(result['_embedded']) && result['_embedded'].datasources.length === 0)) {
           this.page.page = result.page.number - 1;
           this._setDatasourceList();
         }
@@ -360,7 +363,7 @@ export class DataSourceListComponent extends AbstractComponent {
     const params = {
       page: this.page.page,
       size: this.page.size,
-      pseudoParam : (new Date()).getTime(),
+      pseudoParam: (new Date()).getTime(),
       sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort
     };
     const searchParams = this.criterionComponent.getUrlQueryParams();
