@@ -55,11 +55,12 @@
             </component-input>
             <div class="ddp-ui-drop-search">
               <ul *ngIf="0 < filteredTagsList.length || '' !== tagValue; else popularityTags" class="ddp-list-selectbox2">
-                <li *ngFor="let tag of filteredTagsList" (click)="$event.stopImmediatePropagation();setTagValue(tag)"> {{tag}} </li>
+                <li *ngFor="let tag of filteredTagsList" (click)="$event.stopImmediatePropagation();setTagValue(tag)"
+                    [innerHTML]="getTagName(tag)"></li>
               </ul>
               <ng-template #popularityTags>
-                <div class="ddp-data-title" style="color: #b5b9c2; font-size: 12px; padding: 9px 14px 8px 10px; font-weight: bold"> Popular tags </div>
-                <ul class="ddp-list-selectbox2">
+                <div class="ddp-data-title"> Popular tags </div>
+                <ul class="ddp-list-selectbox2 type-border">
                   <li *ngFor="let tag of popularityTagList" (click)="$event.stopImmediatePropagation();setTagValue(tag.name)"> {{tag.name}} </li>
                 </ul>
               </ng-template>
@@ -98,7 +99,8 @@
                     <a (click)="selectCatalog(catalog)" href="javascript:">
                       <div class="ddp-ui-catalogs2">
                         <em class="ddp-icon-folder-type"></em>
-                        <span *ngFor="let hierarchyItem of catalog.hierarchies" >{{hierarchyItem.name}}</span>
+                        <span *ngFor="let hierarchyItem of catalog.hierarchies"
+                              [innerHTML]="getCatalogHierarchyName(hierarchyItem.name)" ></span>
                       </div>
                       <em class="ddp-icon-check"></em>
                     </a>

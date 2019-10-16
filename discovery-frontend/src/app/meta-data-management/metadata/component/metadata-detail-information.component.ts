@@ -9,6 +9,7 @@ import {CommonUtil} from "../../../common/util/common.util";
 import {Datasource} from "../../../domain/datasource/datasource";
 import {CatalogService} from "../../catalog/service/catalog.service";
 import {isUndefined} from "util";
+import {StringUtil} from "../../../common/util/string.util";
 
 @Component(
   {
@@ -178,6 +179,15 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     });
   }
 
+  public getTagName(tagName:string): string {
+    // if empty search keyword
+    if (StringUtil.isEmpty(tagName)) {
+      return tagName;
+    } else {
+      return tagName.replace(this.tagValue, `<span class="ddp-txt-search">${this.tagValue}</span>`);
+    }
+  }
+
   get filteredTagsList() {
     let list = [];
     if (this.tagsList.length > 0 && '' !== this.tagValue) {
@@ -235,9 +245,20 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   public showSearchCatalog(event: MouseEvent) {
     event.preventDefault();
     event.stopImmediatePropagation();
+    this.showTags = false;
     this.catalogSearchText = '';
     this.searchCatalogList = [];
     this.isSearchCatalog = true;
+    this.safelyDetectChanges();
+  }
+
+  public getCatalogHierarchyName(hierarchyName:string): string {
+    // if empty search keyword
+    if (StringUtil.isEmpty(hierarchyName)) {
+      return hierarchyName;
+    } else {
+      return hierarchyName.replace(this.catalogSearchText, `<span class="ddp-txt-search">${this.catalogSearchText}</span>`);
+    }
   }
 
   public isExistCatalog(item: { id: string, name: string, count: number, hierarchies: { id: string, name: string }[] }) {
