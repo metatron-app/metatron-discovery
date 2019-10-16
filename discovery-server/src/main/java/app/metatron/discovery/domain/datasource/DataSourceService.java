@@ -675,7 +675,9 @@ public class DataSourceService {
     Consumer<Long, String> consumer = createConsumer(bootstrapServer);
     consumer.subscribe(Collections.singletonList(topic));
 
-    final int giveUp = 5;   int noRecordsCount = 0;
+    final int giveUp = 5;
+    int noRecordsCount = 0;
+
     while (giveUp > noRecordsCount) {
       ConsumerRecords<Long, String> consumerRecords = consumer.poll(1000);
 
