@@ -119,7 +119,6 @@ export class ExploreDataListComponent extends AbstractComponent {
   }
 
   public ngOnInit() {
-
     this.selectedDate.type = Criteria.DateTimeType.ALL;
 
     const criterionForUpdatedFilter: Criteria.ListCriterion = {

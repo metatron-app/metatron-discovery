@@ -31,7 +31,7 @@ export class CriterionCheckboxListComponent extends AbstractComponent {
 
   // default selected item list (Only used first init)
   @Input()
-  public readonly defaultSelectedItemList: any;
+  public defaultSelectedItemList: any;
 
   @Output('changedSelectItem')
   private _changeSelectItemEvent: EventEmitter<any> = new EventEmitter();
@@ -59,6 +59,12 @@ export class CriterionCheckboxListComponent extends AbstractComponent {
   constructor(protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
+  }
+
+  ngOnInit() {
+    super.ngOnInit();
+    this._selectedItemList = {};
+    this.defaultSelectedItemList = {};
   }
 
 

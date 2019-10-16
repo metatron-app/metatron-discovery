@@ -12,7 +12,7 @@
             (clickOutside)="closeSourceTypeFilter()"
             (click)="$event.stopImmediatePropagation(); $event.stopPropagation();"
             [criterion]="typeFilterCriterion"
-            [defaultSelectedItemList]="[]"
+            [defaultSelectedItemList]="{}"
             [searchPlaceHolder]="''"
             [enableAllOption]="false"
             (changedSelectItem)="onChangeDataTypeFilter($event)">
