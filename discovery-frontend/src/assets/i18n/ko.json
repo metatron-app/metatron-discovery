@@ -2285,7 +2285,7 @@
   "msg.storage.th.batch.pause.fail": "배치 중지에 실패하였습니다.",
   "msg.storage.th.batch.resume.success": "배치가 재실행되었습니다.",
   "msg.storage.th.batch.resume.fail": "배치 재실행에 실패하였습니다.",
-  
+
   "msg.storage.ui.timezone.country.zimbabwe": "짐바브웨",
   "msg.storage.ui.timezone.country.zambia": "잠비아",
   "msg.storage.ui.timezone.country.yemen": "예멘",
@@ -3938,7 +3938,8 @@
   "msg.metadata.ui.create.main.title": "메타데이터 생성",
   "msg.metadata.ui.create.connection.sub": "데이터커넥션 정보를 입력해 주세요",
   "msg.metadata.ui.create.data.sub": "데이터를 선택하세요",
-  "msg.metadata.ui.search.catalog.ph": "카탈로그 검색",
+  "msg.metadata.ui.search.catalog.ph": "카탈로그 이름으로 검색",
+  "msg.metadata.ui.search.tag.ph" : "태그 이름으로 검색",
   "msg.metadata.ui.create.complete.sub": "메타데이터 생성을 완료하세요",
   "msg.metadata.btn.create.connection.link.preset": "DB 커넥션 설정하러 가기",
   "msg.metadata.ui.create.none.table.list": "테이블이 없습니다. 다른 스키마를 선택해주세요",
