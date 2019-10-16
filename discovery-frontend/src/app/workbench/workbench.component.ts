@@ -1023,7 +1023,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             .then(() => {
 
               let queryStrArr: string[]
-                = runningQuery.replace(/--.*/gmi, '').split(';').filter(item => !/^\s*$/.test(item));
+                = runningQuery.replace(/--.*/gmi, '').replace(/#.*/gmi, '').split(';').filter(item => !/^\s*$/.test(item));
 
               if (0 === queryStrArr.length) {
                 Alert.warning(this.translateService.instant('msg.bench.alert.execute.query'));
