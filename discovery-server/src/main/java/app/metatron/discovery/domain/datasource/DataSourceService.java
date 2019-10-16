@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import app.metatron.discovery.common.criteria.ListCriterion;
@@ -675,10 +674,20 @@ public class DataSourceService {
 
     Consumer<Long, String> consumer = createConsumer(bootstrapServer);
     consumer.subscribe(Collections.singletonList(topic));
-    ConsumerRecords<Long, String> consumerRecords = consumer.poll(1000);
-    consumerRecords.forEach(record -> list.add(record.value()));
 
-    consumer.commitAsync();
+    final int giveUp = 5;   int noRecordsCount = 0;
+    while (giveUp > noRecordsCount) {
+      ConsumerRecords<Long, String> consumerRecords = consumer.poll(1000);
+
+      if (consumerRecords.count() == 0) {
+        noRecordsCount++;
+      } else {
+        consumerRecords.forEach(record -> list.add(record.value()));
+        consumer.commitAsync();
+        break;
+      }
+    }
+
     consumer.close();
 
     return list;
@@ -686,15 +695,11 @@ public class DataSourceService {
 
   private Consumer<Long, String> createConsumer(String bootstrapServer) {
     Properties props = new Properties();
-    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-              bootstrapServer);
-    props.put(ConsumerConfig.GROUP_ID_CONFIG,
-              "KafkaSampleConsumer_" + UUID.randomUUID().toString());
-    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-              LongDeserializer.class.getName());
-    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-              StringDeserializer.class.getName());
-    props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
+    props.put(ConsumerConfig.GROUP_ID_CONFIG, "KafkaSampleConsumer");
+    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class.getName());
+    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+    props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
     props.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, 10000);
     props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 8000);
     props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 8000);
