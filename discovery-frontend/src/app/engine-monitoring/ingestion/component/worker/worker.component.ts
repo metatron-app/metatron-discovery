@@ -29,6 +29,7 @@ import {CriterionComponent} from "../../../../data-storage/component/criterion/c
 import {Criteria} from "../../../../domain/datasource/criteria";
 import {ActivatedRoute} from "@angular/router";
 import {StringUtil} from "../../../../common/util/string.util";
+import {TimezoneService} from "../../../../data-storage/service/timezone.service";
 
 declare let moment: any;
 
@@ -43,7 +44,8 @@ export class WorkerComponent extends AbstractComponent implements OnInit, OnDest
   constructor(protected elementRef: ElementRef,
               protected injector: Injector,
               private activatedRoute: ActivatedRoute,
-              private engineService: EngineService) {
+              private engineService: EngineService,
+              private timezoneService: TimezoneService) {
     super(elementRef, injector);
   }
 
@@ -194,6 +196,10 @@ export class WorkerComponent extends AbstractComponent implements OnInit, OnDest
   public criterionApiFunc(criterionKey: any) {
     // require injector in constructor
     return this.injector.get(EngineService).getCriterionInWorker(criterionKey);
+  }
+
+  public get getTimezone(): string {
+    return this.timezoneService.getBrowserTimezone().utc;
   }
 
   private _filteringWorkerList(): any[] {

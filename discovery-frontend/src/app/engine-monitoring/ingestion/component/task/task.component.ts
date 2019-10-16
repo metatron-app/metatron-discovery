@@ -30,6 +30,7 @@ import {ActivatedRoute} from "@angular/router";
 import {CriterionComponent} from "../../../../data-storage/component/criterion/criterion.component";
 import {Criteria} from "../../../../domain/datasource/criteria";
 import {StringUtil} from "../../../../common/util/string.util";
+import {TimezoneService} from "../../../../data-storage/service/timezone.service";
 
 declare let moment: any;
 
@@ -44,7 +45,8 @@ export class TaskComponent extends AbstractComponent implements OnInit, OnDestro
   constructor(protected elementRef: ElementRef,
               protected injector: Injector,
               private activatedRoute: ActivatedRoute,
-              private engineService: EngineService) {
+              private engineService: EngineService,
+              private timezoneService: TimezoneService) {
     super(elementRef, injector);
   }
 
@@ -229,6 +231,10 @@ export class TaskComponent extends AbstractComponent implements OnInit, OnDestro
   public criterionApiFunc(criterionKey: any) {
     // require injector in constructor
     return this.injector.get(EngineService).getCriterionInTask(criterionKey);
+  }
+
+  public get getTimezone(): string {
+    return this.timezoneService.getBrowserTimezone().utc;
   }
 
   private _filteringTaskList(): Task[] {

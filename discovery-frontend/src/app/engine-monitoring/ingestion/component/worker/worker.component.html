@@ -48,7 +48,7 @@
       <col width="200px">
       <col width="150px">
       <col width="150px">
-      <col width="250px">
+      <col width="200px">
     </colgroup>
     <thead>
     <tr>
@@ -112,7 +112,7 @@
       <td class="ddp-txt-center">{{worker.currCapacityUsed}}/{{worker.worker.capacity}}</td>
       <td class="ddp-txt-center">{{worker.availabilityGroups.length}}</td>
       <td class="ddp-txt-center">{{worker.runningTasks.length}}</td>
-      <td>{{worker.lastCompletedTaskTime}}</td>
+      <td>{{worker.lastCompletedTaskTime | date : 'yyyy-MM-dd HH:mm:ss.SSS' : getTimezone}}</td>
     </tr>
     </tbody>
 
