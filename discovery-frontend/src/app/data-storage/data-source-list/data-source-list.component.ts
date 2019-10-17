@@ -39,6 +39,9 @@ export class DataSourceListComponent extends AbstractComponent {
   @ViewChild(DeleteModalComponent)
   private deleteModalComponent: DeleteModalComponent;
 
+  private _queryParams = void 0;
+  private _isSetCriterionList:boolean = false;
+
   // datasource create step
   public mode: string;
 
@@ -62,50 +65,62 @@ export class DataSourceListComponent extends AbstractComponent {
 
   // Init
   public ngOnInit() {
-    // Init
     super.ngOnInit();
     // loading show
     this.loadingShow();
+
     // get criterion list
     this.datasourceService.getCriterionListInDatasource()
       .then((result: Criteria.Criterion) => {
         // init criterion list
         this.criterionComponent.initCriterionList(result);
+        this._isSetCriterionList = true;
+        if( this._queryParams ) {
+          this.setDsListParam(this._queryParams);
+        }
       })
       .catch(error => this.commonExceptionHandler(error));
 
     this.subscriptions.push(
       this.activatedRoute.queryParams.subscribe(params => {
-        const paramKeys = Object.keys(params);
-        const isExistSearchParams = paramKeys.length > 0;
-        const searchParams = {};
-        // if exist search param in URL
-        if (isExistSearchParams) {
-          paramKeys.forEach((key) => {
-            if (key === 'size') {
-              this.page.size = params['size'];
-            } else if (key === 'page') {
-              this.page.page = params['page'];
-            } else if (key === 'sort') {
-              const sortParam = params['sort'].split(',');
-              this.selectedContentSort.key = sortParam[0];
-              this.selectedContentSort.sort = sortParam[1];
-            } else if (key === 'containsText') {
-              this.searchKeyword = params['containsText'];
-            } else {
-              searchParams[key] = params[key].split(',');
-            }
-          });
-          // TODO 추후 criterion component로 이동
-          delete searchParams['pseudoParam'];
-          // init criterion search param
-          this.criterionComponent.initSearchParams(searchParams);
+        this._queryParams = params;
+        if( this._isSetCriterionList ) {
+          this.setDsListParam(params);
         }
-        // set datasource list
-        this._setDatasourceList();
       })
     );
   }
+
+  public setDsListParam(params) {
+    const paramKeys = Object.keys(params);
+    const isExistSearchParams = paramKeys.length > 0;
+    const searchParams = {};
+    // if exist search param in URL
+    if (isExistSearchParams) {
+      paramKeys.forEach((key) => {
+        if (key === 'size') {
+          this.page.size = params['size'];
+        } else if (key === 'page') {
+          this.page.page = params['page'];
+        } else if (key === 'sort') {
+          const sortParam = params['sort'].split(',');
+          this.selectedContentSort.key = sortParam[0];
+          this.selectedContentSort.sort = sortParam[1];
+        } else if (key === 'containsText') {
+          this.searchKeyword = params['containsText'];
+        } else {
+          searchParams[key] = params[key].split(',');
+        }
+      });
+      // TODO 추후 criterion component로 이동
+      delete searchParams['pseudoParam'];
+      // init criterion search param
+      this.criterionComponent.initSearchParams(searchParams);
+    }
+    // set datasource list
+    this._setDatasourceList();
+  }
+
 
   isEmptyList(): boolean {
     return this.datasourceList.length === 0;
@@ -228,9 +243,10 @@ export class DataSourceListComponent extends AbstractComponent {
    */
   public onChangedFilter(searchParams): void {
     // reload page
-    this.reloadPage(true);
+    if( this._queryParams && this._isSetCriterionList ) {
+      this.reloadPage(true);
+    }
   }
-
 
   /**
    * Search connection keypress event
