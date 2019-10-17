@@ -120,7 +120,7 @@
             </div>
           </td>
           <td>
-            {{query.startedTime}}
+            {{query.startedTime | date : 'yyyy-MM-dd HH:mm:ss.SSS' : getTimezone}}
           </td>
           <td>
             {{query.duration | numberCommas}}

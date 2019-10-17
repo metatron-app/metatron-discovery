@@ -32,6 +32,7 @@ import {Criteria} from "../../domain/datasource/criteria";
 import {ActivatedRoute} from "@angular/router";
 import * as _ from "lodash";
 import {PageResult} from "../../domain/common/page";
+import {TimezoneService} from "../../data-storage/service/timezone.service";
 
 declare let moment: any;
 
@@ -48,7 +49,8 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
               protected injector: Injector,
               private activatedRoute: ActivatedRoute,
               private stateService: StateService,
-              private engineService: EngineService) {
+              private engineService: EngineService,
+              private timezoneService: TimezoneService) {
     super(elementRef, injector);
   }
 
@@ -86,9 +88,9 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
           if (isExistSearchParams) {
             paramKeys.forEach((key) => {
               if (key === 'size') {
-                this.page.size = params['size'];
+                this.page.size = Number(params['size']);
               } else if (key === 'page') {
-                this.page.page = params['page'];
+                this.page.page = Number(params['page']);
               } else if (key === 'sort') {
                 const sortParam = params['sort'].split(',');
                 this.selectedContentSort.key = sortParam[0];
@@ -215,6 +217,10 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
     } else {
       return '';
     }
+  }
+
+  public get getTimezone(): string {
+    return this.timezoneService.getBrowserTimezone().utc;
   }
 
   private _changeTab(contentType: Engine.ContentType) {
