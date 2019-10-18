@@ -21,7 +21,7 @@ export class Task {
   status: TaskStatus;
   task_id: string;
   type: TaskType;
-  queue_ingestion_time: string;
+  queue_insertion_time: string;
   host: string;
 }
 

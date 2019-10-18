@@ -30,6 +30,7 @@ import {Modal} from "../../../../common/domain/modal";
 import {Alert} from "../../../../common/util/alert.util";
 import {Location} from "@angular/common";
 import * as _ from 'lodash';
+import {Task, TaskType} from "../../../../domain/engine-monitoring/task";
 
 declare let echarts: any;
 declare let moment: any;
@@ -50,28 +51,22 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
     super(elementRef, injector);
   }
 
-  @ViewChild('row') private _rowChartElmRef: ElementRef;
   @ViewChild('lag') private _lagChartElmRef: ElementRef;
 
   public supervisorId;
   public supervisorPayload: any = {};
 
-  public taskId;
   public dataSource;
+  public task: Task = new Task();
 
-  public processed: any;
-  public unparseable: any;
-  public thrownaway: any;
-
-  private _rowChart: any;
   private _lagChart: any;
 
-  public isShowRowDuration: boolean;
   public isShowLagDuration: boolean;
-  public selectedRowDuration: string = '1HOUR';
   public selectedLagDuration: string = '1HOUR';
   public showConfirm: boolean = false;
   public confirmModal: Modal;
+
+  public isShowTaskPopup: boolean;
 
   public ngOnInit() {
     this.loadingShow();
@@ -100,9 +95,6 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
    */
   @HostListener('window:resize', ['$event'])
   protected onResize(event) {
-    if (!_.isNil(this._rowChart)) {
-      this._rowChart.resize();
-    }
     if (!_.isNil(this._lagChart)) {
       this._lagChart.resize();
     }
@@ -146,17 +138,6 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
     this.showConfirm = false;
   }
 
-  public changeRowDuration(duration:string) {
-    this.isShowRowDuration = false;
-    this.loadingShow();
-    this.selectedRowDuration = duration;
-    const fromDate = this._getFromDate(duration);
-    this._getSupervisorRow(fromDate);
-    setTimeout(() => {
-      this.loadingHide();
-    }, 300);
-  }
-
   public changeLagDuration(duration:string) {
     this.isShowLagDuration = false;
     this.loadingShow();
@@ -180,122 +161,39 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
     }
   }
 
+  public getTypeTranslate(taskType: TaskType): string {
+    if (TaskType.INDEX === taskType) {
+      return 'index';
+    } else if (TaskType.KAFKA === taskType) {
+      return 'kafka';
+    } else if (TaskType.HADOOP === taskType) {
+      return 'hadoop';
+    } else {
+      return '';
+    }
+  }
+
+  public showTaskPopup(taskId: string) {
+    this.engineService.getTaskById(taskId).then((data) => {
+      this.task = data;
+      this.isShowTaskPopup = true;
+    }).catch((error) => {
+      this.commonExceptionHandler(error);
+    });
+  }
+
+  public goToTask(taskId: string) {
+    this.router.navigate(['/management/engine-monitoring/ingestion/task', taskId]).then();
+  }
+
   private _getSupervisorDetail(): void {
     this.engineService.getSupervisorStatus(this.supervisorId).then((data) => {
+      console.log(data);
       this.supervisorPayload = data.payload;
-      this.taskId = this.supervisorPayload.activeTasks[0].id;
       this.dataSource = this.supervisorPayload.dataSource;
-      this._getSupervisorRow();
       this._getSupervisorLag();
     })
   }
-
-  private _getSupervisorRow(fromDate?:string): void {
-    if (_.isNil(fromDate)) {
-      fromDate = this._getFromDate('1HOUR');
-    }
-    const queryParam: any =
-    {
-      monitoringTarget : {
-        metric: Engine.MonitoringTarget.TASK_ROW,
-        taskId: this.taskId
-      },
-      fromDate: fromDate,
-      toDate: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
-    };
-
-    this.engineService.getMonitoringData(queryParam).then((data) => {
-      this.processed = data.processed[data.processed.length - 1];
-      this.unparseable = data.unparseable[data.unparseable.length - 1];
-      this.thrownaway = data.thrownaway[data.thrownaway.length - 1];
-      const chartOps: any = {
-        type: 'line',
-        tooltip: {
-          trigger: 'axis',
-          axisPointer: {
-            type: 'line'
-          }
-        },
-        grid: [
-          {
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0
-          }
-        ],
-        xAxis: [
-          {
-            type: 'category',
-            show: false,
-            data: data.time,
-            name: 'SECOND(event_time)',
-            axisName: 'SECOND(event_time)'
-          }
-        ],
-        yAxis: [
-          {
-            type: 'value',
-            show: false,
-            name: 'Row',
-            axisName: 'Row'
-          }
-        ],
-        series: [
-          {
-            type: 'line',
-            name: 'Processed',
-            data: data.processed,
-            connectNulls: true,
-            showAllSymbol: true,
-            symbol: 'none',
-            sampling: 'max',
-            itemStyle: {
-              normal: {
-                color: '#2eaaaf'
-              }
-            },
-            smooth: true
-          },
-          {
-            type: 'line',
-            name: 'Unparseable',
-            data: data.unparseable,
-            connectNulls: true,
-            showAllSymbol: true,
-            symbol: 'none',
-            sampling: 'max',
-            itemStyle: {
-              normal: {
-                color: '#f2f1f8'
-              }
-            },
-            smooth: true
-          },
-          {
-            type: 'line',
-            name: 'ThrownAway',
-            data: data.thrownaway,
-            connectNulls: true,
-            showAllSymbol: true,
-            symbol: 'none',
-            sampling: 'max',
-            itemStyle: {
-              normal: {
-                color: '#666eb2'
-              }
-            },
-            smooth: true
-          }
-        ]
-      };
-      if (_.isNil(this._rowChart)) {
-        this._rowChart = echarts.init(this._rowChartElmRef.nativeElement, 'exntu');
-      }
-      this._rowChart.setOption(chartOps, false);
-    });
-
-}
 
   private _getSupervisorLag(fromDate?:string): void {
     if (_.isNil(fromDate)) {

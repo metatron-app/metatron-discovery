@@ -16,6 +16,7 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  HostListener,
   Injector,
   OnDestroy,
   OnInit,
@@ -27,6 +28,11 @@ import {ActivatedRoute} from "@angular/router";
 import {Task, TaskStatus, TaskType} from "../../../../domain/engine-monitoring/task";
 import {Alert} from "../../../../common/util/alert.util";
 import {Location} from "@angular/common";
+import * as _ from "lodash";
+import {Engine} from "../../../../domain/engine-monitoring/engine";
+
+declare let echarts: any;
+declare let moment: any;
 
 @Component({
   selector: 'app-detail-task',
@@ -49,11 +55,24 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
   @ViewChild('scrollElf')
   private _scrollElements: ElementRef;
 
+  @ViewChild('row') private _rowChartElmRef: ElementRef;
+
   public showShutdownConfirm: boolean = false;
 
   public task: Task = new Task();
   public taskLog: string;
+
+  public processed: any;
+  public unparseable: any;
+  public thrownaway: any;
+
+  public isShowRowDuration: boolean;
+  public selectedRowDuration: string = '1HOUR';
+
+  public rowData: any;
+
   private _taskId: string;
+  private _rowChart: any;
 
   public ngOnInit() {
     this.loadingShow();
@@ -62,6 +81,7 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
     });
 
     this._getTaskDetail();
+    this._getTaskLog();
 
     super.ngOnInit();
     this.loadingHide();
@@ -76,12 +96,23 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
     super.ngOnDestroy();
   }
 
+  /**
+   * Window resize
+   * @param event
+   */
+  @HostListener('window:resize', ['$event'])
+  protected onResize(event) {
+    if (!_.isNil(this._rowChart)) {
+      this._rowChart.resize();
+    }
+  }
+
   public prevTaskList(): void {
     this._location.back();
   }
 
-  public refreshTask(): void {
-    this._getTaskDetail();
+  public refreshLog(): void {
+    this._getTaskLog();
   }
 
   public confirmShutdownTaskOpen(): void {
@@ -99,8 +130,15 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
     })
   }
 
-  public get isCompletedTask(): boolean {
-    return this.task.status != TaskStatus.SUCCESS && this.task.status != TaskStatus.FAILED;
+  public changeRowDuration(duration:string) {
+    this.isShowRowDuration = false;
+    this.loadingShow();
+    this.selectedRowDuration = duration;
+    const fromDate = this._getFromDate(duration);
+    this._getTaskRow(fromDate);
+    setTimeout(() => {
+      this.loadingHide();
+    }, 300);
   }
 
   public getStatusClass(taskStatus: TaskStatus): string {
@@ -131,19 +169,171 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
     }
   }
 
+  public getDurationLabel(duration:string) {
+    if ('1DAY' === duration) {
+      return 'Last 1 day';
+    } else if ('7DAYS' === duration) {
+      return 'Last 7 days';
+    } else if ('30DAYS' === duration) {
+      return 'Last 30 days';
+    } else {
+      return 'Last 1 hour';
+    }
+  }
+
+  public logScrollDown() {
+    this._scrollElements.nativeElement.scrollTop = this._scrollElements.nativeElement.scrollHeight;
+  }
+
+  public get isCompletedTask(): boolean {
+    return this.task.status != TaskStatus.SUCCESS && this.task.status != TaskStatus.FAILED;
+  }
+
+  public get isKafkaTask(): boolean {
+    return TaskType.KAFKA === this.task.type;
+  }
+
   private _getTaskDetail(): void {
     this.engineService.getTaskById(this._taskId).then((data) => {
       this.task = data;
-      this.engineService.getTaskLogById(this._taskId).then((data) => {
-        this.taskLog = data;
-        // detect changes
-        this.safelyDetectChanges();
-        // scroll to bottom
-        this._scrollElements.nativeElement.scrollTop = this._scrollElements.nativeElement.scrollHeight;
-      }).catch((error) => {
-        this.commonExceptionHandler(error);
-      });
-    })
+      if (TaskType.KAFKA === this.task.type) {
+        this._getTaskRow();
+      }
+    }).catch((error) => {
+      this.commonExceptionHandler(error);
+    });
+  }
+
+  private _getTaskLog(): void {
+    this.engineService.getTaskLogById(this._taskId).then((data) => {
+      this.taskLog = data;
+      // detect changes
+      this.safelyDetectChanges();
+      // scroll to bottom
+      this._scrollElements.nativeElement.scrollTop = this._scrollElements.nativeElement.scrollHeight;
+    }).catch((error) => {
+      this.commonExceptionHandler(error);
+    });
+  }
+
+  private _getTaskRow(fromDate?:string): void {
+    if (_.isNil(fromDate)) {
+      fromDate = this._getFromDate('1HOUR');
+    }
+    const queryParam: any =
+      {
+        monitoringTarget : {
+          metric: Engine.MonitoringTarget.TASK_ROW,
+          taskId: this._taskId
+        },
+        fromDate: fromDate,
+        toDate: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
+      };
+
+    this.engineService.getMonitoringData(queryParam).then((data) => {
+      this.rowData = data;
+      this.processed = data.processed[data.processed.length - 1];
+      this.unparseable = data.unparseable[data.unparseable.length - 1];
+      this.thrownaway = data.thrownaway[data.thrownaway.length - 1];
+      const chartOps: any = {
+        type: 'line',
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'line'
+          }
+        },
+        grid: [
+          {
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0
+          }
+        ],
+        xAxis: [
+          {
+            type: 'category',
+            show: false,
+            data: data.time,
+            name: 'SECOND(event_time)',
+            axisName: 'SECOND(event_time)'
+          }
+        ],
+        yAxis: [
+          {
+            type: 'value',
+            show: false,
+            name: 'Row',
+            axisName: 'Row'
+          }
+        ],
+        series: [
+          {
+            type: 'line',
+            name: 'Processed',
+            data: data.processed,
+            connectNulls: true,
+            showAllSymbol: true,
+            symbol: 'none',
+            sampling: 'max',
+            itemStyle: {
+              normal: {
+                color: '#2eaaaf'
+              }
+            },
+            smooth: true
+          },
+          {
+            type: 'line',
+            name: 'Unparseable',
+            data: data.unparseable,
+            connectNulls: true,
+            showAllSymbol: true,
+            symbol: 'none',
+            sampling: 'max',
+            itemStyle: {
+              normal: {
+                color: '#f2f1f8'
+              }
+            },
+            smooth: true
+          },
+          {
+            type: 'line',
+            name: 'ThrownAway',
+            data: data.thrownaway,
+            connectNulls: true,
+            showAllSymbol: true,
+            symbol: 'none',
+            sampling: 'max',
+            itemStyle: {
+              normal: {
+                color: '#666eb2'
+              }
+            },
+            smooth: true
+          }
+        ]
+      };
+      if (_.isNil(this._rowChart)) {
+        this._rowChart = echarts.init(this._rowChartElmRef.nativeElement, 'exntu');
+      }
+      this._rowChart.setOption(chartOps, false);
+    });
+
+  }
+
+  private _getFromDate(duration:string) {
+    if ('1DAY' === duration) {
+      return moment().subtract(1, 'days').utc().format('YYYY-MM-DDTHH:mm:ss');
+    } else if ('7DAYS' === duration) {
+      return moment().subtract(7, 'days').utc().format('YYYY-MM-DDTHH:mm:ss');
+    } else if ('30DAYS' === duration) {
+      return moment().subtract(30, 'days').utc().format('YYYY-MM-DDTHH:mm:ss');
+    } else {
+      return moment().subtract(1, 'hours').utc().format('YYYY-MM-DDTHH:mm:ss');
+    }
   }
 
 }

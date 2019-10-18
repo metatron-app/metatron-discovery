@@ -31,59 +31,12 @@
 
   <!-- 상세 -->
   <div class="ddp-wrap-datadetail">
-    <!-- detail -->
-    <div class="ddp-ui-datadetail type-detail">
 
-      <label class="ddp-label-detail">Status (Log)</label>
-      <!-- sub -->
-      <div class="ddp-data-sub">
-        <div class="ddp-det-status">
-          <span class="ddp-data-status" [ngClass]="[getStatusClass(task.status)]">{{task.status}}</span>
-        </div>
-        <!-- log -->
-        <div class="ddp-wrap-log">
-          <div class="ddp-box-log" #scrollElf>
-            {{taskLog}}
-          </div>
-          <!-- log option -->
-          <div class="ddp-box-log-option ddp-clear">
-            <!-- left -->
-            <div class="ddp-left-option">
-              <dl class="ddp-dl-option ddp-clear">
-                <dt>Ingestion</dt>
-                <dd>
-                  <span class="ddp-data-status" [ngClass]="[getStatusClass(task.status)]">{{task.status}}</span>
-                  <span class="ddp-box-status type-error">
-                                                <strong>2</strong> Error
-                                            </span>
-                  <span class="ddp-box-status type-warning">
-                                                <strong>2</strong> Warning
-                                            </span>
-                </dd>
-              </dl>
-            </div>
-            <!-- //left -->
-            <!-- right -->
-            <div class="ddp-right-option">
-              <div class="ddp-ui-btn-log">
-                <a href="javascript:" class="ddp-btn-log type-refresh" (click)="refreshTask();"></a>
-              </div>
-            </div>
-            <!-- //right -->
-
-          </div>
-          <!-- //log option -->
-
-        </div>
-        <!-- //log -->
-      </div>
-      <!-- //sub -->
-    </div>
-    <!-- //detail -->
     <!-- detail -->
     <div class="ddp-ui-datadetail type-detail">
 
       <label class="ddp-label-detail">information</label>
+
 
       <table class="ddp-table-detail">
         <colgroup>
@@ -96,7 +49,7 @@
             Queue Insertion Time
           </th>
           <td>
-            {{task.queue_ingestion_time}}
+            {{task.queue_insertion_time}}
           </td>
         </tr>
         <tr>
@@ -140,12 +93,122 @@
           </td>
         </tr>
 
+        <tr *ngIf="isKafkaTask">
+          <th>
+            Processed
+          </th>
+          <td>
+            {{processed}}
+          </td>
+        </tr>
+        <tr *ngIf="isKafkaTask">
+          <th>
+            Unparseable
+          </th>
+          <td>
+            {{unparseable}}
+          </td>
+        </tr>
+        <tr *ngIf="isKafkaTask">
+          <th>
+            ThrownAway
+          </th>
+          <td>
+            {{thrownaway}}
+          </td>
+        </tr>
+
         </tbody>
       </table>
 
     </div>
     <!-- //detail -->
+    <!-- detail -->
+    <div class="ddp-ui-datadetail type-detail">
 
+      <label class="ddp-label-detail">Status (Log)</label>
+
+
+      <div class="ddp-det-status">
+        <span class="ddp-data-status" [ngClass]="[getStatusClass(task.status)]">{{task.status}}</span>
+      </div>
+      <!-- log -->
+      <div class="ddp-wrap-log">
+        <div class="ddp-box-log" #scrollElf>
+          {{taskLog}}
+        </div>
+        <!-- log option -->
+        <div class="ddp-box-log-option ddp-clear">
+          <!-- left -->
+          <div class="ddp-left-option">
+            <dl class="ddp-dl-option ddp-clear">
+              <dt>Ingestion</dt>
+              <dd>
+                <span class="ddp-data-status" [ngClass]="[getStatusClass(task.status)]">{{task.status}}</span>
+                <span class="ddp-box-status type-error">
+                    <strong>2</strong> Error
+                </span>
+                <span class="ddp-box-status type-warning">
+                    <strong>2</strong> Warning
+                </span>
+              </dd>
+            </dl>
+          </div>
+          <!-- //left -->
+          <!-- right -->
+          <div class="ddp-right-option">
+            <div class="ddp-ui-btn-log">
+              <a href="javascript:" class="ddp-btn-log type-refresh" (click)="refreshLog();"></a>
+              <a href="javascript:" class="ddp-btn-log type-down" (click)="logScrollDown();"></a>
+              <!-- <a href="javascript:" class="ddp-btn-log type-newwindow"></a> -->
+            </div>
+          </div>
+          <!-- //right -->
+
+        </div>
+        <!-- //log option -->
+
+      </div>
+      <!-- //log -->
+    </div>
+    <!-- //detail -->
+    <!-- detail -->
+    <div class="ddp-ui-datadetail type-detail" *ngIf="isKafkaTask">
+      <div class="ddp-label-option">
+        <label class="ddp-label-detail">Processed rows</label>
+        <div class="ddp-type-selectbox" [class.ddp-selected]="isShowRowDuration"
+             (click)="isShowRowDuration = !isShowRowDuration" (clickOutside)="isShowRowDuration=false">
+          <span class="ddp-txt-selectbox">{{getDurationLabel(selectedRowDuration)}}</span>
+
+          <ul class="ddp-list-selectbox ddp-selectdown ">
+            <li>
+              <a href="javascript:" (click)="changeRowDuration('1HOUR'); $event.stopImmediatePropagation(); $event.preventDefault()">
+                {{getDurationLabel('1HOUR')}}
+              </a>
+            </li>
+            <li>
+              <a href="javascript:" (click)="changeRowDuration('1DAY'); $event.stopImmediatePropagation(); $event.preventDefault()">
+                {{getDurationLabel('1DAY')}}
+              </a>
+            </li>
+            <li>
+              <a href="javascript:" (click)="changeRowDuration('7DAYS'); $event.stopImmediatePropagation(); $event.preventDefault()">
+                {{getDurationLabel('7DAYS')}}
+              </a>
+            </li>
+            <li>
+              <a href="javascript:" (click)="changeRowDuration('30DAYS'); $event.stopImmediatePropagation(); $event.preventDefault()">
+                {{getDurationLabel('30DAYS')}}
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="ddp-box-graph" #row>
+
+      </div>
+    </div>
+    <!-- //detail -->
   </div>
   <!-- //상세 -->
 </div>
