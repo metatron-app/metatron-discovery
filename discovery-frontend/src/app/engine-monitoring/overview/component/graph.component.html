@@ -107,24 +107,40 @@
   </div>
   <!-- //box graph -->
 </div>
-<div class="ddp-box-graph type-datasource type-warning">
-  <div class="ddp-box-label">
-    Datasource Count
-    <!--<em class="ddp-icon-warning"></em>-->
-  </div>
 
-  <!-- 아이콘 -->
-  <!--<div class="ddp-icon-status">
-    <span class="ddp-data-per"><em class="ddp-icon-up"></em>10%</span>
-  </div>-->
-  <!-- //아이콘 -->
-  <!-- 그래프 영역 -->
-  <div class="ddp-graph-round">
-    <div class="ddp-graph-in">
-      <span class="ddp-data-num">{{ datasourceCount | numberCommas }}</span>
-
+<div class="ddp-wrap-num-graph">
+  <!--
+      warning 일때 : type-warning 추가
+  -->
+  <div class="ddp-box-graph type-datasource type-warning">
+    <div class="ddp-box-label">
+      Datasource Count
+      <!--<em class="ddp-icon-warning"></em> -->
     </div>
-  </div>
-  <!-- //그래프 영역 -->
 
+    <!-- 아이콘 -->
+    <!--<div class="ddp-icon-status">
+      <span class="ddp-data-per"><em class="ddp-icon-up"></em>10%</span>
+    </div>-->
+    <!-- //아이콘 -->
+    <div class="ddp-graph-num">
+      {{ datasourceCount | numberCommas }}
+    </div>
+
+  </div>
+  <!-- //box graph -->
+
+  <div class="ddp-box-graph type-segment ">
+    <div class="ddp-box-label">
+      Segment Count
+      <em class="ddp-icon-warning"></em>
+    </div>
+
+
+    <div class="ddp-graph-num">
+      {{ segmentCount | numberCommas }}
+    </div>
+
+  </div>
+  <!-- //box graph -->
 </div>

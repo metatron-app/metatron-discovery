@@ -188,91 +188,86 @@ export class NodeInformationComponent extends AbstractPopupComponent implements 
     const queryParam: any =
       {
         monitoringTarget : {
-          metric: Engine.MonitoringTarget.MEM_MAX,
+          metric: Engine.MonitoringTarget.MEM,
           host: this.monitoring.hostname+":"+this.monitoring.port
         }
       };
 
     this.engineService.getMonitoringData(queryParam).then((data) => {
-      const maxData = data;
-      queryParam.monitoringTarget.metric = Engine.MonitoringTarget.MEM_USED;
-      this.engineService.getMonitoringData(queryParam).then((data) => {
-        const usedData = data;
-        const chartOps: any = {
-          type: 'line',
-          tooltip: {
-            trigger: 'axis',
-            axisPointer: {
-              type: 'line'
-            }
-          },
-          grid: [
-            {
-              top: 0,
-              bottom: 0,
-              left: 0,
-              right: 0
-            }
-          ],
-          xAxis: [
-            {
-              type: 'category',
-              show: false,
-              data: maxData.time,
-              name: 'SECOND(event_time)',
-              axisName: 'SECOND(event_time)'
-            }
-          ],
-          yAxis: [
-            {
-              type: 'value',
-              show: false,
-              name: 'Count',
-              axisName: 'Count'
-            }
-          ],
-          series: [
-            {
-              type: 'line',
-              name: 'Max',
-              data: maxData.value,
-              connectNulls: true,
-              showAllSymbol: true,
-              symbol: 'none',
-              sampling: 'max',
-              itemStyle: {
-                normal: {
-                  color: '#dc494f'
-                }
-              },
-              smooth: true
+      const chartOps: any = {
+        type: 'line',
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'line'
+          }
+        },
+        grid: [
+          {
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0
+          }
+        ],
+        xAxis: [
+          {
+            type: 'category',
+            show: false,
+            data: data.time,
+            name: 'SECOND(event_time)',
+            axisName: 'SECOND(event_time)'
+          }
+        ],
+        yAxis: [
+          {
+            type: 'value',
+            show: false,
+            name: 'Count',
+            axisName: 'Count'
+          }
+        ],
+        series: [
+          {
+            type: 'line',
+            name: 'Max',
+            data: data.maxMem,
+            connectNulls: true,
+            showAllSymbol: true,
+            symbol: 'none',
+            sampling: 'max',
+            itemStyle: {
+              normal: {
+                color: '#dc494f'
+              }
             },
-            {
-              type: 'line',
-              name: 'Used',
-              data: usedData.value,
-              connectNulls: true,
-              showAllSymbol: true,
-              symbol: 'none',
-              sampling: 'max',
-              itemStyle: {
-                normal: {
-                  color: '#2eaaaf'
-                }
-              },
-              smooth: true
-            }
-          ]
-        };
-        chartOps.tooltip.formatter = ((params): any => {
-          return params[0].axisValue + '<br/>' + params[0].marker + params[0].seriesName + ' : ' + CommonUtil.formatBytes(params[0].data, 2)
-            + '<br/>' + params[1].marker + params[1].seriesName + ' : ' + CommonUtil.formatBytes(params[1].data, 2);
-        });
-        if (_.isNil(this._memoryChart)) {
-          this._memoryChart = echarts.init(this._memoryChartElmRef.nativeElement, 'exntu');
-        }
-        this._memoryChart.setOption(chartOps, false);
+            smooth: true
+          },
+          {
+            type: 'line',
+            name: 'Used',
+            data: data.usedMem,
+            connectNulls: true,
+            showAllSymbol: true,
+            symbol: 'none',
+            sampling: 'max',
+            itemStyle: {
+              normal: {
+                color: '#2eaaaf'
+              }
+            },
+            smooth: true
+          }
+        ]
+      };
+      chartOps.tooltip.formatter = ((params): any => {
+        return params[0].axisValue + '<br/>' + params[0].marker + params[0].seriesName + ' : ' + CommonUtil.formatBytes(params[0].data, 2)
+          + '<br/>' + params[1].marker + params[1].seriesName + ' : ' + CommonUtil.formatBytes(params[1].data, 2);
       });
+      if (_.isNil(this._memoryChart)) {
+        this._memoryChart = echarts.init(this._memoryChartElmRef.nativeElement, 'exntu');
+      }
+      this._memoryChart.setOption(chartOps, false);
     });
   }
 

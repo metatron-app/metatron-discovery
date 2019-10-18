@@ -26,6 +26,8 @@ import {AbstractComponent} from '../../../common/component/abstract.component';
 import {Engine} from '../../../domain/engine-monitoring/engine';
 import * as _ from "lodash";
 import {CommonUtil} from "../../../common/util/common.util";
+import {LocalStorageConstant} from "../../../common/constant/local-storage.constant";
+import {EngineMonitoringData} from "../../../common/value/engine-monitoring.data.value";
 
 declare let moment: any;
 
@@ -44,13 +46,16 @@ export class StatusComponent extends AbstractComponent implements OnInit, OnDest
   @Input()
   public clusterSize: any;
 
-  @Input()
-  public duration: string;
+  public engineMonitoringData: EngineMonitoringData = new EngineMonitoringData();
 
   @Output('changeValue')
   private readonly changeEvent: EventEmitter<string> = new EventEmitter();
 
+  public isShowIntervalList: boolean;
   public currentDate: string;
+  public labelRefresh: string;
+
+  private _interval: any;
 
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
@@ -58,8 +63,9 @@ export class StatusComponent extends AbstractComponent implements OnInit, OnDest
   }
 
   public ngOnInit() {
-    this.currentDate = moment().format('YYYY-MM-DD HH:mm:ss');
-    this.changeDetect.detectChanges();
+    this._loadEngineMonitoringDataFromLocalStorage();
+    this.changeDuration();
+    this._setRefresh();
     super.ngOnInit();
   }
 
@@ -81,11 +87,70 @@ export class StatusComponent extends AbstractComponent implements OnInit, OnDest
     }
   }
 
-  public changeStatus(type?:string) {
+  public changeDuration(type?:string) {
     if (!_.isNil(type)) {
-      this.duration = type;
+      this.engineMonitoringData.duration = type;
+      this._setEngineMonitoringDataToLocalStorage();
     }
-    this.changeEvent.emit(this.duration);
+    this._setCurrentDate();
+    this.changeEvent.emit(this.engineMonitoringData.duration);
+  }
+
+  public changeRefresh(interval:number) {
+    this._setRefresh(interval);
+    this.isShowIntervalList = false;
+  }
+
+  private _setCurrentDate() {
+    this.currentDate = moment().format('YYYY-MM-DD HH:mm:ss');
+  }
+
+  private _loadEngineMonitoringDataFromLocalStorage() {
+    const localEngineMonitoringData = CommonUtil.getLocalStorage(LocalStorageConstant.KEY.ENGINE_MONITORING);
+    if (!_.isNil(localEngineMonitoringData)) {
+      this.engineMonitoringData = JSON.parse(localEngineMonitoringData);
+    }
+  }
+
+  private _setRefresh(refresh?:number) {
+    if (!_.isNil(refresh)) {
+      this.engineMonitoringData.refresh = refresh;
+      this._setEngineMonitoringDataToLocalStorage();
+      this._clearInterval();
+    }
+
+    if (this.engineMonitoringData.refresh != 0) {
+      this._interval = setInterval(() => {
+        this.changeDuration();
+      }, this.engineMonitoringData.refresh * 1000);
+    }
+
+    this._setLabelRefresh();
+  }
+
+  private _clearInterval() {
+    if (!_.isNil(this._interval)) {
+      clearInterval(this._interval);
+      this._interval = undefined;
+    }
+  }
+
+  private _setLabelRefresh() {
+    if (this.engineMonitoringData.refresh == 5) {
+      this.labelRefresh = '5s';
+    } else if (this.engineMonitoringData.refresh == 10) {
+      this.labelRefresh = '10s';
+    } else if (this.engineMonitoringData.refresh == 30) {
+      this.labelRefresh = '30s';
+    } else if (this.engineMonitoringData.refresh == 60) {
+      this.labelRefresh = '1m';
+    } else {
+      this.labelRefresh = 'Off';
+    }
+  }
+
+  private _setEngineMonitoringDataToLocalStorage() {
+    CommonUtil.setLocalStorage(LocalStorageConstant.KEY.ENGINE_MONITORING, JSON.stringify(this.engineMonitoringData));
   }
 
 }

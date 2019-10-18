@@ -58,9 +58,9 @@ export class SupervisorComponent extends AbstractComponent implements OnInit, On
       if (isExistSearchParams) {
         paramKeys.forEach((key) => {
           if (key === 'size') {
-            this.page.size = params['size'];
+            this.page.size = Number(params['size']);
           } else if (key === 'page') {
-            this.page.page = params['page'];
+            this.page.page = Number(params['page']);
           } else if (key === 'containsText') {
             this.searchKeyword = params['containsText'];
           } else {
@@ -120,6 +120,14 @@ export class SupervisorComponent extends AbstractComponent implements OnInit, On
     // reload page
     this.reloadPage(true);
   }
+
+  public highlightSearchText(name, searchText): string {
+    if (_.isNil(searchText) || searchText.trim() === '') {
+      return name;
+    } else {
+      return name.replace(new RegExp('(' + searchText + ')'), '<span class="ddp-txt-search type-search">$1</span>');
+    }
+  } // function - highlightSearchText
 
   private _filteringSupervisorList(): any[] {
     const filterParam = this._getSupervisorParams();

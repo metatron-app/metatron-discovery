@@ -1,0 +1,26 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-wrap-tooltip" [ngStyle]="{ 'display': isShow ? 'block' : 'none', 'top':top, 'left': left }" (mouseleave)="isShow = false;">
+  <span class="ddp-data-error" *ngIf="!monitoring.status">{{ 'msg.engine.monotoring.error.label' | translate }}</span> {{ monitoring.errorDuration }}
+  <div class="ddp-data-det" *ngIf="!monitoring.status">
+    {{ monitoring.hostname }}:{{ monitoring.port }} {{ monitoring.type }} {{ 'msg.engine.monotoring.overview.error.layer.prefix' | translate }}
+    <div>
+      {{ 'msg.engine.monotoring.failure.time.label' | translate }} : {{ monitoring.errorTime | mdate:'YYYY-MM-DD HH:mm:ss' }}
+    </div>
+  </div>
+  <div class="ddp-data-name">
+    Server Name : <span class="ddp-txt-name">{{ monitoring.hostname }}</span>
+  </div>
+</div>
