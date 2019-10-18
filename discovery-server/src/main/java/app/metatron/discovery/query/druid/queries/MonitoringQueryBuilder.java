@@ -125,7 +125,7 @@ public class MonitoringQueryBuilder extends AbstractQueryBuilder {
     monitoringQuery.setVirtualColumns(Lists.newArrayList(
         new ExprVirtualColumn(getTimeFormatExpr(granularity), "event_time.inner")));
     monitoringQuery.setDimensions(Lists.newArrayList(
-        new DefaultDimension("event_time.inner","event_time")));
+        new DefaultDimension("event_time.inner","event_time"), new DefaultDimension("metric", "metric")));
 
     return monitoringQuery;
   }

@@ -264,7 +264,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
           } else if('Lineage' === ext.name) {
             this.permission.lineage = true;
           } else if('Engine Monitoring' === ext.name) {
-            this.permission.managementEngineMonitoring = (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_SYSTEM.toString()));
+            this.permission.managementEngineMonitoring = (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_DATASOURCE.toString()));
           } else {
             (this.lnbManager[ext.parent]) || (this.lnbManager[ext.parent] = {});
             this.lnbManager[ext.parent][ext.name] = {fold: true};

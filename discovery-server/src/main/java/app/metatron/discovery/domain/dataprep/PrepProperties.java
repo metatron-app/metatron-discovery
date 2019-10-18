@@ -172,7 +172,7 @@ public class PrepProperties {
   }
 
   public boolean isSparkEngineEnabled() {
-    return (etl.spark.jar != null && etl.spark.port != null);
+    return etl.spark.port != null;
   }
 
   // Everything for ETL

@@ -29,6 +29,7 @@ import {CriterionComponent} from "../../../../data-storage/component/criterion/c
 import {Criteria} from "../../../../domain/datasource/criteria";
 import {ActivatedRoute} from "@angular/router";
 import {StringUtil} from "../../../../common/util/string.util";
+import {TimezoneService} from "../../../../data-storage/service/timezone.service";
 
 declare let moment: any;
 
@@ -43,7 +44,8 @@ export class WorkerComponent extends AbstractComponent implements OnInit, OnDest
   constructor(protected elementRef: ElementRef,
               protected injector: Injector,
               private activatedRoute: ActivatedRoute,
-              private engineService: EngineService) {
+              private engineService: EngineService,
+              private timezoneService: TimezoneService) {
     super(elementRef, injector);
   }
 
@@ -76,9 +78,9 @@ export class WorkerComponent extends AbstractComponent implements OnInit, OnDest
           if (isExistSearchParams) {
             paramKeys.forEach((key) => {
               if (key === 'size') {
-                this.page.size = params['size'];
+                this.page.size = Number(params['size']);
               } else if (key === 'page') {
-                this.page.page = params['page'];
+                this.page.page = Number(params['page']);
               } else if (key === 'sort') {
                 const sortParam = params['sort'].split(',');
                 this.selectedContentSort.key = sortParam[0];
@@ -169,6 +171,14 @@ export class WorkerComponent extends AbstractComponent implements OnInit, OnDest
     this.reloadPage(true);
   }
 
+  public highlightSearchText(name, searchText): string {
+    if (_.isNil(searchText) || searchText.trim() === '') {
+      return name;
+    } else {
+      return name.replace(new RegExp('(' + searchText + ')'), '<span class="ddp-txt-search type-search">$1</span>');
+    }
+  } // function - highlightSearchText
+
   /**
    * Changed filter
    * @param searchParams
@@ -186,6 +196,10 @@ export class WorkerComponent extends AbstractComponent implements OnInit, OnDest
   public criterionApiFunc(criterionKey: any) {
     // require injector in constructor
     return this.injector.get(EngineService).getCriterionInWorker(criterionKey);
+  }
+
+  public get getTimezone(): string {
+    return this.timezoneService.getBrowserTimezone().utc;
   }
 
   private _filteringWorkerList(): any[] {
@@ -221,7 +235,7 @@ export class WorkerComponent extends AbstractComponent implements OnInit, OnDest
           return a.lastCompletedTaskTime < b.lastCompletedTaskTime ? -1 : a.lastCompletedTaskTime > b.lastCompletedTaskTime ? 1 : 0;
         }
         return 0;
-      })
+      });
       if (this.selectedContentSort.sort == 'desc') {
         list = list.reverse();
       }

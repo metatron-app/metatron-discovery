@@ -15,6 +15,16 @@
 export class UserSetting {
   theme : Theme;
   language : Language;
+
+  public static getLanguage(lang: string): Language {
+    if (lang === 'ko') {
+      return Language.KO;
+    } else if (lang === 'zh') {
+      return Language.ZH;
+    } else {
+      return Language.EN;
+    }
+  }
 }
 
 export enum Theme {

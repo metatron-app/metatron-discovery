@@ -12,13 +12,7 @@
  * limitations under the License.
  */
 
-class LocalStorageKey {
-  // 사용자가 최근 사용한 조건들(정렬, 뷰 종류, 북 종류 등등)
-  public USED_CRITERIA = "USED_CRITERIA";
-  public USER_SETTING = "USER_SETTING";
-  public ENGINE_MONITORING = "ENGINE_MONITORING";
-}
-
-export class LocalStorageConstant {
-  public static KEY: LocalStorageKey = new LocalStorageKey();
+export class EngineMonitoringData {
+  refresh: number = 0;
+  duration: string = '1DAY';
 }

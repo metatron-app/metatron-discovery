@@ -17,47 +17,47 @@
 
   <!-- box status -->
   <div overview-status-view class="ddp-view-setting ddp-clear" [clusterStatus]="clusterStatus" [monitorings]="monitorings" [clusterSize]="clusterSize"
-                                          [duration]= "selectedDuration" (changeValue)="searchByDuration($event)"></div>
+                                          (changeValue)="changeDuration($event)"></div>
   <!-- // box status -->
 
   <!-- Graph Area -->
-  <div overview-graph-view class="ddp-wrap-engine-graph ddp-clear" [duration]="selectedDuration"></div>
+  <div overview-graph-view class="ddp-wrap-engine-graph ddp-clear"></div>
   <!-- // Graph Area -->
 
   <div class="ddp-box-type ddp-type-server">
     <div class="ddp-wrap-status-value ddp-clear">
       <div class="ddp-ui-status-value type-all" (click)="searchByNodeType(MONITORING_NODETYPE.ALL);">
         <!-- 선택시 type-selected 추가 -->
-        <div class="ddp-label-status type-all" [class.type-selected]="selectedNodeType === MONITORING_NODETYPE.ALL">
+        <div class="ddp-label-status type-all" [class.type-selected]="selectedNodeType.indexOf(MONITORING_NODETYPE.ALL) > -1">
           All
         </div>
       </div>
       <div class="ddp-ui-status-value" (click)="searchByNodeType(MONITORING_NODETYPE.BROKER);">
-        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.broker)]" [class.type-selected]="selectedNodeType === MONITORING_NODETYPE.BROKER">
+        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.broker)]" [class.type-selected]="selectedNodeType.indexOf(MONITORING_NODETYPE.BROKER) > -1">
           Broker
           <em [ngClass]="[getIconStatusClass(clusterStatus.broker)]"></em>
         </div>
       </div>
       <div class="ddp-ui-status-value" (click)="searchByNodeType(MONITORING_NODETYPE.COORDINATOR);">
-        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.coordinator)]" [class.type-selected]="selectedNodeType === MONITORING_NODETYPE.COORDINATOR">
+        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.coordinator)]" [class.type-selected]="selectedNodeType.indexOf(MONITORING_NODETYPE.COORDINATOR) > -1">
           Coordinator
           <em [ngClass]="[getIconStatusClass(clusterStatus.coordinator)]"></em>
         </div>
       </div>
       <div class="ddp-ui-status-value" (click)="searchByNodeType(MONITORING_NODETYPE.HISTORICAL);">
-        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.historical)]" [class.type-selected]="selectedNodeType === MONITORING_NODETYPE.HISTORICAL">
+        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.historical)]" [class.type-selected]="selectedNodeType.indexOf(MONITORING_NODETYPE.HISTORICAL) > -1">
           Historical
           <em [ngClass]="[getIconStatusClass(clusterStatus.historical)]"></em>
         </div>
       </div>
       <div class="ddp-ui-status-value" (click)="searchByNodeType(MONITORING_NODETYPE.OVERLORD);">
-        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.overlord)]" [class.type-selected]="selectedNodeType === MONITORING_NODETYPE.OVERLORD">
+        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.overlord)]" [class.type-selected]="selectedNodeType.indexOf(MONITORING_NODETYPE.OVERLORD) > -1">
           Overlord
           <em [ngClass]="[getIconStatusClass(clusterStatus.overlord)]"></em>
         </div>
       </div>
       <div class="ddp-ui-status-value" (click)="searchByNodeType(MONITORING_NODETYPE.MIDDLE_MANAGER);">
-        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.middleManager)]" [class.type-selected]="selectedNodeType === MONITORING_NODETYPE.MIDDLE_MANAGER">
+        <div class="ddp-label-status" [ngClass]="[getTypeStatusClass(clusterStatus.middleManager)]" [class.type-selected]="selectedNodeType.indexOf(MONITORING_NODETYPE.MIDDLE_MANAGER) > -1">
           Middle Manager
           <em [ngClass]="[getIconStatusClass(clusterStatus.middleManager)]"></em>
         </div>
@@ -107,10 +107,15 @@
         <div class="ddp-data-source-none" *ngIf="filteredItems.length == 0">
           No data
         </div>
-        <div class="ddp-grid-detail" *ngIf="selectedViewMode === VIEW_MODE.CARD && filteredItems.length > 0">
-          <div class="ddp-grid-box ddp-cursor" *ngFor="let monitoring of filteredItems" [ngClass]="{'type-error' : !monitoring.status}" title="{{ 'msg.engine.monotoring.overview.server.name' | translate }} : {{monitoring.hostname}}" (click)="showNodeInformationModal(monitoring);">
+        <div class="ddp-grid-detail ddp-clear" *ngIf="selectedViewMode === VIEW_MODE.CARD && filteredItems.length > 0">
+          <div class="ddp-grid-box ddp-cursor" *ngFor="let monitoring of filteredItems" [ngClass]="{'type-error' : !monitoring.status}"
+               (mouseover)="showNodeInformationTooltip(monitoring, $event);"
+               (mouseleave)="hideNodeInformationTooltip($event);"
+               (click)="showNodeInformationModal(monitoring);">
             {{ convertTypeLabel(monitoring.type).substring(0, 1) }}
           </div>
+          <!-- tooltip -->
+          <node-tooltip></node-tooltip>
         </div>
         <table class="ddp-table-detail3" *ngIf="selectedViewMode === VIEW_MODE.GRID && filteredItems.length > 0">
           <colgroup>

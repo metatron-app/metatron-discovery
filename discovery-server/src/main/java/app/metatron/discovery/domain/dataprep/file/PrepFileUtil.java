@@ -1,8 +1,8 @@
 package app.metatron.discovery.domain.dataprep.file;
 
 import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
-import static app.metatron.discovery.domain.dataprep.PrepUtil.configError;
-import static app.metatron.discovery.domain.dataprep.PrepUtil.snapshotError;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.configError;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.snapshotError;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_HDFS_PATH;
