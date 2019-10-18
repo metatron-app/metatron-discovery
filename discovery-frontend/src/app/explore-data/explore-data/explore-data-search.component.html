@@ -23,7 +23,7 @@
                      (keyup.enter)="onSubmit()"
                      (inputFocus)="onChangeFocusSearchInput(true)"
                      (inputBlur)="onChangeFocusSearchInput(false)"></component-input>
-    <a href="javascript:" class="ddp-btn-delete" *ngIf="!isEmptySearchKeyword()" (click)="onChangeSearchKeyword('')"></a>
+    <a href="javascript:" class="ddp-btn-delete" *ngIf="!isEmptySearchKeyword()" (click)="onChangeSearchKeyword(''); changedSearch.emit()"></a>
   </div>
   <!-- //search form -->
 </div>

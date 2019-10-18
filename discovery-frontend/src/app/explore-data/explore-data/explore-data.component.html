@@ -1,36 +1,38 @@
 <em class="ddp-bg-back"></em>
-<div class="ddp-ui-contents-in ddp-scroll">
-  <!-- top -->
-  <div class="ddp-ui-contents-top">
-    <div class="ddp-ui-title ddp-cursor" (click)="goToExploreMain()">
-      {{'msg.explore.ui.title' | translate}}
+  <div class="ddp-ui-contents-in ddp-scroll">
+    <!-- top -->
+    <div class="ddp-ui-contents-top">
+      <div class="ddp-ui-title ddp-cursor" (click)="goToExploreMain()">
+        {{'msg.explore.ui.title' | translate}}
+      </div>
+      <!-- tag -->
+      <div class="ddp-ui-tag">
+        <div class="ddp-box-tag-value ddp-datasource" [class.ddp-disabled]="sourceTypeCount === 0">{{'msg.comm.th.ds'| translate}} {{sourceTypeCount}} </div>
+        <div class="ddp-box-tag-value ddp-database" [class.ddp-disabled]="databaseTypeCount === 0">{{'msg.storage.li.db'| translate}}  {{databaseTypeCount}}</div>
+        <div class="ddp-box-tag-value ddp-stagingdb" [class.ddp-disabled]="stagingTypeCount === 0">{{'msg.storage.li.hive'| translate}} {{stagingTypeCount}}</div>
+        <div class="ddp-box-tag-value ddp-dataset" [class.ddp-disabled]="datasetTypeCount === 0">{{'msg.storage.li.dataset'| translate}} {{datasetTypeCount}}</div>
+      </div>
+      <!-- //tag -->
+      <!-- search -->
+      <component-explore-search (changedSearch)="onChangedSearch()" #searchComponent></component-explore-search>
+      <!-- //search -->
     </div>
-    <!-- tag -->
-    <div class="ddp-ui-tag">
-      <div class="ddp-box-tag-value ddp-datasource" [class.ddp-disabled]="sourceTypeCount === 0">{{'msg.comm.th.ds'| translate}} {{sourceTypeCount}} </div>
-      <div class="ddp-box-tag-value ddp-database" [class.ddp-disabled]="databaseTypeCount === 0">{{'msg.storage.li.db'| translate}}  {{databaseTypeCount}}</div>
-      <div class="ddp-box-tag-value ddp-stagingdb" [class.ddp-disabled]="stagingTypeCount === 0">{{'msg.storage.li.hive'| translate}} {{stagingTypeCount}}</div>
-      <div class="ddp-box-tag-value ddp-dataset" [class.ddp-disabled]="datasetTypeCount === 0">{{'msg.storage.li.dataset'| translate}} {{datasetTypeCount}}</div>
+    <!-- //top -->
+    <div class="ddp-view-catalog" [class.ddp-close]="lnbComponent.isFoldingNavigation">
+      <!-- lnb -->
+      <component-explore-lnb #lnbComponent (changedLnbData)="onChangedLnbData()"></component-explore-lnb>
+      <!-- //lnb -->
+      <explore-data-main
+        *ngIf="mode === EXPLORE_MODE.MAIN"
+        (clickedMetadata)="onClickMetadata($event)"></explore-data-main>
+      <explore-data-list
+        *ngIf="mode === EXPLORE_MODE.LIST"
+        (clickedMetadata)="onClickMetadata($event)"
+        [$layoutContentsClass]="$layoutContentsClass"
+        (requestInitializeSelectedCatalog)="lnbComponent.initSelectedCatalog()"
+        (requestInitializeSelectedTag)="lnbComponent.initSelectedTag()"
+        (requestChangeSelectedCatalog)="lnbComponent.onChangeSelectedCatalog($event)"
+        (changedMetadataPresence)="searchComponent.onChangeEmptySearchContentsPresence($event)"></explore-data-list>
     </div>
-    <!-- //tag -->
-    <!-- search -->
-    <component-explore-search (changedSearch)="onChangedSearch()" #searchComponent></component-explore-search>
-    <!-- //search -->
   </div>
-  <!-- //top -->
-  <div class="ddp-view-catalog" [class.ddp-close]="lnbComponent.isFoldingNavigation">
-    <!-- lnb -->
-    <component-explore-lnb #lnbComponent (changedLnbData)="onChangedLnbData()"></component-explore-lnb>
-    <!-- //lnb -->
-    <explore-data-main *ngIf="mode === EXPLORE_MODE.MAIN" (clickedMetadata)="onClickMetadata($event)"></explore-data-main>
-    <explore-data-list
-      *ngIf="mode === EXPLORE_MODE.LIST"
-      (clickedMetadata)="onClickMetadata($event)"
-      [$layoutContentsClass]="$layoutContentsClass"
-      (requestInitializeSelectedCatalog)="lnbComponent.initSelectedCatalog()"
-      (requestInitializeSelectedTag)="lnbComponent.initSelectedTag()"
-      (requestChangeSelectedCatalog)="lnbComponent.onChangeSelectedCatalog($event)"
-      (changedMetadataPresence)="searchComponent.onChangeEmptySearchContentsPresence($event)"></explore-data-list>
-  </div>
-</div>
-<ng-template #component_metadata_detail></ng-template>
+  <ng-template #component_metadata_detail></ng-template>

@@ -33,7 +33,7 @@ import {ExploreDataListComponent} from "./explore-data-list.component";
 import {EventBroadcaster} from "../../common/event/event.broadcaster";
 import {ExploreDataConstant} from "../constant/explore-data-constant";
 import {Subscription} from "rxjs";
-import {meta} from "@turf/turf";
+import {ExploreDataSearchComponent} from "./explore-data-search.component";
 import {ExploreDataModelService} from "./service/explore-data-model.service";
 
 @Component({
@@ -47,6 +47,9 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
 
   @ViewChild(ExploreDataListComponent)
   private readonly _exploreDataListComponent: ExploreDataListComponent;
+
+  @ViewChild(ExploreDataSearchComponent)
+  exploreDataSearchComponent: ExploreDataSearchComponent;
 
   entryRef: ComponentRef<MetadataContainerComponent>;
 
@@ -110,9 +113,10 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   }
 
   goToExploreMain(): void {
-    this.router.navigate(['/exploredata/view']);
     this.mode = ExploreMode.MAIN;
-    this.exploreDataModelService.selectedCatalog = undefined;
+    this.safelyDetectChanges();
+    this.exploreDataSearchComponent.onChangeSearchKeyword('');
+    this.exploreDataModelService.initializeAll();
   }
 
   onChangedSearch(): void {
@@ -176,7 +180,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
         this.entryRef.instance.metadataDetailData = metadataDetail;
         this.entryRef.instance.topUserList = topUserList;
         this.entryRef.instance.recentlyUpdatedList = recentlyUpdatedList;
-        if (recentlyUsedList['_embedded'] !== undefined) {
+        if (recentlyUsedList !== undefined && recentlyUsedList['_embedded'] !== undefined) {
           this.entryRef.instance.recentlyUsedDashboardList = recentlyUsedList['_embedded']['dashboards'];
         }
 
@@ -198,10 +202,6 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
         this.entryRef.destroy();
       });
     }).catch(error => {console.log(error); this.commonExceptionHandler(error)});
-  }
-
-  onCloseMetadataContainer(): void {
-    this.selectedMetadata = null;
   }
 
   private async _setMetadataSourceTypeCount() {
