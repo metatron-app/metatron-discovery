@@ -9,6 +9,7 @@ import {CommonUtil} from "../../../common/util/common.util";
 import {Datasource} from "../../../domain/datasource/datasource";
 import {CatalogService} from "../../catalog/service/catalog.service";
 import {isUndefined} from "util";
+import {StringUtil} from "../../../common/util/string.util";
 
 @Component(
   {
@@ -38,14 +39,18 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   public statusClass = '';
   public dataType;
 
+  public showTags: boolean = false;
   public isAddTag: boolean = false;
   public tagFlag: boolean = false;
   public tagValue: string = '';
   public tagsList: any = [];
+  public popularityTagList: { id: string, name: string, count: number }[] = [];
 
-  public catalogSearchText: string = '';
-  public searchCatalogList: any[] = [];
+  public showCatalogs: boolean = false;
   public isSearchCatalog: boolean = false;
+  public catalogSearchText: string = '';
+  public searchCatalogList: { id: string, name: string, count: number, hierarchies: { id: string, name: string }[] }[] = [];
+  public popularityCatalogList: { id: string, name: string, count: number, hierarchies: { id: string, name: string }[] }[] = [];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
  | Constructor
@@ -56,7 +61,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     protected activatedRoute: ActivatedRoute,
     private metadataModelService: MetadataModelService,
     protected catalogService: CatalogService,
-    protected injector: Injector,) {
+    protected injector: Injector) {
     super(element, injector);
   }
 
@@ -68,9 +73,10 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     // get chosen metadata from metadataModelService
     this.metadata = this.metadataModelService.getMetadata();
     this._getMetadataTags();
+    this._getPopularityCatalogs();
 
     // initialize textarea text
-    this.descriptionChangeText = ( this.metadata.description ) ? this.metadata.description : '';
+    this.descriptionChangeText = (this.metadata.description) ? this.metadata.description : '';
 
     this.subscriptions.push(
       this.metadataModelService.metadataChanged.subscribe((metadata) => {
@@ -167,6 +173,19 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     }).catch((error) => {
       console.error(error);
     });
+    this.metadataService.getPopularityTags({scope: 'DOMAIN', domainType: 'METADATA', size: 10}).then(result => {
+      this.popularityTagList = (result && result._embedded && result._embedded.tagCountDToes) ? result._embedded.tagCountDToes : [];
+      this.safelyDetectChanges();
+    });
+  }
+
+  public getTagName(tagName:string): string {
+    // if empty search keyword
+    if (StringUtil.isEmpty(tagName)) {
+      return tagName;
+    } else {
+      return tagName.replace(this.tagValue, `<span class="ddp-txt-search">${this.tagValue}</span>`);
+    }
   }
 
   get filteredTagsList() {
@@ -190,7 +209,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   }
 
   public addTag() {
-
+    this.showTags = false;
     let idx = this.metadataModelService.getMetadata().tags.map((item) => {
       return item.name;
     }).indexOf(this.tagValue);
@@ -206,9 +225,11 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
         this._getMetadataDetail();
         this._getMetadataTags();
         this.tagFlag = false;
+        $( '.ddp-tag-default input' ).trigger('blur');
       }).catch((err) => {
         console.info('error -> ', err);
         this.tagFlag = false;
+        $( '.ddp-tag-default input' ).trigger('blur');
       });
     }
   }
@@ -220,23 +241,43 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
 
   public tagClickOutsideEvent() {
     this.tagValue = '';
+    this.showTags = false;
   }
 
   public showSearchCatalog(event: MouseEvent) {
     event.preventDefault();
     event.stopImmediatePropagation();
+    this.showTags = false;
     this.catalogSearchText = '';
+    this.searchCatalogList = [];
     this.isSearchCatalog = true;
+    this.safelyDetectChanges();
+  }
+
+  public getCatalogHierarchyName(hierarchyName:string): string {
+    // if empty search keyword
+    if (StringUtil.isEmpty(hierarchyName)) {
+      return hierarchyName;
+    } else {
+      return hierarchyName.replace(this.catalogSearchText, `<span class="ddp-txt-search">${this.catalogSearchText}</span>`);
+    }
+  }
+
+  public isExistCatalog(item: { id: string, name: string, count: number, hierarchies: { id: string, name: string }[] }) {
+    if (this.metadata.catalogs) {
+      return this.metadata.catalogs.some(catalog => catalog.id === item.id);
+    } else {
+      return false;
+    }
   }
 
   public selectCatalog(item) {
     this.loadingShow();
-    if ((this.metadata.catalogs as [any]).some((catalog) => {
-      return catalog.name === item.name;
-    })) {
+    if ((this.metadata.catalogs as [any]).some(catalog => catalog.id === item.id)) {
       Alert.error(this.translateService.instant('msg.metadata.metadata.detail.ui.alert.catalog.already.included'));
       this.loadingHide();
     } else {
+      this.showCatalogs = false;
       this.metadataService.linkMetadataWithCatalog(this.metadata.id, item.id).then(() => {
         this.isSearchCatalog = false;
         this.catalogSearchText = '';
@@ -247,6 +288,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
       });
     }
   }
+
   public deleteCatalogFromMetadata(catalogId) {
     this.metadataService.deleteCatalogLinkFromMetadata(this.metadata.id, catalogId).then(() => {
       this._getMetadataDetail();
@@ -256,29 +298,42 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   }
 
   public changeInputCatalog(inputVal) {
+
     if (this.catalogSearchText !== inputVal) {
       this.catalogSearchText = inputVal;
-      this.safelyDetectChanges();
 
-      // fetch data from api
-      this.catalogService.getCatalogs(this._getCatalogParams()).then((result) => {
-        // if any catalog is included
-        if ((this.metadata.catalogs as [any]).length > 0) {
-          let contained = true;
-          // check if catalog is already in list
-          result = (result as [any]).filter(catalogFromAPi => {
-            contained = true;
-            (this.metadata.catalogs as [any]).forEach(catalog => {
-              if (catalog.name === catalogFromAPi.name) {
-                contained = false;
-              }
-            });
-            return contained;
-          });
-        }
-        this.searchCatalogList = result;
-      });
+      if ('' === this.catalogSearchText) {
+        this.searchCatalogList = [];
+        this.safelyDetectChanges();
+      } else {
+        // fetch data from api
+        this.catalogService.getCatalogs(this._getCatalogParams()).then((result) => {
+          // if any catalog is included
+          // if ((this.metadata.catalogs as [any]).length > 0) {
+          //   let contained = true;
+          //   // check if catalog is already in list
+          //   result = (result as [any]).filter(catalogFromAPi => {
+          //     contained = true;
+          //     (this.metadata.catalogs as [any]).forEach(catalog => {
+          //       if (catalog.name === catalogFromAPi.name) {
+          //         contained = false;
+          //       }
+          //     });
+          //     return contained;
+          //   });
+          // }
+          this.searchCatalogList = result;
+          this.safelyDetectChanges();
+        });
+      }
     }
+  }
+
+  private _getPopularityCatalogs() {
+    this.catalogService.getPopularityCatalogs({size: 10}).then(result => {
+      this.popularityCatalogList = (result && result._embedded && result._embedded.catalogCountDToes) ? result._embedded.catalogCountDToes : [];
+      this.safelyDetectChanges();
+    });
   }
 
   private _getCatalogParams(): Object {

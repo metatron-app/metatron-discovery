@@ -53,40 +53,18 @@ export class CatalogService extends AbstractService {
 
   public selectedCatalog: Catalog.Tree;
 
-  /**
-   * 카타로그 생성
-   * @param {string} name
-   * @returns {Promise<any>}
-   */
   public createCatalog(params: any): Promise<any> {
     return this.post(this.URL_CATALOG, params);
   }
 
-  /**
-   * 카타로그 삭제
-   * @param {string} id
-   * @returns {Promise<any>}
-   */
   public deleteCatalog(id: string): Promise<any> {
     return this.delete(this.URL_CATALOG + `/${id}`);
   }
 
-  /**
-   * 카타로그 이름 수정
-   * @param {string} name
-   * @returns {Promise<any>}
-   */
   public updateCatalog(id: string, name: string): Promise<any> {
     return this.patch(this.URL_CATALOG + `/${id}`, {name: name});
   }
 
-  /**
-   * 카탈로그내 포함되어 있는 메타데이터를 조회합니다.
-   *
-   * @param nameContains
-   * @param pageable
-   * @return
-   */
   public getMetadataInCatalog(id: string, params?: any, allSubCatalogs: boolean = true, projection: string = 'default'): Promise<any> {
     let url = this.URL_CATALOG + `/${id}/metadatas`;
     if (params) {
@@ -95,16 +73,6 @@ export class CatalogService extends AbstractService {
     return this.get(url + `&projection=${projection}&allSubCatalogs=${allSubCatalogs}`);
   }
 
-  /**
-   * 전체 카탈로그를 트리로 조회합니다.
-   * @param id
-   * @param includeAllHierarchies
-   * @return 카탈로그 트리 배열
-   * [{
-        "id": "1e7d0003-6375-447a-a51a-e041db5116a5",
-        "name": "bbb"
-    }],
-   */
   public getTreeCatalogs(id: string, includeAllHierarchies?: boolean): Promise<any> {
     if (includeAllHierarchies) {
       return this.get(this.URL_CATALOG + `/${id}/tree/?includeAllHierarchies=${includeAllHierarchies}`);
@@ -113,15 +81,16 @@ export class CatalogService extends AbstractService {
     }
   }
 
-  /**
-   * 전체 카테고리를 조회합니다.
-   * @param param
-   * @return
-   */
   public getCatalogs(params: any, projection: string = 'forListView'): Promise<any> {
 
     let url = this.URL_CATALOG;
     url += '?' + CommonUtil.objectToUrlString(params);
     return this.get(url + `&projection=${projection}`);
+  }
+
+  public getPopularityCatalogs(params: { nameContains?: string, size?: number }): Promise<any> {
+    let url = this.URL_CATALOG + '/popularity';
+    url += '?' + CommonUtil.objectToUrlString(params);
+    return this.get(url);
   }
 }
