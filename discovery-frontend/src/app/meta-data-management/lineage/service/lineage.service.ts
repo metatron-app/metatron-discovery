@@ -64,6 +64,10 @@ export class LineageService extends AbstractService {
     return this.post(this.URL_LINEAGE + `/edge_list`, params);
   }
 
+  public getLineageFile(params: object): Promise<any> {
+    return this.post(this.URL_LINEAGE + `/lineage_file`, params);
+  }
+
   /**
    * 코드테이블 목록 조회
    * @param {Object} params
