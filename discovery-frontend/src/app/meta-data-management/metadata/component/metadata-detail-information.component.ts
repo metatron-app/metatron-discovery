@@ -225,9 +225,11 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
         this._getMetadataDetail();
         this._getMetadataTags();
         this.tagFlag = false;
+        $( '.ddp-tag-default input' ).trigger('blur');
       }).catch((err) => {
         console.info('error -> ', err);
         this.tagFlag = false;
+        $( '.ddp-tag-default input' ).trigger('blur');
       });
     }
   }
