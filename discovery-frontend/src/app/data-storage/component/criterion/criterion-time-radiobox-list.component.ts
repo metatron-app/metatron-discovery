@@ -89,7 +89,7 @@ export class CriterionTimeRadioboxListComponent extends AbstractComponent {
   public ngAfterViewInit() {
     // init
     this._initView();
-    if (this.defaultSelectedItemList.length > 0) {
+    if (this.defaultSelectedItemList) {
       Object.keys(this.defaultSelectedItemList).forEach((key) => {
         if (key === Criteria.KEY_DATETIME_TYPE_SUFFIX) {
           // change selected time type
