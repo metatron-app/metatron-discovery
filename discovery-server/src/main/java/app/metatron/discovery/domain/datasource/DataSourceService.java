@@ -662,10 +662,12 @@ public class DataSourceService {
     dataSourceRepository.save(dataSource);
   }
 
-  public Set getKafkaTopic(String bootstrapServer) {
+  public List getKafkaTopic(String bootstrapServer) {
     Consumer<Long, String> consumer = createConsumer(bootstrapServer);
-    Set kafkaTopicList = consumer.listTopics().keySet();
+    Set kafkaTopicSet = consumer.listTopics().keySet();
     consumer.close();
+    List<String> kafkaTopicList = new ArrayList<String>(kafkaTopicSet);
+    Collections.sort(kafkaTopicList);
     return kafkaTopicList;
   }
 
