@@ -33,7 +33,7 @@
     <!-- detail -->
     <div class="ddp-ui-datadetail type-detail">
 
-      <label class="ddp-label-detail">information</label>
+      <label class="ddp-label-detail">{{'msg.comm.ui.info' | translate}}</label>
 
       <table class="ddp-table-detail">
         <colgroup>
@@ -120,7 +120,7 @@
           <tbody>
           <tr *ngFor="let runningTask of supervisorPayload.activeTasks">
             <td>
-              <a href="javascript:" class="ddp-btn-pop  ddp-type" (click)="showTaskPopup(runningTask.id);">Detail</a>
+              <a href="javascript:" class="ddp-btn-pop  ddp-type" (click)="showTaskPopup(runningTask.id);">{{'msg.comm.detail.details' | translate}}</a>
               <div class="ddp-txt-long">
                 {{runningTask.id}}
               </div>
@@ -155,7 +155,7 @@
   <!-- top -->
   <div class="ddp-ui-top">
     <div class="ddp-data-name">
-      Task Information
+      Task {{'msg.comm.ui.info' | translate}}
     </div>
     <em class="ddp-btn-popup-close" (click)="isShowTaskPopup = false"></em>
   </div>
@@ -221,7 +221,7 @@
 
           </tbody>
         </table>
-        <a href="javascript:" class="ddp-btn-selection ddp-black" (click)="goToTask(task.task_id)"><em class="ddp-icon-view"></em>Go to Task</a>
+        <a href="javascript:" class="ddp-btn-selection ddp-black" (click)="goToTask(task.task_id)"><em class="ddp-icon-view"></em>{{'msg.engine.monitoring.ingestion.supervisor.move.task' | translate}}</a>
       </div>
     </div>
   </div>

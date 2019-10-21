@@ -3355,5 +3355,6 @@
   "msg.engine.monitoring.ingestion.supervisor.shutdown.confirm.fail": "Failed to shutdown the supervisor",
   "msg.engine.monitoring.ingestion.reset": "Reset",
   "msg.engine.monitoring.ingestion.supervisor.reset.confirm": "Do you want to reset the current supervisor?",
-  "msg.engine.monitoring.ingestion.supervisor.reset.confirm.fail": "Failed to reset the supervisor"
+  "msg.engine.monitoring.ingestion.supervisor.reset.confirm.fail": "Failed to reset the supervisor",
+  "msg.engine.monitoring.ingestion.supervisor.move.task": "Go to Task"
 }

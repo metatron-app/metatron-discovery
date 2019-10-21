@@ -4276,5 +4276,6 @@
   "msg.engine.monitoring.ingestion.supervisor.shutdown.confirm.fail": "Supervisor 강제종료에 실패하였습니다.",
   "msg.engine.monitoring.ingestion.reset": "재설정",
   "msg.engine.monitoring.ingestion.supervisor.reset.confirm": "현재 수행중인 Supervisor를 Reset하시겠습니까?",
-  "msg.engine.monitoring.ingestion.supervisor.reset.confirm.fail": "Supervisor Reset에 실패하였습니다."
+  "msg.engine.monitoring.ingestion.supervisor.reset.confirm.fail": "Supervisor Reset에 실패하였습니다.",
+  "msg.engine.monitoring.ingestion.supervisor.move.task": "Task로 이동"
 }
