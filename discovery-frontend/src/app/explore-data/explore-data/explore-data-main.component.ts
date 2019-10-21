@@ -175,6 +175,7 @@ export class ExploreDataMainComponent extends AbstractComponent {
     if (!_.isNil(result._embedded)) {
       this.favoriteMetadataList = result._embedded.metadatas;
       this.favoriteMetadataTotalCount = result.page.totalElements;
+
     }
   }
 

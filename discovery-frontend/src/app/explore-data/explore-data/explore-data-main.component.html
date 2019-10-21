@@ -51,7 +51,9 @@
     <!--  My favorite  -->
     <div class="ddp-box-summary">
       <div class="ddp-type-label">{{ 'msg.explore.ui.list.favorite.my' | translate }}
-        <a *ngIf="favoriteMetadataTotalCount> 4" href="javascript:" class="ddp-btn-more">{{ 'msg.comm.ui.more' | translate }} &gt;</a>
+<!--        <a *ngIf="favoriteMetadataTotalCount > 4"-->
+<!--           href="javascript:"-->
+<!--           class="ddp-btn-more">{{ 'msg.comm.ui.more' | translate }} &gt;</a>-->
       </div>
       <ul class="ddp-list-summary">
         <li *ngFor="let metadata of favoriteMetadataList| slice:0:4">
