@@ -18,6 +18,8 @@ package app.metatron.discovery.domain.mdm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class MetadataPopularityService {
 
@@ -45,5 +47,10 @@ public class MetadataPopularityService {
     } else {
       return popularity.getPopularity();
     }
+  }
+
+  public List<MetadataPopularity> getPopularity(List<String> metadataIdList) {
+    List<MetadataPopularity> popularity = popularityRepository.findByTypeAndMetadataIdIn(MetadataPopularity.PopularityType.METADATA, metadataIdList);
+    return popularity;
   }
 }

@@ -46,10 +46,8 @@ public class MetadataProjections extends BaseProjections {
 
     Metadata.SourceType getSourceType();
 
-    @Value("#{@metadataPopularityService.getPopularityValue(target.id)}")
     Double getPopularity();
 
-    @Value("#{@tagService.findByTagsInDomainItem(T(app.metatron.discovery.domain.tag.Tag$Scope).DOMAIN, T(app.metatron.discovery.common.entity.DomainType).METADATA, target.id, 'default')}")
     Object getTags();
 
     @Value("#{@cachedUserService.findUserProfile(target.createdBy)}")
@@ -61,6 +59,8 @@ public class MetadataProjections extends BaseProjections {
     DateTime getCreatedTime();
 
     DateTime getModifiedTime();
+
+    boolean isFavorite();
   }
 
   @Projection(types = Metadata.class, name = "forDetailView")
@@ -79,7 +79,9 @@ public class MetadataProjections extends BaseProjections {
     @Value("#{@metadataPopularityService.getPopularityValue(target.id)}")
     Double getPopularity();
 
-    @Value("#{T(app.metatron.discovery.util.ProjectionUtils).toResource(@projectionFactory, T(app.metatron.discovery.domain.mdm.source.MetadataSourceProjections$ForDetailViewProjection), target.source)}")
+    @Value("#{T(app.metatron.discovery.util.ProjectionUtils).toResource(@projectionFactory, " +
+        "T(app.metatron.discovery.domain.mdm.source.MetadataSourceProjections$ForDetailViewProjection), " +
+        "T(app.metatron.discovery.util.HibernateUtils).unproxy(target.source))}")
     Object getSource();
 
     @Value("#{T(app.metatron.discovery.util.ProjectionUtils).toListResource(@projectionFactory, T(app.metatron.discovery.domain.mdm.catalog.CatalogProjections$HierarchyViewProjection), target.catalogs)}")
@@ -97,6 +99,9 @@ public class MetadataProjections extends BaseProjections {
     DateTime getCreatedTime();
 
     DateTime getModifiedTime();
+
+    @Value("#{@metadataService.isFavorite(target)}")
+    boolean isFavorite();
   }
 
   @Projection(types = Metadata.class, name = "forItemListView")

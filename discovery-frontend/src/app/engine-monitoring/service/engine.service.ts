@@ -106,8 +106,8 @@ export class EngineService extends AbstractService {
     return this.get(this.URL_MONITORING + '/ingestion/task/' + taskId);
   }
 
-  public getTaskLogById(taskId) {
-    return this.get(this.URL_MONITORING + '/ingestion/task/' + taskId + '/log');
+  public getTaskLogById(taskId, offset?) {
+    return this.get(this.URL_MONITORING + '/ingestion/task/' + taskId + '/log' + (offset ? '?offset='+offset : ''));
   }
 
   public shutdownTaskById(taskId) {

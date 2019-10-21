@@ -11,7 +11,7 @@
         <!-- info -->
         <component-explore-data-information [source]="metadataDetailData.source" [sourceType]="metadataDetailData.sourceType"></component-explore-data-information>
         <!-- //info -->
-        <!--<em class="ddp-icon-control-fav ddp-selected"></em>-->
+        <em class="ddp-icon-control-fav" [class.ddp-selected]="metadataDetailData.favorite" (click)="onClickFavoriteIconInHeader()"></em>
         <div class="ddp-data-name">
           by <span class="ddp-txt-name type-line-none" (click)="onClickCreatedBy()">{{metadataDetailData.createdBy.fullName}}</span>
         </div>

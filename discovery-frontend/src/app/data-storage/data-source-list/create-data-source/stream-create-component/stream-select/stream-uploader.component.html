@@ -1,0 +1,88 @@
+<div class="ddp-box-file-create ddp-file-single" [class.type-upload]="isExistUploadFile()">
+  <!-- progress (uploading OR complete) -->
+  <div class="ddp-file-progress" [class.ddp-disabled]="isFileUploadCancel()" *ngIf="isFileUploading() || isFileUploadComplete() || isFileUploadFail() || isFileUploadCancel()"
+       (dragenter)="disableEvent($event)" (dragover)="disableEvent($event)" (drop)="disableEvent($event)">
+    <div class="ddp-data-name">
+      {{uploadedFile.name}}
+    </div>
+    <div class="ddp-data-size">{{getFileSize(uploadedFile.size, 1)}}</div>
+    <div class="ddp-icon-file">
+      <svg class="icon-file-json-b" viewBox="0 0 24 24">
+        <g>
+          <rect x="10" y="14" class="st0" width="1" height="2"></rect>
+          <rect x="15" y="12" class="st0" width="1" height="4"></rect>
+          <rect x="13" y="11" class="st0" width="2" height="1"></rect>
+          <rect x="13" y="16" class="st0" width="2" height="1"></rect>
+          <polygon class="st0" points="16,3.4 16,6 18.5,6 	"></polygon>
+          <path class="st0" d="M19,7h-3.5C15.2,7,15,6.8,15,6.5V3H5.3C5.1,3,5,3.1,5,3.3V9h14V7z"></path>
+          <rect x="7" y="16" class="st0" width="3" height="1"></rect>
+          <rect x="12" y="12" class="st0" width="1" height="4"></rect>
+          <polygon class="st0" points="18,13 18,12 18,11 17,11 17,12 17,17 18,17 18,14 19,14 19,13 	"></polygon>
+          <polygon class="st0" points="20,14 19,14 19,15 20,15 20,17 21,17 21,11 20,11 	"></polygon>
+          <path class="st0" d="M5,20.7C5,20.9,5.1,21,5.3,21h13.4c0.2,0,0.3-0.1,0.3-0.3V19H5V20.7z"></path>
+          <polygon class="st0" points="6,17 6,12 6,11 3,11 3,12 5,12 5,16 3,16 3,17 5,17 	"></polygon>
+          <rect x="8" y="11" class="st0" width="3" height="1"></rect>
+          <rect x="8" y="13" class="st0" width="2" height="1"></rect>
+          <rect x="7" y="12" class="st0" width="1" height="1"></rect>
+          <rect x="13" y="12" class="st1" width="2" height="4"></rect>
+          <path class="st1" d="M21.5,9H20V6.5c0-0.4-0.2-0.6-0.4-0.8l-3.2-3.3C16.2,2.2,15.8,2,15.5,2H5.3C4.6,2,4,2.6,4,3.3V9H2.6
+                                                C1.7,9,1,9.7,1,10.5v7C1,18.4,1.7,19,2.6,19h1.5v1.7c0,0.7,0.6,1.3,1.3,1.3h13.4c0.7,0,1.3-0.6,1.3-1.3V19h1.4
+                                                c0.9,0,1.5-0.7,1.5-1.5v-7C23,9.7,22.3,9,21.5,9z M16,3.4L18.5,6H16V3.4z M5,3.3C5,3.1,5.1,3,5.3,3H15v3.5C15,6.8,15.2,7,15.5,7H19
+                                                v2H5V3.3z M12,16v-4h1v-1h2v1h1v4h-1v1h-2v-1H12z M10,13v1h1v2h-1v1H7v-1h3v-2H8v-1H7v-1h1v-1h3v1H8v1H10z M3,17v-1h2v-4H3v-1h3v1
+                                                v5H5H3z M19,20.7c0,0.2-0.1,0.3-0.3,0.3H5.3C5.1,21,5,20.9,5,20.7V19h14V20.7z M21,17h-1v-2h-1v-1h-1v3h-1v-5v-1h1v1v1h1v1h1v-3h1
+                                                V17z"></path>
+        </g>
+      </svg>
+    </div>
+    <!-- condition -->
+    <div class="ddp-ui-condition" [class.type-failed]="isFileUploadFail()">
+      <span class="ddp-data-per">{{getUploadPercent(uploadedFile)}}%</span>
+      <!-- bar -->
+      <div class="ddp-type-progressbar2">
+        <em class="ddp-data-progressbar" [style.width]="getUploadPercent(uploadedFile) + '%'"></em>
+      </div>
+      <!-- //bar -->
+      <div class="ddp-data-condition">
+        <span *ngIf="isFileUploadComplete()">
+          {{'msg.comm.ui.complete' | translate}}
+        </span>
+        <span *ngIf="isFileUploadCancel()">
+          {{'msg.comm.ui.canceled' | translate}}
+        </span>
+        <a href="javascript:" class="ddp-btn-selection ddp-line" *ngIf="isFileUploading()" (click)="cancelUpload(uploadedFile)">{{'msg.comm.btn.cancl' | translate}}</a>
+        <span class="ddp-txt-error" *ngIf="isFileUploadFail()"><em class="ddp-icon-error"></em>{{'msg.comm.ui.failed' | translate}}
+          <div class="ddp-box-layout4">
+            <div class="ddp-data-det">
+               {{uploadedFile.errorMessage}}
+            </div>
+          </div>
+         </span>
+      </div>
+    </div>
+    <!-- //condition -->
+  </div>
+  <!-- //progress (uploading OR complete) -->
+  <!-- upload box -->
+  <div class="ddp-box-default" [class.ddp-disabled]="isFileUploading()" #drop_container
+       (dragenter)="disableDragDrop($event)" (dragover)="disableDragDrop($event)" (drop)="disableDragDrop($event)">
+    <div class="ddp-txt-file-info">
+      <div class="ddp-link-file">
+        <input type="file" #pickfiles/>
+        {{'msg.storage.ui.dsource.create.file.import' | translate}}
+      </div>
+      {{'msg.storage.ui.dsource.create.file.drop.file.description' | translate}}
+    </div>
+    <div class="ddp-txt-file-info2">
+      {{'msg.storage.ui.stream.upload.description' | translate}}
+    </div>
+  </div>
+  <!-- //upload box -->
+</div>
+<!-- guide -->
+<div class="ddp-box-synch" [class.type-warning]="isFileUploadCancel() || isFileUploading()" [class.type-error]="isFileUploadFail()" *ngIf="isFileUploadCancel() || isFileUploading() || isFileUploadFail()">
+  <div class="ddp-txt-synch">
+    <em class="ddp-icon-info"></em>
+    {{uploadGuideMessage}}
+  </div>
+</div>
+<!-- //guide -->

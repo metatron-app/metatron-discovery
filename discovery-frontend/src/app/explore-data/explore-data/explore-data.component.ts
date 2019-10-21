@@ -35,6 +35,7 @@ import {ExploreDataConstant} from "../constant/explore-data-constant";
 import {Subscription} from "rxjs";
 import {ExploreDataSearchComponent} from "./explore-data-search.component";
 import {ExploreDataModelService} from "./service/explore-data-model.service";
+import {ExploreDataMainComponent} from "./explore-data-main.component";
 
 @Component({
   selector: 'app-exploredata-view',
@@ -47,6 +48,9 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
 
   @ViewChild(ExploreDataListComponent)
   private readonly _exploreDataListComponent: ExploreDataListComponent;
+
+  @ViewChild(ExploreDataMainComponent)
+  private readonly _exploreDataMainComponent: ExploreDataMainComponent;
 
   @ViewChild(ExploreDataSearchComponent)
   exploreDataSearchComponent: ExploreDataSearchComponent;
@@ -166,7 +170,6 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
       recentlyUsedList = await this.metadataService.getRecentlyUsedInMetadataDetail(metadata.id, {sort: 'createdTime', size: 5, page: 0}).catch(error => this.commonExceptionHandler(error));
     };
 
-    // get metadataDetail to use datasourceService which is using metadataDetail
     this.metadataService.getDetailMetaData(metadata.id).then(async (result) => {
       metadataDetail = result;
 
@@ -197,10 +200,41 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
         this.entryRef.instance.metadataId = metadata.id;
       }
       this.loadingHide();
+      // close modal event listener
       this.entryRef.instance.closedPopup.subscribe(() => {
-        // close
         this.entryRef.destroy();
       });
+      // toggle favorite in modal listener
+      this.entryRef.instance.onToggleFavorite.subscribe((metadataDetail) => {
+        // modal is shown in list screen
+        if (this.mode === ExploreMode.LIST) {
+          const index = this._exploreDataListComponent.metadataList.findIndex((metadata) => {
+            return metadata.id === metadataDetail.id;
+          });
+
+          if (index !== -1) {
+            this._exploreDataListComponent.metadataList[index].favorite = !this._exploreDataListComponent.metadataList[index].favorite;
+          }
+          // modal is shown in main screen
+        } else if (this.mode === ExploreMode.MAIN) {
+          // remove favorite in main screen
+          const index = this._exploreDataMainComponent.favoriteMetadataList.findIndex((metadata) => {
+            return metadata.id === metadataDetail.id;
+          });
+
+          if (index !== -1) {
+            if (this._exploreDataMainComponent.favoriteMetadataList[index].favorite) {
+              this._exploreDataMainComponent.favoriteMetadataList.splice(index, 1);
+            }
+          }
+
+          // add favorite in main screen
+          if (!metadataDetail.favorite) {
+            this._exploreDataMainComponent.favoriteMetadataList.push(metadataDetail);
+          }
+        }
+      });
+
     }).catch(error => {console.log(error); this.commonExceptionHandler(error)});
   }
 

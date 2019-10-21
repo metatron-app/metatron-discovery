@@ -137,6 +137,7 @@ export class TaskComponent extends AbstractComponent implements OnInit, OnDestro
   }
 
   public onClickTask(taskId: string): void {
+    sessionStorage.setItem('IS_LOCATION_BACK_TASK_LIST', 'TRUE');
     this.router.navigate(['/management/engine-monitoring/ingestion/task', taskId]).then();
   }
 

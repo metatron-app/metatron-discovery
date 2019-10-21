@@ -223,9 +223,9 @@ public class EngineMonitoringService {
 
           for (JsonNode rowNode : engineData) {
             Map<String, Object> row = GlobalObjectMapper.getDefaultMapper().convertValue(rowNode, Map.class);
-            timeList.add(String.valueOf(row.get("event_time")));
             metric = String.valueOf(row.get("metric"));
             if ("ingest/events/processed".equals(metric)) {
+              timeList.add(String.valueOf(row.get("event_time")));
               processedList.add(Long.parseLong(String.valueOf(row.get("value"))));
             } else if ("ingest/events/unparseable".equals(metric)) {
               unparseableList.add(Long.parseLong(String.valueOf(row.get("value"))));
@@ -234,6 +234,7 @@ public class EngineMonitoringService {
             }
           }
 
+          result.put("time", timeList);
           result.put("processed", processedList);
           result.put("unparseable", unparseableList);
           result.put("thrownaway", thrownawayList);

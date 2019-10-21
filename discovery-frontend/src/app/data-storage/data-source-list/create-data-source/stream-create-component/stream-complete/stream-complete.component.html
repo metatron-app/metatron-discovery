@@ -1,0 +1,137 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-contents ddp-resize2 ddp-type2">
+  <!-- 닫기 버튼 -->
+  <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+  <!-- //close -->
+  <div class="ddp-icon-name">
+    <div class="ddp-ui-name2 ddp-type3">{{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.li.stream' | translate}})
+      <span class="ddp-txt-info">{{'msg.storage.create.complete.description' | translate}}</span>
+      <em class="ddp-bg-order-line5-type5"></em>
+    </div>
+  </div>
+  <!-- contents in  -->
+  <div class="ddp-type-contents-in ddp-scroll">
+    <div class="ddp-box-popupcontents2">
+      <!-- edit -->
+      <div class="ddp-wrap-boxtype ddp-scroll-none">
+
+        <table class="ddp-wrap-boxdata">
+          <colgroup>
+            <col width="120px" />
+            <col width="*" />
+          </colgroup>
+          <tbody>
+          <tr>
+            <th>
+              {{'msg.comm.th.type' | translate}}
+            </th>
+            <td>
+              Kafka
+            </td>
+          </tr>
+          <tr>
+            <th>
+              {{'msg.comm.th.url' | translate}}
+            </th>
+            <td>
+              {{getKafkaData.bootstrapServer}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              Topic
+            </th>
+            <td>
+              {{getKafkaData.topic}}
+            </td>
+          </tr>
+          <!-- granularity -->
+          <tr>
+            <th>
+              {{'msg.storage.th.gran.settings' | translate}}
+            </th>
+            <td>
+              <ul class="ddp-list-sub">
+                <li>
+                  {{'msg.storage.th.segment.gran' | translate}} : {{getIngestionData.selectedSegmentGranularity.label}}
+                </li>
+                <li>
+                  {{'msg.storage.th.query.gran' | translate}} : {{getIngestionData.selectedQueryGranularity.label}}
+                </li>
+                <!-- if not used current TIMESTAMP-->
+                <li *ngIf="getSchemaData.selectedTimestampType !== 'CURRENT'">
+                  {{'msg.storage.ui.intervals' | translate}} : {{getIngestionData.startIntervalText}} ~ {{getIngestionData.endIntervalText}}
+                </li>
+                <!-- //if not used current TIMESTAMP-->
+              </ul>
+            </td>
+          </tr>
+          <!-- //granularity -->
+          <!-- roll up -->
+          <tr>
+            <th>
+              {{'msg.storage.th.rollup.settings' | translate}}
+            </th>
+            <td>
+              {{getIngestionData.selectedRollUpType.label}}
+            </td>
+          </tr>
+          <!-- //roll up -->
+          </tbody>
+        </table>
+      </div>
+      <!-- //edit -->
+      <!-- source name -->
+      <div class="ddp-wrap-edit2" [class.ddp-error]="createCompleteData.isInvalidName">
+        <label class="ddp-label-type">{{'msg.comm.ui.name' | translate}}</label>
+        <input type="text" class="ddp-input-type"
+               maxlength="50"
+               placeholder="{{'msg.comm.ui.create.name' | translate}}"
+               [(ngModel)]="createCompleteData.sourceName"
+               (focus)="createCompleteData.isInvalidName = false"/>
+        <!-- error -->
+        <span class="ddp-ui-error">{{createCompleteData.nameInvalidMessage}}</span>
+        <!-- error -->
+      </div>
+      <!-- //source name -->
+      <!-- source desc -->
+      <div class="ddp-wrap-edit2" [class.ddp-error]="createCompleteData.isInvalidDesc">
+        <label class="ddp-label-type">{{'msg.comm.ui.description' | translate}}</label>
+        <input type="text" class="ddp-input-type"
+               maxlength="150"
+               placeholder="{{'msg.comm.ui.create.desc' | translate}}"
+               [(ngModel)]="createCompleteData.sourceDescription"
+               (focus)="createCompleteData.isInvalidDesc=false"/>
+        <!-- error -->
+        <span class="ddp-ui-error">{{createCompleteData.descInvalidMessage}}</span>
+        <!-- error -->
+      </div>
+      <!-- //source desc -->
+    </div>
+  </div>
+  <!-- //contents in  -->
+  <!-- buttons -->
+  <div class="ddp-ui-buttons">
+    <a href="javascript:" class="ddp-btn-type-popup"
+       (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup  ddp-bg-black"
+       (click)="done()">{{'msg.comm.btn.done' | translate}}</a>
+  </div>
+  <!-- //buttons -->
+
+</div>
+
+<app-confirm-modal></app-confirm-modal>

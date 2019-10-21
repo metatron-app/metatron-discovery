@@ -31147,6 +31147,58 @@
 .theme-dark .ddp-wrap-edit-form .ddp-wrap-edit3 {
     margin-top: 20px;
 }
+
+/****************************************************************************
+   Popup : 05_매니지먼트_00데이터저장소_01생성_stram1
+*************************************************************************/
+.theme-dark .page-storage-create {
+  width: 660px;
+}
+
+.theme-dark .page-storage-create .type-col {
+  margin: 0 -8px;
+}
+
+.theme-dark .page-storage-create .type-col:first-of-type .ddp-wrap-edit2 {
+  margin-top: 0;
+}
+
+.theme-dark .page-storage-create .type-col [class*="ddp-col-"] {
+  padding: 0 8px;
+}
+
+.theme-dark .page-storage-create .type-col .ddp-check {
+  margin-top: 3px;
+}
+
+.theme-dark .page-storage-create .ddp-type-topic .ddp-wrap-edit2 {
+  margin-top: 20px;
+}
+
+.theme-dark .page-storage-create .ddp-type-topic .ddp-type-selectbox {
+  display: inline-block;
+  width: 200px;
+}
+
+.theme-dark .ddp-ui-buttons.ddp-inline .ddp-ui-message .ddp-data-error2.type-font-normal {
+  font-style: normal;
+}
+
+.theme-dark .page-storage-create .ddp-type-topic .ddp-txt-info {
+  display: inline-block;
+  position: relative;
+  top: -5px;
+  margin-left: 5px;
+  padding: 0;
+  color: #90969f;
+  font-size: 12px;
+  white-space: nowrap;
+  font-weight: normal;
+}
+
+.theme-dark .page-storage-create .ddp-type-topic .ddp-label-checkbox {
+  margin: 5px 0 10px 0;
+}
 /****************************************************************************
    Popup : 99_데이터프리퍼레이션_01데이터플로우_04조인_popup
 *************************************************************************/
@@ -42445,7 +42497,6 @@
     margin-left: 5px;
     width: auto;
     min-width: 320px;
-    max-width: 520px;
     z-index: 10;
 }
 
@@ -43033,6 +43084,8 @@
     color: #4e5368;
     font-size: 13px;
 }
+.theme-dark table.ddp-table-detail3 tr:last-of-type td
+{border-bottom:none;}
 
 .theme-dark table.ddp-table-detail3 tr:nth-child(odd) td {
     background-color: #fafafa;

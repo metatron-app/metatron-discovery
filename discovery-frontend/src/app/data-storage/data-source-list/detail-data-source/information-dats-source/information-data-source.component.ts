@@ -356,11 +356,11 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
       case SourceType.FILE:
         return this.translateService.instant('msg.storage.li.file');
       case SourceType.JDBC:
-        return this.translateService.instant('msg.storage.li.db') + `(${this.getConnectionTypeLabel(this.getConnection.implementor)})`;
+        return this.translateService.instant('msg.storage.li.db') + ` (${this.getConnectionTypeLabel(this.getConnection.implementor)})`;
       case SourceType.HIVE:
         return this.translateService.instant('msg.storage.li.hive');
       case SourceType.REALTIME:
-        return this.translateService.instant('msg.storage.li.stream');
+        return this.translateService.instant('msg.storage.li.stream')+ ` (${this.datasource.ingestion.consumerType})`;
       case SourceType.SNAPSHOT:
         return this.translateService.instant('msg.storage.li.ss');
     }
@@ -642,6 +642,12 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   public isJdbcType(): boolean {
     if (this.datasource.hasOwnProperty('srcType')) {
       return this.getSrcType === SourceType.JDBC;
+    }
+  }
+
+  public isRealtimeType(): boolean {
+    if (this.datasource.hasOwnProperty('srcType')) {
+      return this.getSrcType === SourceType.REALTIME;
     }
   }
 

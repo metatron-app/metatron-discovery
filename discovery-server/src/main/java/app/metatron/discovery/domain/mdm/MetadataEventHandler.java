@@ -14,10 +14,13 @@
 
 package app.metatron.discovery.domain.mdm;
 
+import com.google.common.collect.Lists;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
+import org.springframework.data.rest.core.annotation.HandleAfterDelete;
 import org.springframework.data.rest.core.annotation.HandleAfterSave;
 import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
 import org.springframework.data.rest.core.annotation.HandleBeforeDelete;
@@ -30,6 +33,7 @@ import java.util.Map;
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.common.datasource.LogicalType;
+import app.metatron.discovery.common.entity.DomainType;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
@@ -40,6 +44,8 @@ import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.datasource.connection.jdbc.HiveTableInformation;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
 import app.metatron.discovery.domain.engine.EngineProperties;
+import app.metatron.discovery.domain.favorite.Favorite;
+import app.metatron.discovery.domain.favorite.FavoriteRepository;
 import app.metatron.discovery.domain.mdm.source.MetaSourceService;
 import app.metatron.discovery.domain.mdm.source.MetadataSource;
 import app.metatron.discovery.domain.storage.StorageProperties;
@@ -65,6 +71,9 @@ public class MetadataEventHandler {
 
   @Autowired(required = false)
   StorageProperties storageProperties;
+
+  @Autowired
+  FavoriteRepository favoriteRepository;
 
   @HandleBeforeCreate
   public void handleBeforeCreate(Metadata metadata) {
@@ -251,5 +260,12 @@ public class MetadataEventHandler {
 
   @HandleBeforeDelete
   public void handleBeforeDelete(Metadata metadata) {
+  }
+
+  @HandleAfterDelete
+  public void handleAfterDelete(Metadata metadata) {
+    //remove metadata favorite
+    List<Favorite> favoriteList = favoriteRepository.findByDomainTypeAndTargetIdIn(DomainType.METADATA, Lists.newArrayList(metadata.getId()));
+    favoriteRepository.delete(favoriteList);
   }
 }

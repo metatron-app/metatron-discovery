@@ -32,6 +32,7 @@ export class MetadataContainerComponent extends AbstractComponent {
   metadataDetailData: Metadata;
 
   @Output() readonly closedPopup = new EventEmitter();
+  @Output() readonly onToggleFavorite = new EventEmitter();
 
   @ViewChild('component_create_workbench', {read: ViewContainerRef}) readonly createWorkbenchEntry: ViewContainerRef;
   createWorkbenchEntryRef: ComponentRef<CreateWorkbenchContainerComponent>;
@@ -109,6 +110,17 @@ export class MetadataContainerComponent extends AbstractComponent {
     if (this.isShowCreateWorkbook()) {
       this._showConfirmComponent().then(() => this._showCreateWorkbookComponent());
     }
+  }
+
+  onClickFavoriteIconInHeader(): void {
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+
+    this.metadataService.toggleMetadataFavorite(this.metadataDetailData.id, this.metadataDetailData.favorite).catch((e) => this.commonExceptionHandler(e));
+
+    this.onToggleFavorite.emit(this.metadataDetailData);
+
+    this.metadataDetailData.favorite = !this.metadataDetailData.favorite;
   }
 
   /**
