@@ -197,13 +197,14 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
     const queryParam: any =
     {
       monitoringTarget : {
+        metric: Engine.MonitoringTarget.TASK_ROW,
         taskId: this.taskId
       },
       fromDate: fromDate,
       toDate: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
     };
 
-    this.engineService.getSupervisorRows(queryParam).then((data) => {
+    this.engineService.getMonitoringData(queryParam).then((data) => {
       this.processed = data.processed[data.processed.length - 1];
       this.unparseable = data.unparseable[data.unparseable.length - 1];
       this.thrownaway = data.thrownaway[data.thrownaway.length - 1];
@@ -310,7 +311,7 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
         toDate: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
       };
 
-    this.engineService.getMonitoringStream(queryParam).then((data) => {
+    this.engineService.getMonitoringData(queryParam).then((data) => {
       const chartOps: any = {
         type: 'line',
         tooltip: {

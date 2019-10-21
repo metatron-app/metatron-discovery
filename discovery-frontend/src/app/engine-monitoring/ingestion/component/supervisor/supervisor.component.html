@@ -21,6 +21,7 @@
         [isEnableDelete]="true"
         [value]="searchKeyword"
         [placeHolder]="'msg.engine.monitoring.ph.supervisor.search' | translate"
+        [immediately]="true"
         (changeValue)="onChangedSearchKeyword($event)">
       </component-input>
     </div>
@@ -59,15 +60,13 @@
     <tbody>
     <tr *ngFor="let supervisor of supervisorList" (click)="onClickSupervisor(supervisor.id);">
       <td>
-        <div class="ddp-txt-long" title="{{supervisor.id}}">
-          {{supervisor.id}}
+        <div class="ddp-txt-long" title="{{supervisor.id}}" [innerHTML]="highlightSearchText( supervisor.id, searchKeyword )">
         </div>
       </td>
       <td>
         {{supervisor.spec.ioConfig.topic}}
       </td>
-      <td>
-        {{supervisor.spec.dataSchema.dataSource}}
+      <td [innerHTML]="highlightSearchText( supervisor.spec.dataSchema.dataSource, searchKeyword )">
       </td>
     </tr>
     </tbody>

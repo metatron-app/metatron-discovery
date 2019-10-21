@@ -164,16 +164,17 @@ export class ExploreDataLnbComponent extends AbstractComponent {
   }
 
   onChangeSelectedCatalog(catalog: Catalog.Tree): void {
+    // if unclassified in explore lnb is clicked
     if (catalog === undefined) {
       // create empty catalog tree and initialize
       const emptyCatalog = new Catalog.Tree();
-      emptyCatalog.name = 'undefined';
-      emptyCatalog.id = 'undefined';
+      emptyCatalog.name = 'unclassified';
 
       this.selectedCatalog = emptyCatalog;
       this.exploreDataModelService.selectedCatalog = emptyCatalog;
 
       this._changedLnbData();
+    // if reset catalog button in tree hierarchy is clicked
     } else if (catalog.name === 'realUndefined') {
       this.selectedCatalog = undefined;
       this.exploreDataModelService.selectedCatalog = undefined;

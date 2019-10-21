@@ -63,14 +63,12 @@ public class EngineMonitoringTarget {
   public void setIncludeCount(boolean includeCount) { this.includeCount = includeCount; }
 
   public enum MetricType {
-    MEM_MAX,
-    MEM_USED,
+    MEM,
     GC_COUNT,
     GC_CPU,
     QUERY_TIME,
+    QUERY_COUNT,
     SUPERVISOR_LAG,
-    INGEST_PROCESSED,
-    INGEST_UNPARSEABLE,
-    INGEST_THROWNAWAY
+    TASK_ROW
   }
 }

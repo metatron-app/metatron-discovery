@@ -65,7 +65,6 @@ import {PaginationComponent} from "./component/pagination/pagination.component";
 
 import {StompConfig, StompService} from '@stomp/ng2-stompjs';
 import * as SockJS from 'sockjs-client';
-import {ExploreDataScrollDirective} from "./directive/explore-data-scroll.directive";
 import {FilterSelectBoxComponent} from "./component/select/filter-select-box.component";
 
 
@@ -112,7 +111,6 @@ const stompConfig: StompConfig = {
     InputMaskDirective,
     FocusDirective,
     InvokeDirective,
-    ExploreDataScrollDirective,
     CreateModalComponent,
     ConfirmModalComponent,
     LoadingComponent,
@@ -162,7 +160,6 @@ const stompConfig: StompConfig = {
     InputMaskDirective,
     FocusDirective,
     InvokeDirective,
-    ExploreDataScrollDirective,
     LoadingComponent,
     GridComponent,
     LogComponent,

@@ -1,9 +1,6 @@
 package app.metatron.discovery.domain.dataprep.csv;
 
-import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
-import static app.metatron.discovery.domain.dataprep.PrepUtil.datasetError;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME;
-import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getReaderAfterDetectingCharset;
+import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getReader;
 
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
@@ -13,23 +10,15 @@ import app.metatron.discovery.domain.dataprep.file.PrepParseResult;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.Row;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.junit.Test;
 
 public class ApacheCommonsCsvOutputTest {
@@ -42,7 +31,6 @@ public class ApacheCommonsCsvOutputTest {
   public static String buildStrUrlFromResourceDir(String relpath) {
     return String.format("file://%s/src/test/resources/%s", System.getProperty("user.dir"), relpath);
   }
-
 
   @Test
   public void test_basic_output() {
@@ -81,30 +69,6 @@ public class ApacheCommonsCsvOutputTest {
     }
   }
 
-  /**
-   * @param df DataFrame to write out
-   * @param strUri URI as String (to be java.net.URI)
-   * @param colNames If not null (for FILE snapshots), print as a header.
-   *
-   * colNames is null for StagingDB snapshots.
-   */
-  private void writeCsv(DataFrame df, String strUri, List<String> colNames) {
-    FileWriter writer = null;
-    CSVPrinter printer = null;
-
-    //    try {
-    //      writer = new FileWriter(buildPathToTestOutputDir("ApacheCommonsCsvInputTest.csv"), false);    // append = false
-    //    } catch (IOException e) {
-    //      e.printStackTrace();
-    //    }
-
-    //    try {
-    //      printer = new CSVPrinter(writer, CSVFormat.RFC4180);
-    //    } catch (IOException e) {
-    //      e.printStackTrace();
-    //    }
-  }
-
   private void useCSVPrinter(DataFrame df, String strUri, Configuration conf) {
     CSVPrinter printer = PrepCsvUtil.getPrinter(strUri, conf);
     String errmsg = null;
@@ -135,65 +99,8 @@ public class ApacheCommonsCsvOutputTest {
   }
 
   private void cat(String strUri, Configuration conf) {
-    Reader reader;
-    URI uri;
-
-    try {
-      uri = new URI(strUri);
-    } catch (URISyntaxException e) {
-      e.printStackTrace();
-      throw PrepException
-              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, strUri);
-    }
-
-    switch (uri.getScheme()) {
-      case "hdfs":
-        if (conf == null) {
-          throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
-        }
-        Path path = new Path(uri);
-
-        FileSystem hdfsFs;
-        try {
-          hdfsFs = FileSystem.get(conf);
-        } catch (IOException e) {
-          e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, strUri);
-        }
-
-        FSDataInputStream his;
-        try {
-          his = hdfsFs.open(path);
-        } catch (IOException e) {
-          e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_HDFS_PATH, strUri);
-        }
-
-        reader = getReaderAfterDetectingCharset(his, strUri);
-        break;
-
-      case "file":
-        File file = new File(uri);
-
-        FileInputStream fis;
-        try {
-          fis = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-          e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, strUri);
-        }
-
-        reader = getReaderAfterDetectingCharset(fis, strUri);
-        break;
-
-      default:
-        throw datasetError(MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, strUri);
-    }
-
+    PrepParseResult result = new PrepParseResult();
+    Reader reader = getReader(strUri, conf, false, result);
     BufferedReader br = new BufferedReader(reader);
 
     try {

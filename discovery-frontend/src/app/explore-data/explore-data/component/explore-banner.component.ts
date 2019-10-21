@@ -29,32 +29,43 @@ export class ExploreBannerComponent extends AbstractComponent {
   @Input() readonly iconClass: ExploreDataConstant.Metadata.TypeIconClass;
   @Input() readonly isMain:boolean = false;
   // data
-  @Input() readonly title: string;
-  @Input() readonly description: string;
-  @Input() readonly tagList;
+  @Input() readonly metadata;
   // event
   @Output() readonly clickedBanner = new EventEmitter();
   @Output() readonly clickedTag = new EventEmitter();
+
+  extraTagNumber: number = 0;
 
   constructor(protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
   }
 
+  ngOnInit() {
+    super.ngOnInit();
+    if (this.metadata.tags) {
+      if (this.metadata.tags.length > 0 && this.metadata.tags.length != 1 ) {
+        this.extraTagNumber = this.metadata.tags.length - 1;
+      } else {
+        this.extraTagNumber = 0;
+      }
+    }
+  }
+
   onClickBanner() {
     this.clickedBanner.emit();
   }
-
-  onClickTag(tag) {
-    event.stopImmediatePropagation();
-    this.clickedTag.emit(tag);
-  }
-
-  get isEnableTag(): boolean {
-    return !_.isNil(this.tagList) && this.tagList.length !== 0;
-  }
-
-  get isEnableDescription(): boolean {
-    return this.description && StringUtil.isNotEmpty(this.description);
-  }
+  //
+  // onClickTag(tag) {
+  //   event.stopImmediatePropagation();
+  //   this.clickedTag.emit(tag);
+  // }
+  //
+  // get isEnableTag(): boolean {
+  //   return !_.isNil(this.metadata.tagList) && this.metadata.tagList.length !== 0;
+  // }
+  //
+  // get isEnableDescription(): boolean {
+  //   return this.metadata.description && StringUtil.isNotEmpty(this.metadata.description);
+  // }
 }

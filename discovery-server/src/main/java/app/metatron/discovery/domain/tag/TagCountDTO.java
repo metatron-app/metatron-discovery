@@ -3,18 +3,35 @@ package app.metatron.discovery.domain.tag;
 /**
  *
  */
-public class TagTreeDTO {
+public class TagCountDTO {
+
   String id;
   String name;
   Long count;
 
-  public TagTreeDTO(String id, String name){
+  public TagCountDTO(String id, String name){
     this.id = id;
     this.name = name;
     this.count = 0L;
   }
 
-  public TagTreeDTO(String id, String name, Long count){
+  public TagCountDTO(String id, Integer count){
+    this.id = id;
+    this.count = Long.valueOf(count);
+  }
+
+  public TagCountDTO(String id, Long count){
+    this.id = id;
+    this.count = count;
+  }
+
+  public TagCountDTO(String id, String name, Integer count){
+    this.id = id;
+    this.name = name;
+    this.count = Long.valueOf(count);
+  }
+
+  public TagCountDTO(String id, String name, Long count){
     this.id = id;
     this.name = name;
     this.count = count;
@@ -46,7 +63,7 @@ public class TagTreeDTO {
 
   @Override
   public String toString() {
-    return "TagTreeDTO{" +
+    return "TagCountDTO{" +
         "id='" + id + '\'' +
         ", name='" + name + '\'' +
         ", count=" + count +

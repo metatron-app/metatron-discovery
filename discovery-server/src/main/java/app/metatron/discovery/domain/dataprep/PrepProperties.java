@@ -14,9 +14,10 @@
 
 package app.metatron.discovery.domain.dataprep;
 
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_HADOOP_NOT_CONFIGURED;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.configError;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -79,24 +80,21 @@ public class PrepProperties {
 
   public String getHadoopConfDir(boolean mandatory) {
     if (mandatory && hadoopConfDir == null) {
-      throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-              PrepMessageKey.MSG_DP_ALERT_HADOOP_NOT_CONFIGURED, "Hadoop not configured");
+      throw configError(MSG_DP_ALERT_HADOOP_NOT_CONFIGURED, "Hadoop not configured");
     }
     return hadoopConfDir;
   }
 
   public String getStagingBaseDir(boolean mandatory) {
     if (mandatory && stagingBaseDir == null) {
-      throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-              PrepMessageKey.MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED, "StagingDir not configured");
+      throw configError(MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED, "StagingBaseDir not configured");
     }
     return stagingBaseDir;
   }
 
   public String getS3BaseDir(boolean mandatory) {
     if (mandatory && s3BaseDir == null) {
-      throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-              PrepMessageKey.MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED, "S3Dir not configured");
+      throw configError(MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED, "S3Dir not configured");
     }
     return s3BaseDir;
   }
@@ -172,7 +170,7 @@ public class PrepProperties {
   }
 
   public boolean isSparkEngineEnabled() {
-    return (etl.spark.jar != null && etl.spark.port != null);
+    return etl.spark.port != null;
   }
 
   // Everything for ETL
@@ -426,8 +424,7 @@ public class PrepProperties {
   }
 
   public void setLocalBaseDir(String localBaseDir) {
-    if (null != localBaseDir && 1 < localBaseDir.length() && true == localBaseDir
-            .endsWith(File.separator)) {
+    if (localBaseDir != null && localBaseDir.length() > 1 && localBaseDir.endsWith(File.separator)) {
       this.localBaseDir = localBaseDir.substring(0, localBaseDir.length());
     } else {
       this.localBaseDir = localBaseDir;
@@ -435,8 +432,7 @@ public class PrepProperties {
   }
 
   public void setStagingBaseDir(String stagingBaseDir) {
-    if (null != stagingBaseDir && 1 < stagingBaseDir.length() && true == stagingBaseDir
-            .endsWith(File.separator)) {
+    if (stagingBaseDir != null && stagingBaseDir.length() > 1 && stagingBaseDir.endsWith(File.separator)) {
       this.stagingBaseDir = stagingBaseDir.substring(0, stagingBaseDir.length());
     } else {
       this.stagingBaseDir = stagingBaseDir;
@@ -444,7 +440,7 @@ public class PrepProperties {
   }
 
   public void setS3BaseDir(String s3BaseDir) {
-    if (null != s3BaseDir && 1 < s3BaseDir.length() && true == s3BaseDir.endsWith(File.separator)) {
+    if (s3BaseDir != null && s3BaseDir.length() > 1 && s3BaseDir.endsWith(File.separator)) {
       this.s3BaseDir = s3BaseDir.substring(0, s3BaseDir.length());
     } else {
       this.s3BaseDir = s3BaseDir;

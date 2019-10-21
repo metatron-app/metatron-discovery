@@ -202,7 +202,7 @@ public class MetadataController {
     }
 
     if(projectionCls == TagProjections.TreeProjection.class){
-      tags = tagService.getTagsWithCount(Tag.Scope.DOMAIN, DomainType.METADATA, nameContains, pageable.getSort());
+      tags = tagService.getTagsWithCount(Tag.Scope.DOMAIN, DomainType.METADATA, nameContains, false, pageable.getSort());
     } else {
       tags = tagService.findByTagsWithDomain(Tag.Scope.DOMAIN, DomainType.METADATA, nameContains, pageable.getSort());
     }
@@ -411,6 +411,7 @@ public class MetadataController {
   @ResponseBody
   public ResponseEntity<?> getMyFavoriteMetadatas(Pageable pageable, PersistentEntityResourceAssembler resourceAssembler) {
     Page<Metadata> metadatas = metadataRepository.findAll(pageable);
+    metadatas = new PageImpl<Metadata>(Lists.newArrayList(), new PageRequest(0, 20), 0L);
     return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(metadatas, resourceAssembler));
   }
 
@@ -418,6 +419,7 @@ public class MetadataController {
   @ResponseBody
   public ResponseEntity<?> getFavoriteMetadataByCreator(Pageable pageable, PersistentEntityResourceAssembler resourceAssembler) {
     Page<Metadata> metadatas = metadataRepository.findAll(pageable);
+    metadatas = new PageImpl<Metadata>(Lists.newArrayList(), new PageRequest(0, 20), 0L);
     return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(metadatas, resourceAssembler));
   }
 

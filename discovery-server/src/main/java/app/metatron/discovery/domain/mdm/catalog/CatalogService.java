@@ -19,6 +19,8 @@ import com.google.common.collect.Maps;
 
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -129,6 +131,24 @@ public class CatalogService {
     catalogTreeService.editTree(moveCatalog);
 
     return catalogRepository.save(moveCatalog);
+  }
+
+  /**
+   * Get catalogs with used count through pagination.
+   * default sort by used count desc
+   * @param pageable the pageable
+   * @return the page
+   */
+  public Page<CatalogCountDTO> getCatalogsWithCount(String nameContains, Pageable pageable){
+    Page<CatalogCountDTO> catalogCountDTOS = catalogRepository.getCatalogsWithCount(nameContains, pageable);
+
+    // find whole hierarchies
+    catalogCountDTOS.getContent().stream()
+                    .forEach(catalogCountDTO -> {
+                      catalogCountDTO.setHierarchies(findHierarchies(catalogCountDTO.getId()));
+                    });
+
+    return catalogCountDTOS;
   }
 
 }

@@ -32,9 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +49,7 @@ import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.DruidEngineRepository;
 import app.metatron.discovery.domain.workbook.configurations.Pivot;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
+import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.field.TimestampField;
 import app.metatron.discovery.domain.workbook.configurations.format.CustomDateTimeFormat;
@@ -60,12 +59,11 @@ import app.metatron.discovery.query.druid.PostAggregation;
 import app.metatron.discovery.query.druid.Query;
 import app.metatron.discovery.query.druid.aggregations.CountAggregation;
 import app.metatron.discovery.query.druid.aggregations.LongSumAggregation;
-import app.metatron.discovery.query.druid.filters.AndFilter;
+import app.metatron.discovery.query.druid.filters.InFilter;
 import app.metatron.discovery.query.druid.filters.SelectorFilter;
 import app.metatron.discovery.query.druid.postaggregations.ArithmeticPostAggregation;
 import app.metatron.discovery.query.druid.postaggregations.FieldAccessorPostAggregator;
 import app.metatron.discovery.query.druid.queries.MonitoringQuery;
-import app.metatron.discovery.query.druid.queries.SelectStreamQuery;
 
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.ENGINE;
 
@@ -85,6 +83,8 @@ public class EngineMonitoringService {
 
   @Value("${polaris.engine.monitoring.emitter.datasource:druid-metric}")
   String datasourceName;
+
+  private Map<String, String> druidNameMap = new HashMap();
 
   public Object query(Object query) {
     EngineMonitoringRequest request = new EngineMonitoringRequest();
@@ -128,6 +128,7 @@ public class EngineMonitoringService {
 
 
     pivot.addAggregation(new MeasureField("value", null, MeasureField.AggregationType.SUM));
+    pivot.addAggregation(new DimensionField("metric"));
 
     request.setPivot(pivot);
 
@@ -138,13 +139,13 @@ public class EngineMonitoringService {
     }
 
     Query query = MonitoringQuery.builder(new DefaultDataSource(datasourceName))
-                           .filters(filters)
-                           .granularity(request.getGranularity())
-                           .aggregation(aggregations)
-                           .postAggregation(postAggregations)
-                           .format(request.getResultFormat())
-                           .intervals(Lists.newArrayList(request.getFromDate(), request.getToDate()))
-                           .build();
+                                 .filters(filters)
+                                 .granularity(request.getGranularity())
+                                 .aggregation(aggregations)
+                                 .postAggregation(postAggregations)
+                                 .format(request.getResultFormat())
+                                 .intervals(Lists.newArrayList(request.getFromDate(), request.getToDate()))
+                                 .build();
 
     String queryString = GlobalObjectMapper.writeValueAsString(query);
 
@@ -168,25 +169,77 @@ public class EngineMonitoringService {
       Map<String, Object> result = Maps.newHashMap();
       ArrayNode engineData = (ArrayNode) data;
       List<String> timeList = Lists.newArrayList();
-      List<Long> valueList = Lists.newArrayList();
-      List<Long> countList = Lists.newArrayList();
-      List<Float> avgList = Lists.newArrayList();
-      for (JsonNode rowNode : engineData) {
-        Map<String, Object> row = GlobalObjectMapper.getDefaultMapper().convertValue(rowNode, Map.class);
-        timeList.add(String.valueOf(row.get("event_time")));
-        valueList.add(Long.parseLong(String.valueOf(row.get("value"))));
-        if (queryRequest.getMonitoringTarget().isIncludeCount()) {
-          countList.add(Long.parseLong(String.valueOf(row.get("count"))));
-          avgList.add(Float.parseFloat(String.valueOf(row.get("avg_value"))));
-        }
-      }
-      result.put("time", timeList);
-      result.put("value", valueList);
-      result.put("total_value", valueList.stream().mapToLong(Long::longValue).sum());
-      if (queryRequest.getMonitoringTarget().isIncludeCount()) {
-        result.put("count", timeList);
-        result.put("avg_value", avgList);
-        result.put("total_count", countList.stream().mapToLong(Long::longValue).sum());
+      String metric;
+      switch (queryRequest.getMonitoringTarget().getMetric()) {
+        case GC_COUNT:
+        case GC_CPU:
+        case QUERY_TIME:
+        case QUERY_COUNT:
+        case SUPERVISOR_LAG:
+          List<Long> valueList = Lists.newArrayList();
+          List<Long> countList = Lists.newArrayList();
+          List<Float> avgList = Lists.newArrayList();
+
+          for (JsonNode rowNode : engineData) {
+            Map<String, Object> row = GlobalObjectMapper.getDefaultMapper().convertValue(rowNode, Map.class);
+            timeList.add(String.valueOf(row.get("event_time")));
+            valueList.add(Long.parseLong(String.valueOf(row.get("value"))));
+            if (queryRequest.getMonitoringTarget().isIncludeCount()) {
+              countList.add(Long.parseLong(String.valueOf(row.get("count"))));
+              avgList.add(Float.parseFloat(String.valueOf(row.get("avg_value"))));
+            }
+          }
+          result.put("time", timeList);
+          result.put("value", valueList);
+          result.put("total_value", valueList.stream().mapToLong(Long::longValue).sum());
+          if (queryRequest.getMonitoringTarget().isIncludeCount()) {
+            result.put("count", countList);
+            result.put("avg_value", avgList);
+            result.put("total_count", countList.stream().mapToLong(Long::longValue).sum());
+          }
+          break;
+        case MEM:
+          List<Long> maxMemList = Lists.newArrayList();
+          List<Long> usedMemList = Lists.newArrayList();
+
+          for (JsonNode rowNode : engineData) {
+            Map<String, Object> row = GlobalObjectMapper.getDefaultMapper().convertValue(rowNode, Map.class);
+            timeList.add(String.valueOf(row.get("event_time")));
+            metric = String.valueOf(row.get("metric"));
+            if ("jvm/mem/max".equals(metric)) {
+              maxMemList.add(Long.parseLong(String.valueOf(row.get("value"))));
+            } else if ("jvm/mem/used".equals(metric)) {
+              usedMemList.add(Long.parseLong(String.valueOf(row.get("value"))));
+            }
+          }
+
+          result.put("maxMem", maxMemList);
+          result.put("usedMem", usedMemList);
+          break;
+        case TASK_ROW:
+          List<Long> processedList = Lists.newArrayList();
+          List<Long> unparseableList = Lists.newArrayList();
+          List<Long> thrownawayList = Lists.newArrayList();
+
+          for (JsonNode rowNode : engineData) {
+            Map<String, Object> row = GlobalObjectMapper.getDefaultMapper().convertValue(rowNode, Map.class);
+            timeList.add(String.valueOf(row.get("event_time")));
+            metric = String.valueOf(row.get("metric"));
+            if ("ingest/events/processed".equals(metric)) {
+              processedList.add(Long.parseLong(String.valueOf(row.get("value"))));
+            } else if ("ingest/events/unparseable".equals(metric)) {
+              unparseableList.add(Long.parseLong(String.valueOf(row.get("value"))));
+            } else if ("ingest/events/thrownAway".equals(metric)) {
+              thrownawayList.add(Long.parseLong(String.valueOf(row.get("value"))));
+            }
+          }
+
+          result.put("processed", processedList);
+          result.put("unparseable", unparseableList);
+          result.put("thrownaway", thrownawayList);
+          break;
+        default:
+          break;
       }
       return result;
     }
@@ -198,15 +251,13 @@ public class EngineMonitoringService {
     }
     EngineMonitoringTarget engineMonitoringTarget = queryRequest.getMonitoringTarget();
     engineMonitoringTarget.setIncludeCount(true);
-    engineMonitoringTarget.setMetric(EngineMonitoringTarget.MetricType.MEM_USED);
+    engineMonitoringTarget.setMetric(EngineMonitoringTarget.MetricType.MEM);
     queryRequest.setMonitoringTarget(engineMonitoringTarget);
     Map result = (Map) getEngineData(queryRequest);
-    float useMem = new Float(String.valueOf(result.get("total_value")));
-
-    engineMonitoringTarget.setMetric(EngineMonitoringTarget.MetricType.MEM_MAX);
-    queryRequest.setMonitoringTarget(engineMonitoringTarget);
-    result = (Map) getEngineData(queryRequest);
-    float maxMem = new Float(String.valueOf(result.get("total_value")));
+    List usedMemList = (List) result.get("usedMem");
+    List maxMemList = (List) result.get("maxMem");
+    float useMem = new Float(String.valueOf(usedMemList.get(usedMemList.size()-1)));
+    float maxMem = new Float(String.valueOf(maxMemList.get(maxMemList.size()-1)));
 
     float percentage = 100 * useMem / maxMem;
     List memList = Lists.newArrayList();
@@ -252,6 +303,11 @@ public class EngineMonitoringService {
     return results.get();
   }
 
+  public List getSegmentCount() {
+    Optional<List> results = engineRepository.sql("SELECT COUNT(*) as \"count\" FROM sys.segments");
+    return results.get();
+  }
+
   public List getPendingTasks() {
     Optional<List> tasks = engineRepository.getPendingTasks();
     return tasks.get();
@@ -288,7 +344,7 @@ public class EngineMonitoringService {
 
   public boolean shutDownIngestionTask(String taskId) {
     try {
-        engineMetaRepository.shutDownIngestionTask(taskId);
+      engineMetaRepository.shutDownIngestionTask(taskId);
       LOGGER.info("Successfully shutdown ingestion task : {}", taskId);
     } catch (Exception e) {
       LOGGER.warn("Fail to shutdown ingestion task : {}", taskId);
@@ -525,11 +581,11 @@ public class EngineMonitoringService {
         break;
       case SERVICE:
         criterion.addFilter(new ListFilter(criterionKey, "service",
-                                           "broker", EngineMonitoring.SERVICE.BROKER.toString()));
+                                           getDruidName("broker"), EngineMonitoring.SERVICE.BROKER.toString()));
         criterion.addFilter(new ListFilter(criterionKey, "service",
-                                           "historical", EngineMonitoring.SERVICE.HISTORICAL.toString()));
+                                           getDruidName("historical"), EngineMonitoring.SERVICE.HISTORICAL.toString()));
         criterion.addFilter(new ListFilter(criterionKey, "service",
-                                           "middlemanager", EngineMonitoring.SERVICE.HISTORICAL.toString()));
+                                           getDruidName("middleManager"), EngineMonitoring.SERVICE.MIDDLEMANAGER.toString()));
         break;
       case TYPE:
         criterion.addFilter(new ListFilter(criterionKey, "type",
@@ -573,94 +629,6 @@ public class EngineMonitoringService {
     return criterion;
   }
 
-  public Map<String, Object> getIngestRow(EngineMonitoringRequest request) {
-    Map<String, Object> result = Maps.newHashMap();
-    request.getMonitoringTarget().setMetric(EngineMonitoringTarget.MetricType.INGEST_PROCESSED);
-    Map<String, Object> processed = selectStreamQuery(request);
-    request.getMonitoringTarget().setMetric(EngineMonitoringTarget.MetricType.INGEST_UNPARSEABLE);
-    Map<String, Object> unparseable = selectStreamQuery(request);
-    request.getMonitoringTarget().setMetric(EngineMonitoringTarget.MetricType.INGEST_THROWNAWAY);
-    Map<String, Object> thrownaway = selectStreamQuery(request);
-    result.put("time", processed.get("time"));
-    result.put("processed", processed.get("value"));
-    result.put("unparseable", unparseable.get("value"));
-    result.put("thrownaway", thrownaway.get("value"));
-    return result;
-  }
-
-  public Map<String, Object> selectStreamQuery(EngineMonitoringRequest request) {
-    AndFilter filter = new AndFilter();
-    List<String> columns;
-    if ( request.getMonitoringTarget().getTaskId() != null ) {
-      filter.addField(new SelectorFilter("taskId", request.getMonitoringTarget().getTaskId()));
-      columns = Lists.newArrayList("__time", "metric", "service", "host", "value", "datasource", "taskId", "taskType");
-    } else if ( request.getMonitoringTarget().getDatasource() != null) {
-      filter.addField(new SelectorFilter("dataSource", request.getMonitoringTarget().getDatasource()));
-      columns = Lists.newArrayList("__time", "metric", "value", "datasource");
-    } else {
-      return null;
-    }
-
-    request.setResultFormat(new ObjectResultFormat(ENGINE));
-    Map<String, String> fieldMapper = Maps.newLinkedHashMap();
-    for (String column : columns) {
-      fieldMapper.put(column, column);
-    }
-    request.setResultFieldMapper(fieldMapper);
-
-    switch (request.getMonitoringTarget().getMetric()) {
-      case SUPERVISOR_LAG:
-        filter.addField(new SelectorFilter("metric", "ingest/kafka/lag"));
-        break;
-      case INGEST_PROCESSED:
-        filter.addField(new SelectorFilter("metric", "ingest/events/processed"));
-        break;
-      case INGEST_UNPARSEABLE:
-        filter.addField(new SelectorFilter("metric", "ingest/events/unparseable"));
-        break;
-      case INGEST_THROWNAWAY:
-        filter.addField(new SelectorFilter("metric", "ingest/events/thrownAway"));
-        break;
-    }
-    SelectStreamQuery selectStreamQuery = SelectStreamQuery.builder(new DefaultDataSource(datasourceName))
-                                                           .columns(columns)
-                                                           .build();
-    selectStreamQuery.setFilter(filter);
-
-    if (StringUtils.isEmpty(request.getFromDate()) || StringUtils.isEmpty(request.getToDate())) {
-      DateTime nowTime = DateTime.now();
-
-      DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss");
-      String toDate = nowTime.toString(dateTimeFormatter);
-      String fromDate = nowTime.minusHours(1).toString(dateTimeFormatter);
-      request.setFromDate(fromDate);
-      request.setToDate(toDate);
-    }
-    selectStreamQuery.setIntervals(Lists.newArrayList(request.getFromDate()+"/"+request.getToDate()));
-    selectStreamQuery.setLimit(1000);
-
-    String queryString = GlobalObjectMapper.writeValueAsString(selectStreamQuery);
-    Optional<JsonNode> engineResult = engineRepository.query(queryString, JsonNode.class);
-    Object data = request.getResultFormat()
-                           .makeResult(
-                               engineResult.orElseGet(
-                                   () -> GlobalObjectMapper.getDefaultMapper().createArrayNode())
-                           );
-
-    Map<String, Object> result = Maps.newHashMap();
-    ArrayNode engineData = (ArrayNode) data;
-    List<String> timeList = Lists.newArrayList();
-    List<Long> valueList = Lists.newArrayList();
-    for (JsonNode rowNode : engineData) {
-      Map<String, Object> row = GlobalObjectMapper.getDefaultMapper().convertValue(rowNode, Map.class);
-      timeList.add(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(Long.parseLong(String.valueOf(row.get("__time"))))));
-      valueList.add(Long.parseLong(String.valueOf(row.get("value"))));
-    }
-    result.put("time", timeList);
-    result.put("value", valueList);
-    return result;
-  }
-
   public List getQueryList(EngineMonitoringQueryRequest engineMonitoringQueryRequest) {
     StringBuffer sb = new StringBuffer();
     sb.append("SELECT \"context.queryId\" AS \"queryId\", \"success\" AS \"result\", \"service\", \"host\", \"dataSource\" AS \"datasource\", \"value\" AS \"duration\", \"__time\" AS \"startedTime\", \"type\" FROM \"druid\".\"druid-metric\" WHERE metric = 'query/time'");
@@ -670,8 +638,8 @@ public class EngineMonitoringService {
       sb.append("') ");
     }
     if (CollectionUtils.isNotEmpty(engineMonitoringQueryRequest.getService())) {
-      sb.append(" AND \"service\" IN ('druid/prod/");
-      sb.append(String.join("', 'druid/prod/", engineMonitoringQueryRequest.getService()));
+      sb.append(" AND \"service\" IN ('");
+      sb.append(String.join("', '", engineMonitoringQueryRequest.getService()));
       sb.append("') ");
     }
     if (CollectionUtils.isNotEmpty(engineMonitoringQueryRequest.getType())) {
@@ -719,36 +687,35 @@ public class EngineMonitoringService {
       case GC_CPU:
         filters.add(new SelectorFilter("metric", "jvm/gc/cpu"));
         break;
-      case MEM_MAX:
-        filters.add(new SelectorFilter("metric", "jvm/mem/max"));
-        break;
-      case MEM_USED:
-        filters.add(new SelectorFilter("metric", "jvm/mem/used"));
+      case MEM:
+        filters.add(new InFilter("metric", "jvm/mem/max", "jvm/mem/used"));
         break;
       case QUERY_TIME:
         filters.add(new SelectorFilter("metric", "query/time"));
         break;
+      case QUERY_COUNT:
+        filters.add(new SelectorFilter("metric", "query/time"));
+        filters.add(new SelectorFilter("service", getDruidName("broker")));
+        break;
+      case SUPERVISOR_LAG:
+        filters.add(new SelectorFilter("metric", "ingest/kafka/lag"));
+        break;
+      case TASK_ROW:
+        filters.add(new InFilter("metric", "ingest/events/processed", "ingest/events/unparseable", "ingest/events/thrownAway"));
+        break;
+      default:
+        break;
     }
   }
 
-  private List<String> getMonitoringColumns(EngineMonitoringTarget.MetricType type) {
-
-    List<String> columns = Lists.newArrayList("__time","metric","service","host","count","value");
-
-
-    if(type == EngineMonitoringTarget.MetricType.GC_COUNT
-        || type == EngineMonitoringTarget.MetricType.GC_CPU) {
-      columns.add("gcGen");
-      columns.add("gcName");
-    } else if (type == EngineMonitoringTarget.MetricType.MEM_MAX
-        || type == EngineMonitoringTarget.MetricType.MEM_USED){
-      columns.add("memKind");
+  private String getDruidName(String configName) {
+    String druidName = druidNameMap.get(configName);
+    if (StringUtils.isEmpty(druidName)) {
+      HashMap configs = getConfigs(configName);
+      druidName = String.valueOf(configs.get("druid.service"));
+      druidNameMap.put(configName, druidName);
     }
-
-    return columns;
+    return druidName;
   }
-
 
 }
-
-

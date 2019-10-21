@@ -15,35 +15,62 @@
 package app.metatron.discovery.domain.mdm.catalog;
 
 import org.joda.time.DateTime;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
+/**
+ * The interface Catalog repository extends.
+ */
 public interface CatalogRepositoryExtends {
 
   /**
    * ROOT Catalog 조회 하기
    *
-   * @param nameContains
-   * @param searchDateBy
-   * @param from
-   * @param to
-   * @return
+   * @param nameContains the name contains
+   * @param searchDateBy the search date by
+   * @param from         the from
+   * @param to           the to
+   * @return list list
    */
   List<Catalog> findRootSubCatalogs(String nameContains, String searchDateBy, DateTime from, DateTime to);
 
   /**
    * 하위 Catalog 가져오기
    *
-   * @param catalogId
-   * @return
+   * @param catalogId       the catalog id
+   * @param nameContains    the name contains
+   * @param searchDateBy    the search date by
+   * @param from            the from
+   * @param to              the to
+   * @param onlySubCategory the only sub category
+   * @return list list
    */
   List<Catalog> findSubCatalogs(String catalogId, String nameContains, String searchDateBy, DateTime from, DateTime to, Boolean onlySubCategory);
 
   /**
    * 하위 Catalog 개수 가져오기
    *
-   * @param catalogId
-   * @return
+   * @param catalogId the catalog id
+   * @return long long
    */
   Long countOnlySubCatalogs(String catalogId);
+
+  /**
+   * Gets catalogs with used count through Pagination.
+   *
+   * @param nameContains the name contains
+   * @param pageable     the pageable
+   * @return the catalogs with count
+   */
+  Page<CatalogCountDTO> getCatalogsWithCount(String nameContains, Pageable pageable);
+
+  /**
+   * Gets catalogs with used count.
+   *
+   * @param nameContains the name contains
+   * @return the catalogs with count
+   */
+  List<CatalogCountDTO> getCatalogsWithCount(String nameContains);
 }

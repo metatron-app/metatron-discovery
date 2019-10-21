@@ -202,4 +202,15 @@ public class CatalogController {
 
     return ResponseEntity.noContent().build();
   }
+
+  /**
+   * Find Category sort by used count
+   */
+  @RequestMapping(path = "/catalogs/popularity", method = RequestMethod.GET)
+  public @ResponseBody
+  ResponseEntity<?> findCatalogsByPopularity(@RequestParam(value = "nameContains", required = false) String nameContains,
+                                             Pageable pageable) {
+    Page<CatalogCountDTO> catalogs = catalogService.getCatalogsWithCount(nameContains, pageable);
+    return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(catalogs));
+  }
 }

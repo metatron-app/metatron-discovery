@@ -1,28 +1,21 @@
 package app.metatron.discovery.domain.dataprep.file;
 
-import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
-import static app.metatron.discovery.domain.dataprep.PrepUtil.datasetError;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_PARSE_JSON;
+import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getWriter;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.datasetError;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Types;
@@ -30,16 +23,12 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.ServletOutputStream;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PrepJsonUtil {
 
   private static Logger LOGGER = LoggerFactory.getLogger(PrepJsonUtil.class);
-
 
   private static void readJson(Reader reader, int limitRows, Integer manualColCnt, boolean onlyCount,
           PrepParseResult result) {
@@ -144,81 +133,10 @@ public class PrepJsonUtil {
    *
    * header will be false for table-type snapshots.
    */
-  public static PrintWriter getJsonPrinter(String strUri, Configuration conf) {
-    PrintWriter printWriter;
-    URI uri;
+  public static PrintWriter getPrinter(String strUri, Configuration conf) {
+    LOGGER.debug("PrepJsonUtil.getJsonPrinter(): strUri={} conf={}", strUri, conf);
 
-    try {
-      uri = new URI(strUri);
-    } catch (URISyntaxException e) {
-      e.printStackTrace();
-      throw PrepException
-              .create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX,
-                      strUri);
-    }
-
-    switch (uri.getScheme()) {
-      case "hdfs":
-        if (conf == null) {
-          throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
-        }
-        Path path = new Path(uri);
-
-        FileSystem hdfsFs;
-        try {
-          hdfsFs = FileSystem.get(conf);
-        } catch (IOException e) {
-          e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, strUri);
-        }
-
-        FSDataOutputStream hos;
-        try {
-          hos = hdfsFs.create(path);
-        } catch (IOException e) {
-          e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_HDFS_PATH, strUri);
-        }
-
-        printWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(hos)));
-        break;
-
-      case "file":
-        File file = new File(uri);
-        File dirParent = file.getParentFile();
-        if (dirParent == null) {
-          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_LOCAL_PATH, strUri);
-        }
-        if (false == dirParent.exists()) {
-          if (false == dirParent.mkdirs()) {
-            throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE,
-                    PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_LOCAL_PATH, strUri);
-          }
-        }
-
-        FileOutputStream fos;
-        try {
-          fos = new FileOutputStream(file);
-        } catch (FileNotFoundException e) {
-          e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, strUri);
-        }
-
-        printWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(fos)));
-        break;
-
-      default:
-        throw PrepException
-                .create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME,
-                        strUri);
-    }
-
-    return printWriter;
+    return new PrintWriter(new BufferedWriter(getWriter(strUri, conf)));
   }
 
   /**

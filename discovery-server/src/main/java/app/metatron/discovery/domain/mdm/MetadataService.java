@@ -21,6 +21,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.RevisionType;
 import org.hibernate.envers.query.AuditEntity;
 import org.hibernate.envers.query.AuditQuery;
@@ -56,6 +57,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.persistence.EntityManager;
 
 import app.metatron.discovery.common.data.projection.DataGrid;
 import app.metatron.discovery.common.data.projection.Row;
@@ -149,7 +152,7 @@ public class MetadataService implements ApplicationEventPublisherAware {
   WorkspaceService workspaceService;
 
   @Autowired
-  AuditReader auditReader;
+  EntityManager entityManager;
 
   private ApplicationEventPublisher publisher;
 
@@ -630,6 +633,7 @@ public class MetadataService implements ApplicationEventPublisherAware {
     List<Map> historyList = new ArrayList<>();
 
     //metadata revision list
+    AuditReader auditReader = AuditReaderFactory.get(entityManager);
     AuditQuery metadataAuditQuery = auditReader.createQuery()
                                                .forRevisionsOfEntityWithChanges(Metadata.class, true)
                                                .add(AuditEntity.id().eq(metadata.getId()))

@@ -74,10 +74,6 @@ export class EngineService extends AbstractService {
     return this.post(this.URL_MONITORING + '/data', params);
   }
 
-  public getMonitoringStream(params: object) {
-    return this.post(this.URL_MONITORING + '/stream', params);
-  }
-
   public getMemory(params?: object) {
     return this.post(this.URL_MONITORING + '/memory', params == undefined ? {} : params);
   }
@@ -88,6 +84,10 @@ export class EngineService extends AbstractService {
 
   public getDatasourceList() {
     return this.get(this.URL_MONITORING + '/datasource/list');
+  }
+
+  public getSegmentCount() {
+    return this.get(this.URL_MONITORING + '/segment/count');
   }
 
   public getSize() {

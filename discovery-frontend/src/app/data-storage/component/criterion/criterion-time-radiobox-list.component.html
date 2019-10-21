@@ -19,7 +19,7 @@
         <label class="ddp-label-radio">
           <input type="radio" [checked]="selectedTimeType.value === timeType.value">
           <i class="ddp-icon-radio"></i>
-          <span class="ddp-txt-checkbox">{{timeType.label}}</span>
+          <span class="ddp-txt-checkbox">{{timeType.label | translate}}</span>
         </label>
         <!-- dateinfo -->
         <div class="ddp-wrap-dateinfo" *ngIf="isEnableFromToOption && timeType.value === DATE_TYPE.BETWEEN && selectedTimeType.value === DATE_TYPE.BETWEEN">

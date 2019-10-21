@@ -387,8 +387,8 @@ table.ddp-table-detail tr td .ddp-ui-buttons .ddp-btn-add {display:inline-block;
 table.ddp-table-detail tr td .ddp-ui-buttons .ddp-btn-add:hover {border:1px solid #b7b9c1;color:#4b515b;}
 table.ddp-table-detail tr td .ddp-ui-buttons .ddp-btn-add em.ddp-icon-plus {display:inline-block; width:13px; height:13px; margin-right:5px; background:url(../../../images/icon_add.png) no-repeat; background-position:-84px -22px; vertical-align:middle;}
 table.ddp-table-detail tr td .ddp-ui-tags {margin:-9px 0; vertical-align:top;}
-table.ddp-table-detail tr td .ddp-tags {display:inline-block; float:left; position:relative; padding:3px 6px; margin:4px 3px 4px 0; background-color:#f2f1f7; border-radius:4px; color:#666fad; font-size:13px; cursor:pointer;}
-
+table.ddp-table-detail tr td .ddp-tags {float:left;display:block; position:relative; max-width:100%; padding:3px 6px; margin:4px 3px 4px 0; background-color:#f2f1f7; border-radius:4px; color:#666fad; font-size:13px; cursor:pointer;  box-sizing:border-box;}
+table.ddp-table-detail tr td .ddp-tags span.txt-tags {display:block; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 table.ddp-table-detail tr td .ddp-tags a.ddp-btn-delete  {display:none; position:absolute; top:-4px; right:-4px; content:''; width:14px; height:14px; background:url(../../../images/btn_sclose.png) no-repeat; background-position:0 -131px;}
 table.ddp-table-detail tr td .ddp-tags:hover a.ddp-btn-delete {display:block;}
 table.ddp-table-detail tr td .ddp-tags.ddp-txt {cursor:default;}

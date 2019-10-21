@@ -20,6 +20,7 @@
         [isEnableDelete]="true"
         [value]="searchKeyword"
         [placeHolder]="'msg.engine.monitoring.ph.worker.search' | translate"
+        [immediately]="true"
         (changeValue)="onChangedSearchKeyword($event)">
       </component-input>
     </div>
@@ -47,7 +48,7 @@
       <col width="200px">
       <col width="150px">
       <col width="150px">
-      <col width="250px">
+      <col width="200px">
     </colgroup>
     <thead>
     <tr>
@@ -100,12 +101,10 @@
     <tbody>
     <tr *ngFor="let worker of workerList" (click)="onClickWorker(worker.worker.host);">
       <td>
-        <div class="ddp-txt-long" title="{{worker.worker.host}}">
-          {{worker.worker.host}}
+        <div class="ddp-txt-long" title="{{worker.worker.host}}" [innerHTML]="highlightSearchText( worker.worker.host, searchKeyword )">
         </div>
       </td>
-      <td>
-        {{worker.worker.ip}}
+      <td [innerHTML]="highlightSearchText( worker.worker.ip, searchKeyword )">
       </td>
       <td class="ddp-txt-center">
         {{worker.worker.version}}
@@ -113,7 +112,7 @@
       <td class="ddp-txt-center">{{worker.currCapacityUsed}}/{{worker.worker.capacity}}</td>
       <td class="ddp-txt-center">{{worker.availabilityGroups.length}}</td>
       <td class="ddp-txt-center">{{worker.runningTasks.length}}</td>
-      <td>{{worker.lastCompletedTaskTime}}</td>
+      <td>{{worker.lastCompletedTaskTime | date : 'yyyy-MM-dd HH:mm:ss.SSS' : getTimezone}}</td>
     </tr>
     </tbody>
 
