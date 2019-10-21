@@ -81,7 +81,7 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
     });
 
     this._getTaskDetail();
-    this._getTaskLog();
+    this._getTaskLog(-8192);
 
     super.ngOnInit();
     this.loadingHide();
@@ -117,7 +117,7 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
   }
 
   public refreshLog(): void {
-    this._getTaskLog();
+    this._getTaskLog(-8192);
   }
 
   public confirmShutdownTaskOpen(): void {
@@ -211,6 +211,11 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
     this._getTaskRow();
   }
 
+  public logNewWindow() {
+    const popUrl = '/api/monitoring/ingestion/task/'+this._taskId+'/log';
+    window.open(popUrl, '_blank');
+  }
+
   public get isCompletedTask(): boolean {
     return this.task.status != TaskStatus.SUCCESS && this.task.status != TaskStatus.FAILED;
   }
@@ -230,8 +235,8 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
     });
   }
 
-  private _getTaskLog(): void {
-    this.engineService.getTaskLogById(this._taskId).then((data) => {
+  private _getTaskLog(offset?: number): void {
+    this.engineService.getTaskLogById(this._taskId, offset).then((data) => {
       this.taskLog = data;
       // detect changes
       this.safelyDetectChanges();
