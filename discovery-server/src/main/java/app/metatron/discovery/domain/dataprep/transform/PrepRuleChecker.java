@@ -524,6 +524,8 @@ public class PrepRuleChecker {
       case "window":
         checkWindow((Window) rule);
         break;
+      case "union":
+        break;
       default:
         LOGGER.error("confirmRuleStringForException(): ruleName is wrong - " + rule.getName());
         throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
