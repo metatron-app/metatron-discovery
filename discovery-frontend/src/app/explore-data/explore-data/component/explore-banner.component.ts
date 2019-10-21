@@ -17,6 +17,7 @@ import {AbstractComponent} from "../../../common/component/abstract.component";
 import * as _ from "lodash";
 import {StringUtil} from "../../../common/util/string.util";
 import {ExploreDataConstant} from "../../constant/explore-data-constant";
+import {Metadata} from "../../../domain/meta-data-management/metadata";
 
 @Component({
   selector: 'component-explore-banner',
@@ -29,7 +30,7 @@ export class ExploreBannerComponent extends AbstractComponent {
   @Input() readonly iconClass: ExploreDataConstant.Metadata.TypeIconClass;
   @Input() readonly isMain:boolean = false;
   // data
-  @Input() readonly metadata;
+  @Input() readonly metadata: Metadata;
   // event
   @Output() readonly clickedBanner = new EventEmitter();
   @Output() readonly clickedTag = new EventEmitter();

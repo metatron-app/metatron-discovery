@@ -89,12 +89,12 @@ public class CatalogService {
     return catalogRepository.countOnlySubCatalogs(catalogId);
   }
 
-  public List<Map<String, Object>> findHierarchies(String catalogId) {
+  public List<Map<String, String>> findHierarchies(String catalogId) {
 
     List<Catalog> catalogs = catalogRepository.findAllAncestors(catalogId);
     return catalogs.stream()
                 .map(catalog -> {
-                  Map<String, Object> map = Maps.newLinkedHashMap();
+                  Map<String, String> map = Maps.newLinkedHashMap();
                   map.put("id", catalog.getId());
                   map.put("name", catalog.getName());
                   return map;

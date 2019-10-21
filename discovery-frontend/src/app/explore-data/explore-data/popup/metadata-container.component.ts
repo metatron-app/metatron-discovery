@@ -118,9 +118,9 @@ export class MetadataContainerComponent extends AbstractComponent {
 
     this.metadataService.toggleMetadataFavorite(this.metadataDetailData.id, this.metadataDetailData.favorite).catch((e) => this.commonExceptionHandler(e));
 
-    this.metadataDetailData.favorite = !this.metadataDetailData.favorite;
+    this.onToggleFavorite.emit(this.metadataDetailData);
 
-    this.onToggleFavorite.emit(this.metadataDetailData.id);
+    this.metadataDetailData.favorite = !this.metadataDetailData.favorite;
   }
 
   /**
