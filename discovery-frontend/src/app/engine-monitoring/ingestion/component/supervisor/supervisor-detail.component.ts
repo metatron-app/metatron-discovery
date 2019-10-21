@@ -188,7 +188,6 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
 
   private _getSupervisorDetail(): void {
     this.engineService.getSupervisorStatus(this.supervisorId).then((data) => {
-      console.log(data);
       this.supervisorPayload = data.payload;
       this.dataSource = this.supervisorPayload.dataSource;
       this._getSupervisorLag();

@@ -174,9 +174,37 @@
     <!-- //detail -->
     <!-- detail -->
     <div class="ddp-ui-datadetail type-detail" *ngIf="isKafkaTask">
-      <div class="ddp-label-option">
-        <label class="ddp-label-detail">Processed rows</label>
-        <div class="ddp-type-selectbox" [class.ddp-selected]="isShowRowDuration"
+      <label class="ddp-label-detail">Processed rows</label>
+      <div class="ddp-detail-option ddp-clear">
+        <div class="ddp-wrap-edit ddp-fleft">
+          <label class="ddp-label-type">Status</label>
+          <!-- edit option -->
+          <div class="ddp-ui-edit-option ddp-inline">
+            <label class="ddp-label-checkbox">
+              <input type="checkbox" name="row" value="All" checked="checked" (change)="changeRowCheckbox($event);">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">All</span>
+            </label>
+            <label class="ddp-label-checkbox">
+              <input type="checkbox" name="row" value="Processed" checked="checked" (change)="changeRowCheckbox($event);">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">Processed</span>
+            </label>
+            <label class="ddp-label-checkbox">
+              <input type="checkbox" name="row" value="Unparseable" checked="checked" (change)="changeRowCheckbox($event);">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">Unparseable</span>
+            </label>
+            <label class="ddp-label-checkbox">
+              <input type="checkbox" name="row" value="ThrownAway" checked="checked" (change)="changeRowCheckbox($event);">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">ThrownAway</span>
+            </label>
+
+          </div>
+          <!-- //edit option -->
+        </div>
+        <div class="ddp-type-selectbox ddp-fright" [class.ddp-selected]="isShowRowDuration"
              (click)="isShowRowDuration = !isShowRowDuration" (clickOutside)="isShowRowDuration=false">
           <span class="ddp-txt-selectbox">{{getDurationLabel(selectedRowDuration)}}</span>
 

@@ -7474,8 +7474,8 @@ table.ddp-table-detail td .ddp-data-permission span.ddp-data-name {color:#b7bac1
 .ddp-ui-datadetail .ddp-box-synch {position:absolute; top:0; left:0; right:0;}
 .ddp-ui-datadetail .ddp-btn-solid2.type-link {position:absolute; top:40px; right:60px;}
 .ddp-ui-datadetail.type-detail .ddp-label-detail {font-size:16px;}
-.ddp-ui-datadetail.type-detail table.ddp-table-detail3.type-running {width:800px;}
-.ddp-ui-datadetail.type-detail table.ddp-table-detail3.type-running .ddp-txt-long {position:relative; top:7px;}
+.ddp-ui-datadetail.type-detail table.ddp-table-detail3.type-running {width:100%; table-layout:fixed;}
+.ddp-ui-datadetail.type-detail table.ddp-table-detail3.type-running .ddp-txt-long {position:relative; top:5px;}
 .ddp-ui-datadetail.type-detail table.ddp-table-detail3 .ddp-txt-long {white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 .ddp-ui-datadetail.type-detail table.ddp-table-detail3.type-running .ddp-btn-pop {float:right; min-width:auto; margin:-3px 0;}
 .ddp-ui-datadetail.type-detail .ddp-detail-option {padding-bottom:10px;}

@@ -85,7 +85,6 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
 
     super.ngOnInit();
     this.loadingHide();
-
   }
 
   public ngAfterViewInit() {
@@ -94,6 +93,8 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
 
   public ngOnDestroy() {
     super.ngOnDestroy();
+
+    sessionStorage.removeItem('IS_LOCATION_BACK_TASK_LIST');
   }
 
   /**
@@ -108,7 +109,11 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
   }
 
   public prevTaskList(): void {
-    this._location.back();
+    if ('TRUE' === sessionStorage.getItem('IS_LOCATION_BACK_TASK_LIST')) {
+      this._location.back();
+    } else {
+      this.router.navigate(['//management/engine-monitoring/ingestion/task']);
+    }
   }
 
   public refreshLog(): void {
@@ -185,6 +190,27 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
     this._scrollElements.nativeElement.scrollTop = this._scrollElements.nativeElement.scrollHeight;
   }
 
+  public changeRowCheckbox(event: MouseEvent) {
+    const value = $(event.target).val();
+    if (value === 'All') {
+      if ($(event.target).is(':checked')) {
+        $('input[name="row"]').prop('checked', 'checked');
+      } else {
+        $('input[name="row"]').prop('checked', '');
+      }
+    } else {
+      if ($(event.target).is(':checked')) {
+        if ($('input[name="row"]:checked').length === 3) {
+          $('input[name="row"]').prop('checked', 'checked');
+        }
+      } else {
+        $('input[value="All"]').prop('checked', '');
+      }
+    }
+
+    this._getTaskRow();
+  }
+
   public get isCompletedTask(): boolean {
     return this.task.status != TaskStatus.SUCCESS && this.task.status != TaskStatus.FAILED;
   }
@@ -235,6 +261,62 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
       this.processed = data.processed[data.processed.length - 1];
       this.unparseable = data.unparseable[data.unparseable.length - 1];
       this.thrownaway = data.thrownaway[data.thrownaway.length - 1];
+      const series = [];
+      if (!_.isNil(this._rowChart)) {
+        this._rowChart.clear();
+      }
+      $('input[name="row"]:checked').each(function(){
+        if ($(this).val() === 'Processed') {
+          series.push({
+            type: 'line',
+            name: 'Processed',
+            data: data.processed,
+            connectNulls: true,
+            showAllSymbol: true,
+            symbol: 'none',
+            sampling: 'max',
+            itemStyle: {
+              normal: {
+                color: '#2eaaaf'
+              }
+            },
+            smooth: true
+          });
+        } else if ($(this).val() === 'Unparseable') {
+          series.push({
+            type: 'line',
+            name: 'Unparseable',
+            data: data.unparseable,
+            connectNulls: true,
+            showAllSymbol: true,
+            symbol: 'none',
+            sampling: 'max',
+            itemStyle: {
+              normal: {
+                color: '#f2f1f8'
+              }
+            },
+            smooth: true
+          });
+        } else if ($(this).val() === 'ThrownAway') {
+          series.push({
+            type: 'line',
+            name: 'ThrownAway',
+            data: data.thrownaway,
+            connectNulls: true,
+            showAllSymbol: true,
+            symbol: 'none',
+            sampling: 'max',
+            itemStyle: {
+              normal: {
+                color: '#666eb2'
+              }
+            },
+            smooth: true
+          });
+        }
+
+      });
       const chartOps: any = {
         type: 'line',
         tooltip: {
@@ -268,58 +350,15 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
             axisName: 'Row'
           }
         ],
-        series: [
-          {
-            type: 'line',
-            name: 'Processed',
-            data: data.processed,
-            connectNulls: true,
-            showAllSymbol: true,
-            symbol: 'none',
-            sampling: 'max',
-            itemStyle: {
-              normal: {
-                color: '#2eaaaf'
-              }
-            },
-            smooth: true
-          },
-          {
-            type: 'line',
-            name: 'Unparseable',
-            data: data.unparseable,
-            connectNulls: true,
-            showAllSymbol: true,
-            symbol: 'none',
-            sampling: 'max',
-            itemStyle: {
-              normal: {
-                color: '#f2f1f8'
-              }
-            },
-            smooth: true
-          },
-          {
-            type: 'line',
-            name: 'ThrownAway',
-            data: data.thrownaway,
-            connectNulls: true,
-            showAllSymbol: true,
-            symbol: 'none',
-            sampling: 'max',
-            itemStyle: {
-              normal: {
-                color: '#666eb2'
-              }
-            },
-            smooth: true
-          }
-        ]
+        series: series
       };
-      if (_.isNil(this._rowChart)) {
-        this._rowChart = echarts.init(this._rowChartElmRef.nativeElement, 'exntu');
+
+      if (series.length > 0) {
+        if (_.isNil(this._rowChart)) {
+          this._rowChart = echarts.init(this._rowChartElmRef.nativeElement, 'exntu');
+        }
+        this._rowChart.setOption(chartOps, false);
       }
-      this._rowChart.setOption(chartOps, false);
     });
 
   }
