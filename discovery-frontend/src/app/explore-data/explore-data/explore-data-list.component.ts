@@ -105,6 +105,7 @@ export class ExploreDataListComponent extends AbstractComponent {
   @Output() readonly requestInitializeSelectedCatalog = new EventEmitter();
   @Output() readonly requestInitializeSelectedTag = new EventEmitter();
   @Output() readonly requestChangeSelectedCatalog = new EventEmitter();
+  @Output() readonly requestToggleFavoriteCatalog = new EventEmitter();
 
   // 생성자
   constructor(private metadataService: MetadataService,
@@ -378,6 +379,34 @@ export class ExploreDataListComponent extends AbstractComponent {
   onClickResetSelectedTag(): void {
     // requesting lnb component to initialize tag
     this.requestInitializeSelectedTag.emit();
+  }
+
+  onClickFavoriteIconInList(selectedMetadata: Metadata) {
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+
+    this.metadataService.toggleMetadataFavorite(selectedMetadata.id, selectedMetadata.favorite).catch((e) => this.commonExceptionHandler(e));
+
+    const index = this.metadataList.findIndex((metadata) => {
+      return metadata.id === selectedMetadata.id;
+    });
+
+    this.metadataList[index].favorite = !this.metadataList[index].favorite;
+  }
+
+  onClickFavoriteIconInCatalogTree() {
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+
+    // toggle favorite in server
+    this.catalogService.toggleCatalogFavorite(this.selectedCatalog.id, this.selectedCatalog.favorite)
+      .then(() => {
+        this.requestToggleFavoriteCatalog.emit();
+      })
+      .catch((e) => this.commonExceptionHandler(e));
+
+    // toggle favorite in
+    this.selectedCatalog.favorite = !this.selectedCatalog.favorite;
   }
 
   onChangeSelectedCatalog(catalog: Catalog.Tree): void {

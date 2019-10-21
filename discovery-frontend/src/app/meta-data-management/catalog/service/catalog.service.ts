@@ -65,6 +65,24 @@ export class CatalogService extends AbstractService {
     return this.patch(this.URL_CATALOG + `/${id}`, {name: name});
   }
 
+  /**
+   * Toggle catalog favorite flag
+   *
+   * @param id
+   * @param isFavorite
+   * @return
+   */
+  public toggleCatalogFavorite(id: string, isFavorite): Promise<any> {
+    let url: string = this.URL_CATALOG + `/${id}/favorite/`;
+
+    if (isFavorite) {
+      url += 'detach';
+    } else {
+      url += 'attach';
+    }
+    return this.post(url, null);
+  }
+
   public getMetadataInCatalog(id: string, params?: any, allSubCatalogs: boolean = true, projection: string = 'default'): Promise<any> {
     let url = this.URL_CATALOG + `/${id}/metadatas`;
     if (params) {
@@ -86,6 +104,32 @@ export class CatalogService extends AbstractService {
     let url = this.URL_CATALOG;
     url += '?' + CommonUtil.objectToUrlString(params);
     return this.get(url + `&projection=${projection}`);
+  }
+
+
+  /**
+   * Get catalog detail including favorite
+   * @param id
+   * @return
+   */
+
+  public getCatalogDetail(id: string): Promise<any> {
+    let url = this.URL_CATALOG;
+    url += `/${id}?projection=forHierarchyView`;
+
+    return this.get(url);
+  }
+
+  /**
+   * Get my favorite catalog list
+   * @return
+   */
+
+  public getMyFavoriteCatalogList(): Promise<any> {
+    let url = this.URL_CATALOG;
+    url += '/favorite/my?projection=forListView';
+
+    return this.get(url);
   }
 
   public getPopularityCatalogs(params: { nameContains?: string, size?: number }): Promise<any> {

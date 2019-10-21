@@ -24,6 +24,7 @@ export class Metadata extends AbstractHistoryEntity {
   public name: string;
   public sourceType: SourceType;
   public source: MetadataSource;
+  public favorite: boolean;
   public catalogs: any;
   public tags: any;
   public popularity: number;

@@ -75,6 +75,7 @@ public class CatalogProjections extends BaseProjections {
 
     DateTime getModifiedTime();
 
+    boolean isFavorite();
   }
 
   @Projection(name = "forHierarchyView", types = {Catalog.class})
@@ -85,8 +86,10 @@ public class CatalogProjections extends BaseProjections {
     String getName();
 
     @Value("#{@catalogService.findHierarchies(target.id)}")
-    List<Map<String, String>> getHierarchies();
+    List<Map<String, Object>> getHierarchies();
 
+    @Value("#{@catalogService.isFavorite(target)}")
+    boolean isFavorite();
   }
 
   @Projection(name = "forTreeView", types = {Catalog.class})

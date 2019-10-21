@@ -35,6 +35,8 @@ export class ExploreDataMainComponent extends AbstractComponent {
   favoriteMetadataList: Metadata[] = [];
   favoriteCreatorMetadataList: Metadata[] = [];
 
+  favoriteMetadataTotalCount: number = -1;
+
   // banner icon
   // bannerIconList = _.shuffle(['type-banner02', 'type-banner03', 'type-banner04', 'type-banner05']);
 
@@ -62,7 +64,7 @@ export class ExploreDataMainComponent extends AbstractComponent {
       await this._setPopularMetadataList();
       await this._setUpdatedMetadataList();
       // await this._setRecommendedMetadataList();
-      // await this._setMyFavoriteMetadataList();
+      await this._setMyFavoriteMetadataList();
       // await this._setCreatorFavoriteMetadataList();
     };
     initial().then(() => this.broadcaster.broadcast(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL)).catch(() => this.broadcaster.broadcast(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL));
@@ -169,9 +171,11 @@ export class ExploreDataMainComponent extends AbstractComponent {
   }
 
   private async _setMyFavoriteMetadataList() {
-    const result = await this._metadataService.getMetadataListByMyFavorite({size: 10, page: 0, projection: 'forListView'});
+    const result = await this._metadataService.getMetadataListByMyFavorite({size: 4, page: 0, projection: 'forListView', sort: 'createdTime,desc'});
     if (!_.isNil(result._embedded)) {
       this.favoriteMetadataList = result._embedded.metadatas;
+      this.favoriteMetadataTotalCount = result.page.totalElements;
+
     }
   }
 

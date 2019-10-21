@@ -12,24 +12,20 @@
  * limitations under the License.
  */
 
-package app.metatron.discovery.domain.mdm;
+package app.metatron.discovery.domain.tag;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QueryDslPredicateExecutor;
-import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import java.util.List;
 
+import app.metatron.discovery.common.entity.DomainType;
+
 /**
- * Created by kyungtaak on 2016. 8. 30..
  */
-@RepositoryRestResource(path = "metadatas", itemResourceRel = "metadata", collectionResourceRel = "metadatas",
-    excerptProjection = MetadataProjections.DefaultProjection.class)
-public interface MetadataRepository extends JpaRepository<Metadata, String>,
-    QueryDslPredicateExecutor<Metadata>, MetadataRepositoryExtends, RevisionRepository<Metadata, String, Long> {
+@RepositoryRestResource(path = "tagDomains", itemResourceRel = "tagDomain", collectionResourceRel = "tagDomains")
+public interface TagDomainRepository extends JpaRepository<TagDomain, Long>, QueryDslPredicateExecutor<TagDomain> {
 
-  List<Metadata> findTop10ByOrderByCreatedTimeDesc();
-
-  List<Metadata> findByIdIn(List<String> ids);
+  List<TagDomain> findByDomainTypeAndDomainIdIn(DomainType domainType, List<String> domainIdList);
 }

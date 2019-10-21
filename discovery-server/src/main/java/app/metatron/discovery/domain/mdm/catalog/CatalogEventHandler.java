@@ -14,12 +14,21 @@
 
 package app.metatron.discovery.domain.mdm.catalog;
 
+import com.google.common.collect.Lists;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
+import org.springframework.data.rest.core.annotation.HandleAfterDelete;
 import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
 import org.springframework.data.rest.core.annotation.HandleBeforeDelete;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
+
+import java.util.List;
+
+import app.metatron.discovery.common.entity.DomainType;
+import app.metatron.discovery.domain.favorite.Favorite;
+import app.metatron.discovery.domain.favorite.FavoriteRepository;
 
 import static app.metatron.discovery.domain.mdm.MetadataErrorCodes.DUPLICATED_CATALOG_NAME;
 
@@ -34,6 +43,9 @@ public class CatalogEventHandler {
 
   @Autowired
   CatalogRepository catalogRepository;
+
+  @Autowired
+  FavoriteRepository favoriteRepository;
   
   @HandleBeforeCreate
   public void handleBeforeCreate(Catalog catalog) {
@@ -63,5 +75,12 @@ public class CatalogEventHandler {
   public void handleBeforeDelete(Catalog catalog) {
     // Tree 삭제
     catalogTreeService.deleteTree(catalog);
+  }
+
+  @HandleAfterDelete
+  public void handleAfterDelete(Catalog catalog) {
+    //remove catalog favorite
+    List<Favorite> favoriteList = favoriteRepository.findByDomainTypeAndTargetIdIn(DomainType.CATALOG, Lists.newArrayList(catalog.getId()));
+    favoriteRepository.delete(favoriteList);
   }
 }

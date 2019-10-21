@@ -37,29 +37,27 @@
         <!-- //search -->
 
         <!-- favorite -->
-        <!--
         <div class="ddp-ui-favorite">
-          <div class="ddp-ui-label"><em class="ddp-icon-favorite"></em>Favorite({{ favoriteDataList.length }})</div>
-          <div class="ddp-favorite-nodata" *ngIf="favoriteDataList.length === 0">
+          <div class="ddp-ui-label"><em class="ddp-icon-favorite"></em>Favorite({{ favoriteCatalogList.length }})</div>
+          <div class="ddp-favorite-nodata" *ngIf="favoriteCatalogList.length === 0">
             No favorite data
           </div>
-          <ul class="ddp-list-favorite" *ngIf="favoriteDataList.length > 0">
-            <li *ngFor="let favoriteData of favoriteDataList">
+          <ul class="ddp-list-favorite" *ngIf="favoriteCatalogList.length > 0">
+            <li *ngFor="let favoriteCatalog of favoriteCatalogList"  (click)="onChangeSelectedCatalog(favoriteCatalog)">
               <a href="javascript:">
                 <em class="ddp-icon-folder-type"></em>
                 <div class="ddp-data-txt">
                   <span class="ddp-data-navi">
-                      {{ favoriteData.path }}
+                      {{ getCatalogHierarchyLabel(favoriteCatalog) }}
                   </span>
                   <span class="ddp-data-name">
-                    {{ favoriteData.name }}
+                    {{ favoriteCatalog.name }}
                   </span>
                 </div>
               </a>
             </li>
           </ul>
         </div>
-        -->
         <!-- //favorite -->
 
         <!-- tree -->
