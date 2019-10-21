@@ -206,7 +206,7 @@
           {{'msg.storage.ui.th.row.count' | translate}} ({{'msg.comm.detail.size' | translate}})
         </th>
         <td>
-          {{getSummary.count}} ({{bytesToSize(getSummary.size)}})
+          {{getSummary.count | numberCommas}} ({{bytesToSize(getSummary.size)}})
         </td>
       </tr>
       <!-- //size -->
@@ -504,6 +504,30 @@
               <!-- //Database -->
             </ng-container>
             <!-- //only stagingDB type -->
+            <!-- only Realtime type -->
+            <ng-container *ngIf="isRealtimeType()">
+              <!-- Database -->
+              <div class="ddp-wrap-edit3 ddp-type">
+                <label class="ddp-label-type">{{'msg.comm.th.url' | translate}}
+                </label>
+                <!-- edit option -->
+                <div class="ddp-ui-edit-option">
+                  {{getIngestion.consumerProperties["bootstrap.servers"]}}
+                </div>
+                <!-- //edit option -->
+              </div>
+              <div class="ddp-wrap-edit3 ddp-type">
+                <label class="ddp-label-type">{{'msg.storage.ui.stream.kafka.topic' | translate}}
+                </label>
+                <!-- edit option -->
+                <div class="ddp-ui-edit-option">
+                  {{getIngestion.topic}}
+                </div>
+                <!-- //edit option -->
+              </div>
+              <!-- //Database -->
+            </ng-container>
+            <!-- //only Realtime type -->
           </td>
         </tr>
         </tbody>

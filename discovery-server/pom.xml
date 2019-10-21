@@ -1203,6 +1203,11 @@
             <artifactId>icu4j</artifactId>
             <version>64.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+            <version>1.3.10.RELEASE</version>
+        </dependency>
 
     </dependencies>
 

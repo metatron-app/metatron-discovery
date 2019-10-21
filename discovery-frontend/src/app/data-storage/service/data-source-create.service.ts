@@ -668,4 +668,11 @@ export class CreateSourceCompleteData {
   public descInvalidMessage: string;
 }
 
-
+export class KafkaData {
+  public bootstrapServer: string;
+  public topic: string;
+  public fieldList: Field[];
+  public fieldData: Field[];
+  public totalRows: number;
+  public useKafkaData: boolean;
+}

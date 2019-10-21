@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '../../../common/common.module';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '../../../common/common.module';
 import {DataSnapshotDetailComponent} from "../../../data-preparation/data-snapshot/data-snapshot-detail.component";
 import {TimeComponent} from "../../component/time-compoent/time.component";
 import {CreateDataSourceComponent} from "./create-data-source.component";
@@ -64,6 +64,12 @@ import {SchemaConfigureTimestampComponent} from "../../component/schema-configur
 import {SchemaConfigureChangeTypePopupComponent} from "../../component/schema-configure/check-action-layer/schema-configure-change-type-popup.component";
 import {SchemaConfigureFieldDetailComponent} from "../../component/schema-configure/schema-configure-field-detail.component";
 import {ConstantService} from "../../../shared/datasource-metadata/service/constant.service";
+import {StreamCompleteComponent} from "./stream-create-component/stream-complete/stream-complete.component";
+import {StreamConfigureSchemaComponent} from "./stream-create-component/stream-configure-schema/stream-configure-schema.component";
+import {StreamIngestionComponent} from "./stream-create-component/stream-ingestion/stream-ingestion.component";
+import {StreamPreviewComponent} from "./stream-create-component/stream-preview/stream-preview.component";
+import {StreamSelectComponent} from "./stream-create-component/stream-select/stream-select.component";
+import {StreamUploaderComponent} from "./stream-create-component/stream-select/stream-uploader.component";
 
 
 @NgModule({
@@ -123,7 +129,14 @@ import {ConstantService} from "../../../shared/datasource-metadata/service/const
     AddColumnComponent,
     // column select box
     ColumnSelectBoxComponent,
-    SchemaConfigureFieldDetailComponent
+    SchemaConfigureFieldDetailComponent,
+    // stream
+    StreamCompleteComponent,
+    StreamConfigureSchemaComponent,
+    StreamIngestionComponent,
+    StreamPreviewComponent,
+    StreamSelectComponent,
+    StreamUploaderComponent
   ],
   exports: [
     TimeComponent,
@@ -166,6 +179,13 @@ import {ConstantService} from "../../../shared/datasource-metadata/service/const
     AddColumnComponent,
     // column select box
     ColumnSelectBoxComponent,
+    // stream
+    StreamCompleteComponent,
+    StreamConfigureSchemaComponent,
+    StreamIngestionComponent,
+    StreamPreviewComponent,
+    StreamSelectComponent,
+    StreamUploaderComponent
   ],
   providers: [
     DataSourceCreateService,
