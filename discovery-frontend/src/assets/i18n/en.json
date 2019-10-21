@@ -2307,7 +2307,8 @@
   "msg.storage.ui.stream.use.kafka.scheme": "Use the kafka’s scheme. (If not checked, you can upload the schema you want.)",
   "msg.storage.ui.stream.exist.kafka.scheme": "Kafka's schema exists in the topic '{{topic}}'",
   "msg.storage.ui.stream.not.exist.kafka.scheme": "There is no schema information in the topic.",
-  "msg.storage.ui.stream.upload.description" : ".json formats are allowed.",
+  "msg.storage.ui.stream.upload.description": ".json formats are allowed.",
+  "msg.storage.ui.stream.not.exist.description": "Please upload a file in json format that will be delivered to the topic.",
 
   "msg.storage.ui.timezone.country.zimbabwe": "Zimbabwe",
   "msg.storage.ui.timezone.country.zambia": "Zambia",

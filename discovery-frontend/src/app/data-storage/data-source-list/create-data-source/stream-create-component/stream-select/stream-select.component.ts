@@ -34,7 +34,8 @@ import {StringUtil} from "../../../../../common/util/string.util";
 @Component({
   selector: 'stream-select',
   templateUrl: './stream-select.component.html',
-  styles: ['.ddp-box-sub .ddp-wrap-edit2:first-of-type {margin-top:0;}']
+  styles: ['.ddp-box-sub .ddp-wrap-edit2:first-of-type {margin-top:0;}',
+          '.sys-txt-info {font-size: 13px;color: #36393e;vertical-align: bottom;word-break: break-all;margin: 5px 0 10px 0;}']
 })
 export class StreamSelectComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 

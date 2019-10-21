@@ -2290,8 +2290,9 @@
   "msg.storage.ui.stream.description": "Kafka 데이터 연결을 설정하십시오",
   "msg.storage.ui.stream.use.kafka.scheme": "Kafka의 Scheme 사용하기(선택하지 않으면 원하는 스키마를 업로드 할 수 있습니다.)",
   "msg.storage.ui.stream.exist.kafka.scheme": "{{topic}} 토픽에 스키마 정보가 있습니다.",
-  "msg.storage.ui.stream.not.exist.kafka.scheme": "토픽에 스키마 정보가 없습니다. 새로운 스키마 정보를 업로드하십시오.",
-  "msg.storage.ui.stream.upload.description" : ".json 형식이 허용됩니다.",
+  "msg.storage.ui.stream.not.exist.kafka.scheme": "토픽에 스키마 정보가 없습니다.",
+  "msg.storage.ui.stream.upload.description": ".json 형식이 허용됩니다.",
+  "msg.storage.ui.stream.not.exist.description": "주제에 전달될 json 형식의 파일을 업로드하십시오.",
 
   "msg.storage.ui.timezone.country.zimbabwe": "짐바브웨",
   "msg.storage.ui.timezone.country.zambia": "잠비아",

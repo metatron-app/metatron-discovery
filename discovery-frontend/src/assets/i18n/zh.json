@@ -2196,8 +2196,9 @@
   "msg.storage.ui.stream.description": "请设置kafka数据连接",
   "msg.storage.ui.stream.use.kafka.scheme": "使用kafka的方案。 （如果未选中，则可以上载所需的架构。）",
   "msg.storage.ui.stream.exist.kafka.scheme": "Kafka的模式存在于主题“ {{topic}}”中",
-  "msg.storage.ui.stream.not.exist.kafka.scheme": "主题中没有架构信息。请上传新的架构信息。",
-  "msg.storage.ui.stream.upload.description" : "允许使用.json格式。",
+  "msg.storage.ui.stream.not.exist.kafka.scheme": "主题中没有架构信息。",
+  "msg.storage.ui.stream.upload.description": "允许使用.json格式。",
+  "msg.storage.ui.stream.not.exist.description": "上载json格式的文件，该文件将发送到topic。",
 
   "msg.log.th.status": "状态",
   "msg.log.ui.search.description": "请按job名或应用程序ID进行搜索",

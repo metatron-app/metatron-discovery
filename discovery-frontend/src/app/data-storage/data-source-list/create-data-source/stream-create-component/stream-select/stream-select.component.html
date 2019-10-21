@@ -74,11 +74,12 @@
             <em class="ddp-icon-info"></em>{{'msg.storage.ui.stream.not.exist.kafka.scheme' | translate}}
           </div>
         </div>
-        <label class="ddp-label-checkbox" [ngStyle]="{'visibility': isKafkaDataResult ? '' : 'hidden'}">
+        <label class="ddp-label-checkbox" *ngIf="isKafkaDataResult">
           <input type="checkbox" [(ngModel)]="isUseKafkaScheme">
           <i class="ddp-icon-checkbox"></i>
           <span class="ddp-txt-checkbox">{{'msg.storage.ui.stream.use.kafka.scheme' | translate}}</span>
         </label>
+        <div class="sys-txt-info" *ngIf="selectedKafkaTopic != undefined && !isKafkaDataResult">{{'msg.storage.ui.stream.not.exist.description' | translate}}</div>
 
       </div>
       <!-- //topic -->
