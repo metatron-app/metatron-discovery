@@ -3154,7 +3154,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
               layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[idx], colorList, idx, shelf, rangeList);
             }
           }
-          layer.color.changeRange = true;
         }
       });
 
