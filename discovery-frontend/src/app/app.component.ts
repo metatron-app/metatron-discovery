@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {ChangeDetectorRef, Component, Injector} from '@angular/core';
+import {AfterContentChecked, ChangeDetectorRef, Component, Injector} from '@angular/core';
 import {TranslateService} from '@ngx-translate/core';
 import {
   Event as RouterEvent,
@@ -33,7 +33,7 @@ import {CommonUtil} from "./common/util/common.util";
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
-export class AppComponent {
+export class AppComponent implements AfterContentChecked {
 
   public isLoggedIn:boolean = false;
   public routerLoading: boolean = false;
@@ -91,6 +91,10 @@ export class AppComponent {
     });
 
   } // constructor
+
+  ngAfterContentChecked(): void {
+    this.changeDetect.detectChanges();
+  }
 
   // Shows and hides the loading spinner during RouterEvent changes
   navigationInterceptor(event: RouterEvent): void {
