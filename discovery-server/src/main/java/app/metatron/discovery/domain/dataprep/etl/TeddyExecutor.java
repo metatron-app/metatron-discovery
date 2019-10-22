@@ -16,6 +16,7 @@ package app.metatron.discovery.domain.dataprep.etl;
 
 import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_CORES;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_LIMIT_ROWS;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_MAX_FETCH_SIZE;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_TIMEOUT;
 import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.CANCELED;
 import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.FAILED;
@@ -91,6 +92,7 @@ public class TeddyExecutor {
   public Integer timeout;
   public Integer cores;
   public Integer limitRows;
+  public Integer maxFetchSize;
 
   Map<String, String> replaceMap = new HashMap(); // origTeddyDsId -> newFullDsId
   Map<String, String> reverseMap = new HashMap(); // newFullDsId -> origTeddyDsId
@@ -101,6 +103,7 @@ public class TeddyExecutor {
     cores = (Integer) prepPropertiesInfo.get(ETL_CORES);
     timeout = (Integer) prepPropertiesInfo.get(ETL_TIMEOUT);
     limitRows = (Integer) prepPropertiesInfo.get(ETL_LIMIT_ROWS);
+    maxFetchSize = (Integer) prepPropertiesInfo.get(ETL_MAX_FETCH_SIZE);
   }
 
   private void putStackTraceIntoCustomField(String ssId, Exception e) {
