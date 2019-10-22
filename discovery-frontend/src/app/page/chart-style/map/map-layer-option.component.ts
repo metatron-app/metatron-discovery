@@ -198,6 +198,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       layer.color.symbolTransparency = cloneLayer.color.transparency;
       layer.symbolPointType = (<UISymbolLayer>cloneLayer).symbol;
       layer.symbolOutline = (<UISymbolLayer>cloneLayer).outline;
+      layer['symbolPointRadiusFrom'] = (<UISymbolLayer>cloneLayer)['pointRadiusFrom'];
+      layer['symbolPointRadiusTo'] = (<UISymbolLayer>cloneLayer)['pointRadiusTo'];
     } else if (MapLayerType.TILE === preLayerType) {
       layer.tileRadius = cloneLayer.tileRadius;
       layer.color.tileSchema = cloneLayer.color.schema;
@@ -276,6 +278,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
         layer.symbolOutline = null;
       }
       (<UISymbolLayer>layer).outline = layer.symbolOutline;
+      (<UISymbolLayer>layer)['pointRadiusFrom'] = layer['symbolPointRadiusFrom'];
+      (<UISymbolLayer>layer)['pointRadiusTo'] = layer['symbolPointRadiusTo'];
 
       // remove measure aggregation type in shelf
       this.removeAggregationType();

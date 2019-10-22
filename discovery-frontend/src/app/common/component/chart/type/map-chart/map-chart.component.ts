@@ -64,6 +64,7 @@ import {UIPolygonLayer} from '../../option/ui-option/map/ui-polygon-layer';
 import {UITileLayer} from '../../option/ui-option/map/ui-tile-layer';
 import {ColorOptionConverter} from '../../option/converter/color-option-converter';
 import {CommonConstant} from "../../../../constant/common.constant";
+import {StringUtil} from "../../../../util/string.util";
 
 declare let ol;
 
@@ -2712,7 +2713,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         ///////////////////////////
         else if (isMeasure) {
           symbolLayer.size.by = MapBy.MEASURE;
-          symbolLayer.size.column = uiOption.fieldMeasureList[0]['name'];
+          if(StringUtil.isEmpty(symbolLayer.size.column) || symbolLayer.size.column === "NONE") {
+            symbolLayer.size.column = uiOption.fieldMeasureList[0]['name'];
+          }
         }
       }
       ////////////////////////////////////////////////////////
