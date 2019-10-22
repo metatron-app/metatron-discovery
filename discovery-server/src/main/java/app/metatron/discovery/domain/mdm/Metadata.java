@@ -73,7 +73,7 @@ public class Metadata extends AbstractHistoryEntity implements MetatronDomain<St
   @Enumerated(EnumType.STRING)
   private SourceType sourceType;
 
-  @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
+  @OneToOne(fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
   @JoinColumn(name = "source_id", referencedColumnName = "id")
   private MetadataSource source;
 

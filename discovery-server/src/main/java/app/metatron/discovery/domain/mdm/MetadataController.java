@@ -405,6 +405,10 @@ public class MetadataController {
       }
     }
 
+    //add popularity and tags
+    metadataService.findTags(metadatas);
+    metadataService.findPopularities(metadatas);
+
     Page<Metadata> metadataPage = new PageImpl<Metadata>(metadatas, pageable, metadataPopularityList.getTotalElements());
     Page<Metadata> metadataResourced = ProjectionUtils.toPageResource(projectionFactory,
             metadataProjections.getProjectionByName("forListView"),
