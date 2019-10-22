@@ -37,6 +37,7 @@ public class PrepProperties {
   public static final String SAMPLING_CORES = "polaris.dataprep.sampling.cores";
   public static final String SAMPLING_TIMEOUT = "polaris.dataprep.sampling.timeout";
   public static final String SAMPLING_LIMIT_ROWS = "polaris.dataprep.sampling.limitRows";
+  public static final String SAMPLING_MAX_FETCH_SIZE = "polaris.dataprep.sampling.maxFetchSize";
   public static final String SAMPLING_AUTO_TYPING = "polaris.dataprep.sampling.autoTyping";
 
   public static final String STAGEDB_HOSTNAME = "polaris.storage.stagedb.hostname";
@@ -48,6 +49,7 @@ public class PrepProperties {
   public static final String ETL_CORES = "polaris.dataprep.etl.cores";
   public static final String ETL_TIMEOUT = "polaris.dataprep.etl.timeout";
   public static final String ETL_LIMIT_ROWS = "polaris.dataprep.etl.limitRows";
+  public static final String ETL_MAX_FETCH_SIZE = "polaris.dataprep.etl.maxFetchSize";
   public static final String ETL_JVM_OPTIONS = "polaris.dataprep.etl.jvmOptions";
   public static final String ETL_EXPLICIT_GC = "polaris.dataprep.etl.explicitGC";
 
@@ -112,6 +114,10 @@ public class PrepProperties {
     return sampling.getLimitRows();
   }
 
+  public Integer getSamplingMaxFetchSize() {
+    return sampling.getMaxFetchSize();
+  }
+
   public Boolean getSamplingAutoTyping() {
     return sampling.getAutoTyping();
   }
@@ -126,6 +132,10 @@ public class PrepProperties {
 
   public Integer getEtlLimitRows() {
     return etl.getLimitRows();
+  }
+
+  public Integer getEtlMaxFetchSize() {
+    return etl.getMaxFetchSize();
   }
 
   public String getEtlJvmOptions() {
@@ -182,6 +192,7 @@ public class PrepProperties {
     map.put(ETL_CORES, getEtlCores());
     map.put(ETL_TIMEOUT, getEtlTimeout());
     map.put(ETL_LIMIT_ROWS, getEtlLimitRows());
+    map.put(ETL_MAX_FETCH_SIZE, getEtlMaxFetchSize());
     map.put(ETL_JVM_OPTIONS, getEtlJvmOptions());
     map.put(ETL_EXPLICIT_GC, getEtlExplicitGC());
     map.put(ETL_SPARK_PORT, getEtlSparkPort());
@@ -210,6 +221,7 @@ public class PrepProperties {
     public Integer cores;
     public Integer timeout;
     public Integer limitRows;
+    public Integer maxFetchSize;
     public Boolean autoTyping;
 
     public SamplingInfo() {
@@ -236,6 +248,13 @@ public class PrepProperties {
       return limitRows;
     }
 
+    public Integer getMaxFetchSize() {
+      if (maxFetchSize == null) {
+        maxFetchSize = 1000;
+      }
+      return maxFetchSize;
+    }
+
     public boolean getAutoTyping() {
       if (autoTyping == null) {
         autoTyping = true;
@@ -255,14 +274,18 @@ public class PrepProperties {
       this.limitRows = limitRows;
     }
 
+    public void setMaxFetchSize(Integer maxFetchSize) {
+      this.maxFetchSize = maxFetchSize;
+    }
+
     public void setAutoTyping(Boolean autoTyping) {
       this.autoTyping = autoTyping;
     }
 
     @Override
     public String toString() {
-      return String.format("SamplingInfo{cores=%d timeout=%d limitRows=%d autoTyping=%b}",
-              cores, timeout, limitRows, autoTyping);
+      return String.format("SamplingInfo{cores=%d timeout=%d limitRows=%d maxFetchSize=%d autoTyping=%b}",
+              cores, timeout, limitRows, maxFetchSize, autoTyping);
     }
   }
 
@@ -343,6 +366,7 @@ public class PrepProperties {
     public Integer cores;
     public Integer timeout;
     public Integer limitRows;
+    public Integer maxFetchSize;
     public String jvmOptions;
     public Boolean explicitGC;
     public SparkInfo spark;
@@ -372,6 +396,13 @@ public class PrepProperties {
         limitRows = 100 * 10000;  // being conservative
       }
       return limitRows;
+    }
+
+    public Integer getMaxFetchSize() {
+      if (maxFetchSize == null) {
+        maxFetchSize = 1000;
+      }
+      return maxFetchSize;
     }
 
     public String getJvmOptions() {
@@ -404,6 +435,10 @@ public class PrepProperties {
       this.limitRows = limitRows;
     }
 
+    public void setMaxFetchSize(Integer maxFetchSize) {
+      this.maxFetchSize = maxFetchSize;
+    }
+
     public void setJvmOptions(String jvmOptions) {
       this.jvmOptions = jvmOptions;
     }
@@ -418,8 +453,8 @@ public class PrepProperties {
 
     @Override
     public String toString() {
-      return String.format("EtlInfo{cores=%d timeout=%d jvmOptions=%s explicitGC=%b}",
-              cores, timeout, jvmOptions, explicitGC);
+      return String.format("EtlInfo{cores=%d timeout=%d limitRows=%d maxFetchSize=%d jvmOptions=%s explicitGC=%b}",
+              cores, timeout, limitRows, maxFetchSize, jvmOptions, explicitGC);
     }
   }
 

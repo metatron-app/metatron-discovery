@@ -320,7 +320,9 @@ public class TeddyImpl {
 
     try {
       conn = jdbcDataAccessor.getConnection();
+      conn.setAutoCommit(false);
       stmt = conn.createStatement();
+      stmt.setFetchSize(prepProperties.getSamplingMaxFetchSize());
     } catch (SQLException e) {
       e.printStackTrace();
       throw PrepException.create(PREP_TEDDY_ERROR_CODE, e);
@@ -346,7 +348,9 @@ public class TeddyImpl {
 
     try {
       conn = jdbcDataAccessor.getConnection();
+      conn.setAutoCommit(false);
       stmt = conn.createStatement();
+      stmt.setFetchSize(prepProperties.getSamplingMaxFetchSize());
     } catch (SQLException e) {
       e.printStackTrace();
     }
