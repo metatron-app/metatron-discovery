@@ -67,6 +67,7 @@ import {CommonConstant} from "../../../../constant/common.constant";
 import proj4 from 'proj4';
 import * as ol from 'openlayers';
 // declare let ol;
+import {StringUtil} from "../../../../util/string.util";
 
 @Component({
   selector: 'map-chart',
@@ -2765,7 +2766,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         ///////////////////////////
         else if (isMeasure) {
           symbolLayer.size.by = MapBy.MEASURE;
-          symbolLayer.size.column = uiOption.fieldMeasureList[0]['name'];
+          if(StringUtil.isEmpty(symbolLayer.size.column) || symbolLayer.size.column === "NONE") {
+            symbolLayer.size.column = uiOption.fieldMeasureList[0]['name'];
+          }
         }
       }
       ////////////////////////////////////////////////////////
