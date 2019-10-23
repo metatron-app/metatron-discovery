@@ -768,6 +768,14 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
 
   }
 
+  public clickFunction($event) {
+    const $targetElm = $( $event.target ).parent();
+
+    $targetElm.parent().parent().parent().find('li').removeClass( 'ddp-selected' );
+    $targetElm.addClass( 'ddp-selected' );
+
+  }
+
   public checkCategory(calFunction:any[]): string {
     return calFunction.filter(item=> item['commonValue'].toLowerCase().indexOf(this.calFuncSearchText.toLowerCase()) !== -1).length > 0 ? 'block' : 'none';
   }

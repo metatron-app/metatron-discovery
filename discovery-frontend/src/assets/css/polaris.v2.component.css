@@ -154,8 +154,7 @@ ul.ddp-list-typebasic.ddp-view li.ddp-selected a .ddp-icon-plus {display:block;}
 .ddp-ui-typebasic .ddp-ui-dropdown.ddp-selected span.ddp-list-name:before {width:7px; height:4px; margin-top:-2px;background-position-y:-118px;}
 .ddp-ui-typebasic .ddp-ui-dropdown .ddp-list-typebasic {display:none;}
 .ddp-ui-typebasic .ddp-ui-dropdown.ddp-selected .ddp-list-typebasic {display:block;}
-.ddp-ui-typebasic .ddp-ui-dropdown ul.ddp-list-typebasic.ddp-view {padding-left:20px;}
-.ddp-ui-typebasic .ddp-ui-dropdown ul.ddp-list-typebasic.ddp-view li a {cursor: default;padding-left:5px;}
+.ddp-ui-typebasic .ddp-ui-dropdown ul.ddp-list-typebasic.ddp-view {padding-left:25px;}
 .ddp-ui-typebasic .ddp-ui-dropdown ul.ddp-list-typebasic.ddp-view li a:hover {background-color:#f2f1f8;}
 .ddp-ui-typebasic .ddp-ui-dropdown ul.ddp-list-typebasic.ddp-view li.ddp-selected a {background-color:#9ca2cc; color:#fff;}
 .ddp-ui-typebasic .ddp-ui-dropdown ul.ddp-list-typebasic.ddp-view li.ddp-selected a .ddp-icon-plus {background-position-x:-16px;}
