@@ -5797,7 +5797,7 @@ ul.ddp-list-rule2 li.ddp-disabled2 .ddp-wrap-line-add {display:block;}
 .ddp-box-flowdetail .ddp-data-explain .ddp-ui-input .ddp-btn-check:hover {background-color:#9ca2cc;}
 .ddp-box-flowdetail .ddp-data-explain .ddp-ui-input input {width:100%;padding:8px 31px 8px 8px; border:none; background:#f6f6f7; box-sizing:border-box;}
 
-.ddp-box-flowdetail .ddp-data-explain .ddp-link-edit {display:none; position:absolute; right:0; top:4px; padding:3px 5px; z-index:1;}
+.ddp-box-flowdetail .ddp-data-explain .ddp-link-edit {display:none; position:absolute; right:0; top:0; padding:3px 5px; z-index:1;}
 .ddp-box-flowdetail .ddp-data-explain.ddp-selected .ddp-link-edit {display:none;}
 .ddp-box-flowdetail .ddp-txt-explain:hover .ddp-link-edit {display:block; }
 .ddp-box-flowdetail .ddp-txt-explain:hover .ddp-link-edit .ddp-icon-edit2 {background-position:-11px top;}
