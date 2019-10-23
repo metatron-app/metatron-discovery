@@ -223,6 +223,11 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
    * Close snapshot popup
    */
   public close() {
+
+    if(this.callbackIndex) {
+      clearTimeout(this.callbackIndex);
+    }
+    
     this.isShow = false;
     $('body').removeClass('body-hidden');
     this.snapshotDetailCloseEvent.emit();
