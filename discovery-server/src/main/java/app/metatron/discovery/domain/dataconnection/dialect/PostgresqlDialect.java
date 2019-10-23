@@ -100,7 +100,7 @@ public class PostgresqlDialect implements JdbcDialect {
 
   @Override
   public String getConnectorClass(JdbcConnectInformation connectInfo) {
-    return null;
+    return "app.metatron.discovery.domain.dataconnection.connector.PostgresqlJdbcConnector";
   }
 
   @Override

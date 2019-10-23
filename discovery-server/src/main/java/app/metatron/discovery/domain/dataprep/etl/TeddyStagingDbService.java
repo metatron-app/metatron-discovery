@@ -247,7 +247,6 @@ public class TeddyStagingDbService {
     Connection conn;
     try {
       conn = jdbcDataAccessor.getConnection();
-      conn.setAutoCommit(false);
       stmt = conn.createStatement();
       stmt.setFetchSize(maxFetchSize);
     } catch (SQLException e) {
