@@ -1,6 +1,7 @@
 package app.metatron.discovery.domain.dataprep.etl;
 
 import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_LIMIT_ROWS;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_MAX_FETCH_SIZE;
 
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
@@ -23,14 +24,17 @@ public class TeddyDatabaseService {
   private static Logger LOGGER = LoggerFactory.getLogger(TeddyExecutor.class);
 
   private Integer limitRows = null;
+  private Integer maxFetchSize = null;
 
   public void setPrepPropertiesInfo(Map<String, Object> prepPropertiesInfo) {
     limitRows = (Integer) prepPropertiesInfo.get(ETL_LIMIT_ROWS);
+    maxFetchSize = (Integer) prepPropertiesInfo.get(ETL_MAX_FETCH_SIZE);
   }
 
   public DataFrame loadDatabaseTable(String dsId, String sql, DbInfo db)
           throws SQLException, ClassNotFoundException, TeddyException {
     Statement stmt = getJdbcStatement(db.implementor, db.connectUri, db.username, db.password);
+    stmt.setFetchSize(maxFetchSize);
     DataFrame df = new DataFrame();
 
     LOGGER.info(
@@ -60,6 +64,7 @@ public class TeddyDatabaseService {
       }
       Connection conn = DriverManager.getConnection(connectUri, jdbcDataConnection.getUsername(),
               jdbcDataConnection.getPassword());
+      conn.setAutoCommit(false);
       return conn.createStatement();
     } catch (ClassNotFoundException e) {
       LOGGER.error(String
