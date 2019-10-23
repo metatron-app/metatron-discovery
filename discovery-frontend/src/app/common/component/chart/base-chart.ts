@@ -72,7 +72,6 @@ import {Shelf} from '../../../domain/workbook/configurations/shelf/shelf';
 import {fromEvent} from 'rxjs';
 import {debounceTime, map} from 'rxjs/operators';
 import UI = OptionGenerator.UI;
-import {CommonUtil} from "../../util/common.util";
 import {Theme} from "../../value/user.setting.value";
 
 declare let echarts: any;
@@ -1407,7 +1406,8 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     }
 
     if( this.chartOption.legend && this.chartOption.legend.textStyle ) {
-      if( $('body').hasClass(Theme.DARK) ) {
+      const isWidget = ( 0 < this.$element.closest( 'page-widget' ).length );
+      if( isWidget && $('body').hasClass(Theme.DARK) ) {
         this.chartOption.legend.textStyle.color = '#fff';
       } else {
         this.chartOption.legend.textStyle.color = '#333';
