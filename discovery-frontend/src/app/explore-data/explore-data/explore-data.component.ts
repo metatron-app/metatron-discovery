@@ -216,22 +216,8 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
             this._exploreDataListComponent.metadataList[index].favorite = !this._exploreDataListComponent.metadataList[index].favorite;
           }
           // modal is shown in main screen
-        } else if (this.mode === ExploreMode.MAIN) {
-          // remove favorite in main screen
-          const index = this._exploreDataMainComponent.favoriteMetadataList.findIndex((metadata) => {
-            return metadata.id === metadataDetail.id;
-          });
-
-          if (index !== -1) {
-            if (this._exploreDataMainComponent.favoriteMetadataList[index].favorite) {
-              this._exploreDataMainComponent.favoriteMetadataList.splice(index, 1);
-            }
-          }
-
-          // add favorite in main screen
-          if (!metadataDetail.favorite) {
-            this._exploreDataMainComponent.favoriteMetadataList.push(metadataDetail);
-          }
+        } else if (this.mode === ExploreMode.MAIN)  {
+          this._exploreDataMainComponent.setMyFavoriteMetadataList().catch(e => this.commonExceptionHandler(e));
         }
       });
 

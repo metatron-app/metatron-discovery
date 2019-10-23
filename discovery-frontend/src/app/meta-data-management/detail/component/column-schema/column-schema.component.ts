@@ -72,6 +72,8 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    */
   public readonly selectedContentSort: Order = new Order();
 
+  metadata: Metadata;
+
   /**
    * Logical
    */
@@ -743,6 +745,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     this.logicalTypeList = this.getMetaDataLogicalTypeList();
     this.logicalTypeEtcList = this.getMetaDataLogicalTypeEtcList();
     this._codeTableDetailList = [];
+    this.metadata = this.metaDataModelService.getMetadata();
     this.filterInitialize();
   }
 
