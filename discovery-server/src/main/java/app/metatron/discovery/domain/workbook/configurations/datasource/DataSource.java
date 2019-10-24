@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.io.Serializable;
 
+import app.metatron.discovery.domain.datasource.DataSource.ConnectionType;
+
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.PROPERTY,
     property = "type",
@@ -37,6 +39,16 @@ public abstract class DataSource implements Serializable {
    * 임시 데이터 소스 여부
    */
   Boolean temporary;
+
+  ConnectionType connType;
+
+  String engineName;
+
+  String id;
+
+  String uiDescription;
+
+  String temporaryId;
 
   /**
    * Biz. Logic 용 객체(스펙과 관련 없음)
@@ -66,6 +78,46 @@ public abstract class DataSource implements Serializable {
 
   public void setTemporary(Boolean temporary) {
     this.temporary = temporary;
+  }
+
+  public ConnectionType getConnType() {
+    return connType;
+  }
+
+  public void setConnType(ConnectionType connType) {
+    this.connType = connType;
+  }
+
+  public String getEngineName() {
+    return engineName;
+  }
+
+  public void setEngineName(String engineName) {
+    this.engineName = engineName;
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public String getUiDescription() {
+    return uiDescription;
+  }
+
+  public void setUiDescription(String uiDescription) {
+    this.uiDescription = uiDescription;
+  }
+
+  public String getTemporaryId() {
+    return temporaryId;
+  }
+
+  public void setTemporaryId(String temporaryId) {
+    this.temporaryId = temporaryId;
   }
 
   public app.metatron.discovery.domain.datasource.DataSource getMetaDataSource() {
