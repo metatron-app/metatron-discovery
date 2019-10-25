@@ -1,7 +1,7 @@
 package app.metatron.discovery.domain.dataprep.csv;
 
 import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
-import static app.metatron.discovery.domain.dataprep.PrepUtil.datasetError;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.datasetError;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME;
 import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getReaderAfterDetectingCharset;
 

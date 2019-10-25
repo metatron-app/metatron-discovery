@@ -441,8 +441,7 @@ public class DataFrame implements Serializable, Transformable {
   }
 
   // column 순서가 중요해서 JdbcConnectionService를 그대로 쓰기가 어려움. customize가 필요.
-  public void setByJDBC(Statement stmt, String query, int limit)
-          throws JdbcTypeNotSupportedException, JdbcQueryFailedException {
+  public void setByJDBC(Statement stmt, String query, int limit) throws TeddyException {
     ResultSet rs;
     ResultSetMetaData rsmd;
     int colno;

@@ -23,7 +23,7 @@ import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule
 import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule.SECOND;
 import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule.YEAR;
 
-import app.metatron.discovery.domain.dataprep.PrepUtil;
+import app.metatron.discovery.domain.dataprep.util.PrepUtil;
 import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.Row;

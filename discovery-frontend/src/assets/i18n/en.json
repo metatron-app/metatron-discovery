@@ -796,6 +796,7 @@
   "msg.dp.alert.failed.to.delete.snapshot": "IOException while deleting a snapshot",
   "msg.dp.alert.invalid.snapshot.name": "Invalid snapshot name (null or empty)",
   "msg.dp.alert.snapshot.type.not.supported.yet": "Snapshot type not supported",
+  "msg.dp.alert.snapshot.type.is.missing": "Snapshot type is missing",
   "msg.dp.alert.snapshot.dest.uri.is.needed": "Destination URI for snapshot is needed",
   "msg.dp.alert.unsupported.charset": "Unsupported encoding character set.",
   "msg.dp.alert.unknown.bom": "Unsupported byte-order mark (BOM)",

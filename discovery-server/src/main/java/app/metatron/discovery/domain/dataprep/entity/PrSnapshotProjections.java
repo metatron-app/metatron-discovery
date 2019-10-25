@@ -147,8 +147,6 @@ public class PrSnapshotProjections {
 
     String getOrigDsStoredUri();
 
-    String getStatusCat();
-
     Map<String, Long> getElapsedTime();
 
     Map<String, Object> getJsonLineageInfo();
