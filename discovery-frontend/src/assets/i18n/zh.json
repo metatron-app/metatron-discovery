@@ -842,7 +842,7 @@
   "msg.dp.alert.snapshot.dest.uri.is.needed": "必须指定目标URI",
   "msg.dp.alert.prep.file.type.not.supported": "不支持的文件格式",
   "msg.dp.alert.prep.file.key.missing": "文件类型数据组信息受损",
-  "msg.dp.alert.teddy.column.not.countinuous": "列不连续",
+  "msg.dp.alert.teddy.column.not.continuous": "列不连续",
   "msg.dp.alert.teddy.column.not.found": "无法查找到列",
   "msg.dp.alert.teddy.not.supported.type": "Not supported type",
   "msg.dp.alert.teddy.query.failed": "Query failed",
