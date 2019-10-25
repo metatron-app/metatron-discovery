@@ -14,24 +14,21 @@
 
 package app.metatron.discovery.domain.mdm.lineage;
 
-import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getReaderAfterDetectingCharset;
-
-import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
+import app.metatron.discovery.domain.dataprep.PrepDatasetFileService;
 import app.metatron.discovery.domain.mdm.Metadata;
+import app.metatron.discovery.domain.mdm.MetadataErrorCodes;
 import app.metatron.discovery.domain.mdm.MetadataRepository;
 import app.metatron.discovery.domain.mdm.lineage.LineageMap.ALIGNMENT;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
+import java.util.UUID;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,6 +74,9 @@ public class LineageEdgeController {
   @Autowired
   LineageMapService lineageMapService;
 
+  @Autowired
+  PrepDatasetFileService prepDatasetFileService;
+
   private static final int DEFAULT_NODE_CNT = 7;
 
   public LineageEdgeController() {
@@ -86,14 +86,14 @@ public class LineageEdgeController {
   public
   @ResponseBody
   ResponseEntity<?> getLineages(
-      @RequestParam(value = "descContains", required = false, defaultValue = "") String descContains,
-      @RequestParam(value = "projection", required = false, defaultValue = "default") String projection,
-      Pageable pageable,
-      PersistentEntityResourceAssembler resourceAssembler
+          @RequestParam(value = "descContains", required = false, defaultValue = "") String descContains,
+          @RequestParam(value = "projection", required = false, defaultValue = "default") String projection,
+          Pageable pageable,
+          PersistentEntityResourceAssembler resourceAssembler
   ) {
 
     Page<LineageEdge> pages = null;
-    if(descContains.isEmpty()==true) {
+    if (descContains.isEmpty() == true) {
       pages = this.lineageEdgeRepository.findAll(pageable);
     } else {
       pages = this.lineageEdgeRepository.findByDescContaining(descContains, pageable);
@@ -116,7 +116,8 @@ public class LineageEdgeController {
       Long tier = Long.parseLong(request.get("tier"));
       String desc = request.get("desc");
 
-      lineageEdge = lineageEdgeService.createEdge(frMetaId, toMetaId, frMetaName, toMetaName, frColName, toColName, tier, desc);
+      lineageEdge = lineageEdgeService
+              .createEdge(frMetaId, toMetaId, frMetaName, toMetaName, frColName, toColName, tier, desc);
     } catch (Exception e) {
       LOGGER.error("create(): caught an exception: ", e);
     }
@@ -140,15 +141,15 @@ public class LineageEdgeController {
 
   @RequestMapping(value = "/map/{metaId}", method = RequestMethod.GET, produces = "application/json", consumes = "application/json")
   public ResponseEntity<?> getLineageMap(@PathVariable("metaId") String metaId,
-      @RequestParam(value = "nodeCnt", required = false) String strNodeCnt,
-      @RequestParam(value = "alignment", required = false) String strAlignment) {
+          @RequestParam(value = "nodeCnt", required = false) String strNodeCnt,
+          @RequestParam(value = "alignment", required = false) String strAlignment) {
 
     int nodeCnt;
 
     if (strNodeCnt != null
-        && StringUtils.isNumeric(strNodeCnt)
-        && Integer.valueOf(strNodeCnt) > 0
-        && Integer.valueOf(strNodeCnt) < 20) {
+            && StringUtils.isNumeric(strNodeCnt)
+            && Integer.valueOf(strNodeCnt) > 0
+            && Integer.valueOf(strNodeCnt) < 20) {
       nodeCnt = Integer.valueOf(strNodeCnt);
     } else {
       nodeCnt = DEFAULT_NODE_CNT;
@@ -191,36 +192,39 @@ public class LineageEdgeController {
     return ResponseEntity.created(URI.create("")).body(newEdges);
   }
 
-  @RequestMapping(value="/edge_list", method = RequestMethod.POST)
-  public @ResponseBody
-  ResponseEntity<?>  postLineageEdgeList(
-      @RequestBody List<Resource<LineageEdge>> lineageEdgeResources,
-      PersistentEntityResourceAssembler resourceAssembler
+  @RequestMapping(value = "/edge_list", method = RequestMethod.POST)
+  public
+  @ResponseBody
+  ResponseEntity<?> postLineageEdgeList(
+          @RequestBody List<Resource<LineageEdge>> lineageEdgeResources,
+          PersistentEntityResourceAssembler resourceAssembler
   ) {
     List<LineageEdge> lineageEdges = Lists.newArrayList();
     try {
       this.lineageEdgeRepository.deleteAll();
 
       Iterator<Resource<LineageEdge>> iterator = lineageEdgeResources.iterator();
-      while(iterator.hasNext()) {
+      while (iterator.hasNext()) {
         LineageEdge lineageEdge = iterator.next().getContent();
 
         List<Metadata> frMetadatas = this.metadataRepository.findByName(lineageEdge.getFrMetaName());
         if (frMetadatas.size() == 0) {
-          LOGGER.error(String.format("postLineageEdges(): frMetadata %s not found: ignored", lineageEdge.getFrMetaName()));
+          LOGGER.error(
+                  String.format("postLineageEdges(): frMetadata %s not found: ignored", lineageEdge.getFrMetaName()));
           continue;
         } else {
           lineageEdge.setFrMetaId(frMetadatas.get(0).getId());
         }
         List<Metadata> toMetadatas = this.metadataRepository.findByName(lineageEdge.getToMetaName());
         if (toMetadatas.size() == 0) {
-          LOGGER.error(String.format("postLineageEdges(): toMetadata %s not found: ignored", lineageEdge.getToMetaName()));
+          LOGGER.error(
+                  String.format("postLineageEdges(): toMetadata %s not found: ignored", lineageEdge.getToMetaName()));
           continue;
         } else {
           lineageEdge.setToMetaId(toMetadatas.get(0).getId());
         }
 
-        lineageEdges.add( this.lineageEdgeRepository.save(lineageEdge) );
+        lineageEdges.add(this.lineageEdgeRepository.save(lineageEdge));
       }
     } catch (Exception e) {
       LOGGER.error("postLineageEdges(): caught an exception: ", e);
@@ -230,62 +234,65 @@ public class LineageEdgeController {
   }
 
   @RequestMapping(value = "/file_upload", method = RequestMethod.POST, produces = "application/json")
-  public @ResponseBody ResponseEntity<?> file_upload(
-      @RequestPart("file") MultipartFile file
+  public
+  @ResponseBody
+  ResponseEntity<?> file_upload(
+          @RequestPart("file") MultipartFile file
   ) {
-    Map<String, Object> response = Maps.newHashMap();
-    List<String> header = Lists.newArrayList();
-    List<Map<String,Object>> rows = Lists.newArrayList();
+
+    String fileName = file.getOriginalFilename();
+    String extensionType = FilenameUtils.getExtension(fileName).toLowerCase();
+
+    String tempFileName = "TEMP_LINEAGE_EDGE_" + UUID.randomUUID().toString() + "." + extensionType;
+    String tempFilePath = System.getProperty("java.io.tmpdir") + File.separator + tempFileName;
+
+    Map<String, Object> responseMap = Maps.newHashMap();
+    responseMap.put("storedUri", tempFilePath);
+
     try {
-      InputStream is = file.getInputStream();
-      InputStreamReader isr = getReaderAfterDetectingCharset(is,null);
-
-      CSVParser parser = CSVParser.parse(isr, CSVFormat.DEFAULT.withDelimiter(',').withEscape('\\'));
-
-      Iterator<CSVRecord> iter = parser.iterator();
-
-      if (iter.hasNext()) {
-        CSVRecord csvRow = iter.next();
-        int colCnt = csvRow.size();
-        for (int i = 0; i < colCnt; i++) {
-          header.add(i, csvRow.get(i));
-        }
-
-        while (true) {
-          if (!iter.hasNext()) {
-            break;
-          }
-
-          csvRow = iter.next();
-          colCnt = csvRow.size();
-          Map<String,Object> row = Maps.newHashMap();
-          for (int i = 0; i < colCnt; i++) {
-            row.put(header.get(i), csvRow.get(i) );
-          }
-          rows.add(row);
-        }
-      }
-
-      response.put("header",header);
-      response.put("rows",rows);
+      File tempFile = new File(tempFilePath);
+      file.transferTo(tempFile);
     } catch (IOException e) {
-      LOGGER.error("file_upload POST(): caught an exception: ", e);
-    } catch (IllegalStateException e) {
-      LOGGER.error("file_upload POST(): caught an exception: ", e);
-    } catch (Exception e) {
-      LOGGER.error("file_upload POST(): caught an exception: ", e);
+      LOGGER.error("Failed to upload file : {}", e.getMessage());
+      throw new LineageException(MetadataErrorCodes.LINEAGE_CANNOT_CREATE_EDGE, e.getCause());
     }
 
-    return ResponseEntity.ok().body(response);
+    return ResponseEntity.ok(responseMap);
+  }
+
+  @RequestMapping(value = "/lineage_file", method = RequestMethod.POST)
+  public
+  @ResponseBody
+  ResponseEntity<?> postLineageFile(
+          @RequestBody Map<String, Object> params
+  ) {
+
+    Map<String, Object> gridResponses = Maps.newHashMap();
+
+    try {
+      String storedUri = (String) params.get("storedUri");
+
+      if (storedUri != null) {
+        gridResponses = prepDatasetFileService.makeFileGrid("file://" + storedUri, 1000, ",", 8, false);
+      }
+    } catch (IllegalStateException e) {
+      LOGGER.error("lineage_file POST(): caught an exception: ", e);
+    } catch (Exception e) {
+      LOGGER.error("lineage_file POST(): caught an exception: ", e);
+    }
+
+    return ResponseEntity.ok().body(gridResponses);
   }
 
   @RequestMapping(value = "/edges/{edgeId}", method = RequestMethod.DELETE, produces = "application/json", consumes = "application/json")
-  public @ResponseBody ResponseEntity<?> deleteEdge( @PathVariable("edgeId") String edgeId) {
+  public
+  @ResponseBody
+  ResponseEntity<?> deleteEdge(@PathVariable("edgeId") String edgeId) {
     Map<String, Object> response = Maps.newHashMap();
 
     this.lineageEdgeRepository.delete(edgeId);
 
-    response.put("deleted",edgeId);
+    response.put("deleted", edgeId);
 
     return ResponseEntity.ok().body(response);
   }

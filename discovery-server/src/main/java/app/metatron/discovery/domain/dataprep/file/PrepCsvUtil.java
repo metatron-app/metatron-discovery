@@ -1,13 +1,13 @@
 package app.metatron.discovery.domain.dataprep.file;
 
 import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
-import static app.metatron.discovery.domain.dataprep.util.PrepUtil.datasetError;
-import static app.metatron.discovery.domain.dataprep.util.PrepUtil.snapshotError;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_PARSE_CSV;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_WRITE_CSV;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_MALFORMED_DELIMITER;
 import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getReader;
 import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getWriter;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.datasetError;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.snapshotError;
 
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;

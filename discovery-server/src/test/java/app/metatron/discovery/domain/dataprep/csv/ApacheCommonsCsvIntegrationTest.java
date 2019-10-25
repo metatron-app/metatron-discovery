@@ -14,7 +14,7 @@
 
 package app.metatron.discovery.domain.dataprep.csv;
 
-import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getReaderAfterDetectingCharset;
+import static org.junit.Assert.assertNull;
 
 import app.metatron.discovery.AbstractRestIntegrationTest;
 import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
@@ -23,14 +23,13 @@ import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
+import app.metatron.discovery.domain.dataprep.file.PrepFileUtil;
 import app.metatron.discovery.domain.dataprep.file.PrepParseResult;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import com.facebook.presto.jdbc.internal.jackson.core.JsonProcessingException;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.apache.hadoop.conf.Configuration;
@@ -74,41 +73,19 @@ public class ApacheCommonsCsvIntegrationTest extends AbstractRestIntegrationTest
     String strHdfsUri = String.format("%s/test_output/%s", prepProperties.getStagingBaseDir(true), localRelPath);
     FSDataOutputStream hos;
     FileSystem hdfsFs;
-    URI uri;
-    File file;
-    FileInputStream fis;
-    InputStreamReader reader;
+    Reader reader;
+
+    PrepParseResult result = new PrepParseResult();
+    reader = PrepFileUtil.getReader(strLocalUri, null, false, result);
 
     try {
-      uri = new URI(strLocalUri);
-      file = new File(uri);
-      fis = new FileInputStream(file);
-      reader = getReaderAfterDetectingCharset(fis, strLocalUri);
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-      throw PrepException
-              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND, strLocalUri);
-    } catch (URISyntaxException e) {
-      e.printStackTrace();
-      throw PrepException
-              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX,
-                      strHdfsUri);
-    } catch (IOException e) {
-      e.printStackTrace();
-      throw PrepException
-              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH,
-                      strHdfsUri);
-    }
-
-    try {
-      uri = new URI(strHdfsUri);
+      URI uri = new URI(strHdfsUri);
       Path path = new Path(uri);
       hdfsFs = FileSystem.get(getHadoopConf());
       hos = hdfsFs.create(path);
 
       org.apache.commons.io.IOUtils.copy(reader, hos);
 
-      fis.close();
       hos.close();
       reader.close();
     } catch (URISyntaxException e) {
@@ -130,8 +107,7 @@ public class ApacheCommonsCsvIntegrationTest extends AbstractRestIntegrationTest
   public void test_hdfs() throws JsonProcessingException {
     PrepParseResult result = PrepCsvUtil.parse(strHdfsUriCrime, ",", 10000, getHadoopConf());
 
-    LOGGER.debug("colNames={}", result.colNames);
-    LOGGER.debug("colCnt={}", result.colNames.size());
+    assertNull(result.colNames);
 
     DataFrame df = new DataFrame();
     df.setByGrid(result.grid, result.colNames);
