@@ -602,7 +602,7 @@ public class PrepRuleChecker {
     functionList.add(
             new ExprFunction(ExprFunctionCategory.LOGICAL, "contains",
                     "msg.dp.ui.expression.functiondesc.logical.contains"
-                    , "startswith(‘hello world’, 'wor')", "true")
+                    , "contains(‘hello world’, 'wor')", "true")
     );
     functionList.add(
             new ExprFunction(ExprFunctionCategory.LOGICAL, "startswith",
