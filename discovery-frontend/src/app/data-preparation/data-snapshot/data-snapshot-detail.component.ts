@@ -158,6 +158,9 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   public sSInformationList: {label : String, value : string, isFileUri?: boolean}[] = [];
 
   public ssType = SsType;
+
+  public callbackIndex = null;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -184,6 +187,9 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     super.ngOnDestroy();
     $('body').removeClass('body-hidden');
 
+    if(this.callbackIndex) {
+      clearTimeout(this.callbackIndex);
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -217,6 +223,11 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
    * Close snapshot popup
    */
   public close() {
+
+    if(this.callbackIndex) {
+      clearTimeout(this.callbackIndex);
+    }
+    
     this.isShow = false;
     $('body').removeClass('body-hidden');
     this.snapshotDetailCloseEvent.emit();
@@ -530,8 +541,10 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
           } else {
             this.progressbarWidth = '100%';
           }
+
           // Whenever received response at the status of preparing, it requests snapshot data
-          setTimeout(() => {
+          this.callbackIndex = setTimeout(() => {
+            this.callbackIndex = null;
             this.getSnapshot();
           }, 2000)
 
