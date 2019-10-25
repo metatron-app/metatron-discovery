@@ -114,6 +114,7 @@ public enum PrepMessageKey {
   MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_UNPIVOT_GROUPEVERY(       "msg.dp.alert.teddy.parse.failed.by.unpivot.groupevery"),
   MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_JOIN_DATASET2(            "msg.dp.alert.teddy.parse.failed.by.join.dataset2"),
   MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_JOIN_JOINTYPE(            "msg.dp.alert.teddy.parse.failed.by.join.jointype"),
+  MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_UNION_DATASET2(           "msg.dp.alert.teddy.parse.failed.by.union.dataset2"),
   MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_WINDOW_VALUE(             "msg.dp.alert.teddy.parse.failed.by.window.value"),
   MSG_DP_ALERT_TEDDY_COLUMN_NOT_CONTINUOUS(                    "msg.dp.alert.teddy.column.not.continuous"),
   MSG_DP_ALERT_TEDDY_COLUMN_NOT_FOUND(                         "msg.dp.alert.teddy.column.not.found"),
