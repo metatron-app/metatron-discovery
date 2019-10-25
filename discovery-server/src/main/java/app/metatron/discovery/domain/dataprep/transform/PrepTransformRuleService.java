@@ -14,37 +14,25 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotSerializeIntoJsonException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
-import app.metatron.discovery.prep.parser.preparation.rule.Aggregate;
-import app.metatron.discovery.prep.parser.preparation.rule.CountPattern;
-import app.metatron.discovery.prep.parser.preparation.rule.Delete;
-import app.metatron.discovery.prep.parser.preparation.rule.Derive;
-import app.metatron.discovery.prep.parser.preparation.rule.Drop;
-import app.metatron.discovery.prep.parser.preparation.rule.Extract;
-import app.metatron.discovery.prep.parser.preparation.rule.Flatten;
-import app.metatron.discovery.prep.parser.preparation.rule.Header;
-import app.metatron.discovery.prep.parser.preparation.rule.Join;
-import app.metatron.discovery.prep.parser.preparation.rule.Keep;
-import app.metatron.discovery.prep.parser.preparation.rule.Merge;
-import app.metatron.discovery.prep.parser.preparation.rule.Move;
-import app.metatron.discovery.prep.parser.preparation.rule.Nest;
-import app.metatron.discovery.prep.parser.preparation.rule.Pivot;
-import app.metatron.discovery.prep.parser.preparation.rule.Rename;
-import app.metatron.discovery.prep.parser.preparation.rule.Replace;
-import app.metatron.discovery.prep.parser.preparation.rule.Rule;
-import app.metatron.discovery.prep.parser.preparation.rule.Set;
-import app.metatron.discovery.prep.parser.preparation.rule.SetFormat;
-import app.metatron.discovery.prep.parser.preparation.rule.SetType;
-import app.metatron.discovery.prep.parser.preparation.rule.Sort;
-import app.metatron.discovery.prep.parser.preparation.rule.Split;
-import app.metatron.discovery.prep.parser.preparation.rule.Union;
-import app.metatron.discovery.prep.parser.preparation.rule.Unnest;
-import app.metatron.discovery.prep.parser.preparation.rule.Unpivot;
-import app.metatron.discovery.prep.parser.preparation.rule.Window;
+import app.metatron.discovery.prep.parser.preparation.rule.*;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant.ArrayExpr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr.BinaryNumericOpExprBase;
@@ -55,16 +43,6 @@ import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr.UnaryNotExp
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier.IdentifierArrayExpr;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 @Service
 public class PrepTransformRuleService {
@@ -502,6 +480,7 @@ public class PrepTransformRuleService {
   private final String FMTSTR_REPLACE = "replace %s from %s with %s";              // on, col, with
   private final String FMTSTR_REPLACES = "replace %s";                              // col
   private final String FMTSTR_MERGE = "concatenate %s separated by %s";          // col, with
+  private final String FMTSTR_AGGREGATE_NO_GROUP = "aggregate with %s";         // value
   private final String FMTSTR_AGGREGATE = "aggregate with %s grouped by %s";         // value, group
   private final String FMTSTR_MOVE = "move %s %s";                              // col, before/after
   private final String FMTSTR_JOIN_UNION = "%s with %s";                              // command, strDsNames
@@ -599,7 +578,11 @@ public class PrepTransformRuleService {
         shortRuleString = String.format(FMTSTR_UNNEST, mapStrExp.get("col"));
         break;
       case "aggregate":
-        shortRuleString = String.format(FMTSTR_AGGREGATE, mapStrExp.get("value"), mapStrExp.get("group").toColList());
+        if(mapStrExp.get("group")!=null) {
+          shortRuleString = String.format(FMTSTR_AGGREGATE, mapStrExp.get("value"), mapStrExp.get("group").toColList());
+        } else {
+          shortRuleString = String.format(FMTSTR_AGGREGATE_NO_GROUP, mapStrExp.get("value"));
+        }
         break;
       case "sort":
         shortRuleString = String.format(FMTSTR_SORT, mapStrExp.get("order"), mapStrExp.get("type"));
