@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class TimestampFormatMismatchException extends TeddyException {
+
   public TimestampFormatMismatchException(String message) {
     super(message);
   }

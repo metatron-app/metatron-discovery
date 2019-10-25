@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class InvalidDeltaValueException extends TeddyException {
+
   public InvalidDeltaValueException(String message) {
     super(message);
   }

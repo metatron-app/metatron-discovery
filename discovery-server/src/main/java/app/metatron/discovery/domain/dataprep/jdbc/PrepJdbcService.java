@@ -18,18 +18,21 @@ import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
 
 public class PrepJdbcService extends JdbcConnectionService {
-    public PrepJdbcService() { super();}
 
-    public DataConnection makeJdbcDataConnection(DataConnection dataConnection) {
-        DataConnection jdbcDataConnection = new DataConnection();
-        jdbcDataConnection.setImplementor(dataConnection.getImplementor());
-        jdbcDataConnection.setUrl(dataConnection.getUrl());
-        jdbcDataConnection.setOptions(dataConnection.getOptions());
-        jdbcDataConnection.setDatabase(dataConnection.getDatabase());
-        jdbcDataConnection.setHostname(dataConnection.getHostname());
-        jdbcDataConnection.setUsername(dataConnection.getUsername());
-        jdbcDataConnection.setPassword(dataConnection.getPassword());
-        jdbcDataConnection.setPort(dataConnection.getPort());
-        return jdbcDataConnection;
-    }
+  public PrepJdbcService() {
+    super();
+  }
+
+  public DataConnection makeJdbcDataConnection(DataConnection dataConnection) {
+    DataConnection jdbcDataConnection = new DataConnection();
+    jdbcDataConnection.setImplementor(dataConnection.getImplementor());
+    jdbcDataConnection.setUrl(dataConnection.getUrl());
+    jdbcDataConnection.setOptions(dataConnection.getOptions());
+    jdbcDataConnection.setDatabase(dataConnection.getDatabase());
+    jdbcDataConnection.setHostname(dataConnection.getHostname());
+    jdbcDataConnection.setUsername(dataConnection.getUsername());
+    jdbcDataConnection.setPassword(dataConnection.getPassword());
+    jdbcDataConnection.setPort(dataConnection.getPort());
+    return jdbcDataConnection;
+  }
 }

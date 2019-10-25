@@ -74,9 +74,9 @@ public class Move implements Rule, Rule.Factory {
   @Override
   public String toString() {
     return "Move{" +
-        "col=" + col +
-        ", after=" + after +
-        ", before=" + before +
-    '}';
+            "col=" + col +
+            ", after=" + after +
+            ", before=" + before +
+            '}';
   }
 }

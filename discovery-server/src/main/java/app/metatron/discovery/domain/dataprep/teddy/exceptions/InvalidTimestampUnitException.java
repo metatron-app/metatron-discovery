@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class InvalidTimestampUnitException extends TeddyException {
+
   public InvalidTimestampUnitException(String message) {
     super(message);
   }

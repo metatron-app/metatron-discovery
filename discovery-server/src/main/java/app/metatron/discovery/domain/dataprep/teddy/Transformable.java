@@ -16,10 +16,12 @@ package app.metatron.discovery.domain.dataprep.teddy;
 
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
-
 import java.util.List;
 
 public interface Transformable {
+
   public List<Object> prepare(DataFrame prevDf, Rule rule, List<DataFrame> slaveDfs) throws TeddyException;
-  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException;
+
+  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
+          throws InterruptedException, TeddyException;
 }

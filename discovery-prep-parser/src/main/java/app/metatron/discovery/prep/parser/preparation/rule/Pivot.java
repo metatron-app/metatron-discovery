@@ -94,10 +94,10 @@ public class Pivot implements Rule, Rule.Factory {
   @Override
   public String toString() {
     return "Pivot{" +
-        "col=" + col +
-        ", value=" + value +
-        ", group=" + group +
-        ", limit=" + limit +
-        '}';
+            "col=" + col +
+            ", value=" + value +
+            ", group=" + group +
+            ", limit=" + limit +
+            '}';
   }
 }

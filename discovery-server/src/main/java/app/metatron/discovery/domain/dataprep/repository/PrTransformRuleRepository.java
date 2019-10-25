@@ -16,10 +16,10 @@ package app.metatron.discovery.domain.dataprep.repository;
 
 import app.metatron.discovery.domain.dataprep.entity.PrTransformRule;
 import app.metatron.discovery.domain.dataprep.entity.PrTransformRuleId;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
-
 public interface PrTransformRuleRepository extends JpaRepository<PrTransformRule, PrTransformRuleId> {
+
   List<PrTransformRule> findAllByOrderByRuleNoAsc();
 }

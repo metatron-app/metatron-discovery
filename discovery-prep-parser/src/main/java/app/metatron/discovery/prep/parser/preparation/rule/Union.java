@@ -78,10 +78,10 @@ public class Union implements Rule, Rule.Factory {
   @Override
   public String toString() {
     return "Union{" +
-        "dataset2=" + dataset2 +
-        ", masterCol=" + masterCol +
-        ", slaveCol=" + slaveCol +
-        ", totalCol=" + totalCol +
-        '}';
+            "dataset2=" + dataset2 +
+            ", masterCol=" + masterCol +
+            ", slaveCol=" + slaveCol +
+            ", totalCol=" + totalCol +
+            '}';
   }
 }

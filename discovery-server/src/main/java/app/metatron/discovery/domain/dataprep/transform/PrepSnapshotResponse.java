@@ -15,9 +15,9 @@
 package app.metatron.discovery.domain.dataprep.transform;
 
 import java.io.Serializable;
-import java.util.List;
 
 public class PrepSnapshotResponse implements Serializable {
+
   String ssId;
   String ssName;
 

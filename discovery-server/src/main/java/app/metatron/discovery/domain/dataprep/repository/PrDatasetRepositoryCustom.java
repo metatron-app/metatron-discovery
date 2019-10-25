@@ -21,7 +21,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface PrDatasetRepositoryCustom {
 
-    Page<PrDataset> searchByQuery(@Param("query") String query, Pageable pageable);
+  Page<PrDataset> searchByQuery(@Param("query") String query, Pageable pageable);
 
-    PrDataset findRealOne(PrDataset lazyOne);
+  PrDataset findRealOne(PrDataset lazyOne);
 }

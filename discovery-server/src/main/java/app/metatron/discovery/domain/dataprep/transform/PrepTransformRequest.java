@@ -17,6 +17,7 @@ package app.metatron.discovery.domain.dataprep.transform;
 import java.io.Serializable;
 
 public class PrepTransformRequest implements Serializable {
+
   private String dfId;
   private PrepTransformService.OP_TYPE op;
   private Integer ruleIdx;

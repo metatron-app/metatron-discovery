@@ -14,62 +14,61 @@
 
 package app.metatron.discovery.domain.dataprep.repository;
 
+import app.metatron.discovery.AbstractIntegrationTest;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
+import java.util.List;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
-
-import app.metatron.discovery.AbstractIntegrationTest;
 
 /**
  * Created by kaypark on 2017. 7. 4..
  */
 public class PrSnapshotRepositoryTest extends AbstractIntegrationTest {
 
-    @Autowired
-    PrSnapshotRepository snapshotRepository;
+  @Autowired
+  PrSnapshotRepository snapshotRepository;
 
-    @Test
-    public void saveTest() {
-        PrSnapshot snapshot = new PrSnapshot();
-        snapshot.setSsName("test snapshot name");
+  @Test
+  public void saveTest() {
+    PrSnapshot snapshot = new PrSnapshot();
+    snapshot.setSsName("test snapshot name");
 
-        snapshotRepository.saveAndFlush(snapshot);
+    snapshotRepository.saveAndFlush(snapshot);
 
-        System.out.println(ToStringBuilder.reflectionToString(snapshot, ToStringStyle.MULTI_LINE_STYLE));
+    System.out.println(ToStringBuilder.reflectionToString(snapshot, ToStringStyle.MULTI_LINE_STYLE));
+  }
+
+  @Test
+  public void crudTest() {
+    PrSnapshot snapshot = new PrSnapshot();
+    snapshot.setSsName("test snapshot name");
+
+    snapshotRepository.saveAndFlush(snapshot);
+    System.out.println(ToStringBuilder.reflectionToString(snapshot, ToStringStyle.MULTI_LINE_STYLE));
+
+    PrSnapshot savedSnapshot = snapshotRepository.getOne(snapshot.getSsId());
+    System.out.println("SAVE:: " + ToStringBuilder.reflectionToString(savedSnapshot, ToStringStyle.MULTI_LINE_STYLE));
+
+    savedSnapshot.setSsName("test snapshot name changed");
+
+    snapshotRepository.saveAndFlush(savedSnapshot);
+    System.out.println(ToStringBuilder.reflectionToString(savedSnapshot, ToStringStyle.MULTI_LINE_STYLE));
+
+    PrSnapshot updatedSnapshot = snapshotRepository.findOne(snapshot.getSsId());
+    System.out
+            .println("UPDATE:: " + ToStringBuilder.reflectionToString(updatedSnapshot, ToStringStyle.MULTI_LINE_STYLE));
+
+  }
+
+  @Test
+  public void findSnapshots() {
+    List<PrSnapshot> snapshots = snapshotRepository.findAll();
+    for (PrSnapshot snapshot : snapshots) {
+      System.out.println(ToStringBuilder.reflectionToString(snapshot, ToStringStyle.MULTI_LINE_STYLE));
     }
-
-    @Test
-    public void crudTest() {
-        PrSnapshot snapshot = new PrSnapshot();
-        snapshot.setSsName("test snapshot name");
-
-        snapshotRepository.saveAndFlush(snapshot);
-        System.out.println(ToStringBuilder.reflectionToString(snapshot, ToStringStyle.MULTI_LINE_STYLE));
-
-        PrSnapshot savedSnapshot = snapshotRepository.getOne(snapshot.getSsId());
-        System.out.println("SAVE:: " + ToStringBuilder.reflectionToString(savedSnapshot, ToStringStyle.MULTI_LINE_STYLE));
-
-        savedSnapshot.setSsName("test snapshot name changed");
-
-        snapshotRepository.saveAndFlush(savedSnapshot);
-        System.out.println(ToStringBuilder.reflectionToString(savedSnapshot, ToStringStyle.MULTI_LINE_STYLE));
-
-        PrSnapshot updatedSnapshot = snapshotRepository.findOne(snapshot.getSsId());
-        System.out.println("UPDATE:: " + ToStringBuilder.reflectionToString(updatedSnapshot, ToStringStyle.MULTI_LINE_STYLE));
-
-    }
-
-    @Test
-    public void findSnapshots() {
-        List<PrSnapshot> snapshots = snapshotRepository.findAll();
-        for(PrSnapshot snapshot : snapshots) {
-            System.out.println(ToStringBuilder.reflectionToString(snapshot, ToStringStyle.MULTI_LINE_STYLE));
-        }
-    }
+  }
 
 }
 

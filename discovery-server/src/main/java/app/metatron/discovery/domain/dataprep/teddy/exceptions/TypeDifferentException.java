@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class TypeDifferentException extends TeddyException {
+
   public TypeDifferentException(String message) {
     super(message);
   }

@@ -17,30 +17,34 @@ package app.metatron.discovery.domain.dataprep.service;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.rest.core.annotation.*;
+import org.springframework.data.rest.core.annotation.HandleAfterCreate;
+import org.springframework.data.rest.core.annotation.HandleAfterSave;
+import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
+import org.springframework.data.rest.core.annotation.HandleBeforeSave;
+import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 
 @RepositoryEventHandler(PrDataset.class)
 public class PrDatasetEventHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PrDatasetEventHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PrDatasetEventHandler.class);
 
-    @HandleBeforeCreate
-    public void beforeCreate(PrDataset dataset) {
-        // LOGGER.debug(dataset.toString());
-    }
+  @HandleBeforeCreate
+  public void beforeCreate(PrDataset dataset) {
+    // LOGGER.debug(dataset.toString());
+  }
 
-    @HandleAfterCreate
-    public void afterCreate(PrDataset dataset) {
-        // LOGGER.debug(dataset.toString());
-    }
+  @HandleAfterCreate
+  public void afterCreate(PrDataset dataset) {
+    // LOGGER.debug(dataset.toString());
+  }
 
-    @HandleBeforeSave
-    public void beforeSave(PrDataset dataset) {
-        // LOGGER.debug(dataset.toString());
-    }
+  @HandleBeforeSave
+  public void beforeSave(PrDataset dataset) {
+    // LOGGER.debug(dataset.toString());
+  }
 
-    @HandleAfterSave
-    public void afterSave(PrDataset dataset) {
-        // LOGGER.debug(dataset.toString());
-    }
+  @HandleAfterSave
+  public void afterSave(PrDataset dataset) {
+    // LOGGER.debug(dataset.toString());
+  }
 }

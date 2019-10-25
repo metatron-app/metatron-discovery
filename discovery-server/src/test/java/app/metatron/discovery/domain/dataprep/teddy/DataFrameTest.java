@@ -14,19 +14,15 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
-import app.metatron.discovery.prep.parser.preparation.rule.*;
-
-import static org.junit.Assert.assertEquals;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class DataFrameTest extends TeddyTest {
 
@@ -241,7 +237,6 @@ public class DataFrameTest extends TeddyTest {
     df.show();
 
     String ruleString = "set col: speed value: speed * '10'";
-
 
     try {
       DataFrame newDf = apply_rule(df, ruleString);
@@ -475,7 +470,7 @@ public class DataFrameTest extends TeddyTest {
 
     String ruleString = "replace col: cdate on: '0' with: 'X' global: false";
 
-    DataFrame newDf =apply_rule(contract, ruleString);
+    DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
 
     ruleString = "replace col: cdate on: '0' with: 'X' global: true";
@@ -630,6 +625,7 @@ public class DataFrameTest extends TeddyTest {
     assertEquals("ercedes", newDf2.rows.get(2).get("split_name2"));
     assertEquals("borghini", newDf2.rows.get(4).get("split_name2"));
   }
+
   @Test
   public void test_aggregate_sum() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
@@ -677,7 +673,7 @@ public class DataFrameTest extends TeddyTest {
     contract.show();
 
     String ruleString = "aggregate value: min(detail_store_code), max(detail_store_code) group: pcode1, pcode2";
-    
+
     DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
   }
@@ -886,6 +882,7 @@ public class DataFrameTest extends TeddyTest {
     DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
   }
+
   @Test
 
   public void test_move_before_multi() throws IOException, TeddyException {
@@ -960,7 +957,6 @@ public class DataFrameTest extends TeddyTest {
       System.out.println(e);
     }
   }
-
 
 
   private DataFrame newNullContainedDataFrame() throws IOException, TeddyException {

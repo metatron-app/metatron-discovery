@@ -17,31 +17,35 @@ package app.metatron.discovery.domain.dataprep.service;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.rest.core.annotation.*;
+import org.springframework.data.rest.core.annotation.HandleAfterCreate;
+import org.springframework.data.rest.core.annotation.HandleAfterSave;
+import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
+import org.springframework.data.rest.core.annotation.HandleBeforeSave;
+import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 
 @RepositoryEventHandler(PrDataflow.class)
 public class PrDataflowEventHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PrDataflowEventHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PrDataflowEventHandler.class);
 
-    @HandleBeforeCreate
-    public void beforeCreate(PrDataflow dataflow) {
-        // LOGGER.debug(dataflow.toString());
-    }
+  @HandleBeforeCreate
+  public void beforeCreate(PrDataflow dataflow) {
+    // LOGGER.debug(dataflow.toString());
+  }
 
-    @HandleAfterCreate
-    public void afterCreate(PrDataflow dataflow) {
-        // LOGGER.debug(dataflow.toString());
-    }
+  @HandleAfterCreate
+  public void afterCreate(PrDataflow dataflow) {
+    // LOGGER.debug(dataflow.toString());
+  }
 
-    @HandleBeforeSave
-    public void beforeSave(PrDataflow dataflow) {
-        // LOGGER.debug(dataflow.toString());
-    }
+  @HandleBeforeSave
+  public void beforeSave(PrDataflow dataflow) {
+    // LOGGER.debug(dataflow.toString());
+  }
 
-    @HandleAfterSave
-    public void afterSave(PrDataflow dataflow) {
-        // LOGGER.debug(dataflow.toString());
-    }
+  @HandleAfterSave
+  public void afterSave(PrDataflow dataflow) {
+    // LOGGER.debug(dataflow.toString());
+  }
 }
 
