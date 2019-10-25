@@ -133,7 +133,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
   // Grid 에서 필요한 parameter
   public offset: number = 0;
-  public target: number = 10000;
+  public target: number = 1000;
 
 
   // % 계산
