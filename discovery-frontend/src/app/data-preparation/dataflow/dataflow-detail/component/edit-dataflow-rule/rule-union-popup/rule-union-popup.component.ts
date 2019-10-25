@@ -221,6 +221,42 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
       === fieldList.filter(item => item.unionType === 'INCORRECT').length );
   } // function - getClassFieldRow
 
+  public getIconType(type: string) {
+    var className = 'ddp-icon-type-';
+    switch(type) {
+      case 'STRING':
+      case 'USER_DEFINED':
+      case 'TEXT':
+        className = className + 'ab';
+        break;
+      case 'LNG':
+      case 'LNT':
+        className = className + 'local';
+        break;
+      case 'TIMESTAMP':
+        className = className + 'calen';
+        break;
+      case 'LONG':
+      case 'INTEGER':
+      case 'DOUBLE':
+        className = className + 'sharp';
+        break;
+      case 'BOOLEAN':
+        className = className + 'tf';
+        break;
+      case 'ARRAY':
+        className = className + 'array';
+        break;
+      case 'MAP':
+        className = className + 'map';
+        break;
+      default:
+        className = className + 'ab';
+        break;
+    }
+    return className;
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
