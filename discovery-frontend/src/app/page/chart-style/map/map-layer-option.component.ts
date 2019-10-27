@@ -200,10 +200,16 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       layer.symbolOutline = (<UISymbolLayer>cloneLayer).outline;
       layer['symbolPointRadiusFrom'] = (<UISymbolLayer>cloneLayer)['pointRadiusFrom'];
       layer['symbolPointRadiusTo'] = (<UISymbolLayer>cloneLayer)['pointRadiusTo'];
+      layer.color['symbolSettingUseFl'] = (<UISymbolLayer>cloneLayer).color.settingUseFl;
+      layer.color['symbolRanges'] = (<UISymbolLayer>cloneLayer).color.ranges;
+      layer.color['symbolChangeRange'] = (<UISymbolLayer>cloneLayer).color.changeRange;
     } else if (MapLayerType.TILE === preLayerType) {
       layer.tileRadius = cloneLayer.tileRadius;
       layer.color.tileSchema = cloneLayer.color.schema;
       layer.color.tranTransparency = cloneLayer.color.transparency;
+      layer.color['tileSettingUseFl'] = (<UISymbolLayer>cloneLayer).color.settingUseFl;
+      layer.color['tileRanges'] = (<UISymbolLayer>cloneLayer).color.ranges;
+      layer.color['tileChangeRange'] = (<UISymbolLayer>cloneLayer).color.changeRange;
     } else if (MapLayerType.POLYGON === preLayerType) {
       layer.color.polygonSchema = cloneLayer.color.schema;
       layer.color.tranTransparency = cloneLayer.color.transparency;
@@ -212,6 +218,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       layer.color.clusterTransparency = cloneLayer.color.transparency;
       layer.clusterPointType = (<UISymbolLayer>cloneLayer).symbol;
       layer.clusterOutline = (<UISymbolLayer>cloneLayer).outline;
+      layer.color['clusterSettingUseFl'] = (<UISymbolLayer>cloneLayer).color.settingUseFl;
+      layer.color['clusterRanges'] = (<UISymbolLayer>cloneLayer).color.ranges;
+      layer.color['clusterChangeRange'] = (<UISymbolLayer>cloneLayer).color.changeRange;
     }
 
     delete this.uiOption.layers[layerIndex].noneColor;
@@ -280,6 +289,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       (<UISymbolLayer>layer).outline = layer.symbolOutline;
       (<UISymbolLayer>layer)['pointRadiusFrom'] = layer['symbolPointRadiusFrom'];
       (<UISymbolLayer>layer)['pointRadiusTo'] = layer['symbolPointRadiusTo'];
+      (<UISymbolLayer>layer).color.settingUseFl = layer.color['symbolSettingUseFl'];
+      (<UISymbolLayer>layer).color.ranges = layer.color['symbolRanges'];
+      (<UISymbolLayer>layer).color.changeRange = layer.color['symbolChangeRange'];
+      this.rangesViewList = this.setRangeViewByDecimal(layer.color.ranges);
 
       // remove measure aggregation type in shelf
       this.removeAggregationType();
@@ -300,6 +313,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       }
       (<UISymbolLayer>layer).outline = layer.clusterOutline;
 
+      layer.color.settingUseFl = layer.color['clusterSettingUseFl'];
+      layer.color.ranges = layer.color['clusterRanges'];
+      layer.color.changeRange = layer.color['clusterChangeRange'];
+      this.rangesViewList = this.setRangeViewByDecimal(layer.color.ranges);
+
       // remove measure aggregation type in shelf
       this.removeAggregationType();
 
@@ -314,6 +332,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
         layer.tileRadius = 20;
       }
       layer['radius'] = layer.tileRadius;
+      layer.color.settingUseFl = layer.color['tileSettingUseFl'];
+      layer.color.ranges = layer.color['tileRanges'];
+      layer.color.changeRange = layer.color['tileChangeRange'];
+
+      this.rangesViewList = this.setRangeViewByDecimal(layer.color.ranges);
 
       // if( isNullOrUndefined(this.uiOption.layers[this.index]['coverage']) ) {
       //   this.uiOption.layers[this.index]['coverage'] = 0.9;
