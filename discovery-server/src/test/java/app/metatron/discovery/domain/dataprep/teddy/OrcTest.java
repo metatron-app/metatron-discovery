@@ -17,12 +17,10 @@ package app.metatron.discovery.domain.dataprep.teddy;
 import static org.junit.Assert.assertEquals;
 
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
-import app.metatron.discovery.domain.dataprep.etl.TeddyExecutor;
 import app.metatron.discovery.domain.dataprep.etl.TeddyOrcWriter;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,6 +48,7 @@ public class OrcTest extends TeddyTest {
     loadGridCsv("crime", "teddy/crime.csv");
     loadGridCsv("sale", "teddy/sale.csv");
     loadGridCsv("contract", "teddy/contract.csv");
+    loadGridCsv("product", "teddy/product.csv");
     loadGridCsv("store", "teddy/store.csv");
     loadGridCsv("store1", "teddy/store.csv");
     loadGridCsv("store2", "teddy/store2.csv");
@@ -1127,36 +1126,5 @@ public class OrcTest extends TeddyTest {
 
     TeddyOrcWriter orcWriter = new TeddyOrcWriter();
     orcWriter.writeOrc(df, conf, file, PrSnapshot.HIVE_FILE_COMPRESSION.SNAPPY);
-  }
-
-  //  After applying JDBC plug-in, DataConnection became harder to be used in test codes.
-  //  @Test
-  public void test_makeHiveTable() throws IOException, TeddyException, SQLException, ClassNotFoundException {
-    DataFrame df = new DataFrame();
-    df.setByGrid(grids.get("sample"), null);
-    df = prepare_sample(df);
-    df.show();
-
-    Configuration conf = new Configuration();
-    String hadoopConfDir = "Users/jhkim/opt/hadoop/etc/hadoop";
-    conf.addResource(new Path(hadoopConfDir + File.separator + "core-site.xml"));
-    conf.addResource(new Path(hadoopConfDir + File.separator + "hdfs-site.xml"));
-
-    String location = "/tmp/test_dataprep/test_makeHiveTable";
-    Path file = new Path(location + "/file1.orc");
-
-    FileSystem fs = FileSystem.get(conf);
-    fs.delete(file, true);
-
-    TeddyOrcWriter orcWriter = new TeddyOrcWriter();
-    orcWriter.writeOrc(df, conf, file, PrSnapshot.HIVE_FILE_COMPRESSION.SNAPPY);
-
-    TeddyExecutor executor = new TeddyExecutor();
-    executor.hiveHostname = "localhost";
-    executor.hivePort = 10000;
-    executor.hiveUsername = "hadoop";
-    executor.hivePassword = "hadoop";
-    executor.makeHiveTable(df, new ArrayList<>(), "default.test_orc_hive", location, PrSnapshot.HIVE_FILE_FORMAT.ORC,
-            PrSnapshot.HIVE_FILE_COMPRESSION.SNAPPY);
   }
 }

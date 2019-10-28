@@ -14,6 +14,10 @@
 
 package app.metatron.discovery.domain.tag;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 import java.util.List;
 
 import app.metatron.discovery.common.entity.DomainType;
@@ -35,5 +39,9 @@ public interface TagRepositoryExtends {
   List<Tag> findByTagsInDomainItem(Tag.Scope scope, DomainType domainType, String domainId);
 
   long detachTag(Tag.Scope scope, DomainType domainType, String domainId, List<String> tags);
+
+  List<TagCountDTO> findTagsWithCount(Tag.Scope scope, DomainType domainType, String nameContains, boolean includeEmpty, Sort sort);
+  Page<TagCountDTO> findTagsWithCount(Tag.Scope scope, DomainType domainType, String nameContains, boolean includeEmpty, Pageable pageable);
+  Long countTags(Tag.Scope scope, DomainType domainType, String nameContains, boolean includeEmpty);
 
 }

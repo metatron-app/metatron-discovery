@@ -1023,7 +1023,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             .then(() => {
 
               let queryStrArr: string[]
-                = runningQuery.replace(/--.*/gmi, '').split(';').filter(item => !/^\s*$/.test(item));
+                = runningQuery.replace(/--.*/gmi, '').replace(/#.*/gmi, '').split(';').filter(item => !/^\s*$/.test(item));
 
               if (0 === queryStrArr.length) {
                 Alert.warning(this.translateService.instant('msg.bench.alert.execute.query'));
@@ -2465,6 +2465,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     //H2, HIVE, ORACLE, TIBERO, MYSQL, MSSQL, PRESTO, FILE, POSTGRESQL, GENERAL;
     if (this.mimeType == 'HIVE' || this.mimeType == 'PRESTO' || this.mimeType == 'GENERAL') {
       this.editor.setModeOptions('text/x-hive');
+    } else if ( this.mimeType == 'POSTGRESQL' ) {
+      this.editor.setModeOptions('text/x-pgsql');
     } else {
       this.editor.setModeOptions('text/x-mysql');
     }

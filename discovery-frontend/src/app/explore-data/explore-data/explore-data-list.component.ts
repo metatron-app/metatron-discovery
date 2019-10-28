@@ -16,7 +16,7 @@ import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild}
 import {AbstractComponent} from '../../common/component/abstract.component';
 import * as _ from "lodash";
 import {StringUtil} from "../../common/util/string.util";
-import {Metadata} from "../../domain/meta-data-management/metadata";
+import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
 import {ExploreDataConstant} from "../constant/explore-data-constant";
 import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
 import {CommonConstant} from "../../common/constant/common.constant";
@@ -31,7 +31,9 @@ import {isNullOrUndefined} from "util";
 import {ActivatedRoute} from "@angular/router";
 import {Criteria} from "../../domain/datasource/criteria";
 import {PeriodData} from "../../common/value/period.data.value";
-import {Subject} from "rxjs";
+import ListCriterionKey = Criteria.ListCriterionKey;
+import ListCriterionType = Criteria.ListCriterionType;
+import ListCriterion = Criteria.ListCriterion;
 
 declare let moment: any;
 
@@ -42,8 +44,6 @@ declare let moment: any;
 export class ExploreDataListComponent extends AbstractComponent {
 
   metadataList: Metadata[];
-  // To toggle filter layer
-  filterFlags: Subject<{}> = new Subject();
 
   // updated time, name sorting options
   public sortOptions = {
@@ -65,8 +65,24 @@ export class ExploreDataListComponent extends AbstractComponent {
   // name, updated sorting
   selectedSort: string;
   // created filter
-  selectedDate: PeriodData;
+  selectedDate = new PeriodData();
+  selectedDateFilterType = Criteria.DateTimeType.ALL;
   // selected created filter name
+
+  showUpdatedTimeFilter: boolean = false;
+  showSourceTypeFilter: boolean = false;
+
+  // selected item label
+  public sourceTypeSelectedItemsLabel: string[] = ['msg.comm.ui.list.all'];
+  public updatedTimeSelectedItemsLabel: string = 'msg.comm.ui.list.all';
+
+  startTime: string = '';
+  finishTime: string = '';
+  betweenPastTime = 'msg.storage.ui.criterion.time.past';
+  betweenCurrentTime = 'msg.storage.ui.criterion.time.current';
+
+  timeFilterCriterion: Criteria.ListCriterion;
+  typeFilterCriterion: Criteria.ListCriterion;
 
   @ViewChild('startPickerInput')
   private readonly _startPickerInput: ElementRef;
@@ -89,6 +105,7 @@ export class ExploreDataListComponent extends AbstractComponent {
   @Output() readonly requestInitializeSelectedCatalog = new EventEmitter();
   @Output() readonly requestInitializeSelectedTag = new EventEmitter();
   @Output() readonly requestChangeSelectedCatalog = new EventEmitter();
+  @Output() readonly requestToggleFavoriteCatalog = new EventEmitter();
 
   // 생성자
   constructor(private metadataService: MetadataService,
@@ -103,14 +120,62 @@ export class ExploreDataListComponent extends AbstractComponent {
   }
 
   public ngOnInit() {
-    this.selectedDate = new PeriodData();
-
     this.selectedDate.type = Criteria.DateTimeType.ALL;
 
-    this.filterFlags.next({
-      [FilterTypes.DATA_TYPE]: false,
-      [FilterTypes.UPDATED_TIME]: false
-    });
+    const criterionForUpdatedFilter: Criteria.ListCriterion = {
+      criterionKey: ListCriterionKey.CREATED_TIME,
+      criterionType: ListCriterionType.RANGE_DATETIME,
+      criterionName: "msg.storage.ui.criterion.created-time",
+      filters: [
+        {
+          criterionKey: ListCriterionKey.CREATED_TIME,
+          filterKey: "updatedTimeFrom",
+          filterName: "msg.storage.ui.criterion.created-time",
+          filterSubKey: "updatedTimeTo",
+          filterSubValue: "",
+          filterValue: ""
+        }
+      ]
+    };
+
+    this.timeFilterCriterion = criterionForUpdatedFilter;
+
+    const criterionForDataTypeFilter: Criteria.ListCriterion = {
+      criterionKey: ListCriterionKey.SOURCE_TYPE,
+      criterionType: ListCriterionType.CHECKBOX,
+      criterionName: "msg.storage.ui.criterion.created-time",
+      filters: [
+        {
+          criterionKey: ListCriterionKey.SOURCE_TYPE,
+          filterKey: "sourceType",
+          filterName: SourceType.ENGINE.toString(),
+          filterValue: "ENGINE"
+        },
+        {
+          criterionKey: ListCriterionKey.SOURCE_TYPE,
+          filterKey: "sourceType",
+          filterName: SourceType.JDBC.toString(),
+          filterValue: "JDBC"
+        },
+        {
+          criterionKey: ListCriterionKey.SOURCE_TYPE,
+          filterKey: "sourceType",
+          filterName: SourceType.STAGEDB.toString(),
+          filterValue: "STAGEDB"
+        },
+      ],
+      subCriteria: [
+        {
+          filters: [
+            {criterionKey: "SOURCE_TYPE", filterKey: "sourceType", filterName: "JDBC", filterValue: "JDBC"},
+            {criterionKey: "SOURCE_TYPE", filterKey: "sourceType", filterName: "ENGINE", filterValue: "ENGINE"},
+            {criterionKey: "SOURCE_TYPE", filterKey: "sourceType", filterName: "STAGEDB", filterValue: "STAGEDB"}
+          ]
+        } as ListCriterion,
+      ]
+    };
+
+    this.typeFilterCriterion = criterionForDataTypeFilter;
 
     // Get query param from url
     this.subscriptions.push(
@@ -182,7 +247,7 @@ export class ExploreDataListComponent extends AbstractComponent {
     this.selectedTag = this.exploreDataModelService.selectedTag;
 
     const initial = async () => {
-      if (this.selectedCatalog != undefined && this.selectedCatalog.name != 'undefined') {
+      if (this.selectedCatalog != undefined && this.selectedCatalog.name != 'unclassified') {
         this.treeHierarchy = await this.catalogService.getTreeCatalogs(this.selectedCatalog.id, true);
       }
       this.page.page = 0;
@@ -225,6 +290,22 @@ export class ExploreDataListComponent extends AbstractComponent {
 
   getTotalElements(): string {
     return CommonUtil.numberWithCommas(this.pageResult.totalElements);
+  }
+
+  getTranslatedSourceTypeSelectedItemsLabel() {
+    return this.sourceTypeSelectedItemsLabel.map(filter => {
+      return this.translateService.instant(filter);
+    }).join(',');
+  }
+
+  getTranslatedUpdatedTimeSelectedItemsLabel() {
+    if (this.selectedDateFilterType === Criteria.DateTimeType.ALL) {
+      return this.translateService.instant(this.updatedTimeSelectedItemsLabel);
+    } else if (this.selectedDateFilterType === Criteria.DateTimeType.TODAY || this.selectedDateFilterType === Criteria.DateTimeType.SEVEN_DAYS) {
+      return `${this.startTime} ~ ${this.finishTime}`
+    } else {
+      return `${this.translateService.instant(this.betweenPastTime)} ~ ${this.translateService.instant(this.betweenCurrentTime)}`
+    }
   }
 
   getTotalElementsGuide() {
@@ -300,23 +381,118 @@ export class ExploreDataListComponent extends AbstractComponent {
     this.requestInitializeSelectedTag.emit();
   }
 
+  onClickFavoriteIconInList(selectedMetadata: Metadata) {
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+
+    this.metadataService.toggleMetadataFavorite(selectedMetadata.id, selectedMetadata.favorite).catch((e) => this.commonExceptionHandler(e));
+
+    const index = this.metadataList.findIndex((metadata) => {
+      return metadata.id === selectedMetadata.id;
+    });
+
+    this.metadataList[index].favorite = !this.metadataList[index].favorite;
+  }
+
+  onClickFavoriteIconInCatalogTree() {
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+
+    // toggle favorite in server
+    this.catalogService.toggleCatalogFavorite(this.selectedCatalog.id, this.selectedCatalog.favorite)
+      .then(() => {
+        this.requestToggleFavoriteCatalog.emit();
+      })
+      .catch((e) => this.commonExceptionHandler(e));
+
+    // toggle favorite in
+    this.selectedCatalog.favorite = !this.selectedCatalog.favorite;
+  }
+
   onChangeSelectedCatalog(catalog: Catalog.Tree): void {
     if (this.selectedCatalog.id !== catalog.id) {
       this.requestChangeSelectedCatalog.emit(catalog);
     }
   }
 
-   onChangeDataTypeFilter(filterList: string[]) {
+  onChangeDataTypeFilter(filterList: any) {
     // extract only value property
-    this.selectedSourceTypeFilter = filterList.map((filter) => {
-      return filter['value'];
+    this.selectedSourceTypeFilter = filterList['sourceType'].map((filter) => {
+      return filter['filterName'];
     });
+
+    if (this.selectedSourceTypeFilter.length > 0) {
+      this.sourceTypeSelectedItemsLabel = this.selectedSourceTypeFilter.map((filter) => {
+        if (filter === "ENGINE") {
+          return 'msg.storage.li.engine';
+        } else if (filter === "JDBC") {
+          return 'msg.storage.li.db';
+        } else if (filter === "STAGEDB") {
+          return 'msg.storage.li.stagedb';
+        }
+      });
+    } else {
+      this.sourceTypeSelectedItemsLabel = ['msg.comm.ui.list.all'];
+    }
     this.reloadPage();
   }
 
   // apply created time sort from createdTime filter Component
-  onChangeCreateTimeFilter(selectedDate) {
-    this.selectedDate = selectedDate;
+  onChangeUpdateTimeFilter(selectedDate) {
+    this.selectedDateFilterType = selectedDate.TYPE[0];
+
+    const betweenFrom = selectedDate.updatedTimeFrom[0].filterName;
+    const betweenTo = selectedDate.updatedTimeTo[0].filterName;
+
+    let startDate, endDate, type, startDateStr, endDateStr, dateType = null;
+
+    const returnFormat = 'YYYY-MM-DDTHH:mm';
+
+    // if filter type is between
+    if (this.selectedDateFilterType === Criteria.DateTimeType.BETWEEN) {
+      if (betweenFrom) { this.betweenPastTime = betweenFrom; }
+      if (betweenTo) { this.betweenCurrentTime = betweenTo; }
+
+      // Only set params need to request api according to condition otherwise just leave it null
+      // if from and to is all exist
+      if (betweenFrom && betweenTo) {
+        startDate = betweenFrom;
+        endDate = betweenTo;
+        startDateStr = moment(betweenFrom).format(returnFormat);
+        endDateStr = moment(betweenTo).format(returnFormat);
+        // if only 'from' time is selected
+      } else if (betweenFrom && !betweenTo) {
+        startDate = betweenFrom;
+        startDateStr = moment(betweenFrom).format(returnFormat);
+        // if only 'to' time is selected
+      } else if (!betweenFrom && betweenTo) {
+        endDate = betweenTo;
+        endDateStr = moment(betweenTo).format(returnFormat);
+      }
+      // if filter type is not between
+    } else {
+      this.startTime = betweenFrom;
+      this.finishTime = betweenTo;
+
+      if (this.selectedDateFilterType === Criteria.DateTimeType.ALL) {
+        this.updatedTimeSelectedItemsLabel = 'msg.comm.ui.list.all';
+      }
+      startDate = betweenFrom;
+      endDate = betweenTo;
+      type = this.selectedDateFilterType;
+      startDateStr = moment(betweenFrom).format(returnFormat);
+      endDateStr = moment(betweenTo).format(returnFormat);
+    }
+
+    this.selectedDate = {
+      startDate : startDate,
+      endDate : endDate,
+      type: type,
+      startDateStr: startDateStr,
+      endDateStr: endDateStr,
+      dateType: dateType
+    };
+
     this.reloadPage();
   }
 
@@ -346,36 +522,36 @@ export class ExploreDataListComponent extends AbstractComponent {
       params['sourceType'] = tempList.join(',');
     }
 
-    // created time
+    // update time - not All type
     if (this.selectedDate && this.selectedDate.type !== 'ALL') {
       params['searchDateBy'] = 'UPDATED';
       params['type'] = this.selectedDate.type;
-      if (this.selectedDate.startDateStr) {
+      if (this.selectedDate.startDate) {
         params['from'] = moment(this.selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
-      if (this.selectedDate.endDateStr) {
+      if (this.selectedDate.endDate) {
         params['to'] = moment(this.selectedDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
     } else {
       params['type'] = 'ALL';
     }
 
-    params['catalogId'] = '';
+    if (this.isSelectedCatalog()) {
+      params['catalogId'] = '';
 
-    if (this.selectedCatalog === undefined) {
-      params['catalogId'] = null;
-    }
-
-    if (this.isSelectedCatalog() && this.selectedCatalog.name !== 'undefined') {
-      params['catalogId'] = this.selectedCatalog.id;
-    } else if (this.isSelectedTag()) {
-      params['tag'] = this.selectedTag.name;
-    }
-
-    if (this.selectedCatalog !== undefined) {
-      if (this.selectedCatalog.name === 'undefined') {
-        params['catalogId'] = '';
+      if (this.selectedCatalog === undefined) {
+        params['catalogId'] = null;
+      } else {
+        if (this.selectedCatalog.name === 'unclassified') {
+          params['catalogId'] = '';
+        } else if (this.selectedCatalog.name !== 'unclassified') {
+          params['catalogId'] = this.selectedCatalog.id;
+        }
       }
+    }
+
+    if (this.isSelectedTag()) {
+      params['tag'] = this.selectedTag.name;
     }
 
     return params;
@@ -428,11 +604,44 @@ export class ExploreDataListComponent extends AbstractComponent {
     this.selectedSort = type + ',' + this.sortOptions[type].option;
     this.reloadPage();
   }
+
+  /**
+   * List show click event
+   * @param {MouseEvent} event
+   */
+  public toggleUpdatedTimeFilter() {
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    this.showUpdatedTimeFilter = !this.showUpdatedTimeFilter;
+    this.showSourceTypeFilter = false;
+  }
+
+  /**
+   * List show click event
+   * @param {MouseEvent} event
+   */
+  toggleSourceTypeFilter(event: MouseEvent) {
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    this.showSourceTypeFilter = !this.showSourceTypeFilter;
+    this.showUpdatedTimeFilter = false;
+  }
+
+  /**
+   * Close Source type filter
+   */
+  closeSourceTypeFilter() {
+    this.showSourceTypeFilter = false;
+  }
+
+  /**
+   * Close time filter
+   */
+  closeTimeFilter() {
+    // if click event is not generated by date picker==
+    if (0 === $(event.target).closest('[class^=datepicker]').length) {
+      // close list
+      this.showUpdatedTimeFilter = false;
+    }
+  }
 }
-
-enum FilterTypes {
-  DATA_TYPE = 'DATA_TYPE',
-  UPDATED_TIME = 'UPDATED_TIME'
-}
-
-

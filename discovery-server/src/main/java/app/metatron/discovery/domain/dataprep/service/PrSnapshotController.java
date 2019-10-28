@@ -14,21 +14,18 @@
 
 package app.metatron.discovery.domain.dataprep.service;
 
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_NO_SNAPSHOT;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_SNAPSHOT_SHOULD_BE_MADE_BY_TRANSFORM;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.snapshotError;
+
 import app.metatron.discovery.domain.dataprep.PrepProperties;
-import app.metatron.discovery.domain.dataprep.PrepUtil;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshotProjections;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
-import app.metatron.discovery.domain.dataprep.file.PrepJsonUtil;
-import app.metatron.discovery.domain.dataprep.file.PrepParseResult;
-import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
-import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
 import com.google.common.collect.Maps;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -74,14 +71,13 @@ public class PrSnapshotController {
           @PathVariable("ssId") String ssId,
           PersistentEntityResourceAssembler persistentEntityResourceAssembler
   ) {
-    PrSnapshot snapshot = null;
-    Resource<PrSnapshotProjections.DefaultProjection> projectedSnapshot = null;
+    PrSnapshot snapshot;
+    Resource<PrSnapshotProjections.DefaultProjection> projectedSnapshot;
     try {
       snapshot = this.snapshotRepository.findOne(ssId);
       if (snapshot != null) {
       } else {
-        throw PrepException
-                .create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_SNAPSHOT, ssId);
+        throw snapshotError(MSG_DP_ALERT_NO_SNAPSHOT, ssId);
       }
 
       PrSnapshotProjections.DefaultProjection projection = projectionFactory
@@ -89,7 +85,7 @@ public class PrSnapshotController {
       projectedSnapshot = new Resource<>(projection);
     } catch (Exception e) {
       LOGGER.error("getSnapshot(): caught an exception: ", e);
-      throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, e);
+      throw snapshotError(e);
     }
 
     return ResponseEntity.status(HttpStatus.SC_OK).body(projectedSnapshot);
@@ -102,26 +98,7 @@ public class PrSnapshotController {
           @RequestBody Resource<PrSnapshot> snapshotResource,
           PersistentEntityResourceAssembler resourceAssembler
   ) {
-    throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE,
-            PrepMessageKey.MSG_DP_ALERT_SNAPSHOT_SHOULD_BE_MADE_BY_TRANSFORM, "go to edit-rule");
-    // Snapshot is not made by API
-        /*
-        PrSnapshot snapshot = null;
-        PrSnapshot savedSnapshot = null;
-
-        try {
-            snapshot = snapshotResource.getContent();
-            savedSnapshot = snapshotRepository.save(snapshot);
-            LOGGER.debug(savedSnapshot.toString());
-
-            this.snapshotRepository.flush();
-        } catch (Exception e) {
-            LOGGER.error("postSnapshot(): caught an exception: ", e);
-            throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_SNAPSHOT_NOT_SAVED, e.getMessage());
-        }
-
-        return resourceAssembler.toResource(savedSnapshot);
-        */
+    throw snapshotError(MSG_DP_ALERT_SNAPSHOT_SHOULD_BE_MADE_BY_TRANSFORM, "go to edit-rule");
   }
 
   @RequestMapping(value = "/{ssId}", method = RequestMethod.PATCH)
@@ -132,10 +109,10 @@ public class PrSnapshotController {
           PersistentEntityResourceAssembler persistentEntityResourceAssembler
   ) {
 
-    PrSnapshot snapshot = null;
-    PrSnapshot patchSnapshot = null;
-    PrSnapshot savedSnapshot = null;
-    Resource<PrSnapshotProjections.DefaultProjection> projectedSnapshot = null;
+    PrSnapshot snapshot;
+    PrSnapshot patchSnapshot;
+    PrSnapshot savedSnapshot;
+    Resource<PrSnapshotProjections.DefaultProjection> projectedSnapshot;
 
     try {
       snapshot = this.snapshotRepository.findOne(ssId);
@@ -149,7 +126,7 @@ public class PrSnapshotController {
       this.snapshotRepository.flush();
     } catch (Exception e) {
       LOGGER.error("postSnapshot(): caught an exception: ", e);
-      throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, e);
+      throw snapshotError(e);
     }
 
     PrSnapshotProjections.DefaultProjection projection = projectionFactory
@@ -188,7 +165,7 @@ public class PrSnapshotController {
 
     } catch (Exception e) {
       LOGGER.error("getDownload(): caught an exception: ", e);
-      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
+      throw snapshotError(e);
     }
 
     return null;
@@ -206,7 +183,7 @@ public class PrSnapshotController {
       response.put("snapshots", snapshots);
     } catch (Exception e) {
       LOGGER.error("workList(): caught an exception: ", e);
-      throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, e);
+      throw snapshotError(e);
     }
     return ResponseEntity.ok(response);
   }

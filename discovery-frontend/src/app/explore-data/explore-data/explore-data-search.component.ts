@@ -76,7 +76,7 @@ export class ExploreDataSearchComponent extends AbstractComponent {
     const windowScrollTop = $(window).scrollTop();
     if (windowScrollTop > 0) {
       this.$layoutContents.addClass('ddp-scroll');
-    } else {
+    } else if (windowScrollTop === 0) {
       this.$layoutContents.removeClass('ddp-scroll');
     }
   }
@@ -112,7 +112,6 @@ export class ExploreDataSearchComponent extends AbstractComponent {
   onChangeSearchKeyword(value: string): void {
     this.searchKeyword = value;
     this.exploreDataModelService.searchKeyword = value;
-    this.changedSearch.emit();
   }
 
   onSubmit(): void {

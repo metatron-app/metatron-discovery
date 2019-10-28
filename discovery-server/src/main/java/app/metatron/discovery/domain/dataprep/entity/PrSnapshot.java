@@ -938,23 +938,9 @@ public class PrSnapshot extends AbstractHistoryEntity {
   }
 
   // Extra getters
-  @JsonIgnore
-  public String getStatusCat() {
-    if (status != null) {
-      if (status == STATUS.SUCCEEDED) {
-        return "SUCCESS";
-      } else if (status == STATUS.FAILED || status == STATUS.CANCELED || status == STATUS.NOT_AVAILABLE) {
-        return "FAIL";
-      } else if (status == STATUS.INITIALIZING || status == STATUS.RUNNING || status == STATUS.WRITING
-              || status == STATUS.TABLE_CREATING || status == STATUS.CANCELING) {
-        return "PREPARING";
-      }
-    }
-    return null;
-  }
-
   public Map<String, Long> getElapsedTime() {
     Map<String, Long> elapsedTime = null;
+
     if (this.launchTime != null && this.finishTime != null) {
       elapsedTime = new HashMap();
 
@@ -970,6 +956,7 @@ public class PrSnapshot extends AbstractHistoryEntity {
       long hour = elapsedMillis % 24L;
       elapsedMillis /= 24L;
       long day = elapsedMillis;
+
       elapsedTime.put("hours", hour);
       elapsedTime.put("days", day);
       elapsedTime.put("minutes", min);
@@ -990,73 +977,6 @@ public class PrSnapshot extends AbstractHistoryEntity {
   }
 
   @JsonIgnore
-  public String getLineageInfoValue(String key) {
-    if (this.custom != null) {
-      Map customObject = GlobalObjectMapper.readValue(getLineageInfo(), Map.class);
-      if (customObject != null) {
-        Object value = customObject.get(key);
-        if (value != null) {
-          return value.toString();
-        }
-      }
-    }
-    return null;
-  }
-
-  //    @JsonIgnore
-  //    public String getOriginInfo() {
-  //        return lineageInfo;
-  //    }
-
-  //    @JsonIgnore
-  //    public String getOrigDsInfo(String key) {
-  //        if (this.lineageInfo != null) {
-  //            Map jsonLineageInfo = GlobalObjectMapper.readValue(this.lineageInfo, Map.class);
-  //            if (jsonLineageInfo != null) {
-  //                Object origDsInfo = jsonLineageInfo.get("origDsInfo");
-  //                if (origDsInfo != null) {
-  //                    Map jsonOrigDsInfo = (Map)origDsInfo;
-  //                    if(jsonOrigDsInfo!=null) {
-  //                        Object objValue = jsonOrigDsInfo.get(key);
-  //                        if(objValue!=null) {
-  //                            String value = objValue.toString();
-  //                            return value;
-  //                        }
-  //                    }
-  //                }
-  //            }
-  //        }
-  //        return null;
-  //    }
-
-  @JsonIgnore
-  public String getCustomValue(String key) {
-    if (this.custom != null) {
-      Map customObject = GlobalObjectMapper.readValue(getCustom(), Map.class);
-      if (customObject != null) {
-        Object value = customObject.get(key);
-        if (value != null) {
-          return value.toString();
-        }
-      }
-    }
-    return null;
-  }
-
-  @JsonIgnore
-  public String putCustomValue(String key, String value) {
-    if (this.custom == null) {
-      this.custom = "{}";
-    }
-    Map customObject = GlobalObjectMapper.readValue(getCustom(), Map.class);
-    if (customObject != null) {
-      customObject.put(key, value);
-      String jsonCustom = GlobalObjectMapper.writeValueAsString(customObject);
-      setCustom(jsonCustom);
-    }
-    return this.custom;
-  }
-
   public Map<String, Object> getSourceInfo() {
     Map<String, Object> sourceInfo = Maps.newHashMap();
 

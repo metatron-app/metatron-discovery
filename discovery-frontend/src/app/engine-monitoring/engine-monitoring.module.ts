@@ -33,6 +33,7 @@ import {WorkerDetailComponent} from "./ingestion/component/worker/worker-detail.
 import {DataStorageCriteriaModule} from "../data-storage/data-storage-criteria.module";
 import {TaskDetailComponent} from "./ingestion/component/task/task-detail.component";
 import {SupervisorDetailComponent} from "./ingestion/component/supervisor/supervisor-detail.component";
+import {DatasourceManagementGuard} from "../common/gaurd/datasource-management.guard";
 
 const _routes = [
   {
@@ -43,7 +44,8 @@ const _routes = [
   {
     path: Engine.ContentType.OVERVIEW,
     component: EngineMonitoringComponent,
-    data: { 'type': Engine.ContentType.OVERVIEW }
+    data: { 'type': Engine.ContentType.OVERVIEW },
+    canActivate: [DatasourceManagementGuard]
   },
   {
     path: Engine.ContentType.INGESTION,
@@ -53,21 +55,24 @@ const _routes = [
   {
     path: 'ingestion/task',
     component: EngineMonitoringComponent,
-    data: {'type': Engine.ContentType.INGESTION, 'group': Engine.IngestionContentType.TASK}
+    data: {'type': Engine.ContentType.INGESTION, 'group': Engine.IngestionContentType.TASK},
+    canActivate: [DatasourceManagementGuard]
   },
   {
     path: 'ingestion/supervisor',
     component: EngineMonitoringComponent,
-    data: {'type': Engine.ContentType.INGESTION, 'group': Engine.IngestionContentType.SUPERVISOR}
+    data: {'type': Engine.ContentType.INGESTION, 'group': Engine.IngestionContentType.SUPERVISOR},
+    canActivate: [DatasourceManagementGuard]
   },
   {
     path: 'ingestion/worker',
     component: EngineMonitoringComponent,
-    data: {'type': Engine.ContentType.INGESTION, 'group': Engine.IngestionContentType.REMOTE_WORKER}
+    data: {'type': Engine.ContentType.INGESTION, 'group': Engine.IngestionContentType.REMOTE_WORKER},
+    canActivate: [DatasourceManagementGuard]
   },
-  { path: 'ingestion/task/:taskId', component: TaskDetailComponent},
-  { path: 'ingestion/supervisor/:supervisorId', component: SupervisorDetailComponent},
-  { path: 'ingestion/worker/:host', component: WorkerDetailComponent}
+  { path: 'ingestion/task/:taskId', component: TaskDetailComponent, canActivate: [DatasourceManagementGuard]},
+  { path: 'ingestion/supervisor/:supervisorId', component: SupervisorDetailComponent, canActivate: [DatasourceManagementGuard]},
+  { path: 'ingestion/worker/:host', component: WorkerDetailComponent, canActivate: [DatasourceManagementGuard]}
 ];
 
 @NgModule({

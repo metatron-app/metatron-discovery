@@ -14,7 +14,7 @@
 
 package app.metatron.discovery.domain.dataprep.service;
 
-import static app.metatron.discovery.domain.dataprep.PrepUtil.dataflowError;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.dataflowError;
 
 import app.metatron.discovery.domain.dataprep.PrepParamDatasetIdList;
 import app.metatron.discovery.domain.dataprep.PrepSwapRequest;

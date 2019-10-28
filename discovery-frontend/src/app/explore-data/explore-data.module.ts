@@ -55,7 +55,7 @@ import {ConfirmRefModalComponent} from "../common/component/modal/confirm/confir
 import {MetadataUsedWorkspaceComponent} from "./explore-data/component/metadata-used-workspace.component";
 import {ExploreDataUtilService} from "./explore-data/service/explore-data-util.service";
 import {UpdatedTimeRadioFilter} from "./explore-data/component/updated-time-radio-filter.component";
-import {MetadataDataCreatorDataListComponent} from "./explore-data/popup/metadata-data-creator-data-list.component";
+import {DataStorageCriteriaModule} from "../data-storage/data-storage-criteria.module";
 
 @NgModule({
   imports: [
@@ -64,11 +64,12 @@ import {MetadataDataCreatorDataListComponent} from "./explore-data/popup/metadat
     CreateWorkbookModule,
     DatasourceMetadataSharedModule,
     RouterModule.forChild([
-      {path: '', redirectTo: 'view', pathMatch: 'full' },
+      {path: '', redirectTo: 'view', pathMatch: 'full'},
       {path: 'view', component: ExploreDataComponent},
       {path: 'favorite/data', component: FavoriteDataComponent},
       {path: 'favorite/creator', component: FavoriteCreatorComponent}
     ]),
+    DataStorageCriteriaModule,
   ],
   declarations: [
     ConfirmRefModalComponent,
@@ -87,7 +88,6 @@ import {MetadataDataCreatorDataListComponent} from "./explore-data/popup/metadat
     FavoriteDataComponent,
     FavoriteCreatorComponent,
     MetadataContainerComponent,
-    MetadataDataCreatorDataListComponent,
     MetadataColumnsComponent,
     MetadataOverviewComponent,
     MetadataSampleDataComponent,

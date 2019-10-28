@@ -125,17 +125,30 @@ public class TeddyOrcWriter {
 
   // TODO: distinguish MISMATCHED, MISSING, VALID
   private boolean setBatch(int pos, ColumnVector colVector, ColumnType colType, ColumnDescription colDesc, Object obj) {
-    //null check
     if (obj == null) {
-      return false;
+      if (colVector.noNulls) {
+        colVector.noNulls = false;
+        for (int i = 0; i < pos; i++) {
+          colVector.isNull[i] = false;
+        }
+      }
+      colVector.isNull[pos] = true;
+      return true;
+    }
+
+    if (!colVector.noNulls) {
+      colVector.isNull[pos] = false;
     }
 
     switch (colType) {
       case STRING:
+        String str;
         if (!(obj instanceof String)) {
-          return false;
+          str = obj.toString();
+        } else {
+          str = (String) obj;
         }
-        byte[] bytes = toBytes((String) obj);
+        byte[] bytes = toBytes(str);
         ((BytesColumnVector) colVector).setVal(pos, bytes, 0, bytes.length);
         break;
       case LONG:

@@ -1,108 +1,108 @@
-<div exploreDataScroll class="ddp-ui-contents-list ddp-type" style="padding-bottom:50px;">
+<div class="ddp-ui-contents-list ddp-type">
   <!-- banner -->
   <div class="ddp-ui-banner">
-    <div class="ddp-type-label">
-     {{'msg.explore.ui.list.recommended' | translate}}
-    </div>
-    <div class="ddp-box-banner">
-      <div class="ddp-banner-main">
-        <component-explore-banner  *ngIf="!isEmptyRecommendedMetadataList()"
-                           [isMain]="true"
-                           [bannerClass]="'ddp-ui-banner-link type-banner01'" [iconClass]="getMetadataTypeClass(recommendedMetadataList[0])"
-                           [title]="recommendedMetadataList[0].name"
-                           [tagList]="recommendedMetadataList[0].tags"
-                           [description]="recommendedMetadataList[0].description"
-                           [style.width]="100 + '%'" [style.display]="'table'" [style.height]="100 + '%'"
-                           (clickedBanner)="onClickMetadata(recommendedMetadataList[0])"></component-explore-banner>
+    <div class="ddp-type-label">{{ 'msg.explore.ui.list.popular' | translate}}</div>
+    <div class="ddp-wrap-slider">
+      <!-- paging -->
+      <div class="ddp-paging">
+        <a href="javascript:" *ngIf="isCarouselFirstScreen() && popularMetadataList.length > 5" class="ddp-btn-prev" (click)="onClickCarouselLeft()"></a>
+        <a href="javascript:" *ngIf="isCarouselLastScreen() && popularMetadataList.length > 5" class="ddp-btn-next" (click)="onClickCarouselRight()"></a>
       </div>
-      <div class="ddp-banner-list" *ngIf="!isEmptyRecommendedMetadataList() && recommendedMetadataList.length > 4">
-        <component-explore-banner *ngFor="let metadata of recommendedMetadataList | slice:1:5; let i = index"
-                          [bannerClass]="'ddp-ui-banner-link ' +  bannerIconList[i]" [iconClass]="getMetadataTypeClass(metadata)"
-                          [title]="metadata.name"
-                          (clickedBanner)="onClickMetadata(metadata)">
+      <!-- Bullet -->
+      <div class="ddp-wrap-bullet" *ngIf="popularMetadataList.length > 5">
+        <div class="ddp-ui-bullet">
+          <span class="ddp-bullet"
+                *ngFor="let index of popularMetadataCarouselScreenIndex"
+                (click)="onClickCarouselBullet(index)"
+                [class.ddp-selected]="(index * 5) === popularMetadataShowStartIndex"></span>
+        </div>
+      </div>
+      <!-- //Bullet -->
+      <ul class="ddp-list-popular ddp-clear">
+        <component-explore-banner *ngFor="let metadata of popularMetadataList.slice(popularMetadataShowStartIndex, popularMetadataShowStartIndex + 5); let i = index"
+                                  [metadata]="metadata"
+                                  [bannerClass]="getBannerClass(metadata)" [iconClass]="getMetadataTypeClass(metadata)"
+                                  (clickedBanner)="onClickMetadata(metadata)">
         </component-explore-banner>
-      </div>
+      </ul>
     </div>
   </div>
   <!-- //banner -->
   <!-- summary -->
-  <div class="ddp-wrap-meta-summary">
-    <!-- wrap box -->
-    <div class="ddp-wrap-box ddp-clear">
-      <div class="ddp-box-in" style="padding-right:10px;">
-        <div class="ddp-box-summary">
-          <div class="ddp-type-summary-label">{{'msg.explore.ui.list.popular' | translate}}</div>
-          <div class="ddp-wrap-summary">
-            <ul class="ddp-list-summary ddp-clear" *ngFor="let pairPopularMetadata of popularMetadataList">
-              <li *ngFor="let metadata of pairPopularMetadata">
-                <component-explore-card [iconClass]="getMetadataTypeClass(metadata)"
-                                [title]="metadata.name" [description]="metadata.description"
-                                [tagList]="metadata.tags"
-                                [popularity]="metadata.popularity"
-                                [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
-                </component-explore-card>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <!-- summary list -->
-      <!--
-      <div class="ddp-ui-list-summary">
-        <div class="ddp-type-summary-label">{{'msg.explore.ui.list.favorite.my' | translate}}
-          <a href="javascript:" class="ddp-btn-more">more ></a>
-        </div>
-        <ul class="ddp-list-data">
-          <li *ngFor="let metadata of favoriteMetadataList| slice:0:4">
-            <component-explore-card [iconClass]="getMetadataTypeClass(metadata)"
-                                    [title]="metadata.name"
-                                    [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
-            </component-explore-card>
-          </li>
-        </ul>
-      </div>
-      -->
-      <!-- //summary list -->
+  <div class="ddp-wrap-meta-summary ddp-clear">
+    <!--  New or Update  -->
+    <div class="ddp-box-summary">
+      <div class="ddp-type-label">{{ 'msg.explore.ui.list.updated' | translate }}</div>
+
+      <ul class="ddp-list-summary">
+        <li *ngFor="let metadata of updatedMetadataList| slice:0:4">
+          <component-explore-card [iconClass]="getMetadataTypeClass(metadata)"
+                                  [tagList]="metadata.tags"
+                                  [description]="metadata.description"
+                                  [popularity]="metadata.popularity"
+                                  [cardClass]="getBannerClass(metadata)"
+                                  [title]="metadata.name"
+                                  [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
+          </component-explore-card>
+        </li>
+      </ul>
     </div>
-    <div class="ddp-wrap-box ddp-clear">
-      <div class="ddp-box-in" style="padding-right:10px;">
-        <div class="ddp-box-summary">
-          <div class="ddp-type-summary-label">{{'msg.explore.ui.list.updated' | translate}}
-          </div>
-          <div class="ddp-wrap-summary">
-            <ul class="ddp-list-summary ddp-clear" *ngFor="let pairUpdatedMetadata of updatedMetadataList">
-              <li *ngFor="let metadata of pairUpdatedMetadata">
-                <component-explore-card [iconClass]="getMetadataTypeClass(metadata)"
-                                [title]="metadata.name" [description]="metadata.description"
-                                [tagList]="metadata.tags"
-                                [popularity]="metadata.popularity"
-                                [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
-                </component-explore-card>
-              </li>
-            </ul>
-          </div>
-        </div>
+    <!--  /New or Update  -->
+
+    <!--  My favorite  -->
+    <div class="ddp-box-summary">
+      <div class="ddp-type-label">{{ 'msg.explore.ui.list.favorite.my' | translate }}
+<!--        <a *ngIf="favoriteMetadataTotalCount > 4"-->
+<!--           href="javascript:"-->
+<!--           class="ddp-btn-more">{{ 'msg.comm.ui.more' | translate }} &gt;</a>-->
       </div>
-      <!-- summary list -->
-      <!--
-      <div class="ddp-ui-list-summary">
-        <div class="ddp-type-summary-label">{{'msg.explore.ui.list.favorite.creator' | translate}}
-          <a href="javascript:" class="ddp-btn-more">more ></a>
-        </div>
-        <ul class="ddp-list-data">
+      <ul class="ddp-list-summary">
+        <li *ngFor="let metadata of favoriteMetadataList| slice:0:4">
+          <component-explore-card [iconClass]="getMetadataTypeClass(metadata)"
+                                  [tagList]="metadata.tags"
+                                  [description]="metadata.description"
+                                  [popularity]="metadata.popularity"
+                                  [cardClass]="getBannerClass(metadata)"
+                                  [title]="metadata.name"
+                                  [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
+          </component-explore-card>
+        </li>
+      </ul>
+    </div>
+    <!--  My favorite  -->
+    <!--  Favorite creator  -->
+    <div class="ddp-box-summary">
+      <div class="ddp-type-label"> {{ 'msg.explore.ui.list.favorite.creator' | translate }}
+        <a *ngIf="favoriteCreatorMetadataList.length > 4" href="javascript:" class="ddp-btn-more">{{ 'msg.comm.ui.more' | translate }} &gt;</a>
+      </div>
+
+      <ul class="ddp-list-data">
+<!--        <ul class="ddp-list-summary">-->
           <li *ngFor="let metadata of favoriteCreatorMetadataList| slice:0:4">
-            <component-explore-card
-              [iconClass]="getMetadataTypeClass(metadata)"
-              [title]="metadata.name"
-              [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
-            </component-explore-card>
+            <a href="javascript:">
+              <div class="ddp-wrap-data">
+                <span class="ddp-data-profile">
+
+                </span>
+                <div class="ddp-data-txt">
+                  <div class="ddp-data-name" title="Creator name 01">{{ metadata.createdBy.fullName }}</div>
+                  <div class="ddp-data-create" title="Creator name 01">{{ metadata.name }}</div>
+                </div>
+              </div>
+            </a>
+<!--            <component-explore-card-->
+<!--              [iconClass]="getMetadataTypeClass(metadata)"-->
+<!--              [cardClass]="getBannerClass(metadata)"-->
+<!--              [popularity]="metadata.popularity"-->
+<!--              [title]="metadata.name"-->
+<!--              [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">-->
+<!--            </component-explore-card>-->
           </li>
-        </ul>
-      </div>
-      -->
-      <!-- //summary list -->
+<!--        </ul>-->
+
+      </ul>
     </div>
-    <!-- //wrap box -->
+    <!--  Favorite creator  -->
   </div>
   <!-- //summary -->
 </div>

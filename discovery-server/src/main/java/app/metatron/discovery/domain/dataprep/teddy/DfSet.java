@@ -85,7 +85,8 @@ public class DfSet extends DataFrame {
       if (replacedColExprs.containsKey(colno)) {
         // Column type can be changed according to the result values.
         // This is the same behavior to Apache Spark.
-        addColumn(prevDf.getColName(colno), prevDf.decideType_internal(replacedColExprs.get(colno)));
+        ColumnType newType = prevDf.decideType_internal(replacedColExprs.get(colno));
+        addColumn(prevDf.getColName(colno), newType == ColumnType.UNKNOWN ? prevDf.getColType(colno) : newType);
       } else {
         addColumn(prevDf.getColName(colno), prevDf.getColDesc(colno));
       }

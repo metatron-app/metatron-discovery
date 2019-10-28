@@ -14,9 +14,11 @@
 
 <!-- tab contents -->
 <div [ngClass]="['ddp-ui-tab-contents']">
-  <div class="ddp-box-message">
+  <div class="ddp-box-message" *ngIf="'ENGINE' === metadata.sourceType?.toString() && !isSaveInvalid">
     <div top-info></div>
-    <div class="ddp-box-synch type-error" *ngIf="isSaveInvalid">
+  </div>
+  <div class="ddp-box-message" *ngIf="isSaveInvalid">
+    <div class="ddp-box-synch type-error">
       <div class="ddp-txt-synch">
         <em class="ddp-icon-info"></em>
         {{'msg.storage.ui.schema.valid.desc' | translate}}
@@ -276,7 +278,7 @@
         </td>
         <td>
           <div class="ddp-bar">
-            <span [ngStyle]="{'width': getColumnPopularity(column)}"></span>
+            <span [ngStyle]="{'width': getColumnPopularity(column)}" style="margin-bottom: 10px"></span>
           </div>
         </td>
         <td class="ddp-disabled">

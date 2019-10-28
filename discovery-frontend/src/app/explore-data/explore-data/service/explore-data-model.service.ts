@@ -15,7 +15,7 @@ export class ExploreDataModelService {
 
 
   initialSearchData() {
-    this.searchKeyword = undefined;
+    this.searchKeyword = '';
     this.selectedSearchRange = {name: 'All', value: ExploreDataConstant.SearchRange.ALL};
   }
 
@@ -31,5 +31,11 @@ export class ExploreDataModelService {
 
   initialSelectedTag() {
     this.selectedTag = undefined;
+  }
+
+  initializeAll() {
+    this.searchKeyword = '';
+    this.selectedTag = undefined;
+    this.selectedCatalog = undefined;
   }
 }

@@ -17,7 +17,6 @@ import {
   ElementRef,
   HostListener,
   Injector,
-  Input,
   OnDestroy,
   OnInit,
   ViewChild
@@ -46,8 +45,8 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
   public queryCount:number = 0;
   public runningTaskCount:number = 0;
   public datasourceCount:number = 0;
+  public segmentCount:number = 0;
 
-  @Input()
   public duration:string;
 
   public fromDate:string;
@@ -104,8 +103,10 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
     this._getUsageMemory();
     this._getGcCount();
     this._getAvgQueryTime();
+    this._getQueryCounts();
     this._getRunningTasks();
     this._getDatasourceList();
+    this._getSegmentCount();
     setTimeout(() => {
       this.loadingHide();
     }, 500);
@@ -254,7 +255,6 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
       };
 
     this._engineSvc.getMonitoringData(queryParam).then((data) => {
-      this.queryCount = data.total_count;
       const chartOps: any = {
         type: 'line',
         tooltip: {
@@ -314,6 +314,25 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
   } // function - _getAvgQueryTime
 
   /**
+   * get Query Counts
+   * @private
+   */
+  private _getQueryCounts() {
+    const queryParam: any =
+      {
+        monitoringTarget : {
+          metric: Engine.MonitoringTarget.QUERY_COUNT,
+          includeCount: true
+        },
+        fromDate: this.fromDate,
+        toDate: moment().utc().format()
+      };
+    this._engineSvc.getMonitoringData(queryParam).then((data) => {
+      this.queryCount = data.total_count;
+    });
+  } // function - _getQueryCounts
+
+  /**
    * get Running Tasks
    * @private
    */
@@ -336,4 +355,14 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
       }
     });
   } // function - _getDatasourceList
+
+  /**
+   * get Segment Count
+   * @private
+   */
+  private _getSegmentCount() {
+    this._engineSvc.getSegmentCount().then( result => {
+      this.segmentCount = result[0].count;
+    });
+  } // function - _getSegmentCount
 }

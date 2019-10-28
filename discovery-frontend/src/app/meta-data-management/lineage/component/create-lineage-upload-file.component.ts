@@ -22,6 +22,7 @@ import {DeleteModalComponent} from '../../../common/component/modal/delete/delet
 import {Modal} from '../../../common/domain/modal';
 import * as _ from 'lodash';
 import {Alert} from "../../../common/util/alert.util";
+import {LineageService} from '../service/lineage.service';
 
 declare let plupload: any;
 
@@ -68,6 +69,7 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
 
   // 생성자
   constructor( private popupService: PopupService,
+              private _lineageService: LineageService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -125,9 +127,10 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
         },
 
         FileUploaded: (up, file, info)=>{
-          this.lineageData = JSON.parse(info.response);
-          this.lineageDataChange.emit(this.lineageData);
-          this.changeDetect.detectChanges();
+          var response = JSON.parse(info.response);
+          if( true===response.hasOwnProperty('storedUri') ) {
+            this.getLineageData(response);
+          }
         },
 
         UploadComplete: (up, files) => {
@@ -226,6 +229,42 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
     this.popupService.notiPopup({
       name: 'close',
       data: null
+    });
+  }
+
+  public getLineageData( params : any ) {
+    this.loadingShow();
+
+    this._lineageService.getLineageFile(params).then((result) => {
+      this.loadingHide();
+
+      var headerRow = null;
+      var header = null;
+      var rows = [];
+      var gridResponse = result.gridResponses[0];
+      gridResponse.rows.forEach( (item) => {
+        if(headerRow==null) {
+          headerRow = item.objCols;
+          header = item.objCols.filter( (k) => k );
+        } else {
+          var row = {};
+          header.forEach( (k) => {
+            var idx = headerRow.indexOf(k);
+            row[k] = item.objCols[idx];
+          });
+          rows.push(row);
+        }
+      });
+      this.lineageData = {};
+      this.lineageData['header'] = header;
+      this.lineageData['rows'] = rows;
+
+      this.lineageDataChange.emit(this.lineageData);
+      this.changeDetect.detectChanges();
+
+    }).catch((error) => {
+      this.loadingHide();
+      this.commonExceptionHandler(error);
     });
   }
 

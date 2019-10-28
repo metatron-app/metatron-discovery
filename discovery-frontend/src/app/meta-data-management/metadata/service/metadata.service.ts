@@ -160,6 +160,14 @@ export class MetadataService extends AbstractService {
     return this.get(this.URL_METADATA + `/tags`);
   }
 
+  public getPopularityTags(params:{scope?:string, domainType?:string, nameContains?: string, size?:number }): Promise<any> {
+    let url: string = this.API_URL + `/tags/popularity`;
+    if (params) {
+      url += '?' + CommonUtil.objectToUrlString(params);
+    }
+    return this.get(url);
+  }
+
   public getMetadataSampleData(metadataId: string, limit: number = 50) {
     return this.get(this.URL_METADATA + '/' + metadataId + '/data?limit=' + limit);
   }
@@ -288,16 +296,15 @@ export class MetadataService extends AbstractService {
     return this.get(url);
   }
 
-  /**
-   * Get Recently Queries In Metadata Detail for DataBase
-   * @param {number} page
-   * @param {number} size
-   * @param {string} sort
-   * @param {string} dataConnectionId
-   * @returns {Promise<any>}
-   */
-  public getRecentlyQueriesInMetadataDetailForDatabase(dataConnectionId: string, page: number, size: number, sort: string): Promise<any> {
-    return this.get(this.API_URL + `queryhistories?sort=${sort}&size=${size}&dataConnectionId=${dataConnectionId}`);
+  public toggleMetadataFavorite(id: string, isFavorited: boolean) {
+    let url: string = this.URL_METADATA + `/${id}/favorite/`;
+
+    if (isFavorited) {
+      url += 'detach';
+    } else {
+      url += 'attach';
+    }
+    return this.post(url, null);
   }
 
   public isShowLineage(): Promise<any> {

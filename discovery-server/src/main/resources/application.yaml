@@ -87,6 +87,9 @@ polaris:
       -
         method: POST
         api: /api/images/**
+      -
+        method: GET
+        api: /api/monitoring/ingestion/task/*/log
   datasource:
     connections:
       ORACLE: ["ENGINE", "LIVE"]

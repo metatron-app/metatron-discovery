@@ -51,6 +51,9 @@ public class DfDerive extends DataFrame {
 
     //Decide new column's type.(And check identifiers that occurs in rule string.)
     ColumnType newColType = decideType(expr);
+    if (newColType == ColumnType.UNKNOWN) {   // We cannot process UNKNOWN type in Histogram.
+      newColType = ColumnType.STRING;
+    }
 
     if (ruleColumns.size() == 0) {             // identifier가 없거나 2개 이상인 경우, 제일 끝으로 붙인다.
       newColPos = getColCnt();

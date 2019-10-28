@@ -64,6 +64,7 @@ import {UIPolygonLayer} from '../../option/ui-option/map/ui-polygon-layer';
 import {UITileLayer} from '../../option/ui-option/map/ui-tile-layer';
 import {ColorOptionConverter} from '../../option/converter/color-option-converter';
 import {CommonConstant} from "../../../../constant/common.constant";
+import {StringUtil} from "../../../../util/string.util";
 
 declare let ol;
 
@@ -2574,8 +2575,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
       // init custom user color setting
       if (!isAnalysisUse) {
-        layer.color.ranges = undefined;
-        layer.color['settingUseFl'] = false;
+        if(_.isUndefined(layer.color.settingUseFl) || layer.color.settingUseFl == false) {
+          layer.color.ranges = undefined;
+          layer.color['settingUseFl'] = false;
+        }
       }
 
       ///////////////////////////
@@ -2649,7 +2652,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           (this.data.length > 1 ? dataIndex = this.data.length - 1 : dataIndex = 0);
           layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(uiOption, this.data[dataIndex], this.getColorList(layer), index, shelf);
         } else {
-          layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(uiOption, this.data[index], this.getColorList(layer), index, shelf);
+          if(_.isUndefined(layer.color.settingUseFl) || layer.color.settingUseFl == false) {
+            layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(uiOption, this.data[index], this.getColorList(layer), index, shelf);
+          }
         }
       }
       ///////////////////////////
@@ -2712,7 +2717,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         ///////////////////////////
         else if (isMeasure) {
           symbolLayer.size.by = MapBy.MEASURE;
-          symbolLayer.size.column = uiOption.fieldMeasureList[0]['name'];
+          if(StringUtil.isEmpty(symbolLayer.size.column) || symbolLayer.size.column === "NONE") {
+            symbolLayer.size.column = uiOption.fieldMeasureList[0]['name'];
+          }
         }
       }
       ////////////////////////////////////////////////////////
@@ -2896,7 +2903,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     } else {
       colorList = ChartColorList[layer.color.schema];
     }
-    return colorList;
+    return _.cloneDeep(colorList);
   }
 
   /**
@@ -3154,7 +3161,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
               layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[idx], colorList, idx, shelf, rangeList);
             }
           }
-          layer.color.changeRange = true;
         }
       });
 

@@ -19,21 +19,18 @@ import static app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes.P
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
 import app.metatron.discovery.domain.dataprep.PrepProperties;
-import app.metatron.discovery.domain.dataprep.PrepUtil;
-import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.file.PrepJsonUtil;
 import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrameService;
 import app.metatron.discovery.domain.dataprep.teddy.Row;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcQueryFailedException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcTypeNotSupportedException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformExecutionFailedException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformTimeoutException;
+import app.metatron.discovery.domain.dataprep.util.PrepUtil;
 import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection;
 import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
@@ -324,6 +321,7 @@ public class TeddyImpl {
     try {
       conn = jdbcDataAccessor.getConnection();
       stmt = conn.createStatement();
+      stmt.setFetchSize(prepProperties.getSamplingMaxFetchSize());
     } catch (SQLException e) {
       e.printStackTrace();
       throw PrepException.create(PREP_TEDDY_ERROR_CODE, e);
@@ -333,14 +331,9 @@ public class TeddyImpl {
 
     try {
       df.setByJDBC(stmt, sql, prepProperties.getSamplingLimitRows());
-    } catch (JdbcTypeNotSupportedException e) {
-      LOGGER.error("loadHiveDataset(): JdbcTypeNotSupportedException occurred", e);
-      throw PrepException
-              .create(PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_NOT_SUPPORTED_TYPE);
-    } catch (JdbcQueryFailedException e) {
-      LOGGER.error("loadHiveDataset(): JdbcQueryFailedException occurred", e);
-      throw PrepException
-              .create(PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_QUERY_FAILED);
+    } catch (TeddyException e) {
+      LOGGER.error("loadStageDBDataset(): TeddyException occurred", e);
+      throw PrepException.fromTeddyException(e);
     }
 
     return createStage0(dsId, df);
@@ -355,31 +348,26 @@ public class TeddyImpl {
     try {
       conn = jdbcDataAccessor.getConnection();
       stmt = conn.createStatement();
+      stmt.setFetchSize(prepProperties.getSamplingMaxFetchSize());
     } catch (SQLException e) {
       e.printStackTrace();
     }
 
-    DataFrame df = new DataFrame(dsName);   // join, union등에서 dataset 이름을 제공하기위해 dsName 추가
+    DataFrame df = new DataFrame(dsName);   // dsName is for join/union to display the dataset name instead of id)
 
     try {
       df.setByJDBC(stmt, sql, limit);
-    } catch (JdbcTypeNotSupportedException e) {
-      LOGGER.error("loadContentsByImportedJdbc(): JdbcTypeNotSupportedException occurred", e);
-      throw PrepException
-              .create(PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_NOT_SUPPORTED_TYPE);
-    } catch (JdbcQueryFailedException e) {
-      LOGGER.error("loadContentsByImportedJdbc(): JdbcQueryFailedException occurred", e);
-      throw PrepException
-              .create(PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_QUERY_FAILED);
+    } catch (TeddyException e) {
+      LOGGER.error("loadJdbaDataFrame(): TeddyException occurred", e);
+      throw PrepException.fromTeddyException(e);
     }
 
     return df;
   }
 
-  public DataFrame loadJdbcDataset(String dsId, DataConnection dataConnection, String sql,
-          String dsName) throws PrepException {
-    DataFrame df = loadJdbcDataFrame(dataConnection, sql, prepProperties.getSamplingLimitRows(),
-            dsName);
+  public DataFrame loadJdbcDataset(String dsId, DataConnection dataConnection, String sql, String dsName)
+          throws PrepException {
+    DataFrame df = loadJdbcDataFrame(dataConnection, sql, prepProperties.getSamplingLimitRows(), dsName);
     return createStage0(dsId, df);
   }
 
@@ -465,48 +453,45 @@ public class TeddyImpl {
   // Get header and settype rule strings via inspecting 100 rows.
   public List<String> getAutoTypingRules(DataFrame df) throws TeddyException {
     String[] ruleStrings = new String[3];
-    List<String> setTypeRules = new ArrayList<>();
-    List<String> columnNames = new ArrayList<>(df.colNames);
-    List<ColumnType> columnTypes = new ArrayList<>();
-    List<ColumnType> columnTypesRow0 = new ArrayList<>();
-    List<String> timestampStyles = new ArrayList<>();
+    List<String> setTypeRules = new ArrayList();
+    List<String> colNames = new ArrayList(df.colNames);
+    List<ColumnType> colTypes = new ArrayList();
+    List<ColumnType> columnTypesRow0 = new ArrayList();
+    List<String> formats = new ArrayList();
 
     if (df.colCnt == 0) {
       df.colCnt = df.rows.get(0).objCols.size();
     }
 
     for (int i = 0; i < df.colCnt; i++) {
-      //각 컬럼마다 100개의 row를 검색하여 Type, 0번 row의 Type, TimestampStyle을 확인.
-      guessColTypes(df, i, columnTypes, columnTypesRow0, timestampStyles);
+      guessColTypes(df, i, colTypes, columnTypesRow0, formats);
     }
 
     if (shouldApplyHeaderRule(df)) {
       String ruleString = "header rownum: 1";
 
       setTypeRules.add(ruleString);
-      columnNames.clear();
+      colNames.clear();
 
       DataFrame newDf = dataFrameService.applyRule(df, ruleString, null);
 
-      columnNames.addAll(newDf.colNames);
+      colNames.addAll(newDf.colNames);
     }
-    //Boolean, Long, Double 룰스트링 만들기.(Timestamp는 format 문제로 개별 추가)
+
+    // Build rule strings for Boolean, Long, Double types.
     ruleStrings[0] = "settype col: ";
     ruleStrings[1] = "settype col: ";
     ruleStrings[2] = "settype col: ";
 
-    //각 컬럼의 type에 따라 rulestring에 추가.
     for (int i = 0; i < df.colCnt; i++) {
-      if (columnTypes.get(i) == ColumnType.BOOLEAN) {
-        ruleStrings[0] = ruleStrings[0] + "`" + columnNames.get(i) + "`, ";
-      } else if (columnTypes.get(i) == ColumnType.LONG) {
-        ruleStrings[1] = ruleStrings[1] + "`" + columnNames.get(i) + "`, ";
-      } else if (columnTypes.get(i) == ColumnType.DOUBLE) {
-        ruleStrings[2] = ruleStrings[2] + "`" + columnNames.get(i) + "`, ";
-      } else if (columnTypes.get(i) == ColumnType.TIMESTAMP) {
-        setTypeRules.add(
-                "settype col: `" + columnNames.get(i) + "` type: Timestamp format: '" + timestampStyles
-                        .get(i) + "'");
+      if (colTypes.get(i) == ColumnType.BOOLEAN) {
+        ruleStrings[0] = ruleStrings[0] + "`" + colNames.get(i) + "`, ";
+      } else if (colTypes.get(i) == ColumnType.LONG) {
+        ruleStrings[1] = ruleStrings[1] + "`" + colNames.get(i) + "`, ";
+      } else if (colTypes.get(i) == ColumnType.DOUBLE) {
+        ruleStrings[2] = ruleStrings[2] + "`" + colNames.get(i) + "`, ";
+      } else if (colTypes.get(i) == ColumnType.TIMESTAMP) {
+        setTypeRules.add("settype col: `" + colNames.get(i) + "` type: Timestamp format: '" + formats.get(i) + "'");
       }
     }
 
@@ -527,8 +512,8 @@ public class TeddyImpl {
   }
 
   // Guess column types via inspecting 100 rows.
-  private void guessColTypes(DataFrame df, int colNo, List<ColumnType> columnTypes,
-          List<ColumnType> columnTypesrow0, List<String> timestampStyles) {
+  private void guessColTypes(DataFrame df, int colNo, List<ColumnType> colTypes, List<ColumnType> columnTypesrow0,
+          List<String> formats) {
     List<ColumnType> columnTypeGuess = new ArrayList<>();
     List<TimestampTemplate> timestampStyleGuess = new ArrayList<>();
     ColumnType columnType = ColumnType.STRING;
@@ -536,7 +521,6 @@ public class TeddyImpl {
     int maxCount;
     int maxRow = df.rows.size() < 100 ? df.rows.size() : 100;
 
-    //0번부터 99번까지 첫 100개의 row를 검사.
     for (int i = 0; i < maxRow; i++) {
       //null check
       if (df.rows.get(i).objCols.get(colNo) == null) {
@@ -614,9 +598,9 @@ public class TeddyImpl {
     }
 
     //최다 득표 타입, 0번 row의 타입, timestampStyle을 넣어준다.
-    columnTypes.add(columnType);
+    colTypes.add(columnType);
     columnTypesrow0.add(columnTypeGuess.get(0));
-    timestampStyles.add(timestampStyle);
+    formats.add(timestampStyle);
   }
 
   // Just apply rules to dataframe. No rule list

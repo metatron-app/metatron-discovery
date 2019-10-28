@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.text.ParseException;
@@ -96,14 +97,6 @@ public class EngineMonitoringController {
     return ResponseEntity.ok(result);
   }
 
-  @RequestMapping(value = "/monitoring/stream", method = RequestMethod.POST)
-  public ResponseEntity<?> monitoringStream(@RequestBody EngineMonitoringRequest queryRequest) {
-
-    Object result = monitoringQueryService.selectStreamQuery(queryRequest);
-
-    return ResponseEntity.ok(result);
-  }
-
   @RequestMapping(value = "/monitoring/servers/health", method = RequestMethod.GET)
   public ResponseEntity<?> serverHealth() {
     List<Object[]> objects = monitoringRepository.findServerListByStatus();
@@ -165,6 +158,11 @@ public class EngineMonitoringController {
     return ResponseEntity.ok(monitoringQueryService.getDatasourceList());
   }
 
+  @RequestMapping(value = "/monitoring/segment/count", method = RequestMethod.GET)
+  public ResponseEntity<?> getSegmentCount() {
+    return ResponseEntity.ok(monitoringQueryService.getSegmentCount());
+  }
+
   @RequestMapping(value= "/monitoring/ingestion/tasks/{status}", method = RequestMethod.GET)
   public ResponseEntity<?> getRunningTasks(@PathVariable("status") String status) {
     List list = Lists.newArrayList();
@@ -213,17 +211,22 @@ public class EngineMonitoringController {
   }
 
   @RequestMapping(value = "/monitoring/ingestion/task/{taskId}/log", method = RequestMethod.GET)
-  public ResponseEntity<?> getTaskLogById(@PathVariable String taskId) {
+  public ResponseEntity<?> getTaskLogById(@PathVariable String taskId,
+                                          @RequestParam(value = "offset", required = false) Integer offset) {
     EngineIngestionService.EngineTaskLog taskLog;
     try {
-      taskLog = engineIngestionService.getIngestionTaskLog(taskId, null);
+      taskLog = engineIngestionService.getIngestionTaskLog(taskId, offset);
     } catch (MetatronException e) {
       throw new DataSourceIngestionException(INGESTION_ENGINE_GET_TASK_LOG_ERROR, "Task log on engine not founded", e);
     } catch (Exception e) {
       throw new DataSourceIngestionException(INGESTION_COMMON_ERROR, e);
     }
 
-    return ResponseEntity.ok(taskLog.getLogs());
+    if (offset == null) {
+      return ResponseEntity.ok("<pre style=\"font-family: 'SpoqaHanSans',sans-serif;font-size:14px;\">"+taskLog.getLogs()+"</pre>");
+    } else {
+      return ResponseEntity.ok(taskLog.getLogs());
+    }
   }
 
   @RequestMapping(value = "/monitoring/ingestion/task/{taskId}/shutdown", method = RequestMethod.POST)
@@ -239,11 +242,6 @@ public class EngineMonitoringController {
   @RequestMapping(value = "/monitoring/ingestion/supervisor/{supervisorId:.+}", method = RequestMethod.GET)
   public ResponseEntity<?> getSupervisorStatus(@PathVariable String supervisorId) {
     return ResponseEntity.ok(monitoringQueryService.getSupervisorStatus(supervisorId));
-  }
-
-  @RequestMapping(value = "/monitoring/ingestion/supervisor/row", method = RequestMethod.POST)
-  public ResponseEntity<?> getIngestRow(@RequestBody EngineMonitoringRequest queryRequest) {
-    return ResponseEntity.ok(monitoringQueryService.getIngestRow(queryRequest));
   }
 
   @RequestMapping(value = "/monitoring/ingestion/supervisor/{supervisorId}/shutdown", method = RequestMethod.POST)

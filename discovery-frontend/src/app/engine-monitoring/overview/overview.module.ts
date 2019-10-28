@@ -27,6 +27,7 @@ import {GraphComponent} from "./component/graph.component";
 import {DatasourceService} from "../../datasource/service/datasource.service";
 import {TimezoneService} from "../../data-storage/service/timezone.service";
 import {NodeInformationComponent} from "./component/node-information.component";
+import {NodeTooltipComponent} from "./component/node-tooltip.component";
 
 @NgModule({
   imports: [
@@ -42,7 +43,8 @@ import {NodeInformationComponent} from "./component/node-information.component";
     RadioComponent,
     TableFilterPipe,
     TableSortPipe,
-    NodeInformationComponent
+    NodeInformationComponent,
+    NodeTooltipComponent
   ],
   providers: [
     EngineService,

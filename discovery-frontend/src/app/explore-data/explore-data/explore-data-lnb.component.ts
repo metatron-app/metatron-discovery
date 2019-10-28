@@ -42,7 +42,7 @@ export class ExploreDataLnbComponent extends AbstractComponent {
   isFoldingNavigation: boolean;
 
   // Dummy data before api
-  favoriteDataList = [];
+  favoriteCatalogList = [];
 
   @Output() readonly changedLnbData = new EventEmitter();
 
@@ -62,6 +62,7 @@ export class ExploreDataLnbComponent extends AbstractComponent {
     const initial = async () => {
       await this._setCatalogList(Catalog.Constant.CATALOG_ROOT_ID);
       await this._setTagList();
+      await this._setFavoriteCatalogList();
     };
     initial().then(() => this.broadcaster.broadcast(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL)).catch(() => this.broadcaster.broadcast(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL));
   }
@@ -163,24 +164,30 @@ export class ExploreDataLnbComponent extends AbstractComponent {
     }
   }
 
-  onChangeSelectedCatalog(catalog: Catalog.Tree): void {
+  onChangeSelectedCatalog(catalog: Catalog.Tree) {
+    // if unclassified in explore lnb is clicked
     if (catalog === undefined) {
       // create empty catalog tree and initialize
       const emptyCatalog = new Catalog.Tree();
-      emptyCatalog.name = 'undefined';
-      emptyCatalog.id = 'undefined';
+      emptyCatalog.name = 'unclassified';
 
       this.selectedCatalog = emptyCatalog;
       this.exploreDataModelService.selectedCatalog = emptyCatalog;
 
       this._changedLnbData();
+    // if reset catalog button in tree hierarchy is clicked
     } else if (catalog.name === 'realUndefined') {
       this.selectedCatalog = undefined;
       this.exploreDataModelService.selectedCatalog = undefined;
     } else {
-      this.selectedCatalog = catalog;
-      this.exploreDataModelService.selectedCatalog = catalog;
-      this._changedLnbData();
+      // undefine or same catalog is selected do nothing
+      if (this.selectedCatalog === undefined || this.selectedCatalog.id !== catalog.id ) {
+        this.catalogService.getCatalogDetail(catalog.id).then(async (result) => {
+          this.selectedCatalog = result;
+          this.exploreDataModelService.selectedCatalog = result;
+          this._changedLnbData();
+        }).catch((e) => {this.commonExceptionHandler(e)});
+      }
     }
   }
 
@@ -188,6 +195,25 @@ export class ExploreDataLnbComponent extends AbstractComponent {
     this.selectedTag = tag;
     this.exploreDataModelService.selectedTag = tag;
     this._changedLnbData();
+  }
+
+  onChangeFavoriteCatalogList(): void {
+    // when favorite is toggled request api again to get updated data
+    this._setFavoriteCatalogList().catch((e) => this.commonExceptionHandler(e));
+    this._changedLnbData();
+  }
+
+  getCatalogHierarchyLabel(catalog: Catalog.Tree): string {
+    let path = '';
+
+    catalog.hierarchies.forEach((hierarchy, index) => {
+      path += hierarchy.name;
+      if (index !== catalog.hierarchies.length - 1) {
+        path += ' > ';
+      }
+    });
+
+    return path;
   }
 
   private async _setCatalogList(catalogId: string) {
@@ -200,6 +226,11 @@ export class ExploreDataLnbComponent extends AbstractComponent {
   private async _setTagList() {
     const result = await this.metadataService.getMetadataTagList('forTreeView');
     this.tagList = result;
+  }
+
+  private async _setFavoriteCatalogList() {
+    const result = await this.catalogService.getMyFavoriteCatalogList();
+    this.favoriteCatalogList = result;
   }
 
   private _setCatalogListUsedSearch(): void {

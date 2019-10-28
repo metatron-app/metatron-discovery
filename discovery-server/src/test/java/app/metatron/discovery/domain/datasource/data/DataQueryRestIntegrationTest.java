@@ -396,8 +396,8 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
             .when()
             .post("/api/datasources/query/search")
             .then()
-            .statusCode(HttpStatus.SC_OK)
-            .log().all();
+            .log().all()
+            .statusCode(HttpStatus.SC_OK);
     // @formatter:on
 
   }
@@ -3031,8 +3031,8 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
                     "2011-01-01T00:00:00.000/2013-02-01T00:00:00.000"
             )),
             new InclusionFilter("State", Lists.newArrayList("Texas")),
-            new MeasureInequalityFilter("Sales", "SUM", "GREATER_THAN", 100),
-            new MeasurePositionFilter("Sales", "SUM", "TOP", 5),
+            //new MeasureInequalityFilter("Sales", "SUM", "GREATER_THAN", 100),
+            //new MeasurePositionFilter("Sales", "SUM", "TOP", 5),
             new WildCardFilter("Sub-Category", null, "BOTH", "ho")
     );
 
@@ -3056,6 +3056,46 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
             .then()
             //      .statusCode(HttpStatus.SC_OK)
             .log().all();
+    // @formatter:on
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  public void candidateQueryForSaleWithUserDefinedFieldAndRegexFilters() throws JsonProcessingException {
+
+    DataSource dataSource1 = new DefaultDataSource("sales_geo");
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(10);
+
+    ExpressionField expressionField1 = new ExpressionField("cat_new", "\"Category\" + '_new'");
+
+    List<Filter> filters = Lists.newArrayList(
+            new RegExprFilter("cat_new", "F.*")
+    );
+
+    DimensionField targetField = new DimensionField("cat_new", "user_defined");
+
+    CandidateQueryRequest request = new CandidateQueryRequest();
+    request.setDataSource(dataSource1);
+    request.setFilters(filters);
+    request.setTargetField(targetField);
+    request.setUserFields(Lists.newArrayList(expressionField1));
+
+    System.out.println(GlobalObjectMapper.getDefaultMapper().writeValueAsString(request));
+
+    // @formatter:off
+    given()
+            .auth().oauth2(oauth_token)
+            .contentType(ContentType.JSON)
+            .body(request)
+            .log().all()
+            .when()
+            .post("/api/datasources/query/candidate")
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.SC_OK);
     // @formatter:on
   }
 

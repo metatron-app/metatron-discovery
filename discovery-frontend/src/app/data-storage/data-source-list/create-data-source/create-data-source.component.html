@@ -154,3 +154,38 @@
                [(step)]="step"
                (close)="createClose()">
 </create-snapshot-source-complete>
+
+<!-- stream 업로드 1/5 -->
+<stream-select *ngIf="step=='stream-select'"
+             [sourceData]="sourceData"
+             [(step)]="step"
+             (close)="createClose()">
+</stream-select>
+<!-- stream 미리보기 2/5 -->
+<stream-preview *ngIf="step=='stream-preview'"
+              [sourceData]="sourceData"
+              [(step)]="step"
+              (onComplete)="createComplete()"
+              (close)="createClose()">
+</stream-preview>
+
+<!-- stream 스키마 설정 3/5 -->
+<stream-configure-schema *ngIf="step=='stream-configure-schema'"
+                       [sourceData]="sourceData"
+                       [(step)]="step"
+                       (close)="createClose()">
+</stream-configure-schema>
+
+<!-- stream ingestion, 권한 설정 4/5 -->
+<stream-ingestion *ngIf="step=='stream-ingestion'"
+                [sourceData]="sourceData"
+                [(step)]="step"
+                (close)="createClose()">
+</stream-ingestion>
+<!-- stream complete 5/5 -->
+<stream-complete *ngIf="step==='stream-complete'"
+               [sourceData]="sourceData"
+               [(step)]="step"
+               (onComplete)="createComplete()"
+               (close)="createClose()">
+</stream-complete>

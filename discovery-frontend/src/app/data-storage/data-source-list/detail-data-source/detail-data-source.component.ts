@@ -44,7 +44,7 @@ import {CreateSourceCompleteData} from "../../service/data-source-create.service
   templateUrl: './detail-data-source.component.html',
   providers: [MomentDatePipe]
 })
-export class DetailDataSourceComponent extends AbstractComponent implements OnInit, OnChanges {
+export class DetailDataSourceComponent extends AbstractComponent implements OnInit {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -172,7 +172,8 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
                       failResults: {
                         errorCode: history['_embedded'].ingestionHistories[0].errorCode,
                         cause: history['_embedded'].ingestionHistories[0].cause
-                      }};
+                      }
+                    };
                   } else if (history['_embedded'] && !history['_embedded'].ingestionHistories[0].progress) {
                     this.isNotShowProgress = true;
                   } else if (datasource.srcType === SourceType.FILE || datasource.srcType === SourceType.JDBC) {
@@ -206,19 +207,13 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
     });
   }
 
-  // Change
-  public ngOnChanges() {
-
-  }
-
-  // Destory
   public ngOnDestroy() {
-    // Destory
     super.ngOnDestroy();
     // if exist _subscribe
     if (this._subscribe) {
       this._subscribe.unsubscribe();
     }
+    sessionStorage.removeItem('IS_LOCATION_BACK_DS_LIST');
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -243,7 +238,6 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
       .then(result => this.loadingHide())
       .catch(error => this.commonExceptionHandler(error));
   }
-
 
 
   /**
@@ -326,7 +320,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
     if (type === 'published') {
       // 현재 전체공개 됨
       if (this.datasource.published) {
-        modal.name = `'${this.datasource.name}' `+ this.translateService.instant('msg.storage.alert.source.change-selected');
+        modal.name = `'${this.datasource.name}' ` + this.translateService.instant('msg.storage.alert.source.change-selected');
         modal.description = this.translateService.instant('msg.storage.alert.source-publish.description');
         modal.btnName = this.translateService.instant('msg.storage.btn.source.private');
       } else {
@@ -379,7 +373,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
    */
   public reIngestionClose(): void {
     this.step = '';
-    this.onChangeMode( this.mode );
+    this.onChangeMode(this.mode);
   }
 
   /**
@@ -398,7 +392,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
     }
     this.nameFl = false;
     // update
-    this.updateDatasource({name : this.reName.trim()});
+    this.updateDatasource({name: this.reName.trim()});
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -413,7 +407,11 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
 
   // 뒤로가기
   public prevDatasourceList(): void {
-    this.router.navigate(['/management/storage/datasource']);
+    if ('TRUE' === sessionStorage.getItem('IS_LOCATION_BACK_DS_LIST')) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/management/storage/datasource']);
+    }
   }
 
   // mode
@@ -529,7 +527,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
               // set timestamp column
               this.timestampColumn = field;
               // if column is current time, hide
-              if (field.format &&  field.format.type === FieldFormatType.TEMPORARY_TIME) {
+              if (field.format && field.format.type === FieldFormatType.TEMPORARY_TIME) {
                 list.splice(index, 1);
               }
             }
@@ -568,12 +566,12 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
    */
   private _setProcessIngestion(datasourceId: string): void {
     try {
-      const headers: any = { 'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) };
+      const headers: any = {'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)};
       // 메세지 수신
-      this._subscribe = CommonConstant.stomp.watch( `/topic/datasources/${datasourceId}/progress` )
+      this._subscribe = CommonConstant.stomp.watch(`/topic/datasources/${datasourceId}/progress`)
         .subscribe((msg: Message) => {
 
-          const data: { progress: number, message: string, results: any } = JSON.parse( msg.body );
+          const data: { progress: number, message: string, results: any } = JSON.parse(msg.body);
 
           console.log('process socket', data);
           // if has history

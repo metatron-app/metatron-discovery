@@ -14,7 +14,7 @@
 
 package app.metatron.discovery.domain.dataprep.service;
 
-import static app.metatron.discovery.domain.dataprep.PrepUtil.datasetError;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.datasetError;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FILE_KEY_MISSING;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_NOT_IMPORTED_DATASET;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_NO_DATASET;
@@ -23,7 +23,6 @@ import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.M
 import app.metatron.discovery.domain.dataprep.PrepDatasetFileService;
 import app.metatron.discovery.domain.dataprep.PrepPreviewLineService;
 import app.metatron.discovery.domain.dataprep.PrepProperties;
-import app.metatron.discovery.domain.dataprep.PrepUpstream;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE;

@@ -14,9 +14,10 @@
 
 package app.metatron.discovery.domain.dataprep;
 
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_HADOOP_NOT_CONFIGURED;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.configError;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +37,7 @@ public class PrepProperties {
   public static final String SAMPLING_CORES = "polaris.dataprep.sampling.cores";
   public static final String SAMPLING_TIMEOUT = "polaris.dataprep.sampling.timeout";
   public static final String SAMPLING_LIMIT_ROWS = "polaris.dataprep.sampling.limitRows";
+  public static final String SAMPLING_MAX_FETCH_SIZE = "polaris.dataprep.sampling.maxFetchSize";
   public static final String SAMPLING_AUTO_TYPING = "polaris.dataprep.sampling.autoTyping";
 
   public static final String STAGEDB_HOSTNAME = "polaris.storage.stagedb.hostname";
@@ -47,6 +49,7 @@ public class PrepProperties {
   public static final String ETL_CORES = "polaris.dataprep.etl.cores";
   public static final String ETL_TIMEOUT = "polaris.dataprep.etl.timeout";
   public static final String ETL_LIMIT_ROWS = "polaris.dataprep.etl.limitRows";
+  public static final String ETL_MAX_FETCH_SIZE = "polaris.dataprep.etl.maxFetchSize";
   public static final String ETL_JVM_OPTIONS = "polaris.dataprep.etl.jvmOptions";
   public static final String ETL_EXPLICIT_GC = "polaris.dataprep.etl.explicitGC";
 
@@ -79,24 +82,21 @@ public class PrepProperties {
 
   public String getHadoopConfDir(boolean mandatory) {
     if (mandatory && hadoopConfDir == null) {
-      throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-              PrepMessageKey.MSG_DP_ALERT_HADOOP_NOT_CONFIGURED, "Hadoop not configured");
+      throw configError(MSG_DP_ALERT_HADOOP_NOT_CONFIGURED, "Hadoop not configured");
     }
     return hadoopConfDir;
   }
 
   public String getStagingBaseDir(boolean mandatory) {
     if (mandatory && stagingBaseDir == null) {
-      throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-              PrepMessageKey.MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED, "StagingDir not configured");
+      throw configError(MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED, "StagingBaseDir not configured");
     }
     return stagingBaseDir;
   }
 
   public String getS3BaseDir(boolean mandatory) {
     if (mandatory && s3BaseDir == null) {
-      throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-              PrepMessageKey.MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED, "S3Dir not configured");
+      throw configError(MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED, "S3Dir not configured");
     }
     return s3BaseDir;
   }
@@ -114,6 +114,10 @@ public class PrepProperties {
     return sampling.getLimitRows();
   }
 
+  public Integer getSamplingMaxFetchSize() {
+    return sampling.getMaxFetchSize();
+  }
+
   public Boolean getSamplingAutoTyping() {
     return sampling.getAutoTyping();
   }
@@ -128,6 +132,10 @@ public class PrepProperties {
 
   public Integer getEtlLimitRows() {
     return etl.getLimitRows();
+  }
+
+  public Integer getEtlMaxFetchSize() {
+    return etl.getMaxFetchSize();
   }
 
   public String getEtlJvmOptions() {
@@ -172,7 +180,7 @@ public class PrepProperties {
   }
 
   public boolean isSparkEngineEnabled() {
-    return (etl.spark.jar != null && etl.spark.port != null);
+    return etl.spark.port != null;
   }
 
   // Everything for ETL
@@ -184,6 +192,7 @@ public class PrepProperties {
     map.put(ETL_CORES, getEtlCores());
     map.put(ETL_TIMEOUT, getEtlTimeout());
     map.put(ETL_LIMIT_ROWS, getEtlLimitRows());
+    map.put(ETL_MAX_FETCH_SIZE, getEtlMaxFetchSize());
     map.put(ETL_JVM_OPTIONS, getEtlJvmOptions());
     map.put(ETL_EXPLICIT_GC, getEtlExplicitGC());
     map.put(ETL_SPARK_PORT, getEtlSparkPort());
@@ -212,6 +221,7 @@ public class PrepProperties {
     public Integer cores;
     public Integer timeout;
     public Integer limitRows;
+    public Integer maxFetchSize;
     public Boolean autoTyping;
 
     public SamplingInfo() {
@@ -238,6 +248,13 @@ public class PrepProperties {
       return limitRows;
     }
 
+    public Integer getMaxFetchSize() {
+      if (maxFetchSize == null) {
+        maxFetchSize = 1000;
+      }
+      return maxFetchSize;
+    }
+
     public boolean getAutoTyping() {
       if (autoTyping == null) {
         autoTyping = true;
@@ -257,14 +274,18 @@ public class PrepProperties {
       this.limitRows = limitRows;
     }
 
+    public void setMaxFetchSize(Integer maxFetchSize) {
+      this.maxFetchSize = maxFetchSize;
+    }
+
     public void setAutoTyping(Boolean autoTyping) {
       this.autoTyping = autoTyping;
     }
 
     @Override
     public String toString() {
-      return String.format("SamplingInfo{cores=%d timeout=%d limitRows=%d autoTyping=%b}",
-              cores, timeout, limitRows, autoTyping);
+      return String.format("SamplingInfo{cores=%d timeout=%d limitRows=%d maxFetchSize=%d autoTyping=%b}",
+              cores, timeout, limitRows, maxFetchSize, autoTyping);
     }
   }
 
@@ -345,6 +366,7 @@ public class PrepProperties {
     public Integer cores;
     public Integer timeout;
     public Integer limitRows;
+    public Integer maxFetchSize;
     public String jvmOptions;
     public Boolean explicitGC;
     public SparkInfo spark;
@@ -374,6 +396,13 @@ public class PrepProperties {
         limitRows = 100 * 10000;  // being conservative
       }
       return limitRows;
+    }
+
+    public Integer getMaxFetchSize() {
+      if (maxFetchSize == null) {
+        maxFetchSize = 1000;
+      }
+      return maxFetchSize;
     }
 
     public String getJvmOptions() {
@@ -406,6 +435,10 @@ public class PrepProperties {
       this.limitRows = limitRows;
     }
 
+    public void setMaxFetchSize(Integer maxFetchSize) {
+      this.maxFetchSize = maxFetchSize;
+    }
+
     public void setJvmOptions(String jvmOptions) {
       this.jvmOptions = jvmOptions;
     }
@@ -420,14 +453,13 @@ public class PrepProperties {
 
     @Override
     public String toString() {
-      return String.format("EtlInfo{cores=%d timeout=%d jvmOptions=%s explicitGC=%b}",
-              cores, timeout, jvmOptions, explicitGC);
+      return String.format("EtlInfo{cores=%d timeout=%d limitRows=%d maxFetchSize=%d jvmOptions=%s explicitGC=%b}",
+              cores, timeout, limitRows, maxFetchSize, jvmOptions, explicitGC);
     }
   }
 
   public void setLocalBaseDir(String localBaseDir) {
-    if (null != localBaseDir && 1 < localBaseDir.length() && true == localBaseDir
-            .endsWith(File.separator)) {
+    if (localBaseDir != null && localBaseDir.length() > 1 && localBaseDir.endsWith(File.separator)) {
       this.localBaseDir = localBaseDir.substring(0, localBaseDir.length());
     } else {
       this.localBaseDir = localBaseDir;
@@ -435,8 +467,7 @@ public class PrepProperties {
   }
 
   public void setStagingBaseDir(String stagingBaseDir) {
-    if (null != stagingBaseDir && 1 < stagingBaseDir.length() && true == stagingBaseDir
-            .endsWith(File.separator)) {
+    if (stagingBaseDir != null && stagingBaseDir.length() > 1 && stagingBaseDir.endsWith(File.separator)) {
       this.stagingBaseDir = stagingBaseDir.substring(0, stagingBaseDir.length());
     } else {
       this.stagingBaseDir = stagingBaseDir;
@@ -444,7 +475,7 @@ public class PrepProperties {
   }
 
   public void setS3BaseDir(String s3BaseDir) {
-    if (null != s3BaseDir && 1 < s3BaseDir.length() && true == s3BaseDir.endsWith(File.separator)) {
+    if (s3BaseDir != null && s3BaseDir.length() > 1 && s3BaseDir.endsWith(File.separator)) {
       this.s3BaseDir = s3BaseDir.substring(0, s3BaseDir.length());
     } else {
       this.s3BaseDir = s3BaseDir;
