@@ -285,6 +285,18 @@ export class MetadataService extends AbstractService {
     return this.get(url);
   }
 
+  /**
+   * Get Recently Queries In Metadata Detail for DataBase
+   * @param {number} page
+   * @param {number} size
+   * @param {string} sort
+   * @param {string} dataConnectionId
+   * @returns {Promise<any>}
+   */
+  public getRecentlyQueriesInMetadataDetailForDatabase(dataConnectionId: string, page: number, size: number, sort: string): Promise<any> {
+    return this.get(this.API_URL + `queryhistories?sort=${sort}&size=${size}&dataConnectionId=${dataConnectionId}`);
+  }
+
 
   public getMetadataTagList(projection: string, params?): Promise<any> {
     // URL

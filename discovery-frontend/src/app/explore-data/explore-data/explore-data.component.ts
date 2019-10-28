@@ -36,15 +36,20 @@ import {Subscription} from "rxjs";
 import {ExploreDataSearchComponent} from "./explore-data-search.component";
 import {ExploreDataModelService} from "./service/explore-data-model.service";
 import {ExploreDataMainComponent} from "./explore-data-main.component";
+import {MetadataDataCreatorDataListComponent} from "./popup/metadata-data-creator-data-list.component";
 
 @Component({
   selector: 'app-exploredata-view',
   templateUrl: './explore-data.component.html',
-  entryComponents: [MetadataContainerComponent]
+  entryComponents: [MetadataContainerComponent, MetadataDataCreatorDataListComponent]
 })
 export class ExploreDataComponent extends AbstractComponent implements OnInit, OnDestroy {
 
-  @ViewChild('component_metadata_detail', {read: ViewContainerRef}) entry: ViewContainerRef;
+  @ViewChild('component_metadata_detail', {read: ViewContainerRef}) readonly metadataContainerEntry: ViewContainerRef;
+  metadataContainerEntryRef: ComponentRef<MetadataContainerComponent>;
+
+  @ViewChild('component_data_creator_data_list', {read: ViewContainerRef}) dataCreatorDataListEntry: ViewContainerRef;
+  dataCreatorDataListEntryRef: ComponentRef<MetadataDataCreatorDataListComponent>;
 
   @ViewChild(ExploreDataListComponent)
   private readonly _exploreDataListComponent: ExploreDataListComponent;
@@ -54,8 +59,6 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
 
   @ViewChild(ExploreDataSearchComponent)
   exploreDataSearchComponent: ExploreDataSearchComponent;
-
-  entryRef: ComponentRef<MetadataContainerComponent>;
 
   selectedMetadata: Metadata;
 
@@ -144,14 +147,14 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     // get datas...
     const getRecentlyQueriesForDatabase = async (sourcetype: SourceType) => {
       if (sourcetype === SourceType.STAGEDB) {
-        recentlyQueriesForDatabase = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.id, this.page.page, this.page.size, this.page.sort)
+        recentlyQueriesForDatabase = await this.metadataService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.id, this.page.page, this.page.size, this.page.sort)
           .catch(error => this.commonExceptionHandler(error));
       } else {
         if (metadataDetail.source.source != undefined) {
-          recentlyQueriesForDatabase = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.source.id, this.page.page, this.page.size, this.page.sort)
+          recentlyQueriesForDatabase = await this.metadataService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.source.id, this.page.page, this.page.size, this.page.sort)
             .catch(error => this.commonExceptionHandler(error));
         } else {
-          recentlyQueriesForDatabase = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.id, this.page.page, this.page.size, this.page.sort)
+          recentlyQueriesForDatabase = await this.metadataService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.id, this.page.page, this.page.size, this.page.sort)
             .catch(error => this.commonExceptionHandler(error));
         }
       }
@@ -179,33 +182,33 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
       if (metadata.sourceType === SourceType.ENGINE) {
         await getRecentlyUsedList();
 
-        this.entryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(MetadataContainerComponent));
-        this.entryRef.instance.metadataDetailData = metadataDetail;
-        this.entryRef.instance.topUserList = topUserList;
-        this.entryRef.instance.recentlyUpdatedList = recentlyUpdatedList;
+        this.metadataContainerEntryRef = this.metadataContainerEntry.createComponent(this.resolver.resolveComponentFactory(MetadataContainerComponent));
+        this.metadataContainerEntryRef.instance.metadataDetailData = metadataDetail;
+        this.metadataContainerEntryRef.instance.topUserList = topUserList;
+        this.metadataContainerEntryRef.instance.recentlyUpdatedList = recentlyUpdatedList;
         if (recentlyUsedList !== undefined && recentlyUsedList['_embedded'] !== undefined) {
-          this.entryRef.instance.recentlyUsedDashboardList = recentlyUsedList['_embedded']['dashboards'];
+          this.metadataContainerEntryRef.instance.recentlyUsedDashboardList = recentlyUsedList['_embedded']['dashboards'];
         }
 
-        this.entryRef.instance.metadataId = metadata.id;
+        this.metadataContainerEntryRef.instance.metadataId = metadata.id;
       } else if (metadata.sourceType === SourceType.JDBC || metadata.sourceType === SourceType.STAGEDB) {
         await getRecentlyQueriesForDatabase(metadata.sourceType);
-        this.entryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(MetadataContainerComponent));
-        this.entryRef.instance.metadataDetailData = metadataDetail;
-        this.entryRef.instance.topUserList = topUserList;
-        this.entryRef.instance.recentlyUpdatedList = recentlyUpdatedList;
+        this.metadataContainerEntryRef = this.metadataContainerEntry.createComponent(this.resolver.resolveComponentFactory(MetadataContainerComponent));
+        this.metadataContainerEntryRef.instance.metadataDetailData = metadataDetail;
+        this.metadataContainerEntryRef.instance.topUserList = topUserList;
+        this.metadataContainerEntryRef.instance.recentlyUpdatedList = recentlyUpdatedList;
         if (recentlyQueriesForDatabase['_embedded']) {
-          this.entryRef.instance.recentlyQueriesForDataBase = recentlyQueriesForDatabase['_embedded']['queryhistories'];
+          this.metadataContainerEntryRef.instance.recentlyQueriesForDataBase = recentlyQueriesForDatabase['_embedded']['queryhistories'];
         }
-        this.entryRef.instance.metadataId = metadata.id;
+        this.metadataContainerEntryRef.instance.metadataId = metadata.id;
       }
       this.loadingHide();
       // close modal event listener
-      this.entryRef.instance.closedPopup.subscribe(() => {
-        this.entryRef.destroy();
+      this.metadataContainerEntryRef.instance.closedPopup.subscribe(() => {
+        this.metadataContainerEntryRef.destroy();
       });
       // toggle favorite in modal listener
-      this.entryRef.instance.onToggleFavorite.subscribe((metadataDetail) => {
+      this.metadataContainerEntryRef.instance.onToggleFavorite.subscribe((metadataDetail) => {
         // modal is shown in list screen
         if (this.mode === ExploreMode.LIST) {
           const index = this._exploreDataListComponent.metadataList.findIndex((metadata) => {

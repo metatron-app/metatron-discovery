@@ -56,6 +56,7 @@ import {MetadataUsedWorkspaceComponent} from "./explore-data/component/metadata-
 import {ExploreDataUtilService} from "./explore-data/service/explore-data-util.service";
 import {UpdatedTimeRadioFilter} from "./explore-data/component/updated-time-radio-filter.component";
 import {DataStorageCriteriaModule} from "../data-storage/data-storage-criteria.module";
+import {MetadataDataCreatorDataListComponent} from "./explore-data/popup/metadata-data-creator-data-list.component";
 
 @NgModule({
   imports: [
@@ -87,6 +88,7 @@ import {DataStorageCriteriaModule} from "../data-storage/data-storage-criteria.m
     ExploreDataComponent,
     FavoriteDataComponent,
     FavoriteCreatorComponent,
+    MetadataDataCreatorDataListComponent,
     MetadataContainerComponent,
     MetadataColumnsComponent,
     MetadataOverviewComponent,

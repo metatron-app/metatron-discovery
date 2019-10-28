@@ -20,6 +20,7 @@ import {CookieConstant} from "../../../common/constant/cookie.constant";
 import {CreateWorkbookComponent} from "../../../workbook/component/create-workbook/refactoring/create-workbook.component";
 import {Modal} from "../../../common/domain/modal";
 import {ConfirmRefModalComponent} from "../../../common/component/modal/confirm/confirm-ref.component";
+import {Alert} from "../../../common/util/alert.util";
 
 @Component({
   selector: 'explore-metadata-container',
@@ -188,26 +189,31 @@ export class MetadataContainerComponent extends AbstractComponent {
   }
 
   private _showCreateWorkbenchComponent(): void {
-    this.createWorkbenchEntryRef = this.createWorkbenchEntry.createComponent(this.resolver.resolveComponentFactory(CreateWorkbenchContainerComponent));
-    const workspace = JSON.parse(this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE));
-    // set data in component
-    this.createWorkbenchEntryRef.instance.setWorkspaceId(workspace.id);
-    this.createWorkbenchEntryRef.instance.setConnectionInModel(this.metadataDetailData.source.source);
-    this.createWorkbenchEntryRef.instance.setSchemaName(this.metadataDetailData.source.schema);
-    this.createWorkbenchEntryRef.instance.setTableName(this.metadataDetailData.source.table);
-    this.createWorkbenchEntryRef.instance.accessFromExplore();
-    this.createWorkbenchEntryRef.instance.closedPopup.subscribe(() => {
-      this.createWorkbenchEntryRef.destroy();
-    });
-    this.createWorkbenchEntryRef.instance.completedPopup.subscribe((workbenchId: string) => {
-      if (_.isNil(workbenchId)) {
-        // link to workspace
-        this.router.navigateByUrl('/workspace').then();
-      } else {
-        // link to workspace
-        this.router.navigateByUrl('/workbench/' + workbenchId).then();
-      }
-    });
+    if (this.metadataDetailData.source.source !== undefined) {
+      this.createWorkbenchEntryRef = this.createWorkbenchEntry.createComponent(this.resolver.resolveComponentFactory(CreateWorkbenchContainerComponent));
+      const workspace = JSON.parse(this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE));
+
+      // set data in component
+      this.createWorkbenchEntryRef.instance.setWorkspaceId(workspace.id);
+      this.createWorkbenchEntryRef.instance.setConnectionInModel(this.metadataDetailData.source.source);
+      this.createWorkbenchEntryRef.instance.setSchemaName(this.metadataDetailData.source.schema);
+      this.createWorkbenchEntryRef.instance.setTableName(this.metadataDetailData.source.table);
+      this.createWorkbenchEntryRef.instance.accessFromExplore();
+      this.createWorkbenchEntryRef.instance.closedPopup.subscribe(() => {
+        this.createWorkbenchEntryRef.destroy();
+      });
+      this.createWorkbenchEntryRef.instance.completedPopup.subscribe((workbenchId: string) => {
+        if (_.isNil(workbenchId)) {
+          // link to workspace
+          this.router.navigateByUrl('/workspace').then();
+        } else {
+          // link to workspace
+          this.router.navigateByUrl('/workbench/' + workbenchId).then();
+        }
+      });
+    } else {
+      Alert.error("Cannot create workbench")
+    }
   }
 }
 

@@ -52,7 +52,11 @@
         </div>
       </div>
 
-      <div class="ddp-wrap-table">
+      <div class="ddp-no-data" *ngIf="isEmptyMetadataList()">
+        No Metadata
+      </div>
+
+      <div class="ddp-wrap-table" *ngIf="!isEmptyMetadataList()">
         <table class="ddp-table-form ddp-table-line">
           <colgroup>
             <col width="26px">
@@ -120,8 +124,8 @@
           </thead>
 
           <tbody>
-          <tr *ngFor="let metadata of metadataList">
-            <td class="ddp-txt-center"><em class="ddp-icon-fav" [class.ddp-selected]="true" (click)="onClickFavoriteInList()"></em></td>
+          <tr *ngFor="let metadata of metadataList" (click)="onClickMetadata(metadata)">
+            <td class="ddp-txt-center"><em class="ddp-icon-fav" [class.ddp-selected]="metadata.favorite" (click)="onClickFavoriteInList(metadata)"></em></td>
             <td>
               <component-metadata-type-box-tag [metadata]="metadata"></component-metadata-type-box-tag>
             </td>

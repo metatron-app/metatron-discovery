@@ -54,6 +54,7 @@ export class MetadataDataCreatorDataListComponent extends AbstractComponent impl
   confirmModalEntryRef: ComponentRef<ConfirmRefModalComponent>;
 
   @Output() readonly closedPopup = new EventEmitter();
+  @Output() readonly clickedMetadata = new EventEmitter();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -122,14 +123,7 @@ export class MetadataDataCreatorDataListComponent extends AbstractComponent impl
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  /**
-   * When X button is clicked
-   */
-  public onClickCloseBtn() {
-    this.closedPopup.emit();
-  }
-
-  private _getMetadataListParams() {
+  getMetadataListParams() {
     let params = {
       size: this.page.size,
       page: this.page.page,
@@ -185,7 +179,7 @@ export class MetadataDataCreatorDataListComponent extends AbstractComponent impl
     return result;
   }
 
-  private async _setMetadataList(params) {
+  public async setMetadataList(params) {
     this.loadingShow();
     const result = await this.metadataService.getMetaDataList(params).catch((e) => this.commonExceptionHandler(e));
 
@@ -211,7 +205,7 @@ export class MetadataDataCreatorDataListComponent extends AbstractComponent impl
     // set search keyword
     this.searchedKeyword = keyword;
 
-    this._setMetadataList(this._getMetadataListParams()).then();
+    this.setMetadataList(this.getMetadataListParams()).then();
   }
 
   /**
@@ -222,22 +216,38 @@ export class MetadataDataCreatorDataListComponent extends AbstractComponent impl
     if (data) {
       this.page.page = data.page;
       this.page.size = data.size;
-      this._setMetadataList(this._getMetadataListParams()).then();
+      this.setMetadataList(this.getMetadataListParams()).then();
     }
   }
 
   public onSelectSourceType(event) {
     // set selected filter
     this.selectedSourceTypeFilter = event.value;
-    this._setMetadataList(this._getMetadataListParams()).then();
+    this.setMetadataList(this.getMetadataListParams()).then();
+  }
+
+  /**
+   * When X button is clicked
+   */
+  public onClickCloseBtn() {
+    this.closedPopup.emit();
+  }
+
+  onClickMetadata(metadata: Metadata) {
+    this.clickedMetadata.emit(metadata);
   }
 
   public onClickEditData(metadataId: string) {
-    Alert.error('aa');
-    // this.router.navigate(['management/metadata/metadata', metadataId]).then();
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+    // Alert.error('aa');
+    this.router.navigate(['management/metadata/metadata', metadataId]).then();
   }
 
   async onClickCreateWorkbench(metadata: Metadata) {
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+
     if (Metadata.isSourceTypeIsJdbc(metadata.sourceType)) {
       const metadataDetail = await this.metadataService.getDetailMetaData(metadata.id).catch(e => this.commonExceptionHandler(e));
       this._showConfirmComponent().then(() => this._showCreateWorkbenchComponent(metadataDetail));
@@ -245,6 +255,9 @@ export class MetadataDataCreatorDataListComponent extends AbstractComponent impl
   }
 
   async onClickCreateWorkbook(metadata: Metadata) {
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+
     if (Metadata.isSourceTypeIsEngine(metadata.sourceType)) {
       const metadataDetail = await this.metadataService.getDetailMetaData(metadata.id).catch(e => this.commonExceptionHandler(e));
       this._showConfirmComponent().then(() => this._showCreateWorkbookComponent(metadataDetail));
@@ -256,9 +269,17 @@ export class MetadataDataCreatorDataListComponent extends AbstractComponent impl
     event.stopPropagation();
   };
 
-  onClickFavoriteInList() {
+  onClickFavoriteInList(selectedMetadata: Metadata) {
     event.stopImmediatePropagation();
     event.stopPropagation();
+
+    this.metadataService.toggleMetadataFavorite(selectedMetadata.id, selectedMetadata.favorite).catch((e) => this.commonExceptionHandler(e));
+
+    const index = this.metadataList.findIndex((metadata) => {
+      return metadata.id === selectedMetadata.id;
+    });
+
+    this.metadataList[index].favorite = !this.metadataList[index].favorite;
   };
 
   isNotEmptySearchKeyword(): boolean {
@@ -343,31 +364,34 @@ export class MetadataDataCreatorDataListComponent extends AbstractComponent impl
     });
   }
 
-  private async _showCreateWorkbenchComponent(metadata: Metadata) {
-    this.createWorkbenchEntryRef = this.createWorkbenchEntry.createComponent(this.resolver.resolveComponentFactory(CreateWorkbenchContainerComponent));
+  private async _showCreateWorkbenchComponent(metadataDetail: Metadata) {
+    if (metadataDetail.source.source !== undefined) {
+      this.createWorkbenchEntryRef = this.createWorkbenchEntry.createComponent(this.resolver.resolveComponentFactory(CreateWorkbenchContainerComponent));
 
-    const metadataDetail = await this.metadataService.getDetailMetaData(metadata.id).catch(e => this.commonExceptionHandler(e));
+      const workspace = JSON.parse(this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE));
 
-    const workspace = JSON.parse(this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE));
+      // set data in component
+      this.createWorkbenchEntryRef.instance.setWorkspaceId(workspace.id);
+      this.createWorkbenchEntryRef.instance.setConnectionInModel(metadataDetail.source.source);
+      this.createWorkbenchEntryRef.instance.setSchemaName(metadataDetail.source.schema);
+      this.createWorkbenchEntryRef.instance.setTableName(metadataDetail.source.table);
+      this.createWorkbenchEntryRef.instance.accessFromExplore();
+      this.createWorkbenchEntryRef.instance.closedPopup.subscribe(() => {
+        this.createWorkbenchEntryRef.destroy();
+      });
+      this.createWorkbenchEntryRef.instance.completedPopup.subscribe((workbenchId: string) => {
+        if (_.isNil(workbenchId)) {
+          // link to workspace
+          this.router.navigateByUrl('/workspace').then();
+        } else {
+          // link to workspace
+          this.router.navigateByUrl('/workbench/' + workbenchId).then();
+        }
+      });
+    } else {
+      Alert.error("Cannot create workbench")
+    }
 
-    // set data in component
-    this.createWorkbenchEntryRef.instance.setWorkspaceId(workspace.id);
-    this.createWorkbenchEntryRef.instance.setConnectionInModel(metadataDetail.source.source);
-    this.createWorkbenchEntryRef.instance.setSchemaName(metadataDetail.source.schema);
-    this.createWorkbenchEntryRef.instance.setTableName(metadataDetail.source.table);
-    this.createWorkbenchEntryRef.instance.accessFromExplore();
-    this.createWorkbenchEntryRef.instance.closedPopup.subscribe(() => {
-      this.createWorkbenchEntryRef.destroy();
-    });
-    this.createWorkbenchEntryRef.instance.completedPopup.subscribe((workbenchId: string) => {
-      if (_.isNil(workbenchId)) {
-        // link to workspace
-        this.router.navigateByUrl('/workspace').then();
-      } else {
-        // link to workspace
-        this.router.navigateByUrl('/workbench/' + workbenchId).then();
-      }
-    });
   }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
