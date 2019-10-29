@@ -21,16 +21,19 @@ export class ExploreDataUserCardComponent extends AbstractComponent {
   }
 
   onClickWorkbenchName(hasPermission: boolean) {
+    event.stopPropagation();
+    event.stopImmediatePropagation();
     if (!hasPermission) {
       return;
     }
-
     const popUrl = `workbench/${this.topUser.workbench.id}`;
     //open in new tab
     window.open(popUrl, '_blank');
   }
 
   onClickDashBoardName(hasPermission: boolean) {
+    event.stopPropagation();
+    event.stopImmediatePropagation();
     if (!hasPermission) {
       return;
     }
@@ -40,6 +43,8 @@ export class ExploreDataUserCardComponent extends AbstractComponent {
   }
 
   onClickUserName(creator: string) {
+    event.stopPropagation();
+    event.stopImmediatePropagation();
     this.userClicked.emit(creator);
   }
 }

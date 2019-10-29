@@ -34,6 +34,7 @@ export class MetadataContainerComponent extends AbstractComponent {
 
   @Output() readonly closedPopup = new EventEmitter();
   @Output() readonly onToggleFavorite = new EventEmitter();
+  @Output() clickedTopUser = new EventEmitter();
 
   @ViewChild('component_create_workbench', {read: ViewContainerRef}) readonly createWorkbenchEntry: ViewContainerRef;
   createWorkbenchEntryRef: ComponentRef<CreateWorkbenchContainerComponent>;
@@ -92,6 +93,10 @@ export class MetadataContainerComponent extends AbstractComponent {
    */
   public onClickTab(tab: MetadataTab) {
     this.selectedTab = tab.id;
+  }
+
+  public onClickTopUser(creator: string) {
+    this.clickedTopUser.emit(creator);
   }
 
   /**
@@ -212,7 +217,7 @@ export class MetadataContainerComponent extends AbstractComponent {
         }
       });
     } else {
-      Alert.error("Cannot create workbench")
+      Alert.error(this.translateService.instant('msg.explore.alert.error.cannot.make.workbench'));
     }
   }
 }

@@ -1,10 +1,11 @@
 <!-- SourceType is ENGINE(Datasource) -->
-<div class="ddp-box-user" *ngIf="sourceType.toString() === 'ENGINE'">
+<div class="ddp-box-user" *ngIf="sourceType.toString() === 'ENGINE'" (click)="onClickUserName(topUser['user']['fullName'])">
   <div class="ddp-data-photo">
     <img src="../../../../assets/images/img_photo.png">
   </div>
   <div class="ddp-wrap-data">
-    <div class="ddp-data-name" (click)="onClickUserName(topUser['user']['fullName'])">{{ topUser['user']['fullName'] }}
+    <div class="ddp-data-name">
+      <span class="ddp-txt-name">{{ topUser['user']['fullName'] }}</span>
 <!--      <em class="ddp-icon-control-fav"></em>-->
     </div>
     <div>
@@ -24,12 +25,13 @@
 <!-- SourceType is ENGINE(Datasource) -->
 
 <!-- SourceType is JDBC(Database) -->
-<div class="ddp-box-user" *ngIf="sourceType.toString() === 'JDBC' || sourceType.toString() === 'STAGEDB'">
+<div class="ddp-box-user" *ngIf="sourceType.toString() === 'JDBC' || sourceType.toString() === 'STAGEDB'" (click)="onClickUserName(topUser['user']['fullName'])">
   <div class="ddp-data-photo">
     <img src="../../../../assets/images/img_photo.png">
   </div>
   <div class="ddp-wrap-data">
-    <div class="ddp-data-name">{{ topUser['user']['fullName'] }}
+    <div class="ddp-data-name">
+      <span class="ddp-txt-name">{{ topUser['user']['fullName'] }}</span>
 <!--      <em class="ddp-icon-control-fav ddp-fright"></em>-->
     </div>
     <div>

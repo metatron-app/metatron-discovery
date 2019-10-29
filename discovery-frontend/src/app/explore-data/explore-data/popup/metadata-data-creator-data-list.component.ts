@@ -132,7 +132,8 @@ export class MetadataDataCreatorDataListComponent extends AbstractComponent impl
 
     // if not empty search keyword
     if (StringUtil.isNotEmpty(this.searchedKeyword)) {
-      params[this.searchRange.value] = this.searchedKeyword.trim();
+      params['nameContains'] = this.searchedKeyword.trim();
+      params['descContains'] = this.searchedKeyword.trim();
     }
 
     // if sourceType is selected
@@ -389,7 +390,7 @@ export class MetadataDataCreatorDataListComponent extends AbstractComponent impl
         }
       });
     } else {
-      Alert.error("Cannot create workbench")
+      Alert.error(this.translateService.instant('msg.explore.alert.error.cannot.make.workbench'))
     }
 
   }

@@ -4297,6 +4297,7 @@
   "msg.explore.ui.confirm.title" : "Do you want to close and move the current screen?",
   "msg.explore.ui.confirm.description" : "Select Cancel to not move.",
   "msg.explore.btn.confirm.done" : "Close and move",
+  "msg.explore.alert.error.cannot.make.workbench" : "Cannot make workbench",
 
   "msg.engine.monotoring.title": "Engine Monitoring",
   "msg.engine.monotoring.overview": "Overview",

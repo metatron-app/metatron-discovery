@@ -42,6 +42,7 @@
       <explore-metadata-overview
         *ngIf="selectedTab === 0"
         [metadata]="metadataDetailData"
+        (clickedTopUser)="onClickTopUser($event)"
         [topUserList]="topUserList"
         [recentlyUpdatedList]="recentlyUpdatedList"
         [recentlyQueriesForDataBase]="recentlyQueriesForDataBase"

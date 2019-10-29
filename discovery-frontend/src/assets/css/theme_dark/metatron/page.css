@@ -46373,7 +46373,10 @@
     cursor: pointer;
     background-position: 0 -31px;
 }
+.theme-dark table.ddp-table-form tr td em.ddp-icon-fav:hover {
 
+  background-position: -26px -31px;
+}
 .theme-dark table.ddp-table-form tr td em.ddp-icon-fav.ddp-selected {
     background-position: -14px -31px;
 }
@@ -48288,7 +48291,6 @@
     display: block;
     overflow: hidden;
     background-color: rgba(236, 238, 246, 0.3);
-    cursor: default;
 }
 
 .theme-dark .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-data-photo {

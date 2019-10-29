@@ -37,11 +37,13 @@ import {ExploreDataSearchComponent} from "./explore-data-search.component";
 import {ExploreDataModelService} from "./service/explore-data-model.service";
 import {ExploreDataMainComponent} from "./explore-data-main.component";
 import {MetadataDataCreatorDataListComponent} from "./popup/metadata-data-creator-data-list.component";
+import {ConfirmRefModalComponent} from "../../common/component/modal/confirm/confirm-ref.component";
+import {Modal} from "../../common/domain/modal";
 
 @Component({
   selector: 'app-exploredata-view',
   templateUrl: './explore-data.component.html',
-  entryComponents: [MetadataContainerComponent, MetadataDataCreatorDataListComponent]
+  entryComponents: [MetadataContainerComponent, MetadataDataCreatorDataListComponent, ConfirmRefModalComponent]
 })
 export class ExploreDataComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -59,6 +61,9 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
 
   @ViewChild(ExploreDataSearchComponent)
   exploreDataSearchComponent: ExploreDataSearchComponent;
+
+  @ViewChild('component_confirm', {read: ViewContainerRef}) readonly confirmModalEntry: ViewContainerRef;
+  confirmModalEntryRef: ComponentRef<ConfirmRefModalComponent>;
 
   selectedMetadata: Metadata;
 
@@ -137,6 +142,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   }
 
   onClickMetadata(metadata: Metadata) {
+    this.loadingShow();
     // declare variables needed for metadata-container(modal) component
     let metadataDetail;
     let recentlyQueriesForDatabase;
@@ -224,7 +230,57 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
         }
       });
 
+      this.metadataContainerEntryRef.instance.clickedTopUser.subscribe((creator) => {
+        this._showConfirmComponent().then(() => {
+          this.loadingShow();
+          this.metadataService.getMetaDataList({creatorContains: creator, size: 100}).then((result) => {
+            this.loadingHide();
+            if (result !== undefined && result) {
+              this.metadataContainerEntryRef.destroy();
+              if (result['_embedded']) {
+                this.dataCreatorDataListEntryRef = this.dataCreatorDataListEntry.createComponent(this.resolver.resolveComponentFactory(MetadataDataCreatorDataListComponent));
+                this.dataCreatorDataListEntryRef.instance.metadataList = result['_embedded']['metadatas'];
+                this.dataCreatorDataListEntryRef.instance.creator = creator;
+              } else  if (result['_embedded'] === undefined){
+                this.dataCreatorDataListEntryRef = this.dataCreatorDataListEntry.createComponent(this.resolver.resolveComponentFactory(MetadataDataCreatorDataListComponent));
+                this.dataCreatorDataListEntryRef.instance.metadataList = [];
+                this.dataCreatorDataListEntryRef.instance.creator = creator;
+              }
+            }
+            this.dataCreatorDataListEntryRef.instance.closedPopup.subscribe(() => {
+              // close
+              this.dataCreatorDataListEntryRef.destroy();
+            });
+
+            this.dataCreatorDataListEntryRef.instance.clickedMetadata.subscribe((metadata) => {
+              this.onClickMetadata(metadata);
+            });
+          })
+        });
+      });
     }).catch(error => {console.log(error); this.commonExceptionHandler(error)});
+  }
+
+  private _showConfirmComponent() {
+    return new Promise((resolve, reject) => {
+      // show confirm modal
+      this.confirmModalEntryRef = this.confirmModalEntry.createComponent(this.resolver.resolveComponentFactory(ConfirmRefModalComponent));
+      const modal: Modal = new Modal();
+
+      modal.name = this.translateService.instant('msg.explore.ui.confirm.title');
+      modal.description = this.translateService.instant('msg.explore.ui.confirm.description');
+      modal.btnName = this.translateService.instant('msg.explore.btn.confirm.done');
+      this.confirmModalEntryRef.instance.init(modal);
+      this.confirmModalEntryRef.instance.cancelEvent.subscribe(() => {
+        // destroy confirm component
+        this.confirmModalEntryRef.destroy();
+      });
+      this.confirmModalEntryRef.instance.confirmEvent.subscribe((result) => {
+        // destroy confirm component
+        this.confirmModalEntryRef.destroy();
+        resolve(result);
+      });
+    });
   }
 
   private async _setMetadataSourceTypeCount() {

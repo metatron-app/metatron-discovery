@@ -4265,6 +4265,8 @@
   "msg.explore.ui.confirm.title": "현재 화면을 닫고 이동하시겠습니까?",
   "msg.explore.ui.confirm.description": "취소를 선택하면 이동하지 않습니다.",
   "msg.explore.btn.confirm.done": "현재창 닫고 이동",
+  "msg.explore.alert.error.cannot.make.workbench" : "워크벤치를 생성할 수 없습니다.",
+
   "msg.engine.monotoring.title": "엔진 모니터링",
   "msg.engine.monotoring.overview": "개요",
   "msg.engine.monotoring.overview.cluster.name.prefix": "상태",

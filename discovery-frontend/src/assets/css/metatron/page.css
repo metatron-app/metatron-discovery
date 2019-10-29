@@ -9728,6 +9728,7 @@ table.ddp-table-type2 tbody tr td table.ddp-table-code tr td {background:none; c
 .ddp-wrap-data-list .ddp-type-top-option {padding:10px 0;}
 .ddp-wrap-data-list .ddp-box-list {padding:0 20px 31px 20px;background-color:#fff; border-radius:4px; box-shadow: 0 2px 6px 2px rgba(102, 110, 178, 0.15);}
 .ddp-wrap-data-list .ddp-box-list .ddp-data-total {padding:16px 0 18px 0;color:#4b515b; font-size:13px;}
+.ddp-wrap-data-list .ddp-box-list .ddp-no-data {padding:42px 0; color:#b5b9c2; border-top:1px solid #e7e7ea; text-align:center;}
 
 /**********************************************************************************
 	메타데이터 (Admin)
@@ -9919,6 +9920,7 @@ ul.ddp-list-tags li.ddp-selected a {background-color:#f3f4f9;}
 .ddp-ui-tree ul.ddp-list-tree li > a.ddp-depth .ddp-view:hover:before { background-position:-40px 0;}
 
 table.ddp-table-form tr td em.ddp-icon-fav {display:inline-block; width:13px; height:12px; background:url(../../images/icon_fav.png) no-repeat; cursor: pointer; background-position:0 -31px;}
+table.ddp-table-form tr td em.ddp-icon-fav:hover {background-position:-26px -31px;}
 table.ddp-table-form tr td em.ddp-icon-fav.ddp-selected { background-position:-14px -31px;}
 .ddp-td-tags {}
 table.ddp-table-form tr td .ddp-tags {display:inline-block; max-width:110px; padding:3px 6px; height:22px; border-radius:3px; background-color:#f2f1f8; color:#666eb2; font-size:13px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal; vertical-align:middle; box-sizing:border-box;}
@@ -10343,13 +10345,13 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
 .ddp-detail ul.ddp-list-user li {float:left; padding:3px 3px; width:33.3333%; box-sizing:border-box;}
 .ddp-detail ul.ddp-list-user li .ddp-box-user {display:block; padding-right:10px; overflow:hidden; background-color:rgba(236, 238, 246, 0.3); cursor:default;}
 /*.ddp-detail ul.ddp-list-user li .ddp-box-user:hover {background-color:#eceef6;}*/
-.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-data-photo {position:relative; width:50px; height:50px; float:left; margin:22px 10px 22px 13px;border-radius:50%; overflow:hidden;}
+.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-data-photo {position:relative; width:50px; height:50px; float:left; margin:22px 10px 22px 13px;border-radius:50%; overflow:hidden; cursor:pointer;}
 .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-data-photo:before {display:inline-block; width:50px; height:50px; position:absolute; top:0; left:0;background:url(../../images/img_profile.png) no-repeat; background-position:left -82px; content:'';}
 .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-data-photo img {display:block; width:100%; height:100%;}
 .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data {display:block; margin-left:-78px; padding-left:78px; width:100%; float:left; box-sizing:border-box;}
 
 .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-name {display:inline-block; padding:20px 0 0 0; max-width:100%; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
-.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-name span.ddp-txt-name {display:block; color:#4e5368; font-size:14px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
+.ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-name span.ddp-txt-name {display:block; color:#4e5368; font-size:14px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; cursor:pointer;}
 .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-name .ddp-icon-control-fav {position:relative; top:-2px;}
 .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info {position:relative; display:inline-block; max-width:100%;padding:4px 0 0 0; color:#4e5368; font-size:12px;}
 .ddp-detail ul.ddp-list-user li .ddp-box-user .ddp-wrap-data .ddp-data-info em.ddp-link-new  {display:inline-block; position:relative; top:2px; float:right; width:14px; height:12px; margin-left:2px; background:url(../../images/icon_window.png) no-repeat; background-position:left -24px; content:'';}
@@ -10786,6 +10788,7 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 .ddp-pop-manager .ddp-wrap-manager .ddp-data-date {color:#90969f; font-size:12px;}
 .ddp-box-meta .ddp-detail-contents.type-manager {display:flex; flex-direction: column; top:0; padding:94px 60px 20px 60px; height:100%; box-sizing:border-box; }
 .ddp-box-meta .ddp-detail-contents.type-manager .ddp-wrap-table {flex:1 auto; overflow:auto;}
+.ddp-box-meta .ddp-detail-contents .ddp-no-data {padding:42px 0; color:#b5b9c2; border-top:1px solid #e7e7ea; text-align:center;}
 .ddp-box-meta .ddp-detail-contents.type-manager .ddp-type-top-option {min-width:846px;}
 .ddp-box-meta .ddp-detail-contents.type-manager .ddp-box-page {}
 

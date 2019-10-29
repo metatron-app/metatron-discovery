@@ -117,6 +117,7 @@ export class FavoriteCreatorComponent extends AbstractComponent implements OnIni
   onClickMetadata(metadata: Metadata) {
     event.stopPropagation();
     event.stopImmediatePropagation();
+
     // declare variables needed for metadata-container(modal) component
     let metadataDetail;
     let recentlyQueriesForDatabase;
@@ -183,6 +184,7 @@ export class FavoriteCreatorComponent extends AbstractComponent implements OnIni
         }
         this.metadataContainerEntryRef.instance.metadataId = metadata.id;
       }
+      this.dataCreatorDataListEntryRef.destroy();
       this.loadingHide();
       // close modal event listener
       this.metadataContainerEntryRef.instance.closedPopup.subscribe(() => {
@@ -191,7 +193,7 @@ export class FavoriteCreatorComponent extends AbstractComponent implements OnIni
       // toggle favorite in modal listener
       this.metadataContainerEntryRef.instance.onToggleFavorite.subscribe((_) => {
         // modal is shown in list screen
-        this.dataCreatorDataListEntryRef.instance.setMetadataList(this.dataCreatorDataListEntryRef.instance.getMetadataListParams());
+        this.dataCreatorDataListEntryRef.instance.setMetadataList(this.dataCreatorDataListEntryRef.instance.getMetadataListParams()).then();
         // modal is shown in main screen
       });
 

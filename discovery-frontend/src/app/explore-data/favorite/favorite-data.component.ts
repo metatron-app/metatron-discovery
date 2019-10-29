@@ -135,7 +135,7 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
           } else if (key === 'page') {
             this.page.page = params['page'];
           } else if (key === 'sort') {
-            const sortParam = params['sort'].split(',');
+            this.selectedSort = params['sort'].split(',');
           } else if (key === 'containsText') {
             this.searchedKeyword = params['containsText'];
           } else {
@@ -547,7 +547,7 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
          }
        });
      } else {
-       Alert.error("Cannot create workbench")
+       Alert.error(this.translateService.instant('msg.explore.alert.error.cannot.make.workbench'))
      }
 
   }

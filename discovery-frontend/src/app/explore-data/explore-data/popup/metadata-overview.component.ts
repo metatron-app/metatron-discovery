@@ -1,7 +1,7 @@
 import {
-  Component, ComponentFactoryResolver, ComponentRef, ElementRef, Injector,
+  Component, ComponentFactoryResolver, ComponentRef, ElementRef, EventEmitter, Injector,
   Input, OnDestroy,
-  OnInit,
+  OnInit, Output,
   ViewChild, ViewContainerRef,
 } from '@angular/core';
 import {RecentQueriesComponent} from "./recent-queries.component";
@@ -16,16 +16,14 @@ import {MetadataService} from "../../../meta-data-management/metadata/service/me
 @Component({
   selector: 'explore-metadata-overview',
   templateUrl: './metadata-overview.component.html',
-  entryComponents: [RecentQueriesComponent, MetadataDataCreatorDataListComponent],
+  entryComponents: [RecentQueriesComponent],
   preserveWhitespaces: false
 })
 export class MetadataOverviewComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   @ViewChild('component_recent_queries', {read: ViewContainerRef}) entry: ViewContainerRef;
-  @ViewChild('component_datacreator_data_list', {read: ViewContainerRef}) dataCreatorDataListEntry: ViewContainerRef;
 
   entryRef: ComponentRef<RecentQueriesComponent>;
-  dataCreatorDataListEntryRef: ComponentRef<MetadataDataCreatorDataListComponent>;
 
   @Input() readonly metadataId: string;
   @Input() readonly metadata : Metadata;
@@ -33,6 +31,8 @@ export class MetadataOverviewComponent extends AbstractComponent implements OnIn
   @Input() readonly recentlyUpdatedList = [];
   @Input() readonly recentlyQueriesForDataBase = [];
   @Input() readonly recentlyUsedDashboardList = [];
+
+  @Output() clickedTopUser = new EventEmitter();
 
   public isShowMoreCatalogs: boolean = false;
 
@@ -94,22 +94,7 @@ export class MetadataOverviewComponent extends AbstractComponent implements OnIn
   }
 
   async onClickUser(creator: string) {
-    this.loadingShow();
-    const result = await this.metadataService.getMetaDataList({creatorContains: creator, size: 100}).catch(e => this.commonExceptionHandler(e));
-
-    if (result !== undefined && result) {
-      if (result['_embedded']) {
-        this.dataCreatorDataListEntryRef = this.dataCreatorDataListEntry.createComponent(this.resolver.resolveComponentFactory(MetadataDataCreatorDataListComponent));
-        this.dataCreatorDataListEntryRef.instance.metadataList = result['_embedded']['metadatas'];
-        this.dataCreatorDataListEntryRef.instance.creator = creator;
-      }
-    }
-
-    this.loadingHide();
-    this.dataCreatorDataListEntryRef.instance.closedPopup.subscribe(() => {
-      // close
-      this.dataCreatorDataListEntryRef.destroy();
-    });
+    this.clickedTopUser.emit(creator);
   }
 
   /**
