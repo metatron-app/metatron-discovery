@@ -64,7 +64,7 @@ export class ExploreDataMainComponent extends AbstractComponent {
       await this._setPopularMetadataList();
       await this._setUpdatedMetadataList();
       // await this._setRecommendedMetadataList();
-      await this._setMyFavoriteMetadataList();
+      await this.setMyFavoriteMetadataList();
       // await this._setCreatorFavoriteMetadataList();
     };
     initial().then(() => this.broadcaster.broadcast(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL)).catch(() => this.broadcaster.broadcast(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL));
@@ -148,9 +148,17 @@ export class ExploreDataMainComponent extends AbstractComponent {
     return (this.popularMetadataShowStartIndex / 5) !== (this.popularMetadataCarouselScreenIndex.length - 1);
   }
 
+  public async setMyFavoriteMetadataList() {
+    const result = await this._metadataService.getMetadataListByMyFavorite({size: 4, page: 0, projection: 'forListView', sort: 'createdTime,desc'});
+    if (!_.isNil(result._embedded)) {
+      this.favoriteMetadataList = result._embedded.metadatas;
+      this.favoriteMetadataTotalCount = result.page.totalElements;
+
+    }
+  }
 
   private async _setPopularMetadataList() {
-    const result = await this._metadataService.getMetadataListByPopularity({size: 18, page: 0});
+    const result = await this._metadataService.getMetadataListByPopularity({size: 20, page: 0});
     if (!_.isNil(result._embedded)) {
       this.popularMetadataList = result._embedded.metadatas;
 
@@ -170,14 +178,6 @@ export class ExploreDataMainComponent extends AbstractComponent {
     }
   }
 
-  private async _setMyFavoriteMetadataList() {
-    const result = await this._metadataService.getMetadataListByMyFavorite({size: 4, page: 0, projection: 'forListView', sort: 'createdTime,desc'});
-    if (!_.isNil(result._embedded)) {
-      this.favoriteMetadataList = result._embedded.metadatas;
-      this.favoriteMetadataTotalCount = result.page.totalElements;
-
-    }
-  }
 
   private async _setCreatorFavoriteMetadataList() {
     const result = await this._metadataService.getMetadataListByCreatorFavorite({size: 10, page: 0, projection: 'forListView'});

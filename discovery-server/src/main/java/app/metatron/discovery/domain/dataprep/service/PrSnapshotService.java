@@ -464,6 +464,8 @@ public class PrSnapshotService {
   }
 
   public Map<String, Object> getContents(String ssId, Integer offset, Integer target) {
+    LOGGER.debug("getContents(): ssId={} offset={} target={}", ssId, offset, target);
+
     Map<String, Object> responseMap = new HashMap();
     try {
       PrSnapshot snapshot = this.snapshotRepository.findOne(ssId);
@@ -509,17 +511,17 @@ public class PrSnapshotService {
             gridResponse = new DataFrame();
           } else {
             int rowSize = gridResponse.rows.size();
-            int lastIdx = offset + target - 1;
-            if (lastIdx >= 0 && offset < rowSize) {
-              if (rowSize <= lastIdx) {
-                lastIdx = rowSize;
-              }
-              gridResponse.rows = gridResponse.rows.subList(offset, lastIdx);
+            LOGGER.debug("getContents(): rowSize={} offset={} size={}", rowSize, offset, size);
+            if (size >= 0 && offset < rowSize) {
+              LOGGER.debug("getContents(): subList(): rowSize={} offset={}", rowSize, offset);
+              gridResponse.rows = gridResponse.rows.subList(offset, Math.min(offset + size, gridResponse.rows.size()));
+              LOGGER.debug("getContents(): subList(): end");
             } else {
               gridResponse.rows.clear();
             }
           }
           Integer gridRowSize = gridResponse.rows.size();
+          LOGGER.debug("getContents(): responseMap: offset={} size={}", offset + gridRowSize, gridRowSize);
           responseMap.put("offset", offset + gridRowSize);
           responseMap.put("size", gridRowSize);
           responseMap.put("gridResponse", gridResponse);
@@ -546,6 +548,7 @@ public class PrSnapshotService {
       throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, e);
     }
 
+    LOGGER.debug("getContents(): end");
     return responseMap;
   }
 

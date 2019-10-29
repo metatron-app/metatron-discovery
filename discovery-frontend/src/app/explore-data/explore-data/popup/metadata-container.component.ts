@@ -116,11 +116,13 @@ export class MetadataContainerComponent extends AbstractComponent {
     event.stopImmediatePropagation();
     event.stopPropagation();
 
-    this.metadataService.toggleMetadataFavorite(this.metadataDetailData.id, this.metadataDetailData.favorite).catch((e) => this.commonExceptionHandler(e));
+    this.loadingShow();
+    this.metadataService.toggleMetadataFavorite(this.metadataDetailData.id, this.metadataDetailData.favorite).then(() => {
+      this.onToggleFavorite.emit(this.metadataDetailData);
+      this.metadataDetailData.favorite = !this.metadataDetailData.favorite;
+      this.loadingHide();
+    }).catch((e) => this.commonExceptionHandler(e));
 
-    this.onToggleFavorite.emit(this.metadataDetailData);
-
-    this.metadataDetailData.favorite = !this.metadataDetailData.favorite;
   }
 
   /**

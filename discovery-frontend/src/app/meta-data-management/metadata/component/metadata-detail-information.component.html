@@ -1,6 +1,6 @@
 <!-- tab contents -->
 <div class="ddp-ui-tab-contents" >
-  <div class="ddp-box-message">
+  <div class="ddp-box-message" *ngIf="'ENGINE' === metadata.sourceType?.toString()">
     <div class="ddp-box-synch type-info">
       <div class="ddp-txt-synch">
         <em class="ddp-icon-info"></em>

@@ -1,6 +1,7 @@
 package app.metatron.discovery.domain.dataprep.etl;
 
 import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_LIMIT_ROWS;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_MAX_FETCH_SIZE;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_HOSTNAME;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_METASTORE_URI;
@@ -62,6 +63,7 @@ public class TeddyStagingDbService {
   private String hadoopConfDir;
   private Configuration hadoopConf = null;
   private Integer limitRows = null;
+  private Integer maxFetchSize = null;
 
   String hiveHostname;
   Integer hivePort;
@@ -72,6 +74,7 @@ public class TeddyStagingDbService {
   public void setPrepPropertiesInfo(Map<String, Object> prepPropertiesInfo) {
     hadoopConfDir = (String) prepPropertiesInfo.get(HADOOP_CONF_DIR);
     limitRows = (Integer) prepPropertiesInfo.get(ETL_LIMIT_ROWS);
+    maxFetchSize = (Integer) prepPropertiesInfo.get(ETL_MAX_FETCH_SIZE);
 
     hiveHostname = (String) prepPropertiesInfo.get(STAGEDB_HOSTNAME);
     hivePort = (Integer) prepPropertiesInfo.get(STAGEDB_PORT);
@@ -245,6 +248,7 @@ public class TeddyStagingDbService {
     try {
       conn = jdbcDataAccessor.getConnection();
       stmt = conn.createStatement();
+      stmt.setFetchSize(maxFetchSize);
     } catch (SQLException e) {
       LOGGER.error(String.format("getHiveStatement(): SQLException occurred: connStr=%s username=%s password=%s",
               jdbcDataAccessor.getDialect().getConnectUrl(hiveConn), hiveConn.getUsername(), hiveConn.getPassword()),
@@ -364,6 +368,7 @@ public class TeddyStagingDbService {
     LOGGER.debug(String.format("loadHiveTable(): dsId=%s sql=%s", dsId, sql));
 
     Statement stmt = getHiveStatement();
+    stmt.setFetchSize(maxFetchSize);
     DataFrame df = new DataFrame();
 
     df.setByJDBC(stmt, sql, limitRows);

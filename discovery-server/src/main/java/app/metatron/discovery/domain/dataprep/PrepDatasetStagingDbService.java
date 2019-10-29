@@ -20,21 +20,19 @@ import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
 import app.metatron.discovery.domain.dataconnection.DataConnectionRepository;
-import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.file.PrepJsonUtil;
 import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
 import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection;
 import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.io.BufferedReader;
 import java.io.File;
@@ -127,7 +125,10 @@ public class PrepDatasetStagingDbService {
         }
         if (conn != null) {
           Statement statement = conn.createStatement();
+          LOGGER.debug("call(): executeQuery(): sql={} autoCommit={} fetchSize={}", sql, conn.getAutoCommit(),
+                  statement.getFetchSize());
           ResultSet rs = statement.executeQuery("SELECT count(*) from (" + sql + ") AS query_stmt");
+          LOGGER.debug("call(): executeQuery(): end");
           while (rs.next()) {
             totalLines = rs.getInt(1);
             break;
@@ -242,100 +243,6 @@ public class PrepDatasetStagingDbService {
     return "SELECT * FROM " + dbName + "." + tblName + " LIMIT " + size;
   }
 
-  // FIXME: connectUrl에 명시된 server에 hiveserver2가 돌고 있어야 한다.
-  public Map<String, Object> getPreviewStagedb(String queryStmt, String dbName, String tblName, String size)
-          throws SQLException {
-
-    Map<String, Object> responseMap = Maps.newHashMap();
-
-    try {
-      int limitSize = Integer.parseInt(size);
-
-      if (StringUtils.isEmpty(dbName)) {
-        dbName = "default";
-      }
-
-      List<Map<String, String>> resultSet = Lists.newArrayList();
-      List<Field> fields = Lists.newArrayList();
-      List<Map<String, String>> headers = Lists.newArrayList();
-
-      validateStorageProperties(storageProperties);
-
-      StageDBConnection stageDB = storageProperties.getStagedb();
-      DataConnection stageDataConnection = new DataConnection();
-      stageDataConnection.setHostname(stageDB.getHostname());
-      stageDataConnection.setPort(stageDB.getPort());
-      stageDataConnection.setUsername(stageDB.getUsername());
-      stageDataConnection.setPassword(stageDB.getPassword());
-      stageDataConnection.setUrl(stageDB.getUrl());
-      stageDataConnection.setDatabase(dbName);
-      stageDataConnection.setImplementor("STAGE");
-
-      String connectUrl = DataConnectionHelper.getConnectionUrl(stageDataConnection);
-      String username = stageDataConnection.getUsername();
-      String password = stageDataConnection.getPassword();
-      String customUrl = stageDataConnection.getUrl();
-      String sql = getSQLString(queryStmt, size, dbName, tblName);
-
-      Connection connection = null;
-      if (customUrl != null) {
-        connection = DriverManager.getConnection(customUrl);
-      } else {
-        connection = DriverManager.getConnection(connectUrl, username, password);
-      }
-      if (connection != null && connection instanceof HiveConnection) {
-        HiveConnection conn = (HiveConnection) connection;
-
-        Statement statement = conn.createStatement();
-        ResultSet rs = statement.executeQuery(sql);
-        ResultSetMetaData resultSetMetaData = rs.getMetaData();
-        int numberOfColumns = resultSetMetaData.getColumnCount();
-
-        for (int i = 0; i < numberOfColumns; i++) {
-          String typeName = resultSetMetaData.getColumnTypeName(i + 1);
-          String columnName = resultSetMetaData.getColumnName(i + 1);
-          if (true == columnName.contains(".")) {
-            columnName = columnName.substring(columnName.lastIndexOf(".") + 1);
-          }
-          Field field = new Field(columnName, null, Field.FieldRole.DIMENSION, Long.valueOf(i + 1));
-          field.setColumnType(DataConnectionHelper.lookupDialect(stageDataConnection), typeName);
-          fields.add(field);
-        }
-
-        while (rs.next()) {
-          Map<String, String> result = Maps.newHashMap();
-          for (int i = 0; i < numberOfColumns; i++) {
-            Object value = rs.getObject(i + 1);
-            // 현재 모두 String 처리중
-            result.put(fields.get(i).getName(), String.valueOf(value));
-          }
-          resultSet.add(result);
-        }
-
-        JdbcUtils.closeResultSet(rs);
-        JdbcUtils.closeStatement(statement);
-        JdbcUtils.closeConnection(conn);
-
-        responseMap.put("success", true);
-        responseMap.put("headers", headers);
-        responseMap.put("fields", fields);
-
-        int resultSetSize = resultSet.size();
-        int endIndex = resultSetSize - limitSize < 0 ? resultSetSize : limitSize;
-
-        responseMap.put("data", resultSet.subList(0, endIndex));
-        responseMap.put("totalRows", endIndex);
-      }
-    } catch (Exception e) {
-      LOGGER.error("Failed to read hive : {}", e.getMessage());
-      responseMap.put("success", false);
-      responseMap.put("message", e.getMessage());
-      throw e;
-    }
-
-    return responseMap;
-  }
-
   private static void validateStorageProperties(StorageProperties storageProperties) {
     if (storageProperties == null || storageProperties.getStagedb() == null) {
       throw new ResourceNotFoundException("Stage DB information required.");
@@ -381,9 +288,15 @@ public class PrepDatasetStagingDbService {
       }
       if (connection != null && connection instanceof HiveConnection) {
         HiveConnection conn = (HiveConnection) connection;
+        conn.setAutoCommit(false);
 
         Statement statement = conn.createStatement();
+        statement.setFetchSize(prepProperties.getSamplingMaxFetchSize());
+
+        LOGGER.debug("getPreviewStagedbForDataFrame(): executeQuery(): sql={} autoCommit={} fetchSize={} limitSize={}",
+                sql, conn.getAutoCommit(), statement.getFetchSize(), limitSize);
         ResultSet rs = statement.executeQuery(sql);
+        LOGGER.debug("getPreviewStagedbForDataFrame(): executeQuery(): end");
         ResultSetMetaData resultSetMetaData = rs.getMetaData();
         int numberOfColumns = resultSetMetaData.getColumnCount();
 
@@ -406,6 +319,9 @@ public class PrepDatasetStagingDbService {
             row.add(dataFrame.getColName(i), value);
           }
           dataFrame.rows.add(readRows++, row);
+          if (readRows % 100 == 0) {
+            LOGGER.debug("getPreviewStagedbForDataFrame(): readRows={} limitSize={}", readRows, limitSize);
+          }
           if (limitSize < readRows) {
             break;
           }
@@ -473,9 +389,17 @@ public class PrepDatasetStagingDbService {
       }
       if (connection != null && connection instanceof HiveConnection) {
         HiveConnection conn = (HiveConnection) connection;
+        conn.setAutoCommit(false);
 
         Statement statement = conn.createStatement();
+        statement.setFetchSize(prepProperties.getSamplingMaxFetchSize());
+
+        LOGGER.debug(
+                "getPreviewLinesFromStagedbForDataFrame(): executeQuery(): sql={} autoCommit={} fetchSize={} limitSize={}",
+                sql, conn.getAutoCommit(), statement.getFetchSize(), limitSize);
         ResultSet rs = statement.executeQuery(sql);
+        LOGGER.debug("getPreviewLinesFromStagedbForDataFrame(): executeQuery(): end");
+
         ResultSetMetaData resultSetMetaData = rs.getMetaData();
         int numberOfColumns = resultSetMetaData.getColumnCount();
 
@@ -504,6 +428,9 @@ public class PrepDatasetStagingDbService {
             }
           }
           dataFrame.rows.add(readRows++, row);
+          if (readRows % 100 == 0) {
+            LOGGER.debug("getPreviewLinesFromStagedbForDataFrame(): readRows={} limitSize={}", readRows, limitSize);
+          }
           if (limitSize < readRows) {
             break;
           }
@@ -604,8 +531,14 @@ public class PrepDatasetStagingDbService {
       }
       if (connection != null && connection instanceof HiveConnection) {
         HiveConnection conn = (HiveConnection) connection;
+        conn.setAutoCommit(false);
         Statement statement = conn.createStatement();
+        statement.setFetchSize(prepProperties.getSamplingMaxFetchSize());
+
+        LOGGER.debug("executeQuery(): sql={} autoCommit={} fetchSize={}", sql, conn.getAutoCommit(),
+                statement.getFetchSize());
         ResultSet rs = statement.executeQuery(sql);
+        LOGGER.debug("executeQuery(): end");
 
         if (fileType.equalsIgnoreCase("JSON")) {
           PrepJsonUtil.writeHiveTableAsJSON(rs, outputStream, dbName);
@@ -638,7 +571,12 @@ public class PrepDatasetStagingDbService {
       stageDataConnection.setImplementor("STAGE");
 
       JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(stageDataConnection);
+
+      Connection conn = jdbcDataAccessor.getConnection();
+
+      LOGGER.debug("executeUpdate(): sql={} autoCommit={}", sql, conn.getAutoCommit());
       jdbcDataAccessor.executeUpdate(jdbcDataAccessor.getConnection(), sql);
+      LOGGER.debug("executeUpdate(): end");
     } catch (Exception e) {
       LOGGER.error("Failed to drop hive table: {}", e.getMessage());
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);

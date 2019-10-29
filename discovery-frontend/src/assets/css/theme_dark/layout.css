@@ -2866,7 +2866,8 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
 }
 
 .theme-dark .ddp-ui-naviarea .ddp-box-navi.ddp-selected input.ddp-input-navi {
-    display: block;
+  display: block;
+  color:#fff;
 }
 
 .theme-dark .ddp-ui-naviarea .ddp-box-navi.ddp-selected .ddp-wrap-naviname span.ddp-data-naviname {
@@ -2909,21 +2910,21 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
 }
 
 .theme-dark .ddp-ui-naviarea .ddp-wrap-navidet span.ddp-data-navidet {
-    display: inline-block;
-    float: left;
-    width: 100%;
-    height: 25px;
-    padding: 5px;
-    color: #7e8aa5;
-    font-size: 12px;
-    cursor: pointer;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    word-wrap: normal;
-    box-sizing: border-box;
-    font-family: sans-serif;
-    letter-spacing: 0.4px;
+  display: inline-block;
+  float: left;
+  width: 100%;
+  height: 25px;
+  padding: 5px;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  word-wrap: normal;
+  box-sizing: border-box;
+  font-family: sans-serif;
+  letter-spacing: 0.4px;
 }
 
 .theme-dark .ddp-ui-naviarea .ddp-wrap-navidet span.ddp-txt-navidet {
@@ -2962,16 +2963,17 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
 }
 
 .theme-dark .ddp-ui-naviarea .ddp-box-navidet input.ddp-input-navi {
-    display: inline-block;
-    width: 100%;
-    height: 25px;
-    padding: 3px 5px 3px 4px;
-    font-size: 12px;
-    border: 1px solid #303c59;
-    background-color: #303c59;
-    box-sizing: border-box;
-    font-family: sans-serif;
-    letter-spacing: 0.4px;
+  display: inline-block;
+  width: 100%;
+  height: 25px;
+  padding: 3px 5px 3px 4px;
+  font-size: 12px;
+  border: 1px solid #303c59;
+  background-color: #303c59;
+  box-sizing: border-box;
+  font-family: sans-serif;
+  letter-spacing: 0.4px;
+  color:#fff;
 }
 
 .theme-dark .ddp-ui-naviarea .ddp-box-navidet input.ddp-input-navi::-webkit-input-placeholder {
@@ -3024,7 +3026,8 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
 }
 
 .theme-dark .ddp-ui-naviarea .ddp-box-navidet.ddp-selected textarea.ddp-input-navi {
-    display: block;
+  display: block;
+  color:#fff;
 }
 
 .theme-dark .ddp-ui-naviarea .ddp-box-navidet.ddp-selected .ddp-wrap-navidet {

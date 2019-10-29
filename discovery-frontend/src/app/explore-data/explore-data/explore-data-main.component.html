@@ -39,6 +39,7 @@
           <component-explore-card [iconClass]="getMetadataTypeClass(metadata)"
                                   [tagList]="metadata.tags"
                                   [description]="metadata.description"
+                                  [popularity]="metadata.popularity"
                                   [cardClass]="getBannerClass(metadata)"
                                   [title]="metadata.name"
                                   [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
@@ -60,6 +61,7 @@
           <component-explore-card [iconClass]="getMetadataTypeClass(metadata)"
                                   [tagList]="metadata.tags"
                                   [description]="metadata.description"
+                                  [popularity]="metadata.popularity"
                                   [cardClass]="getBannerClass(metadata)"
                                   [title]="metadata.name"
                                   [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
@@ -91,6 +93,7 @@
 <!--            <component-explore-card-->
 <!--              [iconClass]="getMetadataTypeClass(metadata)"-->
 <!--              [cardClass]="getBannerClass(metadata)"-->
+<!--              [popularity]="metadata.popularity"-->
 <!--              [title]="metadata.name"-->
 <!--              [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">-->
 <!--            </component-explore-card>-->
