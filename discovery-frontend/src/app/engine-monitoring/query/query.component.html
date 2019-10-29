@@ -98,7 +98,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let query of queryList">
+        <tr *ngFor="let query of queryList" (click)="onClickQuery(query)">
           <td>
             <div class="ddp-txt-long" title="{{query.queryId}}" [innerHTML]="highlightSearchText( query.queryId, searchKeyword )">
             </div>
@@ -134,4 +134,97 @@
       <!-- // Pagination -->
     </ng-template>
   </div>
+</div>
+
+<div class="ddp-pop-preview ddp-type" *ngIf="showDetail && queryDetail">
+  <!-- top -->
+  <div class="ddp-ui-top">
+    <div class="ddp-data-name">
+      Query Information
+
+    </div>
+    <em class="ddp-btn-popup-close" (click)="closeDetail()"></em>
+  </div>
+  <!-- //top -->
+  <!-- cpmtemts -->
+  <div class="ddp-ui-preview-contents ">
+    <div class="ddp-wrap-informaiton ">
+      <div class="ddp-ui-detail ddp-clear ddp-task-detail ">
+        <table class="ddp-table-detail2 type-vertical-top">
+          <colgroup>
+            <col width="200px">
+            <col width="*">
+          </colgroup>
+          <tbody>
+          <tr>
+            <th>
+              Query ID
+            </th>
+            <td>
+              {{queryDetail.queryId}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              Result
+            </th>
+            <td>
+              {{queryDetail.result === 'true' ? 'Success' : 'Fail'}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              Service
+            </th>
+            <td>
+              {{queryDetail.service}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              Host
+            </th>
+            <td>
+              {{queryDetail.host}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              Type
+            </th>
+            <td>
+              {{queryDetail.type}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              Datasource
+            </th>
+            <td>
+              {{queryDetail.datasource}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              Started Time
+            </th>
+            <td>
+              {{queryDetail.startedTime | date : 'yyyy-MM-dd HH:mm:ss.SSS' : getTimezone}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              Duration
+            </th>
+            <td>
+              {{queryDetail.duration | numberCommas}} ms
+            </td>
+          </tr>
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+  </div>
+  <!-- //cpmtemts -->
 </div>

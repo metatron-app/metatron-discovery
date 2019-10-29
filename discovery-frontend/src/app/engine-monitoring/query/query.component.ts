@@ -65,6 +65,9 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
 
   public selectedContentSort: Order = new Order();
 
+  public showDetail: boolean;
+  public queryDetail: any;
+
   public ngOnInit() {
     super.ngOnInit();
     this.loadingHide();
@@ -205,8 +208,15 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
     this.reloadPage(true);
   }
 
-  public onClickQuery(queryId: string): void {
-    this.router.navigate(['/management/engine-monitoring/query', queryId]).then();
+  public onClickQuery(query): void {
+    console.log(query);
+    this.queryDetail = query;
+    this.showDetail = true;
+  }
+
+  public closeDetail(): void {
+    this.showDetail = false;
+    this.queryDetail = undefined;
   }
 
   public getStatusClass(querySuccess: String): string {
@@ -255,7 +265,6 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
     filterParam['key'] = this.selectedContentSort.key;
     filterParam['sort'] = this.selectedContentSort.sort === 'asc' ? 'asc' : 'desc';
     // if search keyword not empty
-    console.log(filterParam);
     this.engineService.getQueryList(filterParam).then((data) => {
       this.queryTotalList = data;
       this._getQueryPagingList();
