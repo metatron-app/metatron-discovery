@@ -227,7 +227,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     if(this.callbackIndex) {
       clearTimeout(this.callbackIndex);
     }
-    
+
     this.isShow = false;
     $('body').removeClass('body-hidden');
     this.snapshotDetailCloseEvent.emit();
@@ -826,20 +826,23 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         value : this.prepCommonUtil.getSnapshotType(snapshot.ssType)});
     }
 
+    let sqlType: boolean = false;
     // File type
     if (snapshot.storedUri) {
-      const fileType : string[] = this.prepCommonUtil.getFileNameAndExtension(snapshot.storedUri);
+      const fileType : string = this.prepCommonUtil.getExtensionForSnapshot(snapshot.storedUri);
+      if( 'sql' === fileType ) { sqlType = true; }
       this.sSInformationList.push({label: this.translateService.instant('msg.dp.th.ss-type'),
-        value : `${this.prepCommonUtil.getSnapshotType(snapshot.ssType)} (${fileType[1].toUpperCase()})`},
+        value : `${this.prepCommonUtil.getSnapshotType(snapshot.ssType)} (${fileType.toUpperCase()})`},
         {label: this.translateService.instant('msg.dp.th.file.uri'),
           value : snapshot.storedUri, isFileUri: true});
     }
 
     // Summary only when snapshot is successful
     if (snapshot.displayStatus !== 'FAIL') {
-      this.sSInformationList.push(
-        {label: this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()}`},
-        {label: '', value : `${this.getCols()}`});
+      this.sSInformationList.push( {label: this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()}`} );
+      if( sqlType===false ) {
+        this.sSInformationList.push( {label: '', value : `${this.getCols()}`} );
+      }
     }
 
     if (snapshot.totalBytes) {
