@@ -383,7 +383,7 @@ export class PreparationCommonUtil {
    * @returns {string} extension
    * @private
    */
-  public static getExtensionForSnapshot(fileName: string) : string[] {
+  public static getExtensionForSnapshot(fileName: string) : string {
 
     const val = new RegExp(/^.*\.(csv|sql|txt|json)$/).exec(fileName);
 
