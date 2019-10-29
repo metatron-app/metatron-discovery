@@ -38,6 +38,8 @@ public class PrepCsvUtil {
 
   private static void readCsv(CSVParser parser, int limitRows, Integer manualColCnt, boolean header, boolean onlyCount,
           PrepParseResult result) {
+    LOGGER.debug("readCsv(): limitRows={} header={} onlyCount={}", limitRows, header, onlyCount);
+
     Iterator<CSVRecord> iter = parser.iterator();
     Integer colCnt = manualColCnt != null ? manualColCnt : null;
 
@@ -92,6 +94,7 @@ public class PrepCsvUtil {
         break;
       }
     }
+    LOGGER.debug("readCsv(): limitRows={} header={} onlyCount={}", limitRows, header, onlyCount);
   }
 
   private static char getUnescapedDelimiter(String strDelim) {
@@ -123,7 +126,7 @@ public class PrepCsvUtil {
           Configuration conf, boolean header, boolean onlyCount) {
     PrepParseResult result = new PrepParseResult();
 
-    LOGGER.debug("PrepCsvUtil.parse(): strUri={} strDelim={} conf={}", strUri, strDelim, conf);
+    LOGGER.debug("PrepCsvUtil.parse(): strUri={} strDelim={} limitRows={} conf={}", strUri, strDelim, limitRows, conf);
 
     Reader reader = getReader(strUri, conf, onlyCount, result);
 
@@ -131,6 +134,7 @@ public class PrepCsvUtil {
     CSVParser parser;
     try {
       // \", "" both become " by default
+      LOGGER.debug("Call CSVParser.parse(): strDelim={}", delim);
       parser = CSVParser.parse(reader, CSVFormat.DEFAULT.withDelimiter(delim).withEscape('\\'));
     } catch (IOException e) {
       e.printStackTrace();
@@ -139,6 +143,7 @@ public class PrepCsvUtil {
 
     readCsv(parser, limitRows, manualColCnt, header, onlyCount, result);
 
+    LOGGER.debug("PrepCsvUtil.parse(): end");
     return result;
   }
 
