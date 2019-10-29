@@ -269,9 +269,8 @@
                 </li>
               </ul>
             </li>
-            <ng-container *ngIf="permission.managementDatasource">
-              <li *ngFor="let item of getManagementExtensions"
-                  [ngClass]="{'ddp-selected': extentionSelected(item.name)}">
+            <ng-container *ngFor="let item of getManagementExtensions">
+              <li [ngClass]="{'ddp-selected': extensionSelected(item.name)}" *ngIf="extensionPermission(item)">
                 <a href="javascript:" (click)="mgmtMenuClickListener(item.name)">
                   <em class="ddp-icon-dot"></em> {{item.name}}
                 </a>

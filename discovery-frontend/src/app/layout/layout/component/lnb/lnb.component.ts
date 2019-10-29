@@ -264,7 +264,8 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
           } else if('Lineage' === ext.name) {
             this.permission.lineage = true;
           } else if('Engine Monitoring' === ext.name) {
-            this.permission.managementEngineMonitoring = (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_DATASOURCE.toString()));
+            //this.permission.managementEngineMonitoring = (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_DATASOURCE.toString()));
+            this.permission.managementEngineMonitoring = this.extensionPermission(ext);
           } else {
             (this.lnbManager[ext.parent]) || (this.lnbManager[ext.parent] = {});
             this.lnbManager[ext.parent][ext.name] = {fold: true};
@@ -633,8 +634,13 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     }
   } // function - move
 
-  public extentionSelected(name:string): boolean {
+  public extensionSelected(name:string): boolean {
     return this.lnbManager.management[name] != undefined && this.lnbManager.management[name]['fold'] == false;
+  }
+
+  public extensionPermission(ext: Extension): boolean {
+    let cookiePermission: string = CommonUtil.getCurrentPermissionString();
+    return ext.permissions.some(permission => cookiePermission.indexOf(permission) > -1 );
   }
 
   /**

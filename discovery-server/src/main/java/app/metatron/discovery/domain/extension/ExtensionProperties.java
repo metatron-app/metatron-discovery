@@ -14,6 +14,9 @@
 
 package app.metatron.discovery.domain.extension;
 
+import com.google.common.collect.Lists;
+
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -65,6 +68,7 @@ public class ExtensionProperties {
     String name;
     String parent;
     Integer level;
+    List<String> permissions;
     Map<String, String> subContents;
 
     public Lnb() {
@@ -97,6 +101,16 @@ public class ExtensionProperties {
     public void setLevel(Integer level) {
       this.level = level;
     }
+
+    public List<String> getPermissions() {
+      if (CollectionUtils.isEmpty(permissions)) {
+        return Lists.newArrayList("PERM_SYSTEM_MANAGE_DATASOURCE");
+      } else {
+        return permissions;
+      }
+    }
+
+    public void setPermissions(List<String> permissions) { this.permissions = permissions; }
 
     public Map<String, String> getSubContents() {
       return subContents;
