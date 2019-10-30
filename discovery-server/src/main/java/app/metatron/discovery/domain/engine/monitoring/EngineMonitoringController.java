@@ -17,6 +17,7 @@ package app.metatron.discovery.domain.engine.monitoring;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.TriggerKey;
@@ -212,7 +213,8 @@ public class EngineMonitoringController {
 
   @RequestMapping(value = "/monitoring/ingestion/task/{taskId}/log", method = RequestMethod.GET)
   public ResponseEntity<?> getTaskLogById(@PathVariable String taskId,
-                                          @RequestParam(value = "offset", required = false) Integer offset) {
+                                          @RequestParam(value = "offset", required = false) Integer offset,
+                                          @RequestParam(value = "download", required = false) Boolean download) {
     EngineIngestionService.EngineTaskLog taskLog;
     try {
       taskLog = engineIngestionService.getIngestionTaskLog(taskId, offset);
@@ -222,7 +224,7 @@ public class EngineMonitoringController {
       throw new DataSourceIngestionException(INGESTION_COMMON_ERROR, e);
     }
 
-    if (offset == null) {
+    if (offset == null && BooleanUtils.isNotTrue(download)) {
       return ResponseEntity.ok("<pre style=\"font-family: 'SpoqaHanSans',sans-serif;font-size:14px;\">"+taskLog.getLogs()+"</pre>");
     } else {
       return ResponseEntity.ok(taskLog.getLogs());

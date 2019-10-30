@@ -43323,21 +43323,11 @@
     padding: 20px 25px 0 0;
 }
 
-.theme-dark .ddp-ui-datadetail.type-detail .ddp-box-log-option .ddp-btn-log {
-    width: 15px;
-    height: 15px;
-    float: left;
-    margin-left: 15px;
-    background: url(../../../images/btn_log.png) no-repeat;
-}
-
-.theme-dark .ddp-ui-datadetail.type-detail .ddp-box-log-option .ddp-btn-log.type-down {
-    background-position-y: -15px;
-}
-
-.theme-dark .ddp-ui-datadetail.type-detail .ddp-box-log-option .ddp-btn-log.type-newwindow {
-    background-position-y: -29px;
-}
+.theme-dark .ddp-ui-datadetail.type-detail .ddp-box-log-option .ddp-btn-log {float:left; margin-left:15px; background:url(../../../images/btn_log.png) no-repeat;}
+.theme-dark .ddp-ui-datadetail.type-detail .ddp-box-log-option .ddp-btn-log.type-refresh {width:14px; height:14px;}
+.theme-dark .ddp-ui-datadetail.type-detail .ddp-box-log-option .ddp-btn-log.type-down {width:13px; height:13px; background-position-y:-15px;}
+.theme-dark .ddp-ui-datadetail.type-detail .ddp-box-log-option .ddp-btn-log.type-newwindow {width:14px; height:12px; background-position-y:-29px;}
+.theme-dark .ddp-ui-datadetail.type-detail .ddp-box-log-option .ddp-btn-log.type-newtab {width:13px; height:13px;background-position-y:-43px;}
 
 .theme-dark .ddp-ui-datadetail.type-detail .ddp-box-graph {
     height: 250px;

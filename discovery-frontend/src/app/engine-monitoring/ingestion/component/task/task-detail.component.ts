@@ -30,6 +30,9 @@ import {Alert} from "../../../../common/util/alert.util";
 import {Location} from "@angular/common";
 import * as _ from "lodash";
 import {Engine} from "../../../../domain/engine-monitoring/engine";
+import {saveAs} from 'file-saver';
+import {HttpHeaders} from "@angular/common/http";
+import {CookieConstant} from "../../../../common/constant/cookie.constant";
 
 declare let echarts: any;
 declare let moment: any;
@@ -186,8 +189,22 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
     }
   }
 
-  public logScrollDown() {
-    this._scrollElements.nativeElement.scrollTop = this._scrollElements.nativeElement.scrollHeight;
+  public logDownload() {
+    this.engineService.getTaskLogDownloadById(this._taskId).then((data) => {
+      let blob = new Blob([data], { type: 'text/plain' });
+
+      let a = document.createElement('a');
+      a.download = this._taskId + '.log';
+      a.href = URL.createObjectURL(blob);
+      a.dataset.downloadurl = ['text/plain', a.download, a.href].join(':');
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function() { URL.revokeObjectURL(a.href); }, 1500);
+    }).catch((error) => {
+      this.commonExceptionHandler(error);
+    });
   }
 
   public changeRowCheckbox(event: MouseEvent) {
@@ -211,7 +228,7 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
     this._getTaskRow();
   }
 
-  public logNewWindow() {
+  public logNewTab() {
     const popUrl = '/api/monitoring/ingestion/task/'+this._taskId+'/log';
     window.open(popUrl, '_blank');
   }

@@ -110,6 +110,10 @@ export class EngineService extends AbstractService {
     return this.get(this.URL_MONITORING + '/ingestion/task/' + taskId + '/log' + (offset ? '?offset='+offset : ''));
   }
 
+  public getTaskLogDownloadById(taskId) {
+    return this.get(this.URL_MONITORING + '/ingestion/task/' + taskId + '/log?download=true');
+  }
+
   public shutdownTaskById(taskId) {
     return this.post(this.URL_MONITORING + '/ingestion/task/' + taskId + '/shutdown', null);
   }
@@ -120,10 +124,6 @@ export class EngineService extends AbstractService {
 
   public getSupervisorStatus(supervisorId) {
     return this.get(this.URL_MONITORING + '/ingestion/supervisor/' + supervisorId);
-  }
-
-  public getSupervisorRows(params: object) {
-    return this.post(this.URL_MONITORING + '/ingestion/supervisor/row', params);
   }
 
   public shutdownSupervisorById(supervisorId) {
