@@ -52,7 +52,7 @@ public class ImportExcelFileRowMapper implements ExcelRowMapper<Map<String, Obje
         return formatter.formatCellValue(cell);
       }
     } else {
-      return formatter.formatCellValue(cell);
+      return formatter.formatCellValue(cell).replaceAll("[\n\r]", " ");
     }
   }
 }
