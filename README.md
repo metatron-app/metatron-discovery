@@ -3,7 +3,7 @@
 ------------------
 
 **Metatron Discovery** is an end-to-end big data self discovery solution.
-To learn more about it, visit our [web site](https://metatron.app). Check [our blog](https://metatron.app/index.php/blog/) for upcoming events and development news. Also if you got stuck when using Metatron Discovery, please leave your problem on our [user forum](https://groups.google.com/forum/#!forum/metatron-discovery).
+To learn more about it, visit our [web site](https://metatron.app). Check [our blog](https://metatron.app/index.php/blog/) for upcoming events and development news. Also if you got stuck when using Metatron Discovery, please leave your problem on our [user forum](https://groups.google.com/forum/#!forum/metatron-discovery)
 
 
 Strengths
