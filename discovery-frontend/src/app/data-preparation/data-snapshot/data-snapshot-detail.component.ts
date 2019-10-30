@@ -498,6 +498,9 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         // set file format
         if (this.selectedDataSnapshot.ssType ===  SsType.URI){
           this.snapshotUriFileFormat = this.selectedDataSnapshot.storedUri.slice((this.selectedDataSnapshot.storedUri.lastIndexOf(".") - 1 >>> 0) + 2).toLowerCase();
+          if( this.snapshotUriFileFormat === 'sql' ) {
+            this.isEnableCreateDatasource = false;
+          }
         }
 
         // dsId
