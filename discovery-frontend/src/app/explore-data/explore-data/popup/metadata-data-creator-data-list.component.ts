@@ -69,7 +69,7 @@ export class MetadataDataCreatorDataListComponent extends AbstractComponent impl
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   metadataList: Metadata[] = [];
   creator;
-  searchRange = {name: 'All', value: ExploreDataConstant.SearchRange.ALL};
+  searchRange = {name: 'DATA_NAME', value: ExploreDataConstant.SearchRange.DATA_NAME};
 
   // filter
   selectedSourceTypeFilter = 'ALL';
@@ -132,8 +132,9 @@ export class MetadataDataCreatorDataListComponent extends AbstractComponent impl
 
     // if not empty search keyword
     if (StringUtil.isNotEmpty(this.searchedKeyword)) {
-      params['nameContains'] = this.searchedKeyword.trim();
-      params['descContains'] = this.searchedKeyword.trim();
+      params[this.searchRange.value] = this.searchedKeyword.trim();
+      // params['nameContains'] = this.searchedKeyword.trim();
+      // params['descContains'] = this.searchedKeyword.trim();
     }
 
     // if sourceType is selected
