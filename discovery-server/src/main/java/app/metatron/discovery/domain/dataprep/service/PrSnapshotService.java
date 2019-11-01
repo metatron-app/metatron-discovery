@@ -490,6 +490,8 @@ public class PrSnapshotService {
                             errorMsg);
           }
 
+          String custom = snapshot.getCustom();
+
           // We generated JSON snapshots to have ".json" at the end of the URI.
           Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
           if (storedUri.endsWith(".json")) {
@@ -498,12 +500,12 @@ public class PrSnapshotService {
           } else if (storedUri.endsWith(".sql")) {
             PrepParseResult result = PrepSqlUtil.parse(snapshot.getStoredUri(), 10000, null, hadoopConf);
             gridResponse.setByGrid(result);
+            custom = "{'colDescs':[\"type\":\"STRING\"]}";
           } else {
             PrepParseResult result = PrepCsvUtil.parse(snapshot.getStoredUri(), ",", 10000, null, hadoopConf, true);
             gridResponse.setByGrid(result);
           }
 
-          String custom = snapshot.getCustom();
           setColumnInfo(gridResponse, custom);
 
           responseMap.put("offset", gridResponse.rows.size());
