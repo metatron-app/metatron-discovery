@@ -383,7 +383,7 @@ ul.ddp-list-value li.ddp-data-none {background:none; color:#b7b9c3;}
 .ddp-box-layout4 .ddp-data-code {padding:14px 15px 20px 15px; max-height:250px; overflow:auto; box-sizing:border-box;}
 .ddp-box-layout4 .ddp-data-title +.ddp-data-code {padding-top:0;}
 .ddp-box-layout4 .ddp-table-code {width:100%;}
-.ddp-box-layout4 .ddp-data-code.ddp-size {max-height:inherit; overflow:inherit;}
+.ddp-box-layout4 .ddp-data-code.ddp-size {max-height:initial; overflow:inherit;}
 .ddp-box-layout4 .ddp-data-code .ddp-link-detail {display:inline-block; padding:20px 0 0 0; text-decoration:underline; font-style:italic; color:#4b515b; font-size:12px;}
 .ddp-box-layout4 .ddp-data-code .ddp-link-detail:hover {font-weight:bold;}
 .ddp-box-layout4 .ddp-data-code tr td {border:none !important;}

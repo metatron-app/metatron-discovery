@@ -76,13 +76,51 @@
             </div>
           </td>
           <td>
-            {{column.physicalName}}
+            <div class="ddp-txt-long">
+              {{column.physicalName}}
+            </div>
+          </td>
+          <td title="{{column.name}}">
+            <div class="ddp-txt-long">
+              {{column.name}}
+            </div>
           </td>
           <td>
-            {{column.name}}
-          </td>
-          <td>
-            {{column.dictionary? column.dictionary.name : '-'}}
+            <div class="ddp-pop-select ddp-txt-long"
+                 [ngClass]="{'ddp-selected': column['isShowDictionary']}"
+                 (mouseenter)="onHoverOpenDictionary(column, index)"
+                 (mouseleave)="onHideDictionary(column)"
+                  #dictionary>
+              <a href="javascript:"
+                 class="ddp-txt-link">{{column.dictionary? column.dictionary.name : '-'}}</a>
+              <div class="ddp-box-layout4 ddp-pop-fix type-dictionary" #dictionaryPreview>
+                <div class="ddp-data-title">
+                  {{column.dictionary && column.dictionary.name}}
+                </div>
+                <div class="ddp-data-code">
+                  <table class="ddp-table-pop">
+                    <colgroup>
+                      <col width="100px">
+                      <col width="">
+                    </colgroup>
+                    <tbody>
+                    <tr>
+                      <th>{{'msg.metadata.th.column.full.name' | translate}}</th>
+                      <td>{{ column.dictionary && column.dictionary.name }}</td>
+                    </tr>
+                    <tr>
+                      <th>{{'msg.metadata.th.column.short.name' | translate}}</th>
+                      <td>{{ column.dictionary && column.dictionary.suggestionShortName }}</td>
+                    </tr>
+                    <tr>
+                      <th>{{'msg.metadata.th.column.description' | translate}}</th>
+                      <td>{{ column.dictionary && column.dictionary.description }}</td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </td>
           <td class="ddp-inherit ddp-info">
             <span class="ddp-txt-icon">
@@ -96,14 +134,19 @@
             </div>
           </td>
           <td>
-            <div class=" ddp-select-search ddp-pop-select"
-                 [ngClass]="{'ddp-selected': column['isShowCodeTable']}">
+            <div
+                class=" ddp-select-search ddp-pop-select"
+                (mouseenter)="onHoverOpenCodeTable(column, index)"
+                (mouseleave)="onHideCodeTable(column)"
+                [ngClass]="{'ddp-selected': column['isShowCodeTable']}"
+                #codeTable>
+              <a href="javascript:" class="ddp-ui-search2">
                 {{column.codeTable? column.codeTable.name : '-'}}
+              </a>
               <div class="ddp-box-layout4 ddp-pop-fix"
                    #codeTablePreview
                    style="top: 343px; left: 1284px;">
-                <a class="ddp-btn-close" href="javascript:" (click)="column['isShowCodeTable'] = false"></a>
-                <div class="ddp-data-title"> 조직 코드 </div>
+                <div class="ddp-data-title"> {{column.codeTable? column.codeTable.name : '-'}} </div>
                 <div class="ddp-data-code ddp-size">
                   <table class="ddp-table-code">
                     <colgroup>
@@ -138,7 +181,7 @@
               </div>
             </div>
 
-          <td>{{column.description || '-'}}</td>
+          <td><div class="ddp-txt-long" title="{{column.description || '-'}}">{{column.description || '-'}}</div></td>
         </tr>
 
         </tbody>

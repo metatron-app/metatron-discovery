@@ -155,6 +155,7 @@ table.ddp-table-type2 thead tr th.ddp-border-right,
 table.ddp-table-type2 tbody tr td.ddp-border-right {border-right:1px solid #d0d1d8;}
 table.ddp-table-type2 thead.ddp-border-bottom tr th {border-bottom:1px solid #d0d1d8;}
 table.ddp-table-type2 tbody tr > td {position:relative; padding:13px 10px 14px 10px; font-size:13px; border:none;}
+
 table.ddp-table-type2 tbody tr > td.ddp-disabled {cursor:no-drop !important;}
 table.ddp-table-type2 tbody tr > td.ddp-disabled:hover {background:none;}
 table.ddp-table-type2 tbody tr > td.ddp-disabled:before {position:absolute; top:0; right:0; bottom:0; left:0; z-index:15; content:''; cursor:no-drop;}

@@ -1677,7 +1677,7 @@
 }
 
 .theme-dark .ddp-box-layout4 .ddp-data-code.ddp-size {
-    max-height: inherit;
+    max-height: initial;
     overflow: inherit;
 }
 
