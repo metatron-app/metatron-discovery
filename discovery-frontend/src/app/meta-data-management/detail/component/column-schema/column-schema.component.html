@@ -468,7 +468,7 @@
             <!-- //format layer -->
           </div>
         </td>
-        <td [class.ddp-disabled]="isSelectedMetadataColumnInColumnDictionaryDefined(column)">
+        <td>
           <div class=" ddp-select-search ddp-hover-tooltip"
                #codeTable
                [ngClass]="['ddp-pop-select']"
@@ -482,6 +482,7 @@
               class="ddp-ui-search2">
               {{column.codeTable ? column.codeTable.name : ''}}
               <span class="ddp-icon-search"
+                    [class.ddp-disabled]="isSelectedMetadataColumnInColumnDictionaryDefined(column)"
                     (mouseenter)="onHideCodeTable(column)"
                     (click)="onClickSearchCodeTable(column)">
               </span>
