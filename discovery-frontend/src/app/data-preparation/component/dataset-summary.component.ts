@@ -116,14 +116,14 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
 
         if (data) {
           this.dataset = data;
+          this.changeDetect.detectChanges();
+          this._setDsInformationList(this.dataset);
           if (data.gridResponse) {
             this.clearGrid = false;
             this._setGridData(data.gridResponse);
           } else {
             this.clearGrid = true;
           }
-          this.changeDetect.detectChanges();
-          this._setDsInformationList(this.dataset);
 
           this.clearExistingTimeout();
           // FIXME : Used recursive instead of interval. Which is better?
@@ -216,6 +216,9 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
    * @param data
    * */
   private _updateGrid(data: any) {
+
+    const $gridContainer = this.$element.find( '.ddp-box-preview' );
+    $gridContainer.css( { 'height' : $(window).height() - ( 300 + 26 * this.dsInformationList.length ), 'margin-bottom' : '-20px' } );
 
     const maxDataLen: any = {};
     let fields: Field[] = data.fields;
