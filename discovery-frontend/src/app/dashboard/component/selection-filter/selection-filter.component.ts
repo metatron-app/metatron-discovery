@@ -122,7 +122,6 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
       if (Array.isArray(select.data)) {
         select.data.forEach((data) => this._addSelectionFilter(this.selectionFilterList, data, select.params));
       }
-
     } else if (select.mode === ChartSelectMode.SUBTRACT) {
       // 차트 선택 정보 제거
       this._removeChartSelectionInfo(select);
@@ -140,6 +139,16 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
     } else if (select.mode === ChartSelectMode.CLEAR) {
       // 초기화
       this.init();
+    } else if( select.mode === ChartSelectMode.CHANGE ) {
+      // for TreeMap - data change
+      select.data.forEach((data) => {
+        this.selectionFilterList.some( item => {
+          if( item.name === data.name ) {
+            item.valueList = data.data;
+            return true;
+          }
+        });
+      });
     }
 
     this._broadcastSelection({filters: this._getApiFilters(), chartSelectInfo: select});

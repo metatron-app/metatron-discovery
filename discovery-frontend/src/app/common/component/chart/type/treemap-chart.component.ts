@@ -16,9 +16,8 @@
  * Created by Dolkkok on 2017. 9. 5..
  */
 
-import { AfterViewInit, Component, ElementRef, Injector, OnInit } from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Injector, OnInit} from '@angular/core';
 import {
-  CHART_STRING_DELIMITER,
   ChartColorList,
   ChartColorType,
   ChartSelectMode,
@@ -30,19 +29,19 @@ import {
   UIChartDataLabelDisplayType,
   UIPosition
 } from '../option/define/common';
-import { OptionGenerator } from '../option/util/option-generator';
+import {OptionGenerator} from '../option/util/option-generator';
 import * as _ from 'lodash';
-import { Pivot } from '../../../../domain/workbook/configurations/pivot';
-import { BaseOption } from '../option/base-option';
-import { BaseChart, ChartSelectInfo, PivotTableInfo } from '../base-chart';
-import { UIChartFormat } from '../option/ui-option/ui-format';
-import { UIChartColorBySeries, UIOption } from '../option/ui-option';
-import { FormatOptionConverter } from '../option/converter/format-option-converter';
-import { Series } from '../option/define/series';
-import { UIChartDataLabel } from '../option/ui-option/ui-datalabel';
-import { Field } from '../../../../domain/workbook/configurations/field/field';
-import { UIChartColor, UIChartColorByValue, UIChartColorGradationByValue } from '../option/ui-option/ui-color';
-import { ColorOptionConverter } from '../option/converter/color-option-converter';
+import {Pivot} from '../../../../domain/workbook/configurations/pivot';
+import {BaseOption} from '../option/base-option';
+import {BaseChart, ChartSelectInfo, PivotTableInfo} from '../base-chart';
+import {UIChartFormat} from '../option/ui-option/ui-format';
+import {UIChartColorBySeries, UIOption} from '../option/ui-option';
+import {FormatOptionConverter} from '../option/converter/format-option-converter';
+import {Series} from '../option/define/series';
+import {UIChartDataLabel} from '../option/ui-option/ui-datalabel';
+import {Field} from '../../../../domain/workbook/configurations/field/field';
+import {UIChartColor} from '../option/ui-option/ui-color';
+import {ColorOptionConverter} from '../option/converter/color-option-converter';
 import Tooltip = OptionGenerator.Tooltip;
 
 @Component({
@@ -144,14 +143,12 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
       let selectedColValues: string[] = [];
       let selectedRowValues: string[] = [];
 
-      // 데이터가 아닌 빈 공백을 클릭했다면
-      // 모든 데이터 선택효과를 해제하며 필터에서 제거.
-      if (_.isNull(params)) {
-        selectMode = ChartSelectMode.CLEAR;
-      } else if (params !== null) {
+      if (params !== null) {
         // UI에 전송할 선택정보 설정
         const currTreePath = params.treePathInfo.map( item => item.name );
-        if (this._prevTreePath.length < currTreePath.length) {
+        if( 1 === currTreePath.length ) {
+          selectMode = ChartSelectMode.CLEAR;
+        } else if (this._prevTreePath.length < currTreePath.length) {
           // 선택 처리
           selectMode = ChartSelectMode.ADD;
           currTreePath.forEach( (item,idx) => {
@@ -163,7 +160,7 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
               }
             }
           });
-        } else {
+        } else if( this._prevTreePath.length > currTreePath.length ) {
           // 선택 해제 처리
           selectMode = ChartSelectMode.SUBTRACT;
           this._prevTreePath.forEach( (item,idx) => {
@@ -175,10 +172,14 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
               }
             }
           });
+        } else {
+          selectMode = ChartSelectMode.CHANGE;
+          selectedRowValues = [currTreePath[currTreePath.length - 1]];
         }
 
         this._prevTreePath = currTreePath;
       } else {
+        // 데이터가 아닌 빈 공백을 클릭했다면 동작 무시
         return;
       }
 

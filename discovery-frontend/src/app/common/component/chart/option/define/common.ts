@@ -761,6 +761,7 @@ export enum ChartMouseMode {
 export enum ChartSelectMode {
   ADD = <any>'add',
   SUBTRACT = <any>'subtract',
+  CHANGE = <any>'change',
   CLEAR = <any>'clear'
 }
 
