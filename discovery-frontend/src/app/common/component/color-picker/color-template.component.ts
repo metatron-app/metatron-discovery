@@ -14,10 +14,12 @@
 
 import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { AbstractComponent } from '../abstract.component';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'color-template',
-  templateUrl: './color-template.component.html'
+  templateUrl: './color-template.component.html',
+  styles: ['.sys-inverted {transform: scaleX(-1);}']
 })
 export class ColorTemplateComponent extends AbstractComponent {
 
@@ -91,6 +93,8 @@ export class ColorTemplateComponent extends AbstractComponent {
     { index: 7, colorNum: 'HC7' }
   ];
 
+  public isTemplateColorInverted: boolean = undefined;
+
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -102,7 +106,30 @@ export class ColorTemplateComponent extends AbstractComponent {
    * @param {Object} colorObj
    */
   public changeColor(colorObj: Object) {
+    const color = _.cloneDeep(colorObj);
+    if ($(event.currentTarget).hasClass('sys-inverted')) {
+      color['colorNum'] = 'R' + color['colorNum'];
+    }
 
-    this.notiChangeColor.emit(colorObj);
+    this.notiChangeColor.emit(color);
   }
+
+  public invertColor() {
+    event.stopPropagation();
+
+    if ($(event.currentTarget).is(':checked')) {
+      this.isTemplateColorInverted = true;
+    } else {
+      this.isTemplateColorInverted = false;
+    }
+  }
+
+  public isChartColorInverted() {
+    return this.schema.indexOf('R') === 0;
+  }
+
+  public isChartColorSelected(item) {
+    return this.schema.endsWith(item['colorNum']);
+  }
+
 }

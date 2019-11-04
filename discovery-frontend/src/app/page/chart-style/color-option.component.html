@@ -71,7 +71,7 @@
               <div *ngIf="'single' !== uiOption.color.type.toString() && 'measure' === uiOption.color.type.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
                 <em class="ddp-icon-colorby"></em>
                 <!-- measure 색일때 -->
-                <button class="ddp-btn-color-type{{checkMeasureSelectedColor()}} ddp-type"></button>
+                <button class="ddp-btn-color-type{{checkMeasureSelectedColor()}} ddp-type" [ngClass]="{'sys-inverted': isChartColorInverted()}"></button>
                 <!-- measure 색일때 -->
               </div>
               <!-- //colorby button -->
@@ -87,9 +87,9 @@
                 <!-- contents -->
                 <div *ngIf="'measure' !== uiOption.color.type.toString()" class="ddp-pop-side-contents">
                   <ul class="ddp-list-series">
-                    <li *ngFor="let item of defaultColorList" (click)="changeColor(item)">
+                    <li *ngFor="let item of defaultColorList">
                       <!-- 선택시 ddp-selected 추가 -->
-                      <button class="ddp-btn-color-series{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.color['schema']}"></button>
+                      <button class="ddp-btn-color-series{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.color['schema']}" (click)="changeColor(item)"></button>
                     </li>
                   </ul>
                 </div>
@@ -97,19 +97,32 @@
                 <!--uiOption.type.toString() == 'grid' ? gridMeasureColorList : measureColorList-->
                 <!-- contents -->
                 <div *ngIf="'measure' === uiOption.color.type.toString()"  class="ddp-pop-side-contents">
+                  <div class="ddp-box-slider">
+                    <div class="ddp-wrap-option-slider">
+                      <span class="ddp-label-slider">{{'msg.page.ui.color.invert' | translate}}</span>
+                      <!-- Slide THREE -->
+                      <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+                        <input type="checkbox" id="invertColor" name="check" [checked]="isChartColorInverted()" (click)="invertColor()">
+                        <label for="invertColor"><span class="ddp-slide"></span></label>
+                      </div>
+                      <!-- //Slide THREE -->
+                    </div>
+                  </div>
                   <span class="ddp-pop-sub-title">{{'msg.page.th.seq.display' | translate}}</span>
                   <ul class="ddp-list-series">
-                    <li *ngFor="let item of measureColorList; let num = index" (click)="changeColor(item, measureColorList[num])">
+                    <li *ngFor="let item of measureColorList; let num = index">
                       <!-- 선택시 ddp-selected 추가 -->
-                      <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.color['schema']}"></button>
+                      <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': isChartColorSelected(item), 'sys-inverted': isTemplateColorInverted === undefined ? isChartColorInverted() : isTemplateColorInverted}"
+                              (click)="changeColor(item, measureColorList[num])"></button>
                     </li>
                   </ul>
 
                   <span class="ddp-pop-sub-title">{{'msg.page.th.contrast.display' | translate}}</span>
                   <ul class="ddp-list-series">
-                    <li *ngFor="let item of measureReverseColorList; let num = index" (click)="changeColor(item, measureReverseColorList[num])">
+                    <li *ngFor="let item of measureReverseColorList; let num = index">
                       <!-- 선택시 ddp-selected 추가 -->
-                      <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.color['schema']}"></button>
+                      <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': isChartColorSelected(item), 'sys-inverted': isTemplateColorInverted === undefined ? isChartColorInverted() : isTemplateColorInverted}"
+                              (click)="changeColor(item, measureReverseColorList[num])"></button>
                     </li>
                   </ul>
                 </div>

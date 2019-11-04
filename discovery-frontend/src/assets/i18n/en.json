@@ -3459,6 +3459,7 @@
   "msg.page.ui.font.color" : "Text color",
   "msg.page.ui.area.color" : "Area color",
   "msg.page.ui.color.palette" : "Color Template",
+  "msg.page.ui.color.invert": "Color inversion",
   "msg.page.ui.num.format" : "Numeric Format",
   "msg.page.li.common" : "Common",
   "msg.page.li.individual" : "Individual",

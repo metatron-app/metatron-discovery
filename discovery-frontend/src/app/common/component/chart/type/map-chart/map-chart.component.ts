@@ -2901,7 +2901,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     if (_.eq(layer.type, MapLayerType.HEATMAP)) {
       colorList = HeatmapColorList[layer.color.schema];
     } else {
-      colorList = ChartColorList[layer.color.schema];
+      if (layer.color.schema.indexOf('R') == 0) {
+        colorList = ChartColorList[layer.color.schema.substring(1)];
+        colorList = <any>Object.keys(colorList).map(key => colorList[key]).reverse();
+      } else {
+        colorList = ChartColorList[layer.color.schema];
+      }
     }
     return _.cloneDeep(colorList);
   }

@@ -4663,6 +4663,9 @@ button.ddp-btn-color-type19  {background:url(../../images/img_color_type19.png) 
 .ddp-popup-side.ddp-pop-colorpicker {display:inline-block;}
 .ddp-pop-side-contents {padding:0 18px 18px 18px;}
 .ddp-pop-side-contents span.ddp-pop-sub-title {display:block; padding-bottom:6px; font-size:12px; color:#b7b9c2;}
+.ddp-pop-side-contents .ddp-box-slider {padding:5px 10px;  margin:-8px 0 10px 0;background-color:#f7f7f9; border-radius:3px;}
+.ddp-pop-side-contents .ddp-box-slider .ddp-wrap-option-slider {padding:0;}
+.ddp-pop-side-contents .ddp-box-slider .ddp-wrap-option-slider span.ddp-label-slider {color:#90969f;}
 .ddp-pop-side-contents ul.ddp-list-series {}
 .ddp-pop-side-contents ul.ddp-list-series li {padding:7px 0;}
 .ddp-pop-side-contents ul.ddp-list-series li:first-of-type {padding-top:0;}
