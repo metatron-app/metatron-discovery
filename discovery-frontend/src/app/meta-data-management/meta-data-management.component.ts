@@ -87,7 +87,6 @@ export class MetaDataManagementComponent extends AbstractComponent {
   // Init
   public ngOnInit() {
     this._showLineageTab();
-    console.log(this.showLineageTab);
     // Init
     super.ngOnInit();
   }
