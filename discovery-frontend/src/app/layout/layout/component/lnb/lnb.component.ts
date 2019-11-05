@@ -660,7 +660,12 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   }
 
   public getExtensions(parent:string): Extension[] {
-    return CommonService.extensions.filter(item => parent === item.parent);
+    const extensions = CommonService.extensions.filter(item => parent === item.parent);
+    if (parent === 'ROOT') {
+      return extensions.filter(rootExtension => CommonService.extensions.filter(item => rootExtension.name === item.parent).length > 0);
+    } else {
+      return extensions;
+    }
   }
 
   public isExtensionSelected(parent:string, name:string): boolean {

@@ -149,11 +149,11 @@ polaris:
   extensions:
       lnb:                          # Specify the menu to add to the LNB.
         - name: one depth menu      # Specify 1st depth menu name
-          parent: ROOT              # Specify "ROOT" to be on the top menu.
+          parent: ROOT              # Specify "ROOT" to be on the top menu. In the case of "ROOT", it is displayed in the LNB if a lower depth menu exists.
           permissions:
             - PERM_NAME     # Specify a list of PERM_NAME. If not specified, all users can access.
         - name: two depth menu      # Specify 2nd depth menu name
-          parent: one depth menu    # Specify the parent menu name
+          parent: one depth menu    # Specify the parent menu name including "management" and "administration". If the menu name of the upper depth does not exist, it is not displayed.
           subContents:
             menu name: URL         # Specify the menu name as key and the URL(http://~~) to link to as value.
           permissions:
