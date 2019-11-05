@@ -80,6 +80,7 @@ import app.metatron.discovery.domain.engine.EngineProperties;
 import app.metatron.discovery.domain.engine.EngineQueryService;
 import app.metatron.discovery.domain.favorite.Favorite;
 import app.metatron.discovery.domain.favorite.FavoriteRepository;
+import app.metatron.discovery.domain.favorite.FavoriteService;
 import app.metatron.discovery.domain.mdm.preview.MetadataEngineDataPreview;
 import app.metatron.discovery.domain.mdm.preview.MetadataJdbcDataPreview;
 import app.metatron.discovery.domain.mdm.source.MetaSourceService;
@@ -161,6 +162,9 @@ public class MetadataService implements ApplicationEventPublisherAware {
 
   @Autowired
   EntityManager entityManager;
+
+  @Autowired
+  FavoriteService favoriteService;
 
   @Autowired
   FavoriteRepository favoriteRepository;
@@ -865,12 +869,9 @@ public class MetadataService implements ApplicationEventPublisherAware {
 
   public List<Metadata> markFavorite(List<Metadata> metadataList){
     if(metadataList != null && !metadataList.isEmpty()){
-      String userName = AuthUtils.getAuthUserName();
       List<String> metadataIds = metadataList.stream().map(metadata -> metadata.getId()).collect(Collectors.toList());
-
-      List<Favorite> favoriteList = favoriteRepository.findByCreatedByAndDomainTypeAndTargetIdIn(userName, DomainType.METADATA, metadataIds);
-      if(favoriteList != null && !favoriteList.isEmpty()){
-        List<String> favoriteMetadataList = favoriteList.stream().map(favorite -> favorite.getTargetId()).collect(Collectors.toList());
+      List<String> favoriteMetadataList = favoriteService.getFavoriteDomainIdList(metadataIds, DomainType.METADATA);
+      if(favoriteMetadataList != null && !favoriteMetadataList.isEmpty()){
         metadataList.stream()
                     .filter(metadata -> favoriteMetadataList.contains(metadata.getId()))
                     .forEach(metadata -> metadata.setFavorite(true));
@@ -934,8 +935,6 @@ public class MetadataService implements ApplicationEventPublisherAware {
   }
 
   public boolean isFavorite(Metadata metadata){
-    String userName = AuthUtils.getAuthUserName();
-    List<Favorite> favoriteList = favoriteRepository.findByCreatedByAndDomainTypeAndTargetIdIn(userName, DomainType.METADATA, Lists.newArrayList(metadata.getId()));
-    return (favoriteList != null && favoriteList.size() > 0);
+    return favoriteService.isFavorite(metadata.getId(), DomainType.METADATA);
   }
 }
