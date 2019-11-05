@@ -147,9 +147,17 @@ polaris:
     etl:
       timeout: 36000    # Timeout for generating snapshots
   extensions:
-      lnb:
+      lnb:                          # Specify the menu to add to the LNB.
+        - name: one depth menu      # Specify 1st depth menu name
+          parent: ROOT              # Specify "ROOT" to be on the top menu.
+          permissions:
+            - PERM_SYSTEM_MANAGE_DATASOURCE     # Specify a list of PERM_NAME. If not specified, PERM_SYSTEM_MANAGE_DATASOURCE is the default.
+        - name: two depth menu      # Specify 2nd depth menu name
+          parent: one depth menu    # Specify the parent menu name
+          subContents:
+            third menu: URL         # Specify the menu name as key and the URL(http://~~) to link to as value.
         - name: Engine Monitoring   # for Engine(Druid) Monitoring
           permissions:
-            - PERM_SYSTEM_MANAGE_DATASOURCE     # Specify a list of PERM_NAME
+            - PERM_SYSTEM_MANAGE_DATASOURCE     # Specify a list of PERM_NAME. If not specified, PERM_SYSTEM_MANAGE_DATASOURCE is the default.
 ----
 
