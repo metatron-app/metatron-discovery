@@ -295,7 +295,7 @@ public class PrDatasetController {
   @ResponseBody
   ResponseEntity<?> fileGrid(
           @RequestParam(value = "storedUri", required = false) String storedUri,
-          @RequestParam(value = "resultSize", required = false, defaultValue = "250") Integer size,
+          @RequestParam(value = "resultSize", required = false, defaultValue = "50") Integer size,
           @RequestParam(value = "delimiterRow", required = false, defaultValue = "\n") String delimiterRow,
           @RequestParam(value = "delimiterCol", required = false, defaultValue = ",") String delimiterCol,
           @RequestParam(value = "manualColumnCount", required = false) Integer manualColumnCount,

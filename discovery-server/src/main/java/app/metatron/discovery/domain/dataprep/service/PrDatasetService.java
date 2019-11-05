@@ -62,7 +62,7 @@ public class PrDatasetService {
   @Autowired
   private DataConnectionRepository dataConnectionRepository;
 
-  private String filePreviewSize = "2000";
+  private String filePreviewSize = "50";
   private String hivePreviewSize = "50";
   private String jdbcPreviewSize = "50";
 
