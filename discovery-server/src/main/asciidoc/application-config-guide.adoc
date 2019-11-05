@@ -151,13 +151,15 @@ polaris:
         - name: one depth menu      # Specify 1st depth menu name
           parent: ROOT              # Specify "ROOT" to be on the top menu.
           permissions:
-            - PERM_SYSTEM_MANAGE_DATASOURCE     # Specify a list of PERM_NAME. If not specified, PERM_SYSTEM_MANAGE_DATASOURCE is the default.
+            - PERM_NAME     # Specify a list of PERM_NAME. If not specified, all users can access.
         - name: two depth menu      # Specify 2nd depth menu name
           parent: one depth menu    # Specify the parent menu name
           subContents:
-            third menu: URL         # Specify the menu name as key and the URL(http://~~) to link to as value.
+            menu name: URL         # Specify the menu name as key and the URL(http://~~) to link to as value.
+          permissions:
+            - PERM_NAME     # Specify a list of PERM_NAME. If not specified, all users with permissions in the upper depth menu can access.
         - name: Engine Monitoring   # for Engine(Druid) Monitoring
           permissions:
-            - PERM_SYSTEM_MANAGE_DATASOURCE     # Specify a list of PERM_NAME. If not specified, PERM_SYSTEM_MANAGE_DATASOURCE is the default.
+            - PERM_NAME     # Specify a list of PERM_NAME. If not specified, all users with permissions in the upper depth menu can access.
 ----
 

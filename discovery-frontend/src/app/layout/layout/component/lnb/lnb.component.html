@@ -276,7 +276,7 @@
                 </a>
                 <ul class="ddp-list-sublnb-2depth">
                   <li *ngFor="let subKey of ObjectKeys(item.subContents)">
-                    <a href="javascript:" (click)="move('external/' + item.parent + '_' + item.name + '_' + subKey)">{{subKey}}</a>
+                    <a href="javascript:" (click)="moveExtension(item, subKey)">{{subKey}}</a>
                   </li>
                 </ul>
               </li>
@@ -339,7 +339,7 @@
                 </a>
                 <ul class="ddp-list-sublnb-2depth">
                   <li *ngFor="let subKey of ObjectKeys(item.subContents)">
-                    <a href="javascript:" (click)="move('external/' + item.parent + '_' + item.name + '_' + subKey)">{{subKey}}</a>
+                    <a href="javascript:" (click)="moveExtension(item, subKey)">{{subKey}}</a>
                   </li>
                 </ul>
               </li>
@@ -370,7 +370,7 @@
                   </a>
                   <ul class="ddp-list-sublnb-2depth">
                     <li *ngFor="let subKey of ObjectKeys(secondDepth.subContents)">
-                      <a href="javascript:" (click)="move('external/' + secondDepth.parent + '_' + secondDepth.name + '_' + subKey)">{{subKey}}</a>
+                      <a href="javascript:" (click)="moveExtension(secondDepth, subKey)">{{subKey}}</a>
                     </li>
                   </ul>
                 </li>

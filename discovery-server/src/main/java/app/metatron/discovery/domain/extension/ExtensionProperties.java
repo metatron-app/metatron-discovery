@@ -14,9 +14,6 @@
 
 package app.metatron.discovery.domain.extension;
 
-import com.google.common.collect.Lists;
-
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -103,11 +100,7 @@ public class ExtensionProperties {
     }
 
     public List<String> getPermissions() {
-      if (CollectionUtils.isEmpty(permissions)) {
-        return Lists.newArrayList("PERM_SYSTEM_MANAGE_DATASOURCE");
-      } else {
-        return permissions;
-      }
+      return permissions;
     }
 
     public void setPermissions(List<String> permissions) { this.permissions = permissions; }

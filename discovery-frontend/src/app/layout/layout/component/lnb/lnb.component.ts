@@ -630,30 +630,33 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
    */
   public move(menu: string, extras?: NavigationExtras) {
     if (this.router.url !== '/' + menu) {
-      // window.location.href = environment.baseHref + menu;
       this.loadingShow();
 
       if (extras) {
         this.router.navigate([menu], extras).then();
       } else {
-        if( 'external/management_EngineMonitoring_Overview' === menu ) {
-          // 임시 코드
-          this.router.navigate(['management/engine-monitoring/overview'], { queryParams: { keyword: '', status: this.ENGINE_OVERVIEW_MONITORING_STATUS.ALL } } ).then();
-        } else if ( 'external/management_EngineMonitoring_Ingestion' === menu ) {
-          // 임시 코드
-          this.router.navigate(['management/engine-monitoring/ingestion']).then();
-        } else {
-          this.router.navigate([menu]).then();
-        }
+        this.router.navigate([menu]).then();
       }
 
       this._closeLNB();
     }
   } // function - move
 
+  public moveExtension(ext: Extension, subKey) {
+    if (ext.subContents[subKey].startsWith('http')) {
+      this.move('external/' + ext.parent + '_' + ext.name + '_' + subKey);
+    } else {
+      this.move(ext.subContents[subKey]);
+    }
+  }
+
   public extensionPermission(ext: Extension): boolean {
-    let cookiePermission: string = CommonUtil.getCurrentPermissionString();
-    return ext.permissions.some(permission => cookiePermission.indexOf(permission) > -1 );
+    if (ext.permissions && ext.permissions.length > 0) {
+      let cookiePermission: string = CommonUtil.getCurrentPermissionString();
+      return ext.permissions.some(permission => cookiePermission.indexOf(permission) > -1 );
+    } else {
+      return true;
+    }
   }
 
   public getExtensions(parent:string): Extension[] {
