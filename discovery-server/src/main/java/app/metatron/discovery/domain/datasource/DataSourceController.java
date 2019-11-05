@@ -503,6 +503,8 @@ public class DataSourceController {
       engineIngestionService.shutDownIngestionTask(dataSource.getId());
     }
 
+    dataSource.setAppend(false);
+
     ThreadFactory factory = new ThreadFactoryBuilder()
         .setNameFormat("ingestion-append-" + dataSource.getId() + "-%s")
         .setDaemon(true)
@@ -1167,6 +1169,7 @@ public class DataSourceController {
     dataSource.setStatus(PREPARING);
     dataSourceRepository.saveAndFlush(dataSource);
 
+    dataSource.setAppend(true);
     LOGGER.debug("Re-Ingestion append dataSource : {} ", dataSource.toString());
 
     ThreadFactory factory = new ThreadFactoryBuilder()
@@ -1206,10 +1209,11 @@ public class DataSourceController {
       }
     }
 
-    LOGGER.debug("Re-Ingestion overwrite dataSource : {} ", dataSource.toString());
-
     dataSourceRepository.saveAndFlush(dataSource);
     metadataService.updateFromDataSource(dataSource, true);
+
+    dataSource.setAppend(true);
+    LOGGER.debug("Re-Ingestion overwrite dataSource : {} ", dataSource.toString());
 
     engineIngestionService.purgeDataSource(id);
 
