@@ -67,7 +67,7 @@ public class PrepFileUtil {
     CharsetMatch match;
 
     try {
-      byte[] byteData = new byte[is.available()];
+      byte[] byteData = new byte[1000];
       is.read(byteData);
       is.close();
 
