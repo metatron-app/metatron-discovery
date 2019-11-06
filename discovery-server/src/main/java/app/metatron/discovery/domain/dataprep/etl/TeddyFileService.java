@@ -220,10 +220,10 @@ public class TeddyFileService {
                 value = row.get(colno).toString();
               } else if (df.getColType(colno).equals(ColumnType.TIMESTAMP)) {
                 value = ((DateTime) row.get(colno)).toString(df.getColTimestampStyle(colno), Locale.ENGLISH);
-                value = "\"" + StringEscapeUtils.escapeSql(value) + "\"";
+                value = "\'" + StringEscapeUtils.escapeSql(value) + "\'";
               } else {
                 value = row.get(colno).toString();
-                value = "\"" + StringEscapeUtils.escapeSql(value) + "\"";
+                value = "\'" + StringEscapeUtils.escapeSql(value) + "\'";
               }
             } catch (Exception e) {
               value = null; // casting failure
