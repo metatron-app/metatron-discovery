@@ -203,6 +203,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       layer.color['symbolSettingUseFl'] = (<UISymbolLayer>cloneLayer).color.settingUseFl;
       layer.color['symbolRanges'] = (<UISymbolLayer>cloneLayer).color.ranges;
       layer.color['symbolChangeRange'] = (<UISymbolLayer>cloneLayer).color.changeRange;
+      layer.color['symbolColumn'] = (<UISymbolLayer>cloneLayer).color.column;
     } else if (MapLayerType.TILE === preLayerType) {
       layer.tileRadius = cloneLayer.tileRadius;
       layer.color.tileSchema = cloneLayer.color.schema;
@@ -210,6 +211,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       layer.color['tileSettingUseFl'] = (<UISymbolLayer>cloneLayer).color.settingUseFl;
       layer.color['tileRanges'] = (<UISymbolLayer>cloneLayer).color.ranges;
       layer.color['tileChangeRange'] = (<UISymbolLayer>cloneLayer).color.changeRange;
+      layer.color['tileColumn'] = (<UISymbolLayer>cloneLayer).color.column;
     } else if (MapLayerType.POLYGON === preLayerType) {
       layer.color.polygonSchema = cloneLayer.color.schema;
       layer.color.tranTransparency = cloneLayer.color.transparency;
@@ -292,6 +294,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       (<UISymbolLayer>layer).color.settingUseFl = layer.color['symbolSettingUseFl'];
       (<UISymbolLayer>layer).color.ranges = layer.color['symbolRanges'];
       (<UISymbolLayer>layer).color.changeRange = layer.color['symbolChangeRange'];
+      (<UISymbolLayer>layer).color.column = layer.color['symbolColumn'];
+
+      console.log('color.by2...', (<UISymbolLayer>layer).color);
+
       this.rangesViewList = this.setRangeViewByDecimal(layer.color.ranges);
 
       // remove measure aggregation type in shelf
@@ -335,6 +341,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       layer.color.settingUseFl = layer.color['tileSettingUseFl'];
       layer.color.ranges = layer.color['tileRanges'];
       layer.color.changeRange = layer.color['tileChangeRange'];
+      layer.color.column = layer.color['tileColumn'];
 
       this.rangesViewList = this.setRangeViewByDecimal(layer.color.ranges);
 

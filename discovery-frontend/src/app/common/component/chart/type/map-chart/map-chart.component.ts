@@ -2687,7 +2687,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         } else {
           layer.color.schema = 'VC1';
         }
-        layer.color.column = uiOption.fieldMeasureList[0]['name'];
+        if(_.isUndefined(layer.color.column) || StringUtil.isEmpty(layer.color.column)) {
+          layer.color.column = uiOption.fieldMeasureList[0]['name'];
+        }
         layer.color.aggregationType = uiOption.fieldMeasureList[0]['aggregationType'];
         if (isAnalysisUse) {
           uiOption.fieldMeasureList.forEach((item) => {
