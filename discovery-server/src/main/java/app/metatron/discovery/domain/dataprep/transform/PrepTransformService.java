@@ -320,10 +320,7 @@ public class PrepTransformService {
             transform(wrangledDsId, OP_TYPE.APPEND, i, ruleString, jsonRuleString, true);
           }
           break;
-        case DATABASE:
-        case STAGING_DB:
-        case DRUID:
-          /* NOP */
+        default:
           break;
       }
     }
@@ -867,7 +864,7 @@ public class PrepTransformService {
             datasetInfo.put("sourceQuery", upstreamDataset.getQueryStmt());
             break;
 
-          case DRUID:
+          default:
             assert false : upstreamDataset.getImportType();
         }
       } else {
@@ -914,8 +911,7 @@ public class PrepTransformService {
         prepProperties.getHadoopConfDir(true);
         prepProperties.getStagingBaseDir(true);
         break;
-      case DATABASE:
-      case DRUID:
+      default:
         break;
     }
   }
