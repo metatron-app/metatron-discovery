@@ -536,6 +536,13 @@ public class MetadataController {
     ));
   }
 
+  /**
+   * Add or Remove favorite to metadata
+   *
+   * @param metadataId the metadata id
+   * @param action     the action
+   * @return the response entity
+   */
   @RequestMapping(value = "/metadatas/{metadataId}/favorite/{action:attach|detach}", method = RequestMethod.POST)
   public ResponseEntity <?> manageFavorite(@PathVariable("metadataId") String metadataId, @PathVariable("action") String action) {
     switch (action) {
