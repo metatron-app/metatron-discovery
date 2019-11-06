@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.workbench;
 
+import app.metatron.discovery.domain.workbench.util.AvaticaQueryEncoder;
+import org.apache.calcite.avatica.AvaticaStatement;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hive.jdbc.HiveStatement;
 import org.joda.time.DateTime;
@@ -380,6 +382,11 @@ public class QueryEditorService {
           queryResult = createMessageResult("OK", query, QueryResult.QueryResultStatus.SUCCESS);
         }
       } else {
+        if(stmt instanceof AvaticaStatement) {
+          // #2728 조건문에 한글이 포함할 수 있으므로 인코딩
+          query = AvaticaQueryEncoder.encode(query);
+        }
+
         if(stmt.execute(query)){
           sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.GET_RESULTSET, queryIndex,
                   queryEditorId, workbenchId, webSocketId);
