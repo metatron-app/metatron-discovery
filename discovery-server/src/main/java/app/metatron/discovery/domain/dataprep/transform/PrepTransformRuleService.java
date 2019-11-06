@@ -525,6 +525,9 @@ public class PrepTransformRuleService {
         break;
       case "set":
         shortRuleString = String.format(FMTSTR_SET, mapStrExp.get("col").toColList(), mapStrExp.get("value"));
+        if(mapStrExp.containsKey("row")==true) {
+          shortRuleString = shortRuleString + " (with cond)";
+        }
         break;
       case "settype":
         shortRuleString = String.format(FMTSTR_SETTYPE, mapStrExp.get("col").toColList(), mapStrExp.get("type"));

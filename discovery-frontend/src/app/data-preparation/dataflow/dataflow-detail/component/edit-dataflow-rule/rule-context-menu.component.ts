@@ -254,8 +254,12 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
 
         case 'edit':
 
-          if (command.value === 'replace' || command.value === 'set') {
+          if (command.value === 'replace') {
             rule['more'] = { command : command.value, col : this.originalSelectedColIds};
+          }
+
+          if (command.value === 'set') {
+            rule = this._setSetParam(command.value, rule);
           }
 
           if (command.value === 'keep' || command.value === 'delete') {
@@ -430,6 +434,57 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
       rule['more'] = {command : 'move', col : columnNames, beforeAfter: type};
     }
 
+    return rule;
+  }
+
+
+  /**
+   * Make set param
+   * @param command
+   * @param rule
+   * @private
+   */
+  private _setSetParam(command: string, rule: ContextMenuParam) {
+    const colName: string = this.contextInfo.columnName;
+    const colType: string = this.contextInfo.columnType;
+    let result = '';
+    if (this.isColumnSelect) {
+      let list = [];
+      this.histogramData.forEach((item) => {
+        if ('matched' === item) {
+          list.push(`!ismismatched(\`${colName}\`,'${colType}') && !isNull(\`${colName}\`)`)
+        } else if ('missing' === item) {
+          list.push( `ismissing(\`${colName}\`)`)
+        } else if ('mismatched' === item) {
+          list.push(`ismismatched(\`${colName}\`,'${colType}')`)
+        }
+      });
+      result = list.join(' && ');
+    } else if (colType === 'DOUBLE' || colType === 'LONG') {
+      this.histogramData.forEach((item,index) => {
+        let idx = this.labelsForNumbers.indexOf(item);
+        result += this.histogramData.length-1 !== index ? `\`${colName}\` >= ${item} && \`${colName}\` < ${this.labelsForNumbers[idx+1]} || ` : `\`${colName}\` >= ${item} && \`${colName}\` < ${this.labelsForNumbers[idx+1]}`;
+      })
+    } else if (colType === 'TIMESTAMP') {
+      this.histogramData.forEach((item,index) => {
+        let idx = this.labelsForNumbers.indexOf(item);
+        result += this.histogramData.length-1 !== index ? `time_between(\`${colName}\`,'${this.contextInfo.timestampStyle[idx]}','${this.contextInfo.timestampStyle[idx+1]}') || ` : `time_between(\`${colName}\`,'${this.contextInfo.timestampStyle[idx]}','${this.contextInfo.timestampStyle[idx+1]}')`;
+      });
+    } else {
+      if(this.histogramData) {
+        this.histogramData.forEach((item,index) => {
+          result += this.histogramData.length-1 !== index ? '`'+ colName + '`' + ' == ' +'\''+ item +'\''+ ' || ' : '`' + colName + '`' + ' == ' +'\''+ item +'\'';
+        })
+      }
+    }
+
+    if( result==='' ) {
+      rule.more = { command : command, col : this.originalSelectedColIds };
+    } else {
+      rule.more = { command : command, col : this.originalSelectedColIds, condition : result, contextMenu : true };
+      rule.ruleString = `${command} row: ${result}`;
+      rule.uiRuleString = {name: command, condition: result, isBuilder: true};
+    }
     return rule;
   }
 
