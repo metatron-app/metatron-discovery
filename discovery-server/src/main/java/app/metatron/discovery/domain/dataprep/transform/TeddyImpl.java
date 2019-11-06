@@ -290,7 +290,12 @@ public class TeddyImpl {
         df.setByGrid(PrepJsonUtil.parse(strUri, samplingRows, columnCount, hadoopConf));
         break;
       default: // csv
-        df.setByGrid(PrepCsvUtil.parse(strUri, delimiter, samplingRows, columnCount, hadoopConf));
+        PrepCsvUtil csvUtil = PrepCsvUtil.DEFAULT
+                .withDelim(delimiter)
+                .withLimitRows(samplingRows)
+                .withManualColCnt(columnCount)
+                .withHadoopConf(hadoopConf);
+        df.setByGrid(csvUtil.parse(strUri));
     }
 
     return createStage0(dsId, df);

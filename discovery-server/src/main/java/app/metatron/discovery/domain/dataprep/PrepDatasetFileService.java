@@ -123,13 +123,17 @@ public class PrepDatasetFileService {
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
                     PrepMessageKey.MSG_DP_ALERT_UNKOWN_ERROR, "Excel files should have converted as CSV");
           case "json":
-            Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
-            result = PrepJsonUtil.countJson(storedUri, limitRows, conf);
+            Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
+            result = PrepJsonUtil.countJson(storedUri, limitRows, hadoopConf);
             break;
           default:
-            conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
+            hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
             String delimiterCol = dataset.getDelimiter();
-            result = PrepCsvUtil.countCsv(storedUri, delimiterCol, limitRows, conf);
+            PrepCsvUtil csvUtil = PrepCsvUtil.DEFAULT
+                    .withDelim(delimiterCol)
+                    .withLimitRows(limitRows)
+                    .withHadoopConf(hadoopConf);
+            result = csvUtil.countCsvFile(storedUri);
         }
 
         if (result != null) {
@@ -422,7 +426,12 @@ public class PrepDatasetFileService {
     Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
 
     DataFrame df = new DataFrame("df_for_preview");
-    df.setByGrid(PrepCsvUtil.parse(storedUri, delimiterCol, limitRows, columnCount, hadoopConf));
+    PrepCsvUtil csvUtil = PrepCsvUtil.DEFAULT
+            .withDelim(delimiterCol)
+            .withLimitRows(limitRows)
+            .withManualColCnt(columnCount)
+            .withHadoopConf(hadoopConf);
+    df.setByGrid(csvUtil.parse(storedUri));
 
     if (autoTyping && 0 < df.rows.size()) {
       df = teddyImpl.applyAutoTyping(df);

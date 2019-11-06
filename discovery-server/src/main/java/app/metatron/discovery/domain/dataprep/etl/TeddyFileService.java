@@ -76,13 +76,18 @@ public class TeddyFileService {
     LOGGER.info("createUriSnapshot() finished: totalLines={}", df.rows.size());
   }
 
-  public DataFrame loadCsvFile(String dsId, String strUri, String delimiter, Integer manualColCnt)
+  public DataFrame loadCsvFile(String dsId, String strUri, String strDelim, Integer manualColCnt)
           throws URISyntaxException {
     DataFrame df = new DataFrame();
 
-    LOGGER.debug("loadCsvFile(): dsId={} strUri={} delemiter={}", dsId, strUri, delimiter);
+    LOGGER.debug("loadCsvFile(): dsId={} strUri={} strDelim={}", dsId, strUri, strDelim);
 
-    PrepParseResult result = PrepCsvUtil.parse(strUri, delimiter, limitRows, manualColCnt, hadoopConf);
+    PrepCsvUtil csvUtil = PrepCsvUtil.DEFAULT
+            .withDelim(strDelim)
+            .withLimitRows(limitRows)
+            .withManualColCnt(manualColCnt)
+            .withHadoopConf(hadoopConf);
+    PrepParseResult result = csvUtil.parse(strUri);
     df.setByGrid(result);
 
     LOGGER.debug("loadCsvFile(): done");
@@ -103,7 +108,7 @@ public class TeddyFileService {
   }
 
   public int writeCsv(String ssId, String strUri, DataFrame df) {
-    CSVPrinter printer = PrepCsvUtil.getPrinter(strUri, hadoopConf);
+    CSVPrinter printer = PrepCsvUtil.DEFAULT.withHadoopConf(hadoopConf).getPrinter(strUri);
     String errmsg = null;
 
     try {

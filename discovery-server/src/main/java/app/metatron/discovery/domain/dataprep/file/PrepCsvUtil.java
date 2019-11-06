@@ -36,12 +36,156 @@ public class PrepCsvUtil {
 
   private static Logger LOGGER = LoggerFactory.getLogger(PrepCsvUtil.class);
 
-  private static void readCsv(CSVParser parser, int limitRows, Integer manualColCnt, boolean header, boolean onlyCount,
-          PrepParseResult result) {
-    LOGGER.debug("readCsv(): limitRows={} header={} onlyCount={}", limitRows, header, onlyCount);
+  private String strDelim;
+  private char charDelim;
+  private char quoteChar;
+  private boolean header;
+
+  private int limitRows;
+  private Integer manualColCnt;
+  private Configuration hadoopConf;
+
+  private boolean onlyCount;
+
+  private CSVParser parser;
+
+  public PrepCsvUtil() {
+  }
+
+  private char getUnescapedDelimiter(String strDelim) {
+    assert strDelim.length() != 0;
+
+    if (strDelim.length() == 1) {
+      return strDelim.charAt(0);
+    }
+
+    String unescaped = StringEscapeUtils.unescapeJava(strDelim);
+    if (unescaped.length() == 1) {
+      return unescaped.charAt(0);
+    }
+
+    throw datasetError(MSG_DP_ALERT_MALFORMED_DELIMITER, HADOOP_CONF_DIR);
+  }
+
+  private PrepCsvUtil(String strDelim, char quoteChar, boolean header, int limitRows, Integer manualColCnt,
+          Configuration hadoopConf, boolean onlyCount) {
+    this.strDelim = strDelim;
+    charDelim = getUnescapedDelimiter(strDelim);
+
+    this.quoteChar = quoteChar;
+    this.header = header;
+
+    this.limitRows = limitRows;
+    this.manualColCnt = manualColCnt;
+    this.hadoopConf = hadoopConf;
+
+    this.onlyCount = onlyCount;
+
+    parser = null;
+  }
+
+  /**
+   * The default base instance:
+   * strDelim = ,
+   * quoteChar = "
+   * header = false
+   */
+  public static final PrepCsvUtil DEFAULT = new PrepCsvUtil(",", '"', false, 1000, null, null, false);
+
+
+  /**
+   * @param strDelim A delimiter is provided as a String for the room of escaped characters, like "\t", "\002", etc.
+   * @return this
+   */
+  public PrepCsvUtil withDelim(String strDelim) {
+    return new PrepCsvUtil(strDelim, quoteChar, header, limitRows, manualColCnt, hadoopConf, onlyCount);
+  }
+
+  /**
+   * @param quoteChar Default is '"'. Sometimes, some files need to be parsed without any quote.
+   * @return this
+   */
+  public PrepCsvUtil withQuoteChar(char quoteChar) {
+    return new PrepCsvUtil(strDelim, quoteChar, header, limitRows, manualColCnt, hadoopConf, onlyCount);
+  }
+
+  /**
+   * @param header If true, skip the first line and put into result.header instead.
+   * @return this
+   */
+  public PrepCsvUtil withHeader(boolean header) {
+    return new PrepCsvUtil(strDelim, quoteChar, header, limitRows, manualColCnt, hadoopConf, onlyCount);
+  }
+
+  /**
+   * @param limitRows Read not more than this
+   * @return this
+   */
+  public PrepCsvUtil withLimitRows(int limitRows) {
+    return new PrepCsvUtil(strDelim, quoteChar, header, limitRows, manualColCnt, hadoopConf, onlyCount);
+  }
+
+  /**
+   * @param manualColCnt Column count from UI (set manually for misreading cases)
+   * @return this
+   */
+  public PrepCsvUtil withManualColCnt(Integer manualColCnt) {
+    return new PrepCsvUtil(strDelim, quoteChar, header, limitRows, manualColCnt, hadoopConf, onlyCount);
+  }
+
+  /**
+   * @param hadoopConf Hadoop configuration which is mandatory when the url's protocol is hdfs
+   * @return this
+   */
+  public PrepCsvUtil withHadoopConf(Configuration hadoopConf) {
+    return new PrepCsvUtil(strDelim, quoteChar, header, limitRows, manualColCnt, hadoopConf, onlyCount);
+  }
+
+  /**
+   * @param onlyCount If true, just fill result.totalRows and result.totalBytes
+   * @return this
+   */
+  public PrepCsvUtil withOnlyCount(boolean onlyCount) {
+    return new PrepCsvUtil(strDelim, quoteChar, header, limitRows, manualColCnt, hadoopConf, onlyCount);
+  }
+
+  /**
+   * @param strUri URI as String (to be java.net.URI)
+   * @return PrepParseResult: grid, colNames
+   */
+  public PrepParseResult parse(String strUri) {
+    PrepParseResult result = new PrepParseResult();
+
+    LOGGER.debug(
+            "PrepCsvUtil.parse(): strUri={} delim={} quoteChar={} header={} limitRows={} manualColCnt={} hadoopConf={}",
+            strUri, strDelim, limitRows, header, limitRows, manualColCnt, hadoopConf);
+
+    Reader reader = getReader(strUri, hadoopConf, onlyCount, result);
+
+    try {
+      // \", "" both become " by default
+      LOGGER.debug("Call CSVParser.parse(): strDelim={}", strDelim);
+      parser = CSVParser
+              .parse(reader, CSVFormat.DEFAULT.withDelimiter(charDelim).withEscape('\\').withQuote(quoteChar));
+    } catch (IOException e) {
+      e.printStackTrace();
+      throw datasetError(MSG_DP_ALERT_FAILED_TO_PARSE_CSV, String.format("%s (delimiter: %s)", strUri, strDelim));
+    }
+
+    readCsv(onlyCount, result);
+
+    LOGGER.debug("PrepCsvUtil.parse(): end");
+    return result;
+  }
+
+
+  private void readCsv(boolean onlyCount, PrepParseResult result) {
+    assert parser != null;
+    Integer colCnt = manualColCnt != null ? manualColCnt : null;
+
+    LOGGER.debug("readCsv(): limitRows={} onlyCount={} manualColCnt={}", limitRows, onlyCount, manualColCnt);
 
     Iterator<CSVRecord> iter = parser.iterator();
-    Integer colCnt = manualColCnt != null ? manualColCnt : null;
 
     while (true) {
       CSVRecord csvRow;
@@ -97,78 +241,11 @@ public class PrepCsvUtil {
     LOGGER.debug("readCsv(): limitRows={} header={} onlyCount={}", limitRows, header, onlyCount);
   }
 
-  private static char getUnescapedDelimiter(String strDelim) {
-    assert strDelim.length() != 0;
-
-    if (strDelim.length() == 1) {
-      return strDelim.charAt(0);
-    }
-
-    String unescaped = StringEscapeUtils.unescapeJava(strDelim);
-    if (unescaped.length() == 1) {
-      return unescaped.charAt(0);
-    }
-
-    throw datasetError(MSG_DP_ALERT_MALFORMED_DELIMITER, HADOOP_CONF_DIR);
-  }
-
-  /**
-   * @param strUri URI as String (to be java.net.URI)
-   * @param strDelim Delimiter as String (to be Char)
-   * @param limitRows Read not more than this
-   * @param manualColCnt Manually set column count from UI
-   * @param conf Hadoop configuration which is mandatory when the url's protocol is hdfs
-   * @param header If true, skip the first line and put into result.header instead.
-   * @param onlyCount If true, just fill result.totalRows and result.totalBytes
-   * @return PrepParseResult: grid, colNames
-   */
-  public static PrepParseResult parse(String strUri, String strDelim, int limitRows, Integer manualColCnt,
-          Configuration conf, boolean header, boolean onlyCount) {
-    PrepParseResult result = new PrepParseResult();
-
-    LOGGER.debug("PrepCsvUtil.parse(): strUri={} strDelim={} limitRows={} conf={}", strUri, strDelim, limitRows, conf);
-
-    Reader reader = getReader(strUri, conf, onlyCount, result);
-
-    char delim = getUnescapedDelimiter(strDelim);
-    CSVParser parser;
-    try {
-      // \", "" both become " by default
-      LOGGER.debug("Call CSVParser.parse(): strDelim={}", delim);
-      parser = CSVParser.parse(reader, CSVFormat.DEFAULT.withDelimiter(delim).withEscape('\\'));
-    } catch (IOException e) {
-      e.printStackTrace();
-      throw datasetError(MSG_DP_ALERT_FAILED_TO_PARSE_CSV, String.format("%s (delimiter: %s)", strUri, strDelim));
-    }
-
-    readCsv(parser, limitRows, manualColCnt, header, onlyCount, result);
-
-    LOGGER.debug("PrepCsvUtil.parse(): end");
-    return result;
-  }
-
-  public static PrepParseResult parse(String strUri, String strDelim, int limitRows, Configuration conf) {
-    return parse(strUri, strDelim, limitRows, null, conf, false, false);
-  }
-
-  public static PrepParseResult parse(String strUri, String strDelim, int limitRows, Configuration conf,
-          boolean header) {
-    return parse(strUri, strDelim, limitRows, null, conf, header, false);
-  }
-
-  public static PrepParseResult parse(String strUri, String strDelim, int limitRows, Integer columnCount,
-          Configuration conf) {
-    return parse(strUri, strDelim, limitRows, columnCount, conf, false, false);
-  }
-
-  public static PrepParseResult parse(String strUri, String strDelim, int limitRows, Integer columnCount,
-          Configuration conf, boolean header) {
-    return parse(strUri, strDelim, limitRows, columnCount, conf, header, false);
-  }
-
-  public static Map<String, Long> countCsv(String strUri, String strDelim, int limitRows, Configuration conf) {
+  public Map<String, Long> countCsvFile(String strUri) {
     Map<String, Long> mapTotal = new HashMap();
-    PrepParseResult result = parse(strUri, strDelim, limitRows, null, conf, false, true);
+
+    PrepParseResult result = DEFAULT.withOnlyCount(true).parse(strUri);
+
     mapTotal.put("totalRows", result.totalRows);
     mapTotal.put("totalBytes", result.totalBytes);
     return mapTotal;
@@ -176,14 +253,11 @@ public class PrepCsvUtil {
 
   /**
    * @param strUri URI as String (to be java.net.URI)
-   * @param conf Hadoop configuration which is mandatory when the url's protocol is hdfs
-   *
-   * header will be false for table-type snapshots.
    */
-  public static CSVPrinter getPrinter(String strUri, Configuration conf) {
-    LOGGER.debug("PrepCsvUtil.getPrinter(): strUri={} conf={}", strUri, conf);
+  public CSVPrinter getPrinter(String strUri) {
+    LOGGER.debug("PrepCsvUtil.getPrinter(): strUri={} hadoopConf={}", strUri, hadoopConf);
 
-    Writer writer = getWriter(strUri, conf);
+    Writer writer = getWriter(strUri, hadoopConf);
 
     CSVPrinter printer;
     try {
