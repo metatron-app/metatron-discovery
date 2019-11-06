@@ -46,10 +46,7 @@ public class HiveDialect implements JdbcDialect {
 
   private static final String KERBEROS_PRINCIPAL_PATTERN = "principal=(.+)@(.[^;,\\n\\r\\t]+)";
 
-  public static final String PROPERTY_KEY_ADMIN_NAME = METATRON_PROPERTY_PREFIX + "hive.admin.name";
-  public static final String PROPERTY_KEY_ADMIN_PASSWORD = METATRON_PROPERTY_PREFIX + "hive.admin.password";
-  public static final String PROPERTY_KEY_PERSONAL_DATABASE_PREFIX = METATRON_PROPERTY_PREFIX + "personal.database.prefix";
-  public static final String PROPERTY_KEY_HDFS_CONF_PATH = METATRON_PROPERTY_PREFIX + "hdfs.conf.path";
+  public static final String PROPERTY_KEY_PERSONAL_DATASOURCE_NAME = METATRON_PROPERTY_PREFIX + "hive.personal.datasource.name";
 
   public static final String PROPERTY_KEY_METASTORE_HOST = METATRON_PROPERTY_PREFIX + "metastore.host";
   public static final String PROPERTY_KEY_METASTORE_PORT = METATRON_PROPERTY_PREFIX + "metastore.port";
@@ -388,10 +385,7 @@ public class HiveDialect implements JdbcDialect {
     if(MapUtils.isEmpty(connectionProperties)) {
       return false;
     } else {
-      if(StringUtils.isNotEmpty(connectionProperties.get(PROPERTY_KEY_ADMIN_NAME)) &&
-          StringUtils.isNotEmpty(connectionProperties.get(PROPERTY_KEY_ADMIN_PASSWORD)) &&
-          StringUtils.isNotEmpty(connectionProperties.get(PROPERTY_KEY_PERSONAL_DATABASE_PREFIX)) &&
-          StringUtils.isNotEmpty(connectionProperties.get(PROPERTY_KEY_HDFS_CONF_PATH))) {
+      if(StringUtils.isNotEmpty(connectionProperties.get(PROPERTY_KEY_PERSONAL_DATASOURCE_NAME))) {
         return true;
       } else {
         return false;

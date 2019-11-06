@@ -14,19 +14,8 @@
 
 package app.metatron.discovery.domain.dataconnection.accessor;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.pf4j.Extension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import app.metatron.discovery.common.HivePersonalDatasource;
+import app.metatron.discovery.common.MetatronProperties;
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.dataconnection.dialect.HiveDialect;
 import app.metatron.discovery.domain.datasource.Field;
@@ -36,7 +25,16 @@ import app.metatron.discovery.extension.dataconnection.jdbc.JdbcConnectInformati
 import app.metatron.discovery.extension.dataconnection.jdbc.accessor.AbstractJdbcDataAccessor;
 import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionErrorCodes;
 import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionException;
+import app.metatron.discovery.util.ApplicationContextProvider;
 import app.metatron.discovery.util.AuthUtils;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.pf4j.Extension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -52,14 +50,13 @@ public class HiveDataAccessor extends AbstractJdbcDataAccessor {
     Map<String, Object> databaseMap = super.getDatabases(catalog, schemaPattern, pageSize, pageNumber);
 
     List<String> databaseNames = (List) databaseMap.get("databases");
-    //filter personal database
+
     String loginUserId = AuthUtils.getAuthUserName();
     if(StringUtils.isNotEmpty(loginUserId)
         && HiveDialect.isSupportSaveAsHiveTable(connectionInfo)) {
+      //filter personal database
       databaseNames
-          = filterOtherPersonalDatabases(databaseNames,
-                                         connectionInfo.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_PERSONAL_DATABASE_PREFIX),
-                                         HiveNamingRule.replaceNotAllowedCharacters(loginUserId));
+          = filterOtherPersonalDatabases(databaseNames, loginUserId);
     }
 
     int databaseCount = databaseNames.size();
@@ -268,12 +265,17 @@ public class HiveDataAccessor extends AbstractJdbcDataAccessor {
     return super.getColumns(schemaPattern, schemaPattern, tableNamePattern, columnNamePattern);
   }
 
-  private List<String> filterOtherPersonalDatabases(List<String> databases, String personalDatabasePrefix, String loginUserId) {
-    final String personalDatabase = String.format("%s_%s", personalDatabasePrefix, loginUserId);
+  private List<String> filterOtherPersonalDatabases(List<String> databases, String loginUserId) {
+    HivePersonalDatasource hivePersonalDataSource = findHivePersonalDataSource();
+    if(hivePersonalDataSource.isValidate() == false) {
+      return databases;
+    }
+
+    final String personalDatabase = String.format("%s_%s", hivePersonalDataSource.getPersonalDatabasePrefix(), HiveNamingRule.replaceNotAllowedCharacters(loginUserId));
 
     if(CollectionUtils.isNotEmpty(databases)) {
       return databases.stream().filter(database -> {
-        if (database.startsWith(personalDatabasePrefix + "_")) {
+        if (database.startsWith(hivePersonalDataSource.getPersonalDatabasePrefix() + "_")) {
           if (database.equalsIgnoreCase(personalDatabase)) {
             return true;
           } else {
@@ -286,5 +288,15 @@ public class HiveDataAccessor extends AbstractJdbcDataAccessor {
     } else {
       return Collections.emptyList();
     }
+  }
+
+  private HivePersonalDatasource findHivePersonalDataSource() {
+    MetatronProperties metatronProperties = ApplicationContextProvider.getApplicationContext().getBean(MetatronProperties.class);
+    String hivePersonalDatasourceName = connectionInfo.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_PERSONAL_DATASOURCE_NAME);
+
+    return metatronProperties.getHivePersonalDatasources()
+        .stream()
+        .filter(ds -> ds.getDatasourceName().equalsIgnoreCase(hivePersonalDatasourceName))
+        .findFirst().orElse(new HivePersonalDatasource());
   }
 }

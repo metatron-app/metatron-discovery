@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.workbench;
 
+import app.metatron.discovery.common.HivePersonalDatasource;
+import app.metatron.discovery.common.MetatronProperties;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
@@ -38,10 +40,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import app.metatron.discovery.AbstractRestIntegrationTest;
 import app.metatron.discovery.common.GlobalObjectMapper;
@@ -65,6 +64,9 @@ public class WorkbenchRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Autowired
   WorkbenchProperties workbenchProperties;
+
+  @Autowired
+  MetatronProperties metatronProperties;
 
   @Autowired
   WorkbenchDataSourceManager workbenchDataSourceManager;
@@ -498,7 +500,6 @@ public class WorkbenchRestIntegrationTest extends AbstractRestIntegrationTest {
     // given
     final String webSocketId = "test-ws";
     final String fileName = "product_sales.csv";
-    final String hdfsConfPath = "/tmp/hdfs-conf";
     Files.copy(Paths.get(getClass().getClassLoader().getResource(fileName).getPath()),
         Paths.get(String.format("%s/%s", workbenchProperties.getTempCSVPath(), fileName)), REPLACE_EXISTING);
 
@@ -510,14 +511,16 @@ public class WorkbenchRestIntegrationTest extends AbstractRestIntegrationTest {
     hiveConnection.setHostname("localhost");
     hiveConnection.setPort(10000);
     hiveConnection.setProperties("{" +
-        "  \"metatron.hdfs.conf.path\": \"" + hdfsConfPath + "\"," +
-        "  \"metatron.hive.admin.name\": \"hive_admin\"," +
-        "  \"metatron.hive.admin.password\": \"1111\"," +
-        "  \"metatron.personal.database.prefix\": \"private\"" +
+        "  \"metatron.hive.personal.datasource.name\": \"ds1\"" +
         "}");
     workbenchDataSourceManager.createDataSourceInfo(hiveConnection, webSocketId);
 
-    cleanUpHivePersonalDatabaseTestFixture(hiveConnection, loginUserId);
+    HivePersonalDatasource hivePersonalDatasource = new HivePersonalDatasource("ds1", "/tmp/hdfs-conf", "hive_admin", "1111", "private");
+    metatronProperties.setHivePersonalDatasources(
+        Arrays.asList(hivePersonalDatasource)
+    );
+
+    cleanUpHivePersonalDatabaseTestFixture(hiveConnection, loginUserId, hivePersonalDatasource);
 
     // REST when, then
     final String workbenchId = "workbench-05";
@@ -541,19 +544,19 @@ public class WorkbenchRestIntegrationTest extends AbstractRestIntegrationTest {
         .statusCode(HttpStatus.SC_NO_CONTENT);
   }
 
-  private void cleanUpHivePersonalDatabaseTestFixture(DataConnection hiveConnection, String loginUserId) {
+  private void cleanUpHivePersonalDatabaseTestFixture(DataConnection hiveConnection, String loginUserId, HivePersonalDatasource hivePersonalDatasource) {
     final String URL = String.format("jdbc:hive2://%s:%s", hiveConnection.getHostname(), hiveConnection.getPort());
 
     Connection conn = null;
     try{
       Class.forName(HiveDriver.class.getName());
       conn = DriverManager.getConnection(URL,
-          hiveConnection.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_ADMIN_NAME),
-          hiveConnection.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_ADMIN_PASSWORD));
+          hivePersonalDatasource.getAdminName(),
+          hivePersonalDatasource.getAdminPassword());
 
       StringBuffer script = new StringBuffer();
       script.append(String.format("DROP DATABASE IF EXISTS %s_%s CASCADE;",
-          hiveConnection.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_PERSONAL_DATABASE_PREFIX),
+          hivePersonalDatasource.getPersonalDatabasePrefix(),
           loginUserId));
 
       ScriptUtils.executeSqlScript(conn, new InputStreamResource(new ByteArrayInputStream(script.toString().getBytes())));

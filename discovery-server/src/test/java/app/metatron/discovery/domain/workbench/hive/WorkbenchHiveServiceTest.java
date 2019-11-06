@@ -13,6 +13,7 @@
  */
 package app.metatron.discovery.domain.workbench.hive;
 
+import app.metatron.discovery.common.HivePersonalDatasource;
 import org.apache.hadoop.fs.Path;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -50,7 +51,9 @@ public class WorkbenchHiveServiceTest {
 
     DataTableHiveRepository mockDataTableHiveRepository = mock(DataTableHiveRepository.class);
     final String savedFilePath = String.format("/tmp/metatron/%s.dat", UUID.randomUUID().toString());
-    when(mockDataTableHiveRepository.saveToHdfs(eq(hiveConnection), anyObject(), anyObject())).thenReturn(savedFilePath);
+
+    HivePersonalDatasource hivePersonalDatasource = new HivePersonalDatasource("ds1", "/tmp/hdfs-conf", "hive_admin", "1111", "private");
+    when(mockDataTableHiveRepository.saveToHdfs(eq(hivePersonalDatasource), anyObject(), anyObject())).thenReturn(savedFilePath);
     workbenchHiveService.setDataTableHiveRepository(mockDataTableHiveRepository);
 
     JdbcConnectionService mockJdbcConnectionService = mock(JdbcConnectionService.class);
@@ -74,7 +77,7 @@ public class WorkbenchHiveServiceTest {
     // saveToHdfs
     ArgumentCaptor<Path> argPath = ArgumentCaptor.forClass(Path.class);
     ArgumentCaptor<DataTable> argDataTable = ArgumentCaptor.forClass(DataTable.class);
-    verify(mockDataTableHiveRepository).saveToHdfs(eq(hiveConnection), argPath.capture(), argDataTable.capture());
+    verify(mockDataTableHiveRepository).saveToHdfs(eq(hivePersonalDatasource), argPath.capture(), argDataTable.capture());
     assertThat(argPath.getValue().toString()).isEqualTo("/tmp/metatron");
     assertThat(argDataTable.getValue().getFields()).hasSize(5);
     assertThat(argDataTable.getValue().getFields()).contains("time", "order_id", "amount", "product_id", "sale_count");
@@ -88,19 +91,19 @@ public class WorkbenchHiveServiceTest {
     // saveAsHiveTable
     ArgumentCaptor<String> queries = ArgumentCaptor.forClass(String.class);
     verify(mockJdbcConnectionService, times(3)).executeUpdate(eq(hiveConnection),
-        eq(workbenchDataSourceManager.findDataSourceInfo(webSocketId).getSecondaryConnection()),
+        eq(workbenchDataSourceManager.findDataSourceInfo(webSocketId).getSecondaryConnection(hivePersonalDatasource.getAdminName(), hivePersonalDatasource.getAdminPassword())),
         queries.capture());
     assertThat(queries.getAllValues()).hasSize(3);
     assertThat(queries.getAllValues().get(0))
         .isEqualTo(String.format("CREATE DATABASE IF NOT EXISTS %s_%s",
-                                 hiveConnection.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_PERSONAL_DATABASE_PREFIX), metatronUserId));
+            hivePersonalDatasource.getPersonalDatabasePrefix(), metatronUserId));
     assertThat(queries.getAllValues().get(1))
         .isEqualTo(
             String.format("CREATE TABLE %s_%s.%s (`time` STRING, `order_id` STRING, `amount` STRING, `product_id` STRING, `sale_count` STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\\001' LINES TERMINATED BY '\\n'",
-                hiveConnection.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_PERSONAL_DATABASE_PREFIX), metatronUserId, importFile.getTableName()));
+                hivePersonalDatasource.getPersonalDatabasePrefix(), metatronUserId, importFile.getTableName()));
     assertThat(queries.getAllValues().get(2))
         .isEqualTo(String.format("LOAD DATA INPATH '%s' OVERWRITE INTO TABLE %s_%s.%s",
-            savedFilePath, hiveConnection.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_PERSONAL_DATABASE_PREFIX), metatronUserId, importFile.getTableName()));
+            savedFilePath, hivePersonalDatasource.getPersonalDatabasePrefix(), metatronUserId, importFile.getTableName()));
   }
 
   private DataConnection getHiveConnection() {
@@ -110,13 +113,9 @@ public class WorkbenchHiveServiceTest {
     hiveConnection.setHostname("localhost");
     hiveConnection.setPort(10000);
     hiveConnection.setProperties("{" +
-        "  \"metatron.hdfs.conf.path\": \"/tmp/hdfs-conf\"," +
-        "  \"metatron.hive.admin.name\": \"hive_admin\"," +
-        "  \"metatron.hive.admin.password\": \"1111\"," +
-        "  \"metatron.personal.database.prefix\": \"private\"" +
+        "  \"metatron.hive.personal.datasource.name\": \"ds1\"" +
         "}");
 
     return hiveConnection;
   }
-
 }
