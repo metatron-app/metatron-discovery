@@ -2,6 +2,7 @@ package app.metatron.discovery.domain.dataprep.etl;
 
 import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_LIMIT_ROWS;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.QUOTE_CHAR;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_CLOSE_CSV;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_WRITE_CSV;
 import static app.metatron.discovery.domain.dataprep.util.PrepUtil.snapshotError;
@@ -46,10 +47,19 @@ public class TeddyFileService {
   private String hadoopConfDir;
   private Configuration hadoopConf = null;
   private Integer limitRows = null;
+  private Character quoteChar;
 
   public void setPrepPropertiesInfo(Map<String, Object> prepPropertiesInfo) {
     hadoopConfDir = (String) prepPropertiesInfo.get(HADOOP_CONF_DIR);
     limitRows = (Integer) prepPropertiesInfo.get(ETL_LIMIT_ROWS);
+
+    String strQuoteChar = (String) prepPropertiesInfo.get(QUOTE_CHAR);
+    if (strQuoteChar == null) {
+      quoteChar = null;
+    } else {
+      assert strQuoteChar.length() > 0;
+      quoteChar = strQuoteChar.charAt(0);
+    }
 
     if (hadoopConfDir != null) {
       hadoopConf = PrepUtil.getHadoopConf(hadoopConfDir);
@@ -84,6 +94,7 @@ public class TeddyFileService {
 
     PrepCsvUtil csvUtil = PrepCsvUtil.DEFAULT
             .withDelim(strDelim)
+            .withQuoteChar(quoteChar)
             .withLimitRows(limitRows)
             .withManualColCnt(manualColCnt)
             .withHadoopConf(hadoopConf);

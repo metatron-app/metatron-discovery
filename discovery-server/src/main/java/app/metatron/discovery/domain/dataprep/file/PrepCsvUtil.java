@@ -38,7 +38,7 @@ public class PrepCsvUtil {
 
   private String strDelim;
   private char charDelim;
-  private char quoteChar;
+  private Character quoteChar;
   private boolean header;
 
   private int limitRows;
@@ -67,7 +67,7 @@ public class PrepCsvUtil {
     throw datasetError(MSG_DP_ALERT_MALFORMED_DELIMITER, HADOOP_CONF_DIR);
   }
 
-  private PrepCsvUtil(String strDelim, char quoteChar, boolean header, int limitRows, Integer manualColCnt,
+  private PrepCsvUtil(String strDelim, Character quoteChar, boolean header, int limitRows, Integer manualColCnt,
           Configuration hadoopConf, boolean onlyCount) {
     this.strDelim = strDelim;
     charDelim = getUnescapedDelimiter(strDelim);
@@ -105,7 +105,7 @@ public class PrepCsvUtil {
    * @param quoteChar Default is '"'. Sometimes, some files need to be parsed without any quote.
    * @return this
    */
-  public PrepCsvUtil withQuoteChar(char quoteChar) {
+  public PrepCsvUtil withQuoteChar(Character quoteChar) {
     return new PrepCsvUtil(strDelim, quoteChar, header, limitRows, manualColCnt, hadoopConf, onlyCount);
   }
 
@@ -244,8 +244,7 @@ public class PrepCsvUtil {
   public Map<String, Long> countCsvFile(String strUri) {
     Map<String, Long> mapTotal = new HashMap();
 
-    PrepParseResult result = DEFAULT.withOnlyCount(true).parse(strUri);
-
+    PrepParseResult result = parse(strUri);
     mapTotal.put("totalRows", result.totalRows);
     mapTotal.put("totalBytes", result.totalBytes);
     return mapTotal;

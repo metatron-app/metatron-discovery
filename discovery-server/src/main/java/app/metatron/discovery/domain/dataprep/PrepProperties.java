@@ -59,6 +59,8 @@ public class PrepProperties {
   public static final String ETL_SPARK_MASTER = "polaris.dataprep.etl.spark.master";
   public static final String ETL_SPARK_WAREHOUSE_DIR = "polaris.dataprep.etl.spark.warehouseDir";
 
+  public static final String QUOTE_CHAR = "polaris.dataprep.quoteChar";
+
   public static String dirDataprep = "dataprep";
   public static String dirPreview = "previews";
   public static String dirUpload = "uploads";
@@ -68,6 +70,7 @@ public class PrepProperties {
   public String stagingBaseDir;
   public String s3BaseDir;
   public String hadoopConfDir;
+  public String quoteChar;
   public SamplingInfo sampling;
   public EtlInfo etl;
 
@@ -99,6 +102,16 @@ public class PrepProperties {
       throw configError(MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED, "S3Dir not configured");
     }
     return s3BaseDir;
+  }
+
+  public Character getQuoteChar() {
+    if (quoteChar == null) {
+      return '"';
+    }
+    if (quoteChar.length() == 0) {
+      return null;
+    }
+    return quoteChar.charAt(0);
   }
 
   // sampling, etl cannot be null (see init())
@@ -188,6 +201,7 @@ public class PrepProperties {
     Map<String, Object> map = new HashMap();
 
     map.put(HADOOP_CONF_DIR, getHadoopConfDir(false));
+    map.put(QUOTE_CHAR, getQuoteChar());
 
     map.put(ETL_CORES, getEtlCores());
     map.put(ETL_TIMEOUT, getEtlTimeout());
@@ -480,6 +494,10 @@ public class PrepProperties {
     } else {
       this.s3BaseDir = s3BaseDir;
     }
+  }
+
+  public void setQuoteChar(String quoteChar) {
+    this.quoteChar = quoteChar;
   }
 
   public String getStagingBaseDir() {

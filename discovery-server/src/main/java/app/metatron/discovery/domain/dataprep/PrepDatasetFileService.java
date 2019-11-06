@@ -15,12 +15,64 @@
 package app.metatron.discovery.domain.dataprep;
 
 
+import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_HDFS_PATH;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_LOCAL_PATH;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_HADOOP_HDFS_FAILED_TO_CONNECT;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_UNKOWN_ERROR;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.configError;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.dataflowError;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.datasetError;
+
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.entity.PrUploadFile;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
+import app.metatron.discovery.domain.dataprep.file.PrepJsonUtil;
+import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrameService;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import app.metatron.discovery.domain.dataprep.transform.TeddyImpl;
+import app.metatron.discovery.domain.dataprep.util.PrepUtil;
+import app.metatron.discovery.domain.storage.StorageProperties;
+import app.metatron.discovery.util.ExcelProcessor;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
 import com.monitorjbl.xlsx.StreamingReader;
-
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.net.ConnectException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -38,41 +90,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.*;
-import java.net.ConnectException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import app.metatron.discovery.domain.dataprep.entity.PrDataset;
-import app.metatron.discovery.domain.dataprep.entity.PrUploadFile;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
-import app.metatron.discovery.domain.dataprep.file.PrepJsonUtil;
-import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrameService;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-import app.metatron.discovery.domain.dataprep.transform.TeddyImpl;
-import app.metatron.discovery.domain.dataprep.util.PrepUtil;
-import app.metatron.discovery.domain.storage.StorageProperties;
-import app.metatron.discovery.util.ExcelProcessor;
-
-import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_HADOOP_HDFS_FAILED_TO_CONNECT;
 
 @Service
 public class PrepDatasetFileService {
@@ -121,7 +138,7 @@ public class PrepDatasetFileService {
           case "xls":
             assert false : "Excel files are treated as CSV";
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-                    PrepMessageKey.MSG_DP_ALERT_UNKOWN_ERROR, "Excel files should have converted as CSV");
+                    MSG_DP_ALERT_UNKOWN_ERROR, "Excel files should have converted as CSV");
           case "json":
             Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
             result = PrepJsonUtil.countJson(storedUri, limitRows, hadoopConf);
@@ -131,7 +148,9 @@ public class PrepDatasetFileService {
             String delimiterCol = dataset.getDelimiter();
             PrepCsvUtil csvUtil = PrepCsvUtil.DEFAULT
                     .withDelim(delimiterCol)
+                    .withQuoteChar(prepProperties.getQuoteChar())
                     .withLimitRows(limitRows)
+                    .withOnlyCount(true)
                     .withHadoopConf(hadoopConf);
             result = csvUtil.countCsvFile(storedUri);
         }
@@ -175,7 +194,7 @@ public class PrepDatasetFileService {
     } catch (URISyntaxException e) {
       e.printStackTrace();
       throw PrepException
-              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, dirUri);
+              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, MSG_DP_ALERT_MALFORMED_URI_SYNTAX, dirUri);
     }
 
     switch (uri.getScheme()) {
@@ -183,7 +202,7 @@ public class PrepDatasetFileService {
         Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
         if (conf == null) {
           throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
+                  MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
         }
         Path path = new Path(uri);
 
@@ -197,7 +216,7 @@ public class PrepDatasetFileService {
         } catch (IOException e) {
           e.printStackTrace();
           throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, dirUri);
+                  MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, dirUri);
         }
         break;
 
@@ -210,7 +229,7 @@ public class PrepDatasetFileService {
 
       default:
         throw PrepException
-                .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME,
+                .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME,
                         dirUri);
     }
   }
@@ -272,7 +291,8 @@ public class PrepDatasetFileService {
         Cell c = r.getCell(columnIndex);
 
         if (c == null) {
-          if(0<grid.size() && grid.get(0)!=null && columnIndex<grid.get(0).length && grid.get(0)[columnIndex]!=null) {
+          if (grid.size() > 0 && grid.get(0) != null && columnIndex < grid.get(0).length
+                  && grid.get(0)[columnIndex] != null) {
             row.add("");
           } else {
             row.add(null);
@@ -280,11 +300,11 @@ public class PrepDatasetFileService {
           continue;
         }
 
-        String strCellValue = null;
+        String strCellValue;
         Object cellValue = ExcelProcessor.getCellValue(c);
         if (cellValue != null) {
           strCellValue = String.valueOf(cellValue);
-          if (false == strCellValue.isEmpty()) {
+          if (!strCellValue.isEmpty()) {
             not_emtpy++;
           }
         } else {
@@ -293,7 +313,7 @@ public class PrepDatasetFileService {
         row.add(strCellValue);
       }
 
-      if (0 < not_emtpy) {
+      if (not_emtpy > 0) {
         grid.add(row.toArray(new String[row.size()]));
         if (grid.size() >= limitRows) {
           break;
@@ -316,9 +336,7 @@ public class PrepDatasetFileService {
       uri = new URI(storedUri);
     } catch (URISyntaxException e) {
       e.printStackTrace();
-      throw PrepException
-              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX,
-                      storedUri);
+      throw datasetError(MSG_DP_ALERT_MALFORMED_URI_SYNTAX, storedUri);
     }
 
     InputStream is = null;
@@ -332,8 +350,7 @@ public class PrepDatasetFileService {
           hdfsFs = FileSystem.get(conf);
         } catch (IOException e) {
           e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, storedUri);
+          throw datasetError(MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, storedUri);
         }
 
         FSDataInputStream his;
@@ -341,8 +358,7 @@ public class PrepDatasetFileService {
           his = hdfsFs.open(path);
         } catch (IOException e) {
           e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_HDFS_PATH, storedUri);
+          throw datasetError(MSG_DP_ALERT_CANNOT_READ_FROM_HDFS_PATH, storedUri);
         }
 
         is = his;
@@ -355,17 +371,14 @@ public class PrepDatasetFileService {
           fis = new FileInputStream(file);
         } catch (FileNotFoundException e) {
           e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, storedUri);
+          throw datasetError(MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, storedUri);
         }
 
         is = fis;
         break;
 
       default:
-        throw PrepException
-                .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME,
-                        storedUri);
+        throw datasetError(MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, storedUri);
     }
 
     if ("xls".equals(extensionType)) {       // 97~2003
@@ -428,6 +441,7 @@ public class PrepDatasetFileService {
     DataFrame df = new DataFrame("df_for_preview");
     PrepCsvUtil csvUtil = PrepCsvUtil.DEFAULT
             .withDelim(delimiterCol)
+            .withQuoteChar(prepProperties.getQuoteChar())
             .withLimitRows(limitRows)
             .withManualColCnt(columnCount)
             .withHadoopConf(hadoopConf);
@@ -450,9 +464,7 @@ public class PrepDatasetFileService {
       uri = new URI(storedUri);
     } catch (URISyntaxException e) {
       e.printStackTrace();
-      throw PrepException
-              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX,
-                      storedUri);
+      throw datasetError(MSG_DP_ALERT_MALFORMED_URI_SYNTAX, storedUri);
     }
 
     switch (uri.getScheme()) {
@@ -465,9 +477,7 @@ public class PrepDatasetFileService {
         break;
 
       default:
-        throw PrepException
-                .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME,
-                        storedUri);
+        throw datasetError(MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, storedUri);
     }
 
   }
@@ -510,8 +520,7 @@ public class PrepDatasetFileService {
       }
     } catch (IOException e) {
       e.printStackTrace();
-      throw PrepException
-              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNKOWN_ERROR, storedUri);
+      throw datasetError(MSG_DP_ALERT_UNKOWN_ERROR, storedUri);
     } catch (TeddyException e) {
       e.printStackTrace();
       throw PrepException.fromTeddyException(e);
@@ -525,7 +534,7 @@ public class PrepDatasetFileService {
     DataFrame dataFrame = null;
 
     if (dataset == null) {
-      throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET);
+      throw dataflowError(PrepMessageKey.MSG_DP_ALERT_NO_DATASET);
     }
 
     assert dataset.getImportType() == PrDataset.IMPORT_TYPE.UPLOAD
@@ -584,8 +593,7 @@ public class PrepDatasetFileService {
     String fileName = uploadFile.getFilename();
     String extensionType = FilenameUtils.getExtension(fileName);
     if (extensionType == null || extensionType.isEmpty() == true) {
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG,
-              "need a extension of filename");
+      throw datasetError(MSG_DP_ALERT_FILE_FORMAT_WRONG, "need a extension of filename");
     }
 
     if (uploadFile.getStorageType() == PrUploadFile.STORAGE_TYPE.LOCAL) {
@@ -595,15 +603,11 @@ public class PrepDatasetFileService {
     } else if (uploadFile.getStorageType() == PrUploadFile.STORAGE_TYPE.S3) {
       storedUri = this.getPathS3Base(fileName);
     } else {
-      throw PrepException
-              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME,
-                      uploadFile.getStorageType() + " is not supported");
+      throw datasetError(MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, uploadFile.getStorageType() + " is not supported");
     }
 
     if (storedUri == null) {
-      throw PrepException
-              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME,
-                      "cannot make the storedUri: " + uploadFile.toString());
+      throw datasetError(MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, "cannot make the storedUri: " + uploadFile.toString());
     }
 
     return storedUri;
@@ -642,8 +646,7 @@ public class PrepDatasetFileService {
 
         if (offset < 0 || uploadFile.getFileSize() < offset + byteCnt) {
           // index error
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_LOCAL_PATH, "out of bound");
+          throw datasetError(MSG_DP_ALERT_CANNOT_WRITE_TO_LOCAL_PATH, "out of bound");
         }
         och.write(ByteBuffer.wrap(buffer, 0, byteCnt), offset);
         offset = offset + byteCnt;
@@ -818,17 +821,14 @@ public class PrepDatasetFileService {
       uri = new URI(storedUri);
     } catch (URISyntaxException e) {
       e.printStackTrace();
-      throw PrepException
-              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX,
-                      storedUri);
+      throw datasetError(MSG_DP_ALERT_MALFORMED_URI_SYNTAX, storedUri);
     }
 
     switch (uri.getScheme()) {
       case "hdfs":
         Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
         if (conf == null) {
-          throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
+          throw configError(MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
         }
         Path path = new Path(uri);
 
@@ -837,8 +837,7 @@ public class PrepDatasetFileService {
           hdfsFs = FileSystem.get(conf);
         } catch (IOException e) {
           e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, storedUri);
+          throw datasetError(MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, storedUri);
         }
 
         FSDataInputStream his;
@@ -846,8 +845,7 @@ public class PrepDatasetFileService {
           his = hdfsFs.open(path);
         } catch (IOException e) {
           e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_HDFS_PATH, storedUri);
+          throw datasetError(MSG_DP_ALERT_CANNOT_READ_FROM_HDFS_PATH, storedUri);
         }
 
         is = his;
@@ -861,17 +859,14 @@ public class PrepDatasetFileService {
           fis = new FileInputStream(file);
         } catch (FileNotFoundException e) {
           e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, storedUri);
+          throw datasetError(MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, storedUri);
         }
 
         is = fis;
         break;
 
       default:
-        throw PrepException
-                .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME,
-                        storedUri);
+        throw datasetError(MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, storedUri);
     }
 
     return is;
@@ -886,17 +881,14 @@ public class PrepDatasetFileService {
       uri = new URI(storedUri);
     } catch (URISyntaxException e) {
       e.printStackTrace();
-      throw PrepException
-              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX,
-                      storedUri);
+      throw datasetError(MSG_DP_ALERT_MALFORMED_URI_SYNTAX, storedUri);
     }
 
     switch (uri.getScheme()) {
       case "hdfs":
         Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
         if (conf == null) {
-          throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
+          throw configError(MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
         }
         Path path = new Path(uri);
 
@@ -905,8 +897,7 @@ public class PrepDatasetFileService {
           hdfsFs = FileSystem.get(conf);
         } catch (IOException e) {
           e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, storedUri);
+          throw datasetError(MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, storedUri);
         }
 
         FSDataOutputStream hos;
@@ -914,8 +905,7 @@ public class PrepDatasetFileService {
           hos = hdfsFs.create(path);
         } catch (IOException e) {
           e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_HDFS_PATH, storedUri);
+          throw datasetError(MSG_DP_ALERT_CANNOT_READ_FROM_HDFS_PATH, storedUri);
         }
 
         os = hos;
@@ -929,17 +919,14 @@ public class PrepDatasetFileService {
           fos = new FileOutputStream(file);
         } catch (FileNotFoundException e) {
           e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, storedUri);
+          throw datasetError(MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, storedUri);
         }
 
         os = fos;
         break;
 
       default:
-        throw PrepException
-                .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME,
-                        storedUri);
+        throw datasetError(MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, storedUri);
     }
 
     osw = new OutputStreamWriter(os);
