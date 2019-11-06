@@ -219,9 +219,11 @@ public class TeddyFileService {
               if (colType == ColumnType.BOOLEAN || colType == ColumnType.DOUBLE || colType == ColumnType.LONG) {
                 value = row.get(colno).toString();
               } else if (df.getColType(colno).equals(ColumnType.TIMESTAMP)) {
-                value = "\"" + ((DateTime) row.get(colno)).toString(df.getColTimestampStyle(colno), Locale.ENGLISH) + "\"";
+                value = ((DateTime) row.get(colno)).toString(df.getColTimestampStyle(colno), Locale.ENGLISH);
+                value = "\"" + StringEscapeUtils.escapeSql(value) + "\"";
               } else {
-                value = "\"" + row.get(colno).toString() + "\"";
+                value = row.get(colno).toString();
+                value = "\"" + StringEscapeUtils.escapeSql(value) + "\"";
               }
             } catch (Exception e) {
               value = null; // casting failure
