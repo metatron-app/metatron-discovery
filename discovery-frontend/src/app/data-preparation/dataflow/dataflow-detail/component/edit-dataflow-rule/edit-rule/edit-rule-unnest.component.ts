@@ -89,7 +89,7 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
     // surround idx with single quotation
     let clonedSelVal:string;
     let check = StringUtil.checkSingleQuote(this.selVal, { isWrapQuote: true });
-    if (check[0] === false) {
+    if (check[0] === false && check[1] !== "" ) {
       Alert.warning(this.translateService.instant('Check element value'));
       return undefined;
     } else {
