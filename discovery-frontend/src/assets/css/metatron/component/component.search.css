@@ -80,6 +80,7 @@
 .ddp-select-search .ddp-box-layout4 {display:none; position:absolute; top:100%; left:-30px;}
 .ddp-select-search.ddp-selected .ddp-box-layout4 {display:block; z-index:20;}
 .ddp-select-search.ddp-selected a.ddp-ui-search2 {text-decoration:underline;}
+.ddp-select-search.ddp-selected a.ddp-ui-search2.type-underline-none {text-decoration:none;}
 .ddp-select-search.ddp-selected .ddp-ui-search2 span.ddp-icon-search {background-color:#e3e3e8;}
 .ddp-type-search.type-box {border:1px solid #d0d1d8; border-radius:2px; padding-left:35px; box-sizing:border-box;}
 .ddp-type-search.type-box:before {left:12px;}

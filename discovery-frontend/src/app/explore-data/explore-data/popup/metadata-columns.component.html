@@ -92,9 +92,9 @@
                  (mouseleave)="onHideDictionary(column)"
                   #dictionary>
               <a href="javascript:"
-                 class="ddp-txt-link">{{column.dictionary? column.dictionary.name : '-'}}</a>
+                 class="ddp-txt-link type-underline-none ddp-txt-long">{{column.dictionary? column.dictionary.name : '-'}}</a>
               <div class="ddp-box-layout4 ddp-pop-fix type-dictionary" #dictionaryPreview>
-                <div class="ddp-data-title">
+                <div class="ddp-data-title ddp-txt-long" title="{{column.dictionary && column.dictionary.name}}">
                   {{column.dictionary && column.dictionary.name}}
                 </div>
                 <div class="ddp-data-code">
@@ -140,13 +140,14 @@
                 (mouseleave)="onHideCodeTable(column)"
                 [ngClass]="{'ddp-selected': column['isShowCodeTable']}"
                 #codeTable>
-              <a href="javascript:" class="ddp-ui-search2">
-                {{column.codeTable? column.codeTable.name : '-'}}
-              </a>
+              <a href="javascript:" class="ddp-txt-link type-underline-none ddp-txt-long">{{column.codeTable? column.codeTable.name : '-'}}</a>
               <div class="ddp-box-layout4 ddp-pop-fix"
                    #codeTablePreview
                    style="top: 343px; left: 1284px;">
-                <div class="ddp-data-title type-long"> {{column.codeTable? column.codeTable.name : '-'}} </div>
+                <div class="ddp-data-title type-long ddp-txt-long"
+                     title="{{column.codeTable? column.codeTable.name : '-'}}">
+                  {{column.codeTable? column.codeTable.name : '-'}}
+                </div>
                 <div class="ddp-data-code ddp-size">
                   <table class="ddp-table-code">
                     <colgroup>
@@ -156,23 +157,11 @@
                     <tbody>
                     <tr *ngFor="let item of codeTableDetailList | slice:0:10">
                       <td>
-                        <span class="ddp-txt-long">{{item.code}}</span>
-                        <!-- tooltip -->
-                        <div class="ddp-ui-tooltip-info">
-                          <em class="ddp-icon-view-top"></em>
-                          {{item.code}}
-                        </div>
-                        <!-- //tooltip -->
+                        <span class="ddp-txt-long" title="{{item.code}}">{{item.code}}</span>
                       </td>
 
                       <td>
-                        <span class="ddp-txt-long">{{item.value}}</span>
-                        <!-- tooltip -->
-                        <div class="ddp-ui-tooltip-info">
-                          <em class="ddp-icon-view-top"></em>
-                          {{item.value}}
-                        </div>
-                        <!-- //tooltip -->
+                        <span class="ddp-txt-long" title="{{item.value}}">{{item.value}}</span>
                       </td>
                     </tr>
                     </tbody>

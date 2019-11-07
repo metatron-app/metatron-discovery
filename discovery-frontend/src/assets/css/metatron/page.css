@@ -9663,6 +9663,7 @@ table.ddp-table-type2 tbody tr td .ddp-pop-select .ddp-table-pop tr td,
 table.ddp-table-type2 tbody tr td .ddp-pop-select .ddp-table-pop tr:nth-child(odd) td{background:none !important;}
 table.ddp-table-type2 tbody tr td .ddp-pop-select .ddp-txt-link {font-weight:bold;}
 table.ddp-table-type2 tbody tr td .ddp-pop-select.ddp-selected .ddp-txt-link {text-decoration:underline;}
+table.ddp-table-type2 tbody tr td .ddp-pop-select.ddp-selected .ddp-txt-link.type-underline-none {text-decoration:none;}
 table.ddp-table-type2 tbody tr td .ddp-pop-select .ddp-box-layout4.type-dictionary {width:300px; max-height:300px; overflow:auto;}
 table.ddp-table-type2 tbody tr td .ddp-box-hover {display:inline-block;}
 table.ddp-table-type2 tbody tr td .ddp-box-hover a {display:inline-block; position:relative; color:#4b525b; font-size:12px; text-decoration:underline; font-style:italic;}

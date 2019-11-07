@@ -304,17 +304,15 @@
                (mouseenter)="onHoverDictionary(column, index)">
             <a href="javascript:"
                class="ddp-ui-search2"
-
-               (click)="onClickDictionary(column.dictionary)">
+               (click)="onClickSearchDictionary(column)">
               {{column.dictionary ? column.dictionary.logicalName : ''}}
               <span class="ddp-icon-search"
                     (mouseenter)="column['isShowDictionary'] = false"
-                    (click)="onClickSearchDictionary(column)">
+                    >
               </span>
             </a>
             <div class="ddp-box-layout4 ddp-pop-fix type-dictionary" #dictionaryPreview>
-              <a href="javascript:" class="ddp-btn-close" (click)="column['isShowDictionary'] = false"></a>
-              <div class="ddp-data-title">
+              <div class="ddp-data-title ddp-txt-long" title="{{column.dictionary && column.dictionary.name}}">
                 {{column.dictionary && column.dictionary.name}}
               </div>
               <div class="ddp-data-code">
@@ -478,23 +476,19 @@
                (clickOutside)="column['codeTableShowFl'] = false">
             <a
               href="javascript:"
-              (click)="onClickCodeTableDetails(column.codeTable)"
-              class="ddp-ui-search2">
+              (click)="onClickSearchCodeTable(column)"
+              class="ddp-ui-search2"
+              [class.type-underline-none]="isSelectedMetadataColumnInColumnDictionaryDefined(column)">
               {{column.codeTable ? column.codeTable.name : ''}}
               <span class="ddp-icon-search"
-                    [class.ddp-disabled]="isSelectedMetadataColumnInColumnDictionaryDefined(column)"
-                    (mouseenter)="onHideCodeTable(column)"
-                    (click)="onClickSearchCodeTable(column)">
+                    [class.ddp-disabled]="isSelectedMetadataColumnInColumnDictionaryDefined(column)">
               </span>
             </a>
             <!-- hover -->
             <!--suppress JSUnusedGlobalSymbols -->
             <div class="ddp-box-layout4 ddp-pop-fix"
                  #codeTablePreview>
-              <a href="javascript:"
-                 class="ddp-btn-close"
-                 (click)="column['codeTableShowFl'] = false"></a>
-              <div class="ddp-data-title">
+              <div class="ddp-data-title ddp-txt-long" title="{{ column.codeTable && column.codeTable.name }}">
                 {{ column.codeTable && column.codeTable.name }}
               </div>
               <div class="ddp-data-code ddp-size"
@@ -508,22 +502,10 @@
                   <tbody>
                   <tr *ngFor="let pair of getTableCodePair(column.codeTable.id)">
                     <td>
-                      <span class="ddp-txt-long">{{pair.code}}</span>
-                      <!-- tooltip -->
-                      <div class="ddp-ui-tooltip-info">
-                        <em class="ddp-icon-view-top"></em>
-                        {{pair.code}}
-                      </div>
-                      <!-- //tooltip -->
+                      <span class="ddp-txt-long" title="{{pair.code}}">{{pair.code}}</span>
                     </td>
                     <td>
-                      <span class="ddp-txt-long">{{pair.value}}</span>
-                      <!-- tooltip -->
-                      <div class="ddp-ui-tooltip-info">
-                        <em class="ddp-icon-view-top"></em>
-                        {{pair.value}}
-                      </div>
-                      <!-- //tooltip -->
+                      <span class="ddp-txt-long" title="{{pair.value}}">{{pair.value}}</span>
                     </td>
                   </tr>
                   </tbody>

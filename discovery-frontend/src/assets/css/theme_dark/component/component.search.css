@@ -462,6 +462,7 @@
 .theme-dark .ddp-select-search.ddp-selected a.ddp-ui-search2 {
     text-decoration: underline;
 }
+.theme-dark .ddp-select-search.ddp-selected a.ddp-ui-search2.type-underline-none {text-decoration:none;}
 
 .theme-dark .ddp-select-search.ddp-selected .ddp-ui-search2 span.ddp-icon-search {
     background-color: #e3e3e8;
