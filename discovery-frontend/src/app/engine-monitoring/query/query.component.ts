@@ -70,7 +70,6 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
 
   public ngOnInit() {
     super.ngOnInit();
-    this.loadingHide();
 
     this.subscriptions.push(
       this.stateService.changeTab$
@@ -116,6 +115,7 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
       })
       .catch(error => this.commonExceptionHandler(error));
 
+    this.loadingHide();
   }
 
   public ngAfterViewInit() {
@@ -264,10 +264,14 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
     const filterParam = this.criterionComponent.getSearchParams();
     filterParam['key'] = this.selectedContentSort.key;
     filterParam['sort'] = this.selectedContentSort.sort === 'asc' ? 'asc' : 'desc';
+    this.loadingShow();
     // if search keyword not empty
     this.engineService.getQueryList(filterParam).then((data) => {
+      this.loadingHide();
       this.queryTotalList = data;
       this._getQueryPagingList();
+    }).catch(() => {
+      this.loadingHide();
     })
   }
 
