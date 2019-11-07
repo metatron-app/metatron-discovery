@@ -30,7 +30,7 @@ export class DataSnapshotService extends AbstractService {
     super(injector);
   }
 
-  private _baseUrl: string = this.API_URL + '/preparationsnapshots/';
+  private _baseUrl: string = this.API_URL + 'preparationsnapshots/';
 
 
   /**
@@ -170,6 +170,8 @@ export class DataSnapshotService extends AbstractService {
       mineType = 'application/csv';
     } else if (fileFormat === 'json'){
       mineType = 'application/json';
+    } else if (fileFormat === 'sql'){
+      mineType = 'text/plain';
     }
 
     let headers = new HttpHeaders({
@@ -185,7 +187,7 @@ export class DataSnapshotService extends AbstractService {
 
     return this.http.get(`${this._baseUrl}${ssId}/download?fileType=`+fileFormat, option)
       .map((res) => {
-        return new Blob([res], { type: 'application/csv' })
+        return new Blob([res], { type: mineType })
       });
   }
 

@@ -835,6 +835,7 @@
   "msg.dp.alert.ss.require.output-path": "需要Output路径",
   "msg.dp.alert.ss.require.table-name": "需要表名称",
   "msg.dp.alert.ss.require.file-uri" : "文件URI是必需的",
+  "msg.dp.alert.ss.not.support.sql" : "SQL format is only supported in the embedded engine",
   "msg.dp.alert.ss.sel.format": "请选择公式",
   "msg.dp.alert.stagingdb.connection.error": "Staging DB访问失败",
   "msg.dp.alert.success.create.ss": "已生成数据快照",

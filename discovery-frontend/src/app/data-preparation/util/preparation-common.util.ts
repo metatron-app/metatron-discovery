@@ -377,6 +377,25 @@ export class PreparationCommonUtil {
   } // user friendly import type name
 
 
+  /**
+   * returns file extension for snapshot
+   * @param {string} fileName
+   * @returns {string} extension
+   * @private
+   */
+  public static getExtensionForSnapshot(fileName: string) : string {
+
+    const val = new RegExp(/^.*\.(csv|sql|txt|json)$/).exec(fileName);
+
+    if (isNullOrUndefined(val)) {
+      return 'csv';
+    }
+
+    return val[1];
+
+  }
+
+
 
   /**
    * returns file extension and file name

@@ -14,22 +14,8 @@
 
 package app.metatron.discovery.domain.dataprep.service;
 
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_NO_SNAPSHOT;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_SNAPSHOT_SHOULD_BE_MADE_BY_TRANSFORM;
-import static app.metatron.discovery.domain.dataprep.util.PrepUtil.snapshotError;
-
-import app.metatron.discovery.domain.dataprep.PrepProperties;
-import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
-import app.metatron.discovery.domain.dataprep.entity.PrSnapshotProjections;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
 import com.google.common.collect.Maps;
-import java.util.List;
-import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +32,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import app.metatron.discovery.domain.dataprep.PrepProperties;
+import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
+import app.metatron.discovery.domain.dataprep.entity.PrSnapshotProjections;
+import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
+
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_NO_SNAPSHOT;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_SNAPSHOT_SHOULD_BE_MADE_BY_TRANSFORM;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.snapshotError;
 
 @RequestMapping(value = "/preparationsnapshots")
 @RepositoryRestController
@@ -160,7 +161,13 @@ public class PrSnapshotController {
     try {
       String downloadFileName = this.snapshotService.downloadSnapshotFile(ssId, response, fileType);
       response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", downloadFileName));
-      response.setContentType("text/csv; charset=utf-8");
+      if(fileType.equalsIgnoreCase("csv")) {
+        response.setContentType("application/csv; charset=utf-8");
+      } else if(fileType.equalsIgnoreCase("json")) {
+        response.setContentType("application/json; charset=utf-8");
+      } else {
+        response.setContentType("text/plain; charset=utf-8");
+      }
       response.setCharacterEncoding("UTF-8");
 
     } catch (Exception e) {
