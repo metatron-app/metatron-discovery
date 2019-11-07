@@ -54,7 +54,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
 
   public selectedTimestamp : string = '';
   public selectedType : string = '';
-  public typeList : string [] = ['long', 'double', 'string', 'boolean', 'timestamp'];
+  public typeList : string [] = ['long', 'double', 'string', 'boolean', 'timestamp', 'map', 'array'];
 
   public defaultIndex : number = -1;
 

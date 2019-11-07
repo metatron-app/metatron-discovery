@@ -132,7 +132,9 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
               {label : 'Double', value : 'Double', command : 'settype'},
               {label : 'Boolean', value : 'Boolean', command : 'settype'},
               {label : 'Timestamp', value : 'Timestamp', command : 'settype', disabled : this.originalSelectedColIds.length === 1? this.contextInfo.columnType === 'TIMESTAMP' : isAllTimestampTypes },
-              {label : 'String', value : 'String', command : 'settype'}
+              {label : 'String', value : 'String', command : 'settype'},
+              {label : 'Map', value : 'Map', command : 'settype'},
+              {label : 'Array', value : 'Array', command : 'settype'}
             ]
           },
           {label : 'Set format', value : 'setformat', command: 'setformat', disabled : this.originalSelectedColIds.length === 1? this.contextInfo.columnType !== 'TIMESTAMP' : isSetformatDisable },
