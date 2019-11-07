@@ -426,6 +426,16 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
    */
   protected apply(initFl: boolean = true): void {
 
+    if( this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('customChartOption') ) {
+      let strScript = '(' + this.userCustomFunction + ')';
+      // ( new Function( 'return ' + strScript ) )();
+      try {
+        this.chartOption = eval( strScript )(this.chartOption);
+      } catch (e) {
+        console.error( e );
+      }
+    }
+
     this.chart.setOption(this.chartOption, true, false);
 
     // set connect

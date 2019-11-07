@@ -1722,7 +1722,7 @@
   "msg.board.unload.desc" : "We can not draw your dashboard for an unknown reason.<br>Please try again",
   "msg.board.ui.cant-not-down-aggregate" : "Original view cannot be supported for custom columns with aggregate functions",
   "msg.board.error.deny-datasource" : "Datasource({{datasource}}) usages is not allowed.",
-
+  "msg.board.ui.custom-action" : "Event Trigger",
   "msg.storage.btn.create.dsource": "Create new datasource",
   "msg.storage.ui.dsource.search.description": "Search by name of datasource",
   "msg.storage.th.allowance":"Allowance",

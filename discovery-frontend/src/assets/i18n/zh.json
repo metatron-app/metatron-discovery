@@ -1607,7 +1607,7 @@
   "msg.board.unload.desc": "未知原因不可调出dashboard，<br>请再次尝试",
   "msg.board.ui.cant-not-down-aggregate": "因存在包含合计函数的列，不支持查看原件",
   "msg.board.error.deny-datasource" : "不允许使用数据源。({{datasource}})",
-
+  "msg.board.ui.custom-action" : "Event Trigger",
   "msg.storage.btn.create.dsource": "创建新数据源",
   "msg.storage.ui.dsource.search.description": "以数据源名称搜索",
   "msg.storage.th.allowance": "是否允许",

@@ -140,6 +140,19 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
     this.chart.off('click');
     this.chart.on('click', (params) => {
 
+      if( this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('customClick') ) {
+        let strScript = '(' + this.userCustomFunction + ')';
+        strScript = strScript.replace( /\[item.name\]/gi, '"'+ params.name +'"' );
+        // ( new Function( 'return ' + strScript ) )();
+        try {
+          if( eval( strScript )(params.name) ) {
+            return;
+          }
+        } catch (e) {
+          console.error( e );
+        }
+      }
+
       let selectMode: ChartSelectMode;
       let selectedColValues: string[] = [];
       let selectedRowValues: string[] = [];

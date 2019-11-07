@@ -201,6 +201,9 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   @Input()
   public isUpdateRedraw: boolean = true;
 
+  @Input()
+  public userCustomFunction;
+
   // 고급분석
   public analysis: analysis = null;
 
@@ -1414,6 +1417,16 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       }
     }
 
+    if( this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('customChartOption') ) {
+      let strScript = '(' + this.userCustomFunction + ')';
+      // ( new Function( 'return ' + strScript ) )();
+      try {
+        this.chartOption = eval( strScript )(this.chartOption);
+      } catch (e) {
+        console.error( e );
+      }
+    }
+
     // Apply!
     // chart.setOption(option, notMerge, lazyUpdate);
     this.chart.setOption(this.chartOption, false, false);
@@ -2446,6 +2459,19 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   public addChartSelectEventListener(): void {
     this.chart.off('click');
     this.chart.on('click', (params) => {
+
+      if( this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('customClick') ) {
+        let strScript = '(' + this.userCustomFunction + ')';
+        strScript = strScript.replace( /\[item.name\]/gi, '"'+ params.name +'"' );
+        // ( new Function( 'return ' + strScript ) )();
+        try {
+          if( eval( strScript )(params.name) ) {
+            return;
+          }
+        } catch (e) {
+          console.error( e );
+        }
+      }
 
       let selectMode: ChartSelectMode;
       let selectedColValues: string[];

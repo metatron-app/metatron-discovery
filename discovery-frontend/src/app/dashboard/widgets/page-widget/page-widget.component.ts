@@ -101,6 +101,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   @ViewChild(DataDownloadComponent)
   private _dataDownComp: DataDownloadComponent;
 
+  @ViewChild('userFuncInput')
+  private _userFuncInput:ElementRef;
+
   // 프로세스 실행 여부
   private _isDuringProcess: boolean = false;
 
@@ -133,6 +136,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public userCustomFunction: string;
 
   public widget: PageWidget = new PageWidget();
   public parentWidget: Widget;
@@ -152,6 +156,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public isShowDownloadPopup: boolean = false;    // 다운로드 팝업 표시 여부
   public duringDataDown: boolean = false;         // 데이터 다운로드 진행 여부
   public duringImageDown: boolean = false;        // 이미지 다운로드 진행 여부
+  public isShowEvtTriggerEditor:boolean = false;
 
   // Limit 정보
   public limitInfo: ChartLimitInfo = {id: '', isShow: false, currentCnt: 0, maxCnt: 0};
@@ -750,6 +755,12 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - for Header
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public saveUserFunc() {
+    this.userCustomFunction = $( this._userFuncInput.nativeElement ).val();
+    this.isShowEvtTriggerEditor = false;
+    this._search();
+  } // function - saveUserFunc
+
   /**
    * 데이터소스 이름 조회
    * @return {string}
