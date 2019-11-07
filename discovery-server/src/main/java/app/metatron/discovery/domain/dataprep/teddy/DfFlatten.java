@@ -14,10 +14,13 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.InvalidJsonException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.WorksOnlyOnArrayException;
 import app.metatron.discovery.prep.parser.preparation.rule.Flatten;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -69,27 +72,32 @@ public class DfFlatten extends DataFrame {
 
     LOGGER.trace("DfFlatten.gather(): start: offset={} length={} targetColno={}", offset, length, targetColno);
 
-    for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
-      Row row = prevDf.rows.get(rowno);
-      ArrayList targetObj = (ArrayList) row.get(targetColno);
-      if (targetObj == null) {
-        continue;
-      }
-
-      for (Object obj : targetObj) {
-        String value = obj.toString();
-        Row newRow = new Row();
-        for (int colno = 0; colno < prevDf.getColCnt(); colno++) {
-          String colName = prevDf.getColName(colno);
-
-          if (colno == targetColno) {
-            newRow.add(colName, value);
-          } else {
-            newRow.add(colName, row.get(colno));
-          }
+    try {
+      for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
+        Row row = prevDf.rows.get(rowno);
+        String str = (String) row.get(targetColno);
+        if (str == null) {
+          continue;
         }
-        rows.add(newRow);
+        List<Object> list = GlobalObjectMapper.getDefaultMapper().readValue(str, List.class);
+
+        for (Object obj : list) {
+          Row newRow = new Row();
+          for (int colno = 0; colno < prevDf.getColCnt(); colno++) {
+            String colName = prevDf.getColName(colno);
+
+            if (colno == targetColno) {
+              newRow.add(colName, obj);
+            } else {
+              newRow.add(colName, row.get(colno));
+            }
+          }
+          rows.add(newRow);
+        }
       }
+    } catch (IOException e) {
+      LOGGER.error("DfFlatten.gather():", e);
+      throw new InvalidJsonException(e.getMessage());
     }
 
     LOGGER.trace("DfFlatten.gather(): done: offset={} length={} targetColno={}", offset, length, targetColno);
