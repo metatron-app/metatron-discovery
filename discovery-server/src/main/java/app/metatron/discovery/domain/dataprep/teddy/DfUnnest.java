@@ -14,17 +14,17 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.IdxOnMapTypeShouldBeStringException;
+import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.InvalidIndexTypeException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.InvalidJsonException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.WorksOnlyOnArrayOrMapException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongArrayIndexException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongMapKeyException;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.Unnest;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant.StringExpr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -45,66 +45,42 @@ public class DfUnnest extends DataFrame {
     Unnest unnest = (Unnest) rule;
 
     String targetColName = unnest.getCol();
-    int targetColno;
-    Expression idx = unnest.getIdx(); // constant numeric, literal, numeric as literal  --> 정작 array가 필요
+    Expression idx = unnest.getIdx();
 
-    targetColno = prevDf.getColnoByColName(targetColName);
-    if (prevDf.getColType(targetColno) != ColumnType.ARRAY && prevDf.getColType(targetColno) != ColumnType.MAP) {
-      throw new WorksOnlyOnArrayOrMapException(
-              "doUnnest(): works only on ARRAY/MAP: " + prevDf.getColType(targetColno));
+    if (!(idx instanceof Constant.StringExpr)) {
+      throw new InvalidIndexTypeException("doUnnest(): invalid index type: " + idx.toString());
     }
 
-    int arrayIdx = -1;
-    String mapKey = null;   // if null -> array
-    String newColName;
-    ColumnDescription colDesc = prevDf.getColDesc(targetColno);
-    ColumnDescription newColDesc;
+    String targetKey = null;
+    Integer targetIdx = null;
 
-    if (prevDf.getColType(targetColno) == ColumnType.ARRAY) {
-      // 컬럼이름은 언제나 unnest_0
-      // row별로 fetch는 arrayIdx로
-      if (idx instanceof Constant.StringExpr) {   // supports StringExpr for backward-compatability
-        arrayIdx = Integer.valueOf(((Constant.StringExpr) idx).getEscapedValue());
-      } else if (idx instanceof Constant.LongExpr) {
-        arrayIdx = ((Long) ((Constant.LongExpr) idx).getValue()).intValue();
-      } else {
-        throw new InvalidIndexTypeException("doUnnest(): invalid index type: " + idx.toString());
-      }
-      newColName = modifyDuplicatedColName("unnest_" + arrayIdx);
-    } else {
-      // row별로 fetch는 mapKey로, 컬럼이름은 mapKey를 기존컬럼과 안겹치게 변형한 것
-      if (idx instanceof Identifier.IdentifierExpr) {
-        throw new IdxOnMapTypeShouldBeStringException(
-                "doUnnest(): idx on MAP type should be STRING (maybe, this is a column name): "
-                        + ((Identifier.IdentifierExpr) idx).getValue());
-      } else if (idx instanceof Constant.StringExpr) {
-        mapKey = ((Constant.StringExpr) idx).getEscapedValue();
-        if (mapKey.startsWith("`") && mapKey.endsWith("`")) {
-          mapKey = mapKey.substring(1, mapKey.length() - 1);
-        }
-        newColName = modifyDuplicatedColName("unnest_" + mapKey);
-      } else {
-        throw new IdxOnMapTypeShouldBeStringException(
-                "doUnnest(): idx on MAP type should be STRING: " + idx.toString());
-      }
+    int targetColno = prevDf.getColnoByColName(targetColName);
+    ColumnType prevType = prevDf.getColType(targetColno);
+
+    String idxEscaped = ((StringExpr) idx).getEscapedValue();
+    String newColName = modifyDuplicatedColName(prevDf.getColName(targetColno) + "_" + idxEscaped);
+
+    switch (prevType) {
+      case MAP:
+        targetKey = idxEscaped;
+        break;
+      case ARRAY:
+        targetIdx = Integer.valueOf(idxEscaped);
+        break;
+      default:
+        throw new WorksOnlyOnArrayOrMapException("doUnnest(): works only on ARRAY/MAP: " + prevType);
     }
 
     addColumnWithDfAll(prevDf);
-
-    if (mapKey == null) {
-      newColDesc = colDesc.getArrColDesc().get(arrayIdx);
-    } else {
-      newColDesc = colDesc.getMapColDesc().get(mapKey);
-    }
-    assert newColDesc != null : prevDf.getColName(targetColno);
-    newColName = addColumn(targetColno + 1, newColName, newColDesc);
+    addColumn(targetColno + 1, newColName, ColumnType.STRING);   // Converted into a proper type later (auto-typing)
 
     newColNames.add(newColName);
     interestedColNames.add(newColName);
 
     preparedArgs.add(targetColno);
-    preparedArgs.add(mapKey);
-    preparedArgs.add(arrayIdx);
+    preparedArgs.add(prevType);
+    preparedArgs.add(targetKey);
+    preparedArgs.add(targetIdx);
     preparedArgs.add(newColName);
     return preparedArgs;
   }
@@ -114,51 +90,51 @@ public class DfUnnest extends DataFrame {
           throws InterruptedException, TeddyException {
     List<Row> rows = new ArrayList<>();
     int targetColno = (int) preparedArgs.get(0);
-    String mapKey = (String) preparedArgs.get(1);
-    int arrayIdx = (int) preparedArgs.get(2);
-    String newColName = (String) preparedArgs.get(3);
-    int colno;
+    ColumnType prevType = (ColumnType) preparedArgs.get(1);
+    String targetKey = (String) preparedArgs.get(2);
+    Integer targetIdx = (Integer) preparedArgs.get(3);
+    String newColName = (String) preparedArgs.get(4);
 
-    LOGGER.trace("DfUnnest.gather(): start: offset={} length={} newColName={}", offset, length, newColName);
+    LOGGER.debug("DfUnnest.gather(): start: offset={} length={} newColName={}", offset, length, newColName);
 
     for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
       Row row = prevDf.rows.get(rowno);
       Row newRow = new Row();
 
-      // 목적 컬럼까지만 추가
-      for (colno = 0; colno <= targetColno; colno++) {
+      // Add columns before the new one.
+      for (int colno = 0; colno <= targetColno; colno++) {
         newRow.add(prevDf.getColName(colno), row.get(colno));
       }
 
-      // 새 컬럼 추가
-      if (mapKey == null) {
-        List arr = (List) row.get(targetColno);
-        if (arrayIdx >= arr.size()) {
-          throw new WrongArrayIndexException(
-                  String.format("doUnnest(): arrayIdx > array length: idx=%d len=%d rowno=%d", arrayIdx, arr.size(),
-                          rowno));
+      String jsonStr = (String) row.get(targetColno);
+
+      // Add the new column.
+      try {
+        switch (prevType) {
+          case MAP:
+            Map<String, Object> map = GlobalObjectMapper.getDefaultMapper().readValue(jsonStr, Map.class);
+            Object obj = map.get(targetKey);
+            newRow.add(newColName, obj);
+            break;
+          case ARRAY:
+            List<Object> list = GlobalObjectMapper.getDefaultMapper().readValue(jsonStr, List.class);
+            obj = targetIdx < list.size() ? list.get(targetIdx) : null;
+            newRow.add(newColName, obj);
         }
-        Object obj = arr.get(arrayIdx);
-        newRow.add(newColName, obj);
-      } else {
-        Map<String, Object> map = (Map<String, Object>) row.get(targetColno);
-        if (!map.containsKey(mapKey)) {
-          throw new WrongMapKeyException("doUnnest(): the map value does not have the requested key: " + mapKey);
-        }
-        Object obj = map.get(mapKey);
-        newRow.add(newColName, obj);
+      } catch (IOException e) {
+        LOGGER.warn("DfUnnest.gather(): cannot deserialize array/map type value", e);
+        throw new InvalidJsonException(e.getMessage());
       }
 
-      // 나머지 추가
-      for (colno = targetColno + 1; colno < prevDf.getColCnt(); colno++) {
+      // Add the rest.
+      for (int colno = targetColno + 1; colno < prevDf.getColCnt(); colno++) {
         newRow.add(prevDf.getColName(colno), row.get(colno));
       }
 
       rows.add(newRow);
     }
 
-    LOGGER.trace("DfUnnest.gather(): end: offset={} length={} newColName={}", offset, length, newColName);
+    LOGGER.debug("DfUnnest.gather(): end: offset={} length={} newColName={}", offset, length, newColName);
     return rows;
   }
 }
-

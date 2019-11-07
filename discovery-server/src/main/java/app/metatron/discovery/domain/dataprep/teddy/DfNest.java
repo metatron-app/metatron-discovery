@@ -106,15 +106,15 @@ public class DfNest extends DataFrame {
           for (String colName : targetColNames) {
             arr.add(row.get(colName));
           }
-          String str = GlobalObjectMapper.getDefaultMapper().writeValueAsString(arr);
-          newRow.add(newColName, str);
+          String jsonStr = GlobalObjectMapper.getDefaultMapper().writeValueAsString(arr);
+          newRow.add(newColName, jsonStr);
         } else {
           Map<String, Object> map = new TreeMap();
           for (String colName : targetColNames) {
             map.put(colName, row.get(colName));
           }
-          String str = GlobalObjectMapper.getDefaultMapper().writeValueAsString(map);
-          newRow.add(newColName, str);
+          String jsonStr = GlobalObjectMapper.getDefaultMapper().writeValueAsString(map);
+          newRow.add(newColName, jsonStr);
         }
 
         // Add the rest columns

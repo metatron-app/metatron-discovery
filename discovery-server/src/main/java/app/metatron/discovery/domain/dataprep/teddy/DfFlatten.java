@@ -75,11 +75,11 @@ public class DfFlatten extends DataFrame {
     try {
       for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
         Row row = prevDf.rows.get(rowno);
-        String str = (String) row.get(targetColno);
-        if (str == null) {
+        String jsonStr = (String) row.get(targetColno);
+        if (jsonStr == null) {
           continue;
         }
-        List<Object> list = GlobalObjectMapper.getDefaultMapper().readValue(str, List.class);
+        List<Object> list = GlobalObjectMapper.getDefaultMapper().readValue(jsonStr, List.class);
 
         for (Object obj : list) {
           Row newRow = new Row();
