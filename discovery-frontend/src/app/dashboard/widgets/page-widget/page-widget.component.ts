@@ -999,7 +999,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         }).catch((err) => {
         });
       } else {
-        this._dataDownComp.openWidgetDown(event, this.widget.id, this.isOriginDown);
+        this._dataDownComp.openWidgetDown(event, this.widget.id, this.isOriginDown, this.query);
       }
     }
   } // function - showDownloadLayer
