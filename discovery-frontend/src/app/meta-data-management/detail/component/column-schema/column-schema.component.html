@@ -306,9 +306,7 @@
                class="ddp-ui-search2"
                (click)="onClickSearchDictionary(column)">
               {{column.dictionary ? column.dictionary.logicalName : ''}}
-              <span class="ddp-icon-search"
-                    (mouseenter)="column['isShowDictionary'] = false"
-                    >
+              <span class="ddp-icon-search">
               </span>
             </a>
             <div class="ddp-box-layout4 ddp-pop-fix type-dictionary" #dictionaryPreview>

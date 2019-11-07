@@ -474,7 +474,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     event.stopImmediatePropagation();
     event.stopPropagation();
     // 해당 코드테이블 레이어 팝업 show flag
-    metadataColumn.codeTable && (metadataColumn[ 'isShowDictionary' ] = false);
+    metadataColumn.dictionary && (metadataColumn[ 'isShowDictionary' ] = false);
   }
 
   /**
