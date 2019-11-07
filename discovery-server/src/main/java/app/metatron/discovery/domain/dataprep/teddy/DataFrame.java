@@ -32,6 +32,7 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.TypeMismatchExcep
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.UnknownTypeException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.UnsupportedAggregationFunctionExpressionException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.UnsupportedConstantType;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.WorksOnlyOnStringException;
 import app.metatron.discovery.domain.dataprep.transform.Histogram;
 import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
@@ -1006,6 +1007,13 @@ public class DataFrame implements Serializable, Transformable {
           default:
             return obj;
         }
+
+      case ARRAY:
+      case MAP:
+        if (fromType != ColumnType.STRING) {
+          throw new WorksOnlyOnStringException("Only strings can be casted into array/maps");
+        }
+        return obj;
 
       default:
         throw new CannotCastFromException("cast(): cannot cast from " + toType);

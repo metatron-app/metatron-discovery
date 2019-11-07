@@ -58,14 +58,16 @@ public class DfUnnest extends DataFrame {
     ColumnType prevType = prevDf.getColType(targetColno);
 
     String idxEscaped = ((StringExpr) idx).getEscapedValue();
-    String newColName = modifyDuplicatedColName(prevDf.getColName(targetColno) + "_" + idxEscaped);
+    String newColName;
 
     switch (prevType) {
       case MAP:
         targetKey = idxEscaped;
+        newColName = modifyDuplicatedColName(idxEscaped);
         break;
       case ARRAY:
         targetIdx = Integer.valueOf(idxEscaped);
+        newColName = modifyDuplicatedColName(prevDf.getColName(targetColno) + "_" + idxEscaped);
         break;
       default:
         throw new WorksOnlyOnArrayOrMapException("doUnnest(): works only on ARRAY/MAP: " + prevType);
@@ -114,12 +116,12 @@ public class DfUnnest extends DataFrame {
           case MAP:
             Map<String, Object> map = GlobalObjectMapper.getDefaultMapper().readValue(jsonStr, Map.class);
             Object obj = map.get(targetKey);
-            newRow.add(newColName, obj);
+            newRow.add(newColName, GlobalObjectMapper.getDefaultMapper().writeValueAsString(obj));
             break;
           case ARRAY:
             List<Object> list = GlobalObjectMapper.getDefaultMapper().readValue(jsonStr, List.class);
             obj = targetIdx < list.size() ? list.get(targetIdx) : null;
-            newRow.add(newColName, obj);
+            newRow.add(newColName, GlobalObjectMapper.getDefaultMapper().writeValueAsString(obj));
         }
       } catch (IOException e) {
         LOGGER.warn("DfUnnest.gather(): cannot deserialize array/map type value", e);
