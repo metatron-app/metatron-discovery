@@ -32,6 +32,7 @@ import app.metatron.discovery.domain.dataprep.file.PrepJsonUtil;
 import app.metatron.discovery.domain.dataprep.file.PrepParseResult;
 import app.metatron.discovery.domain.dataprep.file.PrepSqlUtil;
 import app.metatron.discovery.domain.dataprep.service.PrSnapshotService;
+import app.metatron.discovery.domain.dataprep.teddy.ColumnDescription;
 import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.Row;
@@ -132,7 +133,14 @@ public class TeddyFileService {
       for (int rowno = 0; rowno < df.rows.size(); snapshotService.cancelCheck(ssId, ++rowno)) {
         Row row = df.rows.get(rowno);
         for (int colno = 0; colno < df.getColCnt(); ++colno) {
-          printer.print(row.get(colno));
+          ColumnDescription colDesc = df.getColDesc(colno);
+          Object obj = row.get(colno);
+
+          if (colDesc.getType() == ColumnType.TIMESTAMP && obj != null) {
+            printer.print(getDateTimeStr(colDesc, obj));
+          } else {
+            printer.print(obj);
+          }
         }
         printer.println();
       }
@@ -153,6 +161,11 @@ public class TeddyFileService {
     return df.rows.size();
   }
 
+  private String getDateTimeStr(ColumnDescription colDesc, Object dt) {
+    String fmt = colDesc.getTimestampStyle();
+    return ((DateTime) dt).toString(fmt, Locale.ENGLISH);
+  }
+
   public int writeJson(String ssId, String strUri, DataFrame df) {
     LOGGER.debug("TeddyExecutor.wirteJSON(): strUri={} hadoopConfDir={}", strUri, hadoopConfDir);
     PrintWriter printWriter = PrepJsonUtil.getPrinter(strUri, hadoopConf);
@@ -165,15 +178,13 @@ public class TeddyFileService {
         Map<String, Object> jsonRow = new LinkedHashMap();
 
         for (int colno = 0; colno < df.getColCnt(); ++colno) {
-          if (df.getColType(colno).equals(ColumnType.TIMESTAMP)) {
-            if (row.get(colno) == null) {
-              jsonRow.put(df.getColName(colno), row.get(colno));
-            } else {
-              jsonRow.put(df.getColName(colno), ((DateTime) row.get(colno))
-                      .toString(df.getColTimestampStyle(colno), Locale.ENGLISH));
-            }
+          ColumnDescription colDesc = df.getColDesc(colno);
+          Object obj = row.get(colno);
+
+          if (colDesc.getType() == ColumnType.TIMESTAMP && obj != null) {
+            jsonRow.put(df.getColName(colno), getDateTimeStr(colDesc, obj));
           } else {
-            jsonRow.put(df.getColName(colno), row.get(colno));
+            jsonRow.put(df.getColName(colno), obj);
           }
         }
 

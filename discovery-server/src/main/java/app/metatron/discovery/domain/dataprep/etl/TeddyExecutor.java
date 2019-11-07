@@ -227,7 +227,6 @@ public class TeddyExecutor {
     return false;
   }
 
-  // returns slaveFullDsIds
   void transformRecursive(String ssId, Map<String, Object> dsInfo) throws ClassNotFoundException, SQLException,
           TeddyException, URISyntaxException, TimeoutException, InterruptedException {
     snapshotService.cancelCheck(ssId);
