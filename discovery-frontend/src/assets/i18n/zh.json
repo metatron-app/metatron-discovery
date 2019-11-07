@@ -3104,6 +3104,7 @@
   "msg.metadata.ui.dictionary.search.ph": "请按逻辑名进行搜索",
   "msg.metadata.ui.dictionary.delete.title": "要删除此列字典么？",
   "msg.metadata.ui.dictionary.delete.success": "已删除'{{value}}'",
+  "msg.metadata.th.dictionary.column.no.selected" : "Please choose dictionary",
   "msg.metadata.ui.dictionary.create.title": "创建列字典",
   "msg.metadata.ui.dictionary.create.desc": "请输入信息",
   "msg.metadata.ui.dictionary.create.dictionary.information": "字典信息",

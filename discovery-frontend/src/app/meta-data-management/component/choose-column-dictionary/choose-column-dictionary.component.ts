@@ -18,6 +18,7 @@ import {ColumnDictionary} from '../../../domain/meta-data-management/column-dict
 import {ColumnDictionaryService} from '../../column-dictionary/service/column-dictionary.service';
 import {isUndefined} from 'util';
 import * as _ from 'lodash';
+import {Alert} from "../../../common/util/alert.util";
 
 @Component({
   selector: 'app-choose-column-dictionary',
@@ -148,7 +149,11 @@ export class ChooseColumnDictionaryComponent extends AbstractComponent implement
   public onClickDone(): void {
     // 생성모드일 경우 선택한 컬럼 사전 전달
     // 수정모드일 경우 TODO
-    this._mode === 'CREATE' ? this._emitColumnDictionary() : this._updateColumnDictionary();
+    if (this.selectedColumnDictionary) {
+      this._mode === 'CREATE' ? this._emitColumnDictionary() : this._updateColumnDictionary();
+    } else {
+      Alert.error(this.translateService.instant('msg.metadata.th.dictionary.column.no.selected'));
+    }
   }
 
   /**

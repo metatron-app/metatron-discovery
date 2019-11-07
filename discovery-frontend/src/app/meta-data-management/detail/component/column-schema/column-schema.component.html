@@ -495,7 +495,7 @@
                  class="ddp-btn-close"
                  (click)="column['codeTableShowFl'] = false"></a>
               <div class="ddp-data-title">
-                {{'msg.metadata.ui.codetable.choose.code.table.preview.title' | translate}}
+                {{ column.codeTable && column.codeTable.name }}
               </div>
               <div class="ddp-data-code ddp-size"
                    *ngIf="column.codeTable">

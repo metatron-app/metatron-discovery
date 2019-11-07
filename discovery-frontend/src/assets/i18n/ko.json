@@ -4023,6 +4023,7 @@
   "msg.metadata.ui.dictionary.search.ph": "컬럼 이름으로 검색해 주세요",
   "msg.metadata.ui.dictionary.delete.title": "이 용어 사전을 삭제하시겠습니까?",
   "msg.metadata.ui.dictionary.delete.success": "'{{value}}' 이(가) 삭제되었습니다.",
+  "msg.metadata.th.dictionary.column.no.selected" : "사전을 선택해주세요.",
   "msg.metadata.ui.dictionary.create.title": "새로운 용어 사전 생성",
   "msg.metadata.ui.dictionary.create.desc": "정보를 입력해 주세요",
   "msg.metadata.ui.dictionary.create.dictionary.information": "사전 정보",
