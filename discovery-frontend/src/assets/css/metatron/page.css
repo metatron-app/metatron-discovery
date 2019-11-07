@@ -10191,8 +10191,9 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
 .ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary {}
 
 .ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li a {display:block; position:relative; float:left; width:100%; padding:10px 10px 10px 75px; box-sizing:border-box;}
-.ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li a:hover {border-radius:4px; background-color: rgba(156, 162, 204, 0.15);}
+/*.ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li a:hover {border-radius:4px; background-color: rgba(156, 162, 204, 0.15);}*/
 .ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li a .ddp-images-svg {position:absolute; top:10px; left:10px; width:50px; height:50px; border-radius:4px;}
+.ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li a:hover {border-radius:4px; background-color: rgba(156, 162, 204, 0.15);}
 .ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li.type-database a .ddp-images-svg {background-color:#4478ec;}
 .ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li.type-datasource a .ddp-images-svg {background-color:#3d417e;}
 .ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li.type-stagingdb a .ddp-images-svg {background-color:#664ad5;}
@@ -10201,8 +10202,8 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
 .ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li a .ddp-ui-popularity {display:block;}
 .ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li a .ddp-data-summary {display:block;}
 .ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li a .ddp-data-summary .ddp-data-name {color:#4b515b; font-size:14px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
-.ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li a .ddp-data-summary .ddp-data-detail {display:none; color:#b5b9c2; font-size:12px;}
-.ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li a:hover .ddp-data-summary .ddp-data-detail {display:block; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
+.ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li a .ddp-data-summary .ddp-data-detail {color:#b5b9c2; font-size:12px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
+
 .ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li a .ddp-data-summary .ddp-ui-popularity {padding:6px 0;}
 .ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li a .ddp-data-summary .ddp-ui-popularity .ddp-icon-popularity
 { float:left; width:18px; height:14px; margin-right:3px; background:url(../../images/icon_popularity.png) no-repeat;}
@@ -10212,11 +10213,11 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
 .ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li a .ddp-data-summary .ddp-ui-popularity .ddp-bar .ddp-box-layout4.ddp-popularity {width:360px;}
 .ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li a .ddp-data-summary .ddp-ui-popularity .ddp-bar:hover .ddp-box-layout4 {display:block;}
 .ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li a .ddp-data-summary .ddp-ui-popularity .ddp-data-by {display:block; padding-left:6px; overflow:hidden; color:#90969f; white-space:nowrap; text-overflow:ellipsis;}
-.ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li a .ddp-data-summary .ddp-list-tags {display:none; margin-top:3px; max-height:56px; overflow:hidden;}
-.ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li a:hover .ddp-data-summary .ddp-list-tags {display:block;}
-.ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li a .ddp-data-summary .ddp-list-tags span.ddp-tags {float:left;display:block; padding:3px 5px; max-width:100%;background-color: rgba(102, 110, 178, 0.1); color:#666eb2; word-break:break-all; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; box-sizing:border-box;}
+.ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li a .ddp-data-summary .ddp-list-tags {margin-top:3px; height:25px; overflow:hidden; white-space:nowrap;}
 
-
+.ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li a .ddp-data-summary .ddp-list-tags span.ddp-tags {float:left;display:block; padding:3px 5px; max-width:90px;background-color: rgba(102, 110, 178, 0.1); color:#666eb2; word-break:break-all; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; box-sizing:border-box;}
+.ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li a .ddp-data-summary .ddp-list-tags span.ddp-tags.type-nodata {color:#B5B9C2; background-color:rgba(144,150,159,0.1);}
+.ddp-wrap-meta-summary .ddp-box-summary .ddp-list-summary li a .ddp-data-summary .ddp-list-tags span.ddp-tags-num {color:#666eb2; position:relative; top:6px;}
 .ddp-box-summary .ddp-list-data {padding:5px 0; margin-left:-10px;}
 .ddp-box-summary .ddp-list-data li + li {padding-top:5px;}
 .ddp-box-summary .ddp-list-data li a {display:block; position:relative;padding:5px 10px 5px 75px; min-height:60px; box-sizing:border-box;}
