@@ -23,9 +23,9 @@ import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,7 +109,7 @@ public class DfNest extends DataFrame {
           String str = GlobalObjectMapper.getDefaultMapper().writeValueAsString(arr);
           newRow.add(newColName, str);
         } else {
-          Map<String, Object> map = new HashMap();
+          Map<String, Object> map = new TreeMap();
           for (String colName : targetColNames) {
             map.put(colName, row.get(colName));
           }
