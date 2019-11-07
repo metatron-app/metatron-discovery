@@ -1,6 +1,8 @@
 import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
 import {AbstractComponent} from "../../../common/component/abstract.component";
 import {SourceType} from "../../../domain/meta-data-management/metadata";
+import {MetadataService} from "../../../meta-data-management/metadata/service/metadata.service";
+import {DataCreator} from "../../../domain/meta-data-management/data-creator";
 
 @Component({
   selector: 'component-explore-data-user-card',
@@ -11,13 +13,19 @@ export class ExploreDataUserCardComponent extends AbstractComponent {
   @Input() readonly sourceType: SourceType;
   @Output() readonly userClicked = new EventEmitter();
 
+  creator: DataCreator = null;
+
   constructor(protected element: ElementRef,
+              private metadataService: MetadataService,
               protected injector: Injector) {
     super(element, injector);
   }
 
   ngOnInit() {
     super.ngOnInit();
+    this.metadataService.getCreatorDetail(this.topUser.user.username).then((result) => {
+      this.creator = result;
+    });
   }
 
   onClickWorkbenchName(hasPermission: boolean) {
@@ -42,9 +50,16 @@ export class ExploreDataUserCardComponent extends AbstractComponent {
     window.open(popUrl, '_blank');
   }
 
-  onClickUserName(creator: string) {
+  onClickUserName(username: string) {
     event.stopPropagation();
     event.stopImmediatePropagation();
-    this.userClicked.emit(creator);
+    this.userClicked.emit(username);
+  }
+
+  onClickFavoriteIconInTopUser() {
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    this.metadataService.toggleCreatorFavorite(this.creator.creator.id, this.creator.favorite).then().catch(e => this.commonExceptionHandler(e));
+    this.creator.favorite = !this.creator.favorite;
   }
 }

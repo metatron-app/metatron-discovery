@@ -80,7 +80,7 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
   searchedKeyword: string = '';
 
   // sort
-  selectedSort = 'modifiedTime, desc';
+  selectedSort = 'createdTime, desc';
 
   public sortOptions = {
     // TODO: popularity is not implemented yet
@@ -135,7 +135,7 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
           } else if (key === 'page') {
             this.page.page = params['page'];
           } else if (key === 'sort') {
-            this.selectedSort = params['sort'].split(',');
+            this.selectedSort = params['sort'];
           } else if (key === 'containsText') {
             this.searchedKeyword = params['containsText'];
           } else {
@@ -147,7 +147,7 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
         // init criterion search param
       }
 
-      this._setMetadataList(this._getMetadataListParams()).then();
+      this.getMetadataList(this.getMetadataListParams()).then();
 
       // set datasource list
     }));
@@ -170,11 +170,11 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
     (isFirstPage) && (this.page.page = 0);
     this.router.navigate(
       [this.router.url.replace(/\?.*/gi, '')],
-      {queryParams: this._getMetadataListParams(), replaceUrl: true}
+      {queryParams: this.getMetadataListParams(), replaceUrl: true}
     ).then();
   } // function - reloadPage
 
-  private _getMetadataListParams() {
+  getMetadataListParams() {
     let params;
     params = {
       page: this.page.page,
@@ -187,63 +187,16 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
       params[this.searchRange.value] = this.searchedKeyword.trim();
     }
 
-    // if sourceType is selected
-    // if (this.selectedSourceTypeFilter !== 'ALL') {
-    //   params['sourceType'] = this.selectedSourceTypeFilter;
-    // }
+    // source type
+    if (this.selectedSourceTypeFilter !== undefined) {
+      params['sourceType'] = this.selectedSourceTypeFilter;
+    }
     return params;
   }
 
-  getTotalElementsGuide() {
-    if (this.isNotEmptySearchKeyword()) {
-      return this.translateService.instant('msg.explore.ui.list.content.total.searched', {
-        totalElements: this.getTotalElements(),
-        searchedKeyword: this.searchedKeyword.trim()
-      });
-    } else {
-      return this.translateService.instant('msg.explore.ui.list.content.total', {totalElements: this.getTotalElements()});
-    }
-  }
-
-  getTotalElements(): string {
-    return CommonUtil.numberWithCommas(this.pageResult.totalElements);
-  }
-
-  getMetadataName(name: string) {
-    if (this.isNotEmptySearchKeyword() && (this.searchRange.value === ExploreDataConstant.SearchRange.ALL || this.searchRange.value === ExploreDataConstant.SearchRange.DATA_NAME)) {
-      return name.replace(this.searchedKeyword, `<span class="ddp-txt-search type-search">${this.searchedKeyword}</span>`);
-    } else {
-      return name;
-    }
-  }
-
-  getMetadataDescription(description: string) {
-    if (this.isNotEmptySearchKeyword() && (this.searchRange.value === ExploreDataConstant.SearchRange.ALL || this.searchRange.value === ExploreDataConstant.SearchRange.DESCRIPTION)) {
-      return '-' + description.replace(this.searchedKeyword, `<span class="ddp-txt-search type-search">${this.searchedKeyword}</span>`);
-    } else {
-      return '-' + description;
-    }
-  }
-
-  getMetadataCreator(creator: string) {
-    if (this.isNotEmptySearchKeyword() && (this.searchRange.value === ExploreDataConstant.SearchRange.ALL || this.searchRange.value === ExploreDataConstant.SearchRange.CREATOR)) {
-      return creator.replace(this.searchedKeyword, `<span class="ddp-txt-search type-search">${this.searchedKeyword}</span>`);
-    } else {
-      return creator;
-    }
-  }
-
-  getTooltipValue(metadata): string {
-    let result = metadata.name;
-    if (metadata.description) {
-      result += ` - ${metadata.description}`;
-    }
-    return result;
-  }
-
-  private async _setMetadataList(params) {
+  async getMetadataList(params) {
     this.loadingShow();
-    const result = await this.metadataService.getMetadataListByMyFavorite({size: 20, page: 0, projection: 'forListView', sort: 'modifiedTime,desc'}).catch((e) => this.commonExceptionHandler(e));
+    const result = await this.metadataService.getMetadataListByMyFavorite(params).catch((e) => this.commonExceptionHandler(e));
 
     if (!_.isNil(result)) {
       // add ddp-scroll class to layout
@@ -353,6 +306,7 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
     this.pageResult.totalElements -= 1;
   }
 
+  // Show Metadata detail modal
   onClickMetadata(metadata: Metadata) {
     event.stopPropagation();
     event.stopImmediatePropagation();
@@ -430,7 +384,7 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
       // toggle favorite in modal listener
       this.metadataContainerEntryRef.instance.onToggleFavorite.subscribe((_) => {
         // modal is shown in list screen
-        this._setMetadataList(this._getMetadataListParams()).catch(e => this.commonExceptionHandler(e));
+        this.getMetadataList(this.getMetadataListParams()).catch(e => this.commonExceptionHandler(e));
           // modal is shown in main screen
       });
 
@@ -470,6 +424,53 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
 
   isShowCreateWorkbook(metadata: Metadata): boolean {
     return Metadata.isSourceTypeIsEngine(metadata.sourceType);
+  }
+
+  getTotalElementsGuide() {
+    if (this.isNotEmptySearchKeyword()) {
+      return this.translateService.instant('msg.explore.ui.list.content.total.searched', {
+        totalElements: this.getTotalElements(),
+        searchedKeyword: this.searchedKeyword.trim()
+      });
+    } else {
+      return this.translateService.instant('msg.explore.ui.list.content.total', {totalElements: this.getTotalElements()});
+    }
+  }
+
+  getTotalElements(): string {
+    return CommonUtil.numberWithCommas(this.pageResult.totalElements);
+  }
+
+  getMetadataName(name: string) {
+    if (this.isNotEmptySearchKeyword() && (this.searchRange.value === ExploreDataConstant.SearchRange.ALL || this.searchRange.value === ExploreDataConstant.SearchRange.DATA_NAME)) {
+      return name.replace(this.searchedKeyword, `<span class="ddp-txt-search type-search">${this.searchedKeyword}</span>`);
+    } else {
+      return name;
+    }
+  }
+
+  getMetadataDescription(description: string) {
+    if (this.isNotEmptySearchKeyword() && (this.searchRange.value === ExploreDataConstant.SearchRange.ALL || this.searchRange.value === ExploreDataConstant.SearchRange.DESCRIPTION)) {
+      return '-' + description.replace(this.searchedKeyword, `<span class="ddp-txt-search type-search">${this.searchedKeyword}</span>`);
+    } else {
+      return '-' + description;
+    }
+  }
+
+  getMetadataCreator(creator: string) {
+    if (this.isNotEmptySearchKeyword() && (this.searchRange.value === ExploreDataConstant.SearchRange.ALL || this.searchRange.value === ExploreDataConstant.SearchRange.CREATOR)) {
+      return creator.replace(this.searchedKeyword, `<span class="ddp-txt-search type-search">${this.searchedKeyword}</span>`);
+    } else {
+      return creator;
+    }
+  }
+
+  getTooltipValue(metadata): string {
+    let result = metadata.name;
+    if (metadata.description) {
+      result += ` - ${metadata.description}`;
+    }
+    return result;
   }
 
   private _showConfirmComponent() {

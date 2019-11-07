@@ -1,0 +1,57 @@
+ <em class="ddp-bg-back type-bg"></em>
+  <div class="ddp-ui-contents-in ddp-pad0 ddp-scroll">
+    <!-- top -->
+    <div class="ddp-layout-top-menu ddp-clear">
+      <!-- label -->
+      <div class="ddp-top-label">
+        {{ 'msg.comm.menu.explore-data.favorite.creator' | translate }}
+      </div>
+      <!-- //label -->
+    </div>
+    <!-- //top -->
+    <div class="ddp-ui-contents-list type-list">
+
+      <div class="ddp-wrap-list-create">
+        <!-- box -->
+        <div class="ddp-box-create" *ngFor="let creator of myFavoriteCreatorList" (click)="onClickCreatorCard(creator.username)">
+          <!-- top -->
+          <div class="ddp-data-top">
+            <em class="ddp-data-photo"></em>
+            <!-- name -->
+            <div class="ddp-data-name">
+               <span class="ddp-txt-name">
+                  <em class="ddp-icon-control-fav ddp-fright" [class.ddp-selected]="creator.favorite" (click)="onClickFavoriteInCard(creator)"></em>
+                  <span class="ddp-name-in" title="{{ creator.username }}">{{ creator.username }}</span>
+               </span>
+            </div>
+            <!-- //name -->
+          </div>
+          <!-- //top -->
+          <!-- contents -->
+          <div class="ddp-data-contents">
+            <div class="ddp-data-label">
+              {{ 'msg.comm.menu.explore-data.favorite.created.data' | translate }} <span class="ddp-data-num">{{ creator.count }}</span>
+            </div>
+            <div class="ddp-box-list">
+              <ul class="ddp-list-creator">
+                <li *ngFor="let data of creator.dataList">
+                  <component-metadata-type-box-tag [metadata]="data"></component-metadata-type-box-tag>
+                  <div class="ddp-txt-ellipsis">
+                   <span class="ddp-data-name">
+                         <span class="ddp-data-date ddp-fright">{{ data.createdTime | mdate:'YYYY-MM-DD HH:mm'}}</span>
+                       <span class="ddp-name-in" title="{{ data.name }}">{{ data.name }}</span>
+                   </span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <!-- //contents -->
+
+        </div>
+        <!-- //box -->
+      </div>
+    </div>
+  </div>
+ <ng-template #component_metadata_detail></ng-template>
+ <ng-template #component_confirm></ng-template>

@@ -59,6 +59,10 @@ export class MetadataService extends AbstractService {
     return this.post(this.URL_METADATA + '/batch', params);
   }
 
+  public getCreatorDetail(userName: string) {
+    return this.get(this.URL_METADATA + `/datacreators/${userName}`);
+  }
+
   public getDuplicatedMetadataNameList(params: string[]): Promise<string[]> {
     return this.post(this.URL_METADATA + '/name/duplicated', params);
   }
@@ -90,6 +94,16 @@ export class MetadataService extends AbstractService {
     return this.get(url + `&projection=${projection}`);
   }
 
+  public getMetadataListByDataCreator(username: string,params: object, projection: string = 'forListView'): Promise<any> {
+    // URL
+    let url: string = this.URL_METADATA + `/datacreators/${username}/metadatas`;
+
+    if (params) {
+      url += '?' + CommonUtil.objectToUrlString(params);
+    }
+
+    return this.get(url + `&projection=${projection}`);
+  }
   /**
    * 메타데이터  삭제
    * @param {string} id
@@ -221,9 +235,19 @@ export class MetadataService extends AbstractService {
     return this.get(url);
   }
 
-  public getMetadataListByMyFavorite(params) {
+  public getMetadataListByMyFavorite(params, projection: string = 'forListView') {
     // URL
     let url: string = this.URL_METADATA + '/favorite/my';
+    // if exist params
+    if (params) {
+      url += '?' + CommonUtil.objectToUrlString(params);
+    }
+    return this.get(url + `&projection=${projection}`);
+  }
+
+  public getCreatorList(params) {
+    // URL
+    let url: string = this.URL_METADATA + '/datacreators';
     // if exist params
     if (params) {
       url += '?' + CommonUtil.objectToUrlString(params);
@@ -231,14 +255,24 @@ export class MetadataService extends AbstractService {
     return this.get(url);
   }
 
-  public getMetadataListByCreatorFavorite(params) {
+  public getMetadataListByFavoriteCreator(params) {
     // URL
-    let url: string = this.URL_METADATA + '/favorite/creator';
+    let url: string = this.URL_METADATA + '/datacreators';
     // if exist params
     if (params) {
       url += '?' + CommonUtil.objectToUrlString(params);
     }
     return this.get(url);
+  }
+
+  public getFavoriteCreatorList(params) {
+    // URL
+    let url: string = this.URL_METADATA + '/datacreators';
+    // if exist params
+    if (params) {
+      url += '?' + CommonUtil.objectToUrlString(params);
+    }
+    // return this.get(url);
   }
 
   public getMetadataListByRecommended(params) {
@@ -308,10 +342,21 @@ export class MetadataService extends AbstractService {
     return this.get(url);
   }
 
-  public toggleMetadataFavorite(id: string, isFavorited: boolean) {
+  public toggleMetadataFavorite(id: string, isFavorite: boolean) {
     let url: string = this.URL_METADATA + `/${id}/favorite/`;
 
-    if (isFavorited) {
+    if (isFavorite) {
+      url += 'detach';
+    } else {
+      url += 'attach';
+    }
+    return this.post(url, null);
+  }
+
+  public toggleCreatorFavorite(id: string, isFavorite: boolean) {
+    let url: string = this.URL_METADATA + `/datacreators/${id}/favorite/`;
+
+    if (isFavorite) {
       url += 'detach';
     } else {
       url += 'attach';

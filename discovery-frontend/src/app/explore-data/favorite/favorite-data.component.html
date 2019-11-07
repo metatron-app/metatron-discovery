@@ -5,50 +5,9 @@
   <div class="ddp-layout-top-menu ddp-clear">
     <!-- label -->
     <div class="ddp-top-label">
-      {{ 'msg.comm.menu.explore-data.favorite' | translate }}
+      {{ 'msg.comm.menu.explore-data.my.favorite.data' | translate }}
     </div>
     <!-- //label -->
-    <!-- menu -->
-    <div class="ddp-top-menu">
-      <ul class="ddp-list-top-menu">
-        <li class="ddp-selected">
-          <a [routerLink]="['/exploredata/favorite/data']">{{ 'msg.comm.menu.explore-data.favorite.data' | translate }}</a>
-        </li>
-        <li>
-          <a [routerLink]="['/exploredata/favorite/creator']">{{ 'msg.comm.menu.explore-data.favorite.creator' | translate }}</a>
-        </li>
-      </ul>
-    </div>
-    <!-- menu -->
-    <!-- option -->
-    <div class="ddp-ui-header-option">
-      <a href="javascript:" class="ddp-link-info"></a>
-      <!--
-          클릭시 ddp-selected 추가
-      -->
-      <div class="ddp-ui-more" [class.ddp-selected]="showMoreFlag">
-        <a href="javascript:" class="ddp-icon-more" (click)="toggleMoreButton()" (clickOutside)="showMoreFlag = false"></a>
-        <!-- popup -->
-        <div class="ddp-wrap-popup2 ddp-types">
-          <ul class="ddp-list-popup">
-            <li>
-              <a href="javascript:">
-                <em class="ddp-icon-drop-cluster"></em>
-                {{ 'msg.comm.menu.explore-data.favorite.set.druid.cluster' | translate }}
-              </a>
-            </li>
-            <li>
-              <a href="javascript:">
-                <em class="ddp-icon-drop-guide"></em>
-                {{ 'msg.comm.menu.explore-data.favorite.druid.guide' | translate }}
-              </a>
-            </li>
-          </ul>
-        </div>
-        <!-- //popup -->
-      </div>
-    </div>
-    <!-- //option -->
   </div>
   <!-- //top -->
 

@@ -21,6 +21,7 @@ import {CreateWorkbookComponent} from "../../../workbook/component/create-workbo
 import {Modal} from "../../../common/domain/modal";
 import {ConfirmRefModalComponent} from "../../../common/component/modal/confirm/confirm-ref.component";
 import {Alert} from "../../../common/util/alert.util";
+import {DataCreator} from "../../../domain/meta-data-management/data-creator";
 
 @Component({
   selector: 'explore-metadata-container',
@@ -34,7 +35,6 @@ export class MetadataContainerComponent extends AbstractComponent {
 
   @Output() readonly closedPopup = new EventEmitter();
   @Output() readonly onToggleFavorite = new EventEmitter();
-  @Output() clickedTopUser = new EventEmitter();
 
   @ViewChild('component_create_workbench', {read: ViewContainerRef}) readonly createWorkbenchEntry: ViewContainerRef;
   createWorkbenchEntryRef: ComponentRef<CreateWorkbenchContainerComponent>;
@@ -96,7 +96,7 @@ export class MetadataContainerComponent extends AbstractComponent {
   }
 
   public onClickTopUser(creator: string) {
-    this.clickedTopUser.emit(creator);
+    this._showConfirmComponent().then(() => this.router.navigate(['exploredata/favorite/creator', creator]));
   }
 
   /**

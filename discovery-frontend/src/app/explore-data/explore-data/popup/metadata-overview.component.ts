@@ -10,8 +10,8 @@ import {Alert} from "../../../common/util/alert.util";
 import {ClipboardService} from "ngx-clipboard";
 import {AbstractComponent} from "../../../common/component/abstract.component";
 import {DashboardUtil} from "../../../dashboard/util/dashboard.util";
-import {MetadataDataCreatorDataListComponent} from "./metadata-data-creator-data-list.component";
 import {MetadataService} from "../../../meta-data-management/metadata/service/metadata.service";
+import {DataCreator} from "../../../domain/meta-data-management/data-creator";
 
 @Component({
   selector: 'explore-metadata-overview',
@@ -93,8 +93,8 @@ export class MetadataOverviewComponent extends AbstractComponent implements OnIn
     window.open(popUrl, '_blank');
   }
 
-  async onClickUser(creator: string) {
-    this.clickedTopUser.emit(creator);
+  async onClickUser(username: string) {
+    this.clickedTopUser.emit(username);
   }
 
   /**

@@ -1,12 +1,12 @@
 <!-- SourceType is ENGINE(Datasource) -->
-<div class="ddp-box-user" *ngIf="sourceType.toString() === 'ENGINE'" (click)="onClickUserName(topUser['user']['fullName'])">
+<div class="ddp-box-user" *ngIf="sourceType.toString() === 'ENGINE' && creator">
   <div class="ddp-data-photo">
-    <img src="../../../../assets/images/img_photo.png">
+    <img src="../../../../assets/images/img_photo.png" (click)="onClickUserName(topUser.user.username)">
   </div>
   <div class="ddp-wrap-data">
     <div class="ddp-data-name">
-      <span class="ddp-txt-name">{{ topUser['user']['fullName'] }}</span>
-<!--      <em class="ddp-icon-control-fav"></em>-->
+      <em class="ddp-icon-control-fav ddp-fright" [class.ddp-selected]="creator.favorite" (click)="onClickFavoriteIconInTopUser()"></em>
+      <span class="ddp-txt-name" (click)="onClickUserName(topUser.user.username)">{{ topUser.user.username }}</span>
     </div>
     <div>
       <div class="ddp-data-info" [class.type-link]="topUser.hasPermission"  (click)="onClickDashBoardName(topUser.hasPermission)">
@@ -25,14 +25,14 @@
 <!-- SourceType is ENGINE(Datasource) -->
 
 <!-- SourceType is JDBC(Database) -->
-<div class="ddp-box-user" *ngIf="sourceType.toString() === 'JDBC' || sourceType.toString() === 'STAGEDB'" (click)="onClickUserName(topUser['user']['fullName'])">
+<div class="ddp-box-user" *ngIf="sourceType.toString() === 'JDBC' || sourceType.toString() === 'STAGEDB'">
   <div class="ddp-data-photo">
-    <img src="../../../../assets/images/img_photo.png">
+    <img src="../../../../assets/images/img_photo.png" (click)="onClickUserName(topUser.user.username)">
   </div>
   <div class="ddp-wrap-data">
     <div class="ddp-data-name">
-      <span class="ddp-txt-name">{{ topUser['user']['fullName'] }}</span>
-<!--      <em class="ddp-icon-control-fav ddp-fright"></em>-->
+      <span class="ddp-txt-name" (click)="onClickUserName(topUser.user.username)">{{ topUser['user']['fullName'] }}</span>
+      <em class="ddp-icon-control-fav ddp-fright" (click)="onClickFavoriteIconInTopUser()"></em>
     </div>
     <div>
       <div class="ddp-data-info" [class.type-link]="topUser.hasPermission" (click)="onClickWorkbenchName(topUser.hasPermission)">

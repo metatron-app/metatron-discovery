@@ -36,22 +36,18 @@ import {Subscription} from "rxjs";
 import {ExploreDataSearchComponent} from "./explore-data-search.component";
 import {ExploreDataModelService} from "./service/explore-data-model.service";
 import {ExploreDataMainComponent} from "./explore-data-main.component";
-import {MetadataDataCreatorDataListComponent} from "./popup/metadata-data-creator-data-list.component";
 import {ConfirmRefModalComponent} from "../../common/component/modal/confirm/confirm-ref.component";
 import {Modal} from "../../common/domain/modal";
 
 @Component({
   selector: 'app-exploredata-view',
   templateUrl: './explore-data.component.html',
-  entryComponents: [MetadataContainerComponent, MetadataDataCreatorDataListComponent, ConfirmRefModalComponent]
+  entryComponents: [MetadataContainerComponent, ConfirmRefModalComponent]
 })
 export class ExploreDataComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   @ViewChild('component_metadata_detail', {read: ViewContainerRef}) readonly metadataContainerEntry: ViewContainerRef;
   metadataContainerEntryRef: ComponentRef<MetadataContainerComponent>;
-
-  @ViewChild('component_data_creator_data_list', {read: ViewContainerRef}) dataCreatorDataListEntry: ViewContainerRef;
-  dataCreatorDataListEntryRef: ComponentRef<MetadataDataCreatorDataListComponent>;
 
   @ViewChild(ExploreDataListComponent)
   private readonly _exploreDataListComponent: ExploreDataListComponent;
@@ -228,35 +224,6 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
         } else if (this.mode === ExploreMode.MAIN)  {
           this._exploreDataMainComponent.setMyFavoriteMetadataList().catch(e => this.commonExceptionHandler(e));
         }
-      });
-
-      this.metadataContainerEntryRef.instance.clickedTopUser.subscribe((creator) => {
-        this._showConfirmComponent().then(() => {
-          this.loadingShow();
-          this.metadataService.getMetaDataList({creatorContains: creator, size: 100}).then((result) => {
-            this.loadingHide();
-            if (result !== undefined && result) {
-              this.metadataContainerEntryRef.destroy();
-              if (result['_embedded']) {
-                this.dataCreatorDataListEntryRef = this.dataCreatorDataListEntry.createComponent(this.resolver.resolveComponentFactory(MetadataDataCreatorDataListComponent));
-                this.dataCreatorDataListEntryRef.instance.metadataList = result['_embedded']['metadatas'];
-                this.dataCreatorDataListEntryRef.instance.creator = creator;
-              } else  if (result['_embedded'] === undefined){
-                this.dataCreatorDataListEntryRef = this.dataCreatorDataListEntry.createComponent(this.resolver.resolveComponentFactory(MetadataDataCreatorDataListComponent));
-                this.dataCreatorDataListEntryRef.instance.metadataList = [];
-                this.dataCreatorDataListEntryRef.instance.creator = creator;
-              }
-            }
-            this.dataCreatorDataListEntryRef.instance.closedPopup.subscribe(() => {
-              // close
-              this.dataCreatorDataListEntryRef.destroy();
-            });
-
-            this.dataCreatorDataListEntryRef.instance.clickedMetadata.subscribe((metadata) => {
-              this.onClickMetadata(metadata);
-            });
-          })
-        });
       });
     }).catch(error => {console.log(error); this.commonExceptionHandler(error)});
   }

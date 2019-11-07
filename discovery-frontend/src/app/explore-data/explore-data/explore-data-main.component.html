@@ -73,20 +73,20 @@
     <!--  Favorite creator  -->
     <div class="ddp-box-summary">
       <div class="ddp-type-label"> {{ 'msg.explore.ui.list.favorite.creator' | translate }}
-        <a *ngIf="favoriteCreatorMetadataList.length > 4" href="javascript:" class="ddp-btn-more">{{ 'msg.comm.ui.more' | translate }} &gt;</a>
+        <a *ngIf="favoriteCreatorList.length > 4" href="javascript:" class="ddp-btn-more">{{ 'msg.comm.ui.more' | translate }} &gt;</a>
       </div>
 
       <ul class="ddp-list-data">
 <!--        <ul class="ddp-list-summary">-->
-          <li *ngFor="let metadata of favoriteCreatorMetadataList| slice:0:4">
+          <li *ngFor="let creator of favoriteCreatorList| slice:0:4">
             <a href="javascript:">
               <div class="ddp-wrap-data">
                 <span class="ddp-data-profile">
 
                 </span>
                 <div class="ddp-data-txt">
-                  <div class="ddp-data-name" title="Creator name 01">{{ metadata.createdBy.fullName }}</div>
-                  <div class="ddp-data-create" title="Creator name 01">{{ metadata.name }}</div>
+                  <div class="ddp-data-name" title="{{ creator.creator.fullName }}">{{ creator.creator.fullName }}</div>
+                  <div class="ddp-data-create">{{ creator.count }}</div>
                 </div>
               </div>
             </a>
