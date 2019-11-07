@@ -1025,13 +1025,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       this.uiOption.layers[layerIndex].measureColor = _.cloneDeep(data.colorNum);
     }
 
-    let colorList;
-    if (data.colorNum.indexOf('R') == 0) {
-      colorList = <any>_.cloneDeep(ChartColorList[this.uiOption.layers[layerIndex].color['schema'].substring(1)]);
-      colorList = <any>Object.keys(colorList).map(key => colorList[key]).reverse();
-    } else {
-      colorList = <any>_.cloneDeep(ChartColorList[this.uiOption.layers[layerIndex].color['schema']]);
-    }
+    const colorList = <any>_.cloneDeep(ChartColorList[this.uiOption.layers[layerIndex].color['schema']]);
 
     // not heatmap => set ranges
     if (MapLayerType.HEATMAP !== this.uiOption.layers[layerIndex].type && MapBy.MEASURE === this.uiOption.layers[layerIndex].color.by) {

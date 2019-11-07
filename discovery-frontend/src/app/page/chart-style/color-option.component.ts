@@ -387,23 +387,21 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
    */
   public changeColor(colorObj: Object, gridColorObj?: Object) {
     let color = _.cloneDeep(colorObj);
-    let chartColorList = ChartColorList[color['colorNum']];
-    if ($(event.currentTarget).hasClass('sys-inverted')) {
+    if ($('input#invertColor').is(':checked')) {
       color['colorNum'] = 'R' + color['colorNum'];
-      chartColorList = <any>Object.keys(chartColorList).map(key => chartColorList[key]).reverse();
     }
 
     // 차트 타입이 MEASURE인경우
     if (ChartColorType.MEASURE === this.uiOption.color.type) {
 
       // set color ranges
-      this.uiOption.color['ranges'] = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.resultData['data'], chartColorList);
+      this.uiOption.color['ranges'] = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.resultData['data'], ChartColorList[color['colorNum']]);
 
       // 선택된 컬러를 변수에 설정
       if( _.eq(this.uiOption.type, ChartType.GRID) ) {
         this.selectedMeasureColor = color;
         let gridColor = _.cloneDeep(gridColorObj);
-        if ($(event.currentTarget).hasClass('sys-inverted')) {
+        if ($('input#invertColor').is(':checked')) {
           gridColor['colorNum'] = 'R' + gridColor['colorNum'];
         }
         color = gridColor;
@@ -439,11 +437,26 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   public invertColor() {
     event.stopPropagation();
 
-    if ($(event.currentTarget).is(':checked')) {
+    if ($('input#invertColor').is(':checked')) {
       this.isTemplateColorInverted = true;
     } else {
       this.isTemplateColorInverted = false;
     }
+
+    let colorList: Object[] = [];
+
+    // measure color list 합치기
+    colorList = colorList.concat(this.measureColorList);
+    colorList = colorList.concat(this.measureReverseColorList);
+
+    // 컬러리스트에서 같은 코드값을 가지는경우
+    for (const item of colorList) {
+      // 코드값이 같은경우
+      if (this.uiOption.color['schema'].endsWith(item['colorNum'])) {
+        this.changeColor(item, item);
+      }
+    }
+
   }
 
   public isChartColorInverted() {
@@ -451,7 +464,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   }
 
   public isChartColorSelected(item) {
-    return this.uiOption.color['schema'].indexOf(item['colorNum']) > -1;
+    return this.uiOption.color['schema'].endsWith(item['colorNum']);
   }
 
   /**
@@ -475,7 +488,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
    * 타입이 measure일때 코드값이 같은경우 해당 코드 리스트에서 index를 가져온다
    * @returns {any}
    */
-  public checkMeasureSelectedColor(): void {
+  public checkMeasureSelectedColor(): any {
 
     let colorList: Object[] = [];
 
@@ -703,7 +716,6 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
 
       // ranges 값이 없는경우 uiOption update
       if (!(<UIChartColorByValue>this.uiOption.color).ranges) {
-
         const ranges = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.resultData['data'], ChartColorList[this.uiOption.color['schema']]);
 
         colorOption = {
@@ -715,7 +727,6 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       }
     // color range hide일때
     } else {
-
       // color by measure기본 ranges값으로 초기화
       let ranges = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.resultData['data'], <any>ChartColorList[(<UIChartColorBySeries>this.uiOption.color).schema]);
 

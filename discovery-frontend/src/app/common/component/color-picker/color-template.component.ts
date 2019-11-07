@@ -107,7 +107,7 @@ export class ColorTemplateComponent extends AbstractComponent {
    */
   public changeColor(colorObj: Object) {
     const color = _.cloneDeep(colorObj);
-    if ($(event.currentTarget).hasClass('sys-inverted')) {
+    if ($('input#invertColor').is(':checked')) {
       color['colorNum'] = 'R' + color['colorNum'];
     }
 
@@ -117,10 +117,24 @@ export class ColorTemplateComponent extends AbstractComponent {
   public invertColor() {
     event.stopPropagation();
 
-    if ($(event.currentTarget).is(':checked')) {
+    if ($('input#invertColor').is(':checked')) {
       this.isTemplateColorInverted = true;
     } else {
       this.isTemplateColorInverted = false;
+    }
+
+    let colorList: Object[] = [];
+
+    // measure color list 합치기
+    colorList = colorList.concat(this.measureColorList);
+    colorList = colorList.concat(this.measureReverseColorList);
+
+    // 컬러리스트에서 같은 코드값을 가지는경우
+    for (const item of colorList) {
+      // 코드값이 같은경우
+      if (this.isChartColorSelected(item)) {
+        this.changeColor(item);
+      }
     }
   }
 
