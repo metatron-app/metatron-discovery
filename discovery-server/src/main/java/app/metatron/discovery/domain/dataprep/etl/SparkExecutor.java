@@ -39,10 +39,16 @@ public class SparkExecutor {
 
   @Async("prepThreadPoolTaskExecutor")
   public Future<String> run(String[] argv) throws IOException {
+    LOGGER.debug("runSpark(): start");
+
     Map<String, Object> prepPropertiesInfo = GlobalObjectMapper.readValue(argv[0], HashMap.class);
     Map<String, Object> datasetInfo = GlobalObjectMapper.readValue(argv[1], HashMap.class);
     Map<String, Object> snapshotInfo = GlobalObjectMapper.readValue(argv[2], HashMap.class);
     Map<String, Object> callbackInfo = GlobalObjectMapper.readValue(argv[3], HashMap.class);
+
+    String ssName = (String) snapshotInfo.get("ssName");
+    String ssType = (String) snapshotInfo.get("ssType");
+    LOGGER.debug("runSpark(): ssName={} ssType={}" + ssName, ssType);
 
     // Send spark request
     Map<String, Object> args = new HashMap();
