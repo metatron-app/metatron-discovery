@@ -14,16 +14,6 @@
 
 package app.metatron.discovery.query.druid.queries;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.List;
-import java.util.Map;
-
 import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.domain.datasource.data.QueryTimeExcetpion;
 import app.metatron.discovery.domain.datasource.data.forward.ResultForward;
@@ -32,25 +22,25 @@ import app.metatron.discovery.domain.workbook.configurations.Sort;
 import app.metatron.discovery.domain.workbook.configurations.analysis.GeoSpatialOperation;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.MappingDataSource;
-import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
-import app.metatron.discovery.domain.workbook.configurations.field.Field;
-import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
-import app.metatron.discovery.domain.workbook.configurations.field.TimestampField;
-import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
+import app.metatron.discovery.domain.workbook.configurations.field.*;
 import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.MapViewLayer;
 import app.metatron.discovery.query.druid.AbstractQueryBuilder;
 import app.metatron.discovery.query.druid.filters.AndFilter;
-import app.metatron.discovery.query.druid.funtions.LookupMapFunc;
-import app.metatron.discovery.query.druid.funtions.ShapeBufferFunc;
-import app.metatron.discovery.query.druid.funtions.ShapeFromLatLonFunc;
-import app.metatron.discovery.query.druid.funtions.ShapeFromWktFunc;
-import app.metatron.discovery.query.druid.funtions.ShapeToWktFunc;
-import app.metatron.discovery.query.druid.funtions.TimeFormatFunc;
+import app.metatron.discovery.query.druid.funtions.*;
 import app.metatron.discovery.query.druid.limits.OrderByColumn;
 import app.metatron.discovery.query.druid.virtualcolumns.ExprVirtualColumn;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
+import java.util.Map;
+
+import static app.metatron.discovery.domain.workbook.configurations.Sort.Direction.ASC;
 import static app.metatron.discovery.domain.workbook.configurations.field.Field.FIELD_NAMESPACE_SEP;
 
 /**
@@ -68,7 +58,7 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
 
   private String concatString = ",";
 
-  private List<OrderByColumn> orderBySpecs;
+  private List<OrderByColumn> orderingSpecs;
 
   private int limit;
 
@@ -93,7 +83,6 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
   }
 
   /**
-   *
    * @param reqFields
    * @return
    */
@@ -207,10 +196,11 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
           timeFormat = originalTimeFormat;
         }
 
-        TimeFormatFunc timeFormatFunc = new TimeFormatFunc(timestampField.getPredefinedColumn(dataSource instanceof MappingDataSource),
-                                                           timeFormat.getFormat(),
-                                                           timeFormat.selectTimezone(),
-                                                           timeFormat.getLocale());
+        TimeFormatFunc timeFormatFunc = new TimeFormatFunc(
+                timestampField.getPredefinedColumn(dataSource instanceof MappingDataSource),
+                timeFormat.getFormat(),
+                timeFormat.selectTimezone(),
+                timeFormat.getLocale());
         String formatColumnName = engineColumnName + ".vc";
         virtualColumns.put(formatColumnName, new ExprVirtualColumn(timeFormatFunc.toExpression(), formatColumnName));
 
@@ -239,23 +229,32 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
 
       if (geometry.getLogicalType().isShape()) {
         String fromWktName = "__shapeFromWKT";
-        virtualColumns.put(fromWktName, new ExprVirtualColumn(new ShapeFromWktFunc(geometry.getName()).toExpression(), fromWktName));
+        virtualColumns.put(fromWktName,
+                new ExprVirtualColumn(new ShapeFromWktFunc(geometry.getName()).toExpression(), fromWktName));
 
-        ShapeBufferFunc bufferFunc = new ShapeBufferFunc(fromWktName, operation.getBuffer(), ShapeBufferFunc.EndCapStyle.FLAT);
-        virtualColumns.put(GEOMETRY_BOUNDARY_COLUMN_NAME, new ExprVirtualColumn(new ShapeToWktFunc(bufferFunc.toExpression()).toExpression(), GEOMETRY_BOUNDARY_COLUMN_NAME));
+        ShapeBufferFunc bufferFunc = new ShapeBufferFunc(fromWktName, operation.getBuffer(),
+                ShapeBufferFunc.EndCapStyle.FLAT);
+        virtualColumns.put(GEOMETRY_BOUNDARY_COLUMN_NAME,
+                new ExprVirtualColumn(new ShapeToWktFunc(bufferFunc.toExpression()).toExpression(),
+                        GEOMETRY_BOUNDARY_COLUMN_NAME));
       } else {
         String fromLatLonName = "__shapeFromLatLon";
-        virtualColumns.put(fromLatLonName, new ExprVirtualColumn(new ShapeFromLatLonFunc(geometry.getName()).toExpression(), fromLatLonName));
+        virtualColumns.put(fromLatLonName,
+                new ExprVirtualColumn(new ShapeFromLatLonFunc(geometry.getName()).toExpression(), fromLatLonName));
 
         ShapeBufferFunc bufferFunc = new ShapeBufferFunc(fromLatLonName, operation.getBuffer(), null);
-        virtualColumns.put(GEOMETRY_BOUNDARY_COLUMN_NAME, new ExprVirtualColumn(new ShapeToWktFunc(bufferFunc.toExpression()).toExpression(), GEOMETRY_BOUNDARY_COLUMN_NAME));
+        virtualColumns.put(GEOMETRY_BOUNDARY_COLUMN_NAME,
+                new ExprVirtualColumn(new ShapeToWktFunc(bufferFunc.toExpression()).toExpression(),
+                        GEOMETRY_BOUNDARY_COLUMN_NAME));
       }
 
     } else {
       if (geometry.getLogicalType().isShape()) {
-        virtualColumns.put(GEOMETRY_BOUNDARY_COLUMN_NAME, new ExprVirtualColumn(geometry.getName(), GEOMETRY_BOUNDARY_COLUMN_NAME));
+        virtualColumns.put(GEOMETRY_BOUNDARY_COLUMN_NAME,
+                new ExprVirtualColumn(geometry.getName(), GEOMETRY_BOUNDARY_COLUMN_NAME));
       } else {
-        virtualColumns.put(GEOMETRY_BOUNDARY_COLUMN_NAME, concatPointExprColumn(geometry.getName(), GEOMETRY_BOUNDARY_COLUMN_NAME));
+        virtualColumns.put(GEOMETRY_BOUNDARY_COLUMN_NAME,
+                concatPointExprColumn(geometry.getName(), GEOMETRY_BOUNDARY_COLUMN_NAME));
       }
     }
 
@@ -282,7 +281,8 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
     return this;
   }
 
-  public SelectStreamQueryBuilder filters(List<app.metatron.discovery.domain.workbook.configurations.filter.Filter> reqfilters) {
+  public SelectStreamQueryBuilder filters(
+          List<app.metatron.discovery.domain.workbook.configurations.filter.Filter> reqfilters) {
 
     extractPartitions(reqfilters);
 
@@ -295,15 +295,22 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
 
     if (reqLimit != null) {
       limit = reqLimit.getLimit();
+      orderingSpecs = Lists.newArrayList();
 
       if (reqLimit.getSort() != null) {
         for (Sort sort : reqLimit.getSort()) {
-          if (this.metaFieldMap.containsKey(sort.getField())) {
-            app.metatron.discovery.domain.datasource.Field field = this.metaFieldMap.get(sort.getField());
-            if (field.getRole() == app.metatron.discovery.domain.datasource.Field.FieldRole.TIMESTAMP) {
-              descending = sort.getDirection() == Sort.Direction.DESC ? true : false;
-            } // Ignore any sorting on the rest of the field of timestamp role
+          if (!fieldMapper.containsValue(sort.getField())) {
+            continue;
           }
+          String originalFieldName = getFieldMapperByValue(sort.getField());
+          if (originalFieldName == null) {
+            continue;
+          }
+
+          // Specified null value in dimensionOrder because error occurs if order column is measure field.
+          orderingSpecs.add(new OrderByColumn(originalFieldName,
+                  sort.getDirection() == ASC ? OrderByColumn.DIRECTION.ASCENDING : OrderByColumn.DIRECTION.DESCENDING,
+                  null));
         }
       }
 
@@ -312,6 +319,15 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
     }
 
     return this;
+  }
+
+  public String getFieldMapperByValue(Object value) {
+    for (String key : fieldMapper.keySet()) {
+      if (fieldMapper.get(key).equals(value)) {
+        return key;
+      }
+    }
+    return null;
   }
 
   public SelectStreamQueryBuilder forward(ResultForward resultForward) {
@@ -360,7 +376,9 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
       streamQuery.setIntervals(intervals);
     }
 
-    streamQuery.setLimit(limit);
+    streamQuery.setDefaultLimitSize(limit);
+
+    streamQuery.setOrderingSpecs(orderingSpecs);
 
     streamQuery.setDescending(descending);
 
