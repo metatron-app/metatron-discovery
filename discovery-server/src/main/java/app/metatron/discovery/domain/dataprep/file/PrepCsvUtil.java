@@ -158,15 +158,14 @@ public class PrepCsvUtil {
 
     LOGGER.debug(
             "PrepCsvUtil.parse(): strUri={} delim={} quoteChar={} header={} limitRows={} manualColCnt={} hadoopConf={}",
-            strUri, strDelim, limitRows, header, limitRows, manualColCnt, hadoopConf);
+            strUri, strDelim, quoteChar, header, limitRows, manualColCnt, hadoopConf);
 
     Reader reader = getReader(strUri, hadoopConf, onlyCount, result);
 
     try {
       // \", "" both become " by default
       LOGGER.debug("Call CSVParser.parse(): strDelim={}", strDelim);
-      parser = CSVParser
-              .parse(reader, CSVFormat.DEFAULT.withDelimiter(charDelim).withEscape('\\').withQuote(quoteChar));
+      parser = CSVParser.parse(reader, CSVFormat.DEFAULT.withDelimiter(charDelim).withQuote(quoteChar));
     } catch (IOException e) {
       e.printStackTrace();
       throw datasetError(MSG_DP_ALERT_FAILED_TO_PARSE_CSV, String.format("%s (delimiter: %s)", strUri, strDelim));
