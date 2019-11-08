@@ -863,6 +863,7 @@
   "msg.dp.alert.teddy.cannot.cast.to": "Cannot cast to X",
   "msg.dp.alert.teddy.cannot.cast.from": "Cannot cast from X",
   "msg.dp.alert.teddy.cannot.serialize.into.json": "不可转换为JSON来保存",
+  "msg.dp.alter.teddy.cannot.unnest.empty.column" : "There is no row or the target column is null",
   "msg.dp.alert.teddy.unknown.type": "Unknown type",
   "msg.dp.alert.teddy.type.mismatch": "Type Mismatch",
   "msg.dp.alert.teddy.different.type": "Different Type",
