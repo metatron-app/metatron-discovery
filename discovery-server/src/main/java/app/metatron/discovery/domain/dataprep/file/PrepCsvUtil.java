@@ -39,6 +39,7 @@ public class PrepCsvUtil {
   private String strDelim;
   private char charDelim;
   private Character quoteChar;
+  private Character escape;
   private boolean header;
 
   private int limitRows;
@@ -67,12 +68,13 @@ public class PrepCsvUtil {
     throw datasetError(MSG_DP_ALERT_MALFORMED_DELIMITER, HADOOP_CONF_DIR);
   }
 
-  private PrepCsvUtil(String strDelim, Character quoteChar, boolean header, int limitRows, Integer manualColCnt,
-          Configuration hadoopConf, boolean onlyCount) {
+  private PrepCsvUtil(String strDelim, Character quoteChar, Character escape, boolean header, int limitRows,
+          Integer manualColCnt, Configuration hadoopConf, boolean onlyCount) {
     this.strDelim = strDelim;
     charDelim = getUnescapedDelimiter(strDelim);
 
     this.quoteChar = quoteChar;
+    this.escape = escape;
     this.header = header;
 
     this.limitRows = limitRows;
@@ -88,9 +90,10 @@ public class PrepCsvUtil {
    * The default base instance:
    * strDelim = ,
    * quoteChar = "
+   * escape = null
    * header = false
    */
-  public static final PrepCsvUtil DEFAULT = new PrepCsvUtil(",", '"', false, 1000, null, null, false);
+  public static final PrepCsvUtil DEFAULT = new PrepCsvUtil(",", '"', null, false, 1000, null, null, false);
 
 
   /**
@@ -98,7 +101,7 @@ public class PrepCsvUtil {
    * @return this
    */
   public PrepCsvUtil withDelim(String strDelim) {
-    return new PrepCsvUtil(strDelim, quoteChar, header, limitRows, manualColCnt, hadoopConf, onlyCount);
+    return new PrepCsvUtil(strDelim, quoteChar, escape, header, limitRows, manualColCnt, hadoopConf, onlyCount);
   }
 
   /**
@@ -106,7 +109,15 @@ public class PrepCsvUtil {
    * @return this
    */
   public PrepCsvUtil withQuoteChar(Character quoteChar) {
-    return new PrepCsvUtil(strDelim, quoteChar, header, limitRows, manualColCnt, hadoopConf, onlyCount);
+    return new PrepCsvUtil(strDelim, quoteChar, escape, header, limitRows, manualColCnt, hadoopConf, onlyCount);
+  }
+
+  /**
+   * @param escape Default is null. Sometimes, some files made assuming this is '\' or sth like that.
+   * @return this
+   */
+  public PrepCsvUtil withEscape(Character escape) {
+    return new PrepCsvUtil(strDelim, quoteChar, escape, header, limitRows, manualColCnt, hadoopConf, onlyCount);
   }
 
   /**
@@ -114,7 +125,7 @@ public class PrepCsvUtil {
    * @return this
    */
   public PrepCsvUtil withHeader(boolean header) {
-    return new PrepCsvUtil(strDelim, quoteChar, header, limitRows, manualColCnt, hadoopConf, onlyCount);
+    return new PrepCsvUtil(strDelim, quoteChar, escape, header, limitRows, manualColCnt, hadoopConf, onlyCount);
   }
 
   /**
@@ -122,7 +133,7 @@ public class PrepCsvUtil {
    * @return this
    */
   public PrepCsvUtil withLimitRows(int limitRows) {
-    return new PrepCsvUtil(strDelim, quoteChar, header, limitRows, manualColCnt, hadoopConf, onlyCount);
+    return new PrepCsvUtil(strDelim, quoteChar, escape, header, limitRows, manualColCnt, hadoopConf, onlyCount);
   }
 
   /**
@@ -130,7 +141,7 @@ public class PrepCsvUtil {
    * @return this
    */
   public PrepCsvUtil withManualColCnt(Integer manualColCnt) {
-    return new PrepCsvUtil(strDelim, quoteChar, header, limitRows, manualColCnt, hadoopConf, onlyCount);
+    return new PrepCsvUtil(strDelim, quoteChar, escape, header, limitRows, manualColCnt, hadoopConf, onlyCount);
   }
 
   /**
@@ -138,7 +149,7 @@ public class PrepCsvUtil {
    * @return this
    */
   public PrepCsvUtil withHadoopConf(Configuration hadoopConf) {
-    return new PrepCsvUtil(strDelim, quoteChar, header, limitRows, manualColCnt, hadoopConf, onlyCount);
+    return new PrepCsvUtil(strDelim, quoteChar, escape, header, limitRows, manualColCnt, hadoopConf, onlyCount);
   }
 
   /**
@@ -146,7 +157,7 @@ public class PrepCsvUtil {
    * @return this
    */
   public PrepCsvUtil withOnlyCount(boolean onlyCount) {
-    return new PrepCsvUtil(strDelim, quoteChar, header, limitRows, manualColCnt, hadoopConf, onlyCount);
+    return new PrepCsvUtil(strDelim, quoteChar, escape, header, limitRows, manualColCnt, hadoopConf, onlyCount);
   }
 
   /**
@@ -165,7 +176,8 @@ public class PrepCsvUtil {
     try {
       // \", "" both become " by default
       LOGGER.debug("Call CSVParser.parse(): strDelim={}", strDelim);
-      parser = CSVParser.parse(reader, CSVFormat.DEFAULT.withDelimiter(charDelim).withQuote(quoteChar));
+      parser = CSVParser
+              .parse(reader, CSVFormat.DEFAULT.withEscape(escape).withDelimiter(charDelim).withQuote(quoteChar));
     } catch (IOException e) {
       e.printStackTrace();
       throw datasetError(MSG_DP_ALERT_FAILED_TO_PARSE_CSV, String.format("%s (delimiter: %s)", strUri, strDelim));

@@ -66,7 +66,7 @@ public class ApacheCommonsCsvInputTest {
   @Test
   public void test_multi_line_escape() {
     String strUri = buildStrUrlFromResourceDir("csv/multi_line_with_bs_escape.csv");
-    PrepParseResult result = PrepCsvUtil.DEFAULT.parse(strUri);
+    PrepParseResult result = PrepCsvUtil.DEFAULT.withEscape('\\').parse(strUri);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -78,7 +78,7 @@ public class ApacheCommonsCsvInputTest {
   @Test
   public void test_multi_line_unmatched() {
     String strUri = buildStrUrlFromResourceDir("csv/multi_line_with_bs_escape.csv");
-    PrepParseResult result = PrepCsvUtil.DEFAULT.withHeader(true).parse(strUri);
+    PrepParseResult result = PrepCsvUtil.DEFAULT.withEscape('\\').withHeader(true).parse(strUri);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();

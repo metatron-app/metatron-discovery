@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import static app.metatron.discovery.domain.dataprep.teddy.ColumnType.ARRAY;
+
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotUnnestEmptyColumnException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.InvalidIndexTypeException;
@@ -22,7 +24,7 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.WorksOnlyOnArrayOrMapException;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.Unnest;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant.LongExpr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant.StringExpr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import java.io.IOException;
@@ -88,17 +90,19 @@ public class DfUnnest extends DataFrame {
         throw new InvalidJsonException(e.getMessage());
       }
     } else {
-      if (!(idx instanceof Constant.StringExpr)) {
-        throw new InvalidIndexTypeException("doUnnest(): invalid index type: " + idx.toString());
+      if (!(idx instanceof StringExpr)) {
+        if (!(prevType == ARRAY && idx instanceof LongExpr)) {
+          throw new InvalidIndexTypeException("doUnnest(): invalid index type: " + idx.toString());
+        }
       }
 
-      String idxEscaped = ((StringExpr) idx).getEscapedValue();
+      Object idxObj = idx instanceof StringExpr ? ((StringExpr) idx).getEscapedValue() : ((LongExpr) idx).getValue();
       switch (prevType) {
         case MAP:
-          elemKeys.add(idxEscaped);
+          elemKeys.add((String) idxObj);
           break;
         case ARRAY:
-          elemIdxs.add(Integer.valueOf(idxEscaped));
+          elemIdxs.add(((Long) idxObj).intValue());
           break;
         default:
           throw new WorksOnlyOnArrayOrMapException("doUnnest(): works only on ARRAY/MAP: " + prevType);
