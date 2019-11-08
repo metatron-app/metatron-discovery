@@ -141,10 +141,6 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     appVersion: BuildInfo.METATRON_APP_VERSION
   };
 
-  public get getManagementExtensions(): Extension[] {
-    return CommonService.extensions.filter(item => 'management' === item.parent);
-  } // get - getManagementExtensions
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Component
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -264,10 +260,13 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
           } else if('Lineage' === ext.name) {
             this.permission.lineage = true;
           } else if('Engine Monitoring' === ext.name) {
-            this.permission.managementEngineMonitoring = (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_DATASOURCE.toString()));
+            //this.permission.managementEngineMonitoring = (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_DATASOURCE.toString()));
+            this.permission.managementEngineMonitoring = this.extensionPermission(ext);
           } else {
-            (this.lnbManager[ext.parent]) || (this.lnbManager[ext.parent] = {});
-            this.lnbManager[ext.parent][ext.name] = {fold: true};
+            if (ext.parent != 'ROOT') {
+              (this.lnbManager[ext.parent]) || (this.lnbManager[ext.parent] = {});
+              this.lnbManager[ext.parent][ext.name] = {fold: true};
+            }
           }
         });
       }
@@ -313,35 +312,34 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
    * @param {string} menuName
    */
   public depth1Menu1ClickListener(menuName: string) {
+    this.lnbManager.workspace.fold = true;
+    this.lnbManager.exploreData.fold = true;
+    this.lnbManager.management.fold = true;
+    this.lnbManager.administration.fold = true;
+    this.getExtensions('ROOT').forEach(item => {
+      this.lnbManager[item.name]['fold'] = true;
+    });
     switch (menuName) {
       case 'WORKSPACE' :
         this.lnbManager.workspace.fold = false;
-        this.lnbManager.exploreData.fold = true;
-        this.lnbManager.management.fold = true;
-        this.lnbManager.administration.fold = true;
         break;
       case 'EXPLOREDATA' :
-        this.lnbManager.workspace.fold = true;
         this.lnbManager.exploreData.fold = false;
-        this.lnbManager.management.fold = true;
-        this.lnbManager.administration.fold = true;
         this.exploreDataMenuClickListener('EXPLOREDATA_VIEW');
         break;
       case 'MANAGEMENT' :
-        this.lnbManager.workspace.fold = true;
-        this.lnbManager.exploreData.fold = true;
         this.lnbManager.management.fold = false;
-        this.lnbManager.administration.fold = true;
-        this.lnbManager.management.engineMonitoring.fold = true;
         this.mgmtMenuClickListener('DATASTORAGE');
         break;
       case 'ADMINISTRATION' :
-        this.lnbManager.workspace.fold = true;
-        this.lnbManager.exploreData.fold = true;
-        this.lnbManager.management.fold = true;
         this.lnbManager.administration.fold = false;
         this.adminMenuClickListener('USER');
         break;
+      default :
+        if (this.lnbManager[menuName]) {
+          this.lnbManager[menuName]['fold'] = false;
+          this.rootExtensionMenuClickListener(menuName);
+        }
     }
   } // function - menuDepth1ClickListener
 
@@ -373,7 +371,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     this.lnbManager.management.dataMonitoring.fold = true;
     this.lnbManager.management.modelManager.fold = true;
     this.lnbManager.management.engineMonitoring.fold = true;
-    this.getManagementExtensions.forEach(item => {
+    this.getExtensions('management').forEach(item => {
       this.lnbManager.management[item.name]['fold'] = true;
     });
 
@@ -410,6 +408,9 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   public adminMenuClickListener(menuName: string) {
     this.lnbManager.administration.users.fold = true;
     this.lnbManager.administration.workspaces.fold = true;
+    this.getExtensions('administration').forEach(item => {
+      this.lnbManager.administration[item.name]['fold'] = true;
+    });
     switch (menuName) {
       case 'USER' :
         this.lnbManager.administration.users.fold = false;
@@ -417,8 +418,25 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
       case 'WORKSPACE' :
         this.lnbManager.administration.workspaces.fold = false;
         break;
+      default :
+        if (this.lnbManager.administration[menuName]) {
+          this.lnbManager.administration[menuName]['fold'] = false;
+        }
     }
   } // function - adminMenuClickListener
+
+  public rootExtensionMenuClickListener(parent:string, menuName?:string) {
+    if (menuName == undefined && this.getExtensions(parent).length > 0) {
+      menuName = this.getExtensions(parent)[0].name;
+    }
+    this.getExtensions(parent).forEach(item => {
+      this.lnbManager[parent][item.name]['fold'] = true;
+    });
+
+    if (this.lnbManager[parent][menuName]) {
+      this.lnbManager[parent][menuName]['fold'] = false;
+    }
+  } // function - exploreDataMenuClickListener
 
   /**
    * 워크스페이스 리스트 페이지 오픈
@@ -612,29 +630,46 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
    */
   public move(menu: string, extras?: NavigationExtras) {
     if (this.router.url !== '/' + menu) {
-      // window.location.href = environment.baseHref + menu;
       this.loadingShow();
 
       if (extras) {
         this.router.navigate([menu], extras).then();
       } else {
-        if( 'external/management_EngineMonitoring_Overview' === menu ) {
-          // 임시 코드
-          this.router.navigate(['management/engine-monitoring/overview'], { queryParams: { keyword: '', status: this.ENGINE_OVERVIEW_MONITORING_STATUS.ALL } } ).then();
-        } else if ( 'external/management_EngineMonitoring_Ingestion' === menu ) {
-          // 임시 코드
-          this.router.navigate(['management/engine-monitoring/ingestion']).then();
-        } else {
-          this.router.navigate([menu]).then();
-        }
+        this.router.navigate([menu]).then();
       }
 
       this._closeLNB();
     }
   } // function - move
 
-  public extentionSelected(name:string): boolean {
-    return this.lnbManager.management[name] != undefined && this.lnbManager.management[name]['fold'] == false;
+  public moveExtension(ext: Extension, subKey) {
+    if (ext.subContents[subKey].startsWith('http')) {
+      this.move('external/' + ext.parent + '_' + ext.name + '_' + subKey);
+    } else {
+      this.move(ext.subContents[subKey]);
+    }
+  }
+
+  public extensionPermission(ext: Extension): boolean {
+    if (ext.permissions && ext.permissions.length > 0) {
+      let cookiePermission: string = CommonUtil.getCurrentPermissionString();
+      return ext.permissions.some(permission => cookiePermission.indexOf(permission) > -1 );
+    } else {
+      return true;
+    }
+  }
+
+  public getExtensions(parent:string): Extension[] {
+    const extensions = CommonService.extensions.filter(item => parent === item.parent);
+    if (parent === 'ROOT') {
+      return extensions.filter(rootExtension => CommonService.extensions.filter(item => rootExtension.name === item.parent).length > 0);
+    } else {
+      return extensions;
+    }
+  }
+
+  public isExtensionSelected(parent:string, name:string): boolean {
+    return this.lnbManager[parent][name] != undefined && this.lnbManager[parent][name]['fold'] == false;
   }
 
   /**
