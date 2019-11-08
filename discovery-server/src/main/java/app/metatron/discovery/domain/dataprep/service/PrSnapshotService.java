@@ -502,7 +502,7 @@ public class PrSnapshotService {
             gridResponse.setByGrid(result);
             custom = "{'colDescs':[\"type\":\"STRING\"]}";
           } else {
-            PrepParseResult result = PrepCsvUtil.parse(snapshot.getStoredUri(), ",", 10000, null, hadoopConf, true);
+            PrepParseResult result = PrepCsvUtil.parse(snapshot.getStoredUri(), ",", "\"", 10000, null, hadoopConf, true);
             gridResponse.setByGrid(result);
           }
 

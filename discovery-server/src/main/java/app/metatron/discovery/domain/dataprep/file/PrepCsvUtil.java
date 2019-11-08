@@ -1,16 +1,15 @@
 package app.metatron.discovery.domain.dataprep.file;
 
-import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_PARSE_CSV;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_WRITE_CSV;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_MALFORMED_DELIMITER;
-import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getReader;
-import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getWriter;
-import static app.metatron.discovery.domain.dataprep.util.PrepUtil.datasetError;
-import static app.metatron.discovery.domain.dataprep.util.PrepUtil.snapshotError;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.csv.QuoteMode;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -21,16 +20,21 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+
 import javax.servlet.ServletOutputStream;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.csv.QuoteMode;
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+
+import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_PARSE_CSV;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_WRITE_CSV;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_MALFORMED_DELIMITER;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_MALFORMED_QUOTECHAR;
+import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getReader;
+import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getWriter;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.datasetError;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.snapshotError;
 
 public class PrepCsvUtil {
 
@@ -112,9 +116,26 @@ public class PrepCsvUtil {
     throw datasetError(MSG_DP_ALERT_MALFORMED_DELIMITER, HADOOP_CONF_DIR);
   }
 
+  private static Character getUnescapedQuote(String quoteChar) {
+
+    if (quoteChar.length() == 0) {
+      return null;
+    } else if (quoteChar.length() == 1) {
+      return new Character(quoteChar.charAt(0));
+    } else {
+      String unescaped = StringEscapeUtils.unescapeJava(quoteChar);
+      if (unescaped.length() == 1) {
+        return new Character(unescaped.charAt(0));
+      }
+    }
+
+    throw datasetError(MSG_DP_ALERT_MALFORMED_QUOTECHAR, HADOOP_CONF_DIR);
+  }
+
   /**
    * @param strUri URI as String (to be java.net.URI)
    * @param strDelim Delimiter as String (to be Char)
+   * @param quoteChar Quote Character as String (to be Char)
    * @param limitRows Read not more than this
    * @param manualColCnt Manually set column count from UI
    * @param conf Hadoop configuration which is mandatory when the url's protocol is hdfs
@@ -122,20 +143,21 @@ public class PrepCsvUtil {
    * @param onlyCount If true, just fill result.totalRows and result.totalBytes
    * @return PrepParseResult: grid, colNames
    */
-  public static PrepParseResult parse(String strUri, String strDelim, int limitRows, Integer manualColCnt,
+  public static PrepParseResult parse(String strUri, String strDelim, String quoteChar, int limitRows, Integer manualColCnt,
           Configuration conf, boolean header, boolean onlyCount) {
     PrepParseResult result = new PrepParseResult();
 
-    LOGGER.debug("PrepCsvUtil.parse(): strUri={} strDelim={} limitRows={} conf={}", strUri, strDelim, limitRows, conf);
+    LOGGER.debug("PrepCsvUtil.parse(): strUri={} strDelim={} quoteChar={} limitRows={} conf={}", strUri, strDelim, quoteChar, limitRows, conf);
 
     Reader reader = getReader(strUri, conf, onlyCount, result);
 
     char delim = getUnescapedDelimiter(strDelim);
+    Character quote = getUnescapedQuote(quoteChar);
     CSVParser parser;
     try {
       // \", "" both become " by default
       LOGGER.debug("Call CSVParser.parse(): strDelim={}", delim);
-      parser = CSVParser.parse(reader, CSVFormat.DEFAULT.withDelimiter(delim).withEscape('\\'));
+      parser = CSVParser.parse(reader, CSVFormat.DEFAULT.withDelimiter(delim).withQuote(quote).withEscape('\\'));
     } catch (IOException e) {
       e.printStackTrace();
       throw datasetError(MSG_DP_ALERT_FAILED_TO_PARSE_CSV, String.format("%s (delimiter: %s)", strUri, strDelim));
@@ -147,28 +169,28 @@ public class PrepCsvUtil {
     return result;
   }
 
-  public static PrepParseResult parse(String strUri, String strDelim, int limitRows, Configuration conf) {
-    return parse(strUri, strDelim, limitRows, null, conf, false, false);
+  public static PrepParseResult parse(String strUri, String strDelim, String quoteChar, int limitRows, Configuration conf) {
+    return parse(strUri, strDelim, quoteChar, limitRows, null, conf, false, false);
   }
 
-  public static PrepParseResult parse(String strUri, String strDelim, int limitRows, Configuration conf,
+  public static PrepParseResult parse(String strUri, String strDelim, String quoteChar, int limitRows, Configuration conf,
           boolean header) {
-    return parse(strUri, strDelim, limitRows, null, conf, header, false);
+    return parse(strUri, strDelim, quoteChar, limitRows, null, conf, header, false);
   }
 
-  public static PrepParseResult parse(String strUri, String strDelim, int limitRows, Integer columnCount,
+  public static PrepParseResult parse(String strUri, String strDelim, String quoteChar, int limitRows, Integer columnCount,
           Configuration conf) {
-    return parse(strUri, strDelim, limitRows, columnCount, conf, false, false);
+    return parse(strUri, strDelim, quoteChar, limitRows, columnCount, conf, false, false);
   }
 
-  public static PrepParseResult parse(String strUri, String strDelim, int limitRows, Integer columnCount,
+  public static PrepParseResult parse(String strUri, String strDelim, String quoteChar, int limitRows, Integer columnCount,
           Configuration conf, boolean header) {
-    return parse(strUri, strDelim, limitRows, columnCount, conf, header, false);
+    return parse(strUri, strDelim, quoteChar, limitRows, columnCount, conf, header, false);
   }
 
-  public static Map<String, Long> countCsv(String strUri, String strDelim, int limitRows, Configuration conf) {
+  public static Map<String, Long> countCsv(String strUri, String strDelim, String quoteChar, int limitRows, Configuration conf) {
     Map<String, Long> mapTotal = new HashMap();
-    PrepParseResult result = parse(strUri, strDelim, limitRows, null, conf, false, true);
+    PrepParseResult result = parse(strUri, strDelim, quoteChar, limitRows, null, conf, false, true);
     mapTotal.put("totalRows", result.totalRows);
     mapTotal.put("totalBytes", result.totalBytes);
     return mapTotal;

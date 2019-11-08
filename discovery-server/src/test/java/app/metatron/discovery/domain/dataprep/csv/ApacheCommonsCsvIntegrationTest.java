@@ -14,7 +14,24 @@
 
 package app.metatron.discovery.domain.dataprep.csv;
 
-import static org.junit.Assert.assertNull;
+import com.facebook.presto.jdbc.internal.jackson.core.JsonProcessingException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestExecutionListeners;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import app.metatron.discovery.AbstractRestIntegrationTest;
 import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
@@ -26,22 +43,8 @@ import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.file.PrepFileUtil;
 import app.metatron.discovery.domain.dataprep.file.PrepParseResult;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import com.facebook.presto.jdbc.internal.jackson.core.JsonProcessingException;
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
-import java.net.URI;
-import java.net.URISyntaxException;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.TestExecutionListeners;
+
+import static org.junit.Assert.assertNull;
 
 @TestExecutionListeners(value = OAuthTestExecutionListener.class, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class ApacheCommonsCsvIntegrationTest extends AbstractRestIntegrationTest {
@@ -105,7 +108,7 @@ public class ApacheCommonsCsvIntegrationTest extends AbstractRestIntegrationTest
 
   @Test
   public void test_hdfs() throws JsonProcessingException {
-    PrepParseResult result = PrepCsvUtil.parse(strHdfsUriCrime, ",", 10000, getHadoopConf());
+    PrepParseResult result = PrepCsvUtil.parse(strHdfsUriCrime, ",", "\"", 10000, getHadoopConf());
 
     assertNull(result.colNames);
 
@@ -116,7 +119,7 @@ public class ApacheCommonsCsvIntegrationTest extends AbstractRestIntegrationTest
 
   @Test
   public void test_hdfs_header() throws JsonProcessingException {
-    PrepParseResult result = PrepCsvUtil.parse(strHdfsUriCrime, ",", 10000, getHadoopConf(), true);
+    PrepParseResult result = PrepCsvUtil.parse(strHdfsUriCrime, ",", "\"", 10000, getHadoopConf(), true);
 
     LOGGER.debug("colNames={}", result.colNames);
     LOGGER.debug("colCnt={}", result.colNames.size());

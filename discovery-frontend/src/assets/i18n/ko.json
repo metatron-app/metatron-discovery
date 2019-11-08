@@ -1405,6 +1405,8 @@
   "msg.dp.ui.invalid.url": "잘못된 URL입니다. URL을 확인하세요",
   "msg.dp.th.col.cnt": "컬럼 수",
   "msg.dp.th.col.cnt.ph": "컬럼 수를 입력하세요",
+  "msg.dp.th.quote" : "Quote character",
+  "msg.dp.th.quote.ph" : "(can be empty)",
   "msg.board.create.add-ds": "데이터소스 추가",
   "msg.board.create.add-ds.desc": "시각화 할 데이터소스를 추가하고 관계를 설정해 주세요",
   "msg.board.create.set-relation": "데이터소스간의 관계 설정",

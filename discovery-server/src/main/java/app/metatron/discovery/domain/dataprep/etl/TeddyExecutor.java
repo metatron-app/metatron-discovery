@@ -14,18 +14,31 @@
 
 package app.metatron.discovery.domain.dataprep.etl;
 
-import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_CORES;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_LIMIT_ROWS;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_MAX_FETCH_SIZE;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_TIMEOUT;
-import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.CANCELED;
-import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.FAILED;
-import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.RUNNING;
-import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.SUCCEEDED;
-import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.WRITING;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_SNAPSHOT_TYPE_IS_MISSING;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_SNAPSHOT_TYPE_NOT_SUPPORTED_YET;
-import static app.metatron.discovery.domain.dataprep.util.PrepUtil.snapshotError;
+import com.google.common.collect.Maps;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
@@ -41,28 +54,19 @@ import app.metatron.discovery.prep.parser.exceptions.RuleException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.Join;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.Maps;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
-import org.springframework.stereotype.Service;
+
+import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_CORES;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_LIMIT_ROWS;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_MAX_FETCH_SIZE;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_TIMEOUT;
+import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.CANCELED;
+import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.FAILED;
+import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.RUNNING;
+import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.SUCCEEDED;
+import static app.metatron.discovery.domain.dataprep.entity.PrSnapshot.STATUS.WRITING;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_SNAPSHOT_TYPE_IS_MISSING;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_SNAPSHOT_TYPE_NOT_SUPPORTED_YET;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.snapshotError;
 
 @Service
 public class TeddyExecutor {
@@ -369,7 +373,8 @@ public class TeddyExecutor {
           cache.put(newFullDsId, fileService.loadJsonFile(newFullDsId, storedUri, manualColCnt));
         } else {
           String delimiter = (String) dsInfo.get("delimiter");
-          cache.put(newFullDsId, fileService.loadCsvFile(newFullDsId, storedUri, delimiter, manualColCnt));
+          String quoteChar = (String) dsInfo.get("quoteChar");
+          cache.put(newFullDsId, fileService.loadCsvFile(newFullDsId, storedUri, delimiter, quoteChar, manualColCnt));
         }
         break;
 

@@ -969,6 +969,8 @@
   "msg.dp.li.wd.description": "Row需做Grouping，再将其与Group中的值做比较后得出的结果添加为新的字段",
   "msg.dp.th.col.delimiter": "列分隔符",
   "msg.dp.th.col.delimiter.ph": "请输入列分隔符",
+  "msg.dp.th.quote" : "Quote character",
+  "msg.dp.th.quote.ph" : "(can be empty)",
   "msg.dp.th.command": "Command",
   "msg.dp.th.compression": "压缩",
   "msg.dp.th.condition": "条件",

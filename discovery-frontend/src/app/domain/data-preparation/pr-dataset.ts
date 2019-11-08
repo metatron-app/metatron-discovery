@@ -39,6 +39,7 @@ export class PrDataset extends AbstractHistoryEntity {
   public sheetName: string;
   public fileFormat: FileFormat;
   public delimiter: string;
+  public quoteChar: string;
   public refDfCount: number;
   public custom: any; // JSON string으로 조회되나 UI에서 사용 시 JSON형태로 파싱해서 사용하여 any로 선언
 
