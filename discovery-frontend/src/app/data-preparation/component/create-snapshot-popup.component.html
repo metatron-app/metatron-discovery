@@ -110,6 +110,9 @@
                 </component-select>
                 <!-- //selectbox -->
                 <!-- //edit option -->
+                <div class="ddp-form-error" [ngClass]="{'ddp-error': fileFormatErrorMsg !== ''}">
+                  <span class="ddp-data-error" *ngIf="fileFormatErrorMsg !== ''"> {{fileFormatErrorMsg}}</span>
+                </div>
               </div>
             </div>
             <div class="ddp-high-setting">

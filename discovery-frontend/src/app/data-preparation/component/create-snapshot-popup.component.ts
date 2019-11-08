@@ -94,6 +94,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
   public isErrorShow: boolean = false;
   public fileUrlErrorMsg: string = '';
+  public fileFormatErrorMsg: string = '';
   public ssNameErrorMsg: string = '';
   public tblErrorMsg: string = '';
 
@@ -241,6 +242,12 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
       }
     }
 
+    if ( this.snapshot.engine !== Engine.EMBEDDED && this.uriFileFormat === UriFileFormat.SQL ) {
+      this.fileFormatErrorMsg = this.translateService.instant('msg.dp.alert.ss.not.support.sql');
+      this.isErrorShow = true;
+      return;
+    }
+
     this.loadingShow();
     this._createSnapshot(this.datasetId, this.snapshot);
 
@@ -280,11 +287,15 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
   public onSelected(event,type) {
     switch (type){
       case 'engine':
+        this.fileFormatErrorMsg = '';
+        this.isErrorShow = false;
         if ('EMBEDDED' === event.value) {
           this.snapshot.hiveFileFormat = this.hiveEmbeddedFormat[0].value;
         }
         break;
       case 'format':
+        this.fileFormatErrorMsg = '';
+        this.isErrorShow = false;
         if ( this.snapshot.ssType && this.snapshot.ssType === SsType.URI) {
           this.uriFileFormat = event.value;
         }
@@ -343,6 +354,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     this.snapshot.ssType = ssType;
     this.isErrorShow = false;
     this.fileUrlErrorMsg = '';
+    this.fileFormatErrorMsg = '';
     this.tblErrorMsg = '';
     this.ssNameErrorMsg = '';
 
@@ -493,7 +505,8 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     // -------------------
     this.fileFormat = [
       { value: UriFileFormat.CSV, label: 'CSV' },
-      { value: UriFileFormat.JSON, label: 'JSON' }
+      { value: UriFileFormat.JSON, label: 'JSON' },
+      { value: UriFileFormat.SQL, label: 'SQL' }
     ];
 
     this.ssName = '';
@@ -567,7 +580,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     if (0 < this.fileLocations.length) {
 
       result = this.fileUris[0] ;
-      if (['.csv','.json'].indexOf(this.snapshot.storedUri) < 0)
+      if (['.csv','.json','.sql'].indexOf(this.snapshot.storedUri) < 0)
         result +=  '.' + this.uriFileFormat.toString().toLowerCase();
     }
     return result;

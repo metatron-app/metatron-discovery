@@ -64,7 +64,7 @@ logging:
   # If you want to set up a separate log, create a separate file to specify the path to the file.
   # Please refer to https://logback.qos.ch/manual/configuration.html
   config: classpath:logback-console.xml
-  mail: # Mail(SMTP) server properteis
+  mail: # Mail(SMTP) server properties
     host: localhost
     port: 25
     username:
@@ -86,7 +86,7 @@ polaris:
       - 'dd/MM/yyyy'
   storage:
     # The stagedb concept is internally used as an intermediary processing medium when processing large amounts of data
-    # when ingesting or trasforming data in an application. We are using hive and specify the information related to it.
+    # when ingesting or transforming data in an application. We are using hive and specify the information related to it.
     stagedb: 
       hostname: localhost # for hiveserver
       port: 10000         # for hiveserver
@@ -134,9 +134,9 @@ polaris:
     admin: admin@metatron.com      # Specify representative manager email
     baseUrl: http://localhost:8180 # Specify connection url for linking metatron contents in mail
   workbench:
-    defaultResultSize: 1000        # Row mumber of results to display by default on the screen
+    defaultResultSize: 1000        # Row number of results to display by default on the screen
     maxResultSize: 1000000         # The maximum row number of results that a user can specify
-    maxFetchSize: 1000             # Fetch size when loading sql results, only applies to supported db libarary
+    maxFetchSize: 1000             # Fetch size when loading sql results, only applies to supported db library
     tempCSVPath: /tmp              # Specify a directory to temporarily store query results
   dataprep:
     localBaseDir: ${user.home}/dataprep                       # Where uploaded files, local file snapshots, serialized previews are stored
@@ -146,5 +146,20 @@ polaris:
       timeout: 20       # Timeout for rule edit sessions
     etl:
       timeout: 36000    # Timeout for generating snapshots
+  extensions:
+      lnb:                          # Specify the menu to add to the LNB.
+        - name: one depth menu      # Specify 1st depth menu name
+          parent: ROOT              # Specify "ROOT" to be on the top menu. In the case of "ROOT", it is displayed in the LNB if a lower depth menu exists.
+          permissions:
+            - PERM_NAME     # Specify a list of PERM_NAME. If not specified, all users can access.
+        - name: two depth menu      # Specify 2nd depth menu name
+          parent: one depth menu    # Specify the parent menu name including "management" and "administration". If the menu name of the upper depth does not exist, it is not displayed.
+          subContents:
+            menu name: URL         # Specify the menu name as key and the URL(http://~~) to link to as value.
+          permissions:
+            - PERM_NAME     # Specify a list of PERM_NAME. If not specified, all users with permissions in the upper depth menu can access.
+        - name: Engine Monitoring   # for Engine(Druid) Monitoring
+          permissions:
+            - PERM_NAME     # Specify a list of PERM_NAME. If not specified, all users with permissions in the upper depth menu can access.
 ----
 

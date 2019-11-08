@@ -117,7 +117,8 @@ export enum StorageType {
 
 export enum UriFileFormat {
   CSV = <any>'CSV',
-  JSON = <any>'JSON'
+  JSON = <any>'JSON',
+  SQL = <any>'SQL'
 }
 
 export enum HiveFileFormat {

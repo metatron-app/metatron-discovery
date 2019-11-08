@@ -992,7 +992,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     if (ConnectionType.LINK === ConnectionType[this.widget.configuration.dataSource.connType]) {
       this._dataDownComp.openGridDown(event, this._dataGridComp);
     } else {
-      this._dataDownComp.openWidgetDown(event, this.widget.id, this.isOriginDown);
+      this._dataDownComp.openWidgetDown(event, this.widget.id, this.isOriginDown, this.query);
     }
   } // function - showDownloadLayer
 
