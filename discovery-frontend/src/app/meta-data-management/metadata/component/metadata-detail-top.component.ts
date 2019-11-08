@@ -81,7 +81,7 @@ export class MetadataDetailTopComponent extends AbstractComponent implements OnI
   }
 
   public goBack() {
-    this._location.back();
+    this.router.navigate(['management/metadata/metadata']).then();
   }
 
   public get isEngineSource() {
