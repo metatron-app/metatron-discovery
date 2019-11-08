@@ -94,13 +94,13 @@ public class TeddyFileService {
     LOGGER.info("createUriSnapshot() finished: totalLines={}", df.rows.size());
   }
 
-  public DataFrame loadCsvFile(String dsId, String strUri, String delimiter, Integer manualColCnt)
+  public DataFrame loadCsvFile(String dsId, String strUri, String delimiter, String qouteChar, Integer manualColCnt)
           throws URISyntaxException {
     DataFrame df = new DataFrame();
 
     LOGGER.debug("loadCsvFile(): dsId={} strUri={} delemiter={}", dsId, strUri, delimiter);
 
-    PrepParseResult result = PrepCsvUtil.parse(strUri, delimiter, limitRows, manualColCnt, hadoopConf);
+    PrepParseResult result = PrepCsvUtil.parse(strUri, delimiter, qouteChar, limitRows, manualColCnt, hadoopConf);
     df.setByGrid(result);
 
     LOGGER.debug("loadCsvFile(): done");

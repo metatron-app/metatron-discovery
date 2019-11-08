@@ -51,6 +51,7 @@ public enum PrepMessageKey {
   MSG_DP_ALERT_UNKNOWN_BOM(                                    "msg.dp.alert.unknown.bom"),
   MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME(                         "msg.dp.alert.unsupported.uri.scheme"),
   MSG_DP_ALERT_MALFORMED_DELIMITER(                            "msg.dp.alert.malformed.delimiter"),
+  MSG_DP_ALERT_MALFORMED_QUOTECHAR(                            "msg.dp.alert.malformed.quotechar"),
   MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM(                    "msg.dp.alert.cannot.get.hdfs.file.system"),
   MSG_DP_ALERT_CANNOT_READ_FROM_HDFS_PATH(                     "msg.dp.alert.cannot.read.from.hdfs.path"),
   MSG_DP_ALERT_CANNOT_WRITE_TO_HDFS_PATH(                      "msg.dp.alert.cannot.write.to.hdfs.path"),

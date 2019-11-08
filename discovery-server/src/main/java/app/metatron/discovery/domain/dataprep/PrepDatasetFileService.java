@@ -129,7 +129,8 @@ public class PrepDatasetFileService {
           default:
             conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
             String delimiterCol = dataset.getDelimiter();
-            result = PrepCsvUtil.countCsv(storedUri, delimiterCol, limitRows, conf);
+            String quoteChar = dataset.getQuoteChar();
+            result = PrepCsvUtil.countCsv(storedUri, delimiterCol, quoteChar, limitRows, conf);
         }
 
         if (result != null) {
@@ -415,14 +416,15 @@ public class PrepDatasetFileService {
     return responseMap;
   }
 
-  private Map<String, Object> getResponseMapFromCsv(String storedUri, int limitRows, String delimiterCol,
-          Integer columnCount, boolean autoTyping) throws TeddyException {
+  private Map<String, Object> getResponseMapFromCsv(String storedUri, int limitRows,
+                                                    String delimiterCol, String quoteChar,
+                                                    Integer columnCount, boolean autoTyping) throws TeddyException {
     Map<String, Object> responseMap = Maps.newHashMap();
     List<DataFrame> gridResponses = Lists.newArrayList();
     Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
 
     DataFrame df = new DataFrame("df_for_preview");
-    df.setByGrid(PrepCsvUtil.parse(storedUri, delimiterCol, limitRows, columnCount, hadoopConf));
+    df.setByGrid(PrepCsvUtil.parse(storedUri, delimiterCol, quoteChar, limitRows, columnCount, hadoopConf));
 
     if (autoTyping && 0 < df.rows.size()) {
       df = teddyImpl.applyAutoTyping(df);
@@ -480,7 +482,7 @@ public class PrepDatasetFileService {
    *     sheetName    (Excel only)
    *   totalBytes     FIXME: is this needed?
    */
-  public Map<String, Object> makeFileGrid(String storedUri, Integer size, String delimiterCol, Integer columnCount,
+  public Map<String, Object> makeFileGrid(String storedUri, Integer size, String delimiterCol, String quoteChar, Integer columnCount,
           boolean autoTyping) {
 
     Map<String, Object> responseMap;
@@ -497,7 +499,7 @@ public class PrepDatasetFileService {
           responseMap = getResponseMapFromJson(storedUri, limitRows, columnCount, autoTyping);
           break;
         default:
-          responseMap = getResponseMapFromCsv(storedUri, limitRows, delimiterCol, columnCount, autoTyping);
+          responseMap = getResponseMapFromCsv(storedUri, limitRows, delimiterCol, quoteChar, columnCount, autoTyping);
       }
     } catch (IOException e) {
       e.printStackTrace();
@@ -545,7 +547,8 @@ public class PrepDatasetFileService {
           break;
         default:
           String delimiterCol = dataset.getDelimiter();
-          responseMap = getResponseMapFromCsv(storedUri, limitRows, delimiterCol, columnCount, autoTyping);
+          String quoteChar = dataset.getQuoteChar();
+          responseMap = getResponseMapFromCsv(storedUri, limitRows, delimiterCol, quoteChar, columnCount, autoTyping);
       }
 
       if (responseMap != null) {

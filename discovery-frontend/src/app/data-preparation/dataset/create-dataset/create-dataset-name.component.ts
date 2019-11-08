@@ -715,6 +715,10 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       params.delimiter = file.delimiter;
     }
 
+    if (file.fileFormat === FileFormat.CSV){
+      params.quoteChar = file.quoteChar;
+    }
+
     params.dsName = file.dsName;
     params.dsDesc = file.dsDesc;
     params.dsType = 'IMPORTED';

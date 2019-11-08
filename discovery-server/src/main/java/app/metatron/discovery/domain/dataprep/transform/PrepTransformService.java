@@ -14,13 +14,37 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_HOSTNAME;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_METASTORE_URI;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PASSWORD;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PORT;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_USERNAME;
-import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.IMPORTED;
-import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.WRANGLED;
+import com.google.common.collect.Maps;
+
+import com.facebook.presto.jdbc.internal.guava.collect.Lists;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import org.hibernate.Hibernate;
+import org.hibernate.proxy.HibernateProxy;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.StandardEnvironment;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
@@ -55,34 +79,14 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnName
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection;
-import com.facebook.presto.jdbc.internal.guava.collect.Lists;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.Maps;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import org.hibernate.Hibernate;
-import org.hibernate.proxy.HibernateProxy;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.StandardEnvironment;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_HOSTNAME;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_METASTORE_URI;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PASSWORD;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PORT;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_USERNAME;
+import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.IMPORTED;
+import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.WRANGLED;
 
 @Service
 public class PrepTransformService {
@@ -845,6 +849,7 @@ public class PrepTransformService {
           case URI:
             datasetInfo.put("storedUri", upstreamDataset.getStoredUri());
             datasetInfo.put("delimiter", upstreamDataset.getDelimiter());
+            datasetInfo.put("quoteChar", upstreamDataset.getQuoteChar());
             datasetInfo.put("manualColumnCount", upstreamDataset.getManualColumnCount());
             break;
 
@@ -1266,8 +1271,9 @@ public class PrepTransformService {
                 importedDataset.getFileFormat() == PrDataset.FILE_FORMAT.JSON) {
           Integer columnCount = importedDataset.getManualColumnCount();
           gridResponse = teddyImpl
-                  .loadFileDataset(wrangledDsId, storedUri, importedDataset.getDelimiter(), columnCount,
-                          wrangledDataset.getDsName());
+                  .loadFileDataset(wrangledDsId, storedUri,
+                                   importedDataset.getDelimiter(), importedDataset.getQuoteChar(),
+                                   columnCount, wrangledDataset.getDsName());
         } else {
           throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
                   PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG,
