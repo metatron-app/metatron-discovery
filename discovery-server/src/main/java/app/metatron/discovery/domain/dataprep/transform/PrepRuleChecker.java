@@ -269,11 +269,6 @@ public class PrepRuleChecker {
     String col = unnest.getCol();
     Expression idx = unnest.getIdx();
     String into = unnest.getInto();
-    if (null == idx) {
-      LOGGER.error("confirmRuleStringForException(): unnest idx is null");
-      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_UNNEST_IDX);
-    }
     if (null == into) {
       LOGGER.error("confirmRuleStringForException(): unnest into is null");
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE,
