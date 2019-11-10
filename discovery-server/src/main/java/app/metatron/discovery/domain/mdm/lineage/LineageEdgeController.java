@@ -14,20 +14,9 @@
 
 package app.metatron.discovery.domain.mdm.lineage;
 
-import app.metatron.discovery.domain.dataprep.PrepDatasetFileService;
-import app.metatron.discovery.domain.mdm.Metadata;
-import app.metatron.discovery.domain.mdm.MetadataErrorCodes;
-import app.metatron.discovery.domain.mdm.MetadataRepository;
-import app.metatron.discovery.domain.mdm.lineage.LineageMap.ALIGNMENT;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -49,6 +38,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import app.metatron.discovery.domain.dataprep.PrepDatasetFileService;
+import app.metatron.discovery.domain.mdm.Metadata;
+import app.metatron.discovery.domain.mdm.MetadataErrorCodes;
+import app.metatron.discovery.domain.mdm.MetadataRepository;
+import app.metatron.discovery.domain.mdm.lineage.LineageMap.ALIGNMENT;
 
 @RequestMapping(value = "/metadatas/lineages")
 @RepositoryRestController
@@ -273,7 +276,7 @@ public class LineageEdgeController {
       String storedUri = (String) params.get("storedUri");
 
       if (storedUri != null) {
-        gridResponses = prepDatasetFileService.makeFileGrid("file://" + storedUri, 1000, ",", 8, false);
+        gridResponses = prepDatasetFileService.makeFileGrid("file://" + storedUri, 1000, ",", "\"", 8, false);
       }
     } catch (IllegalStateException e) {
       LOGGER.error("lineage_file POST(): caught an exception: ", e);

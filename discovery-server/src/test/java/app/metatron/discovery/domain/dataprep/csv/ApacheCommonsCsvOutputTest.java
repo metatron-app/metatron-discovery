@@ -1,6 +1,17 @@
 package app.metatron.discovery.domain.dataprep.csv;
 
-import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getReader;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.hadoop.conf.Configuration;
+import org.junit.Test;
+
+import java.io.BufferedReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
@@ -9,17 +20,8 @@ import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.file.PrepParseResult;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.Row;
-import java.io.BufferedReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.hadoop.conf.Configuration;
-import org.junit.Test;
+
+import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getReader;
 
 public class ApacheCommonsCsvOutputTest {
 

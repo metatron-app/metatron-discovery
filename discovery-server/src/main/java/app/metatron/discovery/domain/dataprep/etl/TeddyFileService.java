@@ -57,19 +57,10 @@ public class TeddyFileService {
   private String hadoopConfDir;
   private Configuration hadoopConf = null;
   private Integer limitRows = null;
-  private Character quoteChar;
 
   public void setPrepPropertiesInfo(Map<String, Object> prepPropertiesInfo) {
     hadoopConfDir = (String) prepPropertiesInfo.get(HADOOP_CONF_DIR);
     limitRows = (Integer) prepPropertiesInfo.get(ETL_LIMIT_ROWS);
-
-    String strQuoteChar = (String) prepPropertiesInfo.get(QUOTE_CHAR);
-    if (strQuoteChar == null) {
-      quoteChar = null;
-    } else {
-      assert strQuoteChar.length() > 0;
-      quoteChar = strQuoteChar.charAt(0);
-    }
 
     if (hadoopConfDir != null) {
       hadoopConf = PrepUtil.getHadoopConf(hadoopConfDir);
@@ -100,11 +91,11 @@ public class TeddyFileService {
     LOGGER.info("createUriSnapshot() finished: totalLines={}", df.rows.size());
   }
 
-  public DataFrame loadCsvFile(String dsId, String strUri, String strDelim, Integer manualColCnt)
+  public DataFrame loadCsvFile(String dsId, String strUri, String strDelim, String quoteChar, Integer manualColCnt)
           throws URISyntaxException {
     DataFrame df = new DataFrame();
 
-    LOGGER.debug("loadCsvFile(): dsId={} strUri={} strDelim={}", dsId, strUri, strDelim);
+    LOGGER.debug("loadCsvFile(): dsId={} strUri={} strDelim={} quoteChar={}", dsId, strUri, strDelim, quoteChar);
 
     PrepCsvUtil csvUtil = PrepCsvUtil.DEFAULT
             .withDelim(strDelim)

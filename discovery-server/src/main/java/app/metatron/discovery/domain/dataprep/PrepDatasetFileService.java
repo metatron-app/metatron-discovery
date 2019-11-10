@@ -148,7 +148,7 @@ public class PrepDatasetFileService {
             String delimiterCol = dataset.getDelimiter();
             PrepCsvUtil csvUtil = PrepCsvUtil.DEFAULT
                     .withDelim(delimiterCol)
-                    .withQuoteChar(prepProperties.getQuoteChar())
+                    .withQuoteChar(dataset.getQuoteChar())
                     .withLimitRows(limitRows)
                     .withOnlyCount(true)
                     .withHadoopConf(hadoopConf);
@@ -432,8 +432,9 @@ public class PrepDatasetFileService {
     return responseMap;
   }
 
-  private Map<String, Object> getResponseMapFromCsv(String storedUri, int limitRows, String delimiterCol,
-          Integer columnCount, boolean autoTyping) throws TeddyException {
+  private Map<String, Object> getResponseMapFromCsv(String storedUri, int limitRows,
+                                                    String delimiterCol, String quoteChar,
+                                                    Integer columnCount, boolean autoTyping) throws TeddyException {
     Map<String, Object> responseMap = Maps.newHashMap();
     List<DataFrame> gridResponses = Lists.newArrayList();
     Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
@@ -441,7 +442,7 @@ public class PrepDatasetFileService {
     DataFrame df = new DataFrame("df_for_preview");
     PrepCsvUtil csvUtil = PrepCsvUtil.DEFAULT
             .withDelim(delimiterCol)
-            .withQuoteChar(prepProperties.getQuoteChar())
+            .withQuoteChar(quoteChar)
             .withLimitRows(limitRows)
             .withManualColCnt(columnCount)
             .withHadoopConf(hadoopConf);
@@ -499,7 +500,7 @@ public class PrepDatasetFileService {
    *     sheetName    (Excel only)
    *   totalBytes     FIXME: is this needed?
    */
-  public Map<String, Object> makeFileGrid(String storedUri, Integer size, String delimiterCol, Integer columnCount,
+  public Map<String, Object> makeFileGrid(String storedUri, Integer size, String delimiterCol, String quoteChar, Integer columnCount,
           boolean autoTyping) {
 
     Map<String, Object> responseMap;
@@ -516,7 +517,7 @@ public class PrepDatasetFileService {
           responseMap = getResponseMapFromJson(storedUri, limitRows, columnCount, autoTyping);
           break;
         default:
-          responseMap = getResponseMapFromCsv(storedUri, limitRows, delimiterCol, columnCount, autoTyping);
+          responseMap = getResponseMapFromCsv(storedUri, limitRows, delimiterCol, quoteChar, columnCount, autoTyping);
       }
     } catch (IOException e) {
       e.printStackTrace();
@@ -563,7 +564,8 @@ public class PrepDatasetFileService {
           break;
         default:
           String delimiterCol = dataset.getDelimiter();
-          responseMap = getResponseMapFromCsv(storedUri, limitRows, delimiterCol, columnCount, autoTyping);
+          String quoteChar = dataset.getQuoteChar();
+          responseMap = getResponseMapFromCsv(storedUri, limitRows, delimiterCol, quoteChar, columnCount, autoTyping);
       }
 
       if (responseMap != null) {

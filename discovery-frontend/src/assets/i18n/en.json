@@ -1419,6 +1419,8 @@
   "msg.dp.ui.invalid.url" : "Invalid URL. Please check URL",
   "msg.dp.th.col.cnt" : "Column count",
   "msg.dp.th.col.cnt.ph" : "Enter column count",
+  "msg.dp.th.quote" : "Quote character",
+  "msg.dp.th.quote.ph" : "(can be empty)",
 
   "msg.board.create.add-ds" : "Add datasource",
   "msg.board.create.add-ds.desc" : "Add the data sources you want to visualize and establish relationships",

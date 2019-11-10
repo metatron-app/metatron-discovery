@@ -1,16 +1,15 @@
 package app.metatron.discovery.domain.dataprep.file;
 
-import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_PARSE_CSV;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_WRITE_CSV;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_MALFORMED_DELIMITER;
-import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getReader;
-import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getWriter;
-import static app.metatron.discovery.domain.dataprep.util.PrepUtil.datasetError;
-import static app.metatron.discovery.domain.dataprep.util.PrepUtil.snapshotError;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.csv.QuoteMode;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -21,16 +20,21 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+
 import javax.servlet.ServletOutputStream;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.csv.QuoteMode;
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+
+import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_PARSE_CSV;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_WRITE_CSV;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_MALFORMED_DELIMITER;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_MALFORMED_QUOTECHAR;
+import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getReader;
+import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getWriter;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.datasetError;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.snapshotError;
 
 public class PrepCsvUtil {
 
@@ -110,6 +114,23 @@ public class PrepCsvUtil {
    */
   public PrepCsvUtil withQuoteChar(Character quoteChar) {
     return new PrepCsvUtil(strDelim, quoteChar, escape, header, limitRows, manualColCnt, hadoopConf, onlyCount);
+  }
+
+  /**
+   * @param quoteStr Use when the quoteChar is a string.
+   * @return this
+   */
+  public PrepCsvUtil withQuoteChar(String quoteStr) {
+    Character newQuoteChar = '"';
+    if (quoteStr == null) {
+      newQuoteChar = '"';
+    } else if (quoteStr.length() == 0) {
+      newQuoteChar = null;
+    } else {
+      quoteChar = quoteStr.charAt(0);
+    }
+
+    return new PrepCsvUtil(strDelim, newQuoteChar, escape, header, limitRows, manualColCnt, hadoopConf, onlyCount);
   }
 
   /**
