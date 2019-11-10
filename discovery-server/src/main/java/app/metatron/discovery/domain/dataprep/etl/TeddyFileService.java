@@ -2,7 +2,6 @@ package app.metatron.discovery.domain.dataprep.etl;
 
 import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_LIMIT_ROWS;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.QUOTE_CHAR;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_CLOSE_CSV;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_CLOSE_JSON;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_CLOSE_SQL;
