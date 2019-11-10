@@ -112,6 +112,15 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
       })
     }
 
+    let isAllStringTypes = false;
+    if (indexArray.length !== 0) {
+      indexArray.forEach((item) => {
+        if (this.contextInfo.gridResponse.colDescs[item].type === 'STRING'){
+          isAllStringTypes = true;
+        }
+      })
+    }
+
     let isSetformatDisable = false;
     if (indexArray.length !== 0 && indexArray.length > 1) {
       indexArray.forEach((item) => {
@@ -133,8 +142,8 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
               {label : 'Boolean', value : 'Boolean', command : 'settype'},
               {label : 'Timestamp', value : 'Timestamp', command : 'settype', disabled : this.originalSelectedColIds.length === 1? this.contextInfo.columnType === 'TIMESTAMP' : isAllTimestampTypes },
               {label : 'String', value : 'String', command : 'settype'},
-              {label : 'Map', value : 'Map', command : 'settype'},
-              {label : 'Array', value : 'Array', command : 'settype'}
+              {label : 'Map', value : 'Map', command : 'settype', disabled : !isAllStringTypes },
+              {label : 'Array', value : 'Array', command : 'settype', disabled : !isAllStringTypes },
             ]
           },
           {label : 'Set format', value : 'setformat', command: 'setformat', disabled : this.originalSelectedColIds.length === 1? this.contextInfo.columnType !== 'TIMESTAMP' : isSetformatDisable },
