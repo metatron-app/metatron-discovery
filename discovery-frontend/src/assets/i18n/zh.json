@@ -3396,9 +3396,6 @@
   "msg.explore.ui.confirm.title" : "Do you want to close and move the current screen?",
   "msg.explore.ui.confirm.description" : "Select Cancel to not move.",
   "msg.explore.btn.confirm.done" : "Close and move",
-
-  "msg.engine.monotoring.title": "Engine Monitoring",
-  "msg.engine.monotoring.overview": "Overview",
   "msg.engine.monotoring.overview.cluster.name.prefix": "Status",
   "msg.engine.monotoring.overview.error.layer.prefix": "node",
   "msg.engine.monotoring.overview.server.name": "Server name",
@@ -3410,7 +3407,6 @@
   "msg.engine.monotoring.overview.view.mode.tooltip.card": "Card View",
   "msg.engine.monotoring.error.label": "Error",
   "msg.engine.monotoring.failure.time.label": "Failure time",
-  "msg.engine.monotoring.ingestion": "Ingestion",
   "msg.engine.monitoring.ui.criterion.duration": "Duration",
   "msg.engine.monitoring.ui.criterion.type": "Type",
   "msg.engine.monitoring.ui.criterion.used-capacity": "Used Capacity",
@@ -3427,5 +3423,10 @@
   "msg.engine.monitoring.ingestion.reset": "Reset",
   "msg.engine.monitoring.ingestion.supervisor.reset.confirm": "Do you want to reset the current supervisor?",
   "msg.engine.monitoring.ingestion.supervisor.reset.confirm.fail": "Failed to reset the supervisor",
-  "msg.engine.monitoring.ingestion.supervisor.move.task": "Go to Task"
+  "msg.engine.monitoring.ingestion.supervisor.move.task": "Go to Task",
+  "msg.engine.monitoring.ui.criterion.service": "Service",
+  "msg.engine.monitoring.ui.criterion.result": "Result",
+  "msg.engine.monitoring.ui.criterion.host": "Host",
+  "msg.engine.monitoring.ui.criterion.started-time": "Started time",
+  "msg.engine.monitoring.ph.query.search": "Search query ID or datasource name"
 }

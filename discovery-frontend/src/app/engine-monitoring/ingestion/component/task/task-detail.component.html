@@ -98,7 +98,7 @@
             Processed
           </th>
           <td>
-            {{processed}}
+            {{processed | numberCommas}}
           </td>
         </tr>
         <tr *ngIf="isKafkaTask">
@@ -106,7 +106,7 @@
             Unparseable
           </th>
           <td>
-            {{unparseable}}
+            {{unparseable | numberCommas}}
           </td>
         </tr>
         <tr *ngIf="isKafkaTask">
@@ -114,7 +114,7 @@
             ThrownAway
           </th>
           <td>
-            {{thrownaway}}
+            {{thrownaway | numberCommas}}
           </td>
         </tr>
 
@@ -159,8 +159,8 @@
           <div class="ddp-right-option">
             <div class="ddp-ui-btn-log">
               <a href="javascript:" class="ddp-btn-log type-refresh" (click)="refreshLog();"></a>
-              <a href="javascript:" class="ddp-btn-log type-down" (click)="logScrollDown();"></a>
-              <a href="javascript:" class="ddp-btn-log type-newwindow" (click)="logNewWindow();"></a>
+              <a href="javascript:" class="ddp-btn-log type-down" (click)="logDownload();"></a>
+              <a href="javascript:" class="ddp-btn-log type-newwindow" (click)="logNewTab();"></a>
             </div>
           </div>
           <!-- //right -->

@@ -22,6 +22,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,13 +139,13 @@ public class EngineMonitoringService {
     }
 
     Query query = MonitoringQuery.builder(new DefaultDataSource(datasourceName))
-                           .filters(filters)
-                           .granularity(request.getGranularity())
-                           .aggregation(aggregations)
-                           .postAggregation(postAggregations)
-                           .format(request.getResultFormat())
-                           .intervals(Lists.newArrayList(request.getFromDate(), request.getToDate()))
-                           .build();
+                                 .filters(filters)
+                                 .granularity(request.getGranularity())
+                                 .aggregation(aggregations)
+                                 .postAggregation(postAggregations)
+                                 .format(request.getResultFormat())
+                                 .intervals(Lists.newArrayList(request.getFromDate(), request.getToDate()))
+                                 .build();
 
     String queryString = GlobalObjectMapper.writeValueAsString(query);
 
@@ -341,7 +345,7 @@ public class EngineMonitoringService {
 
   public boolean shutDownIngestionTask(String taskId) {
     try {
-        engineMetaRepository.shutDownIngestionTask(taskId);
+      engineMetaRepository.shutDownIngestionTask(taskId);
       LOGGER.info("Successfully shutdown ingestion task : {}", taskId);
     } catch (Exception e) {
       LOGGER.warn("Fail to shutdown ingestion task : {}", taskId);
@@ -528,6 +532,146 @@ public class EngineMonitoringService {
     return criterion;
   }
 
+  public List<ListCriterion> getListCriterionInQuery() {
+
+    List<ListCriterion> criteria = new ArrayList<>();
+
+    //Result
+    criteria.add(new ListCriterion(EngineMonitoringCriterionKey.RESULT,
+                                   ListCriterionType.CHECKBOX, "msg.engine.monitoring.ui.criterion.result"));
+
+    //Service
+    criteria.add(new ListCriterion(EngineMonitoringCriterionKey.SERVICE,
+                                   ListCriterionType.CHECKBOX, "msg.engine.monitoring.ui.criterion.service"));
+
+    // Type
+    criteria.add(new ListCriterion(EngineMonitoringCriterionKey.TYPE,
+                                   ListCriterionType.CHECKBOX, "msg.engine.monitoring.ui.criterion.type"));
+
+    //StartedTime
+    ListCriterion createdTimeCriterion
+        = new ListCriterion(EngineMonitoringCriterionKey.STARTED_TIME,
+                            ListCriterionType.RANGE_DATETIME, "msg.engine.monitoring.ui.criterion.started-time");
+    createdTimeCriterion.addFilter(new ListFilter(EngineMonitoringCriterionKey.STARTED_TIME,
+                                                  "startedTimeFrom", "startedTimeTo", "", "",
+                                                  "msg.engine.monitoring.ui.criterion.started-time"));
+    criteria.add(createdTimeCriterion);
+
+    //Duration
+    /*ListCriterion durationCriterion
+        = new ListCriterion(EngineMonitoringCriterionKey.DURATION,
+                            ListCriterionType.RANGE_DATETIME, "msg.engine.monitoring.ui.criterion.duration");
+    durationCriterion.addFilter(new ListFilter(EngineMonitoringCriterionKey.DURATION,
+                                               "durationFrom", "durationTo", "", "",
+                                               "msg.engine.monotoring.ui.criterion.duration"));
+    criteria.add(durationCriterion);*/
+
+    return criteria;
+  }
+
+  public ListCriterion getListCriterionInQueryByKey(EngineMonitoringCriterionKey criterionKey) {
+    ListCriterion criterion = new ListCriterion();
+    criterion.setCriterionKey(criterionKey);
+
+    switch (criterionKey) {
+      case RESULT:
+        criterion.addFilter(new ListFilter(criterionKey, "result",
+                                           "true", EngineMonitoring.QueryResult.SUCCESS.toString()));
+        criterion.addFilter(new ListFilter(criterionKey, "result",
+                                           "false", EngineMonitoring.QueryResult.FAIL.toString()));
+        break;
+      case SERVICE:
+        criterion.addFilter(new ListFilter(criterionKey, "service",
+                                           getDruidName("broker"), EngineMonitoring.SERVICE.BROKER.toString()));
+        criterion.addFilter(new ListFilter(criterionKey, "service",
+                                           getDruidName("historical"), EngineMonitoring.SERVICE.HISTORICAL.toString()));
+        criterion.addFilter(new ListFilter(criterionKey, "service",
+                                           getDruidName("middleManager"), EngineMonitoring.SERVICE.MIDDLEMANAGER.toString()));
+        break;
+      case TYPE:
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "groupBy", "groupBy"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "schema", "schema"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "search", "search"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "segmentMetadata", "segmentMetadata"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "select", "select"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "select.stream", "select.stream"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "selectMeta", "selectMeta"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "sketch", "sketch"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "timeBoundary", "timeBoundary"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "timeseries", "timeseries"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "unionAll", "unionAll"));
+        break;
+      case STARTED_TIME:
+        //started_time
+        criterion.addFilter(new ListFilter(EngineMonitoringCriterionKey.STARTED_TIME,
+                                           "startedTimeFrom", "startedTimeTo", "", "",
+                                           "msg.engine.monitoring.ui.criterion.started-time"));
+        break;
+      case DURATION:
+        criterion.addFilter(new ListFilter(EngineMonitoringCriterionKey.DURATION,
+                                           "durationFrom", "durationTo", "", "",
+                                           "msg.engine.monitoring.ui.criterion.duration"));
+        break;
+      default:
+        break;
+    }
+
+    return criterion;
+  }
+
+  public List getQueryList(EngineMonitoringQueryRequest engineMonitoringQueryRequest) {
+    StringBuffer sb = new StringBuffer();
+    sb.append("SELECT \"context.queryId\" AS \"queryId\", \"success\" AS \"result\", \"service\", \"host\", \"dataSource\" AS \"datasource\", \"value\" AS \"duration\", \"__time\" AS \"startedTime\", \"type\" FROM \"druid\".\"druid-metric\" WHERE metric = 'query/time'");
+    if (CollectionUtils.isNotEmpty(engineMonitoringQueryRequest.getResult())) {
+      sb.append(" AND \"success\" IN ('");
+      sb.append(String.join("', '", engineMonitoringQueryRequest.getResult()));
+      sb.append("') ");
+    }
+    if (CollectionUtils.isNotEmpty(engineMonitoringQueryRequest.getService())) {
+      sb.append(" AND \"service\" IN ('");
+      sb.append(String.join("', '", engineMonitoringQueryRequest.getService()));
+      sb.append("') ");
+    }
+    if (CollectionUtils.isNotEmpty(engineMonitoringQueryRequest.getType())) {
+      sb.append(" AND \"type\" IN ('");
+      sb.append(String.join("', '", engineMonitoringQueryRequest.getType()));
+      sb.append("') ");
+    }
+
+    DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    if (StringUtils.isNotEmpty(engineMonitoringQueryRequest.getStartedTimeFrom())) {
+      sb.append(" AND  TIMESTAMP '");
+      DateTime startTimeFrom = new DateTime(engineMonitoringQueryRequest.getStartedTimeFrom()).withZone(DateTimeZone.UTC);
+      sb.append(startTimeFrom.toString(dateTimeFormatter));
+      sb.append("' <= \"__time\" ");
+    }
+    if (StringUtils.isNotEmpty(engineMonitoringQueryRequest.getStartedTimeTo())) {
+      sb.append(" AND \"__time\" <= TIMESTAMP '");
+      DateTime startTimeTo = new DateTime(engineMonitoringQueryRequest.getStartedTimeTo()).withZone(DateTimeZone.UTC);
+      sb.append(startTimeTo.toString(dateTimeFormatter));
+      sb.append("' ");
+    }
+    sb.append(" ORDER BY \"" );
+    sb.append(engineMonitoringQueryRequest.getKey());
+    sb.append("\" ");
+    sb.append(engineMonitoringQueryRequest.getSort().toUpperCase());
+    sb.append(" LIMIT 1000");
+    LOGGER.debug("query = {}", sb.toString());
+    Optional<List> results = engineRepository.sql(sb.toString());
+    return results.get();
+  }
+
   private void setFiltersByType(List<Filter> filters, EngineMonitoringTarget monitoringTarget) {
     if ( monitoringTarget.getHost() != null ) {
       filters.add(new SelectorFilter("host", monitoringTarget.getHost()));
@@ -572,10 +716,10 @@ public class EngineMonitoringService {
   private String getDruidName(String configName) {
     String druidName = druidNameMap.get(configName);
     if (StringUtils.isEmpty(druidName)) {
-        HashMap configs = getConfigs(configName);
-        druidName = String.valueOf(configs.get("druid.service"));
-        druidNameMap.put(configName, druidName);
-      }
+      HashMap configs = getConfigs(configName);
+      druidName = String.valueOf(configs.get("druid.service"));
+      druidNameMap.put(configName, druidName);
+    }
     return druidName;
   }
 

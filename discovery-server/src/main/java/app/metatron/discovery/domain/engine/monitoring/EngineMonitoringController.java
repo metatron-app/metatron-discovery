@@ -17,6 +17,7 @@ package app.metatron.discovery.domain.engine.monitoring;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.TriggerKey;
@@ -212,7 +213,8 @@ public class EngineMonitoringController {
 
   @RequestMapping(value = "/monitoring/ingestion/task/{taskId}/log", method = RequestMethod.GET)
   public ResponseEntity<?> getTaskLogById(@PathVariable String taskId,
-                                          @RequestParam(value = "offset", required = false) Integer offset) {
+                                          @RequestParam(value = "offset", required = false) Integer offset,
+                                          @RequestParam(value = "download", required = false) Boolean download) {
     EngineIngestionService.EngineTaskLog taskLog;
     try {
       taskLog = engineIngestionService.getIngestionTaskLog(taskId, offset);
@@ -222,7 +224,7 @@ public class EngineMonitoringController {
       throw new DataSourceIngestionException(INGESTION_COMMON_ERROR, e);
     }
 
-    if (offset == null) {
+    if (offset == null && BooleanUtils.isNotTrue(download)) {
       return ResponseEntity.ok("<pre style=\"font-family: 'SpoqaHanSans',sans-serif;font-size:14px;\">"+taskLog.getLogs()+"</pre>");
     } else {
       return ResponseEntity.ok(taskLog.getLogs());
@@ -281,6 +283,31 @@ public class EngineMonitoringController {
     return ResponseEntity.ok(engineRepository.getMiddleManagerNodes().get());
   }
 
+  @RequestMapping(value = "/monitoring/queries/list", method = RequestMethod.POST)
+  public ResponseEntity<?> getQueryList(@RequestBody EngineMonitoringQueryRequest engineMonitoringQueryRequest) {
+    return ResponseEntity.ok(monitoringQueryService.getQueryList(engineMonitoringQueryRequest));
+  }
 
+  @RequestMapping(value = "/monitoring/query/criteria", method = RequestMethod.GET)
+  public ResponseEntity<?> getCriteriaInQuery() {
+    List<ListCriterion> listCriteria = monitoringQueryService.getListCriterionInQuery();
+
+    HashMap<String, Object> response = new HashMap<>();
+    response.put("criteria", listCriteria);
+
+    return ResponseEntity.ok(response);
+  }
+
+  @RequestMapping(value = "/monitoring/query/criteria/{criterionKey}", method = RequestMethod.GET)
+  public ResponseEntity<?> getCriterionDetailInQuery(@PathVariable(value = "criterionKey") String criterionKey) {
+    EngineMonitoringCriterionKey criterionKeyEnum = EngineMonitoringCriterionKey.valueOf(criterionKey);
+
+    if (criterionKeyEnum == null) {
+      throw new ResourceNotFoundException("Criterion(" + criterionKey + ") is not founded.");
+    }
+
+    ListCriterion criterion = monitoringQueryService.getListCriterionInQueryByKey(criterionKeyEnum);
+    return ResponseEntity.ok(criterion);
+  }
 
 }

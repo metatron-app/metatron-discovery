@@ -30,6 +30,7 @@ import {Alert} from "../../../../common/util/alert.util";
 import {Location} from "@angular/common";
 import * as _ from "lodash";
 import {Engine} from "../../../../domain/engine-monitoring/engine";
+import {saveAs} from 'file-saver';
 
 declare let echarts: any;
 declare let moment: any;
@@ -68,8 +69,6 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
 
   public isShowRowDuration: boolean;
   public selectedRowDuration: string = '1HOUR';
-
-  public rowData: any;
 
   private _taskId: string;
   private _rowChart: any;
@@ -186,8 +185,14 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
     }
   }
 
-  public logScrollDown() {
-    this._scrollElements.nativeElement.scrollTop = this._scrollElements.nativeElement.scrollHeight;
+  public logDownload() {
+    this.loadingShow();
+    this.engineService.getTaskLogDownloadById(this._taskId).then((data) => {
+      this.loadingHide();
+      saveAs(new Blob([data], { type: 'text/plain' }), this._taskId + '.log')
+    }).catch((error) => {
+      this.commonExceptionHandler(error);
+    });
   }
 
   public changeRowCheckbox(event: MouseEvent) {
@@ -211,7 +216,7 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
     this._getTaskRow();
   }
 
-  public logNewWindow() {
+  public logNewTab() {
     const popUrl = '/api/monitoring/ingestion/task/'+this._taskId+'/log';
     window.open(popUrl, '_blank');
   }
@@ -262,10 +267,10 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
       };
 
     this.engineService.getMonitoringData(queryParam).then((data) => {
-      this.rowData = data;
-      this.processed = data.processed[data.processed.length - 1];
-      this.unparseable = data.unparseable[data.unparseable.length - 1];
-      this.thrownaway = data.thrownaway[data.thrownaway.length - 1];
+      this.processed = this._getSumOfArray(data.processed);
+      this.unparseable = this._getSumOfArray(data.unparseable);
+      this.thrownaway = this._getSumOfArray(data.thrownaway);
+
       const series = [];
       if (!_.isNil(this._rowChart)) {
         this._rowChart.clear();
@@ -378,6 +383,12 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
     } else {
       return moment().subtract(1, 'hours').utc().format('YYYY-MM-DDTHH:mm:ss');
     }
+  }
+
+  private _getSumOfArray(arr: any[]) {
+    return arr.reduce((sum, current) => {
+      return sum + current
+    });
   }
 
 }
