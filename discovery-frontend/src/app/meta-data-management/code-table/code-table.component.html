@@ -23,6 +23,8 @@
         [defaultType]="defaultDate?.type"
         [dateType]="false"
         [roundSecond]="true"
+        [startPlaceholder]="'msg.storage.ui.criterion.time.past' | translate"
+        [endPlaceholder]="'msg.storage.ui.criterion.time.current' | translate"
         (changeDate)="onChangeData($event)"
         [title]="'msg.metadata.ui.codetable.created.date' | translate"
       ></component-period>
@@ -81,7 +83,7 @@
     <tbody>
     <tr *ngFor="let codeTable of codeTableList" (click)="onClickDetailCodeTable(codeTable.id)">
       <td>
-        {{codeTable.name}}
+        <span class="ddp-txt-long">{{codeTable.name}}</span>
       </td>
       <td>
         <span class="ddp-txt-long">{{codeTable.description}}</span>
