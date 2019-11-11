@@ -837,6 +837,7 @@
   "msg.dp.alert.ss.require.file-uri" : "文件URI是必需的",
   "msg.dp.alert.ss.not.support.sql" : "SQL format is only supported in the embedded engine",
   "msg.dp.alert.ss.sel.format": "请选择公式",
+  "msg.dp.alert.ss.mismatched.warn" : "DB-type snapshots cannot contain mismatched values.",
   "msg.dp.alert.stagingdb.connection.error": "Staging DB访问失败",
   "msg.dp.alert.success.create.ss": "已生成数据快照",
   "msg.dp.alert.undo.fail": "UNDO适用失败",

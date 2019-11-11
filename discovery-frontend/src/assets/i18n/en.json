@@ -869,6 +869,7 @@
   "msg.dp.alert.ss.require.file-uri" : "File URI is required",
   "msg.dp.alert.ss.not.support.sql" : "SQL format is only supported in the embedded engine",
   "msg.dp.alert.ss.sel.format" : "Please select format",
+  "msg.dp.alert.ss.mismatched.warn" : "DB-type snapshots cannot contain mismatched values.",
   "msg.dp.alert.stagingdb.connection.error": "Staging DB connection error",
   "msg.dp.alert.success.create.ss": " Data snapshot created",
   "msg.dp.alert.undo.fail": "UNDO failed",

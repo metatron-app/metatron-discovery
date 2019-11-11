@@ -40,6 +40,9 @@
     <div class="ddp-layout-pop-contents ddp-wrap-snapshot ddp-padt0" *ngIf="selectedDataSnapshot.displayStatus==='SUCCESS'">
 
       <div class="ddp-wrap-tab-contents" [hidden]= "currentTab !== 0" >
+        <div class="ddp-wrap-warning" *ngIf="selectedDataSnapshot.ssType==='STAGING_DB'">
+          <span class="ddp-txt-label">{{'msg.dp.alert.ss.mismatched.warn' | translate}}</span>
+        </div>
         <!-- 요약 valid,mismatched,missing-->
         <div class="ddp-wrap-summary">
           <div class="ddp-data-summary">
