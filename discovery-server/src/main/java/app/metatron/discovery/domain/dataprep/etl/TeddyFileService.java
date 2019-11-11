@@ -1,29 +1,14 @@
 package app.metatron.discovery.domain.dataprep.etl;
 
-import com.google.common.collect.Lists;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Writer;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.TimeoutException;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_LIMIT_ROWS;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_CLOSE_CSV;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_CLOSE_JSON;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_CLOSE_SQL;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_WRITE_CSV;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_WRITE_JSON;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_WRITE_SQL;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.snapshotError;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
@@ -38,16 +23,27 @@ import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.Row;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.util.PrepUtil;
-
-import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_LIMIT_ROWS;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_CLOSE_CSV;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_CLOSE_JSON;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_CLOSE_SQL;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_WRITE_CSV;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_WRITE_JSON;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_WRITE_SQL;
-import static app.metatron.discovery.domain.dataprep.util.PrepUtil.snapshotError;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.TimeoutException;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class TeddyFileService {
@@ -94,13 +90,19 @@ public class TeddyFileService {
     LOGGER.info("createUriSnapshot() finished: totalLines={}", df.rows.size());
   }
 
-  public DataFrame loadCsvFile(String dsId, String strUri, String delimiter, String qouteChar, Integer manualColCnt)
+  public DataFrame loadCsvFile(String dsId, String strUri, String strDelim, String quoteChar, Integer manualColCnt)
           throws URISyntaxException {
     DataFrame df = new DataFrame();
 
-    LOGGER.debug("loadCsvFile(): dsId={} strUri={} delemiter={}", dsId, strUri, delimiter);
+    LOGGER.debug("loadCsvFile(): dsId={} strUri={} strDelim={} quoteChar={}", dsId, strUri, strDelim, quoteChar);
 
-    PrepParseResult result = PrepCsvUtil.parse(strUri, delimiter, qouteChar, limitRows, manualColCnt, hadoopConf);
+    PrepCsvUtil csvUtil = PrepCsvUtil.DEFAULT
+            .withDelim(strDelim)
+            .withQuoteChar(quoteChar)
+            .withLimitRows(limitRows)
+            .withManualColCnt(manualColCnt)
+            .withHadoopConf(hadoopConf);
+    PrepParseResult result = csvUtil.parse(strUri);
     df.setByGrid(result);
 
     LOGGER.debug("loadCsvFile(): done");
@@ -121,7 +123,7 @@ public class TeddyFileService {
   }
 
   public int writeCsv(String ssId, String strUri, DataFrame df) {
-    CSVPrinter printer = PrepCsvUtil.getPrinter(strUri, hadoopConf);
+    CSVPrinter printer = PrepCsvUtil.DEFAULT.withHadoopConf(hadoopConf).getPrinter(strUri);
     String errmsg = null;
 
     try {
@@ -211,7 +213,7 @@ public class TeddyFileService {
   public int writeSql(String ssId, String ssName, String strUri, DataFrame df) {
     Writer writer = PrepSqlUtil.getWriter(strUri, hadoopConf);
     String errmsg = null;
-    String tblname = StringEscapeUtils.escapeSql( ssName.replaceAll("_.+","") );
+    String tblname = StringEscapeUtils.escapeSql(ssName.replaceAll("_.+", ""));
 
     try {
       for (int rowno = 0; rowno < df.rows.size(); snapshotService.cancelCheck(ssId, ++rowno)) {
@@ -240,7 +242,9 @@ public class TeddyFileService {
               value = null; // casting failure
             }
 
-            if(value==null) { continue; }
+            if (value == null) {
+              continue;
+            }
 
             columnList.add("`" + df.getColName(colno) + "`");
             valuesList.add(value);
@@ -248,10 +252,10 @@ public class TeddyFileService {
         }
 
         String sql = "INSERT INTO `" + tblname + "` ("
-            + String.join(",",columnList)
-            + ") VALUES ("
-            + String.join(",",valuesList)
-            + ");\n";
+                + String.join(",", columnList)
+                + ") VALUES ("
+                + String.join(",", valuesList)
+                + ");\n";
         writer.write(sql);
       }
     } catch (IOException e) {

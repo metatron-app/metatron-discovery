@@ -12,8 +12,11 @@
  * limitations under the License.
  */
 
-package app.metatron.discovery.prep.parser.preparation.rule.expr;
+package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
-public enum ExprType {
-  DOUBLE, LONG, STRING, BOOLEAN, TIMESTAMP;
+public class CannotUnnestEmptyColumnException extends TeddyException {
+
+  public CannotUnnestEmptyColumnException(String message) {
+    super(message);
+  }
 }

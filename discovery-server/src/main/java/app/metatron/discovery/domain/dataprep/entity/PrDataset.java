@@ -242,7 +242,7 @@ public class PrDataset extends AbstractHistoryEntity {
   @Column(name = "manual_column_count")
   private Integer manualColumnCount;
 
-  @Column(name = "quoteChar")
+  @Column(name = "quote_char")
   private String quoteChar;
 
   @Lob

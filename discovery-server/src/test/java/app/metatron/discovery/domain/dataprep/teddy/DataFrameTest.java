@@ -516,7 +516,7 @@ public class DataFrameTest extends TeddyTest {
     DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
 
-    ruleString = "unnest col: pcode into: array idx: 0";  // into: is not used
+    ruleString = "unnest col: pcode idx: 0";
 
     newDf = apply_rule(newDf, ruleString);
     newDf.show();
@@ -547,7 +547,7 @@ public class DataFrameTest extends TeddyTest {
     DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
 
-    ruleString = "unnest col: pcode into: map idx: 'pcode3'"; // into: is not used (remains for backward-compatability)
+    ruleString = "unnest col: pcode idx: 'pcode3'";
 
     newDf = apply_rule(newDf, ruleString);
     newDf.show();

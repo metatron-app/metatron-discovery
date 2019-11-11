@@ -108,7 +108,7 @@ public class ApacheCommonsCsvIntegrationTest extends AbstractRestIntegrationTest
 
   @Test
   public void test_hdfs() throws JsonProcessingException {
-    PrepParseResult result = PrepCsvUtil.parse(strHdfsUriCrime, ",", "\"", 10000, getHadoopConf());
+    PrepParseResult result = PrepCsvUtil.DEFAULT.withHadoopConf(getHadoopConf()).parse(strHdfsUriCrime);
 
     assertNull(result.colNames);
 
@@ -119,8 +119,10 @@ public class ApacheCommonsCsvIntegrationTest extends AbstractRestIntegrationTest
 
   @Test
   public void test_hdfs_header() throws JsonProcessingException {
-    PrepParseResult result = PrepCsvUtil.parse(strHdfsUriCrime, ",", "\"", 10000, getHadoopConf(), true);
-
+    PrepParseResult result = PrepCsvUtil.DEFAULT
+            .withHeader(true)
+            .withHadoopConf(getHadoopConf())
+            .parse(strHdfsUriCrime);
     LOGGER.debug("colNames={}", result.colNames);
     LOGGER.debug("colCnt={}", result.colNames.size());
 
