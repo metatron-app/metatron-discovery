@@ -19,4 +19,14 @@
             <column name="favorite_target" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
+    <changeSet author="sohncw (generated)" id="1572393007722-2">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="pr_dataset" columnName="quote_char" />
+            </not>
+        </preConditions>
+        <addColumn tableName="pr_dataset">
+            <column name="quote_char" type="${varchar.type}(255)" />
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
