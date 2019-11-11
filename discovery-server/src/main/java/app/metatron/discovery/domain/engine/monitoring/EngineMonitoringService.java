@@ -648,12 +648,16 @@ public class EngineMonitoringService {
       sb.append(String.join("', '", engineMonitoringQueryRequest.getType()));
       sb.append("') ");
     }
-    if (StringUtils.isNotEmpty(engineMonitoringQueryRequest.getStartedTimeFrom()) && StringUtils.isNotEmpty(engineMonitoringQueryRequest.getStartedTimeTo()) ) {
+
+    DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    if (StringUtils.isNotEmpty(engineMonitoringQueryRequest.getStartedTimeFrom())) {
       sb.append(" AND  TIMESTAMP '");
-      DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
       DateTime startTimeFrom = new DateTime(engineMonitoringQueryRequest.getStartedTimeFrom()).withZone(DateTimeZone.UTC);
       sb.append(startTimeFrom.toString(dateTimeFormatter));
-      sb.append("' <= \"__time\" AND \"__time\" <= TIMESTAMP '");
+      sb.append("' <= \"__time\" ");
+    }
+    if (StringUtils.isNotEmpty(engineMonitoringQueryRequest.getStartedTimeTo())) {
+      sb.append(" AND \"__time\" <= TIMESTAMP '");
       DateTime startTimeTo = new DateTime(engineMonitoringQueryRequest.getStartedTimeTo()).withZone(DateTimeZone.UTC);
       sb.append(startTimeTo.toString(dateTimeFormatter));
       sb.append("' ");

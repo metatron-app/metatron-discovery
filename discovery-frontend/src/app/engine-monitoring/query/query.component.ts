@@ -209,7 +209,6 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
   }
 
   public onClickQuery(query): void {
-    console.log(query);
     this.queryDetail = query;
     this.showDetail = true;
   }
