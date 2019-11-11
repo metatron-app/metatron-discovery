@@ -158,8 +158,9 @@ public class HttpRepository implements HttpRepositoryAction {
 
         @Override
         public void handleError(ClientHttpResponse response) throws IOException {
-            LOGGER.error(IOUtils.readLines(response.getBody()).toString());
-            throw new NotebookException(NotebookErrorCodes.CONNECTION_ERROR_CODE, "Fail to call : notebook server connection");
+            String errorBody = IOUtils.readLines(response.getBody()).toString();
+            LOGGER.error(errorBody);
+            throw new NotebookException(NotebookErrorCodes.CONNECTION_ERROR_CODE, "Fail to call : " + errorBody);
         }
     }
 }
