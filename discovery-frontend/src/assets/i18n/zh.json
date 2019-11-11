@@ -2542,6 +2542,7 @@
   "msg.page.ui.font.color": "字体颜色",
   "msg.page.ui.area.color": "区域颜色",
   "msg.page.ui.color.palette": "调色板",
+  "msg.page.ui.color.invert": "颜色反转",
   "msg.page.ui.num.format": "数字格式",
   "msg.page.li.common": "共同适用",
   "msg.page.li.individual": "个别适用",

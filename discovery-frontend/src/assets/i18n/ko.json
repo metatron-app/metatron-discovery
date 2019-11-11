@@ -3441,6 +3441,7 @@
   "msg.page.ui.font.color": "글자색",
   "msg.page.ui.area.color": "영역색",
   "msg.page.ui.color.palette": "색상 템플릿",
+  "msg.page.ui.color.invert": "색상 반전",
   "msg.page.ui.num.format": "숫자 포멧",
   "msg.page.li.common": "공통 적용",
   "msg.page.li.individual": "개별 적용",

@@ -422,6 +422,26 @@ export enum ChartColorList {
   VC17 = <any>['#ad037c', '#e03c8f', '#fc79ac', '#fcc9dd', '#ededed', '#d1e5c2', '#97cb63', '#72b235', '#4b8a21'],
   VC18 = <any>['#fbb700', '#ffd200', '#fee330', '#f9f6a1', '#ededed', '#cdbaf8', '#b099f0', '#7c5ac1', '#4c309a'],
   VC19 = <any>['#f27603', '#f28a00', '#fbb700', '#fee330', '#f6f4b7', '#c4eeed', '#6ed0e4', '#4a95cf', '#3452b5'],
+
+  RVC1 = <any>Object.keys(VC1).map(key => VC1[key]).reverse(),
+  RVC2 = <any>Object.keys(VC2).map(key => VC2[key]).reverse(),
+  RVC3 = <any>Object.keys(VC3).map(key => VC3[key]).reverse(),
+  RVC4 = <any>Object.keys(VC4).map(key => VC4[key]).reverse(),
+  RVC5 = <any>Object.keys(VC5).map(key => VC5[key]).reverse(),
+  RVC6 = <any>Object.keys(VC6).map(key => VC6[key]).reverse(),
+  RVC7 = <any>Object.keys(VC7).map(key => VC7[key]).reverse(),
+  RVC8 = <any>Object.keys(VC8).map(key => VC8[key]).reverse(),
+  RVC9 = <any>Object.keys(VC9).map(key => VC9[key]).reverse(),
+  RVC10 = <any>Object.keys(VC10).map(key => VC10[key]).reverse(),
+  RVC11 = <any>Object.keys(VC11).map(key => VC11[key]).reverse(),
+  RVC12 = <any>Object.keys(VC12).map(key => VC12[key]).reverse(),
+  RVC13 = <any>Object.keys(VC13).map(key => VC13[key]).reverse(),
+  RVC14 = <any>Object.keys(VC14).map(key => VC14[key]).reverse(),
+  RVC15 = <any>Object.keys(VC15).map(key => VC15[key]).reverse(),
+  RVC16 = <any>Object.keys(VC16).map(key => VC16[key]).reverse(),
+  RVC17 = <any>Object.keys(VC17).map(key => VC17[key]).reverse(),
+  RVC18 = <any>Object.keys(VC18).map(key => VC18[key]).reverse(),
+  RVC19 = <any>Object.keys(VC19).map(key => VC19[key]).reverse(),
 }
 
 /**

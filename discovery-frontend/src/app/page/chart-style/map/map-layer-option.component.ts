@@ -53,7 +53,8 @@ import {FieldRole, LogicalType} from "../../../domain/datasource/datasource";
 
 @Component({
   selector: 'map-layer-option',
-  templateUrl: './map-layer-option.component.html'
+  templateUrl: './map-layer-option.component.html',
+  styles: ['.sys-inverted {transform: scaleX(-1);}']
 })
 export class MapLayerOptionComponent extends BaseOptionComponent implements AfterViewChecked {
 
@@ -998,7 +999,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * @param data
    */
   public changeColor(data: any, layerIndex : number) {
-
     let layerType = this.uiOption.layers[layerIndex].type;
     if (MapLayerType.HEATMAP === layerType) {
       this.uiOption.layers[layerIndex].color['heatMapSchema'] = data.colorNum;
@@ -1079,16 +1079,29 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * @returns {any}
    */
   public findMeasureColorIndex(layerIndex : number) {
-    if (this.colorTemplate) {
-      let obj = _.find(this.colorTemplate.measureColorList, {colorNum : this.uiOption.layers[layerIndex].color.schema});
 
-      if (obj) {
-        return obj['index'];
-      } else {
-        return _.find(this.colorTemplate.measureReverseColorList, {colorNum : this.uiOption.layers[layerIndex].color.schema})['index'];
+    if (this.colorTemplate) {
+      let colorList: Object[] = [];
+      // measure color list 합치기
+      colorList = colorList.concat(this.colorTemplate.measureColorList);
+      colorList = colorList.concat(this.colorTemplate.measureReverseColorList);
+
+      // 컬러리스트에서 같은 코드값을 가지는경우
+      for (const item of colorList) {
+
+        // 코드값이 같은경우
+        if (this.uiOption.layers[layerIndex].color.schema.endsWith(item['colorNum'])) {
+
+          return item['index'];
+        }
       }
     }
+
     return 1;
+  }
+
+  public isChartColorInverted(layerIndex : number) {
+    return this.uiOption.layers[layerIndex].color.schema.indexOf('R') === 0;
   }
 
   /**

@@ -31,19 +31,32 @@
   <!-- //contents -->
   <!-- contents -->
   <div *ngIf="'heatmap' !== layerType && 'MEASURE' === colorType"  class="ddp-pop-side-contents">
+    <div class="ddp-box-slider">
+      <div class="ddp-wrap-option-slider">
+        <span class="ddp-label-slider">{{'msg.page.ui.color.invert' | translate}}</span>
+        <!-- Slide THREE -->
+        <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+          <input type="checkbox" id="invertColor" name="check" [checked]="isChartColorInverted()" (click)="invertColor()">
+          <label for="invertColor"><span class="ddp-slide"></span></label>
+        </div>
+        <!-- //Slide THREE -->
+      </div>
+    </div>
     <span class="ddp-pop-sub-title">{{'msg.page.th.seq.display' | translate}}</span>
     <ul class="ddp-list-series">
-      <li *ngFor="let item of measureColorList" (click)="changeColor(item)">
+      <li *ngFor="let item of measureColorList">
         <!-- 선택시 ddp-selected 추가 -->
-        <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == schema}"></button>
+        <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': isChartColorSelected(item), 'sys-inverted': isTemplateColorInverted === undefined ? isChartColorInverted() : isTemplateColorInverted}"
+          (click)="changeColor(item)"></button>
       </li>
     </ul>
 
     <span class="ddp-pop-sub-title">{{'msg.page.th.contrast.display' | translate}}</span>
     <ul class="ddp-list-series">
-      <li *ngFor="let item of measureReverseColorList" (click)="changeColor(item)">
+      <li *ngFor="let item of measureReverseColorList">
         <!-- 선택시 ddp-selected 추가 -->
-        <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == schema}"></button>
+        <button class="ddp-btn-color-type{{item['index']}} ddp-type"
+          [ngClass]="{'ddp-selected': isChartColorSelected(item), 'sys-inverted': isTemplateColorInverted === undefined ? isChartColorInverted() : isTemplateColorInverted}" (click)="changeColor(item)"></button>
       </li>
     </ul>
   </div>
