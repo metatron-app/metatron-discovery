@@ -1,0 +1,140 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <!-- now -->
+    <property name="now" value="NOW()" dbms="mysql" />
+    <property name="now" value="CURRENT_DATE()" dbms="h2" />
+    <property name="now" value="NOW()" dbms="postgresql" />
+    <property name="now" value="GETDATE()" dbms="mssql" />
+    <property name="now" value="SYSDATE" dbms="oracle" />
+
+    <!-- sql type (boolean) -->
+    <property name="boolean.type" value="BIT(1)" dbms="mysql"/>
+    <property name="boolean.type" value="BOOLEAN" dbms="h2"/>
+    <property name="boolean.type" value="BOOLEAN" dbms="postgresql"/>
+    <property name="boolean.type" value="[bit]" dbms="mssql"/>
+    <property name="boolean.type" value="NUMBER(1)" dbms="oracle"/>
+
+    <!-- mysql, h2, postgresql, oracle, mssql -->
+    <!-- sql type (tinyint) -->
+    <property name="tinyint.type" value="TINYINT" dbms="mysql"/>
+    <property name="tinyint.type" value="TINYINT" dbms="h2"/>
+    <property name="tinyint.type" value="SMALLINT" dbms="postgresql"/>
+    <property name="tinyint.type" value="[tinyint]" dbms="mssql"/>
+    <property name="tinyint.type" value="NUMBER(3)" dbms="oracle"/>
+
+    <!-- sql type (int) -->
+    <property name="int.type" value="INT" dbms="mysql"/>
+    <property name="int.type" value="INT" dbms="h2"/>
+    <property name="int.type" value="INT" dbms="postgresql"/>
+    <property name="int.type" value="[int]" dbms="mssql"/>
+    <property name="int.type" value="INTEGER" dbms="oracle"/>
+
+    <!-- sql type (bigint) -->
+    <property name="bigint.type" value="BIGINT" dbms="mysql"/>
+    <property name="bigint.type" value="BIGINT" dbms="h2"/>
+    <property name="bigint.type" value="BIGINT" dbms="postgresql"/>
+    <property name="bigint.type" value="[bigint]" dbms="mssql"/>
+    <property name="bigint.type" value="NUMBER(35, 0)" dbms="oracle"/>
+
+    <!-- sql type (float) -->
+    <property name="float.type" value="FLOAT" dbms="mysql"/>
+    <property name="float.type" value="FLOAT" dbms="h2"/>
+    <property name="float.type" value="FLOAT" dbms="postgresql"/>
+    <property name="float.type" value="[float](53)" dbms="mssql"/>
+    <property name="float.type" value="FLOAT" dbms="oracle"/>
+
+    <!-- sql type (double) -->
+    <property name="double.type" value="DOUBLE" dbms="mysql"/>
+    <property name="double.type" value="DOUBLE" dbms="h2"/>
+    <property name="double.type" value="DOUBLE PRECISION" dbms="postgresql"/>
+    <property name="double.type" value="[float](53)" dbms="mssql"/>
+    <property name="double.type" value="FLOAT(24)" dbms="oracle"/>
+
+    <!-- sql type (decimal) -->
+    <property name="decimal.type" value="DECIMAL" dbms="mysql"/>
+    <property name="decimal.type" value="DECIMAL" dbms="h2"/>
+    <property name="decimal.type" value="DECIMAL" dbms="postgresql"/>
+    <property name="decimal.type" value="[decimal](18, 0)" dbms="mssql"/>
+    <property name="decimal.type" value="DECIMAL(24)" dbms="oracle"/>
+
+    <!-- sql type (number) -->
+    <property name="number.type" value="numeric" dbms="mysql"/>
+    <property name="number.type" value="NUMBER" dbms="h2"/>
+    <property name="number.type" value="numeric" dbms="postgresql"/>
+    <property name="number.type" value="[numeric](18, 0)" dbms="mssql"/>
+    <property name="number.type" value="NUMBER(24)" dbms="oracle"/>
+
+    <!-- sql type (blob) -->
+    <property name="blob.type" value="LONGBLOB" dbms="mysql"/>
+    <property name="blob.type" value="BLOB" dbms="h2"/>
+    <property name="blob.type" value="BYTEA" dbms="postgresql"/>
+    <property name="blob.type" value="[varbinary](MAX)" dbms="mssql"/>
+    <property name="blob.type" value="BLOB" dbms="oracle"/>
+
+    <!-- sql type (datetime) -->
+    <property name="datetime.type" value="datetime" dbms="mysql"/>
+    <property name="datetime.type" value="TIMESTAMP" dbms="h2"/>
+    <property name="datetime.type" value="TIMESTAMP WITHOUT TIME ZONE" dbms="postgresql"/>
+    <property name="datetime.type" value="[datetime]" dbms="mssql"/>
+    <property name="datetime.type" value="TIMESTAMP" dbms="oracle"/>
+
+    <!-- sql type (time) -->
+    <property name="time.type" value="time" dbms="mysql"/>
+    <property name="time.type" value="time" dbms="h2"/>
+    <property name="time.type" value="TIME WITHOUT TIME ZONE" dbms="postgresql"/>
+    <property name="time.type" value="[time](7)" dbms="mssql"/>
+    <property name="time.type" value="DATE" dbms="oracle"/>
+
+    <!-- sql type (timestamp) -->
+    <property name="timestamp.type" value="timestamp" dbms="mysql"/>
+    <property name="timestamp.type" value="TIMESTAMP" dbms="h2"/>
+    <property name="timestamp.type" value="TIMESTAMP WITHOUT TIME ZONE" dbms="postgresql"/>
+    <property name="timestamp.type" value="[datetime]" dbms="mssql"/>
+    <property name="timestamp.type" value="TIMESTAMP" dbms="oracle"/>
+
+    <!-- sql type (date) -->
+    <property name="date.type" value="date" dbms="mysql"/>
+    <property name="date.type" value="date" dbms="h2"/>
+    <property name="date.type" value="date" dbms="postgresql"/>
+    <property name="date.type" value="[date]" dbms="mssql"/>
+    <property name="date.type" value="date" dbms="oracle"/>
+
+    <!-- sql type (char) -->
+    <property name="char.type" value="CHAR" dbms="mysql"/>
+    <property name="char.type" value="CHAR" dbms="h2"/>
+    <property name="char.type" value="CHAR" dbms="postgresql"/>
+    <property name="char.type" value="[char](1)" dbms="mssql"/>
+    <property name="char.type" value="CHAR" dbms="oracle"/>
+
+    <!-- sql type (varchar) -->
+    <property name="varchar.type" value="VARCHAR" dbms="mysql"/>
+    <property name="varchar.type" value="VARCHAR" dbms="h2"/>
+    <property name="varchar.type" value="VARCHAR" dbms="postgresql"/>
+    <property name="varchar.type" value="[varchar](1)" dbms="mssql"/>
+    <property name="varchar.type" value="VARCHAR" dbms="oracle"/>
+
+    <!-- sql type (text) -->
+    <property name="text.type" value="TEXT" dbms="mysql"/>
+    <property name="text.type" value="TEXT" dbms="h2"/>
+    <property name="text.type" value="TEXT" dbms="postgresql"/>
+    <property name="text.type" value="[varchar](MAX)" dbms="mssql"/>
+    <property name="text.type" value="CLOB" dbms="oracle"/>
+
+    <!-- sql type (clob) -->
+    <property name="clob.type" value="LONGTEXT" dbms="mysql"/>
+    <property name="clob.type" value="CLOB" dbms="h2"/>
+    <property name="clob.type" value="TEXT" dbms="postgresql"/>
+    <property name="clob.type" value="[varchar](MAX)" dbms="mssql"/>
+    <property name="clob.type" value="CLOB" dbms="oracle"/>
+
+
+    <!-- initial changelog -->
+    <include file="discovery.changelog-initial.xml" relativeToChangelogFile="true"/>
+
+    <!-- discovery release based changelog -->
+    <include file="discovery.changelog-3.4.0.xml" relativeToChangelogFile="true"/>
+</databaseChangeLog>
