@@ -182,7 +182,7 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
       this.router.navigate(['management/metadata/code-table']).then();
       this._codeTableService.fromColumnDictionary = false;
     } else {
-      this._location.back();
+      this.router.navigate(['management/metadata/code-table']).then();
     }
 
   }
