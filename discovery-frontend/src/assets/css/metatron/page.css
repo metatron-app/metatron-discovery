@@ -498,7 +498,7 @@ dl.ddp-dl-detail dd br {display:block; margin-top:5px;}
 
 .ddp-ui-preview-contents table.ddp-table-type2 tbody tr:hover td {background-color:#f2f1f9;}
 .ddp-ui-preview-contents table.ddp-table-form tbody tr td .ddp-txt-long.ddp-type-button {display:block;}
-.ddp-ui-preview-contents table.ddp-table-form tbody tr td .ddp-txt-long {font-size:14px;}
+.ddp-ui-preview-contents table.ddp-table-form tbody tr td .ddp-txt-long {font-size:13px;}
 .ddp-ui-preview-contents table.ddp-table-form tbody tr td .ddp-txt-long.ddp-type-button .ddp-txt-name {display:block; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; margin-top:6px;}
 .ddp-ui-preview-contents .ddp-table-header {padding-right:18px;}
 .ddp-ui-preview-contents .ddp-table-tbody {position:absolute; top:29px; left:0; right:0; bottom:0; overflow-y:scroll; border-top:1px solid #e9e9ec;}
@@ -9663,6 +9663,13 @@ table.ddp-table-detail .ddp-box-slider .ddp-checkbox-slide.ddp-checkbox-automati
 table.ddp-table-form span.ddp-box-tag-value {display:inline-block; min-width:80px; padding:2px 3px 1px 3px; border-radius:1px; font-size:12px; box-sizing:border-box;text-align:center;}
 table.ddp-table-form span.ddp-box-tag-value.ddp-dimension {color:#439fe5; border:1px solid #439fe5;}
 table.ddp-table-form span.ddp-box-tag-value.ddp-measure {color:#5fd7a5; border:1px solid #5fd7a5;}
+table.ddp-table-type2 tbody tr td .ddp-pop-select .ddp-table-pop tr th {text-align:left; border-bottom:none;}
+table.ddp-table-type2 tbody tr td .ddp-pop-select .ddp-table-pop tr td,
+table.ddp-table-type2 tbody tr td .ddp-pop-select .ddp-table-pop tr:nth-child(odd) td{background:none !important;}
+table.ddp-table-type2 tbody tr td .ddp-pop-select .ddp-txt-link {font-weight:bold;}
+table.ddp-table-type2 tbody tr td .ddp-pop-select.ddp-selected .ddp-txt-link {text-decoration:underline;}
+table.ddp-table-type2 tbody tr td .ddp-pop-select.ddp-selected .ddp-txt-link.type-underline-none {text-decoration:none;}
+table.ddp-table-type2 tbody tr td .ddp-pop-select .ddp-box-layout4.type-dictionary {width:300px; max-height:300px; overflow:auto;}
 table.ddp-table-type2 tbody tr td .ddp-box-hover {display:inline-block;}
 table.ddp-table-type2 tbody tr td .ddp-box-hover a {display:inline-block; position:relative; color:#4b525b; font-size:12px; text-decoration:underline; font-style:italic;}
 table.ddp-table-type2 tbody tr td .ddp-box-hover .ddp-box-layout4 {display:none; position:absolute; right:0; top:30px;}

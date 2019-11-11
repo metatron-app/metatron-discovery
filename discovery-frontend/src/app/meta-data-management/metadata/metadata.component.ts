@@ -370,6 +370,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    * @param metadata
    */
   public onClickMetadataDetail(metadata) {
+    this.metadataService.metadataDetailSelectedTab = 'information';
     this.router.navigate(['management/metadata/metadata', metadata.id]);
   }
 

@@ -85,10 +85,12 @@
                     (click)="onSelectCodeTable(table)"
                     *ngFor="let table of codeTableList; let idx = index">
                   <td>
-                    <a href="javascript:" class="ddp-link-detail ddp-type" (click)="onClickTableName(table.id)">
-                      {{table.name}}
-                      <em class="ddp-icon-window"></em>
-                    </a>
+                    <div class="ddp-txt-long">
+                      <a href="javascript:" class="ddp-link-detail ddp-type" (click)="onClickTableName(table.id)">
+                        {{table.name}}
+                        <em class="ddp-icon-window"></em>
+                      </a>
+                    </div>
                   </td>
                   <td>
                     <div class=" ddp-txt-long">

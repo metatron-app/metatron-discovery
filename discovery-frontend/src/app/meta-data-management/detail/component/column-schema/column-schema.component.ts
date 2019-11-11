@@ -119,6 +119,14 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   private readonly _codeTable: ElementRef;
 
   /**
+   * Dictionary Preview Layer
+   */
+  @ViewChildren('dictionaryPreview')
+  private readonly dictionaryPreview: QueryList<ElementRef>;
+  @ViewChildren('dictionary')
+  private readonly dictionary: ElementRef;
+
+  /**
    * Logical Type Layer
    */
   @ViewChildren('logicalType')
@@ -397,12 +405,41 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     this._releaseSelectedColumn();
   }
 
-  /**
-   * 코드 테이블 이름 클릭 이벤트
-   */
-  public onClickCodeTable(metadataColumn: MetadataColumn, index: number): void {
+  public onHoverDictionary(column: MetadataColumn, index: number): void {
     // event bubbling stop
     event.stopImmediatePropagation();
+    event.stopPropagation();
+
+    // Only open if code table name exits
+    if (!column.dictionary) {
+      return;
+    }
+
+    this.columnList.forEach((item) => {
+      item['isShowDictionary'] = false;
+    });
+
+    column['isShowDictionary'] = true;
+    // find popup top (css)
+
+    const table = this.dictionary[ '_results' ][ index ].nativeElement;
+    const preview = this.dictionaryPreview[ '_results' ][ index ].nativeElement;
+
+    this.changeDetect.detectChanges();
+
+    preview.style.top = (table.getBoundingClientRect().top > (this.$window.outerHeight() / 2))
+      ? (table.getBoundingClientRect().top - preview.offsetHeight + 'px')
+      : (table.getBoundingClientRect().top + 15 + 'px');
+    preview.style.left = table.getBoundingClientRect().left + 'px';
+  }
+
+  /**
+   * 코드 테이블 이름 호버 이벤트
+   */
+  public onHoverCodeTable(metadataColumn: MetadataColumn, index: number): void {
+    // event bubbling stop
+    event.stopImmediatePropagation();
+    event.stopPropagation();
     // 해당 코드테이블 레이어 팝업 show flag
     metadataColumn.codeTable && (metadataColumn[ 'codeTableShowFl' ] = !metadataColumn[ 'codeTableShowFl' ]);
     // 레이어 팝업 설정
@@ -418,11 +455,26 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
       // 레이어 팝업 위치 조정
       const table = this._codeTable[ '_results' ][ index ].nativeElement;
       const preview = this._codeTablePreview[ '_results' ][ index ].nativeElement;
+
       preview.style.top = (table.getBoundingClientRect().top > (this.$window.outerHeight() / 2))
         ? (table.getBoundingClientRect().top - preview.offsetHeight + 'px')
-        : (table.getBoundingClientRect().top + 25 + 'px');
+        : (table.getBoundingClientRect().top + 15 + 'px');
       preview.style.left = table.getBoundingClientRect().left + 'px';
     }
+  }
+
+  public onHideCodeTable(metadataColumn) {
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+    // 해당 코드테이블 레이어 팝업 show flag
+    metadataColumn.codeTable && (metadataColumn[ 'codeTableShowFl' ] = false);
+  }
+
+  public onHideDictionary(metadataColumn) {
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+    // 해당 코드테이블 레이어 팝업 show flag
+    metadataColumn.dictionary && (metadataColumn[ 'isShowDictionary' ] = false);
   }
 
   /**
