@@ -21204,7 +21204,7 @@
 .theme-dark button[class*="ddp-btn-color-"] {
     display: inline-block;
     position: relative;
-    width: 235px;
+    width: 100%;
     height: 25px;
     cursor: pointer;
 }
@@ -21212,7 +21212,7 @@
 .theme-dark button[class*="ddp-btn-color2-series"] {
     display: inline-block;
     position: relative;
-    width: 235px;
+    width: 100%;
     height: 25px;
     cursor: pointer;
 }
