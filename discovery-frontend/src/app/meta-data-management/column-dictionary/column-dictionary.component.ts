@@ -472,13 +472,16 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
       params['logicalNameContains'] = this.searchText.trim();
     }
     // date
+    // update time - not All type
     if (this._selectedDate && this._selectedDate.type !== 'ALL') {
-      params['searchDateBy'] = 'CREATED';
-      params['type'] = this._selectedDate.type;
-      if (this._selectedDate.startDateStr) {
+      if (this._selectedDate.type !== 'NOT') {
+        params['type'] = this._selectedDate.type;
+      }
+      params['searchDateBy'] = 'UPDATED';
+      if (this._selectedDate.startDate) {
         params['from'] = moment(this._selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
-      if (this._selectedDate.endDateStr) {
+      if (this._selectedDate.endDate) {
         params['to'] = moment(this._selectedDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
     } else {
