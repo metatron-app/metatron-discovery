@@ -233,18 +233,18 @@ polaris:
 #      exposedHeaders: "*"
 #      allowCredentials: false
 #      maxAge: 3600
----
-spring:
-  profiles: initial
-  datasource:
-    initialize: true
-  jpa:
-    properties:
-      hibernate:
-        hbm2ddl:
-          auto: create
-          import_files: /scripts/default.sql,/scripts/default_expressions.sql,/scripts/default_datasource_ingestion_options.sql
-          import_files_sql_extractor: org.hibernate.tool.hbm2ddl.MultipleLinesSqlCommandExtractor
+#---
+#spring:
+#  profiles: initial
+#  datasource:
+#    initialize: true
+#  jpa:
+#    properties:
+#      hibernate:
+#        hbm2ddl:
+#          auto: create
+#          import_files: /scripts/default.sql,/scripts/default_expressions.sql,/scripts/default_datasource_ingestion_options.sql
+#          import_files_sql_extractor: org.hibernate.tool.hbm2ddl.MultipleLinesSqlCommandExtractor
 ---
 spring:
   profiles: local
