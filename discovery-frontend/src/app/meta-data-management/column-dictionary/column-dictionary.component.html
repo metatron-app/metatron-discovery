@@ -23,6 +23,8 @@
         [defaultType]="defaultDate?.type"
         [dateType]="false"
         [roundSecond]="true"
+        [startPlaceholder]="'msg.storage.ui.criterion.time.past' | translate"
+        [endPlaceholder]="'msg.storage.ui.criterion.time.current' | translate"
         (changeDate)="onChangeData($event)"
         [title]="'msg.metadata.ui.dictionary.created.date' | translate"
       ></component-period>
