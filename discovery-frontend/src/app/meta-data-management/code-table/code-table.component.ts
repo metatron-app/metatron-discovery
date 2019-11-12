@@ -26,6 +26,8 @@ import {isNullOrUndefined} from "util";
 import * as _ from 'lodash';
 import {PeriodData} from "../../common/value/period.data.value";
 import {Subscription} from "rxjs";
+import {Criteria} from "../../domain/datasource/criteria";
+import DateTimeType = Criteria.DateTimeType;
 
 declare let moment: any;
 
@@ -48,10 +50,10 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
   private _deleteComp: DeleteModalComponent;
 
   // date
-  private _selectedDate: PeriodData;
+  private _selectedDate: PeriodData = new PeriodData();
 
   // 검색 파라메터
-  private _searchParams: { [key: string]: string };
+  private _searchParams: any;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -68,9 +70,14 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
 
   public searchText: string;
 
-  public selectedType:PeriodType;
+  public selectedType: DateTimeType;
 
   public defaultDate: PeriodData;
+
+  startTime: string = '';
+  finishTime: string = '';
+  betweenPastTime = 'msg.storage.ui.criterion.time.past';
+  betweenCurrentTime = 'msg.storage.ui.criterion.time.current';
 
   // sort
   readonly sortList = [
@@ -100,7 +107,7 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
   public ngOnInit() {
     this._initView();
     // Get query param from url
-    this._paginationSubscription$ =this._activatedRoute.queryParams.subscribe((params) => {
+    this._paginationSubscription$ = this._activatedRoute.queryParams.subscribe((params) => {
 
       if (!_.isEmpty(params)) {
 
@@ -261,9 +268,61 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
    * 캘린더 선택 이벤트
    * @param event
    */
-  public onChangeData(event): void {
-    // 선택한 날짜
-    this._selectedDate = event;
+  public onChangeData(selectedDate): void {
+    this.selectedType = selectedDate.type;
+
+    const betweenFrom = selectedDate.startDate;
+    const betweenTo = selectedDate.endDate;
+
+    let startDate, endDate, type, startDateStr, endDateStr, dateType = null;
+
+    const returnFormat = 'YYYY-MM-DDTHH:mm';
+
+    // if filter type is between
+    if (this.selectedType === Criteria.DateTimeType.BETWEEN) {
+      if (betweenFrom !== undefined) {
+        this.betweenPastTime = betweenFrom;
+      }
+      if (betweenTo !== undefined) {
+        this.betweenCurrentTime = betweenTo;
+      }
+
+      // Only set params need to request api according to condition otherwise just leave it null
+      // if from and to is all exist
+      if (betweenFrom !== undefined && betweenTo !== undefined) {
+        startDate = betweenFrom;
+        endDate = betweenTo;
+        startDateStr = moment(betweenFrom).format(returnFormat);
+        endDateStr = moment(betweenTo).format(returnFormat);
+        // if only 'from' time is selected
+      } else if (betweenFrom && betweenTo === undefined) {
+        startDate = betweenFrom;
+        startDateStr = moment(betweenFrom).format(returnFormat);
+        // if only 'to' time is selected
+      } else if (betweenFrom === undefined && betweenTo) {
+        endDate = betweenTo;
+        endDateStr = moment(betweenTo).format(returnFormat);
+      }
+      // if filter type is not between
+    } else {
+      this.startTime = betweenFrom;
+      this.finishTime = betweenTo;
+
+      startDate = betweenFrom;
+      endDate = betweenTo;
+      type = this.selectedType;
+      startDateStr = moment(betweenFrom).format(returnFormat);
+      endDateStr = moment(betweenTo).format(returnFormat);
+    }
+
+    this._selectedDate = {
+      startDate: startDate,
+      endDate: endDate,
+      type: type,
+      startDateStr: startDateStr,
+      endDateStr: endDateStr,
+      dateType: dateType
+    };
 
     // 재조회
     this.reloadPage();
@@ -361,8 +420,7 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
       // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다.
       if (this.page.page > 0 &&
         isNullOrUndefined(result['_embedded']) ||
-        (!isNullOrUndefined(result['_embedded']) && result['_embedded'].codetables.length === 0))
-      {
+        (!isNullOrUndefined(result['_embedded']) && result['_embedded'].codetables.length === 0)) {
         this.page.page = result.page.number - 1;
         this._getCodeTableList();
       }
@@ -394,20 +452,23 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
       size: this.page.size,
       page: this.page.page,
       sort: this.selectedSort.value,
-      pseudoParam : (new Date()).getTime()
+      pseudoParam: (new Date()).getTime()
     };
     // 검색어
     if (!isNullOrUndefined(this.searchText) && this.searchText.trim() !== '') {
       params['nameContains'] = this.searchText.trim();
     }
     // date
+    // update time - not All type
     if (this._selectedDate && this._selectedDate.type !== 'ALL') {
-      params['searchDateBy'] = 'CREATED';
-      params['type'] = this._selectedDate.type;
-      if (this._selectedDate.startDateStr) {
+      if (this._selectedDate.type !== 'NOT') {
+        params['type'] = this._selectedDate.type;
+      }
+      params['searchDateBy'] = 'UPDATED';
+      if (this._selectedDate.startDate) {
         params['from'] = moment(this._selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
-      if (this._selectedDate.endDateStr) {
+      if (this._selectedDate.endDate) {
         params['to'] = moment(this._selectedDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
     } else {

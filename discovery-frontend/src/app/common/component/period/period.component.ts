@@ -121,10 +121,10 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
   public customDateTypeList: {label: string, value: string}[];
 
   @Input()
-  public startPlaceholder?: string = 'yyyy-MM-dd hh:mm';
+  public startPlaceholder?: string = 'msg.storage.ui.criterion.time.past';
 
   @Input()
-  public endPlaceholder?: string = 'yyyy-MM-dd hh:mm';
+  public endPlaceholder?: string = 'msg.storage.ui.criterion.time.current';
 
   // 변경 이벤트
   @Output() public changeDate = new EventEmitter();
