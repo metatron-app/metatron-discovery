@@ -709,7 +709,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   }
 
   public getSchedulingJob() {
-    if (this.datasource.connType === this.dsConnType.ENGINE && this.datasource.ingestion.type != 'single') {
+    if (this.datasource.connType === this.dsConnType.ENGINE && this.datasource.srcType === this.dsSrcType.JDBC && this.datasource.ingestion.type != 'single') {
       this.schedulingService.getScheduling('ingestion', this.datasource.id).then((data) => {
         if (!_.isNil(data) && data.length == 1) {
           this.schedulingStatus = data[0].status;

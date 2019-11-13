@@ -31,6 +31,7 @@ import {Alert} from "../../../../common/util/alert.util";
 import {Location} from "@angular/common";
 import * as _ from 'lodash';
 import {Task, TaskType} from "../../../../domain/engine-monitoring/task";
+import {EngineMonitoringUtil} from "../../../util/engine-monitoring.util";
 
 declare let echarts: any;
 declare let moment: any;
@@ -215,6 +216,9 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
           trigger: 'axis',
           axisPointer: {
             type: 'line'
+          },
+          formatter: (params) => {
+            return EngineMonitoringUtil.tooltipFormatter(params);
           }
         },
         grid: [

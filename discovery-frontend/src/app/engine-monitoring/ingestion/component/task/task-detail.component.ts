@@ -31,6 +31,8 @@ import {Location} from "@angular/common";
 import * as _ from "lodash";
 import {Engine} from "../../../../domain/engine-monitoring/engine";
 import {saveAs} from 'file-saver';
+import {EngineMonitoringUtil} from "../../../util/engine-monitoring.util";
+import {CommonUtil} from "../../../../common/util/common.util";
 
 declare let echarts: any;
 declare let moment: any;
@@ -333,6 +335,11 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
           trigger: 'axis',
           axisPointer: {
             type: 'line'
+          },
+          formatter: (params) => {
+            return EngineMonitoringUtil.convertLocalTime(params[0].axisValue) + '<br/>' + params[0].marker + params[0].seriesName + ' : ' + params[0].data
+              + '<br/>' + params[1].marker + params[1].seriesName + ' : ' + params[1].data
+              + '<br/>' + params[2].marker + params[2].seriesName + ' : ' + params[2].data;
           }
         },
         grid: [
