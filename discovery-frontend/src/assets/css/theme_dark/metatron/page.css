@@ -3378,7 +3378,7 @@
 .theme-dark .ddp-wrap-tab-dashboard .ddp-ui-setting .ddp-wrap-selectbox {
     float: left;
     position: relative;
-    margin-top: 11px;
+    margin-top: 9px;
     padding-left: 15px;
     color: #a2a9c1;
     cursor: pointer;
@@ -3409,6 +3409,11 @@
 .theme-dark .ddp-wrap-tab-dashboard .ddp-ui-setting .ddp-wrap-selectbox ul.ddp-list-popup {
     width: 170px;
 }
+.theme-dark .ddp-wrap-tab-dashboard .ddp-ui-setting .ddp-wrap-selectbox ul.ddp-list-popup .ddp-label-checkbox {
+  max-width:100%;
+  box-sizing:border-box;
+}
+.theme-dark .ddp-wrap-tab-dashboard .ddp-ui-setting .ddp-wrap-selectbox ul.ddp-list-popup .ddp-label-checkbox span.ddp-txt-checkbox {max-width:100%; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 
 .theme-dark .ddp-wrap-tab-dashboard .ddp-ui-setting .ddp-ui-datalink .ddp-wrap-popup2 {
     display: none;
@@ -3427,7 +3432,7 @@
 
 .theme-dark .ddp-wrap-tab-dashboard .ddp-ui-setting .ddp-label-checkbox.ddp-type-show {
     float: left;
-    margin: 10px 0 0 10px;
+    margin: 8px 0 0 10px;
 }
 
 .theme-dark .ddp-wrap-tab-dashboard .ddp-ui-setting .ddp-label-checkbox.ddp-type-show span.ddp-txt-checkbox {
@@ -46701,7 +46706,7 @@
 .theme-dark table.ddp-table-detail tr td .ddp-tag-default {
     display: inline-block;
     position: relative;
-    padding: 5px 5px 5px 20px;
+    padding: 3px 5px 3px 20px;
     margin: 3px 6px 3px 0;
     border-radius: 4px;
     color: #666fad;
@@ -46712,7 +46717,7 @@
 .theme-dark table.ddp-table-detail tr td .ddp-tag-default:before {
     display: inline-block;
     position: absolute;
-    top: 5px;
+    top: 3px;
     left: 9px;
     content: '#';
     color: #666fad;
@@ -47153,7 +47158,7 @@
     display: inline-block;
     float: left;
     position: relative;
-    width: 515px;
+    width: 516px;
     padding: 0 0 0 40px;
     box-sizing: border-box;
 }
@@ -47233,7 +47238,8 @@
 .theme-dark .ddp-layout-meta.ddp-scroll .ddp-ui-contents-top .ddp-ui-title {
     float: left;
     text-align: left;
-    padding: 20px 20px 5px 24px;
+    padding:26px 15px 5px 25px;
+    font-size:22px;
 }
 
 .theme-dark .ddp-layout-meta.ddp-scroll .ddp-ui-contents-top .ddp-ui-tag {
