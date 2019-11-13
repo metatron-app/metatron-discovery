@@ -25,13 +25,12 @@ import java.util.List;
 import java.util.Map;
 
 import app.metatron.discovery.TestLocalHdfs;
-import app.metatron.discovery.domain.dataconnection.DataConnection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 
 public class DataTableHiveRepositoryTest {
-  final TestLocalHdfs testLocalHdfs = new TestLocalHdfs();
+  final TestLocalHdfs testLocalHdfs = new TestLocalHdfs("/tmp/hdfs-conf");
 
   @Before
   public void setUp() throws IOException, InterruptedException {
@@ -41,8 +40,6 @@ public class DataTableHiveRepositoryTest {
   @Test
   public void saveToHdfs() throws IOException, InterruptedException {
     // given
-    DataConnection hiveConnection = getHiveConnection();
-
     List<String> fields = Arrays.asList("records.year", "records.temperature", "records.quality");
 
     List<Map<String, Object>> records = new ArrayList<>();
@@ -61,26 +58,11 @@ public class DataTableHiveRepositoryTest {
 
     // when
     final DataTableHiveRepository dataTableHiveRepository = new DataTableHiveRepository();
-    String filePath = dataTableHiveRepository.saveToHdfs(hiveConnection, new Path("/tmp/metatron/test"), dataTable);
+
+    HivePersonalDatasource hivePersonalDatasource = new HivePersonalDatasource("/tmp/hdfs-conf", "hive_admin", "1111", "private");
+    String filePath = dataTableHiveRepository.saveToHdfs(hivePersonalDatasource, new Path("/tmp/metatron/test"), dataTable);
 
     // then
     assertThat(testLocalHdfs.exists(new Path(filePath))).isTrue();
   }
-
-  private DataConnection getHiveConnection() {
-    DataConnection hiveConnection = new DataConnection("HIVE");
-    hiveConnection.setUsername("read_only");
-    hiveConnection.setPassword("1111");
-    hiveConnection.setHostname("localhost");
-    hiveConnection.setPort(10000);
-    hiveConnection.setProperties("{" +
-        "  \"metatron.hdfs.conf.path\": \"/tmp/hdfs-conf\"," +
-        "  \"metatron.hive.admin.name\": \"hive_admin\"," +
-        "  \"metatron.hive.admin.password\": \"1111\"," +
-        "  \"metatron.personal.database.prefix\": \"private\"" +
-        "}");
-
-    return hiveConnection;
-  }
-
 }

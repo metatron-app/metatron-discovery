@@ -15,17 +15,19 @@
 package app.metatron.discovery.domain.workbench;
 
 import app.metatron.discovery.AbstractRestIntegrationTest;
+import app.metatron.discovery.common.ConnectionConfigProperties;
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.core.oauth.OAuthRequest;
 import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
-import app.metatron.discovery.domain.dataconnection.dialect.HiveDialect;
+import app.metatron.discovery.domain.workbench.hive.HivePersonalDatasource;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceManager;
 import app.metatron.discovery.domain.workspace.folder.Folder;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.util.hash.Hash;
 import org.apache.hive.jdbc.HiveDriver;
 import org.apache.http.HttpStatus;
 import org.hamcrest.Matchers;
@@ -40,7 +42,6 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.util.Assert;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -54,7 +55,6 @@ import java.util.Map;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Created by kyungtaak on 2016. 11. 29..
@@ -65,6 +65,9 @@ public class WorkbenchRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Autowired
   WorkbenchProperties workbenchProperties;
+
+  @Autowired
+  ConnectionConfigProperties connectionConfigProperties;
 
   @Autowired
   WorkbenchDataSourceManager workbenchDataSourceManager;
@@ -494,20 +497,14 @@ public class WorkbenchRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "polaris", value = {"PERM_WORKSPACE_WRITE_BOOK"})
-  public void importFileToPersonalDatabase_when_import_type_new_and_csv_file() throws IOException {
+  public void importFileToPersonalDatabase_when_csv_file() throws IOException {
     // given
     final String webSocketId = "test-ws";
     final String fileName = "product_sales.csv";
-    final String loginUserId = "polaris";
     Files.copy(Paths.get(getClass().getClassLoader().getResource(fileName).getPath()),
         Paths.get(String.format("%s/%s", workbenchProperties.getTempCSVPath(), fileName)), REPLACE_EXISTING);
 
-    // setUp hdsf conf files
-    Files.createDirectories(Paths.get("/tmp", "hdfs-conf"));
-    Files.copy(Paths.get("src","test","resources", "hdfs", "conf", "core-site.xml"),
-        Paths.get("/tmp", "hdfs-conf", "core-site.xml"), REPLACE_EXISTING);
-    Files.copy(Paths.get("src","test","resources", "hdfs", "conf", "hdfs-site.xml"),
-        Paths.get("/tmp", "hdfs-conf", "hdfs-site.xml"), REPLACE_EXISTING);
+    final String loginUserId = "polaris";
 
     DataConnection hiveConnection = new DataConnection("HIVE");
     hiveConnection.setUsername("read_only");
@@ -515,23 +512,30 @@ public class WorkbenchRestIntegrationTest extends AbstractRestIntegrationTest {
     hiveConnection.setHostname("localhost");
     hiveConnection.setPort(10000);
     hiveConnection.setProperties("{" +
-        "  \"metatron.hdfs.conf.path\": \"/tmp/hdfs-conf\"," +
-        "  \"metatron.hive.admin.name\": \"hive_admin\"," +
-        "  \"metatron.hive.admin.password\": \"1111\"," +
-        "  \"metatron.personal.database.prefix\": \"private\"" +
+        "  \"metatron.property.group.name\": \"group1\"" +
         "}");
     workbenchDataSourceManager.createDataSourceInfo(hiveConnection, webSocketId);
-    cleanUpHivePersonalDatabaseTestFixture(hiveConnection, "private_polaris");
+
+
+    Map<String, Map<String, String>> propertyGroup = new HashMap<>();
+    Map<String, String> hivePersonalDatasourceProperties = new HashMap<>();
+    hivePersonalDatasourceProperties.put("hdfs-conf-path", "/tmp/hdfs-conf");
+    hivePersonalDatasourceProperties.put("admin-name", "hive_admin");
+    hivePersonalDatasourceProperties.put("admin-password", "1111");
+    hivePersonalDatasourceProperties.put("personal-database-prefix", "private");
+    propertyGroup.put("group1", hivePersonalDatasourceProperties);
+    connectionConfigProperties.setPropertyGroup(propertyGroup);
+
+    HivePersonalDatasource hivePersonalDatasource = new HivePersonalDatasource(hivePersonalDatasourceProperties);
+    cleanUpHivePersonalDatabaseTestFixture(hiveConnection, loginUserId, hivePersonalDatasource);
 
     // REST when, then
     final String workbenchId = "workbench-05";
     final String requestBody = "{" +
         "  \"type\": \"csv\"," +
-        "  \"importType\": \"new\"," +
-        "  \"databaseName\": \"private_polaris\"," +
         "  \"tableName\": \"product_sales_2018\"," +
         "  \"firstRowHeadColumnUsed\": true," +
-        "  \"filePath\": \"" + String.format("%s/%s", workbenchProperties.getTempCSVPath(), fileName) + "\"," +
+        "  \"uploadedFile\": \"" + fileName + "\"," +
         "  \"loginUserId\": \"" + loginUserId + "\"," +
         "  \"webSocketId\": \"" + webSocketId + "\"" +
         "}";
@@ -541,136 +545,26 @@ public class WorkbenchRestIntegrationTest extends AbstractRestIntegrationTest {
         .contentType(ContentType.JSON)
         .body(requestBody)
     .when()
-        .post("/api/workbenchs/{id}/import/files", workbenchId)
+        .post("/api/workbenchs/{id}/import", workbenchId)
     .then()
         .log().all()
         .statusCode(HttpStatus.SC_NO_CONTENT);
   }
 
-  @Test
-  @OAuthRequest(username = "polaris", value = {"PERM_WORKSPACE_WRITE_BOOK"})
-  public void importFileToPersonalDatabase_when_import_type_new_and_csv_file_with_partition_column() throws IOException {
-    // given
-    final String webSocketId = "test-ws";
-    final String fileName = "product_sales.csv";
-    final String loginUserId = "polaris";
-    Files.copy(Paths.get(getClass().getClassLoader().getResource(fileName).getPath()),
-        Paths.get(String.format("%s/%s", workbenchProperties.getTempCSVPath(), fileName)), REPLACE_EXISTING);
-
-    // setUp hdsf conf files
-    Files.createDirectories(Paths.get("/tmp", "hdfs-conf"));
-    Files.copy(Paths.get("src","test","resources", "hdfs", "conf", "core-site.xml"),
-        Paths.get("/tmp", "hdfs-conf", "core-site.xml"), REPLACE_EXISTING);
-    Files.copy(Paths.get("src","test","resources", "hdfs", "conf", "hdfs-site.xml"),
-        Paths.get("/tmp", "hdfs-conf", "hdfs-site.xml"), REPLACE_EXISTING);
-
-    DataConnection hiveConnection = new DataConnection("HIVE");
-    hiveConnection.setUsername("read_only");
-    hiveConnection.setPassword("1111");
-    hiveConnection.setHostname("localhost");
-    hiveConnection.setPort(10000);
-    hiveConnection.setProperties("{" +
-        "  \"metatron.hdfs.conf.path\": \"/tmp/hdfs-conf\"," +
-        "  \"metatron.hive.admin.name\": \"hive_admin\"," +
-        "  \"metatron.hive.admin.password\": \"1111\"," +
-        "  \"metatron.personal.database.prefix\": \"private\"" +
-        "}");
-    workbenchDataSourceManager.createDataSourceInfo(hiveConnection, webSocketId);
-    cleanUpHivePersonalDatabaseTestFixture(hiveConnection, "private_polaris");
-
-    // REST when, then
-    final String workbenchId = "workbench-05";
-    final String requestBody = "{" +
-        "  \"type\": \"csv\"," +
-        "  \"importType\": \"new\"," +
-        "  \"databaseName\": \"private_polaris\"," +
-        "  \"tableName\": \"product_sales_2018\"," +
-        "  \"tablePartitionColumn\": \"time\"," +
-        "  \"firstRowHeadColumnUsed\": true," +
-        "  \"filePath\": \"" + String.format("%s/%s", workbenchProperties.getTempCSVPath(), fileName) + "\"," +
-        "  \"loginUserId\": \"" + loginUserId + "\"," +
-        "  \"webSocketId\": \"" + webSocketId + "\"" +
-        "}";
-
-    given()
-        .auth().oauth2(oauth_token)
-        .contentType(ContentType.JSON)
-        .body(requestBody)
-    .when()
-        .post("/api/workbenchs/{id}/import/files", workbenchId)
-    .then()
-        .log().all()
-        .statusCode(HttpStatus.SC_NO_CONTENT);
-  }
-
-  @Test
-  @OAuthRequest(username = "polaris", value = {"PERM_WORKSPACE_WRITE_BOOK", "PERM_SYSTEM_MANAGE_DATASOURCE"})
-  public void importFileToPersonalDatabase_when_import_type_new_csv_file_with_other_database() throws IOException {
-    // given
-    final String webSocketId = "test-ws";
-    final String fileName = "product_sales.csv";
-    final String loginUserId = "polaris";
-    Files.copy(Paths.get(getClass().getClassLoader().getResource(fileName).getPath()),
-        Paths.get(String.format("%s/%s", workbenchProperties.getTempCSVPath(), fileName)), REPLACE_EXISTING);
-
-    // setUp hdsf conf files
-    Files.createDirectories(Paths.get("/tmp", "hdfs-conf"));
-    Files.copy(Paths.get("src","test","resources", "hdfs", "conf", "core-site.xml"),
-        Paths.get("/tmp", "hdfs-conf", "core-site.xml"), REPLACE_EXISTING);
-    Files.copy(Paths.get("src","test","resources", "hdfs", "conf", "hdfs-site.xml"),
-        Paths.get("/tmp", "hdfs-conf", "hdfs-site.xml"), REPLACE_EXISTING);
-
-    DataConnection hiveConnection = new DataConnection("HIVE");
-    hiveConnection.setUsername("read_only");
-    hiveConnection.setPassword("1111");
-    hiveConnection.setHostname("localhost");
-    hiveConnection.setPort(10000);
-    hiveConnection.setProperties("{" +
-        "  \"metatron.hdfs.conf.path\": \"/tmp/hdfs-conf\"," +
-        "  \"metatron.hive.admin.name\": \"hive_admin\"," +
-        "  \"metatron.hive.admin.password\": \"1111\"," +
-        "  \"metatron.personal.database.prefix\": \"private\"" +
-        "}");
-    workbenchDataSourceManager.createDataSourceInfo(hiveConnection, webSocketId);
-    cleanUpHivePersonalDatabaseTestFixture(hiveConnection, "private_polaris");
-
-    // REST when, then
-    final String workbenchId = "workbench-05";
-    final String requestBody = "{" +
-        "  \"type\": \"csv\"," +
-        "  \"importType\": \"new\"," +
-        "  \"databaseName\": \"private_test\"," +
-        "  \"tableName\": \"product_sales_2018\"," +
-        "  \"firstRowHeadColumnUsed\": true," +
-        "  \"filePath\": \"" + String.format("%s/%s", workbenchProperties.getTempCSVPath(), fileName) + "\"," +
-        "  \"loginUserId\": \"" + loginUserId + "\"," +
-        "  \"webSocketId\": \"" + webSocketId + "\"" +
-        "}";
-
-    given()
-        .auth().oauth2(oauth_token)
-        .contentType(ContentType.JSON)
-        .body(requestBody)
-    .when()
-        .post("/api/workbenchs/{id}/import/files", workbenchId)
-    .then()
-        .log().all()
-        .statusCode(HttpStatus.SC_NO_CONTENT);
-  }
-
-  private void cleanUpHivePersonalDatabaseTestFixture(DataConnection hiveConnection, String cleanDatabase) {
+  private void cleanUpHivePersonalDatabaseTestFixture(DataConnection hiveConnection, String loginUserId, HivePersonalDatasource hivePersonalDatasource) {
     final String URL = String.format("jdbc:hive2://%s:%s", hiveConnection.getHostname(), hiveConnection.getPort());
 
     Connection conn = null;
     try{
       Class.forName(HiveDriver.class.getName());
       conn = DriverManager.getConnection(URL,
-          hiveConnection.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_ADMIN_NAME),
-          hiveConnection.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_ADMIN_PASSWORD));
+          hivePersonalDatasource.getAdminName(),
+          hivePersonalDatasource.getAdminPassword());
 
       StringBuffer script = new StringBuffer();
-      script.append(String.format("DROP DATABASE IF EXISTS %s CASCADE;", cleanDatabase));
-      script.append("DROP DATABASE IF EXISTS private_test CASCADE; CREATE DATABASE private_test;");
+      script.append(String.format("DROP DATABASE IF EXISTS %s_%s CASCADE;",
+          hivePersonalDatasource.getPersonalDatabasePrefix(),
+          loginUserId));
 
       ScriptUtils.executeSqlScript(conn, new InputStreamResource(new ByteArrayInputStream(script.toString().getBytes())));
     } catch(Exception e){
@@ -679,151 +573,4 @@ public class WorkbenchRestIntegrationTest extends AbstractRestIntegrationTest {
       JdbcUtils.closeConnection(conn);
     }
   }
-
-  @Test
-  @OAuthRequest(username = "polaris", value = {"PERM_WORKSPACE_WRITE_BOOK"})
-  public void previewImportFile_when_csv_file() throws IOException {
-    // given
-    final String fileName = "product_sales.csv";
-    Files.copy(Paths.get(getClass().getClassLoader().getResource(fileName).getPath()),
-        Paths.get(System.getProperty("java.io.tmpdir") + File.separator + fileName), REPLACE_EXISTING);
-
-    // when
-    final String workbenchId = "workbench-05";
-    Response response =
-        given()
-            .auth().oauth2(oauth_token)
-            .contentType(ContentType.JSON)
-            .log().all()
-        .when()
-            .get("/api/workbenchs/{workbenchId}/import/files/{tempFileName}/preview", workbenchId, fileName)
-        .then()
-            .log().all()
-            .statusCode(HttpStatus.SC_OK)
-        .extract().response();
-
-    // then
-    Map<String, Object> result = from(response.asString()).get();
-    assertThat(result.get("totalRecords")).isEqualTo(9);
-    assertThat((List<String>)result.get("fields")).hasSize(5);
-    assertThat((List<String>)result.get("fields")).contains("time", "order_id", "amount", "product_id", "sale_count");
-
-    assertThat((List<Map<String, String>>)result.get("records")).hasSize(9);
-    assertThat((List<Map<String, String>>)result.get("records")).extracting("time").contains("20/04/2017", "21/04/2017", "22/04/2017", "23/04/2017", "24/04/2017", "25/04/2017", "26/04/2017", "27/04/2017", "28/04/2017");
-    assertThat((List<Map<String, String>>)result.get("records")).extracting("order_id").contains("1", "2", "3", "4", "5", "6", "7", "8", "9");
-    assertThat((List<Map<String, String>>)result.get("records")).extracting("amount").contains("20", "300", "400", "550", "129", "212", "412", "412", "2111");
-    assertThat((List<Map<String, String>>)result.get("records")).extracting("product_id").contains("1", "1", "2", "2", "3", "3", "4", "4", "5");
-    assertThat((List<Map<String, String>>)result.get("records")).extracting("sale_count").contains("1", "2", "3", "4", "1", "2", "3", "4", "5");
-  }
-
-  @Test
-  @OAuthRequest(username = "polaris", value = {"PERM_WORKSPACE_WRITE_BOOK"})
-  public void previewImportFile_when_csv_file_firstHeaderRow_false() throws IOException {
-    // given
-    final String fileName = "product_sales.csv";
-    Files.copy(Paths.get(getClass().getClassLoader().getResource(fileName).getPath()),
-        Paths.get(System.getProperty("java.io.tmpdir") + File.separator + fileName), REPLACE_EXISTING);
-
-    // when
-    final String workbenchId = "workbench-05";
-    Response response =
-        given()
-            .auth().oauth2(oauth_token)
-            .contentType(ContentType.JSON)
-            .param("firstHeaderRow", false)
-            .log().all()
-        .when()
-            .get("/api/workbenchs/{workbenchId}/import/files/{tempFileName}/preview", workbenchId, fileName)
-        .then()
-            .log().all()
-            .statusCode(HttpStatus.SC_OK)
-        .extract().response();
-
-    // then
-    Map<String, Object> result = from(response.asString()).get();
-    assertThat(result.get("totalRecords")).isEqualTo(10);
-    assertThat((List<String>)result.get("fields")).hasSize(5);
-    assertThat((List<String>)result.get("fields")).contains("col_1", "col_2", "col_3", "col_4", "col_5");
-
-    assertThat((List<Map<String, String>>)result.get("records")).hasSize(10);
-    assertThat((List<Map<String, String>>)result.get("records")).extracting("col_1").contains("time", "20/04/2017","21/04/2017","22/04/2017","23/04/2017","24/04/2017","25/04/2017","26/04/2017","27/04/2017","28/04/2017");
-    assertThat((List<Map<String, String>>)result.get("records")).extracting("col_2").contains("order_id", "1", "2", "3", "4", "5", "6", "7", "8", "9");
-    assertThat((List<Map<String, String>>)result.get("records")).extracting("col_3").contains("amount", "20","300","400","550","129","212","412","412","2111");
-    assertThat((List<Map<String, String>>)result.get("records")).extracting("col_4").contains("product_id", "1","1","2","2","3","3","4","4","5");
-    assertThat((List<Map<String, String>>)result.get("records")).extracting("col_5").contains("sale_count", "1","2","3","4","1","2","3","4","5");
-  }
-
-  @Test
-  @OAuthRequest(username = "polaris", value = {"PERM_WORKSPACE_WRITE_BOOK"})
-  public void previewImportFile_when_excel_file() throws IOException {
-    // given
-    final String fileName = "sales-product.xlsx";
-    Files.copy(Paths.get(getClass().getClassLoader().getResource(fileName).getPath()),
-        Paths.get(System.getProperty("java.io.tmpdir") + File.separator + fileName), REPLACE_EXISTING);
-
-    // when
-    final String workbenchId = "workbench-05";
-    Response response =
-        given()
-            .auth().oauth2(oauth_token)
-            .contentType(ContentType.JSON)
-            .log().all()
-        .when()
-            .get("/api/workbenchs/{workbenchId}/import/files/{tempFileName}/preview", workbenchId, fileName)
-        .then()
-            .log().all()
-            .statusCode(HttpStatus.SC_OK)
-        .extract().response();
-
-    // then
-    Map<String, Object> result = from(response.asString()).get();
-    assertThat(result.get("totalRecords")).isEqualTo(9);
-    assertThat((List<String>)result.get("fields")).hasSize(5);
-    assertThat((List<String>)result.get("fields")).contains("time", "order_id", "amount", "product_id", "sale_count");
-
-    assertThat((List<Map<String, String>>)result.get("records")).hasSize(9);
-    assertThat((List<Map<String, String>>)result.get("records")).extracting("time").contains("20/04/2017", "21/04/2017", "22/04/2017", "23/04/2017", "24/04/2017", "25/04/2017", "26/04/2017", "27/04/2017", "28/04/2017");
-    assertThat((List<Map<String, String>>)result.get("records")).extracting("order_id").contains("1", "2", "3", "4", "5", "6", "7", "8", "9");
-    assertThat((List<Map<String, String>>)result.get("records")).extracting("amount").contains("20", "300", "400", "550", "129", "212", "412", "412", "2111");
-    assertThat((List<Map<String, String>>)result.get("records")).extracting("product_id").contains("1", "1", "2", "2", "3", "3", "4", "4", "5");
-    assertThat((List<Map<String, String>>)result.get("records")).extracting("sale_count").contains("1", "2", "3", "4", "1", "2", "3", "4", "5");
-  }
-
-  @Test
-  @OAuthRequest(username = "polaris", value = {"PERM_WORKSPACE_WRITE_BOOK"})
-  public void previewImportFile_when_excel_file_firstHeaderRow_false() throws IOException {
-    // given
-    final String fileName = "sales-product.xlsx";
-    Files.copy(Paths.get(getClass().getClassLoader().getResource(fileName).getPath()),
-        Paths.get(System.getProperty("java.io.tmpdir") + File.separator + fileName), REPLACE_EXISTING);
-
-    // when
-    final String workbenchId = "workbench-05";
-    Response response =
-        given()
-            .auth().oauth2(oauth_token)
-            .contentType(ContentType.JSON)
-            .param("firstHeaderRow", false)
-            .log().all()
-        .when()
-            .get("/api/workbenchs/{workbenchId}/import/files/{tempFileName}/preview", workbenchId, fileName)
-        .then()
-            .log().all()
-            .statusCode(HttpStatus.SC_OK)
-        .extract().response();
-
-    // then
-    Map<String, Object> result = from(response.asString()).get();
-    assertThat(result.get("totalRecords")).isEqualTo(10);
-    assertThat((List<String>)result.get("fields")).hasSize(5);
-    assertThat((List<String>)result.get("fields")).contains("col_1", "col_2", "col_3", "col_4", "col_5");
-
-    assertThat((List<Map<String, String>>)result.get("records")).hasSize(10);
-    assertThat((List<Map<String, String>>)result.get("records")).extracting("col_1").contains("time", "20/04/2017","21/04/2017","22/04/2017","23/04/2017","24/04/2017","25/04/2017","26/04/2017","27/04/2017","28/04/2017");
-    assertThat((List<Map<String, String>>)result.get("records")).extracting("col_2").contains("order_id", "1", "2", "3", "4", "5", "6", "7", "8", "9");
-    assertThat((List<Map<String, String>>)result.get("records")).extracting("col_3").contains("amount", "20","300","400","550","129","212","412","412","2111");
-    assertThat((List<Map<String, String>>)result.get("records")).extracting("col_4").contains("product_id", "1","1","2","2","3","3","4","4","5");
-    assertThat((List<Map<String, String>>)result.get("records")).extracting("col_5").contains("sale_count", "1","2","3","4","1","2","3","4","5");
-  }
-
 }

@@ -14,7 +14,13 @@
 
 package app.metatron.discovery.domain.dataconnection.dialect;
 
+import app.metatron.discovery.common.ConnectionConfigProperties;
+import app.metatron.discovery.common.exception.FunctionWithException;
 import app.metatron.discovery.domain.workbench.hive.HiveNamingRule;
+import app.metatron.discovery.domain.workbench.hive.HivePersonalDatasource;
+import app.metatron.discovery.extension.dataconnection.jdbc.JdbcConnectInformation;
+import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
+import app.metatron.discovery.util.ApplicationContextProvider;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,10 +36,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import app.metatron.discovery.common.exception.FunctionWithException;
-import app.metatron.discovery.extension.dataconnection.jdbc.JdbcConnectInformation;
-import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
-
 /**
  *
  */
@@ -47,10 +49,7 @@ public class HiveDialect implements JdbcDialect {
 
   private static final String KERBEROS_PRINCIPAL_PATTERN = "principal=(.+)@(.[^;,\\n\\r\\t]+)";
 
-  public static final String PROPERTY_KEY_ADMIN_NAME = METATRON_PROPERTY_PREFIX + "hive.admin.name";
-  public static final String PROPERTY_KEY_ADMIN_PASSWORD = METATRON_PROPERTY_PREFIX + "hive.admin.password";
-  public static final String PROPERTY_KEY_PERSONAL_DATABASE_PREFIX = METATRON_PROPERTY_PREFIX + "personal.database.prefix";
-  public static final String PROPERTY_KEY_HDFS_CONF_PATH = METATRON_PROPERTY_PREFIX + "hdfs.conf.path";
+  public static final String PROPERTY_KEY_PROPERTY_GROUP_NAME = METATRON_PROPERTY_PREFIX + "property.group.name";
 
   public static final String PROPERTY_KEY_METASTORE_HOST = METATRON_PROPERTY_PREFIX + "metastore.host";
   public static final String PROPERTY_KEY_METASTORE_PORT = METATRON_PROPERTY_PREFIX + "metastore.port";
@@ -389,11 +388,15 @@ public class HiveDialect implements JdbcDialect {
     if(MapUtils.isEmpty(connectionProperties)) {
       return false;
     } else {
-      if(StringUtils.isNotEmpty(connectionProperties.get(PROPERTY_KEY_ADMIN_NAME)) &&
-          StringUtils.isNotEmpty(connectionProperties.get(PROPERTY_KEY_ADMIN_PASSWORD)) &&
-          StringUtils.isNotEmpty(connectionProperties.get(PROPERTY_KEY_PERSONAL_DATABASE_PREFIX)) &&
-          StringUtils.isNotEmpty(connectionProperties.get(PROPERTY_KEY_HDFS_CONF_PATH))) {
-        return true;
+      if(StringUtils.isNotEmpty(connectionProperties.get(PROPERTY_KEY_PROPERTY_GROUP_NAME))) {
+        ConnectionConfigProperties connectionConfigProperties = ApplicationContextProvider.getApplicationContext().getBean(ConnectionConfigProperties.class);
+        Map<String, String> findProperties = connectionConfigProperties.findPropertyGroupByName(connectionProperties.getOrDefault(PROPERTY_KEY_PROPERTY_GROUP_NAME, ""));
+        HivePersonalDatasource hivePersonalDatasource = new HivePersonalDatasource(findProperties);
+        if(hivePersonalDatasource.isValidate()) {
+          return true;
+        } else {
+          return false;
+        }
       } else {
         return false;
       }
@@ -441,11 +444,13 @@ public class HiveDialect implements JdbcDialect {
   public static boolean isOwnPersonalDatabase(JdbcConnectInformation connectionInfo, String userName, String database) {
     if(isSupportPersonalDatabase(connectionInfo)) {
       Map<String, String> propMap = connectionInfo.getPropertiesMap();
-      if(propMap == null){
-        return false;
-      }
 
-      if(database.toUpperCase().startsWith(propMap.get(PROPERTY_KEY_PERSONAL_DATABASE_PREFIX).toUpperCase()) &&
+      ConnectionConfigProperties connectionConfigProperties = ApplicationContextProvider.getApplicationContext().getBean(ConnectionConfigProperties.class);
+      Map<String, String> findProperties = connectionConfigProperties.findPropertyGroupByName(propMap.getOrDefault(PROPERTY_KEY_PROPERTY_GROUP_NAME, ""));
+      HivePersonalDatasource hivePersonalDatasource = new HivePersonalDatasource(findProperties);
+
+
+      if(database.toUpperCase().startsWith(hivePersonalDatasource.getPersonalDatabasePrefix().toUpperCase()) &&
           database.toUpperCase().endsWith(HiveNamingRule.replaceNotAllowedCharacters(userName).toUpperCase())) {
         return true;
       } else {
