@@ -246,7 +246,9 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
    * 뒤로가기
    * */
   public close() {
-    this.router.navigate(['/management/datapreparation/dataflow']);
+    this.router.navigate(['/management/datapreparation/dataflow'],
+      {queryParams: {backFromDetail:true}}
+    );
   }
 
   // 다른 데이터 플로우로 이동
