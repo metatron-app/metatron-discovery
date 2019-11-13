@@ -70,6 +70,7 @@ export class MetadataSampleDataComponent extends AbstractComponent {
     return !_.isNil(field.additionals) && field.additionals.derived === true;
   }
 
+
   private _setMetadataSampleData(): void {
     this.loadingShow();
     this.metadataService.getMetadataSampleData(this.metadata.id, this.gridDataLimit)
