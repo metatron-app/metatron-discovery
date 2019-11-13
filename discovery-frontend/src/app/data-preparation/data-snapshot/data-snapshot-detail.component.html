@@ -210,7 +210,7 @@
             <dt>
               {{item.label}}
             </dt>
-            <dd *ngIf="item.isFileUri; else notFile" title="{{item.value}}">
+            <dd *ngIf="item.isFileUri; else notFile" title="{{item.value}}" (click)="copyToClipboard(item.value);">
               {{item.value}}
             </dd>
             <ng-template #notFile>
