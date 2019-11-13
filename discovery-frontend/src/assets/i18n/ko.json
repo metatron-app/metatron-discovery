@@ -858,6 +858,7 @@
   "msg.dp.alert.ss.require.file-uri": "파일 URI 가 필요합니다.",
   "msg.dp.alert.ss.not.support.sql" : "SQL format is only supported in the embedded engine",
   "msg.dp.alert.ss.sel.format": "포멧을 선택해 주세요",
+  "msg.dp.alert.ss.uri.to.clipboard" : "Copied the URI to clipboard",
   "msg.dp.alert.stagingdb.connection.error": "Staging DB 접속에 실패하였습니다",
   "msg.dp.alert.success.create.ss": " 데이터스냅샷이 생성되었습니다",
   "msg.dp.alert.undo.fail": "UNDO 적용에 실패하였습니다",

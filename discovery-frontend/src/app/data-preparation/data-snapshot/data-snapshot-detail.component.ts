@@ -52,6 +52,7 @@ import {
 } from "../../domain/datasource/datasource";
 import {CreateSnapShotData} from "../../data-storage/service/data-source-create.service";
 import {DataflowModelService} from "../dataflow/service/dataflow.model.service";
+import {ClipboardService} from 'ngx-clipboard';
 
 declare let moment: any;
 
@@ -167,6 +168,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   constructor(protected datasnapshotservice: DataSnapshotService,
               protected dataflowModelService: DataflowModelService,
               protected popupService: PopupService,
+              private clipboardService: ClipboardService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -458,6 +460,14 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
   }
+
+  public copyToClipboard(text: string) {
+    if (text) {
+      this.clipboardService.copyFromContent(text);
+      Alert.success(this.translateService.instant('msg.dp.alert.ss.uri.to.clipboard'));
+    }
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
