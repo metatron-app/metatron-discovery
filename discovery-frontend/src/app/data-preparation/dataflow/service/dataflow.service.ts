@@ -30,11 +30,21 @@ import {SnapShotCreateDomain} from "../../component/create-snapshot-popup.compon
 @Injectable()
 export class DataflowService extends AbstractService {
 
+  private dataflowListParams: any = null;
+
   constructor(protected injector: Injector,
               private popupService: PopupService,
               public translateService: TranslateService
   ) {
     super(injector);
+  }
+
+  public getParamsForDataflowList() {
+    return this.dataflowListParams?this.dataflowListParams:{};
+  }
+
+  public setParamsForDataflowList(params: any) {
+    this.dataflowListParams = params;
   }
 
   // 데이터 플로우 목록 조회
