@@ -565,6 +565,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       this._queryParams = _.cloneDeep(downloadParams);
     }
 
+    params.filters = (this._filters && 0 < this._filters.length) ? this._filters : [];
+
     this.connectionService.getTableDetailWitoutId(params, connection.implementor === ImplementorType.HIVE, this.rowNum < 1 ? 100 : this.rowNum)
       .then((result: {data: any, fields: Field[], totalRows: number}) => {
         // grid data
@@ -1188,13 +1190,18 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       this._filters = [timeRange];
     }
 
-    // Query Data
-    this.queryData(this.mainDatasource).then(data => {
-      this.gridData = data;
-      this.updateGrid(data, this.columns);
-    }).catch((error) => {
-      console.log(error);
-    });
+    if (this.connType === 'LINK' && 'ALL' === data.type) {
+      // TODO 마스터 데이터소스만 해당되는지 join된 소스까지 해당되는지 확인하기
+      this._getQueryDataInLinked(this.mainDatasource);
+    } else {
+      // Query Data
+      this.queryData(this.mainDatasource).then(data => {
+        this.gridData = data;
+        this.updateGrid(data, this.columns);
+      }).catch((error) => {
+        console.log(error);
+      });
+    }
 
   } // function - onChangeDate
 
