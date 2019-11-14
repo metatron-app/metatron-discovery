@@ -235,13 +235,15 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
           this.localPagepage = 0;
           this.pageResult = data['page'];
           this.localData = data['tables'];
-          this.tables = this.localData.slice(this.localPagepage * this.localPageSize, this.localPagepage + this.localPageSize);
+          // this.tables = this.localData.slice(this.localPagepage * this.localPageSize, this.localPagepage + this.localPageSize);
+          this.tables = this.localData;
+          this.totalTableElements = this.localData.length;
         } else {
           this.pageMode = 'PAGE';
           this.pageResult = data['page'];
           this.tables = this.tables.concat(data['tables']);
+          this.totalTableElements = data.page.totalElements;
         }
-        this.totalTableElements = data.page.totalElements;
         this.tableDataEvent.emit(data['tables']);
         this.safelyDetectChanges();
       })
