@@ -239,21 +239,21 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
    * 모든 날짜 선택 버튼
    */
   public setAll() {
-    if( this.useDefaultAllRange ) {
+    if( this.useDefaultAllRange && this.startDateDefault ) {
       const startDate = moment(this.startDateDefault);
-      const endDate = moment(this.endDateDefault);
-
       this._startPicker.selectDate(startDate.toDate());
-      this._endPicker.selectDate(endDate.toDate());
     } else {
       this._startPickerInput.nativeElement.value = '';
-      this._endPickerInput.nativeElement.value = '';
-
       this._startDate = null;
-      this._endDate = null;
-
-      // 전체 기간을 선택할 수 있도록 데이터 갱신
       this._startPicker.selectDate(null);
+    }
+
+    if( this.useDefaultAllRange && this.endDateDefault ) {
+      const endDate = moment(this.endDateDefault);
+      this._endPicker.selectDate(endDate.toDate());
+    } else {
+      this._endPickerInput.nativeElement.value = '';
+      this._endDate = null;
       this._endPicker.selectDate(null);
     }
 
