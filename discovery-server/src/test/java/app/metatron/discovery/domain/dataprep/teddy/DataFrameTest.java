@@ -516,7 +516,25 @@ public class DataFrameTest extends TeddyTest {
     DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
 
-    ruleString = "unnest col: pcode idx: 0";
+    ruleString = "unnest col: pcode idx: '0'";
+
+    newDf = apply_rule(newDf, ruleString);
+    newDf.show();
+  }
+
+//  @Test
+  public void test_nest_unnest_array_multi() throws IOException, TeddyException {
+    DataFrame contract = new DataFrame();
+    contract.setByGrid(grids.get("contract"), null);
+    contract = prepare_contract(contract);
+    contract.show();
+
+    String ruleString = "nest col: pcode1, pcode2, pcode3, pcode4 into: array as: pcode";
+
+    DataFrame newDf = apply_rule(contract, ruleString);
+    newDf.show();
+
+    ruleString = "unnest col: pcode idx: '0', '1', '2'";
 
     newDf = apply_rule(newDf, ruleString);
     newDf.show();

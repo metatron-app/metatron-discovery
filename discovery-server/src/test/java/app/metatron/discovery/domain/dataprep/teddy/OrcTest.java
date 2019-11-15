@@ -507,7 +507,7 @@ public class OrcTest extends TeddyTest {
     DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
 
-    ruleString = "unnest col: pcode into: array idx: 0";  // into: is not used
+    ruleString = "unnest col: pcode into: array idx: '0'";  // "into" is used in spark engine
 
     newDf = apply_rule(newDf, ruleString);
     newDf.show();
