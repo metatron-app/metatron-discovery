@@ -102,7 +102,7 @@ public class DfUnnest extends DataFrame {
           elemKeys.add((String) idxObj);
           break;
         case ARRAY:
-          elemIdxs.add(((Long) idxObj).intValue());
+          elemIdxs.add(Integer.valueOf((String) idxObj));
           break;
         default:
           throw new WorksOnlyOnArrayOrMapException("doUnnest(): works only on ARRAY/MAP: " + prevType);
