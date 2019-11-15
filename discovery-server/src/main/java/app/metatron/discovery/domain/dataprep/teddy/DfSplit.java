@@ -22,7 +22,6 @@ import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.Split;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.RegularExpr;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +44,6 @@ public class DfSplit extends DataFrame {
     List<Object> preparedArgs = new ArrayList<>();
     Split split = (Split) rule;
 
-    List<String> targetColNames = new ArrayList<>();
     Map<String, List<String>> splitedColNameList = new HashMap<>();
     Expression targetColExpr = split.getCol();
     Expression expr = split.getOn();
@@ -62,14 +60,11 @@ public class DfSplit extends DataFrame {
       limit = 0;
     }
 
-    if (targetColExpr instanceof Identifier.IdentifierExpr) {
-      targetColNames.add(((Identifier.IdentifierExpr) targetColExpr).getValue());
-    } else if (targetColExpr instanceof Identifier.IdentifierArrayExpr) {
-      targetColNames.addAll(((Identifier.IdentifierArrayExpr) targetColExpr).getValue());
-    } else {
-      throw new WrongTargetColumnExpressionException(
-              "DfSplit.prepare(): wrong target column expression: " + targetColExpr.toString());
+    List<String> targetColNames = TeddyUtil.getIdentifierList(targetColExpr);
+    if (targetColNames.isEmpty()) {
+      throw new WrongTargetColumnExpressionException("DfSplit.prepare(): wrong target column: " + split);
     }
+    interestedColNames.addAll(targetColNames);
 
     for (String targetColName : targetColNames) {
       //Type Check
@@ -78,8 +73,6 @@ public class DfSplit extends DataFrame {
                 String.format("DfSplit.prepare(): works only on STRING: targetColName=%s type=%s",
                         targetColName, prevDf.getColTypeByColName(targetColName)));
       }
-      //Highlighted Column List
-      interestedColNames.add(targetColName);
     }
 
     int colIndex = 0;

@@ -39,18 +39,6 @@ public class DfJoin extends DataFrame {
     super(dsName, ruleString);
   }
 
-  static private List<String> getIdentifierList(Expression expr) {
-    List<String> colNames = new ArrayList<>();
-    if (expr instanceof Identifier.IdentifierExpr) {
-      colNames.add(((Identifier.IdentifierExpr) expr).getValue());
-    } else if (expr instanceof Identifier.IdentifierArrayExpr) {
-      colNames.addAll(((Identifier.IdentifierArrayExpr) expr).getValue());
-    } else {
-      assert false : expr;
-    }
-    return colNames;
-  }
-
   private void gatherPredicates(Expression expr, DataFrame leftDf, DataFrame rightDf,
           List<Identifier.IdentifierExpr> lPredicates,
           List<Identifier.IdentifierExpr> rPredicates) throws TeddyException {
@@ -103,8 +91,8 @@ public class DfJoin extends DataFrame {
     DataFrame slaveDf = slaveDfs.get(0);
 
     // Get all the selected column names.
-    List<String> lSelectColNames = getIdentifierList(join.getLeftSelectCol());
-    List<String> rSelectColNames = getIdentifierList(join.getRightSelectCol());
+    List<String> lSelectColNames = TeddyUtil.getIdentifierList(join.getLeftSelectCol());
+    List<String> rSelectColNames = TeddyUtil.getIdentifierList(join.getRightSelectCol());
     Expression cond = join.getCondition();
     String joinType = join.getJoinType();
 

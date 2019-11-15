@@ -24,7 +24,6 @@ import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.RegularExpr;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,7 +56,6 @@ public class DfReplace extends DataFrame {
     List<Object> preparedArgs = new ArrayList<>();
     Replace replace = (Replace) rule;
 
-    List<String> targetColNames = new ArrayList<>();
     Map<String, Expr> replacedConditionExprs = new HashMap<>();
     Expression targetColExpr = replace.getCol();
     Expression expr = replace.getOn();
@@ -70,11 +68,8 @@ public class DfReplace extends DataFrame {
     String regExQuoteStr = null;
     Pattern pattern;
 
-    if (targetColExpr instanceof Identifier.IdentifierExpr) {
-      targetColNames.add(((Identifier.IdentifierExpr) targetColExpr).getValue());
-    } else if (targetColExpr instanceof Identifier.IdentifierArrayExpr) {
-      targetColNames.addAll(((Identifier.IdentifierArrayExpr) targetColExpr).getValue());
-    } else {
+    List<String> targetColNames = TeddyUtil.getIdentifierList(targetColExpr);
+    if (targetColNames.isEmpty()) {
       throw new WrongTargetColumnExpressionException(
               "DfReplace.prepare(): wrong target column expression: " + targetColExpr.toString());
     }

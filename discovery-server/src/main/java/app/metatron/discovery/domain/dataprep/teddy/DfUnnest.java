@@ -54,7 +54,7 @@ public class DfUnnest extends DataFrame {
     int targetColno = prevDf.getColnoByColName(targetColName);
     ColumnType prevType = prevDf.getColType(targetColno);
 
-    if (idx == null) {
+    if (idx == null) {    // TODO: remove this case after changing UI code to send all columns instead.
       // Cannot proceed if there's no row.
       if (prevDf.rows.size() == 0) {
         throw new CannotUnnestEmptyColumnException("doUnnest(): no row");

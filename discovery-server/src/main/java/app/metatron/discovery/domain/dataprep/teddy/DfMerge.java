@@ -42,13 +42,8 @@ public class DfMerge extends DataFrame {
     String with = merge.getWith().replaceAll("'", "");        // FIXME: use makeParsable()
     String newColName = merge.getAs().replaceAll("'", "");
 
-    List<String> targetColNames = new ArrayList<>();
-    if (targetExpr instanceof Identifier.IdentifierExpr) {
-      targetColNames.add(((Identifier.IdentifierExpr) targetExpr).getValue());
-    } else if (targetExpr instanceof Identifier.IdentifierArrayExpr) {
-      targetColNames.addAll(((Identifier.IdentifierArrayExpr) targetExpr).getValue());
-    }
-    if (targetColNames.size() == 0) {
+    List<String> targetColNames = TeddyUtil.getIdentifierList(targetExpr);
+    if (targetColNames.isEmpty()) {
       throw new NoInputColumnDesignatedException("DfMerge.prepare(): no input column designated");
     }
 

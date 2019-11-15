@@ -43,17 +43,11 @@ public class DfNest extends DataFrame {
     Nest nest = (Nest) rule;
 
     Expression targetExpr = nest.getCol();
-    List<String> targetColNames = new ArrayList<>();
     String into = nest.getInto();
     String newColName = nest.getAs().replaceAll("'", "");
 
-    if (targetExpr instanceof Identifier.IdentifierExpr) {
-      targetColNames.add(((Identifier.IdentifierExpr) targetExpr).getValue());
-    } else if (targetExpr instanceof Identifier.IdentifierArrayExpr) {
-      targetColNames.addAll(((Identifier.IdentifierArrayExpr) targetExpr).getValue());
-    } else {
-      assert false : targetExpr;
-    }
+    List<String> targetColNames = TeddyUtil.getIdentifierList(targetExpr);
+    assert !targetColNames.isEmpty() : nest;
 
     // The new column is located the last related column.
     int newColPos = 0;
