@@ -1488,10 +1488,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             this.isDataManager = CommonUtil.isValidPermission(SYSTEM_PERMISSION.MANAGE_DATASOURCE);
 
             if (data.dataConnection.supportSaveAsHiveTable) {
-              this.supportSaveAsHiveTable = data.dataConnection.supportSaveAsHiveTable;
+              this.supportSaveAsHiveTable = true;
             }
-            if (data.dataConnection.supportPersonalDatabase) {
-              this.supportPersonalDatabase = data.dataConnection.supportPersonalDatabase;
+            if (data.dataConnection.hivePersonalDatasourceInformation["supportPersonalDatabase"]) {
+              this.supportPersonalDatabase = true;
             }
 
             this.setWorkbenchName();

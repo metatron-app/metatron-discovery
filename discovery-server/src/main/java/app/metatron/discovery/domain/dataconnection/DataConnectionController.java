@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.dataconnection;
 
+import app.metatron.discovery.common.ConnectionConfigProperties;
 import app.metatron.discovery.common.criteria.ListCriterion;
 import app.metatron.discovery.common.criteria.ListFilter;
 import app.metatron.discovery.common.entity.SearchParamValidator;
@@ -38,6 +39,7 @@ import app.metatron.discovery.domain.mdm.source.MetadataSourceRepository;
 import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.domain.workbench.Workbench;
 import app.metatron.discovery.domain.workbench.WorkbenchRepository;
+import app.metatron.discovery.domain.workbench.hive.HivePersonalDatasource;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceManager;
 import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
@@ -107,6 +109,9 @@ public class DataConnectionController {
 
   @Autowired
   WorkbenchDataSourceManager workbenchDataSourceManager;
+
+  @Autowired
+  ConnectionConfigProperties connectionConfigProperties;
 
   /**
    * 서비스에서 이용가능한 JDBC 종류 전달
@@ -435,7 +440,14 @@ public class DataConnectionController {
     if (dialect instanceof HiveDialect) {
       if(HiveDialect.isSupportPersonalDatabase(connection)) {
         if(HiveDialect.isOwnPersonalDatabase(connection, AuthUtils.getAuthUserName(), database)) {
-          return dataSourceInfo.getSecondaryConnection();
+          final String hivePersonalDataSourceName = connection.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_PROPERTY_GROUP_NAME);
+          HivePersonalDatasource hivePersonalDataSource = findHivePersonalDataSourceByName(hivePersonalDataSourceName);
+          if(hivePersonalDataSource.isValidate()) {
+            return dataSourceInfo.getSecondaryConnection(hivePersonalDataSource.getAdminName(), hivePersonalDataSource.getAdminPassword());
+          } else {
+            LOGGER.error(String.format("Invalid hive personal datasource : %s", hivePersonalDataSourceName));
+            throw new MetatronException(GlobalErrorCodes.DEFAULT_GLOBAL_ERROR_CODE, "Invalid hive personal datasource.");
+          }
         } else {
           throw new MetatronException(GlobalErrorCodes.BAD_REQUEST_CODE, String.format("%s database is not %s", database, AuthUtils.getAuthUserName()));
         }
@@ -444,6 +456,21 @@ public class DataConnectionController {
       }
     } else {
       return dataSourceInfo.getPrimaryConnection();
+    }
+  }
+
+  private HivePersonalDatasource findHivePersonalDataSourceByName(String dataSourceName) {
+    if(StringUtils.isEmpty(dataSourceName)) {
+      LOGGER.error(String.format("Not found hive personal datasource name : %s", dataSourceName));
+      throw new MetatronException(GlobalErrorCodes.DEFAULT_GLOBAL_ERROR_CODE, "Failed save as hive table.");
+    }
+    Map<String, String> findProperties = connectionConfigProperties.findPropertyGroupByName(dataSourceName);
+    HivePersonalDatasource hivePersonalDatasource = new HivePersonalDatasource(findProperties);
+    if(hivePersonalDatasource.isValidate()) {
+      return hivePersonalDatasource;
+    } else {
+      LOGGER.error(String.format("Invalid hive personal datasource : %s", dataSourceName));
+      throw new MetatronException(GlobalErrorCodes.DEFAULT_GLOBAL_ERROR_CODE, "Failed save as hive table.");
     }
   }
 

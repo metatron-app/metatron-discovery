@@ -17,7 +17,7 @@ import {WorkbenchService} from "../../service/workbench.service";
 import {StringUtil} from "../../../common/util/string.util";
 import {CommonUtil} from "app/common/util/common.util";
 import {Alert} from "../../../common/util/alert.util";
-import {getPersonalDatabaseName, ImportType} from "../import-file/import-file.component";
+import {ImportType} from "../import-file/import-file.component";
 import {Dataconnection} from "../../../domain/dataconnection/dataconnection";
 
 @Component({
@@ -100,7 +100,7 @@ export class SaveAsHiveTableComponent extends AbstractComponent implements OnIni
       const params = {
         type: 'csv',
         importType: ImportType.NEW,
-        databaseName: getPersonalDatabaseName(this.dataConnection),
+        databaseName: this.dataConnection.hivePersonalDatasourceInformation['ownPersonalDatabaseName'],
         tableName: this.tableName.trim(),
         firstRowHeadColumnUsed: true,
         filePath: this.csvFilePath,

@@ -50,8 +50,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static app.metatron.discovery.domain.dataconnection.dialect.HiveDialect.PROPERTY_KEY_ADMIN_NAME;
-import static app.metatron.discovery.domain.dataconnection.dialect.HiveDialect.PROPERTY_KEY_ADMIN_PASSWORD;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -2518,8 +2516,8 @@ import static org.hamcrest.Matchers.hasSize;
     final String URL = String.format("jdbc:hive2://%s:%s", hiveConnection.getHostname(), hiveConnection.getPort());
     Class.forName(HiveDriver.class.getName());
     return DriverManager.getConnection(URL,
-        hiveConnection.getPropertiesMap().get(PROPERTY_KEY_ADMIN_NAME),
-        hiveConnection.getPropertiesMap().get(PROPERTY_KEY_ADMIN_PASSWORD));
+        "hive_admin",
+        "1111");
   }
 
   private void cleanUpHivePersonalDatabaseTestFixture(Connection conn, String personalDatabase) {

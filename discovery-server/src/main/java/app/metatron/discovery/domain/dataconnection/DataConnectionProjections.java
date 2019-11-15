@@ -79,8 +79,8 @@ public class DataConnectionProjections {
     @Value("#{@jdbcConnectionService.getConnectionInformation(target)}")
     Object getConnectionInformation();
 
-    @Value("#{@jdbcConnectionService.isSupportPersonalDatabase(target)}")
-    Boolean isSupportPersonalDatabase();
+    @Value("#{@jdbcConnectionService.getHivePersonalDatasourceInformation(target)}")
+    Object getHivePersonalDatasourceInformation();
   }
 
   @Projection(name = "forSimpleListView", types = { DataConnection.class })

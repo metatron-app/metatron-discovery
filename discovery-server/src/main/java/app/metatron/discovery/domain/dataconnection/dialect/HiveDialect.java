@@ -21,6 +21,7 @@ import app.metatron.discovery.domain.workbench.hive.HivePersonalDatasource;
 import app.metatron.discovery.extension.dataconnection.jdbc.JdbcConnectInformation;
 import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 import app.metatron.discovery.util.ApplicationContextProvider;
+import app.metatron.discovery.util.AuthUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Component;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -449,7 +451,6 @@ public class HiveDialect implements JdbcDialect {
       Map<String, String> findProperties = connectionConfigProperties.findPropertyGroupByName(propMap.getOrDefault(PROPERTY_KEY_PROPERTY_GROUP_NAME, ""));
       HivePersonalDatasource hivePersonalDatasource = new HivePersonalDatasource(findProperties);
 
-
       if(database.toUpperCase().startsWith(hivePersonalDatasource.getPersonalDatabasePrefix().toUpperCase()) &&
           database.toUpperCase().endsWith(HiveNamingRule.replaceNotAllowedCharacters(userName).toUpperCase())) {
         return true;
@@ -459,5 +460,27 @@ public class HiveDialect implements JdbcDialect {
     } else {
       return false;
     }
+  }
+
+  public static Map<String, Object> getHivePersonalDatasourceInformation(JdbcConnectInformation connectionInfo) {
+    Map<String, Object> hivePersonalDatasourceInfo = new HashMap<>();
+
+    if(isSupportPersonalDatabase(connectionInfo)) {
+      hivePersonalDatasourceInfo.put("supportPersonalDatabase", true);
+
+      Map<String, String> propMap = connectionInfo.getPropertiesMap();
+      ConnectionConfigProperties connectionConfigProperties = ApplicationContextProvider.getApplicationContext().getBean(ConnectionConfigProperties.class);
+      Map<String, String> findProperties = connectionConfigProperties.findPropertyGroupByName(propMap.getOrDefault(PROPERTY_KEY_PROPERTY_GROUP_NAME, ""));
+      HivePersonalDatasource hivePersonalDatasource = new HivePersonalDatasource(findProperties);
+
+      hivePersonalDatasourceInfo.put("ownPersonalDatabaseName", String.format("%s_%s", hivePersonalDatasource.getPersonalDatabasePrefix(), HiveNamingRule.replaceNotAllowedCharacters(AuthUtils.getAuthUserName())));
+      hivePersonalDatasourceInfo.put("personalDatabasePrefix", hivePersonalDatasource.getPersonalDatabasePrefix());
+    } else {
+      hivePersonalDatasourceInfo.put("supportPersonalDatabase", false);
+      hivePersonalDatasourceInfo.put("ownPersonalDatabaseName", "");
+      hivePersonalDatasourceInfo.put("personalDatabasePrefix", "");
+    }
+
+    return hivePersonalDatasourceInfo;
   }
 }

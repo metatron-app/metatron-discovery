@@ -228,7 +228,7 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
 
       const params = {
         importType: this.selectedImportType,
-        databaseName: (StringUtil.isEmpty(this.selectedDatabaseName) || this.selectedDatabaseName == PERSONAL_DATABASE_NAME)  ? getPersonalDatabaseName(this.dataConnection) : this.selectedDatabaseName.trim(),
+        databaseName: (StringUtil.isEmpty(this.selectedDatabaseName) || this.selectedDatabaseName == PERSONAL_DATABASE_NAME)  ? this.dataConnection.hivePersonalDatasourceInformation['ownPersonalDatabaseName'] : this.selectedDatabaseName.trim(),
         webSocketId: this.webSocketId,
         firstRowHeadColumnUsed: !this.createHeadColumnFl,
         filePath: this.importFile.filepath,
@@ -501,7 +501,7 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
 
   public onSelectedDatabaseName(databaseName : any) {
     if(databaseName === PERSONAL_DATABASE_NAME) {
-      this.selectedDatabaseName = getPersonalDatabaseName(this.dataConnection);
+      this.selectedDatabaseName = this.dataConnection.hivePersonalDatasourceInformation['ownPersonalDatabaseName'];
     } else {
       this.selectedDatabaseName = databaseName;
     }
@@ -514,7 +514,7 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
   public onSelectedImportType(data: any) {
     this.selectedImportType = data.value;
     if(data.value == ImportType.OVERWRITE) {
-      const personalDatabaseName = getPersonalDatabaseName(this.dataConnection);
+      const personalDatabaseName = this.dataConnection.hivePersonalDatasourceInformation['ownPersonalDatabaseName'];
       this.getTables(personalDatabaseName);
     }
 
@@ -769,9 +769,4 @@ class ImportFile {
 export enum ImportType {
   NEW = <any>'new',
   OVERWRITE = <any>'overwrite',
-}
-
-export function getPersonalDatabaseName(dataConnection: Dataconnection) {
-  const personalDatabasePrefix = dataConnection.properties['metatron.personal.database.prefix'];
-  return personalDatabasePrefix + "_" + CommonUtil.getLoginUserId().replace(/[^A-Za-z0-9]/gi, "_");
 }

@@ -158,8 +158,8 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
 
     this.isPersonalDatabase = false;
     if(this.inputParams && this.inputParams.dataconnection
-      && this.inputParams.dataconnection.database && this.inputParams.dataconnection.supportPersonalDatabase) {
-      const personalDatabasePrefix = this.inputParams.dataconnection.properties['metatron.personal.database.prefix'];
+      && this.inputParams.dataconnection.database && this.inputParams.dataconnection.hivePersonalDatasourceInformation['supportPersonalDatabase']) {
+      const personalDatabasePrefix = this.inputParams.dataconnection.hivePersonalDatasourceInformation['personalDatabasePrefix'];
       if(this.inputParams.dataconnection.database.startsWith(personalDatabasePrefix)) {
         this.isPersonalDatabase = true;
       }

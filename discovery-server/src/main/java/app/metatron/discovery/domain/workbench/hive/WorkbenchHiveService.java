@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.workbench.hive;
 
+import app.metatron.discovery.common.ConnectionConfigProperties;
 import app.metatron.discovery.common.MetatronProperties;
 import app.metatron.discovery.common.exception.BadRequestException;
 import app.metatron.discovery.common.exception.GlobalErrorCodes;
@@ -70,6 +71,8 @@ public class WorkbenchHiveService {
 
   private JdbcConnectionService connectionService;
 
+  private ConnectionConfigProperties connectionConfigProperties;
+
   @Autowired
   public void setWorkbenchProperties(WorkbenchProperties workbenchProperties) {
     this.workbenchProperties = workbenchProperties;
@@ -95,17 +98,40 @@ public class WorkbenchHiveService {
     this.connectionService = connectionService;
   }
 
+  @Autowired
+  public void setConnectionConfigProperties(ConnectionConfigProperties connectionConfigProperties) {
+    this.connectionConfigProperties = connectionConfigProperties;
+  }
+
   public void importFileToDatabase(DataConnection hiveConnection, ImportFile importFile) {
     final DataTable dataTable = convertUploadFileToDataTable(importFile);
+
+    final String hivePersonalDataSourceName = hiveConnection.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_PROPERTY_GROUP_NAME);
+    HivePersonalDatasource hivePersonalDataSource = findHivePersonalDataSourceByName(hivePersonalDataSourceName);
 
     if(importFile.isTableOverwrite()) {
       validateTableSchema(hiveConnection, importFile.getDatabaseName(), importFile.getTableName(), dataTable.getFields());
     }
 
-    final String savedHDFSDataFilePath = dataTableHiveRepository.saveToHdfs(hiveConnection, new Path(workbenchProperties.getTempDataTableHdfsPath()), dataTable);
+    final String savedHDFSDataFilePath = dataTableHiveRepository.saveToHdfs(hivePersonalDataSource, new Path(workbenchProperties.getTempDataTableHdfsPath()), dataTable);
 
     SavingHiveTable savingHiveTable = new SavingHiveTable(importFile, savedHDFSDataFilePath, dataTable);
-    saveAsHiveTableFromHdfsDataTable(importFile.getWebSocketId(), hiveConnection, savingHiveTable);
+    saveAsHiveTableFromHdfsDataTable(importFile.getWebSocketId(), hiveConnection, hivePersonalDataSource, savingHiveTable);
+  }
+
+  private HivePersonalDatasource findHivePersonalDataSourceByName(String dataSourceName) {
+    if(StringUtils.isEmpty(dataSourceName)) {
+      LOGGER.error(String.format("Not found hive personal datasource name : %s", dataSourceName));
+      throw new MetatronException(GlobalErrorCodes.DEFAULT_GLOBAL_ERROR_CODE, "Failed save as hive table.");
+    }
+    Map<String, String> findProperties = connectionConfigProperties.findPropertyGroupByName(dataSourceName);
+    HivePersonalDatasource hivePersonalDatasource = new HivePersonalDatasource(findProperties);
+    if(hivePersonalDatasource.isValidate()) {
+      return hivePersonalDatasource;
+    } else {
+      LOGGER.error(String.format("Invalid hive personal datasource : %s", dataSourceName));
+      throw new MetatronException(GlobalErrorCodes.DEFAULT_GLOBAL_ERROR_CODE, "Failed save as hive table.");
+    }
   }
 
   private void validateTableSchema(DataConnection hiveConnection, String database, String table, List<String> fields) {
@@ -119,7 +145,7 @@ public class WorkbenchHiveService {
     });
   }
 
-  private void saveAsHiveTableFromHdfsDataTable(String webSocketId, DataConnection hiveConnection, SavingHiveTable savingHiveTable) {
+  private void saveAsHiveTableFromHdfsDataTable(String webSocketId, DataConnection hiveConnection, HivePersonalDatasource hivePersonalDataSource, SavingHiveTable savingHiveTable) {
     if(savingHiveTable.isTableOverwrite()) {
       final String tablePartitionColumn = findTablePartitionColumn(hiveConnection, savingHiveTable.getDatabaseName(), savingHiveTable.getTableName());
       if(StringUtils.isNotEmpty(tablePartitionColumn)) {
@@ -137,7 +163,7 @@ public class WorkbenchHiveService {
     LOGGER.info("Generated Save as Hive Table script : " + saveAsTableScript);
 
     WorkbenchDataSource dataSourceInfo = workbenchDataSourceManager.findDataSourceInfo(webSocketId);
-    Connection secondaryConnection = dataSourceInfo.getSecondaryConnection();
+    Connection secondaryConnection = dataSourceInfo.getSecondaryConnection(hivePersonalDataSource.getAdminName(), hivePersonalDataSource.getAdminPassword());
 
     List<String> queryList = Arrays.asList(saveAsTableScript.split(";"));
     for (String query : queryList) {

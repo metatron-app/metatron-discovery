@@ -64,8 +64,11 @@
           <div class="ddp-btn-control" *ngIf="isPersonalDatabase">
             <em class="ddp-icon-control-edit" (click)="openModalRenameTableInPersonalDatabase(item); $event.stopPropagation();"></em>
             <em class="ddp-icon-control-cut" (click)="openModalDeleteTableInPersonalDatabase(item); $event.stopPropagation();"></em>
+            <em class="ddp-icon-tableinfo" [ngClass]="{'ddp-disabled':disable}" id="tableInfo{{index}}" (click)="showTableSchemaInfo(item, index)"></em>
           </div>
-          <em class="ddp-icon-tableinfo" [ngClass]="{'ddp-disabled':disable}" id="tableInfo{{index}}" (click)="showTableSchemaInfo(item, index)"></em>
+
+          <em *ngIf="isPersonalDatabase == false" class="ddp-icon-tableinfo" [ngClass]="{'ddp-disabled':disable}" id="tableInfo{{index}}" (click)="showTableSchemaInfo(item, index)"></em>
+
         </div>
         <!-- //버튼 -->
       </li>
