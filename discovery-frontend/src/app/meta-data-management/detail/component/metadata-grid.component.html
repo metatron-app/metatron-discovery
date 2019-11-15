@@ -16,24 +16,24 @@
 <div class="ddp-ui-tab-contents">
 
   <!-- guide message -->
-<!--  <div class="ddp-box-message" *ngIf="isDatasourceTypeMetadata() && isLinkedSourceType()">-->
-<!--    &lt;!&ndash; if only linked source &ndash;&gt;-->
-<!--    <div class="ddp-box-synch type-info">-->
-<!--      <div class="ddp-txt-synch">-->
-<!--        <em class="ddp-icon-info"></em>-->
-<!--        {{'msg.storage.ui.linked.source.preview' | translate}}-->
-<!--      </div>-->
-<!--    </div>-->
-<!--    &lt;!&ndash; //if only linked source &ndash;&gt;-->
-<!--    &lt;!&ndash; if linked source include geo type&ndash;&gt;-->
-<!--    <div class="ddp-box-synch type-info" *ngIf="isExistCreatedField">-->
-<!--      <div class="ddp-txt-synch">-->
-<!--        <em class="ddp-icon-info"></em>-->
-<!--        {{'msg.storage.ui.linked.source.preview.include.geo' | translate}}-->
-<!--      </div>-->
-<!--    </div>-->
-<!--    &lt;!&ndash; //if linked source include geo type&ndash;&gt;-->
-<!--  </div>-->
+  <div class="ddp-box-message" *ngIf="isDatasourceTypeMetadata() && isLinkedSourceType()">
+    <!-- if only linked source -->
+    <div class="ddp-box-synch type-info">
+      <div class="ddp-txt-synch">
+        <em class="ddp-icon-info"></em>
+        {{'msg.storage.ui.linked.source.preview' | translate}}
+      </div>
+    </div>
+    <!-- //if only linked source -->
+    <!-- if linked source include geo type-->
+    <div class="ddp-box-synch type-info" *ngIf="isExistCreatedField">
+      <div class="ddp-txt-synch">
+        <em class="ddp-icon-info"></em>
+        {{'msg.storage.ui.linked.source.preview.include.geo' | translate}}
+      </div>
+    </div>
+    <!-- //if linked source include geo type-->
+  </div>
   <!-- //guide message -->
   <!-- datagrid -->
   <div class="ddp-datagrid">
@@ -111,7 +111,9 @@
     -->
     <div class="ddp-fix-grid meta-grid-type" grid-component
          [class.meta-grid]="isDatasourceTypeMetadata()" [class.ddp-msg-info2]="isDatasourceTypeMetadata() && isLinkedSourceType() && isExistCreatedField"
-         (onHeaderRowCellRendered)="extendGridHeader($event)">
+         (onHeaderRowCellRendered)="extendGridHeader($event)"
+         [ngStyle]="{'top' : isDatasourceTypeMetadata() && isLinkedSourceType() ? '260px' : ''}"
+    >
     </div>
     <!-- //fix grid -->
   </div>
