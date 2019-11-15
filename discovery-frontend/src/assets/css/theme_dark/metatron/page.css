@@ -47380,7 +47380,7 @@
     top: 190px;
     padding-left: 296px;
     padding-right: 0;
-    overflow: hidden;
+  overflow: initial;
 }
 
 .theme-dark .ddp-layout-meta .ddp-ui-contents-list.ddp-type.ddp-close {
