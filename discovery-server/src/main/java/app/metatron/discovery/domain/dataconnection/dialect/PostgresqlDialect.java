@@ -251,7 +251,7 @@ public class PostgresqlDialect implements JdbcDialect {
     StringBuilder builder = new StringBuilder();
     builder.append(" SELECT COUNT(TABLE_NAME) ");
     builder.append(" FROM INFORMATION_SCHEMA.TABLES ");
-    builder.append(" WHERE TABLE_TYPE = 'BASE TABLE' ");
+    builder.append(" WHERE TABLE_TYPE IN ('BASE TABLE', 'VIEW') ");
     builder.append(" AND TABLE_SCHEMA NOT IN ('pg_catalog', 'information_schema') ");
     if(StringUtils.isNotEmpty(schema)){
       builder.append(" AND TABLE_SCHEMA = '" + schema + "' ");
