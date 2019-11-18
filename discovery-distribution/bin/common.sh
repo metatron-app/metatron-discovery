@@ -16,6 +16,10 @@ if [[ -z "${METATRON_CONF_DIR}" ]]; then
   export METATRON_CONF_DIR="${METATRON_HOME}/conf"
 fi
 
+if [[ -f "${METATRON_CONF_DIR}/metatron-env.sh" ]]; then
+  . "${METATRON_CONF_DIR}/metatron-env.sh"
+fi
+
 if [[ -z "${METATRON_LOG_DIR}" ]]; then
   export METATRON_LOG_DIR="${METATRON_HOME}/logs"
 fi
@@ -30,10 +34,6 @@ if [[ -z "${METATRON_JAR}" ]]; then
   else
     export METATRON_JAR=$(find -L "${METATRON_HOME}" -name "discovery-server*.jar")
   fi
-fi
-
-if [[ -f "${METATRON_CONF_DIR}/metatron-env.sh" ]]; then
-  . "${METATRON_CONF_DIR}/metatron-env.sh"
 fi
 
 if [[ -z "${METATRON_ENCODING}" ]]; then

@@ -86,7 +86,7 @@ else
 fi
 
 
-METATRON_APP_PROFILE="${METATRON_DB_TYPE}-default-db,logging-console-debug,scheduling${METATRON_MGMT_MODE}${METATRON_PREP_MODE}${METATRON_EXTRA_PROFILE}
+METATRON_APP_PROFILE="${METATRON_DB_TYPE}-default-db,logging-console-debug,scheduling${METATRON_MGMT_MODE}${METATRON_PREP_MODE}${METATRON_EXTRA_PROFILE}"
 METATRON_OPTION="--loader.system=true --spring.config.location=classpath:application.yaml${METATRON_CONF_FILE}"
 METATRON_OPTION="${METATRON_OPTION} --spring.profiles.active=${METATRON_APP_PROFILE}"
 
