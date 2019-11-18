@@ -72,7 +72,6 @@ import {DataStorageCriteriaModule} from "../data-storage/data-storage-criteria.m
     DataStorageCriteriaModule,
   ],
   declarations: [
-    ConfirmRefModalComponent,
     ExploreDataInformationComponent,
     ExploreDataUserCardComponent,
     MetadataTypeBoxTagComponent,

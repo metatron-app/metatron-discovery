@@ -14,7 +14,7 @@
 
 import {
   ChangeDetectorRef,
-  Component,
+  Component, ComponentFactoryResolver, ComponentRef,
   ElementRef,
   EventEmitter,
   Injector,
@@ -23,7 +23,7 @@ import {
   OnInit,
   Output,
   SimpleChanges,
-  ViewChild
+  ViewChild, ViewContainerRef
 } from '@angular/core';
 import {AbstractPopupComponent} from '../../../../common/component/abstract-popup.component';
 import {
@@ -52,19 +52,24 @@ import {DataStorageConstant} from "../../../constant/data-storage-constant";
 import * as moment from 'moment';
 import {Segments} from "../../../../domain/datasource/stats";
 import {SchedulingService} from "../../../service/scheduling.service";
+import {ConfirmRefModalComponent} from "../../../../common/component/modal/confirm/confirm-ref.component";
 
 declare let echarts: any;
 
 @Component({
   selector: 'information-data-source',
   templateUrl: './information-data-source.component.html',
-  providers: [MomentDatePipe]
+  providers: [MomentDatePipe],
+  entryComponents: [ConfirmRefModalComponent]
 })
 export class InformationDataSourceComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  // Confirm Modal
+  @ViewChild('component_confirm', {read: ViewContainerRef}) readonly confirmModalEntry: ViewContainerRef;
+  confirmModalEntryRef: ComponentRef<ConfirmRefModalComponent>;
 
   // 워크스페이스 지정 페이지
   @ViewChild(SetWorkspacePublishedComponent)
@@ -180,6 +185,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
 
   // 생성자
   constructor(private datasourceService: DatasourceService,
+              private resolver: ComponentFactoryResolver,
               private schedulingService: SchedulingService,
               protected element: ElementRef,
               protected injector: Injector) {
@@ -294,7 +300,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    * Link meta data click event
    */
   public onClickLinkMetadata(): void {
-    this.router.navigate([`/management/metadata/metadata/${this.metaData.id}`]).then();
+    this._showConfirmComponent()
+      .then(() => this.router.navigate([`/management/metadata/metadata/${this.metaData.id}`]))
+      .catch(e => this.commonExceptionHandler(e));
   }
 
   /**
@@ -987,6 +995,26 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
         }
       ]
     };
+  }
 
+  private _showConfirmComponent() {
+    return new Promise((resolve, reject) => {
+      // show confirm modal
+      this.confirmModalEntryRef = this.confirmModalEntry.createComponent(this.resolver.resolveComponentFactory(ConfirmRefModalComponent));
+      const modal: Modal = new Modal();
+      modal.name = this.translateService.instant('msg.explore.ui.confirm.title');
+      modal.description = this.translateService.instant('msg.explore.ui.confirm.description');
+      modal.btnName = this.translateService.instant('msg.explore.btn.confirm.done');
+      this.confirmModalEntryRef.instance.init(modal);
+      this.confirmModalEntryRef.instance.cancelEvent.subscribe(() => {
+        // destroy confirm component
+        this.confirmModalEntryRef.destroy();
+      });
+      this.confirmModalEntryRef.instance.confirmEvent.subscribe((result) => {
+        // destroy confirm component
+        this.confirmModalEntryRef.destroy();
+        resolve(result);
+      });
+    });
   }
 }

@@ -1751,7 +1751,7 @@
   "msg.storage.btn.grid": "表数据",
   "msg.storage.btn.columns": "列详情",
   "msg.storage.btn.monitoring": "监控",
-  "msg.storage.ui.data.info": "数据信息",
+  "msg.storage.ui.data.info": "Datasource Information",
   "msg.storage.th.duration": "间隔",
   "msg.storage.ui.data.preview": "预览数据",
   "msg.storage.ui.permission": "权限",

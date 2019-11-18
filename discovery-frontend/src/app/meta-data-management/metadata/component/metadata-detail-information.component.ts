@@ -1,4 +1,13 @@
-import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from "@angular/core";
+import {
+  Component, ComponentFactoryResolver,
+  ComponentRef,
+  ElementRef,
+  Injector,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  ViewContainerRef
+} from "@angular/core";
 import {AbstractComponent} from "../../../common/component/abstract.component";
 import {MetadataService} from "../service/metadata.service";
 import {ActivatedRoute} from "@angular/router";
@@ -10,17 +19,25 @@ import {Datasource} from "../../../domain/datasource/datasource";
 import {CatalogService} from "../../catalog/service/catalog.service";
 import {isUndefined} from "util";
 import {StringUtil} from "../../../common/util/string.util";
+import {ConfirmRefModalComponent} from "../../../common/component/modal/confirm/confirm-ref.component";
+import {Modal} from "../../../common/domain/modal";
 
 @Component(
   {
     selector: 'app-metadata-management-metadata-detail-information',
-    templateUrl: './metadata-detail-information.component.html'
+    templateUrl: './metadata-detail-information.component.html',
+    entryComponents: [ConfirmRefModalComponent]
   }
 )
 export class MetadataDetailInformationComponent extends AbstractComponent implements OnInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // Confirm Modal
+  @ViewChild('component_confirm', {read: ViewContainerRef}) readonly confirmModalEntry: ViewContainerRef;
+  confirmModalEntryRef: ComponentRef<ConfirmRefModalComponent>;
+
   @ViewChild('descInput')
   private _descInput: ElementRef;
 
@@ -57,6 +74,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   constructor(
     protected element: ElementRef,
+    private resolver: ComponentFactoryResolver,
     protected metadataService: MetadataService,
     protected activatedRoute: ActivatedRoute,
     private metadataModelService: MetadataModelService,
@@ -159,7 +177,9 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   }
 
   public onClickGoToDatasourceButton() {
-    this.router.navigate(['/management/storage/datasource/', this.metadata.source.source.id]).then();
+    this._showConfirmComponent()
+      .then(() => this.router.navigate(['/management/storage/datasource/', this.metadata.source.source.id]).then())
+      .catch(e => this.commonExceptionHandler(e));
   }
 
   private _getMetadataTags() {
@@ -354,6 +374,27 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
       this.loadingHide();
     }).catch(() => {
       this.loadingHide();
+    });
+  }
+
+  private _showConfirmComponent() {
+    return new Promise((resolve, reject) => {
+      // show confirm modal
+      this.confirmModalEntryRef = this.confirmModalEntry.createComponent(this.resolver.resolveComponentFactory(ConfirmRefModalComponent));
+      const modal: Modal = new Modal();
+      modal.name = this.translateService.instant('msg.explore.ui.confirm.title');
+      modal.description = this.translateService.instant('msg.explore.ui.confirm.description');
+      modal.btnName = this.translateService.instant('msg.explore.btn.confirm.done');
+      this.confirmModalEntryRef.instance.init(modal);
+      this.confirmModalEntryRef.instance.cancelEvent.subscribe(() => {
+        // destroy confirm component
+        this.confirmModalEntryRef.destroy();
+      });
+      this.confirmModalEntryRef.instance.confirmEvent.subscribe((result) => {
+        // destroy confirm component
+        this.confirmModalEntryRef.destroy();
+        resolve(result);
+      });
     });
   }
 

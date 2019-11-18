@@ -97,7 +97,9 @@ export class MetadataContainerComponent extends AbstractComponent {
    * Move to management > metadata detail
    */
   public onClickEditData() {
-    this.router.navigate(['management/metadata/metadata', this.metadataId]).then();
+    this._showConfirmComponent()
+      .then(() => this.router.navigate(['management/metadata/metadata', this.metadataId]).then())
+      .catch(e => this.commonExceptionHandler(e));
   }
 
   onClickCreateWorkbench(): void {

@@ -1815,7 +1815,7 @@
   "msg.storage.btn.grid": "Data",
   "msg.storage.btn.columns": "Column details",
   "msg.storage.btn.monitoring": "Monitoring",
-  "msg.storage.ui.data.info" : "Data Information",
+  "msg.storage.ui.data.info" : "Datasource Information",
   "msg.storage.th.duration" : "Duration",
   "msg.storage.ui.data.preview": "Data preview",
   "msg.storage.ui.permission": "Publish",
