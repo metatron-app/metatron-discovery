@@ -188,7 +188,7 @@ public class DfExtract extends DataFrame {
                 String newColData = targetStr.substring(matcher.start(), matcher.end());
                 newRow.add(extractedColNameList.get(prevDf.getColName(colno)).get(i), newColData);
               } else {
-                newRow.add(extractedColNameList.get(prevDf.getColName(colno)).get(i), "");
+                newRow.add(extractedColNameList.get(prevDf.getColName(colno)).get(i), null);
               }
             }
           } else {
@@ -221,7 +221,7 @@ public class DfExtract extends DataFrame {
                 String newColData = targetStr.substring(matcher.start(), matcher.end());
                 newRow.add(extractedColNameList.get(prevDf.getColName(colno)).get(i), newColData);
               } else {
-                newRow.add(extractedColNameList.get(prevDf.getColName(colno)).get(i), "");
+                newRow.add(extractedColNameList.get(prevDf.getColName(colno)).get(i), null);
               }
             }
           } else {
