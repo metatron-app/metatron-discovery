@@ -3290,7 +3290,7 @@
   "msg.metadata.ui.info": "元数据信息",
   "msg.metadata.ui.enter.tag": "标签类型",
   "msg.metadata.ui.description": "當修改數據時,數據來源也更新。",
-  "msg.metadata.ui.notice": "DataSource is also updated when modified.",
+  "msg.metadata.ui.notice": " The Datasource shows the data you saved.",
   "msg.metadata.ui.move.datasource": "去達塔索斯",
   "msg.metadata.th.column.logical.tooltip.title": "逻辑列名是什么？",
   "msg.metadata.th.column.logical.tooltip.desc": "在Metatron中，逻辑列名是用户普遍所使用的列名。生成用户的商务用语或者索引时，指定逻辑名。逻辑列名是在metatron中，制作图表或者工作台时所被使用。",

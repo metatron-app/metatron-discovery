@@ -29,7 +29,6 @@ import {ChooseColumnDictionaryComponent} from '../component/choose-column-dictio
 import {ColumnDictionary} from '../../domain/meta-data-management/column-dictionary';
 import {CodeTable} from '../../domain/meta-data-management/code-table';
 import {Metadata, SourceType} from '../../domain/meta-data-management/metadata';
-import {MetadataDetailInformationComponent} from "./metadata-detail-information.component";
 
 @Component({
   selector: 'app-metadata-detail',
@@ -56,9 +55,6 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
 
   @ViewChild(ColumnSchemaComponent)
   private _detailColumnSchemaComp: ColumnSchemaComponent;
-
-  @ViewChild(MetadataDetailInformationComponent)
-  private _detailInformationComp: MetadataDetailInformationComponent;
 
   // 컬럼사전 선택 컴포넌트
   @ViewChild(ChooseColumnDictionaryComponent)
@@ -220,7 +216,6 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
 
     this.isNameEdit = true;
     this.editingName = this.metadataModelService.getMetadata().name;
-    this._detailInformationComp.isMsgPopupShow = true;
 
   } // function - onNameEdit
 
@@ -242,15 +237,9 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
     // Set
     this.name = this.editingName.trim();
 
+    // TODO : server 호출
     this.metadataService.updateMetadata(this.selectedMetadataId, {name: this.name}).then((result: Metadata) => {
-
-      if(result) {
-        this.metadataModelService.updateMetadataName(result.name);
-        // 팝업 닫힘
-        this._detailInformationComp.isMsgPopupShow = false;
-      }
-
-
+      this.metadataModelService.updateMetadataName(result.name);
     }).catch((error) => {
       console.info(error);
       Alert.error('Failed to modify metadata name');
@@ -303,15 +292,6 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
 
   public dictionaryCompleteEvent(data) {
     this._detailColumnSchemaComp.onChangedColumnDictionary(data);
-  }
-
-
-  /**
-   * Cancel editing name
-   */
-  public cancelNameEdit() {
-    this.isNameEdit = false;
-    this._detailInformationComp.isMsgPopupShow = false;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
